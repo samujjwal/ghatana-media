@@ -63,7 +63,7 @@ class TtsServerLaunchSmokeTest {
     void productionTransportRequiresTlsMaterial() {
         assertThatThrownBy(() -> TtsGrpcServer.transportSecurity(Map.of("TTS_ENVIRONMENT", "production")))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("requires TLS certificate chain and private key");
+                .hasMessageContaining("requires mTLS server certificate, private key, and client CA");
     }
 
     @Test
@@ -72,7 +72,8 @@ class TtsServerLaunchSmokeTest {
         var security = TtsGrpcServer.transportSecurity(Map.of(
                 "TTS_ENVIRONMENT", "production",
                 "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
-                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem",
+                "MEDIA_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/media-client-ca.pem"));
 
         assertThat(security.tlsEnabled()).isTrue();
         assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");

@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.launcher.security.JwtAuthenticationVerifier;
 import com.ghatana.media.runtime.MediaDeploymentProfiles;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.launcher.security.SecurityFilterSupport;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -21,6 +22,8 @@ import java.util.Set;
  * @doc.pattern Controller
  */
 public final class MediaSecurityFilter implements HttpHandler {
+    static final String AUTHENTICATED_PRINCIPAL_ATTRIBUTE =
+            MediaSecurityFilter.class.getName() + ".authenticatedPrincipal";
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/health", "/health/live", "/health/ready", "/health/startup",
             "/ready", "/metrics", "/info", "/api/v1/health");
@@ -32,6 +35,7 @@ public final class MediaSecurityFilter implements HttpHandler {
     private final boolean bootstrapApiKeyEnabled;
     private final String bootstrapApiKeyTenant;
     private final String bootstrapServiceId;
+    private final Clock clock;
 
     public MediaSecurityFilter(HttpHandler delegate, String deploymentProfile) {
         this(delegate, deploymentProfile, System.getenv(), Clock.systemUTC());
@@ -44,6 +48,7 @@ public final class MediaSecurityFilter implements HttpHandler {
             Clock clock) {
         this.delegate = java.util.Objects.requireNonNull(delegate, "delegate");
         Map<String, String> immutable = Map.copyOf(environment);
+        this.clock = java.util.Objects.requireNonNull(clock, "clock");
         this.support = new SecurityFilterSupport(
                 "MEDIA-SEC", "MEDIA_API_KEY", delegate, deploymentProfile, immutable, clock);
         this.jwtVerifier = JwtAuthenticationVerifier.fromEnvironment("MEDIA", immutable, clock);
@@ -68,6 +73,7 @@ public final class MediaSecurityFilter implements HttpHandler {
             exchange.getRequestHeaders().remove("X-Principal-Id");
             String authorization = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_AUTHORIZATION);
             boolean hasApiKey = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_API_KEY) != null;
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated = null;
             if (hasApiKey && authorization != null) {
                 SecurityFilterSupport.sendError(exchange, 401, "AMBIGUOUS_CREDENTIALS", "Use one authentication mechanism");
                 return;
@@ -93,6 +99,8 @@ public final class MediaSecurityFilter implements HttpHandler {
                 }
                 replaceHint(exchange, SecurityFilterSupport.HEADER_TENANT_ID, identity.tenantId());
                 replaceHint(exchange, "X-Principal-Id", identity.subject());
+                authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        identity.tenantId(), identity.subject(), clock.instant());
             } else if (!productionLike) {
                 // Local identities are intentionally synthetic and cannot be selected by clients.
                 // Tenant remains a fixture input in local profiles; production uses verified JWT
@@ -100,6 +108,21 @@ public final class MediaSecurityFilter implements HttpHandler {
                 String localPrincipal = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_API_KEY) == null
                         ? "media-local-development" : "media-api-key-service";
                 replaceHint(exchange, "X-Principal-Id", localPrincipal);
+                String tenant = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_TENANT_ID);
+                if (tenant != null && !tenant.isBlank()) {
+                    authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            tenant, localPrincipal, clock.instant());
+                }
+            } else if (hasApiKey) {
+                // authorizeBootstrapApiKey has already matched the configured service tenant and
+                // replaced the caller's principal hint with the configured service identity.
+                authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        bootstrapApiKeyTenant, bootstrapServiceId, clock.instant());
+            }
+            if (authenticated != null) {
+                // The controller consumes this server-side context. Request headers remain useful
+                // for compatibility, but are never the controller's source of identity.
+                exchange.setAttribute(AUTHENTICATED_PRINCIPAL_ATTRIBUTE, authenticated);
             }
             support.handle(exchange);
         } catch (Exception e) {
@@ -110,6 +133,13 @@ public final class MediaSecurityFilter implements HttpHandler {
                 // Exchange may already be closed
             }
         }
+    }
+
+    static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticatedPrincipal(
+            HttpExchange exchange) {
+        Object value = exchange.getAttribute(AUTHENTICATED_PRINCIPAL_ATTRIBUTE);
+        return value instanceof MediaSourceAuthorizationContracts.AuthenticatedPrincipal principal
+                ? principal : null;
     }
 
     private static void replaceHint(HttpExchange exchange, String name, String value) {

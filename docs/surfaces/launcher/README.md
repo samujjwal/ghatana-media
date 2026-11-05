@@ -14,7 +14,11 @@ and stable terminal reads — **no second writer**.
   `copyArtifactContent`.
 - `MediaHttpHandler` + `MediaRouteManifest` + `MediaSecurityFilter` +
   `MediaErrorCode` serve the admitted HTTP surface with the canonical
-  route manifest and typed error taxonomy.
+  route manifest and typed error taxonomy. The controller takes tenant and
+  subject only from the server-side authenticated principal: verified Shared
+  JWT claims or the configured bootstrap service identity. Caller-supplied
+  `X-Principal-Id` is discarded; a local development identity is synthetic
+  and cannot select a user principal.
 - Supporting runtimes compose consent administration, caption
   registration/parent-clock, lifecycle publication, privacy maintenance,
   semantic redaction, production-run coordination and canonical stream
@@ -45,6 +49,13 @@ and stable terminal reads — **no second writer**.
   or trusted boundary/region/retention binding); OCR requests stay
   denied. Frame source handles still images only — video-frame OCR is
   unqualified.
+- External job submission requires an exact immutable source version and
+  current source-owner/Shared-policy evidence bound to the authenticated
+  principal, operation, purpose, provider version, region, and retention.
+  Rights and consent are checked before job creation, again at the provider
+  effect boundary, and before bounded source bytes are exposed. Missing,
+  stale, mismatched, revoked, or biometric/retention-disallowed authorization
+  produces a typed pre-dispatch denial with no job or provider effect.
 - Production-plan fingerprints include tenant/project/origin identity
   with length-framed inputs; earlier fingerprints change — existing
   records must be reconciled against original inputs, never rewritten.
@@ -74,3 +85,12 @@ and stable terminal reads — **no second writer**.
 Executable completion targets (plan §07): J01/J02/J20/J03 integration,
 process-kill before/after commit, stale tenant, idempotency,
 cancel/late response, startup readiness, bounded threads and memory.
+Focused identity and rights coverage:
+
+```bash
+./gradlew :services:media:launcher:test \
+  --tests 'com.ghatana.media.launcher.MediaSecurityFilterTest' \
+  --tests 'com.ghatana.media.launcher.MediaRuntimeSpeechAdmissionTest' \
+  --tests 'com.ghatana.media.launcher.MediaRuntimeJobGovernanceTest' \
+  -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=launcher
+```

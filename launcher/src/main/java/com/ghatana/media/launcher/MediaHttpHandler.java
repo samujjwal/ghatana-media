@@ -94,8 +94,15 @@ public final class MediaHttpHandler implements HttpHandler {
                 error(exchange, 503, "RUNTIME_NOT_READY", "Media Runtime is not ready");
                 return;
             }
-            String tenantId = requiredHeader(exchange, "X-Tenant-Id");
-            String principalId = requiredHeader(exchange, "X-Principal-Id");
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated =
+                    MediaSecurityFilter.authenticatedPrincipal(exchange);
+            if (authenticated == null) {
+                runtime.recordDeniedRequest();
+                error(exchange, 401, "UNAUTHENTICATED", "Authenticated Media identity is required");
+                return;
+            }
+            String tenantId = authenticated.tenantId();
+            String principalId = authenticated.principalId();
 
             if ("/api/v1/consents".equals(path)) {
                 if ("POST".equals(method)) grantConsent(exchange, tenantId);
@@ -289,7 +296,7 @@ public final class MediaHttpHandler implements HttpHandler {
                 request.retention(),
                 MediaMetadataSanitizer.sanitize(request.metadata()));
         String idempotencyKey = requiredHeader(exchange, "Idempotency-Key");
-        json(exchange, 201, runtime.beginUpload(sanitized, idempotencyKey));
+        json(exchange, 201, runtime.beginUpload(sanitized, idempotencyKey, authenticatedPrincipal(exchange)));
     }
 
     private void appendChunk(
@@ -299,8 +306,9 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "UPLOAD_NOT_FOUND", "Upload session not found");
             return;
         }
-        json(exchange, 200, runtime.appendChunk(
-                tenantId, principalId, uploadId, index, boundedBody(exchange, runtime.config().maximumChunkBytes())));
+        json(exchange, 200, runtime.appendUploadChunk(
+                authenticatedPrincipal(exchange), uploadId, index,
+                boundedBody(exchange, runtime.config().maximumChunkBytes())));
     }
 
     private void completeUpload(
@@ -310,7 +318,7 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "UPLOAD_NOT_FOUND", "Upload session not found");
             return;
         }
-        json(exchange, 201, runtime.completeUpload(tenantId, principalId, uploadId));
+        json(exchange, 201, runtime.completeUpload(authenticatedPrincipal(exchange), uploadId));
     }
 
     private void upload(HttpExchange exchange, String tenantId, String principalId, String uploadId) throws IOException {
@@ -341,10 +349,7 @@ public final class MediaHttpHandler implements HttpHandler {
         if (!principalId.equals(request.principalId())) {
             throw new SecurityException("Job principal does not match authenticated principal");
         }
-        // The credential comes from the authenticated ingress headers, not from request fields.
-        json(exchange, 202, runtime.projectJobView(runtime.submit(request,
-                new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
-                        tenantId, principalId, Instant.now()))));
+        json(exchange, 202, runtime.projectJobView(runtime.submit(request, authenticatedPrincipal(exchange))));
     }
 
     private void listJobs(HttpExchange exchange, String tenantId, String principalId) throws IOException {
@@ -393,7 +398,7 @@ public final class MediaHttpHandler implements HttpHandler {
                 request.leaseDuration(),
                 MediaMetadataSanitizer.sanitize(request.metadata()),
                 request.governanceContext());
-        var registration = runtime.openStream(sanitized);
+        var registration = runtime.openStream(sanitized, authenticatedPrincipal(exchange));
         json(exchange, 201, new StreamSessionRegistrationView(
                 streamSessionView(registration.session()), registration.connectionToken()));
     }
@@ -651,9 +656,19 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private static String requiredHeader(HttpExchange exchange, String name) {
+        if ("X-Tenant-Id".equalsIgnoreCase(name)) return authenticatedPrincipal(exchange).tenantId();
+        if ("X-Principal-Id".equalsIgnoreCase(name)) return authenticatedPrincipal(exchange).principalId();
         String value = exchange.getRequestHeaders().getFirst(name);
         if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " header is required");
         return value.trim();
+    }
+
+    private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticatedPrincipal(
+            HttpExchange exchange) {
+        MediaSourceAuthorizationContracts.AuthenticatedPrincipal principal =
+                MediaSecurityFilter.authenticatedPrincipal(exchange);
+        if (principal == null) throw new SecurityException("Authenticated Media identity is unavailable");
+        return principal;
     }
 
     private static String optionalHeader(HttpExchange exchange, String name, String fallback) {

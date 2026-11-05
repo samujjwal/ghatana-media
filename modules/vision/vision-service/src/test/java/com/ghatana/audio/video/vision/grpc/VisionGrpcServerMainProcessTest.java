@@ -36,6 +36,7 @@ class VisionGrpcServerMainProcessTest {
                 .redirectErrorStream(true)
                 .redirectOutput(tempDirectory.resolve("vision-child.log").toFile());
         builder.environment().putAll(Map.ofEntries(
+                Map.entry("VISION_ENVIRONMENT", "local"),
                 Map.entry("VISION_CAPABILITY_PROFILE", "OCR_ONLY"),
                 Map.entry("VISION_GRPC_PORT", Integer.toString(port)),
                 Map.entry("AV_HEALTH_PORT", Integer.toString(healthPort)),
@@ -122,6 +123,7 @@ class VisionGrpcServerMainProcessTest {
                 .redirectErrorStream(true)
                 .redirectOutput(logFile.toFile());
         builder.environment().putAll(Map.of(
+                "VISION_ENVIRONMENT", "local",
                 "VISION_CAPABILITY_PROFILE", "OCR_ONLY",
                 "VISION_GRPC_PORT", Integer.toString(port),
                 "AV_HEALTH_PORT", Integer.toString(healthPort),

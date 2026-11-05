@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.LinkOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
@@ -238,17 +239,96 @@ class FileInvocationLedgerTest {
             org.junit.jupiter.api.Assumptions.abort("POSIX permissions unsupported on this filesystem");
         }
         try {
-            FileInvocationLedger ledger = new FileInvocationLedger(readOnly);
-            // The fence file cannot be created: the claim must resolve to
-            // UNAVAILABLE rather than reporting a successful ownership.
-            assertThat(ledger.claim(fence("inv-ro", identity("stt", "fp"))))
-                    .isEqualTo(ClaimResult.UNAVAILABLE);
-            try (Stream<Path> files = Files.list(readOnly)) {
-                assertThat(files.filter(p -> p.toString().endsWith(".json")).toList()).isEmpty();
-            }
+            assertThatThrownBy(() -> new FileInvocationLedger(readOnly))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("owner-only permissions");
         } finally {
             Files.setPosixFilePermissions(readOnly,
                     PosixFilePermissions.fromString("rwxr-xr-x"));
+        }
+    }
+
+    @Test
+    void directoryMustBeOwnedAndPrivateAndLedgerFilesArePrivate() throws Exception {
+        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        assertThat(Files.getPosixFilePermissions(dir, LinkOption.NOFOLLOW_LINKS))
+                .containsExactlyInAnyOrderElementsOf(PosixFilePermissions.fromString("rwx------"));
+
+        RequestIdentity id = identity("stt", "fp-private");
+        ledger.claim(fence("private-inv", id));
+        ledger.complete(terminal("private-inv", id));
+        try (Stream<Path> files = Files.list(dir)) {
+            for (Path file : files.toList()) {
+                assertThat(Files.getPosixFilePermissions(file, LinkOption.NOFOLLOW_LINKS))
+                        .containsExactlyInAnyOrderElementsOf(PosixFilePermissions.fromString("rw-------"));
+            }
+        }
+    }
+
+    @Test
+    void existingLedgerDirectoryWithGroupAccessIsRejected() throws Exception {
+        Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwxr-----"));
+        try {
+            assertThatThrownBy(() -> new FileInvocationLedger(dir))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("owner-only permissions");
+        } finally {
+            Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwx------"));
+        }
+    }
+
+    @Test
+    void directoryPermissionDriftAfterConstructionFailsClosed() throws Exception {
+        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwxr-----"));
+        try {
+            assertThat(ledger.claim(fence("drift-inv", identity("stt", "fp"))))
+                    .isEqualTo(ClaimResult.UNAVAILABLE);
+            assertThatThrownBy(() -> ledger.find("drift-inv"))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("owner-only permissions");
+        } finally {
+            Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwx------"));
+        }
+    }
+
+    @Test
+    void symlinkLedgerDirectoryIsRejected() throws Exception {
+        Path target = Files.createDirectory(dir.resolve("real-ledger"));
+        Path link = dir.resolve("ledger-link");
+        try {
+            Files.createSymbolicLink(link, target.getFileName());
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException unsupported) {
+            org.junit.jupiter.api.Assumptions.abort("symbolic links unavailable on this filesystem");
+        }
+        assertThatThrownBy(() -> new FileInvocationLedger(link))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("not a symlink");
+    }
+
+    @Test
+    void symlinkedRecordCannotBeReadOrClaimedAsOwnedData() throws Exception {
+        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        Path external = Files.createTempFile("invocation-external", ".json");
+        try {
+            Files.writeString(external, "{}", StandardCharsets.UTF_8);
+            String key = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                    .digest("linked-inv".getBytes(StandardCharsets.UTF_8)));
+            Path record = dir.resolve(key + ".json");
+            try {
+                Files.createSymbolicLink(record, external);
+            } catch (UnsupportedOperationException | java.nio.file.FileSystemException unsupported) {
+                org.junit.jupiter.api.Assumptions.abort("symbolic links unavailable on this filesystem");
+            }
+            assertThat(ledger.claim(fence("linked-inv", identity("stt", "fp"))))
+                    .isEqualTo(ClaimResult.ALREADY_CLAIMED);
+            assertThatThrownBy(() -> ledger.find("linked-inv"))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("not a symlink");
+        } finally {
+            Files.deleteIfExists(dir.resolve(java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest("linked-inv".getBytes(StandardCharsets.UTF_8))) + ".json"));
+            Files.deleteIfExists(external);
         }
     }
 

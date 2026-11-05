@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { MediaTaskScreen } from "./MediaTaskScreen";
 import { MediaTaskFlow } from "../components/MediaTaskFlow";
+import { MediaActionFeedback, mediaActionFeedbackForResult } from "../components/MediaActionFeedback";
 import { ArtifactIntakeScreen } from "./ArtifactIntakeScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen } from "./JobRecoveryScreen";
@@ -43,6 +44,27 @@ const common = {
 } satisfies { data: MediaDataPort; actions: readonly MediaScreenAction[]; nextSafeActionIds: readonly string[]; actionPort: MediaActionPort; navigationPort: MediaNavigationPort; context: MediaContextPort };
 
 describe("MediaProductRenderer", () => {
+  it("announces typed pending, denied, and unknown action states accessibly", () => {
+    const pending = renderToStaticMarkup(React.createElement(MediaActionFeedback, {
+      value: { state: "pending", message: "Requesting action; completion remains unknown." },
+    }));
+    expect(pending).toContain('role="status" aria-live="polite" aria-atomic="true" aria-busy="true" data-state="pending"');
+    expect(pending).toContain("Requesting action; completion remains unknown.");
+
+    const deniedValue = mediaActionFeedbackForResult({ status: "denied", reason: "Rights approval is missing." });
+    expect(deniedValue).toEqual({ state: "denied", message: "Action denied: Rights approval is missing." });
+    const denied = renderToStaticMarkup(React.createElement(MediaActionFeedback, { value: deniedValue }));
+    expect(denied).toContain('data-state="denied"');
+    expect(denied).toContain("Action denied: Rights approval is missing.");
+
+    const unknown = renderToStaticMarkup(React.createElement(MediaActionFeedback, {
+      value: { state: "unknown", message: "Request outcome is unknown. Reconcile before retrying." },
+    }));
+    expect(unknown).toContain('data-state="unknown"');
+    expect(unknown).toContain("Reconcile before retrying.");
+    expect(unknown).not.toContain('aria-busy="true"');
+  });
+
   it("classifies every screen contract without admitting a product route", () => {
     const dispositions = Object.values(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS);
     const counts = dispositions.reduce<Record<string, number>>((result, item) => {

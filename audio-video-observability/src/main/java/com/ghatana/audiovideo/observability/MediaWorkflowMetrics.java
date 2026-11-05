@@ -4,6 +4,9 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.ThreadMXBean;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +27,11 @@ public final class MediaWorkflowMetrics {
     public static final String CONTRACT_VERSION = "v1";
     private static final Set<String> SERVICES = Set.of(
             "launcher", "stt", "tts", "vision", "multimodal", "ai-voice", "unknown");
+    private static final MemoryMXBean MEMORY = ManagementFactory.getMemoryMXBean();
+    private static final ThreadMXBean THREADS = ManagementFactory.getThreadMXBean();
+    private static final com.sun.management.OperatingSystemMXBean PROCESS =
+            ManagementFactory.getOperatingSystemMXBean() instanceof com.sun.management.OperatingSystemMXBean bean
+                    ? bean : null;
 
     public enum Event {
         UNKNOWN,
@@ -284,6 +292,34 @@ public final class MediaWorkflowMetrics {
                 .tag("service", safeService)
                 .tag("contract_version", CONTRACT_VERSION)
                 .register(registry);
+        registerRuntimeResourceGauges();
+    }
+
+    /** Register live JVM/process resource observations on the same registry as the scrape route. */
+    private void registerRuntimeResourceGauges() {
+        Gauge.builder("media.runtime.jvm.heap.used.bytes", MEMORY,
+                        bean -> (double) bean.getHeapMemoryUsage().getUsed())
+                .description("Current JVM heap use in bytes")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+        Gauge.builder("media.runtime.jvm.heap.max.bytes", MEMORY, bean -> {
+                    long maximum = bean.getHeapMemoryUsage().getMax();
+                    return maximum < 0 ? Double.NaN : (double) maximum;
+                })
+                .description("Configured JVM heap maximum in bytes; NaN when the runtime does not report a limit")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+        Gauge.builder("media.runtime.jvm.threads", THREADS, bean -> (double) bean.getThreadCount())
+                .description("Current live JVM thread count")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+        Gauge.builder("media.runtime.process.cpu.utilization", MEMORY,
+                        ignored -> processCpuLoad())
+                .description("Current process CPU utilization from the JVM operating-system probe; NaN when unsupported")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+    }
+
+    private static double processCpuLoad() {
+        if (PROCESS == null) return Double.NaN;
+        double value = PROCESS.getProcessCpuLoad();
+        return value < 0 || !Double.isFinite(value) ? Double.NaN : value;
     }
 
     public Timer.Sample startTimer() {
@@ -575,10 +611,22 @@ public final class MediaWorkflowMetrics {
 
     private static String metricIdentity(String value, String name) {
         if (value == null || value.length() > 128
-                || !value.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")) {
+                || !value.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")
+                || looksLikeSecret(value)) {
             throw new IllegalArgumentException(name + " must be a bounded metric token");
         }
         return value;
+    }
+
+    /** Reject common credential-shaped identities before they can become metric labels. */
+    private static boolean looksLikeSecret(String value) {
+        String normalized = value.toLowerCase(java.util.Locale.ROOT);
+        return normalized.contains("secret") || normalized.contains("password")
+                || normalized.contains("credential") || normalized.contains("bearer")
+                || normalized.contains("api-key") || normalized.contains("apikey")
+                || normalized.contains("access-token") || normalized.contains("accesstoken")
+                || normalized.startsWith("sk-") || normalized.startsWith("ghp_")
+                || normalized.startsWith("gho_") || normalized.startsWith("akia");
     }
 
     public void recordRequest() {

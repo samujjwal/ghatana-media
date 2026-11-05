@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -156,6 +157,54 @@ class Ip06LegacyMigrationCompatibilityTest {
         assertSnapshotBaselineRows(schema);
         assertForwardSnapshotSchema(schema);
         assertSnapshotForwardHistory(schema);
+    }
+
+    @Test
+    void syntheticLegacyWriterRoleIsDeniedAfterTestOnlyPrivilegeRevocation(@TempDir Path tempDir)
+            throws Exception {
+        String schema = "ip06_legacy_writer_"
+                + java.util.UUID.randomUUID().toString().replace("-", "");
+        String legacyWriterRole = "ip06_legacy_writer_role_"
+                + java.util.UUID.randomUUID().toString().replace("-", "");
+        Path currentTail = copyCurrentTail(tempDir);
+        String location = LEGACY_LOCATION + ",filesystem:" + currentTail.toAbsolutePath();
+
+        assertThat(flyway(LEGACY_LOCATION, schema, null).migrate().migrationsExecuted).isEqualTo(16);
+        seedLegacyRows(schema);
+        assertThat(flyway(location, schema, "29").migrate().migrationsExecuted).isEqualTo(13);
+
+        try (Connection connection = connection(); var statement = connection.createStatement()) {
+            // This test-only role models a database principal that had legacy write access.
+            // It is not an identity or credential read from a deployed environment.
+            statement.execute("CREATE ROLE " + legacyWriterRole + " NOLOGIN");
+            statement.execute("GRANT USAGE ON SCHEMA " + schema + " TO " + legacyWriterRole);
+            statement.execute("GRANT SELECT, UPDATE ON TABLE " + schema
+                    + ".media_processing_jobs TO " + legacyWriterRole);
+            statement.execute("SET ROLE " + legacyWriterRole);
+            assertThat(statement.executeUpdate("UPDATE " + schema
+                    + ".media_processing_jobs SET result_json='{"
+                    + "\"legacy_writer_before_revoke\":true}' WHERE job_id='ip06-job'"))
+                    .isEqualTo(1);
+            statement.execute("RESET ROLE");
+
+            statement.execute("REVOKE UPDATE ON TABLE " + schema
+                    + ".media_processing_jobs FROM " + legacyWriterRole);
+            statement.execute("SET ROLE " + legacyWriterRole);
+            Throwable denied = catchThrowable(
+                    () -> statement.executeUpdate("UPDATE " + schema
+                            + ".media_processing_jobs SET result_json='{"
+                            + "\"legacy_writer_after_revoke\":true}' WHERE job_id='ip06-job'"));
+            assertThat((Object) denied).isNotNull();
+            assertThat(denied).isInstanceOf(SQLException.class);
+            assertThat(((SQLException) denied).getSQLState()).isEqualTo("42501");
+            statement.execute("RESET ROLE");
+            assertThat(stringValue(connection, "SELECT result_json FROM " + schema
+                    + ".media_processing_jobs WHERE job_id='ip06-job'"))
+                    .isEqualTo("{\"legacy_writer_before_revoke\":true}");
+            statement.execute("DROP OWNED BY " + legacyWriterRole);
+            statement.execute("DROP ROLE " + legacyWriterRole);
+        }
+        assertAppliedHistory(schema, 29);
     }
 
     private static void assertSnapshotBaselineRows(String schema) throws Exception {

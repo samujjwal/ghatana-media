@@ -6,11 +6,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Resolves one consistent TLS/plaintext policy for standalone Media gRPC services.
+ * Resolves one consistent mTLS/TLS/plaintext policy for standalone Media gRPC services.
  *
- * <p>Production, staging, and sovereign profiles require TLS. Plaintext requires an explicit
- * local/test/development profile and is selected only when no service-specific or shared Media
- * TLS material is configured.
+ * <p>Production, staging, and sovereign profiles require mutual TLS with an explicit client CA.
+ * Plaintext requires an explicit local/test/development profile and is selected only when no
+ * service-specific or shared Media TLS material is configured. A configured client CA enables
+ * mutual TLS in any profile.
  * Service-specific certificate/key configuration takes precedence over the shared Media pair,
  * but a pair can never be assembled across scopes.
  *
@@ -22,6 +23,7 @@ import java.util.Objects;
 public final class GrpcTransportSecurityPolicy {
     private static final String SHARED_CERTIFICATE = "MEDIA_GRPC_TLS_CERT_CHAIN_PATH";
     private static final String SHARED_PRIVATE_KEY = "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH";
+    private static final String SHARED_CLIENT_CA = "MEDIA_GRPC_TLS_CLIENT_CA_PATH";
 
     private GrpcTransportSecurityPolicy() { }
 
@@ -34,24 +36,34 @@ public final class GrpcTransportSecurityPolicy {
 
         String serviceCertificateKey = prefix + "_GRPC_TLS_CERT_CHAIN_PATH";
         String servicePrivateKeyKey = prefix + "_GRPC_TLS_PRIVATE_KEY_PATH";
+        String serviceClientCaKey = prefix + "_GRPC_TLS_CLIENT_CA_PATH";
         String serviceCertificate = text(environment.get(serviceCertificateKey));
         String servicePrivateKey = text(environment.get(servicePrivateKeyKey));
+        String serviceClientCa = text(environment.get(serviceClientCaKey));
         String sharedCertificate = text(environment.get(SHARED_CERTIFICATE));
         String sharedPrivateKey = text(environment.get(SHARED_PRIVATE_KEY));
+        String sharedClientCa = text(environment.get(SHARED_CLIENT_CA));
 
         Pair pair;
+        String clientCa;
         if (!serviceCertificate.isBlank() || !servicePrivateKey.isBlank()) {
             pair = completePair(serviceCertificate, servicePrivateKey,
                     serviceCertificateKey, servicePrivateKeyKey);
+            clientCa = serviceClientCa;
         } else if (!sharedCertificate.isBlank() || !sharedPrivateKey.isBlank()) {
             pair = completePair(sharedCertificate, sharedPrivateKey,
                     SHARED_CERTIFICATE, SHARED_PRIVATE_KEY);
+            clientCa = sharedClientCa;
         } else {
+            if (!serviceClientCa.isBlank() || !sharedClientCa.isBlank()) {
+                throw new IllegalArgumentException("gRPC client CA requires a matching server certificate and key");
+            }
             if (profiles.productionLike()) {
                 throw new IllegalStateException(
-                        "Production-like " + prefix + " gRPC requires TLS certificate chain and private key; "
+                        "Production-like " + prefix + " gRPC requires mTLS server certificate, private key, and client CA; "
                                 + "configure " + serviceCertificateKey + "/" + servicePrivateKeyKey
-                                + " or " + SHARED_CERTIFICATE + "/" + SHARED_PRIVATE_KEY);
+                                + "/" + serviceClientCaKey + " or " + SHARED_CERTIFICATE + "/"
+                                + SHARED_PRIVATE_KEY + "/" + SHARED_CLIENT_CA);
             }
             if (!profiles.configured()) {
                 throw new IllegalStateException(
@@ -61,8 +73,16 @@ public final class GrpcTransportSecurityPolicy {
             }
             return AudioVideoGrpcServerBase.TransportSecurity.plaintext();
         }
-        return AudioVideoGrpcServerBase.TransportSecurity.tls(
-                Path.of(pair.certificate()), Path.of(pair.privateKey()));
+        if (profiles.productionLike() && clientCa.isBlank()) {
+            throw new IllegalStateException("Production-like " + prefix
+                    + " gRPC requires a client CA for mutual TLS; configure "
+                    + serviceClientCaKey + " or " + SHARED_CLIENT_CA);
+        }
+        return clientCa.isBlank()
+                ? AudioVideoGrpcServerBase.TransportSecurity.tls(
+                        Path.of(pair.certificate()), Path.of(pair.privateKey()))
+                : AudioVideoGrpcServerBase.TransportSecurity.mtls(
+                        Path.of(pair.certificate()), Path.of(pair.privateKey()), Path.of(clientCa));
     }
 
     /**

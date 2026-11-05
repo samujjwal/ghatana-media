@@ -5,7 +5,6 @@ import com.ghatana.media.production.AnimationSpecCompiler.PositiveRational;
 import com.ghatana.media.production.AnimationSpecCompiler.StoryTime;
 import com.ghatana.media.production.AnimationSpecCompiler.CompilationResult;
 import com.ghatana.media.production.AnimationSpecCompiler.ReferencePlan;
-import com.ghatana.media.production.AnimationSpecCompiler.UnavailableReason;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -32,12 +31,12 @@ class AnimationSpecCompilerTest {
     }
 
     @Test
-    void compilesDeterministicReferencePlanAndReportsRenderingUnavailableWithoutEffect() {
+    void compilesDeterministicReferencePlanWithoutClaimingARequestedRender() {
         var compiler = new AnimationSpecCompiler();
         AnimationSpec spec = validSpec();
         CompilationResult result = compiler.compile(spec);
 
-        assertThat(result.rendering().reason()).isEqualTo(UnavailableReason.ANIMATION_RENDERER_NOT_ADMITTED);
+        assertThat(result.rendering()).isEqualTo(new AnimationSpecCompiler.RenderNotRequested(false));
         assertThat(result.rendering().effectOccurred()).isFalse();
         assertThat(result.plan()).isEqualTo(new ReferencePlan(spec.schemaVersion(), spec.sceneGraphRef(),
                 spec.animationGraphRef(), spec.operatorTreeRef(), spec.assetsRef(),
@@ -61,7 +60,7 @@ class AnimationSpecCompilerTest {
 
         var result = new AnimationSpecCompiler().compile(spec);
         assertThat(result.plan().tStoryRef()).isEqualTo(spec.tStoryRef());
-        assertThat(result.rendering().reason()).isEqualTo(UnavailableReason.ANIMATION_RENDERER_NOT_ADMITTED);
+        assertThat(result.rendering()).isEqualTo(new AnimationSpecCompiler.RenderNotRequested(false));
     }
 
     @Test

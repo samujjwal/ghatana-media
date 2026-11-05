@@ -24,12 +24,12 @@ class SttGrpcServerTransportSecurityTest {
     }
 
     @Test
-    void productionLikeProfileRequiresTlsMaterial() {
+    void productionLikeProfileRequiresMtlsMaterial() {
         for (String profile : new String[] {"production", "staging", "sovereign"}) {
             assertThatThrownBy(() -> SttGrpcServer.transportSecurity(Map.of(
                             "STT_ENVIRONMENT", profile)))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("Production-like STT gRPC requires TLS");
+                    .hasMessageContaining("Production-like STT gRPC requires mTLS");
         }
     }
 
@@ -43,15 +43,17 @@ class SttGrpcServerTransportSecurityTest {
     }
 
     @Test
-    void completeTlsConfigurationSelectsTlsTransport() {
+    void completeMtlsConfigurationSelectsMutualTlsTransport() {
         var security = SttGrpcServer.transportSecurity(Map.of(
                 "STT_ENVIRONMENT", "production",
                 "STT_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/stt-cert.pem",
-                "STT_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/stt-key.pem"));
+                "STT_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/stt-key.pem",
+                "STT_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/stt-client-ca.pem"));
 
         assertThat(security.tlsEnabled()).isTrue();
         assertThat(security.certificateChain().toString()).endsWith("stt-cert.pem");
         assertThat(security.privateKey().toString()).endsWith("stt-key.pem");
+        assertThat(security.clientTrustCertificate().toString()).endsWith("stt-client-ca.pem");
     }
 
     @Test
@@ -59,7 +61,8 @@ class SttGrpcServerTransportSecurityTest {
         var security = SttGrpcServer.transportSecurity(Map.of(
                 "STT_ENVIRONMENT", "production",
                 "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
-                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem",
+                "MEDIA_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/media-client-ca.pem"));
 
         assertThat(security.tlsEnabled()).isTrue();
         assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");

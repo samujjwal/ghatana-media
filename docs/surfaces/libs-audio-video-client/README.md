@@ -9,7 +9,16 @@ adapter SPI. Package: `@audio-video/client` (`libs/audio-video-client`).
 - Expose the admitted HTTP operations (artifact upload sessions, artifact
   reads, job submit/list/get/cancel, stream open/get/connect/frame/close)
   through `MediaOperationClient` and `MediaCanonicalClient`.
-- Provide the `ghatanamedia-api` CLI for host-configured artifact inspection.
+- Provide the `ghatanamedia-api` CLI for artifact and job reads/commands. Capture
+  and recorder commands keep their CLI identities but return typed
+  `NOT_ADMITTED` until canonical runtime contracts exist.
+- Keep the legacy `AudioVideoClient` and `MediaOperationClient` method ABI for
+  consumers while methods without an admitted Media route fail before HTTP
+  dispatch. Canonical job/stream and artifact operations use the v1 routes.
+- Queue offline project edits only when a host supplies a non-extractable key,
+  ciphertext-only atomic store, fresh authorization callback, and exact-version
+  replay port; the SDK does not provide a production key store or delivery
+  writer.
 - Plan unattended recordings deterministically (`orchestrateScenario`,
   `compileProductionPlan`) and execute bounded recapture only through the
   trusted capture eligibility seam (`recaptureScenario`).
@@ -28,6 +37,7 @@ adapter SPI. Package: `@audio-video/client` (`libs/audio-video-client`).
 | `@audio-video/client/file-capture-adapter` | `MediaFileCaptureAdapter` (MEDIA_FILE, Node.js) |
 | `@audio-video/client/recorder-orchestrator` | Scenario planning, lineage, bounded recapture |
 | `@audio-video/client/production-plan` | Effect-free production plan compiler |
+| `@audio-video/client/offline-edit-queue` | Encrypted local edit queue with explicit rights/version/idempotency ports |
 
 ## Capture adapter contract
 
@@ -76,6 +86,14 @@ browser capture.
   `planIdentity`/lineage; `changedSceneLineages` reports carried/replanned/
   removed scenes.
 - `dryRunOnly: true` on `OrchestrationResult` — planning performs no effects.
+- Offline edits persist AES-GCM ciphertext only; the key is host supplied and
+  non-extractable. Reconnect reauthorizes and checks the exact project version
+  before dispatch. Revoked, conflicting, or ambiguous outcomes are terminal
+  until an explicit rebase/new idempotency key is supplied; there is no blind
+  automatic replay.
+- Unsupported legacy processing methods keep their public signatures but
+  return a typed `NOT_ADMITTED` outcome without a network request. The canonical
+  SDK remains the only client surface bound to the runtime route manifest.
 
 ## Dependencies and configuration
 
@@ -85,7 +103,8 @@ browser capture.
   `unavailableCaptureAdapter` (reports `UNAVAILABLE`).
 - CLI bearer token is read only from `GHATANA_MEDIA_BEARER_TOKEN`; remote
   endpoints require HTTPS (plain HTTP only for loopback); redirects rejected
-  so credentials are not forwarded.
+  so credentials are not forwarded. Capture and recorder CLI commands are
+  explicitly unavailable until their canonical execution ports are admitted.
 
 ## Errors
 
@@ -100,8 +119,9 @@ never enters results — only safe enums and fixed reasons.
 
 ```bash
 pnpm --filter @audio-video/client typecheck
-pnpm --filter @audio-video/client test        # build + vitest (378 tests)
+pnpm --filter @audio-video/client test        # build + vitest
 pnpm --filter @audio-video/client test:package # isolated ESM/CJS consumer
+pnpm --filter @audio-video/client exec vitest run src/offline-edit-queue.test.ts src/package-surface.test.ts
 ```
 
 Capture tests use a real `node:http` server and real temporary files; they

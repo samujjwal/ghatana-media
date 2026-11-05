@@ -621,3 +621,40 @@ This task uses a disposable PostgreSQL Testcontainer and Hibernate-created
 schema. It does not verify the canonical applied Flyway history, the live
 legacy writer, or production cutover. The regular persistence `test` task
 continues to exclude Docker-dependent integration classes.
+
+### Provider migration compatibility (V001–V029)
+
+Run the focused provider migration fixtures with Docker available:
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaMigrationLineageFixtureTest \
+  --tests com.ghatana.media.provider.aws.Ip06LegacyMigrationCompatibilityTest \
+  --tests com.ghatana.media.provider.aws.Ip06FlywayProcessCrashRecoveryTest \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationHistoryReadbackTest \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationSnapshotArtifactTest \
+  --no-daemon --max-workers=2
+```
+
+The provider tests use the checked-in V001–V029 source chain and isolated
+fixtures. `MediaMigrationLineageFixtureTest` exercises the V001–V009 fixture
+forward to V029 and checks old-column readback and data preservation.
+`Ip06LegacyMigrationCompatibilityTest` validates the pinned test-only
+V001–V016 historical source fixture, a synthetic V016 snapshot baseline to
+V029, and PostgreSQL rollback/retry after an injected V021 failure.
+`Ip06FlywayProcessCrashRecoveryTest` kills separate migration JVMs inside
+V021 and V029 and verifies transaction rollback, preserved prior history, and
+fresh-process resume. `MediaLegacyMigrationHistoryReadbackTest` checks a live
+synthetic PostgreSQL applied-history readback against the pinned manifest.
+`MediaLegacyMigrationSnapshotArtifactTest` regenerates and byte-checks the
+test-only snapshot. An additional test-only PostgreSQL role has its write
+grant revoked after the synthetic forward migration to check that SQL itself
+denies the role's next update; this does not identify or authenticate the
+legacy runtime's real database principal.
+
+The historical V001–V016 fixture is pinned to source commit
+`d62557fdaac7a324e036ca25f672d2a62ac532ea`; its synthetic rows and manifest do
+not prove the applied history of a deployed database. These tests establish
+nonproduction compatibility and PostgreSQL transaction behavior only. They do
+not prove authentic legacy-writer denial, production data cutover, or approval
+to run two runtimes against one database.

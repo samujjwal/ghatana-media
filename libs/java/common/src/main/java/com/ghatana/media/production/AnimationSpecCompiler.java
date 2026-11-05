@@ -11,10 +11,10 @@ import java.util.Objects;
  * <p>The PDP-1 contract contains versioned references to scene, animation,
  * operator, asset, curve, and rendering values, plus an exact story-time value.
  * It does not define the referenced easing, transform/dimension, or asset
- * payloads, nor is an animation renderer admitted in this runtime. This class
- * therefore compiles only a deterministic, immutable reference plan and
- * reports rendering as unavailable with no effect. It never expands references
- * or claims to produce media.</p>
+ * payloads. This class therefore compiles only a deterministic, immutable
+ * reference plan. Rendering is performed by a renderer that receives a
+ * separately resolved, typed scene graph; a reference plan alone never claims
+ * to produce media.</p>
  *
  * @doc.type class
  * @doc.purpose Validate source-defined animation spec shape without execution
@@ -118,21 +118,17 @@ public final class AnimationSpecCompiler {
         }
     }
 
-    /** Explicit no-effect boundary for rendering. */
-    public enum UnavailableReason { ANIMATION_RENDERER_NOT_ADMITTED }
-
-    /** Typed rendering result; no output bytes, frames, or provider effect exist. */
-    public record RenderUnavailable(UnavailableReason reason, boolean effectOccurred) {
-        public RenderUnavailable {
-            Objects.requireNonNull(reason, "reason");
+    /** The compile-only API makes no rendering request and has no side effect. */
+    public record RenderNotRequested(boolean effectOccurred) {
+        public RenderNotRequested {
             if (effectOccurred) {
-                throw new IllegalArgumentException("unavailable rendering cannot claim an effect");
+                throw new IllegalArgumentException("compile-only validation cannot claim a render effect");
             }
         }
     }
 
-    /** Validated deterministic reference compilation and its non-executed render status. */
-    public record CompilationResult(ReferencePlan plan, RenderUnavailable rendering) {
+    /** Validated deterministic reference compilation; rendering was not requested. */
+    public record CompilationResult(ReferencePlan plan, RenderNotRequested rendering) {
         public CompilationResult {
             Objects.requireNonNull(plan, "plan");
             Objects.requireNonNull(rendering, "rendering");
@@ -145,8 +141,7 @@ public final class AnimationSpecCompiler {
         ReferencePlan plan = new ReferencePlan(spec.schemaVersion(), spec.sceneGraphRef(),
                 spec.animationGraphRef(), spec.operatorTreeRef(), spec.assetsRef(),
                 spec.propertyCurveRefs(), spec.tStoryRef(), spec.renderingRef());
-        return new CompilationResult(plan,
-                new RenderUnavailable(UnavailableReason.ANIMATION_RENDERER_NOT_ADMITTED, false));
+        return new CompilationResult(plan, new RenderNotRequested(false));
     }
 
     private static void requireVersionRef(String value, String field) {

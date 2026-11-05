@@ -12,6 +12,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -714,7 +715,7 @@ class MediaRuntimeActiveTest {
         var root = Files.createTempDirectory("media-runtime-classification-http-");
         MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
         HttpServer server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/", new MediaHttpHandler(runtime));
+        server.createContext("/", authenticatedTestHandler(new MediaHttpHandler(runtime)));
         server.start();
         try {
             var client = java.net.http.HttpClient.newHttpClient();
@@ -743,7 +744,17 @@ class MediaRuntimeActiveTest {
                     .POST(java.net.http.HttpRequest.BodyPublishers.ofString(body.replace("SECRET", "INTERNAL")))
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(valid.statusCode()).isEqualTo(201);
-            String uploadId = valid.body().replaceAll("(?s).*\\\"uploadId\\\":\\\"([^\\\"]+)\\\".*", "$1");
+            var mapper = JsonMapper.builder().addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
+            JsonNode uploadDto = mapper.readTree(valid.body());
+            assertThat(uploadDto.properties().stream().map(Map.Entry::getKey)
+                    .collect(java.util.stream.Collectors.toSet()))
+                    .containsExactlyInAnyOrder("uploadId", "tenantId", "principalId", "fileName", "contentType",
+                            "expectedSizeBytes", "expectedSha256", "classification", "createdAt", "expiresAt",
+                            "bytesReceived", "nextChunkIndex", "status", "metadata");
+            assertThat(uploadDto.path("status").asString()).isEqualTo("OPEN");
+            assertThat(uploadDto.path("expectedSha256").asString()).matches("[a-f0-9]{64}");
+            assertThat(uploadDto.path("expectedSizeBytes").asLong()).isEqualTo(1L);
+            String uploadId = uploadDto.path("uploadId").asString();
             var negativeIndex = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
                             endpoint + "/api/v1/artifacts/uploads/" + uploadId + "/chunks/-1"))
                     .header("Content-Type", "application/octet-stream")
@@ -764,7 +775,7 @@ class MediaRuntimeActiveTest {
         var root = Files.createTempDirectory("media-runtime-stream-http-view-");
         MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
         HttpServer server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/", new MediaHttpHandler(runtime));
+        server.createContext("/", authenticatedTestHandler(new MediaHttpHandler(runtime)));
         server.start();
         try {
             String endpoint = "http://127.0.0.1:" + server.getAddress().getPort();
@@ -783,6 +794,20 @@ class MediaRuntimeActiveTest {
             assertThat(response.statusCode()).isEqualTo(201);
             assertThat(response.body()).contains("connectionToken", "acknowledgementRevision", "finality");
             assertThat(response.body()).doesNotContain("sequenceTokenHash", "inFlightAttemptId");
+            JsonNode registration = JsonMapper.builder()
+                    .addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build()
+                    .readTree(response.body());
+            JsonNode sessionDto = registration.path("session");
+            assertThat(registration.properties().stream().map(Map.Entry::getKey)
+                    .collect(java.util.stream.Collectors.toSet()))
+                    .containsExactlyInAnyOrder("session", "connectionToken");
+            assertThat(sessionDto.properties().stream().map(Map.Entry::getKey)
+                    .collect(java.util.stream.Collectors.toSet()))
+                    .containsExactlyInAnyOrder("tenantId", "sessionId", "principalId", "streamKind", "providerId",
+                            "state", "lastSequence", "bufferedBytes", "maximumBufferedBytes", "reconnectCount",
+                            "leaseExpiresAt", "createdAt", "updatedAt", "closedAt", "metadata", "version",
+                            "acknowledgementRevision", "finality");
+            assertThat(sessionDto.path("state").asString()).isEqualTo("OPEN");
         } finally {
             server.stop(0);
             runtime.close();
@@ -794,7 +819,7 @@ class MediaRuntimeActiveTest {
         var root = Files.createTempDirectory("media-runtime-stream-frame-http-");
         MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
         HttpServer server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/", new MediaHttpHandler(runtime));
+        server.createContext("/", authenticatedTestHandler(new MediaHttpHandler(runtime)));
         server.start();
         try {
             var client = java.net.http.HttpClient.newHttpClient();
@@ -947,7 +972,7 @@ class MediaRuntimeActiveTest {
 
         MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
         HttpServer server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/", new MediaHttpHandler(runtime));
+        server.createContext("/", authenticatedTestHandler(new MediaHttpHandler(runtime)));
         server.start();
         try {
             var response = java.net.http.HttpClient.newHttpClient().send(
@@ -1085,6 +1110,18 @@ class MediaRuntimeActiveTest {
                 "MEDIA_LOCAL_PROVIDER_ENABLED", "true",
                 "MEDIA_LOCAL_STORAGE_ROOT", root.toString(),
                 "MEDIA_MAX_CHUNK_BYTES", "16");
+    }
+
+    /** Supplies the test host's authenticated identity after the HTTP exchange is created. */
+    private static com.sun.net.httpserver.HttpHandler authenticatedTestHandler(
+            com.sun.net.httpserver.HttpHandler delegate) {
+        return exchange -> {
+            String tenant = exchange.getRequestHeaders().getFirst("X-Tenant-Id");
+            exchange.setAttribute(MediaSecurityFilter.AUTHENTICATED_PRINCIPAL_ATTRIBUTE,
+                    new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            tenant, "principal-a", Instant.now()));
+            delegate.handle(exchange);
+        };
     }
 
     private static String sha256(byte[] bytes) throws Exception {

@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaRuntimeJobGovernanceTest {
 
     @Test
-    void submitPolicyDenialCreatesAuditableFailedJobAndCallsNoProvider() throws Exception {
+    void submitPolicyDenialCreatesNoJobAndCallsNoProvider() throws Exception {
         var root = Files.createTempDirectory("media-policy-preflight-");
         var store = new LocalMediaRuntimeSupport.JobStore();
         var providerCalls = new AtomicInteger();
@@ -82,13 +82,13 @@ class MediaRuntimeJobGovernanceTest {
             var governance = new MediaGovernanceContext("revoked", "vision-analysis",
                     DataClassification.CONFIDENTIAL, "us", Set.of("us-west-2"), true,
                     "short-lived", false, false, "", BiometricSensitivity.NONE, AutomationRisk.ASSISTIVE);
-            var accepted = runtime.submit(new ProcessingJobRequest(
+            var request = new ProcessingJobRequest(
                     "request-policy-denied", "tenant-a", "principal-a", "correlation-policy",
-                    artifact.artifactId(), null, JobType.VISION, "external-policy-test", Map.of(), governance));
-            var terminal = awaitTerminal(runtime, accepted.jobId());
-            assertThat(terminal.status()).isEqualTo(JobStatus.FAILED);
-            assertThat(terminal.failureCode()).isEqualTo("PROCESSING_BLOCKED_BEFORE_PROVIDER");
-            assertThat(runtime.jobs("tenant-a", "principal-a", 100)).extracting(job -> job.jobId()).contains(accepted.jobId());
+                    artifact.artifactId(), artifact.version().value(), JobType.VISION,
+                    "external-policy-test", Map.of(), governance);
+            assertThatThrownBy(() -> submitAsTestIdentity(runtime, request))
+                    .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class);
+            assertThat(runtime.jobs("tenant-a", "principal-a", 100)).isEmpty();
             assertThat(providerCalls).hasValue(0);
 
         } finally {
@@ -131,7 +131,7 @@ class MediaRuntimeJobGovernanceTest {
             var runtime = runtime(root, List.of(handedOff, fallback), consentAuthority(allowedConsent()));
             try {
                 var artifact = artifact(runtime);
-                var accepted = runtime.submit(new ProcessingJobRequest(
+                var accepted = submitAsTestIdentity(runtime, new ProcessingJobRequest(
                         "request-after-handoff-" + asynchronous, "tenant-a", "principal-a",
                         "correlation-after-handoff", artifact.artifactId(), JobType.VISION,
                         "", Map.of(), governance()));
@@ -179,7 +179,7 @@ class MediaRuntimeJobGovernanceTest {
         var runtime = runtime(root, List.of(external, fallback), consentAuthority(allowedConsent()));
         try {
             var artifact = artifact(runtime);
-            var accepted = runtime.submit(new ProcessingJobRequest(
+            var accepted = submitAsTestIdentity(runtime, new ProcessingJobRequest(
                     "request-external-timeout", "tenant-a", "principal-a", "correlation-timeout",
                     artifact.artifactId(), null, JobType.VISION, "", Map.of(), governance()));
             var terminal = awaitTerminal(runtime, accepted.jobId());
@@ -285,13 +285,35 @@ class MediaRuntimeJobGovernanceTest {
         var runtime = runtime(root, List.of(provider), authority);
         try {
             var artifact = artifact(runtime);
-            var accepted = runtime.submit(new ProcessingJobRequest(
+            var accepted = submitAsTestIdentity(runtime, new ProcessingJobRequest(
                     "request-external-allowed", "tenant-a", "principal-a", "correlation-a",
                     artifact.artifactId(), JobType.VISION, "external-test", Map.of(), governance()));
             var terminal = awaitTerminal(runtime, accepted.jobId());
 
             assertThat(terminal.status()).as("terminal result %s", terminal).isEqualTo(JobStatus.COMPLETED);
             assertThat(providerCalls).hasValue(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void biometricParametersAreDeniedBeforeJobAndExternalProviderEffect() throws Exception {
+        AtomicInteger providerCalls = new AtomicInteger();
+        var provider = externalProvider(providerCalls);
+        var runtime = runtime(Files.createTempDirectory("media-biometric-denied-"),
+                List.of(provider), consentAuthority(allowedConsent()));
+        try {
+            var artifact = artifact(runtime);
+            var request = new ProcessingJobRequest(
+                    "request-biometric-denied", "tenant-a", "principal-a", "correlation-biometric",
+                    artifact.artifactId(), JobType.VISION, "external-test",
+                    Map.of("faceRecognition", true), governance());
+
+            assertThatThrownBy(() -> submitAsTestIdentity(runtime, request))
+                    .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class);
+            assertThat(runtime.jobs("tenant-a", "principal-a", 100)).isEmpty();
+            assertThat(providerCalls).hasValue(0);
         } finally {
             runtime.close();
         }
@@ -306,15 +328,13 @@ class MediaRuntimeJobGovernanceTest {
                 consentAuthority(allowedConsent()));
         try {
             var artifact = artifact(deniedRuntime);
-            var accepted = deniedRuntime.submit(new ProcessingJobRequest(
+            var deniedRequest = new ProcessingJobRequest(
                     "request-retention-denied", "tenant-a", "principal-a", "correlation-a",
                     artifact.artifactId(), JobType.VISION, "retaining-denied", Map.of(),
-                    governanceWithProviderRetention(true)));
-            var terminal = awaitTerminal(deniedRuntime, accepted.jobId());
-
-            assertThat(terminal.status()).isEqualTo(JobStatus.FAILED);
-            assertThat(terminal.result()).containsEntry(
-                    "authorizationDenialReason", "PROVIDER_RETENTION_NOT_ALLOWED");
+                    governanceWithProviderRetention(true));
+            assertThatThrownBy(() -> submitAsTestIdentity(deniedRuntime, deniedRequest))
+                    .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class);
+            assertThat(deniedRuntime.jobs("tenant-a", "principal-a", 100)).isEmpty();
             assertThat(deniedCalls).hasValue(0);
         } finally {
             deniedRuntime.close();
@@ -326,7 +346,7 @@ class MediaRuntimeJobGovernanceTest {
                 consentAuthority(consentWithRetention(retention)));
         try {
             var artifact = artifact(allowedRuntime);
-            var accepted = allowedRuntime.submit(new ProcessingJobRequest(
+            var accepted = submitAsTestIdentity(allowedRuntime, new ProcessingJobRequest(
                     "request-retention-allowed", "tenant-a", "principal-a", "correlation-a",
                     artifact.artifactId(), JobType.VISION, "retaining-allowed", Map.of(),
                     governanceWithProviderRetention(true)));
@@ -358,14 +378,13 @@ class MediaRuntimeJobGovernanceTest {
                     List.of(externalProvider(providerCalls)), consentAuthority(denials.get(index)));
             try {
                 var artifact = artifact(runtime);
-                var accepted = runtime.submit(new ProcessingJobRequest(
+                var deniedRequest = new ProcessingJobRequest(
                         "request-external-denied-" + index, "tenant-a", "principal-a", "correlation-a",
-                        artifact.artifactId(), JobType.VISION, "external-test", Map.of(), governance()));
-                var terminal = awaitTerminal(runtime, accepted.jobId());
-
-                assertThat(terminal.status()).as("denial case %s", index).isEqualTo(JobStatus.FAILED);
-                assertThat(terminal.failureCode()).isEqualTo("PROCESSING_BLOCKED_BEFORE_PROVIDER");
-                assertThat(terminal.result()).containsKey("authorizationDenialReason");
+                        artifact.artifactId(), JobType.VISION, "external-test", Map.of(), governance());
+                assertThatThrownBy(() -> submitAsTestIdentity(runtime, deniedRequest))
+                        .as("denial case %s", index)
+                        .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class);
+                assertThat(runtime.jobs("tenant-a", "principal-a", 100)).isEmpty();
                 assertThat(providerCalls).as("denial case %s", index).hasValue(0);
             } finally {
                 runtime.close();
@@ -455,10 +474,13 @@ class MediaRuntimeJobGovernanceTest {
                             Duration.ofSeconds(2), 2, "", "", true, false, root),
                     artifactStore, new LocalMediaRuntimeSupport.JobStore(),
                     new LocalMediaRuntimeSupport.StreamStore(), authority,
-                    List.of(provider), List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+                    MediaSemanticRedactionRuntime.disabled(Duration.ofSeconds(2)),
+                    MediaLifecyclePublisher.disabled(), List.of(provider),
+                    List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of(),
+                    allowSourceAuthorization(), null, java.time.Clock.systemUTC());
             try {
                 var artifact = artifact(runtime);
-                var job = runtime.submit(new ProcessingJobRequest(
+                var job = submitAsTestIdentity(runtime, new ProcessingJobRequest(
                         "source-integrity-" + mode, "tenant-a", "principal-a", "correlation-source-integrity-" + mode,
                         artifact.artifactId(), artifact.version().value(), JobType.VISION, provider.providerId(), Map.of(),
                         governance()));
@@ -754,6 +776,9 @@ class MediaRuntimeJobGovernanceTest {
             java.nio.file.Path root,
             List<MediaProcessingProvider> providers,
             MediaConsentAuthority authority) {
+        var sourceAuthorization = providers.stream()
+                .anyMatch(provider -> provider.processingBoundary() == ProcessingBoundary.EXTERNAL)
+                ? allowSourceAuthorization() : null;
         return new MediaRuntime(
                 new MediaRuntimeConfig(
                         true, "local", 8093, 1_024, 64, 1_024,
@@ -761,9 +786,71 @@ class MediaRuntimeJobGovernanceTest {
                 new LocalMediaRuntimeSupport.FileArtifactStore(root),
                 new LocalMediaRuntimeSupport.JobStore(),
                 new LocalMediaRuntimeSupport.StreamStore(),
-                authority,
+                authority, MediaSemanticRedactionRuntime.disabled(Duration.ofSeconds(2)),
+                MediaLifecyclePublisher.disabled(),
                 providers,
-                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of(),
+                sourceAuthorization, null, java.time.Clock.systemUTC());
+    }
+
+    /** Test-host boundary explicitly pins the upload and installs the test identity. */
+    private static com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob submitAsTestIdentity(
+            MediaRuntime runtime, ProcessingJobRequest request) {
+        var artifact = runtime.artifact(request.tenantId(), request.principalId(), request.artifactId())
+                .orElseThrow(() -> new AssertionError("test artifact is missing"));
+        var pinned = request.requestedArtifactVersion().isPresent() ? request
+                : new ProcessingJobRequest(
+                        request.requestId(), request.tenantId(), request.principalId(), request.correlationId(),
+                        request.artifactId(), artifact.version().value(), request.jobType(), request.providerHint(),
+                        request.parameters(), request.governanceContext());
+        return runtime.submit(pinned, new com.ghatana.media.runtime.MediaSourceAuthorizationContracts
+                .AuthenticatedPrincipal(request.tenantId(), request.principalId(), Instant.now()));
+    }
+
+    private static com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authority
+            allowSourceAuthorization() {
+        return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "test-source-policy-authority"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision resolve(
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Request request,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                if (!authenticated.tenantId().equals(request.tenantId())
+                        || !authenticated.principalId().equals(request.principalId())) {
+                    return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                            com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.DENIED, null);
+                }
+                Instant now = Instant.now();
+                var evidence = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Evidence(
+                        authorityId(), "fixture-decision-" + request.artifactId(), request.tenantId(),
+                        request.principalId(), "fixture-source-owner", request.artifactId(), request.sourceVersion(),
+                        request.sourceSha256(), request.operation(), request.purpose(), request.providerId(),
+                        request.providerVersion(), request.processingBoundary(), request.processingRegion(),
+                        request.providerRetention(), Set.of(request.operation().toLowerCase(java.util.Locale.ROOT)),
+                        Set.of(request.processingRegion()), Set.of(request.providerRetention()), "fixture-rights",
+                        "fixture-policy", "fixture-policy-v1",
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition
+                                .NOT_APPLICABLE_HUMAN_CONSENT,
+                        "", "fixture-source-clock", 0, now.minusSeconds(1), now.plusSeconds(300));
+                return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, evidence);
+            }
+            @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision revalidate(
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Request request,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                if (!expectedEvidence.matches(request)
+                        || !authenticated.tenantId().equals(request.tenantId())
+                        || !authenticated.principalId().equals(request.principalId())) {
+                    return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                            com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.DENIED, null);
+                }
+                return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
+            }
+        };
     }
 
     private static MediaProcessingProvider externalProvider(AtomicInteger calls) {

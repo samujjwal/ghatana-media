@@ -664,6 +664,29 @@ export function retiredSdkRetryFindings(sources = {}) {
       disposition: 'RETIRED_NOT_ADMITTED_BEFORE_DISPATCH',
       ownerDecisionRef: '.product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings' });
   }
+  // Legacy SDK methods below used to dispatch to endpoints that are absent
+  // from both the active route manifest and OpenAPI. They remain source
+  // compatible, but have been made explicitly non-dispatching until a
+  // canonical operation is admitted. Count them as retired only while each
+  // method body contains its exact fail-closed marker and no transport call.
+  for (const [method, httpMethod, route] of [
+    ['listProviderCapabilities', 'GET', '/api/v1/media/providers/capabilities'],
+    ['transcribe', 'POST', '/api/v1/media/transcriptions'],
+    ['synthesize', 'POST', '/api/v1/media/syntheses'],
+    ['trainVoiceModel', 'POST', '/api/v1/media/voice-models:train'],
+    ['convertVoice', 'POST', '/api/v1/media/voice-conversions'],
+    ['getOperation', 'GET', '/api/v1/media/operations/{parameter}'],
+    ['cancelOperation', 'POST', '/api/v1/media/operations/{parameter}:cancel'],
+    ['getOperationResult', 'GET', '/api/v1/media/operations/{parameter}/result'],
+  ]) {
+    const methodBody = sources[path]?.match(new RegExp(`public (?:async )?${method}(?:<[^>]+>)?\\([\\s\\S]*?\\n  \\}`, 'u'))?.[0];
+    const exactFailure = methodBody?.includes(`MediaOperationNotAdmittedError("media.sdk.${method}")`);
+    if (exactFailure && !/this\.(?:request|submit|requestMutation)\(|fetch\(|transport\./u.test(methodBody)) {
+      findings.push({ source: path, method: httpMethod, path: route,
+        disposition: 'RETIRED_NOT_ADMITTED_BEFORE_DISPATCH',
+        ownerDecisionRef: '.product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings' });
+    }
+  }
   const artifactRead = sources[path]?.match(/public async getArtifact\([\s\S]*?\n  \}/u)?.[0];
   if (artifactRead?.includes('Promise<CanonicalMediaArtifactObservation>')
       && artifactRead.includes('/api/v1/artifacts/') && !artifactRead.includes('/api/v1/media/artifacts/')) {

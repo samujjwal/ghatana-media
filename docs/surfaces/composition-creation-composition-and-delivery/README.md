@@ -22,8 +22,11 @@ media, reviewed approvals, versioned exports with destination ACKs.
   logical surface).
 - Recorder path: `libs/audio-video-client` orchestrator + capture
   adapters (HTTP_API/MEDIA_FILE wired; others honestly unwired).
-- Animation: `AnimationSpecCompiler` validates specs but reports
-  `ANIMATION_RENDERER_NOT_ADMITTED` — no renderer claimed.
+- 2D animation: `AnimationSpecCompiler` validates the versioned envelope;
+  `modules/production/animation` renders a bounded, resolved rectangle/ellipse/
+  line/particle subset to deterministic PNG frames. Opaque envelope references
+  are not resolved into scene objects, and this local renderer does not provide
+  video codec output, 3D, audio, or rights-aware asset loading.
 - Versioned export/delivery: artifact store + job finality via
   `providers/aws-postgresql`.
 
@@ -38,8 +41,9 @@ delivery success.
 
 Spec → compile/admission → scene/timeline → render/mix → review →
 export → destination ACK across studio UI, SDK and runtime; denial,
-unknown and restart paths covered. Dedicated engines are plan work —
-current coverage asserts fail-closed boundaries.
+unknown and restart paths covered. Current 2D coverage verifies local PNG
+rendering and bounded inputs; the composed Studio/export journey and the
+remaining media engines are still implementation work.
 
 ## Data flow
 

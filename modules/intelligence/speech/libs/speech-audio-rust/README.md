@@ -16,7 +16,8 @@ is consumed by those capabilities.
 - Bounded file input: `DecodeLimits`, `load_audio_metadata`,
   `load_audio_buffer`, and `load_audio_buffer_bounded`.
 - Local transforms: `Resampler::{new, with_options, resample}`,
-  `slice_audio_buffer`, and `mix_audio`.
+  `slice_audio_buffer`, `mix_audio`, and bounded waveform repair APIs
+  `NoiseProfile`, `denoise`, `declip`, and `compare_audio`.
 - File output and visualization support: `write_wav` and `extract_waveform`.
 
 The only in-repository Rust source consumer found for this crate is its
@@ -78,6 +79,22 @@ sample-window slicing, scalar-gain mixing, WAV writing, and waveform buckets)
 remain support operations; they are not additional capability IDs and do not
 establish provider or product behavior. Keep the exact source IDs and ownership
 in the existing source coverage/topology; do not create a second registry here.
+
+## Bounded waveform repair
+
+`NoiseProfile::estimate` measures per-channel RMS only over a caller-designated
+noise-only span; the crate does not guess the noise region. `denoise` applies a
+block RMS gate with interpolated gain and one shared gain across channels.
+`declip` reconstructs only interior clipped runs by linear interpolation and
+returns a typed error for edge or overlong runs. Input and output are immutable
+separate buffers. Repair is linear in at most 6,000,000 interleaved samples;
+profile scans are capped at 2,000,000 frames, channels at 8, sample rate at
+768 kHz, and clipped runs at 4,096 frames. `compare_audio` requires exact PCM
+shape and reports RMS, peak, changed-sample count, and SNR only against an
+explicit independent reference. These local DSP primitives are deterministic
+and bounded, but are not RNNoise, do not establish perceptual speech quality,
+and have not been qualified against representative lawful source/reference
+material or a production host performance budget.
 
 ## Resampler fidelity boundary
 

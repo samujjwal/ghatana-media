@@ -23,14 +23,13 @@
       "journeys": 30
     },
     "byState": {
-      "VERIFIED": 19,
-      "OPEN": 83,
+      "VERIFIED": 21,
+      "OPEN": 81,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1
     },
     "byWorkStartReadiness": {
-      "ALREADY_VERIFIED_AS_REPORTED": 19,
-      "OWNER_SEMANTICS_AND_SOURCE_RECONCILED_TEST_EXECUTION_PENDING": 1,
-      "READY_FOR_INDEPENDENT_ENGINEERING": 41,
+      "ALREADY_VERIFIED_AS_REPORTED": 21,
+      "READY_FOR_INDEPENDENT_ENGINEERING": 40,
       "OPTIONAL_DOWNSTREAM": 1,
       "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE": 10,
       "SAFE_PREPARATION_NOW_DELETION_HELD": 1,
@@ -62,7 +61,7 @@
     {
       "id": "media.dev.domain-contract-parity",
       "group": "foundations",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "runtime-contracts",
         "libs/audio-video-types",
@@ -75,19 +74,15 @@
       "requires": [
         "media.dev.source-capability-crosswalk"
       ],
-      "progress": "Current owner interpretation committed: five-state runtime upload and six-state runtime stream enums shared in TS and Java golden source; old seven-state UploadSessionSchema remains distinct and is never losslessly mapped. Four other scalar differences have explicit boundary policies. Code in 8f48957e; no fresh pnpm/Gradle tests run here.",
-      "workStartReadiness": "OWNER_SEMANTICS_AND_SOURCE_RECONCILED_TEST_EXECUTION_PENDING",
+      "progress": "Current owner interpretation preserves the distinct legacy upload model and shared runtime upload/stream enums. Fresh verification passed on this source: pnpm --filter @audio-video/types check (105 tests plus route/RPC projection and packed ESM/CJS/type consumers); pnpm --filter @audio-video/client test:package (packed ESM/CJS/types consumers and security checks); MediaDomainParityGoldenVectorTest (8 tests); pnpm test:typed-contract-bindings (39 tests); pnpm check:contract-parity (structural PASS, semantic status remains REVIEW_REQUIRED).",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.source-capability-crosswalk"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "ownerDisposition": "DISTINCT_LEGACY_UPLOAD_AND_RUNTIME_MODEL; SHARED_RUNTIME_UPLOAD_AND_STREAM_ENUMS; TESTS_PENDING",
-      "remaining": [
-        "Run pnpm typecheck and cross-language golden suites",
-        "Run source-free installed package and HTTP/gRPC parser/API compatibility tests",
-        "Only mark VERIFIED after results and actual wire checks"
-      ]
+      "ownerDisposition": "DISTINCT_LEGACY_UPLOAD_AND_RUNTIME_MODEL; SHARED_RUNTIME_UPLOAD_AND_STREAM_ENUMS; FOCUSED_TESTS_PASS",
+      "remaining": []
     },
     {
       "id": "media.dev.rights-and-policy",
@@ -422,7 +417,7 @@
     {
       "id": "media.dev.sdk-canonical-migration",
       "group": "interfaces",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/operations.ts",
         "libs/audio-video-client/src/canonical-operations.ts",
@@ -441,7 +436,9 @@
         "media.dev.http-operation-parity"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "Legacy facade and operation methods retain their public signatures and return typed NOT_ADMITTED before transport when no canonical route exists. Exact route inventory/parity passed (37 active source observations, 14 retired pre-dispatch paths); canonical SDK unit tests passed (167 passed, 12 skipped) and installed ESM/CJS/types consumer checks passed. The runtime's semantic route review remains independent in media.dev.http-operation-parity.",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED"
     },
     {
       "id": "media.dev.multimodal-legacy-route-disposition",

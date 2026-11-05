@@ -77,6 +77,16 @@ export type {
   RegistrationErrorCode,
   SegmentOrigin,
 } from './caption-version.js';
+export { OfflineEditQueue, OfflineEditQueueError } from './offline-edit-queue.js';
+export type {
+  OfflineEdit,
+  OfflineEditQueueOptions,
+  OfflineEditRecord,
+  OfflineEditReplayAdapter,
+  OfflineEditScope,
+  OfflineEditState,
+  OfflineEditStore,
+} from './offline-edit-queue.js';
 
 /**
  * Configuration for service clients

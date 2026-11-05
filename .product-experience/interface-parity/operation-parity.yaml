@@ -2078,49 +2078,57 @@ compatibilityRouteFindings:
   comparisonRule: Compare the exact observed client method and path to the active
     runtime route manifest; a client path, canonical-route constant, or test
     stub alone does not admit a runtime route.
-  currentComparison: 14-of-14 observed legacy/candidate SDK paths are absent from
-    the 30-route active manifest; this proves non-admission and does not choose
-    a replacement route.
+  currentComparison: 6 active legacy/candidate SDK paths remain absent from
+    the 30-route active manifest; eight source-compatible methods fail closed
+    before transport and are separately counted as retired source findings.
   sourceFindings:
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
-        path: '/api/v1/media/providers/capabilities'
+        path: '/api/v1/media/providers/capabilities',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
-        path: '/api/v1/media/operations/{parameter}'
+        path: '/api/v1/media/operations/{parameter}',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
-        path: '/api/v1/media/operations/{parameter}:cancel'
+        path: '/api/v1/media/operations/{parameter}:cancel',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
-        path: '/api/v1/media/operations/{parameter}/result'
+        path: '/api/v1/media/operations/{parameter}/result',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
-        path: '/api/v1/media/transcriptions'
+        path: '/api/v1/media/transcriptions',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
-        path: '/api/v1/media/syntheses'
+        path: '/api/v1/media/syntheses',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
-        path: '/api/v1/media/voice-models:train'
+        path: '/api/v1/media/voice-models:train',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
-        path: '/api/v1/media/voice-conversions'
+        path: '/api/v1/media/voice-conversions',
+        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
         source: libs/audio-video-client/src/operations.ts,

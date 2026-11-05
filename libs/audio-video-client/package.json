@@ -73,6 +73,11 @@
       "types": "./dist/production-plan.d.ts",
       "import": "./dist/production-plan.js",
       "require": "./dist-cjs/production-plan.js"
+    },
+    "./offline-edit-queue": {
+      "types": "./dist/offline-edit-queue.d.ts",
+      "import": "./dist/offline-edit-queue.js",
+      "require": "./dist-cjs/offline-edit-queue.js"
     }
   },
   "dependencies": {

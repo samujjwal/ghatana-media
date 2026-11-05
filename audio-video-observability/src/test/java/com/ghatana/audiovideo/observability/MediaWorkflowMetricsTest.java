@@ -141,6 +141,46 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void registersLiveRuntimeResourcesWithOnlyBoundedServiceLabels() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        new MediaWorkflowMetrics(registry, "vision");
+
+        assertThat(registry.get("media.runtime.jvm.heap.used.bytes")
+                .tag("service", "vision").gauge().value()).isGreaterThanOrEqualTo(0);
+        assertThat(registry.get("media.runtime.jvm.threads")
+                .tag("service", "vision").gauge().value()).isGreaterThan(0);
+        double heapMaximum = registry.get("media.runtime.jvm.heap.max.bytes")
+                .tag("service", "vision").gauge().value();
+        assertThat(Double.isNaN(heapMaximum) || heapMaximum > 0).isTrue();
+
+        assertThat(registry.getMeters().stream()
+                .filter(meter -> meter.getId().getName().startsWith("media.runtime."))
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getKey()))
+                .containsOnly("service", "contract_version");
+    }
+
+    @Test
+    void providerCredentialShapedIdentitiesAreRejectedWithoutExportingTheValue() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-11-05T12:00:00Z");
+        String credential = "sk-secret-provider-credential-123";
+
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
+                credential, "v1", "profile", "revision",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageNotContaining(credential);
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                credential, "v1", "model", now, java.util.List.of())).isFalse();
+        assertThat(registry.getMeters().stream()
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getValue()))
+                .doesNotContain(credential);
+    }
+
+    @Test
     void modalityBoundariesRecordMonotonicDurationsWithBoundedPhaseAndOutcomeTags() throws Exception {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");

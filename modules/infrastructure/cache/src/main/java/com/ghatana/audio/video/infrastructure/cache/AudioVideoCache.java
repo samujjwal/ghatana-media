@@ -42,7 +42,8 @@ public class AudioVideoCache<K, V> {
             String artifactId,
             String artifactRevision,
             String transcriptRevision,
-            String sourceFingerprint) {
+            String sourceFingerprint,
+            String policyEpoch) {
         public CacheKeyScope {
             requireScopeValue(tenantId, "tenantId");
             requireScopeValue(authenticatedPrincipalId, "authenticatedPrincipalId");
@@ -53,6 +54,7 @@ public class AudioVideoCache<K, V> {
             requireScopeValue(artifactRevision, "artifactRevision");
             requireScopeValue(transcriptRevision, "transcriptRevision");
             requireScopeValue(sourceFingerprint, "sourceFingerprint");
+            requireScopeValue(policyEpoch, "policyEpoch");
         }
 
         private static void requireScopeValue(String value, String name) {
@@ -748,6 +750,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.artifactRevision());
             updateFramedUtf16(digest, scope.transcriptRevision());
             updateFramedUtf16(digest, scope.sourceFingerprint());
+            updateFramedUtf16(digest, scope.policyEpoch());
             StringBuilder key = new StringBuilder("av2-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
@@ -757,6 +760,46 @@ public class AudioVideoCache<K, V> {
         } catch (java.security.NoSuchAlgorithmException failure) {
             throw new IllegalStateException("SHA-256 is unavailable", failure);
         }
+    }
+
+    /**
+     * Read protected content only after the caller's current authority source
+     * has positively revalidated the complete scope. A miss is never treated as
+     * authorization, and an unavailable/unknown authority result fails closed.
+     */
+    public AsyncOperation<V> getOrLoadScoped(
+            CacheKeyScope scope,
+            Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
+            Function<String, AsyncOperation<V>> loader) {
+        Objects.requireNonNull(scope, "scope cannot be null");
+        Objects.requireNonNull(authorityCheck, "authorityCheck cannot be null");
+        Objects.requireNonNull(loader, "loader cannot be null");
+        final AsyncOperation<Boolean> authority;
+        try {
+            authority = Objects.requireNonNull(authorityCheck.apply(scope),
+                    "authorityCheck returned null operation");
+        } catch (RuntimeException failure) {
+            return AsyncOperation.failure(failure);
+        }
+        return authority.flatMap(allowed -> {
+            if (!Boolean.TRUE.equals(allowed)) {
+                return AsyncOperation.failure(new SecurityException(
+                        "Current cache authority is denied or unknown"));
+            }
+            String key = buildScopedKey(scope);
+            return getOrLoad(asCacheKey(key), ignored -> loader.apply(key));
+        });
+    }
+
+    /** Invalidates the exact immutable source and policy epoch key. */
+    public AsyncOperation<Void> invalidateScoped(CacheKeyScope scope) {
+        return invalidate(asCacheKey(buildScopedKey(Objects.requireNonNull(scope, "scope cannot be null"))));
+    }
+
+    /** Protected keys are versioned strings; these helpers require a String-keyed cache facade. */
+    @SuppressWarnings("unchecked")
+    private K asCacheKey(String key) {
+        return (K) key;
     }
 
     private static void updateFramedUtf16(java.security.MessageDigest digest, String value) {

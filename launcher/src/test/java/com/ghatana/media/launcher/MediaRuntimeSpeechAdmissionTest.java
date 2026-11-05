@@ -46,6 +46,54 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaRuntimeSpeechAdmissionTest {
 
     @Test
+    void requestFieldsCannotAuthenticateAnExternalSubmission() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-untrusted-submission-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        var provider = candidate(providerCalls, null, ProcessingBoundary.EXTERNAL);
+        var runtime = runtime(root, jobStore, List.of(provider), null);
+        try {
+            var source = artifact(runtime, sourceClockMetadata());
+            ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                    speechParameters("profile-a", "en-US"));
+
+            assertThatThrownBy(() -> runtime.submit(request))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED));
+            assertNoJobOrProviderEffect(jobStore, providerCalls);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void externalVisionWithoutVersionedSourceAuthorityCreatesNoJobOrEffect() throws Exception {
+        var root = Files.createTempDirectory("media-vision-source-rights-unavailable-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        var provider = visionProvider(providerCalls);
+        var runtime = runtime(root, jobStore, List.of(provider), null);
+        try {
+            var source = artifact(runtime);
+            ProcessingJobRequest request = new ProcessingJobRequest(
+                    "vision-request", "tenant-a", "principal-a", "vision-correlation",
+                    source.artifactId(), source.version().value(), JobType.VISION,
+                    provider.providerId(), Map.of(), governance());
+            var authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                    "tenant-a", "principal-a", Instant.now());
+
+            assertThatThrownBy(() -> runtime.submit(request, authenticated))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED));
+            assertNoJobOrProviderEffect(jobStore, providerCalls);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void modalityPortUsesCanonicalRuntimeAndKeepsPrincipalScopedArtifactReadback() throws Exception {
         var root = Files.createTempDirectory("media-runtime-port-");
         var runtime = runtime(root, new LocalMediaRuntimeSupport.JobStore(), List.of(), null);
@@ -76,7 +124,9 @@ class MediaRuntimeSpeechAdmissionTest {
             ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
                     Map.of("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", "en-US")));
 
-            assertThatThrownBy(() -> runtime.submit(request))
+            var authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                    "tenant-a", "principal-a", Instant.now());
+            assertThatThrownBy(() -> runtime.submit(request, authenticated))
                     .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
                     .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
                             .decision().reasons()).contains(Reason.PROFILE_ABSENT));
@@ -155,7 +205,9 @@ class MediaRuntimeSpeechAdmissionTest {
             ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
                     speechParameters("profile-a", "en-US"), governance());
 
-            assertThatThrownBy(() -> runtime.submit(request))
+            var authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                    "tenant-a", "principal-a", Instant.now());
+            assertThatThrownBy(() -> runtime.submit(request, authenticated))
                     .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
                     .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
                             .decision().reasons()).contains(Reason.CONSENT_NOT_ADMITTED,
@@ -546,6 +598,24 @@ class MediaRuntimeSpeechAdmissionTest {
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
                 providerCalls.incrementAndGet();
                 return CompletableFuture.failedFuture(new AssertionError("NOT_ADMITTED must prevent provider I/O"));
+            }
+        };
+    }
+
+    private static MediaProcessingProvider visionProvider(AtomicInteger providerCalls) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-vision-external"; }
+            @Override public String providerVersion() { return "test-vision-v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.EXTERNAL; }
+            @Override public String processingRegion() { return "us"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                providerCalls.incrementAndGet();
+                return CompletableFuture.completedFuture(Map.of());
             }
         };
     }

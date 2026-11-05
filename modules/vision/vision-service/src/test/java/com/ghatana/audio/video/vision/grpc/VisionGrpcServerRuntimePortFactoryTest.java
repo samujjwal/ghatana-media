@@ -264,6 +264,7 @@ public class VisionGrpcServerRuntimePortFactoryTest {
 
     private static Map<String, String> ocrEnvironment() {
         return Map.of(
+                "VISION_ENVIRONMENT", "local",
                 "VISION_CAPABILITY_PROFILE", "OCR_ONLY",
                 "DI_ENDPOINT", "http://127.0.0.1:9000",
                 "DI_ALLOWED_HOSTS", "127.0.0.1",

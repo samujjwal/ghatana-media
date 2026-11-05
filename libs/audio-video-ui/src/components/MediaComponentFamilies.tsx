@@ -2,6 +2,7 @@ import React, { useId, useState } from "react";
 import { Badge, Button } from "@ghatana/design-system";
 import type { MediaActionDispatchResult } from "../ports";
 import { MediaComponentValueTypes } from "./MediaComponentValueTypes";
+import { MediaActionFeedback, mediaActionFeedbackForResult, type MediaActionFeedbackValue } from "./MediaActionFeedback";
 
 export type MediaComponentValue = MediaComponentValueTypes.JsonValue;
 
@@ -89,18 +90,6 @@ export function ValueView({ value }: { readonly value: unknown }): React.ReactEl
   return <span>Unsupported projected value</span>;
 }
 
-function resultMessage(result: MediaActionDispatchResult): string {
-  switch (result.status) {
-    case "intent-accepted": return "The action intent was accepted. This does not confirm a domain effect.";
-    case "local-applied": return "The source-defined local selection or draft change was applied; no remote effect is implied.";
-    case "request-started": return `Request started (${result.requestId}). Completion remains unobserved.`;
-    case "request-acknowledged": return `Request acknowledged (${result.requestId}). Completion remains unobserved.`;
-    case "denied": return `Action denied: ${result.reason}`;
-    case "unavailable": return `Action unavailable: ${result.reason}`;
-    case "failed": return `Action failed: ${result.reason}`;
-  }
-}
-
 export function MediaFamily<Props extends FamilyContractFields>({ definition, ...props }: { readonly definition: FamilyDefinition } & Props & MediaComponentUiExtras): React.ReactElement {
   const instanceId = useId();
   const { state, variant, actionIntents, keyboardBehavior, actions = [], className, ...rawValues } = props;
@@ -115,7 +104,7 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
   const invalidActions = actions.filter((action) => !declaredActionIds.has(action.id));
   const [selectedValue, setSelectedValue] = useState<MediaComponentValue | undefined>();
   const [pendingAction, setPendingAction] = useState<string | undefined>();
-  const [actionObservation, setActionObservation] = useState<{ readonly id: string; readonly message: string; readonly tone: "info" | "danger" } | undefined>();
+  const [actionObservation, setActionObservation] = useState<{ readonly id: string; readonly value: MediaActionFeedbackValue } | undefined>();
   const selectedActionValue = definition.selectionActionProp ? values[definition.selectionActionProp] : undefined;
   const selectedActionId = definition.selectionActionProp === "$singleDeclared"
     ? (matchingActions.length === 1 ? matchingActions[0]?.id : undefined)
@@ -144,12 +133,12 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
   const invokeAction = async (action: MediaComponentAction, value?: MediaComponentValue): Promise<void> => {
     if (!action.enabled || !action.invoke || pendingAction) return;
     setPendingAction(action.id);
-    setActionObservation({ id: action.id, message: "Requesting action; completion remains unknown until a fresh owner projection arrives.", tone: "info" });
+    setActionObservation({ id: action.id, value: { state: "pending", message: "Requesting action; completion remains unknown until a fresh owner projection arrives." } });
     try {
       const result = await action.invoke(value);
-      setActionObservation({ id: action.id, message: resultMessage(result), tone: result.status === "failed" || result.status === "denied" || result.status === "unavailable" ? "danger" : "info" });
+      setActionObservation({ id: action.id, value: mediaActionFeedbackForResult(result) });
     } catch (error) {
-      setActionObservation({ id: action.id, message: `Action request could not be confirmed: ${error instanceof Error ? error.message : "unknown request failure"}. Reconcile before retrying.`, tone: "danger" });
+      setActionObservation({ id: action.id, value: { state: "unknown", message: `Action request could not be confirmed: ${error instanceof Error ? error.message : "unknown request failure"}. Reconcile before retrying.` } });
     } finally {
       setPendingAction(undefined);
     }
@@ -272,7 +261,7 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
       </span>)}
     </div>}
     {invalidActions.length > 0 && <p role="status">An action not declared by this component was withheld.</p>}
-    {actionObservation && <p role="status" aria-live="polite" data-tone={actionObservation.tone}>{actionObservation.message}</p>}
+    {actionObservation && <MediaActionFeedback value={actionObservation.value} />}
     <details className="media-family__keyboard-contract"><summary>Keyboard behavior contract</summary><ValueView value={keyboardBehavior} /></details>
   </section>;
 }

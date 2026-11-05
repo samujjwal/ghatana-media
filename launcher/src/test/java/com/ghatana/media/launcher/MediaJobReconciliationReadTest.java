@@ -7,6 +7,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,12 @@ class MediaJobReconciliationReadTest {
             ExchangeResult matching = request(handler, "/api/v1/jobs/job-1?requestId=request-1");
             assertThat(matching.status()).isEqualTo(200);
             assertThat(matching.body()).contains("OUTCOME_UNKNOWN", "PROCESSING_OUTCOME_UNKNOWN");
+
+            ExchangeResult untrustedHeaders = request(
+                    handler, "/api/v1/jobs/job-1?requestId=request-1", null, false);
+            assertThat(untrustedHeaders.status()).isEqualTo(401);
+            assertThat(untrustedHeaders.body()).contains("UNAUTHENTICATED")
+                    .doesNotContain("job-1", "request-1");
 
             ExchangeResult mismatching = request(handler, "/api/v1/jobs/job-1?requestId=request-2");
             assertThat(mismatching.status()).isEqualTo(404);
@@ -321,6 +328,11 @@ class MediaJobReconciliationReadTest {
 
     private static ExchangeResult request(MediaHttpHandler handler, String pathAndQuery, String accept)
             throws IOException {
+        return request(handler, pathAndQuery, accept, true);
+    }
+
+    private static ExchangeResult request(
+            MediaHttpHandler handler, String pathAndQuery, String accept, boolean authenticated) throws IOException {
         HttpExchange exchange = Mockito.mock(HttpExchange.class);
         Headers requestHeaders = new Headers();
         requestHeaders.set("X-Tenant-Id", "tenant-a");
@@ -332,6 +344,11 @@ class MediaJobReconciliationReadTest {
         when(exchange.getRequestURI()).thenReturn(URI.create("http://localhost" + pathAndQuery));
         when(exchange.getRequestMethod()).thenReturn("GET");
         when(exchange.getRequestHeaders()).thenReturn(requestHeaders);
+        if (authenticated) {
+            when(exchange.getAttribute(MediaSecurityFilter.AUTHENTICATED_PRINCIPAL_ATTRIBUTE))
+                    .thenReturn(new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            "tenant-a", "principal-a", Instant.now()));
+        }
         when(exchange.getResponseHeaders()).thenReturn(responseHeaders);
         when(exchange.getResponseBody()).thenReturn(responseBody);
         doAnswer(invocation -> {
@@ -356,6 +373,9 @@ class MediaJobReconciliationReadTest {
         when(exchange.getRequestURI()).thenReturn(URI.create("http://localhost" + path));
         when(exchange.getRequestMethod()).thenReturn("POST");
         when(exchange.getRequestHeaders()).thenReturn(requestHeaders);
+        when(exchange.getAttribute(MediaSecurityFilter.AUTHENTICATED_PRINCIPAL_ATTRIBUTE))
+                .thenReturn(new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        "tenant-a", "principal-a", Instant.now()));
         when(exchange.getRequestBody()).thenReturn(new java.io.ByteArrayInputStream(
                 body.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
         when(exchange.getResponseHeaders()).thenReturn(responseHeaders);

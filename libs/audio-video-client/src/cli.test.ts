@@ -54,6 +54,10 @@ function command(endpoint: string, extra: string[] = []) {
   return ['artifact', 'inspect', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--artifact', 'artifact-a', ...extra];
 }
 
+function jobCommand(endpoint: string, subcommand: string, extra: string[] = []) {
+  return ['job', subcommand, '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', ...extra];
+}
+
 afterEach(async () => {
   await Promise.all(servers.splice(0).map(server => new Promise<void>(resolve => server.close(() => resolve()))));
 });
@@ -324,5 +328,69 @@ describe('ghatanamedia-api artifact inspect executable', () => {
       expect(redirectedRequests).toBe(0);
       expect(result.stdout + result.stderr).not.toContain(token);
     });
+  });
+});
+
+describe('ghatanamedia-api canonical job commands', () => {
+  const job = {
+    jobId: 'job-1', requestId: 'request-1', tenantId: 'tenant-a', principalId: 'principal-a',
+    artifactId: 'artifact-a', jobType: 'SPEECH_TO_TEXT', providerId: null, status: 'OUTCOME_UNKNOWN',
+    createdAt: timestamp, startedAt: null, completedAt: null, result: {}, failureCode: null,
+    version: 2, expectedArtifactVersion: 'artifact-version-1', requestFingerprint: 'f'.repeat(64),
+  };
+
+  it('submits with canonical request identity and reports the server state without guessing completion', async () => {
+    let requests = 0;
+    await withServer((request, response) => {
+      requests++;
+      expect(request.method).toBe('POST');
+      expect(request.url).toBe('/api/v1/jobs');
+      expect(request.headers['x-tenant-id']).toBe('tenant-a');
+      expect(request.headers['x-principal-id']).toBe('principal-a');
+      expect(request.headers.authorization).toBe(`Bearer ${token}`);
+      expect(request.headers['idempotency-key']).toBe('key-1');
+      let body = '';
+      request.setEncoding('utf8').on('data', chunk => { body += chunk; });
+      request.on('end', () => {
+        expect(JSON.parse(body)).toEqual({
+          requestId: 'request-1', tenantId: 'tenant-a', principalId: 'principal-a', correlationId: 'corr-1',
+          artifactId: 'artifact-a', jobType: 'SPEECH_TO_TEXT', parameters: {},
+        });
+        response.writeHead(202, { 'content-type': 'application/json' }).end(JSON.stringify(job));
+      });
+    }, async endpoint => {
+      const result = await invoke(jobCommand(endpoint, 'submit', [
+        '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
+        '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-1', '--parameters', '{}',
+      ]));
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toEqual({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit', job,
+      });
+      expect(JSON.parse(result.stdout).job.status).toBe('OUTCOME_UNKNOWN');
+      expect(requests).toBe(1);
+    });
+  });
+
+  it('does not dispatch capture/recorder commands without their canonical contracts', async () => {
+    for (const [name, subcommand] of [['capture', 'start'], ['recorder', 'start']]) {
+      const result = await invoke([name, subcommand, '--endpoint', 'http://127.0.0.1:1', '--tenant', 'tenant-a', '--principal', 'principal-a']);
+      expect(result.status).toBe(3);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', code: 'NOT_ADMITTED',
+        commandId: `media.cli.${name}.${subcommand}`,
+      });
+    }
+  });
+
+  it('requires valid structured JSON parameters before dispatch', async () => {
+    const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
+      '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
+      '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-1', '--parameters', '[]',
+    ]));
+    expect(result.status).toBe(2);
+    expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
   });
 });

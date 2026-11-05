@@ -143,7 +143,9 @@ class AudioVideoCacheKeyRedactionTest {
                 scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
                         "artifact-1", "artifact-rev-2", "transcript-rev-1"),
                 scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
-                        "artifact-1", "artifact-rev-1", "transcript-rev-2"));
+                        "artifact-1", "artifact-rev-1", "transcript-rev-2"),
+                scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1", "policy-epoch-2"));
 
         String fingerprint = "audio-sha256:" + "a".repeat(64);
         String baseKey = cache.buildScopedKey(withFingerprint(baseline, fingerprint));
@@ -198,18 +200,69 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void scopedReadRequiresCurrentAuthorityAndPolicyEpochPartitionsRevokedEntries() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        AudioVideoCache.CacheKeyScope oldScope = scopedKey("tenant-a", "principal-a", "rights-a",
+                "transcription", "sensitive", "artifact", "source-v1", "transcript-v1", "policy-1");
+        AudioVideoCache.CacheKeyScope newScope = scopedKey("tenant-a", "principal-a", "rights-a",
+                "transcription", "sensitive", "artifact", "source-v1", "transcript-v1", "policy-2");
+        AtomicInteger authorityCalls = new AtomicInteger();
+        AtomicInteger loaderCalls = new AtomicInteger();
+        when(port.get(cache.buildScopedKey(oldScope)))
+                .thenReturn(AsyncOperation.success(Optional.of("old-policy-value")));
+        when(port.get(cache.buildScopedKey(newScope)))
+                .thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any(Duration.class))).thenReturn(AsyncOperation.success(null));
+
+        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScoped(oldScope, ignored -> {
+            authorityCalls.incrementAndGet();
+            return AsyncOperation.success(false); // revoked
+        }, ignored -> {
+            loaderCalls.incrementAndGet();
+            return AsyncOperation.success("must-not-load");
+        }))).hasRootCauseInstanceOf(SecurityException.class);
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScoped(newScope, ignored -> {
+            authorityCalls.incrementAndGet();
+            return AsyncOperation.success(true);
+        }, ignored -> {
+            loaderCalls.incrementAndGet();
+            return AsyncOperation.success("current-policy-value");
+        }))).isEqualTo("current-policy-value");
+        assertThat(authorityCalls).hasValue(2);
+        assertThat(loaderCalls).hasValue(1);
+        verify(port, org.mockito.Mockito.times(1)).get(cache.buildScopedKey(newScope));
+        verify(port, never()).get(cache.buildScopedKey(oldScope));
+    }
+
+    @Test
+    void scopedReadFailsClosedWhenCurrentAuthorityIsUnavailable() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        AudioVideoCache.CacheKeyScope scope = scopedKey("tenant", "principal", "rights",
+                "transcription", "sensitive", "artifact", "source-v1", "transcript-v1", "policy-v1");
+
+        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScoped(scope,
+                ignored -> AsyncOperation.failure(new IllegalStateException("authority unavailable")),
+                ignored -> AsyncOperation.success("must-not-load"))))
+                .hasRootCauseMessage("authority unavailable");
+        verifyNoInteractions(port);
+    }
+
+    @Test
     void protectedScopeRequiresAllDimensions() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
-                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", " "))
+                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", "fingerprint", " "))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("sourceFingerprint");
+                .hasMessageContaining("policyEpoch");
     }
 
     @Test
     void protectedScopeRejectsComponentsBeyondSharedCacheKeyLimit() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",
-                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1)))
+                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1), "policy-1"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sourceFingerprint")
                 .hasMessageContaining(Integer.toString(CachePolicy.MAX_KEY_LENGTH));
@@ -243,15 +296,22 @@ class AudioVideoCacheKeyRedactionTest {
     private static AudioVideoCache.CacheKeyScope scopedKey(
             String tenant, String principal, String rights, String purpose, String classification,
             String artifact, String artifactRevision, String transcriptRevision) {
+        return scopedKey(tenant, principal, rights, purpose, classification, artifact, artifactRevision,
+                transcriptRevision, "policy-epoch-1");
+    }
+
+    private static AudioVideoCache.CacheKeyScope scopedKey(
+            String tenant, String principal, String rights, String purpose, String classification,
+            String artifact, String artifactRevision, String transcriptRevision, String policyEpoch) {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, rights, purpose, classification,
-                artifact, artifactRevision, transcriptRevision, "fingerprint-placeholder");
+                artifact, artifactRevision, transcriptRevision, "fingerprint-placeholder", policyEpoch);
     }
 
     private static AudioVideoCache.CacheKeyScope withFingerprint(
             AudioVideoCache.CacheKeyScope scope, String fingerprint) {
         return new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
                 scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
-                scope.artifactRevision(), scope.transcriptRevision(), fingerprint);
+                scope.artifactRevision(), scope.transcriptRevision(), fingerprint, scope.policyEpoch());
     }
 
     @Test

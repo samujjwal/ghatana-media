@@ -129,8 +129,19 @@ class GrpcTransportSecurityPolicyTest {
             assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(
                             Map.of("GHATANA_DEPLOYMENT_PROFILE", profile), "VISION"))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("Production-like VISION gRPC requires TLS");
+                    .hasMessageContaining("Production-like VISION gRPC requires mTLS");
         }
+    }
+
+    @Test
+    void productionLikeProfilesRequireClientCaEvenWhenServerIdentityIsConfigured() {
+        assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(
+                        "STT_ENVIRONMENT", "production",
+                        "STT_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/stt-cert.pem",
+                        "STT_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/stt-key.pem"), "STT"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("requires a client CA for mutual TLS")
+                .hasMessageContaining("STT_GRPC_TLS_CLIENT_CA_PATH");
     }
 
     @Test
@@ -140,7 +151,7 @@ class GrpcTransportSecurityPolicyTest {
                 assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(
                                 Map.of(service + "_ENVIRONMENT", profile), service))
                         .isInstanceOf(IllegalStateException.class)
-                        .hasMessageContaining("Production-like " + service + " gRPC requires TLS");
+                        .hasMessageContaining("Production-like " + service + " gRPC requires mTLS");
             }
         }
     }
@@ -150,11 +161,13 @@ class GrpcTransportSecurityPolicyTest {
         var security = GrpcTransportSecurityPolicy.resolve(Map.of(
                 "MEDIA_ENVIRONMENT", "production",
                 "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
-                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"), "MULTIMODAL");
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem",
+                "MEDIA_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/media-client-ca.pem"), "MULTIMODAL");
 
         assertThat(security.tlsEnabled()).isTrue();
         assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");
         assertThat(security.privateKey().toString()).endsWith("media-key.pem");
+        assertThat(security.clientTrustCertificate().toString()).endsWith("media-client-ca.pem");
     }
 
     @Test
@@ -163,11 +176,14 @@ class GrpcTransportSecurityPolicyTest {
                 "MEDIA_ENVIRONMENT", "production",
                 "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
                 "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem",
+                "MEDIA_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/media-client-ca.pem",
                 "TTS_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/tts-cert.pem",
-                "TTS_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/tts-key.pem"), "TTS");
+                "TTS_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/tts-key.pem",
+                "TTS_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/tts-client-ca.pem"), "TTS");
 
         assertThat(security.certificateChain().toString()).endsWith("tts-cert.pem");
         assertThat(security.privateKey().toString()).endsWith("tts-key.pem");
+        assertThat(security.clientTrustCertificate().toString()).endsWith("tts-client-ca.pem");
     }
 
     @Test
@@ -204,7 +220,7 @@ class GrpcTransportSecurityPolicyTest {
                         "MEDIA_ENVIRONMENT", "staging",
                         "STT_ENVIRONMENT", "local"), "STT"))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Production-like STT gRPC requires TLS");
+                .hasMessageContaining("Production-like STT gRPC requires mTLS");
     }
 
     @Test
@@ -215,7 +231,7 @@ class GrpcTransportSecurityPolicyTest {
                             "STT_ENVIRONMENT", "development"), "STT"))
                     .as("%s cannot be downgraded by service profile", globalKey)
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("Production-like STT gRPC requires TLS");
+                    .hasMessageContaining("Production-like STT gRPC requires mTLS");
         }
     }
 

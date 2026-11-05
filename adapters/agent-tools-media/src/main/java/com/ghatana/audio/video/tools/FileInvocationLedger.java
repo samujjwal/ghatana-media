@@ -17,11 +17,14 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
@@ -30,6 +33,7 @@ import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -55,13 +59,20 @@ public final class FileInvocationLedger implements InvocationLedger {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final int SCHEMA_VERSION = 1;
     private static final int LOCK_STRIPE_COUNT = 64;
+    private static final Set<PosixFilePermission> DIRECTORY_PERMISSIONS =
+            PosixFilePermissions.fromString("rwx------");
+    private static final Set<PosixFilePermission> FILE_PERMISSIONS =
+            PosixFilePermissions.fromString("rw-------");
 
     private final Path directory;
+    private final UserPrincipal expectedOwner;
     private final ReentrantLock[] stripes = new ReentrantLock[LOCK_STRIPE_COUNT];
 
     /**
-     * @param directory durable directory for invocation records; created if
-     *                  absent. Requires same-filesystem hard-link support for exclusive claims and
+     * @param directory durable POSIX directory for invocation records; created
+     *                  owner-only if absent. Existing directories must be owned
+     *                  by the current user and have mode 0700. Requires same-filesystem
+     *                  hard-link support for exclusive claims and
      *                  atomic replace support for terminal completion; when
      *                  unsupported, operations fail closed rather than risk
      *                  overwriting another invocation's fence.
@@ -69,14 +80,80 @@ public final class FileInvocationLedger implements InvocationLedger {
     public FileInvocationLedger(Path directory) {
         this.directory = directory.toAbsolutePath().normalize();
         for (int i = 0; i < LOCK_STRIPE_COUNT; i++) stripes[i] = new ReentrantLock();
+        this.expectedOwner = currentUser(this.directory);
         try {
-            Files.createDirectories(this.directory);
-        } catch (IOException e) {
-            throw new UncheckedIOException("cannot create invocation ledger directory", e);
+            createPrivateDirectoryIfAbsent(this.directory);
+            validatePrivateDirectory();
+        } catch (IOException | UnsupportedOperationException e) {
+            throw new IllegalStateException("invocation ledger directory is not securely usable", e);
         }
-        if (!Files.isDirectory(this.directory)) {
-            throw new IllegalArgumentException("invocation ledger path is not a directory");
+    }
+
+    private static UserPrincipal currentUser(Path path) {
+        String user = System.getProperty("user.name");
+        if (user == null || user.isBlank()) {
+            throw new IllegalStateException("cannot determine invocation ledger owner");
         }
+        try {
+            return path.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByName(user);
+        } catch (IOException | UnsupportedOperationException e) {
+            throw new IllegalStateException("cannot resolve invocation ledger owner", e);
+        }
+    }
+
+    private static void createPrivateDirectoryIfAbsent(Path directory) throws IOException {
+        if (Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) return;
+        Path parent = directory.getParent();
+        if (parent != null) Files.createDirectories(parent);
+        try {
+            Files.createDirectory(directory, PosixFilePermissions.asFileAttribute(DIRECTORY_PERMISSIONS));
+        } catch (java.nio.file.FileAlreadyExistsException raced) {
+            // Validate the winning entry below; never follow or repair it silently.
+        }
+    }
+
+    private void validatePrivateDirectory() throws IOException {
+        if (Files.isSymbolicLink(directory)
+                || !Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IllegalStateException("invocation ledger path must be a real directory, not a symlink");
+        }
+        if (!Files.getOwner(directory, LinkOption.NOFOLLOW_LINKS).equals(expectedOwner)) {
+            throw new IllegalStateException("invocation ledger directory is not owned by the current user");
+        }
+        Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(directory, LinkOption.NOFOLLOW_LINKS);
+        if (!permissions.containsAll(DIRECTORY_PERMISSIONS)
+                || permissions.stream().anyMatch(permission -> permission.name().startsWith("GROUP_")
+                        || permission.name().startsWith("OTHERS_"))) {
+            throw new IllegalStateException("invocation ledger directory must have owner-only permissions (0700)");
+        }
+    }
+
+    private void validatePrivateRegularFile(Path file) throws IOException {
+        if (Files.isSymbolicLink(file)
+                || !Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IllegalStateException("invocation ledger entry must be a regular file, not a symlink");
+        }
+        if (!Files.getOwner(file, LinkOption.NOFOLLOW_LINKS).equals(expectedOwner)) {
+            throw new IllegalStateException("invocation ledger file is not owned by the current user");
+        }
+        Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file, LinkOption.NOFOLLOW_LINKS);
+        if (!permissions.contains(PosixFilePermission.OWNER_READ)
+                || !permissions.contains(PosixFilePermission.OWNER_WRITE)
+                || permissions.stream().anyMatch(permission -> permission.name().startsWith("GROUP_")
+                        || permission.name().startsWith("OTHERS_"))) {
+            throw new IllegalStateException("invocation ledger files must have owner-only permissions (0600)");
+        }
+    }
+
+    private FileChannel openPrivateLockFile(Path lockFile) throws IOException {
+        validatePrivateDirectory();
+        try {
+            Files.createFile(lockFile, PosixFilePermissions.asFileAttribute(FILE_PERMISSIONS));
+        } catch (java.nio.file.FileAlreadyExistsException alreadyExists) {
+            // Existing lock files are accepted only after ownership/mode validation.
+        }
+        validatePrivateRegularFile(lockFile);
+        return FileChannel.open(lockFile, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS);
     }
 
     public Path directory() { return directory; }
@@ -84,8 +161,10 @@ public final class FileInvocationLedger implements InvocationLedger {
     @Override
     public Optional<LogicalAction> find(String invocationId) {
         Path file = recordPath(invocationId);
-        if (!Files.exists(file)) return Optional.empty();
         try {
+            validatePrivateDirectory();
+            if (!Files.exists(file, LinkOption.NOFOLLOW_LINKS)) return Optional.empty();
+            validatePrivateRegularFile(file);
             return Optional.of(readAction(Files.readString(file)));
         } catch (IOException e) {
             throw new UncheckedIOException("invocation record unreadable", e);
@@ -115,8 +194,9 @@ public final class FileInvocationLedger implements InvocationLedger {
             throw new IllegalArgumentException("claim requires an UNKNOWN fence without result");
         }
         Path target = recordPath(unknownFence.invocationId());
-        if (Files.exists(target)) return ClaimResult.ALREADY_CLAIMED;
         try {
+            validatePrivateDirectory();
+            if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) return ClaimResult.ALREADY_CLAIMED;
             atomicWrite(target, encode(unknownFence), false);
             return ClaimResult.CLAIMED;
         } catch (FileAlreadyExistsMarker exists) {
@@ -135,12 +215,13 @@ public final class FileInvocationLedger implements InvocationLedger {
         }
         return withKeyLock(terminalAction.invocationId(), () -> {
             Path lockFile = lockPath(terminalAction.invocationId());
-            try (FileChannel channel = FileChannel.open(lockFile,
-                    StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            try (FileChannel channel = openPrivateLockFile(lockFile);
                  FileLock ignored = channel.tryLock()) {
+                validatePrivateDirectory();
                 if (ignored == null) return false;
                 Path target = recordPath(terminalAction.invocationId());
-                if (!Files.exists(target)) return false;
+                if (!Files.exists(target, LinkOption.NOFOLLOW_LINKS)) return false;
+                validatePrivateRegularFile(target);
                 LogicalAction current;
                 try {
                     current = readAction(Files.readString(target));
@@ -158,7 +239,7 @@ public final class FileInvocationLedger implements InvocationLedger {
                 } catch (IOException e) {
                     return false;
                 }
-            } catch (IOException | OverlappingFileLockException e) {
+            } catch (IOException | IllegalStateException e) {
                 return false;
             }
         });
@@ -186,7 +267,8 @@ public final class FileInvocationLedger implements InvocationLedger {
     }
 
     private static void atomicWrite(Path target, String content, boolean replace) throws IOException {
-        Path temp = Files.createTempFile(target.getParent(), ".inv-", ".tmp");
+        Path temp = Files.createTempFile(target.getParent(), ".inv-", ".tmp",
+                PosixFilePermissions.asFileAttribute(FILE_PERMISSIONS));
         try {
             Files.writeString(temp, content);
             try (FileChannel channel = FileChannel.open(temp, StandardOpenOption.WRITE)) {

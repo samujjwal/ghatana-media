@@ -1,0 +1,198 @@
+package com.ghatana.media.production.timeline;
+
+import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
+/** Applies deterministic graph edits and delegates every canonical mutation to one CAS store. */
+public final class ProjectTimelineEngine {
+    private final ProjectTimelineStore store;
+    private final Supplier<String> ids;
+
+    public ProjectTimelineEngine(ProjectTimelineStore store) {
+        this(store, () -> java.util.UUID.randomUUID().toString());
+    }
+
+    public ProjectTimelineEngine(ProjectTimelineStore store, Supplier<String> ids) {
+        this.store = Objects.requireNonNull(store, "store");
+        this.ids = Objects.requireNonNull(ids, "ids");
+    }
+
+    public Created createProject(Actor actor, String workspaceId, String title, String requestId) {
+        Objects.requireNonNull(actor, "actor");
+        validateRequestId(requestId);
+        if (workspaceId == null || workspaceId.isBlank()) throw new IllegalArgumentException("workspaceId must not be blank");
+        if (title == null || title.isBlank()) throw new IllegalArgumentException("title must not be blank");
+        if (title.length() > 200) throw new IllegalArgumentException("title exceeds the 200 character project limit");
+        return store.create(actor, workspaceId, title, requestId, nextId(), nextId(), nextId());
+    }
+
+    public Project project(Actor actor, String projectId) { return store.project(actor, projectId); }
+
+    public Revision edit(Actor actor, String projectId, String expectedHeadRevisionId, List<Edit> edits) {
+        Project project = store.project(actor, projectId);
+        Revision head = store.revision(actor, projectId, project.headRevisionId());
+        if (!head.revisionId().equals(expectedHeadRevisionId)) {
+            throw new RevisionConflictException(expectedHeadRevisionId, head.revisionId());
+        }
+        Graph next = apply(head.graph(), edits);
+        return store.commit(actor, projectId, expectedHeadRevisionId, nextId(), next);
+    }
+
+    /** Restore copies an exact immutable historical graph into a new successor revision (undo/redo primitive). */
+    public Revision restore(Actor actor, String projectId, String expectedHeadRevisionId, String targetRevisionId) {
+        Revision target = store.revision(actor, projectId, targetRevisionId);
+        return store.commit(actor, projectId, expectedHeadRevisionId, nextId(), target.graph());
+    }
+
+    /** Check live authority for every exact source before an external effect such as rendering. */
+    public void requireCurrentSources(Actor actor, String projectId, String revisionId,
+                                      Predicate<SourceVersion> currentlyEligible) {
+        Objects.requireNonNull(currentlyEligible, "currentlyEligible");
+        Revision revision = store.revision(actor, projectId, revisionId);
+        for (Clip clip : revision.graph().clips()) {
+            if (!currentlyEligible.test(clip.source())) throw new SourceEligibilityException();
+        }
+    }
+
+    public static Graph apply(Graph graph, List<Edit> edits) {
+        Objects.requireNonNull(graph, "graph");
+        List<Edit> commands = List.copyOf(edits == null ? List.of() : edits);
+        if (commands.isEmpty()) throw new IllegalArgumentException("an edit command must contain at least one operation");
+        Graph result = graph;
+        for (Edit edit : commands) result = Objects.requireNonNull(edit, "edit").apply(result);
+        return result;
+    }
+
+    public static GraphDiff diff(Graph before, Graph after) {
+        Objects.requireNonNull(before, "before");
+        Objects.requireNonNull(after, "after");
+        if (!before.timelineId().equals(after.timelineId())) throw new IllegalArgumentException("cannot diff different timelines");
+        ChangeSet scenes = changes(before.scenes(), after.scenes(), Scene::sceneId);
+        ChangeSet tracks = changes(before.tracks(), after.tracks(), Track::trackId);
+        ChangeSet clips = changes(before.clips(), after.clips(), Clip::clipId);
+        return new GraphDiff(scenes.added(), scenes.removed(), scenes.changed(),
+                tracks.added(), tracks.removed(), tracks.changed(),
+                clips.added(), clips.removed(), clips.changed());
+    }
+
+    public sealed interface Edit permits AddScene, RemoveScene, AddTrack, RemoveTrack, PutClip, RemoveClip {
+        Graph apply(Graph graph);
+    }
+
+    public record AddScene(Scene scene) implements Edit {
+        public AddScene { Objects.requireNonNull(scene, "scene"); }
+        @Override public Graph apply(Graph g) {
+            List<Scene> values = new ArrayList<>(g.scenes()); values.add(scene);
+            return graph(g, values, g.tracks(), g.clips());
+        }
+    }
+
+    public record RemoveScene(String sceneId) implements Edit {
+        public RemoveScene { sceneId = required(sceneId, "sceneId"); }
+        @Override public Graph apply(Graph g) {
+            if (g.scenes().stream().noneMatch(s -> s.sceneId().equals(sceneId))) {
+                throw new IllegalArgumentException("scene does not exist in the current graph");
+            }
+            if (g.tracks().stream().anyMatch(t -> t.sceneId().equals(sceneId))) {
+                throw new IllegalArgumentException("scene with tracks cannot be removed; remove tracks and clips explicitly");
+            }
+            return graph(g, g.scenes().stream().filter(s -> !s.sceneId().equals(sceneId)).toList(), g.tracks(), g.clips());
+        }
+    }
+
+    public record AddTrack(Track track) implements Edit {
+        public AddTrack { Objects.requireNonNull(track, "track"); }
+        @Override public Graph apply(Graph g) {
+            List<Track> values = new ArrayList<>(g.tracks()); values.add(track);
+            return graph(g, g.scenes(), values, g.clips());
+        }
+    }
+
+    public record RemoveTrack(String trackId) implements Edit {
+        public RemoveTrack { trackId = required(trackId, "trackId"); }
+        @Override public Graph apply(Graph g) {
+            if (g.tracks().stream().noneMatch(t -> t.trackId().equals(trackId))) {
+                throw new IllegalArgumentException("track does not exist in the current graph");
+            }
+            if (g.clips().stream().anyMatch(c -> c.trackId().equals(trackId))) {
+                throw new IllegalArgumentException("track with clips cannot be removed; remove clips explicitly");
+            }
+            return graph(g, g.scenes(), g.tracks().stream().filter(t -> !t.trackId().equals(trackId)).toList(), g.clips());
+        }
+    }
+
+    /** Adds a clip or replaces the same stable clip identity with a new immutable revision value. */
+    public record PutClip(Clip clip) implements Edit {
+        public PutClip { Objects.requireNonNull(clip, "clip"); }
+        @Override public Graph apply(Graph g) {
+            List<Clip> values = new ArrayList<>(g.clips());
+            values.removeIf(existing -> existing.clipId().equals(clip.clipId()));
+            values.add(clip);
+            return graph(g, g.scenes(), g.tracks(), values);
+        }
+    }
+
+    public record RemoveClip(String clipId) implements Edit {
+        public RemoveClip { clipId = required(clipId, "clipId"); }
+        @Override public Graph apply(Graph g) {
+            if (g.clips().stream().noneMatch(c -> c.clipId().equals(clipId))) {
+                throw new IllegalArgumentException("clip does not exist in the current graph");
+            }
+            return graph(g, g.scenes(), g.tracks(), g.clips().stream().filter(c -> !c.clipId().equals(clipId)).toList());
+        }
+    }
+
+    public record GraphDiff(List<String> addedScenes, List<String> removedScenes, List<String> changedScenes,
+                            List<String> addedTracks, List<String> removedTracks, List<String> changedTracks,
+                            List<String> addedClips, List<String> removedClips, List<String> changedClips) {
+        public GraphDiff {
+            addedScenes = List.copyOf(addedScenes); removedScenes = List.copyOf(removedScenes); changedScenes = List.copyOf(changedScenes);
+            addedTracks = List.copyOf(addedTracks); removedTracks = List.copyOf(removedTracks); changedTracks = List.copyOf(changedTracks);
+            addedClips = List.copyOf(addedClips); removedClips = List.copyOf(removedClips); changedClips = List.copyOf(changedClips);
+        }
+    }
+
+    private static <T> ChangeSet changes(List<T> before, List<T> after, java.util.function.Function<T, String> id) {
+        Map<String, T> left = byId(before, id), right = byId(after, id);
+        List<String> added = right.keySet().stream().filter(k -> !left.containsKey(k)).sorted().toList();
+        List<String> removed = left.keySet().stream().filter(k -> !right.containsKey(k)).sorted().toList();
+        List<String> changed = left.keySet().stream().filter(right::containsKey)
+                .filter(k -> !left.get(k).equals(right.get(k))).sorted().toList();
+        return new ChangeSet(added, removed, changed);
+    }
+
+    private static <T> Map<String, T> byId(List<T> values, java.util.function.Function<T, String> id) {
+        Map<String, T> result = new HashMap<>(); values.forEach(v -> result.put(id.apply(v), v)); return result;
+    }
+    private record ChangeSet(List<String> added, List<String> removed, List<String> changed) { }
+
+    private static Graph graph(Graph g, List<Scene> scenes, List<Track> tracks, List<Clip> clips) {
+        List<Scene> orderedScenes = scenes.stream().sorted(Comparator.comparingInt(Scene::order).thenComparing(Scene::sceneId)).toList();
+        List<Track> orderedTracks = tracks.stream().sorted(Comparator.comparing(Track::sceneId)
+                .thenComparingInt(Track::order).thenComparing(Track::trackId)).toList();
+        List<Clip> orderedClips = clips.stream().sorted(Comparator.comparing(Clip::sceneId)
+                .thenComparing(Clip::trackId).thenComparing(Clip::storyStart).thenComparing(Clip::clipId)).toList();
+        return new Graph(g.timelineId(), orderedScenes, orderedTracks, orderedClips);
+    }
+
+    private static void validateRequestId(String requestId) {
+        if (requestId == null || !requestId.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}")) {
+            throw new IllegalArgumentException("requestId must be a 1-128 character ASCII opaque key");
+        }
+    }
+
+    private String nextId() {
+        String value = ids.get();
+        if (value == null || value.isBlank()) throw new IllegalStateException("id supplier returned a blank value");
+        return value;
+    }
+}

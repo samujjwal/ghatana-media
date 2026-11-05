@@ -1,0 +1,9 @@
+# Bounded spatial rig evaluation
+
+This module provides a deterministic CPU-side spatial pose evaluator for an explicitly described skeleton, exact coordinate-frame versions, bounded keyframe tracks, and a basic perspective projection helper. It uses immutable values and a single supported local profile: `UNIT_QUATERNION_XYZW`, seconds as rational keyframe time, a camera looking along local `-Z`, and a declared signed-axis basis. Unsupported or incomplete conventions fail closed.
+
+The spatial-frame declaration is grounded in `.product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract`. The source deliberately leaves the general spatial conversion algorithm unselected. This module therefore supports only a narrow, explicit, same-position-unit signed-axis re-expression profile; it does not infer calibration, frame origins, world alignment, scale conversion, or scientific accuracy. The conversion request carries exact source/target frame versions and an ordered mapping reference; other operation sequences are rejected.
+
+`SpatialRigEngine.evaluate` checks every exact immutable source version with a caller-supplied eligibility predicate before producing a pose result. That predicate is an adapter seam, not an authorization authority; production callers must bind it to authenticated, current rights evidence and recheck immediately before any provider or persistence effect. This module performs no network calls, source reads, persistence, provider dispatch, or codec output.
+
+The evaluator returns `POSE_ONLY` data and reports `encodedSpatialOutputAvailable=false`. It does not produce a 3D renderer, decodable animation/container, camera calibration, export, registered transform plan, canonical runtime contract, or qualified production result. A successful pose evaluation is not evidence that a source is licensed or that a physical model is valid.

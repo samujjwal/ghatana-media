@@ -7,6 +7,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
 import io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Reusable lifecycle owner for audio/video gRPC servers.
  *
- * <p>The base owns the gRPC server, transport-security configuration, health sidecar, and—when the
+ * <p>The base owns the gRPC server, TLS/mTLS transport configuration, health sidecar, and—when the
  * supplied service implements {@link AutoCloseable}—the service resource graph. Shutdown and
  * failed-start cleanup are idempotent: the service graph is closed at most once even when health
  * startup fails and a caller later invokes {@link #close()}.
@@ -265,13 +266,27 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         // forPort() builder binds wildcard interfaces, which would expose those profiles to the
         // network even though the profile policy permits plaintext only for local use.
         ServerBuilder<?> builder = security.tlsEnabled()
-                ? ServerBuilder.forPort(bindPort)
+                ? NettyServerBuilder.forPort(bindPort)
                 : NettyServerBuilder.forAddress(
                         new InetSocketAddress(loopbackAddress(), bindPort));
         maxInboundMessageSize.ifPresent(builder::maxInboundMessageSize);
         interceptors.forEach(builder::intercept);
         if (security.tlsEnabled()) {
-            builder.useTransportSecurity(security.certificateChain().toFile(), security.privateKey().toFile());
+            if (security.clientTrustCertificate() == null) {
+                builder.useTransportSecurity(security.certificateChain().toFile(), security.privateKey().toFile());
+            } else {
+                SslContext sslContext;
+                try {
+                    sslContext = GrpcSslContexts.forServer(
+                                    security.certificateChain().toFile(), security.privateKey().toFile())
+                            .trustManager(security.clientTrustCertificate().toFile())
+                            .clientAuth(ClientAuth.REQUIRE)
+                            .build();
+                } catch (Exception failure) {
+                    throw new IllegalArgumentException("gRPC client trust certificate is invalid", failure);
+                }
+                ((NettyServerBuilder) builder).sslContext(sslContext);
+            }
         }
         builder.addService(serviceImpl);
         if (readinessLifecycle != null && readinessLifecycle != serviceImpl) builder.addService(readinessLifecycle);
@@ -412,30 +427,46 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     public record TransportSecurity(
             boolean tlsEnabled,
             Path certificateChain,
-            Path privateKey) {
+            Path privateKey,
+            Path clientTrustCertificate) {
+
+        /** Source-compatible server-auth TLS constructor for local/test transports. */
+        public TransportSecurity(boolean tlsEnabled, Path certificateChain, Path privateKey) {
+            this(tlsEnabled, certificateChain, privateKey, null);
+        }
 
         public TransportSecurity {
             if (tlsEnabled) {
                 certificateChain = normalizedPath(certificateChain, "certificateChain");
                 privateKey = normalizedPath(privateKey, "privateKey");
-            } else if (certificateChain != null || privateKey != null) {
-                throw new IllegalArgumentException(
-                        "certificateChain/privateKey must be absent when TLS is disabled");
+                if (clientTrustCertificate != null) {
+                    clientTrustCertificate = normalizedPath(clientTrustCertificate, "clientTrustCertificate");
+                }
+            } else if (certificateChain != null || privateKey != null || clientTrustCertificate != null) {
+                throw new IllegalArgumentException("TLS material must be absent when TLS is disabled");
             }
         }
 
         public static TransportSecurity plaintext() {
-            return new TransportSecurity(false, null, null);
+            return new TransportSecurity(false, null, null, null);
         }
 
         public static TransportSecurity tls(Path certificateChain, Path privateKey) {
-            return new TransportSecurity(true, certificateChain, privateKey);
+            return new TransportSecurity(true, certificateChain, privateKey, null);
+        }
+
+        /** TLS with mandatory client-certificate authentication against the supplied CA bundle. */
+        public static TransportSecurity mtls(Path certificateChain, Path privateKey, Path clientTrustCertificate) {
+            return new TransportSecurity(true, certificateChain, privateKey, clientTrustCertificate);
         }
 
         private void verify() {
             if (!tlsEnabled) return;
             verifyFile(certificateChain, "gRPC TLS certificate chain");
             verifyFile(privateKey, "gRPC TLS private key");
+            if (clientTrustCertificate != null) {
+                verifyFile(clientTrustCertificate, "gRPC mTLS client trust certificate");
+            }
             SslContext preflightContext = null;
             try {
                 preflightContext = GrpcSslContexts.forServer(

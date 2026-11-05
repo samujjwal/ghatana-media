@@ -197,7 +197,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         if (bytes == null || bytes.length == 0) throw new IllegalArgumentException("chunk bytes are required");
         String digest = sha256(bytes);
         String objectKey = chunkKey(tenantId, uploadId, chunkIndex);
-        boolean objectWritten = false;
+        // S3 may persist the object and lose the response. Treat the write as potentially
+        // durable from the moment it is dispatched so a failed acknowledgement still triggers
+        // PostgreSQL reconciliation and exact-key orphan cleanup.
+        boolean objectWriteAttempted = false;
 
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
@@ -228,6 +231,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     throw new IllegalArgumentException("Upload exceeds expected size");
                 }
 
+                objectWriteAttempted = true;
                 state.s3().putObject(PutObjectRequest.builder()
                                 .bucket(state.bucket())
                                 .key(objectKey)
@@ -236,8 +240,6 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                                 .metadata(Map.of("sha256", digest))
                                 .build(),
                         RequestBody.fromBytes(bytes));
-                objectWritten = true;
-
                 try (PreparedStatement insert = connection.prepareStatement(
                         "INSERT INTO media_upload_chunks "
                                 + "(tenant_id,upload_id,chunk_index,object_key,size_bytes,sha256,created_at) "
@@ -264,11 +266,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     }
                 }
                 connection.commit();
-                objectWritten = false;
                 return current.withProgress(total, chunkIndex + 1).session();
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
-                if (objectWritten) {
+                if (objectWriteAttempted) {
                     Optional<UploadSession> reconciled = reconcileFailedChunkWrite(
                             tenantId, uploadId, chunkIndex, objectKey, bytes.length, digest, failure);
                     if (reconciled.isPresent()) return reconciled.orElseThrow();

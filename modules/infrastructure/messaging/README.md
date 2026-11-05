@@ -6,6 +6,24 @@ Prepared Media-specific broker integration source; not a competing Event Plane o
 
 Provides producer and consumer implementations for the transcription job queue. Decouples request ingestion from asynchronous transcription execution.
 
+`MediaLifecycleOutboxRelay` binds the Shared `OutboxPublicationSource` and
+`ClaimedOutboxPublisher` to Media's stable `media-lifecycle` topic, source
+identity, and schema URI. The source must append lifecycle intent in the same
+transaction as its owning state change and implement durable claim leases,
+attempt/readback state, retry eligibility/backoff, and fenced acknowledgements.
+The relay publishes one claimed batch at a time and persists broker acceptance
+before returning a published count. A publish or acknowledgement failure keeps
+the event eligible for retry with its original event ID, so broker delivery is
+at least once. A publisher result does not mean a consumer applied the event or
+that a job reached a terminal state.
+
+This module does not own the durable event store, consumer-effect receipts, or
+job finality. Its in-memory relay tests cover lost acknowledgement replay and
+expired-lease fail-closed behavior; provider integration tests own persistence,
+concurrent claims, and restart recovery. Durable retry/backoff eligibility and
+consumer-effect deduplication remain separate source/consumer responsibilities
+and are not implied by broker delivery.
+
 ## Layer
 
 `infrastructure` — adapter over the message broker; no domain logic. Consumed by `stt-service` and `multimodal-service`.
@@ -16,6 +34,7 @@ Provides producer and consumer implementations for the transcription job queue. 
 |---|---|
 | `TranscriptionJobProducer` | Publishes transcription job messages to the broker |
 | `TranscriptionJobConsumer` | Consumes and dispatches transcription jobs for execution |
+| `MediaLifecycleOutboxRelay` | Binds Media lifecycle events to Shared's durable claim-aware publisher |
 
 ## Configuration
 

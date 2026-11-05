@@ -228,6 +228,59 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void mtlsTransportRejectsMissingClientTrustMaterialBeforeBinding() throws Exception {
+        Path certificate = tlsFixture("rotation-a-cert.pem");
+        Path privateKey = tlsFixture("rotation-a-key.pem");
+        assertThatThrownBy(() -> new TestServer(0, new CloseableNoOpService(),
+                        AudioVideoGrpcServerBase.TransportSecurity.mtls(
+                                certificate, privateKey, Path.of("/definitely/missing/client-ca.pem"))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("mTLS client trust certificate")
+                .hasMessageContaining("readable regular non-symlink file");
+    }
+
+    @Test
+    void mtlsListenerRejectsClientWithoutCertificate() throws Exception {
+        Path certificate = tlsFixture("rotation-a-cert.pem");
+        Path privateKey = tlsFixture("rotation-a-key.pem");
+        TestServer server = new TestServer(0, payloadService(new AtomicInteger()),
+                AudioVideoGrpcServerBase.TransportSecurity.mtls(certificate, privateKey, certificate));
+        server.start();
+        try {
+            X509Certificate trusted;
+            try (var input = Files.newInputStream(certificate)) {
+                trusted = (X509Certificate) CertificateFactory.getInstance("X.509")
+                        .generateCertificate(input);
+            }
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore.load(null);
+            trustStore.setCertificateEntry("server", trusted);
+            TrustManagerFactory trustManagers = TrustManagerFactory.getInstance(
+                    TrustManagerFactory.getDefaultAlgorithm());
+            trustManagers.init(trustStore);
+            SSLContext clientContext = SSLContext.getInstance("TLS");
+            clientContext.init(null, trustManagers.getTrustManagers(), null);
+
+            boolean rejected;
+            try {
+                try (SSLSocket socket = (SSLSocket) clientContext.getSocketFactory().createSocket()) {
+                    socket.connect(new InetSocketAddress("127.0.0.1", server.getPort()), 3_000);
+                    socket.setSoTimeout(3_000);
+                    socket.startHandshake();
+                    socket.getOutputStream().write(1);
+                    socket.getOutputStream().flush();
+                    rejected = socket.getInputStream().read() == -1;
+                }
+            } catch (IOException expectedRejection) {
+                rejected = true;
+            }
+            assertThat(rejected).as("listener must reject a TLS peer without a client certificate").isTrue();
+        } finally {
+            server.close();
+        }
+    }
+
+    @Test
     void productionLikeProfileWithoutTlsFailsBeforeGrpcPortCanBind() throws Exception {
         for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
             for (String profile : new String[] {"staging", "production", "sovereign"}) {
@@ -244,7 +297,7 @@ class AudioVideoGrpcServerBaseTest {
                     }
                 }).as("%s %s profile without TLS material", service, profile)
                         .isInstanceOf(IllegalStateException.class)
-                        .hasMessageContaining("requires TLS");
+                        .hasMessageContaining("requires mTLS");
 
                 assertPortNotBound(port, "%s %s profile without TLS".formatted(service, profile));
             }
@@ -294,7 +347,8 @@ class AudioVideoGrpcServerBaseTest {
                 var environment = java.util.Map.of(
                         service + "_ENVIRONMENT", profile,
                         service + "_GRPC_TLS_CERT_CHAIN_PATH", certificate.toString(),
-                        service + "_GRPC_TLS_PRIVATE_KEY_PATH", mismatchedKey.toString());
+                        service + "_GRPC_TLS_PRIVATE_KEY_PATH", mismatchedKey.toString(),
+                        service + "_GRPC_TLS_CLIENT_CA_PATH", certificate.toString());
 
                 assertThatThrownBy(() -> new TestServer(port, new CloseableNoOpService(),
                                 GrpcTransportSecurityPolicy.resolve(environment, service)))

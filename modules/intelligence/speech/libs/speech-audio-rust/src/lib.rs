@@ -18,6 +18,12 @@ use symphonia::core::sample::Sample;
 use symphonia::default::{get_codecs, get_probe};
 use thiserror::Error;
 
+mod repair;
+pub use repair::{
+    compare_audio, declip, denoise, AudioComparison, AudioQualityMetrics, DenoiseOptions,
+    NoiseProfile, RepairLimits,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SampleFormat {
     F32,

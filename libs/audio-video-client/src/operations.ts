@@ -1,14 +1,5 @@
 import {
-  MediaArtifactSchema,
   MediaProcessingJobSchema,
-  OperationAcceptedSchema,
-  ProviderCapabilitySchema,
-  SynthesisRequestSchema,
-  SynthesisResultSchema,
-  TranscriptionRequestSchema,
-  TranscriptionResultSchema,
-  VoiceConversionRequestSchema,
-  VoiceTrainingRequestSchema,
   type MediaRuntimeUploadStatus,
   type MediaArtifact,
   type MediaProcessingJob,
@@ -423,9 +414,9 @@ export class MediaOperationHandle<T> {
 }
 
 /**
- * LEGACY_COMPATIBILITY: preserves the existing `/api/v1/media/*` client
- * contract. Semantic mapping, wire parity, and consumer migration are pending;
- * this annotation does not change routes or runtime behavior.
+ * Backward-compatible facade. Operations that have no lossless mapping to an
+ * admitted canonical route are rejected before transport; exact artifact and
+ * upload operations below use the canonical runtime contract.
  */
 export class MediaOperationClient {
   private readonly transport: MediaHttpTransport;
@@ -742,73 +733,40 @@ export class MediaOperationClient {
   public async listProviderCapabilities(
     signal?: AbortSignal,
   ): Promise<readonly ProviderCapability[]> {
-    const parser: RuntimeParser<readonly ProviderCapability[]> = {
-      parse: (input: unknown) => {
-        if (!Array.isArray(input)) {
-          throw new Error("Provider capability response must be an array.");
-        }
-        return input.map((item) => ProviderCapabilitySchema.parse(item));
-      },
-    };
-    return this.transport.request(
-      "GET",
-      "/api/v1/media/providers/capabilities",
-      undefined,
-      parser,
-      signal,
-    );
+    void signal;
+    throw new MediaOperationNotAdmittedError("media.sdk.listProviderCapabilities");
   }
 
-  public transcribe(
+  public async transcribe(
     request: TranscriptionRequest,
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<TranscriptionResult>> {
-    return this.submit(
-      "/api/v1/media/transcriptions",
-      TranscriptionRequestSchema.parse(request),
-      TranscriptionResultSchema,
-      request.idempotencyKey,
-      signal,
-    );
+    void request; void signal;
+    throw new MediaOperationNotAdmittedError("media.sdk.transcribe");
   }
 
-  public synthesize(
+  public async synthesize(
     request: SynthesisRequest,
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<SynthesisResult>> {
-    return this.submit(
-      "/api/v1/media/syntheses",
-      SynthesisRequestSchema.parse(request),
-      SynthesisResultSchema,
-      request.idempotencyKey,
-      signal,
-    );
+    void request; void signal;
+    throw new MediaOperationNotAdmittedError("media.sdk.synthesize");
   }
 
   public trainVoiceModel(
     request: VoiceTrainingRequest,
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<MediaArtifact>> {
-    return this.submit(
-      "/api/v1/media/voice-models:train",
-      VoiceTrainingRequestSchema.parse(request),
-      MediaArtifactSchema,
-      request.idempotencyKey,
-      signal,
-    );
+    void request; void signal;
+    return Promise.reject(new MediaOperationNotAdmittedError("media.sdk.trainVoiceModel"));
   }
 
   public convertVoice(
     request: VoiceConversionRequest,
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<MediaArtifact>> {
-    return this.submit(
-      "/api/v1/media/voice-conversions",
-      VoiceConversionRequestSchema.parse(request),
-      MediaArtifactSchema,
-      request.idempotencyKey,
-      signal,
-    );
+    void request; void signal;
+    return Promise.reject(new MediaOperationNotAdmittedError("media.sdk.convertVoice"));
   }
 
   /**
@@ -822,29 +780,20 @@ export class MediaOperationClient {
     throw new MediaOperationNotAdmittedError("media.sdk.analyzeMultimodal");
   }
 
-  public getOperation(
+  public async getOperation(
     operationId: string,
     signal?: AbortSignal,
   ): Promise<MediaProcessingJob> {
-    return this.transport.request(
-      "GET",
-      `/api/v1/media/operations/${encodeURIComponent(operationId)}`,
-      undefined,
-      MediaProcessingJobSchema,
-      signal,
-    );
+    void operationId; void signal;
+    throw new MediaOperationNotAdmittedError("media.sdk.getOperation");
   }
 
-  public cancelOperation(
+  public async cancelOperation(
     operationId: string,
     signal?: AbortSignal,
   ): Promise<MediaProcessingJob> {
-    return this.requestMutation(
-      `/api/v1/media/operations/${encodeURIComponent(operationId)}:cancel`,
-      {},
-      MediaProcessingJobSchema,
-      signal,
-    );
+    void operationId; void signal;
+    throw new MediaOperationNotAdmittedError("media.sdk.cancelOperation");
   }
 
   public async retryOperation<T>(
@@ -859,32 +808,13 @@ export class MediaOperationClient {
     throw new MediaOperationNotAdmittedError("media.operation.retry");
   }
 
-  public getOperationResult<T>(
+  public async getOperationResult<T>(
     operationId: string,
     parser: RuntimeParser<T>,
     signal?: AbortSignal,
   ): Promise<T> {
-    return this.transport.request(
-      "GET",
-      `/api/v1/media/operations/${encodeURIComponent(operationId)}/result`,
-      undefined,
-      parser,
-      signal,
-    );
-  }
-
-  private async submit<T>(
-    path: string,
-    body: unknown,
-    resultParser: RuntimeParser<T>,
-    idempotencyKey: string,
-    signal?: AbortSignal,
-  ): Promise<MediaOperationHandle<T>> {
-    let accepted: OperationAccepted;
-    accepted = await this.requestMutation(
-      path, body, OperationAcceptedSchema, signal, { "Idempotency-Key": idempotencyKey },
-    );
-    return new MediaOperationHandle(this, accepted, resultParser);
+    void operationId; void parser; void signal;
+    throw new MediaOperationNotAdmittedError("media.sdk.getOperationResult");
   }
 
 }

@@ -191,6 +191,11 @@ class MediaSecurityFilterTest {
             verify(delegate).handle(seen.capture());
             assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
                     .isEqualTo("media-api-key-service");
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue()))
+                    .satisfies(identity -> {
+                        assertThat(identity.tenantId()).isEqualTo("tenant-a");
+                        assertThat(identity.principalId()).isEqualTo("media-api-key-service");
+                    });
         }
 
         @Test
@@ -208,6 +213,8 @@ class MediaSecurityFilterTest {
             var seen = ArgumentCaptor.forClass(HttpExchange.class);
             verify(delegate).handle(seen.capture());
             assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
+                    .isEqualTo("media-api-key-service");
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue()).principalId())
                     .isEqualTo("media-api-key-service");
         }
 
@@ -248,6 +255,12 @@ class MediaSecurityFilterTest {
             assertThat(authenticated).isNotNull();
             assertThat(authenticated.subject()).isEqualTo("user-1");
             assertThat(authenticated.tenantId()).isEqualTo("tenant-a");
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue()))
+                    .satisfies(identity -> {
+                        assertThat(identity.tenantId()).isEqualTo("tenant-a");
+                        assertThat(identity.principalId()).isEqualTo("user-1");
+                        assertThat(identity.authenticatedAt()).isEqualTo(CLOCK.instant());
+                    });
         }
 
         @Test
@@ -332,6 +345,7 @@ class MediaSecurityFilterTest {
             verify(delegate).handle(seen.capture());
             assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
                     .isEqualTo("media-local-development");
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue())).isNull();
         }
 
         @Test
@@ -349,6 +363,11 @@ class MediaSecurityFilterTest {
             verify(delegate).handle(seen.capture());
             assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id"))
                     .isEqualTo("media-local-development");
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue()))
+                    .satisfies(identity -> {
+                        assertThat(identity.tenantId()).isEqualTo("fixture-tenant");
+                        assertThat(identity.principalId()).isEqualTo("media-local-development");
+                    });
         }
     }
 

@@ -199,14 +199,6 @@ describe("SK-01 canonical Media route parity", () => {
         getServiceStatus: "path: '/health'",
       },
       MediaOperationClient: {
-        listProviderCapabilities: '"/api/v1/media/providers/capabilities"',
-        transcribe: '"/api/v1/media/transcriptions"',
-        synthesize: '"/api/v1/media/syntheses"',
-        trainVoiceModel: '"/api/v1/media/voice-models:train"',
-        convertVoice: '"/api/v1/media/voice-conversions"',
-        getOperation: '`/api/v1/media/operations/${encodeURIComponent(operationId)}`',
-        cancelOperation: '`/api/v1/media/operations/${encodeURIComponent(operationId)}:cancel`',
-        getOperationResult: '`/api/v1/media/operations/${encodeURIComponent(operationId)}/result`',
       },
       MediaCanonicalClient: {},
     };
@@ -221,6 +213,17 @@ describe("SK-01 canonical Media route parity", () => {
         expect(publicSdkMethods[className as keyof typeof sdkClassSources].get(method), `${className}.${method}`)
           .toContain(sourceNeedle);
       }
+    }
+    for (const method of methodDisposition.MediaOperationClient.unboundNotAdmitted) {
+      expect(publicSdkMethods.MediaOperationClient.get(method), `MediaOperationClient.${method}`)
+        .toContain("MediaOperationNotAdmittedError");
+    }
+    for (const path of [
+      "/api/v1/media/providers/capabilities", "/api/v1/media/transcriptions",
+      "/api/v1/media/syntheses", "/api/v1/media/voice-models:train",
+      "/api/v1/media/voice-conversions", "/api/v1/media/operations/",
+    ]) {
+      expect(sdkClassSources.MediaOperationClient).not.toContain(path);
     }
     expect(sharedTransportSource).toContain('if (path.startsWith("/api/v1/media/"))');
     expect(sharedTransportSource).toContain("throw new MediaOperationNotAdmittedError(operation)");
@@ -323,14 +326,16 @@ describe("SK-01 canonical Media route parity", () => {
       }
     }
     // The older operation-oriented helper retains exported signatures but
-    // its routes are rejected by the shared transport admission guard.
+    // unsupported operations reject before transport.
     const operationClientSource = readFileSync(resolve(repositoryRoot, "libs/audio-video-client/src/operations.ts"), "utf8");
     for (const path of [
       "/api/v1/media/providers/capabilities", "/api/v1/media/transcriptions",
-      "/api/v1/media/syntheses", "/api/v1/media/operations/${encodeURIComponent(operationId)}",
+      "/api/v1/media/syntheses", "/api/v1/media/operations/",
     ]) {
-      expect(operationClientSource).toContain(path);
+      expect(operationClientSource).not.toContain(path);
     }
+    expect(operationClientSource).toContain("MediaOperationNotAdmittedError(\"media.sdk.listProviderCapabilities\")");
+    expect(operationClientSource).toContain("MediaOperationNotAdmittedError(\"media.sdk.getOperation\")");
     expect(operationClientSource).toContain("MediaOperationNotAdmittedError(\"media.sdk.analyzeMultimodal\")");
     expect(operationClientSource).toContain("MediaOperationNotAdmittedError(\"media.operation.retry\")");
     expect(legacyCompatibilityRoutes.operations).toBe("/api/v1/media/operations/{operationId}");

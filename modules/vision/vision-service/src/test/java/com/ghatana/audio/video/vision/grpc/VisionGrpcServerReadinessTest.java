@@ -27,7 +27,8 @@ class VisionGrpcServerReadinessTest {
         var security = VisionGrpcServer.transportSecurity(Map.of(
                 "VISION_ENVIRONMENT", "production",
                 "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
-                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem",
+                "MEDIA_GRPC_TLS_CLIENT_CA_PATH", "/run/secrets/media-client-ca.pem"));
 
         assertThat(security.tlsEnabled()).isTrue();
         assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");
@@ -39,7 +40,7 @@ class VisionGrpcServerReadinessTest {
         org.assertj.core.api.Assertions.assertThatThrownBy(() ->
                         VisionGrpcServer.transportSecurity(Map.of("VISION_ENVIRONMENT", "production")))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Production-like VISION gRPC requires TLS");
+                .hasMessageContaining("Production-like VISION gRPC requires mTLS");
     }
 
     @Test

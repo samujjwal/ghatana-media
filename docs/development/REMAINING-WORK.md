@@ -1,6 +1,6 @@
 # Ghatana Media — remaining feature implementation and owner decisions
 
-**Current owner readback:** [Engineering decisions](ENGINEERING-DECISIONS.md) separate the legacy upload model from the actual runtime enum, align the runtime stream type, authorize independent task starts, and preserve history pending qualified archival. [The structured register](remaining-work.json) reconciles **19 VERIFIED / 83 OPEN / 1 OPTIONAL DEFERRED** (103 total); the previous 82 OPEN count was stale. The 83 open units comprise 41 independently startable engineering tasks, 10 safe engineering tasks requiring real-positive inputs later, 30 journey scenario/test tasks, one contract test task and one archive/delete task. `requires` identifies full integration prerequisites, not a blanket pause on code and tests.
+**Current owner readback:** [Engineering decisions](ENGINEERING-DECISIONS.md) separate the legacy upload model from the actual runtime enum, align the runtime stream type, authorize independent task starts, and preserve history pending qualified archival. [The structured register](remaining-work.json) reconciles **21 VERIFIED / 81 OPEN / 1 OPTIONAL DEFERRED** (103 total). The remaining open units comprise 40 independently startable engineering tasks, 10 safe engineering tasks requiring real-positive inputs later, 30 journey scenario/test tasks and one archive/delete task. `requires` identifies full integration prerequisites, not a blanket pause on code and tests.
 
 > **Current engineering selector.** This file and [machine-readable remaining work](remaining-work.json) replace dated task-run selections **for feature implementation only**. Product definitions retain semantic authority. No gtool setup, closure, evidence, convergence, release or production cutover work is authorized by this document.
 
@@ -49,7 +49,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** No unclassified active intent; no fake success/N/A; retain authoritative PDP IDs.
 - **Predecessors:** None; start independently
 
-**`media.dev.domain-contract-parity`** · OPEN
+**`media.dev.domain-contract-parity`** · VERIFIED (fresh Java/TypeScript wire vectors, invalid/overflow/unknown-state coverage, installed ESM/CJS/types consumers and route/RPC projection checks passed; structural parity PASS, semantic source status remains `REVIEW_REQUIRED`)
 - **Where:** `runtime-contracts`, `libs/audio-video-types`, `contracts/openapi/media.yaml`, `config/route-manifest.json`
 - **What:** One public domain and operation contract across Java/TS/HTTP/gRPC.
 - **How:** Bind IDs, immutable artifact/version/ref, rational clocks, rights, lifecycle/UNKNOWN, inputs and outputs; preserve published ABI and add strict schema oracles.
@@ -156,14 +156,14 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** 44 named RPCs plus proposal-only OCR route classified; consumer tests for all methods and auth/restart cases.
 - **Predecessors:** `media.dev.domain-contract-parity`
 
-**`media.dev.sdk-source-declaration-crosswalk`** · VERIFIED (AST crosswalk `.product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json`: 60 public class-member declarations = 30 registry-backed + 2 overload signatures + 28 classified unregistered surface; 3 parser artifacts; ESM/CJS consumer checks green)
+**`media.dev.sdk-source-declaration-crosswalk`** · VERIFIED (AST crosswalk `.product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json`: 74 public class-member declarations = 30 registry-backed + 2 overload signatures + 42 classified unregistered surface; 3 parser artifacts; ESM/CJS consumer checks green)
 - **Where:** `.product-experience/pdp-3-product-experience/sdk/operation-registry.yaml`, `libs/audio-video-client/src`, `scripts/check-media-contract-parity.mjs`
 - **What:** Resolve 60 observed declarations versus 33 registry rows without inventing 27 new public methods.
 - **How:** Use TypeScript AST to enumerate class methods, exported functions, inherited/overloaded methods and compatibility exports; distinguish 3 known parser artifacts (for/if/clearTimeout), true public SDK and internal declarations; generate stable per-symbol crosswalk.
 - **Test/exit:** Every real export classified, no parser tokens in registry, source-free ESM/CJS consumers pass, semantic source unchanged except reviewed crosswalk.
 - **Predecessors:** `media.dev.domain-contract-parity`
 
-**`media.dev.sdk-canonical-migration`** · OPEN
+**`media.dev.sdk-canonical-migration`** · VERIFIED (unsupported legacy methods retain their ABI and fail before transport; canonical route tests passed 167/167 selected, with 12 explicitly skipped; isolated ESM/CJS/types consumers passed; runtime operation qualification remains tracked separately)
 - **Where:** `libs/audio-video-client/src/operations.ts`, `libs/audio-video-client/src/canonical-operations.ts`, `libs/audio-video-client/src/index.ts`
 - **What:** Align SDK methods with canonical routes without breaking legacy consumers.
 - **How:** For each method verify request/response/auth/idempotency/finality; delegate only exact mappings; keep unsupported legacy method as typed NOT_ADMITTED until a real contract exists; deprecate after consumer tests.

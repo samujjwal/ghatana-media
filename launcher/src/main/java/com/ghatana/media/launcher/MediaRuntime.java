@@ -412,6 +412,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     public UploadSession beginUpload(UploadRequest request, String idempotencyKey) {
         ensureOpen();
+        if (config.productionLike()) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
+                    "authenticated Media identity is required to create an upload");
+        }
+        return beginUploadInternal(request, idempotencyKey);
+    }
+
+    private UploadSession beginUploadInternal(UploadRequest request, String idempotencyKey) {
         requireIdempotencyKey(idempotencyKey);
         if (request.expectedSizeBytes() > config.maximumArtifactBytes()) {
             throw new IllegalArgumentException(
@@ -440,6 +449,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     public UploadSession appendChunk(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes) {
         ensureOpen();
+        if (config.productionLike()) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
+                    "authenticated Media identity is required to append an upload chunk");
+        }
+        return appendChunkInternal(tenantId, principalId, uploadId, chunkIndex, bytes);
+    }
+
+    private UploadSession appendChunkInternal(
+            String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes) {
         requirePrincipal(principalId);
         if (chunkIndex < 0) throw new IllegalArgumentException("chunkIndex must not be negative");
         if (bytes == null || bytes.length == 0 || bytes.length > config.maximumChunkBytes()) {
@@ -457,6 +476,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     public MediaArtifact completeUpload(String tenantId, String principalId, String uploadId) {
         ensureOpen();
+        if (config.productionLike()) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
+                    "authenticated Media identity is required to finalize an upload");
+        }
+        return completeUploadInternal(tenantId, principalId, uploadId);
+    }
+
+    private MediaArtifact completeUploadInternal(String tenantId, String principalId, String uploadId) {
         requirePrincipal(principalId);
         UploadSession upload = artifactStore.upload(tenantId, uploadId)
                 .orElseThrow(() -> new IllegalArgumentException("Media upload not found: " + uploadId));
@@ -490,26 +518,32 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     public UploadSession beginUpload(
             UploadRequest request, String idempotencyKey,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
         if (!authenticated.tenantId().equals(request.tenantId())
                 || !authenticated.principalId().equals(request.principalId())) {
             throw new SecurityException(
                     "Media upload request does not match the authenticated principal");
         }
-        return beginUpload(request, idempotencyKey);
+        ensureOpen();
+        return beginUploadInternal(request, idempotencyKey);
     }
 
     @Override
     public UploadSession appendUploadChunk(
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
             String uploadId, int chunkIndex, byte[] bytes) {
-        return appendChunk(authenticated.tenantId(), authenticated.principalId(), uploadId,
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        ensureOpen();
+        return appendChunkInternal(authenticated.tenantId(), authenticated.principalId(), uploadId,
                 chunkIndex, bytes);
     }
 
     @Override
     public MediaArtifact completeUpload(
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated, String uploadId) {
-        return completeUpload(authenticated.tenantId(), authenticated.principalId(), uploadId);
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        ensureOpen();
+        return completeUploadInternal(authenticated.tenantId(), authenticated.principalId(), uploadId);
     }
 
     /** @deprecated A tenant-scoped upload read is insufficient where sessions belong to principals. */
@@ -814,11 +848,23 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
     }
 
+    /** Development-only compatibility path for local providers. */
     @Override
+    @Deprecated(forRemoval = false)
     public ProcessingJob submit(ProcessingJobRequest request) {
-        // In-process callers present the request's tenant/principal as the trusted credential;
-        // transports that authenticate ingress separately must use the two-argument overload
-        // so the downstream verified policy context derives from the real credential.
+        ensureOpen();
+        java.util.Objects.requireNonNull(request, "request");
+        if (config.productionLike()) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
+                    "authenticated Media identity is required for job submission");
+        }
+        if (selectProcessingProviders(request).stream()
+                .anyMatch(provider -> provider.processingBoundary() == ProcessingBoundary.EXTERNAL)) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, request.jobType().name(),
+                    "externally effective Media jobs require an authenticated ingress identity");
+        }
         return submit(request, new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
                 request.tenantId(), request.principalId(), clock.instant()));
     }
@@ -912,20 +958,24 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             // silently fall back to a provider with a different model or processing boundary.
             providers = List.of(provider);
         } else if (WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(request.jobType())) {
-            // A multimodal operation always requires evidence-bearing admission — there is
-            // no legacy development path for it. Vision keeps the earlier development
-            // behavior unless production or a rights authority is composed.
-            if (request.jobType()
+            // Multimodal is always governed. Vision's local diagnostic development path remains
+            // available without an authority, while production and every external provider need
+            // exact versioned owner rights and current policy before job creation.
+            boolean rightsRequired = request.jobType()
                             == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL
-                    || config.productionLike() || sourceAuthorizationAuthority != null) {
+                    || config.productionLike() || sourceAuthorizationAuthority != null
+                    || provider.processingBoundary() == ProcessingBoundary.EXTERNAL;
+            if (rightsRequired) {
                 sourceAuthorization = admitWave2SourceOperationOrThrow(
                         request, artifact, provider, authenticated);
-                // The authorization evidence is bound to the exact provider. Vision and
-                // multimodal operations must not silently fall back to a different provider.
                 providers = List.of(provider);
             }
+        } else if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+            sourceAuthorization = admitWave2SourceOperationOrThrow(
+                    request, artifact, provider, authenticated);
+            providers = List.of(provider);
         }
-        requireWave2SourceRightsAdmission(request.jobType(), sourceAuthorization);
+        requireSourceRightsAdmission(request.jobType(), sourceAuthorization, provider);
         if (MediaSemanticRedactionRuntime.promotionRequested(request) && !semanticRedaction.available()) {
             throw new IllegalStateException(
                     "DEIDENTIFIED promotion requires a ready Media semantic redaction provider");
@@ -1080,6 +1130,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw wave2NotAdmitted(request.jobType(), authorizationDecision);
         }
         MediaSourceAuthorizationContracts.Evidence evidence = authorizationDecision.evidence();
+        final com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification sourceClassification;
+        try {
+            sourceClassification = com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification.valueOf(
+                    artifact.classification().trim().toUpperCase(java.util.Locale.ROOT));
+        } catch (RuntimeException malformedClassification) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    request.jobType().name(),
+                    "immutable source classification is missing or invalid");
+        }
+        if (!request.governanceContext().classification().isAtLeast(sourceClassification)) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    request.jobType().name(),
+                    "request classification cannot lower the immutable source classification");
+        }
         if (!evidence.matches(authorizationRequest) || !evidence.currentAt(clock)
                 || !evidence.tenantId().equals(artifact.tenantId())
                 || !evidence.principalId().equals(artifact.principalId())
@@ -1095,7 +1161,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         boolean consentRequired = evidence.humanConsentDisposition()
                 == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED
                 || provider.processingBoundary() == ProcessingBoundary.EXTERNAL;
-        if (consentRequired && !sourceConsentCurrent(consent, evidence)) {
+        if (consentRequired && !sourceConsentCurrent(
+                consent, evidence, request.governanceContext(), request.parameters())) {
             throw new MediaCapabilityNotAdmittedException(
                     MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
                     request.jobType().name(),
@@ -1179,16 +1246,18 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         };
     }
 
-    /** Source rights are separate from consent; Wave-2 types require evidence-bearing admission. */
-    private void requireWave2SourceRightsAdmission(
+    /** Source rights are separate from consent; external effects require current evidence. */
+    private void requireSourceRightsAdmission(
             com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType,
-            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
-        if (!config.productionLike()) return;
-        if (WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(jobType) && sourceAuthorization != null) return;
-        if (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
-                || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
-                || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION
-                || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL) {
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+            MediaProcessingProvider provider) {
+        if (sourceAuthorization != null) return;
+        boolean productionRightsRequired = config.productionLike()
+                && (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                        || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
+                        || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION
+                        || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL);
+        if (productionRightsRequired || provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
             throw new MediaCapabilityNotAdmittedException(
                     MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
                     "authoritative source rights resolver is unavailable");
@@ -1242,11 +1311,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaProcessingProvider provider,
             MediaSourceAuthorizationContracts.Evidence expectedEvidence,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
-        if (!WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(request.jobType())) return;
+        if (!WAVE2_SOURCE_RIGHTS_JOB_TYPES.contains(request.jobType())
+                && provider.processingBoundary() != ProcessingBoundary.EXTERNAL
+                && !config.productionLike()) return;
         String operation = request.jobType().name();
-        // A development runtime without a rights authority admits no evidence-bearing
-        // job; preserve the earlier non-enforcing source-read behavior for those types.
+        // Local diagnostic jobs retain their development behavior. Every external provider
+        // effect and every production modality must carry evidence through this boundary.
         if (expectedEvidence == null && !config.productionLike()
+                && provider.processingBoundary() != ProcessingBoundary.EXTERNAL
                 && request.jobType()
                         != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
                 && sourceAuthorizationAuthority == null) return;
@@ -1293,7 +1365,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED
                     || expectedEvidence.processingBoundary() == ProcessingBoundary.EXTERNAL;
             if (consentRequired && !sourceConsentCurrent(
-                    consentForSourceAuthorization(request, provider, expectedEvidence), expectedEvidence)) {
+                    consentForSourceAuthorization(request, provider, expectedEvidence), expectedEvidence,
+                    request.governanceContext(), request.parameters())) {
                 throw new MediaCapabilityNotAdmittedException(
                         MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, operation,
                         "source-bound consent is missing, stale, or revoked");
@@ -1309,19 +1382,31 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     private boolean sourceConsentCurrent(
             ConsentDecision consent,
-            MediaSourceAuthorizationContracts.Evidence evidence) {
+            MediaSourceAuthorizationContracts.Evidence evidence,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext governance,
+            Map<String, Object> parameters) {
         Instant now = clock.instant();
         boolean humanConsentRequired = evidence.humanConsentDisposition()
                 == MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED;
         boolean external = evidence.processingBoundary() == ProcessingBoundary.EXTERNAL;
+        boolean biometricRequested = requestsBiometricProcessing(parameters)
+                || governance.biometricSensitivity() != BiometricSensitivity.NONE;
         return consent != null
                 && consent.activeAt(now)
                 && !consent.verifiedAt().isAfter(now.plusSeconds(1))
                 && !consent.verifiedAt().plus(MAX_CONSENT_DECISION_AGE).isBefore(now)
                 && (!humanConsentRequired || evidence.consentDecisionId().equals(consent.consentId()))
                 && consent.permitsPurpose(evidence.purpose())
+                && (!external || governance.externalProcessingAllowed())
                 && consent.permitsRegion(evidence.processingRegion())
+                && governance.permitsRegion(evidence.processingRegion())
+                && governance.consentId().equals(consent.consentId())
                 && consent.permitsProviderRetention(evidence.providerRetention())
+                && (evidence.providerRetention() == com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE
+                        || governance.providerRetentionAllowed())
+                && (!governance.biometricProcessingAllowed() || consent.biometricProcessingAllowed())
+                && (!biometricRequested
+                        || (governance.biometricProcessingAllowed() && consent.biometricProcessingAllowed()))
                 && (!external || consent.externalProcessingAllowed());
     }
 
@@ -1519,8 +1604,33 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     public StreamSessionRegistration openStream(StreamSessionRequest request) {
         ensureOpen();
         MediaStreamingProvider provider = selectStreamingProvider(request);
+        if (config.productionLike() || provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
+                    "authenticated Media identity is required to open an externally effective stream");
+        }
+        return openStream(request, new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                request.tenantId(), request.principalId(), clock.instant()), provider);
+    }
+
+    public StreamSessionRegistration openStream(
+            StreamSessionRequest request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        if (!authenticated.tenantId().equals(request.tenantId())
+                || !authenticated.principalId().equals(request.principalId())) {
+            throw new SecurityException("Media stream request does not match the authenticated principal");
+        }
+        return openStream(request, authenticated, selectStreamingProvider(request));
+    }
+
+    private StreamSessionRegistration openStream(
+            StreamSessionRequest request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
+            MediaStreamingProvider provider) {
         ConsentDecision consent = verifiedStreamConsent(
-                request.tenantId(), request.principalId(), request.governanceContext(),
+                authenticated.tenantId(), authenticated.principalId(), request.governanceContext(),
                 "stream:" + request.streamKind().name(), provider);
         requireStreamSourceAdmission(provider);
         String sessionId = UUID.randomUUID().toString();
@@ -1528,15 +1638,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         Instant now = Instant.now();
         Map<String, Object> metadata = governedStreamMetadata(request.metadata(), request.governanceContext(), consent);
         StreamSession session = streamStore.create(new StreamSession(
-                request.tenantId(), sessionId, request.principalId(), request.streamKind(),
+                authenticated.tenantId(), sessionId, authenticated.principalId(), request.streamKind(),
                 provider.providerId(), StreamState.OPEN, -1L, 0L, request.maximumBufferedBytes(), 0,
                 now.plus(request.leaseDuration()), now, now, null, metadata, 1), hash(token));
-        activeStreams.put(streamKey(request.tenantId(), sessionId),
+        activeStreams.put(streamKey(authenticated.tenantId(), sessionId),
                 new StreamControl(new Cancellation(), provider, request.governanceContext(), consent));
         audit.info("MEDIA_STREAM_OPENED tenantId={} sessionId={} kind={} provider={} maxBufferedBytes={} consentAuthority={}",
-                request.tenantId(), sessionId, request.streamKind(), provider.providerId(),
+                authenticated.tenantId(), sessionId, request.streamKind(), provider.providerId(),
                 request.maximumBufferedBytes(), consent.authorityId());
-        publishLifecycle("media.stream.opened", request.tenantId(), request.principalId(),
+        publishLifecycle("media.stream.opened", authenticated.tenantId(), authenticated.principalId(),
                 request.correlationId(), "", "stream", sessionId, session.version(),
                 request.governanceContext().classification().name(), Map.of(
                         "streamKind", request.streamKind().name(),
