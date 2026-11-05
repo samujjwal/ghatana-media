@@ -262,4 +262,85 @@ class FileRunLedgerProjectionStateTest {
                     .noneMatch(n -> n.contains("run-sensitive"));
         }
     }
+
+    @Test
+    void exclusiveWriterRejectsConcurrentOwnerOnSharedStorage() throws Exception {
+        Path stateDir = Files.createDirectory(dir.resolve("exclusive"));
+        FileRunLedgerProjectionState first = FileRunLedgerProjectionState.forExclusiveWriter(stateDir);
+        assertThat(first.exclusiveWriter()).isTrue();
+        assertThatThrownBy(() -> FileRunLedgerProjectionState.forExclusiveWriter(stateDir))
+                .isInstanceOf(FileRunLedgerProjectionState.ProjectionWriterConflictException.class);
+        first.close();
+    }
+
+    @Test
+    void exclusiveWriterOwnershipReverifiedOnEveryLoadAndSave() throws Exception {
+        Path stateDir = Files.createDirectory(dir.resolve("reverify"));
+        FileRunLedgerProjectionState first = FileRunLedgerProjectionState.forExclusiveWriter(stateDir);
+        RunLedger candidate = ledger("reverify-run", JobExecutionState.RUNNING, null, 1, 100, 0);
+        first.save("reverify-run", new RunLedgerProjection.ProjectionStateBacking.RunProjectionState(
+                null, null, candidate));
+        // A successor force-reclaims the fence: the previous holder must fail
+        // closed instead of dispatching a stale write.
+        Files.delete(stateDir.resolve("writer.lock"));
+        FileRunLedgerProjectionState second = FileRunLedgerProjectionState.forExclusiveWriter(stateDir);
+        assertThatThrownBy(() -> first.save("reverify-run",
+                new RunLedgerProjection.ProjectionStateBacking.RunProjectionState(candidate, null, null)))
+                .isInstanceOf(FileRunLedgerProjectionState.ProjectionWriterLostException.class);
+        assertThatThrownBy(() -> first.load("reverify-run"))
+                .isInstanceOf(FileRunLedgerProjectionState.ProjectionWriterLostException.class);
+        // The succeeding owner still projects normally.
+        second.save("reverify-run", new RunLedgerProjection.ProjectionStateBacking.RunProjectionState(
+                candidate, null, null));
+        assertThat(second.load("reverify-run").orElseThrow().latest()).isEqualTo(candidate);
+        second.close();
+    }
+
+    @Test
+    void closeReleasesWriterFenceOnlyForMatchingOwner() throws Exception {
+        Path stateDir = Files.createDirectory(dir.resolve("release"));
+        FileRunLedgerProjectionState first = FileRunLedgerProjectionState.forExclusiveWriter(stateDir);
+        first.close();
+        assertThatThrownBy(() -> first.save("any-run",
+                new RunLedgerProjection.ProjectionStateBacking.RunProjectionState(null, null, null)))
+                .isInstanceOf(FileRunLedgerProjectionState.ProjectionWriterLostException.class);
+        FileRunLedgerProjectionState second = FileRunLedgerProjectionState.forExclusiveWriter(stateDir);
+        // Closing the released instance again must not delete the new owner's fence.
+        first.close();
+        assertThat(Files.exists(stateDir.resolve("writer.lock"))).isTrue();
+        second.save("any-run", new RunLedgerProjection.ProjectionStateBacking.RunProjectionState(null, null, null));
+        second.close();
+    }
+
+    @Test
+    void independentProcessesRaceForExactlyOneWriterClaim() throws Exception {
+        String classpath = System.getProperty("media.child.classpath", "");
+        org.junit.jupiter.api.Assumptions.assumeTrue(!classpath.isBlank(),
+                "media.child.classpath not provided by the test task");
+        Path stateDir = Files.createDirectory(dir.resolve("process-race"));
+        Path goFile = dir.resolve("go.marker");
+        Path javaBin = Path.of(System.getProperty("java.home"), "bin", "java");
+        List<Process> children = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            children.add(new ProcessBuilder(javaBin.toString(), "-cp", classpath,
+                            RunLedgerProjectionWriterClaimWorker.class.getName(),
+                            stateDir.toString(), goFile.toString())
+                    .redirectErrorStream(true)
+                    .start());
+        }
+        // Release all claimants together so the fence is genuinely contested.
+        Files.writeString(goFile, "go");
+        int claimed = 0;
+        for (Process child : children) {
+            String output = new String(child.getInputStream().readAllBytes());
+            assertThat(child.waitFor(60, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            if (output.contains("CLAIMED")) {
+                claimed++;
+            } else {
+                assertThat(output).contains("CONFLICT");
+                assertThat(child.exitValue()).isEqualTo(3);
+            }
+        }
+        assertThat(claimed).as("exactly one projector may hold the writer fence").isEqualTo(1);
+    }
 }

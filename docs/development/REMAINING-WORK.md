@@ -124,7 +124,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** No replay leaks across actors/tenants, retention tested, concurrent independent host tests or fail-closed single-writer mode.
 - **Predecessors:** `media.dev.exclusive-invocation-claim-verification`, `media.dev.rights-and-policy`
 
-**`media.dev.projection-single-writer-policy`** · OPEN
+**`media.dev.projection-single-writer-policy`** · VERIFIED (exclusive writer fence via `forExclusiveWriter` hard-link claim; per-op ownership reverify; 6-JVM race → exactly one claimant; fail-closed on conflict/reclaim)
 - **Where:** `adapters/ledger`, `adapters/data-cloud-media`
 - **What:** Make optional ledger projection fail closed for concurrent writers on shared storage.
 - **How:** Explicitly enforce single process/host ownership or use a transactional DB CAS and destination readback; never call file rename distributed compare-and-set.

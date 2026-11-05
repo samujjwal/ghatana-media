@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 96,
-      "VERIFIED": 5,
+      "OPEN": 95,
+      "VERIFIED": 6,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -222,7 +222,7 @@
     {
       "id": "media.dev.projection-single-writer-policy",
       "group": "foundations",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "adapters/ledger",
         "adapters/data-cloud-media"
@@ -232,7 +232,8 @@
       "acceptance": "Two independent projector instances cannot both dispatch a stale/duplicate update; no Data Cloud dependency on Media.",
       "requires": [
         "media.dev.projection-pre-dispatch-fence-verification"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: FileRunLedgerProjectionState.forExclusiveWriter claims a durable hard-link writer fence; second instance fails closed (ProjectionWriterConflictException); ownership re-verified on every load/save (ProjectionWriterLostException on reclaim); close releases only for matching owner; 6-JVM race test proves exactly one claimant; multi-host still requires transactional CAS (documented, not claimed)"
     },
     {
       "id": "media.dev.service-observability",
