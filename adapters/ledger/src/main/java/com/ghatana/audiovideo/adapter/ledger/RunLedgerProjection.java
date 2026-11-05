@@ -75,7 +75,25 @@ public final class RunLedgerProjection {
 
     public enum ReconciliationResult { NO_PENDING, CONFIRMED, UNRESOLVED }
 
+    /**
+     * Durable backing for the per-run projection triple (latest truth,
+     * pre-dispatch-unavailable floor, uncertain fence). When supplied, state
+     * is hydrated once per run and persisted after every transition, so a
+     * process restart cannot silently drop a reconciliation fence or replay
+     * guard. Implementations must fail loudly on I/O errors — a silently
+     * lost fence is worse than a failed projection.
+     */
+    public interface ProjectionStateBacking {
+        /** All three slots may independently be absent (null). */
+        record RunProjectionState(RunLedger latest, RunLedger unavailable, RunLedger uncertain) { }
+
+        Optional<RunProjectionState> load(String runId);
+
+        void save(String runId, RunProjectionState state);
+    }
+
     private final LedgerStore store;
+    private final ProjectionStateBacking stateBacking;
     private final Map<String, RunLedger> latestByRunId = new ConcurrentHashMap<>();
     // A pre-dispatch refusal proves no effect occurred, but the incoming record
     // is still the newest truth observed by this projection. Keep it as an
@@ -83,10 +101,17 @@ public final class RunLedgerProjection {
     // record (or a strictly newer one) remains retryable.
     private final Map<String, RunLedger> unavailableByRunId = new ConcurrentHashMap<>();
     private final Map<String, RunLedger> uncertainByRunId = new ConcurrentHashMap<>();
+    private final java.util.Set<String> hydratedRunIds =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
     private final Object[] runLocks = new Object[LOCK_STRIPE_COUNT];
 
     public RunLedgerProjection(LedgerStore store) {
+        this(store, null);
+    }
+
+    public RunLedgerProjection(LedgerStore store, ProjectionStateBacking stateBacking) {
         this.store = Objects.requireNonNull(store, "store must not be null");
+        this.stateBacking = stateBacking;
         for (int i = 0; i < runLocks.length; i++) {
             runLocks[i] = new Object();
         }
@@ -102,6 +127,7 @@ public final class RunLedgerProjection {
         Objects.requireNonNull(incoming, "incoming must not be null");
         Object runLock = lockFor(incoming.runId());
         synchronized (runLock) {
+            hydrate(incoming.runId());
             if (uncertainByRunId.containsKey(incoming.runId())) {
                 return new ProjectionResult(Disposition.PENDING_RECONCILIATION, StoreResult.OUTCOME_UNKNOWN);
             }
@@ -121,21 +147,25 @@ public final class RunLedgerProjection {
                 store.store(incoming);
             } catch (StoreNotDispatchedException unavailable) {
                 unavailableByRunId.put(incoming.runId(), incoming);
+                persist(incoming.runId());
                 return new ProjectionResult(disposition, StoreResult.UNAVAILABLE);
             } catch (Exception unknown) {
                 if (unknown instanceof InterruptedException) Thread.currentThread().interrupt();
                 unavailableByRunId.remove(incoming.runId());
                 uncertainByRunId.put(incoming.runId(), incoming);
+                persist(incoming.runId());
                 return new ProjectionResult(disposition, StoreResult.OUTCOME_UNKNOWN);
             } catch (Error fatal) {
                 // An effect may have occurred even when the caller must see a
                 // fatal failure. Fence any later in-process retry first.
                 unavailableByRunId.remove(incoming.runId());
                 uncertainByRunId.put(incoming.runId(), incoming);
+                persist(incoming.runId());
                 throw fatal;
             }
             latestByRunId.put(incoming.runId(), incoming);
             unavailableByRunId.remove(incoming.runId());
+            persist(incoming.runId());
             return new ProjectionResult(disposition, StoreResult.ACKNOWLEDGED);
         }
     }
@@ -149,6 +179,7 @@ public final class RunLedgerProjection {
         Objects.requireNonNull(runId, "runId");
         Objects.requireNonNull(readback, "readback");
         synchronized (lockFor(runId)) {
+            hydrate(runId);
             RunLedger pending = uncertainByRunId.get(runId);
             if (pending == null) return ReconciliationResult.NO_PENDING;
             final Optional<RunLedger> observed;
@@ -163,8 +194,24 @@ public final class RunLedgerProjection {
             }
             latestByRunId.put(runId, pending);
             uncertainByRunId.remove(runId);
+            persist(runId);
             return ReconciliationResult.CONFIRMED;
         }
+    }
+
+    private void hydrate(String runId) {
+        if (stateBacking == null || !hydratedRunIds.add(runId)) return;
+        stateBacking.load(runId).ifPresent(state -> {
+            if (state.latest() != null) latestByRunId.put(runId, state.latest());
+            if (state.unavailable() != null) unavailableByRunId.put(runId, state.unavailable());
+            if (state.uncertain() != null) uncertainByRunId.put(runId, state.uncertain());
+        });
+    }
+
+    private void persist(String runId) {
+        if (stateBacking == null) return;
+        stateBacking.save(runId, new ProjectionStateBacking.RunProjectionState(
+                latestByRunId.get(runId), unavailableByRunId.get(runId), uncertainByRunId.get(runId)));
     }
 
     private Object lockFor(String runId) {
