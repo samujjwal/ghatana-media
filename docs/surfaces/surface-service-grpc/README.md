@@ -27,7 +27,7 @@ video inference, tracking, readiness, fused analysis.
 
 ## Dependencies
 
-`modules/infrastructure/security` (`AuthenticationInterceptor`),
+`modules/infrastructure/security` (`MediaProcessingSecurityValidator`; bearer-token interception is platform-owned),
 `libs/common` transport policy, per-service proto contracts.
 
 ## Errors

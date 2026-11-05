@@ -1,46 +1,50 @@
 # Surface: `modules-infrastructure-security`
 
-Authentication/authorization interceptor for the audio-video platform
+Security metadata validator for media processing requests
 (`modules/infrastructure/security`, single-module infrastructure
 adapter, no domain logic).
 
 ## Responsibility
 
-- `AuthenticationInterceptor` — gRPC `ServerInterceptor` applied as a
-  cross-cutting interceptor in each service's gRPC server bootstrap
-  (STT, TTS, multimodal). Validates bearer tokens and populates caller
-  context.
+- `MediaProcessingSecurityValidator` — validates tenant, permission,
+  consent and retention metadata on Data Cloud media processing job
+  messages before they reach processing code. Caller-supplied consent
+  labels are treated as metadata, never as authoritative authorization
+  evidence.
+- There is **no** gRPC bearer-token interceptor class in this module today:
+  inbound gRPC bearer-token authentication is a platform-owned concern
+  (`platform:java:security`) wired at each service's server bootstrap,
+  not a Media-implemented interceptor here.
 
 ## Public operations
 
 | Class | Role |
 | --- | --- |
-| `AuthenticationInterceptor` | Inbound gRPC authentication; delegates token validation to the platform JWT provider |
+| `MediaProcessingSecurityValidator` | `validateMediaProcessingRequest(job, requiredPermissions)` and `validateTenantIsolation(...)` return `ValidationResult` (`isValid`, `rejectionReason`, `errorCode`) |
+| `ValidationResult` | `valid()` / `rejected(reason, errorCode)` value type — a metadata verdict, not an authorization decision |
 
 ## States and invariants
 
-- Token validation is delegated to `platform:java:security`
-  `JwtTokenProvider` — this module never implements its own token
-  crypto or trusts caller-supplied identity.
-- Authentication failures are counted via platform observability
-  primitives; denial is explicit, never a silent allow.
+- Non-empty `requiredPermissions` fail closed: the validator holds no
+  authenticated principal or permission evidence, so it rejects rather
+  than fabricating authorization.
+- Consent is only accepted from the `REQUIRED_CONSENT_STATUSES`
+  vocabulary (`GRANTED`, `AUTO_APPROVED`); retention policies are
+  restricted to `VALID_RETENTION_POLICIES` (`STANDARD`, `SHORT`,
+  `LONG`, `NONE`).
+- Denial is explicit with a typed error code — never a silent allow.
 
 ## Dependencies and configuration
 
-```properties
-security.jwt.secret=${JWT_SECRET}
-security.jwt.issuer=ghatana-platform
-security.auth.enabled=true
-```
-
-- `platform:java:security` — `JwtTokenProvider`
-- `platform:java:observability` — authentication failure metrics
+- `platform:java:security` — token crypto/authentication owner (external platform module, not implemented here)
+- `platform:java:observability` — rejection metrics
+- `modules/infrastructure/messaging` — `TranscriptionJobProducer` message type
 
 ## Errors
 
-Unauthenticated/invalid-token requests are rejected by the interceptor
-before reaching service handlers; failures surface as gRPC
-unauthenticated status, not application errors.
+Invalid or missing request metadata produces a `ValidationResult` with
+a typed `errorCode`; callers translate it into their transport's
+unauthenticated/failed-precondition semantics.
 
 ## Tests and commands
 
@@ -48,5 +52,7 @@ unauthenticated status, not application errors.
 ./gradlew :services:media:modules:infrastructure:security:test
 ```
 
-Coverage: valid/invalid/expired token paths, caller-context population,
-failure metrics, interceptor ordering.
+Coverage: `MediaProcessingSecurityValidatorTest` exercises valid
+metadata, null/missing job, tenant-isolation mismatch, consent outside
+the accepted vocabulary, invalid retention policy, and the fail-closed
+non-empty-permission path.

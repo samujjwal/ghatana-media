@@ -20,7 +20,7 @@ task flow, contract screen, product renderer.
   or identity state.
 - Loading, refusal, unknown, pending and final result states are
   first-class; accessibility is test-enforced
-  (`MediaFamilyAccessibility`, `shared-control-reuse`).
+  (`shared-control-reuse.test`).
 - Explorer (`apps/media-experience-explorer`) is a separate simulated
   surface and must not be mistaken for this live-product channel.
 
