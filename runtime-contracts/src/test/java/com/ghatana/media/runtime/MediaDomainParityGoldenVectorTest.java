@@ -129,6 +129,19 @@ class MediaDomainParityGoldenVectorTest {
     }
 
     @Test
+    void canonicalRuntimeStateProjectionsMatchTheSourceEnums() throws Exception {
+        JsonNode runtime = vectors().path("runtimeProjectionContracts");
+        java.util.Set<String> upload = new TreeSet<>();
+        runtime.path("uploadStatus").path("java").forEach(v -> upload.add(v.asText()));
+        assertEquals(upload, new TreeSet<>(Arrays.stream(MediaRuntimeContracts.UploadStatus.values())
+            .map(Enum::name).toList()));
+        java.util.Set<String> stream = new TreeSet<>();
+        runtime.path("streamState").path("java").forEach(v -> stream.add(v.asText()));
+        assertEquals(stream, new TreeSet<>(Arrays.stream(MediaRuntimeContracts.StreamState.values())
+            .map(Enum::name).toList()));
+    }
+
+    @Test
     void everyDeclaredDivergenceStillDescribesCurrentJavaBehavior() throws Exception {
         for (JsonNode divergence : vectors().path("knownDivergences")) {
             String id = divergence.get("id").asText();

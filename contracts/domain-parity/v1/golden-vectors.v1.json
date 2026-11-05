@@ -8,62 +8,224 @@
   "sharedEnums": {
     "canonicalJobStates": {
       "authority": "PDP-1 media-job state model; MediaLifecycleProjection.LogicalJobStatus == MediaJobStateSchema",
-      "accept": ["QUEUED", "RUNNING", "RETRY_PENDING", "OUTCOME_UNKNOWN", "RECONCILING", "COMPLETED", "PARTIALLY_SUCCEEDED", "FAILED", "CANCELLED"],
-      "reject": ["PROCESSING", "DONE", "PENDING", "SUCCEEDED", "QUEUED2", "queued", "Running", "", "CANCELLING", "RETRYING"]
+      "accept": [
+        "QUEUED",
+        "RUNNING",
+        "RETRY_PENDING",
+        "OUTCOME_UNKNOWN",
+        "RECONCILING",
+        "COMPLETED",
+        "PARTIALLY_SUCCEEDED",
+        "FAILED",
+        "CANCELLED"
+      ],
+      "reject": [
+        "PROCESSING",
+        "DONE",
+        "PENDING",
+        "SUCCEEDED",
+        "QUEUED2",
+        "queued",
+        "Running",
+        "",
+        "CANCELLING",
+        "RETRYING"
+      ]
     },
     "canonicalAttemptStates": {
       "authority": "PDP-1 media-attempt state model; MediaLifecycleProjection.LogicalAttemptStatus == MediaAttemptStateSchema",
-      "accept": ["CLAIMED", "DISPATCH_INTENT_RECORDED", "DISPATCHED", "RUNNING", "CANCEL_REQUESTED", "SUCCEEDED", "FAILED", "CANCEL_CONFIRMED", "OUTCOME_UNKNOWN", "SUPERSEDED"],
-      "reject": ["DISPATCH_INTENT", "PENDING", "LEASED", "DONE", "claimed", "RUNNING2", ""]
+      "accept": [
+        "CLAIMED",
+        "DISPATCH_INTENT_RECORDED",
+        "DISPATCHED",
+        "RUNNING",
+        "CANCEL_REQUESTED",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCEL_CONFIRMED",
+        "OUTCOME_UNKNOWN",
+        "SUPERSEDED"
+      ],
+      "reject": [
+        "DISPATCH_INTENT",
+        "PENDING",
+        "LEASED",
+        "DONE",
+        "claimed",
+        "RUNNING2",
+        ""
+      ]
     },
     "legacyWireJobStates": {
       "authority": "legacy wire spellings retained only at the explicit TypeScript compatibility boundary (LegacyMediaJobStateSchema); the Java canonical authority does not model them",
-      "values": ["CANCELLING", "RETRYING"],
+      "values": [
+        "CANCELLING",
+        "RETRYING"
+      ],
       "typescript": "accept-at-compatibility-boundary",
       "java": "not-modeled"
     }
   },
   "scalarVectors": {
     "identifiers": [
-      { "value": "", "typescript": "reject", "java": "reject", "note": "empty identifier is never valid" },
-      { "value": "   ", "typescript": "reject", "java": "reject", "note": "whitespace-only is never valid" },
-      { "value": "artifact-0123456789", "typescript": "accept", "java": "accept" },
-      { "repeatChar": "x", "repeatCount": 256, "typescript": "accept", "java": "accept" },
-      { "repeatChar": "x", "repeatCount": 257, "typescript": "reject", "java": "accept", "divergence": "DP-IDENT-MAXLENGTH" }
+      {
+        "value": "",
+        "typescript": "reject",
+        "java": "reject",
+        "note": "empty identifier is never valid"
+      },
+      {
+        "value": "   ",
+        "typescript": "reject",
+        "java": "reject",
+        "note": "whitespace-only is never valid"
+      },
+      {
+        "value": "artifact-0123456789",
+        "typescript": "accept",
+        "java": "accept"
+      },
+      {
+        "repeatChar": "x",
+        "repeatCount": 256,
+        "typescript": "accept",
+        "java": "accept"
+      },
+      {
+        "repeatChar": "x",
+        "repeatCount": 257,
+        "typescript": "reject",
+        "java": "accept",
+        "divergence": "DP-IDENT-MAXLENGTH"
+      }
     ],
     "checksumSha256Hex": [
-      { "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "typescript": "accept", "java": "accept" },
-      { "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde", "typescript": "reject", "java": "reject", "note": "63 hex chars" },
-      { "value": "0123456789ABCDEF0123456789abcdef0123456789abcdef0123456789abcdef", "typescript": "reject", "java": "accept", "note": "Java requireSha256 normalizes to lowercase; TS keeps wire-canonical lowercase only", "divergence": "DP-SHA256-CASE" },
-      { "value": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "typescript": "reject", "java": "reject", "note": "prefixed digest is a different field (Java ArtifactVersion identity, not checksumSha256)" }
+      {
+        "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "typescript": "accept",
+        "java": "accept"
+      },
+      {
+        "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde",
+        "typescript": "reject",
+        "java": "reject",
+        "note": "63 hex chars"
+      },
+      {
+        "value": "0123456789ABCDEF0123456789abcdef0123456789abcdef0123456789abcdef",
+        "typescript": "reject",
+        "java": "accept",
+        "note": "Java requireSha256 normalizes to lowercase; TS keeps wire-canonical lowercase only",
+        "divergence": "DP-SHA256-CASE"
+      },
+      {
+        "value": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "typescript": "reject",
+        "java": "reject",
+        "note": "prefixed digest is a different field (Java ArtifactVersion identity, not checksumSha256)"
+      }
     ],
     "rationalTemporal": [
-      { "numerator": 90000, "denominator": 1, "typescript": "accept", "java": "accept", "note": "MPEG-TS 90kHz" },
-      { "numerator": 30000, "denominator": 1001, "typescript": "accept", "java": "accept", "note": "NTSC" },
-      { "numerator": 1, "denominator": 0, "typescript": "reject", "java": "reject", "note": "zero denominator" },
-      { "numerator": 1, "denominator": -1, "typescript": "reject", "java": "reject" },
-      { "numerator": 0, "denominator": 1, "typescript": "accept", "java": "reject", "divergence": "DP-TIME-NUMERATOR-ZERO" }
+      {
+        "numerator": 90000,
+        "denominator": 1,
+        "typescript": "accept",
+        "java": "accept",
+        "note": "MPEG-TS 90kHz"
+      },
+      {
+        "numerator": 30000,
+        "denominator": 1001,
+        "typescript": "accept",
+        "java": "accept",
+        "note": "NTSC"
+      },
+      {
+        "numerator": 1,
+        "denominator": 0,
+        "typescript": "reject",
+        "java": "reject",
+        "note": "zero denominator"
+      },
+      {
+        "numerator": 1,
+        "denominator": -1,
+        "typescript": "reject",
+        "java": "reject"
+      },
+      {
+        "numerator": 0,
+        "denominator": 1,
+        "typescript": "accept",
+        "java": "reject",
+        "divergence": "DP-TIME-NUMERATOR-ZERO"
+      }
     ],
     "byteCounts": [
-      { "value": 0, "typescript": "accept", "java": "accept" },
-      { "value": 9007199254740991, "typescript": "accept", "java": "accept", "note": "Number.MAX_SAFE_INTEGER; Java long-safe" },
-      { "value": -1, "typescript": "reject", "java": "reject" },
-      { "value": 1.5, "typescript": "reject", "java": "reject" },
-      { "value": 9007199254740993, "typescript": "reject", "java": "accept", "divergence": "DP-BYTES-SAFE-INT" }
+      {
+        "value": 0,
+        "typescript": "accept",
+        "java": "accept"
+      },
+      {
+        "value": 9007199254740991,
+        "typescript": "accept",
+        "java": "accept",
+        "note": "Number.MAX_SAFE_INTEGER; Java long-safe"
+      },
+      {
+        "value": -1,
+        "typescript": "reject",
+        "java": "reject"
+      },
+      {
+        "value": 1.5,
+        "typescript": "reject",
+        "java": "reject"
+      },
+      {
+        "value": 9007199254740992,
+        "typescript": "reject",
+        "java": "accept",
+        "divergence": "DP-BYTES-SAFE-INT"
+      }
     ]
   },
   "vocabularyComparisons": {
     "uploadSessionStates": {
-      "typescript": ["CREATED", "UPLOADING", "VERIFYING", "COMPLETED", "FAILED", "CANCELLED", "EXPIRED"],
-      "java": ["OPEN", "FINALIZING", "COMPLETED", "ABORTED", "EXPIRED"],
-      "verdict": "divergent-models",
-      "divergence": "DP-UPLOAD-STATES"
+      "typescript": [
+        "CREATED",
+        "UPLOADING",
+        "VERIFYING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "EXPIRED"
+      ],
+      "java": [
+        "OPEN",
+        "FINALIZING",
+        "COMPLETED",
+        "ABORTED",
+        "EXPIRED"
+      ],
+      "verdict": "distinct-intent-models-with-separate-runtime-projection",
+      "divergence": "DP-UPLOAD-STATES",
+      "runtimeProjection": "runtimeProjectionContracts.uploadStatus"
     },
     "streamStates": {
-      "typescript": "no-stream-state-contract",
-      "java": ["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"],
-      "verdict": "java-only",
-      "divergence": "DP-STREAM-STATES"
+      "typescript": "MediaRuntimeStreamStateSchema models the canonical SDK/runtime six-state vocabulary; no unrelated legacy StreamSessionSchema",
+      "java": [
+        "OPEN",
+        "CONNECTED",
+        "DEGRADED",
+        "DRAINING",
+        "CLOSED",
+        "FAILED"
+      ],
+      "verdict": "canonical-runtime-parity-established-in-schema; legacy-stream-session-model-not-defined",
+      "divergence": "DP-STREAM-STATES",
+      "runtimeProjection": "runtimeProjectionContracts.streamState"
     }
   },
   "knownDivergences": [
@@ -100,14 +262,54 @@
       "fields": "upload session state vocabulary",
       "typescript": "CREATED/UPLOADING/VERIFYING/COMPLETED/FAILED/CANCELLED/EXPIRED",
       "java": "OPEN/FINALIZING/COMPLETED/ABORTED/EXPIRED",
-      "reconciliation": "needs one canonical upload lifecycle projection like MediaLifecycleProjection provides for jobs — follow-up work, not hidden"
+      "reconciliation": "owner decision: DISTINCT_MODEL_NO_LOSSLESS_STATE_MAPPING. Preserve the legacy seven-state UploadSessionSchema as a non-canonical compatibility view; use the five-state MediaRuntimeUploadStatusSchema exclusively for actual runtime UploadSession.status. Clients must use exact runtime DTO identity/progress and must not infer CREATED/UPLOADING/VERIFYING/FAILED/CANCELLED from OPEN/FINALIZING/ABORTED."
     },
     {
       "id": "DP-STREAM-STATES",
       "fields": "stream session state vocabulary",
-      "typescript": "no public stream-state contract",
+      "typescript": "Shared MediaRuntimeStreamStateSchema and existing canonical SDK both model six runtime stream states; a separate legacy StreamSessionSchema is absent",
       "java": "OPEN/CONNECTED/DEGRADED/DRAINING/CLOSED/FAILED",
-      "reconciliation": "TS surface lacks the stream model entirely; required before stream operations reach the public SDK"
+      "reconciliation": "owner decision: canonical six-state runtime stream enum is shared between Java, TypeScript contracts and SDK alias; no new wire route, invented state, or schema for a different legacy surface."
     }
-  ]
+  ],
+  "runtimeProjectionContracts": {
+    "uploadStatus": {
+      "authority": "MediaRuntimeContracts.UploadStatus; runtime HTTP UploadSession.status",
+      "typescript": [
+        "OPEN",
+        "FINALIZING",
+        "COMPLETED",
+        "ABORTED",
+        "EXPIRED"
+      ],
+      "java": [
+        "OPEN",
+        "FINALIZING",
+        "COMPLETED",
+        "ABORTED",
+        "EXPIRED"
+      ],
+      "relationToLegacyUploadSession": "DISTINCT_MODEL_NO_LOSSLESS_STATE_MAPPING"
+    },
+    "streamState": {
+      "authority": "MediaRuntimeContracts.StreamState; canonical SDK StreamSession.state",
+      "typescript": [
+        "OPEN",
+        "CONNECTED",
+        "DEGRADED",
+        "DRAINING",
+        "CLOSED",
+        "FAILED"
+      ],
+      "java": [
+        "OPEN",
+        "CONNECTED",
+        "DEGRADED",
+        "DRAINING",
+        "CLOSED",
+        "FAILED"
+      ],
+      "relationToLegacyTypes": "RUNTIME_MODEL_EXPOSED_WITHOUT_LEGACY_STREAM_SESSION"
+    }
+  }
 }

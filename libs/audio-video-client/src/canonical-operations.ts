@@ -8,6 +8,7 @@ import {
   type RuntimeParser,
 } from "./http-core.js";
 import { canonicalMediaHttpRoutes } from "./canonical-routes.js";
+import type { MediaRuntimeStreamState } from "@audio-video/types/contracts";
 
 /**
  * Canonical `/api/v1/jobs` and `/api/v1/streams` client bound to
@@ -27,8 +28,8 @@ export type CanonicalJobStatus =
 
 export type CanonicalStreamKind = "AUDIO" | "VIDEO" | "MULTIMODAL";
 
-export type CanonicalStreamState =
-  | "OPEN" | "CONNECTED" | "DEGRADED" | "DRAINING" | "CLOSED" | "FAILED";
+/** Public client alias of the single runtime stream-state type. */
+export type CanonicalStreamState = MediaRuntimeStreamState;
 
 /** Exact runtime ProcessingJob projection (tolerates unknown properties). */
 export interface CanonicalProcessingJob {

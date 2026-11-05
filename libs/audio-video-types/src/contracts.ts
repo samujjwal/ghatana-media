@@ -132,6 +132,25 @@ export const UploadSessionSchema = z
   });
 export type UploadSession = z.infer<typeof UploadSessionSchema>;
 
+/**
+ * Canonical runtime upload and stream vocabularies, NOT a translation of
+ * legacy UploadSessionSchema. The legacy upload view exposes an editorial
+ * seven-state model with a different shape and no lossless mapping to the
+ * runtime's five-state versioned upload store.
+ *
+ * Preserve both public contracts. Only runtime DTOs use these enums; no
+ * cross-model status conversion is permitted without source-owned context.
+ */
+export const MediaRuntimeUploadStatusSchema = z.enum([
+  "OPEN", "FINALIZING", "COMPLETED", "ABORTED", "EXPIRED",
+]);
+export type MediaRuntimeUploadStatus = z.infer<typeof MediaRuntimeUploadStatusSchema>;
+
+export const MediaRuntimeStreamStateSchema = z.enum([
+  "OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED",
+]);
+export type MediaRuntimeStreamState = z.infer<typeof MediaRuntimeStreamStateSchema>;
+
 export const MediaOperationKindSchema = z.enum([
   "TRANSCRIBE",
   "SYNTHESIZE",

@@ -9,6 +9,7 @@ import {
   TranscriptionResultSchema,
   VoiceConversionRequestSchema,
   VoiceTrainingRequestSchema,
+  type MediaRuntimeUploadStatus,
   type MediaArtifact,
   type MediaProcessingJob,
   type MultimodalAnalysisRequest,
@@ -77,7 +78,7 @@ export interface CanonicalMediaUploadSessionObservation {
   readonly expiresAt: string;
   readonly bytesReceived: number;
   readonly nextChunkIndex: number;
-  readonly status: "OPEN" | "FINALIZING" | "COMPLETED" | "ABORTED" | "EXPIRED";
+  readonly status: MediaRuntimeUploadStatus;
   readonly metadata: Readonly<Record<string, unknown>>;
 }
 

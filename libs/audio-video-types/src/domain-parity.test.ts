@@ -9,6 +9,8 @@ import {
   LegacyMediaJobStateSchema,
   SourcePresentationTimeSchema,
   UploadSessionSchema,
+  MediaRuntimeUploadStatusSchema,
+  MediaRuntimeStreamStateSchema,
 } from "./contracts.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -81,6 +83,21 @@ describe("domain parity golden vectors (TypeScript side)", () => {
     for (const state of vectors.vocabularyComparisons.uploadSessionStates.java) {
       if (!expected.includes(state)) expect(UploadStateBound.safeParse(state).success, state).toBe(false);
     }
+  });
+
+  it("runtime upload and stream enum projections match Java without remapping legacy values", () => {
+    const runtime = vectors.runtimeProjectionContracts;
+    const upload = runtime.uploadStatus;
+    const stream = runtime.streamState;
+    expect(upload.typescript).toEqual(upload.java);
+    expect(stream.typescript).toEqual(stream.java);
+    expect([...MediaRuntimeUploadStatusSchema.options].sort()).toEqual([...upload.java].sort());
+    expect([...MediaRuntimeStreamStateSchema.options].sort()).toEqual([...stream.java].sort());
+    expect(MediaRuntimeUploadStatusSchema.safeParse("UPLOADING").success).toBe(false);
+    expect(MediaRuntimeStreamStateSchema.safeParse("PROCESSING").success).toBe(false);
+    // These are independent models, not synonyms for the canonical wire.
+    expect(UploadStateBound.safeParse("OPEN").success).toBe(false);
+    expect(UploadStateBound.safeParse("UPLOADING").success).toBe(true);
   });
 
   it("every declared divergence still describes the current contract truthfully", () => {
