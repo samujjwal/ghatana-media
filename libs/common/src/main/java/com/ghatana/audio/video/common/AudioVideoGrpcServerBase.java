@@ -2,6 +2,7 @@ package com.ghatana.audio.video.common;
 
 import com.ghatana.audio.video.common.health.HealthMetricsServer;
 import com.ghatana.audio.video.common.health.ServerReadinessLifecycle;
+import com.ghatana.audio.video.common.observability.MetricsScrapeSource;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -145,7 +146,9 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         this.readinessLifecycle = readinessLifecycle;
 
         this.server = buildServer(port, transportSecurity);
-        this.healthServer = new HealthMetricsServer(this.serviceName, this::isReady);
+        java.util.function.Supplier<String> metricsScrape = serviceImpl instanceof MetricsScrapeSource source
+                ? source::scrapeMetrics : () -> "";
+        this.healthServer = new HealthMetricsServer(this.serviceName, this::isReady, metricsScrape);
         this.readinessMetricRegistration =
                 com.ghatana.audio.video.common.observability.MetricsServerInterceptor.getInstance()
                         .registerServiceReadiness(this.serviceName, this::isReady);

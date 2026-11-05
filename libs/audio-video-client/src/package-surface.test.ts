@@ -40,11 +40,20 @@ describe("package surface", () => {
     const capture = await import("@audio-video/client/capture-adapters");
     expect(typeof capture.captureWithAdmission).toBe("function");
     expect(typeof capture.noAdmittedCaptureAdapter.check).toBe("function");
+    const camera = await import("@audio-video/client/camera-capture-adapter");
+    expect(typeof camera.CameraCaptureAdapter).toBe("function");
+    expect(typeof camera.CameraCaptureSession).toBe("function");
+    expect(typeof camera.CameraCaptureError).toBe("function");
+    const packageRootExports = await import("@audio-video/client");
+    expect(typeof packageRootExports.CameraCaptureAdapter).toBe("function");
+    expect(typeof packageRootExports.OfflineReconnectCoordinator).toBe("function");
     const recorder = await import("@audio-video/client/recorder-orchestrator");
     expect(typeof recorder.orchestrateScenario).toBe("function");
     expect(typeof recorder.recaptureScenario).toBe("function");
     const production = await import("@audio-video/client/production-plan");
     expect(typeof production.compileProductionPlan).toBe("function");
+    const offlineReconnect = await import("@audio-video/client/offline-reconnect");
+    expect(typeof offlineReconnect.OfflineReconnectCoordinator).toBe("function");
     // The CJS files are emitted independently and keep Node <22 consumers supported.
     const require = createRequire(resolve(packageRoot, "package.json"));
     const cjs = require("./dist-cjs/canonical-operations.js") as Record<string, unknown>;

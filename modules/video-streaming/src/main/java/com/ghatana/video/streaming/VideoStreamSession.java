@@ -18,7 +18,8 @@ public final class VideoStreamSession {
     /** Maximum accepted frame payload; larger inputs are rejected before allocation. */
     static final int MAX_FRAME_PAYLOAD_BYTES = 16 * 1024 * 1024;
     /** Reserve Integer.MAX_VALUE as the exhausted-sequence sentinel. */
-    static final int MAX_FRAME_SEQUENCE = Integer.MAX_VALUE - 1;
+    /** Highest sequence available before {@link Integer#MAX_VALUE} is reserved as exhausted. */
+    public static final int MAX_FRAME_SEQUENCE = Integer.MAX_VALUE - 1;
 
     /**
      * Encodes one video frame:

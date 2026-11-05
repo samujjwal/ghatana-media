@@ -182,4 +182,49 @@ class SimulationSemanticValidatorTest {
         assertThat(validation.findings()).anySatisfy(finding ->
                 assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INPUT_REFERENCE_NOT_CURRENT));
     }
+
+    @Test
+    void abstainsOnNonMonotonicOrOutOfHorizonObservationTrace() {
+        var valid = result();
+        var observations = new ArrayList<>(valid.observations());
+        var terminal = observations.getLast();
+        observations.set(observations.size() - 1, new PhysicalSimulation.Observation(
+                observations.get(observations.size() - 2).timeSeconds(), terminal.positionMeters(),
+                terminal.velocityMetersPerSecond(), terminal.accelerationMetersPerSecondSquared(),
+                terminal.totalEnergyJoules(), terminal.uncertainty()));
+        var malformed = new PhysicalSimulation.Result(observations, valid.acceptedSteps(),
+                valid.solverIterations(), valid.finalLocalErrorRatio(), valid.deterministic(), valid.evidenceClass());
+
+        var validation = SimulationSemanticValidator.validate(binding(), malformed, CURRENT_INPUTS);
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INVALID_OBSERVATION_TRACE));
+    }
+
+    @Test
+    void abstainsWhenInvariantIdsAreMissingOrDuplicated() {
+        var complete = binding();
+        var repeated = complete.invariants().getFirst();
+        var duplicateIds = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
+                List.of(repeated, new SimulationSemanticValidator.DeclaredInvariant(repeated.invariantId(),
+                        SimulationSemanticValidator.Observable.VELOCITY,
+                        q(6, PhysicalSimulation.Unit.METER_PER_SECOND),
+                        q(1e-8, PhysicalSimulation.Unit.METER_PER_SECOND))), complete.expectedDuration());
+
+        var duplicateValidation = SimulationSemanticValidator.validate(duplicateIds, result(), CURRENT_INPUTS);
+        assertThat(duplicateValidation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(duplicateValidation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.DUPLICATE_INVARIANT_ID));
+
+        var blankId = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
+                List.of(new SimulationSemanticValidator.DeclaredInvariant(" ",
+                        SimulationSemanticValidator.Observable.POSITION,
+                        q(6, PhysicalSimulation.Unit.METER), q(1e-8, PhysicalSimulation.Unit.METER))),
+                complete.expectedDuration());
+        var blankValidation = SimulationSemanticValidator.validate(blankId, result(), CURRENT_INPUTS);
+        assertThat(blankValidation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(blankValidation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.MISSING_DECLARED_INVARIANT));
+    }
 }

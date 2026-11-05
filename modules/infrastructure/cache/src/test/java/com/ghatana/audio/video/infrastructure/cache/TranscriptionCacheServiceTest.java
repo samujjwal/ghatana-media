@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.ghatana.audio.video.infrastructure.cache.AsyncOperationTestSupport.await;
@@ -38,6 +40,258 @@ class TranscriptionCacheServiceTest {
     private final DistributedCachePort<String, String> cachePort = mock(DistributedCachePort.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final TranscriptionCacheService cacheService = new TranscriptionCacheService(cachePort, objectMapper);
+
+    @Test
+    void scopedReadRejectsCrossTenantSourceResultAfterExactKeyLookup() {
+        UUID id = UUID.randomUUID();
+        TranscriptionCacheService service = new TranscriptionCacheService(cachePort, objectMapper);
+
+        assertThatThrownBy(() -> await(service.getOrLoadTranscription(
+                scopedScope("tenant-b", "principal-a", "policy-1"), id,
+                scope -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(entity("tenant-a", requested, false))))))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Transcription identity does not match requested scope");
+
+        verify(cachePort).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void scopedAuthorityDenialPrecedesCacheAndSourceAccess() {
+        UUID id = UUID.randomUUID();
+        TranscriptionCacheService service = new TranscriptionCacheService(cachePort, objectMapper);
+
+        assertThatThrownBy(() -> await(service.getOrLoadTranscription(
+                scopedScope("tenant-a", "principal-a", "policy-1"), id,
+                scope -> AsyncOperation.success(false),
+                requested -> AsyncOperation.success(Optional.of(entity("tenant-a", requested, false))))))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+
+        verifyNoInteractions(cachePort);
+    }
+
+    @Test
+    void scopedMissStoresVersionedEnvelopeUnderFullAuthorityAndSourceKey() throws Exception {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 9L, "current scoped transcript");
+
+        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(source))));
+
+        assertThat(result.getText()).isEqualTo(source.getText());
+        assertThat(result.getVersion()).isEqualTo(source.getVersion());
+        ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+        verify(port).put(eq(key), stored.capture(), any(Duration.class));
+        assertThat(stored.getValue()).contains("current scoped transcript", key)
+                .contains("\"formatVersion\":1")
+                .doesNotContain("principal-a", "rights-current", "policy-1", "source-sha256-1",
+                        "artifact-revision-4");
+        verify(port).get(key);
+    }
+
+    @Test
+    void scopedCacheHitRechecksAuthorityImmediatelyBeforeReturningContent() throws Exception {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 9L, "current scoped transcript");
+        await(service.getOrLoadTranscription(scope, id, checked -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(source))));
+        ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+        verify(port).put(eq(key), stored.capture(), any(Duration.class));
+
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of(stored.getValue())));
+        AtomicInteger authorityReads = new AtomicInteger();
+        TranscriptionEntity cached = await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(authorityReads.incrementAndGet() <= 2),
+                requested -> { throw new AssertionError("valid cache hit must not load source"); }));
+
+        assertThat(cached.getText()).isEqualTo("current scoped transcript");
+        assertThat(authorityReads).hasValue(2);
+    }
+
+    @Test
+    void revocationAfterScopedCacheReadInvalidatesExactEntryAndReturnsNoContent() throws Exception {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 9L, "protected scoped transcript");
+        await(service.getOrLoadTranscription(scope, id, checked -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(source))));
+        ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+        verify(port).put(eq(key), stored.capture(), any(Duration.class));
+
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of(stored.getValue())));
+        AtomicInteger authorityReads = new AtomicInteger();
+        assertThatThrownBy(() -> await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(authorityReads.incrementAndGet() == 1),
+                requested -> { throw new AssertionError("revoked cache hit must not load source"); })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current transcript authority is denied or unknown");
+
+        assertThat(authorityReads).hasValue(2);
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
+    void malformedScopedCacheEntryIsInvalidatedAndReloadedFromCurrentSource() throws Exception {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of("{malformed")),
+                AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        AtomicInteger sourceLoads = new AtomicInteger();
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 10L, "authoritative replacement");
+
+        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(true),
+                requested -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(source));
+                }));
+
+        assertThat(result.getText()).isEqualTo("authoritative replacement");
+        assertThat(sourceLoads).hasValue(1);
+        verify(port).invalidateAsync(key);
+        verify(port, org.mockito.Mockito.times(2)).get(key);
+    }
+
+    @Test
+    void scopedCacheEntryWithStaleSourceScopeIsInvalidatedBeforeCurrentSourceReload() throws Exception {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity original = versionedEntity("tenant-a", id, 9L, "old source version");
+        await(service.getOrLoadTranscription(scope, id, checked -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(original))));
+        ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+        verify(port).put(eq(key), stored.capture(), any(Duration.class));
+        String staleScopeEntry = stored.getValue().replace(key, key + "stale");
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of(staleScopeEntry)),
+                AsyncOperation.success(Optional.empty()));
+        AtomicInteger sourceLoads = new AtomicInteger();
+        TranscriptionEntity current = versionedEntity("tenant-a", id, 10L, "current source version");
+
+        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(true),
+                requested -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(current));
+                }));
+
+        assertThat(result.getText()).isEqualTo("current source version");
+        assertThat(sourceLoads).hasValue(1);
+        verify(port).invalidateAsync(key);
+        verify(port, org.mockito.Mockito.times(3)).get(key);
+    }
+
+    @Test
+    void concurrentScopedMissesShareOneAuthorizedSourceLoad() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        CompletableFuture<Optional<String>> cacheRead = new CompletableFuture<>();
+        when(port.get(key)).thenReturn(AsyncOperation.from(cacheRead));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        CompletableFuture<Optional<TranscriptionEntity>> sourceRead = new CompletableFuture<>();
+        AtomicInteger sourceLoads = new AtomicInteger();
+        AtomicInteger authorityReads = new AtomicInteger();
+        Function<AudioVideoCache.CacheKeyScope, AsyncOperation<Boolean>> authority = checked -> {
+            authorityReads.incrementAndGet();
+            return AsyncOperation.success(true);
+        };
+        Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader = requested -> {
+            sourceLoads.incrementAndGet();
+            return AsyncOperation.from(sourceRead);
+        };
+
+        AsyncOperation<TranscriptionEntity> first = service.getOrLoadTranscription(scope, id, authority, loader);
+        AsyncOperation<TranscriptionEntity> second = service.getOrLoadTranscription(scope, id, authority, loader);
+        cacheRead.complete(Optional.empty());
+
+        assertThat(sourceLoads).hasValue(1);
+        assertThat(authorityReads).hasValue(2);
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 12L, "one shared source read");
+        sourceRead.complete(Optional.of(source));
+
+        assertThat(await(first).getText()).isEqualTo("one shared source read");
+        assertThat(await(second).getText()).isEqualTo("one shared source read");
+        verify(port).get(key);
+    }
+
+    @Test
+    void scopedCacheOutageFallsBackToAuthorizedSourceWithoutChangingResult() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.failure(new IllegalStateException("redis unavailable")));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 11L, "source survives cache outage");
+
+        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(source))));
+
+        assertThat(result.getText()).isEqualTo(source.getText());
+        assertThat(result.getVersion()).isEqualTo(source.getVersion());
+        verify(port).get(key);
+        verify(port, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void scopedAbsenceIsNotNegativeCached() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        AtomicInteger sourceLoads = new AtomicInteger();
+        Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader = requested -> {
+            sourceLoads.incrementAndGet();
+            return AsyncOperation.success(Optional.empty());
+        };
+
+        assertThat(await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(true), loader))).isNull();
+        assertThat(await(service.getOrLoadTranscription(scope, id,
+                checked -> AsyncOperation.success(true), loader))).isNull();
+
+        assertThat(sourceLoads).hasValue(2);
+        verify(port, org.mockito.Mockito.times(2)).get(key);
+        verify(port, never()).put(any(), any(), any(Duration.class));
+    }
 
     @Test
     void treatsMatchingCacheEntryAsMissWhenCurrentAuthorizationCannotBeRevalidated() throws Exception {
@@ -717,6 +971,18 @@ class TranscriptionCacheServiceTest {
 
     private String key(String tenant, String id) {
         return new AudioVideoCache<String, String>(cachePort, "transcription").buildKey(tenant, id);
+    }
+
+    private static AudioVideoCache.CacheKeyScope scopedScope(
+            String tenant, String principal, String policyEpoch) {
+        return new AudioVideoCache.CacheKeyScope(tenant, principal, "rights-current", "transcription",
+                "confidential", "artifact-7", "artifact-revision-4", "transcript-revision-9",
+                "source-sha256-1", policyEpoch);
+    }
+
+    private String scopedKey(AudioVideoCache.CacheKeyScope scope, UUID transcriptionId) {
+        return new AudioVideoCache<String, String>(cachePort, "transcription")
+                .buildScopedKey(scope, transcriptionId.toString());
     }
 
     private static TranscriptionEntity entity(String tenant, UUID id, boolean deleted) {

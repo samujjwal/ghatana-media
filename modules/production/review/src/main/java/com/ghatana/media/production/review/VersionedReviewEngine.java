@@ -42,6 +42,7 @@ public final class VersionedReviewEngine {
             throw new ReviewDeniedException();
         }
         AuthorizationDecision authority = authorize(actor, reviewCase, operation);
+        requireExpectedAuthorityVersion(request.expectedAuthorityVersion(), authority);
         Currentness currentness = authority.currentnessFor(reviewCase.reviewSubjectRef());
         if (currentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
         if (request.payload() instanceof DecisionRecord && currentness != Currentness.CURRENT) {
@@ -53,12 +54,22 @@ public final class VersionedReviewEngine {
             throw new ReviewUnavailableException();
         }
         Payload safePayload = request.payload().withSanitizedText(safeText);
-        String fingerprint = fingerprint(reviewCase, request.expectedCaseRevision(), safePayload);
+        // Recheck role/capability, exact target, currentness and retention at the write boundary.
+        AuthorizationDecision effectAuthority = authorize(actor, reviewCase, operation);
+        requireExpectedAuthorityVersion(request.expectedAuthorityVersion(), effectAuthority);
+        Currentness effectCurrentness = effectAuthority.currentnessFor(reviewCase.reviewSubjectRef());
+        if (effectCurrentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
+        if (safePayload instanceof DecisionRecord && effectCurrentness != Currentness.CURRENT) {
+            throw new StaleReviewException();
+        }
+        String fingerprint = fingerprint(reviewCase, request.expectedCaseRevision(),
+                request.expectedAuthorityVersion(), safePayload);
         Instant now = clock.instant();
+        if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
         ReviewRecord record = store.append(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
-                fingerprint, nextId(), authority.authorityVersion(), safePayload, now);
+                fingerprint, nextId(), effectAuthority.authorityVersion(), safePayload, now);
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
-                record.appendRecordId(), record.caseRevision(), currentness, false, now);
+                record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);
     }
 
     public ReviewSnapshot inspect(Actor actor, ReviewCaseRef reviewCase) {
@@ -80,7 +91,9 @@ public final class VersionedReviewEngine {
         if (decision.status() != AuthorizationStatus.ALLOW
                 || !decision.tenantId().equals(actor.tenantId())
                 || !decision.principalId().equals(actor.principalId())
-                || !decision.exactTargetRef().equals(reviewCase.exactTargetRef())) {
+                || !decision.reviewCaseId().equals(reviewCase.reviewCaseId())
+                || !decision.exactTargetRef().equals(reviewCase.exactTargetRef())
+                || !decision.scopeRef().equals(reviewCase.scopeRef())) {
             throw new ReviewDeniedException();
         }
         if (!decision.validUntil().isAfter(now) || decision.retentionStatus() == RetentionStatus.UNKNOWN) {
@@ -98,10 +111,16 @@ public final class VersionedReviewEngine {
                 record.caseRevision(), record.createdAt(), record.authorityVersion());
     }
 
-    private static String fingerprint(ReviewCaseRef reviewCase, long expectedCaseRevision, Payload payload) {
+    private static String fingerprint(ReviewCaseRef reviewCase, long expectedCaseRevision,
+                                      String expectedAuthorityVersion, Payload payload) {
         return reviewCase.tenantId() + "\u0000" + reviewCase.reviewCaseId() + "\u0000"
                 + reviewCase.exactTargetRef() + "\u0000" + reviewCase.scopeRef() + "\u0000"
-                + expectedCaseRevision + "\u0000" + payload.operationId() + "\u0000" + payload.toString();
+                + expectedCaseRevision + "\u0000" + expectedAuthorityVersion + "\u0000"
+                + payload.operationId() + "\u0000" + payload.toString();
+    }
+
+    private static void requireExpectedAuthorityVersion(String expected, AuthorizationDecision decision) {
+        if (!expected.equals(decision.authorityVersion())) throw new ReviewAuthorityConflictException();
     }
 
     private String nextId() {

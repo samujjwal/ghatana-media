@@ -48,7 +48,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @doc.layer product
  * @doc.pattern Service, Adapter
  */
-public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServiceImplBase implements AutoCloseable {
+public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServiceImplBase
+        implements AutoCloseable, com.ghatana.audio.video.common.observability.MetricsScrapeSource {
 
     private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
     private static final int MAX_TOTAL_INPUT_BYTES = 64 * 1024 * 1024;
@@ -82,8 +83,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final AudioVideoTracingService tracingService;
     private final ContextAwareBoundedExecutor canonicalDispatchExecutor;
     private final ExecutorService ownedCanonicalDispatchExecutor;
-    private final MediaWorkflowMetrics workflowMetrics = new MediaWorkflowMetrics(
-            io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal");
+    private final MediaWorkflowMetrics workflowMetrics;
     private volatile BooleanSupplier readinessProbe = () -> false;
 
     public MultimodalGrpcService() {
@@ -120,9 +120,25 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
                                   AudioVideoTracingService tracingService,
                                   MediaProcessingRuntimePort mediaRuntimePort) {
+        this(metrics, sourceAuthorization, tracingService, mediaRuntimePort,
+                io.micrometer.core.instrument.Metrics.globalRegistry);
+    }
+
+    MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                          MediaProcessingRuntimePort mediaRuntimePort,
+                          io.micrometer.core.instrument.MeterRegistry workflowRegistry) {
+        this(metrics, sourceAuthorization, defaultTracingService(), mediaRuntimePort, workflowRegistry);
+    }
+
+    private MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                                  AudioVideoTracingService tracingService,
+                                  MediaProcessingRuntimePort mediaRuntimePort,
+                                  io.micrometer.core.instrument.MeterRegistry workflowRegistry) {
         this.platformAdapter = new PlatformMultimodalAdapter();
         this.engine = new MultimodalAnalysisEngine(platformAdapter);
         this.mediaMetrics = metrics;
+        this.workflowMetrics = new MediaWorkflowMetrics(
+                java.util.Objects.requireNonNull(workflowRegistry, "workflowRegistry"), "multimodal");
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = mediaRuntimePort;
@@ -134,6 +150,11 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.canonicalOperationExecutor = mediaRuntimePort == null
                 ? null : new MediaCanonicalOperationExecutor(mediaRuntimePort);
         LOG.info("Multimodal service initialized with backend={}", platformAdapter.backendName());
+    }
+
+    @Override
+    public String scrapeMetrics() {
+        return workflowMetrics.scrape();
     }
 
     /**
@@ -177,6 +198,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.engine = engine;
         this.platformAdapter = platformAdapter;
         this.mediaMetrics = metrics;
+        this.workflowMetrics = new MediaWorkflowMetrics(
+                io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal");
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = mediaRuntimePort;
@@ -204,6 +227,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.engine = java.util.Objects.requireNonNull(engine, "engine");
         this.platformAdapter = java.util.Objects.requireNonNull(platformAdapter, "platformAdapter");
         this.mediaMetrics = java.util.Objects.requireNonNull(metrics, "metrics");
+        this.workflowMetrics = new MediaWorkflowMetrics(
+                io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal");
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = null;

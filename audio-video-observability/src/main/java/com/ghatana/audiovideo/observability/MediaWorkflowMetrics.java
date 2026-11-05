@@ -326,6 +326,14 @@ public final class MediaWorkflowMetrics {
         return Timer.start();
     }
 
+    /** Prometheus exposition from this instance's registry, or empty for a non-scrape registry. */
+    public String scrape() {
+        if (registry instanceof io.micrometer.prometheusmetrics.PrometheusMeterRegistry prometheus) {
+            return prometheus.scrape();
+        }
+        return "";
+    }
+
     public void stopTimer(Timer.Sample sample, Stage stage) {
         if (sample == null || stage == null) return;
         sample.stop(stageTimers.get(stage));

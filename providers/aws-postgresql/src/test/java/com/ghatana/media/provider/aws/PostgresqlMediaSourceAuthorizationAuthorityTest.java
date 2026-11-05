@@ -270,6 +270,90 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
     }
 
     @Test
+    void humanSourceRequiresLiveConsentAtAdmissionAndRevalidation() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(humanRegister("tenant-human", "principal-a", "artifact-human", "consent-human"),
+                    authenticated("tenant-human", "principal-a"));
+            var request = request("tenant-human", "principal-a", "artifact-human");
+
+            // The source record's consent ID is only a lookup reference. It is not consent evidence.
+            assertThat(fixture.authority().resolve(request, authenticated("tenant-human", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(decisionCount(fixture.state(), "tenant-human")).isZero();
+
+            seedConsent(fixture.state(), "tenant-human", "consent-human", "principal-a",
+                    "transcription", "local", Instant.now().minusSeconds(10).toEpochMilli(),
+                    Instant.now().plusSeconds(300).toEpochMilli(), null, true, false);
+            var allowed = fixture.authority().resolve(request, authenticated("tenant-human", "principal-a"));
+            assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+
+            // A live consent under another purpose cannot authorize this source operation.
+            replaceConsentPurpose(fixture.state(), "tenant-human", "consent-human", "dubbing");
+            assertThat(fixture.authority().revalidate(request, allowed.evidence(),
+                    authenticated("tenant-human", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+
+            replaceConsentPurpose(fixture.state(), "tenant-human", "consent-human", "transcription");
+            expireConsent(fixture.state(), "tenant-human", "consent-human");
+            assertThat(fixture.authority().revalidate(request, allowed.evidence(),
+                    authenticated("tenant-human", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.STALE);
+            restoreConsentExpiry(fixture.state(), "tenant-human", "consent-human");
+            var refreshed = fixture.authority().resolve(request, authenticated("tenant-human", "principal-a"));
+            assertThat(refreshed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            revokeConsent(fixture.state(), "tenant-human", "consent-human");
+            assertThat(fixture.authority().revalidate(request, refreshed.evidence(),
+                    authenticated("tenant-human", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.REVOKED);
+        }
+    }
+
+    @Test
+    void humanConsentMustMatchTenantPrincipalAndRegionWithoutCreatingDecisionOnDenial() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(humanRegister("tenant-consent-scope", "principal-a", "artifact-a", "consent-a"),
+                    authenticated("tenant-consent-scope", "principal-a"));
+            seedConsent(fixture.state(), "tenant-consent-scope", "consent-a", "another-principal",
+                    "transcription", "local", Instant.now().minusSeconds(10).toEpochMilli(),
+                    Instant.now().plusSeconds(300).toEpochMilli(), null, true, false);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-consent-scope", "principal-a", "artifact-a"),
+                    authenticated("tenant-consent-scope", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+
+            seedConsent(fixture.state(), "tenant-consent-scope", "consent-a", "principal-a",
+                    "transcription", "eu", Instant.now().minusSeconds(10).toEpochMilli(),
+                    Instant.now().plusSeconds(300).toEpochMilli(), null, true, false);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-consent-scope", "principal-a", "artifact-a"),
+                    authenticated("tenant-consent-scope", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(decisionCount(fixture.state(), "tenant-consent-scope")).isZero();
+        }
+    }
+
+    @Test
+    void humanConsentWithoutExternalPermissionCannotAuthorizeExternalProviderDisclosure() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(humanRegister(
+                    "tenant-external-consent", "principal-a", "artifact-a", "consent-a"),
+                    authenticated("tenant-external-consent", "principal-a"));
+            seedConsent(fixture.state(), "tenant-external-consent", "consent-a", "principal-a",
+                    "transcription", "local", Instant.now().minusSeconds(10).toEpochMilli(),
+                    Instant.now().plusSeconds(300).toEpochMilli(), null, false, false);
+            var request = new MediaSourceAuthorizationContracts.Request(
+                    "tenant-external-consent", "principal-a", "artifact-a",
+                    new ArtifactVersion("sha256:" + DIGEST), DIGEST, "SPEECH_TO_TEXT", "transcription",
+                    "provider-a", "v1", ProcessingBoundary.EXTERNAL, "local", ProviderDataRetention.NONE);
+
+            assertThat(fixture.authority().resolve(request,
+                    authenticated("tenant-external-consent", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(decisionCount(fixture.state(), "tenant-external-consent")).isZero();
+        }
+    }
+
+    @Test
     void expiredAndPolicyDeniedSourcesNeverProduceEvidence() throws Exception {
         try (Fixture fixture = openFixture()) {
             fixture.administration().register(register("tenant-exp", "principal-a", "artifact-a"),
@@ -391,6 +475,89 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
                 "", Set.of("speech_to_text"), Set.of("transcription"), Set.of("local"),
                 Set.of(ProviderDataRetention.NONE), "source-clock-ref-1", "provenance://record/1",
                 Instant.now().plus(Duration.ofHours(1)), "corr-register");
+    }
+
+    private static RegisterRequest humanRegister(String tenant, String principal, String artifact, String consentId) {
+        return new RegisterRequest(tenant, principal, artifact, "sha256:" + DIGEST, DIGEST, principal,
+                MediaSourceAuthorizationContracts.SourceKind.HUMAN_RECORDING,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED, consentId,
+                Set.of("speech_to_text"), Set.of("transcription"), Set.of("local"),
+                Set.of(ProviderDataRetention.NONE), "source-clock-ref-1", "provenance://human/1",
+                Instant.now().plus(Duration.ofHours(1)), "corr-human-register");
+    }
+
+    private static void seedConsent(MediaAwsPostgresqlRuntimeState state, String tenant, String consentId,
+            String principal, String purpose, String region, long grantedAt, long expiresAt,
+            Long revokedAt, boolean externalAllowed, boolean biometricAllowed) throws Exception {
+        try (Connection connection = state.connection(); PreparedStatement statement = connection.prepareStatement("""
+                INSERT INTO media_consents
+                  (tenant_id,consent_id,principal_id,purposes_csv,allowed_regions_csv,
+                   external_processing_allowed,biometric_processing_allowed,granted_at,expires_at,revoked_at,version)
+                VALUES (?,?,?,?,?,?,?,?,?,?,1)
+                ON CONFLICT (tenant_id,consent_id) DO UPDATE SET
+                  principal_id=EXCLUDED.principal_id,purposes_csv=EXCLUDED.purposes_csv,
+                  allowed_regions_csv=EXCLUDED.allowed_regions_csv,
+                  external_processing_allowed=EXCLUDED.external_processing_allowed,
+                  biometric_processing_allowed=EXCLUDED.biometric_processing_allowed,
+                  granted_at=EXCLUDED.granted_at,expires_at=EXCLUDED.expires_at,revoked_at=EXCLUDED.revoked_at,
+                  version=media_consents.version+1
+                """)) {
+            statement.setString(1, tenant);
+            statement.setString(2, consentId);
+            statement.setString(3, principal);
+            statement.setString(4, purpose);
+            statement.setString(5, region);
+            statement.setBoolean(6, externalAllowed);
+            statement.setBoolean(7, biometricAllowed);
+            statement.setLong(8, grantedAt);
+            statement.setLong(9, expiresAt);
+            if (revokedAt == null) statement.setNull(10, java.sql.Types.BIGINT);
+            else statement.setLong(10, revokedAt);
+            statement.executeUpdate();
+        }
+    }
+
+    private static void replaceConsentPurpose(MediaAwsPostgresqlRuntimeState state, String tenant,
+            String consentId, String purpose) throws Exception {
+        try (Connection connection = state.connection(); PreparedStatement statement = connection.prepareStatement(
+                "UPDATE media_consents SET purposes_csv=? WHERE tenant_id=? AND consent_id=?")) {
+            statement.setString(1, purpose);
+            statement.setString(2, tenant);
+            statement.setString(3, consentId);
+            assertThat(statement.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static void revokeConsent(MediaAwsPostgresqlRuntimeState state, String tenant, String consentId)
+            throws Exception {
+        try (Connection connection = state.connection(); PreparedStatement statement = connection.prepareStatement(
+                "UPDATE media_consents SET revoked_at=? WHERE tenant_id=? AND consent_id=?")) {
+            statement.setLong(1, Instant.now().toEpochMilli());
+            statement.setString(2, tenant);
+            statement.setString(3, consentId);
+            assertThat(statement.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static void expireConsent(MediaAwsPostgresqlRuntimeState state, String tenant, String consentId)
+            throws Exception {
+        setConsentExpiry(state, tenant, consentId, Instant.now().minusSeconds(1).toEpochMilli());
+    }
+
+    private static void restoreConsentExpiry(MediaAwsPostgresqlRuntimeState state, String tenant, String consentId)
+            throws Exception {
+        setConsentExpiry(state, tenant, consentId, Instant.now().plusSeconds(300).toEpochMilli());
+    }
+
+    private static void setConsentExpiry(MediaAwsPostgresqlRuntimeState state, String tenant,
+            String consentId, long expiresAt) throws Exception {
+        try (Connection connection = state.connection(); PreparedStatement statement = connection.prepareStatement(
+                "UPDATE media_consents SET expires_at=? WHERE tenant_id=? AND consent_id=?")) {
+            statement.setLong(1, expiresAt);
+            statement.setString(2, tenant);
+            statement.setString(3, consentId);
+            assertThat(statement.executeUpdate()).isEqualTo(1);
+        }
     }
 
     private static long decisionCount(MediaAwsPostgresqlRuntimeState state, String tenant)

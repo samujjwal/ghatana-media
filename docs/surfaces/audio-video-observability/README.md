@@ -15,6 +15,10 @@ Media business RPC, provider, job store or generic telemetry engine.
 - `MediaWorkflowMetrics` — bounded-cardinality metrics for job
   processing/delivery: stage timers, event counters, provider-profile
   gauges and quality-series samples with finite label vocabularies.
+- Each gRPC service supplies its process-local Prometheus registry to the
+  shared `HealthMetricsServer`; that sidecar combines those instruments with
+  the bounded gRPC/readiness exposition. The standalone launcher keeps its
+  separate registry and `/metrics` route because it is a separate process.
 - `AudioVideoGrpcInstrumentation`, `AudioVideoTracingService` — gRPC
   instrumentation and trace context across asynchronous work.
 
@@ -59,6 +63,10 @@ within their time bound rather than throwing provider detail.
 ./gradlew :services:media:audio-video-observability:test \
   -Pghatana.media.compositeScope=FOCUSED \
   -Pghatana.media.focusedModules=observability
+
+bash infra/monitoring/tests/promtool-rules.sh
+
+RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh
 ```
 
 Coverage: empty/missing/slow health checks, startup/shutdown, trace
@@ -66,3 +74,18 @@ scope cleanup, hostile labels, privacy markers, stale measurements,
 alert rules, and the c1/16/64 resource-profile harness (local-test
 workload, `NOT_ADMITTED`, not an SLO result). Deployed alert delivery and
 real modality baselines are not proven by fixtures.
+
+`MediaWorkflowMetricsTest.prometheusScrapePreservesUnknownQualityAsNanWithoutIdentityLabels`
+checks the actual Prometheus exposition format: readiness may be measured
+while absent quality freshness remains `NaN`. The promtool suite exercises
+alert activation and recovery from recorded fixtures. The opt-in Docker smoke
+uses pinned, locally cached Prometheus and Alertmanager images and verifies a
+test-only firing **and** resolved webhook POST; it does not contact an external
+receiver or establish production delivery. Set `MEDIA_RESOURCE_PROFILE_OUTPUT`
+when running `MediaResourceProfileHarnessTest` to retain its local TSV report.
+Each production service composition must pass its own registry into its
+`MediaWorkflowMetrics` instrumentation and sidecar scrape. The standalone
+launcher exposes a separate runtime registry at `/metrics`. Real authorized
+profile and quality observations still come from their owning providers;
+capture/render providers are not invented here, so absent series remain
+unknown rather than zero.

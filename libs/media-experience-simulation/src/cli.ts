@@ -29,11 +29,11 @@ export type MediaCliParseResult =
     }
   | { readonly kind: "error"; readonly message: string };
 
-const commandHelp = `ghatana-media — Media command simulation over deterministic fixtures
+const commandHelp = `media-experience-command-simulator — Media command simulation over deterministic fixtures
 
 Usage:
-  ghatana-media --scenario <fixture-id> <command> [options]
-  ghatana-media <command> [options]
+  media-experience-command-simulator --scenario <fixture-id> <command> [options]
+  media-experience-command-simulator <command> [options]
 
   Commands:
   upload inspect --upload <id> [--format human|json|jsonl]
@@ -278,12 +278,12 @@ export function parseMediaCommand(
   const tokenResult = typeof input === "string" ? tokenize(input) : { tokens: input };
   if (tokenResult.error) return error(tokenResult.error);
   const tokens = [...tokenResult.tokens];
-  if (!tokens.length) return error("Enter a command. Use 'ghatana-media --help' for usage.");
+  if (!tokens.length) return error("Enter a command. Use 'media-experience-command-simulator --help' for usage.");
 
-  if (tokens[0] === "help" || tokens[0] === "ghatana-media" && ["--help", "-h"].includes(tokens[1] ?? "")) {
+  if (tokens[0] === "help" || tokens[0] === "media-experience-command-simulator" && ["--help", "-h"].includes(tokens[1] ?? "")) {
     return { kind: "help", text: commandHelp };
   }
-  if (tokens[0] !== "ghatana-media") return error("Commands must start with 'ghatana-media'.");
+  if (tokens[0] !== "media-experience-command-simulator") return error("Commands must start with 'media-experience-command-simulator'.");
   const args = tokens.slice(1);
   let commandName = args[0] ?? "";
   let optionStart = 1;
@@ -413,7 +413,7 @@ export function parseMediaCommand(
     }, parsed.options);
   }
 
-  return error(`Unknown command '${commandName}'. Use 'ghatana-media --help' to list supported commands.`);
+  return error(`Unknown command '${commandName}'. Use 'media-experience-command-simulator --help' to list supported commands.`);
 }
 
 export const mediaCliHelp = commandHelp;

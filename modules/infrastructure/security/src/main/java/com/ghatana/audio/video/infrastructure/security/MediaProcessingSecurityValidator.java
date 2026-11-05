@@ -9,14 +9,14 @@ import java.util.Set;
 import java.util.Map;
 
 /**
- * K4: Metadata validator for Data Cloud media processing requests.
+ * Compatibility validator for Data Cloud metadata on Media processing requests.
  *
- * Enforces tenant and permission metadata from Data Cloud job request,
- * validates consent/retention metadata for audio/video processing. Caller-
- * supplied consent labels are not authoritative authorization evidence.
+ * Validates legacy request shape only. This request does not carry a verified principal,
+ * immutable source version, or authority-issued current rights decision, so it can never
+ * authorize a processing effect. Caller-supplied consent/retention labels remain untrusted.
  *
  * @doc.type class
- * @doc.purpose Security validation for media processing
+ * @doc.purpose Validate legacy Media request metadata without granting processing authority
  * @doc.layer infrastructure
  * @doc.pattern Validator
  */
@@ -45,13 +45,14 @@ public class MediaProcessingSecurityValidator {
     }
 
     /**
-     * Validate a media processing request from Data Cloud
+     * Validate legacy request metadata and fail closed for effect authorization.
      *
      * @param job The transcription job message to validate
      * @param requiredPermissions Set of required permissions for the operation;
      *        this validator has no authenticated principal or permission evidence,
      *        so non-empty requirements fail closed
-     * @return metadata validation result, not an authorization decision
+     * @return rejection when authorization evidence is required or absent; `isValid` never means
+     *         that the caller-provided consent label authorized an effect
      */
     public ValidationResult validateMediaProcessingRequest(
             TranscriptionJobProducer.TranscriptionJobMessage job,
@@ -112,7 +113,9 @@ public class MediaProcessingSecurityValidator {
             LOG.debug("Media processing request validation passed: jobId={}, tenantId={}",
                 job.jobId(), job.tenantId());
 
-            return ValidationResult.valid();
+            return ValidationResult.rejected(
+                    "Current source rights and consent require the canonical authenticated authority",
+                    "RIGHTS_AUTHORITY_NOT_ADMITTED");
         } finally {
             if (previousMdc == null) {
                 MDC.clear();

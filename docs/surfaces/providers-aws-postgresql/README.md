@@ -58,6 +58,14 @@ resolution; HTTP provider clients call configured provider endpoints.
   process-crash recovery are covered by dedicated tests.
 - Tenant isolation is enforced at the store boundary
   (`MediaPostgresqlS3TenantIsolationTest`).
+- `PostgresqlMediaSourceAuthorizationAuthority` binds source rights to the
+  authenticated tenant/principal, immutable digest, operation, purpose,
+  region, provider version/boundary and retention. Human/third-party sources
+  also require a live `media_consents` row for the same tenant, principal,
+  purpose and region at both resolution and revalidation; revoked/future/
+  expired consent and missing consent fail closed. The current consent schema
+  does not authorize provider retention beyond `NONE`. Shared PolicyEngine
+  remains required; caller consent/retention labels are not evidence.
 
 ## Dependencies and configuration
 

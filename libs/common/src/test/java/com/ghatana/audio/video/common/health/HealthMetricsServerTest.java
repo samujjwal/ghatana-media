@@ -1,6 +1,9 @@
 package com.ghatana.audio.video.common.health;
 
 import org.junit.jupiter.api.Test;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
+import io.micrometer.core.instrument.Gauge;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,6 +15,44 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HealthMetricsServerTest {
+    @Test
+    void scrapeIncludesTheSameServiceLocalPrometheusRegistryWithoutIdentityLabels() throws Exception {
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        registry.counter("media_modality_boundary_calls", "service", "stt",
+                "modality", "stt", "boundary", "provider", "outcome", "success",
+                "contract_version", "v1").increment();
+        var absentQuality = new java.util.concurrent.atomic.AtomicReference<>(Double.NaN);
+        Gauge.builder("media.provider.quality.observation.timestamp.seconds", absentQuality,
+                        java.util.concurrent.atomic.AtomicReference::get)
+                .tag("service", "stt").tag("modality", "stt")
+                .tag("provider_id", "scrape-fixture").tag("contract_version", "v1")
+                .register(registry);
+        HealthMetricsServer server = new HealthMetricsServer(
+                "test-service", () -> true, registry::scrape, 0, 1, 1, 1);
+        server.start();
+        try {
+            var response = java.net.http.HttpClient.newHttpClient().send(
+                    java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            "http://127.0.0.1:" + server.getPort() + "/metrics")).GET().build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofString());
+
+            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.headers().firstValue("Content-Type").orElse(""))
+                    .startsWith("text/plain; version=0.0.4");
+            assertThat(java.util.regex.Pattern.compile(
+                    "(?m)^media_modality_boundary_calls_total\\{[^}]*service=\"stt\"[^}]*} 1\\.0$")
+                    .matcher(response.body()).find()).isTrue();
+            assertThat(java.util.regex.Pattern.compile(
+                    "(?m)^media_provider_quality_observation_timestamp_seconds\\{[^}]*provider_id=\"scrape-fixture\"[^}]*} NaN$")
+                    .matcher(response.body()).find()).isTrue();
+            assertThat(response.body()).doesNotContain("tenant_id", "principal_id", "request_id", "job_id");
+            assertThat(response.body()).doesNotContain("media_provider_quality_measured_value");
+        } finally {
+            server.close();
+            registry.close();
+        }
+    }
+
     @Test
     void readinessExceptionReturnsGenericUnavailableWithoutDetails() throws Exception {
         String marker = "tenant-model-path-token-secret";

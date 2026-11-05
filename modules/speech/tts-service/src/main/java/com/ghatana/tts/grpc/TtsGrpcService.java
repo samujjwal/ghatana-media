@@ -84,7 +84,8 @@ import java.util.function.BiPredicate;
  * @doc.layer product
  * @doc.pattern Service
  */
-public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
+public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
+        implements com.ghatana.audio.video.common.observability.MetricsScrapeSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(TtsGrpcService.class);
     private static final int MAX_TEXT_LENGTH = 5_000;
@@ -100,6 +101,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     private final Timer synthesizeTimer;
     private final Timer streamingTimer;
     private final AudioVideoGrpcInstrumentation instrumentation;
+    private final MediaWorkflowMetrics workflowMetrics;
     private final AudioVideoTracingService tracingService;
     private final BooleanSupplier synthesisAdmitted;
     private final BiPredicate<String, Locale> admittedVoiceLanguage;
@@ -269,7 +271,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 : new ContextAwareBoundedExecutor(Objects.requireNonNull(ownedSynthesisWorkers, "synthesisWorkers"));
         this.streamStartDispatcher = new ContextAwareBoundedExecutor(ownedSynthesisWorkers != null
                 ? ownedSynthesisWorkers : Runnable::run);
-        this.instrumentation = new AudioVideoGrpcInstrumentation(null, new MediaWorkflowMetrics(metrics, "tts"));
+        this.workflowMetrics = new MediaWorkflowMetrics(metrics, "tts");
+        this.instrumentation = new AudioVideoGrpcInstrumentation(null, workflowMetrics);
         this.synthesizeTimer = Timer.builder("tts.synthesize")
                 .description("Synthesis latency")
                 .publishPercentiles(0.50, 0.95, 0.99)
@@ -280,6 +283,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 .publishPercentiles(0.50, 0.95, 0.99)
                 .publishPercentileHistogram()
                 .register(metrics);
+    }
+
+    @Override
+    public String scrapeMetrics() {
+        return workflowMetrics.scrape();
     }
 
     @Override

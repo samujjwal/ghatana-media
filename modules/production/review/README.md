@@ -13,6 +13,13 @@ observation, and neither this record nor its receipt authorizes delivery or publ
 the current material version makes prior records stale in subsequent observations. Missing or unknown
 retention/currentness fails closed.
 
+Append requests carry an expected authority version used as a CAS token for the reviewer's current
+assignment/role state. The injected authority result must match the authenticated tenant/principal,
+owner-issued case ID, exact target and declared scope. Authorization, currentness and retention are
+checked once before sanitization and again immediately before the append; role/assignment version drift
+or a material-version change between those checks prevents the write. The host authority adapter owns
+the meaning and versioning of reviewer roles; the local module does not mint roles or approval grants.
+
 `InMemoryReviewStore` is process-local and accepts only externally supplied case references. It does
 not mint owner review cases and is not a canonical, durable, or multi-host writer. The module is not
 wired into Media runtime, UI, a rights authority, an owner receipt service, or a production review

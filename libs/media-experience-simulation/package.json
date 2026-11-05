@@ -2,7 +2,7 @@
   "name": "@ghatana/media-experience-simulation",
   "version": "0.1.0-SNAPSHOT",
   "private": true,
-  "description": "Deterministic Media workflow fixtures and ghatana-media command simulation; not a runtime client or generic Explorer host",
+  "description": "Deterministic Media workflow fixtures and command simulation; not a runtime client or generic Explorer host",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,12 +14,12 @@
   },
   "bin": {
     "media-experience-fixture": "./bin/media-experience-fixture.mjs",
-    "ghatana-media": "./bin/ghatana-media.mjs"
+    "media-experience-command-simulator": "./bin/media-experience-command-simulator.mjs"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "pnpm build && node --test tests/*.test.mjs"
+    "test": "pnpm --filter @audio-video/client build && pnpm build && node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@ghatana/experience-package": "0.1.0-SNAPSHOT"

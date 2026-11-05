@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 
 class VersionedReviewEngineTest {
@@ -35,6 +36,8 @@ class VersionedReviewEngineTest {
         ReviewRecord record = fixture.engine.inspect(REVIEWER, CASE).records().getFirst().record();
         assertThat(((DecisionRecord) record.payload()).reason()).contains("[REDACTED]").doesNotContain("customer@example.test");
         assertThat(record.reviewSubjectRef()).isEqualTo(V1);
+        assertThat(((DecisionRecord) fixture.store.read(REVIEWER, CASE).getFirst().payload()).reason())
+                .contains("[REDACTED]").doesNotContain("customer@example.test");
     }
 
     @Test
@@ -52,12 +55,74 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void materialChangeDuringAppendIsCaughtByFreshEffectBoundaryCheck() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        fixture.changeMaterialDuringSanitization.set(true);
+        AppendRequest request = fixture.request(0, "req-edit-race", new DecisionRecord(Decision.ACCEPT, "reviewed"));
+
+        assertThatThrownBy(() -> fixture.engine.append(REVIEWER, request)).isInstanceOf(StaleReviewException.class);
+        assertThat(fixture.store.read(REVIEWER, CASE)).isEmpty();
+        assertThat(fixture.authorizationChecks).hasValue(2);
+    }
+
+    @Test
+    void reviewerAuthorityVersionUsesRequestCasAndIsRecheckedAtEffectBoundary() {
+        Fixture staleRequest = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        AppendRequest prepared = staleRequest.request(0, "req-role-stale", new Comment("safe", CommentDisposition.OPEN, null));
+        staleRequest.authorityVersion.set("authority-v2");
+        assertThatThrownBy(() -> staleRequest.engine.append(REVIEWER, prepared))
+                .isInstanceOf(ReviewAuthorityConflictException.class);
+        assertThat(staleRequest.store.read(REVIEWER, CASE)).isEmpty();
+
+        Fixture changedDuringAppend = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        changedDuringAppend.changeAuthorityDuringSanitization.set(true);
+        AppendRequest request = changedDuringAppend.request(0, "req-role-race",
+                new Comment("safe", CommentDisposition.OPEN, null));
+        assertThatThrownBy(() -> changedDuringAppend.engine.append(REVIEWER, request))
+                .isInstanceOf(ReviewAuthorityConflictException.class);
+        assertThat(changedDuringAppend.store.read(REVIEWER, CASE)).isEmpty();
+        assertThat(changedDuringAppend.authorizationChecks).hasValue(2);
+    }
+
+    @Test
     void wrongReviewerAuthorityDeniesWithoutAppending() {
         Fixture fixture = new Fixture(AuthorizationStatus.DENY, RetentionStatus.ACTIVE, V1.reference());
         assertThatThrownBy(() -> fixture.engine.append(REVIEWER,
                 fixture.request(0, "req-1", new Comment("not authorized", CommentDisposition.OPEN, null))))
                 .isInstanceOf(ReviewDeniedException.class);
         assertThat(fixture.store.read(REVIEWER, CASE)).isEmpty();
+    }
+
+    @Test
+    void exactTimeAndRoiAnnotationsRemainBoundToTheReviewedVersion() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        Annotation annotation = new Annotation(
+                new TimeRange(new RationalTime(10, 30, 1, ClockDomain.SOURCE_PRESENTATION),
+                        new RationalTime(20, 30, 1, ClockDomain.SOURCE_PRESENTATION)),
+                new NormalizedRoi(0.1, 0.2, 0.4, 0.3));
+        fixture.engine.append(REVIEWER, fixture.request(0, "req-annotated",
+                new Comment("inspect this region", CommentDisposition.OPEN, annotation)));
+
+        ReviewRecord stored = fixture.store.read(REVIEWER, CASE).getFirst();
+        assertThat(stored.reviewSubjectRef()).isEqualTo(V1);
+        assertThat(((Comment) stored.payload()).annotation()).isEqualTo(annotation);
+        assertThat(annotation.timeRange().start().rateNumerator()).isEqualTo(30);
+        assertThat(annotation.timeRange().end().ticks()).isEqualTo(20);
+    }
+
+    @Test
+    void authorizationMustBindExactReviewCaseTargetAndDeclaredScope() {
+        Fixture wrongCase = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        wrongCase.authorizedCaseId.set("other-case");
+        assertThatThrownBy(() -> wrongCase.engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewDeniedException.class);
+
+        Fixture wrongTarget = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        wrongTarget.authorizedTargetRef.set(V2.reference());
+        assertThatThrownBy(() -> wrongTarget.engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewDeniedException.class);
+
+        Fixture wrongScope = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        wrongScope.authorizedScopeRef.set("different-scope");
+        assertThatThrownBy(() -> wrongScope.engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewDeniedException.class);
     }
 
     @Test
@@ -114,6 +179,8 @@ class VersionedReviewEngineTest {
         assertThatThrownBy(() -> new TimeRange(
                 new RationalTime(5, 30, 1, ClockDomain.STORY),
                 new RationalTime(4, 24, 1, ClockDomain.STORY))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Annotation(null, null)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("time range, ROI");
     }
 
     private static boolean appendAtSameRevision(Fixture fixture, CountDownLatch ready, CountDownLatch start,
@@ -134,6 +201,13 @@ class VersionedReviewEngineTest {
         private final InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
         private final AtomicReference<AuthorizationStatus> status;
         private final AtomicReference<RetentionStatus> retention;
+        private final AtomicReference<String> authorityVersion = new AtomicReference<>("authority-v1");
+        private final AtomicReference<String> authorizedCaseId = new AtomicReference<>(CASE.reviewCaseId());
+        private final AtomicReference<String> authorizedTargetRef = new AtomicReference<>(CASE.exactTargetRef());
+        private final AtomicReference<String> authorizedScopeRef = new AtomicReference<>(CASE.scopeRef());
+        private final AtomicBoolean changeAuthorityDuringSanitization = new AtomicBoolean();
+        private final AtomicBoolean changeMaterialDuringSanitization = new AtomicBoolean();
+        private final AtomicInteger authorizationChecks = new AtomicInteger();
         private final AtomicInteger ids = new AtomicInteger();
         private final VersionedReviewEngine engine;
 
@@ -142,15 +216,21 @@ class VersionedReviewEngineTest {
             this.retention = new AtomicReference<>(retention);
             this.currentVersion = new AtomicReference<>(currentVersion);
             Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
-            engine = new VersionedReviewEngine(store, (actor, reviewCase, operation, now) ->
-                    new AuthorizationDecision(this.status.get(), reviewCase.tenantId(), actor.principalId(),
-                            reviewCase.exactTargetRef(), "authority-v1", NOW.plusSeconds(60),
-                            this.currentVersion.get(), this.retention.get()),
-                    value -> value.replaceAll("secret:[^ ]+", "[REDACTED]"), clock, () -> "record-" + ids.incrementAndGet());
+            engine = new VersionedReviewEngine(store, (actor, reviewCase, operation, now) -> {
+                authorizationChecks.incrementAndGet();
+                return new AuthorizationDecision(this.status.get(), reviewCase.tenantId(), actor.principalId(),
+                        authorizedCaseId.get(), authorizedTargetRef.get(), authorizedScopeRef.get(),
+                        this.authorityVersion.get(), NOW.plusSeconds(60),
+                        this.currentVersion.get(), this.retention.get());
+            }, value -> {
+                if (changeAuthorityDuringSanitization.get()) authorityVersion.set("authority-v2");
+                if (changeMaterialDuringSanitization.get()) this.currentVersion.set(V2.reference());
+                return value.replaceAll("secret:[^ ]+", "[REDACTED]");
+            }, clock, () -> "record-" + ids.incrementAndGet());
         }
 
         private AppendRequest request(long expectedRevision, String requestId, Payload payload) {
-            return new AppendRequest(CASE, expectedRevision, requestId,
+            return new AppendRequest(CASE, expectedRevision, authorityVersion.get(), requestId,
                     new Confirmation(payload.operationId(), CASE.exactTargetRef(), true), payload);
         }
     }

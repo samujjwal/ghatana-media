@@ -9,7 +9,9 @@ the reconciled wire contracts; it does not fork new contract versions.
 ## Responsibility
 
 - **Lifecycle/state**: `MediaLifecycleProjection`,
-  `MediaLifecycleEvent`, `MediaLifecycleEventPublisher`,
+  `MediaLifecycleEvent`, `MediaPublicLifecycleEvent`, `MediaLifecycleEventType`,
+  `MediaLifecycleIdentifierRedactor`, `HmacMediaLifecycleIdentifierRedactor`,
+  `MediaLifecycleEventPublisher`,
   `MediaLifecycleOutboxSource`, `MediaJobView` — job state projection,
   lifecycle events and the transactional-outbox source.
 - **Contracts by domain**: `MediaRuntimeContracts`,
@@ -56,6 +58,14 @@ no standalone entrypoint — consumers wire them through
 - Fingerprints bind tenant/project/origin identity with length-framed
   inputs; version refs follow `MediaVersionRefRules` — immutable source
   versions are never rewritten.
+- Public lifecycle v1 is a strict typed projection of the nine observed
+  runtime event names. Stable HMAC aliases are purpose-separated; raw event,
+  tenant, principal, correlation, causation and aggregate IDs are not placed
+  in its payload. The alias key must be supplied and protected by the host.
+- Every event append is `NON_FINAL_APPEND`, including terminal-shaped job
+  events. Consumers must separately perform authorized terminal job readback;
+  event publication/consumption is not provider-effect, job-finality, or
+  delivery evidence.
 
 ## Dependencies and configuration
 
@@ -77,4 +87,5 @@ fabricated success.
 
 Coverage: contract shape/compatibility, fingerprint stability,
 sanitizer bounds, admission fail-closed paths, outbox/lifecycle event
-contracts, schema-format assertions.
+contracts, public lifecycle v1 ABI and redaction assertions, schema-format
+assertions.

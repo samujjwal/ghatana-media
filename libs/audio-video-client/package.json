@@ -64,6 +64,11 @@
       "import": "./dist/file-capture-adapter.js",
       "require": "./dist-cjs/file-capture-adapter.js"
     },
+    "./camera-capture-adapter": {
+      "types": "./dist/camera-capture-adapter.d.ts",
+      "import": "./dist/camera-capture-adapter.js",
+      "require": "./dist-cjs/camera-capture-adapter.js"
+    },
     "./recorder-orchestrator": {
       "types": "./dist/recorder-orchestrator.d.ts",
       "import": "./dist/recorder-orchestrator.js",
@@ -78,6 +83,11 @@
       "types": "./dist/offline-edit-queue.d.ts",
       "import": "./dist/offline-edit-queue.js",
       "require": "./dist-cjs/offline-edit-queue.js"
+    },
+    "./offline-reconnect": {
+      "types": "./dist/offline-reconnect.d.ts",
+      "import": "./dist/offline-reconnect.js",
+      "require": "./dist-cjs/offline-reconnect.js"
     }
   },
   "dependencies": {

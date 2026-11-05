@@ -42,6 +42,28 @@ class MediaHttpDeclaredRouteParityTest {
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-11-05T20:00:00Z"), ZoneOffset.UTC);
 
     @Test
+    void operationalProbesEnforceTheirDeclaredGetMethod() throws Exception {
+        var root = Files.createTempDirectory("media-http-health-methods-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(), java.util.List.of());
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            for (var route : MediaRouteManifest.all().stream().filter(route -> route.publicAccess()).toList()) {
+                ExchangeResult result = request(handler, "POST", concretePath(route.path()), false);
+                assertThat(result.status()).as("method mismatch for %s", route.path()).isEqualTo(405);
+                assertThat(result.body()).contains("METHOD_NOT_ALLOWED");
+            }
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void everyProtectedManifestRouteRequiresServerAuthenticatedIdentityAndReachesADeclaredHandler() throws Exception {
         var root = Files.createTempDirectory("media-http-route-matrix-");
         AtomicInteger providerEffects = new AtomicInteger();

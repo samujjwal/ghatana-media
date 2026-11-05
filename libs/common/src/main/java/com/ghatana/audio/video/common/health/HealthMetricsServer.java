@@ -58,6 +58,7 @@ public class HealthMetricsServer implements AutoCloseable {
 
     private final String serviceName;
     private final Supplier<Boolean> readinessProbe;
+    private final Supplier<String> serviceMetricsScrape;
     private final int port;
     private final int workerCount;
     private final int queueCapacity;
@@ -67,12 +68,25 @@ public class HealthMetricsServer implements AutoCloseable {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     public HealthMetricsServer(String serviceName, Supplier<Boolean> readinessProbe) {
-        this(serviceName, readinessProbe, parseEnvInt("AV_HEALTH_PORT", DEFAULT_PORT),
+        this(serviceName, readinessProbe, () -> "");
+    }
+
+    /** Construct the scrape endpoint with this process's service-local Micrometer exporter. */
+    public HealthMetricsServer(
+            String serviceName, Supplier<Boolean> readinessProbe, Supplier<String> serviceMetricsScrape) {
+        this(serviceName, readinessProbe, serviceMetricsScrape, parseEnvInt("AV_HEALTH_PORT", DEFAULT_PORT),
                 DEFAULT_WORKERS, DEFAULT_QUEUE_CAPACITY, DEFAULT_MAX_IN_FLIGHT);
     }
 
     /** Package-private configuration for deterministic local admission tests. */
     HealthMetricsServer(String serviceName, Supplier<Boolean> readinessProbe, int port,
+                        int workerCount, int queueCapacity, int maxInFlight) {
+        this(serviceName, readinessProbe, () -> "", port, workerCount, queueCapacity, maxInFlight);
+    }
+
+    /** Package-private configuration for deterministic scrape/admission tests. */
+    HealthMetricsServer(String serviceName, Supplier<Boolean> readinessProbe,
+                        Supplier<String> serviceMetricsScrape, int port,
                         int workerCount, int queueCapacity, int maxInFlight) {
         if (serviceName == null || serviceName.isBlank()) {
             throw new IllegalArgumentException("serviceName must not be blank");
@@ -84,6 +98,7 @@ public class HealthMetricsServer implements AutoCloseable {
         }
         this.serviceName = serviceName;
         this.readinessProbe = readinessProbe;
+        this.serviceMetricsScrape = java.util.Objects.requireNonNull(serviceMetricsScrape, "serviceMetricsScrape");
         this.port = port;
         this.workerCount = workerCount;
         this.queueCapacity = queueCapacity;
@@ -172,7 +187,18 @@ public class HealthMetricsServer implements AutoCloseable {
             sendResponse(ex, 405, "text/plain", "Method Not Allowed");
             return;
         }
+        String serviceScrape;
+        try {
+            serviceScrape = serviceMetricsScrape.get();
+        } catch (RuntimeException unavailable) {
+            sendResponse(ex, 503, "application/json", publicStatusBody("METRICS_UNAVAILABLE"));
+            return;
+        }
         String body = MetricsServerInterceptor.getInstance().scrape();
+        if (serviceScrape != null && !serviceScrape.isBlank()) {
+            if (!body.isEmpty() && !body.endsWith("\n")) body += "\n";
+            body += serviceScrape;
+        }
         sendResponse(ex, 200, "text/plain; version=0.0.4; charset=utf-8", body);
     }
 

@@ -7,6 +7,8 @@ import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +79,8 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
                 ? SourceAuthorization.unavailable()
                 : new MediaRuntimeSourceAuthorization(mediaRuntimePort);
         MultimodalGrpcService service = new MultimodalGrpcService(
-                MediaProcessingMetrics.create(), sourceAuthorization, mediaRuntimePort);
+                MediaProcessingMetrics.create(), sourceAuthorization, mediaRuntimePort,
+                new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
         return new ServerRuntime(service, readinessService(service));
     }
 

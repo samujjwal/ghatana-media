@@ -19,27 +19,38 @@ retention eligibility, source version or transcript revision.
   tenant/transcription key (no source-version dimension). Cache
   invalidation failure never replaces the current source result or its
   denial. Direct cache lookups return a miss.
+- `getOrLoadTranscription(scope, id, authorityCheck, loader)` is the opt-in
+  protected path. It keys by exact transcript ID plus every `CacheKeyScope`
+  dimension, stores a versioned envelope bound to the scoped key digest (raw
+  principal/rights/source scope fields are not duplicated in the envelope),
+  checks trusted current authority before lookup and again before disclosure,
+  and invalidates/reloads malformed or scope-mismatched envelopes. The supplied
+  authority reader must verify the principal, rights/purpose/classification,
+  immutable source and transcript revisions, source fingerprint, retention and
+  policy epoch. Scope values alone never grant access. Absent/deleted source
+  results are not negative-cached. Call `invalidateTranscriptionScoped` with
+  the prior scope for explicit revocation/retention cleanup.
 
 ## Public operations
 
 | Class | Role |
 | --- | --- |
 | `AudioVideoCache` | Cache facade over `DistributedCachePort` |
-| `TranscriptionCacheService` | Source-authorized transcript reads; unscoped transcript cache reads/writes fail closed |
+| `TranscriptionCacheService` | Source-authorized transcript reads; scoped opt-in cache path; unscoped transcript cache reads/writes fail closed |
 
 ## States and invariants
 
-- **No transcript persistence without complete protected scope**:
-  transcription APIs lack authenticated principal, rights/purpose/
-  classification, immutable artifact/transcript revisions and
-  authoritative source fingerprint — so transcript cache writes are
-  disabled and there is no active `cache.transcription.ttl-seconds`.
+- **No unscoped transcript persistence**: the legacy tenant/entity-only APIs
+  lack authenticated principal, rights/purpose/classification, immutable
+  artifact/transcript revisions and authoritative source fingerprint, so their
+  writes remain disabled and there is no active
+  `cache.transcription.ttl-seconds`.
 - No runtime callers under `modules/` or `adapters/` were found except
   the cache benchmark — do not infer STT/multimodal runtime integration
   from build presence.
-- A future protected transcript cache path requires complete scope
-  dimensions from the current authorized source path before persisting
-  or serving bytes.
+- The scoped API is an available infrastructure capability; no Media runtime
+  caller currently supplies its trusted rights/source verifier. Runtime
+  integration and owner-side consent/readback remain separate work.
 
 ## Dependencies and configuration
 
@@ -64,4 +75,7 @@ failures are best-effort and never mask the authoritative source result.
 ```
 
 Coverage: facade TTL bounds, source-backed transcript read/invalidation,
-fail-closed unscoped access, denial preservation.
+fail-closed unscoped access, scoped versioned envelopes, cross-tenant and
+stale-scope rejection, revocation at disclosure, negative-cache avoidance,
+single-flight loads, cache outage fallback, Redis client restart, and denial
+preservation.

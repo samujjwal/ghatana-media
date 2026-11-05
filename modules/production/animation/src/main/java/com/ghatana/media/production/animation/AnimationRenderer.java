@@ -3,6 +3,12 @@ package com.ghatana.media.production.animation;
 import com.ghatana.media.production.AnimationSpecCompiler;
 
 import javax.imageio.ImageIO;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStreamImpl;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -15,10 +21,16 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import org.w3c.dom.Node;
 
 /** Deterministic, bounded raster renderer for a resolved 2D animation scene. */
 public final class AnimationRenderer {
@@ -189,6 +201,63 @@ public final class AnimationRenderer {
         }
     }
 
+    public enum AnimatedFormat { GIF, WEBP, MP4 }
+    public enum ExportStatus { ENCODED, UNSUPPORTED_CODEC, UNSUPPORTED_FRAME_RATE, CODEC_UNAVAILABLE, ENCODING_FAILED }
+    public enum ExportFailure { CODEC_NOT_SUPPORTED, FRAME_RATE_NOT_EXACTLY_REPRESENTABLE,
+        CODEC_PROVIDER_UNAVAILABLE, ENCODING_FAILED }
+
+    /** Exact rational source cadence; encoded GIF is offered only when centisecond delays preserve it exactly. */
+    public record FrameTime(int index, String ptsNumerator, String ptsDenominator,
+            String storyTicksNumerator, String storyTicksDenominator) {
+        public FrameTime {
+            if (index < 0) throw new IllegalArgumentException("frame time index must be non-negative");
+            Objects.requireNonNull(ptsNumerator, "ptsNumerator");
+            Objects.requireNonNull(ptsDenominator, "ptsDenominator");
+            Objects.requireNonNull(storyTicksNumerator, "storyTicksNumerator");
+            Objects.requireNonNull(storyTicksDenominator, "storyTicksDenominator");
+        }
+    }
+
+    public record EncodedAnimation(AnimationSpecCompiler.ReferencePlan plan, String format,
+            int framesPerSecondNumerator, int framesPerSecondDenominator, int frameDelayCentiseconds,
+            int frameCount, List<FrameTime> frameTimes, String sha256, byte[] bytes) {
+        public EncodedAnimation {
+            Objects.requireNonNull(plan, "plan");
+            if (!"gif".equals(format) || framesPerSecondNumerator < 1 || framesPerSecondDenominator < 1
+                    || frameDelayCentiseconds < 1 || frameDelayCentiseconds > 65_535 || frameCount < 1) {
+                throw new IllegalArgumentException("encoded animation metadata is invalid");
+            }
+            frameTimes = List.copyOf(Objects.requireNonNull(frameTimes, "frameTimes"));
+            if (frameTimes.size() != frameCount) throw new IllegalArgumentException("frame time count must match frame count");
+            for (int index = 0; index < frameTimes.size(); index++) {
+                if (frameTimes.get(index).index() != index) throw new IllegalArgumentException("frame times must be ordered");
+            }
+            Objects.requireNonNull(bytes, "bytes");
+            bytes = bytes.clone();
+            sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
+            if (!sha256.matches("^[a-f0-9]{64}$") || !AnimationRenderer.sha256(bytes).equals(sha256)) {
+                throw new IllegalArgumentException("encoded animation SHA-256 does not match its bytes");
+            }
+        }
+        @Override public byte[] bytes() { return bytes.clone(); }
+    }
+
+    /** Unsupported codec/rate outcomes have no bytes and never masquerade as completed exports. */
+    public record AnimationExport(ExportStatus status, Optional<ExportFailure> failure,
+            Optional<EncodedAnimation> encoded) {
+        public AnimationExport {
+            Objects.requireNonNull(status, "status");
+            Objects.requireNonNull(failure, "failure");
+            Objects.requireNonNull(encoded, "encoded");
+            if (status == ExportStatus.ENCODED && (failure.isPresent() || encoded.isEmpty())) {
+                throw new IllegalArgumentException("encoded outcome must contain bytes and no failure");
+            }
+            if (status != ExportStatus.ENCODED && (failure.isEmpty() || encoded.isPresent())) {
+                throw new IllegalArgumentException("failed outcome must name a failure and contain no bytes");
+            }
+        }
+    }
+
     /** Validate the envelope, resolve a caller-provided typed 2D graph, and render real PNG frames. */
     public RenderedAnimation render(AnimationSpecCompiler.AnimationSpec spec, Scene scene, Profile profile) {
         Objects.requireNonNull(scene, "scene");
@@ -218,6 +287,153 @@ public final class AnimationRenderer {
             frames.add(frame(index, profile, spec.tStoryRef(), png));
         }
         return new RenderedAnimation(plan, frames);
+    }
+
+    /**
+     * Encodes an animated GIF only when its centisecond clock exactly represents the requested FPS.
+     * Other formats return a typed unsupported outcome; no fallback codec or silent frame-rate change occurs.
+     */
+    public AnimationExport renderAnimated(AnimationSpecCompiler.AnimationSpec spec, Scene scene,
+            Profile profile, AnimatedFormat format) {
+        Objects.requireNonNull(spec, "spec");
+        Objects.requireNonNull(scene, "scene");
+        Objects.requireNonNull(profile, "profile");
+        Objects.requireNonNull(format, "format");
+        if (format != AnimatedFormat.GIF) {
+            return exportFailure(ExportStatus.UNSUPPORTED_CODEC, ExportFailure.CODEC_NOT_SUPPORTED);
+        }
+        long centisecondNumerator = 100L * profile.framesPerSecondDenominator();
+        if (centisecondNumerator % profile.framesPerSecondNumerator() != 0) {
+            return exportFailure(ExportStatus.UNSUPPORTED_FRAME_RATE, ExportFailure.FRAME_RATE_NOT_EXACTLY_REPRESENTABLE);
+        }
+        long delay = centisecondNumerator / profile.framesPerSecondNumerator();
+        if (delay < 1 || delay > 65_535) {
+            return exportFailure(ExportStatus.UNSUPPORTED_FRAME_RATE, ExportFailure.FRAME_RATE_NOT_EXACTLY_REPRESENTABLE);
+        }
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("gif");
+        if (!writers.hasNext()) {
+            return exportFailure(ExportStatus.CODEC_UNAVAILABLE, ExportFailure.CODEC_PROVIDER_UNAVAILABLE);
+        }
+        RenderedAnimation rendered = render(spec, scene, profile);
+        ImageWriter writer = writers.next();
+        BoundedImageOutput output = new BoundedImageOutput(MAX_ENCODED_ANIMATION_BYTES);
+        try {
+            writer.setOutput(output);
+            writer.prepareWriteSequence(null);
+            for (Frame frame : rendered.frames()) {
+                BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(frame.png()));
+                if (image == null) throw new RenderException("PNG decoder could not read a rendered frame");
+                try {
+                    ImageTypeSpecifier type = ImageTypeSpecifier.createFromRenderedImage(image);
+                    IIOMetadata metadata = writer.getDefaultImageMetadata(type, writer.getDefaultWriteParam());
+                    setGifFrameDelay(metadata, Math.toIntExact(delay));
+                    writer.writeToSequence(new IIOImage(image, null, metadata), writer.getDefaultWriteParam());
+                } finally {
+                    image.flush();
+                }
+            }
+            writer.endWriteSequence();
+            output.flush();
+            byte[] bytes = output.toByteArray();
+            String digest = sha256(bytes);
+            List<FrameTime> frameTimes = rendered.frames().stream().map(frame -> new FrameTime(frame.index(),
+                    frame.ptsNumerator(), frame.ptsDenominator(), frame.storyTicksNumerator(),
+                    frame.storyTicksDenominator())).toList();
+            EncodedAnimation encoded = new EncodedAnimation(rendered.plan(), "gif", profile.framesPerSecondNumerator(),
+                    profile.framesPerSecondDenominator(), Math.toIntExact(delay), profile.frameCount(), frameTimes,
+                    digest, bytes);
+            return new AnimationExport(ExportStatus.ENCODED, Optional.empty(), Optional.of(encoded));
+        } catch (IOException | RuntimeException failure) {
+            return exportFailure(ExportStatus.ENCODING_FAILED, ExportFailure.ENCODING_FAILED);
+        } finally {
+            writer.dispose();
+            try { output.close(); } catch (IOException ignored) { /* byte-array stream close has no external effect */ }
+        }
+    }
+
+    private static AnimationExport exportFailure(ExportStatus status, ExportFailure failure) {
+        return new AnimationExport(status, Optional.of(failure), Optional.empty());
+    }
+
+    private static void setGifFrameDelay(IIOMetadata metadata, int delayCentiseconds) throws IOException {
+        String format = metadata.getNativeMetadataFormatName();
+        if (format == null) throw new IOException("GIF writer does not expose native frame metadata");
+        Node root = metadata.getAsTree(format);
+        IIOMetadataNode control = findNode(root, "GraphicControlExtension");
+        if (control == null) throw new IOException("GIF writer lacks frame delay metadata");
+        control.setAttribute("disposalMethod", "none");
+        control.setAttribute("userInputFlag", "FALSE");
+        control.setAttribute("transparentColorFlag", "FALSE");
+        control.setAttribute("delayTime", Integer.toString(delayCentiseconds));
+        control.setAttribute("transparentColorIndex", "0");
+        metadata.setFromTree(format, root);
+    }
+
+    private static IIOMetadataNode findNode(Node root, String name) {
+        if (name.equals(root.getNodeName()) && root instanceof IIOMetadataNode metadataNode) return metadataNode;
+        for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+            IIOMetadataNode match = findNode(child, name);
+            if (match != null) return match;
+        }
+        return null;
+    }
+
+    private static String sha256(byte[] bytes) {
+        try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
+        catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
+    }
+
+    /** Seekable bounded ImageOutputStream for ImageIO writers; allocation never exceeds the output ceiling. */
+    private static final class BoundedImageOutput extends ImageOutputStreamImpl {
+        private final int maximumBytes;
+        private byte[] buffer = new byte[8_192];
+        private int length;
+
+        private BoundedImageOutput(int maximumBytes) { this.maximumBytes = maximumBytes; }
+
+        @Override public int read() {
+            if (streamPos >= length) return -1;
+            return buffer[Math.toIntExact(streamPos++)] & 0xff;
+        }
+
+        @Override public int read(byte[] bytes, int offset, int count) {
+            Objects.checkFromIndexSize(offset, count, bytes.length);
+            if (streamPos >= length) return -1;
+            int available = Math.min(count, length - Math.toIntExact(streamPos));
+            System.arraycopy(buffer, Math.toIntExact(streamPos), bytes, offset, available);
+            streamPos += available;
+            return available;
+        }
+
+        @Override public void write(int value) throws IOException {
+            flushBits();
+            ensureCapacity(Math.toIntExact(streamPos + 1));
+            buffer[Math.toIntExact(streamPos++)] = (byte) value;
+            length = Math.max(length, Math.toIntExact(streamPos));
+        }
+
+        @Override public void write(byte[] bytes, int offset, int count) throws IOException {
+            Objects.checkFromIndexSize(offset, count, bytes.length);
+            flushBits();
+            long end = streamPos + count;
+            if (end > maximumBytes) throw new IOException("encoded animation exceeds byte ceiling");
+            ensureCapacity(Math.toIntExact(end));
+            System.arraycopy(bytes, offset, buffer, Math.toIntExact(streamPos), count);
+            streamPos = end;
+            length = Math.max(length, Math.toIntExact(streamPos));
+        }
+
+        @Override public void close() throws IOException { super.close(); }
+
+        private void ensureCapacity(int required) throws IOException {
+            if (required > maximumBytes) throw new IOException("encoded animation exceeds byte ceiling");
+            if (required <= buffer.length) return;
+            int capacity = buffer.length;
+            while (capacity < required) capacity = (int) Math.min(maximumBytes, Math.max((long) capacity * 2, required));
+            buffer = java.util.Arrays.copyOf(buffer, capacity);
+        }
+
+        private byte[] toByteArray() { return java.util.Arrays.copyOf(buffer, length); }
     }
 
     /** Public curve sampler used for deterministic golden-curve checks. */

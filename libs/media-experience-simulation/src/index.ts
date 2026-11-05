@@ -6,6 +6,21 @@ export { evaluateRetryEligibilityDefinition } from "./retry-eligibility-definiti
 export type { RetryEligibilityDecision, RetryEligibilityEvidenceResolver, RetryEligibilityResult, RetryEligibilityTrustedContext } from "./retry-eligibility-definition.js";
 export { evaluateInspectionDefinition, evaluateSearchDefinition } from "./search-inspection-definition.js";
 export type { SearchInspectionDecision, SearchInspectionDefinitionResult } from "./search-inspection-definition.js";
+export {
+  advanceScenarioReplayClock,
+  createScenarioReplayContract,
+  resetScenarioReplayClock,
+  ScenarioReplayContractError,
+  validateScenarioReplayContract,
+} from "./scenario-replay-contract.js";
+export type {
+  ScenarioContractIssue,
+  ScenarioContractValidation,
+  ScenarioReplayClock,
+  ScenarioReplayConsumer,
+  ScenarioReplayContract,
+  ScenarioReplayContractInput,
+} from "./scenario-replay-contract.js";
 import {
   createFixtureState,
   createStaleDraftRevisionDefinitionFixture,

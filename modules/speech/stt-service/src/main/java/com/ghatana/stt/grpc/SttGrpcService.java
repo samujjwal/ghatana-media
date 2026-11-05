@@ -51,13 +51,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @doc.layer product
  * @doc.pattern Service
  */
-public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase implements AutoCloseable {
+public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
+        implements AutoCloseable, com.ghatana.audio.video.common.observability.MetricsScrapeSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SttGrpcService.class);
 
     private final AudioVideoLibrary library;
     private final Timer transcribeTimer;
     private final AudioVideoGrpcInstrumentation boundaryInstrumentation;
+    private final MediaWorkflowMetrics workflowMetrics;
     private final AudioVideoTracingService tracingService;
     private final int maxAudioLengthSeconds;
     private final SttRequestAuthorization requestAuthorization;
@@ -124,13 +126,18 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase implements
                 Objects.requireNonNull(dispatchExecutor, "dispatchExecutor"));
         this.ownedDispatchExecutor = ownedDispatchExecutor;
         this.tracingService = new AudioVideoTracingService(Objects.requireNonNull(tracer, "tracer"));
-        this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(
-                null, new MediaWorkflowMetrics(metrics, "stt"));
+        this.workflowMetrics = new MediaWorkflowMetrics(metrics, "stt");
+        this.boundaryInstrumentation = new AudioVideoGrpcInstrumentation(null, workflowMetrics);
         this.transcribeTimer = Timer.builder("stt.transcribe")
             .description("Transcription latency")
             .publishPercentiles(0.50, 0.95, 0.99)
             .publishPercentileHistogram()
             .register(metrics);
+    }
+
+    @Override
+    public String scrapeMetrics() {
+        return workflowMetrics.scrape();
     }
 
     public SttGrpcService(MeterRegistry metrics) {

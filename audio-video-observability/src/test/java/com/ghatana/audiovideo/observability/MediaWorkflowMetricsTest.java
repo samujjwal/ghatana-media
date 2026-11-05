@@ -5,12 +5,43 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.time.Instant;
 
 class MediaWorkflowMetricsTest {
+    @Test
+    void prometheusScrapePreservesUnknownQualityAsNanWithoutIdentityLabels() {
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+            Instant checkedAt = Instant.parse("2026-11-05T12:00:00Z");
+            assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                    new MediaWorkflowMetrics.ProviderProfileObservation(
+                            "scrape-fixture", "fixture-v1", "unqualified-profile", "fixture-revision",
+                            MediaWorkflowMetrics.ProviderReadiness.HEALTHY, checkedAt, null))).isTrue();
+
+            String scrape = registry.scrape();
+
+            assertThat(java.util.regex.Pattern.compile(
+                    "(?m)^media_provider_profile_readiness\\{[^}]*provider_id=\"scrape-fixture\"[^}]*} 1\\.0$")
+                    .matcher(scrape).find()).isTrue();
+            assertThat(scrape).contains("media_provider_quality_observation_timestamp_seconds{");
+            assertThat(java.util.regex.Pattern.compile(
+                    "(?m)^media_provider_quality_observation_timestamp_seconds\\{[^}]*provider_id=\"scrape-fixture\"[^}]*} NaN$")
+                    .matcher(scrape).find()).isTrue();
+            assertThat(scrape).doesNotContain(
+                    "tenant_id", "principal_id", "request_id", "job_id", "attempt_id",
+                    "credential", "password", "bearer", "token");
+            assertThat(scrape).doesNotContain("independent_qualified", "reference_only");
+        } finally {
+            registry.close();
+        }
+    }
+
     @Test
     void recordsBoundedWorkflowEventsStagesAndTenantAgnosticGauges() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();

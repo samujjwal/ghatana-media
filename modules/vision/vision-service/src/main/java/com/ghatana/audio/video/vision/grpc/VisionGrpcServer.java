@@ -9,6 +9,8 @@ import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaRuntimePortFactory;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +88,7 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
             Map<String, String> environment, MediaProcessingRuntimePort mediaRuntimePort, boolean ownRuntimePort) {
         ProductionVisionGrpcService service = null;
         try {
-            MeterRegistry providerMetrics = new SimpleMeterRegistry();
+            MeterRegistry providerMetrics = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
             service = new ProductionVisionGrpcService(
                     ProductionVisionGrpcService.compose(environment, mediaRuntimePort),
                     MediaProcessingMetrics.create(), providerMetrics, mediaRuntimePort);

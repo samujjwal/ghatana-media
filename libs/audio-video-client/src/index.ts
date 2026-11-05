@@ -83,10 +83,36 @@ export type {
   OfflineEditQueueOptions,
   OfflineEditRecord,
   OfflineEditReplayAdapter,
+  OfflineEditReplayState,
   OfflineEditScope,
   OfflineEditState,
   OfflineEditStore,
 } from './offline-edit-queue.js';
+export { OfflineReconnectCoordinator } from './offline-reconnect.js';
+export type {
+  OfflineReconnectOperations,
+  OfflineReconnectResult,
+  ScopedAuthorizationRead,
+  ScopedEditApplyResult,
+  ScopedProjectVersionRead,
+} from './offline-reconnect.js';
+export {
+  CameraCaptureAdapter,
+  CameraCaptureError,
+  CameraCaptureSession,
+} from './camera-capture-adapter.js';
+export type {
+  CameraCaptureAdapterOptions,
+  CameraCaptureErrorCode,
+  CameraCapturedFrame,
+  CameraConsentPort,
+  CameraFrameClockPort,
+  CameraMediaDevicePort,
+  CameraPermissionDecision,
+  CameraPermissionDisposition,
+  CameraTrack,
+  CameraCaptureSessionLimits,
+} from './camera-capture-adapter.js';
 
 /**
  * Configuration for service clients

@@ -60,9 +60,10 @@ public final class PostgresqlMediaConsentAuthority implements MediaConsentAuthor
             statement.setString(3, principalId.trim());
             try (ResultSet result = statement.executeQuery()) {
                 if (!result.next()) return ConsentDecision.unverified();
+                long grantedAt = result.getLong("granted_at");
                 Long expiresAt = nullableLong(result, "expires_at");
                 Long revokedAt = nullableLong(result, "revoked_at");
-                if (revokedAt != null || expiresAt != null && expiresAt <= now) {
+                if (grantedAt > now || revokedAt != null || expiresAt != null && expiresAt <= now) {
                     return ConsentDecision.unverified();
                 }
                 Instant verifiedAt = Instant.ofEpochMilli(now);

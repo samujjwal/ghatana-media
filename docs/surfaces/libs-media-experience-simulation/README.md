@@ -25,6 +25,7 @@ providers, or live user data.
 | `bin/ghatanamedia-api.mjs` (`ghatanamedia-api` package bin) | Fixture CLI used by the Explorer terminal |
 | `bin/media-experience-fixture.mjs` | Scenario/action/event replay CLI (`--format json|jsonl|human`) |
 | Exported reducer/fixture modules (`src/`) | Deterministic state transitions consumed by the Explorer |
+| `scenario-replay-contract.ts` exports | Shared strict schema validation and source-clock replay helpers for Recorder and Explorer scenario envelopes |
 
 ## States and invariants
 
@@ -35,11 +36,19 @@ providers, or live user data.
   artifact-verification job, transcription job are distinct).
 - Synthetic project/transfer/job/evidence metadata only — never real
   provider effects, saved artifacts or business finality.
+- Scenario replay contracts bind stable source IDs and an explicit clock;
+  fixture labels remain `SIMULATED_FIXTURE_ONLY`, with no dispatch, network,
+  owner evidence, solver output, model output, or runtime admission.
+- The seed is a repeatable source-pair identifier, not a random generator,
+  integrity proof, or scientific result. Clock operations advance/reset only
+  explicit whole ticks and never consult wall time.
 
 ## Dependencies and configuration
 
 - TypeScript sources compiled with `tsc -p tsconfig.json`; consumed by
-  `apps/media-experience-explorer`. No backend or provider configuration.
+  `apps/media-experience-explorer`. The exported scenario contract is shaped
+  for both Recorder and Explorer adapters; its source-bound inputs remain
+  owned by their respective PDP records. No backend or provider configuration.
 
 ## Errors
 
@@ -49,12 +58,14 @@ no runtime error taxonomy (no runtime is contacted).
 ## Tests and commands
 
 ```bash
-pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json
+pnpm --filter @ghatana/media-experience-simulation build
+pnpm --filter @ghatana/media-experience-simulation test
 node libs/media-experience-simulation/bin/media-experience-fixture.mjs \
   --scenario media.scenario.job-outcome-unknown \
   --action '{"type":"media.action.check-job-outcome"}' --format json
-pnpm --filter @ghatana/media-experience-simulation test   # if defined
 ```
 
 Coverage: deterministic replay, blocked-action reason codes, scenario
-projection parity between CLI and exported JSON.
+projection parity between CLI and exported JSON, malformed shared scenario
+contracts, repeatable seed identity, explicit clock reset/advance, and strict
+simulation-only truth fields.

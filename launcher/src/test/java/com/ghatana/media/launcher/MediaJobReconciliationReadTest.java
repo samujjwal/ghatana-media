@@ -104,6 +104,34 @@ class MediaJobReconciliationReadTest {
     }
 
     @Test
+    void listLimitRejectsDuplicateAndOutOfSchemaValuesWithoutChangingQueryMeaning() throws Exception {
+        var root = Files.createTempDirectory("media-http-list-limit-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(processingProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            assertThat(request(handler, "/api/v1/jobs?limit=1").status()).isEqualTo(200);
+            for (String invalid : List.of(
+                    "/api/v1/jobs?limit=0",
+                    "/api/v1/jobs?limit=1001",
+                    "/api/v1/jobs?limit=1&limit=2",
+                    "/api/v1/jobs?limit=")) {
+                ExchangeResult response = request(handler, invalid);
+                assertThat(response.status()).as("query %s", invalid).isEqualTo(400);
+                assertThat(response.body()).contains("INVALID_REQUEST");
+            }
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void restartPreservesUnknownProviderFinalityAndDoesNotDispatchAgain() throws Exception {
         var root = Files.createTempDirectory("media-restart-reconciliation-");
         var jobs = new LocalMediaRuntimeSupport.JobStore();

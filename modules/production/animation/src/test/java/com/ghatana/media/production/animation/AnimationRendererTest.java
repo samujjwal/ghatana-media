@@ -6,19 +6,28 @@ import com.ghatana.media.production.AnimationSpecCompiler.StoryTime;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import org.w3c.dom.Node;
+import org.w3c.dom.NamedNodeMap;
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AnimationRendererTest {
     private static AnimationSpec spec() {
+        return spec("png");
+    }
+
+    private static AnimationSpec spec(String renderingFormat) {
         return new AnimationSpec("media.declarative.value.animation-spec.v1",
                 "scene/a@v1", "animation/a@v1", "operators/vector@v1", "assets/a@v1",
                 List.of("curve/position@v1"),
                 new StoryTime("story", "clock", "stream", "origin@v1", "2",
-                        new PositiveRational("1", "100")), "render/png@v1");
+                        new PositiveRational("1", "100")), "render/" + renderingFormat + "@v1");
     }
 
     private static AnimationRenderer.Scene scene() {
@@ -161,5 +170,84 @@ class AnimationRendererTest {
                 new AnimationRenderer.Scene(2, 2, 0, List.of()),
                 new AnimationRenderer.Profile(1, 1, 2)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("signed-int64");
+    }
+
+    @Test
+    void exportsDeterministicAnimatedGifWithExactCadenceAndDecoderGoldenFrames() throws Exception {
+        var spec = spec("gif");
+        var animatedScene = new AnimationRenderer.Scene(4, 2, 0xff000000, List.of(
+                new AnimationRenderer.Shape("moving-pixel", AnimationRenderer.Primitive.RECTANGLE,
+                        0, 0, 1, 1, 0, 0xffff0000,
+                        List.of(
+                                new AnimationRenderer.Keyframe(0, 0, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR),
+                                new AnimationRenderer.Keyframe(2, 2, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR)))));
+        var profile = new AnimationRenderer.Profile(10, 1, 3);
+        var renderer = new AnimationRenderer();
+        var first = renderer.renderAnimated(spec, animatedScene, profile, AnimationRenderer.AnimatedFormat.GIF);
+        var repeated = renderer.renderAnimated(spec, animatedScene, profile, AnimationRenderer.AnimatedFormat.GIF);
+
+        assertThat(first.status()).isEqualTo(AnimationRenderer.ExportStatus.ENCODED);
+        var encoded = first.encoded().orElseThrow();
+        assertThat(encoded.format()).isEqualTo("gif");
+        assertThat(encoded.plan().renderingRef()).isEqualTo("render/gif@v1");
+        assertThat(encoded.framesPerSecondNumerator()).isEqualTo(10);
+        assertThat(encoded.framesPerSecondDenominator()).isEqualTo(1);
+        assertThat(encoded.frameDelayCentiseconds()).isEqualTo(10);
+        assertThat(encoded.frameCount()).isEqualTo(3);
+        assertThat(encoded.frameTimes()).extracting(AnimationRenderer.FrameTime::ptsNumerator).containsExactly("0", "1", "1");
+        assertThat(encoded.frameTimes()).extracting(AnimationRenderer.FrameTime::ptsDenominator).containsExactly("1", "10", "5");
+        assertThat(encoded.frameTimes().get(1).storyTicksNumerator()).isEqualTo("12");
+        assertThat(encoded.frameTimes().get(1).storyTicksDenominator()).isEqualTo("1");
+        assertThat(encoded.bytes()).containsExactly(repeated.encoded().orElseThrow().bytes());
+        assertThat(encoded.sha256()).hasSize(64);
+
+        Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("gif");
+        assertThat(readers.hasNext()).isTrue();
+        ImageReader reader = readers.next();
+        try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(encoded.bytes()))) {
+            reader.setInput(input, false, false);
+            assertThat(reader.getNumImages(true)).isEqualTo(3);
+            for (int index = 0; index < 3; index++) {
+                var decoded = reader.read(index);
+                assertThat(decoded.getWidth()).isEqualTo(4);
+                assertThat(decoded.getHeight()).isEqualTo(2);
+                assertThat(decoded.getRGB(index, 0)).isEqualTo(0xffff0000);
+                assertThat(decoded.getRGB(3, 1)).isEqualTo(0xff000000);
+                var metadata = reader.getImageMetadata(index);
+                Node root = metadata.getAsTree("javax_imageio_gif_image_1.0");
+                Node control = findNode(root, "GraphicControlExtension");
+                NamedNodeMap attributes = control.getAttributes();
+                assertThat(attributes.getNamedItem("delayTime").getNodeValue()).isEqualTo("10");
+                decoded.flush();
+            }
+        } finally {
+            reader.dispose();
+        }
+    }
+
+    @Test
+    void unsupportedCodecAndUnrepresentableGifFrameRateReturnTypedUnavailableOutcomes() {
+        var scene = new AnimationRenderer.Scene(2, 2, 0xff000000, List.of());
+        var renderer = new AnimationRenderer();
+        var unsupported = renderer.renderAnimated(spec("webp"), scene, new AnimationRenderer.Profile(10, 1, 2),
+                AnimationRenderer.AnimatedFormat.WEBP);
+        assertThat(unsupported.status()).isEqualTo(AnimationRenderer.ExportStatus.UNSUPPORTED_CODEC);
+        assertThat(unsupported.failure()).contains(AnimationRenderer.ExportFailure.CODEC_NOT_SUPPORTED);
+        assertThat(unsupported.encoded()).isEmpty();
+
+        var inexactRate = renderer.renderAnimated(spec("gif"), scene, new AnimationRenderer.Profile(24, 1, 2),
+                AnimationRenderer.AnimatedFormat.GIF);
+        assertThat(inexactRate.status()).isEqualTo(AnimationRenderer.ExportStatus.UNSUPPORTED_FRAME_RATE);
+        assertThat(inexactRate.failure()).contains(AnimationRenderer.ExportFailure.FRAME_RATE_NOT_EXACTLY_REPRESENTABLE);
+        assertThat(inexactRate.encoded()).isEmpty();
+    }
+
+    private static Node findNode(Node root, String name) {
+        if (name.equals(root.getNodeName())) return root;
+        for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+            Node match = findNode(child, name);
+            if (match != null) return match;
+        }
+        return null;
     }
 }

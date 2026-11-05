@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    api(project(":services:media:runtime-contracts"))
     // Platform messaging
     implementation("com.ghatana.platform:messaging:${providers.gradleProperty("ghatana.shared.version").get()}")
     

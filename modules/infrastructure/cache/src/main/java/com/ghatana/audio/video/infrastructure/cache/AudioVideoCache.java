@@ -763,6 +763,42 @@ public class AudioVideoCache<K, V> {
     }
 
     /**
+     * Build an isolated key for one protected object within a shared authority
+     * scope. The object identity is framed as a separate component so callers
+     * do not have to overload artifact or transcript revision fields.
+     */
+    public String buildScopedKey(CacheKeyScope scope, String objectIdentity) {
+        Objects.requireNonNull(scope, "scope cannot be null");
+        Objects.requireNonNull(objectIdentity, "objectIdentity cannot be null");
+        if (objectIdentity.isBlank() || objectIdentity.length() > CachePolicy.MAX_KEY_LENGTH) {
+            throw new IllegalArgumentException("objectIdentity must be nonblank and within cache key bounds");
+        }
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            updateFramedUtf16(digest, namespace);
+            updateFramedUtf16(digest, scope.tenantId());
+            updateFramedUtf16(digest, scope.authenticatedPrincipalId());
+            updateFramedUtf16(digest, scope.rightsScope());
+            updateFramedUtf16(digest, scope.purpose());
+            updateFramedUtf16(digest, scope.classification());
+            updateFramedUtf16(digest, scope.artifactId());
+            updateFramedUtf16(digest, scope.artifactRevision());
+            updateFramedUtf16(digest, scope.transcriptRevision());
+            updateFramedUtf16(digest, scope.sourceFingerprint());
+            updateFramedUtf16(digest, scope.policyEpoch());
+            updateFramedUtf16(digest, objectIdentity);
+            StringBuilder key = new StringBuilder("av2-");
+            for (byte value : digest.digest()) {
+                key.append(Character.forDigit((value >>> 4) & 0xf, 16))
+                        .append(Character.forDigit(value & 0xf, 16));
+            }
+            return key.toString();
+        } catch (java.security.NoSuchAlgorithmException failure) {
+            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        }
+    }
+
+    /**
      * Read protected content only after the caller's current authority source
      * has positively revalidated the complete scope. A miss is never treated as
      * authorization, and an unavailable/unknown authority result fails closed.
@@ -772,6 +808,24 @@ public class AudioVideoCache<K, V> {
             Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
             Function<String, AsyncOperation<V>> loader) {
         Objects.requireNonNull(scope, "scope cannot be null");
+        return getOrLoadScoped(buildScopedKey(scope), scope, authorityCheck, loader);
+    }
+
+    /** Scoped cache lookup additionally binds the key to one exact cache object identity. */
+    public AsyncOperation<V> getOrLoadScoped(
+            CacheKeyScope scope,
+            String objectIdentity,
+            Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
+            Function<String, AsyncOperation<V>> loader) {
+        Objects.requireNonNull(scope, "scope cannot be null");
+        return getOrLoadScoped(buildScopedKey(scope, objectIdentity), scope, authorityCheck, loader);
+    }
+
+    private AsyncOperation<V> getOrLoadScoped(
+            String key,
+            CacheKeyScope scope,
+            Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
+            Function<String, AsyncOperation<V>> loader) {
         Objects.requireNonNull(authorityCheck, "authorityCheck cannot be null");
         Objects.requireNonNull(loader, "loader cannot be null");
         final AsyncOperation<Boolean> authority;
@@ -786,7 +840,6 @@ public class AudioVideoCache<K, V> {
                 return AsyncOperation.failure(new SecurityException(
                         "Current cache authority is denied or unknown"));
             }
-            String key = buildScopedKey(scope);
             return getOrLoad(asCacheKey(key), ignored -> loader.apply(key));
         });
     }
@@ -794,6 +847,11 @@ public class AudioVideoCache<K, V> {
     /** Invalidates the exact immutable source and policy epoch key. */
     public AsyncOperation<Void> invalidateScoped(CacheKeyScope scope) {
         return invalidate(asCacheKey(buildScopedKey(Objects.requireNonNull(scope, "scope cannot be null"))));
+    }
+
+    /** Invalidates one exact object inside a complete protected scope. */
+    public AsyncOperation<Void> invalidateScoped(CacheKeyScope scope, String objectIdentity) {
+        return invalidate(asCacheKey(buildScopedKey(scope, objectIdentity)));
     }
 
     /** Protected keys are versioned strings; these helpers require a String-keyed cache facade. */

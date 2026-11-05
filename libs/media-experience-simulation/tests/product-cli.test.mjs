@@ -15,7 +15,7 @@ const execFileAsync = promisify(execFile);
 
 test("parses a canonical transcription command and normalizes a valid language tag", () => {
   const state = createFixtureState("media.scenario.source-available");
-  const parsed = parseMediaCommand(state, "ghatana-media transcribe --source-version source-v1 --language en-us --format json");
+  const parsed = parseMediaCommand(state, "media-experience-command-simulator transcribe --source-version source-v1 --language en-us --format json");
   assert.equal(parsed.kind, "action");
   assert.equal(parsed.commandId, "media.cli.transcribe");
   assert.deepEqual(parsed.action, { type: "media.action.request-transcription", languageTag: "en-US" });
@@ -24,18 +24,18 @@ test("parses a canonical transcription command and normalizes a valid language t
 
 test("rejects stale source versions, duplicate flags, and unknown options", () => {
   const state = createFixtureState("media.scenario.source-available");
-  assert.match(parseMediaCommand(state, "ghatana-media transcribe --source-version old --language en").message, /not the current source version/);
-  assert.match(parseMediaCommand(state, "ghatana-media transcribe --source-version source-v1 --source-version source-v1 --language en").message, /only be supplied once/);
-  assert.match(parseMediaCommand(state, "ghatana-media transcribe --source-version source-v1 --language en --force").message, /Unknown option/);
+  assert.match(parseMediaCommand(state, "media-experience-command-simulator transcribe --source-version old --language en").message, /not the current source version/);
+  assert.match(parseMediaCommand(state, "media-experience-command-simulator transcribe --source-version source-v1 --source-version source-v1 --language en").message, /only be supplied once/);
+  assert.match(parseMediaCommand(state, "media-experience-command-simulator transcribe --source-version source-v1 --language en --force").message, /Unknown option/);
 });
 
 test("checks an uncertain job outcome using the existing job identity", () => {
   const state = createFixtureState("media.scenario.job-outcome-unknown");
-  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "check-outcome", "--job", "fixture-transcription-job-unknown"]);
+  const parsed = parseMediaCommand(state, ["media-experience-command-simulator", "job", "check-outcome", "--job", "fixture-transcription-job-unknown"]);
   assert.equal(parsed.kind, "action");
   assert.equal(parsed.commandId, "media.cli.job.check-outcome");
-  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "reconcile", "--job", "fixture-transcription-job-unknown"]).kind, "error");
-  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "inspect", "--job", "fixture-transcription-job-unknown"]).kind, "error");
+  assert.equal(parseMediaCommand(state, ["media-experience-command-simulator", "job", "reconcile", "--job", "fixture-transcription-job-unknown"]).kind, "error");
+  assert.equal(parseMediaCommand(state, ["media-experience-command-simulator", "job", "inspect", "--job", "fixture-transcription-job-unknown"]).kind, "error");
   const transition = reduceMediaExperience(state, parsed.action);
   assert.equal(transition.applied, true);
   assert.equal(transition.state.job.state, "RECONCILING");
@@ -45,7 +45,7 @@ test("checks an uncertain job outcome using the existing job identity", () => {
 test("job cancellation uses the existing job identity and stays pending until confirmation", async () => {
   const state = createFixtureState("media.scenario.job-running");
   const jobId = state.job.jobId;
-  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "cancel", "--job", jobId]);
+  const parsed = parseMediaCommand(state, ["media-experience-command-simulator", "job", "cancel", "--job", jobId]);
   assert.equal(parsed.kind, "action");
   assert.equal(parsed.commandId, "media.cli.job.cancel");
   assert.deepEqual(parsed.action, { type: "media.action.request-cancellation" });
@@ -64,13 +64,13 @@ test("job cancellation uses the existing job identity and stays pending until co
   assert.equal(confirmation.applied, true);
   assert.equal(confirmation.state.job.state, "CANCELLED");
   assert.equal(confirmation.state.job.finality, "CONFIRMED");
-  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "cancel", "--job", "another-job"]).kind, "error");
+  assert.equal(parseMediaCommand(state, ["media-experience-command-simulator", "job", "cancel", "--job", "another-job"]).kind, "error");
 
   const { stdout } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.job-running",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "job",
     "cancel",
     "--job",
@@ -93,7 +93,7 @@ test("job status and outcome checking preserve artifact-verification job and rel
   const state = createFixtureState("media.scenario.artifact-verification-outcome-unknown");
   const jobId = "fixture-artifact-verification-job-unknown-001";
   const uploadId = "fixture-upload-outcome-unknown-001";
-  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "check-outcome", "--job", jobId]);
+  const parsed = parseMediaCommand(state, ["media-experience-command-simulator", "job", "check-outcome", "--job", jobId]);
   assert.equal(parsed.kind, "action");
   assert.equal(parsed.commandId, "media.cli.job.check-outcome");
   const transition = reduceMediaExperience(state, parsed.action);
@@ -101,13 +101,13 @@ test("job status and outcome checking preserve artifact-verification job and rel
   assert.equal(transition.state.artifactVerification.jobId, jobId);
   assert.equal(transition.state.artifactVerification.uploadId, uploadId);
   assert.equal(transition.state.artifactVerification.status, "OUTCOME_UNKNOWN");
-  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "status", "--job", "another-job"]).kind, "error");
+  assert.equal(parseMediaCommand(state, ["media-experience-command-simulator", "job", "status", "--job", "another-job"]).kind, "error");
 
   const { stdout } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.artifact-verification-outcome-unknown",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "job",
     "check-outcome",
     "--job",
@@ -127,10 +127,10 @@ test("job status and outcome checking preserve artifact-verification job and rel
   assert.equal(report.projection.artifactVerification.jobId, jobId);
 
   const { stdout: humanOutput } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.artifact-verification-outcome-unknown",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "job",
     "status",
     "--job",
@@ -142,10 +142,10 @@ test("job status and outcome checking preserve artifact-verification job and rel
   assert.doesNotMatch(humanOutput, /media\.(?:action|effect)\./);
 
   const { stdout: outcomeOutput } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.job-outcome-unknown",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "job",
     "check-outcome",
     "--job",
@@ -159,13 +159,13 @@ test("job status and outcome checking preserve artifact-verification job and rel
 
 test("parses quoted caption text and exact source-clock tick ranges", () => {
   const state = createFixtureState("media.scenario.alignment-required");
-  const correction = parseMediaCommand(state, "ghatana-media caption correct-text --artifact-version caption-draft-v1 --segment segment-001 --text \"A corrected caption line\"");
+  const correction = parseMediaCommand(state, "media-experience-command-simulator caption correct-text --artifact-version caption-draft-v1 --segment segment-001 --text \"A corrected caption line\"");
   assert.deepEqual(correction.action, {
     type: "media.action.correct-caption",
     segmentId: "segment-001",
     text: "A corrected caption line",
   });
-  const timing = parseMediaCommand(state, "ghatana-media caption align-timing --artifact-version caption-draft-v1 --segment segment-002 --start-tick 3400 --end-tick 6500");
+  const timing = parseMediaCommand(state, "media-experience-command-simulator caption align-timing --artifact-version caption-draft-v1 --segment segment-002 --start-tick 3400 --end-tick 6500");
   assert.deepEqual(timing.action, {
     type: "media.action.align-caption-timing",
     segmentId: "segment-002",
@@ -177,7 +177,7 @@ test("parses quoted caption text and exact source-clock tick ranges", () => {
 test("accepts flag-shaped caption text through inline option values", () => {
   const state = createFixtureState("media.scenario.alignment-required");
   const parsed = parseMediaCommand(state, [
-    "ghatana-media", "caption", "correct-text",
+    "media-experience-command-simulator", "caption", "correct-text",
     "--artifact-version=caption-draft-v1",
     "--segment=segment-001",
     "--text=--speaker",
@@ -189,19 +189,19 @@ test("accepts flag-shaped caption text through inline option values", () => {
     text: "--speaker",
   });
   assert.match(
-    parseMediaCommand(state, "ghatana-media caption correct-text --artifact-version caption-draft-v1 --segment segment-001 --text --speaker").message,
+    parseMediaCommand(state, "media-experience-command-simulator caption correct-text --artifact-version caption-draft-v1 --segment segment-001 --text --speaker").message,
     /requires a value/,
   );
 });
 
 test("the fixture-only transcribe command does not treat a report path as generated media", async () => {
   const state = createFixtureState("media.scenario.transcript-ready");
-  const parsed = parseMediaCommand(state, "ghatana-media transcribe --source-version source-v1 --language en --output result.wav");
+  const parsed = parseMediaCommand(state, "media-experience-command-simulator transcribe --source-version source-v1 --language en --output result.wav");
   assert.equal(parsed.kind, "error");
   assert.match(parsed.message, /Unknown option '--output'/);
 
   const result = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.transcript-ready",
     "transcribe",
@@ -217,9 +217,9 @@ test("the fixture-only transcribe command does not treat a report path as genera
 });
 
 test("JSON and JSONL parsing errors stay machine-readable on stdout", async () => {
-  assert.equal(requestedMediaCliFormat("ghatana-media job status --job fixture-job --format=json"), "json");
+  assert.equal(requestedMediaCliFormat("media-experience-command-simulator job status --job fixture-job --format=json"), "json");
   assert.equal(JSON.parse(formatMediaCliError("invalid command", "jsonl")).recordType, "error");
-  const cliPath = new URL("../bin/ghatana-media.mjs", import.meta.url).pathname;
+  const cliPath = new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname;
   for (const format of ["json", "jsonl"]) {
     const result = await execFileAsync(process.execPath, [
       cliPath,
@@ -247,36 +247,36 @@ test("JSON and JSONL parsing errors stay machine-readable on stdout", async () =
 
 test("requires the current draft and a purpose before registering a caption version", () => {
   const state = createFixtureState("media.scenario.transcript-ready");
-  const missingPurpose = parseMediaCommand(state, "ghatana-media caption save-version --draft-version caption-draft-v1");
+  const missingPurpose = parseMediaCommand(state, "media-experience-command-simulator caption save-version --draft-version caption-draft-v1");
   assert.equal(missingPurpose.kind, "error");
-  const parsed = parseMediaCommand(state, "ghatana-media caption save-version --draft-version caption-draft-v1 --purpose \"Accessibility review\"");
+  const parsed = parseMediaCommand(state, "media-experience-command-simulator caption save-version --draft-version caption-draft-v1 --purpose \"Accessibility review\"");
   assert.equal(parsed.kind, "action");
   assert.deepEqual(parsed.action, { type: "media.action.save-caption-version", purpose: "Accessibility review" });
 });
 
 test("parses upload inspection and resume against the same stable upload identity", () => {
   const state = createFixtureState("media.scenario.upload-interrupted");
-  const transcriptionCommand = parseMediaCommand(state, "ghatana-media transcribe --source-version source-v1 --language en");
+  const transcriptionCommand = parseMediaCommand(state, "media-experience-command-simulator transcribe --source-version source-v1 --language en");
   assert.equal(transcriptionCommand.kind, "error");
   assert.match(transcriptionCommand.message, /require a transcription workflow fixture/);
-  const inspected = parseMediaCommand(state, "ghatana-media upload inspect --upload fixture-upload-interrupted-001 --format json");
+  const inspected = parseMediaCommand(state, "media-experience-command-simulator upload inspect --upload fixture-upload-interrupted-001 --format json");
   assert.equal(inspected.kind, "action");
   assert.equal(inspected.commandId, "media.cli.upload.inspect");
   assert.deepEqual(inspected.action, { type: "media.action.inspect-artifact" });
 
-  const resumed = parseMediaCommand(state, "ghatana-media upload resume --upload fixture-upload-interrupted-001");
+  const resumed = parseMediaCommand(state, "media-experience-command-simulator upload resume --upload fixture-upload-interrupted-001");
   assert.equal(resumed.kind, "action");
   assert.equal(resumed.commandId, "media.cli.upload.resume");
   assert.deepEqual(resumed.action, { type: "media.action.resume-artifact-upload" });
-  assert.match(parseMediaCommand(state, "ghatana-media upload resume --upload another-upload").message, /not the current upload/);
+  assert.match(parseMediaCommand(state, "media-experience-command-simulator upload resume --upload another-upload").message, /not the current upload/);
 });
 
 test("upload CLI output exposes transfer status without inventing a processing job", async () => {
   const { stdout } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.upload-interrupted",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "upload",
     "resume",
     "--upload",
@@ -295,10 +295,10 @@ test("upload CLI output exposes transfer status without inventing a processing j
   assert.equal(report.projection.artifactIntake.uploadId, report.uploadId);
 
   const { stdout: availableStdout } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.upload-verified-available",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "upload",
     "inspect",
     "--upload",
@@ -310,12 +310,12 @@ test("upload CLI output exposes transfer status without inventing a processing j
   assert.equal(availableReport.resultVersion, "fixture-artifact-version-001");
 });
 
-test("exposes ghatana-media as an executable with stable JSON output", async () => {
+test("exposes media-experience-command-simulator as an executable with stable JSON output", async () => {
   const { stdout } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.job-outcome-unknown",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "job",
     "check-outcome",
     "--job",
@@ -334,7 +334,7 @@ test("exposes ghatana-media as an executable with stable JSON output", async () 
 
 test("the executable accepts normal command arguments without repeating its binary name", async () => {
   const { stdout } = await execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.job-running",
     "job",
@@ -353,10 +353,10 @@ test("the executable accepts normal command arguments without repeating its bina
 
 test("the command executable returns nonzero for an unsafe or stale command", async () => {
   await assert.rejects(execFileAsync(process.execPath, [
-    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
     "--scenario",
     "media.scenario.job-outcome-unknown",
-    "ghatana-media",
+    "media-experience-command-simulator",
     "transcribe",
     "--source-version",
     "source-v1",

@@ -209,6 +209,8 @@ paths:
           }
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/consents
       x-ghatana-operationId: grantMediaConsent
       x-ghatana-security:
@@ -249,6 +251,8 @@ paths:
                       type: array,
                       items: { $ref: "#/components/schemas/ConsentRecord" },
                     }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/consents
       x-ghatana-operationId: listMediaConsents
       x-ghatana-security:
@@ -279,6 +283,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/consents/{consentId}
       x-ghatana-operationId: getMediaConsent
       x-ghatana-security:
@@ -309,6 +315,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: DELETE /api/v1/consents/{consentId}
       x-ghatana-operationId: revokeMediaConsent
       x-ghatana-security:
@@ -350,6 +358,8 @@ paths:
           }
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/artifacts/uploads
       x-ghatana-operationId: beginMediaUpload
       x-ghatana-security:
@@ -387,6 +397,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/artifacts/uploads/{uploadId}
       x-ghatana-operationId: getMediaUpload
       x-ghatana-security:
@@ -433,6 +445,8 @@ paths:
           }
         "400": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}
       x-ghatana-operationId: appendMediaChunk
       x-ghatana-security:
@@ -468,6 +482,8 @@ paths:
               },
           }
         "409": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/artifacts/uploads/{uploadId}/complete
       x-ghatana-operationId: completeMediaUpload
       x-ghatana-security:
@@ -512,6 +528,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/artifacts/{artifactId}
       x-ghatana-operationId: getMediaArtifact
       x-ghatana-security:
@@ -571,6 +589,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/jobs
       x-ghatana-operationId: submitMediaJob
       x-ghatana-security:
@@ -618,6 +637,8 @@ paths:
                         items: { $ref: "#/components/schemas/ProcessingJob" },
                       },
                   }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/jobs
       x-ghatana-operationId: listMediaJobs
       x-ghatana-security:
@@ -650,6 +671,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/jobs/{jobId}
       x-ghatana-operationId: getMediaJob
       x-ghatana-security:
@@ -682,6 +705,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/jobs/{jobId}/cancel
       x-ghatana-operationId: cancelMediaJob
       x-ghatana-security:
@@ -733,6 +758,8 @@ paths:
           }
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/streams
       x-ghatana-operationId: openMediaStream
       x-ghatana-security:
@@ -768,6 +795,8 @@ paths:
               },
           }
         "404": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/streams/{sessionId}
       x-ghatana-operationId: getMediaStream
       x-ghatana-security:
@@ -801,6 +830,8 @@ paths:
           }
         "403": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/streams/{sessionId}/connect
       x-ghatana-operationId: connectMediaStream
       x-ghatana-security:
@@ -871,6 +902,8 @@ paths:
           }
         "403": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/streams/{sessionId}/frames/{sequence}
       x-ghatana-operationId: submitMediaStreamFrame
       x-ghatana-security:
@@ -912,6 +945,8 @@ paths:
               },
           }
         "403": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/streams/{sessionId}/close
       x-ghatana-operationId: closeMediaStream
       x-ghatana-security:
@@ -937,6 +972,8 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/MediaProviderResponse" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/providers
       x-ghatana-operationId: getMediaProviders
       x-ghatana-security:
@@ -983,6 +1020,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
         "422": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/caption-versions
       x-ghatana-operationId: registerMediaCaptionVersion
       x-ghatana-security:
@@ -1021,6 +1059,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/caption-versions
       x-ghatana-operationId: listMediaCaptionVersions
       x-ghatana-security:
@@ -1056,6 +1095,7 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/caption-versions/{captionVersionId}
       x-ghatana-operationId: getMediaCaptionVersion
       x-ghatana-security:

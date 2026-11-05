@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.grpc.inprocess)
     testImplementation(libs.opentelemetry.sdk)
     testImplementation(libs.opentelemetry.sdk.testing)
+    testImplementation(libs.micrometer.registry.prometheus)
     testImplementation(libs.log4j.core)
     testRuntimeOnly(libs.log4j.slf4j.impl)
     testRuntimeOnly(libs.junit.jupiter.engine)

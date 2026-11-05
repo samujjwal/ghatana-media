@@ -30,6 +30,7 @@ dependencies {
     // they were previously supplied transitively by the optional Kernel OCR adapter.
     implementation("com.ghatana.platform:observability:${providers.gradleProperty("ghatana.shared.version").get()}")
     implementation(libs.micrometer.core)
+    implementation(libs.micrometer.registry.prometheus)
 
     // Platform audit (AuditService, AuditEvent)
     implementation("com.ghatana.platform:audit:${providers.gradleProperty("ghatana.shared.version").get()}")

@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.jackson.databind)
     // Micrometer metrics
     implementation(libs.micrometer.core)
+    implementation(libs.micrometer.registry.prometheus)
 
     // OpenTelemetry for tracing
     implementation(libs.opentelemetry.api)

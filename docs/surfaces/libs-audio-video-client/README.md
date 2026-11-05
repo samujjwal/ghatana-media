@@ -17,8 +17,9 @@ adapter SPI. Package: `@audio-video/client` (`libs/audio-video-client`).
   dispatch. Canonical job/stream and artifact operations use the v1 routes.
 - Queue offline project edits only when a host supplies a non-extractable key,
   ciphertext-only atomic store, fresh authorization callback, and exact-version
-  replay port; the SDK does not provide a production key store or delivery
-  writer.
+  replay port; reconnect also needs a host-supplied canonical project version
+  read and CAS apply operation. The SDK does not provide a production key
+  store, project edit route, or delivery writer.
 - Plan unattended recordings deterministically (`orchestrateScenario`,
   `compileProductionPlan`) and execute bounded recapture only through the
   trusted capture eligibility seam (`recaptureScenario`).
@@ -35,9 +36,11 @@ adapter SPI. Package: `@audio-video/client` (`libs/audio-video-client`).
 | `@audio-video/client/capture-adapters` | Eligibility seam, `CaptureSourceAdapter`, `routedCaptureAdapter` |
 | `@audio-video/client/http-capture-adapter` | `HttpApiCaptureAdapter` (HTTP_API) |
 | `@audio-video/client/file-capture-adapter` | `MediaFileCaptureAdapter` (MEDIA_FILE, Node.js) |
+| `@audio-video/client/camera-capture-adapter` | `CameraCaptureAdapter`, `CameraCaptureSession`, typed consent/device/clock ports and errors |
 | `@audio-video/client/recorder-orchestrator` | Scenario planning, lineage, bounded recapture |
 | `@audio-video/client/production-plan` | Effect-free production plan compiler |
 | `@audio-video/client/offline-edit-queue` | Encrypted local edit queue with explicit rights/version/idempotency ports |
+| `@audio-video/client/offline-reconnect` | Typed reconnect coordinator and host-supplied project-operation ports |
 
 ## Capture adapter contract
 
@@ -71,10 +74,13 @@ integer timestamp) and detaches the byte buffer.
   containment (symlink/`..` escapes rejected); bounded pre-stat and
   mid-read byte cap.
 
-`BROWSER`, `DESKTOP`, `MOBILE`, `TERMINAL`, `GRPC_API`, and `CAMERA` have no
-wired adapter in this package; hosts must supply qualified providers or the
-requests remain `NOT_ADMITTED`/`UNAVAILABLE` — nothing simulates device or
-browser capture.
+`CAMERA` has an injectable host-wired adapter. Its device, consent and frame
+clock ports are host supplied: it does not call browser camera APIs, grant
+permission, or establish that a real host device is authorized. It requires
+fresh exact source/purpose rights before open and rechecks around frame reads;
+revocation stops tracks and discards an in-flight frame. `BROWSER`, `DESKTOP`,
+`MOBILE`, `TERMINAL`, and `GRPC_API` still have no wired adapter in this
+package; nothing simulates those capture sources.
 
 ## States and invariants
 
@@ -87,10 +93,13 @@ browser capture.
   removed scenes.
 - `dryRunOnly: true` on `OrchestrationResult` — planning performs no effects.
 - Offline edits persist AES-GCM ciphertext only; the key is host supplied and
-  non-extractable. Reconnect reauthorizes and checks the exact project version
-  before dispatch. Revoked, conflicting, or ambiguous outcomes are terminal
-  until an explicit rebase/new idempotency key is supplied; there is no blind
-  automatic replay.
+  non-extractable. Reconnect returns `UNAVAILABLE` until the host supplies
+  canonical project version-read and CAS apply operations. With those ports,
+  reconnect checks exact tenant/project scope, fresh rights, exact current
+  revision and the stored idempotency key before dispatch. Revoked, conflicting,
+  and post-dispatch unknown outcomes are terminal; pre-dispatch authorization or
+  version-read uncertainty leaves the edit `PENDING` for a fresh explicit
+  reconnect. Unknown apply outcomes are never blindly retried.
 - Unsupported legacy processing methods keep their public signatures but
   return a typed `NOT_ADMITTED` outcome without a network request. The canonical
   SDK remains the only client surface bound to the runtime route manifest.
@@ -121,9 +130,11 @@ never enters results — only safe enums and fixed reasons.
 pnpm --filter @audio-video/client typecheck
 pnpm --filter @audio-video/client test        # build + vitest
 pnpm --filter @audio-video/client test:package # isolated ESM/CJS consumer
-pnpm --filter @audio-video/client exec vitest run src/offline-edit-queue.test.ts src/package-surface.test.ts
+pnpm --filter @audio-video/client exec vitest run src/offline-edit-queue.test.ts src/offline-reconnect.test.ts src/camera-capture-adapter.test.ts src/package-surface.test.ts
 ```
 
 Capture tests use a real `node:http` server and real temporary files; they
 verify actual bytes, redirect/origin policy, byte/time bounds, symlink
-containment, and UNKNOWN semantics — no fixture frames stand in for capture.
+containment, and UNKNOWN semantics. Camera tests use injected Node mocks and
+prove state handling only; they do not prove real host permission or device
+capture. No fixture frames stand in for a real capture provider.

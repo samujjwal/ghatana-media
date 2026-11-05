@@ -12,6 +12,9 @@ and independently verified effects.
   the broker.
 - `TranscriptionJobConsumer` — consumes and dispatches transcription jobs
   for execution.
+- `MediaLifecycleEventConsumer` — validates the versioned public lifecycle
+  envelope, authorizes observations, and delegates replay/version fencing to
+  an injected atomic projection store.
 
 ## Public operations
 
@@ -19,6 +22,7 @@ and independently verified effects.
 | --- | --- |
 | `TranscriptionJobProducer` | Broker publication of transcription job messages |
 | `TranscriptionJobConsumer` | Broker consumption and dispatch to execution |
+| `MediaLifecycleEventConsumer` | Public v1 event validation, auth, dedupe/order and separate terminal readback |
 
 ## States and invariants
 
@@ -29,6 +33,15 @@ and independently verified effects.
 - Whether that strategy retries, nacks or acknowledges must be verified
   against the actual strategy and broker — the in-memory tests do **not**
   establish broker acknowledgement semantics.
+- Lifecycle event append and consumer projection are nonfinal observations.
+  `ProjectionStore` must provide durable atomic event-ID dedupe and
+  aggregate-version fencing in the host integration. A terminal-shaped event
+  sets `terminalReadbackRequired`; only the separately authorized
+  `TerminalJobReadback` can report a terminal job state.
+- The public typed v1 consumer is not wired into the legacy map-payload
+  outbox rows or an admitted broker subscription yet. Existing outbox relay
+  acceptance records broker publication only. Consumer retries, durable
+  checkpoints and source-row migration remain integration prerequisites.
 - Executor limits are code defaults, not yet wired to the
   `messaging.consumer.concurrency` setting.
 

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ghatana:media-public-lifecycle-event:v1",
+  "title": "Media public lifecycle event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "eventRef", "eventType", "tenantRef", "principalRef",
+    "correlationRef", "causationRef", "aggregateType", "aggregateRef",
+    "aggregateVersion", "classification", "occurredAt", "appendFinality",
+    "terminalReadbackRequired"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "eventRef": { "$ref": "#/$defs/redactedId" },
+    "eventType": { "$ref": "#/$defs/eventType" },
+    "tenantRef": { "$ref": "#/$defs/redactedId" },
+    "principalRef": { "$ref": "#/$defs/redactedId" },
+    "correlationRef": { "$ref": "#/$defs/redactedId" },
+    "causationRef": { "oneOf": [{ "$ref": "#/$defs/redactedId" }, { "const": "" }] },
+    "aggregateType": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "aggregateRef": { "$ref": "#/$defs/redactedId" },
+    "aggregateVersion": { "type": "integer", "minimum": 1 },
+    "classification": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "appendFinality": { "const": "NON_FINAL_APPEND" },
+    "terminalReadbackRequired": { "type": "boolean" }
+  },
+  "$defs": {
+    "redactedId": { "type": "string", "pattern": "^r1_[0-9a-f]{64}$" },
+    "eventType": {
+      "enum": [
+        "media.upload.started", "media.artifact.completed", "media.job.accepted",
+        "media.job.cancelled", "media.job.cancel_requested", "media.stream.opened",
+        "media.stream.closed", "media.job.completed", "media.job.failed"
+      ]
+    }
+  }
+}

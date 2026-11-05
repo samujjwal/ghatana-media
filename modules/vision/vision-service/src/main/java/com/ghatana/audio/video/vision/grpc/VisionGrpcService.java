@@ -50,7 +50,8 @@ import java.util.function.Supplier;
  * @doc.layer product
  * @doc.pattern Service
  */
-public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
+public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
+        implements com.ghatana.audio.video.common.observability.MetricsScrapeSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(VisionGrpcService.class);
 
@@ -168,6 +169,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         this.auditService = auditService;
         this.modelRegistry = modelRegistry;
         this.tracingService = Objects.requireNonNull(tracingService, "tracingService");
+    }
+
+    @Override
+    public String scrapeMetrics() {
+        return modalityMetrics.scrape();
     }
 
     public VisionGrpcService() {

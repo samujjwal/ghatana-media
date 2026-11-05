@@ -102,6 +102,8 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             if (record == null) return decision(MediaSourceAuthorizationContracts.Status.DENIED);
             MediaSourceAuthorizationContracts.Status scope = scopeStatus(record, request, Instant.now());
             if (scope != MediaSourceAuthorizationContracts.Status.ALLOWED) return decision(scope);
+            MediaSourceAuthorizationContracts.Status consent = currentConsentStatus(record, request, Instant.now());
+            if (consent != MediaSourceAuthorizationContracts.Status.ALLOWED) return decision(consent);
 
             PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
@@ -146,6 +148,8 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                     || !decision.matches(request, expectedEvidence, record)) {
                 return decision(MediaSourceAuthorizationContracts.Status.DENIED);
             }
+            MediaSourceAuthorizationContracts.Status consent = currentConsentStatus(record, request, now);
+            if (consent != MediaSourceAuthorizationContracts.Status.ALLOWED) return decision(consent);
 
             PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
@@ -206,6 +210,76 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                 : MediaSourceAuthorizationContracts.Status.DENIED;
     }
 
+    /** Human/third-party source scope is checked against the live consent row, not its label. */
+    private MediaSourceAuthorizationContracts.Status currentConsentStatus(
+            SourceRecord record, MediaSourceAuthorizationContracts.Request request, Instant now) {
+        try (Connection connection = state.connection()) {
+            return currentConsentStatus(connection, record, request, now, false);
+        } catch (SQLException failure) {
+            throw new IllegalStateException("Current source consent lookup is unavailable", failure);
+        }
+    }
+
+    private MediaSourceAuthorizationContracts.Status currentConsentStatus(
+            Connection connection, SourceRecord record,
+            MediaSourceAuthorizationContracts.Request request, Instant now, boolean lockForDecision) {
+        if (record.sourceKind() == MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN) {
+            return MediaSourceAuthorizationContracts.Status.ALLOWED;
+        }
+        if (record.humanConsentDisposition()
+                        != MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED
+                || record.consentDecisionId().isBlank()) {
+            return MediaSourceAuthorizationContracts.Status.DENIED;
+        }
+        String sql = """
+                SELECT purposes_csv,allowed_regions_csv,external_processing_allowed,
+                       granted_at,expires_at,revoked_at
+                  FROM media_consents
+                 WHERE tenant_id=? AND consent_id=? AND principal_id=?
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(
+                sql + (lockForDecision ? " FOR SHARE" : ""))) {
+            statement.setString(1, request.tenantId());
+            statement.setString(2, record.consentDecisionId());
+            statement.setString(3, request.principalId());
+            try (ResultSet row = statement.executeQuery()) {
+                if (!row.next()) return MediaSourceAuthorizationContracts.Status.DENIED;
+                long grantedAt = row.getLong("granted_at");
+                Long expiresAt = nullableLong(row, "expires_at");
+                Long revokedAt = nullableLong(row, "revoked_at");
+                if (revokedAt != null) return MediaSourceAuthorizationContracts.Status.REVOKED;
+                if (grantedAt > now.toEpochMilli() || expiresAt != null && expiresAt <= now.toEpochMilli()) {
+                    return MediaSourceAuthorizationContracts.Status.STALE;
+                }
+                if (!containsScope(row.getString("purposes_csv"), request.purpose())
+                        || !containsScope(row.getString("allowed_regions_csv"), request.processingRegion())
+                        || request.processingBoundary() == ProcessingBoundary.EXTERNAL
+                                && !row.getBoolean("external_processing_allowed")
+                        // The persisted consent contract does not carry retention permission.
+                        // It cannot authorize a retaining provider by implication.
+                        || request.providerRetention() != ProviderDataRetention.NONE) {
+                    return MediaSourceAuthorizationContracts.Status.DENIED;
+                }
+                return MediaSourceAuthorizationContracts.Status.ALLOWED;
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("Current source consent lookup is unavailable", failure);
+        }
+    }
+
+    private static boolean containsScope(String csv, String requested) {
+        if (csv == null || requested == null) return false;
+        String normalized = requested.trim().toLowerCase(java.util.Locale.ROOT);
+        return !normalized.isBlank() && java.util.Arrays.stream(csv.split(","))
+                .map(value -> value.trim().toLowerCase(java.util.Locale.ROOT))
+                .anyMatch(value -> value.equals("*") || value.equals(normalized));
+    }
+
+    private static Long nullableLong(ResultSet row, String column) throws SQLException {
+        long value = row.getLong(column);
+        return row.wasNull() ? null : value;
+    }
+
     /** Issues a durable rights decision only while the source record is still current. */
     private MediaSourceAuthorizationContracts.Decision issue(
             MediaSourceAuthorizationContracts.Request request,
@@ -254,6 +328,12 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                         != MediaSourceAuthorizationContracts.Status.ALLOWED) {
                     connection.rollback();
                     return decision(MediaSourceAuthorizationContracts.Status.DENIED);
+                }
+                MediaSourceAuthorizationContracts.Status consent = currentConsentStatus(
+                        connection, current, request, now, true);
+                if (consent != MediaSourceAuthorizationContracts.Status.ALLOWED) {
+                    connection.rollback();
+                    return decision(consent);
                 }
                 try (PreparedStatement insert = connection.prepareStatement("""
                         INSERT INTO media_source_rights_decisions
@@ -521,8 +601,11 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                      "SELECT tenant_id FROM media_source_records WHERE 1=0");
              PreparedStatement decisions = connection.prepareStatement(
                      "SELECT tenant_id FROM media_source_rights_decisions WHERE 1=0");
+             PreparedStatement consents = connection.prepareStatement(
+                     "SELECT tenant_id FROM media_consents WHERE 1=0");
              var recordResult = records.executeQuery();
-             var decisionResult = decisions.executeQuery()) {
+             var decisionResult = decisions.executeQuery();
+             var consentResult = consents.executeQuery()) {
             return true;
         } catch (Exception failure) {
             return false;

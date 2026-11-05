@@ -312,9 +312,57 @@ class TranscriptionCacheIT {
         assertThat(await(cachePort.get(erasedKey))).isEmpty();
     }
 
+    @Test
+    @DisplayName("Scoped transcript survives Redis client restart only after fresh authority checks")
+    void shouldReadScopedTranscriptAfterClientRestartWithFreshAuthority() {
+        String tenantId = "tenant-scoped-restart";
+        UUID transcriptionId = UUID.randomUUID();
+        var scope = scopedScope(tenantId, "principal-restart", "policy-epoch-7");
+        TranscriptionEntity source = buildEntityWithIdAndText(
+                tenantId, transcriptionId, "versioned scoped transcript");
+        source.setVersion(14L);
+        AtomicInteger sourceLoads = new AtomicInteger();
+        AtomicInteger authorityReads = new AtomicInteger();
+        var authority = (java.util.function.Function<AudioVideoCache.CacheKeyScope,
+                AsyncOperation<Boolean>>) checked -> {
+                    authorityReads.incrementAndGet();
+                    return AsyncOperation.success(true);
+                };
+
+        TranscriptionEntity initial = await(cacheService.getOrLoadTranscription(scope, transcriptionId,
+                authority, id -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(source));
+                }));
+        assertThat(initial.getText()).isEqualTo("versioned scoped transcript");
+
+        redisBackend.close();
+        redisBackend = new AsyncRedisCacheBackend(
+                REDIS.getHost(), REDIS.getFirstMappedPort(), null, 0, 2_000);
+        cachePort = new DistributedCacheService(redisBackend, "transcription-cache-it");
+        cacheService = new TranscriptionCacheService(cachePort, objectMapper);
+
+        TranscriptionEntity afterRestart = await(cacheService.getOrLoadTranscription(scope, transcriptionId,
+                authority, id -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(source));
+                }));
+
+        assertThat(afterRestart.getText()).isEqualTo("versioned scoped transcript");
+        assertThat(sourceLoads).hasValue(1);
+        assertThat(authorityReads).hasValue(4);
+    }
+
     private String cacheKey(String tenantId, UUID transcriptionId) {
         return new AudioVideoCache<String, String>(cachePort, "transcription")
                 .buildKey(tenantId, transcriptionId.toString());
+    }
+
+    private static AudioVideoCache.CacheKeyScope scopedScope(
+            String tenant, String principal, String policyEpoch) {
+        return new AudioVideoCache.CacheKeyScope(tenant, principal, "rights-current", "transcription",
+                "confidential", "artifact-restart", "artifact-revision-3", "transcript-revision-14",
+                "source-sha256-restart", policyEpoch);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

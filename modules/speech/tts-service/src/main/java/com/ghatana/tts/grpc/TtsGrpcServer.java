@@ -7,6 +7,8 @@ import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +70,7 @@ public final class TtsGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createProductionRuntime(MediaProcessingRuntimePort mediaRuntimePort) {
-        MeterRegistry metrics = new SimpleMeterRegistry();
+        MeterRegistry metrics = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         ProductionTtsGrpcService service = new ProductionTtsGrpcService(metrics, mediaRuntimePort);
         return new ServerRuntime(service, createReadinessLifecycle(metrics, service::isProviderReady));
     }

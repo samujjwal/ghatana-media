@@ -1,6 +1,7 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
+import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
 import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk;
@@ -1910,6 +1911,17 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             String tenantId, String principalId, String sessionId, String connectionToken) {
         ensureOpen();
         return new MediaRuntimeCanonicalStreamFramePort(
+                this, tenantId, principalId, sessionId, connectionToken);
+    }
+
+    /**
+     * Creates a per-session video adapter over the same canonical stream store,
+     * lease fence, consent readback, and durable ACK cursor as audio.
+     */
+    public CanonicalVideoStreamFramePort videoStreamFramePort(
+            String tenantId, String principalId, String sessionId, String connectionToken) {
+        ensureOpen();
+        return new MediaRuntimeCanonicalVideoStreamFramePort(
                 this, tenantId, principalId, sessionId, connectionToken);
     }
 

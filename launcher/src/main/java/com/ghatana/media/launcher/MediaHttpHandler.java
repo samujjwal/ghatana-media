@@ -86,6 +86,7 @@ public final class MediaHttpHandler implements HttpHandler {
             String path = requestPath;
             String method = exchange.getRequestMethod();
             if (HEALTH_PATHS.contains(path)) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
                 health(exchange, path);
                 return;
             }
@@ -623,14 +624,24 @@ public final class MediaHttpHandler implements HttpHandler {
     private static int queryLimit(HttpExchange exchange, int fallback) {
         String query = exchange.getRequestURI().getRawQuery();
         if (query == null) return fallback;
+        Integer limit = null;
         for (String part : query.split("&")) {
             String[] pair = part.split("=", 2);
-            if (pair.length == 2 && "limit".equals(pair[0])) {
-                try { return Math.max(1, Math.min(Integer.parseInt(pair[1]), 1_000)); }
-                catch (NumberFormatException failure) { throw new IllegalArgumentException("limit must be an integer"); }
+            if (pair.length > 0 && "limit".equals(decode(pair[0]))) {
+                if (limit != null || pair.length != 2) {
+                    throw new IllegalArgumentException("limit must be supplied once with a value");
+                }
+                try {
+                    limit = Integer.parseInt(decode(pair[1]));
+                } catch (NumberFormatException failure) {
+                    throw new IllegalArgumentException("limit must be an integer", failure);
+                }
+                if (limit < 1 || limit > 1_000) {
+                    throw new IllegalArgumentException("limit must be between 1 and 1000");
+                }
             }
         }
-        return fallback;
+        return limit == null ? fallback : limit;
     }
 
     /** Optional exact request identity for a read-only reconciliation lookup. */

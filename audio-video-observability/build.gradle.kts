@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.opentelemetry.api)
     implementation(libs.micrometer.core)
+    implementation(libs.micrometer.registry.prometheus)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.jupiter.engine)

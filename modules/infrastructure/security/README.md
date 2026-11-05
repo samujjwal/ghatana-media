@@ -38,9 +38,12 @@ security.auth.enabled=true
 Tests validate that valid tokens pass through, expired/tampered tokens are rejected with `UNAUTHENTICATED`, and auth-disabled mode allows all requests (dev/test only).
 
 `MediaProcessingSecurityValidator` performs metadata validation only when no
-permission requirement is supplied. It has no authenticated principal or
-permission evidence, so any non-empty `requiredPermissions` fails with
-`PERMISSION_CHECK_NOT_ADMITTED`. Caller-supplied `consentStatus` and
-`retentionPolicy` labels are input metadata, not authoritative consent or
-authorization evidence; use the owning consent and policy authorities before
-any sensitive dispatch.
+permission requirement is supplied. Because its DTO has no authenticated
+principal, immutable source version, or authority-issued current rights
+evidence, it now returns `RIGHTS_AUTHORITY_NOT_ADMITTED` after metadata checks;
+it never marks a processing request authorized. Any non-empty
+`requiredPermissions` fails earlier with `PERMISSION_CHECK_NOT_ADMITTED`.
+Caller-supplied `consentStatus` and `retentionPolicy` labels are untrusted
+metadata and cannot authorize an effect. The canonical runtime must use the
+source-rights and current consent authorities before admission, replay,
+provider effects, or source disclosure.

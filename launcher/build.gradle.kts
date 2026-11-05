@@ -99,6 +99,7 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
+    testImplementation(libs.jackson.dataformat.yaml)
     testImplementation(project(":services:media:providers:aws-postgresql"))
     testImplementation(platform(libs.aws.sdk.bom))
     testImplementation(libs.aws.s3)

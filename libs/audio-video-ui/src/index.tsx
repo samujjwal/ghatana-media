@@ -28,6 +28,7 @@ export interface BaseComponentProps {
 export * from "./components";
 export * from "./screens";
 export * from "./ports";
+export * from "./player";
 
 export {
   getAudioVideoPlatformMetrics,

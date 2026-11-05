@@ -43,9 +43,9 @@ async function main() {
   }
 
   const state = createFixtureState(scenario.scenarioId);
-  const commandInput = scenario.args[0] === "ghatana-media"
+  const commandInput = scenario.args[0] === "media-experience-command-simulator"
     ? scenario.args
-    : ["ghatana-media", ...scenario.args];
+    : ["media-experience-command-simulator", ...scenario.args];
   const parsed = parseMediaCommand(state, commandInput);
   if (parsed.kind === "help") {
     process.stdout.write(`${parsed.text}\nScenarios:\n  ${mediaExperienceScenarioIds.join("\n  ")}\n`);

@@ -152,8 +152,8 @@ class MediaProcessingSecurityValidatorTest {
     }
 
     @Test
-    @DisplayName("should accept request with GRANTED consent status")
-    void shouldAcceptGrantedConsentStatus() {
+    @DisplayName("does not treat GRANTED caller label as consent authority")
+    void callerGrantedConsentLabelDoesNotAuthorize() {
         TranscriptionJobProducer.TranscriptionJobMessage job =
             TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
                 "tenant-123",
@@ -167,12 +167,13 @@ class MediaProcessingSecurityValidatorTest {
         MediaProcessingSecurityValidator.ValidationResult result =
             validator.validateMediaProcessingRequest(job, Set.of());
 
-        assertThat(result.isValid()).isTrue();
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.errorCode()).isEqualTo("RIGHTS_AUTHORITY_NOT_ADMITTED");
     }
 
     @Test
-    @DisplayName("should accept request with AUTO_APPROVED consent status")
-    void shouldAcceptAutoApprovedConsentStatus() {
+    @DisplayName("does not treat AUTO_APPROVED caller label as consent authority")
+    void callerAutoApprovedConsentLabelDoesNotAuthorize() {
         TranscriptionJobProducer.TranscriptionJobMessage job =
             TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
                 "tenant-123",
@@ -186,7 +187,8 @@ class MediaProcessingSecurityValidatorTest {
         MediaProcessingSecurityValidator.ValidationResult result =
             validator.validateMediaProcessingRequest(job, Set.of());
 
-        assertThat(result.isValid()).isTrue();
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.errorCode()).isEqualTo("RIGHTS_AUTHORITY_NOT_ADMITTED");
     }
 
     @Test
@@ -233,8 +235,8 @@ class MediaProcessingSecurityValidatorTest {
     }
 
     @Test
-    @DisplayName("should accept valid retention policies")
-    void shouldAcceptValidRetentionPolicies() {
+    @DisplayName("valid retention labels still require current authenticated rights")
+    void validRetentionLabelsDoNotAuthorize() {
         String[] validPolicies = {"STANDARD", "SHORT", "LONG", "NONE"};
 
         for (String policy : validPolicies) {
@@ -251,7 +253,8 @@ class MediaProcessingSecurityValidatorTest {
             MediaProcessingSecurityValidator.ValidationResult result =
                 validator.validateMediaProcessingRequest(job, Set.of());
 
-            assertThat(result.isValid()).isTrue();
+            assertThat(result.isValid()).isFalse();
+            assertThat(result.errorCode()).isEqualTo("RIGHTS_AUTHORITY_NOT_ADMITTED");
         }
     }
 
@@ -365,8 +368,8 @@ class MediaProcessingSecurityValidatorTest {
     }
 
     @Test
-    @DisplayName("accepts metadata validation when no authorization requirement is requested")
-    void acceptsMetadataOnlyValidation() {
+    @DisplayName("rejects effect authorization when only legacy metadata and caller labels are present")
+    void callerLabelsNeverAuthorizeEffect() {
         TranscriptionJobProducer.TranscriptionJobMessage job =
             TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
                 "tenant-123",
@@ -380,7 +383,8 @@ class MediaProcessingSecurityValidatorTest {
         MediaProcessingSecurityValidator.ValidationResult result =
             validator.validateMediaProcessingRequest(job, Set.of());
 
-        assertThat(result.isValid()).isTrue();
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.errorCode()).isEqualTo("RIGHTS_AUTHORITY_NOT_ADMITTED");
     }
 
     @Test
@@ -394,6 +398,19 @@ class MediaProcessingSecurityValidatorTest {
         assertThat(result.isValid()).isFalse();
         assertThat(result.errorCode()).isEqualTo("PERMISSION_CHECK_NOT_ADMITTED");
         assertThat(result.rejectionReason()).doesNotContain("GRANTED");
+    }
+
+    @Test
+    @DisplayName("fake tenant and consent labels cannot substitute for an authenticated principal")
+    void fakePrincipalAndConsentLabelsFailClosed() {
+        var job = TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
+                "tenant-from-caller", UUID.randomUUID(), "corr-fake", "GRANTED", "NONE", "en");
+
+        var result = validator.validateMediaProcessingRequest(job, Set.of());
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.errorCode()).isEqualTo("RIGHTS_AUTHORITY_NOT_ADMITTED");
+        assertThat(result.rejectionReason()).doesNotContain("tenant-from-caller", "GRANTED");
     }
 
     @Test
@@ -424,7 +441,9 @@ class MediaProcessingSecurityValidatorTest {
         try {
             var valid = TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
                 "request-tenant", UUID.randomUUID(), "corr-1", "GRANTED", "STANDARD", "en");
-            assertThat(validator.validateMediaProcessingRequest(valid, Set.of()).isValid()).isTrue();
+            var metadataOnly = validator.validateMediaProcessingRequest(valid, Set.of());
+            assertThat(metadataOnly.isValid()).isFalse();
+            assertThat(metadataOnly.errorCode()).isEqualTo("RIGHTS_AUTHORITY_NOT_ADMITTED");
             assertPriorMdcContext();
 
             var invalid = TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(

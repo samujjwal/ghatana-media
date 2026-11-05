@@ -28,10 +28,12 @@ public final class SimulationSemanticValidator {
         REFERENCE_AUTHORITY_UNAVAILABLE,
         DUPLICATE_INPUT_ROLE,
         INVALID_INPUT_REFERENCE,
+        DUPLICATE_INVARIANT_ID,
         VISUAL_PRESENTATION_IS_NOT_PHYSICAL_MODEL,
         MISSING_DECLARED_INVARIANT,
         SOLVER_NOT_DETERMINISTIC,
         SOLVER_STABILITY_UNPROVEN,
+        INVALID_OBSERVATION_TRACE,
         MODEL_OUTPUT_LABEL_MISMATCH,
         HORIZON_MISMATCH,
         INCOMPATIBLE_UNITS,
@@ -150,6 +152,16 @@ public final class SimulationSemanticValidator {
             findings.add(new Finding(Reason.MISSING_DECLARED_INVARIANT, "invariants",
                     "a pass requires at least one declared semantic invariant"));
         }
+        Set<String> invariantIds = new HashSet<>();
+        for (DeclaredInvariant invariant : binding.invariants()) {
+            if (invariant.invariantId().isBlank()) {
+                findings.add(new Finding(Reason.MISSING_DECLARED_INVARIANT, "invariants",
+                        "every declared invariant requires a stable identity"));
+            } else if (!invariantIds.add(invariant.invariantId())) {
+                findings.add(new Finding(Reason.DUPLICATE_INVARIANT_ID, invariant.invariantId(),
+                        "invariant identities must be unique within a pass"));
+            }
+        }
         if (!findings.isEmpty()) return validation(Disposition.ABSTAIN, findings);
 
         if (referenceVerifier == null) {
@@ -196,6 +208,24 @@ public final class SimulationSemanticValidator {
                         > Math.max(1e-12, Math.ulp(expectedDuration) * 8)) {
             findings.add(new Finding(Reason.HORIZON_MISMATCH, "expectedDuration",
                     "terminal observation does not match the versioned run horizon"));
+        }
+        if (Double.isFinite(expectedDuration)) {
+            double timeTolerance = Math.max(1e-12, Math.ulp(expectedDuration) * 8);
+            List<PhysicalSimulation.Observation> observations = result.observations();
+            if (observations.size() < 2 || Math.abs(observations.getFirst().timeSeconds()) > timeTolerance) {
+                findings.add(new Finding(Reason.INVALID_OBSERVATION_TRACE, "observations",
+                        "a simulation trace must start at zero and contain a terminal observation"));
+            }
+            double previousTime = -1;
+            for (PhysicalSimulation.Observation observation : observations) {
+                double sampleTime = observation.timeSeconds();
+                if (sampleTime < 0 || sampleTime > expectedDuration + timeTolerance || sampleTime <= previousTime) {
+                    findings.add(new Finding(Reason.INVALID_OBSERVATION_TRACE, "observations",
+                            "simulation sample times must be strictly increasing within the declared horizon"));
+                    break;
+                }
+                previousTime = sampleTime;
+            }
         }
         if (!findings.isEmpty()) return validation(Disposition.ABSTAIN, findings);
 

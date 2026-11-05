@@ -15,7 +15,9 @@ export interface OfflineEdit<T = unknown> extends OfflineEditScope {
   readonly payload: T;
 }
 
-export type OfflineEditState = "PENDING" | "APPLIED" | "CONFLICT" | "REVOKED" | "OUTCOME_UNKNOWN";
+export type OfflineEditState = "PENDING" | "APPLIED" | "CONFLICT" | "REVOKED"
+  | "OUTCOME_UNKNOWN";
+export type OfflineEditReplayState = OfflineEditState | "AUTHORIZATION_UNKNOWN" | "VERSION_UNKNOWN";
 
 export interface OfflineEditRecord extends OfflineEditScope {
   readonly editId: string;
@@ -30,8 +32,12 @@ export interface OfflineEditRecord extends OfflineEditScope {
 /** Implementations must store only the supplied ciphertext for edit payloads. */
 export interface OfflineEditStore {
   list(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]>;
-  /** Atomically inserts only if editId and idempotencyKey are unused in scope. */
-  insert(record: OfflineEditRecord): Promise<boolean>;
+  /**
+   * Atomically inserts only if editId and idempotencyKey are unused and the
+   * exact tenant/project scope has fewer than maximumEntries records. Returns
+   * false on either a uniqueness collision or a full scope.
+   */
+  insert(record: OfflineEditRecord, maximumEntries: number): Promise<boolean>;
   /** Atomically replaces an existing record with the same editId. */
   put(record: OfflineEditRecord): Promise<void>;
   remove(scope: OfflineEditScope, editId: string): Promise<void>;
@@ -39,8 +45,8 @@ export interface OfflineEditStore {
 
 export interface OfflineEditReplayAdapter<T = unknown, R = unknown> {
   /** Must obtain fresh authorization for this exact edit and current principal. */
-  reauthorize(edit: OfflineEdit<T>): Promise<{ readonly authorized: boolean }>;
-  readCurrentVersion(scope: OfflineEditScope): Promise<string>;
+  reauthorize(edit: OfflineEdit<T>): Promise<{ readonly authorized: boolean; readonly disposition?: "AUTHORIZED" | "REVOKED" | "UNKNOWN" }>;
+  readCurrentVersion(scope: OfflineEditScope): Promise<string | { readonly disposition: "CURRENT"; readonly version: string } | { readonly disposition: "UNKNOWN" }>;
   /** Must send the stored idempotency key and expected version as a CAS. */
   apply(edit: OfflineEdit<T>): Promise<
     | { readonly outcome: "APPLIED"; readonly receipt: R }
@@ -58,7 +64,7 @@ export interface OfflineEditQueueOptions {
 }
 
 export class OfflineEditQueueError extends Error {
-  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT") {
+  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH") {
     super(`Offline edit queue failed: ${code}`);
     this.name = "OfflineEditQueueError";
   }
@@ -102,7 +108,7 @@ export class OfflineEditQueue {
 
   public async enqueue<T>(edit: OfflineEdit<T>): Promise<void> {
     assertEdit(edit);
-    const records = await this.options.store.list(edit);
+    const records = await this.listScoped(edit);
     const existing = records.find((record) => record.editId === edit.editId
       || record.idempotencyKey === edit.idempotencyKey);
     if (existing) {
@@ -123,9 +129,11 @@ export class OfflineEditQueue {
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
     const record = await this.encrypt(edit, plaintext, "PENDING");
-    if (!await this.options.store.insert(record)) {
-      const raced = (await this.options.store.list(edit)).find((item) => item.editId === edit.editId
+    if (!await this.options.store.insert(record, this.maximumEntries)) {
+      const afterInsertRace = await this.listScoped(edit);
+      const raced = afterInsertRace.find((item) => item.editId === edit.editId
         || item.idempotencyKey === edit.idempotencyKey);
+      if (!raced && afterInsertRace.length >= this.maximumEntries) throw new OfflineEditQueueError("QUEUE_FULL");
       if (!raced || raced.editId !== edit.editId || raced.idempotencyKey !== edit.idempotencyKey
         || raced.expectedVersion !== edit.expectedVersion) throw new OfflineEditQueueError("INVALID_EDIT");
     }
@@ -134,12 +142,12 @@ export class OfflineEditQueue {
   /** Explicitly rebase a conflict with a new exact version and idempotency key. */
   public async resolveConflict<T>(edit: OfflineEdit<T>): Promise<void> {
     assertEdit(edit);
-    const previous = (await this.options.store.list(edit)).find((record) => record.editId === edit.editId);
+    const previous = (await this.listScoped(edit)).find((record) => record.editId === edit.editId);
     if (previous?.state !== "CONFLICT" || previous.idempotencyKey === edit.idempotencyKey
       || previous.expectedVersion === edit.expectedVersion) {
       throw new Error("Conflict resolution requires a conflicted edit, new version and new idempotency key.");
     }
-    if ((await this.options.store.list(edit)).some((record) => record.editId !== edit.editId
+    if ((await this.listScoped(edit)).some((record) => record.editId !== edit.editId
       && record.idempotencyKey === edit.idempotencyKey)) throw new OfflineEditQueueError("INVALID_EDIT");
     let serialized: string | undefined;
     try { serialized = JSON.stringify(edit.payload); } catch {
@@ -153,7 +161,7 @@ export class OfflineEditQueue {
 
   public async hasDirtyEdits(scope: OfflineEditScope): Promise<boolean> {
     assertScope(scope);
-    return (await this.options.store.list(scope)).some((record) => record.state !== "APPLIED");
+    return (await this.listScoped(scope)).some((record) => record.state !== "APPLIED");
   }
 
   /** Restore exact queued edits after restart for a scoped local editor. */
@@ -162,31 +170,56 @@ export class OfflineEditQueue {
     readonly state: OfflineEditState;
   }[]> {
     assertScope(scope);
-    const records = await this.options.store.list(scope);
+    const records = await this.listScoped(scope);
     return Promise.all(records.map(async (record) => ({ edit: await this.decrypt<T>(record), state: record.state })));
   }
 
   public async replay<T, R>(scope: OfflineEditScope, adapter: OfflineEditReplayAdapter<T, R>): Promise<readonly {
     readonly editId: string;
-    readonly state: OfflineEditState;
+    readonly state: OfflineEditReplayState;
     readonly receipt?: R;
   }[]> {
     assertScope(scope);
-    const records = await this.options.store.list(scope);
-    const results: { editId: string; state: OfflineEditState; receipt?: R }[] = [];
+    const records = await this.listScoped(scope);
+    const results: { editId: string; state: OfflineEditReplayState; receipt?: R }[] = [];
     for (const record of records) {
       if (record.state !== "PENDING") continue; // unknown, revoked, conflicts are never auto-replayed.
       const edit = await this.decrypt<T>(record);
-      const authorization = await adapter.reauthorize(edit);
-      if (!authorization.authorized) {
-        await this.update(record, "REVOKED");
-        results.push({ editId: record.editId, state: "REVOKED" });
+      let versionRead: Awaited<ReturnType<typeof adapter.readCurrentVersion>>;
+      try {
+        versionRead = await adapter.readCurrentVersion(scope);
+      } catch {
+        // A failed read is pre-dispatch. Preserve PENDING and retry only the
+        // authorization/version checks on the next explicit reconnect.
+        results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
         continue;
       }
-      const currentVersion = await adapter.readCurrentVersion(scope);
+      if (typeof versionRead !== "string" && versionRead.disposition === "UNKNOWN") {
+        results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
+        continue;
+      }
+      const currentVersion = typeof versionRead === "string" ? versionRead : versionRead.version;
       if (currentVersion !== record.expectedVersion) {
         await this.update(record, "CONFLICT");
         results.push({ editId: record.editId, state: "CONFLICT" });
+        continue;
+      }
+      // Check rights after read-only version preflight, immediately before the
+      // effect dispatch. A revoke observed during preflight cannot be replayed.
+      let authorization: Awaited<ReturnType<typeof adapter.reauthorize>>;
+      try {
+        authorization = await adapter.reauthorize(edit);
+      } catch {
+        results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+        continue;
+      }
+      if (authorization.disposition === "UNKNOWN") {
+        results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+        continue;
+      }
+      if (!authorization.authorized || authorization.disposition === "REVOKED") {
+        await this.update(record, "REVOKED");
+        results.push({ editId: record.editId, state: "REVOKED" });
         continue;
       }
       // A thrown error is ambiguous after dispatch; persist OUTCOME_UNKNOWN and do not retry.
@@ -207,7 +240,7 @@ export class OfflineEditQueue {
   public async discardUnknown(scope: OfflineEditScope, editId: string, confirmedNotApplied: boolean): Promise<void> {
     assertScope(scope);
     if (!confirmedNotApplied) throw new Error("OUTCOME_UNKNOWN requires authoritative no-effect reconciliation.");
-    const record = (await this.options.store.list(scope)).find((candidate) => candidate.editId === editId);
+    const record = (await this.listScoped(scope)).find((candidate) => candidate.editId === editId);
     if (record?.state !== "OUTCOME_UNKNOWN") throw new Error("The edit is not awaiting unknown-outcome reconciliation.");
     await this.options.store.remove(scope, editId);
   }
@@ -223,6 +256,14 @@ export class OfflineEditQueue {
 
   private async update(record: OfflineEditRecord, state: OfflineEditState): Promise<void> {
     await this.options.store.put({ ...record, state });
+  }
+
+  private async listScoped(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
+    const records = await this.options.store.list(scope);
+    if (records.some((record) => record.tenantId !== scope.tenantId || record.projectId !== scope.projectId)) {
+      throw new OfflineEditQueueError("STORE_SCOPE_MISMATCH");
+    }
+    return records;
   }
 
   private async encrypt(edit: OfflineEdit, plaintext: Uint8Array, state: OfflineEditState): Promise<OfflineEditRecord> {

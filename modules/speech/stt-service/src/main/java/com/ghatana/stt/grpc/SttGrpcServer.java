@@ -6,6 +6,8 @@ import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.stt.service.SttAudioInputDecoder;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +43,14 @@ public final class SttGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     SttGrpcServer(int port, TransportSecurity transportSecurity) {
-        this(port, transportSecurity, new ProductionSttGrpcService(new SimpleMeterRegistry()));
+        this(port, transportSecurity, new ProductionSttGrpcService(new PrometheusMeterRegistry(PrometheusConfig.DEFAULT)));
     }
 
     /** Constructs the server with the canonical Media runtime port; rights and source-version gates remain required. */
     public SttGrpcServer(int port, TransportSecurity transportSecurity,
                          MediaProcessingRuntimePort mediaRuntimePort) {
         this(port, transportSecurity,
-                new ProductionSttGrpcService(new SimpleMeterRegistry(), mediaRuntimePort));
+                new ProductionSttGrpcService(new PrometheusMeterRegistry(PrometheusConfig.DEFAULT), mediaRuntimePort));
     }
 
     SttGrpcServer(int port, TransportSecurity transportSecurity, ProductionSttGrpcService service) {

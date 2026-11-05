@@ -92,7 +92,13 @@ public final class ReviewContracts {
         }
     }
 
-    public record Annotation(TimeRange timeRange, NormalizedRoi roi) { }
+    public record Annotation(TimeRange timeRange, NormalizedRoi roi) {
+        public Annotation {
+            if (timeRange == null && roi == null) {
+                throw new IllegalArgumentException("annotation must include a time range, ROI, or both");
+            }
+        }
+    }
 
     public sealed interface Payload permits Comment, DecisionRecord {
         String operationId();
@@ -128,11 +134,13 @@ public final class ReviewContracts {
         }
     }
 
-    public record AppendRequest(ReviewCaseRef reviewCase, long expectedCaseRevision, String requestId,
+    public record AppendRequest(ReviewCaseRef reviewCase, long expectedCaseRevision, String expectedAuthorityVersion,
+                                String requestId,
                                 Confirmation confirmation, Payload payload) {
         public AppendRequest {
             Objects.requireNonNull(reviewCase, "reviewCase");
             if (expectedCaseRevision < 0) throw new IllegalArgumentException("expectedCaseRevision must be non-negative");
+            expectedAuthorityVersion = opaque(expectedAuthorityVersion, "expectedAuthorityVersion");
             requestId = opaque(requestId, "requestId");
             Objects.requireNonNull(confirmation, "confirmation");
             Objects.requireNonNull(payload, "payload");
@@ -140,13 +148,16 @@ public final class ReviewContracts {
     }
 
     public record AuthorizationDecision(AuthorizationStatus status, String tenantId, String principalId,
-                                        String exactTargetRef, String authorityVersion, Instant validUntil,
+                                        String reviewCaseId, String exactTargetRef, String scopeRef,
+                                        String authorityVersion, Instant validUntil,
                                         String currentMaterialVersionRef, RetentionStatus retentionStatus) {
         public AuthorizationDecision {
             Objects.requireNonNull(status, "status");
             tenantId = required(tenantId, "tenantId");
             principalId = required(principalId, "principalId");
+            reviewCaseId = opaque(reviewCaseId, "reviewCaseId");
             exactTargetRef = required(exactTargetRef, "exactTargetRef");
+            scopeRef = required(scopeRef, "scopeRef");
             authorityVersion = required(authorityVersion, "authorityVersion");
             Objects.requireNonNull(validUntil, "validUntil");
             Objects.requireNonNull(retentionStatus, "retentionStatus");
@@ -234,6 +245,9 @@ public final class ReviewContracts {
     }
     public static final class ReviewConflictException extends IllegalStateException {
         public ReviewConflictException(long expected, long actual) { super("review case changed: expected revision " + expected + " but found " + actual); }
+    }
+    public static final class ReviewAuthorityConflictException extends IllegalStateException {
+        public ReviewAuthorityConflictException() { super("reviewer authority changed since the request was prepared"); }
     }
     public static final class ReviewIdempotencyConflictException extends IllegalStateException {
         public ReviewIdempotencyConflictException() { super("review requestId was reused with a different payload"); }

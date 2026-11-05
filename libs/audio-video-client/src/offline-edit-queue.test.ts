@@ -23,10 +23,12 @@ class MemoryStore implements OfflineEditStore {
     return [...this.records.values()].filter((record) => record.tenantId === query.tenantId
       && record.projectId === query.projectId);
   }
-  async insert(record: OfflineEditRecord): Promise<boolean> {
+  async insert(record: OfflineEditRecord, maximumEntries: number): Promise<boolean> {
     if ([...this.records.values()].some((item) => item.tenantId === record.tenantId
       && item.projectId === record.projectId
       && (item.editId === record.editId || item.idempotencyKey === record.idempotencyKey))) return false;
+    if ([...this.records.values()].filter((item) => item.tenantId === record.tenantId
+      && item.projectId === record.projectId).length >= maximumEntries) return false;
     if (this.failNextPut) { this.failNextPut = false; throw new Error("local storage unavailable"); }
     this.records.set(record.editId, record);
     return true;
@@ -56,6 +58,45 @@ describe("OfflineEditQueue", () => {
     await expect(queue.enqueue({ ...edit, editId: "edit-2", idempotencyKey: "idem-2" })).resolves.toBeUndefined();
     await expect(queue.enqueue({ ...edit, editId: "edit-3", idempotencyKey: "idem-3" }))
       .rejects.toMatchObject({ code: "QUEUE_FULL" } satisfies Partial<OfflineEditQueueError>);
+  });
+
+  it("enforces entry bounds atomically per tenant/project, including concurrent enqueue", async () => {
+    const { queue, store } = await createQueue();
+    const candidates = [1, 2, 3].map((n) => ({ ...edit, editId: `parallel-${n}`, idempotencyKey: `parallel-key-${n}` }));
+    const outcomes = await Promise.allSettled(candidates.map((candidate) => queue.enqueue(candidate)));
+    expect(outcomes.filter((result) => result.status === "fulfilled")).toHaveLength(2);
+    expect(outcomes.filter((result) => result.status === "rejected").map((result) => result.status === "rejected" && result.reason.code))
+      .toEqual(["QUEUE_FULL"]);
+    expect(await queue.readEdits(scope)).toHaveLength(2);
+
+    const otherScope = { tenantId: "tenant-2", projectId: "project-1" };
+    await queue.enqueue({ ...otherScope, editId: "other-tenant", idempotencyKey: "other-tenant-key",
+      expectedVersion: "v1", payload: { operation: "private-edit" } });
+    expect(store.records.size).toBe(3);
+    expect(await queue.readEdits(otherScope)).toHaveLength(1);
+  });
+
+  it("enforces the UTF-8 payload byte limit before storing ciphertext", async () => {
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const store = new MemoryStore();
+    const bounded = new OfflineEditQueue({ store, encryptionKey: key, maximumPayloadBytes: 8 });
+    await expect(bounded.enqueue({ ...edit, payload: "123456" })).resolves.toBeUndefined();
+    await expect(bounded.enqueue({ ...edit, editId: "too-large", idempotencyKey: "too-large-key", payload: "1234567" }))
+      .rejects.toMatchObject({ code: "PAYLOAD_TOO_LARGE" } satisfies Partial<OfflineEditQueueError>);
+    expect(store.records.size).toBe(1);
+  });
+
+  it("rejects a store that returns another tenant or project in a scoped read", async () => {
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const leakingStore: OfflineEditStore = {
+      list: async () => [{ tenantId: "tenant-other", projectId: "project-other", editId: "x", idempotencyKey: "x",
+        expectedVersion: "v1", nonce: new Uint8Array(12), ciphertext: new Uint8Array(), payloadBytes: 0, state: "PENDING" }],
+      insert: async () => false,
+      put: async () => undefined,
+      remove: async () => undefined,
+    };
+    const q = new OfflineEditQueue({ store: leakingStore, encryptionKey: key });
+    await expect(q.readEdits(scope)).rejects.toMatchObject({ code: "STORE_SCOPE_MISMATCH" });
   });
 
   it("requires fresh authorization and detects a stale project version before dispatch", async () => {

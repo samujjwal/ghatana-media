@@ -755,6 +755,17 @@ class MediaRuntimeActiveTest {
             assertThat(uploadDto.path("expectedSha256").asString()).matches("[a-f0-9]{64}");
             assertThat(uploadDto.path("expectedSizeBytes").asLong()).isEqualTo(1L);
             String uploadId = uploadDto.path("uploadId").asString();
+            var replay = client.send(java.net.http.HttpRequest.newBuilder(
+                            java.net.URI.create(endpoint + "/api/v1/artifacts/uploads"))
+                    .header("Content-Type", "application/json")
+                    .header("X-Tenant-Id", "tenant-http")
+                    .header("X-Principal-Id", "principal-a")
+                    .header("Idempotency-Key", "valid-classification")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(body.replace("SECRET", "INTERNAL")))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(replay.statusCode()).isEqualTo(201);
+            assertThat(mapper.readTree(replay.body()).path("uploadId").asString()).isEqualTo(uploadId);
+
             var negativeIndex = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
                             endpoint + "/api/v1/artifacts/uploads/" + uploadId + "/chunks/-1"))
                     .header("Content-Type", "application/octet-stream")

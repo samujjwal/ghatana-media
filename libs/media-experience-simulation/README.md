@@ -5,10 +5,11 @@ first-use/project setup, J-02 artifact-intake and verification-job metadata,
 and the selected J-03 transcription and caption-correction lane. It does not invoke Shared identity,
 a project service, the Media runtime, external providers, or live user data.
 
-Build the TypeScript sources, then run a deterministic workflow fixture:
+Build and test through the declared package scripts, then run a deterministic workflow fixture:
 
 ```sh
-pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json
+pnpm --filter @ghatana/media-experience-simulation build
+pnpm --filter @ghatana/media-experience-simulation test
 node libs/media-experience-simulation/bin/media-experience-fixture.mjs \
   --scenario media.scenario.job-outcome-unknown \
   --action '{"type":"media.action.check-job-outcome"}' \
@@ -28,17 +29,46 @@ verification-job fixtures carry synthetic project, transfer, job, or evidence
 metadata only. Upload, artifact-verification job, and transcription job
 identities remain separate projection fields.
 
-The fixture runner is a Phase 3 inspection entry point. It is not the
-`ghatana-media` product command simulator and does not claim that any simulated
-capability is implemented or available at runtime.
+The fixture runner and command simulator use distinct names from the
+authenticated production CLI. `media-experience-command-simulator` only runs
+deterministic fixture transitions; it never calls the Media runtime and does
+not claim that any simulated capability is implemented or available at runtime.
+The canonical production CLI is `ghatanamedia-api` from
+`@audio-video/client`; it uses authenticated canonical SDK operations. Its
+capture and recorder command identities return typed `NOT_ADMITTED` until
+those execution contracts exist.
 
-J-02 upload fixtures contain transfer metadata only. For example, the canonical
-command simulator can resume the same interrupted fixture upload identity:
+## Shared Recorder and Explorer scenario contract
+
+`createScenarioReplayContract`, `validateScenarioReplayContract`,
+`advanceScenarioReplayClock`, and `resetScenarioReplayClock` provide one
+source-bound envelope for authored Recorder scenarios and Explorer fixtures.
+Bind `scenarioId` and `sourceRef` to the owning PDP record, and provide the
+exact source/fixture clock identity, tick rate, and starting tick. The seed is
+stable for the same scenario/source pair; it is an identifier, not a random
+generator seed, integrity proof, solver input, or model output.
+
+The validator requires the explicit `SIMULATED_FIXTURE_ONLY` label,
+`dispatch: NEVER`, `networkEffects: NEVER`, no model/solver output, no owner
+evidence, and `runtimeAdmission: NOT_ADMITTED`. Unknown or malformed fields
+fail validation. Clock advance and reset use only supplied whole ticks; they
+never read the wall clock. This contract creates no fixture payload and makes
+no runtime, provider, scientific, or owner-acceptance claim.
+
+Source bindings remain owned by
+`.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml`
+and `.product-experience/explorer/scenario-fixtures.yaml` for Explorer, and
+`recorder-studio-experience.yaml#surfaceCaseScenarioContracts` for Recorder.
+The package exposes reusable validation; these source records and consumer
+adapters remain the authorities for exact identities and payloads.
+
+J-02 upload fixtures contain transfer metadata only. The fixture command
+simulator can inspect the same interrupted upload identity:
 
 ```sh
-node libs/media-experience-simulation/bin/ghatana-media.mjs \
+node libs/media-experience-simulation/bin/media-experience-command-simulator.mjs \
   --scenario media.scenario.upload-interrupted \
-  upload resume --upload fixture-upload-interrupted-001 \
+  upload inspect --upload fixture-upload-interrupted-001 \
   --format json
 ```
 
