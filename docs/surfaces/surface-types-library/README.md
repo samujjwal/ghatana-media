@@ -5,10 +5,12 @@ Typed contract library channel. Physical owner:
 
 ## Supported operations
 
-22 exported types / 23 public schemas (verified denominators), including
+24 exported types / 25 public schemas (current source-projection denominators, focused tests pending), including
 `MediaAttemptState`/`MediaAttemptStateSchema` bound to the
 `media-attempt` state model; `MultimodalSourceSchema` remains
-schema-only. Shared contract source:
+schema-only. Two new schemas expose the exact runtime upload (5 states) and
+stream (6 states) vocabularies without equating the older seven-state
+client upload schema with the runtime. Shared contract source:
 `src/contracts.ts`.
 
 ## States and invariants

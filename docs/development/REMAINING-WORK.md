@@ -1,5 +1,7 @@
 # Ghatana Media — remaining feature implementation and owner decisions
 
+**Current owner readback:** [Engineering decisions](ENGINEERING-DECISIONS.md) separate the legacy upload model from the actual runtime enum, align the runtime stream type, authorize independent task starts, and preserve history pending qualified archival. [The structured register](remaining-work.json) reconciles **19 VERIFIED / 83 OPEN / 1 OPTIONAL DEFERRED** (103 total); the previous 82 OPEN count was stale. The 83 open units comprise 41 independently startable engineering tasks, 10 safe engineering tasks requiring real-positive inputs later, 30 journey scenario/test tasks, one contract test task and one archive/delete task. `requires` identifies full integration prerequisites, not a blanket pause on code and tests.
+
 > **Current engineering selector.** This file and [machine-readable remaining work](remaining-work.json) replace dated task-run selections **for feature implementation only**. Product definitions retain semantic authority. No gtool setup, closure, evidence, convergence, release or production cutover work is authorized by this document.
 
 ## Current source and safe readiness claims

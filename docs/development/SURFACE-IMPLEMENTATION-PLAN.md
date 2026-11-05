@@ -1,6 +1,6 @@
 # Ghatana Media — surface development implementation plan
 
-**Current remaining work:** [owner decisions and executable task plan](REMAINING-WORK.md) · [structured register](remaining-work.json). These maintained documents supersede old run-oriented selection notes for feature development; this original plan retains the complete coverage/architecture baseline.
+**Current remaining work:** [engineering contract and start decisions](ENGINEERING-DECISIONS.md) · [owner decisions and executable task plan](REMAINING-WORK.md) · [structured register](remaining-work.json). These maintained documents supersede old run-oriented selection notes for feature development; this original plan retains the complete coverage/architecture baseline.
 
 **Purpose:** Ship complete, correct, tested and documented Media capabilities and a clean, intent-named repository. This is the **active implementation-only engineering plan**, not a status/approval/closure document.
 
