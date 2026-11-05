@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 95,
-      "VERIFIED": 6,
+      "OPEN": 94,
+      "VERIFIED": 7,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -420,7 +420,7 @@
     {
       "id": "media.dev.explorer-fidelity",
       "group": "interfaces",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "apps/media-experience-explorer",
         "libs/media-experience-simulation",
@@ -429,7 +429,8 @@
       "what": "Keep 47-screen curated Explorer accurate and never imply backend admission.",
       "how": "Reuse authored scenario package and narration metadata; preserve source screen IDs and clearly labeled simulated state; no live-service dependency.",
       "acceptance": "CSP, browser/a11y, deterministic scenario and narration/caption sync tests.",
-      "requires": []
+      "requires": [],
+      "verificationEvidence": "verified-2026-11-05: test/explorer-fidelity.test.mjs proves strict dev+preview CSP (no wildcard/inline/eval), simulation always labeled (Synthetic fixture + Explorer only, admission wording negated), no live-service fetch (only bundled specification/ assets), deterministic replay across all scenario ids, and caption segments ordered within declared rational duration"
     },
     {
       "id": "media.dev.voice-workflow-ui",

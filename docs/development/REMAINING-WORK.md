@@ -210,7 +210,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Browser E2E against local backend, a11y/keyboard/responsive/tenant and visual regression.
 - **Predecessors:** `media.dev.sdk-canonical-migration`, `media.dev.rights-and-policy`
 
-**`media.dev.explorer-fidelity`** · OPEN
+**`media.dev.explorer-fidelity`** · VERIFIED (strict CSP, always-labeled simulated state, no live fetch, deterministic scenario replay, caption sync — `test/explorer-fidelity.test.mjs` green)
 - **Where:** `apps/media-experience-explorer`, `libs/media-experience-simulation`, `.product-experience/pdp-3-product-experience`
 - **What:** Keep 47-screen curated Explorer accurate and never imply backend admission.
 - **How:** Reuse authored scenario package and narration metadata; preserve source screen IDs and clearly labeled simulated state; no live-service dependency.
