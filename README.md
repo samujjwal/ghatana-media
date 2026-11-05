@@ -10,7 +10,7 @@ The [PDP-0](docs/implementation/pdp-0-phase-dev-status.json), [PDP-1](docs/imple
 
 ## Start here
 
-For code, API, tests, creative features and repository hygiene across every surface, follow the [Media Surface Development Implementation Plan](docs/development/SURFACE-IMPLEMENTATION-PLAN.md). Formal lifecycle and release work are separate.
+For code, API, tests, creative features and repository hygiene across every surface, follow the [Media Surface Development Implementation Plan](docs/development/SURFACE-IMPLEMENTATION-PLAN.md) and its [current remaining-work register](docs/development/REMAINING-WORK.md). Formal lifecycle and release work are separate.
 
 Read the [documentation index](docs/README.md) for product, architecture, testing, integration, operations and migration references.
 

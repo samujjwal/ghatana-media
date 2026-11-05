@@ -30,7 +30,7 @@ the canonical Media runtime.
 ## Dependencies
 
 Tools/Action Plane identity and rights; canonical Media runtime ports;
-durable invocation ledger (pending).
+durable single-host invocation ledger (implemented; focused safety regression tests require execution); fresh authenticated replay authorization and real canonical dispatch remain open.
 
 ## Errors
 

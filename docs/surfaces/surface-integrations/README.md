@@ -16,8 +16,10 @@ downstream metadata/observation) and Agents (Tools/Action Plane).
   ledger backing degrades that projection only; it never acquires Media
   domain authority or blocks canonical finality.
 - Data Cloud adapters remain unavailable compatibility seams pending
-  installed public ports; ledger projection needs a real durable
-  compare-and-set backing before restart/replay claims.
+  installed public ports; ledger projection now has a single-host durable file backing and a
+  pre-dispatch uncertainty fence; real Data Cloud destination CAS is optional,
+  never a prerequisite for core Media completion. The new safety tests must
+  run before relying on the backing.
 - No integration becomes a second writer: canonical job/artifact
   finality stays with Media runtime + `providers/aws-postgresql`.
 - OCR is consumed through DI's qualified public client once

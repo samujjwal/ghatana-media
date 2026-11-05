@@ -1,5 +1,7 @@
 # Ghatana Media — surface development implementation plan
 
+**Current remaining work:** [owner decisions and executable task plan](REMAINING-WORK.md) · [structured register](remaining-work.json). These maintained documents supersede old run-oriented selection notes for feature development; this original plan retains the complete coverage/architecture baseline.
+
 **Purpose:** Ship complete, correct, tested and documented Media capabilities and a clean, intent-named repository. This is the **active implementation-only engineering plan**, not a status/approval/closure document.
 
 **Source reviewed:** `samujjwal/ghatana-media` remote `main@e3847ab80c61d6088528319a1293e6464c6e6298` (2026-11-04). This review inspected the current repository tree, source-owned surface roster, authored product definitions, existing plans and selected executable code. No Gradle, pnpm, Rust, browser, container, inference or host tests were executed as part of this review; prior test reports are not reclassified as independent new passes. Reconcile any changes after this source cut before execution.

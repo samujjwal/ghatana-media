@@ -2,6 +2,8 @@
 
 ## Current feature-development execution
 
+The [Remaining Media Development Work](development/REMAINING-WORK.md) and its [structured register](development/remaining-work.json) contain the current owner decisions, fixes and ordered implementation-only tasks. They take precedence over older dated execution packets for feature work.
+
 The [Media Surface Development Implementation Plan](development/SURFACE-IMPLEMENTATION-PLAN.md) is the active **implementation-only** plan for all registered surfaces, 30 product outcomes and repository hygiene. It covers feature logic, APIs, tests and stable per-surface documentation; it does not direct gtool, evidence/closure or release work. Existing dated implementation/qualification records remain source material, not a substitute for this maintained development plan.
 
 ## Current BUILD implementation plan
