@@ -556,7 +556,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Zero orphan modules, dead production mocks and unsupported preview deployment paths; builds and test selectors resolve.
 - **Predecessors:** `media.dev.surface-document-contracts`, `media.dev.historical-artifact-inventory`
 
-**`media.dev.documentation-and-command-navigation`** · OPEN
+**`media.dev.documentation-and-command-navigation`** · VERIFIED (single Start-here selector, all maintained-doc links resolve, implementation vs BUILD lanes separated — `tests/media-documentation-entrypoint.test.mjs` green)
 - **Where:** `README.md`, `docs/README.md`, `AGENTS.md`, `package.json`, `settings.gradle.kts`
 - **What:** Make one current intent-based entrypoint with runnable bounded tests and authoritative links.
 - **How:** Link development plan and remaining tasks; isolate legacy histories and lifecycle docs from the implementation selector; avoid duplicate active plans.

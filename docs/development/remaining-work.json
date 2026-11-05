@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 92,
-      "VERIFIED": 9,
+      "OPEN": 91,
+      "VERIFIED": 10,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -1188,7 +1188,7 @@
     {
       "id": "media.dev.documentation-and-command-navigation",
       "group": "hygiene",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "README.md",
         "docs/README.md",
@@ -1201,7 +1201,8 @@
       "acceptance": "Entry links valid, no stale historical 'do next' instruction in maintained docs.",
       "requires": [
         "media.dev.surface-document-contracts"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: tests/media-documentation-entrypoint.test.mjs pins one Start-here selector (SURFACE-IMPLEMENTATION-PLAN + REMAINING-WORK), all relative links in 5 maintained docs resolve to tracked paths, docs/README separates implementation-only plan from BUILD lane, no stale do-next instructions"
     },
     {
       "id": "media.dev.outcome-first-use-project",
