@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 91,
-      "VERIFIED": 10,
+      "OPEN": 90,
+      "VERIFIED": 11,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -629,7 +629,7 @@
     {
       "id": "media.dev.capture-http-and-file-regression",
       "group": "capture",
-      "state": "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/http-capture-adapter.ts",
         "libs/audio-video-client/src/file-capture-adapter.ts",
@@ -638,7 +638,8 @@
       "what": "Preserve existing real HTTP and file capture (do not reimplement) and verify secure E2E behavior.",
       "how": "Review content bounds, redirects, TLS/SSRF, file roots, symlinks, sourceVersion/rights/clock echo and recapture with real bytes.",
       "acceptance": "Existing 381-client-suite baseline plus security adversarial cases and isolated package tests.",
-      "requires": []
+      "requires": [],
+      "verificationEvidence": "verified-2026-11-05: source review confirms bounds \u2014 http-capture-adapter: manual per-hop redirect revalidation (0..5 hops), no userinfo, https-only except loopback, origin allowlist, 8KB URL cap, streamed body cancel at maxBytes, single deadline; file-capture-adapter: realpath containment in allowedRoot, regular-file check, stat+stream byte bounds, no path disclosure in errors; both echo purposeRef/exactRightsScope/sourceVersionRef/frameClockRef; vitest 381 passed incl. redirect-escape/userinfo/symlink/oversize adversarial cases; isolated package consumer checks pass"
     },
     {
       "id": "media.dev.browser-source-capture",

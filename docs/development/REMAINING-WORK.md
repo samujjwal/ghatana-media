@@ -305,7 +305,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 #### capture
 
-**`media.dev.capture-http-and-file-regression`** · EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS
+**`media.dev.capture-http-and-file-regression`** · VERIFIED (existing adapters preserved; per-hop redirect revalidation, origin allowlist, realpath containment, byte bounds — 381 vitest baseline + adversarial cases + isolated package consumer green)
 - **Where:** `libs/audio-video-client/src/http-capture-adapter.ts`, `libs/audio-video-client/src/file-capture-adapter.ts`, `libs/audio-video-client/src/recorder-orchestrator.ts`
 - **What:** Preserve existing real HTTP and file capture (do not reimplement) and verify secure E2E behavior.
 - **How:** Review content bounds, redirects, TLS/SSRF, file roots, symlinks, sourceVersion/rights/clock echo and recapture with real bytes.
