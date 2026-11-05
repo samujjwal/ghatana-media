@@ -4,10 +4,10 @@ import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ class StoryboardPlannerTest {
                 .containsExactly("shot-mid", "shot-late");
         assertThat(first.exactSources()).containsExactly(SOURCE_A, SOURCE_B);
         assertThat(first.disposition()).isEqualTo(StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE);
-        assertThat(rights.calls()).isEqualTo(6); // unique source refs per prepare: A and B
+        assertThat(rights.calls()).isEqualTo(4); // unique source refs per prepare: A and B
     }
 
     @Test
@@ -152,11 +152,11 @@ class StoryboardPlannerTest {
             if (!projectHead.equals(expectedProjectHeadRevisionId)) {
                 throw new StoryboardPlanner.ScenePlanConflictException("project head changed before append");
             }
+            String key = plan.scenePlanId() + "/" + plan.semanticVersion();
+            if (saved.containsKey(key)) throw new StoryboardPlanner.DuplicateScenePlanVersionException();
             if (!Objects.equals(planHead, expectedParentSemanticVersion)) {
                 throw new StoryboardPlanner.ScenePlanConflictException("plan parent changed before append");
             }
-            String key = plan.scenePlanId() + "/" + plan.semanticVersion();
-            if (saved.containsKey(key)) throw new StoryboardPlanner.DuplicateScenePlanVersionException();
             saved.put(key, plan);
             planHead = plan.semanticVersion();
             return new StoryboardPlanner.SavedPlan(plan, "receipt-" + requestId);

@@ -132,12 +132,31 @@ public final class StoryboardPlanner {
     public record PlannedScene(String sceneId, int authoredOrder, String intent,
                                RationalTime storyStart, RationalTime storyDuration,
                                List<PlannedShot> shots) {
-        public PlannedScene { shots = List.copyOf(shots); }
+        public PlannedScene {
+            sceneId = required(sceneId, "sceneId");
+            if (authoredOrder < 0) throw new IllegalArgumentException("scene order must be non-negative");
+            intent = required(intent, "scene intent");
+            validateStoryInterval(storyStart, storyDuration, "scene");
+            shots = List.copyOf(shots);
+            if (shots.isEmpty()) throw new IllegalArgumentException("each scene requires at least one planned shot");
+            Set<String> ids = new HashSet<>();
+            Set<Integer> orders = new HashSet<>();
+            for (PlannedShot shot : shots) {
+                if (!ids.add(shot.shotId())) throw new IllegalArgumentException("duplicate planned shot identity");
+                if (!orders.add(shot.authoredOrder())) throw new IllegalArgumentException("duplicate planned shot order");
+            }
+        }
     }
 
     public record PlannedShot(String shotId, int authoredOrder, String intent, RationalTime storyStart,
                               RationalTime storyDuration, List<SourceVersion> exactSources) {
-        public PlannedShot { exactSources = canonicalSources(exactSources); }
+        public PlannedShot {
+            shotId = required(shotId, "shotId");
+            if (authoredOrder < 0) throw new IllegalArgumentException("shot order must be non-negative");
+            intent = required(intent, "shot intent");
+            validateStoryInterval(storyStart, storyDuration, "shot");
+            exactSources = canonicalSources(exactSources);
+        }
     }
 
     public record ScenePlan(String tenantId, String ownerPrincipalId, String projectId, String scenePlanId, String semanticVersion,
@@ -151,8 +170,24 @@ public final class StoryboardPlanner {
             semanticVersion = required(semanticVersion, "semanticVersion");
             expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
-            scenes = List.copyOf(scenes);
-            exactSources = canonicalSources(exactSources);
+            scenes = List.copyOf(scenes).stream().sorted(Comparator.comparing(PlannedScene::storyStart)
+                    .thenComparingInt(PlannedScene::authoredOrder).thenComparing(PlannedScene::sceneId)).toList();
+            if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard plan requires at least one scene");
+            Set<String> sceneIds = new HashSet<>();
+            Set<Integer> sceneOrders = new HashSet<>();
+            Set<String> shotIds = new HashSet<>();
+            for (PlannedScene scene : scenes) {
+                if (!sceneIds.add(scene.sceneId())) throw new IllegalArgumentException("duplicate planned scene identity");
+                if (!sceneOrders.add(scene.authoredOrder())) throw new IllegalArgumentException("duplicate planned scene order");
+                for (PlannedShot shot : scene.shots()) {
+                    if (!shotIds.add(shot.shotId())) throw new IllegalArgumentException("duplicate storyboard shot identity");
+                }
+            }
+            List<SourceVersion> expectedSources = collectSources(brief, scenes);
+            if (!expectedSources.equals(canonicalSources(exactSources))) {
+                throw new IllegalArgumentException("plan source set must preserve every exact brief and shot reference");
+            }
+            exactSources = expectedSources;
             Objects.requireNonNull(disposition, "disposition");
             if (disposition != DraftDisposition.LOCAL_DRAFT_CANDIDATE) {
                 throw new IllegalArgumentException("storyboard planner only emits local draft candidates");
