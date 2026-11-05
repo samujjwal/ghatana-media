@@ -36,8 +36,8 @@ import java.util.function.Supplier;
 /**
  AT-05 durable backing: one JSON record per invocation on the local filesystem.
  *
- * <p>Claim durability comes from an atomic no-replace rename of a fully
- * written fence file; completion durability comes from a lock-file-serialized
+ * <p>Claim exclusivity comes from an atomic create-if-absent hard link to a fully
+ * fsynced temporary fence file; completion durability comes from a lock-file-serialized
  * read-verify-atomic-replace. Records survive process restart because state
  * lives on disk, not in memory. This is a single-node durable backing: it
  * does not provide tenant-scoped access control, classification-aware
@@ -61,9 +61,10 @@ public final class FileInvocationLedger implements InvocationLedger {
 
     /**
      * @param directory durable directory for invocation records; created if
-     *                  absent. Must be on a filesystem supporting atomic rename
-     *                  (all supported deployments do); if atomic move is
-     *                  unsupported the ledger fails closed with UNAVAILABLE.
+     *                  absent. Requires same-filesystem hard-link support for exclusive claims and
+     *                  atomic replace support for terminal completion; when
+     *                  unsupported, operations fail closed rather than risk
+     *                  overwriting another invocation's fence.
      */
     public FileInvocationLedger(Path directory) {
         this.directory = directory.toAbsolutePath().normalize();
@@ -179,7 +180,7 @@ public final class FileInvocationLedger implements InvocationLedger {
         return stripes[Math.floorMod(invocationId.hashCode(), LOCK_STRIPE_COUNT)];
     }
 
-    /** Marker for atomic no-replace collision; keeps claim() free of checked exceptions. */
+    /** Marker for exclusive hard-link collision; keeps claim() free of checked exceptions. */
     private static final class FileAlreadyExistsMarker extends RuntimeException {
         FileAlreadyExistsMarker(Throwable cause) { super(cause); }
     }

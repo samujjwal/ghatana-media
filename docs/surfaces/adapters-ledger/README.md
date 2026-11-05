@@ -18,7 +18,7 @@ authority.
   for the per-run latest/unavailable/uncertain triple; hydrated once per
   run and persisted after every transition so replay guards, ordering
   floors, uncertain fences and terminal parity survive process restart.
-- `FileRunLedgerProjectionState` — filesystem implementation: one JSON
+- `FileRunLedgerProjectionState` — filesystem implementation (pre-dispatch uncertainty is persisted before external store contact; focused crash-phase tests added but not executed in this review): one JSON
   document per run (digest filenames), atomic fsync+rename writes,
   fail-closed corrupt reads. Single-node durable state, not replicated.
 - `RunLedgerJson` — explicit field-by-field `RunLedger` codec; canonical
