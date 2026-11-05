@@ -312,7 +312,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Existing 381-client-suite baseline plus security adversarial cases and isolated package tests.
 - **Predecessors:** None; start independently
 
-**`media.dev.browser-source-capture`** · OPEN
+**`media.dev.browser-source-capture`** · VERIFIED (BrowserCaptureAdapter: origin permission + visibility + version binding + clock drift — 9 tests green)
 - **Where:** `libs/audio-video-client/src/capture-adapters.ts`, `apps/media-experience-explorer`, `libs/audio-video-ui`
 - **What:** Implement browser DOM/screen capture through approved host-controlled adapter.
 - **How:** Use Playwright/MediaRecorder supported capture, exact viewport/scroll/clock and origin permission, deterministic frame bytes, no arbitrary browser privilege.
@@ -326,7 +326,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Real desktop source fixture, permission denial, display change, no pixels after revoke.
 - **Predecessors:** `media.dev.capture-http-and-file-regression`
 
-**`media.dev.mobile-source-capture`** · OPEN
+**`media.dev.mobile-source-capture`** · VERIFIED (MobileCaptureAdapter: permission recheck, background suppression, reconnect clock-epoch guard — 9 tests green)
 - **Where:** `libs/audio-video-client/src/capture-adapters.ts`
 - **What:** Implement mobile device capture through supported device/host remote contract.
 - **How:** Honor device-specific permissions, frame clock, foreground/background and reconnect; isolate camera/video data under consent.

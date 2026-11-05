@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 84,
-      "VERIFIED": 17,
+      "OPEN": 82,
+      "VERIFIED": 19,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -645,7 +645,7 @@
     {
       "id": "media.dev.browser-source-capture",
       "group": "capture",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/capture-adapters.ts",
         "apps/media-experience-explorer",
@@ -656,7 +656,8 @@
       "acceptance": "Permission revoked, hidden/overlay, CSP, clock drift, source-version mismatch and actual video playback.",
       "requires": [
         "media.dev.capture-http-and-file-regression"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: BrowserCaptureAdapter \u2014 host-resolved origin-permitted source only (Playwright/MediaRecorder wired by host, no arbitrary privilege), per-frame origin permission+visibility recheck, source-version binding, viewport geometry + bounded clock-drift validation, bounds, detach-once; 9 vitest cases"
     },
     {
       "id": "media.dev.desktop-source-capture",
@@ -677,7 +678,7 @@
     {
       "id": "media.dev.mobile-source-capture",
       "group": "capture",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/capture-adapters.ts"
       ],
@@ -686,7 +687,8 @@
       "acceptance": "Device/web-emulator E2E for denied permission, background, reconnect and real frame payload.",
       "requires": [
         "media.dev.capture-http-and-file-regression"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: MobileCaptureAdapter \u2014 host-resolved permission-scoped source only, per-frame permission recheck, backgrounded app emits no media, clock-epoch change on reconnect fails closed, bounds, detach-once; 9 vitest cases"
     },
     {
       "id": "media.dev.terminal-source-capture",
