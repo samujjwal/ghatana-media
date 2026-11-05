@@ -28,6 +28,8 @@ public final class PcmStemMixer {
     public static final int BITS_PER_SAMPLE = 16;
     private static final int BYTES_PER_FRAME = CHANNELS * (BITS_PER_SAMPLE / 8);
     private static final int TRUE_PEAK_OVERSAMPLE = 4;
+    private static final int TRUE_PEAK_KERNEL_RADIUS = 4;
+    private static final double TRUE_PEAK_HEADROOM = 1.02;
     private static final float MAX_STEM_GAIN = 4.0f;
     private static final float MAX_ABS_PAN = 1.0f;
     private static final float MAX_CEILING = 0.98f;
@@ -188,9 +190,11 @@ public final class PcmStemMixer {
             }
         }
 
-        double peakBefore = estimateTruePeak(sums);
+        double peakBefore = estimateTruePeak(spec.frameCount(),
+                (frame, channel) -> sums[frame * CHANNELS + channel] / 32768.0);
         double ceiling = spec.truePeakCeiling();
-        double limiterGain = peakBefore <= ceiling || peakBefore == 0.0 ? 1.0 : ceiling / peakBefore;
+        double guardedPeak = peakBefore * TRUE_PEAK_HEADROOM;
+        double limiterGain = guardedPeak <= ceiling || guardedPeak == 0.0 ? 1.0 : ceiling / guardedPeak;
         byte[] pcm = new byte[expectedBytes];
         double samplePeak = 0.0;
         for (int index = 0; index < sums.length; index++) {
@@ -203,15 +207,18 @@ public final class PcmStemMixer {
             pcm[index * 2] = (byte) quantized;
             pcm[index * 2 + 1] = (byte) (quantized >>> 8);
         }
-        double peakAfter = estimateTruePeak(pcm);
+        double peakAfter = estimateTruePeak(spec.frameCount(),
+                (frame, channel) -> decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
         return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), (float) limiterGain,
                 peakBefore, peakAfter, samplePeak);
     }
 
     private static void validateSpec(MixSpec spec) {
+        if (spec.frameCount() > MAX_FRAMES) {
+            throw error(ErrorCode.RESOURCE_LIMIT, "requested frame count exceeds the mixer budget");
+        }
         if (spec.sampleRate() < 8_000 || spec.sampleRate() > 192_000
-                || spec.frameCount() <= 0 || spec.frameCount() > MAX_FRAMES
-                || !Float.isFinite(spec.truePeakCeiling())
+                || spec.frameCount() <= 0 || !Float.isFinite(spec.truePeakCeiling())
                 || spec.truePeakCeiling() <= 0.0f || spec.truePeakCeiling() > MAX_CEILING) {
             throw error(ErrorCode.INVALID_INPUT,
                     "mix requires explicit bounded sample rate, frame count and a (0, 0.98] peak ceiling");
@@ -276,42 +283,56 @@ public final class PcmStemMixer {
         return sample;
     }
 
-    private static double estimateTruePeak(double[] samples) {
+    @FunctionalInterface
+    private interface SampleReader {
+        double sample(int frame, int channel);
+    }
+
+    /** 4x windowed-sinc oversampling estimate, with edge replication. */
+    private static double estimateTruePeak(int frames, SampleReader samples) {
         double peak = 0.0;
-        int frames = samples.length / CHANNELS;
         for (int channel = 0; channel < CHANNELS; channel++) {
             for (int frame = 0; frame < frames; frame++) {
-                double current = samples[frame * CHANNELS + channel] / 32768.0;
+                double current = samples.sample(frame, channel);
                 peak = Math.max(peak, Math.abs(current));
-                if (frame + 1 < frames) {
-                    double next = samples[(frame + 1) * CHANNELS + channel] / 32768.0;
-                    for (int step = 1; step < TRUE_PEAK_OVERSAMPLE; step++) {
-                        double fraction = step / (double) TRUE_PEAK_OVERSAMPLE;
-                        peak = Math.max(peak, Math.abs(current + (next - current) * fraction));
-                    }
+                for (int step = 1; step < TRUE_PEAK_OVERSAMPLE; step++) {
+                    double position = frame + step / (double) TRUE_PEAK_OVERSAMPLE;
+                    peak = Math.max(peak, Math.abs(interpolateSinc(samples, frames, channel, position)));
                 }
             }
         }
         return peak;
     }
 
-    private static double estimateTruePeak(byte[] pcm) {
-        double peak = 0.0;
-        for (int channel = 0; channel < CHANNELS; channel++) {
-            int previous = decode(pcm, channel * 2);
-            peak = Math.max(peak, Math.abs(previous / 32768.0));
-            for (int frame = 1; frame < pcm.length / BYTES_PER_FRAME; frame++) {
-                int current = decode(pcm, frame * BYTES_PER_FRAME + channel * 2);
-                peak = Math.max(peak, Math.abs(current / 32768.0));
-                for (int step = 1; step < TRUE_PEAK_OVERSAMPLE; step++) {
-                    double fraction = step / (double) TRUE_PEAK_OVERSAMPLE;
-                    double interpolated = previous + (current - previous) * fraction;
-                    peak = Math.max(peak, Math.abs(interpolated / 32768.0));
-                }
-                previous = current;
-            }
+    private static double interpolateSinc(SampleReader samples, int frames, int channel, double position) {
+        int center = (int) Math.floor(position);
+        double weighted = 0;
+        double weightTotal = 0;
+        for (int index = center - TRUE_PEAK_KERNEL_RADIUS + 1;
+             index <= center + TRUE_PEAK_KERNEL_RADIUS; index++) {
+            double offset = index - position;
+            if (Math.abs(offset) >= TRUE_PEAK_KERNEL_RADIUS) continue;
+            double windowPosition = offset / TRUE_PEAK_KERNEL_RADIUS;
+            double window = 0.42 + 0.5 * Math.cos(Math.PI * windowPosition)
+                    + 0.08 * Math.cos(2.0 * Math.PI * windowPosition);
+            double sinc = Math.abs(offset) < 1e-12 ? 1.0
+                    : Math.sin(Math.PI * offset) / (Math.PI * offset);
+            double weight = window * sinc;
+            int sourceFrame = Math.max(0, Math.min(frames - 1, index));
+            weighted += samples.sample(sourceFrame, channel) * weight;
+            weightTotal += weight;
         }
-        return peak;
+        return weightTotal == 0.0 ? samples.sample(center, channel) : weighted / weightTotal;
+    }
+
+    private static double estimateTruePeak(byte[] pcm, int frames) {
+        return estimateTruePeak(frames, (frame, channel) ->
+                decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
+    }
+
+    private static double estimateTruePeak(byte[] pcm) {
+        int frames = pcm.length / BYTES_PER_FRAME;
+        return estimateTruePeak(pcm, frames);
     }
 
     private static byte[] encodeWav(byte[] pcm, int sampleRate) {

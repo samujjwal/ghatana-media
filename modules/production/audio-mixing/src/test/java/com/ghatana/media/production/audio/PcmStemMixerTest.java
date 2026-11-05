@@ -1,7 +1,6 @@
 package com.ghatana.media.production.audio;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ghatana.media.production.audio.PcmStemMixer.AssetProvenance;
@@ -199,7 +198,7 @@ class PcmStemMixerTest {
     }
 
     private static void expect(ErrorCode code, Runnable operation) {
-        assertThatThrownBy(operation).isInstanceOf(MixException.class)
+        assertThatThrownBy(operation::run).isInstanceOf(MixException.class)
                 .extracting(error -> ((MixException) error).code()).isEqualTo(code);
     }
 }
