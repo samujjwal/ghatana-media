@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * LD-04 durable backing: projection truth — replay guards, ordering floors,
@@ -198,6 +199,57 @@ class FileRunLedgerProjectionStateTest {
         assertThat(older.disposition()).isNotEqualTo(RunLedgerProjection.Disposition.PROJECTED);
         var retry = restarted.project(refused);
         assertThat(retry.disposition()).isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+    }
+
+    @Test
+    void durableUncertaintyFenceIsWrittenBeforeExternalStoreCanExecute() {
+        FileRunLedgerProjectionState backing = new FileRunLedgerProjectionState(dir);
+        RunLedger candidate = ledger("pre-dispatch-fence", JobExecutionState.RUNNING, null, 1, 100, 0);
+        AtomicBoolean restartedDispatch = new AtomicBoolean(false);
+        RunLedgerProjection original = new RunLedgerProjection(record -> {
+            // This callback is at the effect boundary. A fresh process must
+            // already see the uncertainty fence, not an absent record.
+            var stored = backing.load(record.runId()).orElseThrow();
+            assertThat(stored.uncertain()).isEqualTo(record);
+            var restarted = new RunLedgerProjection(other -> restartedDispatch.set(true), backing);
+            assertThat(restarted.project(record).disposition())
+                    .isEqualTo(RunLedgerProjection.Disposition.PENDING_RECONCILIATION);
+        }, backing);
+
+        assertThat(original.project(candidate).store()).isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        assertThat(restartedDispatch).isFalse();
+        assertThat(backing.load(candidate.runId()).orElseThrow().latest()).isEqualTo(candidate);
+        assertThat(backing.load(candidate.runId()).orElseThrow().uncertain()).isNull();
+    }
+
+    @Test
+    void transientReadFailureCannotMarkProjectionAsHydrated() {
+        RunLedger candidate = ledger("load-failure", JobExecutionState.RUNNING, null, 1, 100, 0);
+        java.util.concurrent.atomic.AtomicInteger reads = new java.util.concurrent.atomic.AtomicInteger();
+        var backing = new RunLedgerProjection.ProjectionStateBacking() {
+            @Override public Optional<RunProjectionState> load(String runId) {
+                if (reads.getAndIncrement() == 0) throw new IllegalStateException("transient read failure");
+                return Optional.of(new RunProjectionState(null, null, candidate));
+            }
+            @Override public void save(String runId, RunProjectionState state) { }
+        };
+        AtomicBoolean dispatched = new AtomicBoolean(false);
+        RunLedgerProjection projection = new RunLedgerProjection(record -> dispatched.set(true), backing);
+        assertThatThrownBy(() -> projection.project(candidate))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(projection.project(candidate).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.PENDING_RECONCILIATION);
+        assertThat(reads).hasValue(2);
+        assertThat(dispatched).isFalse();
+    }
+
+    @Test
+    void persistedProjectionCannotContainAnotherRunIdentity() {
+        FileRunLedgerProjectionState backing = new FileRunLedgerProjectionState(dir);
+        RunLedger unrelated = ledger("different-run", JobExecutionState.RUNNING, null, 1, 100, 0);
+        assertThatThrownBy(() -> backing.save("expected-run",
+                new RunLedgerProjection.ProjectionStateBacking.RunProjectionState(unrelated, null, null)))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test

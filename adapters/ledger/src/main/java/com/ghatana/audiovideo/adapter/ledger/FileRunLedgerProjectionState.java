@@ -67,12 +67,15 @@ public final class FileRunLedgerProjectionState implements ProjectionStateBackin
         if (!SCHEMA.equals(root.path("schema").asText())) {
             throw new IllegalStateException("projection state schema mismatch");
         }
-        return Optional.of(new RunProjectionState(
-                ledgerAt(root, "latest"), ledgerAt(root, "unavailable"), ledgerAt(root, "uncertain")));
+        RunProjectionState state = new RunProjectionState(
+                ledgerAt(root, "latest"), ledgerAt(root, "unavailable"), ledgerAt(root, "uncertain"));
+        validateRunId(runId, state);
+        return Optional.of(state);
     }
 
     @Override
     public void save(String runId, RunProjectionState state) {
+        validateRunId(runId, state);
         ObjectNode root = JSON.createObjectNode();
         root.put("schema", SCHEMA);
         putLedger(root, "latest", state.latest());
@@ -102,6 +105,17 @@ public final class FileRunLedgerProjectionState implements ProjectionStateBackin
                 root.set(field, JSON.readTree(RunLedgerJson.encode(ledger)));
             } catch (RuntimeException e) {
                 throw new IllegalStateException("projection state encode failed", e);
+            }
+        }
+    }
+
+    private static void validateRunId(String runId, RunProjectionState state) {
+        if (runId == null || runId.isBlank() || state == null) {
+            throw new IllegalArgumentException("projection requires nonblank runId and state");
+        }
+        for (RunLedger record : new RunLedger[] {state.latest(), state.unavailable(), state.uncertain()}) {
+            if (record != null && !runId.equals(record.runId())) {
+                throw new IllegalStateException("projection state record has mismatched runId");
             }
         }
     }

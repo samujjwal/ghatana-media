@@ -120,13 +120,47 @@ class FileInvocationLedgerTest {
     }
 
     @Test
-    void recordUpsertsAndFindRoundTrips() {
+    void legacyRecordCannotInsertTerminalOrOverwriteAnExistingFence() {
         FileInvocationLedger ledger = new FileInvocationLedger(dir);
         RequestIdentity id = identity("mm", "fp-mm");
-        ledger.record(terminal("inv-r", id));
+        assertThatThrownBy(() -> ledger.record(terminal("inv-r", id)))
+                .isInstanceOf(IllegalArgumentException.class);
         ledger.record(fence("inv-r", id));
-        assertThat(ledger.find("inv-r")).hasValueSatisfying(f ->
-                assertThat(f.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
+        assertThatThrownBy(() -> ledger.record(fence("inv-r", id)))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(ledger.find("inv-r")).hasValueSatisfying(found ->
+                assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
+    }
+
+    @Test
+    void independentLedgerInstancesRaceForOneExclusiveClaim() throws Exception {
+        int contenders = 24;
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(contenders);
+        var start = new java.util.concurrent.CountDownLatch(1);
+        var futures = new java.util.ArrayList<java.util.concurrent.Future<ClaimResult>>();
+        try {
+            for (int i = 0; i < contenders; i++) {
+                final int worker = i;
+                futures.add(pool.submit(() -> {
+                    FileInvocationLedger contender = new FileInvocationLedger(dir);
+                    start.await();
+                    return contender.claim(fence("shared-invocation", identity("stt", "fingerprint-" + worker)));
+                }));
+            }
+            start.countDown();
+            int winners = 0;
+            int collisions = 0;
+            for (var result : futures) {
+                ClaimResult outcome = result.get(10, java.util.concurrent.TimeUnit.SECONDS);
+                if (outcome == ClaimResult.CLAIMED) winners++;
+                if (outcome == ClaimResult.ALREADY_CLAIMED) collisions++;
+            }
+            assertThat(winners).isEqualTo(1);
+            assertThat(collisions).isEqualTo(contenders - 1);
+            assertThat(new FileInvocationLedger(dir).find("shared-invocation")).isPresent();
+        } finally {
+            pool.shutdownNow();
+        }
     }
 
     @Test

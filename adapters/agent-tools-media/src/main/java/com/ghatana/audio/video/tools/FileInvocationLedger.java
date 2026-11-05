@@ -18,7 +18,6 @@ import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -92,18 +91,20 @@ public final class FileInvocationLedger implements InvocationLedger {
         }
     }
 
-    /** Legacy write API retained for source compatibility; not used for dispatch authorization. */
+    /**
+     * Deprecated compatibility entrypoint. It may create only a new UNKNOWN
+     * claim; it cannot overwrite an existing fence or inject a terminal
+     * result without the compare-and-set completion protocol.
+     */
     @Override
     public void record(LogicalAction action) {
         Objects.requireNonNull(action, "action");
-        withKeyLock(action.invocationId(), () -> {
-            try {
-                atomicWrite(recordPath(action.invocationId()), encode(action), true);
-            } catch (IOException e) {
-                throw new UncheckedIOException("invocation record write failed", e);
-            }
-            return null;
-        });
+        if (action.outcome() != LogicalOutcome.OUTCOME_UNKNOWN || action.result() != null) {
+            throw new IllegalArgumentException("legacy record cannot bypass claim/complete");
+        }
+        if (claim(action) != ClaimResult.CLAIMED) {
+            throw new IllegalStateException("exclusive invocation claim unavailable or already exists");
+        }
     }
 
     @Override
@@ -190,23 +191,18 @@ public final class FileInvocationLedger implements InvocationLedger {
             try (FileChannel channel = FileChannel.open(temp, StandardOpenOption.WRITE)) {
                 channel.force(true);
             }
-            try {
-                if (replace) {
-                    Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE);
-                }
-            } catch (AtomicMoveNotSupportedException e) {
-                // Non-atomic fallback still preserves no-replace semantics.
-                if (replace) {
-                    Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    try {
-                        Files.move(temp, target);
-                    } catch (java.nio.file.FileAlreadyExistsException collision) {
-                        throw new FileAlreadyExistsMarker(collision);
-                    }
-                }
+            if (replace) {
+                // Completion occurs only under the per-invocation OS file lock.
+                // Never weaken the atomic replace contract on unsupported filesystems.
+                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                // ATOMIC_MOVE without REPLACE_EXISTING is NOT an exclusive claim:
+                // Java permits replacing an existing target (reproduced on Linux).
+                // A hard link to the fully fsynced temp file is an atomic,
+                // create-if-absent directory entry; collision rejects the claim.
+                // Filesystems without hard-link support fail closed.
+                Files.createLink(target, temp);
+                Files.delete(temp);
             }
         } catch (FileAlreadyExistsMarker marker) {
             Files.deleteIfExists(temp);

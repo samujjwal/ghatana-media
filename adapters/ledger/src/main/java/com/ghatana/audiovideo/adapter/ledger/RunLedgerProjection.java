@@ -121,7 +121,9 @@ public final class RunLedgerProjection {
      * Projects one ledger record. An exception after dispatch leaves an
      * unknown outcome; later writes for that run are held until exact readback.
      * Only a store-guaranteed pre-dispatch refusal is classified unavailable.
-     * The fence is process-local and does not establish restart durability.
+     * An injected persistent backing stores the pre-dispatch uncertainty fence
+     * before the external store can execute. Without that backing, the fence
+     * is process-local and cannot establish restart durability.
      */
     public ProjectionResult project(RunLedger incoming) {
         Objects.requireNonNull(incoming, "incoming must not be null");
@@ -143,9 +145,17 @@ public final class RunLedgerProjection {
             if (disposition != Disposition.PROJECTED) {
                 return new ProjectionResult(disposition, StoreResult.NOT_ATTEMPTED);
             }
+            // Persist uncertainty BEFORE crossing the external-effect boundary.
+            // Otherwise a process crash after store.store() but before persist()
+            // could permit duplicate dispatch after restart.
+            if (stateBacking != null) {
+                uncertainByRunId.put(incoming.runId(), incoming);
+                persist(incoming.runId());
+            }
             try {
                 store.store(incoming);
             } catch (StoreNotDispatchedException unavailable) {
+                uncertainByRunId.remove(incoming.runId());
                 unavailableByRunId.put(incoming.runId(), incoming);
                 persist(incoming.runId());
                 return new ProjectionResult(disposition, StoreResult.UNAVAILABLE);
@@ -165,6 +175,7 @@ public final class RunLedgerProjection {
             }
             latestByRunId.put(incoming.runId(), incoming);
             unavailableByRunId.remove(incoming.runId());
+            uncertainByRunId.remove(incoming.runId());
             persist(incoming.runId());
             return new ProjectionResult(disposition, StoreResult.ACKNOWLEDGED);
         }
@@ -200,12 +211,15 @@ public final class RunLedgerProjection {
     }
 
     private void hydrate(String runId) {
-        if (stateBacking == null || !hydratedRunIds.add(runId)) return;
+        if (stateBacking == null || hydratedRunIds.contains(runId)) return;
+        // Mark hydrated only AFTER a successful load. A corrupt/transient
+        // read failure must not turn a later retry into an unfenced dispatch.
         stateBacking.load(runId).ifPresent(state -> {
             if (state.latest() != null) latestByRunId.put(runId, state.latest());
             if (state.unavailable() != null) unavailableByRunId.put(runId, state.unavailable());
             if (state.uncertain() != null) uncertainByRunId.put(runId, state.uncertain());
         });
+        hydratedRunIds.add(runId);
     }
 
     private void persist(String runId) {
