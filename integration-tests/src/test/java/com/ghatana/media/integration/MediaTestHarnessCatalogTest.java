@@ -12,11 +12,11 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,7 +51,20 @@ class MediaTestHarnessCatalogTest {
                         "postgres-localstack-restart-and-policy",
                         "postgres-stt-fencing",
                         "postgres-authorized-stt-restart",
-                        "compose-startup-refusal");
+                        "compose-startup-refusal",
+                        "journey-j03-synthetic-business-recording",
+                        "journey-j12-local-animation-preview",
+                        "journey-j12-animation-integration-fixture",
+                        "journey-j13-spatial-local-slice",
+                        "journey-j16-dubbing-capability-slice",
+                        "journey-j17-music-effects-local-dsp",
+                        "journey-outcome-j01", "journey-outcome-j02", "journey-outcome-j05",
+                        "journey-outcome-j06", "journey-outcome-j07", "journey-outcome-j08",
+                        "journey-outcome-j09", "journey-outcome-j10", "journey-outcome-j11",
+                        "journey-outcome-j14", "journey-outcome-j15", "journey-outcome-j18",
+                        "journey-outcome-j19", "journey-outcome-j20", "journey-outcome-j21",
+                        "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
+                        "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29");
 
         for (MediaTestHarness.TestProfile profile : profiles) {
             assertThat(profile.sources()).as(profile.id()).isNotEmpty();
@@ -59,8 +72,10 @@ class MediaTestHarnessCatalogTest {
             assertThat(profile.prerequisites()).as(profile.id()).isNotEmpty();
             assertThat(profile.safety()).as(profile.id()).isNotBlank();
             assertThat(profile.evidenceLimit()).as(profile.id()).isNotBlank();
+            assertThat(profile.gradleTestTask()).as(profile.id())
+                    .matches("^:[A-Za-z0-9_-]+(?::[A-Za-z0-9_-]+)+:test$");
             List<String> expectedGradleArguments = new ArrayList<>(
-                    List.of(":services:media:integration-tests:test"));
+                    List.of(profile.gradleTestTask()));
             for (String selector : profile.selectors()) {
                 expectedGradleArguments.add("--tests");
                 expectedGradleArguments.add(selector);
@@ -69,18 +84,23 @@ class MediaTestHarnessCatalogTest {
                     .containsExactlyElementsOf(expectedGradleArguments);
             for (String selector : profile.selectors()) {
                 String className = selectorClassName(selector, profile.sources());
-                String selectorSource = "integration-tests/src/test/java/"
-                        + className.replace('.', '/') + ".java";
+                String selectorSource = profile.sources().stream()
+                        .filter(source -> source.endsWith("/src/test/java/"
+                                + className.replace('.', '/') + ".java"))
+                        .findFirst().orElseThrow(() -> new AssertionError(
+                                "selector source missing from profile " + profile.id() + ": " + className));
                 assertThat(profile.sources()).as("selector source %s for %s", selector, profile.id())
                         .contains(selectorSource);
-                assertThat(Class.forName(className, false, getClass().getClassLoader()))
-                        .as("catalog selector class %s for %s", className, profile.id()).isNotNull();
+                String sourceText = Files.readString(root.resolve(selectorSource));
+                String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
+                assertThat(Pattern.compile("\\bclass\\s+" + Pattern.quote(simpleClassName) + "\\b")
+                                .matcher(sourceText).find())
+                        .as("catalog selector class %s for %s", className, profile.id()).isTrue();
                 if (!selector.equals(className)) {
                     String methodName = selector.substring(className.length() + 1);
-                    assertThat(Arrays.stream(Class.forName(className, false, getClass().getClassLoader()).getDeclaredMethods())
-                                    .map(java.lang.reflect.Method::getName))
-                            .as("catalog selector method %s for %s", selector, profile.id())
-                            .contains(methodName);
+                    assertThat(Pattern.compile("\\bvoid\\s+" + Pattern.quote(methodName) + "\\s*\\(")
+                                    .matcher(sourceText).find())
+                            .as("catalog selector method %s for %s", selector, profile.id()).isTrue();
                 }
             }
             for (String source : profile.sources()) {
@@ -88,6 +108,36 @@ class MediaTestHarnessCatalogTest {
                         .as("catalog source %s for %s", source, profile.id()).isTrue();
             }
         }
+    }
+
+    @Test
+    void missingOutcomeJourneysRemainExplicitlyUnrepresented() throws Exception {
+        Path root = repositoryRoot();
+        var catalog = new tools.jackson.databind.ObjectMapper().readTree(
+                root.resolve("docs/implementation/media-integration-test-census.v1.json").toFile());
+        var unrepresentedNode = catalog.path("journeySelectorCoverage").path("unrepresentedJourneyIds");
+        assertThat(unrepresentedNode)
+                .extracting(var -> var.asString())
+                .containsExactly("J-04", "J-23", "J-24", "J-30");
+        assertThat(catalog.path("journeySelectorCoverage").path("meaning").asString())
+                .contains("not a completion or admission status");
+
+        Set<String> allJourneys = new HashSet<>();
+        for (int number = 1; number <= 30; number++) allJourneys.add("J-%02d".formatted(number));
+        Set<String> unrepresented = new HashSet<>();
+        unrepresentedNode.forEach(value -> unrepresented.add(value.asString()));
+        Set<String> represented = new HashSet<>();
+        Pattern profileId = Pattern.compile("^journey-(?:outcome-)?j(\\d{2})(?:-|$)");
+        for (MediaTestHarness.TestProfile profile : MediaTestHarness.testProfiles(root)) {
+            var match = profileId.matcher(profile.id());
+            if (match.find()) represented.add("J-" + match.group(1));
+        }
+        Set<String> expectedRepresented = new HashSet<>(allJourneys);
+        expectedRepresented.removeAll(unrepresented);
+        assertThat(represented).isEqualTo(expectedRepresented);
+        Set<String> covered = new HashSet<>(represented);
+        covered.addAll(unrepresented);
+        assertThat(covered).isEqualTo(allJourneys);
     }
 
     @Test
@@ -228,7 +278,7 @@ class MediaTestHarnessCatalogTest {
 
     private static String selectorClassName(String selector, List<String> sources) {
         for (String source : sources) {
-            String className = source.replaceFirst("^integration-tests/src/test/java/", "")
+            String className = source.replaceFirst("^.*?/src/test/java/", "")
                     .replace('/', '.').replaceFirst("\\.java$", "");
             if (selector.equals(className) || selector.startsWith(className + ".")) return className;
         }

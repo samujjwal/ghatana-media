@@ -44,6 +44,7 @@ public class MediaTestHarness implements AutoCloseable {
     public record TestProfile(
             String id,
             TestTier tier,
+            String gradleTestTask,
             List<String> selectors,
             List<String> sources,
             List<String> resources,
@@ -55,6 +56,7 @@ public class MediaTestHarness implements AutoCloseable {
         public TestProfile {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(tier, "tier");
+            Objects.requireNonNull(gradleTestTask, "gradleTestTask");
             selectors = List.copyOf(selectors);
             sources = List.copyOf(sources);
             resources = List.copyOf(resources);
@@ -66,7 +68,7 @@ public class MediaTestHarness implements AutoCloseable {
 
         /** Gradle selection arguments for this profile, usable from the repo root. */
         public List<String> gradleArguments() {
-            List<String> arguments = new ArrayList<>(List.of(":services:media:integration-tests:test"));
+            List<String> arguments = new ArrayList<>(List.of(gradleTestTask));
             for (String selector : selectors) {
                 arguments.add("--tests");
                 arguments.add(selector);
@@ -96,6 +98,9 @@ public class MediaTestHarness implements AutoCloseable {
                 throw new IllegalArgumentException("duplicate test census profile id: " + id);
             }
             String tier = requiredText(profile, "tier", catalog);
+            String gradleTestTask = profile.has("gradleTestTask")
+                    ? requiredText(profile, "gradleTestTask", catalog)
+                    : ":services:media:integration-tests:test";
             List<String> selectors = requiredStrings(profile, "selectors", catalog);
             List<String> sources = requiredStrings(profile, "sources", catalog);
             List<String> resources = requiredStrings(profile, "resources", catalog);
@@ -103,6 +108,7 @@ public class MediaTestHarness implements AutoCloseable {
             result.add(new TestProfile(
                     id,
                     parseTier(tier, id),
+                    gradleTestTask,
                     selectors,
                     sources,
                     resources,

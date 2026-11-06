@@ -257,8 +257,605 @@
       "assets": "Compose defaults are mutable :latest tags; no service image, model, voice, or licensed media asset is bundled or admitted by this repository.",
       "safety": "The bounded probes run docker compose run without service-port publication and attempt project cleanup. Use only disposable candidate images and record image digest/host/version externally.",
       "evidenceLimit": "These suites assert typed startup refusal for currently non-admitted providers. A passing refusal probe is not a successful STT/TTS operation or provider qualification; absent images are skipped by IntegrationImagesCondition."
+    },
+    {
+      "id": "journey-j03-synthetic-business-recording",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:integration-tests:test",
+      "selectors": [
+        "com.ghatana.media.integration.MediaPdp3BusinessRecordingIT.j03PlanRequiresRightsReviewBeforeCaptureAndGateSkipIsNotApproval",
+        "com.ghatana.media.integration.MediaPdp3BusinessRecordingIT.curatedFixtureCannotBeProducedAsRealCaptureWithoutDurableHostClaim",
+        "com.ghatana.media.integration.MediaPdp3BusinessRecordingIT.explorerStaticCounterpartStaysLabeledNotProductExecuted"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaPdp3BusinessRecordingIT.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "in-memory ledger",
+        "synthetic scene strings"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Generated J03 scene strings and synthetic in-memory records only; no source media or provider asset.",
+      "safety": "Manual rights gate is skipped and capture dispatch remains NOT_ADMITTED; synthetic fixture data only.",
+      "evidenceLimit": "J03 fixture and Explorer disclosure checks only; not a real capture, business recording, external effect, or J01-J30 completion."
+    },
+    {
+      "id": "journey-j12-local-animation-preview",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:animation:test",
+      "selectors": [
+        "com.ghatana.media.production.animation.AnimationJ12LocalPreviewSliceTest.rendersExactVersionedLocalPreviewRepeatablyWithoutClaimingExportOrCommit",
+        "com.ghatana.media.production.animation.AnimationJ12LocalPreviewSliceTest.refusesOutOfProfileKeysAndOversizedPreviewBeforeReturningAnOutput"
+      ],
+      "sources": [
+        "modules/production/animation/src/test/java/com/ghatana/media/production/animation/AnimationJ12LocalPreviewSliceTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "local AnimationRenderer",
+        "generated PNG bytes"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Authored scene and generated preview bytes only.",
+      "safety": "Bounded local preview; no export receipt, asset lookup, rights decision, or commit is claimed.",
+      "evidenceLimit": "J12 local renderer slice only; not hosted rendering, product export/commit, or J01-J30 completion."
+    },
+    {
+      "id": "journey-j12-animation-integration-fixture",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.AnimationJ12ScenarioIntegrationTest"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/AnimationJ12ScenarioIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "local animation scenario adapters"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; project is included only when `-Pghatana.media.compositeScope=FULL` (the standalone default); no external service is required by this class"
+      ],
+      "assets": "Synthetic scenario fixture data only.",
+      "safety": "Local scenario integration fixture only; no external provider is activated.",
+      "evidenceLimit": "This J12 test class only; not real provider qualification or J01-J30 completion."
+    },
+    {
+      "id": "journey-j13-spatial-local-slice",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:spatial:test",
+      "selectors": [
+        "com.ghatana.media.production.spatial.AnimationJ13LocalScenarioSliceTest"
+      ],
+      "sources": [
+        "modules/production/spatial/src/test/java/com/ghatana/media/production/spatial/AnimationJ13LocalScenarioSliceTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "local spatial rig engine",
+        "generated GLB candidate"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic rig and source-version references only.",
+      "safety": "Local source-rights fixture is explicit; output is a bounded candidate and is not a hosted product result.",
+      "evidenceLimit": "J13 spatial local slice only; not hosted/product terminal output, external qualification, or J01-J30 completion."
+    },
+    {
+      "id": "journey-j16-dubbing-capability-slice",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:dubbing:test",
+      "selectors": [
+        "com.ghatana.media.production.dubbing.J16TranslatedDubbedVideoCapabilityScenarioTest"
+      ],
+      "sources": [
+        "modules/production/dubbing/src/test/java/com/ghatana/media/production/dubbing/J16TranslatedDubbedVideoCapabilityScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "injected local translation/synthesis/alignment ports"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic transcript, source, voice, and fixture rights data only.",
+      "safety": "No real voice, translation, or synthesis provider dispatch; missing capability remains UNAVAILABLE.",
+      "evidenceLimit": "J16 local capability behavior only; not real dubbing, rights qualification, or J01-J30 completion."
+    },
+    {
+      "id": "journey-j17-music-effects-local-dsp",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:audio-mixing:test",
+      "selectors": [
+        "com.ghatana.media.production.audio.J17MusicEffectsLocalScenarioTest"
+      ],
+      "sources": [
+        "modules/production/audio-mixing/src/test/java/com/ghatana/media/production/audio/J17MusicEffectsLocalScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "in-memory PCM stem mixer",
+        "generated PCM samples"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Generated PCM samples only; no licensed music or Foley is bundled.",
+      "safety": "Transient in-memory mix only; rights denial blocks output and no dispatch/production master is claimed.",
+      "evidenceLimit": "J17 local DSP and rights-denial slice only; not actor authorization, production mastering, or J01-J30 completion."
+    },
+    {
+      "id": "journey-outcome-j01",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.typedNotAdmittedStoreDoesNotClaimCreationOrProduceAProject",
+        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.exactCreateReplayReturnsOriginalReceiptAndDoesNotCreateAnotherProject",
+        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.invalidCreateAndSameTenantWrongPrincipalDoNotExposeOrMutateProject",
+        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.wrongTenantDuplicateCreateAndStaleRevisionHaveZeroAdditionalEffectInLocalFixture"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/FirstUseProjectBoundaryIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Uses synthetic or local fixture inputs; no external provider effect is implied.",
+      "evidenceLimit": "J-01 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j02",
+      "tier": "ISOLATED_INTEGRATION",
+      "gradleTestTask": ":services:media:integration-tests:test",
+      "selectors": [
+        "com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT.authenticatedUploadResumesAcknowledgedPrefixAfterLauncherProcessRestart"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "Testcontainers PostgreSQL",
+        "Testcontainers LocalStack",
+        "launcher subprocesses"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers"
+      ],
+      "assets": "Synthetic WAV and test-owned provider dispatch marker only.",
+      "safety": "Synthetic identities and isolated containers; no production credentials or customer data.",
+      "evidenceLimit": "J-02 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j05",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.vision.grpc.VisionRoiAdmissionIntegrationTest.roiRequestsFailClosedBeforeProviderEffects"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/vision/grpc/VisionRoiAdmissionIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Uses synthetic or local fixture inputs; no external provider effect is implied.",
+      "evidenceLimit": "J-05 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j06",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.MultimodalGroundedOutcomeIntegrationTest.unavailableTrustedRightsCannotReturnACompletedGroundedCrossModalParent"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MultimodalGroundedOutcomeIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Uses synthetic or local fixture inputs; no external provider effect is implied.",
+      "evidenceLimit": "J-06 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j07",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.AudioRestorationSourceBoundaryIntegrationTest.sourceOnlyComparisonCannotClaimImprovementWithoutReferenceAndPreservesUndo",
+        "com.ghatana.audio.video.integration.AudioRestorationSourceBoundaryIntegrationTest.missingRestorationAdmissionCannotDispatchOrCreateARepairedRevision"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioRestorationSourceBoundaryIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-07 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j08",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.VideoEnhancementAdmissionIntegrationTest.missingDecoderAndDeniedRightsNeverProduceCandidateOrChangeSourceBinding"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/VideoEnhancementAdmissionIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-08 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j09",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.BriefToReviewedMediaScenarioTest.exactBriefAndStoryboardCanBePreparedButMissingRightsStoreAndReviewerAuthorityFailClosed",
+        "com.ghatana.audio.video.integration.BriefToReviewedMediaScenarioTest.deniedSourceRightsPreventEvenLocalDraftPreparation"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/BriefToReviewedMediaScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-09 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j10",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.ReferenceContinuityScenarioTest.rightsDenialBlocksAuthoredCandidateBeforeAnyGenerationPortCanRun",
+        "com.ghatana.audio.video.integration.ReferenceContinuityScenarioTest.continuityConflictPreventsCandidateAndModelDispatch",
+        "com.ghatana.audio.video.integration.ReferenceContinuityScenarioTest.authorizedSyntheticInputsPrepareExactProvenanceButMissingProviderIsTypedUnavailable"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/ReferenceContinuityScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-10 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j11",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.ReversibleTrackedRegionRecoveryIntegrationTest.staleRevisionAndRevokedOrUnknownRightsHaveZeroEffectThenUndoRestoresExactState"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/ReversibleTrackedRegionRecoveryIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-11 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j14",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.ScientificSimulationCurrentnessIntegrationTest.unknownExactModelCurrentnessCannotProduceValidScientificPass"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/ScientificSimulationCurrentnessIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-14 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j15",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.ValidatedSimulationPassIntegrationTest.validatesConstrainedPassAndRejectsProtectedSemanticChange",
+        "com.ghatana.audio.video.integration.ValidatedSimulationPassIntegrationTest.abstainsWhenAProtectedInputReferenceIsNotKnownCurrent"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/ValidatedSimulationPassIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-15 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j18",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.MultitrackFinishedMasterScenarioTest.freezesMultitrackFixtureAndKeepsMissingEncoderNotAdmitted"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MultitrackFinishedMasterScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-18 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j19",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:rendering:test",
+      "selectors": [
+        "com.ghatana.media.production.rendering.QualityComparisonAndOptimizationTest.j19LocalScenarioReportsBoundedReversibleComparisonAndFailsClosedOnUnknownAuthority"
+      ],
+      "sources": [
+        "modules/production/rendering/src/test/java/com/ghatana/media/production/rendering/QualityComparisonAndOptimizationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-19 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j20",
+      "tier": "ISOLATED_INTEGRATION",
+      "gradleTestTask": ":services:media:integration-tests:test",
+      "selectors": [
+        "com.ghatana.media.integration.MediaLauncherSttProcessIT.dispatchedJobBecomesUnknownAfterHardProcessRestartWithoutRedispatch",
+        "com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT.hardProcessLossRetainsSubjectArtifactAndUnknownJobWithoutReplayingEffects"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherSttProcessIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaRuntimePostgresWorkflowMetricsIT.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "Testcontainers PostgreSQL",
+        "Testcontainers LocalStack",
+        "launcher subprocesses"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers"
+      ],
+      "assets": "Synthetic request and fixture provider only.",
+      "safety": "Test-only launcher subprocess and synthetic dispatch; restart recovery does not claim real provider finality.",
+      "evidenceLimit": "J-20 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j21",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.VersionSpecificReviewScenarioTest.decisionForPriorSourceRevisionIsStaleAndCannotBeReusedForNewRevision"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/VersionSpecificReviewScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-21 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j22",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.DeliveryDestinationReceiptScenarioTest.wrongDestinationReceiptRemainsUnknownAndHasNoDeliveredReceiptReference"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/DeliveryDestinationReceiptScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-22 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j25",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:adapters:agent-tools-media:test",
+      "selectors": [
+        "com.ghatana.audio.video.tools.AgentOutcomeAdmissionScenarioTest.unadmittedToolCannotReachConfiguredProviderAcrossReplayAndAuthorityChanges",
+        "com.ghatana.audio.video.tools.AgentOutcomeAdmissionScenarioTest.allFourUnadmittedToolsKeepTypedUnavailableAcrossExactReplayAndTenantConflict"
+      ],
+      "sources": [
+        "adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AgentOutcomeAdmissionScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-25 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j26",
+      "tier": "ISOLATED_INTEGRATION",
+      "gradleTestTask": ":services:media:providers:aws-postgresql:test",
+      "selectors": [
+        "com.ghatana.media.provider.aws.MediaPostgresqlS3ArtifactErasureTreeTest.expiryPurgesExactTenantArtifactTreeAndLegalHoldPreservesDeniedTree",
+        "com.ghatana.media.provider.aws.MediaPostgresqlS3ArtifactErasureTreeTest.lostDeleteAcknowledgementKeepsMetadataForIdempotentErasureRetry"
+      ],
+      "sources": [
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3ArtifactErasureTreeTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "Testcontainers PostgreSQL",
+        "Testcontainers LocalStack S3"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers"
+      ],
+      "assets": "Synthetic metadata and test-created S3 objects only.",
+      "safety": "Container-isolated state; tests do not act on production data.",
+      "evidenceLimit": "J-26 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j27",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:intelligence:multimodal-service:test",
+      "selectors": [
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServerCompositionTest.authenticatedFixtureChildErrorIsReportedUnavailableWithoutRetryOrSuccessOutput"
+      ],
+      "sources": [
+        "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServerCompositionTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "loopback authenticated gRPC server",
+        "fixture child adapter"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; loopback only and no external service is required"
+      ],
+      "assets": "Synthetic request identities and fixture child failure only.",
+      "safety": "Fixture child failure returns UNAVAILABLE without retry, fallback, or successful output.",
+      "evidenceLimit": "J-27 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j28",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:spatial:test",
+      "selectors": [
+        "com.ghatana.media.production.spatial.SpatialInteractiveDeliveryScenarioTest.unknownRightsKeepSpatialDeliveryUnavailableAndPoseIsNotAnEncodedExport"
+      ],
+      "sources": [
+        "modules/production/spatial/src/test/java/com/ghatana/media/production/spatial/SpatialInteractiveDeliveryScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-28 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j29",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.GuardedCrossModalityStreamStateMachineTest.revokedConsentBlocksReconnectAndResumeAcrossModalities",
+        "com.ghatana.audio.video.integration.GuardedCrossModalityStreamStateMachineTest.liveConsentNotAdmittedDoesNotAdvanceAckOrReachProvider"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/GuardedCrossModalityStreamStateMachineTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic identities, request values, and test-owned fixture data only.",
+      "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
+      "evidenceLimit": "J-29 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     }
   ],
+  "journeySelectorCoverage": {
+    "unrepresentedJourneyIds": ["J-04", "J-23", "J-24", "J-30"],
+    "meaning": "No source-validated selector is registered here for these outcomes; this is not a completion or admission status."
+  },
   "unrepresentedSourceAreas": [
     {
       "path": "integration-tests/src/test/java/com/ghatana/media/MediaServicesIntegrationTest.java",
