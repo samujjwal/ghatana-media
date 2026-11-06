@@ -31,6 +31,11 @@ public record LetterboxTransform(
     }
 
     public Box toModelPixels(Box source) {
+        if (source == null || source.x() < 0 || source.y() < 0
+                || source.x() + source.width() > sourceWidth
+                || source.y() + source.height() > sourceHeight) {
+            throw new IllegalArgumentException("Source box must fit within the source raster");
+        }
         double sx = (double) resizedWidth / sourceWidth;
         double sy = (double) resizedHeight / sourceHeight;
         return new Box(source.x() * sx + padLeft, source.y() * sy + padTop,

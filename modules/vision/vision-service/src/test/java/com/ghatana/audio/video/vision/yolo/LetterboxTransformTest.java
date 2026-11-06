@@ -69,6 +69,21 @@ class LetterboxTransformTest {
         assertThat(source.y() + source.height()).isLessThanOrEqualTo(1080);
     }
 
+    @Test void rejectsSourceBoxesOutsideRasterBeforeMappingToModelPixels() {
+        LetterboxTransform transform = LetterboxTransform.fit(320, 240, 640);
+        assertThatThrownBy(() -> transform.toModelPixels(new LetterboxTransform.Box(-1, 0, 2, 2)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("fit within the source raster");
+        assertThatThrownBy(() -> transform.toModelPixels(new LetterboxTransform.Box(319, 0, 2, 2)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("fit within the source raster");
+        assertThatThrownBy(() -> transform.toModelPixels(new LetterboxTransform.Box(0, 239, 1, 2)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("fit within the source raster");
+        assertThat(transform.toModelPixels(new LetterboxTransform.Box(320, 240, 0, 0)).x())
+                .isEqualTo(640.0);
+    }
+
     @Test void randomizedPixelXywhBoxesRoundTripWithinOnePixelAcrossAspectRatios() {
         Random random = new Random(0x56495305L);
         org.assertj.core.data.Offset<Double> tolerance = org.assertj.core.data.Offset.offset(1.0);
