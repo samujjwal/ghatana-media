@@ -872,10 +872,36 @@
       "assets": "Synthetic identities, request values, and test-owned fixture data only.",
       "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
       "evidenceLimit": "J-29 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j23-browser-offline-reconnect-fixture",
+      "tier": "LOCAL_FIXTURE",
+      "commandKind": "PNPM",
+      "commandArguments": ["pnpm", "--filter", "@audio-video/client", "run", "test:browser:offline-store"],
+      "selectors": ["reconnect(true)"],
+      "sources": ["libs/audio-video-client/scripts/test-indexeddb-offline-edit-store-browser.mjs"],
+      "resources": ["PNPM package script", "browser IndexedDB offline edit-store fixture"],
+      "prerequisites": ["PNPM workspace dependencies and browser runtime available to the package script"],
+      "assets": "Synthetic offline edit-store data only.",
+      "safety": "Synthetic host-key and authority/apply results; no real host authority or apply effect is exercised.",
+      "evidenceLimit": "J-23 browser offline/reconnect selector only; synthetic host-key and authority/apply results do not complete the journey or prove a real reconnect/apply effect."
+    },
+    {
+      "id": "journey-outcome-j24-cli-command-boundary-fixture",
+      "tier": "LOCAL_FIXTURE",
+      "commandKind": "PNPM",
+      "commandArguments": ["pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run", "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary"],
+      "selectors": ["keeps the J-24 CLI scenario truthful across the currently supported command boundary"],
+      "sources": ["libs/audio-video-client/src/cli.test.ts"],
+      "resources": ["PNPM workspace package", "Vitest", "CLI invocation fixture"],
+      "prerequisites": ["PNPM workspace dependencies"],
+      "assets": "Synthetic CLI arguments and loopback endpoint only.",
+      "safety": "No canonical batch route is present or invoked; the test asserts current command-boundary behavior only.",
+      "evidenceLimit": "J-24 CLI selector only; no canonical batch route or success claim, and the selector does not complete the journey."
     }
   ],
   "journeySelectorCoverage": {
-    "unrepresentedJourneyIds": ["J-23", "J-24", "J-30"],
+    "unrepresentedJourneyIds": ["J-30"],
     "meaning": "No source-validated selector is registered here for these outcomes; this is not a completion or admission status."
   },
   "unrepresentedSourceAreas": [

@@ -65,7 +65,9 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j14", "journey-outcome-j15", "journey-outcome-j18",
                         "journey-outcome-j19", "journey-outcome-j20", "journey-outcome-j21",
                         "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
-                        "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29");
+                        "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29",
+                        "journey-outcome-j23-browser-offline-reconnect-fixture",
+                        "journey-outcome-j24-cli-command-boundary-fixture");
 
         for (MediaTestHarness.TestProfile profile : profiles) {
             assertThat(profile.sources()).as(profile.id()).isNotEmpty();
@@ -73,17 +75,30 @@ class MediaTestHarnessCatalogTest {
             assertThat(profile.prerequisites()).as(profile.id()).isNotEmpty();
             assertThat(profile.safety()).as(profile.id()).isNotBlank();
             assertThat(profile.evidenceLimit()).as(profile.id()).isNotBlank();
-            assertThat(profile.gradleTestTask()).as(profile.id())
-                    .matches("^:[A-Za-z0-9_-]+(?::[A-Za-z0-9_-]+)+:test$");
-            List<String> expectedGradleArguments = new ArrayList<>(
-                    List.of(profile.gradleTestTask()));
-            for (String selector : profile.selectors()) {
-                expectedGradleArguments.add("--tests");
-                expectedGradleArguments.add(selector);
+            if (profile.commandKind() == MediaTestHarness.TestCommandKind.GRADLE) {
+                assertThat(profile.gradleTestTask()).as(profile.id())
+                        .matches("^:[A-Za-z0-9_-]+(?::[A-Za-z0-9_-]+)+:test$");
+                List<String> expectedGradleArguments = new ArrayList<>(List.of(profile.gradleTestTask()));
+                for (String selector : profile.selectors()) {
+                    expectedGradleArguments.add("--tests");
+                    expectedGradleArguments.add(selector);
+                }
+                assertThat(profile.gradleArguments()).as(profile.id()).containsExactlyElementsOf(expectedGradleArguments);
+                assertThat(profile.commandArguments()).as(profile.id()).isEmpty();
+            } else {
+                assertThat(profile.commandKind()).isEqualTo(MediaTestHarness.TestCommandKind.PNPM);
+                assertThat(profile.gradleTestTask()).isNull();
+                assertThat(profile.commandArguments()).as(profile.id()).startsWith("pnpm", "--filter", "@audio-video/client");
             }
-            assertThat(profile.gradleArguments()).as(profile.id())
-                    .containsExactlyElementsOf(expectedGradleArguments);
             for (String selector : profile.selectors()) {
+                if (profile.commandKind() == MediaTestHarness.TestCommandKind.PNPM) {
+                    assertThat(profile.sources().stream().map(source -> {
+                        try { return Files.readString(root.resolve(source)); }
+                        catch (java.io.IOException exception) { throw new java.io.UncheckedIOException(exception); }
+                    }).anyMatch(sourceText -> sourceText.contains(selector)))
+                            .as("PNPM selector %s for %s must exist in a declared source", selector, profile.id()).isTrue();
+                    continue;
+                }
                 String className = selectorClassName(selector, profile.sources());
                 String selectorSource = profile.sources().stream()
                         .filter(source -> source.endsWith("/src/test/java/"
@@ -119,7 +134,7 @@ class MediaTestHarnessCatalogTest {
         var unrepresentedNode = catalog.path("journeySelectorCoverage").path("unrepresentedJourneyIds");
         assertThat(unrepresentedNode)
                 .extracting(var -> var.asString())
-                .containsExactly("J-23", "J-24", "J-30");
+                .containsExactly("J-30");
         assertThat(catalog.path("journeySelectorCoverage").path("meaning").asString())
                 .contains("not a completion or admission status");
 
@@ -139,6 +154,20 @@ class MediaTestHarnessCatalogTest {
         Set<String> covered = new HashSet<>(represented);
         covered.addAll(unrepresented);
         assertThat(covered).isEqualTo(allJourneys);
+        var profiles = MediaTestHarness.testProfiles(root).stream()
+                .collect(Collectors.toMap(MediaTestHarness.TestProfile::id, profile -> profile));
+        var j23 = profiles.get("journey-outcome-j23-browser-offline-reconnect-fixture");
+        assertThat(j23.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "run", "test:browser:offline-store");
+        assertThat(j23.sources()).contains("libs/audio-video-client/scripts/test-indexeddb-offline-edit-store-browser.mjs");
+        assertThat(Files.readString(root.resolve(j23.sources().getFirst())))
+                .contains("hostHeldKey", "authorizationReads", "applyCount");
+        assertThat(Files.readString(root.resolve("libs/audio-video-client/package.json")))
+                .contains("\"test:browser:offline-store\": \"pnpm build && node scripts/test-indexeddb-offline-edit-store-browser.mjs\"");
+        var j24 = profiles.get("journey-outcome-j24-cli-command-boundary-fixture");
+        assertThat(j24.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run",
+                "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary");
+        assertThat(Files.readString(root.resolve(j24.sources().getFirst())))
+                .contains(j24.selectors().getFirst(), "NOT_ADMITTED");
     }
 
     @Test

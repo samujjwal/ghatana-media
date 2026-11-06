@@ -40,11 +40,15 @@ public class MediaTestHarness implements AutoCloseable {
         EXTERNAL_QUALIFICATION
     }
 
+    public enum TestCommandKind { GRADLE, PNPM }
+
     /** Read-only, consumer-facing inventory of test selection and fixture boundaries. */
     public record TestProfile(
             String id,
             TestTier tier,
+            TestCommandKind commandKind,
             String gradleTestTask,
+            List<String> commandArguments,
             List<String> selectors,
             List<String> sources,
             List<String> resources,
@@ -56,7 +60,9 @@ public class MediaTestHarness implements AutoCloseable {
         public TestProfile {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(tier, "tier");
-            Objects.requireNonNull(gradleTestTask, "gradleTestTask");
+            Objects.requireNonNull(commandKind, "commandKind");
+            commandArguments = List.copyOf(commandArguments);
+            if (commandKind == TestCommandKind.GRADLE) Objects.requireNonNull(gradleTestTask, "gradleTestTask");
             selectors = List.copyOf(selectors);
             sources = List.copyOf(sources);
             resources = List.copyOf(resources);
@@ -68,6 +74,9 @@ public class MediaTestHarness implements AutoCloseable {
 
         /** Gradle selection arguments for this profile, usable from the repo root. */
         public List<String> gradleArguments() {
+            if (commandKind != TestCommandKind.GRADLE) {
+                throw new IllegalStateException("profile is not a Gradle selector: " + id);
+            }
             List<String> arguments = new ArrayList<>(List.of(gradleTestTask));
             for (String selector : selectors) {
                 arguments.add("--tests");
@@ -98,9 +107,17 @@ public class MediaTestHarness implements AutoCloseable {
                 throw new IllegalArgumentException("duplicate test census profile id: " + id);
             }
             String tier = requiredText(profile, "tier", catalog);
-            String gradleTestTask = profile.has("gradleTestTask")
-                    ? requiredText(profile, "gradleTestTask", catalog)
-                    : ":services:media:integration-tests:test";
+            String commandKind = profile.has("commandKind") ? requiredText(profile, "commandKind", catalog) : "GRADLE";
+            TestCommandKind parsedCommandKind;
+            try { parsedCommandKind = TestCommandKind.valueOf(commandKind); }
+            catch (IllegalArgumentException exception) {
+                throw new IllegalArgumentException("unknown test census command kind " + commandKind + " for profile " + id, exception);
+            }
+            String gradleTestTask = parsedCommandKind == TestCommandKind.GRADLE
+                    ? (profile.has("gradleTestTask") ? requiredText(profile, "gradleTestTask", catalog)
+                            : ":services:media:integration-tests:test") : null;
+            List<String> commandArguments = parsedCommandKind == TestCommandKind.PNPM
+                    ? requiredStrings(profile, "commandArguments", catalog) : List.of();
             List<String> selectors = requiredStrings(profile, "selectors", catalog);
             List<String> sources = requiredStrings(profile, "sources", catalog);
             List<String> resources = requiredStrings(profile, "resources", catalog);
@@ -108,7 +125,9 @@ public class MediaTestHarness implements AutoCloseable {
             result.add(new TestProfile(
                     id,
                     parseTier(tier, id),
+                    parsedCommandKind,
                     gradleTestTask,
+                    commandArguments,
                     selectors,
                     sources,
                     resources,
