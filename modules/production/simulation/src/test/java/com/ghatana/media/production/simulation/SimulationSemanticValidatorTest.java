@@ -172,6 +172,21 @@ class SimulationSemanticValidatorTest {
     }
 
     @Test
+    void abstainsWhenOwnerReferenceVerifierFails() {
+        var validation = SimulationSemanticValidator.validate(binding(), result(), input -> {
+            throw new IllegalStateException("reference authority unavailable");
+        });
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).hasSize(binding().inputs().size())
+                .allSatisfy(finding -> assertThat(finding.reason()).isEqualTo(
+                        SimulationSemanticValidator.Reason.REFERENCE_AUTHORITY_UNAVAILABLE));
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo("DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+    }
+
+    @Test
     void abstainsWhenAnyVersionedInputIsStaleOrUnknown() {
         var validation = SimulationSemanticValidator.validate(binding(), result(), input ->
                 input.role() == SimulationSemanticValidator.InputRole.PHYSICAL_MODEL
