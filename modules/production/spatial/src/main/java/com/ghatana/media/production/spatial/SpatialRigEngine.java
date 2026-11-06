@@ -272,12 +272,19 @@ public final class SpatialRigEngine {
             rigId = required(rigId, "rigId");
             sourceProjectRevisionRef = required(sourceProjectRevisionRef, "sourceProjectRevisionRef");
             frameRef = required(frameRef, "frameRef"); frameVersionRef = required(frameVersionRef, "frameVersionRef");
-            sourceVersions = List.copyOf(sourceVersions);
+            sourceVersions = copyBounded(Objects.requireNonNull(sourceVersions, "sourceVersions"),
+                    MAX_SOURCE_VERSIONS, "GLB source-version count exceeds ceiling", "sourceVersions[]");
+            if (sourceVersions.isEmpty()) throw new IllegalArgumentException("GLB source-version list must not be empty");
+            if (new HashSet<>(sourceVersions).size() != sourceVersions.size()) {
+                throw new IllegalArgumentException("GLB source versions must be unique");
+            }
             if (!"model/gltf-binary".equals(mimeType) || !"FLOAT32_SECONDS".equals(timeEncoding)
                     || !"FLOAT32_APPROXIMATION".equals(lossDisposition)) {
                 throw new IllegalArgumentException("GLB artifact metadata does not match the bounded export profile");
             }
-            Objects.requireNonNull(bytes, "bytes"); bytes = bytes.clone();
+            Objects.requireNonNull(bytes, "bytes");
+            if (bytes.length > MAX_GLB_BYTES) throw new IllegalArgumentException("GLB artifact exceeds byte ceiling");
+            bytes = bytes.clone();
             sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches("^[a-f0-9]{64}$") || !SpatialRigEngine.sha256(bytes).equals(sha256)) {
                 throw new IllegalArgumentException("GLB artifact SHA-256 does not match its bytes");

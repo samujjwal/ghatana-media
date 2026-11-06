@@ -304,6 +304,33 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactConstructorEnforcesOutputAndSourceVersionBounds() {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-bounds", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)), Map.of(),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifact(artifact,
+                artifact.sourceVersions(), new byte[SpatialRigEngine.MAX_GLB_BYTES + 1]));
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifact(artifact, List.of(), artifact.bytes()));
+
+        List<SpatialRigEngine.SourceVersionRef> tooManySources = java.util.stream.IntStream
+                .range(0, SpatialRigEngine.MAX_SOURCE_VERSIONS + 1)
+                .mapToObj(index -> new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-" + index, "version-1"))
+                .toList();
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifact(artifact, tooManySources, artifact.bytes()));
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifact(artifact, List.of(source, source), artifact.bytes()));
+    }
+
+    private static SpatialRigEngine.GlbArtifact copyArtifact(SpatialRigEngine.GlbArtifact source,
+            List<SpatialRigEngine.SourceVersionRef> sourceVersions, byte[] bytes) {
+        return new SpatialRigEngine.GlbArtifact(source.rigId(), source.sourceProjectRevisionRef(),
+                source.frameRef(), source.frameVersionRef(), sourceVersions, source.mimeType(),
+                source.timeEncoding(), source.lossDisposition(), source.sha256(), bytes);
+    }
+
+    @Test
     void spatialExportFailsClosedForMissingRightsRevisionAndUnrepresentableTime() {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var bone = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
