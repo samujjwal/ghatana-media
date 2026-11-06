@@ -129,6 +129,16 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void rejectsOverlongSourceIdentityBeforeItCanReachSpatialOutput() {
+        String oversizedArtifactId = "a".repeat(385);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.SourceVersionRef(
+                "tenant-a", oversizedArtifactId, "version-v1"))
+                .withMessageContaining("artifactId")
+                .withMessageContaining("bounded");
+    }
+
+    @Test
     void rigCapsConsumeActualCollectionEntriesInsteadOfTrustingReportedSize() {
         var frame = glbFrame();
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
