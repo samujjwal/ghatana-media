@@ -39,6 +39,7 @@ public final class ProjectTimelineEngine {
     public Project project(Actor actor, String projectId) { return store.project(actor, projectId); }
 
     public Revision edit(Actor actor, String projectId, String expectedHeadRevisionId, List<Edit> edits) {
+        requireExpectedHead(expectedHeadRevisionId);
         Project project = store.project(actor, projectId);
         Revision head = store.revision(actor, projectId, project.headRevisionId());
         if (!head.revisionId().equals(expectedHeadRevisionId)) {
@@ -50,6 +51,7 @@ public final class ProjectTimelineEngine {
 
     /** Restore copies an exact immutable historical graph into a new successor revision (undo/redo primitive). */
     public Revision restore(Actor actor, String projectId, String expectedHeadRevisionId, String targetRevisionId) {
+        requireExpectedHead(expectedHeadRevisionId);
         Revision target = store.revision(actor, projectId, targetRevisionId);
         return store.commit(actor, projectId, expectedHeadRevisionId, nextId(), target.graph());
     }
@@ -219,6 +221,12 @@ public final class ProjectTimelineEngine {
 
     private static Graph graph(Graph g, List<Scene> scenes, List<Track> tracks, List<Clip> clips) {
         return new Graph(g.timelineId(), scenes, tracks, clips);
+    }
+
+    private static void requireExpectedHead(String expectedHeadRevisionId) {
+        if (expectedHeadRevisionId == null || expectedHeadRevisionId.isBlank()) {
+            throw new IllegalArgumentException("expectedHeadRevisionId must not be blank");
+        }
     }
 
     private String nextId() {

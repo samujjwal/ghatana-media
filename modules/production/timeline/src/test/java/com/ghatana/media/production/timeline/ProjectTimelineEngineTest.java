@@ -179,6 +179,27 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void malformedExpectedHeadIsRejectedBeforeEditOrRestoreAndCannotMoveProjectHead() {
+        ProjectTimelineEngine engine = engine();
+        Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-bad-head");
+        Revision edited = engine.edit(OWNER, created.project().projectId(), created.initialRevision().revisionId(),
+                List.of(new ProjectTimelineEngine.AddScene(new Scene("scene", 0))));
+
+        for (String invalidHead : java.util.Arrays.asList(null, "", "  ")) {
+            assertThatThrownBy(() -> engine.edit(OWNER, created.project().projectId(), invalidHead,
+                    List.of(new ProjectTimelineEngine.AddScene(new Scene("other-scene", 1)))))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("expectedHeadRevisionId");
+            assertThatThrownBy(() -> engine.restore(OWNER, created.project().projectId(), invalidHead,
+                    created.initialRevision().revisionId()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("expectedHeadRevisionId");
+        }
+
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId()).isEqualTo(edited.revisionId());
+    }
+
+    @Test
     void concurrentCommandsWithSameHeadAllowExactlyOneCommit() throws Exception {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-4");
