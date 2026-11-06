@@ -16,6 +16,7 @@
     "test": "pnpm build && vitest run",
     "test:package": "pnpm build && node scripts/test-isolated-package-consumer.mjs",
     "test:package:consumer": "node scripts/test-isolated-package-consumer.mjs",
+    "test:browser:offline-store": "pnpm build && node scripts/test-indexeddb-offline-edit-store-browser.mjs",
     "test:watch": "vitest",
     "check": "pnpm typecheck && pnpm test && pnpm build"
   },
