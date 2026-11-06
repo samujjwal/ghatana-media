@@ -948,9 +948,14 @@ export async function publishFinalRender(
     }
     completionStarted = true;
     const artifact = await artifactClient.completeUploadSession(session, signal);
-    if (artifact.sha256 !== sha256 || artifact.sizeBytes !== bytes.byteLength
+    if (artifact.tenantId !== session.tenantId || artifact.principalId !== session.principalId
+      || artifact.sha256 !== sha256 || artifact.sizeBytes !== bytes.byteLength
       || artifact.fileName !== safeRequest.fileName || artifact.contentType !== rendered.contentType) {
-      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not match verified render bytes", uploadId };
+      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not match verified render bytes or upload scope", uploadId };
+    }
+    if (artifact.classification !== session.classification
+      || !sameRenderJson(artifact.metadata, session.metadata)) {
+      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not bind to the completed upload metadata", uploadId };
     }
     return { outcome: "PUBLISHED", artifact, sha256 };
   } catch (error) {

@@ -778,10 +778,12 @@ describe("publishFinalRender", () => {
         bytesReceived: session.bytesReceived + blob.size,
         nextChunkIndex: session.nextChunkIndex + 1,
       })),
-    completeUploadSession: vi.fn(async () => ({
-      tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1", fileName: "demo.mp4",
-      contentType: "video/mp4", sizeBytes: 3, sha256: submittedSha256, objectReference: "objects/demo",
-      classification: "INTERNAL", createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-12-05T00:00:00Z", metadata: {},
+    completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => ({
+      tenantId: session.tenantId, principalId: session.principalId, artifactId: "artifact-1", fileName: session.fileName,
+      contentType: session.contentType, sizeBytes: session.expectedSizeBytes,
+      sha256: submittedSha256, objectReference: "objects/demo",
+      classification: session.classification, createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-12-05T00:00:00Z",
+      metadata: session.metadata,
     })),
     ...overrides,
   }) as unknown as MediaOperationClient;
@@ -998,10 +1000,12 @@ describe("publishFinalRender", () => {
           metadata: reverseJsonKeys(input.metadata),
         });
       }),
-      completeUploadSession: vi.fn(async () => ({
-        tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1", fileName: "demo.mp4",
-        contentType: "video/mp4", sizeBytes: 3, sha256: submittedSha256, objectReference: "objects/demo",
-        classification: "INTERNAL", createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-12-05T00:00:00Z", metadata: {},
+      completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => ({
+        tenantId: session.tenantId, principalId: session.principalId, artifactId: "artifact-1",
+        fileName: session.fileName, contentType: session.contentType,
+        sizeBytes: session.expectedSizeBytes, sha256: submittedSha256, objectReference: "objects/demo",
+        classification: session.classification, createdAt: "2026-11-05T00:00:00Z",
+        expiresAt: "2026-12-05T00:00:00Z", metadata: reverseJsonKeys(session.metadata),
       })),
     });
 
@@ -1044,6 +1048,23 @@ describe("publishFinalRender", () => {
     });
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
       .not.toHaveBeenCalled();
+  });
+
+  it("does not publish when the completed artifact receipt changes upload scope", async () => {
+    const client = fakeClient({
+      completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => ({
+        tenantId: "tenant-other", principalId: session.principalId, artifactId: "artifact-1",
+        fileName: session.fileName, contentType: session.contentType, sizeBytes: session.expectedSizeBytes,
+        sha256: session.expectedSha256, objectReference: "objects/demo", classification: session.classification,
+        createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-12-05T00:00:00Z", metadata: session.metadata,
+      })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("upload scope"),
+    });
   });
 
   it("does not dispatch or complete when a resumed session chunk index contradicts its byte offset", async () => {
