@@ -538,55 +538,86 @@ public final class PiperOnnxEngine implements TtsEngine {
         float lengthScale = (float) (1.0 / bounded(options.speed(), 0.5, 2.0));
         float[] scales = {noiseScale, lengthScale, noiseW};
 
-        OnnxTensor inputTensor = OnnxTensor.createTensor(
-            environment,
-            new long[][]{phoneIds}               // shape [1, seqLen]
-        );
-        OnnxTensor lengthTensor = OnnxTensor.createTensor(
-            environment,
-            new long[]{seqLen}                   // shape [1]
-        );
-        OnnxTensor scalesTensor = OnnxTensor.createTensor(
-            environment,
-            FloatBuffer.wrap(scales),
-            new long[]{3}
-        );
+        OnnxTensor inputTensor = null;
+        OnnxTensor lengthTensor = null;
+        OnnxTensor scalesTensor = null;
+        OnnxTensor speakerTensor = null;
+        Throwable inferenceFailure = null;
+        try {
+            inputTensor = OnnxTensor.createTensor(
+                environment,
+                new long[][]{phoneIds}               // shape [1, seqLen]
+            );
+            lengthTensor = OnnxTensor.createTensor(
+                environment,
+                new long[]{seqLen}                   // shape [1]
+            );
+            scalesTensor = OnnxTensor.createTensor(
+                environment,
+                FloatBuffer.wrap(scales),
+                new long[]{3}
+            );
 
-        OnnxTensor speakerTensor = numSpeakers > 1
-                ? OnnxTensor.createTensor(environment, new long[]{speakerId(options)}) : null;
-        Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
-        inputs.put("input",          inputTensor);
-        inputs.put("input_lengths",  lengthTensor);
-        inputs.put("scales",         scalesTensor);
-        if (speakerTensor != null) inputs.put("sid", speakerTensor);
+            speakerTensor = numSpeakers > 1
+                    ? OnnxTensor.createTensor(environment, new long[]{speakerId(options)}) : null;
+            Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
+            inputs.put("input", inputTensor);
+            inputs.put("input_lengths", lengthTensor);
+            inputs.put("scales", scalesTensor);
+            if (speakerTensor != null) inputs.put("sid", speakerTensor);
 
-        try (OrtSession.Result results = session.run(inputs)) {
-            OnnxValue value = results.get("output").orElseThrow(() ->
-                    new InferenceError("Piper model did not return its declared output tensor", null, false));
-            if (!(value instanceof OnnxTensor outTensor)
-                    || outTensor.getInfo().type != OnnxJavaType.FLOAT) {
-                throw new InferenceError("Piper output must be a float32 tensor", null, false);
+            try (OrtSession.Result results = session.run(inputs)) {
+                OnnxValue value = results.get("output").orElseThrow(() ->
+                        new InferenceError("Piper model did not return its declared output tensor", null, false));
+                if (!(value instanceof OnnxTensor outTensor)
+                        || outTensor.getInfo().type != OnnxJavaType.FLOAT) {
+                    throw new InferenceError("Piper output must be a float32 tensor", null, false);
+                }
+                long[] shape = outTensor.getInfo().getShape();
+                long samples;
+                if (shape.length == 3 && shape[0] == 1 && shape[1] == 1) {
+                    samples = shape[2];
+                } else if (shape.length == 4 && shape[0] == 1 && shape[1] == 1 && shape[2] == 1) {
+                    samples = shape[3];
+                } else {
+                    throw new InferenceError(
+                            "Piper output must have shape [1,1,samples] or [1,1,1,samples]", null, false);
+                }
+                if (samples < 1 || samples > config.maxMemoryBytes() / Float.BYTES) {
+                    throw new InferenceError("Piper output sample count must be positive and bounded", null, false);
+                }
+                return flattenAudioOutput(outTensor.getValue());
             }
-            long[] shape = outTensor.getInfo().getShape();
-            long samples;
-            if (shape.length == 3 && shape[0] == 1 && shape[1] == 1) {
-                samples = shape[2];
-            } else if (shape.length == 4 && shape[0] == 1 && shape[1] == 1 && shape[2] == 1) {
-                samples = shape[3];
-            } else {
-                throw new InferenceError(
-                        "Piper output must have shape [1,1,samples] or [1,1,1,samples]", null, false);
-            }
-            if (samples < 1 || samples > config.maxMemoryBytes() / Float.BYTES) {
-                throw new InferenceError("Piper output sample count must be positive and bounded", null, false);
-            }
-            return flattenAudioOutput(outTensor.getValue());
+        } catch (OrtException | RuntimeException | Error failure) {
+            inferenceFailure = failure;
+            throw failure;
         } finally {
-            inputTensor.close();
-            lengthTensor.close();
-            scalesTensor.close();
-            if (speakerTensor != null) speakerTensor.close();
+            closeInferenceTensors(inferenceFailure, inputTensor, lengthTensor, scalesTensor, speakerTensor);
         }
+    }
+
+    /** Attempts every native input cleanup while preserving inference and first-close failures. */
+    static void closeInferenceTensors(Throwable primaryFailure, OnnxTensor... tensors) {
+        Throwable cleanupFailure = null;
+        for (OnnxTensor tensor : tensors) {
+            if (tensor == null) continue;
+            try {
+                tensor.close();
+            } catch (RuntimeException | Error failure) {
+                if (cleanupFailure == null) {
+                    cleanupFailure = failure;
+                } else if (failure != cleanupFailure) {
+                    cleanupFailure.addSuppressed(failure);
+                }
+            }
+        }
+        if (cleanupFailure == null) return;
+        if (primaryFailure != null) {
+            if (primaryFailure != cleanupFailure) primaryFailure.addSuppressed(cleanupFailure);
+            return;
+        }
+        if (cleanupFailure instanceof RuntimeException failure) throw failure;
+        if (cleanupFailure instanceof Error failure) throw failure;
     }
 
     /** Selects the declared speaker for a multi-speaker voice; index 0 when unspecified. */
