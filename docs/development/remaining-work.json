@@ -1832,7 +1832,8 @@
         "media.dev.voice-workflow-ui"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: TtsVoiceConsentNegativeTest passed 8/8, including the new locale-mismatch case: an admitted en-US fixture profile cannot serve a ne-NP request; RPC returns UNAVAILABLE, with no provider or output call. This is a synthetic pre-effect gate test. Still OPEN: licensed voice/model rights, qualified provider output, decoded audio, and durable job/restart evidence."
     },
     {
       "id": "media.dev.outcome-vision-detection-and-tracking",
@@ -1953,7 +1954,8 @@
         "media.dev.production-studio-host"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: BriefToReviewedMediaScenarioTest passed 2/2: source-version-bound local storyboard scenes are ordered deterministically; denied source rights prevent draft preparation; missing durable plan store/reviewer authority return typed NOT_ADMITTED. Controlled receipt and authored media are fixture-only. Still OPEN: rendered terminal output, persistent plan/readback, and authentic reviewer authority/approval."
     },
     {
       "id": "media.dev.outcome-reference-continuity",
@@ -1976,7 +1978,8 @@
         "media.dev.reference-guided-generation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: ReferenceContinuityScenarioTest passed 3/3: denied reference rights and conflicting continuity facts prevent candidate/model dispatch; synthetic eligible source versions preserve exact provenance, while a missing provider returns typed NO_ADMITTED_PROVIDER without a call. Still OPEN: real source authority, admitted conditioned generation, continuity metrics, durable effect and restart evidence."
     },
     {
       "id": "media.dev.outcome-reversible-tracked-edit",
@@ -2427,7 +2430,8 @@
         "media.dev.stream-session-authority"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: GuardedCrossModalityStreamStateMachineTest passed 1/1: after audio/video detach, current-consent denial blocks reconnect/resume, preserves only the documented video in-memory gap state, rejects stale worker leases, and produces no provider effect. This is fixture-only in-memory evidence. Still OPEN: canonical durable lease/cursor/PTS binding, process restart, authenticated transport and real host session recovery."
     },
     {
       "id": "media.dev.outcome-eligible-provider-catalog",

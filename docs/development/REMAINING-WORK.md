@@ -633,6 +633,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-04 — Lawful voice -> real decoded audio; denied locale/profile/revoke.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `TtsVoiceConsentNegativeTest` passed 8/8, including the new locale-mismatch case: an admitted `en-US` fixture profile cannot serve a `ne-NP` request; RPC returns `UNAVAILABLE`, with no provider or output call. This is a synthetic pre-effect gate test. Still OPEN: licensed voice/model rights, qualified provider output, decoded audio, and durable job/restart evidence.
 - **Predecessors:** `media.dev.tts-streaming-and-finality`, `media.dev.voice-workflow-ui`
 
 **`media.dev.outcome-vision-detection-and-tracking`** · OPEN
@@ -672,6 +673,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-09 — Versioned brief/storyboard -> render -> review output.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `BriefToReviewedMediaScenarioTest` passed 2/2: source-version-bound local storyboard scenes are ordered deterministically; denied source rights prevent draft preparation; missing durable plan store/reviewer authority return typed `NOT_ADMITTED`. Controlled receipt and authored media are fixture-only. Still OPEN: rendered terminal output, persistent plan/readback, and authentic reviewer authority/approval.
 - **Predecessors:** `media.dev.storyboard-and-shot-plan`, `media.dev.production-studio-host`
 
 **`media.dev.outcome-reference-continuity`** · OPEN
@@ -679,6 +681,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-10 — Rights-checked conditioned output, continuity metrics and typed unavailability.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `ReferenceContinuityScenarioTest` passed 3/3: denied reference rights and conflicting continuity facts prevent candidate/model dispatch; synthetic eligible source versions preserve exact provenance, while a missing provider returns typed `NO_ADMITTED_PROVIDER` without a call. Still OPEN: real source authority, admitted conditioned generation, continuity metrics, durable effect and restart evidence.
 - **Predecessors:** `media.dev.reference-guided-generation`
 
 **`media.dev.outcome-reversible-tracked-edit`** · OPEN
@@ -820,6 +823,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-29 — Real media loss/reconnect/consent revoke and bounded stream recovery.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `GuardedCrossModalityStreamStateMachineTest` passed 1/1: after audio/video detach, current-consent denial blocks reconnect/resume, preserves only the documented video in-memory gap state, rejects stale worker leases, and produces no provider effect. This is fixture-only in-memory evidence. Still OPEN: canonical durable lease/cursor/PTS binding, process restart, authenticated transport and real host session recovery.
 - **Predecessors:** `media.dev.stream-session-authority`
 
 **`media.dev.outcome-eligible-provider-catalog`** · OPEN
