@@ -130,6 +130,13 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
                     request.hasAudio(), audio,
                     request.hasImage(), image,
                     request.hasVideo(), video);
+            if (image != null && video != null && !image.isError() && !video.isError()
+                    && visual != null && visual.isError()) {
+                // Both child calls returned, but the requested aggregate is unavailable (for
+                // example, their source-less scene claims conflict). Do not report COMPLETE
+                // when the only exposed visual result is the aggregate failure.
+                outcome = MultimodalResult.Outcome.PARTIAL;
+            }
 
             String combined = fuse(audio, visual, request.getText());
             long elapsed = elapsedMillis(startedNanos);

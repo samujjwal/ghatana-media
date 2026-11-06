@@ -656,6 +656,7 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             assertEquals("", result.getVisualResult().getSceneDescription());
             assertTrue(result.getVisualResult().getDetections().isEmpty());
             assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+            assertEquals(MultimodalResult.Outcome.PARTIAL, result.getOutcome());
         }
     }
 
