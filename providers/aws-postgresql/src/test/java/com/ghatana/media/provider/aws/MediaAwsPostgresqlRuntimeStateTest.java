@@ -330,7 +330,22 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             Map.of(), "", 1)))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("replay safety cannot be established");
-                    var lease = jobs.claim(accepted, "worker-a", Instant.now().plusSeconds(60));
+                    Instant requestedLeaseExpiry = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+                            .plusSeconds(60).plusNanos(987_654_321);
+                    var lease = jobs.claim(accepted, "worker-a", requestedLeaseExpiry);
+                    Instant persistedLeaseExpiry = Instant.ofEpochMilli(requestedLeaseExpiry.toEpochMilli());
+                    assertThat(lease.expiresAt()).isEqualTo(persistedLeaseExpiry)
+                            .isNotEqualTo(requestedLeaseExpiry);
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var selectLeaseExpiry = connection.prepareStatement(
+                                 "SELECT lease_expires_at FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+                        selectLeaseExpiry.setString(1, accepted.tenantId());
+                        selectLeaseExpiry.setString(2, accepted.jobId());
+                        try (var result = selectLeaseExpiry.executeQuery()) {
+                            assertThat(result.next()).isTrue();
+                            assertThat(Instant.ofEpochMilli(result.getLong(1))).isEqualTo(lease.expiresAt());
+                        }
+                    }
                     assertThat(jobs.leaseValid(lease)).isTrue();
                     assertThatThrownBy(() -> jobs.claim(
                             accepted, "worker-b", Instant.now().plusSeconds(60)))

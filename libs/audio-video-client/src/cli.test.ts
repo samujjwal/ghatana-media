@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { createServer, type Server } from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdtemp, mkdir, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,9 +29,9 @@ async function withServer(
   await run(`http://127.0.0.1:${address.port}`);
 }
 
-function invokeEntry(entry: string, args: string[], tokenValue = token, node = true, envOverrides: NodeJS.ProcessEnv = {}): Promise<{ status: number | null; stdout: string; stderr: string }> {
+function invokeEntry(entry: string, args: string[], tokenValue = token, node = true, envOverrides: NodeJS.ProcessEnv = {}, preload?: string): Promise<{ status: number | null; stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
-    const child = spawn(node ? process.execPath : entry, node ? [entry, ...args] : args, {
+    const child = spawn(node ? process.execPath : entry, node ? [...(preload ? ['--import', preload] : []), entry, ...args] : args, {
       env: { ...process.env, ...envOverrides, GHATANA_MEDIA_BEARER_TOKEN: tokenValue },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -48,7 +48,8 @@ function invokeEntry(entry: string, args: string[], tokenValue = token, node = t
   });
 }
 
-const invoke = (args: string[], tokenValue = token, envOverrides: NodeJS.ProcessEnv = {}) => invokeEntry(bin, args, tokenValue, true, envOverrides);
+const invoke = (args: string[], tokenValue = token, envOverrides: NodeJS.ProcessEnv = {}, preload?: string) => invokeEntry(bin, args, tokenValue, true, envOverrides, preload);
+const fetchFixture = fileURLToPath(new URL('./__fixtures__/cli-fetch.mjs', import.meta.url));
 
 function command(endpoint: string, extra: string[] = []) {
   return ['artifact', 'inspect', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--artifact', 'artifact-a', ...extra];
@@ -373,6 +374,88 @@ describe('ghatanamedia-api canonical job commands', () => {
     createdAt: timestamp, startedAt: null, completedAt: null, result: {}, failureCode: null,
     version: 2, expectedArtifactVersion: `sha256:${'e'.repeat(64)}`, requestFingerprint: `sha256:${'f'.repeat(64)}`,
   };
+
+  it('exercises the packaged CLI over a socket-free child-process transport', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-fetch-'));
+    const statePath = join(directory, 'idempotency-state.json');
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const env = (mode: string): NodeJS.ProcessEnv => ({
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: mode,
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
+      GHATANA_MEDIA_CLI_TEST_STATE: statePath,
+      GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+    });
+    const submitArgs = jobCommand('https://media.example.test', 'submit', [
+      '--request-id', 'request-source-free', '--correlation-id', 'corr-source-free', '--artifact', 'artifact-a',
+      '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-source-free', '--parameters', '{}',
+    ]);
+
+    try {
+      const accepted = await invoke(submitArgs, token, env('success'), fetchFixture);
+      expect(accepted.status).toBe(0);
+      expect(accepted.stderr).toBe('');
+      expect(JSON.parse(accepted.stdout)).toEqual({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit', job,
+      });
+
+      const forbidden = await invoke(
+        jobCommand('https://media.example.test', 'status', ['--job', 'job-1']), token, env('forbidden'), fetchFixture,
+      );
+      expect(forbidden.status).toBe(1);
+      expect(forbidden.stdout).toBe('');
+      expect(JSON.parse(forbidden.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status', code: 'MEDIA_REQUEST_FAILED', statusCode: 403,
+      });
+
+      const unknown = await invoke(submitArgs, token, env('unknown'), fetchFixture);
+      expect(unknown.status).toBe(3);
+      expect(unknown.stdout).toBe('');
+      expect(JSON.parse(unknown.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'OUTCOME_UNKNOWN',
+        jobId: 'job-1', requestId: 'request-1',
+      });
+
+      const timeout = await invoke(submitArgs, token, {
+        ...env('timeout'), GHATANA_MEDIA_REQUEST_TIMEOUT_MS: '50',
+      }, fetchFixture);
+      expect(timeout.status).toBe(3);
+      expect(timeout.stdout).toBe('');
+      expect(JSON.parse(timeout.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'OUTCOME_UNKNOWN',
+        requestKey: 'key-source-free',
+      });
+
+      const malformed = await invoke(
+        jobCommand('https://media.example.test', 'status', ['--job', 'job-1']), token, env('malformed'), fetchFixture,
+      );
+      expect(malformed.status).toBe(1);
+      expect(malformed.stdout).toBe('');
+      expect(JSON.parse(malformed.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status', code: 'INVALID_MEDIA_RESPONSE',
+      });
+
+      const first = await invoke(submitArgs, token, env('restart'), fetchFixture);
+      const secondProcess = await invoke(submitArgs, token, env('restart'), fetchFixture);
+      expect(first.status).toBe(0);
+      expect(secondProcess.status).toBe(0);
+      expect(JSON.parse(first.stdout).job).toEqual(JSON.parse(secondProcess.stdout).job);
+      const state = JSON.parse(await readFile(statePath, 'utf8')) as { effectCount: number };
+      expect(state.effectCount).toBe(1);
+
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line) as {
+        path: string; method: string; tenant: string | null; principal: string | null; authenticated: boolean;
+      });
+      expect(requests.length).toBe(7);
+      expect(requests.every(request => request.tenant === 'tenant-a'
+        && request.principal === 'principal-a' && request.authenticated)).toBe(true);
+      expect(requests.every(request => request.path.startsWith('/api/v1/jobs'))).toBe(true);
+      expect(accepted.stdout + accepted.stderr + forbidden.stdout + forbidden.stderr + unknown.stdout + unknown.stderr
+        + timeout.stdout + timeout.stderr + malformed.stdout + malformed.stderr + first.stdout + first.stderr
+        + secondProcess.stdout + secondProcess.stderr).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
 
   it('submits with canonical request identity and preserves ACCEPTED without claiming completion', async () => {
     let requests = 0;

@@ -335,7 +335,13 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         ensureOpen();
         java.util.Objects.requireNonNull(expected, "expected");
         if (ownerId == null || ownerId.isBlank()) throw new IllegalArgumentException("ownerId is required");
-        if (expiresAt == null || !expiresAt.isAfter(Instant.now())) {
+        if (expiresAt == null) {
+            throw new IllegalArgumentException("lease expiry must be in the future");
+        }
+        // The durable fence stores epoch milliseconds. Return the exact same instant to
+        // callers so the lease object cannot claim a nanosecond tail beyond persisted expiry.
+        Instant persistedExpiry = Instant.ofEpochMilli(expiresAt.toEpochMilli());
+        if (!persistedExpiry.isAfter(Instant.now())) {
             throw new IllegalArgumentException("lease expiry must be in the future");
         }
         try (Connection connection = state.connection()) {
@@ -366,7 +372,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                 + "WHERE tenant_id=? AND job_id=? AND version=?")) {
                     update.setString(1, ownerId);
                     update.setLong(2, token);
-                    update.setLong(3, expiresAt.toEpochMilli());
+                    update.setLong(3, persistedExpiry.toEpochMilli());
                     update.setString(4, expected.tenantId());
                     update.setString(5, expected.jobId());
                     update.setLong(6, expected.version());
@@ -375,7 +381,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     }
                 }
                 connection.commit();
-                return new JobLease(expected.tenantId(), expected.jobId(), ownerId, token, expiresAt);
+                return new JobLease(expected.tenantId(), expected.jobId(), ownerId, token, persistedExpiry);
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;

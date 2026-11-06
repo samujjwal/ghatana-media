@@ -185,6 +185,34 @@ class PostgresqlMediaOutboxPublicationSourceTest {
     }
 
     @Test
+    void returnedLeaseExpiryMatchesMillisecondPersistedEventAndPublisherDeadlines() throws Exception {
+        Fixture fixture = new Fixture("media_outbox_fractional_lease");
+        try (fixture; PostgresqlMediaOutboxPublicationSource source = new PostgresqlMediaOutboxPublicationSource()) {
+            UUID eventId = fixture.append("tenant-lease", "job-lease", "MEDIA_TEST_EVENT", "{}", 1_000L);
+            Instant observedAt = fixture.now.plusNanos(500_000);
+            var claim = AsyncOperations.toFuture(source.claimBatch(
+                    "publisher-fractional", 1, observedAt, Duration.ofSeconds(30))).join();
+
+            assertThat(claim.events()).extracting("eventId").containsExactly(eventId);
+            assertThat(claim.expiresAt()).isEqualTo(Instant.ofEpochMilli(claim.expiresAt().toEpochMilli()));
+            long returnedExpiry = claim.expiresAt().toEpochMilli();
+            try (Connection connection = h2(fixture.jdbcUrl).getConnection();
+                 PreparedStatement query = connection.prepareStatement(
+                         "SELECT event.claim_expires_at AS event_expiry, lease.claim_expires_at AS lease_expiry "
+                                 + "FROM media_lifecycle_outbox event "
+                                 + "JOIN media_lifecycle_outbox_publisher_lease lease "
+                                 + "ON lease.publisher_key='media-lifecycle' WHERE event.event_id=?")) {
+                query.setString(1, eventId.toString());
+                try (ResultSet row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getLong("event_expiry")).isEqualTo(returnedExpiry);
+                    assertThat(row.getLong("lease_expiry")).isEqualTo(returnedExpiry);
+                }
+            }
+        }
+    }
+
+    @Test
     void brokerAcceptedThenProcessLostBeforeDatabaseAckRedeliversSameFingerprintAfterRestart() throws Exception {
         Fixture fixture = new Fixture("media_outbox_crash");
         try (fixture) {

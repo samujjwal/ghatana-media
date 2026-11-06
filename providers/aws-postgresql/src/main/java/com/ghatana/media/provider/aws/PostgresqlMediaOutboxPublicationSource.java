@@ -38,7 +38,9 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
         return async(() -> {
             ensureOpen();
             UUID token = UUID.randomUUID();
-            Instant expiresAt = observedAt.plus(claimDuration);
+            // Claims are persisted in epoch milliseconds. Return that same precision so a
+            // caller never treats the lease as live past the durable expiry timestamp.
+            Instant expiresAt = Instant.ofEpochMilli(observedAt.plus(claimDuration).toEpochMilli());
             try (Connection connection = state.connection()) {
                 connection.setAutoCommit(false);
                 try {

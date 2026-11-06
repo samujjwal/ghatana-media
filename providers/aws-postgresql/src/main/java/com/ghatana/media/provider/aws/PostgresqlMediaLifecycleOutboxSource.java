@@ -164,12 +164,15 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                 // claim_token is the durable fencing generation. Never allow signed BIGINT
                 // overflow to wrap it negative and potentially make an old generation current.
                 long token = Math.addExact(priorToken, 1L);
+                // The lease deadline is also persisted as a signed BIGINT epoch-millis value.
+                // A wrapped deadline would make this committed claim immediately reclaimable.
+                long claimExpiresAt = Math.addExact(now, claimLease.toMillis());
                 try (PreparedStatement update = connection.prepareStatement(
                         "UPDATE media_processing_lifecycle_outbox SET claim_owner=?,claim_token=?,claim_expires_at=? "
                                 + "WHERE event_id=? AND claim_token=? AND published_at IS NULL AND dead_lettered_at IS NULL")) {
                     update.setString(1, claimOwner);
                     update.setLong(2, token);
-                    update.setLong(3, now + claimLease.toMillis());
+                    update.setLong(3, claimExpiresAt);
                     update.setString(4, eventId);
                     update.setLong(5, priorToken);
                     if (update.executeUpdate() != 1) {
