@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -110,12 +111,9 @@ public final class MediaCaptionContracts {
                     throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST, "languageTag");
                 }
             });
-            captionSegments = List.copyOf(Objects.requireNonNull(captionSegments, "captionSegments"));
+            captionSegments = copySegmentsBounded(captionSegments);
             if (captionSegments.isEmpty()) {
                 throw new CaptionRegistrationException(RegistrationError.CAPTION_DRAFT_EMPTY, "no segments");
-            }
-            if (captionSegments.size() > MAX_SEGMENTS) {
-                throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST, "segment bound");
             }
             java.util.Set<String> seen = new java.util.HashSet<>();
             for (CaptionSegment segment : captionSegments) {
@@ -174,9 +172,27 @@ public final class MediaCaptionContracts {
             Objects.requireNonNull(parentVersionKind, "parentVersionKind");
             Objects.requireNonNull(languageDisposition, "languageDisposition");
             languageTag = languageTag == null ? Optional.empty() : languageTag;
-            captionSegments = List.copyOf(Objects.requireNonNull(captionSegments, "captionSegments"));
+            captionSegments = copySegmentsBounded(captionSegments);
             purpose = purpose == null ? Optional.empty() : purpose;
         }
+    }
+
+    /** Copies caller-controlled segment lists only after checking their declared and observed bounds. */
+    private static List<CaptionSegment> copySegmentsBounded(List<CaptionSegment> segments) {
+        Objects.requireNonNull(segments, "captionSegments");
+        int declaredSize = segments.size();
+        if (declaredSize < 0 || declaredSize > MAX_SEGMENTS) {
+            throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST, "segment bound");
+        }
+        ArrayList<CaptionSegment> copy = new ArrayList<>(declaredSize);
+        Iterator<CaptionSegment> iterator = segments.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= MAX_SEGMENTS) {
+                throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST, "segment bound");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), "captionSegments[]"));
+        }
+        return List.copyOf(copy);
     }
 
     /** Trusted authority facts the durable store cannot fabricate. */
