@@ -70,6 +70,24 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void limits_inter_sample_overshoot_from_alternating_samples() {
+        // Alternating near-full-scale samples have a lower sample peak than their
+        // reconstructed waveform. This checks the oversampled limiter path directly.
+        short[] alternating = new short[64];
+        for (int index = 0; index < alternating.length; index++) {
+            alternating[index] = (short) (index % 2 == 0 ? 28_000 : -28_000);
+        }
+        MixResult result = mix(List.of(synthetic("inter-sample-fixture-v1", pcm(alternating),
+                alternating.length / 2, 1.0f, 0.0f)), alternating.length / 2, 0.55f);
+
+        assertThat(result.estimatedTruePeakBeforeCeiling())
+                .isGreaterThan(result.samplePeakAfterCeiling());
+        assertThat(result.estimatedTruePeakAfterCeiling()).isLessThanOrEqualTo(0.5501);
+        assertThat(result.samplePeakAfterCeiling()).isLessThanOrEqualTo(0.55);
+        assertThat(samples(result.pcmS16Le())).doesNotContain((short) Short.MIN_VALUE);
+    }
+
+    @Test
     void reports_stereo_rms_dbfs_and_exact_sample_clock() {
         // Both channels carry half-scale constant samples: RMS is 0.5, or approximately -6.02 dBFS.
         Stem stem = synthetic("half-scale-v1", pcm(new short[] {16_384, 16_384, 16_384, 16_384}),
@@ -154,6 +172,16 @@ class PcmStemMixerTest {
                 RightsPurpose.PCM_STEM_MIX, RightsDisposition.DENIED,
                 NOW.minusSeconds(60), NOW.plusSeconds(60)));
         expect(ErrorCode.RIGHTS_DENIED, () -> mix(List.of(denied), 2, 0.98f));
+
+        Stem pending = asset("asset:v7", new RightsEvidence("asset:v7", "rights:v10",
+                RightsPurpose.PCM_STEM_MIX, RightsDisposition.PENDING,
+                NOW.minusSeconds(60), NOW.plusSeconds(60)));
+        expect(ErrorCode.RIGHTS_DENIED, () -> mix(List.of(pending), 2, 0.98f));
+        Stem wrongPurpose = asset("asset:v7", new RightsEvidence("asset:v7", "rights:v11",
+                null, RightsDisposition.CLEARED, NOW.minusSeconds(60), NOW.plusSeconds(60)));
+        expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(wrongPurpose), 2, 0.98f));
+        Stem notYetValid = asset("asset:v7", evidence("asset:v7", NOW.plusSeconds(1), NOW.plusSeconds(60)));
+        expect(ErrorCode.RIGHTS_STALE, () -> mix(List.of(notYetValid), 2, 0.98f));
     }
 
     @Test
