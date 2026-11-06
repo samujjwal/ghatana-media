@@ -124,6 +124,9 @@ public final class MultitrackRenderPlanner {
             if (text.isBlank() || text.length() > 4_096 || text.indexOf('\0') >= 0) {
                 throw invalid("caption text must contain 1..4096 non-NUL characters");
             }
+            if (hasUnpairedSurrogate(text)) {
+                throw invalid("caption text must contain valid Unicode scalar values");
+            }
         }
     }
 
@@ -267,6 +270,19 @@ public final class MultitrackRenderPlanner {
             throw invalid(name + " must be non-empty bounded single-line text");
         }
         return result;
+    }
+
+    private static boolean hasUnpairedSurrogate(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            char current = value.charAt(i);
+            if (Character.isHighSurrogate(current)) {
+                if (i + 1 >= value.length() || !Character.isLowSurrogate(value.charAt(i + 1))) return true;
+                i++;
+            } else if (Character.isLowSurrogate(current)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

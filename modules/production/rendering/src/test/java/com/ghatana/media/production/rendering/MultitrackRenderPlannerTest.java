@@ -139,6 +139,27 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void rejectsMalformedUnicodeBeforeCanonicalManifestEncoding() {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var end = new MultitrackRenderPlanner.Time(1, 1);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Caption(
+                "high-surrogate", start, end, "\uD800"));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Caption(
+                "low-surrogate", start, end, "\uDC00"));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Caption(
+                "split-pair", start, end, "\uD83D x\uDE00"));
+
+        var valid = new MultitrackRenderPlanner.Caption("valid-pair", start, end, "A\uD83D\uDE00");
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(valid), List.of(), 1_000);
+        var plan = MultitrackRenderPlanner.plan(graph).plan();
+        var encodedText = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
+                "A\uD83D\uDE00".getBytes(StandardCharsets.UTF_8));
+        assertThat(plan.canonicalManifest()).contains("caption=valid-pair|0/1|1/1|" + encodedText);
+    }
+
+    @Test
     void rejectsExcessiveDurationAndOutputBudget() {
         var beyondDay = video("long", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)),
                 new MultitrackRenderPlanner.Time(86_401, 1));
