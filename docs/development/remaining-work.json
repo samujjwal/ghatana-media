@@ -200,7 +200,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 local outbox verification: PostgreSQL provider selectors PostgresqlMediaOutboxPublicationSourceTest + PostgresqlMediaLifecycleOutboxSourceTest PASS 7/7; infrastructure messaging selectors MediaLifecycleOutboxRelayTest + MediaLifecycleEventConsumerTest PASS 11/11; no skips. Added bounded claim/failure inputs, exact append rollback/readback and broker-envelope parity checks. Existing tests cover leases/fencing, stable lost-ACK redelivery, capped retry/backoff/dead-letter, broker partition, double-consumer idempotency, ordering and tenant isolation. Still OPEN: runtime ServiceLoader drains media_processing_lifecycle_outbox via MediaLifecycleOutboxSource while media_lifecycle_outbox uses the distinct OutboxPublicationSource, so one active event/outbox identity is not yet reconciled; Event Plane exact append/lookup admission and durable receipt are NOT_ADMITTED."
+      "progress": "2026-11-05 local outbox verification: PostgreSQL provider selectors PostgresqlMediaOutboxPublicationSourceTest + PostgresqlMediaLifecycleOutboxSourceTest PASS 7/7; infrastructure messaging selectors MediaLifecycleOutboxRelayTest + MediaLifecycleEventConsumerTest PASS 11/11; no skips. Added bounded claim/failure inputs, exact append rollback/readback and broker-envelope parity checks. Existing tests cover leases/fencing, stable lost-ACK redelivery, capped retry/backoff/dead-letter, broker partition, double-consumer idempotency, ordering and tenant isolation. Still OPEN: runtime ServiceLoader drains media_processing_lifecycle_outbox via MediaLifecycleOutboxSource while media_lifecycle_outbox uses the distinct OutboxPublicationSource, so one active event/outbox identity is not yet reconciled; Event Plane exact append/lookup admission and durable receipt are NOT_ADMITTED. 2026-11-05 increment: PostgresqlMediaLifecycleOutboxSourceTest PASS 2/2 after replacing a sleep-based lost-ACK race with direct DB claim expiry after broker acceptance; same event ID is redelivered and the stale worker cannot acknowledge the replaced claim."
     },
     {
       "id": "media.dev.rights-aware-cache",
@@ -222,7 +222,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 local adapter verification: AudioVideoCacheTest + TranscriptionCacheServiceTest PASS 86/86, no skips. Protected keys bind tenant, principal, rights scope, purpose, classification, immutable artifact/transcript/source identity, and policy epoch; current authority is checked before lookup and again before disclosure; denied/unknown authority performs no read/load and now triggers best-effort exact-key eviction. Coverage includes cross-tenant/version isolation, revocation/currentness, client recreation, eviction, stale metadata, stampede and outage. Still OPEN: source review found no Media runtime callers (only the cache benchmark); there is no event-driven invalidation integration. Existing transcription service remains source-read-through and direct cache reads miss; do not claim active runtime caching."
+      "progress": "2026-11-05 local adapter verification: AudioVideoCacheTest + TranscriptionCacheServiceTest PASS 86/86, no skips. Protected keys bind tenant, principal, rights scope, purpose, classification, immutable artifact/transcript/source identity, and policy epoch; current authority is checked before lookup and again before disclosure; denied/unknown authority performs no read/load and now triggers best-effort exact-key eviction. Coverage includes cross-tenant/version isolation, revocation/currentness, client recreation, eviction, stale metadata, stampede and outage. Still OPEN: source review found no Media runtime callers (only the cache benchmark); there is no event-driven invalidation integration. Existing transcription service remains source-read-through and direct cache reads miss; do not claim active runtime caching. 2026-11-05 increment: TranscriptionCacheServiceTest passes with an unknown-authority case proving caller scope metadata alone cannot trigger a cache read/write or source load; only the exact scoped key is invalidated. The callback API still relies on composition to supply trusted current authority; a deliberately forged callback returning true cannot be distinguished without an owner-backed typed authority interface."
     },
     {
       "id": "media.dev.stream-session-authority",
@@ -245,7 +245,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter now rejects video-kind sessions; MediaRuntimeCanonicalStreamFramePortTest passes 7/7, including zero provider effects for a forged audio binding to a video session. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps."
+      "progress": "2026-11-05: Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter now rejects video-kind sessions; MediaRuntimeCanonicalStreamFramePortTest passes 7/7, including zero provider effects for a forged audio binding to a video session. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps. 2026-11-05 increment: GrpcAudioSourceCaptureTest PASS 13/13 and GrpcVideoSourceCaptureTest PASS 16/16. Both adapters now surface canonical LEASE_EXPIRED for frame and EOS outcomes with zero acknowledged frames/cursor advance and no blind retry. These are module adapter checks, not durable lease/restart proof."
     },
     {
       "id": "media.dev.exclusive-invocation-claim-verification",
@@ -742,7 +742,8 @@
         "media.dev.shared-engine-consolidation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: ProductionTtsGrpcService requires configured owner/consent authority before model configuration, snapshotting, or library construction. ProductionTtsGrpcServiceConfigTest PASS 25/25, including missing license metadata, placeholder/mismatched license references, unavailable consent authority, locale/digest failures, and model snapshot races. Controlled test resolvers only; no licensed model/voice, decoded provider output, or real rights evidence. Still OPEN."
     },
     {
       "id": "media.dev.tts-streaming-and-finality",
@@ -768,7 +769,8 @@
         "media.dev.stream-session-authority"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: SpatialInteractiveDeliveryScenarioTest PASS 1/1: pose readback retains exact project revision/source versions/frame version and remains POSE_ONLY; unknown source rights reject GLB export with typed UNKNOWN. Module-local boundary evidence only; no encoded package, viewer fidelity, delivery, or consumer receipt. Still OPEN."
     },
     {
       "id": "media.dev.vision-model-and-geometry",
@@ -889,7 +891,8 @@
         "media.dev.vision-model-and-geometry"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: MediaResourceProfileHarnessTest PASS 10/10. A mixed local fixture with one failed operation reports FAILED with exact 3 completed / 1 failed / 0 incomplete counts and NOT_ADMITTED provider identity. Harness behavior only; real modality baselines, held-out quality, and provider resource measurements remain open."
     },
     {
       "id": "media.dev.capture-http-and-file-regression",
@@ -1312,7 +1315,8 @@
         "media.dev.storyboard-and-shot-plan"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: ReferenceGuidedScenePlanner now derives a length-prefixed deterministic seed from purpose and prior continuity snapshot state/version/facts. ReferenceGuidedScenePlannerTest PASS 9/9, including dispatch-time UNKNOWN rights stopping before a model call. Generation transport remains NOT_ADMITTED; output-version-to-continuity join remains UNKNOWN. No real generation or provider qualification is claimed."
     },
     {
       "id": "media.dev.tracked-region-reversible-edits",
@@ -1609,7 +1613,8 @@
         "media.dev.sdk-canonical-migration"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05 harness review found existing source-bound coverage for upload byte readback, idempotent job submission, tenant isolation, durable OUTCOME_UNKNOWN, and HTTP/gRPC contract parity (MediaLauncherEndToEndIT, MediaProviderPolicyDeniedFinalityPostgresIT, MediaOpenApiContractConsumptionTest, MediaGrpcOperationParityTest). No additional test was added because the broad J01-J30 record does not identify a specific uncovered workflow/API seam; choosing one without source-bound scenario evidence risks duplication. Still OPEN pending an exact uncovered workflow selector and real admitted positive inputs where applicable."
     },
     {
       "id": "media.dev.surface-document-contracts",
@@ -2416,7 +2421,8 @@
         "media.dev.interactive-demo-player"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: SpatialInteractiveDeliveryScenarioTest PASS 1/1: pose readback retains exact project revision/source versions/frame version and remains POSE_ONLY; unknown source rights reject GLB export with typed UNKNOWN. Module-local boundary evidence only; no encoded package, viewer fidelity, delivery, or consumer receipt. Still OPEN."
     },
     {
       "id": "media.dev.outcome-live-session-recovery",
@@ -2469,7 +2475,8 @@
         "media.dev.vision-model-and-geometry"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05 source review: no admitted composite catalog seam exists; current model asset readiness, STT/TTS status, Vision capability admission and host health are separate facts and cannot be combined as qualification. PDP-0 requires distinct profile/capability/provider/license/qualification/runtime dimensions in a bounded exact-target observation with provenance, UNKNOWN for missing/stale evidence, and no future-availability promise. PDP-3 leaves permission names, freshness windows, response schema, authority and reason codes pending owner review; the scoped-query operation is definition-grade only and runtime NOT_ADMITTED/dispatch NEVER. J-30 has no exact scenario seed. Owner-semantics handoff: define these response/freshness/authority contracts before an aggregate API/test is added; no eligibility inference or provider selection is implemented."
     }
   ],
   "surfaces": [

@@ -90,7 +90,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Publish lifecycle events transactionally without conflating delivery ACK with job finality.
 - **How:** Use existing outbox identity with claim leases, destination status and backoff; separate appended/delivered/consumed/effected.
 - **Test/exit:** Lost ACK, double consumer, partition, crash-after-publish and readback parity tests.
-- **Progress:** 18/18 focused provider, relay and consumer tests pass. Local append rollback, claim/fencing, retry, lost-ACK, partition, dedupe and readback checks are covered; two distinct outbox tables remain unreconciled, and Event Plane append/lookup admission has no durable receipt.
+- **Progress:** 18/18 focused provider, relay and consumer tests pass. This pulse, `PostgresqlMediaLifecycleOutboxSourceTest` passes 2/2 after replacing a sleep-based lost-ACK race with direct DB claim expiry after broker acceptance; same event ID is redelivered and the stale worker cannot acknowledge the replaced claim. Local append rollback, claim/fencing, retry, lost-ACK, partition, dedupe and readback checks are covered; two distinct outbox tables remain unreconciled, and Event Plane append/lookup admission has no durable receipt.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`
 
 **`media.dev.rights-aware-cache`** · OPEN
@@ -98,7 +98,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Ensure caches cannot outlive source version, tenant rights or revocation.
 - **How:** Include immutable source/tenant/policy epoch in cache key; invalidate on retention/consent/right changes; fail closed on stale authority.
 - **Test/exit:** Cross-tenant, revocation, restart, eviction, stale metadata, stampede and outage tests.
-- **Progress:** 86/86 focused cache tests pass. The protected adapter rechecks current authority before lookup and disclosure and evicts the exact scope key on denial; no Media runtime caller or event-driven invalidation wiring exists yet.
+- **Progress:** 86/86 focused cache tests pass. This pulse, `TranscriptionCacheServiceTest` passes with a new unknown-authority case: caller scope metadata cannot produce a cache read/write or source load, and only the exact scoped key is invalidated. The callback API still relies on composition to supply trusted current authority; a deliberately forged callback returning `true` is not distinguishable without an owner-backed typed authority interface. The protected adapter rechecks current authority before lookup and disclosure; no Media runtime caller or event-driven invalidation wiring exists yet.
 - **Predecessors:** `media.dev.rights-and-policy`
 
 **`media.dev.stream-session-authority`** · OPEN
@@ -106,7 +106,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Complete canonical stream frame ordering, consent, lease, source clock and recovery.
 - **How:** Bind both streams to one canonical session and durable ACK cursor; keep module helpers as non-authoritative implementation details.
 - **Test/exit:** Gap/reorder/lease expiry/revoke while live, backpressure, EOS, abort, restart and 1/16/64 clients.
-- **Progress:** Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter now rejects video-kind sessions; `MediaRuntimeCanonicalStreamFramePortTest` passes 7/7, including zero provider effects for a forged audio binding to a video session. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps.
+- **Progress:** Audio/video focused selectors pass 42/42 and 59/59. This pulse, `GrpcAudioSourceCaptureTest` passes 13/13 and `GrpcVideoSourceCaptureTest` 16/16: both adapters surface canonical `LEASE_EXPIRED` for frame and EOS outcomes, with zero acknowledged frames/cursor advance and no blind retry. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter now rejects video-kind sessions; `MediaRuntimeCanonicalStreamFramePortTest` passes 7/7, including zero provider effects for a forged audio binding to a video session. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`
 
 **`media.dev.exclusive-invocation-claim-verification`** · VERIFIED (macOS focused suite green: 6-process contention → exactly one claim, crash-after-claim fence, unwritable-dir fail-closed)
@@ -277,6 +277,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Make qualified lawful Piper voice profiles produce real decoded audio, not success-shaped placeholders.
 - **How:** Choose specific voice/model/phoneme map with exact license/sha/locale/consent; bound SSML/prosody controls and explicit unavailable features; no unconsented voice clone.
 - **Test/exit:** Decoded PCM checksum/duration/playback/reference, absent voice, revoke, unsupported locale/control, no cloned embedding leak.
+- **Progress:** `ProductionTtsGrpcService` now requires configured owner/consent authority before model configuration, snapshotting, or library construction. `ProductionTtsGrpcServiceConfigTest` passes 25/25, including missing license metadata, placeholder/mismatched license references, unavailable consent authority, locale/digest failures, and model snapshot races. Controlled test resolvers only; no licensed model/voice, decoded provider output, or real rights evidence. Still OPEN.
 - **Predecessors:** `media.dev.rights-and-policy`, `media.dev.shared-engine-consolidation`
 
 **`media.dev.tts-streaming-and-finality`** · OPEN
@@ -323,6 +324,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Measure real reference, speed, memory and saturation for all admitted modalities.
 - **How:** Choose explicit per-locale/model/host profile and 1/16/64 concurrency budgets; preserve comparison fixtures and fail-closed readiness metrics.
 - **Test/exit:** Real baseline/heldout, load/deadline/FD/memory/timeout; no claimed quality for missing measurements.
+- **Progress:** `MediaResourceProfileHarnessTest` passes 10/10. A mixed local fixture with one failed operation is reported `FAILED` with exact 3 completed / 1 failed / 0 incomplete counts and `NOT_ADMITTED` provider identity. This is harness behavior only; real modality baselines, held-out quality and provider resource measurements remain open.
 - **Predecessors:** `media.dev.stt-model-and-quality`, `media.dev.tts-model-and-rights`, `media.dev.vision-model-and-geometry`
 
 #### capture
@@ -467,6 +469,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Generate source-conditioned scenes only with rights and real model or deterministic authored templates.
 - **How:** Bind prompts/references/version/continuity checks, call admitted AI Inference public API when available, otherwise typed unavailable.
 - **Test/exit:** No unauthorized reference use, seed/content provenance, continuity, model unavailable and truthful failure.
+- **Progress:** `ReferenceGuidedScenePlanner` now derives a length-prefixed deterministic seed from purpose and the prior continuity snapshot state/version/facts. `ReferenceGuidedScenePlannerTest` passes 9/9, including dispatch-time `UNKNOWN` rights stopping before a model call. Generation transport remains `NOT_ADMITTED`; output-version-to-continuity join remains `UNKNOWN`. No real generation or provider qualification is claimed.
 - **Predecessors:** `media.dev.storyboard-and-shot-plan`
 
 **`media.dev.tracked-region-reversible-edits`** · OPEN
@@ -563,6 +566,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Establish deterministic source-free client/host end-to-end tests for every supported workflow.
 - **How:** Use Postgres/S3 + fake authority for negatives and permitted real provider for positives; compose rather than rerun module unit suites; inject crash at boundaries.
 - **Test/exit:** Test selectors for J01–J30, grants/denials/UNKNOWN/restart and actual output checks.
+- **Progress:** Harness review found existing source-bound coverage for upload byte readback, idempotent job submission, tenant isolation, durable `OUTCOME_UNKNOWN`, and HTTP/gRPC contract parity (`MediaLauncherEndToEndIT`, `MediaProviderPolicyDeniedFinalityPostgresIT`, `MediaOpenApiContractConsumptionTest`, `MediaGrpcOperationParityTest`). No additional test was added because the broad J01–J30 task record does not identify a specific uncovered workflow/API seam; selecting one without source-bound scenario evidence risks duplicating existing journeys. Still OPEN pending an exact uncovered workflow selector and real admitted positive inputs where applicable.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`, `media.dev.sdk-canonical-migration`
 
 #### hygiene
@@ -825,6 +829,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-28 — Real 360/spatial/interactive export and viewer fidelity.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `SpatialInteractiveDeliveryScenarioTest` passes 1/1: pose readback retains exact project revision/source versions/frame version and remains `POSE_ONLY`; unknown source rights reject GLB export with typed `UNKNOWN`. Module-local boundary evidence only; no encoded package, viewer fidelity, delivery, or consumer receipt. Still OPEN.
 - **Predecessors:** `media.dev.spatial-and-interactive-export`, `media.dev.interactive-demo-player`
 
 **`media.dev.outcome-live-session-recovery`** · OPEN
@@ -840,6 +845,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-30 — Real qualified model/voice/host readiness with unavailable cases.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** Source review found no admitted composite catalog seam: current model asset readiness, STT/TTS status, Vision capability admission and host health are separate facts and cannot be combined as qualification. PDP-0 requires distinct profile/capability/provider/license/qualification/runtime dimensions in a bounded exact-target observation with provenance, UNKNOWN for missing/stale evidence, and no future-availability promise. PDP-3 leaves permission names, freshness windows, response schema, authority and reason codes pending owner review; the scoped-query operation is definition-grade only and runtime `NOT_ADMITTED`/dispatch `NEVER`. J-30 has no exact scenario seed. Owner-semantics handoff: define these response/freshness/authority contracts before an aggregate API/test is added; no eligibility inference or provider selection is implemented.
 - **Predecessors:** `media.dev.service-observability`, `media.dev.stt-model-and-quality`, `media.dev.tts-model-and-rights`, `media.dev.vision-model-and-geometry`
 
 ## Surface-by-surface accountability (all 56 source identities)
