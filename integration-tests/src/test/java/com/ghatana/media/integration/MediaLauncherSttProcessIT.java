@@ -33,12 +33,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import static com.ghatana.media.integration.MediaLauncherProcessFixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -189,6 +193,168 @@ class MediaLauncherSttProcessIT {
         }
     }
 
+    @Test
+    void dispatchedJobBecomesUnknownAfterHardProcessRestartWithoutRedispatch() throws Exception {
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-launcher-job-recovery-" + run;
+        Process launcher = null;
+        Path serviceRoot = null;
+        Path log = null;
+        Path dispatchMarker = null;
+        String environmentClasspath = null;
+        try {
+            try (S3Client s3 = s3()) {
+                s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+            }
+            int port;
+            try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+            Map<String, String> env = environment(bucket, port);
+            env.put("MEDIA_JOB_TIMEOUT_MS", "5000");
+            env.put("MEDIA_JWT_HMAC_SECRET_REFERENCE", "secret:env:MEDIA_LAUNCHER_TEST_JWT_SECRET");
+            env.put("MEDIA_JWT_ISSUER", "https://issuer.example");
+            env.put("MEDIA_JWT_AUDIENCE", "ghatana-runtime");
+            env.put("MEDIA_LAUNCHER_TEST_JWT_SECRET", "media-launcher-recovery-secret-0123456789");
+            serviceRoot = Files.createTempDirectory("media-launcher-job-recovery-services-");
+            dispatchMarker = Files.createTempFile("media-launcher-provider-dispatch-", ".log");
+            Files.deleteIfExists(dispatchMarker);
+            env.put("MEDIA_FIXTURE_PROVIDER_DISPATCH_MARKER", dispatchMarker.toString());
+            log = Files.createTempFile("media-launcher-job-recovery-", ".log");
+            String baseClasspath = System.getProperty("media.child.classpath", "");
+            assertThat(baseClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
+            installChildServiceDescriptors(serviceRoot, MediaLauncherProcessFixtures.BlockingTranscode.class);
+            environmentClasspath = serviceRoot + java.io.File.pathSeparator + baseClasspath;
+            String token = authenticatedJwt(PRINCIPAL, TENANT, env.get("MEDIA_LAUNCHER_TEST_JWT_SECRET"));
+
+            launcher = startLauncher(environmentClasspath, env, log);
+            awaitReady(launcher, port);
+
+            byte[] audio = syntheticWav();
+            String sha = sha256(audio);
+            String metadata = "\"sourceClockId\":\"fixture-clock\","
+                    + "\"sourceClockMappingEvidenceRef\":\"fixture-clock-evidence\","
+                    + "\"sourceClockTicksPerSecond\":16000,\"sourceDurationTicks\":16000";
+            String uploadBody = """
+                    {"tenantId":"%s","principalId":"%s","fileName":"synthetic.wav",
+                     "contentType":"audio/wav","expectedSizeBytes":%d,"expectedSha256":"%s",
+                     "classification":"CONFIDENTIAL","retention":"P30D","metadata":{%s}}
+                    """.formatted(TENANT, PRINCIPAL, audio.length, sha, metadata);
+            JsonNode begun = JSON.readTree(sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/artifacts/uploads", uploadBody, "application/json",
+                    "launcher-recovery-upload-" + run).body());
+            String uploadId = begun.path("uploadId").asText();
+            assertThat(uploadId).isNotBlank();
+            assertThat(sendAuthenticatedBytes(port, TENANT, token, "PUT",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", audio).statusCode()).isEqualTo(200);
+            HttpResponse<String> completed = sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/complete", "", "application/json", null);
+            assertThat(completed.statusCode()).as(completed.body()).isEqualTo(201);
+            JsonNode artifact = JSON.readTree(completed.body());
+            String artifactId = artifact.path("artifactId").asText();
+            assertThat(artifactId).isNotBlank();
+
+            stopLauncher(launcher);
+            launcher = null;
+
+            launcher = startLauncher(environmentClasspath, env, log);
+            awaitReady(launcher, port);
+            String requestId = "launcher-recovery-" + run;
+            String jobBody = """
+                    {"requestId":"%s","tenantId":"%s","principalId":"%s",
+                     "correlationId":"launcher-recovery-corr-%s","artifactId":"%s",
+                     "expectedArtifactVersion":"sha256:%s","jobType":"TRANSCODE",
+                     "providerHint":"%s","parameters":{}}
+                    """.formatted(requestId, TENANT, PRINCIPAL, run, artifactId, sha,
+                    MediaLauncherProcessFixtures.BLOCKING_PROVIDER_ID);
+            HttpResponse<String> accepted = sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/jobs", jobBody, "application/json", null);
+            assertThat(accepted.statusCode()).as(accepted.body()).isEqualTo(202);
+            JsonNode acceptedJob = JSON.readTree(accepted.body());
+            String jobId = acceptedJob.path("jobId").asText();
+            assertThat(jobId).isNotBlank();
+            assertThat(acceptedJob.path("requestId").asText()).isEqualTo(requestId);
+
+            awaitDispatchMarker(launcher, dispatchMarker);
+            JsonNode running = JSON.readTree(sendAuthenticated(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId, "", "application/json", null).body());
+            assertThat(running.path("status").asText()).isEqualTo("RUNNING");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("DISPATCH_INTENDED");
+
+            // This intentionally hard-kills the process while the test-only provider has no
+            // final result. Its marker proves dispatch entry only and is not an effect receipt.
+            launcher.destroyForcibly();
+            assertThat(launcher.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            launcher = null;
+
+            // A replacement process must not steal the crashed worker's still-current lease.
+            // It reads the same durable RUNNING job and dispatch attempt without replaying it.
+            launcher = startLauncher(environmentClasspath, env, log);
+            awaitReady(launcher, port);
+            HttpResponse<String> leaseProtectedRead = sendAuthenticated(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId, "", "application/json", null);
+            assertThat(leaseProtectedRead.statusCode()).as(leaseProtectedRead.body()).isEqualTo(200);
+            JsonNode leaseProtected = JSON.readTree(leaseProtectedRead.body());
+            assertThat(leaseProtected.path("jobId").asText()).isEqualTo(jobId);
+            assertThat(leaseProtected.path("requestId").asText()).isEqualTo(requestId);
+            assertThat(leaseProtected.path("status").asText()).isEqualTo("RUNNING");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("DISPATCH_INTENDED");
+            launcher.destroyForcibly();
+            assertThat(launcher.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            launcher = null;
+
+            // The test uses a short but valid job budget so the durable lease reaches its
+            // natural expiry quickly. A fresh process then performs the normal recovery pass.
+            awaitLeaseExpiry(TENANT, jobId);
+            launcher = startLauncher(environmentClasspath, env, log);
+            awaitReady(launcher, port);
+            HttpResponse<String> recoveredRead = sendAuthenticated(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId, "", "application/json", null);
+            assertThat(recoveredRead.statusCode()).as(recoveredRead.body()).isEqualTo(200);
+            JsonNode recovered = JSON.readTree(recoveredRead.body());
+            assertThat(recovered.path("jobId").asText()).isEqualTo(jobId);
+            assertThat(recovered.path("requestId").asText()).isEqualTo(requestId);
+            assertThat(recovered.path("artifactId").asText()).isEqualTo(artifactId);
+            assertThat(recovered.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(recovered.path("logicalStatus").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(recovered.path("failureCode").asText()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+
+            // Exact command replay after restart remains the same unknown job and cannot
+            // manufacture a second attempt or convert the fixture marker into provider truth.
+            HttpResponse<String> replay = sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/jobs", jobBody, "application/json", null);
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(202);
+            JsonNode replayed = JSON.readTree(replay.body());
+            assertThat(replayed.path("jobId").asText()).isEqualTo(jobId);
+            assertThat(replayed.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
+        } finally {
+            try {
+                if (launcher != null && launcher.isAlive()) launcher.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+            } finally {
+                try {
+                    if (log != null) Files.deleteIfExists(log);
+                    if (dispatchMarker != null) Files.deleteIfExists(dispatchMarker);
+                } finally {
+                    try {
+                        deleteBucket(bucket);
+                    } finally {
+                        if (serviceRoot != null && Files.exists(serviceRoot)) {
+                            try (var paths = Files.walk(serviceRoot)) {
+                                paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                                    try { Files.deleteIfExists(path); } catch (Exception ignored) { }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static String registerSyntheticRights(Map<String, String> env, String artifactId,
             String sha, String run) throws Exception {
         try (AutoCloseable installed = TestAwsStateInstall.install(env);
@@ -234,6 +400,53 @@ class MediaLauncherSttProcessIT {
         }
     }
 
+    private static long attemptCount(String tenantId, String jobId) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_processing_attempts WHERE tenant_id=? AND job_id=?")) {
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                return rows.getLong(1);
+            }
+        }
+    }
+
+    private static String attemptState(String tenantId, String jobId) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT state FROM media_processing_attempts WHERE tenant_id=? AND job_id=?")) {
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).as("canonical attempt exists for recovered job").isTrue();
+                return rows.getString("state");
+            }
+        }
+    }
+
+    private static void awaitLeaseExpiry(String tenantId, String jobId) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
+        while (System.nanoTime() < deadline) {
+            try (var connection = java.sql.DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.prepareStatement(
+                         "SELECT lease_expires_at FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+                statement.setString(1, tenantId);
+                statement.setString(2, jobId);
+                try (var rows = statement.executeQuery()) {
+                    assertThat(rows.next()).as("durable job lease exists after worker crash").isTrue();
+                    if (rows.getLong("lease_expires_at") <= System.currentTimeMillis()) return;
+                }
+            }
+            Thread.sleep(50);
+        }
+        throw new AssertionError("crashed worker lease did not expire within the bounded recovery window");
+    }
+
     private record EffectCounts(long jobs, long attempts, long transcripts,
             long lifecycleOutbox, long sourceRightsDecisions) { }
 
@@ -263,12 +476,16 @@ class MediaLauncherSttProcessIT {
     }
 
     private static void installChildServiceDescriptors(Path root) throws Exception {
+        installChildServiceDescriptors(root, MediaLauncherProcessFixtures.Stt.class);
+    }
+
+    private static void installChildServiceDescriptors(Path root, Class<?> providerClass) throws Exception {
         Path services = root.resolve("META-INF/services");
         Files.createDirectories(services);
         Files.writeString(services.resolve("com.ghatana.governance.PolicyEngine"),
                 MediaLauncherProcessFixtures.Policy.class.getName() + "\n");
         Files.writeString(services.resolve("com.ghatana.media.runtime.MediaRuntimeContracts$MediaProcessingProvider"),
-                MediaLauncherProcessFixtures.Stt.class.getName() + "\n");
+                providerClass.getName() + "\n");
     }
 
     private static Process startLauncher(String classpath, Map<String, String> env, Path log) throws Exception {
@@ -307,12 +524,68 @@ class MediaLauncherSttProcessIT {
         return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    private static HttpResponse<String> sendAuthenticated(int port, String tenant, String token,
+            String method, String path, String body, String contentType, String idempotencyKey)
+            throws Exception {
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(
+                        "http://127.0.0.1:" + port + path))
+                .header("X-Tenant-Id", tenant)
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", contentType);
+        if (idempotencyKey != null) request.header("Idempotency-Key", idempotencyKey);
+        if ("POST".equals(method)) request.POST(HttpRequest.BodyPublishers.ofString(body));
+        else if ("GET".equals(method)) request.GET();
+        else request.method(method, HttpRequest.BodyPublishers.ofString(body));
+        return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
     private static HttpResponse<String> sendBytes(int port, String tenant, String method,
             String path, byte[] body) throws Exception {
         HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path))
                 .header("X-Tenant-Id", tenant).header("Content-Type", "application/octet-stream")
                 .PUT(HttpRequest.BodyPublishers.ofByteArray(body)).build();
         return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private static HttpResponse<String> sendAuthenticatedBytes(int port, String tenant, String token,
+            String method, String path, byte[] body) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path))
+                .header("X-Tenant-Id", tenant)
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/octet-stream")
+                .method(method, HttpRequest.BodyPublishers.ofByteArray(body)).build();
+        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private static String authenticatedJwt(String subject, String tenant, String secret) throws Exception {
+        String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+        String permissions = String.join(",", Set.of(
+                "media:artifact:create", "media:artifact:write", "media:artifact:read",
+                "media:job:create", "media:job:read").stream()
+                .sorted().map(permission -> "\"" + permission + "\"").toList());
+        String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + tenant
+                + "\",\"iss\":\"https://issuer.example\",\"aud\":\"ghatana-runtime\",\"exp\":"
+                + Instant.now().plusSeconds(300).getEpochSecond() + ",\"permissions\":[" + permissions + "]}");
+        String signingInput = header + "." + payload;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return signingInput + "." + Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(mac.doFinal(signingInput.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    private static String base64Url(String value) {
+        return Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static void awaitDispatchMarker(Process process, Path marker) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
+        while (System.nanoTime() < deadline) {
+            if (!process.isAlive()) throw new AssertionError("MediaLauncher exited before provider dispatch");
+            if (Files.exists(marker) && !Files.readAllLines(marker).isEmpty()) return;
+            Thread.sleep(50);
+        }
+        throw new AssertionError("test provider did not enter its dispatch boundary");
     }
 
     private static void stopLauncher(Process process) throws Exception {

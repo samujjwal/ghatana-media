@@ -19,6 +19,10 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +35,7 @@ public final class MediaLauncherProcessFixtures {
     public static final String TENANT = "tenant-launcher-stt-fixture";
     public static final String PRINCIPAL = "media-local-development";
     public static final String PROVIDER_ID = "launcher-synthetic-stt-fixture";
+    public static final String BLOCKING_PROVIDER_ID = "launcher-blocking-transcode-fixture";
     public static final String PROFILE_ID = "launcher-synthetic-profile";
     public static final String PROFILE_DIGEST = "sha256:" + "b".repeat(64);
 
@@ -124,6 +129,47 @@ public final class MediaLauncherProcessFixtures {
                                             "glossaryDisposition", "NOT_REQUESTED",
                                             "transcriptText", text))),
                     "b".repeat(64), Instant.now()));
+        }
+    }
+
+    /**
+     * Process-boundary fixture that records dispatch entry and never fabricates provider finality.
+     * The marker is test coordination only; it is not an external effect receipt.
+     */
+    public static final class BlockingTranscode implements MediaProcessingProvider {
+        @Override public String providerId() { return BLOCKING_PROVIDER_ID; }
+        @Override public String providerVersion() { return "fixture-v1"; }
+        @Override public String modelVersion(JobType type) { return "process-recovery-fixture-v1"; }
+        @Override public Set<JobType> capabilities() { return Set.of(JobType.TRANSCODE); }
+        @Override public Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+            return Optional.empty();
+        }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return -100; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+        @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+        @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+            return CompletableFuture.failedFuture(
+                    new AssertionError("durable process-recovery fixture must use processAttempt"));
+        }
+
+        @Override public CompletableFuture<ProviderSubmission> processAttempt(
+                ProcessingContext context, ProviderAttemptContext attempt) {
+            String markerValue = System.getenv("MEDIA_FIXTURE_PROVIDER_DISPATCH_MARKER");
+            if (markerValue == null || markerValue.isBlank()) {
+                return CompletableFuture.failedFuture(
+                        new IllegalStateException("process-recovery fixture marker is required"));
+            }
+            try {
+                Files.writeString(Path.of(markerValue),
+                        attempt.requestId() + "," + attempt.attemptNumber() + "\n",
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } catch (IOException failure) {
+                return CompletableFuture.failedFuture(failure);
+            }
+            return new CompletableFuture<>();
         }
     }
 }
