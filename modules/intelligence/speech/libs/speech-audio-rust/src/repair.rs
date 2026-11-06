@@ -611,6 +611,25 @@ mod tests {
     }
 
     #[test]
+    fn declip_run_limit_is_inclusive_and_rejects_first_over_limit_without_mutation() {
+        let limits = RepairLimits {
+            max_declip_run_frames: 2,
+            ..RepairLimits::DEFAULT
+        };
+        let at_limit = mono(vec![0.0, 1.0, 1.0, 0.8]);
+        let repaired = declip_bounded(&at_limit, 0.98, limits).unwrap();
+        assert_eq!(repaired.samples, vec![0.0, 0.8 / 3.0, 1.6 / 3.0, 0.8]);
+        assert_eq!(at_limit.samples, vec![0.0, 1.0, 1.0, 0.8]);
+
+        let over_limit = mono(vec![0.0, 1.0, 1.0, 1.0, 0.8]);
+        assert!(matches!(
+            declip_bounded(&over_limit, 0.98, limits),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert_eq!(over_limit.samples, vec![0.0, 1.0, 1.0, 1.0, 0.8]);
+    }
+
+    #[test]
     fn silence_is_stable_and_corrupt_or_empty_inputs_are_typed_errors() {
         let silence = mono(vec![0.0; 16]);
         let profile = NoiseProfile::estimate(&silence, 0, 8).unwrap();
