@@ -946,6 +946,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                             if (terminal.compareAndSet(false, true)) {
                                 tracedObserver.onNext(toGrpcChunk(pendingFinalChunk.get(), synthesisOptions, true));
                                 completionDeliveryStarted.set(true);
+                                if (sink.isCancelled()) {
+                                    recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                                    recordDuration.run();
+                                    trace.finishUnknown();
+                                    return;
+                                }
                                 tracedObserver.onCompleted();
                             }
                         } catch (InterruptedException interrupted) {

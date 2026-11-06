@@ -1779,6 +1779,56 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void cancellationReenteredDuringFinalChunkDeliverySuppressesCompletion() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        CountDownLatch finalChunkObserved = new CountDownLatch(1);
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        doAnswer(invocation -> {
+            com.ghatana.tts.core.grpc.proto.AudioChunk chunk = invocation.getArgument(0);
+            if (chunk.getIsFinal()) {
+                // Model a transport cancellation reported synchronously from the final write.
+                cancelHandler.get().run();
+                finalChunkObserved.countDown();
+            }
+            return null;
+        }).when(observer).onNext(any());
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+        completionRef.get().complete(null);
+
+        assertThat(finalChunkObserved.await(1, TimeUnit.SECONDS)).isTrue();
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+        Timer responseUnknown = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "unknown").timer();
+        assertThat(responseUnknown).isNotNull();
+        assertThat(responseUnknown.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "success").timer()).isNull();
+    }
+
+    @Test
     void admittedStreamRejectsAudioBeforeFormatDeclaration() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
