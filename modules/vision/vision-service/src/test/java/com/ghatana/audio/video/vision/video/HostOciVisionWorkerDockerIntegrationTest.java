@@ -50,6 +50,76 @@ class HostOciVisionWorkerDockerIntegrationTest {
     }
 
     @Test
+    void kernelCpuQuotaThrottlesWorkerAndStillReturnsTheFixtureOutput() throws Exception {
+        try (Fixture fixture = fixture("cpu-quota")) {
+            VideoFrameExtractor.ProcessResult result = VideoFrameExtractor.runProcess(
+                    List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                            fixture.output().resolve("frame.jpg").toString()),
+                    Duration.ofSeconds(15), 4096, fixture.output(), 1024);
+
+            assertThat(result.exitCode()).as(result.output()).isZero();
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).contains("HOST_OCI_CPU_QUOTA_THROTTLED");
+            assertThat(Files.readString(fixture.output().resolve("frame.jpg")))
+                    .isEqualTo("host-oci-limits-and-mounts-verified\n");
+        }
+    }
+
+    @Test
+    void fullKernelTmpfsReturnsEnospcFailureWithoutPublishingMedia() throws Exception {
+        try (Fixture fixture = fixture("tmpfs-full")) {
+            VideoFrameExtractor.ProcessResult result = VideoFrameExtractor.runProcess(
+                    List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                            fixture.output().resolve("frame.jpg").toString()),
+                    Duration.ofSeconds(30), 4096, fixture.output(), 1024);
+
+            assertThat(result.exitCode()).as(result.output()).isEqualTo(88);
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).contains("HOST_OCI_TMPFS_ENOSPC bytes=");
+            assertThat(result.output()).contains("dd_exit=");
+            try (var outputs = Files.list(fixture.output())) {
+                assertThat(outputs.toList()).isEmpty();
+            }
+        }
+    }
+
+    @Test
+    void kernelNofileLimitProducesEmfileThenAllowsOnlyTheExpectedFixtureOutput() throws Exception {
+        try (Fixture fixture = fixture("nofile")) {
+            VideoFrameExtractor.ProcessResult result = VideoFrameExtractor.runProcess(
+                    List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                            fixture.output().resolve("frame.jpg").toString()),
+                    Duration.ofSeconds(15), 4096, fixture.output(), 1024);
+
+            assertThat(result.exitCode()).as(result.output()).isZero();
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).containsPattern("HOST_OCI_NOFILE_EMFILE descriptors=(5[1-9]|6[0-4])");
+            assertThat(Files.readString(fixture.output().resolve("frame.jpg")))
+                    .isEqualTo("host-oci-limits-and-mounts-verified\n");
+        }
+    }
+
+    @Test
+    void kernelFileSizeLimitBoundsPartialFileAndReturnsFailure() throws Exception {
+        try (Fixture fixture = fixture("filesize")) {
+            VideoFrameExtractor.ProcessResult result = VideoFrameExtractor.runProcess(
+                    List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                            fixture.output().resolve("frame.jpg").toString()),
+                    Duration.ofSeconds(15), 4096, fixture.output(), 1024);
+
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.exitCode()).as(result.output()).isIn(-1, 89);
+            assertThat(result.outputExceeded()).isTrue();
+            assertThat(result.output()).contains("HOST_OCI_FILESIZE_LIMIT_HIT bytes=1024");
+            assertThat(Files.size(fixture.output().resolve("frame.jpg")))
+                    .isEqualTo(1024);
+        }
+    }
+
+    @Test
     void actualCgroupOomKillsOnlyTheWorkerAndCannotPublishOutput() throws Exception {
         try (Fixture fixture = fixture("oom")) {
             List<String> codec = List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),

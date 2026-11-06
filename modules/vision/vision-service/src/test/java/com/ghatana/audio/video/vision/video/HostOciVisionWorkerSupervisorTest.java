@@ -107,6 +107,49 @@ class HostOciVisionWorkerSupervisorTest {
     }
 
     @Test
+    void rejectsSymlinkedRequestAndOutputPathsAndOutputTraversal() throws Exception {
+        Path workspace = privateDirectory("request");
+        Path source = workspace.resolve("input.mp4");
+        Files.write(source, new byte[] {1});
+        Files.setPosixFilePermissions(source, EnumSet.of(PosixFilePermission.OWNER_READ));
+        Path outside = privateDirectory("outside");
+        Path outsideFile = outside.resolve("outside.mp4");
+        Files.write(outsideFile, new byte[] {2});
+        Files.setPosixFilePermissions(outsideFile, EnumSet.of(PosixFilePermission.OWNER_READ));
+        Path output = privateDirectory("output");
+        long uid = ((Number) Files.getAttribute(source, "unix:uid")).longValue();
+        long gid = ((Number) Files.getAttribute(source, "unix:gid")).longValue();
+
+        Path sourceLink = workspace.resolve("linked.mp4");
+        Files.createSymbolicLink(sourceLink, outsideFile);
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.plan(
+                List.of("ffprobe", "-i", sourceLink.toString()), workspace, null,
+                IMAGE, "docker", uid, gid, INVOCATION))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("inside its private request workspace");
+
+        Path workspaceLink = temporaryDirectory.resolve("request-link");
+        Files.createSymbolicLink(workspaceLink, workspace);
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.plan(
+                List.of("ffprobe", "-i", source.toString()), workspaceLink, null,
+                IMAGE, "docker", uid, gid, INVOCATION))
+                .isInstanceOf(IOException.class).hasMessageContaining("workspace is unsafe");
+
+        Path outputLink = temporaryDirectory.resolve("output-link");
+        Files.createSymbolicLink(outputLink, output);
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.plan(
+                List.of("ffmpeg", "-i", source.toString(), outputLink.resolve("frame.png").toString()),
+                workspace, outputLink, IMAGE, "docker", uid, gid, INVOCATION))
+                .isInstanceOf(IOException.class).hasMessageContaining("output directory is unsafe");
+
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.plan(
+                List.of("ffmpeg", "-i", source.toString(), output.resolve("../outside/frame.png").toString()),
+                workspace, output, IMAGE, "docker", uid, gid, INVOCATION))
+                .isInstanceOf(IOException.class).hasMessageContaining("unmounted host path");
+        assertThat(Files.exists(output.resolve("frame.png"))).isFalse();
+    }
+
+    @Test
     void preflightRejectsAnyChangedKernelLimitsOrUnexpectedSocketMount() {
         String host = "{\"Memory\":1610612736,\"MemorySwap\":1610612736,\"NanoCpus\":2000000000,"
                 + "\"PidsLimit\":32,\"Ulimits\":[{\"Name\":\"nofile\",\"Soft\":64,\"Hard\":64},"
