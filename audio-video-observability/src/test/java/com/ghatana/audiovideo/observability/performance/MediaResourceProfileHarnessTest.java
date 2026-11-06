@@ -229,6 +229,15 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void measuredResourceReadingsRejectNegativeValuesButAllowZero() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Reading(
+                MediaResourceProfileHarness.State.MEASURED, -0.5, "bytes", ""));
+
+        assertThat(new MediaResourceProfileHarness.Reading(
+                MediaResourceProfileHarness.State.MEASURED, 0, "bytes", "").value()).isZero();
+    }
+
+    @Test
     void processRssAdaptersParseUnitsAndKeepUnavailableSamplesUnknown() {
         assertThat(MediaResourceProfileHarness.parseLinuxProcessRss("Name:\tjava\nVmRSS:\t1024 kB\n")
                 .value()).isEqualTo(1_048_576.0);

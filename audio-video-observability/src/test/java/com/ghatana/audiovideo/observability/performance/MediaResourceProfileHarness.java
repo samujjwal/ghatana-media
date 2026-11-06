@@ -85,6 +85,9 @@ public final class MediaResourceProfileHarness {
             if (state == State.MEASURED && !Double.isFinite(value)) {
                 throw new IllegalArgumentException("measured resource value must be finite");
             }
+            if (state == State.MEASURED && value < 0) {
+                throw new IllegalArgumentException("measured resource value must be nonnegative");
+            }
             if (state == State.NOT_MEASURED && !Double.isNaN(value)) {
                 throw new IllegalArgumentException("unmeasured resource value must be NaN");
             }
