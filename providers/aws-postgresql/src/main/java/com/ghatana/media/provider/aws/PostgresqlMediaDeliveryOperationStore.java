@@ -104,6 +104,7 @@ public final class PostgresqlMediaDeliveryOperationStore implements DeliveryOper
                        AND status=? AND acknowledged_bytes=?
                        AND destination_receipt_ref IS NOT DISTINCT FROM ?
                        AND (dispatch_claim_owner_id IS NULL OR dispatch_claim_expires_at <= CURRENT_TIMESTAMP)
+                       AND dispatch_claim_fence < 9223372036854775807
                      RETURNING dispatch_claim_fence, dispatch_claim_expires_at
                      """)) {
             update.setString(1, ownerId); update.setLong(2, leaseMillis);

@@ -194,6 +194,49 @@ class PostgresqlMediaDeliveryOperationStoreTest {
         }
     }
 
+    @Test
+    void dispatchFenceAtMaximumFailsClosedWithoutChangingPersistedClaim() throws Exception {
+        try (Fixture fixture = openFixture();
+             PostgresqlMediaDeliveryOperationStore store = new PostgresqlMediaDeliveryOperationStore()) {
+            DeliveryOperationStore.Operation operation = operation(
+                    "request-maximum-fence", "j".repeat(64), Status.QUEUED, 0, null);
+            assertThat(store.insertIfAbsent(operation)).isTrue();
+            java.time.Instant priorExpiry = java.time.Instant.parse("2000-01-01T00:00:00Z");
+            try (var connection = java.sql.DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var update = connection.prepareStatement("""
+                         UPDATE media_delivery_operations
+                         SET dispatch_claim_fence=?, dispatch_claim_owner_id=?, dispatch_claim_expires_at=?
+                         WHERE tenant_id=? AND request_id=?
+                         """)) {
+                update.setLong(1, Long.MAX_VALUE);
+                update.setString(2, "expired-prior-owner");
+                update.setTimestamp(3, java.sql.Timestamp.from(priorExpiry));
+                update.setString(4, operation.tenantId());
+                update.setString(5, operation.requestId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            assertThat(store.acquireDispatchClaim(operation, "new-owner", Duration.ofSeconds(30))).isEmpty();
+
+            try (var connection = java.sql.DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var select = connection.prepareStatement("""
+                         SELECT dispatch_claim_fence, dispatch_claim_owner_id, dispatch_claim_expires_at
+                         FROM media_delivery_operations WHERE tenant_id=? AND request_id=?
+                         """)) {
+                select.setString(1, operation.tenantId());
+                select.setString(2, operation.requestId());
+                try (var row = select.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getLong(1)).isEqualTo(Long.MAX_VALUE);
+                    assertThat(row.getString(2)).isEqualTo("expired-prior-owner");
+                    assertThat(row.getTimestamp(3).toInstant()).isEqualTo(priorExpiry);
+                }
+            }
+        }
+    }
+
     private static void claimWhenReleased(PostgresqlMediaDeliveryOperationStore store,
             DeliveryOperationStore.Operation operation, String owner, CountDownLatch ready,
             CountDownLatch start, AtomicInteger winners) {
