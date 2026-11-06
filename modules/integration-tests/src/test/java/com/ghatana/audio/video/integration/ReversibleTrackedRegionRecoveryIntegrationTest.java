@@ -83,6 +83,28 @@ class ReversibleTrackedRegionRecoveryIntegrationTest {
         assertThat(ports.store.head(EDITOR, PROJECT_ID)).isEqualTo(undone);
     }
 
+    @Test
+    void foreignPrincipalAndTenantCannotReadOrAppendToTheProjectRevision() {
+        TestPorts ports = new TestPorts();
+        ReversibleRegionEditEngine.EditRevision initial = ports.store.head(EDITOR, PROJECT_ID);
+        ReversibleRegionEditEngine.RegionEditPlan plan = ports.prepare(exactEvidence());
+        Actor wrongPrincipal = new Actor(EDITOR.tenantId(), "other-editor-j11");
+        Actor wrongTenant = new Actor("other-tenant-j11", EDITOR.principalId());
+
+        assertThatThrownBy(() -> ports.store.revision(wrongPrincipal, PROJECT_ID, "r0"))
+                .isInstanceOf(ReversibleRegionEditEngine.EditRevisionNotFoundException.class);
+        assertThatThrownBy(() -> ports.store.revision(wrongTenant, PROJECT_ID, "r0"))
+                .isInstanceOf(ReversibleRegionEditEngine.EditRevisionNotFoundException.class);
+        assertThatThrownBy(() -> ports.store.commit(
+                wrongPrincipal, plan, "r0", "j11-foreign-principal", editedState()))
+                .isInstanceOf(ReversibleRegionEditEngine.EditRevisionNotFoundException.class);
+        assertThatThrownBy(() -> ports.store.commit(
+                wrongTenant, plan, "r0", "j11-foreign-tenant", editedState()))
+                .isInstanceOf(ReversibleRegionEditEngine.EditRevisionNotFoundException.class);
+
+        assertUnchanged(initial, ports.store.head(EDITOR, PROJECT_ID));
+    }
+
     private static ReversibleRegionEditEngine.TrackingEvidence exactEvidence() {
         return new ReversibleRegionEditEngine.TrackingEvidence("j11-authored-tracking-observation",
                 EXACT_SOURCE, SOURCE_SHA256, REGION_ID, List.of(sample(0), sample(40_000), sample(108_000)));
