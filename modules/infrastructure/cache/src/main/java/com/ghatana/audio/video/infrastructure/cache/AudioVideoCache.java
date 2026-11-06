@@ -668,6 +668,12 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<Void> invalidate(K key) {
         Objects.requireNonNull(key, "key cannot be null");
         validateCacheKey(key);
+        rejectProtectedKey(key);
+        return invalidateInternal(key);
+    }
+
+    /** Invalidates a key after the caller has selected the scoped protected path. */
+    private AsyncOperation<Void> invalidateInternal(K key) {
         if (cachePort instanceof com.ghatana.cache.DistributedCacheService service
                 && key instanceof String stringKey) {
             Object marker = reservePendingCacheWrite(key);
@@ -950,7 +956,7 @@ public class AudioVideoCache<K, V> {
     /** Best-effort retirement must never turn a denied or unknown authority into a value. */
     private void invalidateScopedBestEffort(String key) {
         try {
-            invalidate(asCacheKey(key)).whenComplete((ignored, failure) -> {
+            invalidateInternal(asCacheKey(key)).whenComplete((ignored, failure) -> {
                 if (failure != null) LOG.debug(
                         "Scoped cache invalidation failed: namespaceRef={}, causeType={}",
                         namespaceReference(), failureType(failure));
@@ -963,12 +969,13 @@ public class AudioVideoCache<K, V> {
 
     /** Invalidates the exact immutable source and policy epoch key. */
     public AsyncOperation<Void> invalidateScoped(CacheKeyScope scope) {
-        return invalidate(asCacheKey(buildScopedKey(Objects.requireNonNull(scope, "scope cannot be null"))));
+        return invalidateInternal(asCacheKey(
+                buildScopedKey(Objects.requireNonNull(scope, "scope cannot be null"))));
     }
 
     /** Invalidates one exact object inside a complete protected scope. */
     public AsyncOperation<Void> invalidateScoped(CacheKeyScope scope, String objectIdentity) {
-        return invalidate(asCacheKey(buildScopedKey(scope, objectIdentity)));
+        return invalidateInternal(asCacheKey(buildScopedKey(scope, objectIdentity)));
     }
 
     /** Protected keys are versioned strings; these helpers require a String-keyed cache facade. */

@@ -155,11 +155,17 @@ class AudioVideoCacheTest {
         assertThatThrownBy(() -> cache.put(protectedKey, "must-not-write"))
                 .isInstanceOf(SecurityException.class)
                 .hasMessageContaining("scoped authority");
+        assertThatThrownBy(() -> cache.invalidate(protectedKey))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
         assertThatThrownBy(() -> cache.get(legacySharedKey))
                 .isInstanceOf(SecurityException.class)
                 .hasMessageContaining("scoped authority");
         assertThatThrownBy(() -> cache.getOrLoad(legacySharedKey,
                 ignored -> AsyncOperation.success("must-not-load")))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
+        assertThatThrownBy(() -> cache.invalidate(legacySharedKey))
                 .isInstanceOf(SecurityException.class)
                 .hasMessageContaining("scoped authority");
 
@@ -168,6 +174,12 @@ class AudioVideoCacheTest {
         verify(port, org.mockito.Mockito.never()).get(protectedKey);
         verify(port, org.mockito.Mockito.never()).get(legacySharedKey);
         verify(port, org.mockito.Mockito.never()).put(eq(protectedKey), any(), any(Duration.class));
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(protectedKey);
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(legacySharedKey);
+
+        when(port.invalidateAsync(protectedKey)).thenReturn(AsyncOperation.success(null));
+        await(cache.invalidateScoped(scope, "transcript-a"));
+        verify(port).invalidateAsync(protectedKey);
     }
 
     @Test
