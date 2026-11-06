@@ -874,6 +874,29 @@
       "evidenceLimit": "J-29 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j30-unavailable-readiness",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.vision.grpc.VisionRoiAdmissionIntegrationTest.roiRequestsFailClosedBeforeProviderEffects"
+      ],
+      "sources": [
+        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/vision/grpc/VisionRoiAdmissionIntegrationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "in-process Vision gRPC service",
+        "generated PNG fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Generated PNG bytes only; no licensed source, model, provider output, or qualification evidence.",
+      "safety": "The selector asserts the existing valid-but-unadmitted Vision path returns a precondition failure before provider dispatch; it makes no positive eligibility claim.",
+      "evidenceLimit": "J-30 unavailable/not-admitted boundary selector only. The source requires missing, stale, or unavailable readiness evidence to remain UNKNOWN, and this test covers one local modality boundary only; it does not establish a composite eligibility catalog, provider/model/host qualification, rights, or journey completion."
+    },
+    {
       "id": "journey-outcome-j23-browser-offline-reconnect-fixture",
       "tier": "LOCAL_FIXTURE",
       "commandKind": "PNPM",
@@ -901,8 +924,8 @@
     }
   ],
   "journeySelectorCoverage": {
-    "unrepresentedJourneyIds": ["J-30"],
-    "meaning": "No source-validated selector is registered here for these outcomes; this is not a completion or admission status."
+    "unrepresentedJourneyIds": [],
+    "meaning": "Selector representation is not a completion or admission status; J-30 has only a local unavailable/not-admitted boundary selector, not a qualified eligibility observation."
   },
   "unrepresentedSourceAreas": [
     {

@@ -90,6 +90,25 @@ class BriefToReviewedMediaScenarioTest {
         assertThat(rightsCalls).hasValue(1);
     }
 
+    @Test
+    void shotOutsideItsSceneIsRejectedBeforeSourceRightsAreInspected() {
+        AtomicInteger rightsCalls = new AtomicInteger();
+        StoryboardPlanner planner = new StoryboardPlanner((actor, source, purpose) -> {
+            rightsCalls.incrementAndGet();
+            return StoryboardPlanner.SourceDecision.ELIGIBLE;
+        });
+        assertThatThrownBy(() -> planner.prepare(CREATOR, "project-j09", "project-r7", "storyboard-j09",
+                "edition-invalid-timing", new StoryboardPlanner.AuthoredBrief("brief-j09", "brief-v2",
+                        "campaign-draft", "A bounded scene", List.of(SOURCE)), List.of(
+                        new StoryboardPlanner.AuthoredScene("scene-j09", 0, "Bound the storyboard shot",
+                                story(0), story(24), List.of(new StoryboardPlanner.ShotInput(
+                                        "shot-outside-scene", 0, "Escapes parent scene",
+                                        story(23), story(2), List.of(SOURCE)))))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("shot story interval must be contained by its scene");
+        assertThat(rightsCalls).hasValue(0);
+    }
+
     private static StoryboardPlanner.AuthoredScene scene(String id, int order, long start, String intent) {
         return new StoryboardPlanner.AuthoredScene(id, order, intent, story(start), story(24),
                 List.of(new StoryboardPlanner.ShotInput("shot-" + id, 0, intent,

@@ -97,6 +97,55 @@ class RateLimitingServerInterceptorTest {
         verify(synthesizeCall, never()).close(any(Status.class), any(Metadata.class)); 
     }
 
+    @Test
+    @DisplayName("Should release the concurrency permit when handler startup throws")
+    void shouldReleasePermitWhenHandlerStartupThrows() {
+        RateLimitingServerInterceptor interceptor = new RateLimitingServerInterceptor(50.0, 10L, 1);
+        Metadata headers = new Metadata();
+        ServerCall<String, String> firstCall = createServerCall("audio.Video/Recognize");
+        ServerCall<String, String> secondCall = createServerCall("audio.Video/Recognize");
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<String, String> failing = mock(ServerCallHandler.class);
+        when(failing.startCall(any(), eq(headers))).thenThrow(new IllegalStateException("startup failed"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> interceptor.interceptCall(firstCall, headers, failing))
+                .isInstanceOf(IllegalStateException.class).hasMessage("startup failed");
+
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<String, String> succeeding = mock(ServerCallHandler.class);
+        when(succeeding.startCall(any(), eq(headers))).thenReturn(new ServerCall.Listener<>() {});
+        interceptor.interceptCall(secondCall, headers, succeeding);
+
+        verify(succeeding).startCall(any(), eq(headers));
+        verify(secondCall, never()).close(any(Status.class), any(Metadata.class));
+    }
+
+    @Test
+    @DisplayName("Should release a concurrency permit only once when close is repeated")
+    void shouldNotOverReleasePermitOnRepeatedClose() {
+        RateLimitingServerInterceptor interceptor = new RateLimitingServerInterceptor(50.0, 10L, 1);
+        Metadata headers = new Metadata();
+        ServerCall<String, String> firstCall = createServerCall("audio.Video/Recognize");
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<String, String> handler = mock(ServerCallHandler.class);
+        when(handler.startCall(any(), eq(headers))).thenReturn(new ServerCall.Listener<>() {});
+
+        interceptor.interceptCall(firstCall, headers, handler);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<ServerCall<String, String>> wrapped = ArgumentCaptor.forClass(ServerCall.class);
+        verify(handler).startCall(wrapped.capture(), eq(headers));
+        wrapped.getValue().close(Status.OK, new Metadata());
+        wrapped.getValue().close(Status.OK, new Metadata());
+
+        ServerCall<String, String> secondCall = createServerCall("audio.Video/Recognize");
+        interceptor.interceptCall(secondCall, headers, handler);
+        ServerCall<String, String> thirdCall = createServerCall("audio.Video/Recognize");
+        interceptor.interceptCall(thirdCall, headers, handler);
+
+        verify(thirdCall).close(org.mockito.ArgumentMatchers.argThat(status ->
+                status.getCode() == Status.Code.RESOURCE_EXHAUSTED), any(Metadata.class));
+    }
+
     @SuppressWarnings("unchecked")
     private static ServerCall<String, String> createServerCall(String fullMethodName) { 
         ServerCall<String, String> call = mock(ServerCall.class); 

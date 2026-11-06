@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Token-bucket rate limiter implemented as a gRPC server interceptor.
@@ -87,16 +88,27 @@ public class RateLimitingServerInterceptor implements ServerInterceptor {
         }
 
         // 3. Proceed, releasing the concurrency permit on close
+        AtomicBoolean permitReleased = new AtomicBoolean();
+        Runnable releasePermit = () -> {
+            if (permitReleased.compareAndSet(false, true)) concurrencySemaphore.release();
+        };
         ServerCall<ReqT, RespT> wrappedCall =
                 new io.grpc.ForwardingServerCall.SimpleForwardingServerCall<>(call) {
                     @Override
                     public void close(Status status, Metadata trailers) {
-                        concurrencySemaphore.release();
+                        releasePermit.run();
                         super.close(status, trailers);
                     }
                 };
-
-        return next.startCall(wrappedCall, headers);
+        try {
+            return next.startCall(wrappedCall, headers);
+        } catch (RuntimeException | Error failure) {
+            // A handler that fails before returning a listener will never close the wrapped
+            // call, so release its admission slot here. The same guard also makes close
+            // idempotent if a broken handler closes and then throws.
+            releasePermit.run();
+            throw failure;
+        }
     }
 
     // -------------------------------------------------------------------------

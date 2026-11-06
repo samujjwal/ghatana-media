@@ -66,6 +66,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j19", "journey-outcome-j20", "journey-outcome-j21",
                         "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
                         "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29",
+                        "journey-outcome-j30-unavailable-readiness",
                         "journey-outcome-j23-browser-offline-reconnect-fixture",
                         "journey-outcome-j24-cli-command-boundary-fixture");
 
@@ -127,14 +128,14 @@ class MediaTestHarnessCatalogTest {
     }
 
     @Test
-    void missingOutcomeJourneysRemainExplicitlyUnrepresented() throws Exception {
+    void outcomeJourneySelectorsAndExplicitUnrepresentedStatusAreReconciled() throws Exception {
         Path root = repositoryRoot();
         var catalog = new tools.jackson.databind.ObjectMapper().readTree(
                 root.resolve("docs/implementation/media-integration-test-census.v1.json").toFile());
         var unrepresentedNode = catalog.path("journeySelectorCoverage").path("unrepresentedJourneyIds");
         assertThat(unrepresentedNode)
                 .extracting(var -> var.asString())
-                .containsExactly("J-30");
+                .isEmpty();
         assertThat(catalog.path("journeySelectorCoverage").path("meaning").asString())
                 .contains("not a completion or admission status");
 
@@ -168,6 +169,14 @@ class MediaTestHarnessCatalogTest {
                 "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary");
         assertThat(Files.readString(root.resolve(j24.sources().getFirst())))
                 .contains(j24.selectors().getFirst(), "NOT_ADMITTED");
+        var j30 = profiles.get("journey-outcome-j30-unavailable-readiness");
+        assertThat(j30.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
+        assertThat(j30.selectors()).containsExactly(
+                "com.ghatana.audio.video.vision.grpc.VisionRoiAdmissionIntegrationTest.roiRequestsFailClosedBeforeProviderEffects");
+        assertThat(j30.sources()).contains(
+                ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+                "modules/integration-tests/src/test/java/com/ghatana/audio/video/vision/grpc/VisionRoiAdmissionIntegrationTest.java");
+        assertThat(j30.evidenceLimit()).contains("does not establish a composite eligibility catalog");
     }
 
     @Test
