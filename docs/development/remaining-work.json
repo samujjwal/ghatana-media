@@ -2070,7 +2070,8 @@
         "media.dev.scientific-simulation-engine"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: ScientificSimulationCurrentnessIntegrationTest PASS 1/1: an exact physical-model reference with UNKNOWN currentness yields ABSTAIN/INPUT_REFERENCE_NOT_CURRENT, never VALID; result and evidence remain deterministic simulation-only. This authored fixture is not measurement evidence. Still OPEN: source/tenant/rights/job binding, hosted client/UI, exact effect, denial/cancellation/ambiguity, durable readback/restart, and genuine measured instrument/reference evidence."
     },
     {
       "id": "media.dev.outcome-validated-simulation-pass",
@@ -2375,7 +2376,8 @@
         "media.dev.service-observability"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: MultimodalGrpcServerCompositionTest.authenticatedFixtureChildErrorIsReportedUnavailableWithoutRetryOrSuccessOutput PASS 1/1: authenticated TCP gRPC child failure returns UNAVAILABLE, records one child attempt with no retry/fallback, increments the failure metric, leaves readiness false, and returns no successful output. This fixture proves the bounded local error path only. Still OPEN: durable source/job/attempt binding, restart reconciliation, explicit fallback-confirmation result, and real provider qualification."
     },
     {
       "id": "media.dev.outcome-spatial-interactive-delivery",

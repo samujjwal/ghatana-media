@@ -709,6 +709,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-14 — Unit-correct dynamics and instrument values; solver negatives.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `ScientificSimulationCurrentnessIntegrationTest` passes 1/1: an exact physical-model reference with `UNKNOWN` currentness yields `ABSTAIN`/`INPUT_REFERENCE_NOT_CURRENT`, never `VALID`; result and evidence remain deterministic simulation-only. This authored fixture is not measurement evidence. Still OPEN: source/tenant/rights/job binding, hosted client/UI, exact effect, denial/cancellation/ambiguity, durable readback/restart, and genuine measured instrument/reference evidence.
 - **Predecessors:** `media.dev.scientific-simulation-engine`
 
 **`media.dev.outcome-validated-simulation-pass`** · OPEN
@@ -802,6 +803,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-27 — Unavailable/degraded/no-fallback/UNKNOWN behavior without fake success.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `MultimodalGrpcServerCompositionTest.authenticatedFixtureChildErrorIsReportedUnavailableWithoutRetryOrSuccessOutput` passes 1/1: authenticated TCP gRPC child failure returns `UNAVAILABLE`, records one child attempt with no retry/fallback, increments the failure metric, leaves readiness false, and returns no successful output. This fixture proves the bounded local error path only. Still OPEN: durable source/job/attempt binding, restart reconciliation, explicit fallback-confirmation result, and real provider qualification.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`, `media.dev.service-observability`
 
 **`media.dev.outcome-spatial-interactive-delivery`** · OPEN
