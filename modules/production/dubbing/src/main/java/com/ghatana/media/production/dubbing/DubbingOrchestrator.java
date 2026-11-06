@@ -2,6 +2,7 @@ package com.ghatana.media.production.dubbing;
 
 import com.ghatana.media.runtime.MediaCreationContracts;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +52,8 @@ public final class DubbingOrchestrator {
             sourceLocale = locale(sourceLocale);
             sourceClockId = required(sourceClockId, "sourceClockId");
             if (ticksPerSecond < 1 || sourceDurationTicks < 1) throw new IllegalArgumentException("source clock tuple must be positive");
-            segments = List.copyOf(Objects.requireNonNull(segments, "segments"));
-            if (segments.isEmpty() || segments.size() > MAX_SEGMENTS) throw new IllegalArgumentException("transcript segment count is outside bounds");
+            segments = boundedSegmentCopy(segments, "segments");
+            if (segments.isEmpty()) throw new IllegalArgumentException("transcript segment count is outside bounds");
             java.util.Set<String> ids = new java.util.HashSet<>();
             long totalText = 0;
             for (TranscriptSegment segment : segments) {
@@ -63,6 +64,20 @@ public final class DubbingOrchestrator {
                 if (totalText > MAX_TOTAL_TEXT_CODE_POINTS) throw new IllegalArgumentException("transcript exceeds total text bound");
             }
         }
+    }
+
+    /** Copies at most the contractually bounded prefix; never trusts a caller List's size(). */
+    private static <T> List<T> boundedSegmentCopy(List<T> input, String name) {
+        Objects.requireNonNull(input, name);
+        var iterator = input.iterator();
+        List<T> copy = new ArrayList<>();
+        while (iterator.hasNext()) {
+            if (copy.size() == MAX_SEGMENTS) {
+                throw new IllegalArgumentException("transcript segment count is outside bounds");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), name + " element"));
+        }
+        return List.copyOf(copy);
     }
 
     public record VoiceIdentity(String voiceId, String voiceVersionId) {
@@ -148,7 +163,7 @@ public final class DubbingOrchestrator {
                                     String transcriptVersionId, String sourceLocale, String targetLocale,
                                     String sourceClockId, long ticksPerSecond, long sourceDurationTicks,
                                     List<TranslatedSegment> segments) {
-        public TranslationResult { segments = List.copyOf(Objects.requireNonNull(segments, "segments")); }
+        public TranslationResult { segments = boundedSegmentCopy(segments, "segments"); }
     }
     public interface TranslationPort {
         Capability capability(String sourceLocale, String targetLocale);
@@ -187,7 +202,7 @@ public final class DubbingOrchestrator {
                                   String transcriptVersionId, String targetLocale, String sourceClockId,
                                   long ticksPerSecond, long sourceDurationTicks,
                                   List<AlignedSegment> segments) {
-        public AlignmentResult { segments = List.copyOf(Objects.requireNonNull(segments, "segments")); }
+        public AlignmentResult { segments = boundedSegmentCopy(segments, "segments"); }
     }
     public interface AlignmentPort {
         Capability capability(String targetLocale);
@@ -206,7 +221,7 @@ public final class DubbingOrchestrator {
                                 int synthesisDispatchCount, List<DubbedSegment> segments) {
         public DubbingResult {
             reason = reason == null ? Optional.empty() : reason;
-            segments = List.copyOf(segments == null ? List.of() : segments);
+            segments = boundedSegmentCopy(segments == null ? List.of() : segments, "segments");
             if ((status == ResultStatus.COMPLETED) != reason.isEmpty()) throw new IllegalArgumentException("only completed dubbing has no failure reason");
             if (status != ResultStatus.COMPLETED && !segments.isEmpty()) throw new IllegalArgumentException("incomplete dubbing cannot expose a completed segment set");
         }

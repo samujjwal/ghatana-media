@@ -7,8 +7,12 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -56,6 +60,93 @@ class MultimodalOperationSpecTest {
                 MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1, "src",
                 "sha256:" + SHA_A, SHA_A, List.of(), null, Map.of()))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void childListsAreBoundedByIterationEvenWhenReportedSizeLies() {
+        List<MultimodalOperationSpec.ChildOperationSpec> children = new ArrayList<>();
+        for (int i = 0; i < MultimodalOperationSpec.MAX_CHILDREN + 1; i++) {
+            children.add(child("stt-" + i));
+        }
+        List<MultimodalOperationSpec.ChildOperationSpec> underreported = underreported(children);
+        assertThat(underreported.size()).isEqualTo(1);
+        assertThatThrownBy(() -> new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1, "src",
+                "sha256:" + SHA_A, SHA_A, underreported, null, Map.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exceeds its bound");
+
+        Map<String, Object> encoded = new java.util.LinkedHashMap<>(spec().toParametersValue());
+        List<Object> encodedChildren = new ArrayList<>();
+        for (var child : children) encodedChildren.add(child.toString());
+        encoded.put("children", underreported(encodedChildren));
+        assertThatThrownBy(() -> MultimodalOperationSpec.fromParameterValue(encoded))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exceeds its bound");
+    }
+
+    @Test
+    void fusedResultRejectsExcessChildJobsWithoutReadingTheNinth() {
+        List<com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob> values = new ArrayList<>();
+        for (int i = 0; i < MultimodalOperationSpec.MAX_CHILDREN + 1; i++) {
+            values.add(completedChild("job-" + i, JobType.SPEECH_TO_TEXT, Map.of()));
+        }
+        AtomicInteger consumed = new AtomicInteger();
+        List<com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob> underreported =
+                trackedUnderreported(values, consumed);
+
+        assertThatThrownBy(() -> MultimodalOperationSpec.fusedResult(spec(), underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exceeds its bound");
+        assertThat(consumed).hasValue(MultimodalOperationSpec.MAX_CHILDREN);
+    }
+
+    @Test
+    void timedObservationsAreCappedWithoutReadingTheExcessItem() {
+        List<Map<String, Object>> values = new ArrayList<>();
+        for (int i = 0; i < 17; i++) {
+            values.add(Map.of("startTick", (long) i, "endTick", (long) i + 1,
+                    "sourceClockId", "src-clock", "ticksPerSecond", 48_000L));
+        }
+        AtomicInteger consumed = new AtomicInteger();
+        List<Map<String, Object>> underreported = trackedUnderreported(values, consumed);
+        var child = completedChild("job-timed", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", underreported));
+        var fused = MultimodalOperationSpec.fusedResult(
+                clockedSpec(new MultimodalOperationSpec.SourceClockBinding(
+                        "ev", 48_000, 0, "src-clock", 100)), List.of(child));
+        List<?> observations = (List<?>) fused.get("observations");
+        Map<?, ?> timing = (Map<?, ?>) ((Map<?, ?>) observations.getFirst()).get("timing");
+
+        assertThat(timing.get("status")).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(timing.get("reason")).isEqualTo("TIMED_OBSERVATION_BUDGET_EXCEEDED");
+        assertThat(timing.get("groundedTimedObservations"))
+                .isEqualTo(16);
+        assertThat(consumed).hasValue(16);
+    }
+
+    @Test
+    void timedObservationsRespectGlobalBudgetWithoutReadingExcessItems() {
+        List<Map<String, Object>> values = new ArrayList<>();
+        for (int i = 0; i < 16; i++) {
+            values.add(Map.of("startTick", (long) i, "endTick", (long) i + 1,
+                    "sourceClockId", "src-clock", "ticksPerSecond", 48_000L));
+        }
+        AtomicInteger consumed = new AtomicInteger();
+        var first = completedChild("job-first", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", values));
+        var second = completedChild("job-second", JobType.VISION,
+                Map.of("timedObservations", trackedUnderreported(values, consumed)));
+        var fused = MultimodalOperationSpec.fusedResult(
+                clockedSpec(new MultimodalOperationSpec.SourceClockBinding(
+                        "ev", 48_000, 0, "src-clock", 100)), List.of(first, second));
+        List<?> observations = (List<?>) fused.get("observations");
+        Map<?, ?> secondTiming = (Map<?, ?>) ((Map<?, ?>) observations.get(1)).get("timing");
+
+        assertThat(secondTiming.get("status")).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(secondTiming.get("reason")).isEqualTo("TIMED_OBSERVATION_BUDGET_EXCEEDED");
+        assertThat(secondTiming.get("groundedTimedObservations")).isEqualTo(8);
+        assertThat(consumed).hasValue(8);
     }
 
     @Test
@@ -164,14 +255,18 @@ class MultimodalOperationSpecTest {
                                 "ticksPerSecond", 90_000L))));
         var malformed = completedChild("job-c", JobType.SPEECH_TO_TEXT,
                 Map.of("timedObservations", List.of(Map.of("startTick", "oops"))));
+        var nullObservation = completedChild("job-f", JobType.VISION,
+                Map.of("timedObservations", java.util.Collections.singletonList(null)));
         Map<String, Object> fused = MultimodalOperationSpec.fusedResult(
-                spec, List.of(wrongClock, outOfDuration, malformed, missingTimebase, mismatchedTimebase));
+                spec, List.of(wrongClock, outOfDuration, malformed, missingTimebase,
+                        mismatchedTimebase, nullObservation));
         List<?> observations = (List<?>) fused.get("observations");
         assertThat(undetermined(observations, 0)).isEqualTo("SOURCE_CLOCK_MISMATCH");
         assertThat(undetermined(observations, 1)).isEqualTo("SOURCE_TICKS_OUT_OF_DURATION");
         assertThat(undetermined(observations, 2)).isEqualTo("TIMED_OBSERVATION_MALFORMED");
         assertThat(undetermined(observations, 3)).isEqualTo("SOURCE_CLOCK_MISMATCH");
         assertThat(undetermined(observations, 4)).isEqualTo("SOURCE_CLOCK_MISMATCH");
+        assertThat(undetermined(observations, 5)).isEqualTo("TIMED_OBSERVATION_MALFORMED");
         assertThat(fused.get("clockComparability")).isEqualTo("SYNC_UNDETERMINED");
         // No binding at all: nothing is claimed comparable.
         var unbound = clockedSpec(null);
@@ -267,6 +362,31 @@ class MultimodalOperationSpecTest {
                 .get("timing")).get("entries")).get(0);
         assertThat(entry.get("status")).isEqualTo("SYNC_UNDETERMINED");
         return String.valueOf(entry.get("reason"));
+    }
+
+    private static <T> List<T> underreported(List<T> values) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { return values.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<T> iterator() { return values.iterator(); }
+        };
+    }
+
+    private static <T> List<T> trackedUnderreported(List<T> values, AtomicInteger consumed) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { return values.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<T> iterator() {
+                Iterator<T> delegate = values.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public T next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
     }
 
     private static MultimodalOperationSpec clockedSpec(

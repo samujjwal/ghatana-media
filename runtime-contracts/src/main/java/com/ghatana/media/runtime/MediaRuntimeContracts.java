@@ -699,6 +699,19 @@ public final class MediaRuntimeContracts {
         private static final java.util.Set<JobType> ADMITTED_CHILD_JOB_TYPES =
                 java.util.Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION);
 
+        private static <T> List<T> boundedList(List<? extends T> values, int max, String field) {
+            java.util.Objects.requireNonNull(values, field);
+            List<T> copy = new ArrayList<>(Math.min(max, 8));
+            java.util.Iterator<? extends T> iterator = values.iterator();
+            while (iterator.hasNext()) {
+                if (copy.size() == max) {
+                    throw new IllegalArgumentException(field + " exceeds its bound of " + max);
+                }
+                copy.add(iterator.next());
+            }
+            return List.copyOf(copy);
+        }
+
         public MultimodalOperationSpec {
             if (!SPEC_VERSION.equals(specVersion)) {
                 throw new IllegalArgumentException(
@@ -720,8 +733,8 @@ public final class MediaRuntimeContracts {
                 throw new IllegalArgumentException(
                         "source version and digest must identify the same bytes");
             }
-            children = List.copyOf(java.util.Objects.requireNonNull(children, "children"));
-            if (children.isEmpty() || children.size() > MAX_CHILDREN) {
+            children = boundedList(children, MAX_CHILDREN, "multimodal operation children");
+            if (children.isEmpty()) {
                 throw new IllegalArgumentException(
                         "multimodal operation requires between 1 and " + MAX_CHILDREN + " children");
             }
@@ -792,7 +805,7 @@ public final class MediaRuntimeContracts {
             if (!(rawChildren instanceof List<?> list)) {
                 throw new IllegalArgumentException("multimodal operation spec requires a children list");
             }
-            for (Object raw : list) {
+            for (Object raw : boundedList(list, MAX_CHILDREN, "multimodal operation children")) {
                 if (!(raw instanceof Map<?, ?> childMap)) {
                     throw new IllegalArgumentException("multimodal child entry must be an object");
                 }
@@ -896,6 +909,7 @@ public final class MediaRuntimeContracts {
          */
         public static Map<String, Object> fusedResult(
                 MultimodalOperationSpec spec, List<ProcessingJob> children) {
+            children = boundedList(children, MAX_CHILDREN, "multimodal child jobs");
             Map<String, Object> fused = new LinkedHashMap<>();
             List<Object> observations = new ArrayList<>(children.size());
             int entryBudget = MAX_GROUNDED_TIMED_ENTRIES;
@@ -907,10 +921,12 @@ public final class MediaRuntimeContracts {
                 entry.put("childRequestId", child.requestId());
                 entry.put("childJobType", child.jobType().name());
                 entry.put("childStatus", child.status().name());
-                entry.put("childResultDigest", childResultDigest(child.result()));
-                Map<String, Object> childResult = boundedChildResult(child.result());
+                BoundedChildResult boundedResult = boundedChildResult(child.result(), entryBudget);
+                Map<String, Object> childResult = boundedResult.values();
+                entry.put("childResultDigest", childResultDigest(childResult));
                 entry.put("observations", childResult);
-                Map<String, Object> timing = groundChildTiming(spec, childResult, entryBudget);
+                Map<String, Object> timing = groundChildTiming(
+                        spec, childResult, entryBudget, boundedResult.timedObservationsTruncated());
                 entryBudget -= ((Number) timing.get("groundedTimedObservations")).intValue();
                 entry.put("timing", timing);
                 anyAligned |= "TIMESTAMP_ALIGNED".equals(timing.get("status"));
@@ -941,16 +957,18 @@ public final class MediaRuntimeContracts {
         private static final String TIMING_UNDETERMINED = "SYNC_UNDETERMINED";
 
         private static Map<String, Object> groundChildTiming(
-                MultimodalOperationSpec spec, Map<String, Object> childResult, int entryBudget) {
+                MultimodalOperationSpec spec, Map<String, Object> childResult, int entryBudget,
+                boolean declaredTruncated) {
             Map<String, Object> timing = new LinkedHashMap<>();
             Object raw = childResult.get("timedObservations");
             List<?> declared = raw instanceof List<?> list ? list : List.of();
             int processed = 0;
             String firstUndetermined = null;
-            boolean budgetTruncated = declared.size() > Math.min(entryBudget, MAX_TIMED_OBSERVATIONS_PER_CHILD);
+            int maxEntries = Math.min(entryBudget, MAX_TIMED_OBSERVATIONS_PER_CHILD);
             List<Object> entries = new ArrayList<>();
-            for (Object item : declared) {
-                if (processed >= MAX_TIMED_OBSERVATIONS_PER_CHILD || processed >= entryBudget) break;
+            java.util.Iterator<?> iterator = declared.iterator();
+            while (processed < maxEntries && iterator.hasNext()) {
+                Object item = iterator.next();
                 Map<String, Object> grounded = groundTimedObservation(spec, item);
                 entries.add(Map.copyOf(grounded));
                 processed++;
@@ -958,18 +976,20 @@ public final class MediaRuntimeContracts {
                     firstUndetermined = String.valueOf(grounded.get("reason"));
                 }
             }
+            boolean budgetTruncated = declaredTruncated
+                    || processed == maxEntries && iterator.hasNext();
             boolean aligned = processed > 0 && firstUndetermined == null
-                    && declared.size() == processed;
+                    && !budgetTruncated && !iterator.hasNext();
             if (aligned) {
                 timing.put("status", TIMING_ALIGNED);
             } else {
                 timing.put("status", TIMING_UNDETERMINED);
                 timing.put("reason", firstUndetermined != null ? firstUndetermined
-                        : budgetTruncated || declared.size() > processed
+                        : budgetTruncated
                                 ? "TIMED_OBSERVATION_BUDGET_EXCEEDED"
                                 : "TIMED_OBSERVATIONS_ABSENT");
             }
-            timing.put("declaredTimedObservations", declared.size());
+            timing.put("declaredTimedObservations", processed + (budgetTruncated ? 1 : 0));
             timing.put("groundedTimedObservations", processed);
             timing.put("entries", List.copyOf(entries));
             return Map.copyOf(timing);
@@ -1077,16 +1097,35 @@ public final class MediaRuntimeContracts {
             return number.longValue();
         }
 
-        private static Map<String, Object> boundedChildResult(Map<String, Object> result) {
+        private record BoundedChildResult(Map<String, Object> values,
+                boolean timedObservationsTruncated) {}
+
+        private static BoundedChildResult boundedChildResult(Map<String, Object> result, int entryBudget) {
             Map<String, Object> copy = new LinkedHashMap<>();
             int budget = 8_192;
+            boolean timedObservationsTruncated = false;
             for (Map.Entry<String, Object> entry : result.entrySet()) {
+                if ("timedObservations".equals(entry.getKey())
+                        && entry.getValue() instanceof List<?> declared) {
+                    int maxEntries = Math.min(entryBudget, MAX_TIMED_OBSERVATIONS_PER_CHILD);
+                    List<Object> bounded = new ArrayList<>(maxEntries);
+                    java.util.Iterator<?> iterator = declared.iterator();
+                    while (bounded.size() < maxEntries && iterator.hasNext()) {
+                        bounded.add(iterator.next());
+                    }
+                    timedObservationsTruncated = bounded.size() == maxEntries
+                            && iterator.hasNext();
+                    // Null is malformed observation input, but still has a typed
+                    // SYNC_UNDETERMINED result in groundTimedObservation; retain it here.
+                    copy.put(entry.getKey(), java.util.Collections.unmodifiableList(bounded));
+                    continue;
+                }
                 String serialized = String.valueOf(entry.getValue());
                 if (serialized.length() > budget) continue;
                 budget -= serialized.length();
                 copy.put(entry.getKey(), entry.getValue());
             }
-            return Map.copyOf(copy);
+            return new BoundedChildResult(Map.copyOf(copy), timedObservationsTruncated);
         }
 
         private static String childResultDigest(Map<String, Object> result) {

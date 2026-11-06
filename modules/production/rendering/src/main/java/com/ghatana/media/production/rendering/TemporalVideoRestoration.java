@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,9 +60,8 @@ public final class TemporalVideoRestoration {
             if (!sha256.matches(SHA256)) throw invalid("sha256 must be a 64-character SHA-256 hex digest");
             purposeRef = requiredText(purposeRef, "purposeRef", 256);
             Objects.requireNonNull(rightsEvidenceRefs, "rightsEvidenceRefs");
-            if (rightsEvidenceRefs.isEmpty() || rightsEvidenceRefs.size() > 32) {
-                throw invalid("rightsEvidenceRefs must contain between 1 and 32 references");
-            }
+            rightsEvidenceRefs = boundedListCopy(rightsEvidenceRefs, 1, 32,
+                    "rightsEvidenceRefs must contain between 1 and 32 references");
             rightsEvidenceRefs = rightsEvidenceRefs.stream()
                     .map(value -> requiredText(value, "rightsEvidenceRef", 256)).distinct().toList();
             if (rightsEvidenceRefs.isEmpty()) throw invalid("rightsEvidenceRefs must be unique");
@@ -273,10 +273,8 @@ public final class TemporalVideoRestoration {
             if (!artifactSha256.matches(SHA256)) throw invalid("sequence artifact SHA-256 is invalid");
             Objects.requireNonNull(timeBase, "timeBase");
             Objects.requireNonNull(frames, "frames");
-            if (frames.size() < 3 || frames.size() > MAX_FRAMES) {
-                throw invalid("temporal denoising requires between 3 and 64 frames");
-            }
-            frames = List.copyOf(frames);
+            frames = boundedListCopy(frames, 3, MAX_FRAMES,
+                    "temporal denoising requires between 3 and 64 frames");
             Frame first = frames.getFirst();
             long pixels = 0;
             long previousPts = -1;
@@ -421,14 +419,13 @@ public final class TemporalVideoRestoration {
             boolean dimensionsPreserved, boolean timingPreserved,
             boolean sourcePixelsPreservedOutsideRoi, boolean improvementClaimed) {
         public Candidate {
-            frames = List.copyOf(Objects.requireNonNull(frames, "frames"));
+            Objects.requireNonNull(frames, "frames");
+            frames = boundedListCopy(frames, 3, MAX_FRAMES,
+                    "candidate must contain between 3 and 64 ordered frames");
             Objects.requireNonNull(timeBase, "timeBase");
             Objects.requireNonNull(lineage, "lineage");
             Objects.requireNonNull(sourceDelta, "sourceDelta");
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
-            if (frames.size() < 3 || frames.size() > MAX_FRAMES) {
-                throw invalid("candidate must contain between 3 and 64 ordered frames");
-            }
             CandidateFrame first = Objects.requireNonNull(frames.getFirst(), "candidate.frames[]");
             long pixels = 0;
             long previousPts = -1;
@@ -826,6 +823,18 @@ public final class TemporalVideoRestoration {
             digest.update(HexFormat.of().parseHex(frame.frameSha256()));
         }
         return HexFormat.of().formatHex(digest.digest());
+    }
+
+    /** Copies from the actual iterator, checking the ceiling before consuming item ceiling + 1. */
+    private static <T> List<T> boundedListCopy(List<T> input, int minimum, int maximum, String message) {
+        ArrayList<T> copy = new ArrayList<>(Math.min(maximum, 16));
+        Iterator<T> iterator = input.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() == maximum) throw invalid(message);
+            copy.add(iterator.next());
+        }
+        if (copy.size() < minimum) throw invalid(message);
+        return List.copyOf(copy);
     }
 
     private static String sha256(byte[] bytes) {

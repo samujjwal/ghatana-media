@@ -2,15 +2,80 @@ package com.ghatana.media.production.dubbing;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 
 import static com.ghatana.media.production.dubbing.DubbingOrchestrator.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DubbingOrchestratorTest {
+    @Test
+    void transcriptRejectsUnderreportedListWithoutTraversingPastSegmentLimit() {
+        AtomicInteger yielded = new AtomicInteger();
+        List<TranscriptSegment> underreported = underreportedList(yielded,
+                current -> new TranscriptSegment("seg-" + current, "text", current, current + 1L));
+
+        assertThatThrownBy(() -> new TranscriptRevision("transcript-v1",
+                new SourceVersion("artifact-a", "version-a"), "en-US", "clock", 1,
+                MAX_SEGMENTS + 100L, underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("segment count");
+        assertThat(yielded).hasValue(MAX_SEGMENTS);
+    }
+
+    @Test
+    void providerResultListsRejectUnderreportedContentsAtTheSharedSegmentLimit() {
+        SourceVersion source = new SourceVersion("artifact-a", "version-a");
+        AtomicInteger translatedYielded = new AtomicInteger();
+        assertThatThrownBy(() -> new TranslationResult("tenant", "request", source, "transcript-v1",
+                "en-US", "es-MX", "clock", 1, MAX_SEGMENTS + 100L,
+                underreportedList(translatedYielded, current -> new TranslatedSegment("seg-" + current, "text", current, current + 1L))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("segment count");
+        assertThat(translatedYielded).hasValue(MAX_SEGMENTS);
+
+        AtomicInteger alignedYielded = new AtomicInteger();
+        assertThatThrownBy(() -> new AlignmentResult("tenant", "request", source, "transcript-v1",
+                "es-MX", "clock", 1, MAX_SEGMENTS + 100L,
+                underreportedList(alignedYielded, current -> new AlignedSegment("seg-" + current, "digest", current, current + 1L))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("segment count");
+        assertThat(alignedYielded).hasValue(MAX_SEGMENTS);
+
+        AtomicInteger dubbedYielded = new AtomicInteger();
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", new VoiceIdentity("voice", "voice-v1"), "clock", 1,
+                MAX_SEGMENTS + 100L, true, MAX_SEGMENTS,
+                underreportedList(dubbedYielded, current -> new DubbedSegment("seg-" + current, "text", new byte[0],
+                        "digest", current, current + 1L, current, current + 1L))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("segment count");
+        assertThat(dubbedYielded).hasValue(MAX_SEGMENTS);
+    }
+
+    private static <T> List<T> underreportedList(AtomicInteger yielded, IntFunction<T> elementFactory) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<T> iterator() {
+                return new Iterator<>() {
+                    private int index;
+                    @Override public boolean hasNext() { return index < MAX_SEGMENTS + 50; }
+                    @Override public T next() {
+                        if (!hasNext()) throw new NoSuchElementException();
+                        yielded.incrementAndGet();
+                        return elementFactory.apply(index++);
+                    }
+                };
+            }
+        };
+    }
+
     @Test
     void sourceRightsDenialStopsBeforeTranslationTtsOrAlignment() {
         Fixture f = new Fixture();

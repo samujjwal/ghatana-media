@@ -2,7 +2,9 @@ package com.ghatana.media.production.rendering;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,6 +19,54 @@ class TemporalVideoRestorationTest {
     private static final String SOURCE_SHA = "a".repeat(64);
     private static final String REF_SHA = "b".repeat(64);
     private static final TimeBase TIME_BASE = new TimeBase(1, 30);
+
+    @Test
+    void boundedCallerListsUseIteratorAndDoNotConsumeOverLimitItem() {
+        AtomicInteger rightsConsumed = new AtomicInteger();
+        List<String> rights = new ArrayList<>();
+        for (int i = 0; i < 33; i++) rights.add("rights:" + i);
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", deceptiveList(rights, rightsConsumed), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("between 1 and 32");
+        assertThat(rightsConsumed).hasValue(32);
+
+        AtomicInteger framesConsumed = new AtomicInteger();
+        List<Frame> frames = new ArrayList<>();
+        for (int i = 0; i < MAX_FRAMES + 1; i++) {
+            frames.add(i == MAX_FRAMES ? null : frame(i, i, new byte[] {1, 2, 3}, new Roi(0, 0, 1, 1)));
+        }
+        assertThatThrownBy(() -> new DecodedFrameSequence("source", "v3", SOURCE_SHA, TIME_BASE,
+                deceptiveList(frames, framesConsumed)))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("between 3 and 64");
+        assertThat(framesConsumed).hasValue(MAX_FRAMES);
+
+        Candidate baseline = TemporalVideoRestoration.restore(request(), (binding, operation) ->
+                allowed("source-decision-v3"), binding -> sequence(SOURCE_SHA, stableFrames(),
+                new Roi(0, 0, 1, 1)), Optional.empty(), null, null).candidate().orElseThrow();
+        List<CandidateFrame> candidateFrames = new ArrayList<>();
+        for (int i = 0; i < MAX_FRAMES + 1; i++) {
+            candidateFrames.add(i == MAX_FRAMES ? null : candidateFrame(i, i, new Roi(0, 0, 1, 1),
+                    new byte[] {1, 2, 3, 4, 5, 6}));
+        }
+        AtomicInteger candidateFramesConsumed = new AtomicInteger();
+        assertThatThrownBy(() -> candidateWith(baseline, deceptiveList(candidateFrames, candidateFramesConsumed)))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("between 3 and 64");
+        assertThat(candidateFramesConsumed).hasValue(MAX_FRAMES);
+    }
+
+    private static <T> List<T> deceptiveList(List<T> values, AtomicInteger consumed) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { return values.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<T> iterator() {
+                Iterator<T> delegate = values.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public T next() { consumed.incrementAndGet(); return delegate.next(); }
+                };
+            }
+        };
+    }
 
     @Test
     void temporalMedianProducesAlignedCandidateAndExactReferenceMetricsWithoutClaimingImprovement() {

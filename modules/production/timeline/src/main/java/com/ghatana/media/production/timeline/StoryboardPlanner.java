@@ -161,6 +161,11 @@ public final class StoryboardPlanner {
             Set<String> ids = new HashSet<>();
             Set<Integer> orders = new HashSet<>();
             for (ShotInput shot : shots) {
+                RationalTime sceneEnd = storyStart.plus(storyDuration);
+                RationalTime shotEnd = shot.storyStart().plus(shot.storyDuration());
+                if (shot.storyStart().compareTo(storyStart) < 0 || shotEnd.compareTo(sceneEnd) > 0) {
+                    throw new IllegalArgumentException("shot story interval must be contained by its scene");
+                }
                 if (!ids.add(shot.shotId())) throw new IllegalArgumentException("duplicate shot identity: " + shot.shotId());
                 if (!orders.add(shot.order())) throw new IllegalArgumentException("duplicate shot order within scene");
             }

@@ -275,6 +275,24 @@ class StoryboardPlannerTest {
                 .hasMessageContaining("story-clock");
     }
 
+    @Test
+    void authoredShotIntervalsMustStayInsideTheirScene() {
+        assertThatThrownBy(() -> new StoryboardPlanner.AuthoredScene("scene", 0, "scene intent",
+                story(10), story(5), List.of(shot("before", 0, 9, List.of()))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("contained by its scene");
+        assertThatThrownBy(() -> new StoryboardPlanner.AuthoredScene("scene", 0, "scene intent",
+                story(10), story(5), List.of(shot("after", 0, 15, List.of()))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("contained by its scene");
+
+        // Mixed exact rates are compared as rational story time, without rounding to frame ticks.
+        assertThat(new StoryboardPlanner.AuthoredScene("scene", 0, "scene intent",
+                story(10), story(5), List.of(new StoryboardPlanner.ShotInput("inside", 0, "shot intent",
+                        new RationalTime(21, 2, 1, Clock.STORY), new RationalTime(1, 2, 1, Clock.STORY), List.of()))))
+                .isNotNull();
+    }
+
     private static StoryboardPlanner.AuthoredBrief brief(List<SourceVersion> refs) {
         return new StoryboardPlanner.AuthoredBrief("brief-1", "b1", "personal-project", "An authored story", refs);
     }
