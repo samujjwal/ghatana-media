@@ -137,6 +137,21 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void closeAfterChildSubmissionCompletesUnknownAndAttemptsChildCancellation() throws Exception {
+        var provider = new DelegatingMultimodalProvider();
+        var dispatcher = new FixtureDispatcher().with(JobStatus.RUNNING, Map.of());
+        var future = provider.processAttempt(context(dispatcher), attempt());
+
+        assertThat(dispatcher.submits).hasValue(1);
+        provider.close();
+
+        var submission = future.get(5, TimeUnit.SECONDS);
+        assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+        assertThat(submission.result()).isEmpty();
+        assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+    }
+
+    @Test
     void samePrincipalMismatchedReturnedChildIsNotCancelled() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {

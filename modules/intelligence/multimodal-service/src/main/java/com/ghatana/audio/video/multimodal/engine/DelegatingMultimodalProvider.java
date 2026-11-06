@@ -328,6 +328,10 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                             context, attempt, spec, children, dispatcher, result, deadline),
                     Math.min(pollInterval.toNanos(), remainingNanos), TimeUnit.NANOSECONDS);
         } catch (RuntimeException failure) {
+            // A failed readback or rejected reschedule must not strand already
+            // submitted children. Cancellation is only best-effort; parent finality
+            // remains UNKNOWN because a child may have completed despite the failure.
+            cancelChildrenQuietly(children, dispatcher);
             result.complete(OperationOutcome.unknown());
         }
     }
@@ -463,6 +467,9 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     @Override
     public void close() {
         if (!closed.compareAndSet(false, true)) return;
-        if (ownsScheduler) scheduler.shutdownNow();
+        // Let an already queued bounded poll run once so it can resolve its operation
+        // future to UNKNOWN and attempt child cancellation. New polls are rejected by
+        // the orderly shutdown and handled by scheduleCompletion's failure path.
+        if (ownsScheduler) scheduler.shutdown();
     }
 }
