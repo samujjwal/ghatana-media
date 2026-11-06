@@ -144,6 +144,9 @@ function browserHarness(options: {
   permission?: "GRANTED" | "DENIED" | "REVOKED" | "UNKNOWN";
   read?: (signal: AbortSignal) => Promise<Uint8Array | null>;
   encode?: (bytes: Uint8Array, signal: AbortSignal) => Promise<CameraFrameRead>;
+  bindStarted?: () => void;
+  bindGate?: Promise<void>;
+  rejectCodecClose?: boolean;
 } = {}) {
   let permission = options.permission ?? "GRANTED";
   const permissionListeners: Array<(state: typeof permission) => void> = [];
@@ -172,11 +175,15 @@ function browserHarness(options: {
     },
   }, {
     async bind(candidate, _device, signal) {
-      if (signal.aborted) throw new Error("bind cancelled");
+      options.bindStarted?.();
+      await options.bindGate;
       return {
         sourceMetadata: sourceMetadataFor(candidate),
         encode: options.encode ?? (async (bytes) => ({ bytes: Uint8Array.from(bytes) })),
-        close() { codecCloses++; },
+        close() {
+          codecCloses++;
+          if (options.rejectCodecClose) throw new Error("codec cleanup failed");
+        },
       };
     },
   });
@@ -220,6 +227,37 @@ describe("CameraCaptureAdapter", () => {
     await started;
     h.setPermission("REVOKED");
     await expectCode(pending, "CONSENT_REVOKED");
+    expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+  });
+
+  it("preserves DENIED and UNKNOWN host permission changes during a read", async () => {
+    for (const [permission, code] of [["DENIED", "PERMISSION_DENIED"], ["UNKNOWN", "PERMISSION_UNKNOWN"]] as const) {
+      let readStarted: (() => void) | undefined;
+      const started = new Promise<void>((resolve) => { readStarted = resolve; });
+      const h = browserHarness({ read: (signal) => new Promise((_resolve, reject) => {
+        readStarted?.();
+        signal.addEventListener("abort", () => reject(new Error("permission changed")), { once: true });
+      }), rejectCodecClose: true });
+      const session = await h.adapter.openSession(request);
+      const pending = session.nextFrame();
+      await started;
+      h.setPermission(permission);
+      await expectCode(pending, code);
+      expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+    }
+  });
+
+  it("does not return a track when permission becomes unknown during an uncancellable codec bind", async () => {
+    let markBindStarted: (() => void) | undefined;
+    let finishBind: (() => void) | undefined;
+    const bindStarted = new Promise<void>((resolve) => { markBindStarted = resolve; });
+    const bindGate = new Promise<void>((resolve) => { finishBind = resolve; });
+    const h = browserHarness({ bindStarted: () => markBindStarted?.(), bindGate });
+    const opening = h.adapter.openSession(request);
+    await bindStarted;
+    h.setPermission("UNKNOWN");
+    finishBind?.();
+    await expectCode(opening, "PERMISSION_UNKNOWN");
     expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
   });
 

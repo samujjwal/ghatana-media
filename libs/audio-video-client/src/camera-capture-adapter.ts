@@ -140,7 +140,9 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
   }
 
   public async open(request: CaptureRequest, signal: AbortSignal): Promise<CameraTrack> {
+    let hostPermissionFailure: CameraCaptureError | null = null;
     const assertHostPermission = async (): Promise<void> => {
+      if (hostPermissionFailure) throw hostPermissionFailure;
       if (signal.aborted) throw fail("SESSION_CLOSED", "camera host open was cancelled");
       let disposition: CameraHostPermissionDisposition;
       try {
@@ -148,6 +150,7 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
       } catch {
         throw fail("PERMISSION_MISSING", "browser camera permission evidence is unavailable");
       }
+      if (hostPermissionFailure) throw hostPermissionFailure;
       if (signal.aborted) throw fail("SESSION_CLOSED", "camera host open was cancelled");
       if (disposition === "UNKNOWN") throw fail("PERMISSION_UNKNOWN", "browser camera permission is unknown");
       if (disposition === "REVOKED") throw fail("CONSENT_REVOKED", "browser camera permission was revoked");
@@ -165,18 +168,27 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
     try {
       unsubscribe = this.permission.subscribe(request, (disposition) => {
         if (disposition !== "GRANTED") {
+          hostPermissionFailure = disposition === "UNKNOWN"
+            ? fail("PERMISSION_UNKNOWN", "browser camera permission became unknown")
+            : disposition === "DENIED"
+              ? fail("PERMISSION_DENIED", "browser camera permission was denied")
+              : fail("CONSENT_REVOKED", "browser camera permission was revoked");
           hostController.abort();
-          void stopOpenedTrack?.();
+          void stopOpenedTrack?.().catch(() => undefined);
         }
       });
       await assertHostPermission();
       device = await this.devices.openExact(request, hostController.signal);
+      if (hostPermissionFailure) throw hostPermissionFailure;
       if (!device || device.sourceIdentity !== request.sourceIdentity
         || device.sourceVersionRef !== request.sourceVersionRef) {
         throw fail("SOURCE_METADATA_UNAVAILABLE", "browser selected a different camera source revision");
       }
       if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during device open");
       codec = await this.codecs.bind(request, device, hostController.signal);
+      // Some host codec ports cannot cancel bind immediately; a permission
+      // event during that await still prevents the track from escaping.
+      if (hostPermissionFailure) throw hostPermissionFailure;
       await assertHostPermission();
       if (!codec || !codec.sourceMetadata) {
         throw fail("CODEC_UNAVAILABLE", "browser camera encoder binding is unavailable");
@@ -201,6 +213,7 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
       return {
         sourceMetadata: boundCodec.sourceMetadata,
         async nextFrame(frameSignal) {
+          if (hostPermissionFailure) throw hostPermissionFailure;
           if (stopped || hostController.signal.aborted || frameSignal.aborted) {
             throw fail("SESSION_CLOSED", "browser camera capture was cancelled");
           }
@@ -210,9 +223,11 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
             raw = await boundDevice.readFrame(hostController.signal);
           } catch (error) {
             if (frameSignal.aborted) throw fail("SESSION_CLOSED", "browser camera read was cancelled");
+            if (hostPermissionFailure) throw hostPermissionFailure;
             if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during frame read");
             throw error;
           }
+          if (hostPermissionFailure) throw hostPermissionFailure;
           if (raw === null) return null;
           if (!(raw instanceof Uint8Array) || raw.byteLength === 0) {
             throw fail("FRAME_INVALID", "browser camera returned an empty frame");
@@ -222,9 +237,11 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
             encoded = await boundCodec.encode(raw, hostController.signal);
           } catch (error) {
             if (frameSignal.aborted) throw fail("SESSION_CLOSED", "browser camera encoding was cancelled");
+            if (hostPermissionFailure) throw hostPermissionFailure;
             if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during frame encoding");
             throw error;
           }
+          if (hostPermissionFailure) throw hostPermissionFailure;
           await assertHostPermission();
           if (stopped || hostController.signal.aborted || frameSignal.aborted) {
             throw fail("CONSENT_REVOKED", "browser camera permission changed during frame encoding");
@@ -237,12 +254,11 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
       signal.removeEventListener("abort", abortHost);
       unsubscribe?.();
       hostController.abort();
-      try {
-        await codec?.close();
-      } finally {
-        await device?.stop();
-      }
-      throw error;
+      await Promise.allSettled([
+        Promise.resolve().then(() => codec?.close()),
+        Promise.resolve().then(() => device?.stop()),
+      ]);
+      throw hostPermissionFailure ?? error;
     }
   }
 }
