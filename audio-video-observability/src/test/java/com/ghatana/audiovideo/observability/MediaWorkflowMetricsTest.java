@@ -221,19 +221,28 @@ class MediaWorkflowMetricsTest {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
         Instant now = Instant.parse("2026-11-05T12:00:00Z");
-        String credential = "sk-secret-provider-credential-123";
+        java.util.List<String> credentials = java.util.List.of(
+                "sk-secret-provider-credential-123",
+                "ASIA1234567890EXAMPLE",
+                "ya29.a0AfH6SMB-example-token",
+                "glpat-test-only");
 
-        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
-                credential, "v1", "profile", "revision",
-                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageNotContaining(credential);
-        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
-                credential, "v1", "model", now, java.util.List.of())).isFalse();
-        assertThat(registry.getMeters().stream()
+        for (String credential : credentials) {
+            assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
+                    credential, "v1", "profile", "revision",
+                    MediaWorkflowMetrics.ProviderReadiness.HEALTHY, now, null))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageNotContaining(credential);
+            assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                    credential, "v1", "model", now, java.util.List.of())).isFalse();
+        }
+        java.util.List<String> labelValues = registry.getMeters().stream()
                 .flatMap(meter -> meter.getId().getTags().stream())
-                .map(tag -> tag.getValue()))
-                .doesNotContain(credential);
+                .map(tag -> tag.getValue())
+                .toList();
+        for (String credential : credentials) {
+            assertThat(labelValues).doesNotContain(credential);
+        }
     }
 
     @Test
