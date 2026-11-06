@@ -14,6 +14,26 @@ import java.time.Instant;
 
 class MediaWorkflowMetricsTest {
     @Test
+    void captureFrameCountersUseFixedLabelsAndKeepUnknownDistinct() {
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+            metrics.recordCaptureFrame(MediaWorkflowMetrics.CaptureKind.AUDIO,
+                    MediaWorkflowMetrics.Outcome.SUCCESS);
+            metrics.recordCaptureFrame(MediaWorkflowMetrics.CaptureKind.VIDEO,
+                    MediaWorkflowMetrics.Outcome.UNKNOWN);
+
+            String scrape = registry.scrape();
+            assertThat(scrape).contains(
+                    "media_capture_frames_total{contract_version=\"v1\",kind=\"audio\",outcome=\"success\",service=\"launcher\"} 1.0",
+                    "media_capture_frames_total{contract_version=\"v1\",kind=\"video\",outcome=\"unknown\",service=\"launcher\"} 1.0");
+            assertThat(scrape).doesNotContain("session_id", "source_id", "tenant_id", "provider_id");
+        } finally {
+            registry.close();
+        }
+    }
+
+    @Test
     void prometheusScrapePreservesUnknownQualityAsNanWithoutIdentityLabels() {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         try {

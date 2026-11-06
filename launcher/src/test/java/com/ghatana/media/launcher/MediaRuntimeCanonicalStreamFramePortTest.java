@@ -64,6 +64,10 @@ class MediaRuntimeCanonicalStreamFramePortTest {
             assertThat(provider.receivedPayload()).containsExactly(expectedPayload);
             assertThat(provider.payloadAfterMutationAttempt()).containsExactly(expectedPayload);
             assertThat(decodedFrame.payload()).containsExactly(expectedPayload);
+            String scrape = runtime.prometheusMetrics();
+            assertThat(scrape).contains(
+                    "media_capture_frames_total{contract_version=\"v1\",kind=\"audio\",outcome=\"success\",service=\"launcher\"} 1.0");
+            assertThat(scrape).doesNotContain("session_id", "source_id", "tenant_id", "provider_id");
         } finally {
             runtime.close();
         }
@@ -224,6 +228,8 @@ class MediaRuntimeCanonicalStreamFramePortTest {
             assertThat(port.offer(binding, frame(0)).disposition())
                     .isEqualTo(CanonicalStreamFramePort.Disposition.OUTCOME_UNKNOWN);
             assertThat(provider.calls()).isEqualTo(1);
+            assertThat(runtime.prometheusMetrics())
+                    .contains("media_capture_frames_total{contract_version=\"v1\",kind=\"audio\",outcome=\"unknown\",service=\"launcher\"}");
         } finally {
             runtime.close();
         }

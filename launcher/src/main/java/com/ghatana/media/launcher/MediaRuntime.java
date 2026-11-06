@@ -1795,23 +1795,42 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 throw new IllegalStateException("Media streaming provider exceeded the session buffer limit");
             }
             streamStore.recordFrame(reserved, frame.sequence(), ack.bufferedBytes(), frame.endOfStream());
+            workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                    MediaWorkflowMetrics.Outcome.SUCCESS);
             return new StreamAck(ack.acceptedSequence(), ack.bufferedBytes(), ack.backpressured());
         } catch (java.util.concurrent.CompletionException failure) {
             Throwable cause = unwrap(failure);
             if (cause instanceof TimeoutException) {
                 cancelTimedOutStreamFrame(control, future);
                 markStreamOutcomeUnknown(reserved, failure);
+                workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                        MediaWorkflowMetrics.Outcome.UNKNOWN);
                 throw new IllegalStateException("Media stream frame processing timed out", cause);
             }
             markStreamOutcomeUnknown(reserved, failure);
+            workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                    MediaWorkflowMetrics.Outcome.UNKNOWN);
             throw new IllegalStateException("Media stream frame processing failed", cause);
         } catch (java.util.concurrent.CancellationException failure) {
             markStreamOutcomeUnknown(reserved, failure);
+            workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                    MediaWorkflowMetrics.Outcome.UNKNOWN);
             throw new IllegalStateException("Media stream frame processing was cancelled", failure);
         } catch (RuntimeException failure) {
             markStreamOutcomeUnknown(reserved, failure);
+            workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                    MediaWorkflowMetrics.Outcome.UNKNOWN);
             throw failure;
         }
+    }
+
+    private static MediaWorkflowMetrics.CaptureKind captureMetricKind(
+            com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind kind) {
+        return switch (kind) {
+            case AUDIO -> MediaWorkflowMetrics.CaptureKind.AUDIO;
+            case VIDEO -> MediaWorkflowMetrics.CaptureKind.VIDEO;
+            case MULTIMODAL -> MediaWorkflowMetrics.CaptureKind.MULTIMODAL;
+        };
     }
 
     static final class StreamBindingConflictException extends IllegalStateException {

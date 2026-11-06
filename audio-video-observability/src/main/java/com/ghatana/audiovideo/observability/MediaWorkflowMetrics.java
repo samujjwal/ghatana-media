@@ -96,6 +96,19 @@ public final class MediaWorkflowMetrics {
         }
     }
 
+    /** Fixed capture source-kind labels; never accepts session or source identifiers. */
+    public enum CaptureKind {
+        AUDIO("audio"),
+        VIDEO("video"),
+        MULTIMODAL("multimodal");
+
+        private final String label;
+
+        CaptureKind(String label) {
+            this.label = label;
+        }
+    }
+
     /** Provider readiness vocabulary exported without tenant or request identity. */
     public enum ProviderReadiness {
         HEALTHY,
@@ -381,6 +394,16 @@ public final class MediaWorkflowMetrics {
 
     public void record(Event event) {
         if (event != null) eventCounters.get(event).increment();
+    }
+
+    /** Count one canonical stream-frame outcome using only fixed-cardinality labels. */
+    public void recordCaptureFrame(CaptureKind kind, Outcome outcome) {
+        if (kind == null || outcome == null) return;
+        registry.counter("media.capture.frames",
+                "kind", kind.label,
+                "outcome", outcome.label,
+                "service", safeService,
+                "contract_version", CONTRACT_VERSION).increment();
     }
 
     /**
