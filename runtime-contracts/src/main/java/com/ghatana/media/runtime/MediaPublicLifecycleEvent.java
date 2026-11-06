@@ -27,6 +27,8 @@ public record MediaPublicLifecycleEvent(
         AppendFinality appendFinality,
         boolean terminalReadbackRequired) {
     public static final String SCHEMA_VERSION = "1.0.0";
+    /** Stable identifier shared by the public JSON Schema and Event Plane envelope. */
+    public static final String SCHEMA_URI = "urn:ghatana:media-public-lifecycle-event:v1";
     private static final Set<String> FIELDS = Set.of("schemaVersion", "eventRef", "eventType", "tenantRef",
             "principalRef", "correlationRef", "causationRef", "aggregateType", "aggregateRef",
             "aggregateVersion", "classification", "occurredAt", "appendFinality", "terminalReadbackRequired");

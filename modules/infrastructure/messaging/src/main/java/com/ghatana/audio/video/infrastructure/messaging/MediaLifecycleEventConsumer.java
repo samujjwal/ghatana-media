@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public final class MediaLifecycleEventConsumer {
     public static final String TOPIC = "media-lifecycle";
-    public static final String SCHEMA_URI = "urn:ghatana:media-lifecycle-public:v1";
+    public static final String SCHEMA_URI = MediaPublicLifecycleEvent.SCHEMA_URI;
 
     private final MediaLifecycleIdentifierRedactor redactor;
     private final Authorization authorization;

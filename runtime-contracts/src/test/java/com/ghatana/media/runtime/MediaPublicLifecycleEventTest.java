@@ -87,6 +87,7 @@ class MediaPublicLifecycleEventTest {
         try (InputStream input = getClass().getResourceAsStream("/contracts/media-public-lifecycle-event-v1.schema.json")) {
             assertThat(input).isNotNull();
             var schema = JSON.readTree(input);
+            assertThat(schema.path("$id").textValue()).isEqualTo(MediaPublicLifecycleEvent.SCHEMA_URI);
             assertThat(schema.path("additionalProperties").booleanValue()).isFalse();
             assertThat(schema.path("properties").path("schemaVersion").path("const").textValue()).isEqualTo("1.0.0");
             assertThat(schema.path("properties").path("appendFinality").path("const").textValue()).isEqualTo("NON_FINAL_APPEND");

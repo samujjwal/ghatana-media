@@ -57,6 +57,14 @@ class MediaLifecycleEventConsumerTest {
                 .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
                 .isEqualTo(MediaLifecycleEventConsumer.Failure.INVALID_ABI);
 
+        var wrongSchemaUri = envelope(event("media.job.accepted", 1), MediaPublicLifecycleEvent.SCHEMA_VERSION,
+                "urn:ghatana:media-lifecycle-public:v1");
+        assertThatThrownBy(() -> consumer(true, store, LogicalJobStatus.COMPLETED)
+                .consume("consumer-a", wrongSchemaUri))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.INVALID_ABI);
+
         var validEvent = event("media.job.accepted", 1);
         var wrongTenant = new EventEnvelope<>(SimpleEventId.of(validEvent.eventRef()), validEvent.toPayload(),
                 validEvent.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
@@ -216,7 +224,12 @@ class MediaLifecycleEventConsumerTest {
     }
 
     private static EventEnvelope<Map<String, Object>> envelope(MediaPublicLifecycleEvent event, String version) {
-        return envelopeForTenant(event, "tenant-private", version);
+        return envelope(event, version, MediaPublicLifecycleEvent.SCHEMA_URI);
+    }
+
+    private static EventEnvelope<Map<String, Object>> envelope(
+            MediaPublicLifecycleEvent event, String version, String schemaUri) {
+        return envelopeForTenant(event, "tenant-private", version, schemaUri);
     }
 
     private static EventEnvelope<Map<String, Object>> envelopeForTenant(MediaPublicLifecycleEvent event, String tenant) {
@@ -225,10 +238,15 @@ class MediaLifecycleEventConsumerTest {
 
     private static EventEnvelope<Map<String, Object>> envelopeForTenant(
             MediaPublicLifecycleEvent event, String tenant, String version) {
+        return envelopeForTenant(event, tenant, version, MediaPublicLifecycleEvent.SCHEMA_URI);
+    }
+
+    private static EventEnvelope<Map<String, Object>> envelopeForTenant(
+            MediaPublicLifecycleEvent event, String tenant, String version, String schemaUri) {
         return new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
                 event.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
                 event.eventType().wireName(), version, "media-runtime", tenant,
-                event.correlationRef(), MediaLifecycleEventConsumer.SCHEMA_URI, event.aggregateRef(),
+                event.correlationRef(), schemaUri, event.aggregateRef(),
                 event.eventRef(), Map.of(), "application/json");
     }
 
