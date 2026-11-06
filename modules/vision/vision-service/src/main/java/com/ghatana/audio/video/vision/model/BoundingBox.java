@@ -98,9 +98,18 @@ public class BoundingBox {
      */
     public double calculateIoU(BoundingBox other) {
         double intersectionArea = calculateIntersectionArea(other);
-        double unionArea = getArea() + other.getArea() - intersectionArea;
+        double leftArea = getArea();
+        double rightArea = other.getArea();
+        double largerArea = Math.max(leftArea, rightArea);
+        if (largerArea == 0.0) return 0.0;
 
-        return unionArea > 0 ? intersectionArea / unionArea : 0.0;
+        // Both individual areas are finite (enforced by the constructor), but their sum
+        // can overflow. Normalize the union by its larger operand before dividing so
+        // identical large finite boxes still produce IoU=1 instead of 0/NaN.
+        double smallerArea = Math.min(leftArea, rightArea);
+        double normalizedIntersection = intersectionArea / largerArea;
+        double normalizedUnion = 1.0 + (smallerArea - intersectionArea) / largerArea;
+        return normalizedUnion > 0.0 ? normalizedIntersection / normalizedUnion : 0.0;
     }
 
     private double calculateIntersectionArea(BoundingBox other) {

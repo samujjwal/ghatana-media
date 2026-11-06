@@ -33,6 +33,18 @@ class BoundingBoxTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Should calculate IoU when finite box areas overflow only when summed")
+    void calculatesIouWithoutOverflowingUnionArea() {
+        BoundingBox left = BoundingBox.builder().x(0).y(0).width(1.0e154).height(1.0e154).build();
+        BoundingBox identical = BoundingBox.builder().x(0).y(0).width(1.0e154).height(1.0e154).build();
+        BoundingBox halfOverlap = BoundingBox.builder().x(5.0e153).y(0)
+                .width(1.0e154).height(1.0e154).build();
+
+        assertEquals(1.0, left.calculateIoU(identical), 1.0e-15);
+        assertEquals(1.0 / 3.0, left.calculateIoU(halfOverlap), 1.0e-15);
+    }
+
+    @Test
     @DisplayName("Should reject non-finite or invalid pixel geometry")
     void rejectsInvalidGeometry() {
         assertThrows(IllegalArgumentException.class,
