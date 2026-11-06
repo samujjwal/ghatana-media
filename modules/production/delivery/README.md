@@ -8,6 +8,8 @@ An export binds tenant, authenticated principal, request ID, immutable artifact 
 
 `QUEUED`, `SENT`, `DESTINATION_CONFIRMED`, `OUTCOME_UNKNOWN`, `REVOKED`, and `UNAVAILABLE` distinguish local progress from destination evidence. A missing/lost acknowledgment requires explicit destination reconciliation before any resume. Unknown outcomes are not blindly resent.
 
+Every `DeliveryResult` carries the exact tenant, principal, request, artifact ID, immutable version, digest, and destination tuple so callers can read back which export the status describes.
+
 ## Bounds and limitations
 
 Artifacts are snapshotted and capped at 64 MiB; transfer chunks are capped at 1 MiB. The request ledger is in memory only and does not survive process restart. A durable job/outbox integration, durable idempotency store, authenticated destination adapter, and production authorization resolver remain unimplemented. The test destination is a local fixture only.

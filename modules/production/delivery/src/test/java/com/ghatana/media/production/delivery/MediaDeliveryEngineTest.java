@@ -54,6 +54,10 @@ class MediaDeliveryEngineTest {
 
         DeliveryResult resumed = f.engine.reconcileAndResume(request.tenantId(), request.requestId());
         assertThat(resumed.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(resumed.artifactId()).isEqualTo(request.artifact().artifactId());
+        assertThat(resumed.versionRef()).isEqualTo(request.artifact().versionRef());
+        assertThat(resumed.artifactDigest()).isEqualTo(request.artifact().digest());
+        assertThat(resumed.destinationRef()).isEqualTo(request.destinationRef());
         assertThat(f.destination.sendCount).isEqualTo(2); // resumed from destination-reconciled offset
         assertThat(f.destination.offsets).containsExactly(0, CHUNK_BYTES);
     }

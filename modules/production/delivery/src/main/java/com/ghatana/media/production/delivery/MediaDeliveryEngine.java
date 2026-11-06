@@ -122,13 +122,15 @@ public final class MediaDeliveryEngine {
         Reconciliation reconcile(ExportRequest request);
     }
 
-    public record DeliveryResult(String tenantId, String principalId, String requestId, String artifactDigest, String destinationRef,
+    public record DeliveryResult(String tenantId, String principalId, String requestId, String artifactId,
+                                 String versionRef, String artifactDigest, String destinationRef,
                                  Status status, int acknowledgedBytes, Optional<String> destinationReceiptRef) {
         public DeliveryResult {
             destinationReceiptRef = destinationReceiptRef == null ? Optional.empty() : destinationReceiptRef;
             if ((status == Status.DESTINATION_CONFIRMED) != destinationReceiptRef.isPresent()) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");
             }
+            if (acknowledgedBytes < 0) throw new IllegalArgumentException("acknowledgedBytes must not be negative");
         }
     }
 
@@ -334,7 +336,8 @@ public final class MediaDeliveryEngine {
 
     private static String key(ExportRequest r) { return r.tenantId() + "\u0000" + r.requestId(); }
     private static DeliveryResult result(ExportRequest r, Status status, int acknowledged, String receipt) {
-        return new DeliveryResult(r.tenantId(), r.principalId(), r.requestId(), r.artifact().digest(), r.destinationRef(), status,
+        return new DeliveryResult(r.tenantId(), r.principalId(), r.requestId(), r.artifact().artifactId(),
+                r.artifact().versionRef(), r.artifact().digest(), r.destinationRef(), status,
                 acknowledged, Optional.ofNullable(receipt));
     }
     private static String required(String value, String field) {
