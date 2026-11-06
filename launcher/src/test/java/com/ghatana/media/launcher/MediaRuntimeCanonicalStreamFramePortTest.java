@@ -310,6 +310,44 @@ class MediaRuntimeCanonicalStreamFramePortTest {
         }
     }
 
+    @Test
+    void audioPortRejectsCanonicalVideoSessionKind() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-stream-kind-");
+        var provider = new VideoOnlyStreamingProvider();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+        try {
+            var registration = runtime.openStream(new StreamSessionRequest(
+                    "tenant-a", "principal-a", "correlation-video", StreamKind.VIDEO,
+                    provider.providerId(), 128, Duration.ofSeconds(30), java.util.Map.of(),
+                    new MediaGovernanceContext(
+                            "consent-a", "media.stream.video.capture", "local", Set.of("local"), false, false)));
+            runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
+            var session = runtime.stream("tenant-a", "principal-a", registration.session().sessionId())
+                    .orElseThrow();
+            var forgedAudioBinding = new CanonicalStreamFramePort.Binding(
+                    session.sessionId(), session.tenantId(), session.principalId(),
+                    "media.stream.video.capture", session.reconnectCount(), session.version(),
+                    session.lastSequence(), session.leaseExpiresAt());
+
+            assertThat(port.currentBinding("tenant-a", session.sessionId(), "principal-a")).isEmpty();
+            assertThat(port.offer(forgedAudioBinding, frame(0)).disposition())
+                    .isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).isZero();
+        } finally {
+            runtime.close();
+        }
+    }
+
     private static AudioStreamSession.DecodedFrame frame(int sequence) {
         return new AudioStreamSession.DecodedFrame(sequence, sequence * 20L, new byte[] {1, 2, 3});
     }
@@ -427,5 +465,26 @@ class MediaRuntimeCanonicalStreamFramePortTest {
         int calls() { return calls.get(); }
         byte[] receivedPayload() { return receivedPayload.get().clone(); }
         byte[] payloadAfterMutationAttempt() { return payloadAfterMutationAttempt.get().clone(); }
+    }
+
+    private static final class VideoOnlyStreamingProvider implements MediaStreamingProvider {
+        private final AtomicInteger calls = new AtomicInteger();
+
+        @Override public String providerId() { return "local-video-only-stream-provider"; }
+        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.VIDEO); }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 1; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+
+        @Override
+        public CompletableFuture<StreamAck> accept(StreamContext context,
+                com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame frame) {
+            calls.incrementAndGet();
+            return CompletableFuture.completedFuture(new StreamAck(frame.sequence(), frame.payload().length, false));
+        }
+
+        int calls() { return calls.get(); }
     }
 }

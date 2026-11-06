@@ -4,6 +4,7 @@ import com.ghatana.audio.streaming.AudioStreamSession;
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import java.time.Instant;
@@ -43,6 +44,7 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
         }
         StreamSession session = runtime.stream(tenantId, principalId, streamId).orElse(null);
         if (session == null
+                || session.streamKind() != StreamKind.AUDIO
                 || !connected(session.state())
                 || session.leaseExpiresAt() == null
                 || !session.leaseExpiresAt().isAfter(Instant.now())
