@@ -135,6 +135,40 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void editAlgebraIsDeterministicAndARejectedBatchLeavesTheHeadUntouched() {
+        Graph empty = Graph.empty("timeline-1");
+        Scene scene = new Scene("scene-1", 0);
+        Track track = new Track("track-1", scene.sceneId(), TrackKind.VIDEO, 0);
+        Clip clip = clip("clip-1", scene.sceneId(), track.trackId());
+        List<ProjectTimelineEngine.Edit> forward = List.of(new ProjectTimelineEngine.AddScene(scene),
+                new ProjectTimelineEngine.AddTrack(track), new ProjectTimelineEngine.PutClip(clip));
+
+        Graph batched = ProjectTimelineEngine.apply(empty, forward);
+        Graph sequential = ProjectTimelineEngine.apply(
+                ProjectTimelineEngine.apply(ProjectTimelineEngine.apply(empty, List.of(forward.get(0))), List.of(forward.get(1))),
+                List.of(forward.get(2)));
+        Graph restored = ProjectTimelineEngine.apply(batched, List.of(new ProjectTimelineEngine.RemoveClip(clip.clipId()),
+                new ProjectTimelineEngine.RemoveTrack(track.trackId()), new ProjectTimelineEngine.RemoveScene(scene.sceneId())));
+
+        assertThat(batched).isEqualTo(sequential);
+        assertThat(restored).isEqualTo(empty);
+
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        AtomicInteger id = new AtomicInteger();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store, () -> "batch-id-" + id.incrementAndGet());
+        Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-atomic-batch");
+        assertThatThrownBy(() -> engine.edit(OWNER, created.project().projectId(), created.initialRevision().revisionId(),
+                List.of(new ProjectTimelineEngine.AddScene(scene), new ProjectTimelineEngine.AddTrack(track),
+                        new ProjectTimelineEngine.RemoveClip("missing-clip"))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("clip does not exist");
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId())
+                .isEqualTo(created.initialRevision().revisionId());
+        assertThat(store.revision(OWNER, created.project().projectId(), created.initialRevision().revisionId()).graph())
+                .isEqualTo(created.initialRevision().graph());
+    }
+
+    @Test
     void storeRejectsChangingTimelineIdentityAcrossRevisions() {
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
         AtomicInteger id = new AtomicInteger();
