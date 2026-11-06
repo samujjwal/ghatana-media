@@ -69,6 +69,27 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void bboxTransformUsesAllCornersAndRejectsAreaCollapsingMapping() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.TrackedSample sheared = new ReversibleRegionEditEngine.TrackedSample(
+                sourcePts(0), "source-frame-v1", "edited-frame-v1",
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .1, .2, .2)),
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.2, .1, .4, .2)),
+                new ReversibleRegionEditEngine.AffineTransform(1, 1, 0, 1, 0, 0));
+
+        assertThat(fixture.prepare(evidence(List.of(sheared))).evidence().samples()).containsExactly(sheared);
+
+        ReversibleRegionEditEngine.TrackedSample collapsed = new ReversibleRegionEditEngine.TrackedSample(
+                sourcePts(0), "source-frame-v1", "edited-frame-v1",
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .1, .2, .2)),
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .2, .2, .4)),
+                new ReversibleRegionEditEngine.AffineTransform(.5, .5, 1, 1, 0, 0));
+        assertThatThrownBy(() -> fixture.prepare(evidence(List.of(collapsed))))
+                .isInstanceOf(ReversibleRegionEditEngine.RegionMappingConflictException.class)
+                .hasMessageContaining("finite and invertible");
+    }
+
+    @Test
     void sourceVersionDigestAndFreshRightsMustMatchAtPrepareAndCommit() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.RegionEditPlan plan = fixture.prepare(evidence(List.of(bboxSample(0, .1, .1, 0))));

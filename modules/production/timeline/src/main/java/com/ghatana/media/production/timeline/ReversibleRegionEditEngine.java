@@ -142,6 +142,9 @@ public final class ReversibleRegionEditEngine {
         RegionShape source = sample.sourceShape();
         RegionShape edited = sample.editedShape();
         if (source instanceof BoxShape sourceBox && edited instanceof BoxShape editedBox) {
+            if (!sample.originalToEdited().preservesArea()) {
+                throw new RegionMappingConflictException("bounding-box frame transform must be finite and invertible");
+            }
             NormalizedBox mapped = sample.originalToEdited().map(sourceBox.box());
             if (!near(mapped.x(), editedBox.box().x()) || !near(mapped.y(), editedBox.box().y())
                     || !near(mapped.width(), editedBox.box().width()) || !near(mapped.height(), editedBox.box().height())) {
@@ -294,6 +297,11 @@ public final class ReversibleRegionEditEngine {
         }
         public static AffineTransform identity() { return new AffineTransform(1, 0, 0, 1, 0, 0); }
         public boolean isIdentity() { return m00 == 1 && m01 == 0 && m10 == 0 && m11 == 1 && tx == 0 && ty == 0; }
+        /** A tracked box cannot retain a meaningful region under a singular frame transform. */
+        public boolean preservesArea() {
+            double determinant = Math.fma(m00, m11, -(m01 * m10));
+            return Double.isFinite(determinant) && determinant != 0;
+        }
         public NormalizedBox map(NormalizedBox box) {
             double x2 = box.x() + box.width(), y2 = box.y() + box.height();
             double[] xs = {m00 * box.x() + m01 * box.y() + tx, m00 * x2 + m01 * box.y() + tx,
