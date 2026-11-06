@@ -94,6 +94,51 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportAndRunResultListsHonorAttemptBoundsBeforeCopying() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Run valid = run(source, List.of(candidate), null, allowed("src"), null, 1, BUDGET);
+        Report report = valid.report().orElseThrow();
+        assertThat(report.retainedRevisions()).containsExactly(source.id(), candidate.id());
+        assertThat(report.comparisons()).hasSize(1);
+
+        AtomicInteger retainedReads = new AtomicInteger();
+        assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
+                report.budget(), report.attemptsUsed(), report.source(), report.sourceRightsDecisionId(),
+                oversizedWithoutTraversal(retainedReads), report.reference(), report.referenceRightsDecisionId(),
+                report.referenceUnavailableReason(), report.comparisons(), report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("report retained revisions exceed the attempt bound");
+        assertThat(retainedReads).hasValue(0);
+
+        AtomicInteger comparisonReads = new AtomicInteger();
+        assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
+                report.budget(), report.attemptsUsed(), report.source(), report.sourceRightsDecisionId(),
+                report.retainedRevisions(), report.reference(), report.referenceRightsDecisionId(),
+                report.referenceUnavailableReason(), oversizedWithoutTraversal(comparisonReads),
+                report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("report comparisons exceed the attempt bound");
+        assertThat(comparisonReads).hasValue(0);
+
+        AtomicInteger runReads = new AtomicInteger();
+        assertThatThrownBy(() -> new Run(RunStatus.UNAVAILABLE,
+                Optional.of(BlockReason.CANDIDATE_UNAVAILABLE), Optional.empty(),
+                oversizedWithoutTraversal(runReads), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("run retained revisions exceed the attempt bound");
+        assertThat(runReads).hasValue(0);
+
+        AtomicInteger observedReads = new AtomicInteger();
+        assertThatThrownBy(() -> new Run(RunStatus.UNAVAILABLE,
+                Optional.of(BlockReason.CANDIDATE_UNAVAILABLE), Optional.empty(),
+                iteratorExceedingDeclaredSize(source, observedReads, 2), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("run retained revisions exceed the attempt bound");
+        assertThat(observedReads).hasValue(1);
+    }
+
+    @Test
     void exactCandidateReferenceMatchBeatsFiniteSourcePsnr() {
         Revision source = revision("source", "v1", "a", 40);
         Revision exact = revision("candidate", "v1", "b", 20);
@@ -491,4 +536,32 @@ class QualityComparisonAndOptimizationTest {
     }
 
     private static AuthorityDecision allowed(String id) { return new AuthorityDecision(AuthorityStatus.ALLOWED, id); }
+
+    private static <T> List<T> oversizedWithoutTraversal(AtomicInteger reads) {
+        return new AbstractList<>() {
+            @Override public T get(int index) {
+                reads.incrementAndGet();
+                throw new AssertionError("declared oversize list must be rejected before element access");
+            }
+            @Override public int size() { return Integer.MAX_VALUE; }
+        };
+    }
+
+    private static <T> List<T> iteratorExceedingDeclaredSize(T value, AtomicInteger reads, int entries) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { throw new AssertionError("custom iterator must be used"); }
+            @Override public int size() { return 0; }
+            @Override public Iterator<T> iterator() {
+                return new Iterator<>() {
+                    private int index;
+                    @Override public boolean hasNext() { return index < entries; }
+                    @Override public T next() {
+                        reads.incrementAndGet();
+                        index++;
+                        return value;
+                    }
+                };
+            }
+        };
+    }
 }

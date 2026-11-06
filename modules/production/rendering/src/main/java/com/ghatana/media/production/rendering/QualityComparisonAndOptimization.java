@@ -194,11 +194,13 @@ public final class QualityComparisonAndOptimization {
             if (attemptsUsed < 1 || attemptsUsed > budget.maxAttempts()) throw invalid("report attempts exceed budget");
             Objects.requireNonNull(source, "source");
             sourceRightsDecisionId = sourceRightsDecisionId == null ? "" : sourceRightsDecisionId;
-            retainedRevisions = List.copyOf(Objects.requireNonNull(retainedRevisions, "retainedRevisions"));
+            retainedRevisions = copyBounded(retainedRevisions, attemptsUsed + 1,
+                    "report retained revisions exceed the attempt bound", "retainedRevisions[]");
             Objects.requireNonNull(reference, "reference");
             referenceRightsDecisionId = referenceRightsDecisionId == null ? "" : referenceRightsDecisionId;
             Objects.requireNonNull(referenceUnavailableReason, "referenceUnavailableReason");
-            comparisons = List.copyOf(Objects.requireNonNull(comparisons, "comparisons"));
+            comparisons = copyBounded(comparisons, attemptsUsed,
+                    "report comparisons exceed the attempt bound", "comparisons[]");
             reportSha256 = digest(reportSha256, "report sha256");
         }
     }
@@ -207,8 +209,10 @@ public final class QualityComparisonAndOptimization {
             List<Revision> retainedRevisions, int attemptsUsed) {
         public Run {
             Objects.requireNonNull(status, "status"); Objects.requireNonNull(reason, "reason");
-            Objects.requireNonNull(report, "report"); retainedRevisions = List.copyOf(retainedRevisions);
+            Objects.requireNonNull(report, "report");
             if (attemptsUsed < 0 || attemptsUsed > MAX_ATTEMPTS) throw invalid("attempt count is outside bounds");
+            retainedRevisions = copyBounded(retainedRevisions, attemptsUsed + 1,
+                    "run retained revisions exceed the attempt bound", "retainedRevisions[]");
         }
         static Run blocked(RunStatus status, BlockReason reason) {
             return new Run(status, Optional.of(reason), Optional.empty(), List.of(), 0);
@@ -558,6 +562,20 @@ public final class QualityComparisonAndOptimization {
         while (iterator.hasNext()) {
             if (copy.size() >= MAX_FRAMES) throw invalid("revision frame count is outside bounds");
             copy.add(Objects.requireNonNull(iterator.next(), "frames[]"));
+        }
+        return List.copyOf(copy);
+    }
+
+    /** Defensively copies result lists without trusting caller-controlled size or iteration length. */
+    private static <T> List<T> copyBounded(List<T> values, int maximum, String limitMessage, String elementLabel) {
+        Objects.requireNonNull(values, elementLabel);
+        int declaredSize = values.size();
+        if (declaredSize < 0 || declaredSize > maximum) throw invalid(limitMessage);
+        ArrayList<T> copy = new ArrayList<>(declaredSize);
+        java.util.Iterator<T> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= maximum) throw invalid(limitMessage);
+            copy.add(Objects.requireNonNull(iterator.next(), elementLabel));
         }
         return List.copyOf(copy);
     }
