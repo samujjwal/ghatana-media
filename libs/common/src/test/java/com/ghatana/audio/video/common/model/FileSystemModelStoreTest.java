@@ -245,8 +245,8 @@ class FileSystemModelStoreTest {
     }
 
     @Test
-    @DisplayName("load: model with missing file throws ModelRegistryException")
-    void load_missingFile_throws() { 
+    @DisplayName("load: model with missing file throws a source-free ModelRegistryException")
+    void load_missingFile_throwsWithoutExposingPath() {
         Path missingFile = tempDir.resolve("missing.onnx");
         ModelMetadata meta = ModelMetadata.builder() 
                 .modelId("missing").type(ModelMetadata.ModelType.STT)
@@ -254,8 +254,11 @@ class FileSystemModelStoreTest {
         store.register(meta); 
 
         assertThatThrownBy(() -> store.load("missing"))
-                .isInstanceOf(ModelRegistry.ModelRegistryException.class) 
-                .hasMessageContaining("not found");
+                .isInstanceOf(ModelRegistry.ModelRegistryException.class)
+                .hasMessageContaining("not found")
+                .hasMessageContaining("missing")
+                .hasMessageNotContaining(missingFile.toString())
+                .hasNoCause();
     }
 
     @Test

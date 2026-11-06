@@ -76,13 +76,18 @@ public final class FileSystemModelStore implements ModelRegistry {
         if (meta.modelPath() != null) {
             Path p = meta.modelPath();
             if (!Files.exists(p)) {
-                throw new ModelRegistryException("Model file not found for " + modelId + ": " + p);
+                // A filesystem path is local implementation state, not part of the model
+                // registry's public error contract. Keep it out of exception text so callers
+                // cannot accidentally expose host layout through RPC or structured logs.
+                throw new ModelRegistryException("Model file not found for " + modelId);
             }
             long actualSize;
             try {
                 actualSize = Files.size(p);
             } catch (IOException e) {
-                throw new ModelRegistryException("Cannot read model file for " + modelId, e);
+                // IOException messages commonly contain the full path. Do not retain it as a
+                // cause on this boundary; the stable registry error remains source-free.
+                throw new ModelRegistryException("Cannot read model file for " + modelId);
             }
             meta = ModelMetadata.builder()
                     .modelId(meta.modelId()).name(meta.name()).version(meta.version())
