@@ -5,6 +5,7 @@ import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -18,6 +19,9 @@ import java.util.Set;
  * projection; the plan authority port must be the sole append/CAS owner when persistence is used.</p>
  */
 public final class StoryboardPlanner {
+    /** Matches the owner-defined save-storyboard-revision sceneRefs maximum. */
+    static final int MAX_SCENES = 256;
+
     private static final Comparator<SourceVersion> SOURCES = Comparator.comparing(SourceVersion::artifactId)
             .thenComparing(SourceVersion::artifactVersionId);
 
@@ -37,7 +41,7 @@ public final class StoryboardPlanner {
         String planId = required(scenePlanId, "scenePlanId");
         String version = required(semanticVersion, "semanticVersion");
         Objects.requireNonNull(brief, "brief");
-        List<AuthoredScene> scenes = List.copyOf(authoredScenes == null ? List.of() : authoredScenes);
+        List<AuthoredScene> scenes = copyBoundedScenes(authoredScenes);
         if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard requires at least one authored scene");
         validateBrief(brief);
         validateUniqueScenes(scenes);
@@ -64,7 +68,7 @@ public final class StoryboardPlanner {
         Objects.requireNonNull(authority, "authority");
         if (!plan.tenantId().equals(actor.tenantId())) throw new ProjectNotFoundException();
         if (!plan.ownerPrincipalId().equals(actor.principalId())) throw new ProjectAccessDeniedException();
-        String request = required(requestId, "requestId");
+        String request = ownerActionRequestId(requestId);
         verifyCurrent(actor, plan.brief().purpose(), plan.exactSources());
         SavedPlan saved = Objects.requireNonNull(authority.append(actor, plan, plan.expectedProjectRevisionId(),
                 optionalVersion(expectedParentSemanticVersion), request),
@@ -90,7 +94,7 @@ public final class StoryboardPlanner {
                 "expectedProjectRevisionId"))) {
             throw new ScenePlanConflictException("project revision does not match the saved draft");
         }
-        String request = required(requestId, "requestId");
+        String request = ownerActionRequestId(requestId);
         verifyCurrent(reviewer, plan.brief().purpose(), plan.exactSources());
         ReviewedPlan reviewed = Objects.requireNonNull(authority.appendReview(
                 reviewer, saved, expectedProjectRevisionId, request),
@@ -369,5 +373,31 @@ public final class StoryboardPlanner {
 
     private static String optionalVersion(String value) {
         return value == null || value.isBlank() ? null : required(value, "expectedParentSemanticVersion");
+    }
+
+    /**
+     * The owner-defined save-storyboard-revision payload permits at most 256 scene references.
+     * Consume one item at a time and stop at the first excess item, before copying an unbounded list.
+     */
+    private static List<AuthoredScene> copyBoundedScenes(List<AuthoredScene> authoredScenes) {
+        if (authoredScenes == null) return List.of();
+        Iterator<AuthoredScene> iterator = authoredScenes.iterator();
+        List<AuthoredScene> snapshot = new ArrayList<>(MAX_SCENES);
+        while (iterator.hasNext()) {
+            if (snapshot.size() == MAX_SCENES) {
+                throw new IllegalArgumentException("storyboard exceeds the 256 scene-reference limit");
+            }
+            snapshot.add(Objects.requireNonNull(iterator.next(), "scene"));
+        }
+        return List.copyOf(snapshot);
+    }
+
+    /** Exact request-ID shape from owner-action-wire-contracts.yaml#save-storyboard-revision. */
+    private static String ownerActionRequestId(String value) {
+        if (value == null || value.length() > 128
+                || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException("requestId must match the 1-128 character owner-action format");
+        }
+        return value;
     }
 }

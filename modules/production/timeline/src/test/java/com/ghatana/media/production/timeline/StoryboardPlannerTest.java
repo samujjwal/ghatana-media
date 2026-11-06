@@ -197,6 +197,69 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void ownerSceneReferenceLimitIsEnforcedBeforeRightsOrAuthorityEffects() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        List<StoryboardPlanner.AuthoredScene> withinLimit = java.util.stream.IntStream.range(0, 256)
+                .mapToObj(index -> scene("scene-" + index, index, index,
+                        List.of(shot("shot-" + index, 0, index, List.of()))))
+                .toList();
+
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-limit", "plan-limit", "v1",
+                brief(List.of(SOURCE_A)), withinLimit);
+        assertThat(plan.scenes()).hasSize(256);
+        assertThat(rights.calls()).isEqualTo(1);
+
+        List<StoryboardPlanner.AuthoredScene> overLimit = java.util.stream.IntStream.range(0, 257)
+                .mapToObj(index -> scene("over-scene-" + index, index, index,
+                        List.of(shot("over-shot-" + index, 0, index, List.of()))))
+                .toList();
+        assertThatThrownBy(() -> planner.prepare(OWNER, "project-1", "head-limit", "plan-over", "v1",
+                brief(List.of(SOURCE_A)), overLimit))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("256 scene-reference limit");
+        assertThat(rights.calls()).isEqualTo(1);
+    }
+
+    @Test
+    void storyboardSaveAndReviewRequestIdsFollowOwnerActionWireShapeBeforeAuthorityCalls() {
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-request", "plan-request", "v1",
+                brief(List.of()), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of())))));
+        AtomicInteger saveCalls = new AtomicInteger();
+        StoryboardPlanner.ScenePlanAuthority saveAuthority = (actor, requested, head, parent, requestId) -> {
+            saveCalls.incrementAndGet();
+            return new StoryboardPlanner.SavedPlan(requested, "receipt-" + requestId);
+        };
+
+        for (String invalid : List.of(":starts-with-punctuation", "contains spaces", "x".repeat(129))) {
+            assertThatThrownBy(() -> planner.save(OWNER, plan, null, invalid, saveAuthority))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("owner-action format");
+        }
+        assertThat(saveCalls).hasValue(0);
+        assertThat(planner.save(OWNER, plan, null, "save:owner-action.v1_1", saveAuthority).ownerReceipt())
+                .isEqualTo("receipt-save:owner-action.v1_1");
+        assertThat(saveCalls).hasValue(1);
+
+        StoryboardPlanner.SavedPlan saved = new StoryboardPlanner.SavedPlan(plan, "existing-receipt");
+        AtomicInteger reviewCalls = new AtomicInteger();
+        StoryboardPlanner.ScenePlanReviewAuthority reviewAuthority = (reviewer, exact, revision, requestId) -> {
+            reviewCalls.incrementAndGet();
+            return new StoryboardPlanner.ReviewedPlan(exact, reviewer, revision, "review-" + requestId,
+                    StoryboardPlanner.EditionState.REVIEWED);
+        };
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-request", "bad/id", reviewAuthority))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("owner-action format");
+        assertThat(reviewCalls).hasValue(0);
+        assertThat(planner.review(OWNER, saved, "head-request", "review:owner-action.v1", reviewAuthority)
+                .reviewReceipt()).isEqualTo("review-review:owner-action.v1");
+        assertThat(reviewCalls).hasValue(1);
+    }
+
+    @Test
     void malformedOrDuplicateSceneAndShotIdentitiesAndNonStoryTimeAreRejected() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
         StoryboardPlanner.AuthoredScene first = scene("scene-1", 0, 0, List.of(shot("shot-1", 0, 0, List.of())));
