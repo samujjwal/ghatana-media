@@ -66,6 +66,39 @@ class DeliveryDestinationReceiptScenarioTest {
         assertThat(destination.reconcileCount).isEqualTo(1);
     }
 
+    @Test
+    void lostFinalChunkAcknowledgmentSurvivesCoordinatorRestartAndReconcilesWithoutReplay() {
+        byte[] content = new byte[] { 0x31, 0x42, 0x53, 0x64 };
+        ExportRequest request = request(content, "request-lost-ack-restart");
+        FixtureDestination destination = new FixtureDestination(false, true);
+        ClaimCapableFixtureStore durableFixtureStore = new ClaimCapableFixtureStore();
+
+        MediaDeliveryEngine beforeRestart = engine(request, destination, durableFixtureStore);
+        DeliveryResult uncertain = beforeRestart.export(request);
+
+        assertThat(uncertain.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(uncertain.acknowledgedBytes()).isZero();
+        assertThat(destination.sendCount).isEqualTo(1);
+        assertThat(durableFixtureStore.find(request.tenantId(), request.requestId()).orElseThrow().status())
+                .isEqualTo(Status.OUTCOME_UNKNOWN);
+
+        // A fresh coordinator has no in-memory entry; only the fixture store and destination survive.
+        MediaDeliveryEngine afterRestart = engine(request, destination, durableFixtureStore);
+        DeliveryResult reconciled = afterRestart.reconcileAndResume(request);
+
+        assertThat(reconciled.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(reconciled.artifactId()).isEqualTo(request.artifact().artifactId());
+        assertThat(reconciled.versionRef()).isEqualTo(request.artifact().versionRef());
+        assertThat(reconciled.artifactDigest()).isEqualTo(request.artifact().digest());
+        assertThat(reconciled.destinationRef()).isEqualTo(request.destinationRef());
+        assertThat(reconciled.acknowledgedBytes()).isEqualTo(content.length);
+        assertThat(reconciled.destinationReceiptRef()).contains("fixture-final-receipt");
+        assertThat(afterRestart.export(request)).isEqualTo(reconciled);
+        assertThat(destination.sendCount).isEqualTo(1);
+        assertThat(destination.offset).isEqualTo(content.length);
+        assertThat(destination.reconcileCount).isEqualTo(1);
+    }
+
     private static ExportRequest request(byte[] content, String requestId) {
         Artifact artifact = new Artifact("tenant-j22", "artifact-j22", "version-3",
                 MediaCreationContracts.sha256(content), content);
@@ -73,6 +106,11 @@ class DeliveryDestinationReceiptScenarioTest {
     }
 
     private static MediaDeliveryEngine engine(ExportRequest request, FixtureDestination destination) {
+        return engine(request, destination, new ClaimCapableFixtureStore());
+    }
+
+    private static MediaDeliveryEngine engine(ExportRequest request, FixtureDestination destination,
+                                              DeliveryOperationStore operations) {
         AuthorizationPort authorization = new AuthorizationPort() {
             @Override public TransferAuthorization authorize(ExportRequest export) {
                 return new TransferAuthorization("fixture-grant", export.tenantId(), export.principalId(),
@@ -81,7 +119,7 @@ class DeliveryDestinationReceiptScenarioTest {
             }
             @Override public Boolean isCurrent(TransferAuthorization grant, Instant now) { return Boolean.TRUE; }
         };
-        return new MediaDeliveryEngine(authorization, destination, () -> NOW, new ClaimCapableFixtureStore());
+        return new MediaDeliveryEngine(authorization, destination, () -> NOW, operations);
     }
 
     private static final class FixtureDestination implements FencedDestinationPort {
