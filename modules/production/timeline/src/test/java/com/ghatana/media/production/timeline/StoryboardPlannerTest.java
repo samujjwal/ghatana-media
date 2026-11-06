@@ -245,6 +245,59 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void directScenePlanConstructionRejectsDeclaredOversizeBeforeIteration() {
+        AtomicInteger iteratorCalls = new AtomicInteger();
+        List<StoryboardPlanner.PlannedScene> oversized = new java.util.AbstractList<>() {
+            @Override public StoryboardPlanner.PlannedScene get(int index) { return plannedScene(index); }
+            @Override public int size() { return StoryboardPlanner.MAX_SCENES + 1; }
+            @Override public java.util.Iterator<StoryboardPlanner.PlannedScene> iterator() {
+                iteratorCalls.incrementAndGet();
+                return List.<StoryboardPlanner.PlannedScene>of().iterator();
+            }
+        };
+
+        assertThatThrownBy(() -> directPlan(oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("256 scene-reference limit");
+        assertThat(iteratorCalls).hasValue(0);
+    }
+
+    @Test
+    void directScenePlanConstructionBoundsUnderreportedIteratorAtItem257() {
+        List<StoryboardPlanner.PlannedScene> actual = java.util.stream.IntStream.range(0, 257)
+                .mapToObj(StoryboardPlannerTest::plannedScene).toList();
+        AtomicInteger consumed = new AtomicInteger();
+        List<StoryboardPlanner.PlannedScene> underreported = new java.util.AbstractList<>() {
+            @Override public StoryboardPlanner.PlannedScene get(int index) { return actual.get(index); }
+            @Override public int size() { return 1; }
+            @Override public java.util.Iterator<StoryboardPlanner.PlannedScene> iterator() {
+                java.util.Iterator<StoryboardPlanner.PlannedScene> delegate = actual.iterator();
+                return new java.util.Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public StoryboardPlanner.PlannedScene next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> directPlan(underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("256 scene-reference limit");
+        assertThat(consumed).hasValue(StoryboardPlanner.MAX_SCENES);
+    }
+
+    @Test
+    void directScenePlanConstructionPreservesNormalPlanAndStableSort() {
+        StoryboardPlanner.ScenePlan plan = directPlan(List.of(plannedScene(1), plannedScene(0)));
+
+        assertThat(plan.scenes()).extracting(StoryboardPlanner.PlannedScene::sceneId)
+                .containsExactly("planned-scene-0", "planned-scene-1");
+        assertThat(plan.exactSources()).isEmpty();
+    }
+
+    @Test
     void storyboardSaveRequestIdsFollowOwnerActionWireShapeAndReviewRequiresAnIdentity() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
         StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-request", "plan-request", "v1",
@@ -337,6 +390,17 @@ class StoryboardPlannerTest {
 
     private static StoryboardPlanner.AuthoredBrief brief(List<SourceVersion> refs) {
         return new StoryboardPlanner.AuthoredBrief("brief-1", "b1", "personal-project", "An authored story", refs);
+    }
+
+    private static StoryboardPlanner.ScenePlan directPlan(List<StoryboardPlanner.PlannedScene> scenes) {
+        return new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "project-1", "plan-1", "v1",
+                "head-1", brief(List.of()), scenes, List.of(), StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE);
+    }
+
+    private static StoryboardPlanner.PlannedScene plannedScene(int index) {
+        return new StoryboardPlanner.PlannedScene("planned-scene-" + index, index, "scene intent",
+                story(index), story(20), List.of(new StoryboardPlanner.PlannedShot("planned-shot-" + index,
+                0, "shot intent", story(index), story(1), List.of())));
     }
 
     private static StoryboardPlanner.AuthoredScene scene(String id, int order, long startSeconds,

@@ -232,7 +232,7 @@ public final class StoryboardPlanner {
             semanticVersion = required(semanticVersion, "semanticVersion");
             expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
-            scenes = List.copyOf(scenes).stream().sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
+            scenes = copyBoundedPlannedScenes(scenes).stream().sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
                     .thenComparing(PlannedScene::sceneId)).toList();
             if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard plan requires at least one scene");
             Set<String> sceneIds = new HashSet<>();
@@ -395,6 +395,24 @@ public final class StoryboardPlanner {
         if (authoredScenes == null) return List.of();
         Iterator<AuthoredScene> iterator = authoredScenes.iterator();
         List<AuthoredScene> snapshot = new ArrayList<>(MAX_SCENES);
+        while (iterator.hasNext()) {
+            if (snapshot.size() == MAX_SCENES) {
+                throw new IllegalArgumentException("storyboard exceeds the 256 scene-reference limit");
+            }
+            snapshot.add(Objects.requireNonNull(iterator.next(), "scene"));
+        }
+        return List.copyOf(snapshot);
+    }
+
+    /** Snapshot the public plan boundary too; callers may construct ScenePlan without prepare(). */
+    private static List<PlannedScene> copyBoundedPlannedScenes(List<PlannedScene> scenes) {
+        Objects.requireNonNull(scenes, "scenes");
+        int declaredSize = scenes.size();
+        if (declaredSize > MAX_SCENES) {
+            throw new IllegalArgumentException("storyboard exceeds the 256 scene-reference limit");
+        }
+        Iterator<PlannedScene> iterator = scenes.iterator();
+        List<PlannedScene> snapshot = new ArrayList<>(Math.min(declaredSize, MAX_SCENES));
         while (iterator.hasNext()) {
             if (snapshot.size() == MAX_SCENES) {
                 throw new IllegalArgumentException("storyboard exceeds the 256 scene-reference limit");
