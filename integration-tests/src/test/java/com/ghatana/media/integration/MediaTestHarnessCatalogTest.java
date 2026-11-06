@@ -67,6 +67,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j06", "journey-outcome-j07", "journey-outcome-j08",
                         "journey-outcome-j09", "journey-outcome-j10", "journey-outcome-j11",
                         "journey-outcome-j14", "journey-outcome-j15", "journey-outcome-j18",
+                        "journey-outcome-j19-ambiguous-candidate",
                         "journey-outcome-j19", "journey-outcome-j20", "journey-outcome-j21",
                         "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
                         "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29",
@@ -183,6 +184,13 @@ class MediaTestHarnessCatalogTest {
                 ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
                 "modules/integration-tests/src/test/java/com/ghatana/audio/video/vision/grpc/VisionRoiAdmissionIntegrationTest.java");
         assertThat(j30.evidenceLimit()).contains("does not establish a composite eligibility catalog");
+        var j19Ambiguous = profiles.get("journey-outcome-j19-ambiguous-candidate");
+        assertThat(j19Ambiguous.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
+        assertThat(j19Ambiguous.gradleTestTask()).isEqualTo(":services:media:modules:integration-tests:test");
+        assertThat(j19Ambiguous.selectors()).containsExactly(
+                "com.ghatana.audio.video.integration.J19QualityOutcomeScenarioTest.ambiguousSecondAttemptRetainsOnlyExactRevisionsAndPreservesSourceUndoPath");
+        assertThat(j19Ambiguous.evidenceLimit()).contains(
+                "does not establish a real quality improvement", "journey completion");
     }
 
     @Test

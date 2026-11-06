@@ -770,6 +770,27 @@
       "evidenceLimit": "J-18 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j19-ambiguous-candidate",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.J19QualityOutcomeScenarioTest.ambiguousSecondAttemptRetainsOnlyExactRevisionsAndPreservesSourceUndoPath"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/J19QualityOutcomeScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic source, candidate and reference revisions only; no decoder, provider or project store is used.",
+      "safety": "The candidate port is an in-process fixture and one attempt throws an ambiguous outcome; no external provider effect is claimed.",
+      "evidenceLimit": "J-19 ambiguous-attempt selector slice only; fixture behavior does not establish a real quality improvement, qualified provider output, durable project revision, or journey completion."
+    },
+    {
       "id": "journey-outcome-j19",
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:production:rendering:test",
