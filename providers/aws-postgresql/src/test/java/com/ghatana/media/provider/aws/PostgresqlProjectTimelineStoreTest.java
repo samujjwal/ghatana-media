@@ -227,6 +227,30 @@ class PostgresqlProjectTimelineStoreTest {
         }
     }
 
+    /** Durable J-01 authorization boundary; actors are fixtures, not Shared sign-in evidence. */
+    @Test
+    void engineDeniesWrongTenantAndPrincipalWithoutChangingDurableProject() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor creator = new Actor("tenant-j01-durable", "creator-j01-durable");
+            ProjectTimelineEngine engine = new ProjectTimelineEngine(fixture.store,
+                    () -> "j01-durable-id");
+            var created = engine.createProject(creator, "workspace-j01-durable", "J-01 durable project",
+                    "j01-durable-create-1");
+            String projectId = created.project().projectId();
+            String initialRevisionId = created.initialRevision().revisionId();
+
+            assertThatThrownBy(() -> engine.project(new Actor("tenant-j01-other", creator.principalId()), projectId))
+                    .isInstanceOf(ProjectNotFoundException.class);
+            assertThatThrownBy(() -> engine.project(new Actor(creator.tenantId(), "principal-j01-other"), projectId))
+                    .isInstanceOf(ProjectAccessDeniedException.class);
+
+            var observed = engine.project(creator, projectId);
+            assertThat(observed.headRevisionId()).isEqualTo(initialRevisionId);
+            assertThat(fixture.store.revision(creator, projectId, initialRevisionId).graph())
+                    .isEqualTo(Graph.empty(created.initialRevision().graph().timelineId()));
+        }
+    }
+
     private static boolean raceCommit(PostgresqlProjectTimelineStore store, Actor actor, String revision,
                                       CountDownLatch ready, CountDownLatch start) throws Exception {
         ready.countDown();
