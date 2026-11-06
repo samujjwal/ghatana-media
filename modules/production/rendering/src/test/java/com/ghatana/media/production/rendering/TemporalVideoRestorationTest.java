@@ -543,6 +543,19 @@ class TemporalVideoRestorationTest {
                 .hasMessageContaining("selected RGB8 filter bounds");
     }
 
+    @Test
+    void sourceDeltaRejectsNumericallyInconsistentSummaryFields() {
+        assertThatThrownBy(() -> new SourceDelta(9, 1, 0.0, 1))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
+        assertThatThrownBy(() -> new SourceDelta(9, 3, 0.1, 1))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
+        assertThatThrownBy(() -> new SourceDelta(9, 1, 2.0, 1))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
+
+        assertThat(new SourceDelta(9, 3, 1.0 / 3.0, 1).meanAbsoluteChange()).isEqualTo(1.0 / 3.0);
+        assertThat(new SourceDelta(9, 1, 255.0 / 9.0, 255).maximumAbsoluteChange()).isEqualTo(255);
+    }
+
     private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] pixels) {
         try {
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(pixels));

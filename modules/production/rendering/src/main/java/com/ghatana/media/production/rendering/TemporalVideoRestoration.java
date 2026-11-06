@@ -358,6 +358,12 @@ public final class TemporalVideoRestoration {
                     || maximumAbsoluteChange < 0 || maximumAbsoluteChange > 255) {
                 throw invalid("source A/B delta is outside its valid bounds");
             }
+            double minimumMean = (double) changedSamples / comparedSamples;
+            double maximumMean = (double) maximumAbsoluteChange / comparedSamples;
+            if (meanAbsoluteChange < minimumMean || meanAbsoluteChange > maximumAbsoluteChange
+                    || maximumMean > meanAbsoluteChange) {
+                throw invalid("source A/B delta fields are numerically inconsistent");
+            }
         }
     }
 
