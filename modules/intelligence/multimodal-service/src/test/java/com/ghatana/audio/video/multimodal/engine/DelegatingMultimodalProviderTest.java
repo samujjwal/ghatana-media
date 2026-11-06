@@ -344,7 +344,7 @@ class DelegatingMultimodalProviderTest {
                     .get(10, TimeUnit.SECONDS);
             assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
             assertThat(submission.result()).isEmpty();
-            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+            assertThat(dispatcher.cancelledJobIds()).isEmpty(); // terminal child cancellation is a no-op
         } finally {
             scheduler.shutdownNow();
         }
@@ -398,7 +398,7 @@ class DelegatingMultimodalProviderTest {
                     .get(10, TimeUnit.SECONDS);
             assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
             assertThat(submission.result()).isEmpty();
-            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+            assertThat(dispatcher.cancelledJobIds()).isEmpty(); // terminal child cancellation is a no-op
         } finally {
             scheduler.shutdownNow();
         }
@@ -460,6 +460,72 @@ class DelegatingMultimodalProviderTest {
             assertThat(first.result()).isEmpty();
             assertThat(replay.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
             assertThat(dispatcher.submits).hasValue(1);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void lostSecondChildAcknowledgementCancelsExactDurableChildAndPriorSibling() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public ProcessingJob submitChild(ProcessingJobRequest request) {
+                    ProcessingJob submitted = super.submitChild(request);
+                    if (request.jobType() == JobType.VISION) {
+                        throw new IllegalStateException("simulated lost vision acknowledgement");
+                    }
+                    return submitted;
+                }
+            }.with(JobType.SPEECH_TO_TEXT, JobStatus.RUNNING, Map.of())
+                    .with(JobType.VISION, JobStatus.RUNNING, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).containsExactlyInAnyOrder(
+                    "job-req-1:stt", "job-req-1:vision");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void lostAcknowledgementDoesNotCancelReboundDeterministicRequestReadback() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public ProcessingJob submitChild(ProcessingJobRequest request) {
+                    ProcessingJob submitted = super.submitChild(request);
+                    if (request.jobType() == JobType.VISION) {
+                        throw new IllegalStateException("simulated lost vision acknowledgement");
+                    }
+                    return submitted;
+                }
+
+                @Override public Optional<ProcessingJob> findJobByRequest(String requestId) {
+                    return super.findJobByRequest(requestId).map(job -> job.jobType() == JobType.VISION
+                            ? new ProcessingJob(job.jobId(), job.requestId(), job.tenantId(), job.principalId(),
+                                    "rebound-artifact", job.jobType(), job.providerId(), job.status(),
+                                    job.createdAt(), job.startedAt(), job.completedAt(), job.result(),
+                                    job.failureCode(), job.version(), job.expectedArtifactVersion(),
+                                    job.requestFingerprint())
+                            : job);
+                }
+            }.with(JobType.SPEECH_TO_TEXT, JobStatus.RUNNING, Map.of())
+                    .with(JobType.VISION, JobStatus.RUNNING, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
         } finally {
             scheduler.shutdownNow();
         }
@@ -625,14 +691,16 @@ class DelegatingMultimodalProviderTest {
         }
 
         @Override public CancellationOutcome cancelChild(String jobId) {
-            cancelled.add(jobId);
             jobs.replaceAll((requestId, job) -> job.jobId().equals(jobId)
+                    && (job.status() == JobStatus.ACCEPTED || job.status() == JobStatus.RUNNING)
                     ? new ProcessingJob(job.jobId(), job.requestId(), job.tenantId(),
                             job.principalId(), job.artifactId(), job.jobType(), job.providerId(),
                             JobStatus.CANCELLED, job.createdAt(), job.startedAt(), Instant.now(),
                             job.result(), job.failureCode(), job.version() + 1,
                             job.expectedArtifactVersion(), job.requestFingerprint())
                     : job);
+            if (jobs.values().stream().anyMatch(job -> job.jobId().equals(jobId)
+                    && job.status() == JobStatus.CANCELLED)) cancelled.add(jobId);
             return CancellationOutcome.CONFIRMED;
         }
     }

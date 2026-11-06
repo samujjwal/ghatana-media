@@ -249,6 +249,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         ProcessingJobRequest parent = context.request();
         List<ProcessingJob> children = new ArrayList<>(spec.children().size());
         for (MultimodalOperationSpec.ChildOperationSpec child : spec.children()) {
+            ProcessingJobRequest childRequest = null;
             try {
                 context.cancellation().throwIfCancelled();
                 if (deadline.expired()) {
@@ -256,7 +257,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                 }
                 String childRequestId = MultimodalOperationSpec.childRequestId(
                         parent.requestId(), child.childKey());
-                ProcessingJobRequest childRequest = new ProcessingJobRequest(
+                childRequest = new ProcessingJobRequest(
                         childRequestId, parent.tenantId(), parent.principalId(),
                         boundedCorrelation(parent.correlationId(), child.childKey()),
                         child.artifactId(), child.artifactVersion(), child.jobType(),
@@ -269,11 +270,27 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             } catch (RuntimeException failure) {
                 // A denied or cancelled fanout must not leak the children already
                 // submitted: cancel them best-effort before the failure propagates.
+                // A submit may have durably created the current child before its ACK was
+                // lost, so resolve its deterministic request identity and cancel only an
+                // exact binding. A lookup failure or rebound row remains UNKNOWN upstream.
+                if (childRequest != null) cancelAmbiguousSubmissionQuietly(childRequest, dispatcher);
                 cancelChildrenQuietly(children, dispatcher);
                 throw failure;
             }
         }
         return children;
+    }
+
+    private void cancelAmbiguousSubmissionQuietly(
+            ProcessingJobRequest request, MediaChildJobDispatcher dispatcher) {
+        try {
+            dispatcher.findJobByRequest(request.requestId())
+                    .filter(job -> matchesChildRequest(job, request))
+                    .filter(job -> job.status() == JobStatus.ACCEPTED || job.status() == JobStatus.RUNNING)
+                    .ifPresent(job -> cancelChildrenQuietly(List.of(job), dispatcher));
+        } catch (RuntimeException lookupFailure) {
+            // Submission finality is still UNKNOWN; best-effort lookup must not mask it.
+        }
     }
 
     private static final class ParentDeadlineExceededException extends RuntimeException { }
