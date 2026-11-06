@@ -55,6 +55,10 @@ class MediaJobReconciliationReadTest {
                 "job-1", "request-1", "tenant-a", "principal-a", "artifact-1", JobType.VISION,
                 "provider-1", JobStatus.OUTCOME_UNKNOWN, Instant.EPOCH, Instant.EPOCH, Instant.EPOCH,
                 Map.of("providerOutcome", "UNKNOWN"), "PROCESSING_OUTCOME_UNKNOWN", 3));
+        jobs.create(new ProcessingJob(
+                "job%2F1", "request-encoded", "tenant-a", "principal-a", "artifact-1", JobType.VISION,
+                "provider-1", JobStatus.OUTCOME_UNKNOWN, Instant.EPOCH, Instant.EPOCH, Instant.EPOCH,
+                Map.of("providerOutcome", "UNKNOWN"), "PROCESSING_OUTCOME_UNKNOWN", 3));
         var runtime = new MediaRuntime(
                 new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
                         Duration.ofSeconds(2), 2, "", "", true, false, root),
@@ -70,6 +74,13 @@ class MediaJobReconciliationReadTest {
             ExchangeResult matching = request(handler, "/api/v1/jobs/job-1?requestId=request-1");
             assertThat(matching.status()).isEqualTo(200);
             assertThat(matching.body()).contains("OUTCOME_UNKNOWN", "PROCESSING_OUTCOME_UNKNOWN");
+
+            // A percent-encoded percent sequence is decoded once as the literal identifier
+            // "job%2F1"; it must not become a slash through a second decode pass.
+            ExchangeResult encodedIdentifier = request(
+                    handler, "/api/v1/jobs/job%252F1?requestId=request-encoded");
+            assertThat(encodedIdentifier.status()).isEqualTo(200);
+            assertThat(encodedIdentifier.body()).contains("request-encoded");
 
             ExchangeResult untrustedHeaders = request(
                     handler, "/api/v1/jobs/job-1?requestId=request-1", null, false);

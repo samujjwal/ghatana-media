@@ -79,7 +79,10 @@ public final class MediaHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String requestPath = exchange.getRequestURI().getPath();
+        // Route against the raw path so each dynamic segment is decoded exactly once below.
+        // URI#getPath() is already decoded; decoding a captured value again can turn an
+        // encoded percent sequence into a path separator and select a different resource.
+        String requestPath = exchange.getRequestURI().getRawPath();
         io.micrometer.core.instrument.Timer.Sample requestSample = HEALTH_PATHS.contains(requestPath)
                 ? null : runtime.startWorkflowStage();
         try {
@@ -113,7 +116,7 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             Matcher consent = CONSENT_PATH.matcher(path);
             if (consent.matches()) {
-                String consentId = decode(consent.group(1));
+                String consentId = decodePathSegment(consent.group(1));
                 if ("GET".equals(method)) readConsent(exchange, tenantId, consentId);
                 else if ("DELETE".equals(method)) revokeConsent(exchange, tenantId, consentId);
                 else methodNotAllowed(exchange, "GET, DELETE");
@@ -126,22 +129,22 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher chunk = CHUNK_PATH.matcher(path);
             if (chunk.matches()) {
                 if (!"PUT".equals(method)) { methodNotAllowed(exchange, "PUT"); return; }
-                appendChunk(exchange, tenantId, principalId, decode(chunk.group(1)), Integer.parseInt(chunk.group(2))); return;
+                appendChunk(exchange, tenantId, principalId, decodePathSegment(chunk.group(1)), Integer.parseInt(chunk.group(2))); return;
             }
             Matcher complete = COMPLETE_PATH.matcher(path);
             if (complete.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                completeUpload(exchange, tenantId, principalId, decode(complete.group(1))); return;
+                completeUpload(exchange, tenantId, principalId, decodePathSegment(complete.group(1))); return;
             }
             Matcher upload = UPLOAD_PATH.matcher(path);
             if (upload.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                upload(exchange, tenantId, principalId, decode(upload.group(1))); return;
+                upload(exchange, tenantId, principalId, decodePathSegment(upload.group(1))); return;
             }
             Matcher artifact = ARTIFACT_PATH.matcher(path);
             if (artifact.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                artifact(exchange, tenantId, principalId, decode(artifact.group(1))); return;
+                artifact(exchange, tenantId, principalId, decodePathSegment(artifact.group(1))); return;
             }
             if ("/api/v1/jobs".equals(path)) {
                 if ("POST".equals(method)) submit(exchange, tenantId, principalId);
@@ -152,12 +155,12 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher cancel = CANCEL_PATH.matcher(path);
             if (cancel.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                cancel(exchange, tenantId, principalId, decode(cancel.group(1))); return;
+                cancel(exchange, tenantId, principalId, decodePathSegment(cancel.group(1))); return;
             }
             Matcher job = JOB_PATH.matcher(path);
             if (job.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                job(exchange, tenantId, principalId, decode(job.group(1))); return;
+                job(exchange, tenantId, principalId, decodePathSegment(job.group(1))); return;
             }
             if ("/api/v1/streams".equals(path)) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
@@ -166,22 +169,22 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher connect = STREAM_CONNECT_PATH.matcher(path);
             if (connect.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                connectStream(exchange, tenantId, principalId, decode(connect.group(1))); return;
+                connectStream(exchange, tenantId, principalId, decodePathSegment(connect.group(1))); return;
             }
             Matcher frame = STREAM_FRAME_PATH.matcher(path);
             if (frame.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                frame(exchange, tenantId, principalId, decode(frame.group(1)), Long.parseLong(frame.group(2))); return;
+                frame(exchange, tenantId, principalId, decodePathSegment(frame.group(1)), Long.parseLong(frame.group(2))); return;
             }
             Matcher close = STREAM_CLOSE_PATH.matcher(path);
             if (close.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                closeStream(exchange, tenantId, principalId, decode(close.group(1))); return;
+                closeStream(exchange, tenantId, principalId, decodePathSegment(close.group(1))); return;
             }
             Matcher stream = STREAM_PATH.matcher(path);
             if (stream.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                stream(exchange, tenantId, principalId, decode(stream.group(1))); return;
+                stream(exchange, tenantId, principalId, decodePathSegment(stream.group(1))); return;
             }
             if ("/api/v1/caption-versions".equals(path)) {
                 if ("POST".equals(method)) registerCaptionVersion(exchange, tenantId, principalId);
@@ -192,7 +195,7 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher captionVersion = CAPTION_VERSION_PATH.matcher(path);
             if (captionVersion.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                readCaptionVersion(exchange, tenantId, principalId, decode(captionVersion.group(1)));
+                readCaptionVersion(exchange, tenantId, principalId, decodePathSegment(captionVersion.group(1)));
                 return;
             }
             if ("/api/v1/providers".equals(path)) {
@@ -771,6 +774,14 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private static String decode(String value) { return URLDecoder.decode(value, StandardCharsets.UTF_8); }
+
+    private static String decodePathSegment(String value) {
+        String decoded = URLDecoder.decode(value.replace("+", "%2B"), StandardCharsets.UTF_8);
+        if (decoded.indexOf('/') >= 0 || decoded.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException("Path identifier must not contain a separator");
+        }
+        return decoded;
+    }
     private static boolean isRetryable(int status) {
         return status == 429 || status == 502 || status == 503 || status == 504;
     }
