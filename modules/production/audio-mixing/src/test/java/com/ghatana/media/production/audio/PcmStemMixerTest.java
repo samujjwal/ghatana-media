@@ -183,9 +183,20 @@ class PcmStemMixerTest {
     @Test
     void asset_inputs_require_current_exact_purpose_bound_rights_evidence() {
         byte[] pcm = pcm(new short[] {4, 5, 6, 7});
+        Stem paddedVersion = synthetic(" asset:v7", pcm, 2, 1, 0);
+        expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(paddedVersion), 2, 0.98f));
+
         Stem missing = new Stem("asset:v7", RATE, 2, 16, pcm, 1, 0,
                 new AssetProvenance("asset:v7", null));
         expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(missing), 2, 0.98f));
+
+        Stem paddedSourceVersion = new Stem("asset:v7", RATE, 2, 16, pcm, 1, 0,
+                new AssetProvenance(" asset:v7", evidence("asset:v7", NOW.minusSeconds(60), NOW.plusSeconds(60))));
+        expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(paddedSourceVersion), 2, 0.98f));
+        Stem paddedDecisionRef = asset("asset:v7", new RightsEvidence("asset:v7", " rights:v9",
+                RightsPurpose.PCM_STEM_MIX, RightsDisposition.CLEARED,
+                NOW.minusSeconds(60), NOW.plusSeconds(60)));
+        expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(paddedDecisionRef), 2, 0.98f));
 
         Stem stale = asset("asset:v7", evidence("asset:v7", NOW.minusSeconds(60), NOW));
         expect(ErrorCode.RIGHTS_STALE, () -> mix(List.of(stale), 2, 0.98f));

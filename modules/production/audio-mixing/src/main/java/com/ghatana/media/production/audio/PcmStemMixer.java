@@ -278,7 +278,7 @@ public final class PcmStemMixer {
     }
 
     private static void validateStem(Stem stem, MixSpec spec, Instant now) {
-        if (stem == null || blank(stem.versionRef()) || stem.pcmS16Le == null) {
+        if (stem == null || !canonicalRef(stem.versionRef()) || stem.pcmS16Le == null) {
             throw error(ErrorCode.INVALID_INPUT, "stem requires immutable version identity and PCM bytes");
         }
         if (stem.sampleRate() != spec.sampleRate() || stem.channels() != CHANNELS
@@ -290,8 +290,8 @@ public final class PcmStemMixer {
             throw error(ErrorCode.INVALID_INPUT, "stem gain or pan is outside the bounded range");
         }
         if (stem.provenance() instanceof SyntheticProvenance synthetic) {
-            if (blank(synthetic.algorithmId()) || blank(synthetic.algorithmVersion())
-                    || blank(synthetic.parameterDigest())) {
+            if (!canonicalRef(synthetic.algorithmId()) || !canonicalRef(synthetic.algorithmVersion())
+                    || !canonicalRef(synthetic.parameterDigest())) {
                 throw error(ErrorCode.INVALID_INPUT, "synthetic stem requires algorithm provenance");
             }
             return;
@@ -300,7 +300,7 @@ public final class PcmStemMixer {
             throw error(ErrorCode.RIGHTS_MISSING,
                     "stem must carry algorithm provenance or exact source and rights evidence");
         }
-        if (blank(asset.sourceVersionRef()) || asset.rightsEvidence() == null) {
+        if (!canonicalRef(asset.sourceVersionRef()) || asset.rightsEvidence() == null) {
             throw error(ErrorCode.RIGHTS_MISSING, "asset stem is missing version-bound rights evidence");
         }
         if (!stem.versionRef().equals(asset.sourceVersionRef())) {
@@ -308,7 +308,7 @@ public final class PcmStemMixer {
                     "asset stem version must match the exact source version bound by its rights evidence");
         }
         RightsEvidence evidence = asset.rightsEvidence();
-        if (blank(evidence.sourceVersionRef()) || blank(evidence.decisionRef())
+        if (!canonicalRef(evidence.sourceVersionRef()) || !canonicalRef(evidence.decisionRef())
                 || evidence.purpose() == null || evidence.disposition() == null
                 || evidence.validFrom() == null || evidence.validUntil() == null
                 || !evidence.sourceVersionRef().equals(asset.sourceVersionRef())) {
@@ -431,6 +431,11 @@ public final class PcmStemMixer {
     }
 
     private static boolean blank(String value) { return value == null || value.isBlank(); }
+
+    /** Identifiers are hashed and compared byte-for-byte; silently accepting outer whitespace is ambiguous. */
+    private static boolean canonicalRef(String value) {
+        return !blank(value) && value.equals(value.strip());
+    }
 
     private static MixException error(ErrorCode code, String message) {
         return new MixException(code, message);
