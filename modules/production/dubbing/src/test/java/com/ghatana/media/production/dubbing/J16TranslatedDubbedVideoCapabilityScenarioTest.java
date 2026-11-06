@@ -93,6 +93,52 @@ class J16TranslatedDubbedVideoCapabilityScenarioTest {
         assertThat(synthesisCalled).isFalse();
     }
 
+    @Test
+    void sourceRightsRevokedAfterTranslationPreventsSynthesisAndReturnsNoPartialDub() {
+        Request request = request();
+        AtomicBoolean sourceCurrent = new AtomicBoolean(true);
+        RightsConsentPort rights = new RightsConsentPort() {
+            @Override public RightsDecision evaluate(RightsScope scope) {
+                return new RightsDecision(RightsStatus.ALLOW, "fixture-authority", "fixture-decision");
+            }
+            @Override public boolean isCurrent(RightsScope scope, RightsDecision decision) {
+                return scope.kind() != RightsKind.SOURCE_DERIVATIVE || sourceCurrent.get();
+            }
+        };
+        TranslationPort translation = new TranslationPort() {
+            @Override public Capability capability(String sourceLocale, String targetLocale) {
+                return Capability.available();
+            }
+            @Override public TranslationResult translate(TranslationRequest input) {
+                sourceCurrent.set(false);
+                return new TranslationResult(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.sourceLocale(), input.targetLocale(),
+                        input.sourceClockId(), input.ticksPerSecond(), input.sourceDurationTicks(),
+                        input.segments().stream().map(segment -> new TranslatedSegment(
+                                segment.segmentId(), "synthetic translated text", segment.startTick(), segment.endTick())).toList());
+            }
+        };
+        AtomicBoolean synthesisCalled = new AtomicBoolean();
+        SynthesisPort synthesis = new SynthesisPort() {
+            @Override public Capability capability(String targetLocale, VoiceIdentity voice) {
+                return Capability.available();
+            }
+            @Override public SynthesizedAudio synthesize(SynthesisRequest input) {
+                synthesisCalled.set(true);
+                throw new AssertionError("revoked source rights must prevent synthesis dispatch");
+            }
+        };
+
+        DubbingResult result = new DubbingOrchestrator(rights, translation, synthesis, alignment(true)).dub(request);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.REVOKED);
+        assertThat(result.reason()).contains(Reason.SOURCE_RIGHTS_REVOKED);
+        assertThat(result.translationDispatched()).isTrue();
+        assertThat(result.synthesisDispatchCount()).isZero();
+        assertThat(result.segments()).isEmpty();
+        assertThat(synthesisCalled).isFalse();
+    }
+
     private static Request request() {
         SourceVersion source = new SourceVersion("fixture-source-video", "fixture-source-v7");
         TranscriptRevision transcript = new TranscriptRevision("fixture-transcript-v3", source, "en-US",
