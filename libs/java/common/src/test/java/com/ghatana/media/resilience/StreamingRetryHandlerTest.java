@@ -11,7 +11,11 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests for AV-007: Streaming retry logic
@@ -121,6 +125,73 @@ class StreamingRetryHandlerTest {
         });
 
         assertEquals(1, calls.get()); // Only one attempt 
+    }
+
+    @Test
+    @DisplayName("Cancellation is never retried or converted to fallback")
+    void cancellationIsTerminalEvenWhenRetryPredicateAcceptsEveryFailure() {
+        StreamingRetryHandler handler = StreamingRetryHandler.builder()
+            .maxRetries(3)
+            .initialDelay(Duration.ofMillis(1))
+            .build();
+        AtomicInteger calls = new AtomicInteger();
+
+        CancellationException cancellation = assertThrows(CancellationException.class,
+            () -> handler.executeWithFallback(() -> {
+                calls.incrementAndGet();
+                throw new CancellationException("cancelled by caller");
+            }, "fallback", "cancelled operation"));
+
+        assertEquals("cancelled by caller", cancellation.getMessage());
+        assertEquals(1, calls.get());
+
+        AtomicInteger customPredicateCalls = new AtomicInteger();
+        assertThrows(CancellationException.class, () -> handler.executeWithRetry(() -> {
+            customPredicateCalls.incrementAndGet();
+            throw new CancellationException("cancelled by caller");
+        }, "cancelled operation", ignored -> true));
+        assertEquals(1, customPredicateCalls.get(), "custom retry policy must not retry cancellation");
+    }
+
+    @Test
+    @DisplayName("Interrupting retry backoff stops retries and preserves interruption")
+    void interruptDuringBackoffStopsRetriesAndDoesNotReturnFallback() throws Exception {
+        StreamingRetryHandler handler = StreamingRetryHandler.builder()
+            .maxRetries(3)
+            .initialDelay(Duration.ofSeconds(30))
+            .build();
+        AtomicInteger calls = new AtomicInteger();
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        AtomicReference<Boolean> interruptPreserved = new AtomicReference<>(false);
+        CountDownLatch firstAttempt = new CountDownLatch(1);
+
+        Thread worker = new Thread(() -> {
+            try {
+                handler.executeWithFallback(() -> {
+                    calls.incrementAndGet();
+                    firstAttempt.countDown();
+                    throw new RuntimeException("try again");
+                }, "fallback", "interrupted operation");
+            } catch (Throwable thrown) {
+                failure.set(thrown);
+                interruptPreserved.set(Thread.currentThread().isInterrupted());
+            }
+        });
+        worker.start();
+
+        assertTrue(firstAttempt.await(1, TimeUnit.SECONDS), "first attempt should start");
+        long waitDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+        while (worker.getState() != Thread.State.TIMED_WAITING && System.nanoTime() < waitDeadline) {
+            Thread.yield();
+        }
+        assertEquals(Thread.State.TIMED_WAITING, worker.getState(), "worker should be in retry backoff");
+        worker.interrupt();
+        worker.join(1_000);
+
+        assertFalse(worker.isAlive(), "interrupted backoff should finish promptly");
+        assertInstanceOf(CancellationException.class, failure.get());
+        assertTrue(interruptPreserved.get());
+        assertEquals(1, calls.get(), "cancellation must prevent another attempt");
     }
 
     @Test

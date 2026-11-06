@@ -668,7 +668,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: FileSystemModelStore missing-model errors no longer disclose host paths in message/cause; focused FileSystemModelStoreTest PASS. Still OPEN: four-service auth parity, native leak audit and retry-under-cancellation evidence."
+      "progress": "2026-11-05: FileSystemModelStore missing-model errors no longer disclose host paths in message/cause; focused FileSystemModelStoreTest PASS. StreamingRetryHandler now propagates CancellationException regardless of a broad retry predicate, and interrupted retry backoff preserves the interrupt and escapes fallback; StreamingRetryHandlerTest PASS 14/14. Still OPEN: four-service auth parity and native leak audit; the retry handler owns no native sessions/resources."
     },
     {
       "id": "media.dev.stt-model-and-quality",

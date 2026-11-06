@@ -10,6 +10,7 @@ import com.ghatana.media.config.TimeoutConfig;
 
 import java.time.Duration;
 import java.util.Locale;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -102,6 +103,7 @@ public class StreamingRetryHandler {
      * @param <T> return type
      * @return operation result
      * @throws StreamingRetryExhaustedException if all retries exhausted
+     * @throws CancellationException if the operation is cancelled or retry backoff is interrupted
      */
     public <T> T executeWithRetry(Supplier<T> operation, String context) {
         return executeWithRetry(operation, context, this::shouldRetry);
@@ -116,6 +118,7 @@ public class StreamingRetryHandler {
      * @param <T> return type
      * @return operation result
      * @throws StreamingRetryExhaustedException if all retries exhausted
+     * @throws CancellationException if the operation is cancelled or retry backoff is interrupted
      */
     public <T> T executeWithRetry(Supplier<T> operation, String context,
                                    java.util.function.Predicate<Throwable> shouldRetry) {
@@ -138,6 +141,11 @@ public class StreamingRetryHandler {
                 }
                 return result;
             } catch (Exception e) {
+                // Cancellation is terminal even when a caller's retry predicate is broad.
+                // Preserve it so fallback callers cannot mistake cancellation for exhaustion.
+                if (e instanceof CancellationException cancellation) {
+                    throw cancellation;
+                }
                 lastException = e;
 
                 if (attempt >= maxRetries || !shouldRetry.test(e)) {
@@ -154,8 +162,10 @@ public class StreamingRetryHandler {
                     Thread.sleep(delay.toMillis());
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    throw new StreamingRetryExhaustedException(
-                        "Retry interrupted for: " + context, e, attempt + 1);
+                    CancellationException cancellation = new CancellationException(
+                        "Retry interrupted for: " + context);
+                    cancellation.initCause(ie);
+                    throw cancellation;
                 }
 
                 attempt++;

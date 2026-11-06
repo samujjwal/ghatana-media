@@ -253,8 +253,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Deduplicate engine pools, security transport helpers and model/codec adapters safely.
 - **How:** One ownership for Whisper/Piper/vision/native worker, TLS/JWT/deadline and errors; retain ABI until all installed consumers migrate.
 - **Test/exit:** Source-free ABI, 4-service auth and no native leaks, test retries under cancellation.
-- **Progress:** `FileSystemModelStore` no longer discloses host paths in missing-model errors or their causes; focused `FileSystemModelStoreTest` passes. Four-service auth parity, native leak audit, and retry-under-cancellation remain unverified.
-- **Progress:** `FileSystemModelStore` now removes host filesystem paths from missing-model errors and their causes; focused `FileSystemModelStoreTest` passes. Four-service auth parity, native leak audit, and retry-under-cancellation remain unverified.
+- **Progress:** `FileSystemModelStore` no longer discloses host paths in missing-model errors or their causes; focused `FileSystemModelStoreTest` passes. `StreamingRetryHandler` now propagates `CancellationException` regardless of a broad retry predicate, and interrupted retry backoff preserves the interrupt and escapes fallback; `StreamingRetryHandlerTest` passes 14/14. Four-service auth parity and native leak auditing remain open; this retry handler owns no native sessions or resources.
 - **Predecessors:** `media.dev.domain-contract-parity`
 
 **`media.dev.stt-model-and-quality`** · OPEN
