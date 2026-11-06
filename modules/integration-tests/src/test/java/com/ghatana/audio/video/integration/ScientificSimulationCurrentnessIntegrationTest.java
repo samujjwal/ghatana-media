@@ -76,6 +76,26 @@ class ScientificSimulationCurrentnessIntegrationTest {
     }
 
     @Test
+    void missingOwnerReferenceAuthorityCannotAdmitFixtureAsScientificPass() {
+        var result = deterministicFixture();
+
+        var validation = SimulationSemanticValidator.validate(exactBinding(), result);
+
+        assertThat(result.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.disposition()).isNotEqualTo(SimulationSemanticValidator.Disposition.VALID);
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason())
+                    .isEqualTo(SimulationSemanticValidator.Reason.REFERENCE_AUTHORITY_UNAVAILABLE);
+            assertThat(finding.subject()).isEqualTo("inputs");
+            assertThat(finding.detail()).contains("no owner reference verifier");
+        });
+    }
+
+    @Test
     void dimensionMismatchIsRejectedBeforeSolverAndNeverProducesAResult() {
         var invalidMass = new MediaSimulationContracts.Measurement(
                 new MediaSimulationContracts.Quantity(2, MediaSimulationContracts.Unit.METER),
