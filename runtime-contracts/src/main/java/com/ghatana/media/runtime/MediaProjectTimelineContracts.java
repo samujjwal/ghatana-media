@@ -256,6 +256,9 @@ public final class MediaProjectTimelineContracts {
     public static String required(String value, String name) {
         Objects.requireNonNull(value, name);
         if (value.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
+        if (!value.equals(value.strip())) {
+            throw new IllegalArgumentException(name + " must not have surrounding whitespace");
+        }
         return value;
     }
 

@@ -9,6 +9,20 @@ import org.junit.jupiter.api.Test;
 
 class MediaProjectTimelineContractsTest {
     @Test
+    void exactTimelineIdentitiesRejectSurroundingWhitespace() {
+        assertThatThrownBy(() -> new SourceVersion(" artifact", "version"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactId");
+        assertThatThrownBy(() -> new SourceVersion("artifact", "version "))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactVersionId");
+        assertThatThrownBy(() -> new Scene(" scene", 0))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sceneId");
+        assertThatThrownBy(() -> new Actor("tenant", " principal"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("principalId");
+        assertThatThrownBy(() -> new Graph("timeline ", List.of(), List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("timelineId");
+    }
+
+    @Test
     void rationalTimesNormalizeAndCompareExactlyAtLongDurations() {
         RationalTime ntsc = new RationalTime(30_000L * 60L * 60L * 24L, 30_000, 1_001, Clock.STORY);
         RationalTime sameInstant = new RationalTime(24L * 60L * 60L * 24L, 24, 1, Clock.STORY);
