@@ -1072,7 +1072,31 @@ tests:
         contract_version: v1
       exp_annotations:
         summary: Media provider profile has no measured quality evidence
-        description: Provider profile whisper-provider/whisper-tiny (stt) is observed, but its measured-quality timestamp is NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed.
+        description: Provider profile whisper-provider/whisper-tiny (stt) is observed, but its measured-quality timestamp has been absent or NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+- name: missing-quality-timestamp-series-is-unknown
+  interval: 1m
+  input_series:
+  - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_profile="stt",model_revision="whisper-tiny",contract_version="v1"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaProviderQualityEvidenceMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: model-quality
+        service: stt
+        modality: stt
+        provider_id: whisper-provider
+        provider_version: whisper-v1
+        model_profile: stt
+        model_revision: whisper-tiny
+        contract_version: v1
+      exp_annotations:
+        summary: Media provider profile has no measured quality evidence
+        description: Provider profile whisper-provider/whisper-tiny (stt) is observed, but its measured-quality timestamp has been absent or NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed.
         runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
 - name: finite-quality-evidence-and-unknown-profile-stay-quiet
   interval: 1m

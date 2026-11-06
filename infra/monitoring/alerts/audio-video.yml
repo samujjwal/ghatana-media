@@ -321,9 +321,17 @@ groups:
       # evidence must never read as a pass.
       - alert: MediaProviderQualityEvidenceMissing
         expr: |
-          (media_provider_profile_readiness{contract_version="v1"} == media_provider_profile_readiness{contract_version="v1"})
-          and on (service, modality, provider_id, provider_version, model_profile, model_revision, contract_version)
-          (media_provider_quality_observation_timestamp_seconds{contract_version="v1"} != media_provider_quality_observation_timestamp_seconds{contract_version="v1"})
+          (
+            (media_provider_profile_readiness{contract_version="v1"} == media_provider_profile_readiness{contract_version="v1"})
+            and on (service, modality, provider_id, provider_version, model_profile, model_revision, contract_version)
+            (media_provider_quality_observation_timestamp_seconds{contract_version="v1"} != media_provider_quality_observation_timestamp_seconds{contract_version="v1"})
+          )
+          or
+          (
+            (media_provider_profile_readiness{contract_version="v1"} == media_provider_profile_readiness{contract_version="v1"})
+            unless on (service, modality, provider_id, provider_version, model_profile, model_revision, contract_version)
+            media_provider_quality_observation_timestamp_seconds{contract_version="v1"}
+          )
         for: 15m
         labels:
           severity: warning
@@ -331,7 +339,7 @@ groups:
           component: model-quality
         annotations:
           summary: "Media provider profile has no measured quality evidence"
-          description: "Provider profile {{ $labels.provider_id }}/{{ $labels.model_revision }} ({{ $labels.modality }}) is observed, but its measured-quality timestamp is NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed."
+          description: "Provider profile {{ $labels.provider_id }}/{{ $labels.model_revision }} ({{ $labels.modality }}) is observed, but its measured-quality timestamp has been absent or NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed."
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
   # -------------------------------------------------------------------------
