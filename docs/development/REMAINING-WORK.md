@@ -54,6 +54,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** One public domain and operation contract across Java/TS/HTTP/gRPC.
 - **How:** Bind IDs, immutable artifact/version/ref, rational clocks, rights, lifecycle/UNKNOWN, inputs and outputs; preserve published ABI and add strict schema oracles.
 - **Test/exit:** Roundtrip/golden/invalid/overflow/unknown-state tests and consumer ABI checks.
+- **Fresh owner-requested verification (2026-11-06):** TypeScript type/protocol checks and installed package consumers passed; Java `MediaDomainParityGoldenVectorTest` passed 8/8. Upload schema and bounded owner-wire checks passed 5/5, stream projection/job status checks 6/6, OpenAPI-to-route contract checks 2/2, authenticated upload journey 1/1, and terminal/ordinary frame body checks 3/3. Structural parity remains distinct from source semantic `REVIEW_REQUIRED`; no formal status changed.
 - **Predecessors:** `media.dev.source-capability-crosswalk`
 
 **`media.dev.rights-and-policy`** · VERIFIED (32 focused runtime/provider tests pass; fake request-derived identity fails before job/provider effects)
