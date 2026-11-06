@@ -13,6 +13,7 @@ import {
   type CaptureRequest,
   type CapturedFrame,
   type CaptureSourceAdapter,
+  type CameraCaptureMetadata,
 } from "./capture-adapters";
 
 const request: CaptureRequest = {
@@ -50,6 +51,55 @@ function adapterReturning(frame: CapturedFrame) {
       return frame;
     },
   };
+}
+
+const cameraRequest: CaptureRequest = { ...request, kind: "CAMERA" };
+
+function cameraMetadata(): CameraCaptureMetadata {
+  return {
+    captureEpochRef: "epoch/camera:v1",
+    captureClockRef: cameraRequest.frameClockRef,
+    hostCapturePtsNanos: "9000000",
+    sourceIdentity: cameraRequest.sourceIdentity,
+    sourceVersionRef: cameraRequest.sourceVersionRef,
+    permissionDecisionRef: "permission/camera:v1",
+    allowedSignals: ["VIDEO", "AUDIO"],
+    selectedSignals: ["VIDEO"],
+    syncPolicyRef: "sync-policy/camera:v1",
+    codecDisposition: "AVAILABLE",
+    codecProfileRef: "codec-profile/jpeg:v1",
+    codecId: "image/jpeg",
+    mimeType: "image/jpeg",
+    width: 640,
+    height: 480,
+    sourceClockRef: "clock/camera-source:v1",
+    sourceStreamRef: "stream/camera-video:v1",
+    sourceOriginRef: "origin/camera-epoch:v1",
+    sourceTimeBase: { numerator: "1", denominator: "90000" },
+    clockMappings: ["AUDIO_SAMPLE", "STORY", "SIMULATION", "WALL_CLOCK"].map((destinationDomain) => ({
+      sourceDomain: "SOURCE_VIDEO_PRESENTATION",
+      destinationDomain,
+      disposition: "UNKNOWN",
+      reason: "NO_QUALIFIED_CLOCK_ALIGNMENT",
+    })) as CameraCaptureMetadata["clockMappings"],
+  };
+}
+
+function cameraFrame(overrides: Partial<CapturedFrame> = {}): CapturedFrame {
+  return capturedFrame({
+    cameraMetadata: cameraMetadata(),
+    sourcePresentationTime: {
+      disposition: "KNOWN",
+      sourceClockRef: "clock/camera-source:v1",
+      sourceStreamRef: "stream/camera-video:v1",
+      sourceOriginRef: "origin/camera-epoch:v1",
+      presentationTicks: "9000",
+      timeBase: { numerator: "1", denominator: "90000" },
+      discontinuity: { disposition: "GAP", evidenceRef: "evidence/camera-gap:v1" },
+    },
+    audioSampleTime: { disposition: "NOT_SELECTED" },
+    ...overrides,
+  });
 }
 
 describe("captureWithAdmission", () => {
@@ -101,6 +151,59 @@ describe("captureWithAdmission", () => {
     expect(frame.bytes).toEqual(new Uint8Array([1, 2]));
     frame.bytes[1] = 8;
     expect(source).toEqual(new Uint8Array([9, 2]));
+  });
+
+  it("validates and detaches nested camera clocks and metadata before returning the frame", async () => {
+    const sourceMetadata = cameraMetadata();
+    const sourceTime = cameraFrame().sourcePresentationTime!;
+    const adapterFrame = cameraFrame({ cameraMetadata: sourceMetadata, sourcePresentationTime: sourceTime });
+    const frame = await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning(adapterFrame), cameraRequest);
+
+    const mutableMetadata = sourceMetadata as unknown as {
+      allowedSignals: string[];
+      clockMappings: Array<{ destinationDomain: string }>;
+      sourceTimeBase: { numerator: string; denominator: string };
+    };
+    mutableMetadata.allowedSignals[0] = "AUDIO";
+    mutableMetadata.clockMappings[0]!.destinationDomain = "WALL_CLOCK";
+    mutableMetadata.sourceTimeBase.numerator = "90000";
+    const mutableSourceTime = sourceTime as unknown as {
+      timeBase: { numerator: string; denominator: string };
+      discontinuity: { evidenceRef: string };
+    };
+    mutableSourceTime.timeBase.numerator = "90000";
+    mutableSourceTime.discontinuity.evidenceRef = "evidence/attacker:v1";
+
+    expect(frame.cameraMetadata?.allowedSignals).toEqual(["VIDEO", "AUDIO"]);
+    expect(frame.cameraMetadata?.clockMappings.map(({ destinationDomain }) => destinationDomain))
+      .toEqual(["AUDIO_SAMPLE", "STORY", "SIMULATION", "WALL_CLOCK"]);
+    expect(frame.cameraMetadata?.sourceTimeBase).toEqual({ numerator: "1", denominator: "90000" });
+    expect(frame.sourcePresentationTime).toMatchObject({
+      timeBase: { numerator: "1", denominator: "90000" },
+      discontinuity: { disposition: "GAP", evidenceRef: "evidence/camera-gap:v1" },
+    });
+    expect(Object.isFrozen(frame.cameraMetadata)).toBe(true);
+    expect(Object.isFrozen(frame.cameraMetadata?.clockMappings)).toBe(true);
+    expect(Object.isFrozen(frame.sourcePresentationTime)).toBe(true);
+  });
+
+  it("returns sanitized UNKNOWN for malformed camera clock sets and mismatched source PTS", async () => {
+    const duplicatedClockDomains = cameraMetadata();
+    const mutableMappings = duplicatedClockDomains.clockMappings as unknown as Array<{
+      destinationDomain: string;
+    }>;
+    mutableMappings[3]!.destinationDomain = "STORY";
+    const malformed = cameraFrame({ cameraMetadata: duplicatedClockDomains });
+    await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning(malformed), cameraRequest))
+      .rejects.toMatchObject({ kind: "CAMERA", reason: "INVALID_FRAME" });
+
+    const knownTime = cameraFrame().sourcePresentationTime!;
+    if (knownTime.disposition !== "KNOWN") throw new Error("test fixture must have known camera PTS");
+    const mismatched = cameraFrame({ sourcePresentationTime: {
+      ...knownTime, sourceClockRef: "clock/other:v1",
+    } });
+    await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning(mismatched), cameraRequest))
+      .rejects.toMatchObject({ kind: "CAMERA", reason: "INVALID_FRAME" });
   });
 
   it.each([["NOT_ADMITTED"], ["UNAVAILABLE"]] as const)(

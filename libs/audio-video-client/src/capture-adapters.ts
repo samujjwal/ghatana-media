@@ -5,6 +5,11 @@
  * version + controlled secrets + frame clock). Unadmitted adapters return
  * NOT_ADMITTED; nothing fabricates pixels, device availability or success.
  */
+import {
+  PositiveRationalSchema,
+  SignedInt64DecimalSchema,
+  VersionRefSchema,
+} from "@audio-video/types/production";
 
 export type CaptureSourceKind =
   | "BROWSER" | "DESKTOP" | "MOBILE" | "TERMINAL"
@@ -229,6 +234,210 @@ function hasRequestBinding(value: string | undefined): boolean {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+const CAMERA_SIGNALS: ReadonlySet<string> = new Set(["VIDEO", "AUDIO"]);
+const CAMERA_CLOCK_DESTINATIONS = ["AUDIO_SAMPLE", "STORY", "SIMULATION", "WALL_CLOCK"] as const;
+
+function snapshotVersionRef(value: unknown): string | null {
+  const parsed = VersionRefSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
+function snapshotPositiveRational(value: unknown): CameraPositiveRational | null {
+  const parsed = PositiveRationalSchema.safeParse(value);
+  return parsed.success ? Object.freeze({
+    numerator: parsed.data.numerator,
+    denominator: parsed.data.denominator,
+  }) : null;
+}
+
+/**
+ * Revalidate and detach provider-owned camera metadata at the generic capture
+ * boundary. Camera adapters may be host plugins; their readonly TypeScript
+ * declarations do not prevent mutation after the returned frame is admitted.
+ */
+function snapshotCameraMetadata(value: CameraCaptureMetadata): CameraCaptureMetadata {
+  if (!value || typeof value !== "object") throw new TypeError("camera metadata is missing");
+  const {
+    captureEpochRef, captureClockRef, hostCapturePtsNanos,
+    sourceIdentity, sourceVersionRef, permissionDecisionRef,
+    allowedSignals, selectedSignals, syncPolicyRef, codecDisposition,
+    codecProfileRef, codecId, mimeType, width, height,
+    sourceClockRef, sourceStreamRef, sourceOriginRef, sourceTimeBase, clockMappings,
+  } = value;
+  const epoch = snapshotVersionRef(captureEpochRef);
+  const clock = snapshotVersionRef(captureClockRef);
+  const permission = snapshotVersionRef(permissionDecisionRef);
+  const syncPolicy = snapshotVersionRef(syncPolicyRef);
+  const profile = snapshotVersionRef(codecProfileRef);
+  const id = snapshotVersionRef(codecId);
+  const mime = snapshotVersionRef(mimeType);
+  const sourceClock = sourceClockRef === null ? null : snapshotVersionRef(sourceClockRef);
+  const sourceStream = sourceStreamRef === null ? null : snapshotVersionRef(sourceStreamRef);
+  const sourceOrigin = sourceOriginRef === null ? null : snapshotVersionRef(sourceOriginRef);
+  const timeBase = sourceTimeBase === null ? null : snapshotPositiveRational(sourceTimeBase);
+  if (epoch === null || clock === null || permission === null || syncPolicy === null
+    || profile === null || id === null || mime === null
+    || (sourceClockRef !== null && sourceClock === null)
+    || (sourceStreamRef !== null && sourceStream === null)
+    || (sourceOriginRef !== null && sourceOrigin === null)
+    || (sourceTimeBase !== null && timeBase === null)
+    || !SignedInt64DecimalSchema.safeParse(hostCapturePtsNanos).success
+    || BigInt(hostCapturePtsNanos) < 0n
+    || snapshotVersionRef(sourceIdentity) === null || snapshotVersionRef(sourceVersionRef) === null
+    || codecDisposition !== "AVAILABLE"
+    || !Number.isSafeInteger(width) || width < 1 || width > 16_384
+    || !Number.isSafeInteger(height) || height < 1 || height > 16_384
+    || !Array.isArray(allowedSignals) || allowedSignals.length < 1 || allowedSignals.length > 2
+    || allowedSignals.some((signal) => !CAMERA_SIGNALS.has(signal))
+    || new Set(allowedSignals).size !== allowedSignals.length
+    || !Array.isArray(selectedSignals) || selectedSignals.length < 1 || selectedSignals.length > 2
+    || selectedSignals.some((signal) => !CAMERA_SIGNALS.has(signal) || !allowedSignals.includes(signal))
+    || !selectedSignals.includes("VIDEO") || new Set(selectedSignals).size !== selectedSignals.length
+    || !Array.isArray(clockMappings) || clockMappings.length !== CAMERA_CLOCK_DESTINATIONS.length) {
+    throw new TypeError("camera metadata is malformed or unbound");
+  }
+
+  const mappings = new Map<string, CameraClockMappingUncertainty>();
+  for (const mapping of clockMappings) {
+    if (!mapping || typeof mapping !== "object"
+      || mapping.sourceDomain !== "SOURCE_VIDEO_PRESENTATION"
+      || !(CAMERA_CLOCK_DESTINATIONS as readonly string[]).includes(mapping.destinationDomain)
+      || mapping.disposition !== "UNKNOWN" || mapping.reason !== "NO_QUALIFIED_CLOCK_ALIGNMENT"
+      || mappings.has(mapping.destinationDomain)) {
+      throw new TypeError("camera clock mappings must be unique and explicitly unknown");
+    }
+    mappings.set(mapping.destinationDomain, Object.freeze({
+      sourceDomain: "SOURCE_VIDEO_PRESENTATION",
+      destinationDomain: mapping.destinationDomain,
+      disposition: "UNKNOWN",
+      reason: "NO_QUALIFIED_CLOCK_ALIGNMENT",
+    }));
+  }
+  if (CAMERA_CLOCK_DESTINATIONS.some((destination) => !mappings.has(destination))) {
+    throw new TypeError("camera clock mappings must declare every destination domain");
+  }
+
+  return Object.freeze({
+    captureEpochRef: epoch,
+    captureClockRef: clock,
+    hostCapturePtsNanos,
+    sourceIdentity,
+    sourceVersionRef,
+    permissionDecisionRef: permission,
+    allowedSignals: Object.freeze([...allowedSignals]),
+    selectedSignals: Object.freeze([...selectedSignals]),
+    syncPolicyRef: syncPolicy,
+    codecDisposition: "AVAILABLE",
+    codecProfileRef: profile,
+    codecId: id,
+    mimeType: mime,
+    width,
+    height,
+    sourceClockRef: sourceClock,
+    sourceStreamRef: sourceStream,
+    sourceOriginRef: sourceOrigin,
+    sourceTimeBase: timeBase,
+    clockMappings: Object.freeze(CAMERA_CLOCK_DESTINATIONS.map((destination) => mappings.get(destination)!)),
+  });
+}
+
+function snapshotCameraPresentationTime(
+  value: CameraSourcePresentationTime,
+  metadata: CameraCaptureMetadata,
+): CameraSourcePresentationTime {
+  if (!value || typeof value !== "object") throw new TypeError("camera source time is missing");
+  if (value.disposition === "UNKNOWN") {
+    if (value.reason === "SOURCE_TIMEBASE_NOT_SUPPLIED" && metadata.sourceTimeBase !== null) {
+      throw new TypeError("camera source time cannot omit a supplied time base");
+    }
+    if (value.reason === "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED"
+      && metadata.sourceClockRef !== null && metadata.sourceStreamRef !== null && metadata.sourceOriginRef !== null) {
+      throw new TypeError("camera source time cannot omit supplied clock identity");
+    }
+    if (!["SOURCE_PTS_NOT_SUPPLIED", "SOURCE_TIMEBASE_NOT_SUPPLIED", "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED"]
+      .includes(value.reason)) throw new TypeError("camera source time has an unsupported unknown reason");
+    return Object.freeze({ disposition: "UNKNOWN", reason: value.reason });
+  }
+  if (value.disposition !== "KNOWN"
+    || metadata.sourceClockRef === null || metadata.sourceStreamRef === null
+    || metadata.sourceOriginRef === null || metadata.sourceTimeBase === null
+    || value.sourceClockRef !== metadata.sourceClockRef
+    || value.sourceStreamRef !== metadata.sourceStreamRef
+    || value.sourceOriginRef !== metadata.sourceOriginRef
+    || !SignedInt64DecimalSchema.safeParse(value.presentationTicks).success
+    || BigInt(value.presentationTicks) < 0n) {
+    throw new TypeError("known camera source time must match exact source clock metadata");
+  }
+  const timeBase = snapshotPositiveRational(value.timeBase);
+  if (timeBase === null || timeBase.numerator !== metadata.sourceTimeBase.numerator
+    || timeBase.denominator !== metadata.sourceTimeBase.denominator) {
+    throw new TypeError("known camera source time must use the declared source time base");
+  }
+  const discontinuity = value.discontinuity;
+  let safeDiscontinuity: CameraDiscontinuity;
+  if (discontinuity?.disposition === "NONE") {
+    safeDiscontinuity = Object.freeze({ disposition: "NONE" });
+  } else if (discontinuity?.disposition === "UNKNOWN"
+    && discontinuity.reason === "SOURCE_DISCONTINUITY_NOT_REPORTED") {
+    safeDiscontinuity = Object.freeze({
+      disposition: "UNKNOWN", reason: "SOURCE_DISCONTINUITY_NOT_REPORTED",
+    });
+  } else if (discontinuity?.disposition === "GAP" || discontinuity?.disposition === "RESET") {
+    const evidenceRef = snapshotVersionRef(discontinuity.evidenceRef);
+    if (evidenceRef === null) throw new TypeError("camera discontinuity evidence is malformed");
+    safeDiscontinuity = Object.freeze({ disposition: discontinuity.disposition, evidenceRef });
+  } else {
+    throw new TypeError("camera source time discontinuity is malformed");
+  }
+  return Object.freeze({
+    disposition: "KNOWN",
+    sourceClockRef: value.sourceClockRef,
+    sourceStreamRef: value.sourceStreamRef,
+    sourceOriginRef: value.sourceOriginRef,
+    presentationTicks: value.presentationTicks,
+    timeBase,
+    discontinuity: safeDiscontinuity,
+  });
+}
+
+function snapshotCameraAudioSampleTime(
+  value: CameraAudioSampleTime,
+  metadata: CameraCaptureMetadata,
+): CameraAudioSampleTime {
+  if (!value || typeof value !== "object") throw new TypeError("camera audio sample time is missing");
+  if (value.disposition === "NOT_SELECTED") {
+    if (metadata.selectedSignals.includes("AUDIO")) {
+      throw new TypeError("selected camera audio must report a sample clock or UNKNOWN");
+    }
+    return Object.freeze({ disposition: "NOT_SELECTED" });
+  }
+  if (!metadata.selectedSignals.includes("AUDIO")) {
+    throw new TypeError("camera audio sample time was returned without selecting audio");
+  }
+  if (value.disposition === "UNKNOWN") {
+    if (value.reason !== "AUDIO_SAMPLE_CLOCK_NOT_SUPPLIED") {
+      throw new TypeError("camera audio sample time has an unsupported unknown reason");
+    }
+    return Object.freeze({ disposition: "UNKNOWN", reason: "AUDIO_SAMPLE_CLOCK_NOT_SUPPLIED" });
+  }
+  if (value.disposition !== "KNOWN"
+    || !SignedInt64DecimalSchema.safeParse(value.sampleIndex).success
+    || BigInt(value.sampleIndex) < 0n) {
+    throw new TypeError("known camera audio sample time is malformed");
+  }
+  const sampleRate = snapshotPositiveRational(value.sampleRate);
+  const sourceStreamRef = snapshotVersionRef(value.sourceStreamRef);
+  if (sampleRate === null || sourceStreamRef === null) {
+    throw new TypeError("known camera audio sample time lacks an exact rate or stream");
+  }
+  return Object.freeze({
+    disposition: "KNOWN",
+    sampleIndex: value.sampleIndex,
+    sampleRate,
+    sourceStreamRef,
+  });
+}
+
 /**
  * A concrete capture provider bound to exactly one source kind. The host
  * wires adapters; the trusted eligibility seam still decides admission for
@@ -371,26 +580,30 @@ export async function captureWithAdmission(
       || frameClockRef !== admittedRequest.frameClockRef) {
       throw new TypeError("captured frame does not bind the authorized source and clock");
     }
-    if (admittedRequest.kind === "CAMERA"
-      && (!cameraMetadata || !sourcePresentationTime
-        || !audioSampleTime
-        || cameraMetadata.sourceIdentity !== admittedRequest.sourceIdentity
-        || cameraMetadata.sourceVersionRef !== admittedRequest.sourceVersionRef
-        || cameraMetadata.captureClockRef !== admittedRequest.frameClockRef
-        || typeof cameraMetadata.permissionDecisionRef !== "string" || cameraMetadata.permissionDecisionRef.length === 0
-        || typeof cameraMetadata.captureEpochRef !== "string" || cameraMetadata.captureEpochRef.length === 0
-        || typeof cameraMetadata.hostCapturePtsNanos !== "string" || !/^(0|[1-9][0-9]*)$/u.test(cameraMetadata.hostCapturePtsNanos)
-        || !Array.isArray(cameraMetadata.clockMappings) || cameraMetadata.clockMappings.length !== 4
-        || !["KNOWN", "UNKNOWN"].includes(sourcePresentationTime.disposition)
-        || !["KNOWN", "UNKNOWN", "NOT_SELECTED"].includes(audioSampleTime.disposition))) {
-      throw new CaptureOutcomeUnknownError(admittedRequest.kind, "INVALID_FRAME");
+    let safeCameraMetadata: CameraCaptureMetadata | undefined;
+    let safeSourcePresentationTime: CameraSourcePresentationTime | undefined;
+    let safeAudioSampleTime: CameraAudioSampleTime | undefined;
+    if (admittedRequest.kind === "CAMERA") {
+      if (!cameraMetadata || !sourcePresentationTime || !audioSampleTime) {
+        throw new TypeError("camera frame must include exact source and sample clock dispositions");
+      }
+      safeCameraMetadata = snapshotCameraMetadata(cameraMetadata);
+      if (safeCameraMetadata.sourceIdentity !== admittedRequest.sourceIdentity
+        || safeCameraMetadata.sourceVersionRef !== admittedRequest.sourceVersionRef
+        || safeCameraMetadata.captureClockRef !== admittedRequest.frameClockRef) {
+        throw new TypeError("camera metadata does not bind the admitted source revision and clock");
+      }
+      safeSourcePresentationTime = snapshotCameraPresentationTime(sourcePresentationTime, safeCameraMetadata);
+      safeAudioSampleTime = snapshotCameraAudioSampleTime(audioSampleTime, safeCameraMetadata);
+    } else if (cameraMetadata !== undefined || sourcePresentationTime !== undefined || audioSampleTime !== undefined) {
+      throw new TypeError("camera metadata is only valid for camera captures");
     }
     return {
       sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef, frameClockRef,
       bytes: Uint8Array.from(bytes), capturedAtEpochMillis,
-      ...(cameraMetadata === undefined ? {} : { cameraMetadata }),
-      ...(sourcePresentationTime === undefined ? {} : { sourcePresentationTime }),
-      ...(audioSampleTime === undefined ? {} : { audioSampleTime }),
+      ...(safeCameraMetadata === undefined ? {} : { cameraMetadata: safeCameraMetadata }),
+      ...(safeSourcePresentationTime === undefined ? {} : { sourcePresentationTime: safeSourcePresentationTime }),
+      ...(safeAudioSampleTime === undefined ? {} : { audioSampleTime: safeAudioSampleTime }),
     };
   } catch {
     // The adapter has already run. Even a malformed/mismatched response does
