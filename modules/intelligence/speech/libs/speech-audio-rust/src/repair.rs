@@ -580,6 +580,37 @@ mod tests {
     }
 
     #[test]
+    fn declip_reconstructs_stereo_channels_independently_and_preserves_source() {
+        let config = crate::AudioConfig {
+            sample_rate: 48_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        // Left has a two-frame clipped run; right stays below the threshold.
+        let source = AudioBuffer::new(
+            vec![
+                0.0, 0.1, 0.2, -0.1, 1.0, 0.3, 1.0, -0.3, 0.8, 0.2, 0.0, -0.2,
+            ],
+            config,
+        );
+
+        let repaired = declip(&source, 0.98).unwrap();
+
+        assert_eq!(
+            repaired.samples,
+            vec![0.0, 0.1, 0.2, -0.1, 0.4, 0.3, 0.6, -0.3, 0.8, 0.2, 0.0, -0.2]
+        );
+        assert_eq!(
+            source.samples[1..].iter().step_by(2).collect::<Vec<_>>(),
+            vec![&0.1, &-0.1, &0.3, &-0.3, &0.2, &-0.2]
+        );
+        assert_eq!(
+            source.samples,
+            vec![0.0, 0.1, 0.2, -0.1, 1.0, 0.3, 1.0, -0.3, 0.8, 0.2, 0.0, -0.2]
+        );
+    }
+
+    #[test]
     fn silence_is_stable_and_corrupt_or_empty_inputs_are_typed_errors() {
         let silence = mono(vec![0.0; 16]);
         let profile = NoiseProfile::estimate(&silence, 0, 8).unwrap();
