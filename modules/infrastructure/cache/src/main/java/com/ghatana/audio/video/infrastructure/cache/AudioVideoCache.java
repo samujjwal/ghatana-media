@@ -829,7 +829,14 @@ public class AudioVideoCache<K, V> {
         Objects.requireNonNull(authorityCheck, "authorityCheck cannot be null");
         Objects.requireNonNull(loader, "loader cannot be null");
         final AsyncOperation<Boolean> authority = checkScopedAuthority(scope, authorityCheck);
-        return authority.flatMap(allowed -> {
+        return authority.whenComplete((allowed, failure) -> {
+            if (failure != null || !Boolean.TRUE.equals(allowed)) {
+                // A denied or unavailable current authority must not disclose cached
+                // content. Retire this exact immutable scope key as best-effort cleanup
+                // so a revoked entry is not retained until TTL merely because no lookup ran.
+                invalidateScopedBestEffort(key);
+            }
+        }).flatMap(allowed -> {
             if (!Boolean.TRUE.equals(allowed)) {
                 return AsyncOperation.failure(new SecurityException(
                         "Current cache authority is denied or unknown"));

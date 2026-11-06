@@ -130,6 +130,26 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void initiallyDeniedScopedAuthorityEvictsExactKeyWithoutReadingOrLoading() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-revoked");
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a",
+                checked -> AsyncOperation.success(false),
+                ignored -> { throw new AssertionError("denied authority must not load source"); })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+
+        verify(port).invalidateAsync(key);
+        verify(port, org.mockito.Mockito.never()).get(key);
+    }
+
+    @Test
     void scopedSourceLoadIsNotReturnedWhenAuthorityBecomesUnavailableBeforeDisclosure() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
