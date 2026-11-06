@@ -80,6 +80,14 @@ public final class DubbingOrchestrator {
         return List.copyOf(copy);
     }
 
+    private static byte[] boundedAudioCopy(byte[] input, String name) {
+        Objects.requireNonNull(input, name);
+        if (input.length > MAX_SEGMENT_AUDIO_BYTES) {
+            throw new IllegalArgumentException(name + " exceeds its size bound");
+        }
+        return input.clone();
+    }
+
     public record VoiceIdentity(String voiceId, String voiceVersionId) {
         public VoiceIdentity {
             voiceId = required(voiceId, "voiceId");
@@ -182,7 +190,7 @@ public final class DubbingOrchestrator {
         public SynthesizedAudio {
             Objects.requireNonNull(sourceVersion, "sourceVersion");
             Objects.requireNonNull(voice, "voice");
-            audioBytes = Objects.requireNonNull(audioBytes, "audioBytes").clone();
+            audioBytes = boundedAudioCopy(audioBytes, "synthesized audio");
         }
         @Override public byte[] audioBytes() { return audioBytes.clone(); }
     }
@@ -211,7 +219,7 @@ public final class DubbingOrchestrator {
 
     public record DubbedSegment(String segmentId, String text, byte[] audioBytes, String audioDigest,
                                 long sourceStartTick, long sourceEndTick, long alignedStartTick, long alignedEndTick) {
-        public DubbedSegment { audioBytes = audioBytes.clone(); }
+        public DubbedSegment { audioBytes = boundedAudioCopy(audioBytes, "dubbed audio"); }
         @Override public byte[] audioBytes() { return audioBytes.clone(); }
     }
     public record DubbingResult(ResultStatus status, Optional<Reason> reason, String tenantId, String requestId,

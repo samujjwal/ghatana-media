@@ -58,6 +58,23 @@ class DubbingOrchestratorTest {
         assertThat(dubbedYielded).hasValue(MAX_SEGMENTS);
     }
 
+    @Test
+    void audioRecordsRejectOversizedSegmentsBeforeDefensiveCopying() {
+        SourceVersion source = new SourceVersion("artifact-a", "version-a");
+        VoiceIdentity voice = new VoiceIdentity("voice-a", "voice-v1");
+        byte[] oversized = new byte[MAX_SEGMENT_AUDIO_BYTES + 1];
+
+        assertThatThrownBy(() -> new SynthesizedAudio("tenant", "request", source, "transcript-v1",
+                "es-MX", voice, "clock", 48_000, 10_000, 100, 300,
+                "seg-1", oversized, "digest"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("synthesized audio");
+        assertThatThrownBy(() -> new DubbedSegment("seg-1", "hola", oversized, "digest",
+                100, 300, 120, 280))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("dubbed audio");
+    }
+
     private static <T> List<T> underreportedList(AtomicInteger yielded, IntFunction<T> elementFactory) {
         return new AbstractList<>() {
             @Override public T get(int index) { throw new UnsupportedOperationException(); }
