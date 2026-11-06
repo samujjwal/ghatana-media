@@ -51,6 +51,11 @@ class MultitrackFinishedMasterScenarioTest {
         assertThat(first.plan().capabilityId()).isEqualTo("media.dev.multitrack-composition-render");
         assertThat(first.plan().manifestSha256()).matches("[a-f0-9]{64}")
                 .isEqualTo(repeated.plan().manifestSha256());
+        Graph changedBudget = new Graph(fixture.clips(), fixture.captions(), fixture.transitions(),
+                fixture.declaredOutputBudgetBytes() + 1);
+        var changedPlan = MultitrackRenderPlanner.plan(changedBudget);
+        assertThat(changedPlan.plan().manifestSha256())
+                .isNotEqualTo(first.plan().manifestSha256());
         assertThat(first.plan().canonicalManifest())
                 .contains("video-fixture-1|VIDEO|synthetic-video-source-1|fixture-v1|")
                 .contains("audio-fixture-1|AUDIO|synthetic-audio-source-1|fixture-v1|")
