@@ -222,6 +222,29 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void ownerSceneReferenceLimitUsesBoundedIteratorRatherThanUntrustedListSize() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        List<StoryboardPlanner.AuthoredScene> actual = java.util.stream.IntStream.range(0, 257)
+                .mapToObj(index -> scene("dishonest-scene-" + index, index, index,
+                        List.of(shot("dishonest-shot-" + index, 0, index, List.of()))))
+                .toList();
+        List<StoryboardPlanner.AuthoredScene> inaccurateSize = new java.util.AbstractList<>() {
+            @Override public StoryboardPlanner.AuthoredScene get(int index) { return actual.get(index); }
+            @Override public int size() { return 1; }
+            @Override public java.util.Iterator<StoryboardPlanner.AuthoredScene> iterator() {
+                return actual.iterator();
+            }
+        };
+
+        assertThatThrownBy(() -> planner.prepare(OWNER, "project-1", "head-limit", "plan-inaccurate-size", "v1",
+                brief(List.of(SOURCE_A)), inaccurateSize))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("256 scene-reference limit");
+        assertThat(rights.calls()).isZero();
+    }
+
+    @Test
     void storyboardSaveRequestIdsFollowOwnerActionWireShapeAndReviewRequiresAnIdentity() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
         StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-request", "plan-request", "v1",
