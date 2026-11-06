@@ -369,7 +369,7 @@ public final class WhisperCppAdapter implements SttEngine {
         }
 
         @Override
-        public void feedAudio(AudioChunk chunk) {
+        public synchronized void feedAudio(AudioChunk chunk) {
             if (!active.get()) {
                 throw new IllegalStateException("Session not active");
             }
@@ -383,17 +383,17 @@ public final class WhisperCppAdapter implements SttEngine {
         }
 
         @Override
-        public void onTranscription(Consumer<StreamingTranscription> callback) {
-            transcriptionCallback.set(callback);
+        public synchronized void onTranscription(Consumer<StreamingTranscription> callback) {
+            if (active.get()) transcriptionCallback.set(callback);
         }
 
         @Override
-        public void onError(java.util.function.Consumer<com.ghatana.media.common.ProcessingError> callback) {
-            errorCallback.set(callback);
+        public synchronized void onError(java.util.function.Consumer<com.ghatana.media.common.ProcessingError> callback) {
+            if (active.get()) errorCallback.set(callback);
         }
 
         @Override
-        public void endStream() {
+        public synchronized void endStream() {
             active.set(false);
             processBuffer();
         }
@@ -404,11 +404,15 @@ public final class WhisperCppAdapter implements SttEngine {
         }
 
         @Override
-        public void close() {
+        public synchronized void close() {
             active.set(false);
+            // Abandoned sessions must not keep buffered audio or callbacks alive.
+            buffer.clear();
+            transcriptionCallback.set(null);
+            errorCallback.set(null);
         }
 
-        private void processBuffer() {
+        private synchronized void processBuffer() {
             if (buffer.isEmpty()) return;
 
             // Combine chunks
