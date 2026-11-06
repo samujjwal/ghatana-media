@@ -299,13 +299,40 @@ pub struct AudioQualityMetrics {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AudioComparison {
-    /// An owned source copy, retained independently from the repaired branch.
+    /// Owned source copy, retained independently from the caller's input.
+    /// Kept public for source compatibility; treat comparison values as snapshots.
     pub source: AudioBuffer,
+    /// Owned repaired branch used when metrics were calculated.
+    /// Kept public for source compatibility; treat comparison values as snapshots.
     pub repaired: AudioBuffer,
+    /// Metrics calculated from the source and repaired buffers at construction.
+    /// Kept public for source compatibility; mutating either buffer does not recompute them.
     pub metrics: AudioQualityMetrics,
 }
 
-/// Build an immutable source/repaired pair and compare an optional independent
+impl AudioComparison {
+    /// Borrow the source buffer stored in this comparison.
+    pub fn source(&self) -> &AudioBuffer {
+        &self.source
+    }
+
+    /// Borrow the repaired buffer stored in this comparison.
+    pub fn repaired(&self) -> &AudioBuffer {
+        &self.repaired
+    }
+
+    /// Borrow the metrics calculated when this comparison was created.
+    pub fn metrics(&self) -> &AudioQualityMetrics {
+        &self.metrics
+    }
+
+    /// Make a separate copy of the stored source branch for undo/revert.
+    pub fn undo(&self) -> Result<AudioBuffer> {
+        clone_buffer(&self.source)
+    }
+}
+
+/// Build an owned source/repaired comparison pair and compare an optional independent
 /// reference. SNR is omitted unless the reference has the exact same PCM shape.
 pub fn compare_audio(
     source: &AudioBuffer,

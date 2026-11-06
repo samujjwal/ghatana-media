@@ -94,10 +94,16 @@ shape and reports RMS, peak, changed-sample count, and SNR only against an
 explicit independent reference. It also reports source/output near-full-scale
 sample counts (>=99.9%; an indicator, not proof of clipping) and the change in
 zero-lag correlation of the first two channels (a phase/polarity proxy, not a
-spectral or perceptual score). These local DSP primitives are deterministic
+spectral or perceptual score). `AudioComparison` retains owned source and
+repaired buffers, provides borrowing accessors, and `undo()` returns a fresh
+copy of its stored source samples. The public fields remain for source
+compatibility; callers should treat the comparison values as snapshots because
+mutating them does not recompute metrics. These local DSP primitives are deterministic
 and bounded, but are not RNNoise, do not establish perceptual speech quality,
 and have not been qualified against representative lawful source/reference
-material or a production host performance budget.
+material or a production host performance budget. The Java comparison surface
+adds SHA-256 digests; this Rust helper does not claim a persisted revision or
+cryptographic artifact identity.
 
 ## Resampler fidelity boundary
 
