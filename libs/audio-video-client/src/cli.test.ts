@@ -531,6 +531,23 @@ describe('ghatanamedia-api canonical job commands', () => {
     },
   );
 
+  it('rejects parameters above the UTF-8 byte limit in a fresh CLI process before dispatch', async () => {
+    // U+00E9 is two UTF-8 bytes. This remains small enough for a portable argv
+    // entry while proving the limit is measured in bytes rather than JS chars.
+    const parameters = JSON.stringify({ payload: 'é'.repeat(32_768) });
+    const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
+      '--request-id', 'request-size-limit', '--correlation-id', 'corr-size-limit', '--artifact', 'artifact-a',
+      '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-size-limit', '--parameters', parameters,
+    ]));
+
+    expect(result.status).toBe(2);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toBe(`${JSON.stringify({
+      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'INVALID_INVOCATION',
+      message: '--parameters must not exceed 65536 UTF-8 bytes.',
+    })}\n`);
+  });
+
   it('rejects unknown job types and path-segment injection before dispatch', async () => {
     const invalidType = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
       '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
