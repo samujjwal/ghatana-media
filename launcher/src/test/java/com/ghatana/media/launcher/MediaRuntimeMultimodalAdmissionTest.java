@@ -9,6 +9,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
@@ -84,7 +85,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                     new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
                             child.artifactId(), child.version().value(), child.sha256(), "",
                             sttParameters())));
-            var accepted = runtime.submit(mmRequest(source, spec));
+            var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             awaitTerminal(jobStore, accepted.jobId());
             var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
@@ -129,7 +130,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                     new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
                             visionChild.artifactId(), visionChild.version().value(),
                             visionChild.sha256(), "", Map.of())));
-            var accepted = runtime.submit(mmRequest(source, spec));
+            var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             awaitTerminal(jobStore, accepted.jobId());
             var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
@@ -174,7 +175,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                     new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
                             visionChild.artifactId(), visionChild.version().value(),
                             visionChild.sha256(), "", Map.of())));
-            var accepted = runtime.submit(mmRequest(source, spec));
+            var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             awaitTerminal(jobStore, accepted.jobId());
             var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             // Composition succeeded, but a child on an unverifiable clock cannot ground:
@@ -198,7 +199,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                 denyAuthority());
         try {
             var source = artifact(runtime, "tenant-a", "principal-a");
-            assertThatThrownBy(() -> runtime.submit(mmRequest(source, spec(source, List.of()))))
+            assertThatThrownBy(() -> submitAuthenticated(runtime, mmRequest(source, spec(source, List.of()))))
                     .isInstanceOf(MediaCapabilityNotAdmittedException.class)
                     .satisfies(f -> assertThat(((MediaCapabilityNotAdmittedException) f).reason())
                             .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
@@ -221,7 +222,7 @@ class MediaRuntimeMultimodalAdmissionTest {
             var spec = spec(source, List.of(
                     new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
                             "missing-artifact", "sha256:" + fakeSha, fakeSha, "", Map.of())));
-            assertThatThrownBy(() -> runtime.submit(mmRequest(source, spec)))
+            assertThatThrownBy(() -> submitAuthenticated(runtime, mmRequest(source, spec)))
                     .isInstanceOf(MediaCapabilityNotAdmittedException.class)
                     .satisfies(f -> assertThat(((MediaCapabilityNotAdmittedException) f).reason())
                             .isEqualTo(MediaCapabilityNotAdmittedException.Reason.SOURCE_VERSION_STALE));
@@ -245,7 +246,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                     new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
                             child.artifactId(), child.version().value(), child.sha256(), "",
                             sttParameters())));
-            var accepted = runtime.submit(mmRequest(source, spec));
+            var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             var childJob = awaitJob(jobStore, "req-mm:stt");
             var cancelled = runtime.cancel("tenant-a", "principal-a", accepted.jobId());
             assertThat(cancelled.status()).isEqualTo(JobStatus.CANCELLED);
@@ -278,7 +279,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                     new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
                             deniedChild.artifactId(), deniedChild.version().value(),
                             deniedChild.sha256(), "", Map.of())));
-            var accepted = runtime.submit(mmRequest(source, spec));
+            var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             awaitTerminal(jobStore, accepted.jobId());
             var parent = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
             assertThat(parent.status()).isEqualTo(JobStatus.FAILED);
@@ -646,6 +647,11 @@ class MediaRuntimeMultimodalAdmissionTest {
                 "sourceClockMappingEvidenceRef", "fixture-clock-evidence",
                 "sourceClockTicksPerSecond", 1,
                 "sourceDurationTicks", 1);
+    }
+
+    private static ProcessingJob submitAuthenticated(MediaRuntime runtime, ProcessingJobRequest request) {
+        return runtime.submit(request, new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                request.tenantId(), request.principalId(), Instant.now()));
     }
 
     private static com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact artifact(

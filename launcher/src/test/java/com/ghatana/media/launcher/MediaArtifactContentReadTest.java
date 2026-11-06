@@ -14,6 +14,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -316,17 +317,19 @@ class MediaArtifactContentReadTest {
                 artifactStore, jobStore, new LocalMediaRuntimeSupport.StreamStore(), null,
                 List.of(provider), List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
         try {
+            var authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                    "tenant-a", "principal-a", Instant.now());
             var upload = runtime.beginUpload(new UploadRequest("tenant-a", "principal-a", "source.bin",
                     "application/octet-stream", source.length, sha256(source), "CONFIDENTIAL",
-                    Duration.ofMinutes(5), Map.of()), "rights-gated-upload");
-            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, source);
-            var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
+                    Duration.ofMinutes(5), Map.of()), "rights-gated-upload", authenticated);
+            runtime.appendUploadChunk(authenticated, upload.uploadId(), 0, source);
+            var artifact = runtime.completeUpload(authenticated, upload.uploadId());
 
             for (JobType jobType : List.of(JobType.TEXT_TO_SPEECH, JobType.VISION, JobType.MULTIMODAL)) {
                 var request = new ProcessingJobRequest("rights-gated-" + jobType, "tenant-a", "principal-a",
                         "rights-gated-correlation", artifact.artifactId(), artifact.version().value(), jobType,
                         "", Map.of());
-                assertThatThrownBy(() -> runtime.submit(request))
+                assertThatThrownBy(() -> runtime.submit(request, authenticated))
                         .isInstanceOf(MediaCapabilityNotAdmittedException.class)
                         .hasMessageContaining("authoritative source rights resolver is unavailable");
             }

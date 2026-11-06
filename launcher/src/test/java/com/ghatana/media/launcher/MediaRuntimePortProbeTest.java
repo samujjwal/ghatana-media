@@ -419,9 +419,10 @@ class MediaRuntimePortProbeTest {
                 tenantId, principalId, "source.wav", "audio/wav", bytes.length,
                 HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
                 "CONFIDENTIAL", Duration.ofMinutes(10), Map.of()),
-                "probe-upload-" + java.util.UUID.randomUUID());
-        runtime.appendChunk(tenantId, principalId, upload.uploadId(), 0, bytes);
-        return runtime.completeUpload(tenantId, principalId, upload.uploadId());
+                "probe-upload-" + java.util.UUID.randomUUID(), authenticated(tenantId, principalId));
+        var principal = authenticated(tenantId, principalId);
+        runtime.appendUploadChunk(principal, upload.uploadId(), 0, bytes);
+        return runtime.completeUpload(principal, upload.uploadId());
     }
 
     private static MediaVersionedContractContent.ResolvedContent resolved(String ref, byte[] content) {
