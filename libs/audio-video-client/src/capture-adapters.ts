@@ -537,7 +537,15 @@ export async function captureWithAdmission(
   requireRequestField(admittedRequest.sourceVersionRef, "sourceVersionRef");
   requireRequestField(admittedRequest.secretsRef, "secretsRef");
   requireRequestField(admittedRequest.frameClockRef, "frameClockRef");
-  const decision = eligibility.check(admittedRequest);
+  let decision: CaptureEligibility;
+  try {
+    decision = eligibility.check(admittedRequest);
+  } catch {
+    // Eligibility is a pre-dispatch authority seam. A failed check cannot
+    // admit a capture, and its exception may contain source or credential
+    // details, so fail closed as unavailable without exposing that text.
+    throw new CaptureUnavailableError(admittedRequest.kind);
+  }
   if (decision !== "ADMITTED" && decision !== "NOT_ADMITTED" && decision !== "UNAVAILABLE") {
     throw new TypeError("capture eligibility returned an unsupported decision");
   }

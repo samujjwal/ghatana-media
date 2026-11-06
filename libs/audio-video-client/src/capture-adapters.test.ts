@@ -232,6 +232,21 @@ describe("captureWithAdmission", () => {
       expect(adapter.calls()).toBe(0);
     });
 
+  it("fails closed when gRPC eligibility readback errors without exposing its details", async () => {
+    const adapter = adapterReturning(capturedFrame());
+    let outcome: unknown;
+    try {
+      await captureWithAdmission({
+        check: () => { throw new Error("SECRET_CURSOR_TOKEN from transport readback"); },
+      }, adapter, { ...request, kind: "GRPC_API" });
+    } catch (error) {
+      outcome = error;
+    }
+    expect(outcome).toBeInstanceOf(CaptureUnavailableError);
+    expect(String(outcome)).not.toMatch(/SECRET_CURSOR_TOKEN|transport readback/u);
+    expect(adapter.calls()).toBe(0);
+  });
+
   it("the no-admission seam denies every kind", () => {
     for (const kind of ["BROWSER", "DESKTOP", "MOBILE", "TERMINAL",
       "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE"] as const) {
