@@ -1,6 +1,8 @@
 package com.ghatana.audio.video.common.security;
 
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -82,7 +84,7 @@ public final class AudioVideoMethodRbacRegistry {
         if (role == null || role.isBlank()) {
             return false;
         }
-        return required.contains(role.toLowerCase()) || required.contains(role);
+        return required.contains(role.toLowerCase(Locale.ROOT)) || required.contains(role);
     }
 
     /**
@@ -101,7 +103,9 @@ public final class AudioVideoMethodRbacRegistry {
         if (roles == null || roles.isEmpty()) {
             return false;
         }
-        return roles.stream().anyMatch(r -> required.contains(r) || required.contains(r.toLowerCase()));
+        return roles.stream()
+                .filter(Objects::nonNull)
+                .anyMatch(role -> required.contains(role) || required.contains(role.toLowerCase(Locale.ROOT)));
     }
 
     /**

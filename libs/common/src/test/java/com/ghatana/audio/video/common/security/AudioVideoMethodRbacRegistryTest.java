@@ -3,6 +3,8 @@ package com.ghatana.audio.video.common.security;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +73,32 @@ class AudioVideoMethodRbacRegistryTest {
     void deniedAnyWithNoMatchingRoles() {
         Set<String> roles = Set.of("viewer", "readonly");
         assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("com.ghatana.audio.video.stt.grpc.STTService/LoadModel", roles)).isFalse();
+    }
+
+    @Test
+    @DisplayName("role matching is independent of the default locale")
+    void roleMatchingIsIndependentOfDefaultLocale() {
+        Locale originalLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            String method = "com.ghatana.audio.video.stt.grpc.STTService/Transcribe";
+            assertThat(AudioVideoMethodRbacRegistry.isAllowed(method, "AV:USER")).isTrue();
+            assertThat(AudioVideoMethodRbacRegistry.isAllowedAny(method, Set.of("AV:USER"))).isTrue();
+        } finally {
+            Locale.setDefault(originalLocale);
+        }
+    }
+
+    @Test
+    @DisplayName("isAllowedAny ignores null role members")
+    void allowedAnyIgnoresNullRoleMembers() {
+        String method = "com.ghatana.audio.video.stt.grpc.STTService/Transcribe";
+        Set<String> roles = new HashSet<>();
+        roles.add(null);
+        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny(method, roles)).isFalse();
+
+        roles.add("av:user");
+        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny(method, roles)).isTrue();
     }
 
     @Test
