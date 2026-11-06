@@ -106,7 +106,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Complete canonical stream frame ordering, consent, lease, source clock and recovery.
 - **How:** Bind both streams to one canonical session and durable ACK cursor; keep module helpers as non-authoritative implementation details.
 - **Test/exit:** Gap/reorder/lease expiry/revoke while live, backpressure, EOS, abort, restart and 1/16/64 clients.
-- **Progress:** Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps.
+- **Progress:** Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter now rejects video-kind sessions; `MediaRuntimeCanonicalStreamFramePortTest` passes 7/7, including zero provider effects for a forged audio binding to a video session. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`
 
 **`media.dev.exclusive-invocation-claim-verification`** · VERIFIED (macOS focused suite green: 6-process contention → exactly one claim, crash-after-claim fence, unwritable-dir fail-closed)
@@ -405,7 +405,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Create single-authority creative project/scene/clip/track graph and revisioned edits.
 - **How:** Reuse immutable Media artifact refs, rational composition clock and CAS; define deterministic edit/undo/diff and no second client source-of-truth.
 - **Test/exit:** Edit algebra, conflicting version, undo/redo, source revocation, long-duration no clock drift.
-- **Progress:** `Clip` validates exact rational `storyStart + storyDuration` at construction and exposes `storyEnd()`, rejecting unrepresentable sums. `MediaProjectTimelineContractsTest` and `ProjectTimelineEngineTest` pass 4/4 and 8/8. Still OPEN: canonical durable store/launcher binding is unavailable; production persistence remains typed NOT_ADMITTED and UI bindings must not become another source of truth.
+- **Progress:** `Clip` validates exact rational `storyStart + storyDuration` at construction and exposes `storyEnd()`, rejecting unrepresentable sums. `MediaProjectTimelineContractsTest` and `ProjectTimelineEngineTest` pass 4/4 and 8/8. Added an isolated PostgreSQL `ProjectTimelineStore` development adapter with immutable graph snapshots, tenant/principal checks, create replay, head CAS, and closed-store rejection; its Testcontainers selector passes 6/6 for restart, replay, wrong tenant/principal, stale CAS, one-winner concurrent CAS, and closed/invalid identity. V030 is test-resource-only and not launcher-wired; the serialized `Graph` choice is provisional because PDP-1 graph-field mapping remains unresolved. Still OPEN: canonical durable store/launcher binding is unavailable; production persistence remains typed NOT_ADMITTED and UI bindings must not become another source of truth.
 - **Predecessors:** `media.dev.domain-contract-parity`, `media.dev.canonical-artifact-storage`
 
 **`media.dev.storyboard-and-shot-plan`** · OPEN
@@ -504,6 +504,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Measure quality from real outputs and apply bounded reversible optimization.
 - **How:** Separate independent metrics from heuristics, retain source and candidate versions and declared caps; no fabricated improvement.
 - **Test/exit:** Reference metrics/golden compare, invalid bounds, multiple attempts, deterministic report, undo.
+- **Progress:** `QualityComparisonAndOptimization.Revision` now rejects frame lists outside `1..MAX_FRAMES` before defensive copying; a hostile-list regression proves oversize rejection without traversal. `QualityComparisonAndOptimizationTest` passes 10/10, including golden RGB8 PSNR/SSIM, bounds, multiple attempts, rights revocation, deterministic report, and undo. Still OPEN: comparison consumes caller-supplied decoded RGB frames and has no admitted real decoder/reference host or durable reversible project-revision wiring.
 - **Predecessors:** `media.dev.multitrack-composition-render`
 
 **`media.dev.versioned-review-and-approval`** · OPEN
