@@ -273,6 +273,39 @@ class AudioVideoHealthServiceTest {
                 .isInstanceOf(IllegalArgumentException.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> healthService.registerCheck("provider", null))
                 .isInstanceOf(NullPointerException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> healthService.registerCheck("bad\ncheck", () -> true))
+                .isInstanceOf(IllegalArgumentException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> healthService.registerCheck("x".repeat(129), () -> true))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Bounds registered health checks without counting replacements as new checks")
+    void healthCheckRegistryHasABoundedCapacity() {
+        for (int index = 0; index < 64; index++) {
+            healthService.registerCheck("check-" + index, () -> true);
+        }
+
+        // Replacing an existing registered check is still permitted at capacity.
+        healthService.registerCheck("check-0", () -> false);
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> healthService.registerCheck("check-over-capacity", () -> true))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("health check capacity reached");
+        assertThat(healthService.getCheckResults()).hasSize(64).containsEntry("check-0", false);
+    }
+
+    @Test
+    @DisplayName("Rejects required health check sets above the bounded registry capacity")
+    void requiredHealthChecksAreBoundedAtConstruction() {
+        java.util.Set<String> required = java.util.stream.IntStream.range(0, 65)
+                .mapToObj(index -> "required-" + index)
+                .collect(java.util.stream.Collectors.toSet());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> new AudioVideoHealthService(
+                        "stt-service", metricsCollector, required))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("required health checks exceed the bounded registry capacity");
     }
 
     @Test

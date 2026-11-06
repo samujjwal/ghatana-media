@@ -58,6 +58,8 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoHealthService.class);
     private static final Duration DEFAULT_CHECK_TIMEOUT = Duration.ofMillis(250);
     private static final Duration MAX_CHECK_TIMEOUT = Duration.ofSeconds(5);
+    private static final int MAX_HEALTH_CHECKS = 64;
+    private static final int MAX_HEALTH_CHECK_NAME_LENGTH = 128;
     private static final int MAX_WATCH_SUBSCRIBERS = 128;
     private static final long WATCH_REFRESH_MILLIS = 1_000L;
 
@@ -94,6 +96,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         this.metricServiceName = safeMetricServiceName(requireName(serviceName, "serviceName"));
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector");
         Objects.requireNonNull(requiredChecks, "requiredChecks");
+        if (requiredChecks.size() > MAX_HEALTH_CHECKS) {
+            throw new IllegalArgumentException("required health checks exceed the bounded registry capacity");
+        }
         this.requiredChecks = requiredChecks.stream()
                 .map(name -> requireName(name, "required check name"))
                 .collect(java.util.stream.Collectors.toUnmodifiableSet());
@@ -129,7 +134,12 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     public void registerCheck(String name, Supplier<Boolean> check) {
         String validName = requireName(name, "check name");
         Supplier<Boolean> validCheck = Objects.requireNonNull(check, "check supplier");
-        checks.put(validName, validCheck);
+        synchronized (checks) {
+            if (!checks.containsKey(validName) && checks.size() >= MAX_HEALTH_CHECKS) {
+                throw new IllegalStateException("health check capacity reached");
+            }
+            checks.put(validName, validCheck);
+        }
         if (lifecycle.compareAndSet(LifecycleState.READY, LifecycleState.STARTING)) {
             LOG.warn("Health check changed after readiness; service returned to NOT_SERVING: {}", metricServiceName);
         }
@@ -378,8 +388,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     }
 
     private static String requireName(String value, String field) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(field + " must not be blank");
+        if (value == null || value.isBlank() || value.length() > MAX_HEALTH_CHECK_NAME_LENGTH
+                || value.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException(field + " must be nonblank, bounded, and contain no control characters");
         }
         return value.trim();
     }
