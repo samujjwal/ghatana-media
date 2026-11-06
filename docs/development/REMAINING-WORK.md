@@ -729,6 +729,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-16 — Actual translation+legal dubbing, lip/timing metadata and source rights.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `J16TranslatedDubbedVideoCapabilityScenarioTest` passed 1/1 across missing translation, TTS, and forced-alignment capability cases: each remains typed `UNAVAILABLE` with no dispatch or result segments while retaining exact source/transcript/clock/duration binding. Rights decisions are synthetic only. Still OPEN: lawful source/voice rights, admitted translation/TTS/alignment providers, intelligibility/lip timing, durable output and restart/finality.
 - **Predecessors:** `media.dev.dubbing-and-translation`
 
 **`media.dev.outcome-music-effects-master`** · OPEN
@@ -752,6 +753,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-19 — Real quality metric and bounded optimization/reversible comparison.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `QualityComparisonAndOptimizationTest` passed 11/11, including the new local J-19 scenario: deterministic synthetic RGB8 PSNR/SSIM report, exact source/candidate/reference revisions, declared caps, improved disposition and undo to source; denied or unknown authority returns no report and makes zero candidate calls. Synthetic metrics are not measured production improvement. Still OPEN: authored J-19 scenario refs, real decoder/reference oracle, durable project revision, job-bound UI and restart/fault integration.
 - **Predecessors:** `media.dev.quality-comparison-and-optimization`
 
 **`media.dev.outcome-durable-job-recovery`** · OPEN
@@ -799,6 +801,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-25 — Four agent handlers authorized delegate, no duplicate side effects.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `AgentOutcomeAdmissionScenarioTest` passed 1/1 across the STT handler plus execution binder: typed `STT_NOT_ADMITTED`, authorized replay returns the recorded denial, changed-tenant reuse conflicts, revoked host replay authority is denied, prior `OUTCOME_UNKNOWN` stays unknown, and configured provider calls remain zero. Still OPEN: admitted per-tool canonical mappings, verified Tools actor/source rights, durable output receipts, and genuine positive outcome/restart.
 - **Predecessors:** `media.dev.authorized-agent-delegation`
 
 **`media.dev.outcome-retention-and-erasure`** · OPEN

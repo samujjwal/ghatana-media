@@ -2122,7 +2122,8 @@
         "media.dev.dubbing-and-translation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: J16TranslatedDubbedVideoCapabilityScenarioTest passed 1/1 across missing translation, TTS, and forced-alignment capability cases: each remains typed UNAVAILABLE with no dispatch or result segments while retaining exact source/transcript/clock/duration binding. Rights decisions are synthetic only. Still OPEN: lawful source/voice rights, admitted translation/TTS/alignment providers, intelligibility/lip timing, durable output and restart/finality."
     },
     {
       "id": "media.dev.outcome-music-effects-master",
@@ -2193,7 +2194,8 @@
         "media.dev.quality-comparison-and-optimization"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: QualityComparisonAndOptimizationTest passed 11/11, including the new local J-19 scenario: deterministic synthetic RGB8 PSNR/SSIM report, exact source/candidate/reference revisions, declared caps, improved disposition and undo to source; denied or unknown authority returns no report and makes zero candidate calls. Synthetic metrics are not measured production improvement. Still OPEN: authored J-19 scenario refs, real decoder/reference oracle, durable project revision, job-bound UI and restart/fault integration."
     },
     {
       "id": "media.dev.outcome-durable-job-recovery",
@@ -2336,7 +2338,8 @@
         "media.dev.authorized-agent-delegation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: AgentOutcomeAdmissionScenarioTest passed 1/1 across the STT handler plus execution binder: typed STT_NOT_ADMITTED, authorized replay returns the recorded denial, changed-tenant reuse conflicts, revoked host replay authority is denied, prior OUTCOME_UNKNOWN stays unknown, and configured provider calls remain zero. Still OPEN: admitted per-tool canonical mappings, verified Tools actor/source rights, durable output receipts, and genuine positive outcome/restart."
     },
     {
       "id": "media.dev.outcome-retention-and-erasure",
