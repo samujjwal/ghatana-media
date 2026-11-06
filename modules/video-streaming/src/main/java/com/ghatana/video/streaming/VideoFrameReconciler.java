@@ -116,7 +116,10 @@ public final class VideoFrameReconciler {
             throw new IllegalArgumentException(
                     "resume session revision does not match the durable session generation");
         }
-        if (lastAckedSequence < -1 || lastAckedSequence >= VideoStreamSession.MAX_FRAME_SEQUENCE) {
+        // MAX_FRAME_SEQUENCE is a valid acknowledged frame. Its successor is
+        // Integer.MAX_VALUE, the exhausted-cursor sentinel, so restoring that
+        // durable position is safe even though no further frame can be accepted.
+        if (lastAckedSequence < -1 || lastAckedSequence > VideoStreamSession.MAX_FRAME_SEQUENCE) {
             throw new IllegalArgumentException("resume last ACK is outside the supported sequence range");
         }
         if (lastKeyFrameSequence < -1 || lastKeyFrameSequence > lastAckedSequence) {

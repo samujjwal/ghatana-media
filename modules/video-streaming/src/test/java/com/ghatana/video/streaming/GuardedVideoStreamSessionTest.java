@@ -359,6 +359,28 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("resume restores the final valid ACK into the exhausted sequence sentinel")
+    void resumeAtFinalSequenceDoesNotWrapOrReopenFrames() {
+        SessionIdentity durable = identity("t1");
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                durable, consent(ConsentDecision.ADMITTED), "worker-a");
+        session.detach("worker-a", 1L);
+
+        session.resume("worker-a", 1L, durable,
+                VideoStreamSession.MAX_FRAME_SEQUENCE,
+                VideoStreamSession.MAX_FRAME_SEQUENCE,
+                Long.MIN_VALUE);
+
+        assertThat(session.nextAck("worker-a", 1L))
+                .isEqualTo(VideoStreamSession.MAX_FRAME_SEQUENCE);
+        assertThat(session.submitFrame("worker-a", 1L,
+                frame(VideoStreamSession.MAX_FRAME_SEQUENCE, true)))
+                .isEqualTo(FrameVerdict.DUPLICATE);
+        assertThat(session.nextAck("worker-a", 1L))
+                .isEqualTo(VideoStreamSession.MAX_FRAME_SEQUENCE);
+    }
+
+    @Test
     @DisplayName("resume preserves pending egress candidates only at the matching durable ACK")
     void resumePreservesEgressCandidatesAtMatchingAck() {
         SessionIdentity durable = identity("t1");
