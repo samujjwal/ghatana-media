@@ -46,6 +46,28 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void chunkReceiptWithWrongDigestCannotAdvanceAcknowledgedOffset() {
+        Fixture f = new Fixture();
+        f.destination.wrongChunkDigest = true;
+        ExportRequest request = f.request(bytes(16));
+
+        DeliveryResult uncertain = f.engine.export(request);
+        assertThat(uncertain.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(uncertain.acknowledgedBytes()).isZero();
+        assertThat(f.operations.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryOperationStore.Operation::status,
+                        DeliveryOperationStore.Operation::acknowledgedBytes,
+                        DeliveryOperationStore.Operation::destinationReceiptRef)
+                .containsExactly(Status.OUTCOME_UNKNOWN, 0, null);
+
+        DeliveryResult reconciled = f.engine.reconcileAndResume(request);
+        assertThat(reconciled.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(reconciled.acknowledgedBytes()).isEqualTo(request.artifact().bytes().length);
+        assertThat(reconciled.destinationReceiptRef()).contains("destination-receipt:1");
+        assertThat(f.destination.sendCount).isEqualTo(1);
+    }
+
+    @Test
     void lostAcknowledgmentReconcilesBeforeResumingAndConfirmsOnlyWithExactReceipt() {
         Fixture f = new Fixture();
         f.destination.loseFirstAckAfterAccept = true;
@@ -522,6 +544,7 @@ class MediaDeliveryEngineTest {
         boolean badFinalPrincipal;
         boolean nullReconciliation;
         boolean wrongChunkFence;
+        boolean wrongChunkDigest;
         boolean wrongReconciliationFence;
         boolean wrongFinalReceiptFence;
         Runnable afterFirstSend = () -> { };
@@ -541,7 +564,8 @@ class MediaDeliveryEngineTest {
             if (loseFirstAckAfterAccept && sendCount == 1) throw new IllegalStateException("simulated response lost after destination accepted chunk");
             ChunkReceipt receipt = new ChunkReceipt("chunk-receipt:" + sendCount, r.tenantId(), r.principalId(), r.requestId(),
                     r.artifact().artifactId(), r.artifact().versionRef(), r.destinationRef(),
-                    r.artifact().digest(), offset, chunkDigest, chunk.length, acceptedOffset);
+                    r.artifact().digest(), offset, wrongChunkDigest ? "sha256:" + "0".repeat(64) : chunkDigest,
+                    chunk.length, acceptedOffset);
             return new FencedChunkReceipt(receipt, claim.fence() + (wrongChunkFence ? 1 : 0));
         }
         @Override public FencedReconciliation reconcile(ExportRequest r, DeliveryOperationStore.DispatchClaim claim) {
