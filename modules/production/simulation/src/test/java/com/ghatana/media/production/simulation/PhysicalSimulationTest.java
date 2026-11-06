@@ -166,6 +166,27 @@ class PhysicalSimulationTest {
     }
 
     @Test
+    void runtimeContractRejectsFiniteInputsWhosePropagatedUncertaintyOverflows() {
+        var model = new MediaSimulationContracts.ConstantForce(
+                cm(2, MediaSimulationContracts.Unit.KILOGRAM, 0, MediaSimulationContracts.Unit.KILOGRAM),
+                cm(6, MediaSimulationContracts.Unit.NEWTON, 1e308, MediaSimulationContracts.Unit.NEWTON));
+        var initial = new MediaSimulationContracts.InitialState(
+                cm(0, MediaSimulationContracts.Unit.METER, 0, MediaSimulationContracts.Unit.METER),
+                cm(0, MediaSimulationContracts.Unit.METER_PER_SECOND, 0,
+                        MediaSimulationContracts.Unit.METER_PER_SECOND));
+        var policy = new MediaSimulationContracts.SolverPolicy(
+                cq(2, MediaSimulationContracts.Unit.SECOND), cq(0.5, MediaSimulationContracts.Unit.SECOND),
+                cq(1e-5, MediaSimulationContracts.Unit.SECOND), cq(1e-8, MediaSimulationContracts.Unit.METER),
+                cq(1e-8, MediaSimulationContracts.Unit.METER_PER_SECOND), 100, 1000);
+
+        var outcome = PhysicalSimulation.run(new MediaSimulationContracts.RunRequest(model, initial, policy));
+
+        assertThat(outcome.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.INVALID_INPUT);
+        assertThat(outcome.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.INVALID_SIMULATION_INPUT);
+        assertThat(outcome.trace()).isNull();
+    }
+
+    @Test
     void rejectsIncompatibleDimensionsNegativeMassAndIncompleteOrUnboundedSolverInputs() {
         var wrongForceDimension = new PhysicalSimulation.ConstantForce(
                 m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),
