@@ -231,6 +231,24 @@ describe("CameraCaptureAdapter", () => {
     expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
   });
 
+  it("settles a browser read on permission revoke even when the host ignores abort", async () => {
+    let readStarted: (() => void) | undefined;
+    const started = new Promise<void>((resolve) => { readStarted = resolve; });
+    const h = browserHarness({ read: async () => {
+      readStarted?.();
+      // Simulate a device bridge that leaves its read pending after abort.
+      return new Promise<Uint8Array>(() => undefined);
+    } });
+    const session = await h.adapter.openSession(request);
+    const pending = session.nextFrame();
+    await started;
+
+    h.setPermission("REVOKED");
+    await expectCode(pending, "CONSENT_REVOKED");
+    await session.close();
+    expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+  });
+
   it("preserves DENIED and UNKNOWN host permission changes during a read", async () => {
     for (const [permission, code] of [["DENIED", "PERMISSION_DENIED"], ["UNKNOWN", "PERMISSION_UNKNOWN"]] as const) {
       let readStarted: (() => void) | undefined;

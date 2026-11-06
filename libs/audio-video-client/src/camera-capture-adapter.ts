@@ -220,7 +220,7 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
           await assertHostPermission();
           let raw: Uint8Array | null;
           try {
-            raw = await boundDevice.readFrame(hostController.signal);
+            raw = await awaitHostOrAbort(boundDevice.readFrame(hostController.signal), hostController.signal);
           } catch (error) {
             if (frameSignal.aborted) throw fail("SESSION_CLOSED", "browser camera read was cancelled");
             if (hostPermissionFailure) throw hostPermissionFailure;
@@ -234,7 +234,7 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
           }
           let encoded: CameraFrameRead;
           try {
-            encoded = await boundCodec.encode(raw, hostController.signal);
+            encoded = await awaitHostOrAbort(boundCodec.encode(raw, hostController.signal), hostController.signal);
           } catch (error) {
             if (frameSignal.aborted) throw fail("SESSION_CLOSED", "browser camera encoding was cancelled");
             if (hostPermissionFailure) throw hostPermissionFailure;
@@ -357,6 +357,16 @@ function awaitOrAbort<T>(operation: Promise<T>, signal: AbortSignal): Promise<T>
   if (signal.aborted) return Promise.reject(abortError());
   return new Promise<T>((resolve, reject) => {
     const onAbort = () => reject(abortError());
+    signal.addEventListener("abort", onAbort, { once: true });
+    operation.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
+  });
+}
+
+/** Stop waiting when a host permission change aborts an operation that ignores its signal. */
+function awaitHostOrAbort<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(fail("SESSION_CLOSED", "browser camera operation was cancelled"));
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(fail("SESSION_CLOSED", "browser camera operation was cancelled"));
     signal.addEventListener("abort", onAbort, { once: true });
     operation.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
   });
