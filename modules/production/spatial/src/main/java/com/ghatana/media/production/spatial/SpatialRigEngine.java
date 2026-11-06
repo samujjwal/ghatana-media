@@ -471,8 +471,7 @@ public final class SpatialRigEngine {
     /** Projects a point into the explicitly bounded camera profile (camera looks along local -Z). */
     public ProjectedPoint project(Vec3 worldPoint, CoordinateFrame worldFrame, PerspectiveCamera camera) {
         Objects.requireNonNull(worldPoint, "worldPoint"); Objects.requireNonNull(worldFrame, "worldFrame"); Objects.requireNonNull(camera, "camera");
-        if (!worldFrame.identity().equals(camera.coordinateFrame().identity())) throw new IllegalArgumentException("camera and point must use the same exact coordinate-frame version");
-        if (!worldFrame.positionUnitRef().equals(camera.coordinateFrame().positionUnitRef())) throw new IllegalArgumentException("camera and point position units differ");
+        if (!worldFrame.equals(camera.coordinateFrame())) throw new IllegalArgumentException("camera and point must use the same exact coordinate-frame version and declaration");
         Vec3 local = camera.orientation().inverse().rotate(worldPoint.subtract(camera.position()));
         double depth = -local.z();
         if (depth < camera.nearPlane() || depth > camera.farPlane()) throw new IllegalArgumentException("point is outside camera clip range");

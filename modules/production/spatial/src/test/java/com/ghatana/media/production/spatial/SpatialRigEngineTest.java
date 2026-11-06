@@ -190,6 +190,23 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void cameraProjectionRejectsConcatenatedFrameIdentityCollision() {
+        var worldFrame = new SpatialRigEngine.CoordinateFrame("a@b", "c",
+                SpatialRigEngine.Handedness.RIGHT_HANDED, SpatialRigEngine.AxisDirection.POS_X,
+                SpatialRigEngine.AxisDirection.POS_Y, SpatialRigEngine.AxisDirection.POS_Z, METER, RADIAN_PROFILE);
+        var cameraFrame = new SpatialRigEngine.CoordinateFrame("a", "b@c",
+                SpatialRigEngine.Handedness.RIGHT_HANDED, SpatialRigEngine.AxisDirection.POS_X,
+                SpatialRigEngine.AxisDirection.POS_Y, SpatialRigEngine.AxisDirection.POS_Z, METER, RADIAN_PROFILE);
+        assertThat(worldFrame.identity()).isEqualTo(cameraFrame.identity());
+        var camera = new SpatialRigEngine.PerspectiveCamera(cameraFrame, SpatialRigEngine.Vec3.ZERO,
+                SpatialRigEngine.Quaternion.IDENTITY, Math.PI / 2, 0.1, 100, 640, 480);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> engine.project(
+                new SpatialRigEngine.Vec3(0, 0, -2), worldFrame, camera))
+                .withMessageContaining("same exact coordinate-frame");
+    }
+
+    @Test
     void exportsDecodableRevisionAndRightsBoundGlbWithRationalTimingAndSpatialMetadata() throws Exception {
         var frame = glbFrame();
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
