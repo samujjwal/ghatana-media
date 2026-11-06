@@ -874,6 +874,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
 - **Progress:** `J17MusicEffectsLocalScenarioTest` passed 1/1 using synthetic waveform fixtures: WAV decodes as stereo 48 kHz/16-bit, frame count and sample/true-peak ceilings are bounded, invalid ceiling is rejected, and typed asset-rights denial returns no result bytes. Mixer exposes no actor-authority API; this is transient local DSP only, not licensed music or a production master. Still OPEN: authenticated rights/consent integration, durable stems/project revisions and qualified foley/production output.
+- **Additional progress (2026-11-06):** The local scenario now verifies that a valid synthetic stem followed by an asset with `UNKNOWN` rights or cleared evidence bound to another source version throws typed `RIGHTS_DENIED`/`RIGHTS_MISSING` and exposes no partial PCM/WAV result. Focused `J17MusicEffectsLocalScenarioTest` passes 2/2. Synthetic transient DSP only; lawful source/foley, external rights authority, perceptual mastering, durable revisions and delivery remain open.
 - **Predecessors:** `media.dev.foley-stems-mix-master`
 
 **`media.dev.outcome-multitrack-finished-master`** · OPEN

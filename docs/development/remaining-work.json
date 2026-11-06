@@ -2155,7 +2155,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: J17MusicEffectsLocalScenarioTest passed 1/1 using synthetic waveform fixtures: WAV decodes as stereo 48 kHz/16-bit, frame count and sample/true-peak ceilings are bounded, invalid ceiling is rejected, and typed asset-rights denial returns no result bytes. Mixer exposes no actor-authority API; this is transient local DSP only, not licensed music or a production master. Still OPEN: authenticated rights/consent integration, durable stems/project revisions and qualified foley/production output."
+      "progress": "2026-11-05: J17MusicEffectsLocalScenarioTest passed 1/1 using synthetic waveform fixtures: WAV decodes as stereo 48 kHz/16-bit, frame count and sample/true-peak ceilings are bounded, invalid ceiling is rejected, and typed asset-rights denial returns no result bytes. Mixer exposes no actor-authority API; this is transient local DSP only, not licensed music or a production master. Still OPEN: authenticated rights/consent integration, durable stems/project revisions and qualified foley/production output.\n2026-11-06 increment: J17MusicEffectsLocalScenarioTest now verifies that a valid synthetic stem followed by an asset with UNKNOWN rights or cleared evidence bound to another source version throws typed RIGHTS_DENIED/RIGHTS_MISSING and exposes no partial PCM/WAV result. Focused selector PASS 2/2. Synthetic transient DSP only; lawful source/foley, external rights authority, perceptual mastering, durable revisions, and delivery remain open."
     },
     {
       "id": "media.dev.outcome-multitrack-finished-master",
