@@ -24,6 +24,12 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaCaptionContracts.CaptionSegment;
+import com.ghatana.media.runtime.MediaCaptionContracts.LanguageDisposition;
+import com.ghatana.media.runtime.MediaCaptionContracts.ParentVersionKind;
+import com.ghatana.media.runtime.MediaCaptionContracts.RegistrationRequest;
+import com.ghatana.media.runtime.MediaCaptionContracts.Registered;
+import com.ghatana.media.runtime.MediaCaptionContracts.SegmentOrigin;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
 import com.ghatana.stt.provider.WhisperOnnxSttProvider;
@@ -64,6 +70,7 @@ class MediaAuthorizedSttTranscriptRestartIT {
             DockerImageName.parse("postgres:16-alpine"));
 
     private static String lastJobId;
+    private static String lastCaptionVersionId;
     private static com.sun.net.httpserver.HttpsServer s3Stub;
     private static Path keystore;
     private static String stubUrl;
@@ -133,6 +140,7 @@ class MediaAuthorizedSttTranscriptRestartIT {
              var consentAuthority = new PostgresqlMediaConsentAuthority();
              var authority = new PostgresqlMediaSourceAuthorizationAuthority(new AllowPolicy());
              var transcriptStore = new PostgresqlMediaTranscriptStore();
+             var captionStore = new com.ghatana.media.provider.aws.PostgresqlMediaCaptionStore();
              var administration = new PostgresqlMediaSourceRightsAdministration();
              var provider = whisperProvider(profile);
              var runtime = new MediaRuntime(
@@ -154,7 +162,7 @@ class MediaAuthorizedSttTranscriptRestartIT {
                             MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
                             MediaSourceAuthorizationContracts.HumanConsentDisposition
                                     .NOT_APPLICABLE_HUMAN_CONSENT,
-                            "", Set.of("speech_to_text"), Set.of("transcription"),
+                            "", Set.of("speech_to_text", "caption_version_write"), Set.of("transcription"),
                             Set.of("local"), Set.of(ProviderDataRetention.NONE),
                             "fixture-clock-evidence", "provenance://fixture/1",
                             Instant.now().plusSeconds(3600), "correlation-e2e"),
@@ -172,22 +180,78 @@ class MediaAuthorizedSttTranscriptRestartIT {
             lastJobId = accepted.jobId();
             assertThat(terminal.status()).as("final job: %s", terminal)
                     .isEqualTo(JobStatus.COMPLETED);
+
+            var providerBinding = transcriptStore.readAttemptBinding(
+                    "tenant-a", "principal-a", "transcript:" + lastJobId, 1);
+            var transcript = transcriptStore.revisionByVersionRef(
+                    "tenant-a", "principal-a", providerBinding.transcriptVersionRef()).orElseThrow();
+            assertThat(transcript.admissionStatus()).isEqualTo("ADMITTED");
+            assertThat(transcript.draft().text()).isEqualTo(gold());
+            String correction = System.getenv("GHATANA_MEDIA_WHISPER_CORRECTED_CAPTION");
+            assumeTrue(correction != null && !correction.isBlank(),
+                    "Set an explicit reviewer correction to exercise durable J-03 caption registration");
+            assertThat(transcript.draft().segments()).isNotEmpty();
+            var firstSegment = transcript.draft().segments().getFirst();
+            var firstTiming = firstSegment.timing();
+            assertThat(firstTiming.tag()).isEqualTo(
+                    com.ghatana.media.runtime.MediaTranscriptContracts.SegmentTimingTag.SOURCE_TICKS);
+            var captionSegments = transcript.draft().segments().stream().map(segment -> {
+                var timing = segment.timing();
+                assertThat(timing.tag()).isEqualTo(
+                        com.ghatana.media.runtime.MediaTranscriptContracts.SegmentTimingTag.SOURCE_TICKS);
+                boolean edited = segment.segmentId().equals(firstSegment.segmentId());
+                return CaptionSegment.of(segment.segmentId(), edited ? correction : segment.text(),
+                        timing.start(), timing.end(), edited ? SegmentOrigin.USER_EDITED : SegmentOrigin.RECOGNIZED);
+            }).toList();
+            RegistrationRequest captionRequest = new RegistrationRequest(
+                    "j03-caption-" + lastJobId,
+                    transcript.draft().sourceArtifactId(), transcript.draft().sourceVersion(),
+                    ParentVersionKind.TRANSCRIPT_VERSION, providerBinding.transcriptVersionRef(),
+                    firstTiming.sourceClockId(), firstTiming.sourceTicksPerSecond(),
+                    firstTiming.sourceDurationTicks(), LanguageDisposition.DECLARED_BY_USER,
+                    java.util.Optional.of(transcript.draft().language()), captionSegments,
+                    java.util.Optional.of("reviewer correction supplied by the test operator"));
+            var captionResult = captionStore.register("tenant-a", "principal-a", captionRequest,
+                    new MediaCaptionRegistrationAuthority(administration, Clock.systemUTC()),
+                    new MediaCaptionParentClockLookup("tenant-a", "principal-a", transcriptStore, captionStore));
+            assertThat(captionResult).isInstanceOf(Registered.class);
+            lastCaptionVersionId = ((Registered) captionResult).captionVersionId();
+            assertThat(captionStore.version("tenant-a", "principal-a", lastCaptionVersionId))
+                    .get().satisfies(snapshot -> {
+                        assertThat(snapshot.parentVersionKind()).isEqualTo(ParentVersionKind.TRANSCRIPT_VERSION);
+                        assertThat(snapshot.parentVersionId()).isEqualTo(providerBinding.transcriptVersionRef());
+                        assertThat(snapshot.sourceArtifactId()).isEqualTo(transcript.draft().sourceArtifactId());
+                        assertThat(snapshot.sourceArtifactVersionId()).isEqualTo(transcript.draft().sourceVersion());
+                        assertThat(snapshot.captionSegments().getFirst().text()).isEqualTo(correction);
+                        assertThat(snapshot.captionSegments().getFirst().origin()).isEqualTo(SegmentOrigin.USER_EDITED);
+                    });
         }
 
         // Restart-equivalent readback: the runtime is closed; a fresh store over the same
         // still-installed durable state returns the identical ADMITTED revision, exact
         // transcript text and attempt binding, and only for the owning principal.
         try (AutoCloseable reinstalled = TestAwsStateInstall.install(environment());
-             var reopened = new PostgresqlMediaTranscriptStore()) {
+             var reopened = new PostgresqlMediaTranscriptStore();
+             var reopenedCaptions = new com.ghatana.media.provider.aws.PostgresqlMediaCaptionStore()) {
             var revisions = reopened.revisions(
                     "tenant-a", "principal-a", "transcript:" + lastJobId);
             assertThat(revisions).hasSize(1);
             var revision = revisions.getFirst();
             assertThat(revision.admissionStatus()).isEqualTo("ADMITTED");
             assertThat(revision.draft().text()).isEqualTo(gold());
-            assertThat(reopened.readAttemptBinding(
-                    "tenant-a", "principal-a", "transcript:" + lastJobId, 1)
-                    .providerOperationId()).isNotBlank();
+            var binding = reopened.readAttemptBinding(
+                    "tenant-a", "principal-a", "transcript:" + lastJobId, 1);
+            assertThat(binding.providerOperationId()).isNotBlank();
+            assertThat(binding.transcriptVersionRef()).isNotBlank();
+            var caption = reopenedCaptions.version("tenant-a", "principal-a", lastCaptionVersionId).orElseThrow();
+            assertThat(caption.captionVersionId()).isEqualTo(lastCaptionVersionId);
+            assertThat(caption.parentVersionKind()).isEqualTo(ParentVersionKind.TRANSCRIPT_VERSION);
+            assertThat(caption.parentVersionId()).isEqualTo(binding.transcriptVersionRef());
+            assertThat(caption.sourceArtifactId()).isEqualTo(revision.draft().sourceArtifactId());
+            assertThat(caption.sourceArtifactVersionId()).isEqualTo(revision.draft().sourceVersion());
+            assertThat(caption.captionSegments().getFirst().text())
+                    .isEqualTo(System.getenv("GHATANA_MEDIA_WHISPER_CORRECTED_CAPTION"));
+            assertThat(caption.captionSegments().getFirst().origin()).isEqualTo(SegmentOrigin.USER_EDITED);
             assertThat(reopened.revisions("tenant-a", "other-principal",
                     "transcript:" + lastJobId)).isEmpty();
         } finally {

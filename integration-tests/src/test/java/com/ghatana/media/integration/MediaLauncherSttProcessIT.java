@@ -149,6 +149,28 @@ class MediaLauncherSttProcessIT {
             assertThat(afterDenied.lifecycleOutbox()).isEqualTo(before.lifecycleOutbox());
             assertThat(afterDenied.sourceRightsDecisions()).isEqualTo(before.sourceRightsDecisions());
 
+            String captionBody = """
+                    {"requestId":"revoked-caption-%s","sourceArtifactId":"%s",
+                     "sourceArtifactVersionId":"sha256:%s","parentVersionKind":"TRANSCRIPT_VERSION",
+                     "parentVersionId":"missing-transcript-version","sourceClockId":"fixture-clock",
+                     "ticksPerSecond":16000,"sourceDurationTicks":16000,
+                     "languageDisposition":"DECLARED_BY_USER","languageTag":"en-US",
+                     "captionSegments":[{"segmentId":"seg-1","text":"fixture","startTick":0,
+                       "endTick":1,"origin":"USER_EDITED"}],"purpose":"revoked-source negative test"}
+                    """.formatted(run, artifactId, sha);
+            HttpResponse<String> captionDenied = send(port, TENANT, "POST", "/api/v1/caption-versions",
+                    captionBody, "application/json", null);
+            assertThat(captionDenied.statusCode()).as(captionDenied.body()).isEqualTo(403);
+            assertThat(JSON.readTree(captionDenied.body()).path("error").path("code").asText())
+                    .isEqualTo("VERSION_REGISTRATION_NOT_ALLOWED");
+            EffectCounts afterCaptionDenied = effectCounts(env);
+            assertThat(afterCaptionDenied.jobs()).isEqualTo(afterDenied.jobs());
+            assertThat(afterCaptionDenied.attempts()).isEqualTo(afterDenied.attempts());
+            assertThat(afterCaptionDenied.transcripts()).isEqualTo(afterDenied.transcripts());
+            assertThat(afterCaptionDenied.captions()).isEqualTo(afterDenied.captions());
+            assertThat(afterCaptionDenied.lifecycleOutbox()).isEqualTo(afterDenied.lifecycleOutbox());
+            assertThat(afterCaptionDenied.sourceRightsDecisions()).isEqualTo(afterDenied.sourceRightsDecisions());
+
             stopLauncher(launcher);
             launcher = null;
 
@@ -161,7 +183,7 @@ class MediaLauncherSttProcessIT {
             assertThat(JSON.readTree(readback.body()).path("objectReference").asText())
                     .isEqualTo(objectReference);
             EffectCounts afterRestart = effectCounts(env);
-            assertThat(afterRestart).isEqualTo(afterDenied);
+            assertThat(afterRestart).isEqualTo(afterCaptionDenied);
             stopLauncher(launcher);
             launcher = null;
 
@@ -393,6 +415,7 @@ class MediaLauncherSttProcessIT {
             return new EffectCounts(count(connection, "media_processing_jobs"),
                     count(connection, "media_processing_job_attempts"),
                     count(connection, "media_transcript_revisions"),
+                    count(connection, "media_caption_registrations"),
                     count(connection, "media_processing_lifecycle_outbox"),
                     count(connection, "media_source_rights_decisions"));
         }
@@ -453,7 +476,7 @@ class MediaLauncherSttProcessIT {
         throw new AssertionError("crashed worker lease did not expire within the bounded recovery window");
     }
 
-    private record EffectCounts(long jobs, long attempts, long transcripts,
+    private record EffectCounts(long jobs, long attempts, long transcripts, long captions,
             long lifecycleOutbox, long sourceRightsDecisions) { }
 
     private static Map<String, String> environment(String bucket, int port) {

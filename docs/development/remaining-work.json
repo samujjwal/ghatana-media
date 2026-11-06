@@ -1813,7 +1813,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: MediaLauncherSttProcessIT.revokedSttSourceIsDeniedWithoutJobOrTranscriptAndSurvivesRestart PASS 1/1 with a synthetic source explicitly revoked before submission. Process-boundary regression confirms revoked epoch advancement, zero new job/attempt/transcript/lifecycle-outbox/source-rights-decision rows, and artifact readback after launcher restart. Still OPEN: licensed audio with independent gold, a real qualified provider transcript revision, UI-reviewed corrected captions, and genuine terminal quality evidence."
+      "progress": "2026-11-05: MediaLauncherSttProcessIT.revokedSttSourceIsDeniedWithoutJobOrTranscriptAndSurvivesRestart PASS 1/1 with a synthetic source explicitly revoked before submission. Process-boundary regression confirms revoked epoch advancement, zero new job/attempt/transcript/lifecycle-outbox/source-rights-decision rows, and artifact readback after launcher restart. Additional J-03 slice: MediaAuthorizedSttTranscriptRestartIT now binds caption registration to the exact durable provider transcriptVersionRef, applies an explicit operator-supplied correction, and verifies caption parent/source/clock and corrected segment through a fresh PostgreSQL caption store; this path compiled but SKIPPED because model, audio, independent gold, and explicit correction inputs were absent. The revoked-source HTTP case also proves caption registration returns VERSION_REGISTRATION_NOT_ALLOWED with no caption/job/attempt/transcript/outbox/rights-decision mutation and unchanged counts after launcher restart; focused process selector PASS 1/1. One combined selector attempt failed at the existing final LocalStack S3 object readback (NoSuchKey); isolated revoked-source rerun passed. Still OPEN: licensed audio with independent gold, a real qualified provider transcript revision, UI-reviewed corrected captions, source-clock-bound provider segments, and genuine terminal quality evidence."
     },
     {
       "id": "media.dev.outcome-authorized-voice-synthesis",
@@ -1911,7 +1911,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: AudioRestorationSourceBoundaryIntegrationTest PASS 1/1: comparison/undo preserve exact source bytes; without an independent reference, the comparison reports no reference and NaN SNR. This is comparison-only evidence; no runtime restoration admission or dispatch API exists in the selected boundary. Still OPEN: lawful restoration provider, independent quality reference, real denoise/declip A/B and durable reversible output."
+      "progress": "2026-11-05: AudioRestorationSourceBoundaryIntegrationTest PASS 2/2: comparison/undo preserve exact source bytes and SHA-256, the source-only comparison reports no independent reference and NaN SNR, and the selected API exposes no denoise/declip/restore/dispatch operation. This is comparison-only evidence; no runtime restoration admission or dispatch API exists in the selected boundary. Still OPEN: lawful restoration provider, independent quality reference, real denoise/declip A/B and durable reversible output."
     },
     {
       "id": "media.dev.outcome-video-enhancement",
@@ -2033,7 +2033,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 local preview verification: AnimationJ12LocalPreviewSliceTest PASS 2/2, 0 failures/skips; existing code renders repeatable PNG frames, decodes dimensions/background, verifies golden easing and exact rational story PTS, immutable refs and bounded invalid-key/pixel-budget failures. Journey remains OPEN: no source-bound exact J-12 scenario seed exists; compare/inspect steps are definition-only and runtime NOT_ADMITTED; there is no authenticated UI/client-to-runtime CAS/readback path for the required terminal product outcome. Local preview is not journey completion."
+      "progress": "2026-11-05: AnimationJ12LocalPreviewSliceTest PASS 2/2 for repeatable PNG output, decode, golden easing, rational story PTS, immutable refs and bounded failures. New AnimationJ12ScenarioIntegrationTest PASS 2/2 with decodable PNG/GIF output, golden marker/easing and exact PTS/story ticks, explicit synthetic-source provenance, unsupported MP4 returning no bytes, and the project store returning typed NOT_ADMITTED. Existing renderer/preview selectors add 11 passing tests. J-12 remains OPEN: there is no exact source-bound scenario seed, authenticated job/project commit, cancellation/UNKNOWN/restart path, or client-to-runtime CAS/readback for a terminal journey result. Local preview is not journey completion."
     },
     {
       "id": "media.dev.outcome-three-dimensional-animation",

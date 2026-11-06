@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.production.audio.AudioRepairComparison;
+import java.lang.reflect.Modifier;
 import java.time.Duration;
+import java.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,35 @@ class AudioRestorationSourceBoundaryIntegrationTest {
         // No restoration execution API is wired into this boundary. The
         // comparison utility can describe an unchanged source, but cannot
         // establish quality or improvement without an independent reference.
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, source);
+
+        assertThat(comparison.source().data()).containsExactly(exactSource);
+        assertThat(comparison.undo().data()).containsExactly(exactSource);
+        assertThat(comparison.sourceSha256()).isEqualTo(sourceDigest);
+        assertThat(comparison.repairedSha256()).isEqualTo(sourceDigest);
+        assertThat(comparison.metrics().changedSampleCount()).isZero();
+        assertThat(comparison.metrics().hasIndependentReference()).isFalse();
+        assertThat(comparison.metrics().snrDbVsReference()).isNaN();
+        assertThat(source.data()).containsExactly(exactSource);
+    }
+
+    @Test
+    @DisplayName("without restoration admission, the selected boundary exposes comparison only")
+    void missingRestorationAdmissionCannotDispatchOrCreateARepairedRevision() {
+        AudioData source = pcm(1_200, -800, 0, 2_400);
+        byte[] exactSource = source.data();
+        String sourceDigest = AudioRepairComparison.compare(source, source).sourceSha256();
+
+        // The selected production boundary has no admission/dispatch operation.
+        // Keep this negative case on that actual boundary: source-only comparison
+        // can return a comparison value, but cannot claim a denoise/declip effect.
+        var publicMethods = Arrays.stream(AudioRepairComparison.class.getDeclaredMethods())
+                .filter(method -> Modifier.isPublic(method.getModifiers()))
+                .map(java.lang.reflect.Method::getName)
+                .toList();
+        assertThat(publicMethods).contains("compare", "source", "repaired", "undo", "metrics")
+                .doesNotContain("denoise", "declip", "restore", "dispatch");
+
         AudioRepairComparison comparison = AudioRepairComparison.compare(source, source);
 
         assertThat(comparison.source().data()).containsExactly(exactSource);

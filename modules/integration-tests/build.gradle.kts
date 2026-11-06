@@ -12,6 +12,7 @@ dependencies {
     testImplementation(project(":services:media:modules:infrastructure:persistence"))
     testImplementation(project(":services:media:modules:audio-streaming"))
     testImplementation(project(":services:media:modules:video-streaming"))
+    testImplementation(project(":services:media:modules:production:animation"))
     testImplementation(project(":services:media:modules:production:timeline"))
     testImplementation(project(":services:media:modules:production:audio-mixing"))
     testImplementation(project(":services:media:modules:production:delivery"))
