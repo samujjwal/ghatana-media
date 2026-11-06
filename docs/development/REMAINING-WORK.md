@@ -261,6 +261,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Build a real source-pinned Whisper STT candidate and meaningful language quality suite.
 - **How:** Prefer verified official OpenAI checkpoint + reproducible local ONNX export; verify license/model bytes/export tools; English/Nepali Common Voice benchmark plus separately consented app-domain refs; do not admit synthetic transcripts.
 - **Test/exit:** Real WER/CER/latency, reference provenance, decoder EOT/PCM, failed model pin, no other actor content exposure.
+- **Progress:** On JDK 27, `WhisperOnnxThreadPolicyTest`, `WhisperDecoderPolicyTest`, and `WhisperReferenceModelIntegrationTest.pinnedProfileAndAudioRequireIndependentGoldBeforeModelLoading` passed 7/7. This verifies host-bounded opt-in thread parsing, decoder token/EOT rules, and the fail-before-load gold guard only. Real inference, complete-transcript comparison, and 1/16/64 CPU A/B were not run: pinned model/export rights, independently authored audio/gold, and host review remain unavailable. No FLEURS audio was requested or processed.
 - **Predecessors:** `media.dev.rights-and-policy`, `media.dev.native-media-dsp`
 
 **`media.dev.stt-streaming-and-caption`** · OPEN
@@ -647,6 +648,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-06 — Real STT/Vision+DI child -> grounded typed response; wrong clock/rights.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `MultimodalGroundedOutcomeIntegrationTest` passes 1/1: a source-free in-process gRPC request with opaque audio/video bytes receives `UNAVAILABLE` when trusted artifact-rights authority is absent; no completed parent response is returned. Fixture bytes are not treated as child output. Still OPEN: real owned source/version and rights, admitted STT/Vision children with matching source/clock/version evidence, and supported DI outcome integration.
 - **Predecessors:** `media.dev.multimodal-grounding-and-quality`
 
 **`media.dev.outcome-audio-restoration`** · OPEN
@@ -654,6 +656,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-07 — Real denoise/declip measured A/B with source preservation.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `AudioRestorationSourceBoundaryIntegrationTest` passes 1/1: comparison/undo preserve exact source bytes and the comparison reports no independent reference with NaN SNR. This is comparison-only evidence; no runtime restoration admission or dispatch API exists in the selected boundary. Still OPEN: lawful restoration provider, independent quality reference, real denoise/declip A/B and durable reversible output.
 - **Predecessors:** `media.dev.audio-repair-and-comparison`
 
 **`media.dev.outcome-video-enhancement`** · OPEN
@@ -661,6 +664,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-08 — Real codec/frame repair and independent measured comparison.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `VideoEnhancementAdmissionIntegrationTest` passes 1/1: missing decoder returns `UNAVAILABLE` with no candidate; denied rights return `NOT_ADMITTED` without decoder calls or source-binding changes. Still OPEN: real decoder/encoder round trip, independent quality reference, and admitted provider evidence.
 - **Predecessors:** `media.dev.video-restoration-and-comparison`
 
 **`media.dev.outcome-brief-to-reviewed-media`** · OPEN
@@ -762,6 +766,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-22 — Actual export/publish destination ACK, lost-ACK reconciliation.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `DeliveryDestinationReceiptScenarioTest` passes 1/1: a fixture destination receipt scoped to another destination leaves the export `OUTCOME_UNKNOWN`, exposes no destination receipt reference, and exact replay remains unknown. Still OPEN: signed authoritative transfer authorization, a real destination adapter/receipt and durable restart/readback.
 - **Predecessors:** `media.dev.delivery-export-destination-ack`
 
 **`media.dev.outcome-offline-conflict-reconnect`** · OPEN

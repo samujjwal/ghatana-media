@@ -691,7 +691,8 @@
         "media.dev.native-media-dsp"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: On JDK 27, WhisperOnnxThreadPolicyTest, WhisperDecoderPolicyTest, and WhisperReferenceModelIntegrationTest.pinnedProfileAndAudioRequireIndependentGoldBeforeModelLoading PASS 7/7. This verifies host-bounded opt-in thread parsing, decoder token/EOT rules, and the fail-before-load gold guard only. Real inference, complete-transcript comparison, and 1/16/64 CPU A/B were not run: pinned model/export rights, independently authored audio/gold, and host review remain unavailable. No FLEURS audio was requested or processed."
     },
     {
       "id": "media.dev.stt-streaming-and-caption",
@@ -1878,7 +1879,8 @@
         "media.dev.multimodal-grounding-and-quality"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: MultimodalGroundedOutcomeIntegrationTest PASS 1/1: a source-free in-process gRPC request with opaque audio/video bytes receives UNAVAILABLE when trusted artifact-rights authority is absent; no completed parent response is returned. Fixture bytes are not treated as child output. Still OPEN: real owned source/version and rights, admitted STT/Vision children with matching source/clock/version evidence, and supported DI outcome integration."
     },
     {
       "id": "media.dev.outcome-audio-restoration",
@@ -1901,7 +1903,8 @@
         "media.dev.audio-repair-and-comparison"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: AudioRestorationSourceBoundaryIntegrationTest PASS 1/1: comparison/undo preserve exact source bytes; without an independent reference, the comparison reports no reference and NaN SNR. This is comparison-only evidence; no runtime restoration admission or dispatch API exists in the selected boundary. Still OPEN: lawful restoration provider, independent quality reference, real denoise/declip A/B and durable reversible output."
     },
     {
       "id": "media.dev.outcome-video-enhancement",
@@ -1924,7 +1927,8 @@
         "media.dev.video-restoration-and-comparison"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: VideoEnhancementAdmissionIntegrationTest PASS 1/1: missing decoder returns UNAVAILABLE with no candidate; denied rights return NOT_ADMITTED without decoder calls or source-binding changes. Still OPEN: real decoder/encoder round trip, independent quality reference, and admitted provider evidence."
     },
     {
       "id": "media.dev.outcome-brief-to-reviewed-media",
@@ -2251,7 +2255,8 @@
         "media.dev.delivery-export-destination-ack"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: DeliveryDestinationReceiptScenarioTest PASS 1/1: a fixture destination receipt scoped to another destination leaves export OUTCOME_UNKNOWN, exposes no destination receipt reference, and exact replay remains unknown. Still OPEN: signed authoritative transfer authorization, a real destination adapter/receipt and durable restart/readback."
     },
     {
       "id": "media.dev.outcome-offline-conflict-reconnect",
