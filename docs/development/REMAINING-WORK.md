@@ -449,7 +449,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement real bounded denoise/declip and source-preserving comparison.
 - **How:** Use selected DSP algorithms with transparent loss/quality metrics and immutable A/B revisions.
 - **Test/exit:** SNR/clip/phase/reference tests, silence, drift, checksum and undo.
-- **Progress:** The Java path rejects PCM above 16 MiB before copying; `AudioRepairComparisonTest` passes 6/6, covering reference SNR, silence, clipping/phase proxy, drift, PCM24/32 limits, exact digest, source preservation/undo and size bound. The local noise-profile gate and linear declipper lack lawful representative-corpus quality qualification; no learned model/provider or durable project-timeline A/B wiring is admitted.
+- **Progress:** The Java path rejects PCM above 16 MiB before copying and caches the defensive reference PCM copy once per comparison; `AudioRepairComparisonTest` passes 7/7, including 1 MiB reference metrics, independent-reference SNR, silence, clipping/phase proxy, drift, PCM24/32 limits, exact digest, source preservation/undo and size bounds. The local noise-profile gate and linear declipper lack lawful representative-corpus quality qualification; no learned model/provider or durable project-timeline A/B wiring is admitted.
 - **Predecessors:** `media.dev.native-media-dsp`, `media.dev.project-timeline-engine`
 
 **`media.dev.video-restoration-and-comparison`** · OPEN
@@ -457,7 +457,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement honest video noise/blur/color restoration with measured A/B output.
 - **How:** Select actual codec/image filters, preserve frame order/timebase/ROI and source revisions; expose fidelity and loss bounds.
 - **Test/exit:** Reference frame set, perceptual metric+PSNR where meaningful, no resolution/quality false claim.
-- **Progress:** 25/25 focused decoded-frame tests pass for temporal denoise, ROI unsharp/color operations, reference metrics and rights/finality negatives. Decoder/encoder, Vision-service wiring and real reference-frame qualification remain open.
+- **Progress:** `TemporalVideoRestorationTest` passes 17/17 and `QualityComparisonAndOptimizationTest` passes 10/10 (27/27, no skips) for temporal denoise, ROI unsharp/color operations, reference metrics and rights/finality negatives. `CandidateFrame` now validates bounded index/timestamp/dimensions/ROI, exact RGB8 length and SHA-256 at construction. Decoder/encoder, Vision-service wiring and real reference-frame qualification remain open.
 - **Predecessors:** `media.dev.vision-model-and-geometry`
 
 **`media.dev.reference-guided-generation`** · OPEN

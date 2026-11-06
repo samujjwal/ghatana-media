@@ -1267,7 +1267,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: bounded Java audio repair now rejects PCM input above 16 MiB before copying; focused AudioRepairComparisonTest PASS 6/6. Coverage includes independent-reference SNR, silence, clipping/phase proxy, drift rejection, signed PCM24/32 full scale, exact SHA-256, source preservation/undo, and size bound. Existing Rust DSP tests are unchanged and were not rerun. Still OPEN: the local noise-profile gate and linear declipper are not perceptually qualified against a lawful representative corpus; no learned denoise/declip model/provider is selected/admitted and no durable project-timeline A/B revision wiring is present."
+      "progress": "2026-11-05: Bounded Java audio repair rejects PCM above 16 MiB before copying and now caches the defensive reference PCM copy once per comparison; AudioRepairComparisonTest PASS 7/7, including 1 MiB reference metrics, independent-reference SNR, silence, clipping/phase proxy, drift, signed PCM24/32 full scale, exact SHA-256, source preservation/undo, and size bound. Existing Rust DSP tests are unchanged and were not rerun. Still OPEN: local noise-profile gate and linear declipper lack lawful representative-corpus quality qualification; no learned model/provider or durable project-timeline A/B wiring is admitted."
     },
     {
       "id": "media.dev.video-restoration-and-comparison",
@@ -1289,7 +1289,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 decoded-frame implementation verification: selectors TemporalVideoRestorationTest and QualityComparisonAndOptimizationTest PASS 25/25, no skips. Coverage includes temporal median, bounded ROI unsharp mask, RGB gain/offset rounding and clipping magnitude, source immutability, frame order/PTS/timebase, authorization/revocation, exact aligned reference metrics, and truthful no-improvement reporting. Still OPEN: no decoder/encoder or durable A/B output path, no Vision-service integration, and no independently authored real reference frame set; no codec or quality qualification is claimed."
+      "progress": "2026-11-05: TemporalVideoRestorationTest PASS 17/17 and QualityComparisonAndOptimizationTest PASS 10/10 (27/27, no skips) for temporal denoise, ROI unsharp/color operations, reference metrics and rights/finality negatives. CandidateFrame now validates bounded index/timestamp/dimensions/ROI, exact RGB8 length, and SHA-256 at construction. Still OPEN: no decoder/encoder or durable A/B output path, no Vision-service integration, and no independently authored real reference frame set; no codec or quality qualification is claimed."
     },
     {
       "id": "media.dev.reference-guided-generation",
