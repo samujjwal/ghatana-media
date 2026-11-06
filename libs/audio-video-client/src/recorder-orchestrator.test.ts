@@ -791,6 +791,21 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("rejects unbounded or malformed authority references before mux dispatch", async () => {
+    const client = fakeClient();
+    const mux = { muxAndVerify: vi.fn(async () => verifiedContainer()) };
+    const excessiveRefs = { admit: async () => ({
+      status: "ADMITTED" as const,
+      decisionRefs: Array.from({ length: 65 }, (_, index) => `rights-decision/${index}`),
+    }) };
+
+    await expect(publishFinalRender(request(), excessiveRefs, mux, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect(mux.muxAndVerify).not.toHaveBeenCalled();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("rejects probe timing drift before the canonical upload effect", async () => {
     const client = fakeClient();
     const badMuxer = { muxAndVerify: async () => ({

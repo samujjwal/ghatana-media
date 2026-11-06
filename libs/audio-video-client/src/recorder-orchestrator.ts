@@ -608,6 +608,8 @@ export type FinalRenderPublishResult =
 
 const MAX_RENDER_BYTES = 1_073_741_824;
 const RENDER_UPLOAD_CHUNK_BYTES = 4 * 1024 * 1024;
+const MAX_RENDER_AUTHORITY_REFS_PER_CHECK = 64;
+const MAX_RENDER_AUTHORITY_REFS_TOTAL = 256;
 
 function freezeRenderValue<T>(value: T): T {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
@@ -769,19 +771,26 @@ export async function publishFinalRender(
   }
   const admittedRefs = new Set<string>();
   const checkAdmission = async (): Promise<boolean> => {
-    let decision: RenderAdmissionDecision;
     try {
-      decision = await admission.admit(safeRequest);
+      const decision: RenderAdmissionDecision = await admission.admit(safeRequest);
+      if (decision.status !== "ADMITTED" || !Array.isArray(decision.decisionRefs)
+        || decision.decisionRefs.length === 0
+        || decision.decisionRefs.length > MAX_RENDER_AUTHORITY_REFS_PER_CHECK) {
+        return false;
+      }
+      const refs = decision.decisionRefs.map((ref) => {
+        if (typeof ref !== "string" || ref.trim().length === 0 || ref.length > 384 || ref !== ref.trim()) {
+          throw new TypeError("render authority reference is invalid");
+        }
+        return ref;
+      });
+      const combinedRefs = new Set([...admittedRefs, ...refs]);
+      if (combinedRefs.size > MAX_RENDER_AUTHORITY_REFS_TOTAL) return false;
+      for (const ref of refs) admittedRefs.add(ref);
+      return true;
     } catch {
       return false;
     }
-    if (decision.status !== "ADMITTED" || !Array.isArray(decision.decisionRefs)
-      || decision.decisionRefs.length === 0
-      || decision.decisionRefs.some((ref) => typeof ref !== "string" || ref.trim().length === 0)) {
-      return false;
-    }
-    for (const ref of decision.decisionRefs) admittedRefs.add(ref);
-    return true;
   };
   if (!await checkAdmission()) {
     return { outcome: "NOT_ADMITTED", reason: "render rights or source authority did not admit this request" };
