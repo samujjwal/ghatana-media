@@ -904,6 +904,36 @@ class MultimodalGrpcServiceTest {
         verifyNoInteractions(mockEngine);
     }
 
+    @Test
+    @DisplayName("analyzeCrossModal: ambiguous source rights are unavailable before child dispatch")
+    void analyzeCrossModal_ambiguousSourceRightsReturnUnavailableWithoutChildEffect() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService ambiguousRights = new MultimodalGrpcService(
+                mockEngine, mockAdapter, MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    throw new IllegalStateException("rights authority read was inconclusive");
+                });
+        CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>();
+        CrossModalRequest request = CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x11, 0x22}))
+                .setVideoData(ByteString.copyFrom(new byte[] {0x33, 0x44}))
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.analyze.cross-modal",
+                        "media.operation.capability.media-multimodal-analyze-cross-modal",
+                        "j06 ambiguous-rights guard"))
+                .build();
+
+        withContext(TENANT_ID, () -> ambiguousRights.analyzeCrossModal(request, observer));
+
+        assertThat(authorizationCalls).hasValue(1);
+        assertThat(observer.hasError()).isTrue();
+        assertThat(observer.getValue()).isNull();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(failure.getStatus().getDescription()).contains("Trusted artifact rights");
+        verifyNoInteractions(mockEngine, mockAdapter);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // getInsights (AV-004.5) 
     // ─────────────────────────────────────────────────────────────────────────

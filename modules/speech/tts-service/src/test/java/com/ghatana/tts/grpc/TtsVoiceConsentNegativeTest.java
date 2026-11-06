@@ -194,6 +194,30 @@ class TtsVoiceConsentNegativeTest {
     }
 
     @Test
+    @DisplayName("missing requested locale is not inferred from the configured voice profile")
+    void missingLocaleDoesNotInferConfiguredVoiceProfile() throws Exception {
+        // J-04 keeps voice and language as explicit choices. A configured en-US fixture
+        // profile cannot supply the missing request locale or authorize implicit synthesis.
+        start(request -> TtsRequestAuthorization.Decision.ADMITTED, "en-us-fixture-voice");
+
+        var blocking = stub(OWNER_SUBJECT);
+        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
+                        .setText("synthetic scenario text")
+                        .setVoiceId("en-us-fixture-voice")
+                        .build()),
+                Status.Code.UNAVAILABLE, "TTS locale/voice NOT_ADMITTED");
+
+        // The owner-authority read is allowed, but a missing locale is not inferred
+        // from that profile and no provider library, engine, or audio response follows.
+        assertThat(observed).singleElement().satisfies(request -> {
+            assertThat(request.identity().tenantId()).isEqualTo("tenant-test");
+            assertThat(request.identity().subject()).isEqualTo(OWNER_SUBJECT);
+            assertThat(request.voiceId()).isEqualTo("en-us-fixture-voice");
+        });
+        verifyNoInteractions(guardedLibrary, engine);
+    }
+
+    @Test
     @DisplayName("authority-reported expired consent denies before synthesis or provider reuse")
     void authorityReportsExpiredConsentAsRevokedBeforeSynthesis() throws Exception {
         // Expiry is evaluated by the owner authority; Media must honor its current

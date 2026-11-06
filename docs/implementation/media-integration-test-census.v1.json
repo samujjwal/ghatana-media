@@ -399,7 +399,8 @@
         "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.typedNotAdmittedStoreDoesNotClaimCreationOrProduceAProject",
         "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.exactCreateReplayReturnsOriginalReceiptAndDoesNotCreateAnotherProject",
         "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.invalidCreateAndSameTenantWrongPrincipalDoNotExposeOrMutateProject",
-        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.wrongTenantDuplicateCreateAndStaleRevisionHaveZeroAdditionalEffectInLocalFixture"
+        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.wrongTenantDuplicateCreateAndStaleRevisionHaveZeroAdditionalEffectInLocalFixture",
+        "com.ghatana.audio.video.integration.FirstUseProjectBoundaryIntegrationTest.wrongTenantCannotEditProjectOrAdvanceItsRevisionHead"
       ],
       "sources": [
         "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/FirstUseProjectBoundaryIntegrationTest.java"
@@ -437,6 +438,51 @@
       "assets": "Synthetic WAV and test-owned provider dispatch marker only.",
       "safety": "Synthetic identities and isolated containers; no production credentials or customer data.",
       "evidenceLimit": "J-02 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j02-corrupt-chunk-restart",
+      "tier": "ISOLATED_INTEGRATION",
+      "gradleTestTask": ":services:media:providers:aws-postgresql:test",
+      "selectors": [
+        "com.ghatana.media.provider.aws.MediaUploadCorruptChunkRestartIT.corruptStagedChunkAfterRestartFailsClosedWithoutNewArtifact"
+      ],
+      "sources": [
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaUploadCorruptChunkRestartIT.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "Testcontainers LocalStack S3",
+        "isolated H2 PostgreSQL-mode upload store",
+        "fresh artifact-store instances"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime and Docker daemon; uses disposable LocalStack and H2 test state"
+      ],
+      "assets": "Synthetic upload bytes only; the test changes a staged chunk inside its disposable LocalStack bucket after acknowledgement.",
+      "safety": "Out-of-band corruption is restricted to a test-owned bucket; no production credentials, customer media, or real provider effect.",
+      "evidenceLimit": "J-02 corrupt-stage restart slice only; H2 does not establish PostgreSQL-specific behavior, real source rights, durable production upload, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j03-caption-rights-ambiguity",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:launcher:test",
+      "selectors": [
+        "com.ghatana.media.launcher.MediaCaptionUnknownRightsAuthorityTest.ambiguousCurrentSourceRightsRecordsAreUnavailableRatherThanAdmitted"
+      ],
+      "sources": [
+        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaCaptionUnknownRightsAuthorityTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "synthetic rights authority fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic source-version and conflicting rights records only; no audio or transcript is bundled.",
+      "safety": "Ambiguous source authority returns UNAVAILABLE before caption registration; no provider dispatch or human approval is simulated as success.",
+      "evidenceLimit": "J-03 ambiguous-rights boundary only; does not establish licensed inference, durable caption registration, review, restart, or journey completion."
     },
     {
       "id": "journey-outcome-j04-voice-consent-negative",
@@ -504,6 +550,28 @@
       "evidenceLimit": "J-06 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j06-service-ambiguous-rights",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:intelligence:multimodal-service:test",
+      "selectors": [
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServiceTest.analyzeCrossModal_ambiguousSourceRightsReturnUnavailableWithoutChildEffect"
+      ],
+      "sources": [
+        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+        "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServiceTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "synthetic ambiguous-rights authority fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic modality request bytes and test authority only; no licensed audio/video or downstream result is bundled.",
+      "safety": "Inconclusive rights returns UNAVAILABLE before child/provider effect; the test does not claim a completed grounded response.",
+      "evidenceLimit": "J-06 service authorization boundary only; does not establish real STT/Vision/Document Intelligence output, grounding, durable finality, or journey completion."
+    },
+    {
       "id": "journey-outcome-j07",
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
@@ -545,6 +613,28 @@
       "assets": "Synthetic identities, request values, and test-owned fixture data only.",
       "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
       "evidenceLimit": "J-08 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+    },
+    {
+      "id": "journey-outcome-j08-timebase-bound",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:production:rendering:test",
+      "selectors": [
+        "com.ghatana.media.production.rendering.TemporalVideoRestorationTest.malformedAndUnboundedFramesAreRejected"
+      ],
+      "sources": [
+        ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
+        "modules/production/rendering/src/test/java/com/ghatana/media/production/rendering/TemporalVideoRestorationTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "synthetic frame/timebase values"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic metadata and frame bytes only; no customer video, decoder, or codec is bundled.",
+      "safety": "Rejects out-of-range timebase values before restoration; no output codec or provider effect is invoked.",
+      "evidenceLimit": "J-08 local timebase-bound slice only; no container decode/encode, independent quality reference, durable output, or journey completion is established."
     },
     {
       "id": "journey-outcome-j09",

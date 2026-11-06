@@ -116,4 +116,26 @@ class FirstUseProjectBoundaryIntegrationTest {
         assertThat(store.revision(CREATOR, projectId, committed.revisionId()).graph().scenes())
                 .containsExactly(new Scene("scene-j01-1", 0));
     }
+
+    @Test
+    void wrongTenantCannotEditProjectOrAdvanceItsRevisionHead() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-tenant-edit-id-" + ids.incrementAndGet());
+        var created = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-tenant-edit-request");
+        String projectId = created.project().projectId();
+        String initialRevisionId = created.initialRevision().revisionId();
+        Actor otherTenant = new Actor("tenant-j01-other", CREATOR.principalId());
+
+        assertThatThrownBy(() -> engine.edit(otherTenant, projectId, initialRevisionId,
+                List.of(new AddScene(new Scene("scene-j01-forbidden", 0)))))
+                .isInstanceOf(ProjectNotFoundException.class);
+
+        assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+        assertThatThrownBy(() -> store.revision(CREATOR, projectId, "j01-tenant-edit-id-4"))
+                .isInstanceOf(ProjectNotFoundException.class);
+        assertThat(ids).hasValue(3);
+    }
 }
