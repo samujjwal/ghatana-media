@@ -201,7 +201,9 @@ pub fn denoise_bounded(
             / channels as f64;
         let noise_rms = noise_power.sqrt();
         let threshold = noise_rms * options.threshold_multiple as f64;
-        let target_gain = if threshold <= f64::EPSILON || block_rms >= threshold {
+        // Amplitude is scale-dependent: a fixed machine epsilon would disable
+        // the gate for valid quiet recordings even when the profile is nonzero.
+        let target_gain = if threshold == 0.0 || block_rms >= threshold {
             1.0
         } else {
             let ratio = (block_rms / threshold).clamp(0.0, 1.0);
@@ -545,6 +547,27 @@ mod tests {
         assert!(comparison.metrics.snr_db_vs_reference.unwrap().is_finite());
         assert_eq!(comparison.metrics.source_near_clip_sample_count, 0);
         assert_eq!(comparison.metrics.clipped_sample_count, 0);
+    }
+
+    #[test]
+    fn noise_gate_keeps_attenuation_for_valid_sub_epsilon_audio_levels() {
+        let profile_source = mono(vec![1.0e-20; 8]);
+        let profile = NoiseProfile::estimate(&profile_source, 0, 8).unwrap();
+        let quiet_input = mono(vec![1.0e-21; 8]);
+
+        let repaired = denoise(
+            &quiet_input,
+            &profile,
+            DenoiseOptions {
+                threshold_multiple: 2.0,
+                floor_gain: 0.1,
+                block_frames: 8,
+            },
+        )
+        .unwrap();
+
+        assert!(repaired.samples.iter().all(|sample| sample.abs() < 1.0e-21));
+        assert_eq!(quiet_input.samples, vec![1.0e-21; 8]);
     }
 
     #[test]
