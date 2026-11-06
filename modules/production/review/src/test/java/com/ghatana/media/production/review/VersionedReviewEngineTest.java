@@ -130,6 +130,24 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void storeReadbackCannotPairACommentPayloadWithAnotherOperationIdentity() {
+        ReviewRecord mismatched = new ReviewRecord("record-mismatched", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-mismatched", "media.operation.action.record-version-review-decision", REVIEWER,
+                new Comment("comment payload", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        ReviewStore hostileStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(mismatched); }
+        };
+        VersionedReviewEngine engine = engine(hostileStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewUnavailableException.class);
+    }
+
+    @Test
     void reviewerRevocationDuringReadIsRecheckedBeforeReturningDisclosure() {
         AtomicInteger authorizationChecks = new AtomicInteger();
         ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,

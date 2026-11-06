@@ -129,6 +129,9 @@ public final class VersionedReviewEngine {
                 || !record.reviewSubjectRef().equals(reviewCase.reviewSubjectRef())) {
             throw new ReviewCaseMismatchException();
         }
+        if (!record.operationId().equals(record.payload().operationId())) {
+            throw new ReviewUnavailableException();
+        }
     }
 
     private AuthorizationDecision authorize(Actor actor, ReviewCaseRef reviewCase, String operation) {
