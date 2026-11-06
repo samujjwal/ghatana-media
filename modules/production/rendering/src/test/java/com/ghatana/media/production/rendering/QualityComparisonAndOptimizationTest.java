@@ -36,6 +36,62 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void j19LocalScenarioReportsBoundedReversibleComparisonAndFailsClosedOnUnknownAuthority() {
+        // These synthetic RGB8 samples exercise the local contract only. They are not
+        // decoded media, independently authored quality evidence, or production output.
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v2", "b", 25);
+        Revision reference = revision("reference", "v7", "c", 20);
+        Budget declaredBounds = new Budget(100, 300, 2);
+
+        Run first = run(source, List.of(candidate), reference, allowed("source-rights-v1"),
+                allowed("reference-rights-v1"), 1, declaredBounds);
+        Run replay = run(source, List.of(candidate), reference, allowed("source-rights-v1"),
+                allowed("reference-rights-v1"), 1, declaredBounds);
+
+        assertThat(first.status()).isEqualTo(RunStatus.COMPLETED);
+        Report report = first.report().orElseThrow();
+        assertThat(report.source()).isEqualTo(source.id());
+        assertThat(report.retainedRevisions()).containsExactly(source.id(), candidate.id());
+        assertThat(report.reference()).contains(reference.id());
+        assertThat(report.budget()).isEqualTo(declaredBounds);
+        assertThat(report.attemptsUsed()).isEqualTo(1);
+        assertThat(report.reportSha256()).isEqualTo(replay.report().orElseThrow().reportSha256());
+        CandidateComparison comparison = report.comparisons().getFirst();
+        assertThat(comparison.candidate()).isEqualTo(candidate.id());
+        assertThat(comparison.psnr().algorithm()).isEqualTo("RGB8_SAMPLE_PSNR_V1");
+        assertThat(comparison.psnr().value().orElseThrow()).isCloseTo(34.1514,
+                org.assertj.core.data.Offset.offset(0.001));
+        assertThat(comparison.ssim().algorithm()).isEqualTo("GLOBAL_SRGB_LUMA_SSIM_V1");
+        assertThat(comparison.ssim().value().orElseThrow()).isCloseTo(0.9758,
+                org.assertj.core.data.Offset.offset(0.001));
+        assertThat(comparison.disposition()).isEqualTo(QualityDisposition.IMPROVED);
+        assertThat(undo(first, source.id())).isEqualTo(source);
+
+        AtomicInteger candidateCalls = new AtomicInteger();
+        CandidatePort candidatePort = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return true; }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget bounds) {
+                candidateCalls.incrementAndGet();
+                return OptimizationAttempt.available(candidate);
+            }
+        };
+        Run denied = optimize(OPERATION, source,
+                (id, purpose) -> new AuthorityDecision(AuthorityStatus.DENIED, ""),
+                candidatePort, 1, declaredBounds, Optional.empty(), null, null);
+        Run authorityUnknown = optimize(OPERATION, source, null, candidatePort, 1,
+                declaredBounds, Optional.empty(), null, null);
+
+        assertThat(denied.status()).isEqualTo(RunStatus.NOT_ADMITTED);
+        assertThat(denied.reason()).contains(BlockReason.SOURCE_DENIED);
+        assertThat(denied.report()).isEmpty();
+        assertThat(authorityUnknown.status()).isEqualTo(RunStatus.UNAVAILABLE);
+        assertThat(authorityUnknown.reason()).contains(BlockReason.SOURCE_AUTHORITY_UNAVAILABLE);
+        assertThat(authorityUnknown.report()).isEmpty();
+        assertThat(candidateCalls).hasValue(0);
+    }
+
+    @Test
     void exactCandidateReferenceMatchBeatsFiniteSourcePsnr() {
         Revision source = revision("source", "v1", "a", 40);
         Revision exact = revision("candidate", "v1", "b", 20);
