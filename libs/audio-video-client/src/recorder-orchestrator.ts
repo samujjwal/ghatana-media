@@ -18,6 +18,7 @@ import {
   type CapturedFrame,
 } from "./capture-adapters.js";
 import {
+  MediaOperationAmbiguousError,
   type MediaOperationClient,
   type CanonicalMediaArtifactObservation,
   type CanonicalMediaClassification,
@@ -895,6 +896,7 @@ export async function publishFinalRender(
     return { outcome: "PUBLISHED", artifact, sha256 };
   } catch (error) {
     if (completionStarted) return { outcome: "OUTCOME_UNKNOWN", reason: "canonical completion acknowledgement is missing; read upload/artifact state before replay", uploadId };
+    if (error instanceof MediaOperationAmbiguousError) return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement is missing; read upload state before replay", uploadId };
     if (uploadId) return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "upload failed before canonical artifact completion; session is left for canonical recovery/expiry", uploadId };
     return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload creation outcome is unknown" };
   }

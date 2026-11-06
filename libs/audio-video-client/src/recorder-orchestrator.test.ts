@@ -14,7 +14,7 @@ import {
   publishFinalRender,
   type Scenario,
 } from "./recorder-orchestrator";
-import type { MediaOperationClient } from "./operations";
+import { MediaOperationAmbiguousError, type MediaOperationClient } from "./operations";
 import {
   CaptureNotAdmittedError,
   CaptureOutcomeUnknownError,
@@ -946,5 +946,24 @@ describe("publishFinalRender", () => {
       outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", uploadId: "upload-1",
     });
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("preserves UNKNOWN when a dispatched chunk has no canonical acknowledgement", async () => {
+    const client = fakeClient({
+      uploadPart: vi.fn(async () => {
+        throw new MediaOperationAmbiguousError(
+          "/api/v1/artifacts/uploads/upload-1/chunks/0",
+          new Error("connection closed after dispatch"),
+        );
+      }),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("chunk acknowledgement is missing"),
+    });
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
   });
 });
