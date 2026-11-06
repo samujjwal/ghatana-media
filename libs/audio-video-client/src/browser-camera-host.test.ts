@@ -7,14 +7,14 @@ const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device
   exactRightsScope: "rights/device-A/v1", sourceVersionRef: "device-A@rev-4", secretsRef: "secrets/session", frameClockRef: "clock/host" };
 
 function setup(state: PermissionState = "granted", options: { available?: boolean; frame?: (done: (blob: Blob) => void) => void; deviceId?: string;
-  maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number } = {}) {
+  maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean } = {}) {
   let permissionState = state;
   const listeners: Array<() => void> = [];
-  let opens = 0; let stops = 0; let reads = 0; let revoke!: () => void;
+  let opens = 0; let stops = 0; let reads = 0; let plays = 0; let creates = 0; let finishOpen!: () => void; let revoke!: () => void;
   const width = options.videoWidth ?? 2; const height = options.videoHeight ?? 2;
   const track = { readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }), stop: () => { stops++; } };
   const stream = { getVideoTracks: () => [track], getTracks: () => [track] };
-  const video = { muted: false, playsInline: false, videoWidth: width, videoHeight: height, srcObject: null as unknown, play: async () => undefined, pause: () => undefined };
+  const video = { muted: false, playsInline: false, videoWidth: width, videoHeight: height, srcObject: null as unknown, play: async () => { plays++; }, pause: () => undefined };
   let draws = 0;
   const context = { drawImage: () => { draws++; } };
   const canvas = { width: 0, height: 0, getContext: () => context, toBlob: (callback: (blob: Blob | null) => void) => {
@@ -26,11 +26,12 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
     mediaDevices: { getUserMedia: async (constraints: MediaStreamConstraints) => {
       opens++;
       expect(constraints.video).toEqual({ deviceId: { exact: "device-A" } });
+      if (options.pendingOpen) await new Promise<void>((resolve) => { finishOpen = resolve; });
       return stream;
     } },
     permissions: { query: async () => ({ get state() { return permissionState; }, addEventListener: (_: string, listener: () => void) => listeners.push(listener),
       removeEventListener: (_: string, listener: () => void) => { const i = listeners.indexOf(listener); if (i >= 0) listeners.splice(i, 1); } }) },
-    document: { createElement: (tag: string) => tag === "video" ? video : canvas },
+    document: { createElement: (tag: string) => { creates++; return tag === "video" ? video : canvas; } },
   };
   const port = createBrowserCameraMediaDevicePort({ sourceVersionRef: (id) => id === "device-A" ? "device-A@rev-4" : undefined,
     maxFrameBytes: options.maxFrameBytes, maxPixels: options.maxPixels, browser: browser as never, frameTimeoutMillis: 100 });
@@ -46,7 +47,7 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   const clock: CameraFrameClockPort = { nowEpochMillis: () => now, beginEpoch: () => `epoch-${++epoch}`, readPtsNanos: () => BigInt(epoch) };
   const adapter = new CameraCaptureAdapter({ mediaDevices: port, consent, frameClock: clock, maxFrameBytes: 64, maxFrames: 4 });
   revoke = () => { permissionState = "denied"; listeners.forEach((listener) => listener()); };
-  return { adapter, counts: () => ({ opens, stops, reads, draws }), revoke };
+  return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke, resolveOpen: () => finishOpen() };
 }
 
 async function expectCode(promise: Promise<unknown>, code: string) {
@@ -78,6 +79,18 @@ describe("concrete browser camera host", () => {
     const switched = setup("granted", { deviceId: "other-device" });
     await expectCode(switched.adapter.openSession(request), "DEVICE_UNAVAILABLE");
     expect(switched.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+  });
+
+  it("stops a stream that resolves after session cancellation without creating media elements or returning a frame", async () => {
+    const h = setup("granted", { pendingOpen: true });
+    const opening = h.adapter.openSession(request);
+    const rejected = expectCode(opening, "SESSION_CLOSED");
+    while (!h.counts().opens) await new Promise((resolve) => setTimeout(resolve, 0));
+    await h.adapter.close();
+    h.resolveOpen();
+    await rejected;
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+    expect(h.details()).toEqual({ plays: 0, creates: 0 });
   });
 
   it("does not return bytes produced after permission revocation and tears down capture", async () => {

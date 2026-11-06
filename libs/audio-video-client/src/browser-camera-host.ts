@@ -85,6 +85,13 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
       }
       if (signal.aborted) throw new DOMException("aborted", "AbortError");
       const stream = await media.getUserMedia({ audio: false, video: { deviceId: { exact: deviceId } } });
+      // getUserMedia cannot be cancelled reliably. If cancellation wins while
+      // the browser prompt/device startup is pending, release the late stream
+      // before touching DOM media elements or exposing the device.
+      if (signal.aborted) {
+        stream.getTracks().forEach((item) => item.stop());
+        throw new DOMException("aborted", "AbortError");
+      }
       const track = stream.getVideoTracks()[0];
       const settings = track?.getSettings();
       if (!track || settings?.deviceId !== deviceId || options.sourceVersionRef(deviceId) !== request.sourceVersionRef) {

@@ -744,6 +744,9 @@ export class CameraCaptureSession {
       this.startedAt = this.options.frameClock.nowEpochMillis();
     } catch (error) {
       await this.stopCurrentSource();
+      if (this.revoked) throw abortError();
+      if (this.switching) throw fail("DEVICE_SWITCHED", "camera device open was cancelled during device switch");
+      if (this.closed) throw fail("SESSION_CLOSED", "camera session was closed while opening the device");
       if (error instanceof CameraCaptureError) throw error;
       throw fail("DEVICE_UNAVAILABLE", switching
         ? "camera device switch could not open the newly authorized source"
