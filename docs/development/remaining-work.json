@@ -770,7 +770,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: SpatialInteractiveDeliveryScenarioTest PASS 1/1: pose readback retains exact project revision/source versions/frame version and remains POSE_ONLY; unknown source rights reject GLB export with typed UNKNOWN. Module-local boundary evidence only; no encoded package, viewer fidelity, delivery, or consumer receipt. Still OPEN."
+      "progress": "2026-11-05: TtsGrpcService now discards the buffered final audio chunk when session completion fails, preserving UNKNOWN and emitting neither onNext nor onCompleted. TtsGrpcServiceTest passes, including provider-connection loss after a final callback. No licensed voice/provider output, durable artifact/outbox integration, lost-ACK restart recovery, or 1/16/64-client evidence; still OPEN."
     },
     {
       "id": "media.dev.vision-model-and-geometry",
@@ -1136,7 +1136,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Clip now validates exact rational storyStart + storyDuration at construction and exposes storyEnd(); unrepresentable sums fail closed. MediaProjectTimelineContractsTest PASS 4/4 and ProjectTimelineEngineTest PASS 8/8. Added an isolated PostgreSQL ProjectTimelineStore development adapter with immutable graph snapshots, tenant/principal checks, create replay, head CAS, and closed-store rejection; PostgresqlProjectTimelineStoreTest PASS 6/6 for restart, replay after commit, wrong tenant/principal, stale CAS, one-winner concurrent CAS, and closed/invalid identity. Test-only V030 is not launcher-wired; serialized Graph is a provisional assumption because PDP-1 graph-field mapping remains unresolved. Still OPEN: canonical durable store/launcher binding is unavailable; production persistence remains typed NOT_ADMITTED and UI bindings must not become another source of truth."
+      "progress": "2026-11-05: Clip now validates exact rational storyStart + storyDuration at construction and exposes storyEnd(); unrepresentable sums fail closed. MediaProjectTimelineContractsTest PASS 4/4 and ProjectTimelineEngineTest PASS 8/8. Added an isolated PostgreSQL ProjectTimelineStore development adapter with immutable graph snapshots, tenant/principal checks, create replay, head CAS, and closed-store rejection; PostgresqlProjectTimelineStoreTest PASS 6/6 for restart, replay after commit, wrong tenant/principal, stale CAS, one-winner concurrent CAS, and closed/invalid identity. Test-only V030 is not launcher-wired; serialized Graph is a provisional assumption because PDP-1 graph-field mapping remains unresolved. Still OPEN: canonical durable store/launcher binding is unavailable; production persistence remains typed NOT_ADMITTED and UI bindings must not become another source of truth. Increment: ProjectTimelineEngineTest PASS 9/9, including one million exact 1001/30000-second frame increments compared with the direct rational sum and elapsed value. Timeline arithmetic evidence only; canonical durable store/launcher binding remains unavailable, PDP-1 graph-field mapping unresolved, and production persistence remains NOT_ADMITTED; still OPEN."
     },
     {
       "id": "media.dev.storyboard-and-shot-plan",
@@ -1537,7 +1537,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: GLB export rejects missing immutable source versions; readback covers fractional rational keyframe times, declared FLOAT32 timing loss, defensive byte ownership, digest consistency and exact source/revision/frame refs. SpatialRigEngineTest PASS 8/8, 0 failures/skips. Still OPEN: coordinate/profile registry join, complete field-level loss report, output registration/lineage, 360 orientation, GLB viewer parity, and admitted destination/runtime acknowledgment are absent."
+      "progress": "2026-11-05: GLB export rejects missing immutable source versions; readback covers fractional rational keyframe times, declared FLOAT32 timing loss, defensive byte ownership, digest consistency and exact source/revision/frame refs. SpatialRigEngineTest PASS 8/8, 0 failures/skips. Still OPEN: coordinate/profile registry join, complete field-level loss report, output registration/lineage, 360 orientation, GLB viewer parity, and admitted destination/runtime acknowledgment are absent. Increment: SpatialRigEngine emits deterministic float32LossFields metadata for animation.inputTimeSeconds, animation.outputTranslation, and animation.outputRotation when tracks exist, and an empty list otherwise. SpatialRigEngineTest PASS 8/8. This reports those encoded float32 loss fields only; profile registry joins, complete field-level loss accounting, output lineage, 360 orientation, viewer parity, and admitted destination acknowledgment remain open."
     },
     {
       "id": "media.dev.interactive-demo-player",
