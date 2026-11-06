@@ -258,7 +258,7 @@ class Ip06LegacyMigrationCompatibilityTest {
         assertSnapshotBaselineRows(schema);
 
         // The snapshot carries a manifest-backed history projection, not Flyway's runtime
-        // history table. Baseline at V016, then exercise the real checked-in V017-V029 chain.
+        // history table. Baseline at V016, then exercise checked-in V017-V029 and additive V031-V033.
         var forward = Flyway.configure()
                 .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations(CURRENT_LOCATION)
@@ -268,7 +268,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 .baselineVersion("16")
                 .validateMigrationNaming(true)
                 .load();
-        assertThat(forward.migrate().migrationsExecuted).isEqualTo(13);
+        assertThat(forward.migrate().migrationsExecuted).isEqualTo(16);
         assertSnapshotBaselineRows(schema);
         assertForwardSnapshotSchema(schema);
         assertThat(forward.migrate().migrationsExecuted).isZero();
@@ -348,15 +348,16 @@ class Ip06LegacyMigrationCompatibilityTest {
              ResultSet rows = statement.executeQuery(
                      "SELECT version::integer, success FROM " + schema
                              + ".flyway_schema_history WHERE version IS NOT NULL ORDER BY version::integer")) {
-            int expectedVersion = 16;
+            int[] expectedVersions = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33};
             int count = 0;
             while (rows.next()) {
-                assertThat(rows.getInt("version")).isEqualTo(expectedVersion++);
+                assertThat(count).isLessThan(expectedVersions.length);
+                assertThat(rows.getInt("version")).isEqualTo(expectedVersions[count]);
                 assertThat(rows.getBoolean("success")).isTrue();
                 count++;
             }
-            // Flyway records a baseline at V016, followed by every real V017-V029 migration.
-            assertThat(count).isEqualTo(14);
+            // Flyway records a baseline at V016, V017-V029, then additive V031-V033.
+            assertThat(count).isEqualTo(expectedVersions.length);
         }
     }
 
@@ -370,6 +371,9 @@ class Ip06LegacyMigrationCompatibilityTest {
             assertThat(hasTable(connection, schema, "media_transcript_attempt_bindings")).isTrue();
             assertThat(hasTable(connection, schema, "media_source_rights_decisions")).isTrue();
             assertThat(hasTable(connection, schema, "media_caption_registrations")).isTrue();
+            assertThat(hasTable(connection, schema, "media_review_cases")).isTrue();
+            assertThat(hasTable(connection, schema, "media_review_records")).isTrue();
+            assertThat(hasTable(connection, schema, "media_review_idempotency")).isTrue();
             // Pre-existing revisions remain explicitly unresolved for fields introduced later.
             assertThat(stringValue(connection, "SELECT processing_purpose FROM " + schema
                     + ".media_transcript_revisions WHERE transcript_id='ip06-transcript'"))

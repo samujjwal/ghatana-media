@@ -28,7 +28,7 @@ import java.util.TreeMap;
 
 /**
  * Read-only candidate analysis of a supplied Flyway CSV export. Expected V001-V016 values
- * come from the source-pinned legacy manifest; V017-V029 and V031-V032 are resolved by Flyway from the
+ * come from the source-pinned legacy manifest; V017-V029 and V031-V033 are resolved by Flyway from the
  * checked-in canonical Media migration resources. V030 remains a separately scoped test migration.
  * The in-memory H2 connection is used only
  * by Flyway's info resolver and is never migrated or persisted.
@@ -157,7 +157,7 @@ public final class Ip06FlywayHistoryCandidateReconciler {
         }
         for (Integer version : byVersion.keySet()) {
             if (!expected.containsKey(version)) {
-                findings.add("UNEXPECTED_VERSION: V%03d outside expected V001-V029/V031-V032 chain".formatted(version));
+                findings.add("UNEXPECTED_VERSION: V%03d outside expected V001-V029/V031-V033 chain".formatted(version));
             }
         }
         if (supplied.isEmpty()) {
@@ -214,7 +214,7 @@ public final class Ip06FlywayHistoryCandidateReconciler {
     static Map<Integer, Expected> expectedMigrations() {
         Map<Integer, Expected> result = readLegacyManifest();
         currentMediaMigrations().forEach((version, migration) -> {
-            if ((version >= 17 && version <= 29) || version == 31 || version == 32) result.put(version, migration);
+            if ((version >= 17 && version <= 29) || (version >= 31 && version <= 33)) result.put(version, migration);
         });
         return result;
     }
@@ -317,7 +317,7 @@ public final class Ip06FlywayHistoryCandidateReconciler {
             MigrationVersion flywayVersion = migration.getVersion();
             if (flywayVersion == null) continue;
             int version = Integer.parseInt(flywayVersion.getVersion());
-            if (version > 29 && version != 31 && version != 32) continue;
+            if (version > 29 && (version < 31 || version > 33)) continue;
             String script = migration.getScript();
             result.put(version, new Expected(version, migration.getDescription(), String.valueOf(migration.getType()),
                     script, String.valueOf(migration.getChecksum()), "MEDIA_CURRENT_SOURCE",
