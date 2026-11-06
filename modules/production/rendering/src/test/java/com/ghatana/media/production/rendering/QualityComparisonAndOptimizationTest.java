@@ -3,6 +3,8 @@ package com.ghatana.media.production.rendering;
 import org.junit.jupiter.api.Test;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -171,6 +173,31 @@ class QualityComparisonAndOptimizationTest {
 
         assertThatThrownBy(() -> new Revision(referenceId("source", "v1", "a"), TB, oversized))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frame count");
+    }
+
+    @Test
+    void underreportedFrameListIsRejectedBeforeTraversingPastTheFrameCap() {
+        RgbFrame repeated = new RgbFrame(0, 1, 1, 0, new byte[] {1, 2, 3});
+        List<RgbFrame> actualFrames = new ArrayList<>(java.util.Collections.nCopies(MAX_FRAMES + 1, repeated));
+        AtomicInteger consumed = new AtomicInteger();
+        List<RgbFrame> underreported = new AbstractList<>() {
+            @Override public RgbFrame get(int index) { return actualFrames.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<RgbFrame> iterator() {
+                Iterator<RgbFrame> delegate = actualFrames.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public RgbFrame next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new Revision(referenceId("source", "v1", "a"), TB, underreported))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frame count");
+        assertThat(consumed).hasValue(MAX_FRAMES);
     }
 
     @Test

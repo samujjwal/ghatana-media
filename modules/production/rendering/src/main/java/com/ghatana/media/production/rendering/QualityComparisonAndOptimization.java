@@ -95,7 +95,8 @@ public final class QualityComparisonAndOptimization {
             // force an unbounded defensive allocation before the revision is rejected.
             int frameCount = frames.size();
             if (frameCount < 1 || frameCount > MAX_FRAMES) throw invalid("revision frame count is outside bounds");
-            frames = List.copyOf(frames);
+            frames = copyFramesBounded(frames);
+            if (frames.isEmpty()) throw invalid("revision frame count is outside bounds");
             RgbFrame first = Objects.requireNonNull(frames.getFirst(), "frames[0]");
             long pixels = 0;
             long bytes = 0;
@@ -513,6 +514,17 @@ public final class QualityComparisonAndOptimization {
         if (!result.matches(SHA256)) throw invalid(field + " must be lowercase SHA-256 hex");
         return result;
     }
+
+    private static List<RgbFrame> copyFramesBounded(List<RgbFrame> frames) {
+        ArrayList<RgbFrame> copy = new ArrayList<>();
+        java.util.Iterator<RgbFrame> iterator = frames.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= MAX_FRAMES) throw invalid("revision frame count is outside bounds");
+            copy.add(Objects.requireNonNull(iterator.next(), "frames[]"));
+        }
+        return List.copyOf(copy);
+    }
+
     private static String sha256(byte[] value) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value)); }
         catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
