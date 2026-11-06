@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobAttempt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobAttemptStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
@@ -76,7 +78,8 @@ class PostgresqlMediaProcessingAttemptReadTest {
             String tenant = "tenant-" + suffix;
             String jobId = "job-" + suffix;
             ProcessingJob accepted = new ProcessingJob(jobId, "request-" + suffix, tenant, "principal-a",
-                    "artifact-a", JobType.TRANSCODE, "provider-a", JobStatus.ACCEPTED, Instant.now(),
+                    "artifact-a", JobType.TRANSCODE, "provider-a", JobStatus.ACCEPTED,
+                    Instant.ofEpochMilli(System.currentTimeMillis()),
                     null, null, Map.of(), "", 1, "", FINGERPRINT);
             initial.create(accepted);
             var lease = initial.claim(accepted, "worker-a", Instant.now().plusSeconds(60));
@@ -97,6 +100,23 @@ class PostgresqlMediaProcessingAttemptReadTest {
                     "", FINGERPRINT);
             MediaLifecycleEvent completedEvent = event(completed, "MEDIA_JOB_COMPLETED");
             initial.commitFinalOutcome(started.running(), withReceipt, completed, observation, completedEvent);
+            try (Connection connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 PreparedStatement insert = connection.prepareStatement(
+                         "INSERT INTO media_processing_job_attempts "
+                                 + "(tenant_id,job_id,attempt_number,provider_id,request_id,fencing_token,status,"
+                                 + "created_at,completed_at,outcome_code) VALUES (?,?,?,?,?,?,'FAILED',?,?,?)")) {
+                insert.setString(1, tenant);
+                insert.setString(2, jobId);
+                insert.setInt(3, 1);
+                insert.setString(4, "provider-a");
+                insert.setString(5, accepted.requestId());
+                insert.setLong(6, lease.fencingToken());
+                insert.setLong(7, observedAt.toEpochMilli());
+                insert.setLong(8, observedAt.toEpochMilli());
+                insert.setString(9, "STALE_LEGACY_ATTEMPT");
+                insert.executeUpdate();
+            }
             ProcessingJob canonicalReadback = initial.find(tenant, jobId).orElseThrow();
             assertThat(canonicalReadback.status()).isEqualTo(JobStatus.COMPLETED);
             assertThat(canonicalReadback.version()).isEqualTo(completed.version());
@@ -144,11 +164,17 @@ class PostgresqlMediaProcessingAttemptReadTest {
                 assertThat(attempt.resultDigest()).isEqualTo(sha256("{\"label\":\"cat\"}"));
                 assertThat(attempt.provenanceDigest()).isEqualTo(PROVENANCE);
                 assertThat(attempt.observedAt()).isEqualTo(observedAt);
+                var latest = restarted.latestAttempt(tenant, jobId).orElseThrow();
+                assertThat(latest.status()).isEqualTo(
+                        JobAttemptStatus.COMPLETED);
+                assertThat(latest.fencingToken()).isEqualTo(lease.fencingToken());
+                assertThat(latest.outcomeCode()).isEmpty();
 
                 assertThat(restarted.findProcessingAttempt("wrong-" + tenant, jobId, 1)).isEmpty();
                 assertThat(restarted.findProcessingAttempt(tenant, "wrong-" + jobId, 1)).isEmpty();
                 assertThat(restarted.findProcessingAttempt(tenant, jobId, 2)).isEmpty();
                 assertThat(restarted.findProcessingAttempt(tenant, "absent-job", 1)).isEmpty();
+                assertThat(restarted.latestAttempt("wrong-" + tenant, jobId)).isEmpty();
             }
         }
     }
@@ -172,6 +198,8 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(dispatchRead.resultDigest()).isBlank();
             assertThat(dispatchRead.provenanceDigest()).isBlank();
             assertThat(dispatchRead.observedAt()).isNull();
+            assertThat(store.latestAttempt(dispatch.tenantId(), dispatch.running().jobId()).orElseThrow().status())
+                    .isEqualTo(JobAttemptStatus.DISPATCH_INTENT);
 
             var unknown = startAttempt(store, "tenant-" + suffix, "unknown-" + suffix);
             ProcessingJob unknownJob = terminal(unknown.running(), JobStatus.OUTCOME_UNKNOWN, Map.of());
@@ -186,6 +214,8 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(unknownRead.resultDigest()).isBlank();
             assertThat(unknownRead.provenanceDigest()).isBlank();
             assertThat(unknownRead.observedAt()).isNotNull();
+            assertThat(store.latestAttempt(unknown.tenantId(), unknown.running().jobId()).orElseThrow().status())
+                    .isEqualTo(JobAttemptStatus.OUTCOME_UNKNOWN);
 
             var failed = startAttempt(store, "tenant-" + suffix, "failed-" + suffix);
             var failedWithReceipt = store.recordProviderReceipt(
@@ -206,6 +236,8 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(failedRead.resultDigest()).isBlank();
             assertThat(failedRead.provenanceDigest()).isEqualTo(PROVENANCE);
             assertThat(failedRead.observedAt()).isEqualTo(failedObservedAt);
+            assertThat(store.latestAttempt(failed.tenantId(), failed.running().jobId()).orElseThrow().status())
+                    .isEqualTo(JobAttemptStatus.FAILED);
 
             var noEffect = startAttempt(store, "tenant-" + suffix, "no-effect-" + suffix);
             ProcessingJob refused = terminal(noEffect.running(), JobStatus.FAILED, Map.of(),
@@ -220,6 +252,8 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(noEffectRead.providerReceiptId()).isBlank();
             assertThat(noEffectRead.resultDigest()).isBlank();
             assertThat(noEffectRead.provenanceDigest()).isBlank();
+            assertThat(store.latestAttempt(noEffect.tenantId(), noEffect.running().jobId()).orElseThrow().status())
+                    .isEqualTo(JobAttemptStatus.FAILED);
             assertThat(noEffectRead.observedAt()).isNotNull();
             String noEffectObservation = persistedObservation(noEffect.tenantId(), noEffect.running().jobId(), 1);
             assertThat(noEffectObservation)
@@ -231,6 +265,51 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(store.findProcessingAttempt("wrong-tenant", dispatch.running().jobId(), 1)).isEmpty();
             assertThat(store.findProcessingAttempt(dispatch.tenantId(), "wrong-job", 1)).isEmpty();
             assertThat(store.findProcessingAttempt(dispatch.tenantId(), dispatch.running().jobId(), 2)).isEmpty();
+        }
+    }
+
+    @Test
+    void legacyJobAttemptWriterApiFailsClosedWithoutChangingCanonicalJob() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-legacy-attempt-disabled-" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        Map<String, String> environment = integrationEnvironment(bucket);
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            String tenant = "tenant-" + suffix;
+            String jobId = "job-" + suffix;
+            ProcessingJob accepted = new ProcessingJob(jobId, "request-" + suffix, tenant, "principal-a",
+                    "artifact-a", JobType.TRANSCODE, "provider-a", JobStatus.ACCEPTED,
+                    Instant.ofEpochMilli(System.currentTimeMillis()),
+                    null, null, Map.of(), "", 1, "", FINGERPRINT);
+            store.create(accepted);
+            JobAttempt legacy = new JobAttempt(tenant, jobId, 1, "provider-a", accepted.requestId(),
+                    1L, JobAttemptStatus.DISPATCH_INTENT, Instant.now(), null, "");
+
+            assertThatThrownBy(() -> store.startAttempt(accepted, "legacy-worker",
+                    Instant.now().plusSeconds(60), "provider-a"))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessageContaining("canonical ProcessingAttempt");
+            assertThatThrownBy(() -> store.beginAttempt(legacy))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessageContaining("canonical ProcessingAttempt");
+            assertThatThrownBy(() -> store.finishAttempt(legacy, JobAttemptStatus.COMPLETED,
+                    Instant.now(), "LEGACY_FINALITY"))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessageContaining("canonical ProcessingAttempt");
+
+            assertThat(store.find(tenant, jobId).orElseThrow()).isEqualTo(accepted);
+            assertThat(count("SELECT COUNT(*) FROM media_processing_job_attempts WHERE tenant_id=? AND job_id=?",
+                    tenant, jobId)).isZero();
+            assertThat(count("SELECT COUNT(*) FROM media_processing_attempts WHERE tenant_id=? AND job_id=?",
+                    tenant, jobId)).isZero();
+            assertThat(count("SELECT COUNT(*) FROM media_job_dispatch_intents WHERE tenant_id=? AND job_id=?",
+                    tenant, jobId)).isZero();
+            assertThat(count("SELECT COUNT(*) FROM media_processing_lifecycle_outbox "
+                            + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_DISPATCH_INTENT'",
+                    tenant, jobId)).isZero();
         }
     }
 

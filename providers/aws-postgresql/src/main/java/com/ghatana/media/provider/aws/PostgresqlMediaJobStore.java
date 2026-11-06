@@ -598,79 +598,10 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     }
 
     @Override
+    @Deprecated(forRemoval = false)
     public StartedJobAttempt startAttempt(ProcessingJob expected, String ownerId, Instant expiresAt, String providerId) {
-        ensureOpen();
-        if (ownerId == null || ownerId.isBlank()) throw new IllegalArgumentException("ownerId is required");
-        if (providerId == null || providerId.isBlank()) throw new IllegalArgumentException("providerId is required");
-        if (expiresAt == null || !expiresAt.isAfter(Instant.now())) throw new IllegalArgumentException("lease expiry must be in the future");
-        ProcessingJob running = new ProcessingJob(expected.jobId(), expected.requestId(), expected.tenantId(),
-                expected.principalId(), expected.artifactId(), expected.jobType(), providerId, JobStatus.RUNNING,
-                expected.createdAt(), Instant.now(), null, Map.of(), "", expected.version() + 1,
-                expected.expectedArtifactVersion(), expected.requestFingerprint());
-        try (Connection connection = state.connection()) {
-            connection.setAutoCommit(false);
-            try {
-                long token;
-                try (PreparedStatement select = connection.prepareStatement(
-                        "SELECT status,version,lease_owner,lease_token,lease_expires_at FROM media_processing_jobs "
-                                + "WHERE tenant_id=? AND job_id=? FOR UPDATE")) {
-                    select.setString(1, expected.tenantId());
-                    select.setString(2, expected.jobId());
-                    try (ResultSet result = select.executeQuery()) {
-                        if (!result.next() || result.getLong("version") != expected.version()
-                                || !JobStatus.ACCEPTED.name().equals(result.getString("status"))) {
-                            throw new IllegalStateException("Media job cannot start from stale state");
-                        }
-                        Long priorExpiry = result.getObject("lease_expires_at") == null
-                                ? null : result.getLong("lease_expires_at");
-                        String priorOwner = result.getString("lease_owner");
-                        if (priorExpiry != null && priorExpiry > System.currentTimeMillis()
-                                && priorOwner != null && !ownerId.equals(priorOwner)) {
-                            throw new IllegalStateException("Media job is leased by another worker");
-                        }
-                        token = Math.addExact(result.getLong("lease_token"), 1L);
-                    }
-                }
-                try (PreparedStatement update = connection.prepareStatement(
-                        "UPDATE media_processing_jobs SET provider_id=?,status='RUNNING',started_at=?,version=?,"
-                                + "lease_owner=?,lease_token=?,lease_expires_at=? WHERE tenant_id=? AND job_id=? "
-                                + "AND version=? AND status='ACCEPTED' AND COALESCE(expected_artifact_version,'')=?")) {
-                    update.setString(1, providerId);
-                    update.setLong(2, running.startedAt().toEpochMilli());
-                    update.setLong(3, running.version());
-                    update.setString(4, ownerId);
-                    update.setLong(5, token);
-                    update.setLong(6, expiresAt.toEpochMilli());
-                    update.setString(7, expected.tenantId());
-                    update.setString(8, expected.jobId());
-                    update.setLong(9, expected.version());
-                    update.setString(10, expected.expectedArtifactVersion());
-                    if (update.executeUpdate() != 1) throw new IllegalStateException("Media job changed while starting provider attempt");
-                }
-                int attemptNumber;
-                try (PreparedStatement next = connection.prepareStatement(
-                        "SELECT COALESCE(MAX(attempt_number),0)+1 FROM media_processing_job_attempts WHERE tenant_id=? AND job_id=?")) {
-                    next.setString(1, expected.tenantId());
-                    next.setString(2, expected.jobId());
-                    try (ResultSet row = next.executeQuery()) {
-                        row.next();
-                        attemptNumber = row.getInt(1);
-                    }
-                }
-                JobLease lease = new JobLease(expected.tenantId(), expected.jobId(), ownerId, token, expiresAt);
-                JobAttempt attempt = new JobAttempt(expected.tenantId(), expected.jobId(), attemptNumber, providerId,
-                        expected.requestId(), token, JobAttemptStatus.DISPATCH_INTENT, running.startedAt(), null, "");
-                insertAttemptAndIntent(connection, attempt);
-                connection.commit();
-                return new StartedJobAttempt(running, lease, attempt);
-            } catch (RuntimeException | SQLException failure) {
-                rollback(connection, failure);
-                if (failure instanceof RuntimeException runtime) throw runtime;
-                throw databaseFailure("atomically start Media provider attempt", (SQLException) failure);
-            }
-        } catch (SQLException failure) {
-            throw databaseFailure("open Media provider start transaction", failure);
-        }
+        throw new UnsupportedOperationException(
+                "Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API");
     }
 
     @Override
@@ -1064,88 +995,17 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     }
 
     @Override
+    @Deprecated(forRemoval = false)
     public JobAttempt beginAttempt(JobAttempt attempt) {
-        ensureOpen();
-        java.util.Objects.requireNonNull(attempt, "attempt");
-        try (Connection connection = state.connection()) {
-            connection.setAutoCommit(false);
-            try {
-                insertAttemptAndIntent(connection, attempt);
-                connection.commit();
-                return attempt;
-            } catch (RuntimeException | SQLException failure) {
-                rollback(connection, failure);
-                if (failure instanceof RuntimeException runtime) throw runtime;
-                throw databaseFailure("persist Media provider dispatch intent", (SQLException) failure);
-            }
-        } catch (SQLException failure) {
-            throw databaseFailure("open Media provider dispatch transaction", failure);
-        }
-    }
-
-    private void insertAttemptAndIntent(Connection connection, JobAttempt attempt) throws SQLException {
-        try (PreparedStatement lease = connection.prepareStatement(
-                "SELECT 1 FROM media_processing_jobs WHERE tenant_id=? AND job_id=? AND request_id=? "
-                        + "AND status='RUNNING' AND lease_token=? AND lease_owner IS NOT NULL "
-                        + "AND lease_expires_at>? FOR UPDATE")) {
-            lease.setString(1, attempt.tenantId());
-            lease.setString(2, attempt.jobId());
-            lease.setString(3, attempt.requestId());
-            lease.setLong(4, attempt.fencingToken());
-            lease.setLong(5, System.currentTimeMillis());
-            try (ResultSet result = lease.executeQuery()) {
-                if (!result.next()) throw new IllegalStateException("Media attempt lost its worker fencing lease");
-            }
-        }
-        try (PreparedStatement insert = connection.prepareStatement(
-                "INSERT INTO media_processing_job_attempts (tenant_id,job_id,attempt_number,provider_id,request_id,"
-                        + "fencing_token,status,created_at,completed_at,outcome_code) VALUES (?,?,?,?,?,?,?,?,?,?)")) {
-            bindAttempt(insert, attempt);
-            insert.executeUpdate();
-        }
-        try (PreparedStatement intent = connection.prepareStatement(
-                "INSERT INTO media_job_dispatch_intents (tenant_id,job_id,attempt_number,provider_id,request_id,fencing_token,created_at) "
-                        + "VALUES (?,?,?,?,?,?,?)")) {
-            intent.setString(1, attempt.tenantId());
-            intent.setString(2, attempt.jobId());
-            intent.setInt(3, attempt.attemptNumber());
-            intent.setString(4, attempt.providerId());
-            intent.setString(5, attempt.requestId());
-            intent.setLong(6, attempt.fencingToken());
-            intent.setLong(7, attempt.createdAt().toEpochMilli());
-            intent.executeUpdate();
-        }
-        PostgresqlMediaOutboxPublicationSource.append(connection,
-                new PostgresqlMediaOutboxPublicationSource.MediaLifecycleEventRow(
-                        stableEventId("media.job.dispatch", attempt.tenantId(), attempt.jobId() + ":" + attempt.attemptNumber()),
-                        attempt.tenantId(), attempt.tenantId(), "MEDIA_JOB_DISPATCH_INTENT",
-                        Map.of("jobId", attempt.jobId(), "attemptNumber", attempt.attemptNumber(),
-                                "providerId", attempt.providerId(), "requestId", attempt.requestId(),
-                                "fencingToken", attempt.fencingToken()),
-                        attempt.createdAt(), attempt.requestId()), state);
+        throw new UnsupportedOperationException(
+                "Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API");
     }
 
     @Override
+    @Deprecated(forRemoval = false)
     public void finishAttempt(JobAttempt attempt, JobAttemptStatus status, Instant completedAt, String outcomeCode) {
-        ensureOpen();
-        if (status == JobAttemptStatus.DISPATCH_INTENT || status == JobAttemptStatus.RUNNING) {
-            throw new IllegalArgumentException("attempt completion requires a terminal provider outcome");
-        }
-        try (Connection connection = state.connection(); PreparedStatement update = connection.prepareStatement(
-                "UPDATE media_processing_job_attempts SET status=?,completed_at=?,outcome_code=? "
-                        + "WHERE tenant_id=? AND job_id=? AND attempt_number=? AND fencing_token=? "
-                        + "AND status IN ('DISPATCH_INTENT','RUNNING')")) {
-            update.setString(1, status.name());
-            update.setLong(2, (completedAt == null ? Instant.now() : completedAt).toEpochMilli());
-            update.setString(3, outcomeCode == null ? "" : outcomeCode);
-            update.setString(4, attempt.tenantId());
-            update.setString(5, attempt.jobId());
-            update.setInt(6, attempt.attemptNumber());
-            update.setLong(7, attempt.fencingToken());
-            if (update.executeUpdate() != 1) throw new IllegalStateException("Media attempt is stale or already final");
-        } catch (SQLException failure) {
-            throw databaseFailure("finish Media provider attempt", failure);
-        }
+        throw new UnsupportedOperationException(
+                "Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API");
     }
 
     @Override
@@ -1502,19 +1362,28 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     public Optional<JobAttempt> latestAttempt(String tenantId, String jobId) {
         ensureOpen();
         try (Connection connection = state.connection(); PreparedStatement statement = connection.prepareStatement(
-                "SELECT attempt_number,provider_id,request_id,fencing_token,status,created_at,completed_at,outcome_code "
-                        + "FROM media_processing_job_attempts WHERE tenant_id=? AND job_id=? "
+                "SELECT attempt_number,provider_id,request_id,fencing_token,state,created_at,observed_at "
+                        + "FROM media_processing_attempts WHERE tenant_id=? AND job_id=? "
                         + "ORDER BY attempt_number DESC LIMIT 1")) {
             statement.setString(1, tenantId);
             statement.setString(2, jobId);
             try (ResultSet result = statement.executeQuery()) {
                 if (!result.next()) return Optional.empty();
-                Long completed = result.getObject("completed_at") == null ? null : result.getLong("completed_at");
+                String stateName = result.getString("state");
+                JobAttemptStatus status = switch (stateName) {
+                    case "DISPATCH_INTENDED" -> JobAttemptStatus.DISPATCH_INTENT;
+                    case "OUTCOME_UNKNOWN" -> JobAttemptStatus.OUTCOME_UNKNOWN;
+                    case "SUCCEEDED" -> JobAttemptStatus.COMPLETED;
+                    case "FAILED", "NO_EFFECT_PROVEN" -> JobAttemptStatus.FAILED;
+                    default -> throw new IllegalStateException(
+                            "Stored Media attempt has an unknown reconciliation state");
+                };
+                Long observed = result.getObject("observed_at") == null ? null : result.getLong("observed_at");
                 return Optional.of(new JobAttempt(tenantId, jobId, result.getInt("attempt_number"),
                         result.getString("provider_id"), result.getString("request_id"),
-                        result.getLong("fencing_token"), JobAttemptStatus.valueOf(result.getString("status")),
+                        result.getLong("fencing_token"), status,
                         Instant.ofEpochMilli(result.getLong("created_at")),
-                        completed == null ? null : Instant.ofEpochMilli(completed), result.getString("outcome_code")));
+                        observed == null ? null : Instant.ofEpochMilli(observed), ""));
             }
         } catch (SQLException failure) {
             throw databaseFailure("read exact Media provider attempt", failure);
@@ -1701,19 +1570,6 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         statement.setString(13, job.failureCode());
         statement.setLong(14, job.version());
         statement.setString(15, job.expectedArtifactVersion());
-    }
-
-    private static void bindAttempt(PreparedStatement statement, JobAttempt attempt) throws SQLException {
-        statement.setString(1, attempt.tenantId());
-        statement.setString(2, attempt.jobId());
-        statement.setInt(3, attempt.attemptNumber());
-        statement.setString(4, attempt.providerId());
-        statement.setString(5, attempt.requestId());
-        statement.setLong(6, attempt.fencingToken());
-        statement.setString(7, attempt.status().name());
-        statement.setLong(8, attempt.createdAt().toEpochMilli());
-        nullableLong(statement, 9, attempt.completedAt());
-        statement.setString(10, attempt.outcomeCode());
     }
 
     private static java.util.UUID stableEventId(String kind, String tenantId, String identity) {

@@ -2085,28 +2085,31 @@ public final class MediaRuntimeContracts {
         default long countOverdueLeases(Instant now) {
             throw new UnsupportedOperationException("Overdue lease counts are not supported");
         }
-        /** Atomically claims an accepted job and persists RUNNING, its first attempt, and dispatch intent. */
+        /**
+         * Compatibility signature for the pre-canonical JobAttempt model.
+         *
+         * @deprecated Use the fenced {@link #startAttempt(ProcessingJob, ProcessingJob, JobLease, int, String)}
+         *             API, which persists the canonical ProcessingAttempt and job transition atomically.
+         */
+        @Deprecated(forRemoval = false)
         default StartedJobAttempt startAttempt(
                 ProcessingJob expected, String ownerId, Instant expiresAt, String providerId) {
-            JobLease lease = claim(expected, ownerId, expiresAt);
-            Instant now = Instant.now();
-            ProcessingJob running = new ProcessingJob(expected.jobId(), expected.requestId(), expected.tenantId(),
-                    expected.principalId(), expected.artifactId(), expected.jobType(), providerId,
-                    JobStatus.RUNNING, expected.createdAt(), now, null, Map.of(), "",
-                    expected.version() + 1, expected.expectedArtifactVersion(), expected.requestFingerprint());
-            update(expected, running);
-            int attemptNumber = latestAttempt(expected.tenantId(), expected.jobId())
-                    .map(previous -> previous.attemptNumber() + 1).orElse(1);
-            JobAttempt attempt = new JobAttempt(expected.tenantId(), expected.jobId(), attemptNumber,
-                    providerId, expected.requestId(), lease.fencingToken(), JobAttemptStatus.DISPATCH_INTENT,
-                    now, null, "");
-            beginAttempt(attempt);
-            return new StartedJobAttempt(running, lease, attempt);
+            throw new UnsupportedOperationException(
+                    "Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API");
         }
-        /** Persists the provider dispatch intent before any provider call is made. */
-        default JobAttempt beginAttempt(JobAttempt attempt) { return attempt; }
-        /** Records provider finality under the same attempt identity and fencing token. */
-        default void finishAttempt(JobAttempt attempt, JobAttemptStatus status, Instant completedAt, String outcomeCode) { }
+        /** @deprecated Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API. */
+        @Deprecated(forRemoval = false)
+        default JobAttempt beginAttempt(JobAttempt attempt) {
+            throw new UnsupportedOperationException(
+                    "Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API");
+        }
+        /** @deprecated Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API. */
+        @Deprecated(forRemoval = false)
+        default void finishAttempt(
+                JobAttempt attempt, JobAttemptStatus status, Instant completedAt, String outcomeCode) {
+            throw new UnsupportedOperationException(
+                    "Legacy JobAttempt writes are disabled; use the canonical ProcessingAttempt API");
+        }
         default Optional<JobAttempt> latestAttempt(String tenantId, String jobId) { return Optional.empty(); }
         boolean durable();
         boolean productionEligible();
