@@ -105,6 +105,9 @@ export type {
   CameraCaptureAdapterOptions,
   CameraCaptureErrorCode,
   CameraCapturedFrame,
+  CameraAudioSampleObservation,
+  CameraFrameRead,
+  CameraTrackSourceMetadata,
   CameraConsentPort,
   CameraFrameClockPort,
   CameraMediaDevicePort,
@@ -113,6 +116,15 @@ export type {
   CameraTrack,
   CameraCaptureSessionLimits,
 } from './camera-capture-adapter.js';
+export type {
+  CameraAudioSampleTime,
+  CameraCaptureMetadata,
+  CameraClockMappingUncertainty,
+  CameraDiscontinuity,
+  CameraPositiveRational,
+  CameraSignal,
+  CameraSourcePresentationTime,
+} from './capture-adapters.js';
 
 /**
  * Configuration for service clients

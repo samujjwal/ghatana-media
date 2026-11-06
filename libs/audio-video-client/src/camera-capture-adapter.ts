@@ -7,10 +7,18 @@
  */
 import {
   MAX_CAPTURED_FRAME_BYTES,
+  type CameraAudioSampleTime,
+  type CameraPositiveRational,
+  type CameraCaptureMetadata,
+  type CameraClockMappingUncertainty,
+  type CameraDiscontinuity,
+  type CameraSignal,
+  type CameraSourcePresentationTime,
   type CaptureRequest,
   type CapturedFrame,
   type CaptureSourceAdapter,
 } from "./capture-adapters.js";
+import { PositiveRationalSchema, SignedInt64DecimalSchema, VersionRefSchema } from "@audio-video/types/production";
 
 export type CameraPermissionDisposition = "GRANTED" | "DENIED" | "REVOKED" | "UNKNOWN";
 
@@ -20,6 +28,10 @@ export interface CameraPermissionDecision {
   readonly purposeRef: string;
   readonly exactRightsScope: string;
   readonly sourceVersionRef: string;
+  readonly allowedSignals?: readonly CameraSignal[];
+  readonly selectedSignals?: readonly CameraSignal[];
+  readonly syncPolicyRef?: string;
+  readonly codecProfileRef?: string;
   readonly decisionRef: string;
   readonly checkedAtEpochMillis: number;
   readonly expiresAtEpochMillis: number;
@@ -34,9 +46,44 @@ export interface CameraConsentPort {
 
 export interface CameraTrack {
   /** One encoded/raw frame; null means end of stream. Must observe abort when possible. */
-  nextFrame(signal: AbortSignal): Promise<Uint8Array | null>;
+  nextFrame(signal: AbortSignal): Promise<Uint8Array | CameraFrameRead | null>;
+  /** Exact host-reported source, signal, codec and source-clock declaration. Missing is unavailable. */
+  readonly sourceMetadata?: CameraTrackSourceMetadata | null;
   /** Stop every camera/media track owned by this source. */
   stopTracks(): Promise<void> | void;
+}
+
+export interface CameraTrackSourceMetadata {
+  readonly sourceIdentity: string;
+  readonly sourceVersionRef: string;
+  readonly allowedSignals: readonly CameraSignal[];
+  readonly selectedSignals: readonly CameraSignal[];
+  readonly syncPolicyRef: string;
+  readonly codecDisposition: "AVAILABLE" | "UNSUPPORTED" | "UNKNOWN";
+  readonly codecProfileRef?: string;
+  readonly codecId?: string;
+  readonly mimeType?: string;
+  readonly width?: number;
+  readonly height?: number;
+  readonly sourceClockRef?: string | null;
+  readonly sourceStreamRef?: string | null;
+  readonly sourceOriginRef?: string | null;
+  readonly sourceTimeBase?: CameraPositiveRational | null;
+}
+
+export interface CameraFrameRead {
+  readonly bytes: Uint8Array;
+  /** Source presentation ticks supplied by the source; never derived from the host capture clock. */
+  readonly presentationTicks?: string;
+  readonly discontinuity?: CameraDiscontinuity;
+  /** Source-provided audio sample clock for a synchronized multiplexed camera read. */
+  readonly audioSample?: CameraAudioSampleObservation;
+}
+
+export interface CameraAudioSampleObservation {
+  readonly sampleIndex: string;
+  readonly sampleRate: CameraPositiveRational;
+  readonly sourceStreamRef: string;
 }
 
 /** Host implementation may use getUserMedia or a native camera bridge. */
@@ -75,9 +122,14 @@ export type CameraCaptureErrorCode =
   | "PERMISSION_MISSING"
   | "PERMISSION_DENIED"
   | "PERMISSION_STALE"
+  | "PERMISSION_UNKNOWN"
   | "PERMISSION_MISMATCH"
   | "CONSENT_REVOKED"
   | "DEVICE_UNAVAILABLE"
+  | "SOURCE_METADATA_UNAVAILABLE"
+  | "CODEC_UNSUPPORTED"
+  | "CODEC_UNAVAILABLE"
+  | "SIGNAL_UNSUPPORTED"
   | "FRAME_INVALID"
   | "FRAME_LIMIT"
   | "PTS_INVALID"
@@ -91,15 +143,18 @@ export class CameraCaptureError extends Error {
   }
 }
 
-export interface CameraCapturedFrame {
+export interface CameraCapturedFrame extends CapturedFrame {
   readonly sourceIdentity: string;
   readonly purposeRef: string;
   readonly exactRightsScope: string;
   readonly sourceVersionRef: string;
   readonly frameClockRef: string;
   readonly epochRef: string;
+  /** Host monotonic capture-clock ticks; distinct from source presentation ticks below. */
   readonly ptsNanos: bigint;
-  readonly bytes: Uint8Array;
+  readonly sourcePresentationTime: CameraSourcePresentationTime;
+  readonly audioSampleTime: CameraAudioSampleTime;
+  readonly cameraMetadata: CameraCaptureMetadata;
 }
 
 function fail(code: CameraCaptureErrorCode, message: string): CameraCaptureError {
@@ -141,6 +196,38 @@ function toPts(value: bigint | number): bigint {
     throw fail("PTS_INVALID", "camera PTS must be a non-negative safe integer or bigint");
   }
   return BigInt(value);
+}
+
+function versionRef(value: unknown, label: string): string {
+  const parsed = VersionRefSchema.safeParse(value);
+  if (!parsed.success) throw fail("SOURCE_METADATA_UNAVAILABLE", `camera ${label} reference is missing or malformed`);
+  return parsed.data;
+}
+
+function nullableVersionRef(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  return versionRef(value, "source clock identity");
+}
+
+function boundedText(value: unknown, maximum: number, label: string): string {
+  if (typeof value !== "string" || value.trim().length === 0 || value !== value.trim()
+    || value.length > maximum || /[\u0000-\u001f\u007f]/u.test(value)) {
+    throw fail("SOURCE_METADATA_UNAVAILABLE", `camera ${label} is missing or malformed`);
+  }
+  return value;
+}
+
+function normalizedSignals(value: unknown): CameraSignal[] | null {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 2
+    || value.some((signal) => signal !== "VIDEO" && signal !== "AUDIO")
+    || new Set(value).size !== value.length) return null;
+  return [...value].sort((left, right) => left.localeCompare(right)) as CameraSignal[];
+}
+
+function sameSignals(actual: readonly CameraSignal[] | undefined, expected: readonly CameraSignal[]): boolean {
+  const normalized = normalizedSignals(actual);
+  return normalized !== null && normalized.length === expected.length
+    && normalized.every((signal, index) => signal === expected[index]);
 }
 
 export class CameraCaptureAdapter implements CaptureSourceAdapter {
@@ -205,19 +292,11 @@ export class CameraCaptureAdapter implements CaptureSourceAdapter {
   }
 
   /** Adapt one live frame to the shared capture SPI; no frame bytes escape on denial/revoke. */
-  public async capture(request: CaptureRequest): Promise<CapturedFrame> {
+  public async capture(request: CaptureRequest): Promise<CameraCapturedFrame> {
     const session = await this.openSession(request);
     try {
       const frame = await session.nextFrame();
-      return {
-        sourceIdentity: frame.sourceIdentity,
-        purposeRef: frame.purposeRef,
-        exactRightsScope: frame.exactRightsScope,
-        sourceVersionRef: frame.sourceVersionRef,
-        frameClockRef: frame.frameClockRef,
-        bytes: Uint8Array.from(frame.bytes),
-        capturedAtEpochMillis: this.options.frameClock.nowEpochMillis(),
-      };
+      return Object.freeze({ ...frame, bytes: Uint8Array.from(frame.bytes) });
     } finally {
       await session.close();
     }
@@ -250,6 +329,8 @@ export class CameraCaptureSession {
   private stopped = true;
   private epochRef = "";
   private lastPts: bigint | null = null;
+  private lastSourcePts: bigint | null = null;
+  private sourceMetadata: CameraCaptureMetadata | null = null;
   private frames = 0;
   private bytes = 0;
   private startedAt: number;
@@ -303,7 +384,7 @@ export class CameraCaptureSession {
         ? fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch")
         : fail("SESSION_CLOSED", "camera session stopped before frame completion");
     }
-    let raw: Uint8Array | null;
+    let raw: Uint8Array | CameraFrameRead | null;
     try {
       raw = await awaitOrAbort(track.nextFrame(controller.signal), controller.signal);
     } catch (error) {
@@ -330,7 +411,9 @@ export class CameraCaptureSession {
       await this.close();
       throw fail("DEVICE_UNAVAILABLE", "camera source ended before a frame was produced");
     }
-    if (!(raw instanceof Uint8Array) || raw.byteLength < 1 || raw.byteLength > this.limits.maxFrameBytes) {
+    const frameRead = raw instanceof Uint8Array ? { bytes: raw } : raw;
+    if (!frameRead || !(frameRead.bytes instanceof Uint8Array)
+      || frameRead.bytes.byteLength < 1 || frameRead.bytes.byteLength > this.limits.maxFrameBytes) {
       await this.close();
       throw fail("FRAME_INVALID", "camera frame is empty or exceeds its byte bound");
     }
@@ -360,14 +443,29 @@ export class CameraCaptureSession {
       await this.close();
       throw fail("PTS_INVALID", "camera PTS must strictly increase within each source epoch");
     }
-    if (this.bytes + raw.byteLength > MAX_CAMERA_SESSION_BYTES) {
+    if (this.bytes + frameRead.bytes.byteLength > MAX_CAMERA_SESSION_BYTES) {
       await this.close();
       throw fail("FRAME_LIMIT", "camera session exceeded its aggregate byte budget");
     }
-    const detached = Uint8Array.from(raw);
+    let sourcePresentationTime: CameraSourcePresentationTime;
+    let audioSampleTime: CameraAudioSampleTime;
+    try {
+      sourcePresentationTime = this.sourcePresentationTime(frameRead);
+      audioSampleTime = this.audioSampleTime(frameRead);
+    } catch (error) {
+      await this.close();
+      throw error;
+    }
+    const detached = Uint8Array.from(frameRead.bytes);
     this.lastPts = ptsNanos;
     this.frames += 1;
     this.bytes += detached.byteLength;
+    const cameraMetadata = Object.freeze({
+      ...this.sourceMetadata!,
+      captureEpochRef: this.epochRef,
+      captureClockRef: this.request.frameClockRef,
+      hostCapturePtsNanos: ptsNanos.toString(),
+    });
     return Object.freeze({
       sourceIdentity: this.request.sourceIdentity,
       purposeRef: this.request.purposeRef,
@@ -376,7 +474,11 @@ export class CameraCaptureSession {
       frameClockRef: this.request.frameClockRef,
       epochRef: this.epochRef,
       ptsNanos,
+      sourcePresentationTime,
+      audioSampleTime,
+      cameraMetadata,
       bytes: detached,
+      capturedAtEpochMillis: this.options.frameClock.nowEpochMillis(),
     });
   }
 
@@ -395,8 +497,10 @@ export class CameraCaptureSession {
       this.request = nextRequest;
       this.revoked = false;
       this.lastPts = null;
+      this.lastSourcePts = null;
       this.frames = 0;
       this.bytes = 0;
+      this.sourceMetadata = null;
       await this.replaceSource(nextRequest, true);
     } finally {
       this.switching = false;
@@ -444,10 +548,13 @@ export class CameraCaptureSession {
       this.track = track;
       this.stopPromise = null;
       this.stopped = false;
+      this.sourceMetadata = this.validateSourceMetadata(request, track.sourceMetadata);
       if (this.revoked || controller.signal.aborted) {
         await this.stopCurrentTrack();
         throw abortError();
       }
+      const sourcePermission = await this.assertFreshPermission(request);
+      this.sourceMetadata = Object.freeze({ ...this.sourceMetadata, permissionDecisionRef: sourcePermission.decisionRef });
       this.epochRef = this.options.frameClock.beginEpoch(request);
       if (typeof this.epochRef !== "string" || this.epochRef.trim().length === 0) {
         await this.stopCurrentSource();
@@ -486,14 +593,163 @@ export class CameraCaptureSession {
     return decision;
   }
 
-  private async assertFreshPermission(request: CaptureRequest): Promise<void> {
+  private async assertFreshPermission(request: CaptureRequest): Promise<CameraPermissionDecision> {
     const decision = await this.checkPermission(request, this.controller?.signal);
     const now = this.options.frameClock.nowEpochMillis();
     this.validateDecision(request, decision, now);
     if (this.revoked || decision.disposition === "REVOKED") throw abortError();
+    if (decision.disposition === "UNKNOWN") {
+      throw fail("PERMISSION_UNKNOWN", "current camera permission is unknown");
+    }
     if (decision.disposition !== "GRANTED") {
       throw fail("PERMISSION_DENIED", "current camera permission does not authorize capture");
     }
+    return decision;
+  }
+
+  private validateSourceMetadata(request: CaptureRequest,
+    metadata: CameraTrackSourceMetadata | null | undefined): CameraCaptureMetadata {
+    if (!metadata || typeof metadata !== "object") {
+      throw fail("SOURCE_METADATA_UNAVAILABLE", "camera host did not provide exact source and codec metadata");
+    }
+    if (metadata.sourceIdentity !== request.sourceIdentity || metadata.sourceVersionRef !== request.sourceVersionRef) {
+      throw fail("SOURCE_METADATA_UNAVAILABLE", "camera host returned metadata for another source revision");
+    }
+    if (metadata.codecDisposition === "UNSUPPORTED") {
+      throw fail("CODEC_UNSUPPORTED", "selected camera codec profile is unsupported");
+    }
+    if (metadata.codecDisposition !== "AVAILABLE") {
+      throw fail("CODEC_UNAVAILABLE", "camera codec availability is unknown");
+    }
+    const allowedSignals = normalizedSignals(metadata.allowedSignals);
+    const selectedSignals = normalizedSignals(metadata.selectedSignals);
+    if (!allowedSignals || !selectedSignals || selectedSignals.length === 0
+      || !selectedSignals.includes("VIDEO") || selectedSignals.some((signal) => !allowedSignals.includes(signal))) {
+      throw fail("SIGNAL_UNSUPPORTED", "camera source did not declare a supported selected signal subset");
+    }
+    const codecProfileRef = versionRef(metadata.codecProfileRef, "codec profile");
+    const syncPolicyRef = versionRef(metadata.syncPolicyRef, "sync policy");
+    const codecId = versionRef(metadata.codecId, "codec identity");
+    const mimeType = boundedText(metadata.mimeType, 128, "codec MIME type");
+    const width = metadata.width;
+    const height = metadata.height;
+    if (typeof width !== "number" || !Number.isSafeInteger(width) || width < 1 || width > 16_384
+      || typeof height !== "number" || !Number.isSafeInteger(height) || height < 1 || height > 16_384) {
+      throw fail("SOURCE_METADATA_UNAVAILABLE", "camera host did not declare bounded encoded dimensions");
+    }
+    const sourceClockRef = nullableVersionRef(metadata.sourceClockRef);
+    const sourceStreamRef = nullableVersionRef(metadata.sourceStreamRef);
+    const sourceOriginRef = nullableVersionRef(metadata.sourceOriginRef);
+    let sourceTimeBase: CameraPositiveRational | null = null;
+    if (metadata.sourceTimeBase !== undefined && metadata.sourceTimeBase !== null) {
+      const parsed = PositiveRationalSchema.safeParse(metadata.sourceTimeBase);
+      if (!parsed.success) throw fail("SOURCE_METADATA_UNAVAILABLE", "camera source time base is malformed");
+      sourceTimeBase = parsed.data;
+    }
+    const clockMappings: readonly CameraClockMappingUncertainty[] = Object.freeze([
+      "AUDIO_SAMPLE", "STORY", "SIMULATION", "WALL_CLOCK",
+    ].map((destinationDomain) => Object.freeze({
+      sourceDomain: "SOURCE_VIDEO_PRESENTATION" as const,
+      destinationDomain: destinationDomain as CameraClockMappingUncertainty["destinationDomain"],
+      disposition: "UNKNOWN" as const,
+      reason: "NO_QUALIFIED_CLOCK_ALIGNMENT" as const,
+    })));
+    return Object.freeze({
+      captureEpochRef: "",
+      captureClockRef: request.frameClockRef,
+      hostCapturePtsNanos: "",
+      sourceIdentity: metadata.sourceIdentity,
+      sourceVersionRef: metadata.sourceVersionRef,
+      permissionDecisionRef: "pending-source-permission-readback",
+      allowedSignals: Object.freeze(allowedSignals),
+      selectedSignals: Object.freeze(selectedSignals),
+      syncPolicyRef,
+      codecDisposition: "AVAILABLE" as const,
+      codecProfileRef,
+      codecId,
+      mimeType,
+      width,
+      height,
+      sourceClockRef,
+      sourceStreamRef,
+      sourceOriginRef,
+      sourceTimeBase,
+      clockMappings,
+    });
+  }
+
+  private sourcePresentationTime(frameRead: CameraFrameRead): CameraSourcePresentationTime {
+    const metadata = this.sourceMetadata;
+    if (metadata === null) {
+      return { disposition: "UNKNOWN", reason: "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED" };
+    }
+    if (frameRead.presentationTicks === undefined) {
+      return { disposition: "UNKNOWN", reason: "SOURCE_PTS_NOT_SUPPLIED" };
+    }
+    if (metadata.sourceTimeBase === null) {
+      return { disposition: "UNKNOWN", reason: "SOURCE_TIMEBASE_NOT_SUPPLIED" };
+    }
+    if (metadata.sourceClockRef === null || metadata.sourceStreamRef === null || metadata.sourceOriginRef === null) {
+      return { disposition: "UNKNOWN", reason: "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED" };
+    }
+    if (!SignedInt64DecimalSchema.safeParse(frameRead.presentationTicks).success
+      || BigInt(frameRead.presentationTicks) < 0n) {
+      throw fail("PTS_INVALID", "camera source PTS must be a non-negative canonical int64 decimal");
+    }
+    const pts = BigInt(frameRead.presentationTicks);
+    const declaredDiscontinuity = frameRead.discontinuity;
+    let discontinuity: CameraDiscontinuity;
+    if (declaredDiscontinuity === undefined || declaredDiscontinuity.disposition === "UNKNOWN") {
+      discontinuity = { disposition: "UNKNOWN", reason: "SOURCE_DISCONTINUITY_NOT_REPORTED" };
+    } else if (declaredDiscontinuity.disposition === "NONE") {
+      discontinuity = { disposition: "NONE" };
+    } else if (declaredDiscontinuity.disposition === "GAP" || declaredDiscontinuity.disposition === "RESET") {
+      discontinuity = {
+        disposition: declaredDiscontinuity.disposition,
+        evidenceRef: versionRef(declaredDiscontinuity.evidenceRef, "discontinuity evidence"),
+      };
+    } else {
+      throw fail("PTS_INVALID", "camera source discontinuity status is unsupported");
+    }
+    if (this.lastSourcePts !== null && pts <= this.lastSourcePts && discontinuity.disposition !== "RESET") {
+      throw fail("PTS_INVALID", "source presentation PTS must strictly increase within the exact source epoch");
+    }
+    this.lastSourcePts = pts;
+    return Object.freeze({
+      disposition: "KNOWN",
+      sourceClockRef: metadata.sourceClockRef,
+      sourceStreamRef: metadata.sourceStreamRef,
+      sourceOriginRef: metadata.sourceOriginRef,
+      presentationTicks: frameRead.presentationTicks,
+      timeBase: metadata.sourceTimeBase,
+      discontinuity: Object.freeze({ ...discontinuity }),
+    });
+  }
+
+  private audioSampleTime(frameRead: CameraFrameRead): CameraAudioSampleTime {
+    const metadata = this.sourceMetadata;
+    if (metadata === null || !metadata.selectedSignals.includes("AUDIO")) {
+      return { disposition: "NOT_SELECTED" };
+    }
+    const observation = frameRead.audioSample;
+    if (observation === undefined) {
+      return { disposition: "UNKNOWN", reason: "AUDIO_SAMPLE_CLOCK_NOT_SUPPLIED" };
+    }
+    if (!SignedInt64DecimalSchema.safeParse(observation.sampleIndex).success
+      || BigInt(observation.sampleIndex) < 0n
+      || !PositiveRationalSchema.safeParse(observation.sampleRate).success) {
+      throw fail("PTS_INVALID", "camera audio sample index or rate is malformed");
+    }
+    const sourceStreamRef = versionRef(observation.sourceStreamRef, "audio source stream");
+    if (!metadata.allowedSignals.includes("AUDIO")) {
+      throw fail("SIGNAL_UNSUPPORTED", "camera returned audio samples outside the allowed signal set");
+    }
+    return Object.freeze({
+      disposition: "KNOWN",
+      sampleIndex: observation.sampleIndex,
+      sampleRate: observation.sampleRate,
+      sourceStreamRef,
+    });
   }
 
   private validateDecision(request: CaptureRequest, decision: CameraPermissionDecision, now: number): void {
@@ -505,6 +761,13 @@ export class CameraCaptureSession {
       || decision.exactRightsScope !== request.exactRightsScope
       || decision.sourceVersionRef !== request.sourceVersionRef) {
       throw fail("PERMISSION_MISMATCH", "camera permission does not bind the exact source and purpose");
+    }
+    if (this.sourceMetadata !== null
+      && (!sameSignals(decision.allowedSignals, this.sourceMetadata.allowedSignals)
+        || !sameSignals(decision.selectedSignals, this.sourceMetadata.selectedSignals)
+        || decision.syncPolicyRef !== this.sourceMetadata.syncPolicyRef
+        || decision.codecProfileRef !== this.sourceMetadata.codecProfileRef)) {
+      throw fail("PERMISSION_MISMATCH", "camera permission does not bind the selected signals, sync policy and codec profile");
     }
     if (!Number.isSafeInteger(decision.checkedAtEpochMillis)
       || !Number.isSafeInteger(decision.expiresAtEpochMillis)
@@ -525,6 +788,7 @@ export class CameraCaptureSession {
     this.controller?.abort();
     await this.stopCurrentTrack();
     this.controller = null;
+    this.sourceMetadata = null;
   }
 
   private async stopCurrentTrack(): Promise<void> {

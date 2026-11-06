@@ -1,14 +1,17 @@
 import { describe, expect, it } from "vitest";
-import type { CaptureRequest } from "./capture-adapters.js";
+import { captureWithAdmission, type CaptureRequest } from "./capture-adapters.js";
 import {
   CameraCaptureAdapter,
   CameraCaptureError,
   type CameraCaptureSession,
+  type CameraAudioSampleObservation,
+  type CameraFrameRead,
   type CameraConsentPort,
   type CameraFrameClockPort,
   type CameraMediaDevicePort,
   type CameraPermissionDecision,
   type CameraTrack,
+  type CameraTrackSourceMetadata,
 } from "./camera-capture-adapter.js";
 
 const now = 1_800_000_000_000;
@@ -24,10 +27,11 @@ const request: CaptureRequest = {
 
 interface FakeTrack extends CameraTrack {
   stopCalls: number;
-  nextFrame(signal: AbortSignal): Promise<Uint8Array | null>;
+  sourceMetadata?: CameraTrackSourceMetadata | null;
+  nextFrame(signal: AbortSignal): Promise<Uint8Array | CameraFrameRead | null>;
 }
 
-function frameTrack(frames: ReadonlyArray<Uint8Array>): FakeTrack {
+function frameTrack(frames: ReadonlyArray<Uint8Array | CameraFrameRead>): FakeTrack {
   let index = 0;
   const track: FakeTrack = {
     stopCalls: 0,
@@ -47,9 +51,35 @@ function permissionFor(candidate: CaptureRequest, overrides: Partial<CameraPermi
     purposeRef: candidate.purposeRef,
     exactRightsScope: candidate.exactRightsScope,
     sourceVersionRef: candidate.sourceVersionRef,
+    allowedSignals: ["VIDEO", "AUDIO"],
+    selectedSignals: ["VIDEO"],
+    syncPolicyRef: "sync-policy/camera:v1",
+    codecProfileRef: "codec-profile/h264-main:v1",
     decisionRef: "consent-read:v17",
     checkedAtEpochMillis: now,
     expiresAtEpochMillis: now + 30_000,
+    ...overrides,
+  };
+}
+
+function sourceMetadataFor(candidate: CaptureRequest,
+  overrides: Partial<CameraTrackSourceMetadata> = {}): CameraTrackSourceMetadata {
+  return {
+    sourceIdentity: candidate.sourceIdentity,
+    sourceVersionRef: candidate.sourceVersionRef,
+    allowedSignals: ["VIDEO", "AUDIO"],
+    selectedSignals: ["VIDEO"],
+    syncPolicyRef: "sync-policy/camera:v1",
+    codecDisposition: "AVAILABLE",
+    codecProfileRef: "codec-profile/h264-main:v1",
+    codecId: "avc1.640028",
+    mimeType: "video/mp4",
+    width: 1920,
+    height: 1080,
+    sourceClockRef: "clock/camera-source:v1",
+    sourceStreamRef: "stream/camera-video:v1",
+    sourceOriginRef: "origin/camera-epoch:v1",
+    sourceTimeBase: { numerator: "1", denominator: "90000" },
     ...overrides,
   };
 }
@@ -58,6 +88,7 @@ function harness(options: {
   decide?: (candidate: CaptureRequest, at: number) => CameraPermissionDecision;
   tracks?: FakeTrack[];
   pts?: (epochRef: string, index: number) => bigint | number;
+  metadata?: (candidate: CaptureRequest) => CameraTrackSourceMetadata | null;
 } = {}) {
   const tracks = options.tracks ?? [frameTrack([new Uint8Array([1, 2, 3])])];
   const opens: CaptureRequest[] = [];
@@ -87,6 +118,9 @@ function harness(options: {
       if (signal.aborted) throw new Error("aborted before open");
       const track = tracks[opens.length - 1];
       if (!track) throw new Error("no mock camera track");
+      if (track.sourceMetadata === undefined) {
+        track.sourceMetadata = options.metadata ? options.metadata(candidate) : sourceMetadataFor(candidate);
+      }
       return track;
     },
   };
@@ -138,6 +172,14 @@ describe("CameraCaptureAdapter", () => {
     expect(first.purposeRef).toBe(request.purposeRef);
     expect(first.epochRef).toBe(second.epochRef);
     expect(second.ptsNanos).toBeGreaterThan(first.ptsNanos);
+    expect(first.sourcePresentationTime).toEqual({
+      disposition: "UNKNOWN",
+      reason: "SOURCE_PTS_NOT_SUPPLIED",
+    });
+    expect(first.cameraMetadata.captureEpochRef).toBe(first.epochRef);
+    expect(first.cameraMetadata.hostCapturePtsNanos).toBe(first.ptsNanos.toString());
+    expect(first.cameraMetadata.syncPolicyRef).toBe("sync-policy/camera:v1");
+    expect(first.cameraMetadata.clockMappings).toHaveLength(4);
     await session.close();
     expect(track.stopCalls).toBe(1);
   });
@@ -228,6 +270,16 @@ describe("CameraCaptureAdapter", () => {
     const boundedSession = await tooLarge.adapter.openSession(request);
     await expectCode(boundedSession.nextFrame(), "FRAME_INVALID");
     expect(tooLarge.tracks[0]?.stopCalls).toBe(1);
+
+    const sourceReorderedTrack = frameTrack([
+      { bytes: new Uint8Array([3]), presentationTicks: "9000" },
+      { bytes: new Uint8Array([4]), presentationTicks: "8999" },
+    ]);
+    const sourceReordered = harness({ tracks: [sourceReorderedTrack] });
+    const sourceSession = await sourceReordered.adapter.openSession(request);
+    await sourceSession.nextFrame();
+    await expectCode(sourceSession.nextFrame(), "PTS_INVALID");
+    expect(sourceReorderedTrack.stopCalls).toBe(1);
   });
 
   it("treats device unplug during a frame read as unavailable and releases the device", async () => {
@@ -253,13 +305,13 @@ describe("CameraCaptureAdapter", () => {
       tracks: [track],
       decide: (candidate) => {
         permissionReads++;
-        return permissionFor(candidate, permissionReads >= 4 ? { disposition: "UNKNOWN" } : {});
+        return permissionFor(candidate, permissionReads >= 5 ? { disposition: "UNKNOWN" } : {});
       },
     });
     const session = await h.adapter.openSession(request);
 
-    await expectCode(session.nextFrame(), "PERMISSION_DENIED");
-    expect(permissionReads).toBe(4);
+    await expectCode(session.nextFrame(), "PERMISSION_UNKNOWN");
+    expect(permissionReads).toBe(5);
     expect(track.stopCalls).toBe(1);
     expect(h.subscriptions[0]?.active).toBe(false);
   });
@@ -271,6 +323,13 @@ describe("CameraCaptureAdapter", () => {
     expect(captured.bytes).toEqual(new Uint8Array([3, 4]));
     expect(track.stopCalls).toBe(1);
 
+    const routedTrack = frameTrack([{ bytes: new Uint8Array([4, 5]), presentationTicks: "7" }]);
+    const routed = harness({ tracks: [routedTrack] });
+    const admitted = await captureWithAdmission({ check: () => "ADMITTED" }, routed.adapter, request);
+    expect(admitted.sourcePresentationTime?.disposition).toBe("KNOWN");
+    expect(admitted.cameraMetadata?.captureEpochRef).toBe("clock-epoch-1");
+    expect(admitted.audioSampleTime?.disposition).toBe("NOT_SELECTED");
+
     let reads = 0;
     const deniedTrack = frameTrack([new Uint8Array([5])]);
     deniedTrack.nextFrame = async () => { reads++; return new Uint8Array([5]); };
@@ -279,5 +338,89 @@ describe("CameraCaptureAdapter", () => {
     await expectCode(denied.adapter.capture(request), "CONSENT_REVOKED");
     expect(reads).toBe(0);
     expect(deniedTrack.stopCalls).toBe(0);
+  });
+
+  it("preserves exact source PTS, rational timebase, discontinuity and capture epoch through capture()", async () => {
+    const audioSample: CameraAudioSampleObservation = {
+      sampleIndex: "48000", sampleRate: { numerator: "48000", denominator: "1" },
+      sourceStreamRef: "stream/camera-audio:v2",
+    };
+    const track = frameTrack([{ bytes: new Uint8Array([6, 7]), presentationTicks: "9000",
+      discontinuity: { disposition: "GAP", evidenceRef: "evidence/camera-gap:v2" }, audioSample }]);
+    const h = harness({ tracks: [track],
+      metadata: (candidate) => sourceMetadataFor(candidate, { selectedSignals: ["VIDEO", "AUDIO"] }),
+      decide: (candidate) => permissionFor(candidate, { selectedSignals: ["VIDEO", "AUDIO"] }),
+    });
+
+    const captured = await h.adapter.capture(request);
+
+    expect(captured.epochRef).toBe("clock-epoch-1");
+    expect(captured.cameraMetadata.captureEpochRef).toBe(captured.epochRef);
+    expect(captured.sourcePresentationTime).toEqual({
+      disposition: "KNOWN",
+      sourceClockRef: "clock/camera-source:v1",
+      sourceStreamRef: "stream/camera-video:v1",
+      sourceOriginRef: "origin/camera-epoch:v1",
+      presentationTicks: "9000",
+      timeBase: { numerator: "1", denominator: "90000" },
+      discontinuity: { disposition: "GAP", evidenceRef: "evidence/camera-gap:v2" },
+    });
+    expect(captured.audioSampleTime).toEqual({
+      disposition: "KNOWN", sampleIndex: "48000",
+      sampleRate: { numerator: "48000", denominator: "1" },
+      sourceStreamRef: "stream/camera-audio:v2",
+    });
+    expect(captured.cameraMetadata.clockMappings.every((mapping) => mapping.disposition === "UNKNOWN")).toBe(true);
+    expect(track.stopCalls).toBe(1);
+  });
+
+  it("keeps unsupported codec, unsupported signal and missing source metadata unavailable without reading frames", async () => {
+    const unsupportedCodecTrack = frameTrack([new Uint8Array([1])]);
+    const codec = harness({ tracks: [unsupportedCodecTrack], metadata: (candidate) =>
+      sourceMetadataFor(candidate, { codecDisposition: "UNSUPPORTED" }) });
+    await expectCode(codec.adapter.capture(request), "CODEC_UNSUPPORTED");
+    expect(unsupportedCodecTrack.stopCalls).toBe(1);
+
+    const unsupportedSignalTrack = frameTrack([new Uint8Array([2])]);
+    const signal = harness({ tracks: [unsupportedSignalTrack], metadata: (candidate) =>
+      sourceMetadataFor(candidate, { allowedSignals: ["AUDIO"], selectedSignals: ["AUDIO"] }) });
+    await expectCode(signal.adapter.capture(request), "SIGNAL_UNSUPPORTED");
+    expect(unsupportedSignalTrack.stopCalls).toBe(1);
+
+    const missingTrack = frameTrack([new Uint8Array([3])]);
+    const missing = harness({ tracks: [missingTrack], metadata: () => null });
+    await expectCode(missing.adapter.capture(request), "SOURCE_METADATA_UNAVAILABLE");
+    expect(missingTrack.stopCalls).toBe(1);
+  });
+
+  it("does not open a source when initial permission is unknown", async () => {
+    const h = harness({ decide: (candidate) => permissionFor(candidate, { disposition: "UNKNOWN" }) });
+    await expectCode(h.adapter.capture(request), "PERMISSION_UNKNOWN");
+    expect(h.opens).toHaveLength(0);
+  });
+
+  it("keeps source PTS and selected audio sample time unknown instead of borrowing host clocks", async () => {
+    const track = frameTrack([new Uint8Array([9])]);
+    const h = harness({ tracks: [track],
+      metadata: (candidate) => sourceMetadataFor(candidate, {
+        selectedSignals: ["VIDEO", "AUDIO"],
+        sourceClockRef: null,
+        sourceTimeBase: null,
+      }),
+      decide: (candidate) => permissionFor(candidate, { selectedSignals: ["VIDEO", "AUDIO"] }),
+    });
+
+    const captured = await h.adapter.capture(request);
+
+    expect(captured.sourcePresentationTime).toEqual({
+      disposition: "UNKNOWN", reason: "SOURCE_PTS_NOT_SUPPLIED",
+    });
+    expect(captured.audioSampleTime).toEqual({
+      disposition: "UNKNOWN", reason: "AUDIO_SAMPLE_CLOCK_NOT_SUPPLIED",
+    });
+    expect(captured.ptsNanos).toBeGreaterThan(0n);
+    expect(captured.cameraMetadata.clockMappings.map(({ destinationDomain }) => destinationDomain))
+      .toEqual(["AUDIO_SAMPLE", "STORY", "SIMULATION", "WALL_CLOCK"]);
+    expect(captured.cameraMetadata.clockMappings.every(({ disposition }) => disposition === "UNKNOWN")).toBe(true);
   });
 });

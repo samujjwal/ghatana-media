@@ -96,6 +96,64 @@ export interface CapturedFrame {
   readonly frameClockRef: string;
   readonly bytes: Uint8Array;
   readonly capturedAtEpochMillis: number;
+  /** Present only for CAMERA captures; other source adapters keep their existing shape. */
+  readonly cameraMetadata?: CameraCaptureMetadata;
+  /** Exact device/source presentation time, or an explicit UNKNOWN disposition. */
+  readonly sourcePresentationTime?: CameraSourcePresentationTime;
+  /** Audio sample clock for a CAMERA source; OTHER source kinds omit it. */
+  readonly audioSampleTime?: CameraAudioSampleTime;
+}
+
+export type CameraSignal = "VIDEO" | "AUDIO";
+/** JSON value shape of the owner-defined PositiveRationalSchema. */
+export type CameraPositiveRational = Readonly<{ numerator: string; denominator: string }>;
+export type CameraDiscontinuity =
+  | { readonly disposition: "NONE" }
+  | { readonly disposition: "GAP" | "RESET"; readonly evidenceRef: string }
+  | { readonly disposition: "UNKNOWN"; readonly reason: "SOURCE_DISCONTINUITY_NOT_REPORTED" };
+
+export type CameraSourcePresentationTime =
+  | { readonly disposition: "KNOWN"; readonly sourceClockRef: string; readonly sourceStreamRef: string;
+      readonly sourceOriginRef: string; readonly presentationTicks: string; readonly timeBase: CameraPositiveRational;
+      readonly discontinuity: CameraDiscontinuity }
+  | { readonly disposition: "UNKNOWN";
+      readonly reason: "SOURCE_PTS_NOT_SUPPLIED" | "SOURCE_TIMEBASE_NOT_SUPPLIED" | "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED" };
+
+export type CameraAudioSampleTime =
+  | { readonly disposition: "KNOWN"; readonly sampleIndex: string; readonly sampleRate: CameraPositiveRational;
+      readonly sourceStreamRef: string }
+  | { readonly disposition: "UNKNOWN"; readonly reason: "AUDIO_SAMPLE_CLOCK_NOT_SUPPLIED" }
+  | { readonly disposition: "NOT_SELECTED" };
+
+export interface CameraClockMappingUncertainty {
+  readonly sourceDomain: "SOURCE_VIDEO_PRESENTATION";
+  readonly destinationDomain: "AUDIO_SAMPLE" | "STORY" | "SIMULATION" | "WALL_CLOCK";
+  readonly disposition: "UNKNOWN";
+  readonly reason: "NO_QUALIFIED_CLOCK_ALIGNMENT";
+}
+
+/** Metadata returned by the selected host device/encoder, never inferred by the generic adapter. */
+export interface CameraCaptureMetadata {
+  readonly captureEpochRef: string;
+  readonly captureClockRef: string;
+  readonly hostCapturePtsNanos: string;
+  readonly sourceIdentity: string;
+  readonly sourceVersionRef: string;
+  readonly permissionDecisionRef: string;
+  readonly allowedSignals: readonly CameraSignal[];
+  readonly selectedSignals: readonly CameraSignal[];
+  readonly syncPolicyRef: string;
+  readonly codecDisposition: "AVAILABLE";
+  readonly codecProfileRef: string;
+  readonly codecId: string;
+  readonly mimeType: string;
+  readonly width: number;
+  readonly height: number;
+  readonly sourceClockRef: string | null;
+  readonly sourceStreamRef: string | null;
+  readonly sourceOriginRef: string | null;
+  readonly sourceTimeBase: CameraPositiveRational | null;
+  readonly clockMappings: readonly CameraClockMappingUncertainty[];
 }
 
 /** Trusted eligibility seam; caller assertions are never inputs. */
@@ -297,7 +355,7 @@ export async function captureWithAdmission(
     // adapter may reuse or mutate its result after this promise resolves.
     const {
       sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef,
-      frameClockRef, bytes, capturedAtEpochMillis,
+      frameClockRef, bytes, capturedAtEpochMillis, cameraMetadata, sourcePresentationTime, audioSampleTime,
     } = frame;
     if (!(bytes instanceof Uint8Array)
       || bytes.byteLength < 1 || bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
@@ -313,9 +371,26 @@ export async function captureWithAdmission(
       || frameClockRef !== admittedRequest.frameClockRef) {
       throw new TypeError("captured frame does not bind the authorized source and clock");
     }
+    if (admittedRequest.kind === "CAMERA"
+      && (!cameraMetadata || !sourcePresentationTime
+        || !audioSampleTime
+        || cameraMetadata.sourceIdentity !== admittedRequest.sourceIdentity
+        || cameraMetadata.sourceVersionRef !== admittedRequest.sourceVersionRef
+        || cameraMetadata.captureClockRef !== admittedRequest.frameClockRef
+        || typeof cameraMetadata.permissionDecisionRef !== "string" || cameraMetadata.permissionDecisionRef.length === 0
+        || typeof cameraMetadata.captureEpochRef !== "string" || cameraMetadata.captureEpochRef.length === 0
+        || typeof cameraMetadata.hostCapturePtsNanos !== "string" || !/^(0|[1-9][0-9]*)$/u.test(cameraMetadata.hostCapturePtsNanos)
+        || !Array.isArray(cameraMetadata.clockMappings) || cameraMetadata.clockMappings.length !== 4
+        || !["KNOWN", "UNKNOWN"].includes(sourcePresentationTime.disposition)
+        || !["KNOWN", "UNKNOWN", "NOT_SELECTED"].includes(audioSampleTime.disposition))) {
+      throw new CaptureOutcomeUnknownError(admittedRequest.kind, "INVALID_FRAME");
+    }
     return {
       sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef, frameClockRef,
       bytes: Uint8Array.from(bytes), capturedAtEpochMillis,
+      ...(cameraMetadata === undefined ? {} : { cameraMetadata }),
+      ...(sourcePresentationTime === undefined ? {} : { sourcePresentationTime }),
+      ...(audioSampleTime === undefined ? {} : { audioSampleTime }),
     };
   } catch {
     // The adapter has already run. Even a malformed/mismatched response does
