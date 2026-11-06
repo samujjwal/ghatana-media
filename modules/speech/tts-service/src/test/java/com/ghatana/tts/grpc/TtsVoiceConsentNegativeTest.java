@@ -161,6 +161,31 @@ class TtsVoiceConsentNegativeTest {
     }
 
     @Test
+    @DisplayName("voice profile for another locale is not substituted and produces no audio")
+    void mismatchedLocaleDoesNotFallBackToConfiguredVoice() throws Exception {
+        // The synthetic profile fixture is configured for en-US. A caller asking for
+        // Nepali must not silently synthesize with that profile, even when the voice
+        // authorization resolver admits the selected identity.
+        start(request -> TtsRequestAuthorization.Decision.ADMITTED, "en-us-fixture-voice");
+
+        var blocking = stub(OWNER_SUBJECT);
+        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
+                        .setText("synthetic scenario text")
+                        .setVoiceId("en-us-fixture-voice")
+                        .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                                .setLanguage("ne-NP").build())
+                        .build()),
+                Status.Code.UNAVAILABLE, "TTS locale/voice NOT_ADMITTED");
+
+        assertThat(observed).singleElement().satisfies(request -> {
+            assertThat(request.identity().tenantId()).isEqualTo("tenant-test");
+            assertThat(request.identity().subject()).isEqualTo(OWNER_SUBJECT);
+            assertThat(request.voiceId()).isEqualTo("en-us-fixture-voice");
+        });
+        verifyNoInteractions(guardedLibrary, engine);
+    }
+
+    @Test
     @DisplayName("authority-reported expired consent denies before synthesis or provider reuse")
     void authorityReportsExpiredConsentAsRevokedBeforeSynthesis() throws Exception {
         // Expiry is evaluated by the owner authority; Media must honor its current
