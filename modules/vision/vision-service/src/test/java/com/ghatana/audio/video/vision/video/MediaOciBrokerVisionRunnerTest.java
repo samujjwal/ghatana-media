@@ -32,6 +32,8 @@ class MediaOciBrokerVisionRunnerTest {
         Files.write(source, original);
         String sha = sha(original);
         List<List<String>> commands = new ArrayList<>();
+        Path[] stagedSource = {null};
+        String image = "worker@sha256:" + "b".repeat(64);
         MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
             commands.add(List.copyOf(command));
             if (command.get(1).equals("start")) Files.write(outputRoot.resolve("frame.png"),
@@ -40,6 +42,7 @@ class MediaOciBrokerVisionRunnerTest {
                 Files.write(source, "caller-mutated".getBytes());
                 String mount = command.get(command.indexOf("--mount") + 1);
                 String snapshotPath = mount.substring("type=bind,source=".length(), mount.indexOf(",target="));
+                stagedSource[0] = Path.of(snapshotPath);
                 assertThat(Files.readString(Path.of(snapshotPath))).isEqualTo("pinned-source");
                 assertThat(sha(Files.readAllBytes(Path.of(snapshotPath)))).isEqualTo(sha);
                 assertThat(Files.getPosixFilePermissions(Path.of(snapshotPath)))
@@ -48,20 +51,70 @@ class MediaOciBrokerVisionRunnerTest {
             }
             return switch (command.get(1)) {
                 case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
-                case "inspect" -> new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                case "inspect" -> {
+                    if (command.get(3).contains("HostConfig")) {
+                        assertThat(timeout).isEqualTo(Duration.ofSeconds(10));
+                        yield new MediaOciBrokerDaemon.CommandResult(0,
+                                preflightInspection(stagedSource[0], outputRoot, 501, 20,
+                                        image, "ffmpeg", 1024, List.of("-nostdin", "-hide_banner", "-loglevel",
+                                                "error", "-i", "/source/input", "-y", "/output/frame.png")), false);
+                    }
+                    yield new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                }
                 case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
                 default -> throw new AssertionError("unexpected OCI operation " + command);
             };
         };
-        String result = MediaOciBrokerDaemon.runWorkerWithSnapshot("docker", "worker@sha256:" + "b".repeat(64),
+        String result = MediaOciBrokerDaemon.runWorkerWithSnapshot("docker", image,
                 "vision-snapshot", "ffmpeg", List.of("-nostdin", "-hide_banner", "-loglevel", "error",
                         "-i", "/source/input", "-y", "/output/frame.png"), source, sha, stage,
                 outputRoot, 501, 20, Duration.ofSeconds(3), 1024, runner);
 
         assertThat(result).contains("\"exitCode\":0", "\"outputBytes\":13",
                 "\"name\":\"frame.png\"");
+        assertThat(commands).extracting(command -> command.get(1))
+                .containsSubsequence("create", "inspect", "start");
         assertThat(commands.getFirst()).anySatisfy(arg -> assertThat(arg).startsWith("type=bind,source="));
         assertThat(Files.list(stage).toList()).isEmpty();
+    }
+
+    @Test
+    void sandboxPreflightMismatchAndInspectFailuresRemoveWithoutStarting() throws Exception {
+        String image = "worker@sha256:" + "b".repeat(64);
+        String valid = preflightInspection(null, null, 501, 20, image, "ffmpeg", 1024);
+
+        assertPreflightRejected(valid.replace("\"Memory\":1610612736", "\"Memory\":1610612735"),
+                new MediaOciBrokerDaemon.CommandResult(0, "", false));
+        assertPreflightRejected(valid.replace("\"NetworkMode\":\"none\"", "\"NetworkMode\":\"bridge\""),
+                new MediaOciBrokerDaemon.CommandResult(0, "", false));
+        assertPreflightRejected(valid.replace("\"ReadonlyRootfs\":true", "\"ReadonlyRootfs\":false"),
+                new MediaOciBrokerDaemon.CommandResult(0, "", false));
+        assertPreflightRejected(valid.replace("\"Cmd\":[\"-version\"]", "\"Cmd\":[\"--help\"]"),
+                new MediaOciBrokerDaemon.CommandResult(0, "", false));
+        assertPreflightRejected(valid, new MediaOciBrokerDaemon.CommandResult(1, "inspect failed", false));
+        assertPreflightRejected(valid, new MediaOciBrokerDaemon.CommandResult(-1, "", true));
+    }
+
+    @Test
+    void sandboxPreflightRunnerExceptionRemovesWithoutStarting() throws Exception {
+        List<String> operations = new ArrayList<>();
+        MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
+            operations.add(command.get(1));
+            return switch (command.get(1)) {
+                case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
+                case "inspect" -> throw new IOException("inspect transport failed");
+                case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                default -> throw new AssertionError("unexpected OCI operation " + command);
+            };
+        };
+
+        String result = MediaOciBrokerDaemon.runWorker("docker", "worker@sha256:" + "b".repeat(64),
+                "vision-preflight-error", "ffmpeg", List.of("-version"), null, null,
+                501, 20, Duration.ofSeconds(3), 1024, runner);
+
+        assertThat(result).contains("\"exitCode\":125", "sandbox-preflight-inspect-error",
+                "\"outputBytes\":0", "\"files\":[]");
+        assertThat(operations).containsExactly("create", "inspect", "rm");
     }
 
     @Test
@@ -74,15 +127,29 @@ class MediaOciBrokerVisionRunnerTest {
         byte[] bytes = "pinned".getBytes();
         Files.write(source, bytes);
         String sha = sha(bytes);
-        MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> switch (command.get(1)) {
-            case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
-            case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
-            case "inspect" -> new MediaOciBrokerDaemon.CommandResult(0, "false", false);
-            case "rm" -> new MediaOciBrokerDaemon.CommandResult(-1, "", true);
-            default -> throw new AssertionError("unexpected OCI operation " + command);
+        String image = "worker@sha256:" + "b".repeat(64);
+        Path[] stagedSource = {null};
+        MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
+            if (command.get(1).equals("create")) {
+                String mount = command.get(command.indexOf("--mount") + 1);
+                String snapshotPath = mount.substring("type=bind,source=".length(), mount.indexOf(",target="));
+                stagedSource[0] = Path.of(snapshotPath);
+                return new MediaOciBrokerDaemon.CommandResult(0, ID, false);
+            }
+            return switch (command.get(1)) {
+                case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                case "inspect" -> command.get(3).contains("HostConfig")
+                        ? new MediaOciBrokerDaemon.CommandResult(0,
+                                preflightInspection(stagedSource[0], outputRoot, 501, 20,
+                                        image, "ffmpeg", 1024, List.of("-nostdin", "-hide_banner", "-loglevel",
+                                                "error", "-i", "/source/input", "-y", "/output/frame.png")), false)
+                        : new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                case "rm" -> new MediaOciBrokerDaemon.CommandResult(-1, "", true);
+                default -> throw new AssertionError("unexpected OCI operation " + command);
+            };
         };
         assertThatThrownBy(() -> MediaOciBrokerDaemon.runWorkerWithSnapshot("docker",
-                "worker@sha256:" + "b".repeat(64), "vision-snapshot", "ffmpeg",
+                image, "vision-snapshot", "ffmpeg",
                 List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
                         "-y", "/output/frame.png"), source, sha, stage, outputRoot, 501, 20,
                 Duration.ofSeconds(3), 1024, runner)).isInstanceOf(IOException.class);
@@ -246,29 +313,99 @@ class MediaOciBrokerVisionRunnerTest {
         catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 
+    private void assertPreflightRejected(String inspection, MediaOciBrokerDaemon.CommandResult inspectResult)
+            throws Exception {
+        List<String> operations = new ArrayList<>();
+        String image = "worker@sha256:" + "b".repeat(64);
+        MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
+            operations.add(command.get(1));
+            return switch (command.get(1)) {
+                case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
+                case "inspect" -> new MediaOciBrokerDaemon.CommandResult(
+                        inspectResult.exitCode(),
+                        inspectResult.output().isEmpty() ? inspection : inspectResult.output(),
+                        inspectResult.timedOut());
+                case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                default -> throw new AssertionError("preflight rejection must not run worker: " + command);
+            };
+        };
+
+        String result = MediaOciBrokerDaemon.runWorker("docker", image, "vision-preflight-reject",
+                "ffmpeg", List.of("-version"), null, null, 501, 20, Duration.ofSeconds(3), 1024, runner);
+
+        assertThat(result).contains("\"exitCode\":125", "\"outputBytes\":0", "\"files\":[]");
+        assertThat(result).contains("sandbox-preflight-mismatch");
+        assertThat(operations).containsExactly("create", "inspect", "rm");
+    }
+
+    private static String preflightInspection(Path source, Path output, long uid, long gid,
+            String image, String executable, long outputLimit) {
+        return preflightInspection(source, output, uid, gid, image, executable, outputLimit, List.of("-version"));
+    }
+
+    private static String preflightInspection(Path source, Path output, long uid, long gid,
+            String image, String executable, long outputLimit, List<String> workerArgs) {
+        List<String> hostMounts = new ArrayList<>();
+        List<String> runtimeMounts = new ArrayList<>();
+        if (source != null) {
+            hostMounts.add("{\"Type\":\"bind\",\"Source\":\"" + source
+                    + "\",\"Target\":\"/source/input\",\"ReadOnly\":true}");
+            runtimeMounts.add("{\"Type\":\"bind\",\"Source\":\"" + source
+                    + "\",\"Destination\":\"/source/input\",\"ReadOnly\":true,\"RW\":false}");
+        }
+        if (output != null) {
+            hostMounts.add("{\"Type\":\"bind\",\"Source\":\"" + output
+                    + "\",\"Target\":\"/output\"}");
+            runtimeMounts.add("{\"Type\":\"bind\",\"Source\":\"" + output
+                    + "\",\"Destination\":\"/output\",\"ReadOnly\":false,\"RW\":true}");
+        }
+        String host = "{\"Memory\":1610612736,\"MemorySwap\":1610612736,\"NanoCpus\":2000000000,"
+                + "\"PidsLimit\":32,\"Ulimits\":[{\"Name\":\"nofile\",\"Soft\":64,\"Hard\":64},"
+                + "{\"Name\":\"fsize\",\"Soft\":" + outputLimit + ",\"Hard\":" + outputLimit + "}],"
+                + "\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Privileged\":false,"
+                + "\"CapDrop\":[\"ALL\"],\"CapAdd\":null,\"Devices\":[],\"DeviceRequests\":null,"
+                + "\"SecurityOpt\":[\"no-new-privileges:true\"],"
+                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\"},"
+                + "\"PortBindings\":{},\"PublishAllPorts\":false,\"Mounts\":["
+                + String.join(",", hostMounts) + "]}";
+        String commandJson = workerArgs.stream().map(argument -> "\"" + argument
+                .replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
+                .collect(java.util.stream.Collectors.joining(","));
+        String config = "{\"User\":\"" + uid + ":" + gid + "\",\"Entrypoint\":[\"/usr/bin/"
+                + executable + "\"],\"Cmd\":[" + commandJson + "],\"Image\":\"" + image + "\",\"Env\":[\"HOME=/tmp\","
+                + "\"TMPDIR=/tmp\",\"PATH=/usr/bin:/bin\",\"LANG=C.UTF-8\",\"LC_ALL=C.UTF-8\"]}";
+        return host + "|" + config + "|[" + String.join(",", runtimeMounts) + "]";
+    }
+
     @Test
     void timedOutInvocationIsKilledInspectedAndRemovedBeforeReturning() throws Exception {
         List<List<String>> commands = new ArrayList<>();
+        String image = "worker@sha256:" + "b".repeat(64);
         MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
             commands.add(List.copyOf(command));
             return switch (command.get(1)) {
                 case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
                 case "start" -> new MediaOciBrokerDaemon.CommandResult(-1, "", true);
                 case "kill" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
-                case "inspect" -> new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                case "inspect" -> command.get(3).contains("HostConfig")
+                        ? new MediaOciBrokerDaemon.CommandResult(0,
+                                preflightInspection(null, null, 501, 20, image, "ffmpeg", 1024 * 1024,
+                                        List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i",
+                                                "/source/input", "-y", "/output/frame.png")), false)
+                        : new MediaOciBrokerDaemon.CommandResult(0, "false", false);
                 case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
                 default -> throw new AssertionError("unexpected OCI operation " + command);
             };
         };
 
-        String result = MediaOciBrokerDaemon.runWorker("docker", "worker@sha256:" + "b".repeat(64),
+        String result = MediaOciBrokerDaemon.runWorker("docker", image,
                 "vision-test", "ffmpeg", List.of("-nostdin", "-hide_banner", "-loglevel", "error",
                         "-i", "/source/input", "-y", "/output/frame.png"), null, null,
                 501, 20, Duration.ofSeconds(3), 1024 * 1024, runner);
 
         assertThat(result).contains("\"timedOut\":true", "\"exitCode\":-1");
         assertThat(commands).extracting(command -> command.get(1))
-                .containsExactly("create", "start", "kill", "inspect", "rm");
+                .containsExactly("create", "inspect", "start", "kill", "inspect", "rm");
         assertThat(commands.getFirst()).contains("--memory=1610612736", "--memory-swap=1610612736",
                 "--cpus=2", "--pids-limit=32", "--network=none", "--read-only", "--cap-drop=ALL",
                 "--security-opt=no-new-privileges:true", "--ulimit=nofile=64:64");
@@ -277,23 +414,29 @@ class MediaOciBrokerVisionRunnerTest {
     @Test
     void failedCleanupIsAnErrorAndNeverReturnsPartialSuccess() {
         List<String> operations = new ArrayList<>();
+        String image = "worker@sha256:" + "b".repeat(64);
         MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
             operations.add(command.get(1));
             return switch (command.get(1)) {
                 case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
                 case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "partial", false);
-                case "inspect" -> new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                case "inspect" -> command.get(3).contains("HostConfig")
+                        ? new MediaOciBrokerDaemon.CommandResult(0,
+                                preflightInspection(null, null, 501, 20, image, "ffmpeg", 1024 * 1024,
+                                        List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i",
+                                                "/source/input", "-y", "/output/frame.png")), false)
+                        : new MediaOciBrokerDaemon.CommandResult(0, "false", false);
                 case "rm" -> new MediaOciBrokerDaemon.CommandResult(1, "", false);
                 default -> throw new AssertionError("unexpected OCI operation " + command);
             };
         };
 
-        assertThatThrownBy(() -> MediaOciBrokerDaemon.runWorker("docker", "worker@sha256:" + "b".repeat(64),
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.runWorker("docker", image,
                 "vision-test", "ffmpeg", List.of("-nostdin", "-hide_banner", "-loglevel", "error",
                         "-i", "/source/input", "-y", "/output/frame.png"), null, null,
                 501, 20, Duration.ofSeconds(3), 1024 * 1024, runner))
                 .isInstanceOf(IOException.class)
                 .hasMessageContaining("could not confirm worker container cleanup");
-        assertThat(operations).containsExactly("create", "start", "inspect", "rm", "rm");
+        assertThat(operations).containsExactly("create", "inspect", "start", "inspect", "rm", "rm");
     }
 }

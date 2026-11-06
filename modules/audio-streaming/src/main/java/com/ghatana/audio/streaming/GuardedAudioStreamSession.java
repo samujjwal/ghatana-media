@@ -68,6 +68,23 @@ public final class GuardedAudioStreamSession {
         }
     }
 
+    /**
+     * The provider sink failed after dispatch began, so the external effect may have happened.
+     * The candidate is consumed and cannot be replayed through this in-memory session.
+     */
+    public static final class ProviderOutcomeUnknownException extends RuntimeException {
+        private final int sequenceNumber;
+
+        ProviderOutcomeUnknownException(int sequenceNumber) {
+            super("audio provider dispatch outcome is unknown for frame " + sequenceNumber);
+            this.sequenceNumber = sequenceNumber;
+        }
+
+        public int sequenceNumber() {
+            return sequenceNumber;
+        }
+    }
+
     /** External provider effect sink; invoked only under admitted consent. */
     @FunctionalInterface
     public interface ProviderSink {
@@ -190,7 +207,12 @@ public final class GuardedAudioStreamSession {
                     "audio frame provider retry belongs to a stale session generation");
         }
         providerCandidates.remove(snapshot.sequenceNumber());
-        sink.accept(snapshot);
+        try {
+            sink.accept(snapshot);
+        } catch (RuntimeException ignored) {
+            // Sink exception text and type can contain sensitive provider details.
+            throw new ProviderOutcomeUnknownException(snapshot.sequenceNumber());
+        }
     }
 
     /** Client transport detach — the session stays resumable. */

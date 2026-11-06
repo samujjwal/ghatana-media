@@ -2,6 +2,7 @@ package com.ghatana.audio.streaming;
 
 import com.ghatana.audio.streaming.GuardedAudioStreamSession.Attachment;
 import com.ghatana.audio.streaming.GuardedAudioStreamSession.ConsentDeniedException;
+import com.ghatana.audio.streaming.GuardedAudioStreamSession.ProviderOutcomeUnknownException;
 import com.ghatana.audio.streaming.StreamConsentGate.Decision;
 import com.ghatana.audio.streaming.StreamFrameReconciler.Disposition;
 import com.ghatana.audio.streaming.StreamFrameReconciler.SessionIdentity;
@@ -264,6 +265,31 @@ class GuardedAudioStreamSessionTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already dispatched");
         assertThat(providerEffects.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("provider failure is unknown and the delivered frame cannot be blindly replayed")
+    void providerFailureConsumesCandidateAndReturnsBoundedUnknown() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        AudioStreamSession.DecodedFrame source = frame(0);
+        AtomicInteger providerAttempts = new AtomicInteger();
+        RuntimeException sensitiveProviderFailure = new RuntimeException("private provider response");
+        assertThat(session.submitFrame(source)).isEqualTo(Disposition.DELIVERED);
+
+        assertThatThrownBy(() -> session.dispatchToProvider(source, ignored -> {
+            providerAttempts.incrementAndGet();
+            throw sensitiveProviderFailure;
+        }))
+                .isInstanceOf(ProviderOutcomeUnknownException.class)
+                .hasMessage("audio provider dispatch outcome is unknown for frame 0")
+                .hasNoCause();
+        assertThat(providerAttempts).hasValue(1);
+
+        assertThatThrownBy(() -> session.dispatchToProvider(source, ignored -> providerAttempts.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already dispatched");
+        assertThat(providerAttempts).hasValue(1);
     }
 
     @Test

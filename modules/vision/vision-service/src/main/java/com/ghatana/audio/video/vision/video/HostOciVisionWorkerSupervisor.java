@@ -97,10 +97,7 @@ final class HostOciVisionWorkerSupervisor {
         LaunchPlan plan = plan(command, workspace, outputDirectory, image, "docker",
                 null, null, UUID.randomUUID().toString(), Math.max(1L, Math.min(
                         maximumOutputBytes, DEFAULT_OUTPUT_FILE_LIMIT)));
-        int imageIndex = plan.createCommand().indexOf(plan.imageDigest());
-        List<String> workerArgs = imageIndex >= 0 && imageIndex + 1 < plan.createCommand().size()
-                ? plan.createCommand().subList(imageIndex + 1, plan.createCommand().size())
-                : List.of();
+        List<String> workerArgs = workerArguments(plan.workerCommand());
         String executable = Path.of(command.getFirst()).getFileName()
                 .toString().toLowerCase(Locale.ROOT);
         Path brokerOutput = outputDirectory == null ? null
@@ -357,7 +354,8 @@ final class HostOciVisionWorkerSupervisor {
                     ? effectiveLimitMismatches(inspection.output(), plan.source() != null,
                             outputDirectory != null, plan.uid() + ":" + plan.gid(),
                             "/usr/bin/" + Path.of(command.getFirst()).getFileName().toString().toLowerCase(Locale.ROOT),
-                            plan.imageDigest(), plan.source(), plan.output(), plan.outputFileLimit())
+                            plan.imageDigest(), plan.source(), plan.output(), plan.outputFileLimit(),
+                            workerArguments(plan.workerCommand()))
                     : List.of("inspect");
             if (!mismatches.isEmpty()) {
                 throw new IOException("Vision native media processing is unavailable: OCI preflight mismatch "
@@ -473,7 +471,11 @@ final class HostOciVisionWorkerSupervisor {
         if (workerCommand.size() > 1) create.addAll(workerCommand.subList(1, workerCommand.size()));
 
         return new LaunchPlan(dockerCli, containerName, List.copyOf(create), source, output, uid, gid,
-                MEMORY_BYTES, CPU_NANOS, PID_LIMIT, image, outputFileLimit);
+                MEMORY_BYTES, CPU_NANOS, PID_LIMIT, image, outputFileLimit, List.copyOf(workerCommand));
+    }
+
+    private static List<String> workerArguments(List<String> workerCommand) {
+        return workerCommand.size() <= 1 ? List.of() : workerCommand.subList(1, workerCommand.size());
     }
 
     private static Path locateSource(List<String> command, Path workspace, Path outputDirectory) throws IOException {
@@ -626,8 +628,25 @@ final class HostOciVisionWorkerSupervisor {
             Path expectedSource,
             Path expectedOutput,
             long expectedOutputFileLimit) {
+        return effectiveLimitsMatch(inspection, hasSourceMount, hasOutputMount, expectedUser,
+                expectedEntrypoint, expectedImage, expectedSource, expectedOutput,
+                expectedOutputFileLimit, null);
+    }
+
+    static boolean effectiveLimitsMatch(
+            String inspection,
+            boolean hasSourceMount,
+            boolean hasOutputMount,
+            String expectedUser,
+            String expectedEntrypoint,
+            String expectedImage,
+            Path expectedSource,
+            Path expectedOutput,
+            long expectedOutputFileLimit,
+            List<String> expectedCommand) {
         return effectiveLimitMismatches(inspection, hasSourceMount, hasOutputMount, expectedUser,
-                expectedEntrypoint, expectedImage, expectedSource, expectedOutput, expectedOutputFileLimit).isEmpty();
+                expectedEntrypoint, expectedImage, expectedSource, expectedOutput,
+                expectedOutputFileLimit, expectedCommand).isEmpty();
     }
 
     private static List<String> effectiveLimitMismatches(
@@ -639,7 +658,8 @@ final class HostOciVisionWorkerSupervisor {
             String expectedImage,
             Path expectedSource,
             Path expectedOutput,
-            long expectedOutputFileLimit) {
+            long expectedOutputFileLimit,
+            List<String> expectedCommand) {
         if (inspection == null) return List.of("inspect");
         String[] inspected = inspection.split("\\|", 3);
         if (inspected.length != 3) return List.of("inspect-format");
@@ -679,6 +699,9 @@ final class HostOciVisionWorkerSupervisor {
         requireMatch(mismatches, "entrypoint", stringArrayEquals(config.get("Entrypoint"), expectedEntrypoint));
         requireMatch(mismatches, "image", expectedImage.equals(string(config, "Image")));
         requireMatch(mismatches, "environment", workerEnvironmentMatches(config.get("Env")));
+        if (expectedCommand != null) {
+            requireMatch(mismatches, "command", stringArrayEquals(config.get("Cmd"), expectedCommand));
+        }
         requireMatch(mismatches, "socket", !mounts.toString().contains("/var/run/docker.sock"));
         int expectedMounts = (hasSourceMount ? 1 : 0) + (hasOutputMount ? 1 : 0);
         requireMatch(mismatches, "mount-count", mounts.size() == expectedMounts
@@ -712,6 +735,14 @@ final class HostOciVisionWorkerSupervisor {
 
     private static boolean stringArrayEquals(Object values, String expected) {
         return values instanceof List<?> list && list.size() == 1 && expected.equals(list.getFirst());
+    }
+
+    private static boolean stringArrayEquals(Object values, List<String> expected) {
+        if (!(values instanceof List<?> list) || list.size() != expected.size()) return false;
+        for (int i = 0; i < list.size(); i++) {
+            if (!(list.get(i) instanceof String actual) || !actual.equals(expected.get(i))) return false;
+        }
+        return true;
     }
 
     private static boolean ulimitsMatch(Object values, long expectedOutputFileLimit) {
@@ -958,7 +989,8 @@ final class HostOciVisionWorkerSupervisor {
 
     record LaunchPlan(String dockerCli, String containerName, List<String> createCommand,
             Path source, Path output, long uid, long gid, long memoryBytes,
-            long cpuNanos, int pidLimit, String imageDigest, long outputFileLimit) { }
+            long cpuNanos, int pidLimit, String imageDigest, long outputFileLimit,
+            List<String> workerCommand) { }
 
     static final class Prepared implements AutoCloseable {
         private final LaunchPlan plan;

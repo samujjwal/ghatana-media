@@ -75,6 +75,7 @@ public final class MediaOciBrokerDaemon {
     private static final Duration READ_DEADLINE = Duration.ofSeconds(10);
     private static final int OUTPUT_TAIL = 8192;
     private static final int MAX_CAPTURED_OUTPUT_CHARS = 1_000_000;
+    private static final int PREFLIGHT_FAILURE_EXIT_CODE = 125;
     /** Preserve the broker's previous serialized native-worker admission across modalities. */
     private static final Semaphore WORKER_ADMISSION = new Semaphore(1);
 
@@ -964,6 +965,22 @@ public final class MediaOciBrokerDaemon {
                 remove(docker, name, runner);
                 return "create-failed";
             }
+            CommandResult inspection;
+            try {
+                inspection = runner.run(List.of(docker, "inspect", "--format",
+                        "{{json .HostConfig}}|{{json .Config}}|{{json .Mounts}}", id), Duration.ofSeconds(10));
+            } catch (IOException inspectFailure) {
+                remove(docker, id, runner);
+                return preflightFailure("sandbox-preflight-inspect-error");
+            }
+            boolean effectiveLimitsMatch = !inspection.timedOut() && inspection.exitCode() == 0
+                    && HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                            inspection.output(), source != null, output != null, uid + ":" + gid,
+                            "/usr/bin/" + executable, image, source, output, outputLimit, workerArgs);
+            if (!effectiveLimitsMatch) {
+                remove(docker, id, runner);
+                return preflightFailure("sandbox-preflight-mismatch");
+            }
             CommandResult started = runner.run(List.of(docker, "start", "--attach", id), timeout);
             boolean timedOut = started.timedOut();
             if (timedOut) kill(docker, id, runner);
@@ -992,6 +1009,13 @@ public final class MediaOciBrokerDaemon {
             remove(docker, name, runner);
             throw failure;
         }
+    }
+
+    private static String preflightFailure(String reason) {
+        return "{\"exitCode\":" + PREFLIGHT_FAILURE_EXIT_CODE
+                + ",\"timedOut\":false,\"oomKilled\":false,\"outputBytes\":0"
+                + ",\"outputExceeded\":false,\"outputRejected\":false,\"files\":[]"
+                + ",\"tail\":" + json(reason) + "}";
     }
 
     record OutputSummary(long totalBytes, List<MediaOciBroker.OutputFile> files,

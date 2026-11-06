@@ -119,6 +119,7 @@ class HostOciVisionWorkerSupervisorTest {
                 + "{\"Type\":\"bind\",\"Source\":\"/tmp/input.mp4\",\"Target\":\"/source/input\",\"ReadOnly\":true},"
                 + "{\"Type\":\"bind\",\"Source\":\"/tmp/output\",\"Target\":\"/output\"}]}";
         String config = "{\"User\":\"501:20\",\"Entrypoint\":[\"/usr/bin/ffmpeg\"],"
+                + "\"Cmd\":[\"-i\",\"/tmp/input.mp4\"],"
                 + "\"Image\":\"" + IMAGE + "\","
                 + "\"Env\":[\"HOME=/tmp\",\"TMPDIR=/tmp\",\"PATH=/usr/bin:/bin\","
                 + "\"LANG=C.UTF-8\",\"LC_ALL=C.UTF-8\"]}";
@@ -128,8 +129,20 @@ class HostOciVisionWorkerSupervisorTest {
 
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
                 host + "|" + config + "|" + mounts, true, true, "501:20", "/usr/bin/ffmpeg",
-                IMAGE, Path.of("/tmp/input.mp4"), Path.of("/tmp/output")))
+                IMAGE, Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
+                List.of("-i", "/tmp/input.mp4")))
                 .isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host + "|" + config + "|" + mounts, true, true, "501:20", "/usr/bin/ffmpeg",
+                IMAGE, Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
+                List.of("-i", "/tmp/other.mp4")))
+                .isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host + "|" + config.replace("\"Cmd\":[\"-i\",\"/tmp/input.mp4\"]",
+                        "\"Cmd\":[\"-i\",\"/tmp/other.mp4\"]") + "|" + mounts,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE, Path.of("/tmp/input.mp4"),
+                Path.of("/tmp/output"), 536870912, List.of("-i", "/tmp/input.mp4")))
+                .isFalse();
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
                 host.replace("\"Memory\":1610612736", "\"Memory\":1610612735") + "|" + config + "|" + mounts,
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
