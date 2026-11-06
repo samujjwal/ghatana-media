@@ -610,7 +610,13 @@ describe('ghatanamedia-api canonical job commands', () => {
       let body = '';
       request.setEncoding('utf8').on('data', chunk => { body += chunk; });
       request.on('end', () => {
-      const submitted = { ...job };
+        const submittedRequest = JSON.parse(body) as Pick<typeof job, 'requestId' | 'artifactId' | 'jobType'>;
+        const submitted = {
+          ...job,
+          requestId: submittedRequest.requestId,
+          artifactId: submittedRequest.artifactId,
+          jobType: submittedRequest.jobType,
+        };
         if (!effects.has(key as string)) effects.set(key as string, submitted);
         response.writeHead(202, { 'content-type': 'application/json' }).end(JSON.stringify(effects.get(key as string)));
       });
@@ -624,6 +630,7 @@ describe('ghatanamedia-api canonical job commands', () => {
       expect(first.status).toBe(0);
       expect(restarted.status).toBe(0);
       expect(JSON.parse(first.stdout).job.status).toBe('ACCEPTED');
+      expect(JSON.parse(first.stdout).job.requestId).toBe('request-restart');
       expect(JSON.parse(restarted.stdout).job.jobId).toBe('job-1');
       expect(effects.size).toBe(1);
       expect(requests).toBe(2);
