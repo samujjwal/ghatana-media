@@ -172,6 +172,7 @@ public final class MediaDeliveryEngine {
                                  String versionRef, String artifactDigest, String destinationRef,
                                  Status status, int acknowledgedBytes, Optional<String> destinationReceiptRef) {
         public DeliveryResult {
+            Objects.requireNonNull(status, "status");
             destinationReceiptRef = destinationReceiptRef == null ? Optional.empty() : destinationReceiptRef;
             if ((status == Status.DESTINATION_CONFIRMED) != destinationReceiptRef.isPresent()) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");

@@ -21,6 +21,7 @@ public interface DeliveryOperationStore {
             artifactDigest = required(artifactDigest, "artifactDigest");
             destinationRef = required(destinationRef, "destinationRef");
             requestFingerprint = required(requestFingerprint, "requestFingerprint");
+            java.util.Objects.requireNonNull(status, "status");
             if (acknowledgedBytes < 0) throw new IllegalArgumentException("acknowledgedBytes must not be negative");
             if ((status == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED) != (destinationReceiptRef != null)) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");

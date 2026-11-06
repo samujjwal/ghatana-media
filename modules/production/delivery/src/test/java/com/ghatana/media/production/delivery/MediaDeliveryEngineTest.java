@@ -19,6 +19,21 @@ class MediaDeliveryEngineTest {
     private static final Instant NOW = Instant.parse("2026-11-05T12:00:00Z");
 
     @Test
+    void rejectsDeliveryRowsAndResultsWithoutAState() {
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", "sha256:request", null, 0, null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("status");
+
+        assertThatThrownBy(() -> new DeliveryResult(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", null, 0, Optional.empty()))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("status");
+    }
+
+    @Test
     void requiresExactDestinationReceiptAndChecksumForConfirmation() {
         Fixture f = new Fixture();
         f.destination.badFinalChecksum = true;
