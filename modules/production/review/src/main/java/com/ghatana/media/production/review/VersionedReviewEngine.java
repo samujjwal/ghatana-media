@@ -68,6 +68,7 @@ public final class VersionedReviewEngine {
         if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
         ReviewRecord record = store.append(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
                 fingerprint, nextId(), effectAuthority.authorityVersion(), safePayload, now);
+        requireExactAppendReceipt(actor, reviewCase, request, safePayload, effectAuthority, record);
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
                 record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);
     }
@@ -78,9 +79,46 @@ public final class VersionedReviewEngine {
         AuthorizationDecision authority = authorize(actor, reviewCase, INSPECT_OPERATION);
         Currentness currentness = authority.currentnessFor(reviewCase.reviewSubjectRef());
         if (currentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
-        List<RecordObservation> observations = store.read(actor, reviewCase).stream()
-                .map(record -> new RecordObservation(redacted(record), currentness)).toList();
+        List<ReviewRecord> stored = store.read(actor, reviewCase);
+        if (stored == null) throw new ReviewUnavailableException();
+        List<ReviewRecord> ordered = stored.stream().map(record -> {
+            requireExactReadback(actor, reviewCase, record);
+            return record;
+        }).sorted(java.util.Comparator.comparingLong(ReviewRecord::caseRevision)).toList();
+        for (int index = 0; index < ordered.size(); index++) {
+            if (ordered.get(index).caseRevision() != index + 1L) throw new ReviewUnavailableException();
+        }
+        List<RecordObservation> observations = ordered.stream()
+                .map(record -> new RecordObservation(redacted(record),
+                        authority.currentnessFor(record.reviewSubjectRef()))).toList();
         return new ReviewSnapshot(reviewCase, observations.size(), observations, currentness, clock.instant());
+    }
+
+    private static void requireExactAppendReceipt(Actor actor, ReviewCaseRef reviewCase, AppendRequest request,
+                                                  Payload payload, AuthorizationDecision authority,
+                                                  ReviewRecord record) {
+        if (record == null) throw new ReviewUnavailableException();
+        if (!record.tenantId().equals(actor.tenantId())
+                || !record.actor().equals(actor)
+                || !record.reviewCaseId().equals(reviewCase.reviewCaseId())
+                || !record.reviewSubjectRef().equals(reviewCase.reviewSubjectRef())
+                || !record.requestId().equals(request.requestId())
+                || !record.operationId().equals(payload.operationId())
+                || !record.payload().equals(payload)
+                || !record.authorityVersion().equals(authority.authorityVersion())
+                || record.caseRevision() != request.expectedCaseRevision() + 1L) {
+            throw new ReviewUnavailableException();
+        }
+    }
+
+    private static void requireExactReadback(Actor actor, ReviewCaseRef reviewCase, ReviewRecord record) {
+        if (record == null) throw new ReviewUnavailableException();
+        if (!record.tenantId().equals(actor.tenantId())
+                || !record.actor().tenantId().equals(actor.tenantId())
+                || !record.reviewCaseId().equals(reviewCase.reviewCaseId())
+                || !record.reviewSubjectRef().equals(reviewCase.reviewSubjectRef())) {
+            throw new ReviewCaseMismatchException();
+        }
     }
 
     private AuthorizationDecision authorize(Actor actor, ReviewCaseRef reviewCase, String operation) {

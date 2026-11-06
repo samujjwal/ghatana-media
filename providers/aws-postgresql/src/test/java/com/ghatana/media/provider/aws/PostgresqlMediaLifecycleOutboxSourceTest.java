@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,20 +121,25 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
         insertEvent("media:test:outbox-expired-claim");
         CountDownLatch publishing = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
+        var brokerAccepted = new CopyOnWriteArrayList<String>();
         var expiredOwner = source(3, Duration.ofMillis(100), Duration.ofMillis(50), Duration.ofMillis(200));
         var recoveryOwner = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
         ExecutorService worker = Executors.newSingleThreadExecutor();
         try {
             Future<PostgresqlMediaLifecycleOutboxSource.BatchResult> oldBatch = worker.submit(
                     () -> expiredOwner.publishPending(publisher(event -> {
+                        brokerAccepted.add(event.eventId());
                         publishing.countDown();
                         if (!release.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("publisher timed out");
                     }), 10));
             assertThat(publishing.await(5, TimeUnit.SECONDS)).isTrue();
             Thread.sleep(150);
-            assertThat(recoveryOwner.publishPending(publisher(event -> { }), 10).published()).isEqualTo(1);
+            assertThat(recoveryOwner.publishPending(publisher(event -> brokerAccepted.add(event.eventId())), 10)
+                    .published()).isEqualTo(1);
             release.countDown();
             assertThat(oldBatch.get(5, TimeUnit.SECONDS).published()).isZero();
+            assertThat(brokerAccepted).containsExactly("media:test:outbox-expired-claim",
+                    "media:test:outbox-expired-claim");
         } finally {
             release.countDown();
             worker.shutdownNow();

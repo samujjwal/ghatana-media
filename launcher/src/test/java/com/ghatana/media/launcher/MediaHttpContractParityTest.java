@@ -90,6 +90,18 @@ class MediaHttpContractParityTest {
             assertThat(operation.path("responses").isObject())
                     .as("route %s must document typed outcomes", id)
                     .isTrue();
+            JsonNode longRunning = operation.path("x-ghatana-long-running-operation");
+            if (longRunning.isObject()) {
+                String statusHeader = longRunning.path("statusHeader").asText();
+                assertThat(statusHeader).isNotBlank();
+                JsonNode acceptedResponse = operation.path("responses").path("202");
+                assertThat(acceptedResponse.path("headers").has(statusHeader))
+                        .as("long-running route %s must declare its status header", id)
+                        .isTrue();
+                assertThat(acceptedResponse.path("headers").has("Retry-After"))
+                        .as("long-running route %s must declare a bounded polling hint", id)
+                        .isTrue();
+            }
             if (!route.publicAccess()) {
                 assertThat(operation.path("responses").has("401"))
                         .as("protected route %s must document missing authentication", id)
@@ -99,6 +111,16 @@ class MediaHttpContractParityTest {
                         .isTrue();
             }
         }
+        JsonNode jobRead = openApi.path("paths").path("/api/v1/jobs/{jobId}").path("get");
+        boolean hasRequestId = false;
+        for (JsonNode parameter : jobRead.path("parameters")) {
+            if ("requestId".equals(parameter.path("name").asText())
+                    && "query".equals(parameter.path("in").asText())) {
+                hasRequestId = true;
+                break;
+            }
+        }
+        assertThat(hasRequestId).as("job reconciliation requestId query must be documented").isTrue();
     }
 
     private static String routeId(RouteEntry route) {

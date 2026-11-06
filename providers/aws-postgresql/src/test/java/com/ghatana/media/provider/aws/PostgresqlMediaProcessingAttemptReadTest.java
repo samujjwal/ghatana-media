@@ -95,8 +95,38 @@ class PostgresqlMediaProcessingAttemptReadTest {
                     "artifact-a", JobType.TRANSCODE, "provider-a", JobStatus.COMPLETED, accepted.createdAt(),
                     started.running().startedAt(), observedAt, providerResult, "", started.running().version() + 1,
                     "", FINGERPRINT);
-            initial.commitFinalOutcome(started.running(), withReceipt, completed, observation,
-                    event(completed, "MEDIA_JOB_COMPLETED"));
+            MediaLifecycleEvent completedEvent = event(completed, "MEDIA_JOB_COMPLETED");
+            initial.commitFinalOutcome(started.running(), withReceipt, completed, observation, completedEvent);
+            ProcessingJob canonicalReadback = initial.find(tenant, jobId).orElseThrow();
+            assertThat(canonicalReadback.status()).isEqualTo(JobStatus.COMPLETED);
+            assertThat(canonicalReadback.version()).isEqualTo(completed.version());
+            try (Connection connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 PreparedStatement query = connection.prepareStatement(
+                         "SELECT tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,payload_json "
+                                 + "FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+                query.setString(1, completedEvent.eventId());
+                try (ResultSet row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getString("tenant_id")).isEqualTo(tenant);
+                    assertThat(row.getString("aggregate_type")).isEqualTo("job");
+                    assertThat(row.getString("aggregate_id")).isEqualTo(jobId);
+                    assertThat(row.getLong("aggregate_version")).isEqualTo(canonicalReadback.version());
+                    assertThat(row.getString("event_type")).isEqualTo("MEDIA_JOB_COMPLETED");
+                    MediaAwsPostgresqlRuntimeState outboxState = MediaAwsPostgresqlRuntimeState.acquire();
+                    MediaLifecycleEvent appended;
+                    try {
+                        appended = outboxState.mapper().readValue(row.getString("payload_json"), MediaLifecycleEvent.class);
+                    } finally {
+                        outboxState.release();
+                    }
+                    assertThat(appended.eventId()).isEqualTo(completedEvent.eventId());
+                    assertThat(appended.aggregateVersion()).isEqualTo(canonicalReadback.version());
+                    assertThat(appended.aggregateId()).isEqualTo(canonicalReadback.jobId());
+                    assertThat(appended.tenantId()).isEqualTo(canonicalReadback.tenantId());
+                    assertThat(appended.eventType()).isEqualTo("MEDIA_JOB_COMPLETED");
+                }
+            }
 
             try (PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore()) {
                 initial.close();

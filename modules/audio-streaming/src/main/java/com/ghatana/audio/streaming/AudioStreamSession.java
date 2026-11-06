@@ -18,7 +18,7 @@ public final class AudioStreamSession {
     /** Maximum accepted frame payload; larger inputs are rejected before allocation. */
     static final int MAX_FRAME_PAYLOAD_BYTES = 8 * 1024 * 1024;
     /** Reserve {@link Integer#MAX_VALUE} so cursor advancement never wraps into a negative value. */
-    static final int MAX_FRAME_SEQUENCE_NUMBER = Integer.MAX_VALUE - 1;
+    public static final int MAX_FRAME_SEQUENCE_NUMBER = Integer.MAX_VALUE - 1;
 
     /** Bounded decoder outcomes; values never contain input bytes or caller data. */
     public enum FrameDecodeError {

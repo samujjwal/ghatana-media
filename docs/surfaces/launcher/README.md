@@ -19,6 +19,10 @@ and stable terminal reads — **no second writer**.
   JWT claims or the configured bootstrap service identity. Caller-supplied
   `X-Principal-Id` is discarded; a local development identity is synthetic
   and cannot select a user principal.
+- Accepted job submissions and stream-frame acknowledgements expose canonical
+  `Location` status links plus `Retry-After: 1`; the retry hint means poll the
+  exact job/session read route and is not a completion claim. Job reads can
+  include `requestId` to require exact submission identity during reconciliation.
 - Supporting runtimes compose consent administration, caption
   registration/parent-clock, lifecycle publication, privacy maintenance,
   semantic redaction, production-run coordination and canonical stream

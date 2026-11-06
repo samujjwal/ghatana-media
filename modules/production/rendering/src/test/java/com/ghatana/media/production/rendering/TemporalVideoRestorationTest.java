@@ -71,6 +71,140 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void deterministicImpulseNoiseReferencePreservesVariablePtsAndRationalTimebase() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        TimeBase sourceTimeBase = new TimeBase(1_001, 30_000);
+        byte[][] sourcePixels = {
+                {32, 64, 96, 101, 102, 103},
+                {(byte) 250, (byte) 255, (byte) 255, 111, 112, 113},
+                {32, 64, 96, 121, 122, 123},
+        };
+        List<Frame> sourceFrames = List.of(
+                new Frame(0, 0, 2, 1, roi, sourcePixels[0]),
+                new Frame(1, 1_001, 2, 1, roi, sourcePixels[1]),
+                new Frame(2, 3_003, 2, 1, roi, sourcePixels[2]));
+        DecodedFrameSequence source = new DecodedFrameSequence("source", "v3", SOURCE_SHA,
+                sourceTimeBase, sourceFrames);
+        byte[][] referencePixels = {
+                {32, 64, 96, 0, 0, 0},
+                {32, 64, 96, 0, 0, 0},
+                {32, 64, 96, 0, 0, 0},
+        };
+        List<Frame> referenceFrames = List.of(
+                new Frame(0, 0, 2, 1, roi, referencePixels[0]),
+                new Frame(1, 1_001, 2, 1, roi, referencePixels[1]),
+                new Frame(2, 3_003, 2, 1, roi, referencePixels[2]));
+        DecodedFrameSequence reference = new DecodedFrameSequence("reference", "v7", REF_SHA,
+                sourceTimeBase, referenceFrames);
+
+        Candidate candidate = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.of(referenceRequest()), binding -> reference,
+                (binding, purpose) -> allowed("reference-decision-v2")).candidate().orElseThrow();
+
+        assertThat(candidate.timeBase()).isEqualTo(sourceTimeBase);
+        assertThat(candidate.frames()).extracting(CandidateFrame::frameIndex).containsExactly(0, 1, 2);
+        assertThat(candidate.frames()).extracting(CandidateFrame::presentationTicks).containsExactly(0L, 1_001L, 3_003L);
+        assertThat(candidate.frames()).allSatisfy(frame ->
+                assertThat(frame.rgb()).contains((byte) 32, (byte) 64, (byte) 96));
+        assertThat(candidate.frames().get(1).rgb()).containsExactly((byte) 32, (byte) 64, (byte) 96, 111, 112, 113);
+        assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.EXACT_REFERENCE_MATCH);
+        assertThat(candidate.referenceMetrics().psnr().finiteDb()).isEmpty();
+        assertThat(candidate.referenceMetrics().globalLumaSsim().orElseThrow()).isEqualTo(1.0);
+        assertThat(candidate.sourceDelta().changedSamples()).isEqualTo(3);
+        assertThat(candidate.improvementClaimed()).isFalse();
+    }
+
+    @Test
+    void unsharpMaskUsesDocumentedRgbRoundingAndAuthorizedReferenceMetrics() {
+        Roi roi = new Roi(0, 0, 3, 1);
+        TimeBase timeBase = new TimeBase(1, 30);
+        byte[][] sourcePixels = {{0, 100, 0, 0, 100, 0, 0, 100, 0},
+                {0, 100, 0, 0, 100, 0, 0, 100, 0}, {0, 100, 0, 0, 100, 0, 0, 100, 0}};
+        DecodedFrameSequence source = sequenceWithTimeBase("source", "v3", SOURCE_SHA, sourcePixels, roi, timeBase);
+        byte[][] expectedPixels = {{0, 0, 0, 0, (byte) 167, 0, 0, 0, 0},
+                {0, 0, 0, 0, (byte) 167, 0, 0, 0, 0}, {0, 0, 0, 0, (byte) 167, 0, 0, 0, 0}};
+        DecodedFrameSequence reference = sequenceWithTimeBase("reference", "v7", REF_SHA,
+                expectedPixels, roi, timeBase);
+        byte[][] original = cloneFrames(sourcePixels);
+        AtomicInteger checked = new AtomicInteger();
+        RestorationRequest request = request(FilterParameters.unsharpMask("noise-profile-v2", 1.0));
+
+        Candidate candidate = TemporalVideoRestoration.restore(request, (binding, operation) -> {
+                    assertThat(operation).isEqualTo(UNSHARP_OPERATION_ID);
+                    checked.incrementAndGet();
+                    return allowed("source-decision-v3");
+                }, binding -> source,
+                Optional.of(referenceRequest()), binding -> reference,
+                (binding, purpose) -> allowed("reference-decision-v2")).candidate().orElseThrow();
+
+        assertThat(candidate.frames()).extracting(CandidateFrame::rgb)
+                .containsExactly(expectedPixels[0], expectedPixels[1], expectedPixels[2]);
+        assertThat(candidate.lineage().operationId()).isEqualTo(UNSHARP_OPERATION_ID);
+        assertThat(candidate.lineage().profileId()).isEqualTo(UNSHARP_PROFILE_ID);
+        assertThat(candidate.lineage().parameterVersion()).isEqualTo("noise-profile-v2");
+        assertThat(candidate.lineage().parameterSha256()).matches("[a-f0-9]{64}");
+        assertThat(candidate.lineage().outputDisclosure()).contains("round-half-up", "clamp to [0,255]");
+        assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.EXACT_REFERENCE_MATCH);
+        assertThat(candidate.improvementClaimed()).isFalse();
+        assertThat(candidate.clippedSamples()).isEqualTo(18);
+        assertThat(checked).hasValue(3);
+        for (int index = 0; index < sourcePixels.length; index++) {
+            assertThat(sourcePixels[index]).containsExactly(original[index]);
+        }
+    }
+
+    @Test
+    void rgbAdjustmentRoundsClipsAndPreservesPixelsOutsideRoi() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        byte[][] sourcePixels = {{(byte) 200, 10, 20, 70, 80, 90},
+                {(byte) 200, 10, 20, 71, 81, 91}, {(byte) 200, 10, 20, 72, 82, 92}};
+        byte[][] original = cloneFrames(sourcePixels);
+        DecodedFrameSequence source = sequence(SOURCE_SHA, sourcePixels, roi);
+        FilterParameters parameters = FilterParameters.rgbAdjustment("grade-v4", 2.0, 1.25, 0.5, 0, 0, 0);
+        Candidate candidate = TemporalVideoRestoration.restore(request(parameters),
+                (binding, operation) -> {
+                    assertThat(operation).isEqualTo(COLOR_OPERATION_ID);
+                    return allowed("source-decision-v3");
+                }, binding -> source, Optional.empty(), null, null).candidate().orElseThrow();
+
+        assertThat(candidate.frames().getFirst().rgb())
+                .containsExactly((byte) 255, (byte) 13, (byte) 10, 70, 80, 90);
+        assertThat(candidate.frames()).extracting(CandidateFrame::presentationTicks).containsExactly(0L, 1L, 2L);
+        assertThat(candidate.lineage().parameterVersion()).isEqualTo("grade-v4");
+        assertThat(candidate.lineage().outputDisclosure()).contains("gain/offset", "clamp to [0,255]");
+        assertThat(candidate.sourceDelta().maximumAbsoluteChange()).isEqualTo(55);
+        assertThat(candidate.clippedSamples()).isEqualTo(3);
+        assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+        assertThat(candidate.improvementClaimed()).isFalse();
+        for (int index = 0; index < sourcePixels.length; index++) {
+            assertThat(sourcePixels[index]).containsExactly(original[index]);
+        }
+    }
+
+    @Test
+    void identityProfilesAreNoOpAndInvalidOrUnboundedProfilesAreRejected() {
+        DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+        Candidate noOp = TemporalVideoRestoration.restore(request(
+                        FilterParameters.rgbAdjustment("identity-v1", 1, 1, 1, 0, 0, 0)),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.empty(), null, null).candidate().orElseThrow();
+        assertThat(noOp.frames().getFirst().rgb()).containsExactly((byte) 10, (byte) 20, (byte) 30);
+        assertThat(noOp.sourceDelta().changedSamples()).isZero();
+        assertThat(noOp.clippedSamples()).isZero();
+        assertThat(noOp.improvementClaimed()).isFalse();
+
+        assertThatThrownBy(() -> FilterParameters.unsharpMask("unbounded", 2.01))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("unsharp amount");
+        assertThatThrownBy(() -> FilterParameters.unsharpMask("nan", Double.NaN))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("finite");
+        assertThatThrownBy(() -> FilterParameters.rgbAdjustment("invalid-gain", 4.01, 1, 1, 0, 0, 0))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("RGB gains");
+        assertThatThrownBy(() -> FilterParameters.rgbAdjustment("invalid-offset", 1, 1, 1, 0, 0, 256))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("offsets");
+    }
+
+    @Test
     void measuredReferenceReportsFinitePsnrAndGlobalLumaSsim() {
         byte[][] sourcePixels = {{0, 0, 0}, {100, 100, 100}, {0, 0, 0}};
         byte[][] referencePixels = {{10, 10, 10}, {10, 10, 10}, {10, 10, 10}};
@@ -234,6 +368,10 @@ class TemporalVideoRestorationTest {
         return new RestorationRequest("request-1", sourceBinding());
     }
 
+    private static RestorationRequest request(FilterParameters parameters) {
+        return new RestorationRequest("request-1", sourceBinding(), parameters);
+    }
+
     private static ArtifactBinding sourceBinding() {
         return new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
                 "purpose:preserve-video", List.of("rights:source:v3"), "policy:source:v3");
@@ -261,6 +399,16 @@ class TemporalVideoRestorationTest {
             frames.add(frame(i, i, rgb[i], roi));
         }
         return new DecodedFrameSequence(artifactId, version, sha, TIME_BASE, frames);
+    }
+
+    private static DecodedFrameSequence sequenceWithTimeBase(String artifactId, String version, String sha,
+            byte[][] rgb, Roi roi, TimeBase timeBase) {
+        List<Frame> frames = new ArrayList<>();
+        long[] pts = {0, 1_001, 3_003};
+        for (int i = 0; i < rgb.length; i++) {
+            frames.add(new Frame(i, pts[i], 3, 1, roi, rgb[i]));
+        }
+        return new DecodedFrameSequence(artifactId, version, sha, timeBase, frames);
     }
 
     private static Frame frame(int index, long pts, byte[] rgb, Roi roi) {

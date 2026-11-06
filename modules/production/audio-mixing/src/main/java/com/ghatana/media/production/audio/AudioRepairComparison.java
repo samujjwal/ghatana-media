@@ -46,6 +46,9 @@ public final class AudioRepairComparison {
     public String repairedSha256() { return repairedSha256; }
     public Metrics metrics() { return metrics; }
 
+    /** Restore the exact immutable input branch as a fresh value; no repair is applied. */
+    public AudioData undo() { return copy(source); }
+
     private static AudioData copy(AudioData value) {
         return new AudioData(value.data(), value.sampleRate(), value.channels(), value.bitsPerSample(),
                 value.duration(), value.format());
@@ -91,14 +94,21 @@ public final class AudioRepairComparison {
         double referenceEnergy = 0;
         double errorEnergy = 0;
         int bytes = source.bitsPerSample() / 8;
-        long peak = 0;
+        long sourcePeak = 0;
+        long repairedPeak = 0;
+        long sourceNearClip = 0;
+        long repairedNearClip = 0;
+        long nearClipThreshold = (long) Math.ceil(((1L << (source.bitsPerSample() - 1)) - 1L) * 0.999);
         for (int offset = 0; offset < output.length; offset += bytes) {
             long left = readSigned(original, offset, bytes);
             long right = readSigned(output, offset, bytes);
             if (left != right) changed++;
             inputEnergy += (double) left * left;
             outputEnergy += (double) right * right;
-            peak = Math.max(peak, Math.abs(right));
+            sourcePeak = Math.max(sourcePeak, Math.abs(left));
+            repairedPeak = Math.max(repairedPeak, Math.abs(right));
+            if (Math.abs(left) >= nearClipThreshold) sourceNearClip++;
+            if (Math.abs(right) >= nearClipThreshold) repairedNearClip++;
             if (reference != null) {
                 long expected = readSigned(reference.data(), offset, bytes);
                 double error = (double) expected - right;
@@ -110,8 +120,38 @@ public final class AudioRepairComparison {
         double snr = reference == null ? Double.NaN :
                 errorEnergy == 0 ? Double.POSITIVE_INFINITY :
                 referenceEnergy == 0 ? Double.NEGATIVE_INFINITY : 10.0 * Math.log10(referenceEnergy / errorEnergy);
-        return new Metrics(Math.sqrt(inputEnergy / count), Math.sqrt(outputEnergy / count), peak,
-                changed, snr, reference != null);
+        double sourceRms = Math.sqrt(inputEnergy / count);
+        double repairedRms = Math.sqrt(outputEnergy / count);
+        double rmsChangeDb = sourceRms == 0.0
+                ? (repairedRms == 0.0 ? 0.0 : Double.POSITIVE_INFINITY)
+                : 20.0 * Math.log10(repairedRms / sourceRms);
+        Double sourceStereoCorrelation = stereoCorrelation(original, source);
+        Double repairedStereoCorrelation = stereoCorrelation(output, repaired);
+        Double stereoCorrelationDelta = sourceStereoCorrelation == null || repairedStereoCorrelation == null ? null
+                : Math.abs(sourceStereoCorrelation - repairedStereoCorrelation);
+        return new Metrics(sourceRms, repairedRms, sourcePeak, repairedPeak,
+                sourceNearClip, repairedNearClip, changed, rmsChangeDb, snr,
+                reference != null, sourceStereoCorrelation, repairedStereoCorrelation,
+                stereoCorrelationDelta);
+    }
+
+    /** Zero-lag channel correlation is an explicit stereo phase/polarity proxy, not a perceptual score. */
+    private static Double stereoCorrelation(byte[] bytes, AudioData format) {
+        if (format.channels() < 2) return null;
+        int sampleBytes = format.bitsPerSample() / 8;
+        int frameBytes = sampleBytes * format.channels();
+        double leftRight = 0.0;
+        double leftEnergy = 0.0;
+        double rightEnergy = 0.0;
+        for (int offset = 0; offset < bytes.length; offset += frameBytes) {
+            long left = readSigned(bytes, offset, sampleBytes);
+            long right = readSigned(bytes, offset + sampleBytes, sampleBytes);
+            leftRight += (double) left * right;
+            leftEnergy += (double) left * left;
+            rightEnergy += (double) right * right;
+        }
+        if (leftEnergy == 0.0 || rightEnergy == 0.0) return null;
+        return Math.max(-1.0, Math.min(1.0, leftRight / Math.sqrt(leftEnergy * rightEnergy)));
     }
 
     private static long readSigned(byte[] data, int offset, int bytes) {
@@ -130,7 +170,9 @@ public final class AudioRepairComparison {
         }
     }
 
-    public record Metrics(double sourceRms, double repairedRms, long repairedPeak,
-                          long changedSampleCount, double snrDbVsReference,
-                          boolean hasIndependentReference) { }
+    public record Metrics(double sourceRms, double repairedRms, long sourcePeak, long repairedPeak,
+                          long sourceNearClipSampleCount, long repairedNearClipSampleCount,
+                          long changedSampleCount, double rmsChangeDb, double snrDbVsReference,
+                          boolean hasIndependentReference, Double sourceStereoCorrelation,
+                          Double repairedStereoCorrelation, Double stereoCorrelationDelta) { }
 }

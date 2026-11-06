@@ -60,6 +60,29 @@ class MediaPublicLifecycleEventTest {
     }
 
     @Test
+    void publicProjectionRejectsFreeTextThatCouldLeakInClassificationOrAggregateType() {
+        var payload = new java.util.LinkedHashMap<>(MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload());
+        payload.put("classification", "RESTRICTED principal@example.test");
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> new MediaPublicLifecycleEvent("1.0.0", "r1_" + "a".repeat(64),
+                MediaLifecycleEventType.JOB_ACCEPTED, "r1_" + "b".repeat(64), "r1_" + "c".repeat(64),
+                "r1_" + "d".repeat(64), "", "job-private-123", "r1_" + "e".repeat(64),
+                1, "RESTRICTED user@example.test", Instant.EPOCH,
+                MediaPublicLifecycleEvent.AppendFinality.NON_FINAL_APPEND, false))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> new MediaPublicLifecycleEvent("1.0.0", "r1_" + "a".repeat(64),
+                MediaLifecycleEventType.JOB_ACCEPTED, "r1_" + "b".repeat(64), "r1_" + "c".repeat(64),
+                "r1_" + "d".repeat(64), "", "job", "r1_" + "e".repeat(64),
+                1, "raw-tenant-123", Instant.EPOCH,
+                MediaPublicLifecycleEvent.AppendFinality.NON_FINAL_APPEND, false))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void publicSchemaPinsVersionEventNamesRedactedIdentifiersAndNonfinalAppendAbi() throws Exception {
         try (InputStream input = getClass().getResourceAsStream("/contracts/media-public-lifecycle-event-v1.schema.json")) {
             assertThat(input).isNotNull();
@@ -67,6 +90,10 @@ class MediaPublicLifecycleEventTest {
             assertThat(schema.path("additionalProperties").booleanValue()).isFalse();
             assertThat(schema.path("properties").path("schemaVersion").path("const").textValue()).isEqualTo("1.0.0");
             assertThat(schema.path("properties").path("appendFinality").path("const").textValue()).isEqualTo("NON_FINAL_APPEND");
+            assertThat(schema.path("properties").path("aggregateType").path("enum").toString())
+                    .isEqualTo("[\"upload\",\"artifact\",\"job\",\"stream\"]");
+            assertThat(schema.path("properties").path("classification").path("enum").toString())
+                    .isEqualTo("[\"PUBLIC\",\"INTERNAL\",\"CONFIDENTIAL\",\"RESTRICTED\"]");
             assertThat(schema.path("$defs").path("redactedId").path("pattern").textValue())
                     .isEqualTo("^r1_[0-9a-f]{64}$");
             assertThat(schema.path("$defs").path("eventType").path("enum").size())

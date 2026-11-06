@@ -44,8 +44,7 @@ public final class StoryboardPlanner {
         validateUniqueShots(scenes);
 
         List<PlannedScene> ordered = scenes.stream().map(StoryboardPlanner::planScene)
-                .sorted(Comparator.comparing(PlannedScene::storyStart)
-                        .thenComparingInt(PlannedScene::authoredOrder)
+                .sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
                         .thenComparing(PlannedScene::sceneId)).toList();
         List<SourceVersion> allSources = collectSources(brief, ordered);
         verifyCurrent(actor, brief.purpose(), allSources);
@@ -67,11 +66,47 @@ public final class StoryboardPlanner {
         if (!plan.ownerPrincipalId().equals(actor.principalId())) throw new ProjectAccessDeniedException();
         String request = required(requestId, "requestId");
         verifyCurrent(actor, plan.brief().purpose(), plan.exactSources());
-        return authority.append(actor, plan, plan.expectedProjectRevisionId(),
-                optionalVersion(expectedParentSemanticVersion), request);
+        SavedPlan saved = Objects.requireNonNull(authority.append(actor, plan, plan.expectedProjectRevisionId(),
+                optionalVersion(expectedParentSemanticVersion), request),
+                "scene plan authority returned no append receipt");
+        if (!saved.plan().equals(plan) || saved.state() != EditionState.PERSISTED_DRAFT) {
+            throw new ScenePlanAuthorityProtocolException("append receipt does not identify the exact draft edition");
+        }
+        return saved;
+    }
+
+    /** Records a review as a separate immutable receipt over the exact persisted draft version. */
+    public ReviewedPlan review(Actor reviewer, SavedPlan saved, String expectedProjectRevisionId,
+                               String requestId, ScenePlanReviewAuthority authority) {
+        Objects.requireNonNull(reviewer, "reviewer");
+        Objects.requireNonNull(saved, "saved");
+        Objects.requireNonNull(authority, "authority");
+        ScenePlan plan = saved.plan();
+        if (!plan.tenantId().equals(reviewer.tenantId())) throw new ProjectNotFoundException();
+        if (saved.state() != EditionState.PERSISTED_DRAFT) {
+            throw new ScenePlanAuthorityProtocolException("only a persisted draft can be reviewed");
+        }
+        if (!plan.expectedProjectRevisionId().equals(required(expectedProjectRevisionId,
+                "expectedProjectRevisionId"))) {
+            throw new ScenePlanConflictException("project revision does not match the saved draft");
+        }
+        String request = required(requestId, "requestId");
+        verifyCurrent(reviewer, plan.brief().purpose(), plan.exactSources());
+        ReviewedPlan reviewed = Objects.requireNonNull(authority.appendReview(
+                reviewer, saved, expectedProjectRevisionId, request),
+                "scene plan review authority returned no review receipt");
+        if (!reviewed.savedPlan().equals(saved) || !reviewed.reviewer().equals(reviewer)
+                || !reviewed.projectRevisionId().equals(expectedProjectRevisionId)
+                || reviewed.state() != EditionState.REVIEWED) {
+            throw new ScenePlanAuthorityProtocolException("review receipt does not identify the exact edition");
+        }
+        return reviewed;
     }
 
     public enum DraftDisposition { LOCAL_DRAFT_CANDIDATE }
+
+    /** These states describe only local draft preparation and authority receipts; review is not approval. */
+    public enum EditionState { LOCAL_DRAFT, PERSISTED_DRAFT, REVIEWED }
 
     /** Rights are an authoritative fresh observation, not a property of authored brief text. */
     public enum SourceDecision { ELIGIBLE, MISSING, STALE, REVOKED, DENIED, UNKNOWN }
@@ -86,6 +121,16 @@ public final class StoryboardPlanner {
     public interface ScenePlanAuthority {
         SavedPlan append(Actor actor, ScenePlan plan, String expectedProjectHeadRevisionId,
                          String expectedParentSemanticVersion, String requestId);
+    }
+
+    /**
+     * Host-owned append-only review receipt authority. Implementations must verify the saved owner receipt,
+     * exact project head, reviewer authority, and expected revision atomically. No inferred review is accepted.
+     */
+    @FunctionalInterface
+    public interface ScenePlanReviewAuthority {
+        ReviewedPlan appendReview(Actor reviewer, SavedPlan exactEdition,
+                                  String expectedProjectRevisionId, String requestId);
     }
 
     public record AuthoredBrief(String briefId, String semanticVersion, String purpose,
@@ -137,7 +182,8 @@ public final class StoryboardPlanner {
             if (authoredOrder < 0) throw new IllegalArgumentException("scene order must be non-negative");
             intent = required(intent, "scene intent");
             validateStoryInterval(storyStart, storyDuration, "scene");
-            shots = List.copyOf(shots);
+            shots = List.copyOf(shots).stream().sorted(Comparator.comparingInt(PlannedShot::authoredOrder)
+                    .thenComparing(PlannedShot::shotId)).toList();
             if (shots.isEmpty()) throw new IllegalArgumentException("each scene requires at least one planned shot");
             Set<String> ids = new HashSet<>();
             Set<Integer> orders = new HashSet<>();
@@ -170,8 +216,8 @@ public final class StoryboardPlanner {
             semanticVersion = required(semanticVersion, "semanticVersion");
             expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
-            scenes = List.copyOf(scenes).stream().sorted(Comparator.comparing(PlannedScene::storyStart)
-                    .thenComparingInt(PlannedScene::authoredOrder).thenComparing(PlannedScene::sceneId)).toList();
+            scenes = List.copyOf(scenes).stream().sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
+                    .thenComparing(PlannedScene::sceneId)).toList();
             if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard plan requires at least one scene");
             Set<String> sceneIds = new HashSet<>();
             Set<Integer> sceneOrders = new HashSet<>();
@@ -194,12 +240,36 @@ public final class StoryboardPlanner {
             }
         }
 
+        public EditionState state() { return EditionState.LOCAL_DRAFT; }
+
     }
 
-    public record SavedPlan(ScenePlan plan, String ownerReceipt) {
+    public record SavedPlan(ScenePlan plan, String ownerReceipt, EditionState state) {
         public SavedPlan {
             Objects.requireNonNull(plan, "plan");
             ownerReceipt = required(ownerReceipt, "ownerReceipt");
+            Objects.requireNonNull(state, "state");
+            if (state != EditionState.PERSISTED_DRAFT) {
+                throw new IllegalArgumentException("append receipt must describe a persisted draft");
+            }
+        }
+        public SavedPlan(ScenePlan plan, String ownerReceipt) {
+            this(plan, ownerReceipt, EditionState.PERSISTED_DRAFT);
+        }
+    }
+
+    /** Review record references an immutable edition and owner receipt without changing that edition. */
+    public record ReviewedPlan(SavedPlan savedPlan, Actor reviewer, String projectRevisionId,
+                              String reviewReceipt, EditionState state) {
+        public ReviewedPlan {
+            Objects.requireNonNull(savedPlan, "savedPlan");
+            Objects.requireNonNull(reviewer, "reviewer");
+            projectRevisionId = required(projectRevisionId, "projectRevisionId");
+            reviewReceipt = required(reviewReceipt, "reviewReceipt");
+            Objects.requireNonNull(state, "state");
+            if (state != EditionState.REVIEWED) {
+                throw new IllegalArgumentException("review receipt must identify a reviewed edition");
+            }
         }
     }
 
@@ -220,6 +290,9 @@ public final class StoryboardPlanner {
     }
     public static class ScenePlanConflictException extends IllegalStateException {
         public ScenePlanConflictException(String message) { super(message); }
+    }
+    public static class ScenePlanAuthorityProtocolException extends IllegalStateException {
+        public ScenePlanAuthorityProtocolException(String message) { super(message); }
     }
 
     private void verifyCurrent(Actor actor, String purpose, List<SourceVersion> sources) {
@@ -269,8 +342,7 @@ public final class StoryboardPlanner {
     private static PlannedScene planScene(AuthoredScene scene) {
         List<PlannedShot> shots = scene.shots().stream()
                 .map(s -> new PlannedShot(s.shotId(), s.order(), s.intent(), s.storyStart(), s.storyDuration(), s.exactSources()))
-                .sorted(Comparator.comparing(PlannedShot::storyStart)
-                        .thenComparingInt(PlannedShot::authoredOrder)
+                .sorted(Comparator.comparingInt(PlannedShot::authoredOrder)
                         .thenComparing(PlannedShot::shotId)).toList();
         return new PlannedScene(scene.sceneId(), scene.order(), scene.intent(), scene.storyStart(), scene.storyDuration(), shots);
     }

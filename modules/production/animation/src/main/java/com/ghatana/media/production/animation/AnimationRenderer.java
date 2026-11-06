@@ -41,8 +41,10 @@ public final class AnimationRenderer {
     public static final int MAX_FRAMES = 240;
     public static final int MAX_SHAPES = 4_096;
     public static final int MAX_PARTICLE_FIELDS = 64;
+    public static final int MAX_RASTER_ASSETS = 4_096;
     public static final int MAX_PARTICLES_PER_FIELD = 10_000;
     public static final long MAX_PARTICLE_DRAWS = 1_000_000L;
+    public static final long MAX_ASSET_PIXELS = 4_194_304L;
     public static final int MAX_KEYFRAMES_PER_SHAPE = 240;
     public static final int MAX_ENCODED_ANIMATION_BYTES = 64 * 1024 * 1024;
     public static final int MAX_ENCODED_FRAME_BYTES = 16 * 1024 * 1024;
@@ -50,16 +52,26 @@ public final class AnimationRenderer {
     private static final double MAX_SCALE = 64.0;
     private static final double MAX_ROTATION_DEGREES = 36_000.0;
 
-    public enum Primitive { RECTANGLE, ELLIPSE, LINE }
+    public enum Primitive { RECTANGLE, ELLIPSE, LINE, RASTER_ASSET }
     public enum Easing { LINEAR, EASE_IN, EASE_OUT, EASE_IN_OUT }
 
     /** Coordinates and stroke widths are pixels; colors use unpremultiplied ARGB. */
     public record Shape(String id, Primitive primitive, double x, double y,
             double width, double height, double strokeWidth, int argb,
-            List<Keyframe> keyframes) {
+            List<Keyframe> keyframes, String assetId) {
+        public Shape(String id, Primitive primitive, double x, double y, double width, double height,
+                double strokeWidth, int argb, List<Keyframe> keyframes) {
+            this(id, primitive, x, y, width, height, strokeWidth, argb, keyframes, null);
+        }
+
         public Shape {
             requireId(id, "shape.id");
             Objects.requireNonNull(primitive, "primitive");
+            if (primitive == Primitive.RASTER_ASSET) {
+                requireId(assetId, "shape.assetId");
+            } else if (assetId != null) {
+                throw new IllegalArgumentException("shape.assetId is only valid for RASTER_ASSET");
+            }
             requireCoordinate(x, "shape.x");
             requireCoordinate(y, "shape.y");
             requireDimension(width, "shape.width");
@@ -74,6 +86,23 @@ public final class AnimationRenderer {
             }
             keyframes = List.copyOf(keyframes);
         }
+    }
+
+    /** Already-resolved in-memory ARGB pixels. No file, URI, or decoder is invoked. */
+    public record RasterAsset(String id, int width, int height, int[] argbPixels) {
+        public RasterAsset {
+            requireId(id, "asset.id");
+            if (width < 1 || height < 1 || (long) width * height > MAX_ASSET_PIXELS) {
+                throw new IllegalArgumentException("asset dimensions exceed the raster asset ceiling");
+            }
+            Objects.requireNonNull(argbPixels, "asset.argbPixels");
+            if (argbPixels.length != (long) width * height) {
+                throw new IllegalArgumentException("asset pixel count must match its dimensions");
+            }
+            argbPixels = argbPixels.clone();
+        }
+
+        @Override public int[] argbPixels() { return argbPixels.clone(); }
     }
 
     /** A frame-index key with pixel translation, scale, rotation and opacity. */
@@ -118,9 +147,14 @@ public final class AnimationRenderer {
     }
 
     public record Scene(int width, int height, int backgroundArgb, List<Shape> shapes,
-            List<ParticleField> particleFields) {
+            List<ParticleField> particleFields, List<RasterAsset> assets) {
         public Scene(int width, int height, int backgroundArgb, List<Shape> shapes) {
-            this(width, height, backgroundArgb, shapes, List.of());
+            this(width, height, backgroundArgb, shapes, List.of(), List.of());
+        }
+
+        public Scene(int width, int height, int backgroundArgb, List<Shape> shapes,
+                List<ParticleField> particleFields) {
+            this(width, height, backgroundArgb, shapes, particleFields, List.of());
         }
 
         public Scene {
@@ -141,6 +175,11 @@ public final class AnimationRenderer {
                 throw new IllegalArgumentException("scene.particleFields exceed the renderer ceiling");
             }
             particleFields = List.copyOf(particleFields);
+            Objects.requireNonNull(assets, "scene.assets");
+            if (assets.size() > MAX_RASTER_ASSETS) {
+                throw new IllegalArgumentException("scene.assets exceed the renderer ceiling");
+            }
+            assets = List.copyOf(assets);
             HashSet<String> ids = new HashSet<>();
             for (Shape shape : shapes) {
                 Objects.requireNonNull(shape, "scene.shapes[]");
@@ -159,6 +198,21 @@ public final class AnimationRenderer {
                 Objects.requireNonNull(field, "scene.particleFields[]");
                 if (!ids.add(field.id())) {
                     throw new IllegalArgumentException("scene object ids must be unique");
+                }
+            }
+            long assetPixels = 0;
+            for (RasterAsset asset : assets) {
+                Objects.requireNonNull(asset, "scene.assets[]");
+                if (!ids.add(asset.id())) throw new IllegalArgumentException("scene object ids must be unique");
+                assetPixels += (long) asset.width() * asset.height();
+                if (assetPixels > MAX_ASSET_PIXELS) {
+                    throw new IllegalArgumentException("scene asset pixel budget exceeded");
+                }
+            }
+            for (Shape shape : shapes) {
+                if (shape.primitive() == Primitive.RASTER_ASSET && assets.stream()
+                        .noneMatch(asset -> asset.id().equals(shape.assetId()))) {
+                    throw new IllegalArgumentException("shape references an unresolved raster asset: " + shape.assetId());
                 }
             }
         }
@@ -272,21 +326,25 @@ public final class AnimationRenderer {
             throw new IllegalArgumentException("animation procedural draw budget exceeded");
         }
         validateKeyframeRange(scene, profile.frameCount());
-
-        ArrayList<Frame> frames = new ArrayList<>(profile.frameCount());
-        long encodedBytes = 0;
-        for (int index = 0; index < profile.frameCount(); index++) {
-            byte[] png = renderPng(scene, index);
-            if (png.length > MAX_ENCODED_FRAME_BYTES) {
-                throw new RenderException("encoded animation frame exceeds byte ceiling");
+        java.util.Map<String, BufferedImage> assetsById = resolveAssets(scene);
+        try {
+            ArrayList<Frame> frames = new ArrayList<>(profile.frameCount());
+            long encodedBytes = 0;
+            for (int index = 0; index < profile.frameCount(); index++) {
+                byte[] png = renderPng(scene, assetsById, index);
+                if (png.length > MAX_ENCODED_FRAME_BYTES) {
+                    throw new RenderException("encoded animation frame exceeds byte ceiling");
+                }
+                encodedBytes += png.length;
+                if (encodedBytes > MAX_ENCODED_ANIMATION_BYTES) {
+                    throw new RenderException("encoded animation exceeds byte ceiling");
+                }
+                frames.add(frame(index, profile, spec.tStoryRef(), png));
             }
-            encodedBytes += png.length;
-            if (encodedBytes > MAX_ENCODED_ANIMATION_BYTES) {
-                throw new RenderException("encoded animation exceeds byte ceiling");
-            }
-            frames.add(frame(index, profile, spec.tStoryRef(), png));
+            return new RenderedAnimation(plan, frames);
+        } finally {
+            assetsById.values().forEach(BufferedImage::flush);
         }
-        return new RenderedAnimation(plan, frames);
     }
 
     /**
@@ -477,7 +535,23 @@ public final class AnimationRenderer {
         private static final Transform IDENTITY = new Transform(0, 0, 1, 1, 0, 1);
     }
 
-    private static byte[] renderPng(Scene scene, int index) {
+    private static java.util.Map<String, BufferedImage> resolveAssets(Scene scene) {
+        java.util.Map<String, BufferedImage> resolved = new java.util.HashMap<>();
+        try {
+            for (RasterAsset asset : scene.assets()) {
+                BufferedImage image = new BufferedImage(asset.width(), asset.height(), BufferedImage.TYPE_INT_ARGB);
+                resolved.put(asset.id(), image);
+                int[] pixels = asset.argbPixels();
+                image.setRGB(0, 0, asset.width(), asset.height(), pixels, 0, asset.width());
+            }
+            return resolved;
+        } catch (RuntimeException failure) {
+            resolved.values().forEach(BufferedImage::flush);
+            throw failure;
+        }
+    }
+
+    private static byte[] renderPng(Scene scene, java.util.Map<String, BufferedImage> assetsById, int index) {
         BufferedImage image = new BufferedImage(scene.width(), scene.height(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
         try {
@@ -490,12 +564,17 @@ public final class AnimationRenderer {
             graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             for (Shape shape : scene.shapes()) {
                 Transform transform = sample(shape.keyframes(), index);
-                drawShape(graphics, shape, transform);
+                if (shape.primitive() == Primitive.RASTER_ASSET) {
+                    drawRasterAsset(graphics, shape, transform, assetsById);
+                } else {
+                    drawShape(graphics, shape, transform);
+                }
             }
             for (ParticleField field : scene.particleFields()) {
                 drawParticles(graphics, field);
             }
-            ByteArrayOutputStream output = new ByteArrayOutputStream(Math.min(scene.width() * scene.height() / 2, 1_048_576));
+            ByteArrayOutputStream output = new BoundedFrameOutput(
+                    Math.min(scene.width() * scene.height() / 2, 1_048_576), MAX_ENCODED_FRAME_BYTES);
             if (!ImageIO.write(image, "png", output)) {
                 throw new RenderException("JDK PNG encoder is unavailable");
             }
@@ -505,6 +584,49 @@ public final class AnimationRenderer {
         } finally {
             graphics.dispose();
             image.flush();
+        }
+    }
+
+    /** PNG writer sink that enforces the frame byte ceiling before buffer growth. */
+    private static final class BoundedFrameOutput extends ByteArrayOutputStream {
+        private final int maximumBytes;
+
+        private BoundedFrameOutput(int initialCapacity, int maximumBytes) {
+            super(initialCapacity);
+            this.maximumBytes = maximumBytes;
+        }
+
+        @Override public synchronized void write(int value) {
+            if ((long) count + 1 > maximumBytes) throw new RenderException("encoded animation frame exceeds byte ceiling");
+            super.write(value);
+        }
+
+        @Override public synchronized void write(byte[] bytes, int offset, int length) {
+            Objects.checkFromIndexSize(offset, length, bytes.length);
+            if ((long) count + length > maximumBytes) throw new RenderException("encoded animation frame exceeds byte ceiling");
+            super.write(bytes, offset, length);
+        }
+    }
+
+    private static void drawRasterAsset(Graphics2D graphics, Shape shape, Transform value,
+            java.util.Map<String, BufferedImage> assetsById) {
+        if (value.opacity() == 0.0 || value.scaleX() == 0.0 || value.scaleY() == 0.0) return;
+        BufferedImage image = assetsById.get(shape.assetId());
+        if (image == null) throw new IllegalArgumentException("unresolved raster asset: " + shape.assetId());
+        AffineTransform old = graphics.getTransform();
+        java.awt.Composite oldComposite = graphics.getComposite();
+        Object oldInterpolation = graphics.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+        try {
+            graphics.translate(shape.x() + value.x(), shape.y() + value.y());
+            graphics.rotate(Math.toRadians(value.rotationDegrees()), shape.width() / 2.0, shape.height() / 2.0);
+            graphics.scale(value.scaleX(), value.scaleY());
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) value.opacity()));
+            graphics.drawImage(image, 0, 0, (int) Math.ceil(shape.width()), (int) Math.ceil(shape.height()), null);
+        } finally {
+            graphics.setTransform(old);
+            graphics.setComposite(oldComposite);
+            if (oldInterpolation != null) graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterpolation);
         }
     }
 
@@ -533,6 +655,7 @@ public final class AnimationRenderer {
                 case RECTANGLE -> new Rectangle2D.Double(shape.x(), shape.y(), shape.width(), shape.height());
                 case ELLIPSE -> new Ellipse2D.Double(shape.x(), shape.y(), shape.width(), shape.height());
                 case LINE -> new Line2D.Double(shape.x(), shape.y(), shape.x() + shape.width(), shape.y() + shape.height());
+                case RASTER_ASSET -> throw new IllegalArgumentException("raster assets require the typed asset renderer");
             };
             if (shape.primitive() == Primitive.LINE) {
                 graphics.setStroke(new java.awt.BasicStroke((float) shape.strokeWidth(), java.awt.BasicStroke.CAP_BUTT,

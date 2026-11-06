@@ -46,9 +46,14 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
 
     @Override public synchronized Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                                                   String newRevisionId, Graph graph) {
+        Objects.requireNonNull(graph, "graph");
         Aggregate aggregate = owned(actor, projectId);
         if (!aggregate.project.headRevisionId().equals(expectedHeadRevisionId)) {
             throw new RevisionConflictException(expectedHeadRevisionId, aggregate.project.headRevisionId());
+        }
+        Revision currentHead = aggregate.revisions.get(aggregate.project.headRevisionId());
+        if (currentHead == null || !currentHead.graph().timelineId().equals(graph.timelineId())) {
+            throw new IllegalArgumentException("timeline identity is immutable across project revisions");
         }
         String revisionId = required(newRevisionId, "newRevisionId");
         if (aggregate.revisions.containsKey(revisionId)) throw new IllegalStateException("revision identity cannot be reused");

@@ -10,13 +10,18 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import java.nio.file.Files;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -132,6 +137,67 @@ class MediaRuntimeCanonicalStreamFramePortTest {
     }
 
     @Test
+    void concurrentAudioSessionsKeepIndependentAckCursorsAt1_16And64Clients() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-stream-concurrent-");
+        var provider = new LocalStreamingProvider();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+        var executor = Executors.newFixedThreadPool(64);
+
+        try {
+            for (int clientCount : List.of(1, 16, 64)) {
+                var bindings = new ArrayList<CanonicalStreamFramePort.Binding>(clientCount);
+                var ports = new ArrayList<CanonicalStreamFramePort>(clientCount);
+                var streamIds = new ArrayList<String>(clientCount);
+                for (int i = 0; i < clientCount; i++) {
+                    var registration = runtime.openStream(request(
+                            provider, "correlation-audio-" + clientCount + "-" + i));
+                    runtime.connectStream(
+                            "tenant-a", registration.session().sessionId(), registration.connectionToken());
+                    var port = runtime.audioStreamFramePort(
+                            "tenant-a", "principal-a", registration.session().sessionId(),
+                            registration.connectionToken());
+                    ports.add(port);
+                    streamIds.add(registration.session().sessionId());
+                    bindings.add(port.currentBinding("tenant-a", registration.session().sessionId(),
+                            "principal-a").orElseThrow());
+                }
+
+                int callsBefore = provider.calls();
+                var results = new ArrayList<java.util.concurrent.Future<CanonicalStreamFramePort.Result>>(
+                        clientCount);
+                for (int i = 0; i < clientCount; i++) {
+                    final int client = i;
+                    results.add(executor.submit(() -> ports.get(client).offer(bindings.get(client), frame(0))));
+                }
+                for (var result : results) {
+                    assertThat(result.get(5, TimeUnit.SECONDS))
+                            .isEqualTo(CanonicalStreamFramePort.Result.acknowledged(0));
+                }
+                assertThat(provider.calls()).isEqualTo(callsBefore + clientCount);
+                for (String streamId : streamIds) {
+                    assertThat(runtime.stream("tenant-a", streamId).orElseThrow())
+                            .satisfies(session -> {
+                                assertThat(session.lastSequence()).isZero();
+                                assertThat(session.inFlightSequence()).isNull();
+                                assertThat(session.finality()).isEqualTo(StreamFinality.NONE);
+                            });
+                }
+            }
+        } finally {
+            executor.shutdownNow();
+            runtime.close();
+        }
+    }
+
+    @Test
     void unresolvedProviderOutcomeNeverBecomesAckOrReplay() throws Exception {
         var root = Files.createTempDirectory("media-canonical-audio-stream-unknown-");
         var provider = new BlockingStreamingProvider();
@@ -158,6 +224,58 @@ class MediaRuntimeCanonicalStreamFramePortTest {
             assertThat(port.offer(binding, frame(0)).disposition())
                     .isEqualTo(CanonicalStreamFramePort.Disposition.OUTCOME_UNKNOWN);
             assertThat(provider.calls()).isEqualTo(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void canonicalAudioEosUsesNextCursorAndPreservesBackpressureFeedback() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-stream-eos-");
+        var provider = new FeedbackStreamingProvider();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+
+        try {
+            var registration = runtime.openStream(request(provider, "correlation-audio-eos"));
+            runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
+            var binding = port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+
+            var frameFeedback = port.offerWithFeedback(binding, frame(0));
+
+            assertThat(frameFeedback.result()).isEqualTo(CanonicalStreamFramePort.Result.acknowledged(0));
+            assertThat(frameFeedback.feedbackAvailable()).isTrue();
+            assertThat(frameFeedback.bufferedBytes()).isEqualTo(48);
+            assertThat(frameFeedback.backpressured()).isTrue();
+
+            var eosBinding = port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+            var eosFeedback = port.endOfStreamWithFeedback(eosBinding);
+
+            assertThat(eosFeedback.result()).isEqualTo(CanonicalStreamFramePort.Result.acknowledged(1));
+            assertThat(eosFeedback.feedbackAvailable()).isTrue();
+            assertThat(eosFeedback.backpressured()).isTrue();
+            assertThat(provider.lastFrameWasEndOfStream()).isTrue();
+            assertThat(runtime.stream("tenant-a", registration.session().sessionId()).orElseThrow())
+                    .satisfies(session -> {
+                        assertThat(session.state()).isEqualTo(StreamState.DRAINING);
+                        assertThat(session.finality()).isEqualTo(StreamFinality.NONE);
+                        assertThat(session.lastSequence()).isEqualTo(1);
+                        assertThat(session.inFlightSequence()).isNull();
+                    });
+            assertThat(port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a")).isEmpty();
+            assertThat(provider.calls()).isEqualTo(2);
         } finally {
             runtime.close();
         }
@@ -244,6 +362,31 @@ class MediaRuntimeCanonicalStreamFramePortTest {
         }
 
         int calls() { return calls.get(); }
+    }
+
+    private static final class FeedbackStreamingProvider implements MediaStreamingProvider {
+        private final AtomicInteger calls = new AtomicInteger();
+        private final AtomicReference<Boolean> lastEndOfStream = new AtomicReference<>(false);
+
+        @Override public String providerId() { return "feedback-local-audio-stream-provider"; }
+        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 1; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+
+        @Override
+        public CompletableFuture<StreamAck> accept(StreamContext context,
+                com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame frame) {
+            calls.incrementAndGet();
+            lastEndOfStream.set(frame.endOfStream());
+            return CompletableFuture.completedFuture(
+                    new StreamAck(frame.sequence(), frame.endOfStream() ? 0 : 48, true));
+        }
+
+        int calls() { return calls.get(); }
+        boolean lastFrameWasEndOfStream() { return lastEndOfStream.get(); }
     }
 
     private static final class MutatingStreamingProvider implements MediaStreamingProvider {

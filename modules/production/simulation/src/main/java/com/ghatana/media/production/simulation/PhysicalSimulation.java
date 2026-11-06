@@ -1,5 +1,6 @@
 package com.ghatana.media.production.simulation;
 
+import com.ghatana.media.runtime.MediaSimulationContracts;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public final class PhysicalSimulation {
         METER(Dimension.LENGTH, 1.0), CENTIMETER(Dimension.LENGTH, 0.01),
         SECOND(Dimension.TIME, 1.0), MILLISECOND(Dimension.TIME, 0.001),
         METER_PER_SECOND(Dimension.VELOCITY, 1.0),
+        METER_PER_SECOND_SQUARED(Dimension.ACCELERATION, 1.0),
         NEWTON(Dimension.FORCE, 1.0), MILLINEWTON(Dimension.FORCE, 0.001),
         NEWTON_PER_METER(Dimension.SPRING_CONSTANT, 1.0),
         JOULE(Dimension.ENERGY, 1.0);
@@ -187,6 +189,80 @@ public final class PhysicalSimulation {
         public SolverLimitException(String message) { super(message); }
     }
 
+    /** Runs a typed runtime-contract request and reports invalid input/solver abstention without partial output. */
+    public static MediaSimulationContracts.Outcome run(MediaSimulationContracts.RunRequest request) {
+        if (request == null) return MediaSimulationContracts.Outcome.invalidInput();
+        try {
+            Model model = modelFromContract(request.model());
+            InitialState initial = new InitialState(
+                    measurementFromContract(request.initialState().position()),
+                    measurementFromContract(request.initialState().velocity()));
+            SolverPolicy policy = policyFromContract(request.solverPolicy());
+            return MediaSimulationContracts.Outcome.completed(toContractTrace(simulate(model, initial, policy)));
+        } catch (SolverLimitException limited) {
+            return MediaSimulationContracts.Outcome.abstained();
+        } catch (InvalidSimulationInputException | MediaSimulationContracts.InvalidQuantityException invalid) {
+            return MediaSimulationContracts.Outcome.invalidInput();
+        } catch (IllegalArgumentException invalid) {
+            // Physical constructors and runtime-bound values use IllegalArgumentException for
+            // malformed dimensions/ranges; unexpected runtime failures are not converted.
+            return MediaSimulationContracts.Outcome.invalidInput();
+        }
+    }
+
+    private static Model modelFromContract(MediaSimulationContracts.ModelParameters model) {
+        if (model instanceof MediaSimulationContracts.ConstantForce constant) {
+            return new ConstantForce(measurementFromContract(constant.mass()),
+                    measurementFromContract(constant.force()));
+        }
+        if (model instanceof MediaSimulationContracts.HarmonicSpring spring) {
+            return new HarmonicSpring(measurementFromContract(spring.mass()),
+                    measurementFromContract(spring.springConstant()),
+                    measurementFromContract(spring.equilibriumPosition()));
+        }
+        throw new InvalidSimulationInputException("unsupported physical model");
+    }
+
+    private static Measurement measurementFromContract(MediaSimulationContracts.Measurement value) {
+        return new Measurement(quantityFromContract(value.value()), quantityFromContract(value.standardUncertainty()));
+    }
+
+    private static Quantity quantityFromContract(MediaSimulationContracts.Quantity value) {
+        return new Quantity(value.value(), Unit.valueOf(value.unit().name()));
+    }
+
+    private static SolverPolicy policyFromContract(MediaSimulationContracts.SolverPolicy value) {
+        return new SolverPolicy(quantityFromContract(value.duration()), quantityFromContract(value.maximumStep()),
+                quantityFromContract(value.minimumStep()), quantityFromContract(value.absolutePositionTolerance()),
+                quantityFromContract(value.absoluteVelocityTolerance()), value.maxAcceptedSteps(), value.maxIterations());
+    }
+
+    private static MediaSimulationContracts.Trace toContractTrace(Result result) {
+        List<MediaSimulationContracts.Observation> observations = result.observations().stream()
+                .map(PhysicalSimulation::toContractObservation).toList();
+        return new MediaSimulationContracts.Trace(observations, result.acceptedSteps(), result.solverIterations(),
+                result.finalLocalErrorRatio(), result.deterministic(), MediaSimulationContracts.VELOCITY_VERLET_SOLVER_V1,
+                result.evidenceClass());
+    }
+
+    private static MediaSimulationContracts.Observation toContractObservation(Observation value) {
+        MediaSimulationContracts.StateUncertainty uncertainty = new MediaSimulationContracts.StateUncertainty(
+                value.uncertainty().positionMeters() == null ? null
+                        : new MediaSimulationContracts.Quantity(value.uncertainty().positionMeters(), MediaSimulationContracts.Unit.METER),
+                value.uncertainty().velocityMetersPerSecond() == null ? null
+                        : new MediaSimulationContracts.Quantity(value.uncertainty().velocityMetersPerSecond(),
+                                MediaSimulationContracts.Unit.METER_PER_SECOND),
+                MediaSimulationContracts.UncertaintyStatus.valueOf(value.uncertainty().status().name()));
+        return new MediaSimulationContracts.Observation(
+                new MediaSimulationContracts.Quantity(value.timeSeconds(), MediaSimulationContracts.Unit.SECOND),
+                new MediaSimulationContracts.Quantity(value.positionMeters(), MediaSimulationContracts.Unit.METER),
+                new MediaSimulationContracts.Quantity(value.velocityMetersPerSecond(), MediaSimulationContracts.Unit.METER_PER_SECOND),
+                new MediaSimulationContracts.Quantity(value.accelerationMetersPerSecondSquared(),
+                        MediaSimulationContracts.Unit.METER_PER_SECOND_SQUARED),
+                new MediaSimulationContracts.Quantity(value.totalEnergyJoules(), MediaSimulationContracts.Unit.JOULE),
+                uncertainty);
+    }
+
     /**
      * Runs a deterministic 1-D mechanical model. Instrument samples are emitted
      * at accepted solver steps; the final record is exactly at requested duration.
@@ -266,13 +342,13 @@ public final class PhysicalSimulation {
             lastErrorRatio = errorRatio;
 
             if (errorRatio <= 1.0) {
+                if (acceptedSteps > policy.maxAcceptedSteps() - 2) {
+                    throw new SolverLimitException("solver exhausted maxAcceptedSteps before reaching requested duration");
+                }
                 state = twoHalf;
                 time += step;
                 if (duration - time <= Math.ulp(duration) * 4) time = duration;
                 acceptedSteps += 2;
-                if (acceptedSteps > policy.maxAcceptedSteps()) {
-                    throw new SolverLimitException("solver exhausted maxAcceptedSteps before reaching requested duration");
-                }
                 observations.add(observe(model, initial, state, time, mass, force, spring, equilibrium));
             }
 

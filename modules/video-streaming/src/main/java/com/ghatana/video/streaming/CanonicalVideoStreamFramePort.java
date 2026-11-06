@@ -74,6 +74,29 @@ public interface CanonicalVideoStreamFramePort {
         }
     }
 
+    /**
+     * Additive runtime feedback for callers that must honor canonical buffer pressure.
+     * {@code feedbackAvailable=false} means an older/custom port supplied only the stable
+     * {@link Result} contract; callers must treat backpressure as unknown in that case.
+     */
+    record OfferFeedback(Result result, long bufferedBytes, boolean backpressured, boolean feedbackAvailable) {
+        public OfferFeedback {
+            result = Objects.requireNonNull(result, "result");
+            if (bufferedBytes < 0) throw new IllegalArgumentException("bufferedBytes must not be negative");
+            if (!feedbackAvailable && (bufferedBytes != 0 || backpressured)) {
+                throw new IllegalArgumentException("unavailable stream feedback cannot carry provider metrics");
+            }
+            if (result.disposition() != Disposition.ACKNOWLEDGED
+                    && (bufferedBytes != 0 || backpressured)) {
+                throw new IllegalArgumentException("a non-ACK stream result cannot carry provider feedback");
+            }
+        }
+
+        public static OfferFeedback unavailable(Result result) {
+            return new OfferFeedback(result, 0, false, false);
+        }
+    }
+
     enum Disposition { ACKNOWLEDGED, DUPLICATE, NOT_ADMITTED, LEASE_EXPIRED, OUTCOME_UNKNOWN }
 
     /** Reads the trusted current binding; absent purpose binding remains absent. */
@@ -81,6 +104,19 @@ public interface CanonicalVideoStreamFramePort {
 
     /** Atomically offers one frame against the supplied canonical revision, version and lease. */
     Result offer(Binding expected, VideoStreamSession.DecodedFrame frame);
+
+    /** Offers one frame and preserves provider backpressure feedback when the runtime exposes it. */
+    default OfferFeedback offerWithFeedback(Binding expected, VideoStreamSession.DecodedFrame frame) {
+        return OfferFeedback.unavailable(offer(expected, frame));
+    }
+
+    /**
+     * Sends a canonical EOS marker at the exact next sequence. Older ports fail closed by default;
+     * an ACK still means the session accepted EOS, not that a provider finalized output.
+     */
+    default OfferFeedback endOfStreamWithFeedback(Binding expected) {
+        return OfferFeedback.unavailable(Result.notAdmitted("canonical video stream EOS is unavailable"));
+    }
 
     /** Fail-closed adapter for runtimes without canonical video-session integration. */
     static CanonicalVideoStreamFramePort notAdmitted(String reason) {

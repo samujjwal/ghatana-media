@@ -107,6 +107,55 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void scopedCacheHitRechecksAuthorityBeforeDisclosureAndInvalidatesOnRevocation() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of("protected payload")));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        AtomicInteger checks = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a",
+                checked -> AsyncOperation.success(checks.incrementAndGet() == 1),
+                ignored -> { throw new AssertionError("cache hit should not call source"); })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
+
+        assertThat(checks).hasValue(2);
+        verify(port).get(key);
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
+    void scopedSourceLoadIsNotReturnedWhenAuthorityBecomesUnavailableBeforeDisclosure() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), eq("protected payload"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        AtomicInteger checks = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a", checked -> {
+            if (checks.incrementAndGet() == 1) return AsyncOperation.success(true);
+            return AsyncOperation.failure(new IllegalStateException("rights authority unavailable"));
+        }, ignored -> AsyncOperation.success("protected payload"))))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("rights authority unavailable");
+
+        assertThat(checks).hasValue(2);
+        verify(port).put(eq(key), eq("protected payload"), any(Duration.class));
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
     @DisplayName("string cache entries obey Shared value bounds")
     void stringCacheEntriesObeySharedValueBounds() {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");

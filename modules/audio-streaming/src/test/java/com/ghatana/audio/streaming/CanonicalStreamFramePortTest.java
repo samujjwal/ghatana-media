@@ -21,6 +21,14 @@ class CanonicalStreamFramePortTest {
         assertThat(port.offer(binding(), decodedHelperFrame))
                 .isEqualTo(CanonicalStreamFramePort.Result.notAdmitted(
                         "purpose-bound canonical stream session is unavailable"));
+        assertThat(port.offerWithFeedback(binding(), decodedHelperFrame))
+                .satisfies(feedback -> {
+                    assertThat(feedback.result()).isEqualTo(CanonicalStreamFramePort.Result.notAdmitted(
+                            "purpose-bound canonical stream session is unavailable"));
+                    assertThat(feedback.feedbackAvailable()).isFalse();
+                });
+        assertThat(port.endOfStreamWithFeedback(binding()).result().disposition())
+                .isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
     }
 
     @Test

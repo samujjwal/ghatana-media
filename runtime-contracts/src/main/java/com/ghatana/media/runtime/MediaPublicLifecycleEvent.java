@@ -2,6 +2,7 @@ package com.ghatana.media.runtime;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -29,6 +30,8 @@ public record MediaPublicLifecycleEvent(
     private static final Set<String> FIELDS = Set.of("schemaVersion", "eventRef", "eventType", "tenantRef",
             "principalRef", "correlationRef", "causationRef", "aggregateType", "aggregateRef",
             "aggregateVersion", "classification", "occurredAt", "appendFinality", "terminalReadbackRequired");
+    private static final Set<String> AGGREGATE_TYPES = Set.of("upload", "artifact", "job", "stream");
+    private static final Set<String> CLASSIFICATIONS = Set.of("PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED");
     private static final java.util.regex.Pattern REDACTED_ID =
             java.util.regex.Pattern.compile("^r1_[0-9a-f]{64}$");
 
@@ -42,10 +45,16 @@ public record MediaPublicLifecycleEvent(
         principalRef = redacted(principalRef, "principalRef");
         correlationRef = redacted(correlationRef, "correlationRef");
         causationRef = causationRef == null || causationRef.isBlank() ? "" : redacted(causationRef, "causationRef");
-        aggregateType = required(aggregateType, "aggregateType");
+        aggregateType = required(aggregateType, "aggregateType").toLowerCase(Locale.ROOT);
+        if (!AGGREGATE_TYPES.contains(aggregateType)) {
+            throw new IllegalArgumentException("aggregateType is not part of the public lifecycle ABI");
+        }
         aggregateRef = redacted(aggregateRef, "aggregateRef");
         if (aggregateVersion < 1) throw new IllegalArgumentException("aggregateVersion must be positive");
-        classification = required(classification, "classification");
+        classification = required(classification, "classification").toUpperCase(Locale.ROOT);
+        if (!CLASSIFICATIONS.contains(classification)) {
+            throw new IllegalArgumentException("classification is not part of the public lifecycle ABI");
+        }
         occurredAt = Objects.requireNonNull(occurredAt, "occurredAt");
         appendFinality = Objects.requireNonNull(appendFinality, "appendFinality");
         if (appendFinality != AppendFinality.NON_FINAL_APPEND) throw new IllegalArgumentException("event append cannot establish finality");

@@ -6,6 +6,7 @@ import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.agent.framework.tools.ToolExecutionStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import com.ghatana.toolruntime.ToolHandler;
 import io.activej.promise.Promise;
 
@@ -135,9 +136,9 @@ public final class MediaToolExecutionBinder {
     /**
      * Durable invocation ledger owned by the Shared run ledger integration.
      * No production implementation is provided here; default claim/completion
-     * behavior fails closed. Any future implementation must scope reads and
-     * writes by authenticated tenant/principal, apply classification-aware
-     * encryption and retention to results, and reauthorize every replay. The
+     * behavior fails closed. The filesystem development implementation encrypts
+     * terminal results and applies a host-provided retention lifetime. Replays
+     * require a fresh host-authenticated principal and a host authorizer. The
      * deprecated Java constructors only preserve local source/binary call
      * shapes; they do not migrate or prove compatibility of serialized records.
      */
@@ -168,6 +169,12 @@ public final class MediaToolExecutionBinder {
         Optional<String> durableJobState(String tenantId, String invocationId);
     }
 
+    /** Host-owned decision that maps a freshly authenticated principal to the recorded actor. */
+    @FunctionalInterface
+    public interface InvocationReplayAuthorizer {
+        boolean mayReplay(AuthenticatedPrincipal authenticated, RequestIdentity recordedIdentity);
+    }
+
     public static final class OutcomeUnknownException extends RuntimeException {
         private final String invocationId;
         private final String durableJobState;
@@ -194,16 +201,39 @@ public final class MediaToolExecutionBinder {
         }
     }
 
+    public static final class InvocationReplayDeniedException extends SecurityException {
+        InvocationReplayDeniedException() {
+            super("authenticated principal is not authorized to replay this invocation");
+        }
+    }
+
     private final InvocationLedger ledger;
     private final MediaJobReadback jobReadback;
+    private final InvocationReplayAuthorizer replayAuthorizer;
 
     public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback) {
+        this(ledger, jobReadback, (authenticated, identity) -> false);
+    }
+
+    public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback,
+            InvocationReplayAuthorizer replayAuthorizer) {
         this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.jobReadback = Objects.requireNonNull(jobReadback, "jobReadback");
+        this.replayAuthorizer = Objects.requireNonNull(replayAuthorizer, "replayAuthorizer");
     }
 
     public Promise<ToolExecutionResult> execute(
             ToolHandler delegate, ToolExecutionEnvelope envelope, ToolContract contract) {
+        return execute(delegate, envelope, contract, null);
+    }
+
+    /**
+     * Executes with a host-authenticated principal. The principal is an authority input, not
+     * reconstructed from the envelope; the host authorizer decides whether it maps to the actor.
+     */
+    public Promise<ToolExecutionResult> execute(
+            ToolHandler delegate, ToolExecutionEnvelope envelope, ToolContract contract,
+            AuthenticatedPrincipal authenticated) {
         Objects.requireNonNull(delegate, "delegate");
         Objects.requireNonNull(envelope, "envelope");
         Objects.requireNonNull(contract, "contract");
@@ -211,6 +241,9 @@ public final class MediaToolExecutionBinder {
                 || !envelope.toolVersion().equals(contract.toolVersion())
                 || envelope.actionClass() != contract.actionClass()) {
             return Promise.ofException(new IllegalArgumentException("TOOL_CONTRACT_ENVELOPE_MISMATCH"));
+        }
+        if (authenticated != null && !authenticated.tenantId().equals(envelope.tenantId())) {
+            return Promise.ofException(new InvocationReplayDeniedException());
         }
 
         RequestIdentity identity = RequestIdentity.from(envelope);
@@ -233,7 +266,7 @@ public final class MediaToolExecutionBinder {
             if (prior == null || prior.isEmpty()) {
                 return Promise.ofException(new InvocationClaimUnavailableException());
             }
-            return replay(prior.get(), identity, envelope);
+            return replay(prior.get(), identity, envelope, authenticated);
         }
         if (claim != ClaimResult.CLAIMED) {
             return Promise.ofException(new InvocationClaimUnavailableException());
@@ -248,12 +281,23 @@ public final class MediaToolExecutionBinder {
     }
 
     private Promise<ToolExecutionResult> replay(
-            LogicalAction prior, RequestIdentity identity, ToolExecutionEnvelope envelope) {
+            LogicalAction prior, RequestIdentity identity, ToolExecutionEnvelope envelope,
+            AuthenticatedPrincipal authenticated) {
         if (!prior.invocationId().equals(envelope.invocationId()) || !wellFormed(prior)) {
             return Promise.ofException(new InvocationClaimUnavailableException());
         }
         if (!prior.requestIdentity().bound() || !prior.requestIdentity().equals(identity)) {
             return Promise.ofException(new InvocationIdentityConflictException());
+        }
+        final boolean authorized;
+        try {
+            authorized = authenticated != null && authenticated.tenantId().equals(identity.tenantId())
+                    && replayAuthorizer.mayReplay(authenticated, identity);
+        } catch (RuntimeException unavailable) {
+            return Promise.ofException(new InvocationReplayDeniedException());
+        }
+        if (!authorized) {
+            return Promise.ofException(new InvocationReplayDeniedException());
         }
         if (prior.outcome() == LogicalOutcome.OUTCOME_UNKNOWN) {
             return Promise.ofException(unknown(envelope));

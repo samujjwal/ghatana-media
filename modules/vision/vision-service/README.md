@@ -4,7 +4,7 @@ This Media-owned module supplies the Vision gRPC boundary, bounded image/video p
 
 ## Boundary and architecture
 
-The entry point is `com.ghatana.audio.video.vision.grpc.VisionGrpcServer`, in Gradle project `:services:media:modules:vision:vision-service`. [vision_service.proto](src/main/proto/vision_service.proto) owns the 10 wire methods and field numbers; generated Java is build output. [WAVE2-RPC-CAPABILITY-MATRIX](WAVE2-RPC-CAPABILITY-MATRIX.md) indexes method/capability relationships. The [Wave 2 plan](../../../docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) owns VIS-01–12 acceptance.
+The entry point is `com.ghatana.audio.video.vision.grpc.VisionGrpcServer`, in Gradle project `:services:media:modules:vision:vision-service`. [vision_service.proto](src/main/proto/vision_service.proto) owns 11 wire methods and field numbers; generated Java is build output. `RecognizeSceneText` is present in the descriptor as a proposal-only route pending owner review and is not an admitted Media OCR capability. [WAVE2-RPC-CAPABILITY-MATRIX](WAVE2-RPC-CAPABILITY-MATRIX.md) indexes method/capability relationships. The [Wave 2 plan](../../../docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) owns VIS-01–12 acceptance.
 
 `VisionGrpcService` validates/authenticates requests. `ProductionVisionGrpcService` validates `VisionModelProfile`, requires trusted admission, and only then initializes `YoloV8Adapter`. `VisionProviderAdmission.requireAdmitted` currently rejects production initialization because a trusted license/provider admission source is absent. File metadata and a matching digest do not make the detector available.
 

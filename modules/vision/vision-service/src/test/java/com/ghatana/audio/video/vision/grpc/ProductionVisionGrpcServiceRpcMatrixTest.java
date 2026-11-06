@@ -149,6 +149,14 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
     }
 
     @Test
+    void proposalOnlySceneTextRouteRemainsUnavailableWithoutProductionDiBinding() {
+        assertStatus(Status.Code.UNAVAILABLE, "Scene text recognition is not composed",
+                () -> authenticated.recognizeSceneText(SceneTextRecognizeRequest.getDefaultInstance()));
+        assertCode(() -> unauthenticated.recognizeSceneText(SceneTextRecognizeRequest.getDefaultInstance()),
+                Status.Code.UNAUTHENTICATED);
+    }
+
+    @Test
     void invalidAndBoundedInputsFailBeforeProviderOrVideoDispatch() throws Exception {
         assertStatus(Status.Code.INVALID_ARGUMENT, "Image data cannot be empty",
                 () -> authenticated.detectObjects(DetectRequest.getDefaultInstance()));

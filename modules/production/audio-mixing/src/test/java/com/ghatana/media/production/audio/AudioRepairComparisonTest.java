@@ -19,13 +19,33 @@ class AudioRepairComparisonTest {
         AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired, reference);
         byte[] returnedSource = comparison.source().data();
         returnedSource[0] = 99;
+        byte[] undone = comparison.undo().data();
+        undone[1] = 99;
 
         assertThat(comparison.source().data()).containsExactly(sourceBefore);
+        assertThat(comparison.undo().data()).containsExactly(sourceBefore);
         assertThat(comparison.repaired().data()).containsExactly(repaired.data());
         assertThat(comparison.sourceSha256()).hasSize(64).isNotEqualTo(comparison.repairedSha256());
         assertThat(comparison.metrics().changedSampleCount()).isEqualTo(3);
+        assertThat(comparison.metrics().sourceNearClipSampleCount()).isZero();
+        assertThat(comparison.metrics().repairedNearClipSampleCount()).isZero();
         assertThat(comparison.metrics().hasIndependentReference()).isTrue();
         assertThat(comparison.metrics().snrDbVsReference()).isFinite();
+    }
+
+    @Test
+    void reportsSaturatedSamplesAndStereoPhaseRelationshipWithoutClaimingQuality() {
+        AudioData clipped = stereo(32767, 32767, -32768, -32768, 12000, 12000);
+        AudioData phaseInvertedCandidate = stereo(30000, -30000, -28000, 28000, 10000, -10000);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(clipped, phaseInvertedCandidate);
+
+        assertThat(comparison.metrics().sourceNearClipSampleCount()).isEqualTo(4);
+        assertThat(comparison.metrics().repairedNearClipSampleCount()).isZero();
+        assertThat(comparison.metrics().sourceStereoCorrelation()).isEqualTo(1.0);
+        assertThat(comparison.metrics().repairedStereoCorrelation()).isEqualTo(-1.0);
+        assertThat(comparison.metrics().stereoCorrelationDelta()).isEqualTo(2.0);
+        assertThat(comparison.metrics().rmsChangeDb()).isFinite();
     }
 
     @Test
@@ -51,6 +71,24 @@ class AudioRepairComparisonTest {
                 AudioRepairComparison.compare(wrongDuration, wrongDuration));
     }
 
+    @Test
+    void silenceHasTransparentMetricsAndNoInventedStereoPhaseMeasurement() {
+        AudioData silence = pcm(0, 0, 0, 0);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(silence, silence, silence);
+
+        assertThat(comparison.sourceSha256()).isEqualTo(comparison.repairedSha256());
+        assertThat(comparison.metrics().sourceRms()).isZero();
+        assertThat(comparison.metrics().repairedRms()).isZero();
+        assertThat(comparison.metrics().rmsChangeDb()).isZero();
+        assertThat(comparison.metrics().sourceNearClipSampleCount()).isZero();
+        assertThat(comparison.metrics().repairedNearClipSampleCount()).isZero();
+        assertThat(Double.isInfinite(comparison.metrics().snrDbVsReference())
+                && comparison.metrics().snrDbVsReference() > 0.0).isTrue();
+        assertThat(comparison.metrics().sourceStereoCorrelation()).isNull();
+        assertThat(comparison.metrics().stereoCorrelationDelta()).isNull();
+    }
+
     private static AudioData pcm(int... samples) {
         byte[] bytes = new byte[samples.length * 2];
         for (int index = 0; index < samples.length; index++) {
@@ -59,5 +97,16 @@ class AudioRepairComparisonTest {
         }
         return new AudioData(bytes, 8_000, 1, 16,
                 Duration.ofNanos((long) samples.length * 1_000_000_000L / 8_000), AudioFormat.PCM);
+    }
+
+    private static AudioData stereo(int... samples) {
+        byte[] bytes = new byte[samples.length * 2];
+        for (int index = 0; index < samples.length; index++) {
+            bytes[index * 2] = (byte) samples[index];
+            bytes[index * 2 + 1] = (byte) (samples[index] >>> 8);
+        }
+        int frames = samples.length / 2;
+        return new AudioData(bytes, 8_000, 2, 16,
+                Duration.ofNanos((long) frames * 1_000_000_000L / 8_000), AudioFormat.PCM);
     }
 }

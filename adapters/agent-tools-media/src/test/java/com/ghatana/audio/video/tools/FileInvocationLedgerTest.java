@@ -15,13 +15,16 @@ import java.nio.file.Path;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import javax.crypto.spec.SecretKeySpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,6 +37,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class FileInvocationLedgerTest {
 
     @TempDir Path dir;
+
+    static FileInvocationLedger ledger(Path directory) {
+        // Test-only key fixture; production hosts must inject a protected key source.
+        return ledger(directory, new SecretKeySpec(new byte[32], "AES"), Duration.ofDays(1), Clock.systemUTC());
+    }
+
+    private static FileInvocationLedger ledger(Path directory, SecretKeySpec key,
+            Duration retention, Clock clock) {
+        return new FileInvocationLedger(directory, key, retention, clock);
+    }
 
     private static RequestIdentity identity(String toolId, String fingerprint) {
         return new RequestIdentity(toolId, "1.0.0", "caller-agent", "rel-1",
@@ -53,7 +66,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void claimPersistsFenceAndDuplicateClaimIsRejected() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         LogicalAction fence = fence("inv-1", identity("stt", "fp-1"));
 
         assertThat(ledger.claim(fence)).isEqualTo(ClaimResult.CLAIMED);
@@ -67,7 +80,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void independentInvocationsClaimIndependently() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         assertThat(ledger.claim(fence("inv-a", identity("stt", "fp-a")))).isEqualTo(ClaimResult.CLAIMED);
         assertThat(ledger.claim(fence("inv-b", identity("tts", "fp-b")))).isEqualTo(ClaimResult.CLAIMED);
         assertThat(ledger.find("inv-a")).isPresent();
@@ -76,7 +89,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void completeReplacesExactFenceWithTerminalResult() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         RequestIdentity id = identity("stt", "fp-1");
         ledger.claim(fence("inv-1", id));
 
@@ -93,7 +106,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void completeRejectsAbsentMismatchedAndNonFenceRecords() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         RequestIdentity id = identity("stt", "fp-1");
 
         assertThat(ledger.complete(terminal("missing", id))).isFalse();
@@ -107,14 +120,14 @@ class FileInvocationLedgerTest {
 
     @Test
     void recordsSurviveRestart() {
-        FileInvocationLedger first = new FileInvocationLedger(dir);
+        FileInvocationLedger first = ledger(dir);
         RequestIdentity id = identity("stt", "fp-1");
         first.claim(fence("inv-1", id));
         first.complete(terminal("inv-1", id));
         first.claim(fence("inv-2", identity("vision", "fp-2")));
 
         // A fresh instance over the same directory simulates process restart.
-        FileInvocationLedger restarted = new FileInvocationLedger(dir);
+        FileInvocationLedger restarted = ledger(dir);
         assertThat(restarted.find("inv-1")).hasValueSatisfying(f ->
                 assertThat(f.outcome()).isEqualTo(LogicalOutcome.SUCCESS));
         assertThat(restarted.find("inv-2")).hasValueSatisfying(f ->
@@ -126,7 +139,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void legacyRecordCannotInsertTerminalOrOverwriteAnExistingFence() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         RequestIdentity id = identity("mm", "fp-mm");
         assertThatThrownBy(() -> ledger.record(terminal("inv-r", id)))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -147,7 +160,7 @@ class FileInvocationLedgerTest {
             for (int i = 0; i < contenders; i++) {
                 final int worker = i;
                 futures.add(pool.submit(() -> {
-                    FileInvocationLedger contender = new FileInvocationLedger(dir);
+                    FileInvocationLedger contender = ledger(dir);
                     start.await();
                     return contender.claim(fence("shared-invocation", identity("stt", "fingerprint-" + worker)));
                 }));
@@ -162,7 +175,7 @@ class FileInvocationLedgerTest {
             }
             assertThat(winners).isEqualTo(1);
             assertThat(collisions).isEqualTo(contenders - 1);
-            assertThat(new FileInvocationLedger(dir).find("shared-invocation")).isPresent();
+            assertThat(ledger(dir).find("shared-invocation")).isPresent();
         } finally {
             pool.shutdownNow();
         }
@@ -199,7 +212,7 @@ class FileInvocationLedgerTest {
         // Exactly one OS process may own the invocation fence.
         assertThat(claimed).isEqualTo(1);
         assertThat(alreadyClaimed).isEqualTo(workers - 1);
-        FileInvocationLedger restarted = new FileInvocationLedger(dir);
+        FileInvocationLedger restarted = ledger(dir);
         assertThat(restarted.find("cross-process-inv")).hasValueSatisfying(found ->
                 assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
     }
@@ -222,7 +235,7 @@ class FileInvocationLedgerTest {
 
         // The claiming process is gone; a fresh instance must still see the
         // durable UNKNOWN fence and reject any redispatch of that invocation.
-        FileInvocationLedger restarted = new FileInvocationLedger(dir);
+        FileInvocationLedger restarted = ledger(dir);
         assertThat(restarted.find("crash-inv")).hasValueSatisfying(found ->
                 assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
         assertThat(restarted.claim(fence("crash-inv", identity("stt", "fp-retry"))))
@@ -239,7 +252,7 @@ class FileInvocationLedgerTest {
             org.junit.jupiter.api.Assumptions.abort("POSIX permissions unsupported on this filesystem");
         }
         try {
-            assertThatThrownBy(() -> new FileInvocationLedger(readOnly))
+            assertThatThrownBy(() -> ledger(readOnly))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("owner-only permissions");
         } finally {
@@ -250,7 +263,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void directoryMustBeOwnedAndPrivateAndLedgerFilesArePrivate() throws Exception {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         assertThat(Files.getPosixFilePermissions(dir, LinkOption.NOFOLLOW_LINKS))
                 .containsExactlyInAnyOrderElementsOf(PosixFilePermissions.fromString("rwx------"));
 
@@ -269,7 +282,7 @@ class FileInvocationLedgerTest {
     void existingLedgerDirectoryWithGroupAccessIsRejected() throws Exception {
         Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwxr-----"));
         try {
-            assertThatThrownBy(() -> new FileInvocationLedger(dir))
+            assertThatThrownBy(() -> ledger(dir))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("owner-only permissions");
         } finally {
@@ -279,7 +292,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void directoryPermissionDriftAfterConstructionFailsClosed() throws Exception {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwxr-----"));
         try {
             assertThat(ledger.claim(fence("drift-inv", identity("stt", "fp"))))
@@ -301,14 +314,14 @@ class FileInvocationLedgerTest {
         } catch (UnsupportedOperationException | java.nio.file.FileSystemException unsupported) {
             org.junit.jupiter.api.Assumptions.abort("symbolic links unavailable on this filesystem");
         }
-        assertThatThrownBy(() -> new FileInvocationLedger(link))
+        assertThatThrownBy(() -> ledger(link))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("not a symlink");
     }
 
     @Test
     void symlinkedRecordCannotBeReadOrClaimedAsOwnedData() throws Exception {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         Path external = Files.createTempFile("invocation-external", ".json");
         try {
             Files.writeString(external, "{}", StandardCharsets.UTF_8);
@@ -334,7 +347,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void corruptRecordFailsClosed() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         ledger.claim(fence("inv-1", identity("stt", "fp-1")));
 
         // Corrupt every record file in the directory.
@@ -351,7 +364,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void claimRejectsNonFenceAndCompleteRejectsUnknown() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         RequestIdentity id = identity("stt", "fp-1");
         assertThatThrownBy(() -> ledger.claim(terminal("inv-x", id)))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -361,7 +374,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void filenamesAreDigestsNotCallerIdentity() throws Exception {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         ledger.claim(fence("inv-sensitive-tenant-1", identity("stt", "fp")));
         try (Stream<Path> files = Files.list(dir)) {
             List<String> names = files.map(p -> p.getFileName().toString()).toList();
@@ -373,7 +386,7 @@ class FileInvocationLedgerTest {
 
     @Test
     void resultRoundTripsThroughRestart() {
-        FileInvocationLedger ledger = new FileInvocationLedger(dir);
+        FileInvocationLedger ledger = ledger(dir);
         RequestIdentity id = identity("stt", "fp-1");
         ledger.claim(fence("inv-1", id));
         ToolExecutionResult rich = ToolExecutionResult.succeeded("inv-1",
@@ -382,7 +395,7 @@ class FileInvocationLedgerTest {
                 "corr-9", Instant.parse("2026-02-02T10:00:00Z"), Duration.ofSeconds(2));
         ledger.complete(new LogicalAction("inv-1", id, LogicalOutcome.SUCCESS, rich));
 
-        FileInvocationLedger restarted = new FileInvocationLedger(dir);
+        FileInvocationLedger restarted = ledger(dir);
         assertThat(restarted.find("inv-1")).hasValueSatisfying(f -> {
             ToolExecutionResult r = f.result();
             assertThat(r.status().name()).isEqualTo("SUCCESS");
@@ -392,5 +405,98 @@ class FileInvocationLedgerTest {
             assertThat(r.executionDuration()).isEqualTo(Duration.ofSeconds(2));
             assertThat(r.correlationId()).isEqualTo("corr-9");
         });
+    }
+
+    @Test
+    void terminalResultIsEncryptedAndExpiresWithoutReleasingInvocationFence() throws Exception {
+        Instant now = Instant.parse("2026-11-05T12:00:00Z");
+        SecretKeySpec fixtureKey = new SecretKeySpec(new byte[32], "AES");
+        FileInvocationLedger writer = ledger(dir, fixtureKey, Duration.ofMinutes(5), Clock.fixed(now, ZoneOffset.UTC));
+        RequestIdentity id = identity("stt", "fp-encrypted");
+        writer.claim(fence("encrypted-inv", id));
+        ToolExecutionResult protectedResult = ToolExecutionResult.succeeded("encrypted-inv",
+                Map.of("transcript", "retention-secret-marker"), Map.of(), "corr-private", now, Duration.ZERO);
+        assertThat(writer.complete(new LogicalAction("encrypted-inv", id, LogicalOutcome.SUCCESS, protectedResult)))
+                .isTrue();
+
+        Path record;
+        try (Stream<Path> files = Files.list(dir)) {
+            record = files.filter(path -> path.getFileName().toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+        String beforeExpiry = Files.readString(record);
+        assertThat(beforeExpiry).contains("resultCiphertext", "resultNonce", "resultExpiresAt")
+                .doesNotContain("retention-secret-marker", "corr-private");
+        assertThat(ledger(dir, fixtureKey, Duration.ofMinutes(5), Clock.fixed(now, ZoneOffset.UTC))
+                .find("encrypted-inv")).hasValueSatisfying(found ->
+                        assertThat(found.result().output().toString()).contains("retention-secret-marker"));
+
+        FileInvocationLedger afterRetention = ledger(dir, fixtureKey, Duration.ofMinutes(5),
+                Clock.fixed(now.plus(Duration.ofMinutes(6)), ZoneOffset.UTC));
+        assertThat(afterRetention.find("encrypted-inv")).isEmpty();
+        assertThat(Files.readString(record)).doesNotContain(
+                "resultCiphertext", "resultNonce", "resultExpiresAt", "retention-secret-marker",
+                "tenantId", "callerAgentId", "inputFingerprint");
+        assertThat(afterRetention.claim(fence("encrypted-inv", id))).isEqualTo(ClaimResult.ALREADY_CLAIMED);
+    }
+
+    @Test
+    void resultEncryptionKeyIsRequiredAndWrongKeyFailsClosed() {
+        assertThatThrownBy(() -> new FileInvocationLedger(dir, null, Duration.ofDays(1), Clock.systemUTC()))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("resultEncryptionKey");
+        FileInvocationLedger writer = ledger(dir);
+        RequestIdentity id = identity("stt", "fp-wrong-key");
+        writer.claim(fence("wrong-key-inv", id));
+        assertThat(writer.complete(terminal("wrong-key-inv", id))).isTrue();
+
+        FileInvocationLedger wrongKey = ledger(dir,
+                new SecretKeySpec(new byte[] {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, "AES"),
+                Duration.ofDays(1), Clock.systemUTC());
+        assertThatThrownBy(() -> wrongKey.find("wrong-key-inv"))
+                .isInstanceOf(RuntimeException.class);
+        assertThat(wrongKey.claim(fence("wrong-key-inv", id))).isEqualTo(ClaimResult.ALREADY_CLAIMED);
+    }
+
+    @Test
+    void encryptedResultAuthenticationBindsStoredTenantAndActorMetadata() throws Exception {
+        FileInvocationLedger writer = ledger(dir);
+        RequestIdentity id = identity("stt", "fp-bound-metadata");
+        writer.claim(fence("bound-metadata-inv", id));
+        assertThat(writer.complete(terminal("bound-metadata-inv", id))).isTrue();
+        Path record;
+        try (Stream<Path> files = Files.list(dir)) {
+            record = files.filter(path -> path.getFileName().toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+
+        String changed = Files.readString(record).replace("\"tenantId\":\"tenant-1\"",
+                "\"tenantId\":\"tenant-other\"");
+        Files.writeString(record, changed);
+        assertThatThrownBy(() -> writer.find("bound-metadata-inv"))
+                .isInstanceOf(RuntimeException.class);
+        assertThat(writer.claim(fence("bound-metadata-inv", id))).isEqualTo(ClaimResult.ALREADY_CLAIMED);
+    }
+
+    @Test
+    void encryptedResultAuthenticationBindsRetentionExpiry() throws Exception {
+        Instant now = Instant.parse("2026-11-05T12:00:00Z");
+        SecretKeySpec fixtureKey = new SecretKeySpec(new byte[32], "AES");
+        FileInvocationLedger writer = ledger(dir, fixtureKey, Duration.ofMinutes(5), Clock.fixed(now, ZoneOffset.UTC));
+        RequestIdentity id = identity("stt", "fp-expiry-bound");
+        writer.claim(fence("expiry-bound-inv", id));
+        assertThat(writer.complete(terminal("expiry-bound-inv", id))).isTrue();
+
+        Path record;
+        try (Stream<Path> files = Files.list(dir)) {
+            record = files.filter(path -> path.getFileName().toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+        String serialized = Files.readString(record);
+        assertThat(serialized).contains("\"resultExpiresAt\":\"2026-11-05T12:05:00Z\"");
+        Files.writeString(record, serialized.replace(
+                "\"resultExpiresAt\":\"2026-11-05T12:05:00Z\"",
+                "\"resultExpiresAt\":\"2027-11-05T12:00:00Z\""));
+
+        assertThatThrownBy(() -> writer.find("expiry-bound-inv"))
+                .isInstanceOf(RuntimeException.class);
+        assertThat(writer.claim(fence("expiry-bound-inv", id))).isEqualTo(ClaimResult.ALREADY_CLAIMED);
     }
 }

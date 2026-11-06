@@ -27,6 +27,8 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HexFormat;
@@ -34,6 +36,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -43,12 +48,10 @@ import java.util.function.Supplier;
  * <p>Claim exclusivity comes from an atomic create-if-absent hard link to a fully
  * fsynced temporary fence file; completion durability comes from a lock-file-serialized
  * read-verify-atomic-replace. Records survive process restart because state
- * lives on disk, not in memory. This is a single-node durable backing: it
- * does not provide tenant-scoped access control, classification-aware
- * encryption, retention, or multi-host replication — those remain host
- * responsibilities around this store. Replay authorization stays with
- * {@link MediaToolExecutionBinder}, which re-verifies full request identity
- * on every replay.
+ * lives on disk, not in memory. This is a single-host development backing. The
+ * host injects the AES key and result-retention policy, and the binder requires
+ * a freshly authenticated principal plus an injected replay authorizer before
+ * it can return a stored result. The store never persists its encryption key.
  *
  * <p>Corrupt or unreadable records fail closed: reads throw and claims on an
  * existing-but-unreadable record resolve to {@link ClaimResult#ALREADY_CLAIMED}
@@ -57,7 +60,9 @@ import java.util.function.Supplier;
 public final class FileInvocationLedger implements InvocationLedger {
 
     private static final ObjectMapper JSON = new ObjectMapper();
-    private static final int SCHEMA_VERSION = 1;
+    private static final int SCHEMA_VERSION = 2;
+    private static final int GCM_NONCE_BYTES = 12;
+    private static final int GCM_TAG_BITS = 128;
     private static final int LOCK_STRIPE_COUNT = 64;
     private static final Set<PosixFilePermission> DIRECTORY_PERMISSIONS =
             PosixFilePermissions.fromString("rwx------");
@@ -66,6 +71,10 @@ public final class FileInvocationLedger implements InvocationLedger {
 
     private final Path directory;
     private final UserPrincipal expectedOwner;
+    private final SecretKey resultEncryptionKey;
+    private final Duration resultRetention;
+    private final Clock clock;
+    private final SecureRandom secureRandom = new SecureRandom();
     private final ReentrantLock[] stripes = new ReentrantLock[LOCK_STRIPE_COUNT];
 
     /**
@@ -76,9 +85,19 @@ public final class FileInvocationLedger implements InvocationLedger {
      *                  atomic replace support for terminal completion; when
      *                  unsupported, operations fail closed rather than risk
      *                  overwriting another invocation's fence.
+     * @param resultEncryptionKey host-provided AES key; never stored by this ledger
+     * @param resultRetention positive lifetime for encrypted terminal result bodies
+     * @param clock host clock used to enforce the configured result lifetime
      */
-    public FileInvocationLedger(Path directory) {
+    public FileInvocationLedger(Path directory, SecretKey resultEncryptionKey,
+            Duration resultRetention, Clock clock) {
         this.directory = directory.toAbsolutePath().normalize();
+        this.resultEncryptionKey = requireAesKey(resultEncryptionKey);
+        this.resultRetention = Objects.requireNonNull(resultRetention, "resultRetention");
+        if (resultRetention.isNegative() || resultRetention.isZero()) {
+            throw new IllegalArgumentException("result retention must be positive");
+        }
+        this.clock = Objects.requireNonNull(clock, "clock");
         for (int i = 0; i < LOCK_STRIPE_COUNT; i++) stripes[i] = new ReentrantLock();
         this.expectedOwner = currentUser(this.directory);
         try {
@@ -87,6 +106,15 @@ public final class FileInvocationLedger implements InvocationLedger {
         } catch (IOException | UnsupportedOperationException e) {
             throw new IllegalStateException("invocation ledger directory is not securely usable", e);
         }
+    }
+
+    private static SecretKey requireAesKey(SecretKey key) {
+        Objects.requireNonNull(key, "resultEncryptionKey");
+        if (!"AES".equalsIgnoreCase(key.getAlgorithm()) || key.getEncoded() == null
+                || !Set.of(16, 24, 32).contains(key.getEncoded().length)) {
+            throw new IllegalArgumentException("invocation result key must be a 128, 192, or 256-bit AES key");
+        }
+        return key;
     }
 
     private static UserPrincipal currentUser(Path path) {
@@ -165,7 +193,13 @@ public final class FileInvocationLedger implements InvocationLedger {
             validatePrivateDirectory();
             if (!Files.exists(file, LinkOption.NOFOLLOW_LINKS)) return Optional.empty();
             validatePrivateRegularFile(file);
-            return Optional.of(readAction(Files.readString(file)));
+            String serialized = Files.readString(file);
+            JsonNode record = JSON.readTree(serialized);
+            if (record.path("resultExpired").asBoolean(false) || resultExpired(record, clock.instant())) {
+                purgeExpiredResult(invocationId, file);
+                return Optional.empty();
+            }
+            return Optional.of(decode(record));
         } catch (IOException e) {
             throw new UncheckedIOException("invocation record unreadable", e);
         }
@@ -242,6 +276,33 @@ public final class FileInvocationLedger implements InvocationLedger {
             } catch (IOException | IllegalStateException e) {
                 return false;
             }
+        });
+    }
+
+    private static boolean resultExpired(JsonNode record, Instant now) {
+        JsonNode expiry = record.get("resultExpiresAt");
+        return expiry != null && expiry.isTextual() && !Instant.parse(expiry.asText()).isAfter(now);
+    }
+
+    private void purgeExpiredResult(String invocationId, Path target) throws IOException {
+        withKeyLock(invocationId, () -> {
+            Path lockFile = lockPath(invocationId);
+            try (FileChannel channel = openPrivateLockFile(lockFile);
+                 FileLock lock = channel.tryLock()) {
+                if (lock == null || !Files.exists(target, LinkOption.NOFOLLOW_LINKS)) return null;
+                validatePrivateRegularFile(target);
+                JsonNode current = JSON.readTree(Files.readString(target));
+                if (resultExpired(current, clock.instant())) {
+                    ObjectNode tombstone = JSON.createObjectNode();
+                    tombstone.put("schemaVersion", SCHEMA_VERSION);
+                    tombstone.put("resultExpired", true);
+                    tombstone.put("resultPurgedAt", clock.instant().toString());
+                    atomicWrite(target, tombstone.toString(), true);
+                }
+            } catch (IOException | RuntimeException ignored) {
+                // Expiration readback is fail-closed; the durable claim remains present.
+            }
+            return null;
         });
     }
 
@@ -328,31 +389,105 @@ public final class FileInvocationLedger implements InvocationLedger {
 
     // ---- serialization ----
 
-    private static String encode(LogicalAction action) {
+    private String encode(LogicalAction action) {
         ObjectNode root = JSON.createObjectNode();
         root.put("schemaVersion", SCHEMA_VERSION);
         root.put("invocationId", action.invocationId());
         root.set("requestIdentity", encodeIdentity(action.requestIdentity()));
         root.put("outcome", action.outcome().name());
-        if (action.result() != null) root.set("result", encodeResult(action.result()));
-        else root.putNull("result");
+        if (action.result() != null) {
+            byte[] nonce = new byte[GCM_NONCE_BYTES];
+            secureRandom.nextBytes(nonce);
+            String resultExpiresAt = clock.instant().plus(resultRetention).toString();
+            byte[] ciphertext = encrypt(jsonBytes(encodeResult(action.result())), nonce,
+                    authenticatedData(action.invocationId(), action.requestIdentity(), resultExpiresAt));
+            root.put("resultNonce", java.util.Base64.getEncoder().encodeToString(nonce));
+            root.put("resultCiphertext", java.util.Base64.getEncoder().encodeToString(ciphertext));
+            root.put("resultExpiresAt", resultExpiresAt);
+        } else {
+            root.putNull("resultNonce");
+            root.putNull("resultCiphertext");
+            root.putNull("resultExpiresAt");
+        }
         return root.toString();
     }
 
-    private static LogicalAction decode(JsonNode root) {
+    private LogicalAction decode(JsonNode root) {
         if (root.path("schemaVersion").asInt(-1) != SCHEMA_VERSION) {
             throw new IllegalStateException("unsupported invocation record schema");
         }
         String invocationId = requiredText(root, "invocationId");
         RequestIdentity identity = decodeIdentity(root.required("requestIdentity"));
         LogicalOutcome outcome = LogicalOutcome.valueOf(requiredText(root, "outcome"));
-        JsonNode resultNode = root.get("result");
-        ToolExecutionResult result = resultNode == null || resultNode.isNull()
-                ? null : decodeResult(resultNode);
+        JsonNode ciphertext = root.get("resultCiphertext");
+        JsonNode nonce = root.get("resultNonce");
+        JsonNode expiry = root.get("resultExpiresAt");
+        boolean hasCiphertext = ciphertext != null && !ciphertext.isNull();
+        boolean hasNonce = nonce != null && !nonce.isNull();
+        boolean hasExpiry = expiry != null && !expiry.isNull();
+        if (hasCiphertext != hasNonce || hasCiphertext != hasExpiry) {
+            throw new IllegalStateException("invocation result encryption metadata is incomplete");
+        }
+        ToolExecutionResult result = null;
+        if (hasCiphertext) {
+            if (!expiry.isTextual()) throw new IllegalStateException("invocation result expiry is malformed");
+            String resultExpiresAt = expiry.asText();
+            // Parse before decryption to reject malformed expiry metadata, and bind the original
+            // value into GCM AAD so a local record edit cannot extend the retention period.
+            java.time.Instant.parse(resultExpiresAt);
+            result = decodeResult(decrypt(
+                    java.util.Base64.getDecoder().decode(ciphertext.asText()),
+                    java.util.Base64.getDecoder().decode(nonce.asText()),
+                    authenticatedData(invocationId, identity, resultExpiresAt)));
+        }
         return new LogicalAction(invocationId, identity, outcome, result);
     }
 
-    private static LogicalAction readAction(String json) {
+    private byte[] encrypt(byte[] cleartext, byte[] nonce, byte[] aad) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, resultEncryptionKey, new GCMParameterSpec(GCM_TAG_BITS, nonce));
+            cipher.updateAAD(aad);
+            return cipher.doFinal(cleartext);
+        } catch (java.security.GeneralSecurityException failure) {
+            throw new IllegalStateException("invocation result encryption failed", failure);
+        }
+    }
+
+    private byte[] decrypt(byte[] ciphertext, byte[] nonce, byte[] aad) {
+        try {
+            if (nonce.length != GCM_NONCE_BYTES) throw new IllegalArgumentException("invalid result nonce");
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, resultEncryptionKey, new GCMParameterSpec(GCM_TAG_BITS, nonce));
+            cipher.updateAAD(aad);
+            return cipher.doFinal(ciphertext);
+        } catch (java.security.GeneralSecurityException failure) {
+            throw new IllegalStateException("invocation result authentication failed", failure);
+        }
+    }
+
+    private byte[] authenticatedData(String invocationId, RequestIdentity identity, String resultExpiresAt) {
+        byte[] identityBytes = jsonBytes(encodeIdentity(identity));
+        byte[] invocationBytes = invocationId.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] expiryBytes = resultExpiresAt.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] aad = java.util.Arrays.copyOf(invocationBytes,
+                invocationBytes.length + 1 + identityBytes.length + 1 + expiryBytes.length);
+        aad[invocationBytes.length] = 0;
+        System.arraycopy(identityBytes, 0, aad, invocationBytes.length + 1, identityBytes.length);
+        aad[invocationBytes.length + 1 + identityBytes.length] = 0;
+        System.arraycopy(expiryBytes, 0, aad, invocationBytes.length + 2 + identityBytes.length, expiryBytes.length);
+        return aad;
+    }
+
+    private ToolExecutionResult decodeResult(byte[] encryptedJson) {
+        return decodeResult(JSON.readTree(encryptedJson));
+    }
+
+    private static byte[] jsonBytes(JsonNode node) {
+        return JSON.writeValueAsBytes(node);
+    }
+
+    private LogicalAction readAction(String json) {
         try {
             return decode(JSON.readTree(json));
         } catch (RuntimeException e) {

@@ -807,44 +807,62 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             String digest,
             Exception primaryFailure) {
         try (Connection connection = state.connection()) {
-            ChunkRow persisted = chunk(connection, tenantId, uploadId, chunkIndex);
-            UploadRow upload = readUpload(connection, tenantId, uploadId, false);
-            if (persisted != null) {
-                boolean identityMatches = objectKey.equals(persisted.objectKey())
-                        && sizeBytes == persisted.sizeBytes()
-                        && digest.equals(persisted.sha256());
-                boolean progressMatches = upload != null
-                        && upload.nextChunkIndex() >= chunkIndex + 1;
-                if (identityMatches && progressMatches) {
-                    return Optional.of(upload.session());
+            connection.setAutoCommit(false);
+            try {
+                // Serialize ownership reconciliation with a retry of the same deterministic
+                // chunk key. Without this row lock, a retry can commit its manifest between
+                // our empty-manifest read and DELETE, leaving committed metadata for missing
+                // bytes. Keep the lock through exact-key cleanup so the next append either
+                // observes the winning manifest or writes after the orphan has been removed.
+                UploadRow upload = lockUpload(connection, tenantId, uploadId);
+                ChunkRow persisted = chunk(connection, tenantId, uploadId, chunkIndex);
+                if (persisted != null) {
+                    boolean identityMatches = objectKey.equals(persisted.objectKey())
+                            && sizeBytes == persisted.sizeBytes()
+                            && digest.equals(persisted.sha256());
+                    boolean progressMatches = upload != null
+                            && upload.nextChunkIndex() >= chunkIndex + 1;
+                    if (identityMatches && progressMatches) {
+                        connection.commit();
+                        return Optional.of(upload.session());
+                    }
+                    primaryFailure.addSuppressed(new IllegalStateException(
+                            "Media chunk write outcome is inconsistent after database failure"));
+                    connection.commit();
+                    return Optional.empty();
                 }
-                primaryFailure.addSuppressed(new IllegalStateException(
-                        "Media chunk write outcome is inconsistent after database failure"));
+                if (upload != null && upload.nextChunkIndex() > chunkIndex) {
+                    primaryFailure.addSuppressed(new IllegalStateException(
+                            "Media upload progress advanced without persisted chunk metadata"));
+                    connection.commit();
+                    return Optional.empty();
+                }
+
+                try {
+                    state.s3().deleteObject(DeleteObjectRequest.builder()
+                            .bucket(state.bucket())
+                            .key(objectKey)
+                            .build());
+                } catch (RuntimeException cleanupFailure) {
+                    primaryFailure.addSuppressed(new IllegalStateException(
+                            "Unable to remove unowned Media chunk after database rollback",
+                            cleanupFailure));
+                }
+                connection.commit();
                 return Optional.empty();
-            }
-            if (upload != null && upload.nextChunkIndex() > chunkIndex) {
+            } catch (SQLException | RuntimeException reconciliationFailure) {
+                rollback(connection, reconciliationFailure);
                 primaryFailure.addSuppressed(new IllegalStateException(
-                        "Media upload progress advanced without persisted chunk metadata"));
+                        "Unable to reconcile Media chunk ownership after database rollback",
+                        reconciliationFailure));
                 return Optional.empty();
             }
         } catch (SQLException | RuntimeException reconciliationFailure) {
             primaryFailure.addSuppressed(new IllegalStateException(
-                    "Unable to reconcile Media chunk ownership after database failure",
+                    "Unable to reconcile Media chunk ownership after database rollback",
                     reconciliationFailure));
             return Optional.empty();
         }
-
-        try {
-            state.s3().deleteObject(DeleteObjectRequest.builder()
-                    .bucket(state.bucket())
-                    .key(objectKey)
-                    .build());
-        } catch (RuntimeException cleanupFailure) {
-            primaryFailure.addSuppressed(new IllegalStateException(
-                    "Unable to remove unowned Media chunk after database rollback",
-                    cleanupFailure));
-        }
-        return Optional.empty();
     }
 
     private FinalizationClaim claimFinalization(String tenantId, String principalId, String uploadId) {

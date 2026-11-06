@@ -320,6 +320,30 @@ class MediaRuntimeJobGovernanceTest {
     }
 
     @Test
+    void requestDerivedCompatibilityIdentityCannotResolveConfiguredSourceRights() throws Exception {
+        AtomicInteger providerCalls = new AtomicInteger();
+        var provider = provider("local-rights-test", 1, providerCalls,
+                CompletableFuture.completedFuture(Map.of("labels", List.of("safe"))),
+                CancellationOutcome.CONFIRMED);
+        var runtime = runtime(Files.createTempDirectory("media-forged-principal-"),
+                List.of(provider), null, allowSourceAuthorization());
+        try {
+            var artifact = artifact(runtime);
+            var request = new ProcessingJobRequest(
+                    "request-forged-principal", "tenant-a", "principal-a", "correlation-forged",
+                    artifact.artifactId(), artifact.version().value(), JobType.VISION, "local-rights-test", Map.of());
+
+            assertThatThrownBy(() -> runtime.submit(request))
+                    .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class)
+                    .hasMessageContaining("authenticated ingress identity");
+            assertThat(runtime.jobs("tenant-a", "principal-a", 100)).isEmpty();
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void providerRetentionRequiresVerifiedAuthorityPermission() throws Exception {
         var retention = com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.TRANSIENT;
         AtomicInteger deniedCalls = new AtomicInteger();
@@ -779,6 +803,14 @@ class MediaRuntimeJobGovernanceTest {
         var sourceAuthorization = providers.stream()
                 .anyMatch(provider -> provider.processingBoundary() == ProcessingBoundary.EXTERNAL)
                 ? allowSourceAuthorization() : null;
+        return runtime(root, providers, authority, sourceAuthorization);
+    }
+
+    private static MediaRuntime runtime(
+            java.nio.file.Path root,
+            List<MediaProcessingProvider> providers,
+            MediaConsentAuthority authority,
+            com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authority sourceAuthorization) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(
                         true, "local", 8093, 1_024, 64, 1_024,

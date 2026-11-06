@@ -659,6 +659,13 @@ paths:
           { $ref: "#/components/parameters/TenantHeader" },
           { $ref: "#/components/parameters/PrincipalHeader" },
           { $ref: "#/components/parameters/JobId" },
+          {
+            name: requestId,
+            in: query,
+            required: false,
+            description: Optional exact request identity for reconciliation reads; a mismatch is hidden as not found.,
+            schema: { type: string, minLength: 1, maxLength: 255 },
+          },
         ]
       responses:
         "200":

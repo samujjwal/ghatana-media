@@ -287,9 +287,14 @@ pub struct AudioQualityMetrics {
     pub source_rms: f64,
     pub output_rms: f64,
     pub peak_abs: f64,
+    /// Samples at or above 99.9% full scale; a conservative indicator, not proof of clipping.
+    pub source_near_clip_sample_count: usize,
+    /// Samples at or above 99.9% full scale; a conservative indicator, not proof of clipping.
     pub clipped_sample_count: usize,
     pub changed_sample_count: usize,
     pub snr_db_vs_reference: Option<f64>,
+    /// Absolute change in zero-lag first-two-channel correlation; None for mono.
+    pub stereo_correlation_delta: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -316,6 +321,11 @@ pub fn compare_audio(
     }
     let source_rms = rms(&source.samples);
     let output_rms = rms(&repaired.samples);
+    let source_near_clip_sample_count = source
+        .samples
+        .iter()
+        .filter(|sample| sample.abs() >= 0.999)
+        .count();
     let peak_abs = repaired
         .samples
         .iter()
@@ -344,6 +354,14 @@ pub fn compare_audio(
     } else {
         None
     };
+    let stereo_correlation_delta = if source.config.channels >= 2 {
+        match (stereo_correlation(source), stereo_correlation(repaired)) {
+            (Some(source_corr), Some(repaired_corr)) => Some((source_corr - repaired_corr).abs()),
+            _ => None,
+        }
+    } else {
+        None
+    };
     Ok(AudioComparison {
         source: clone_buffer(source)?,
         repaired: clone_buffer(repaired)?,
@@ -351,11 +369,34 @@ pub fn compare_audio(
             source_rms,
             output_rms,
             peak_abs,
+            source_near_clip_sample_count,
             clipped_sample_count,
             changed_sample_count,
             snr_db_vs_reference,
+            stereo_correlation_delta,
         },
     })
+}
+
+/// First-two-channel zero-lag correlation exposes polarity/phase-relation changes
+/// without presenting correlation as a perceptual quality score.
+fn stereo_correlation(buffer: &AudioBuffer) -> Option<f64> {
+    let channels = buffer.config.channels as usize;
+    let mut cross = 0.0f64;
+    let mut left_energy = 0.0f64;
+    let mut right_energy = 0.0f64;
+    for frame in buffer.samples.chunks_exact(channels) {
+        let left = frame[0] as f64;
+        let right = frame[1] as f64;
+        cross += left * right;
+        left_energy += left * left;
+        right_energy += right * right;
+    }
+    if left_energy == 0.0 || right_energy == 0.0 {
+        None
+    } else {
+        Some((cross / (left_energy * right_energy).sqrt()).clamp(-1.0, 1.0))
+    }
 }
 
 fn snr_db(reference: &[f32], output: &[f32]) -> f64 {
@@ -475,6 +516,8 @@ mod tests {
         assert!(repaired.samples[..128].iter().map(|x| x.abs()).sum::<f32>() < 2.0);
         assert!(comparison.metrics.changed_sample_count > 0);
         assert!(comparison.metrics.snr_db_vs_reference.unwrap().is_finite());
+        assert_eq!(comparison.metrics.source_near_clip_sample_count, 0);
+        assert_eq!(comparison.metrics.clipped_sample_count, 0);
     }
 
     #[test]
@@ -563,5 +606,29 @@ mod tests {
             let right = repaired.samples[frame * 2 + 1];
             assert!((left - right * 2.0).abs() < 1e-6);
         }
+        let comparison = compare_audio(&input, &repaired, None).unwrap();
+        assert!(comparison.metrics.stereo_correlation_delta.unwrap() < 1e-12);
+    }
+
+    #[test]
+    fn comparison_reports_near_clipping_and_stereo_polarity_change() {
+        let stereo = |samples: Vec<f32>| {
+            AudioBuffer::new(
+                samples,
+                crate::AudioConfig {
+                    sample_rate: 8_000,
+                    channels: 2,
+                    sample_format: SampleFormat::F32,
+                },
+            )
+        };
+        let source = stereo(vec![1.0, 1.0, -1.0, -1.0, 0.4, 0.4]);
+        let repaired = stereo(vec![0.8, -0.8, -0.8, 0.8, 0.3, -0.3]);
+
+        let result = compare_audio(&source, &repaired, None).unwrap();
+
+        assert_eq!(result.metrics.source_near_clip_sample_count, 4);
+        assert_eq!(result.metrics.clipped_sample_count, 0);
+        assert!((result.metrics.stereo_correlation_delta.unwrap() - 2.0).abs() < 1e-12);
     }
 }

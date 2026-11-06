@@ -3,7 +3,6 @@ package com.ghatana.media.production.timeline;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +55,39 @@ public final class ProjectTimelineEngine {
     /** Check live authority for every exact source before an external effect such as rendering. */
     public void requireCurrentSources(Actor actor, String projectId, String revisionId,
                                       Predicate<SourceVersion> currentlyEligible) {
-        Objects.requireNonNull(currentlyEligible, "currentlyEligible");
         Revision revision = store.revision(actor, projectId, revisionId);
+        if (revision.graph().clips().isEmpty()) return;
+        if (currentlyEligible == null) throw new SourceEligibilityException(SourceEligibility.UNKNOWN);
         for (Clip clip : revision.graph().clips()) {
-            if (!currentlyEligible.test(clip.source())) throw new SourceEligibilityException();
+            final boolean eligible;
+            try {
+                eligible = currentlyEligible.test(clip.source());
+            } catch (RuntimeException unavailable) {
+                throw new SourceEligibilityException(SourceEligibility.UNKNOWN);
+            }
+            if (!eligible) throw new SourceEligibilityException(SourceEligibility.REVOKED);
+        }
+    }
+
+    /**
+     * Preferred host binding: rechecks each exact artifact version against live authority.
+     * Missing, null, revoked, or failing authority observations block the effect.
+     */
+    public void requireCurrentSources(Actor actor, String projectId, String revisionId,
+                                      SourceEligibilityPort authority) {
+        Revision revision = store.revision(actor, projectId, revisionId);
+        if (revision.graph().clips().isEmpty()) return;
+        if (authority == null) throw new SourceEligibilityException(SourceEligibility.UNKNOWN);
+        for (Clip clip : revision.graph().clips()) {
+            final SourceEligibility current;
+            try {
+                current = authority.current(actor, clip.source());
+            } catch (RuntimeException unavailable) {
+                throw new SourceEligibilityException(SourceEligibility.UNKNOWN);
+            }
+            if (current != SourceEligibility.ELIGIBLE) {
+                throw new SourceEligibilityException(current == null ? SourceEligibility.UNKNOWN : current);
+            }
         }
     }
 
@@ -176,12 +204,7 @@ public final class ProjectTimelineEngine {
     private record ChangeSet(List<String> added, List<String> removed, List<String> changed) { }
 
     private static Graph graph(Graph g, List<Scene> scenes, List<Track> tracks, List<Clip> clips) {
-        List<Scene> orderedScenes = scenes.stream().sorted(Comparator.comparingInt(Scene::order).thenComparing(Scene::sceneId)).toList();
-        List<Track> orderedTracks = tracks.stream().sorted(Comparator.comparing(Track::sceneId)
-                .thenComparingInt(Track::order).thenComparing(Track::trackId)).toList();
-        List<Clip> orderedClips = clips.stream().sorted(Comparator.comparing(Clip::sceneId)
-                .thenComparing(Clip::trackId).thenComparing(Clip::storyStart).thenComparing(Clip::clipId)).toList();
-        return new Graph(g.timelineId(), orderedScenes, orderedTracks, orderedClips);
+        return new Graph(g.timelineId(), scenes, tracks, clips);
     }
 
     private static void validateRequestId(String requestId) {

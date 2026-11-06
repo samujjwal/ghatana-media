@@ -230,6 +230,40 @@ describe("CameraCaptureAdapter", () => {
     expect(tooLarge.tracks[0]?.stopCalls).toBe(1);
   });
 
+  it("treats device unplug during a frame read as unavailable and releases the device", async () => {
+    const unplugged: FakeTrack = {
+      stopCalls: 0,
+      async nextFrame() { throw new Error("device removed"); },
+      stopTracks() { unplugged.stopCalls++; },
+    };
+    const h = harness({ tracks: [unplugged] });
+    const session = await h.adapter.openSession(request);
+
+    await expectCode(session.nextFrame(), "DEVICE_UNAVAILABLE");
+    expect(unplugged.stopCalls).toBe(1);
+    expect(h.subscriptions[0]?.active).toBe(false);
+    await session.close();
+    expect(unplugged.stopCalls).toBe(1);
+  });
+
+  it("discards a frame when exact permission becomes unknown during the device read", async () => {
+    let permissionReads = 0;
+    const track = frameTrack([new Uint8Array([0xca, 0xfe])]);
+    const h = harness({
+      tracks: [track],
+      decide: (candidate) => {
+        permissionReads++;
+        return permissionFor(candidate, permissionReads >= 4 ? { disposition: "UNKNOWN" } : {});
+      },
+    });
+    const session = await h.adapter.openSession(request);
+
+    await expectCode(session.nextFrame(), "PERMISSION_DENIED");
+    expect(permissionReads).toBe(4);
+    expect(track.stopCalls).toBe(1);
+    expect(h.subscriptions[0]?.active).toBe(false);
+  });
+
   it("one-frame SPI capture closes tracks and strips output on fresh permission loss", async () => {
     const track = frameTrack([new Uint8Array([3, 4])]);
     const h = harness({ tracks: [track] });

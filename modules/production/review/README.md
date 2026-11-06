@@ -19,6 +19,9 @@ owner-issued case ID, exact target and declared scope. Authorization, currentnes
 checked once before sanitization and again immediately before the append; role/assignment version drift
 or a material-version change between those checks prevents the write. The host authority adapter owns
 the meaning and versioning of reviewer roles; the local module does not mint roles or approval grants.
+Store append receipts are checked against the exact actor, case, target version, request, payload, authority
+version and expected next case revision. Readback rejects cross-tenant/case/version records and requires
+contiguous append revisions before disclosing the sanitized snapshot.
 
 `InMemoryReviewStore` is process-local and accepts only externally supplied case references. It does
 not mint owner review cases and is not a canonical, durable, or multi-host writer. The module is not

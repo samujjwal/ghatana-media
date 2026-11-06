@@ -1,0 +1,251 @@
+package com.ghatana.video.streaming;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+
+class GrpcVideoSourceCaptureTest {
+    private static final GrpcVideoSourceCapture.Request REQUEST = new GrpcVideoSourceCapture.Request(
+            "tenant-1", "stream-1", "principal-1", "purpose-1", "video@v3");
+
+    @Test
+    void reordersFramesAndUsesCanonicalPortAsOnlyWriter() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
+                frame(11, 1, "video@v3", 30), frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.ACCEPTED);
+        assertThat(port.offeredSequences).containsExactly(0, 1);
+    }
+
+    @Test
+    void sourceGapDoesNotOfferLaterFrames() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(11, 1, "video@v3", 30)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.GAP);
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void deniedReadbackDoesNotFetchOrOfferFrames() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v3", 20)), false));
+        source.authorization = GrpcVideoSourceCapture.Authorization.DENIED;
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.DENIED);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void unknownReadbackDoesNotFetchOrOfferFrames() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v3", 20)), false));
+        source.authorization = GrpcVideoSourceCapture.Authorization.UNKNOWN;
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void explicitRevocationHasADistinctDisposition() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v3", 20)), false));
+        source.authorization = GrpcVideoSourceCapture.Authorization.REVOKED;
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.REVOKED);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void revokeBetweenFramesStopsBeforeTheNextOffer() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
+                frame(10, 0, "video@v3", 20), frame(11, 1, "video@v3", 30)), false));
+        source.denyReadbackCall = 3;
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.REVOKED);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
+    @Test
+    void lostAckIsUnknownAndNotRetried() {
+        FakePort port = new FakePort();
+        port.offerResult = new CanonicalVideoStreamFramePort.Result(
+                CanonicalVideoStreamFramePort.Disposition.OUTCOME_UNKNOWN, -1, "lost acknowledgement");
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.OUTCOME_UNKNOWN);
+        assertThat(port.offerCalls).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
+    @Test
+    void nullCanonicalOfferFeedbackIsUnknownAndNotRetried() {
+        FakePort port = new FakePort();
+        port.nullOfferFeedback = true;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.OUTCOME_UNKNOWN);
+        assertThat(port.offerCalls).isEqualTo(1);
+    }
+
+    @Test
+    void eosUsesFreshReadbackAndCanonicalMarker() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.EOS);
+        assertThat(source.readbackCalls).isEqualTo(2);
+        assertThat(port.eosCalls).isEqualTo(1);
+    }
+
+    @Test
+    void exactSourceVersionMustMatchEveryFrame() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v4", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void unknownSourcePtsRemainsUnknownEvenWhenLegacyTimestampMillisIsPresent() {
+        FakePort port = new FakePort();
+        var frame = new GrpcVideoSourceCapture.SourceFrame("video@v3", 10, 0, true, 987654L,
+                VideoFrameTimebase.SourceTimestamp.unknown("SOURCE_PTS_NOT_SUPPLIED"), new byte[] {1});
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.ACCEPTED);
+        assertThat(port.offeredFrames.get(0).timestampMillis()).isEqualTo(987654L);
+    }
+
+    @Test
+    void knownPtsMustUseOneClockAndNondecreasingTicks() {
+        FakePort port = new FakePort();
+        var one = knownFrame(10, 0, 20);
+        var two = knownFrame(11, 1, 19);
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(one, two), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
+    @Test
+    void backpressureStopsFurtherFrameOffers() {
+        FakePort port = new FakePort();
+        port.backpressured = true;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
+                frame(10, 0, "video@v3", 20), frame(11, 1, "video@v3", 30)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.BACKPRESSURED);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
+    private static GrpcVideoSourceCapture.SourceFrame frame(long cursor, int sequence, String version, long pts) {
+        return new GrpcVideoSourceCapture.SourceFrame(version, cursor, sequence, sequence == 0, 700L + sequence,
+                VideoFrameTimebase.SourceTimestamp.known(pts, 1, 90_000, "source-clock"),
+                new byte[] {(byte) sequence});
+    }
+
+    private static GrpcVideoSourceCapture.SourceFrame knownFrame(long cursor, int sequence, long pts) {
+        return frame(cursor, sequence, "video@v3", pts);
+    }
+
+    private static final class FakeSource implements GrpcVideoSourceCapture.AuthenticatedGrpcSource {
+        private final GrpcVideoSourceCapture.Batch batch;
+        private GrpcVideoSourceCapture.Authorization authorization = GrpcVideoSourceCapture.Authorization.AUTHORIZED;
+        private int denyReadbackCall = -1;
+        private int readbackCalls;
+        private int batchReads;
+
+        private FakeSource(GrpcVideoSourceCapture.Batch batch) { this.batch = batch; }
+
+        @Override public GrpcVideoSourceCapture.Readback readback(
+                GrpcVideoSourceCapture.Request request, long cursor, long mediaSequence) {
+            readbackCalls++;
+            var status = readbackCalls == denyReadbackCall ? GrpcVideoSourceCapture.Authorization.REVOKED : authorization;
+            return new GrpcVideoSourceCapture.Readback(status,
+                    status == GrpcVideoSourceCapture.Authorization.AUTHORIZED ? request.sourceVersion() : null,
+                    cursor < 0 ? 10 : cursor, mediaSequence);
+        }
+
+        @Override public GrpcVideoSourceCapture.Batch readBatch(
+                GrpcVideoSourceCapture.Request request, GrpcVideoSourceCapture.Readback readback,
+                int maxFrames, long maxBytes) {
+            batchReads++;
+            assertThat(maxFrames).isEqualTo(GrpcVideoSourceCapture.MAX_BATCH_FRAMES);
+            assertThat(maxBytes).isEqualTo(GrpcVideoSourceCapture.MAX_BATCH_BYTES);
+            return batch;
+        }
+    }
+
+    private static final class FakePort implements CanonicalVideoStreamFramePort {
+        private final List<Integer> offeredSequences = new ArrayList<>();
+        private final List<VideoStreamSession.DecodedFrame> offeredFrames = new ArrayList<>();
+        private long lastAck = -1;
+        private int offerCalls;
+        private int eosCalls;
+        private boolean backpressured;
+        private boolean nullOfferFeedback;
+        private Result offerResult;
+
+        @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
+            return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", 1, 1, lastAck,
+                    Instant.now().plusSeconds(30)));
+        }
+
+        @Override public Result offer(Binding expected, VideoStreamSession.DecodedFrame frame) {
+            offerCalls++;
+            offeredSequences.add(frame.sequenceNumber());
+            offeredFrames.add(frame);
+            if (offerResult != null) return offerResult;
+            lastAck = frame.sequenceNumber();
+            return Result.acknowledged(lastAck);
+        }
+
+        @Override public OfferFeedback offerWithFeedback(Binding expected, VideoStreamSession.DecodedFrame frame) {
+            Result result = offer(expected, frame);
+            if (nullOfferFeedback) return null;
+            return new OfferFeedback(result, 0, backpressured, true);
+        }
+
+        @Override public OfferFeedback endOfStreamWithFeedback(Binding expected) {
+            eosCalls++;
+            return OfferFeedback.unavailable(Result.acknowledged(expected.lastAcknowledgedSequence() + 1));
+        }
+    }
+}

@@ -828,20 +828,50 @@ public class AudioVideoCache<K, V> {
             Function<String, AsyncOperation<V>> loader) {
         Objects.requireNonNull(authorityCheck, "authorityCheck cannot be null");
         Objects.requireNonNull(loader, "loader cannot be null");
-        final AsyncOperation<Boolean> authority;
-        try {
-            authority = Objects.requireNonNull(authorityCheck.apply(scope),
-                    "authorityCheck returned null operation");
-        } catch (RuntimeException failure) {
-            return AsyncOperation.failure(failure);
-        }
+        final AsyncOperation<Boolean> authority = checkScopedAuthority(scope, authorityCheck);
         return authority.flatMap(allowed -> {
             if (!Boolean.TRUE.equals(allowed)) {
                 return AsyncOperation.failure(new SecurityException(
                         "Current cache authority is denied or unknown"));
             }
-            return getOrLoad(asCacheKey(key), ignored -> loader.apply(key));
+            return getOrLoad(asCacheKey(key), ignored -> loader.apply(key))
+                    .flatMap(value -> checkScopedAuthority(scope, authorityCheck)
+                            .whenComplete((current, failure) -> {
+                                if (failure != null || !Boolean.TRUE.equals(current)) {
+                                    invalidateScopedBestEffort(key);
+                                }
+                            })
+                            .flatMap(current -> {
+                                if (Boolean.TRUE.equals(current)) return AsyncOperation.success(value);
+                                return AsyncOperation.failure(new SecurityException(
+                                        "Current cache authority changed or became unavailable before disclosure"));
+                            }));
         });
+    }
+
+    private AsyncOperation<Boolean> checkScopedAuthority(
+            CacheKeyScope scope,
+            Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck) {
+        try {
+            return Objects.requireNonNull(authorityCheck.apply(scope),
+                    "authorityCheck returned null operation");
+        } catch (RuntimeException failure) {
+            return AsyncOperation.failure(failure);
+        }
+    }
+
+    /** Best-effort retirement must never turn a denied or unknown authority into a value. */
+    private void invalidateScopedBestEffort(String key) {
+        try {
+            invalidate(asCacheKey(key)).whenComplete((ignored, failure) -> {
+                if (failure != null) LOG.debug(
+                        "Scoped cache invalidation failed: namespaceRef={}, causeType={}",
+                        namespaceReference(), failureType(failure));
+            });
+        } catch (RuntimeException failure) {
+            LOG.debug("Scoped cache invalidation failed: namespaceRef={}, causeType={}",
+                    namespaceReference(), failureType(failure));
+        }
     }
 
     /** Invalidates the exact immutable source and policy epoch key. */

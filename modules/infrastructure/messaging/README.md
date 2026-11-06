@@ -24,6 +24,25 @@ concurrent claims, and restart recovery. Durable retry/backoff eligibility and
 consumer-effect deduplication remain separate source/consumer responsibilities
 and are not implied by broker delivery.
 
+The public lifecycle consumer validates the v1 schema/envelope binding, redacted
+identifier shape, bounded aggregate/classification vocabulary, consumer
+authorization, replay, and aggregate-version ordering. Projection persistence
+must atomically deduplicate `(tenant, eventRef)` and reject stale aggregate
+versions across restarts. An exception during projection is surfaced as
+`CONSUMPTION_UNKNOWN`: the host must redeliver or reconcile through that
+idempotent store before claiming consumption. Authorization failure/unavailability
+occurs before projection. A terminal-shaped event is still a
+`NON_FINAL_APPEND`; only an independently authorized terminal-job readback can
+confirm a terminal status. A missing or failed readback is `UNAVAILABLE`, not
+success. Event delivery, consumer application, job status, and provider effect
+receipts remain distinct facts.
+
+This consumer is a typed adapter boundary, not a broker subscription or durable
+projection implementation. Existing legacy outbox payloads do not yet carry the
+public v1 projection, and no admitted host wiring, durable consumer receipt
+store, or migration/reconciliation protocol is included here. The tests use
+in-memory ports and establish state-machine behavior only.
+
 ## Layer
 
 `infrastructure` — adapter over the message broker; no domain logic. Consumed by `stt-service` and `multimodal-service`.

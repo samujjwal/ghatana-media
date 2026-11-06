@@ -133,7 +133,7 @@ public class TranscriptionCacheService {
 
         return cache.getOrLoadScoped(scope, transcriptionId.toString(), authorityCheck,
                 ignoredKey -> loadScopedEnvelope(scope, transcriptionId, loader))
-                .flatMap(encoded -> recheckAndDecode(scope, transcriptionId, encoded,
+                .flatMap(encoded -> decodeOrRepairScopedEnvelope(scope, transcriptionId, encoded,
                         authorityCheck, loader, false));
     }
 
@@ -169,51 +169,32 @@ public class TranscriptionCacheService {
         });
     }
 
-    private AsyncOperation<TranscriptionEntity> recheckAndDecode(
+    private AsyncOperation<TranscriptionEntity> decodeOrRepairScopedEnvelope(
             AudioVideoCache.CacheKeyScope scope,
             UUID transcriptionId,
             String encoded,
             Function<AudioVideoCache.CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
             Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader,
             boolean refreshed) {
-        return checkCurrentAuthority(scope, authorityCheck).flatMap(allowed -> {
-            if (!Boolean.TRUE.equals(allowed)) {
-                invalidateScopedBestEffort(scope, transcriptionId);
-                return AsyncOperation.failure(new SecurityException(
-                        "Current transcript authority is denied or unknown"));
-            }
-            // A null loader result represents an authoritative miss and is not
-            // persisted by AudioVideoCache; it is safe to return only after the
-            // second current-authority check above.
-            if (encoded == null) return AsyncOperation.success(null);
-            ScopedTranscriptionEnvelope envelope = decodeEnvelope(encoded);
-            if (isValidEnvelope(envelope, scope, transcriptionId)) {
-                return AsyncOperation.success(envelope.transcription());
-            }
-            if (refreshed) {
-                return AsyncOperation.failure(new IllegalStateException(
-                        "Scoped transcription cache entry failed identity validation after refresh"));
-            }
-            // A malformed or scope-mismatched cache value is never exposed. Remove
-            // the exact entry, then re-enter the facade's bounded single-flight
-            // path so concurrent stale-entry repairs share one authoritative load.
-            return cache.invalidateScoped(scope, transcriptionId.toString()).flatMap(ignored ->
-                    cache.getOrLoadScoped(scope, transcriptionId.toString(), authorityCheck,
-                            key -> loadScopedEnvelope(scope, transcriptionId, loader))
-                            .flatMap(reloaded -> recheckAndDecode(scope, transcriptionId, reloaded,
-                                    authorityCheck, loader, true)));
-        });
-    }
-
-    private AsyncOperation<Boolean> checkCurrentAuthority(
-            AudioVideoCache.CacheKeyScope scope,
-            Function<AudioVideoCache.CacheKeyScope, AsyncOperation<Boolean>> authorityCheck) {
-        try {
-            return Objects.requireNonNull(authorityCheck.apply(scope),
-                    "authorityCheck returned null operation");
-        } catch (RuntimeException failure) {
-            return AsyncOperation.failure(failure);
+        // getOrLoadScoped rechecks authority after the cache/source operation and
+        // before returning this encoded value. Decode only after that final check.
+        // A null loader result is an authoritative miss and is never negative-cached.
+        if (encoded == null) return AsyncOperation.success(null);
+        ScopedTranscriptionEnvelope envelope = decodeEnvelope(encoded);
+        if (isValidEnvelope(envelope, scope, transcriptionId)) {
+            return AsyncOperation.success(envelope.transcription());
         }
+        if (refreshed) {
+            return AsyncOperation.failure(new IllegalStateException(
+                    "Scoped transcription cache entry failed identity validation after refresh"));
+        }
+        // Malformed or scope-mismatched values are never exposed. Retire the exact
+        // key and use the same bounded, authority-checked single-flight path again.
+        return cache.invalidateScoped(scope, transcriptionId.toString()).flatMap(ignored ->
+                cache.getOrLoadScoped(scope, transcriptionId.toString(), authorityCheck,
+                        key -> loadScopedEnvelope(scope, transcriptionId, loader))
+                        .flatMap(reloaded -> decodeOrRepairScopedEnvelope(scope, transcriptionId, reloaded,
+                                authorityCheck, loader, true)));
     }
 
     private String encodeEnvelope(
@@ -257,20 +238,6 @@ public class TranscriptionCacheService {
             AudioVideoCache.CacheKeyScope scope, UUID transcriptionId) {
         return scope != null && transcriptionId != null
                 && hasTenantId(scope.tenantId());
-    }
-
-    private void invalidateScopedBestEffort(
-            AudioVideoCache.CacheKeyScope scope, UUID transcriptionId) {
-        try {
-            cache.invalidateScoped(scope, transcriptionId.toString()).whenComplete((ignored, failure) -> {
-                if (failure != null) LOG.debug(
-                        "Scoped transcription cache invalidation failed: causeType={}",
-                        failure.getClass().getSimpleName());
-            });
-        } catch (RuntimeException failure) {
-            LOG.debug("Scoped transcription cache invalidation failed: causeType={}",
-                    failure.getClass().getSimpleName());
-        }
     }
 
     private AsyncOperation<TranscriptionEntity> loadCurrentTranscription(

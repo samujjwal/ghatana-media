@@ -7,6 +7,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 class SpatialRigEngineTest {
@@ -99,6 +104,12 @@ class SpatialRigEngineTest {
                 })).isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class);
         assertThat(checks.get()).isEqualTo(2);
         assertThat(engine.evaluate(safeRig, SpatialRigEngine.RationalTime.of(0, 1), source -> true).bones()).containsKey("root");
+        var versionBoundRig = new SpatialRigEngine.Rig("version-bound", canonicalFrame(), "UNIT_QUATERNION_XYZW",
+                List.of(assetA, assetB), List.of(root), Map.of(), "project:revision:v2");
+        var pose = engine.evaluateWithAuthority(versionBoundRig, SpatialRigEngine.RationalTime.of(0, 1),
+                (SpatialRigEngine.SourceRightsPort) source -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        assertThat(pose.sourceProjectRevisionRef()).isEqualTo("project:revision:v2");
+        assertThat(pose.sourceVersions()).containsExactly(assetA, assetB);
     }
 
     @Test
@@ -131,9 +142,126 @@ class SpatialRigEngineTest {
         assertThatIllegalArgumentException().isThrownBy(() -> engine.project(new SpatialRigEngine.Vec3(0, 0, -2), staleFrame, camera));
     }
 
+    @Test
+    void exportsDecodableRevisionAndRightsBoundGlbWithRationalTimingAndSpatialMetadata() throws Exception {
+        var frame = glbFrame();
+        var root = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
+        var child = bone("child", "root", new SpatialRigEngine.LocalTransform(
+                new SpatialRigEngine.Vec3(0, 1, 0), SpatialRigEngine.Quaternion.IDENTITY), Math.PI);
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var q90 = axisAngle(new SpatialRigEngine.Vec3(0, 0, 1), Math.PI / 2);
+        var rig = new SpatialRigEngine.Rig("rig-export", frame, "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(root, child), Map.of("root", List.of(
+                        key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), q90))), "project:edit:revision-8");
+        AtomicInteger checks = new AtomicInteger();
+
+        var artifact = engine.exportGlb(rig, exact -> {
+            checks.incrementAndGet();
+            assertThat(exact).isEqualTo(source);
+            return SpatialRigEngine.RightsOutcome.ELIGIBLE;
+        });
+
+        assertThat(checks.get()).isEqualTo(1);
+        assertThat(artifact.rigId()).isEqualTo("rig-export");
+        assertThat(artifact.sourceProjectRevisionRef()).isEqualTo("project:edit:revision-8");
+        assertThat(artifact.sourceVersions()).containsExactly(source);
+        assertThat(artifact.mimeType()).isEqualTo("model/gltf-binary");
+        assertThat(artifact.lossDisposition()).isEqualTo("FLOAT32_APPROXIMATION");
+        assertThat(artifact.sha256()).hasSize(64);
+
+        ByteBuffer glb = ByteBuffer.wrap(artifact.bytes()).order(ByteOrder.LITTLE_ENDIAN);
+        assertThat(glb.getInt()).isEqualTo(0x46546c67);
+        assertThat(glb.getInt()).isEqualTo(2);
+        assertThat(glb.getInt()).isEqualTo(glb.capacity());
+        int jsonLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x4e4f534a);
+        byte[] jsonBytes = new byte[jsonLength];
+        glb.get(jsonBytes);
+        JsonNode document = new ObjectMapper().readTree(jsonBytes);
+        assertThat(document.path("asset").path("version").asString()).isEqualTo("2.0");
+        assertThat(document.path("nodes").size()).isEqualTo(2);
+        assertThat(document.path("scenes").get(0).path("nodes").get(0).intValue()).isEqualTo(1);
+        assertThat(document.path("nodes").get(1).path("children").get(0).intValue()).isEqualTo(0);
+        JsonNode metadata = document.path("extras").path("mediaSpatial");
+        assertThat(metadata.path("frameVersionRef").asString()).isEqualTo(frame.frameVersionRef());
+        assertThat(metadata.path("sourceProjectRevisionRef").asString()).isEqualTo("project:edit:revision-8");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(0).asString()).isEqualTo("1");
+
+        int binLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x004e4942);
+        byte[] bin = new byte[binLength];
+        glb.get(bin);
+        JsonNode animation = document.path("animations").get(0);
+        assertThat(animation.path("channels").size()).isEqualTo(2);
+        assertThat(animation.path("channels").get(0).path("target").path("path").asString()).isEqualTo("translation");
+        JsonNode translationAccessor = document.path("accessors").get(
+                animation.path("samplers").get(0).path("output").intValue());
+        JsonNode translationView = document.path("bufferViews").get(translationAccessor.path("bufferView").intValue());
+        ByteBuffer binary = ByteBuffer.wrap(bin).order(ByteOrder.LITTLE_ENDIAN);
+        int translationOffset = translationView.path("byteOffset").intValue();
+        assertThat(binary.getFloat(translationOffset + 12)).isEqualTo(1.0f);
+        JsonNode rotationAccessor = document.path("accessors").get(
+                animation.path("samplers").get(1).path("output").intValue());
+        JsonNode rotationView = document.path("bufferViews").get(rotationAccessor.path("bufferView").intValue());
+        int rotationOffset = rotationView.path("byteOffset").intValue();
+        assertThat(binary.getFloat(rotationOffset + 24)).isCloseTo((float) Math.sin(Math.PI / 4),
+                org.assertj.core.data.Offset.offset(1e-6f));
+        assertThat(binary.getFloat(rotationOffset + 28)).isCloseTo((float) Math.cos(Math.PI / 4),
+                org.assertj.core.data.Offset.offset(1e-6f));
+        assertThat(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(jsonBytes)).toString()).contains("FLOAT32_APPROXIMATION");
+    }
+
+    @Test
+    void spatialExportFailsClosedForMissingRightsRevisionAndUnrepresentableTime() {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var bone = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
+        var keyedTrack = Map.of("root", List.of(
+                key(16_777_216, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                key(16_777_217, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY)));
+        var rig = new SpatialRigEngine.Rig("rig-export", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone), keyedTrack, "project:edit:revision-8");
+
+        assertThatThrownBy(() -> engine.exportGlb(rig, (SpatialRigEngine.SourceRightsPort) null))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+        assertThatThrownBy(() -> engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.REVOKED))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.REVOKED));
+        assertThatThrownBy(() -> engine.exportGlb(rig, ignored -> { throw new IllegalStateException("authority unavailable"); }))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+        assertThatThrownBy(() -> engine.exportGlb(new SpatialRigEngine.Rig("no-revision", glbFrame(),
+                "UNIT_QUATERNION_XYZW", List.of(source), List.of(bone), Map.of()),
+                ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.PROJECT_REVISION_MISSING));
+        var unsupportedFrameRig = new SpatialRigEngine.Rig("unsupported-frame", canonicalFrame(),
+                "UNIT_QUATERNION_XYZW", List.of(source), List.of(bone), Map.of(), "project:revision:v1");
+        assertThatThrownBy(() -> engine.exportGlb(unsupportedFrameRig,
+                ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.COORDINATE_PROFILE_UNSUPPORTED));
+        assertThatThrownBy(() -> engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.NON_MONOTONIC_FLOAT_TIME));
+    }
+
     private static SpatialRigEngine.CoordinateFrame canonicalFrame() {
         return frame("world", "world:v1", SpatialRigEngine.Handedness.RIGHT_HANDED,
                 SpatialRigEngine.AxisDirection.POS_X, SpatialRigEngine.AxisDirection.POS_Y, SpatialRigEngine.AxisDirection.POS_Z);
+    }
+    private static SpatialRigEngine.CoordinateFrame glbFrame() {
+        return new SpatialRigEngine.CoordinateFrame("urn:media:frame:glb", "v1",
+                SpatialRigEngine.Handedness.RIGHT_HANDED, SpatialRigEngine.AxisDirection.POS_X,
+                SpatialRigEngine.AxisDirection.POS_Y, SpatialRigEngine.AxisDirection.POS_Z,
+                SpatialRigEngine.GLB_METRE_UNIT_REF, SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
     }
     private static SpatialRigEngine.CoordinateFrame frame(String id, String version, SpatialRigEngine.Handedness handedness,
             SpatialRigEngine.AxisDirection x, SpatialRigEngine.AxisDirection y, SpatialRigEngine.AxisDirection z) {

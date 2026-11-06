@@ -1,6 +1,6 @@
 # Ghatana Media — remaining feature implementation and owner decisions
 
-**Current owner readback:** [Engineering decisions](ENGINEERING-DECISIONS.md) separate the legacy upload model from the actual runtime enum, align the runtime stream type, authorize independent task starts, and preserve history pending qualified archival. [The structured register](remaining-work.json) reconciles **21 VERIFIED / 81 OPEN / 1 OPTIONAL DEFERRED** (103 total). The remaining open units comprise 40 independently startable engineering tasks, 10 safe engineering tasks requiring real-positive inputs later, 30 journey scenario/test tasks and one archive/delete task. `requires` identifies full integration prerequisites, not a blanket pause on code and tests.
+**Current owner readback:** [Engineering decisions](ENGINEERING-DECISIONS.md) separate the legacy upload model from the actual runtime enum, align the runtime stream type, authorize independent task starts, and preserve history pending qualified archival. [The structured register](remaining-work.json) reconciles **27 VERIFIED / 75 OPEN / 1 OPTIONAL DEFERRED** (103 total). The remaining open units comprise 34 independently startable engineering tasks, 10 safe engineering tasks requiring real-positive inputs later, 30 journey scenario/test tasks and one archive/delete task. `requires` identifies full integration prerequisites, not a blanket pause on code and tests.
 
 > **Current engineering selector.** This file and [machine-readable remaining work](remaining-work.json) replace dated task-run selections **for feature implementation only**. Product definitions retain semantic authority. No gtool setup, closure, evidence, convergence, release or production cutover work is authorized by this document.
 
@@ -56,14 +56,14 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Roundtrip/golden/invalid/overflow/unknown-state tests and consumer ABI checks.
 - **Predecessors:** `media.dev.source-capability-crosswalk`
 
-**`media.dev.rights-and-policy`** · OPEN
+**`media.dev.rights-and-policy`** · VERIFIED (32 focused runtime/provider tests pass; fake request-derived identity fails before job/provider effects)
 - **Where:** `modules/infrastructure/security`, `runtime-contracts`, `launcher`
 - **What:** Use authenticated Shared identity plus current owner rights/consent/purpose instead of caller-provided labels.
 - **How:** Inject verified principal and version-scoped entitlement readback at admit, replay, provider effect and disclosure; block on stale/revoked/unknown.
 - **Test/exit:** Wrong-tenant/cross-purpose/revoke-mid-flight/biometric/fake principal cause zero effects.
 - **Predecessors:** `media.dev.domain-contract-parity`
 
-**`media.dev.canonical-artifact-storage`** · OPEN
+**`media.dev.canonical-artifact-storage`** · VERIFIED (24 S3/PostgreSQL admission, recovery, race and erasure tests pass; no live legacy-writer cutover claimed)
 - **Where:** `providers/aws-postgresql`, `modules/infrastructure/persistence`, `launcher`
 - **What:** Finalize source ingestion and immutable S3/PostgreSQL-backed artifact revisions.
 - **How:** Use verified upload intent, digest, object ownership, atomic metadata CAS and idempotency; no in-memory production fallback.
@@ -119,7 +119,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** No duplicate sink call after ambiguous crash, no stale floor reset or cross-run state injection.
 - **Predecessors:** None; start independently
 
-**`media.dev.invocation-store-security`** · OPEN
+**`media.dev.invocation-store-security`** · VERIFIED (48 focused ledger/binder tests pass; encrypted single-host development boundary and fresh replay authorization)
 - **Where:** `adapters/agent-tools-media`, `providers/aws-postgresql`
 - **What:** Constrain filesystem ledger to secure single-host development; provide durable Media-owned backing for scale where required.
 - **How:** Validate directory ownership, file permissions, symlink rejection, result encryption/retention and authenticated replay; build Postgres CAS backing through existing ports if multi-process host is needed.
@@ -354,6 +354,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement camera source intake with permission and device-state handling.
 - **How:** Host camera permission and actual encoder with bounded buffers, camera/mic indicators, timestamps and hot unplug recovery.
 - **Test/exit:** Consent revoked midframe, device switch, no leaked capture and PTS ordering.
+- **Current disposition (2026-11-05):** The existing host-neutral `CameraCaptureSession` passes 9 focused tests, including revoke, unplug cleanup, device switch, PTS ordering and bounds. A browser `getUserMedia` encoder remains OPEN because PDP-0 AC-009/010 source timing/selection fields are not represented by the current capture SPI: allowed signals/sync policy, exact codec/MIME/dimensions, source PTS/timebase/discontinuity and mapping uncertainty. Do not infer these from device IDs, `frameClockRef`, or wall time; bind a typed source result before adding the browser adapter.
 - **Predecessors:** `media.dev.stream-session-authority`
 
 **`media.dev.recorder-actual-execution`** · VERIFIED (executeScenario records per-scene digest/outcome honestly; scenesRequiringRecapture selects only changed scenes — 5 tests green)
@@ -393,21 +394,21 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Scene ordering, rights, story time, stale edit and no fake renderer readiness.
 - **Predecessors:** `media.dev.project-timeline-engine`
 
-**`media.dev.animation-2d-renderer`** · OPEN
+**`media.dev.animation-2d-renderer`** · VERIFIED (9 renderer tests pass, including bounded in-memory raster assets and decoded PNG/GIF output)
 - **Where:** `libs/java/common/src/main/java/com/ghatana/media/production/AnimationSpecCompiler.java`, `modules/production/animation`
 - **What:** Implement real 2D/vector/procedural frame rendering on current AnimationSpec parser.
 - **How:** Compile typed curves/transforms/asset references into bounded raster/vector frames with exact story time; no effect-free plan mistaken for render.
 - **Test/exit:** Golden frames, easing/units/overflow/fps, renderer errors and codec playback.
 - **Predecessors:** `media.dev.project-timeline-engine`
 
-**`media.dev.animation-3d-rig-and-spatial`** · OPEN
+**`media.dev.animation-3d-rig-and-spatial`** · VERIFIED (8 rig/transform/rights/export tests pass; local GLB profile and float32 timing loss are explicit)
 - **Where:** `modules/production/spatial`, `runtime-contracts`
 - **What:** Implement real 3D rig/path animation and coordinate-transform pipeline.
 - **How:** Select bounded renderer backend after reusable-engine review; implement skeleton transforms, interpolation, camera/scene graph, spatial metadata and export.
 - **Test/exit:** Rig/joint constraints, reference poses, coordinate roundtrip, source rights, decodable spatial output.
 - **Predecessors:** `media.dev.project-timeline-engine`
 
-**`media.dev.scientific-simulation-engine`** · OPEN
+**`media.dev.scientific-simulation-engine`** · VERIFIED (19 contract/solver tests pass; Newton result, conservation, SI dimensions and typed abstention verified)
 - **Where:** `modules/production/simulation`, `runtime-contracts`
 - **What:** Implement typed domain simulation with real solver, observables and uncertainty.
 - **How:** Reuse numerical engine where possible; enforce SI units, integration scheme, step tolerance, bounded iterations and instrument views.

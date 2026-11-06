@@ -73,6 +73,21 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void explicitRightsChangeInvalidationUsesTheExactPriorScopeAndTranscriptKey() {
+        UUID id = UUID.randomUUID();
+        var priorScope = scopedScope("tenant-a", "principal-a", "policy-epoch-before-revocation");
+        String priorKey = scopedKey(priorScope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.invalidateAsync(priorKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+
+        await(service.invalidateTranscriptionScoped(priorScope, id));
+
+        verify(port).invalidateAsync(priorKey);
+        verify(port, never()).invalidateAll();
+    }
+
+    @Test
     void scopedMissStoresVersionedEnvelopeUnderFullAuthorityAndSourceKey() throws Exception {
         UUID id = UUID.randomUUID();
         var scope = scopedScope("tenant-a", "principal-a", "policy-1");
@@ -146,7 +161,7 @@ class TranscriptionCacheServiceTest {
                 checked -> AsyncOperation.success(authorityReads.incrementAndGet() == 1),
                 requested -> { throw new AssertionError("revoked cache hit must not load source"); })))
                 .hasRootCauseInstanceOf(SecurityException.class)
-                .hasRootCauseMessage("Current transcript authority is denied or unknown");
+                .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
 
         assertThat(authorityReads).hasValue(2);
         verify(port).invalidateAsync(key);

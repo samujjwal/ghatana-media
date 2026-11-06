@@ -91,7 +91,10 @@ separate buffers. Repair is linear in at most 6,000,000 interleaved samples;
 profile scans are capped at 2,000,000 frames, channels at 8, sample rate at
 768 kHz, and clipped runs at 4,096 frames. `compare_audio` requires exact PCM
 shape and reports RMS, peak, changed-sample count, and SNR only against an
-explicit independent reference. These local DSP primitives are deterministic
+explicit independent reference. It also reports source/output near-full-scale
+sample counts (>=99.9%; an indicator, not proof of clipping) and the change in
+zero-lag correlation of the first two channels (a phase/polarity proxy, not a
+spectral or perceptual score). These local DSP primitives are deterministic
 and bounded, but are not RNNoise, do not establish perceptual speech quality,
 and have not been qualified against representative lawful source/reference
 material or a production host performance budget.

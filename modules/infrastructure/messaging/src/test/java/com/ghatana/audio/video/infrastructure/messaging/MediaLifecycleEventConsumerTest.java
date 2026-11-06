@@ -14,6 +14,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -80,6 +83,51 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void identicalEventAliasIsDeduplicatedWithinTenantButDoesNotCrossTenantBoundary() {
+        var store = new MemoryProjection();
+        var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
+        var original = event("media.job.accepted", 1);
+        assertThat(consumer.consume("consumer-a", envelope(original)).disposition())
+                .isEqualTo(MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED);
+
+        var secondTenant = new MediaPublicLifecycleEvent(original.schemaVersion(), original.eventRef(),
+                original.eventType(), REDACTOR.redact("tenant", "tenant-other"), original.principalRef(),
+                original.correlationRef(), original.causationRef(), original.aggregateType(),
+                original.aggregateRef(), original.aggregateVersion(), original.classification(),
+                original.occurredAt(), original.appendFinality(), original.terminalReadbackRequired());
+        assertThat(consumer.consume("consumer-a", envelopeForTenant(secondTenant, "tenant-other")).disposition())
+                .isEqualTo(MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED);
+        assertThat(store.applied).hasSize(2);
+    }
+
+    @Test
+    void concurrentConsumersMaterializeOneEventWhenProjectionStoreDeduplicatesAtomically() throws Exception {
+        var store = new MemoryProjection();
+        var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
+        var message = envelope(event("media.job.accepted", 1));
+        var ready = new CountDownLatch(2);
+        var start = new CountDownLatch(1);
+        try (var workers = Executors.newFixedThreadPool(2)) {
+            var first = workers.submit(() -> {
+                ready.countDown();
+                start.await();
+                return consumer.consume("consumer-a", message).disposition();
+            });
+            var second = workers.submit(() -> {
+                ready.countDown();
+                start.await();
+                return consumer.consume("consumer-b", message).disposition();
+            });
+            assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+            assertThat(java.util.List.of(first.get(5, TimeUnit.SECONDS), second.get(5, TimeUnit.SECONDS)))
+                    .containsExactlyInAnyOrder(MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED,
+                            MediaLifecycleEventConsumer.ProjectionDisposition.DUPLICATE);
+        }
+        assertThat(store.applied).hasSize(1);
+    }
+
+    @Test
     void terminalEventAppendRemainsNonfinalUntilSeparateAuthorizedReadback() {
         var consumer = consumer(true, new MemoryProjection(), LogicalJobStatus.RUNNING);
         var observation = consumer.consume("consumer-a", envelope(event("media.job.completed", 4)));
@@ -109,12 +157,52 @@ class MediaLifecycleEventConsumerTest {
                 .isEqualTo(MediaLifecycleEventConsumer.Failure.FORBIDDEN);
     }
 
+    @Test
+    void authorizationUnavailableFailsBeforeProjectionAndProjectionFailureIsExplicitlyUnknown() {
+        var store = new MemoryProjection();
+        var unavailableAuth = new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) {
+                throw new IllegalStateException("authority down");
+            }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) { return true; }
+        }, store, (principal, tenant, jobRef) -> Optional.empty());
+        assertThatThrownBy(() -> unavailableAuth.consume("consumer-a", envelope(event("media.job.accepted", 1))))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.UNAVAILABLE);
+        assertThat(store.applied).isEmpty();
+
+        var uncertainStore = new MediaLifecycleEventConsumer(REDACTOR, allowAll(),
+                (tenant, type, ref, version, eventRef) -> { throw new IllegalStateException("commit response lost"); },
+                (principal, tenant, jobRef) -> Optional.empty());
+        assertThatThrownBy(() -> uncertainStore.consume("consumer-a", envelope(event("media.job.accepted", 1))))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.CONSUMPTION_UNKNOWN);
+    }
+
+    @Test
+    void terminalReadbackUnavailableNeverLooksLikeConfirmedFinality() {
+        var consumer = new MediaLifecycleEventConsumer(REDACTOR, allowAll(), new MemoryProjection(),
+                (principal, tenant, jobRef) -> { throw new IllegalStateException("readback unavailable"); });
+        var result = consumer.readTerminalJob("consumer-a", "tenant-private", "job-ref");
+        assertThat(result.disposition()).isEqualTo(MediaLifecycleEventConsumer.TerminalReadbackDisposition.UNAVAILABLE);
+        assertThat(result.terminalStatus()).isNull();
+    }
+
     private static MediaLifecycleEventConsumer consumer(boolean allowed, MemoryProjection store, LogicalJobStatus status) {
         return new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
             @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) { return allowed; }
             @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) { return allowed; }
         }, store, (principal, tenant, jobRef) -> Optional.of(
                 new MediaLifecycleEventConsumer.TerminalJobSnapshot(status, 5)));
+    }
+
+    private static MediaLifecycleEventConsumer.Authorization allowAll() {
+        return new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) { return true; }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) { return true; }
+        };
     }
 
     private static MediaPublicLifecycleEvent event(String type, long version) {
@@ -128,9 +216,18 @@ class MediaLifecycleEventConsumerTest {
     }
 
     private static EventEnvelope<Map<String, Object>> envelope(MediaPublicLifecycleEvent event, String version) {
+        return envelopeForTenant(event, "tenant-private", version);
+    }
+
+    private static EventEnvelope<Map<String, Object>> envelopeForTenant(MediaPublicLifecycleEvent event, String tenant) {
+        return envelopeForTenant(event, tenant, MediaPublicLifecycleEvent.SCHEMA_VERSION);
+    }
+
+    private static EventEnvelope<Map<String, Object>> envelopeForTenant(
+            MediaPublicLifecycleEvent event, String tenant, String version) {
         return new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
                 event.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
-                event.eventType().wireName(), version, "media-runtime", "tenant-private",
+                event.eventType().wireName(), version, "media-runtime", tenant,
                 event.correlationRef(), MediaLifecycleEventConsumer.SCHEMA_URI, event.aggregateRef(),
                 event.eventRef(), Map.of(), "application/json");
     }
@@ -140,13 +237,14 @@ class MediaLifecycleEventConsumerTest {
         private final Map<String, Long> versions = new java.util.HashMap<>();
 
         @Override
-        public MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String aggregateType,
+        public synchronized MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String aggregateType,
                 String aggregateRef, long aggregateVersion, String eventRef) {
             String key = tenant + "/" + aggregateType + "/" + aggregateRef;
-            if (applied.contains(eventRef)) return MediaLifecycleEventConsumer.ProjectionDisposition.DUPLICATE;
+            String eventKey = tenant + "/" + eventRef;
+            if (applied.contains(eventKey)) return MediaLifecycleEventConsumer.ProjectionDisposition.DUPLICATE;
             long previous = versions.getOrDefault(key, 0L);
             if (aggregateVersion <= previous) return MediaLifecycleEventConsumer.ProjectionDisposition.OUT_OF_ORDER;
-            applied.add(eventRef);
+            applied.add(eventKey);
             versions.put(key, aggregateVersion);
             return MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED;
         }

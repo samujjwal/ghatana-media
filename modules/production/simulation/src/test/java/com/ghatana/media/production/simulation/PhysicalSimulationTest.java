@@ -3,6 +3,7 @@ package com.ghatana.media.production.simulation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ghatana.media.runtime.MediaSimulationContracts;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +15,16 @@ class PhysicalSimulationTest {
     private static PhysicalSimulation.Measurement m(double value, PhysicalSimulation.Unit unit,
                                                      double uncertainty, PhysicalSimulation.Unit uncertaintyUnit) {
         return new PhysicalSimulation.Measurement(q(value, unit), q(uncertainty, uncertaintyUnit));
+    }
+
+    private static MediaSimulationContracts.Quantity cq(double value, MediaSimulationContracts.Unit unit) {
+        return new MediaSimulationContracts.Quantity(value, unit);
+    }
+
+    private static MediaSimulationContracts.Measurement cm(
+            double value, MediaSimulationContracts.Unit unit, double uncertainty,
+            MediaSimulationContracts.Unit uncertaintyUnit) {
+        return new MediaSimulationContracts.Measurement(cq(value, unit), cq(uncertainty, uncertaintyUnit));
     }
 
     private static PhysicalSimulation.SolverPolicy policy(double maxStep, int maxSteps, int maxIterations) {
@@ -43,6 +54,10 @@ class PhysicalSimulationTest {
         assertThat(last.uncertainty().status()).isEqualTo(PhysicalSimulation.UncertaintyStatus.PROPAGATED_INDEPENDENT_GAUSSIAN);
         assertThat(last.uncertainty().positionMeters()).isGreaterThan(0);
         assertThat(result.evidenceClass()).isEqualTo("DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+        double initialEnergy = result.observations().getFirst().totalEnergyJoules();
+        assertThat(result.observations()).allSatisfy(observation ->
+                assertThat(observation.totalEnergyJoules())
+                        .isCloseTo(initialEnergy, org.assertj.core.data.Offset.offset(1e-10)));
     }
 
     @Test
@@ -100,6 +115,54 @@ class PhysicalSimulationTest {
         var first = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
         var second = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
         assertThat(first).isEqualTo(second);
+    }
+
+    @Test
+    void runtimeContractRunReturnsTypedCompletedInvalidAndAbstainedOutcomes() {
+        var model = new MediaSimulationContracts.ConstantForce(
+                cm(2, MediaSimulationContracts.Unit.KILOGRAM, 0.01, MediaSimulationContracts.Unit.KILOGRAM),
+                cm(6, MediaSimulationContracts.Unit.NEWTON, 0.03, MediaSimulationContracts.Unit.NEWTON));
+        var initial = new MediaSimulationContracts.InitialState(
+                cm(0, MediaSimulationContracts.Unit.METER, 0, MediaSimulationContracts.Unit.METER),
+                cm(0, MediaSimulationContracts.Unit.METER_PER_SECOND, 0,
+                        MediaSimulationContracts.Unit.METER_PER_SECOND));
+        var policy = new MediaSimulationContracts.SolverPolicy(
+                cq(2, MediaSimulationContracts.Unit.SECOND), cq(0.5, MediaSimulationContracts.Unit.SECOND),
+                cq(1e-5, MediaSimulationContracts.Unit.SECOND), cq(1e-8, MediaSimulationContracts.Unit.METER),
+                cq(1e-8, MediaSimulationContracts.Unit.METER_PER_SECOND), 100, 1000);
+        var completed = PhysicalSimulation.run(new MediaSimulationContracts.RunRequest(model, initial, policy));
+
+        assertThat(completed.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.COMPLETED);
+        assertThat(completed.trace().observations().getLast().position().si(MediaSimulationContracts.Dimension.LENGTH))
+                .isCloseTo(6.0, org.assertj.core.data.Offset.offset(1e-10));
+        assertThat(completed.trace().evidenceClass()).isEqualTo(MediaSimulationContracts.SIMULATION_ONLY_EVIDENCE);
+
+        var negativeMass = new MediaSimulationContracts.ConstantForce(
+                cm(-2, MediaSimulationContracts.Unit.KILOGRAM, 0, MediaSimulationContracts.Unit.KILOGRAM),
+                cm(6, MediaSimulationContracts.Unit.NEWTON, 0, MediaSimulationContracts.Unit.NEWTON));
+        var invalid = PhysicalSimulation.run(new MediaSimulationContracts.RunRequest(negativeMass, initial, policy));
+        assertThat(invalid.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.INVALID_INPUT);
+        assertThat(invalid.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.INVALID_SIMULATION_INPUT);
+        assertThat(invalid.trace()).isNull();
+
+        var noIterations = new MediaSimulationContracts.SolverPolicy(policy.duration(), policy.maximumStep(),
+                policy.minimumStep(), policy.absolutePositionTolerance(), policy.absoluteVelocityTolerance(), 100, 1);
+        var abstained = PhysicalSimulation.run(new MediaSimulationContracts.RunRequest(model, initial, noIterations));
+        assertThat(abstained.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.ABSTAINED);
+        assertThat(abstained.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.SOLVER_LIMIT_REACHED);
+        assertThat(abstained.trace()).isNull();
+
+        var noAcceptedStepBudget = new MediaSimulationContracts.SolverPolicy(policy.duration(), policy.maximumStep(),
+                policy.minimumStep(), policy.absolutePositionTolerance(), policy.absoluteVelocityTolerance(), 1, 1000);
+        assertThat(PhysicalSimulation.run(new MediaSimulationContracts.RunRequest(model, initial, noAcceptedStepBudget)).status())
+                .isEqualTo(MediaSimulationContracts.OutcomeStatus.ABSTAINED);
+    }
+
+    @Test
+    void runtimeContractRunRejectsUnknownRequestWithoutThrowing() {
+        var outcome = PhysicalSimulation.run(null);
+        assertThat(outcome.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.INVALID_INPUT);
+        assertThat(outcome.trace()).isNull();
     }
 
     @Test

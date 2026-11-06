@@ -15,6 +15,11 @@ const COMMAND_IDS: Readonly<Record<string, string>> = {
   'recorder start': 'media.cli.recorder.start',
 };
 const USAGE = 'Usage: ghatanamedia-api <artifact inspect|job status|job cancel|job submit|capture start|recorder start> --endpoint URL --tenant ID --principal ID [operation options]';
+const JOB_TYPES = new Set(['TRANSCODE', 'SPEECH_TO_TEXT', 'TEXT_TO_SPEECH', 'VISION', 'MULTIMODAL']);
+const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
+const MAX_REQUEST_TIMEOUT_MS = 300_000;
+const MAX_PARAMETERS_BYTES = 64 * 1024;
+const MAX_PARAMETERS_DEPTH = 32;
 
 interface Arguments {
   command: string;
@@ -62,9 +67,19 @@ function parseArguments(argv: readonly string[]): Arguments {
   for (const option of required) if (!values.has(option)) throw new Error(`Missing required option ${option}.`);
   for (const option of ['--artifact', '--job']) {
     const value = values.get(option);
-    if (value !== undefined && (value === '.' || value === '..' || /[\\/]/u.test(value))) {
-      throw new Error(`${option.slice(2)} must be a single path-segment identity.`);
+    if (value !== undefined && (!/^[\x21-\x7e]{1,255}$/u.test(value) || value === '.' || value === '..' || /[\\/]/u.test(value))) {
+      throw new Error(`${option.slice(2)} must be a printable single path-segment identity of at most 255 characters.`);
     }
+  }
+  for (const option of ['--request-id', '--correlation-id', '--idempotency-key']) {
+    const value = values.get(option);
+    if (value !== undefined && !/^[\x21-\x7e]{1,255}$/u.test(value)) {
+      throw new Error(`${option.slice(2)} must be a non-empty printable identity of at most 255 characters.`);
+    }
+  }
+  const jobType = values.get('--job-type');
+  if (jobType !== undefined && !JOB_TYPES.has(jobType)) {
+    throw new Error('--job-type must be one of the canonical Media job types.');
   }
   return parsed;
 }
@@ -87,6 +102,105 @@ function validateEndpoint(input: string): string {
     throw new Error('Endpoint path is invalid.');
   }
   return `${endpoint.origin}${endpoint.pathname.replace(/\/+$/u, '')}`;
+}
+
+function parseRequestTimeout(value: string | undefined): number {
+  if (value === undefined) return DEFAULT_REQUEST_TIMEOUT_MS;
+  if (!/^[1-9]\d{0,5}$/u.test(value)) {
+    throw new Error(`GHATANA_MEDIA_REQUEST_TIMEOUT_MS must be an integer in 1..${MAX_REQUEST_TIMEOUT_MS}.`);
+  }
+  const timeout = Number(value);
+  if (!Number.isSafeInteger(timeout) || timeout > MAX_REQUEST_TIMEOUT_MS) {
+    throw new Error(`GHATANA_MEDIA_REQUEST_TIMEOUT_MS must be an integer in 1..${MAX_REQUEST_TIMEOUT_MS}.`);
+  }
+  return timeout;
+}
+
+function parseStrictJsonObject(input: string): Record<string, unknown> {
+  if (new TextEncoder().encode(input).byteLength > MAX_PARAMETERS_BYTES) {
+    throw new Error(`--parameters must not exceed ${MAX_PARAMETERS_BYTES} UTF-8 bytes.`);
+  }
+  let offset = 0;
+  const fail = (): never => { throw new Error('--parameters must be a strict JSON object.'); };
+  const whitespace = (): void => {
+    while (input[offset] === ' ' || input[offset] === '\n' || input[offset] === '\r' || input[offset] === '\t') offset += 1;
+  };
+  const string = (): string => {
+    const start = offset;
+    if (input[offset] !== '"') return fail();
+    offset += 1;
+    let escaped = false;
+    while (offset < input.length) {
+      const character = input[offset]!;
+      offset += 1;
+      if (escaped) { escaped = false; continue; }
+      if (character === '\\') { escaped = true; continue; }
+      if (character === '"') {
+        try { return JSON.parse(input.slice(start, offset)) as string; }
+        catch { return fail(); }
+      }
+      if (character.charCodeAt(0) < 0x20) return fail();
+    }
+    return fail();
+  };
+  const value = (depth: number): unknown => {
+    if (depth > MAX_PARAMETERS_DEPTH) return fail();
+    whitespace();
+    const character = input[offset];
+    if (character === '"') return string();
+    if (character === '{') {
+      offset += 1;
+      whitespace();
+      const object: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+      const seen = new Set<string>();
+      if (input[offset] === '}') { offset += 1; return object; }
+      while (true) {
+        whitespace();
+        const key = string();
+        if (seen.has(key)) return fail();
+        seen.add(key);
+        whitespace();
+        if (input[offset] !== ':') return fail();
+        offset += 1;
+        object[key] = value(depth + 1);
+        whitespace();
+        if (input[offset] === '}') { offset += 1; return object; }
+        if (input[offset] !== ',') return fail();
+        offset += 1;
+      }
+    }
+    if (character === '[') {
+      offset += 1;
+      whitespace();
+      const array: unknown[] = [];
+      if (input[offset] === ']') { offset += 1; return array; }
+      while (true) {
+        array.push(value(depth + 1));
+        whitespace();
+        if (input[offset] === ']') { offset += 1; return array; }
+        if (input[offset] !== ',') return fail();
+        offset += 1;
+      }
+    }
+    for (const [literal, result] of [['true', true], ['false', false], ['null', null]] as const) {
+      if (input.startsWith(literal, offset)) { offset += literal.length; return result; }
+    }
+    const numeric = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/u.exec(input.slice(offset));
+    if (numeric) {
+      offset += numeric[0].length;
+      const number = Number(numeric[0]);
+      if (!Number.isFinite(number)) return fail();
+      return number;
+    }
+    return fail();
+  };
+
+  whitespace();
+  if (input[offset] !== '{') return fail();
+  const parsed = value(0);
+  whitespace();
+  if (offset !== input.length || !parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return fail();
+  return parsed as Record<string, unknown>;
 }
 
 function writeError(code: string, message: string, extra: Record<string, unknown> = {}, exitCode = 1, command = 'artifact inspect'): void {
@@ -136,6 +250,12 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
     writeError('MISSING_AUTH_TOKEN', 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.', {}, 2, args.command);
     return;
   }
+  let requestTimeoutMs: number;
+  try { requestTimeoutMs = parseRequestTimeout(process.env.GHATANA_MEDIA_REQUEST_TIMEOUT_MS); }
+  catch (error) {
+    writeError('INVALID_CONFIGURATION', error instanceof Error ? error.message : 'Request timeout configuration is invalid.', {}, 2, args.command);
+    return;
+  }
   let endpoint: string;
   try { endpoint = validateEndpoint(args.endpoint); }
   catch (error) {
@@ -153,6 +273,7 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       const client = createMediaCanonicalClient({
         baseUrl: endpoint,
         tenantId: args.tenant,
+        requestTimeoutMs,
         defaultHeaders: { 'X-Principal-Id': args.principal },
         getAccessToken: () => token,
         fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),
@@ -161,15 +282,16 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       if (args.command === 'job status') job = await client.getJob(args.values['--job']!);
       else if (args.command === 'job cancel') job = await client.cancelJob(args.values['--job']!);
       else {
-        let parameters: unknown = {};
-        try { parameters = args.values['--parameters'] === undefined ? {} : JSON.parse(args.values['--parameters']); }
-        catch { writeError('INVALID_INVOCATION', '--parameters must be valid JSON.', {}, 2, args.command); return; }
-        if (!parameters || typeof parameters !== 'object' || Array.isArray(parameters)) {
-          writeError('INVALID_INVOCATION', '--parameters must be a JSON object.', {}, 2, args.command); return;
+        const jobType = args.values['--job-type']!;
+        let parameters: Record<string, unknown>;
+        try { parameters = args.values['--parameters'] === undefined ? {} : parseStrictJsonObject(args.values['--parameters']); }
+        catch (error) {
+          writeError('INVALID_INVOCATION', error instanceof Error ? error.message : '--parameters is invalid.', {}, 2, args.command);
+          return;
         }
         job = await client.submitJob({
           requestId: args.values['--request-id']!, correlationId: args.values['--correlation-id']!,
-          artifactId: args.values['--artifact']!, jobType: args.values['--job-type'] as 'TRANSCODE' | 'SPEECH_TO_TEXT' | 'TEXT_TO_SPEECH' | 'VISION' | 'MULTIMODAL',
+          artifactId: args.values['--artifact']!, jobType: jobType as 'TRANSCODE' | 'SPEECH_TO_TEXT' | 'TEXT_TO_SPEECH' | 'VISION' | 'MULTIMODAL',
           idempotencyKey: args.values['--idempotency-key']!, parameters: parameters as Record<string, unknown>,
         });
       }
@@ -178,12 +300,21 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
         return;
       }
       const canonicalJob = { ...job, result: canonicalizeJsonValue(job.result) };
+      if (job.status === 'OUTCOME_UNKNOWN') {
+        writeError('OUTCOME_UNKNOWN', args.command === 'job status'
+          ? 'The observed job state is OUTCOME_UNKNOWN; reconcile with the canonical job service.'
+          : 'The job operation outcome is not confirmed; reconcile the returned job before retrying.', {
+          jobId: job.jobId, requestId: job.requestId,
+        }, 3, args.command);
+        return;
+      }
       process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: COMMAND_IDS[args.command], job: canonicalJob })}\n`);
       return;
     }
     const client = createMediaOperationClient({
       baseUrl: endpoint,
       tenantId: args.tenant,
+      requestTimeoutMs,
       defaultHeaders: { 'X-Principal-Id': args.principal },
       getAccessToken: () => token,
       fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),

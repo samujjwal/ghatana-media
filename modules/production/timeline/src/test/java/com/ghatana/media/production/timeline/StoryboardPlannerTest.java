@@ -17,31 +17,69 @@ class StoryboardPlannerTest {
     private static final SourceVersion SOURCE_B = new SourceVersion("artifact-b", "version-2");
 
     @Test
-    void preparationIsRepeatableOrdersScenesAndShotsByExactStoryTimeAndRetainsExactSources() {
+    void preparationIsRepeatableHonorsDeclaredSceneShotOrderAndRetainsExactStoryTimeAndSources() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
         StoryboardPlanner.AuthoredBrief brief = brief(List.of(SOURCE_B));
-        StoryboardPlanner.AuthoredScene late = scene("scene-late", 1, 12, List.of(
-                shot("shot-late", 1, 14, List.of(SOURCE_A)),
-                shot("shot-mid", 0, 13, List.of(SOURCE_B))));
-        StoryboardPlanner.AuthoredScene early = scene("scene-early", 0, 0, List.of(
-                shot("shot-second", 1, 3, List.of()), shot("shot-first", 0, 2, List.of(SOURCE_A))));
+        StoryboardPlanner.AuthoredScene laterOrder = scene("a-scene", 1, 0, List.of(
+                shot("a-shot", 1, 2, List.of(SOURCE_A)),
+                shot("z-shot", 0, 5, List.of(SOURCE_B))));
+        StoryboardPlanner.AuthoredScene firstOrder = scene("z-scene", 0, 12, List.of(
+                shot("a-shot-2", 1, 15, List.of()), shot("z-shot-2", 0, 18, List.of(SOURCE_A))));
 
         StoryboardPlanner.ScenePlan first = planner.prepare(OWNER, "project-1", "head-8", "plan-1", "v1",
-                brief, List.of(late, early));
+                brief, List.of(laterOrder, firstOrder));
         StoryboardPlanner.ScenePlan repeated = planner.prepare(OWNER, "project-1", "head-8", "plan-1", "v1",
-                brief, List.of(early, late));
+                brief, List.of(firstOrder, laterOrder));
 
         assertThat(first).isEqualTo(repeated);
         assertThat(first.scenes()).extracting(StoryboardPlanner.PlannedScene::sceneId)
-                .containsExactly("scene-early", "scene-late");
+                .containsExactly("z-scene", "a-scene");
         assertThat(first.scenes().getFirst().shots()).extracting(StoryboardPlanner.PlannedShot::shotId)
-                .containsExactly("shot-first", "shot-second");
+                .containsExactly("z-shot-2", "a-shot-2");
         assertThat(first.scenes().get(1).shots()).extracting(StoryboardPlanner.PlannedShot::shotId)
-                .containsExactly("shot-mid", "shot-late");
+                .containsExactly("z-shot", "a-shot");
+        assertThat(first.scenes().getFirst().storyStart()).isEqualTo(story(12));
+        assertThat(first.scenes().get(1).storyStart()).isEqualTo(story(0));
+        assertThat(first.scenes().get(1).shots().getFirst().storyStart()).isEqualTo(story(5));
         assertThat(first.exactSources()).containsExactly(SOURCE_A, SOURCE_B);
         assertThat(first.disposition()).isEqualTo(StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE);
+        assertThat(first.state()).isEqualTo(StoryboardPlanner.EditionState.LOCAL_DRAFT);
         assertThat(rights.calls()).isEqualTo(4); // unique source refs per prepare: A and B
+    }
+
+    @Test
+    void reviewIsASeparateImmutableReceiptForTheExactSavedEditionAndRechecksRights() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-6", "plan-review", "v1",
+                brief(List.of(SOURCE_B)), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of(SOURCE_A))))));
+        StoryboardPlanner.SavedPlan saved = planner.save(OWNER, plan, null, "save-review", new MutableAuthority("head-6"));
+        AtomicInteger reviewCalls = new AtomicInteger();
+        StoryboardPlanner.ScenePlanReviewAuthority reviewAuthority = (reviewer, exact, revision, request) -> {
+            reviewCalls.incrementAndGet();
+            assertThat(exact).isEqualTo(saved);
+            assertThat(revision).isEqualTo("head-6");
+            assertThat(request).isEqualTo("review-1");
+            return new StoryboardPlanner.ReviewedPlan(exact, reviewer, revision, "review-receipt-1",
+                    StoryboardPlanner.EditionState.REVIEWED);
+        };
+
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-stale", "review-stale", reviewAuthority))
+                .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class);
+        assertThat(reviewCalls).hasValue(0);
+        StoryboardPlanner.ReviewedPlan reviewed = planner.review(OWNER, saved, "head-6", "review-1", reviewAuthority);
+        assertThat(reviewed.state()).isEqualTo(StoryboardPlanner.EditionState.REVIEWED);
+        assertThat(reviewed.savedPlan()).isSameAs(saved);
+        assertThat(reviewed.reviewReceipt()).isEqualTo("review-receipt-1");
+        assertThat(saved.state()).isEqualTo(StoryboardPlanner.EditionState.PERSISTED_DRAFT);
+        assertThat(reviewCalls).hasValue(1);
+
+        rights.decision(SOURCE_A, StoryboardPlanner.SourceDecision.REVOKED);
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-6", "review-2", reviewAuthority))
+                .isInstanceOf(StoryboardPlanner.SourceRightsDeniedException.class);
+        assertThat(reviewCalls).hasValue(1);
     }
 
     @Test

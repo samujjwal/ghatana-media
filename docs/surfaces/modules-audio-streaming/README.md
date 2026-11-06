@@ -16,6 +16,16 @@ the Media launcher; `modules/integration-tests` also depends on it.
 - The launcher implementation of `CanonicalStreamFramePort` is
   `MediaRuntimeCanonicalStreamFramePort`; without that adapter the port
   returns `NOT_ADMITTED`.
+- `offerWithFeedback` preserves provider buffered bytes/backpressure when
+  the runtime supplies them. `endOfStreamWithFeedback` submits the exact
+  next sequence and moves the canonical session to `DRAINING`; it does not
+  claim provider finality. Older/custom ports mark feedback unavailable
+  and fail closed for EOS.
+- `GrpcAudioSourceCapture` is a bounded source adapter that rechecks trusted
+  authorization readback for exact source version/cursor before each frame
+  and EOS, then delegates frame/EOS writes to `CanonicalStreamFramePort`.
+  It has no concrete authenticated gRPC transport binding. Canonical ACK
+  persists Media sequence acceptance only, not source cursor/version.
 
 ## Public operations
 
@@ -36,10 +46,16 @@ the Media launcher; `modules/integration-tests` also depends on it.
   operation-parity entries are `ADAPTER_REQUIRED`.
 - Frame ACK acknowledges the accepted frame operation; it does not by
   itself prove downstream artifact creation or provider finality.
+- Callers must inspect `OfferFeedback.feedbackAvailable` before treating
+  `backpressured=false` as a provider signal.
 - Session reconnect reuses `/connect` (durable `reconnectCount`
   generation); no separate reconnect route exists.
 - Unknown provider/transport outcomes stay unresolved — never inferred
   success.
+- gRPC source batches are capped at 128 frames / 8 MiB, reordered only to
+  deliver a contiguous prefix, and stopped on gaps or backpressure. Unknown,
+  denied, revoked, stale-version, and lost-ACK outcomes do not produce an
+  accepted frame; lost ACK is never replayed automatically.
 
 ## Dependencies and configuration
 

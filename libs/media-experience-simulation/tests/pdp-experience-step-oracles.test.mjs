@@ -99,16 +99,25 @@ test("J-29 reconnect request uses exact stream operation guards and remains defi
   }
 });
 
-test("all 30 journeys and 130 steps have explicit definition-only positive, denied, unknown, or no-action cases", () => {
+test("the source oracle inventory contains exactly 30 journeys and 130 bound steps", () => {
   assert.equal(oracles.journeyCount, 30);
   assert.equal(oracles.stepCount, 130);
   assert.equal(oracles.journeys.length, 30);
+  assert.deepEqual(
+    oracles.journeys.map(({ journeyId }) => journeyId).sort(),
+    Array.from({ length: 30 }, (_, index) => `J-${String(index + 1).padStart(2, "0")}`).sort(),
+  );
   const steps = oracles.journeys.flatMap((journey) => journey.steps);
   assert.equal(steps.length, 130);
   const bindingIds = steps.map((step) => step.canonicalBindings?.bindingId);
   assert.equal(new Set(bindingIds).size, 130);
   assert.ok(bindingIds.every((id) => typeof id === "string" && id.startsWith("media.step-definition-binding.")));
-  for (const step of steps) {
+});
+
+for (const journey of oracles.journeys) {
+  test(`${journey.journeyId} source-free oracle positive/denied/unknown path selector`, () => {
+    assert.match(journey.journeyId, /^J-(?:0[1-9]|[12][0-9]|30)$/u);
+    for (const step of journey.steps) {
     assert.ok(step.sourceRef && step.viewRef, `${step.id} must retain its exact source step and view`);
     assert.equal(step.runtimeAdmission, "NOT_ADMITTED");
     assert.ok(/definition.only/i.test(step.oracleBoundary)
@@ -190,4 +199,5 @@ test("all 30 journeys and 130 steps have explicit definition-only positive, deni
     assert.equal(unknown.requestedEffect, null);
     assert.equal(unknown.completionClaim, "NONE");
   }
-});
+  });
+}

@@ -306,6 +306,35 @@ describe("interactive demo player", () => {
     })).failure).toBe("LIVE_OUTPUT_EVIDENCE_MISSING");
   });
 
+  it("shows curated and live source labels only when the host fake attests the exact source evidence", () => {
+    const curated: InteractiveDemoManifest = {
+      ...BASE,
+      sourceTruth: { kind: "curated", curationRef: "curation:demo-v2" },
+    };
+    const curatedHtml = renderToStaticMarkup(React.createElement(InteractiveDemoPlayer, {
+      manifest: curated,
+      verificationPort: testAuthority(curated),
+    }));
+    expect(curatedHtml).toContain('aria-label="Source: Curated demonstration"');
+    expect(curatedHtml).not.toContain(">Live output<");
+
+    const live: InteractiveDemoManifest = {
+      ...BASE,
+      sourceTruth: {
+        kind: "live",
+        outputRef: "output:42",
+        outputVersion: "v7",
+        readbackEvidenceRef: "owner-readback:42:v7",
+      },
+    };
+    const liveHtml = renderToStaticMarkup(React.createElement(InteractiveDemoPlayer, {
+      manifest: live,
+      verificationPort: testAuthority(live),
+    }));
+    expect(liveHtml).toContain('aria-label="Source: Live output"');
+    expect(liveHtml).not.toContain("Simulated demonstration");
+  });
+
   it("renders native keyboard-operable controls and a concise status live region", () => {
     const html = renderToStaticMarkup(React.createElement(InteractiveDemoPlayer, {
       manifest: BASE,
@@ -317,9 +346,30 @@ describe("interactive demo player", () => {
     expect(html).toContain('aria-label="Seek within Introduction"');
     expect(html).toContain('aria-label="Explore left path; continue to Left path"');
     expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
+    expect(html).toContain('<button type="button"');
+    expect(html).toContain('<input type="range"');
     expect(html).toContain("Simulated demonstration");
+    expect(html).not.toContain("tabindex=\"-1\"");
     expect(html).not.toContain("<video");
     expect(html).not.toContain("<iframe");
     expect(html).not.toContain("src=");
+  });
+
+  it("withholds keyboard-operable actions when policy denies a cross-origin asset", () => {
+    const deniedManifest: InteractiveDemoManifest = {
+      ...BASE,
+      scenes: BASE.scenes.map((scene, index) => index === 0
+        ? { ...scene, asset: { ...scene.asset, url: "https://untrusted.example/intro.mp4" } }
+        : scene),
+    };
+    const html = renderToStaticMarkup(React.createElement(InteractiveDemoPlayer, {
+      manifest: deniedManifest,
+      verificationPort: testAuthority(deniedManifest),
+    }));
+    expect(html).toContain('data-demo-status="POLICY_DENIED"');
+    expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
+    expect(html).not.toContain("Playback controls");
+    expect(html).not.toContain("<button");
+    expect(html).not.toContain('type="range"');
   });
 });

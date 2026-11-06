@@ -43,6 +43,29 @@ class MediaProjectTimelineContractsTest {
                 .hasMessageContaining("clock domains");
     }
 
+    @Test
+    void graphSnapshotsAreImmutableAndCanonicalizedByDeclaredOrder() {
+        Scene later = new Scene("a-scene", 1);
+        Scene earlier = new Scene("z-scene", 0);
+        Track laterTrack = new Track("a-track-later", later.sceneId(), TrackKind.VIDEO, 0);
+        Track earlierSecondTrack = new Track("a-track-second", earlier.sceneId(), TrackKind.VIDEO, 1);
+        Track earlierFirstTrack = new Track("z-track-first", earlier.sceneId(), TrackKind.AUDIO, 0);
+        Clip laterClip = clip("a-clip-later", later.sceneId(), laterTrack.trackId());
+        Clip earlierSecondClip = clip("a-clip-second", earlier.sceneId(), earlierSecondTrack.trackId());
+        Clip earlierFirstClip = clip("z-clip-first", earlier.sceneId(), earlierFirstTrack.trackId());
+        Graph graph = new Graph("timeline", List.of(later, earlier),
+                List.of(laterTrack, earlierSecondTrack, earlierFirstTrack),
+                List.of(laterClip, earlierSecondClip, earlierFirstClip));
+
+        assertThat(graph.scenes()).extracting(Scene::sceneId).containsExactly("z-scene", "a-scene");
+        assertThat(graph.tracks()).extracting(Track::trackId)
+                .containsExactly("z-track-first", "a-track-second", "a-track-later");
+        assertThat(graph.clips()).extracting(Clip::clipId)
+                .containsExactly("z-clip-first", "a-clip-second", "a-clip-later");
+        assertThatThrownBy(() -> graph.scenes().add(new Scene("scene-third", 2)))
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
     static Clip clip(String id, String sceneId, String trackId) {
         return new Clip(id, sceneId, trackId, new SourceVersion("artifact-1", "version-7"),
                 new RationalTime(0, 30_000, 1_001, Clock.SOURCE_PRESENTATION),

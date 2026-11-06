@@ -2,6 +2,8 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.audio.streaming.AudioStreamSession;
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
+import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
+import com.ghatana.video.streaming.VideoStreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk;
 import com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ConsentDecision;
@@ -77,7 +79,9 @@ class MediaConsentRevocationTest {
                     .actual();
             assertThat(((MediaCapabilityNotAdmittedException) verifiedThenDenied).reason())
                     .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED);
-            assertThat(authority.verifications()).isEqualTo(1);
+            assertThat(authority.verifications())
+                    .as("unauthenticated external streams are denied before reading consent")
+                    .isZero();
             assertThat(streamStore.sessionCount()).isZero();
             assertThat(provider.acceptedFrames()).isZero();
 
@@ -136,7 +140,7 @@ class MediaConsentRevocationTest {
                         assertThat(current.inFlightSequence()).isNull();
                     });
             assertThat(provider.acceptedFrames()).isZero();
-            assertThat(authority.verifications()).isEqualTo(4);
+            assertThat(authority.verifications()).isEqualTo(3);
 
             // This legacy connected session lets the test isolate the consent refresh seam. New
             // external sessions remain NOT_ADMITTED by the source-rights gate above.
@@ -170,7 +174,7 @@ class MediaConsentRevocationTest {
             assertThat(audioPort.offer(audioBinding, audioFrame).disposition())
                     .isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
             assertThat(provider.acceptedFrames()).isZero();
-            assertThat(authority.verifications()).isEqualTo(7);
+            assertThat(authority.verifications()).isEqualTo(6);
 
             authority.revoke();
             assertThatThrownBy(() -> runtime.connectStream(
@@ -196,7 +200,7 @@ class MediaConsentRevocationTest {
             assertThat(provider.acceptedFrames()).isZero();
             assertThat(provider.closed()).isFalse();
             assertThat(runtime.stream("tenant-a", id).orElseThrow().state()).isEqualTo(StreamState.OPEN);
-            assertThat(authority.verifications()).isEqualTo(10);
+            assertThat(authority.verifications()).isEqualTo(9);
 
             var closed = runtime.closeStream("tenant-a", connectedId, connectedToken);
             assertThat(closed.state()).isEqualTo(StreamState.CLOSED);
@@ -205,7 +209,69 @@ class MediaConsentRevocationTest {
             assertThat(provider.terminationUsedVerifiedConsent()).isTrue();
             assertThat(authority.verifications())
                     .as("resource termination reuses prior evidence and performs no new disclosure")
-                    .isEqualTo(10);
+                    .isEqualTo(9);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void canonicalVideoFramePortRechecksConsentBeforeDispatch() throws Exception {
+        var root = Files.createTempDirectory("media-video-consent-revocation-");
+        var authority = new MutableConsentAuthority();
+        var provider = new RecordingExternalProvider();
+        var streamStore = new LocalMediaRuntimeSupport.StreamStore();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(
+                        true, "local", 8093, 1_024, 64, 1_024, Duration.ofSeconds(2), 1,
+                        "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                streamStore,
+                authority,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+
+        String token = "legacy-connected-video-session-token";
+        Instant now = Instant.now();
+        String purpose = "media.stream.video.capture";
+        Map<String, Object> metadata = Map.ofEntries(
+                Map.entry("governance.consentId", "video-consent-1"),
+                Map.entry("governance.purpose", purpose),
+                Map.entry("governance.classification", DataClassification.CONFIDENTIAL.name()),
+                Map.entry("governance.residency", "us"),
+                Map.entry("governance.allowedRegions", List.of("us-west-2")),
+                Map.entry("governance.externalProcessingAllowed", true),
+                Map.entry("governance.retentionPolicy", "short-lived-media"),
+                Map.entry("governance.providerRetentionAllowed", false),
+                Map.entry("governance.biometricAllowed", false),
+                Map.entry("governance.biometricBasis", ""),
+                Map.entry("governance.biometricSensitivity", BiometricSensitivity.NONE.name()),
+                Map.entry("governance.automationRisk", AutomationRisk.ASSISTIVE.name()));
+        var connected = new StreamSession(
+                "tenant-video", "legacy-video-session", "principal-video", StreamKind.VIDEO,
+                provider.providerId(), StreamState.CONNECTED, -1, 0, 128, 1,
+                now.plusSeconds(30), now.minusSeconds(60), now.minusSeconds(30), null, metadata, 1);
+        streamStore.create(connected, tokenHash(token));
+
+        try {
+            CanonicalVideoStreamFramePort port = runtime.videoStreamFramePort(
+                    "tenant-video", "principal-video", connected.sessionId(), token);
+            var binding = port.currentBinding(
+                    "tenant-video", connected.sessionId(), "principal-video").orElseThrow();
+            authority.revoke();
+
+            assertThat(port.offer(binding, new VideoStreamSession.DecodedFrame(
+                    0, true, 12L, new byte[] {1, 2, 3})).disposition())
+                    .isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.acceptedFrames()).isZero();
+            assertThat(runtime.stream("tenant-video", "principal-video", connected.sessionId()).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(connected.version());
+                        assertThat(current.lastSequence()).isEqualTo(-1);
+                        assertThat(current.inFlightSequence()).isNull();
+                    });
+            assertThat(authority.verifications()).isEqualTo(1);
         } finally {
             runtime.close();
         }
@@ -258,7 +324,7 @@ class MediaConsentRevocationTest {
         private final AtomicBoolean terminationConsentVerified = new AtomicBoolean();
 
         @Override public String providerId() { return "external-stream-test"; }
-        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO, StreamKind.VIDEO); }
         @Override public boolean ready() { return true; }
         @Override public boolean productionEligible() { return false; }
         @Override public int priority() { return 1; }

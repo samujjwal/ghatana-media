@@ -160,6 +160,34 @@ class AnimationRendererTest {
     }
 
     @Test
+    void rendersTypedInMemoryRasterAssetsWithNearestNeighborPixelsAndRejectsUnresolvedRefs() throws Exception {
+        int[] sourcePixels = { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffffff };
+        var asset = new AnimationRenderer.RasterAsset("logo", 2, 2, sourcePixels);
+        sourcePixels[0] = 0xff000000;
+        assertThat(asset.argbPixels()[0]).isEqualTo(0xffff0000);
+        int[] exposedPixels = asset.argbPixels();
+        exposedPixels[0] = 0xff000000;
+
+        var imageShape = new AnimationRenderer.Shape("logo-shape", AnimationRenderer.Primitive.RASTER_ASSET,
+                1, 1, 4, 4, 0, 0xffffffff, List.of(), "logo");
+        var imageScene = new AnimationRenderer.Scene(6, 6, 0xff101820, List.of(imageShape), List.of(), List.of(asset));
+        var rendered = new AnimationRenderer().render(spec(), imageScene, new AnimationRenderer.Profile(10, 1, 3));
+        assertThat(rendered.frames()).hasSize(3);
+        for (var frame : rendered.frames()) {
+            var decoded = ImageIO.read(new ByteArrayInputStream(frame.png()));
+            assertThat(decoded.getRGB(1, 1)).isEqualTo(0xffff0000);
+            assertThat(decoded.getRGB(4, 1)).isEqualTo(0xff00ff00);
+            assertThat(decoded.getRGB(1, 4)).isEqualTo(0xff0000ff);
+            assertThat(decoded.getRGB(4, 4)).isEqualTo(0xffffffff);
+        }
+
+        assertThatThrownBy(() -> new AnimationRenderer.Scene(6, 6, 0, List.of(imageShape)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("unresolved raster asset");
+        assertThatThrownBy(() -> new AnimationRenderer.RasterAsset("bad", 2, 2, new int[3]))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("pixel count");
+    }
+
+    @Test
     void rejectsStoryClockOverflowInsteadOfWrappingFrameTimestamps() {
         var boundarySpec = new AnimationSpec("media.declarative.value.animation-spec.v1",
                 "scene/a@v1", "animation/a@v1", "operators/vector@v1", "assets/a@v1",

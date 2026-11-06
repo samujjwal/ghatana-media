@@ -62,9 +62,75 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
 
     @Override
     public Result offer(Binding expected, AudioStreamSession.DecodedFrame frame) {
+        return offerWithFeedback(expected, frame).result();
+    }
+
+    @Override
+    public OfferFeedback offerWithFeedback(Binding expected, AudioStreamSession.DecodedFrame frame) {
         if (expected == null || frame == null) {
-            return Result.notAdmitted("canonical stream binding and frame are required");
+            return OfferFeedback.unavailable(
+                    Result.notAdmitted("canonical stream binding and frame are required"));
         }
+        Result rejection = bindingRejection(expected);
+        if (rejection != null) return OfferFeedback.unavailable(rejection);
+        byte[] payload = frame.payload();
+        if (payload == null || payload.length == 0
+                || payload.length > runtime.config().maximumChunkBytes()) {
+            return OfferFeedback.unavailable(
+                    Result.notAdmitted("audio frame payload is outside the admitted non-empty bound"));
+        }
+        if (frame.sequenceNumber() < 0
+                || frame.sequenceNumber() > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER
+                || frame.sequenceNumber() != expected.lastAcknowledgedSequence() + 1) {
+            return OfferFeedback.unavailable(
+                    Result.notAdmitted("audio frame sequence is not the exact canonical next sequence"));
+        }
+        if (expected.sessionRevision() > Integer.MAX_VALUE) {
+            return OfferFeedback.unavailable(Result.notAdmitted(
+                    "canonical stream reconnect generation exceeds the supported range"));
+        }
+        return dispatch(expected, frame.sequenceNumber(), payload, false);
+    }
+
+    @Override
+    public OfferFeedback endOfStreamWithFeedback(Binding expected) {
+        if (expected == null) {
+            return OfferFeedback.unavailable(Result.notAdmitted("canonical stream binding is required"));
+        }
+        Result rejection = bindingRejection(expected);
+        if (rejection != null) return OfferFeedback.unavailable(rejection);
+        if (expected.lastAcknowledgedSequence() >= AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
+            return OfferFeedback.unavailable(
+                    Result.notAdmitted("audio stream sequence is exhausted before end of stream"));
+        }
+        if (expected.sessionRevision() > Integer.MAX_VALUE) {
+            return OfferFeedback.unavailable(Result.notAdmitted(
+                    "canonical stream reconnect generation exceeds the supported range"));
+        }
+        return dispatch(expected, expected.lastAcknowledgedSequence() + 1, new byte[0], true);
+    }
+
+    private OfferFeedback dispatch(Binding expected, long sequence, byte[] payload, boolean endOfStream) {
+        try {
+            var acknowledgement = runtime.acceptFrameForBinding(
+                    new StreamFrame(expected.tenantId(), expected.streamId(), connectionToken,
+                            sequence, payload, endOfStream, Instant.now()),
+                    Math.toIntExact(expected.sessionRevision()), expected.storeVersion(),
+                    expected.lastAcknowledgedSequence(), expected.leaseExpiresAt());
+            return new OfferFeedback(Result.acknowledged(acknowledgement.acceptedSequence()),
+                    acknowledgement.bufferedBytes(), acknowledgement.backpressured(), true);
+        } catch (MediaRuntime.StreamBindingConflictException staleGeneration) {
+            return OfferFeedback.unavailable(Result.notAdmitted(staleGeneration.getMessage()));
+        } catch (SecurityException | IllegalArgumentException rejected) {
+            return OfferFeedback.unavailable(Result.notAdmitted(rejected.getMessage()));
+        } catch (RuntimeException uncertain) {
+            // A provider call or durable commit may already have happened. The caller must not replay.
+            return OfferFeedback.unavailable(
+                    new Result(Disposition.OUTCOME_UNKNOWN, -1, "canonical stream frame outcome is unknown"));
+        }
+    }
+
+    private Result bindingRejection(Binding expected) {
         Binding current = currentBinding(expected.tenantId(), expected.streamId(), expected.principalId())
                 .orElse(null);
         if (current == null) {
@@ -81,38 +147,8 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
             }
             return Result.notAdmitted("canonical stream is not connected or its binding is unavailable");
         }
-        if (!current.equals(expected)) {
-            return Result.notAdmitted("canonical stream identity, generation, cursor or lease changed");
-        }
-        byte[] payload = frame.payload();
-        if (payload == null || payload.length == 0
-                || payload.length > runtime.config().maximumChunkBytes()) {
-            return Result.notAdmitted("audio frame payload is outside the admitted non-empty bound");
-        }
-        if (frame.sequenceNumber() < 0 || frame.sequenceNumber() == Integer.MAX_VALUE
-                || expected.lastAcknowledgedSequence() == Long.MAX_VALUE
-                || frame.sequenceNumber() != expected.lastAcknowledgedSequence() + 1) {
-            return Result.notAdmitted("audio frame sequence is not the exact canonical next sequence");
-        }
-        if (expected.sessionRevision() > Integer.MAX_VALUE) {
-            return Result.notAdmitted("canonical stream reconnect generation exceeds the supported range");
-        }
-
-        try {
-            var acknowledgement = runtime.acceptFrameForBinding(
-                    new StreamFrame(expected.tenantId(), expected.streamId(), connectionToken,
-                            frame.sequenceNumber(), payload, false, Instant.now()),
-                    Math.toIntExact(expected.sessionRevision()), expected.storeVersion(),
-                    expected.lastAcknowledgedSequence(), expected.leaseExpiresAt());
-            return Result.acknowledged(acknowledgement.acceptedSequence());
-        } catch (MediaRuntime.StreamBindingConflictException staleGeneration) {
-            return Result.notAdmitted(staleGeneration.getMessage());
-        } catch (SecurityException | IllegalArgumentException rejected) {
-            return Result.notAdmitted(rejected.getMessage());
-        } catch (RuntimeException uncertain) {
-            // A provider call or durable commit may already have happened. The caller must not replay.
-            return new Result(Disposition.OUTCOME_UNKNOWN, -1, "canonical stream frame outcome is unknown");
-        }
+        return current.equals(expected) ? null
+                : Result.notAdmitted("canonical stream identity, generation, cursor or lease changed");
     }
 
     private static boolean connected(StreamState state) {

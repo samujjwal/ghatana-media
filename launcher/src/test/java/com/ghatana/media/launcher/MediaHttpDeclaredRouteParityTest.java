@@ -164,6 +164,53 @@ class MediaHttpDeclaredRouteParityTest {
                 .replace("{captionVersionId}", "missing-caption");
     }
 
+    @Test
+    void acceptedStreamFrameReturnsItsCanonicalStatusLocationAndBoundedRetryHint() throws Exception {
+        var root = Files.createTempDirectory("media-http-frame-status-headers-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(new InertProvider(new AtomicInteger())),
+                java.util.List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            String openBody = "{\"tenantId\":\"" + TENANT + "\",\"principalId\":\"" + PRINCIPAL
+                    + "\",\"correlationId\":\"frame-status\",\"streamKind\":\"AUDIO\","
+                    + "\"maximumBufferedBytes\":64,\"leaseDuration\":\"PT1M\",\"metadata\":{}}";
+            ExchangeResult opened = request(handler, "POST", "/api/v1/streams", true, null, openBody, Map.of());
+            assertThat(opened.status()).isEqualTo(201);
+            var registration = new tools.jackson.databind.ObjectMapper().readTree(opened.body());
+            String sessionId = registration.path("session").path("sessionId").asText();
+            String connectionToken = registration.path("connectionToken").asText();
+            assertThat(sessionId).isNotBlank();
+            assertThat(connectionToken).isNotBlank();
+            ExchangeResult connected = request(handler, "POST",
+                    "/api/v1/streams/" + sessionId + "/connect", true, null, "",
+                    Map.of("X-Stream-Token", connectionToken));
+            assertThat(connected.status()).isEqualTo(200);
+
+            ExchangeResult deniedFrame = request(handler, "POST",
+                    "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
+                    Map.of("X-Stream-Token", "invalid-token"));
+            assertThat(deniedFrame.status()).isEqualTo(403);
+            assertThat(runtime.stream(TENANT, PRINCIPAL, sessionId).orElseThrow().lastSequence()).isEqualTo(-1);
+
+            ExchangeResult frame = request(handler, "POST",
+                    "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
+                    Map.of("X-Stream-Token", connectionToken));
+            assertThat(frame.status()).isEqualTo(202);
+            assertThat(frame.body()).contains("\"acceptedSequence\":0");
+            assertThat(frame.responseHeaders().getFirst("Location"))
+                    .isEqualTo("/api/v1/streams/" + sessionId);
+            assertThat(frame.responseHeaders().getFirst("Retry-After")).isEqualTo("1");
+        } finally {
+            runtime.close();
+        }
+    }
+
     private static ExchangeResult request(
             HttpHandler handler, String method, String path, boolean authenticated) throws Exception {
         return request(handler, method, path, authenticated, null);
@@ -171,11 +218,18 @@ class MediaHttpDeclaredRouteParityTest {
 
     private static ExchangeResult request(
             HttpHandler handler, String method, String path, boolean authenticated, String bearerToken) throws Exception {
+        return request(handler, method, path, authenticated, bearerToken, "", Map.of());
+    }
+
+    private static ExchangeResult request(
+            HttpHandler handler, String method, String path, boolean authenticated, String bearerToken,
+            String body, Map<String, String> extraHeaders) throws Exception {
         HttpExchange exchange = mock(HttpExchange.class);
         Headers requestHeaders = new Headers();
         requestHeaders.set("X-Tenant-Id", TENANT);
         requestHeaders.set("X-Principal-Id", PRINCIPAL);
         if (bearerToken != null) requestHeaders.set("Authorization", "Bearer " + bearerToken);
+        extraHeaders.forEach(requestHeaders::set);
         Headers responseHeaders = new Headers();
         ByteArrayOutputStream responseBody = new ByteArrayOutputStream();
         AtomicReference<Integer> status = new AtomicReference<>();
@@ -189,7 +243,7 @@ class MediaHttpDeclaredRouteParityTest {
         when(exchange.getRequestURI()).thenReturn(URI.create("http://localhost" + path));
         when(exchange.getRequestMethod()).thenReturn(method);
         when(exchange.getRequestHeaders()).thenReturn(requestHeaders);
-        when(exchange.getRequestBody()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(exchange.getRequestBody()).thenReturn(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
         when(exchange.getResponseHeaders()).thenReturn(responseHeaders);
         when(exchange.getResponseBody()).thenReturn(responseBody);
         if (authenticated) {
@@ -202,7 +256,7 @@ class MediaHttpDeclaredRouteParityTest {
         }).when(exchange).sendResponseHeaders(org.mockito.ArgumentMatchers.anyInt(),
                 org.mockito.ArgumentMatchers.anyLong());
         handler.handle(exchange);
-        return new ExchangeResult(status.get(), responseBody.toString(java.nio.charset.StandardCharsets.UTF_8));
+        return new ExchangeResult(status.get(), responseBody.toString(StandardCharsets.UTF_8), responseHeaders);
     }
 
     private static Map<String, String> jwtEnvironment() {
@@ -233,7 +287,7 @@ class MediaHttpDeclaredRouteParityTest {
         return signingInput + "." + signature;
     }
 
-    private record ExchangeResult(Integer status, String body) { }
+    private record ExchangeResult(Integer status, String body, Headers responseHeaders) { }
 
     private record InertProvider(AtomicInteger calls) implements MediaProcessingProvider {
         @Override public String providerId() { return "route-matrix-inert"; }

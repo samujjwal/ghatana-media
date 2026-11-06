@@ -72,6 +72,33 @@ class MediaLifecycleOutboxRelayTest {
         }
     }
 
+    @Test
+    void brokerPartitionRecordsRetryableDeliveryFailureAndPreservesStableIdentity() {
+        UUID eventId = UUID.randomUUID();
+        FakeSource source = new FakeSource(event(eventId), NOW.plusSeconds(30));
+        FakeEventBus broker = new FakeEventBus();
+        broker.failNextPublish = true;
+        try (MediaLifecycleOutboxRelay relay = relay(source, broker, NOW)) {
+            assertThatThrownBy(() -> run(relay.runOnce()))
+                    .isInstanceOf(CompletionException.class)
+                    .hasCauseInstanceOf(OutboxPublicationException.class);
+            assertThat(source.failureAcknowledged).isTrue();
+            assertThat(source.publicationAcknowledged).isFalse();
+            assertThat(source.consumerEffectRecorded).isFalse();
+            assertThat(source.jobTerminalStateRecorded).isFalse();
+            assertThat(broker.attemptedEventIds).containsExactly(eventId.toString());
+            assertThat(broker.eventIds).isEmpty();
+
+            var recovered = run(relay.runOnce());
+            assertThat(recovered.publishedEvents()).isEqualTo(1);
+            assertThat(broker.attemptedEventIds).containsExactly(eventId.toString(), eventId.toString());
+            assertThat(broker.eventIds).containsExactly(eventId.toString());
+            assertThat(source.publicationAcknowledged).isTrue();
+            assertThat(source.consumerEffectRecorded).isFalse();
+            assertThat(source.jobTerminalStateRecorded).isFalse();
+        }
+    }
+
     private static MediaLifecycleOutboxRelay relay(FakeSource source, FakeEventBus broker, Instant now) {
         return new MediaLifecycleOutboxRelay(source, broker, "media-test-publisher", 8,
                 Duration.ofSeconds(30), OutboxPublisherDiagnostics.NOOP,
@@ -136,12 +163,19 @@ class MediaLifecycleOutboxRelayTest {
 
     private static final class FakeEventBus implements EventBusPort {
         private final List<String> eventIds = new ArrayList<>();
+        private final List<String> attemptedEventIds = new ArrayList<>();
+        private boolean failNextPublish;
 
         @Override
         public <T> AsyncOperation<Void> publish(String topic, EventEnvelope<T> envelope) {
             assertThat(topic).isEqualTo(MediaLifecycleOutboxRelay.TOPIC);
-            eventIds.add(envelope.id());
+            attemptedEventIds.add(envelope.id());
             assertThat(envelope.schemaUri()).isEqualTo(MediaLifecycleOutboxRelay.SCHEMA_URI);
+            if (failNextPublish) {
+                failNextPublish = false;
+                return AsyncOperation.failure(new IllegalStateException("simulated broker partition"));
+            }
+            eventIds.add(envelope.id());
             return AsyncOperation.success(null);
         }
 

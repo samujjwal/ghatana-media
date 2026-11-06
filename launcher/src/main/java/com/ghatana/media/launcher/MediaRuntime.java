@@ -860,6 +860,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
                     "authenticated Media identity is required for job submission");
         }
+        if (sourceAuthorizationAuthority != null) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "AUTHENTICATED_IDENTITY",
+                    "source-rights resolution requires an authenticated ingress identity");
+        }
         if (selectProcessingProviders(request).stream()
                 .anyMatch(provider -> provider.processingBoundary() == ProcessingBoundary.EXTERNAL)) {
             throw new MediaCapabilityNotAdmittedException(
@@ -3422,7 +3427,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     .allMatch(child -> child.status() == JobStatus.COMPLETED);
             boolean anyFailed = children.stream().anyMatch(child ->
                     child.status() == JobStatus.FAILED || child.status() == JobStatus.CANCELLED);
-            if (!allCompleted && !anyFailed) return false;
+            boolean anyUnknown = children.stream()
+                    .anyMatch(child -> child.status() == JobStatus.OUTCOME_UNKNOWN);
+            boolean allTerminal = children.stream().allMatch(child -> switch (child.status()) {
+                case COMPLETED, FAILED, CANCELLED, OUTCOME_UNKNOWN -> true;
+                default -> false;
+            });
+            if (!allTerminal) {
+                // A known failed child does not make the parent final while another child
+                // may still be executing. Keep the parent recoverable so a later readback
+                // can retain every independently durable child outcome.
+                return true;
+            }
+            if (!allCompleted && (anyUnknown || !anyFailed)) return false;
             ProcessingJob terminal;
             if (allCompleted) {
                 MediaArtifact artifact = artifactStore.artifact(job.tenantId(), job.artifactId(),

@@ -23,13 +23,13 @@
       "journeys": 30
     },
     "byState": {
-      "VERIFIED": 21,
-      "OPEN": 81,
+      "VERIFIED": 27,
+      "OPEN": 75,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1
     },
     "byWorkStartReadiness": {
-      "ALREADY_VERIFIED_AS_REPORTED": 21,
-      "READY_FOR_INDEPENDENT_ENGINEERING": 40,
+      "ALREADY_VERIFIED_AS_REPORTED": 27,
+      "READY_FOR_INDEPENDENT_ENGINEERING": 34,
       "OPTIONAL_DOWNSTREAM": 1,
       "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE": 10,
       "SAFE_PREPARATION_NOW_DELETION_HELD": 1,
@@ -87,7 +87,7 @@
     {
       "id": "media.dev.rights-and-policy",
       "group": "foundations",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "modules/infrastructure/security",
         "runtime-contracts",
@@ -99,17 +99,18 @@
       "requires": [
         "media.dev.domain-contract-parity"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.domain-contract-parity"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "verificationEvidence": "verified-2026-11-05: fail-closed `MediaRuntime.submit(request)` guard prevents request-derived identity when a source-rights authority is configured; no job row/provider call. `MediaRuntimeJobGovernanceTest` + `MediaConsentRevocationTest` PASS 20/20; `PostgresqlMediaSourceAuthorizationAuthorityTest` PASS 12/12. Coverage includes wrong tenant/principal, purpose/region scope, stale/revoked consent, biometric denial, altered evidence and zero-effect fake-principal path. Local test authorities only; no live issuer/trust-root or release claim."
     },
     {
       "id": "media.dev.canonical-artifact-storage",
       "group": "foundations",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "providers/aws-postgresql",
         "modules/infrastructure/persistence",
@@ -122,13 +123,14 @@
         "media.dev.domain-contract-parity",
         "media.dev.rights-and-policy"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.domain-contract-parity",
         "media.dev.rights-and-policy"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "verificationEvidence": "verified-2026-11-05: S3/PostgreSQL artifact admission, digest/version ownership, corrupt/resume/restart, duplicate chunk, orphan/lost-ACK cleanup race, erasure/hold and purge failure recovery selectors PASS 24/24 with no skips (`S3PostgresqlMediaArtifactAdmissionTest`, `MediaUploadChunkLostAckRecoveryTest`, `MediaUploadCrashRecoveryIT`, `MediaPostgresqlS3ArtifactErasureTreeTest`, `MediaPostgresqlArtifactPurgeCommitFailureTest`). Lost-ACK cleanup now locks upload metadata through exact orphan-object deletion; local store integration is not live legacy-writer cutover."
     },
     {
       "id": "media.dev.database-upgrade-compatibility",
@@ -279,7 +281,7 @@
     {
       "id": "media.dev.invocation-store-security",
       "group": "foundations",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "adapters/agent-tools-media",
         "providers/aws-postgresql"
@@ -291,13 +293,14 @@
         "media.dev.exclusive-invocation-claim-verification",
         "media.dev.rights-and-policy"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.exclusive-invocation-claim-verification",
         "media.dev.rights-and-policy"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "verificationEvidence": "verified-2026-11-05: agent-tools-media `FileInvocationLedgerTest` + `MediaToolExecutionBinderTest` PASS 48/48, no skips. Host-injected AES-GCM key and retention, invocation/identity AAD, expiry tamper rejection, purge tombstone, fresh-principal replay authorization (default deny), claim retention and cross-process single-host tests. This verifies the constrained single-host adapter; production host key/authorizer wiring and multi-host backing are not claimed."
     },
     {
       "id": "media.dev.projection-single-writer-policy",
@@ -430,15 +433,14 @@
         "media.dev.sdk-source-declaration-crosswalk",
         "media.dev.http-operation-parity"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.sdk-source-declaration-crosswalk",
         "media.dev.http-operation-parity"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "Legacy facade and operation methods retain their public signatures and return typed NOT_ADMITTED before transport when no canonical route exists. Exact route inventory/parity passed (37 active source observations, 14 retired pre-dispatch paths); canonical SDK unit tests passed (167 passed, 12 skipped) and installed ESM/CJS/types consumer checks passed. The runtime's semantic route review remains independent in media.dev.http-operation-parity.",
-      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED"
+      "progress": "Legacy facade and operation methods retain their public signatures and return typed NOT_ADMITTED before transport when no canonical route exists. Exact route inventory/parity passed (37 active source observations, 14 retired pre-dispatch paths); canonical SDK unit tests passed (167 passed, 12 skipped) and installed ESM/CJS/types consumer checks passed. The runtime's semantic route review remains independent in media.dev.http-operation-parity."
     },
     {
       "id": "media.dev.multimodal-legacy-route-disposition",
@@ -1016,7 +1018,8 @@
         "media.dev.stream-session-authority"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05 local capture boundary verification: existing CameraCaptureSession tests cover fresh exact-source/purpose consent, in-flight revoke/no-byte release, device switch/new epoch, PTS ordering, bounded frames, and track cleanup; added hot-unplug cleanup and permission-UNKNOWN-during-read tests. `pnpm --filter @audio-video/client exec vitest run src/camera-capture-adapter.test.ts` PASS 9/9; client typecheck PASS. Task remains OPEN: PDP-0 AC-009/010 require exact device/media identity, allowed-signal selection, declared source PTS/timebase, discontinuities and clock-mapping uncertainty. Current CaptureRequest/CameraTrack/CapturedFrame do not represent signal/sync policy, codec/MIME/dimensions, typed source PTS/discontinuity/mapping; the generic capture() also drops session epoch/PTS. No browser getUserMedia adapter was added because it would guess device-ID mapping, encoding metadata, or source-time semantics. Continue with a source-aligned typed camera capture contract; keep unavailable/permission-loss behavior fail-closed under AC-011."
     },
     {
       "id": "media.dev.recorder-actual-execution",
@@ -1134,7 +1137,7 @@
     {
       "id": "media.dev.animation-2d-renderer",
       "group": "creative",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/java/common/src/main/java/com/ghatana/media/production/AnimationSpecCompiler.java",
         "modules/production/animation"
@@ -1145,17 +1148,18 @@
       "requires": [
         "media.dev.project-timeline-engine"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.project-timeline-engine"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "verificationEvidence": "verified-2026-11-05: `AnimationRendererTest` PASS 9/9, no skips. Covers deterministic raster/vector output, easing/story time, seeded particles, immutable bounded in-memory ARGB assets, aggregate pixel/output-byte ceilings, PNG decode and GIF playback. No file/URI decoder or external renderer was added."
     },
     {
       "id": "media.dev.animation-3d-rig-and-spatial",
       "group": "creative",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "modules/production/spatial",
         "runtime-contracts"
@@ -1166,17 +1170,18 @@
       "requires": [
         "media.dev.project-timeline-engine"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.project-timeline-engine"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "verificationEvidence": "verified-2026-11-05: `SpatialRigEngineTest` PASS 8/8, no skips. Covers hierarchy/joint/reference poses, coordinate roundtrip, exact source/project revision rights checks, bounded GLB 2.0 node/skeleton animation export, decoded binary translation/quaternion values, rational keyframe metadata and float32 approximation declaration; missing/revoked/unknown rights, unsupported profile, missing revision and time-collision negatives. Local GLB profile only; no production renderer or canonical transform admission."
     },
     {
       "id": "media.dev.scientific-simulation-engine",
       "group": "creative",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "modules/production/simulation",
         "runtime-contracts"
@@ -1187,12 +1192,13 @@
       "requires": [
         "media.dev.project-timeline-engine"
       ],
-      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.project-timeline-engine"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "verificationEvidence": "verified-2026-11-05: `MediaSimulationContractsTest` PASS 2/2 and `PhysicalSimulationTest` + `SimulationSemanticValidatorTest` PASS 17/17, no skips. Typed SI contract runs Newton m=2 kg/F=6 N/t=2 s -> a=3 m/s², v=6 m/s, x=6 m; bounded velocity-Verlet step/iteration limits, energy conservation, uncertainty/dimension negatives and COMPLETED/ABSTAINED/INVALID_INPUT outcomes with no partial trace. Output remains labeled simulation-only, not measurement evidence."
     },
     {
       "id": "media.dev.simulation-semantic-validation",

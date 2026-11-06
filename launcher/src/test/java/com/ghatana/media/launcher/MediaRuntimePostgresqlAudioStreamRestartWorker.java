@@ -2,6 +2,8 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.audio.streaming.AudioStreamSession;
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
+import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
+import com.ghatana.video.streaming.VideoStreamSession;
 import com.ghatana.media.provider.aws.PostgresqlMediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
@@ -24,11 +26,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** Separate JVM seed and recovery phases for canonical PostgreSQL audio stream state. */
+/** Separate JVM seed and recovery phases for canonical PostgreSQL audio and video stream state. */
 public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
     private static final String PRINCIPAL_ID = "principal-audio-restart";
+    private static final String PRINCIPAL_VIDEO_ID = "principal-video-restart";
     private static final String PROVIDER_ID = "fixture-audio-streaming-provider";
+    private static final String VIDEO_PROVIDER_ID = "fixture-video-streaming-provider";
     private static final String PURPOSE = "media.stream.audio.capture";
+    private static final String VIDEO_PURPOSE = "media.stream.video.capture";
 
     private record RuntimeFixture(MediaRuntime runtime, CountingLocalStreamingProvider provider) { }
 
@@ -43,14 +48,16 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
         switch (mode) {
             case "seed" -> seedAndWait(bindingFile, marker, tenantId);
             case "recover" -> recover(bindingFile, marker, tenantId);
-            default -> throw new IllegalArgumentException("unsupported audio restart mode: " + mode);
+            case "seed-video" -> seedVideoAndWait(bindingFile, marker, tenantId);
+            case "recover-video" -> recoverVideo(bindingFile, marker, tenantId);
+            default -> throw new IllegalArgumentException("unsupported media stream restart mode: " + mode);
         }
     }
 
     private static void seedAndWait(Path bindingFile, Path marker, String tenantId) throws Exception {
         Path root = marker.getParent().resolve("media-audio-runtime-root");
         Files.createDirectories(root);
-        RuntimeFixture fixture = newRuntime(root);
+        RuntimeFixture fixture = newRuntime(root, StreamKind.AUDIO);
         MediaRuntime runtime = fixture.runtime();
         try {
             var registration = runtime.openStream(new StreamSessionRequest(
@@ -102,7 +109,7 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
                 Instant.parse(properties.getProperty("leaseExpiresAt")));
         String token = properties.getProperty("connectionToken");
         Path root = marker.getParent().resolve("media-audio-runtime-root");
-        RuntimeFixture fixture = newRuntime(root);
+        RuntimeFixture fixture = newRuntime(root, StreamKind.AUDIO);
         MediaRuntime runtime = fixture.runtime();
         try {
             runtime.connectStream(tenantId, preRestartBinding.streamId(), token);
@@ -142,8 +149,110 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
         }
     }
 
-    private static RuntimeFixture newRuntime(Path root) {
-        CountingLocalStreamingProvider provider = new CountingLocalStreamingProvider();
+    private static void seedVideoAndWait(Path bindingFile, Path marker, String tenantId) throws Exception {
+        Path root = marker.getParent().resolve("media-video-runtime-root");
+        Files.createDirectories(root);
+        RuntimeFixture fixture = newRuntime(root, StreamKind.VIDEO);
+        MediaRuntime runtime = fixture.runtime();
+        try {
+            var registration = runtime.openStream(new StreamSessionRequest(
+                    tenantId, PRINCIPAL_VIDEO_ID, "video-restart-correlation", StreamKind.VIDEO,
+                    VIDEO_PROVIDER_ID, 128, Duration.ofMinutes(5), Map.of(), videoGovernance()));
+            runtime.connectStream(tenantId, PRINCIPAL_VIDEO_ID,
+                    registration.session().sessionId(), registration.connectionToken());
+            CanonicalVideoStreamFramePort port = runtime.videoStreamFramePort(
+                    tenantId, PRINCIPAL_VIDEO_ID,
+                    registration.session().sessionId(), registration.connectionToken());
+            CanonicalVideoStreamFramePort.Binding binding = port.currentBinding(
+                    tenantId, registration.session().sessionId(), PRINCIPAL_VIDEO_ID).orElseThrow();
+            require(binding.lastAcknowledgedSequence() == -1,
+                    "new video session must start before frame zero");
+            require(port.offer(binding, videoFrame(0)).equals(
+                            CanonicalVideoStreamFramePort.Result.acknowledged(0)),
+                    "seed video frame zero must be acknowledged by the canonical store");
+            require(runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, binding.streamId()).orElseThrow()
+                            .lastSequence() == 0,
+                    "video frame zero cursor must be durable before process termination");
+
+            Properties properties = new Properties();
+            properties.setProperty("tenantId", binding.tenantId());
+            properties.setProperty("principalId", binding.principalId());
+            properties.setProperty("streamId", binding.streamId());
+            properties.setProperty("purposeRef", binding.purposeRef());
+            properties.setProperty("sessionRevision", Long.toString(binding.sessionRevision()));
+            properties.setProperty("storeVersion", Long.toString(binding.storeVersion()));
+            properties.setProperty("lastAcknowledgedSequence", Long.toString(binding.lastAcknowledgedSequence()));
+            properties.setProperty("leaseExpiresAt", binding.leaseExpiresAt().toString());
+            properties.setProperty("connectionToken", registration.connectionToken());
+            try (var output = Files.newOutputStream(bindingFile)) {
+                properties.store(output, "synthetic caller-held token and pre-ACK video binding for restart test");
+            }
+            write(marker, "VIDEO_FRAME_ZERO_ACKNOWLEDGED");
+            // The parent terminates this process after the durable ACK marker appears.
+            while (true) Thread.sleep(60_000);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    private static void recoverVideo(Path bindingFile, Path marker, String tenantId) throws Exception {
+        Properties properties = new Properties();
+        try (var input = Files.newInputStream(bindingFile)) {
+            properties.load(input);
+        }
+        CanonicalVideoStreamFramePort.Binding preRestartBinding = new CanonicalVideoStreamFramePort.Binding(
+                properties.getProperty("streamId"), properties.getProperty("tenantId"),
+                properties.getProperty("principalId"), properties.getProperty("purposeRef"),
+                Long.parseLong(properties.getProperty("sessionRevision")),
+                Long.parseLong(properties.getProperty("storeVersion")),
+                Long.parseLong(properties.getProperty("lastAcknowledgedSequence")),
+                Instant.parse(properties.getProperty("leaseExpiresAt")));
+        String token = properties.getProperty("connectionToken");
+        Path root = marker.getParent().resolve("media-video-runtime-root");
+        RuntimeFixture fixture = newRuntime(root, StreamKind.VIDEO);
+        MediaRuntime runtime = fixture.runtime();
+        try {
+            runtime.connectStream(tenantId, PRINCIPAL_VIDEO_ID, preRestartBinding.streamId(), token);
+            CanonicalVideoStreamFramePort port = runtime.videoStreamFramePort(
+                    tenantId, PRINCIPAL_VIDEO_ID, preRestartBinding.streamId(), token);
+            CanonicalVideoStreamFramePort.Binding resumed = port.currentBinding(
+                    tenantId, preRestartBinding.streamId(), PRINCIPAL_VIDEO_ID).orElseThrow();
+
+            require(resumed.streamId().equals(preRestartBinding.streamId()), "video stream identity changed on restart");
+            require(resumed.tenantId().equals(preRestartBinding.tenantId()), "video tenant binding changed on restart");
+            require(resumed.principalId().equals(preRestartBinding.principalId()), "video principal changed on restart");
+            require(resumed.purposeRef().equals(VIDEO_PURPOSE), "video source-defined purpose changed on restart");
+            require(resumed.sessionRevision() == preRestartBinding.sessionRevision() + 1,
+                    "video reconnect generation must advance after restart");
+            require(resumed.lastAcknowledgedSequence() == 0,
+                    "video frame zero ACK cursor must be restored from PostgreSQL");
+
+            require(port.offer(preRestartBinding, videoFrame(1)).disposition()
+                            == CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED,
+                    "pre-restart video binding must not submit into the new connection generation");
+            require(port.offer(resumed, videoFrame(0)).disposition()
+                            == CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED,
+                    "durably acknowledged video frame zero must not be replayed");
+            require(fixture.provider().calls() == 0,
+                    "stale and duplicate video frames must not invoke the provider");
+
+            require(port.offer(resumed, videoFrame(1)).equals(
+                            CanonicalVideoStreamFramePort.Result.acknowledged(1)),
+                    "video frame one must be the next accepted sequence after restart");
+            require(fixture.provider().calls() == 1, "only the new video frame may invoke the provider");
+            var durable = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
+            require(durable.lastSequence() == 1, "next video frame ACK must be durable after process restart");
+            require(durable.reconnectCount() == 2, "durable video reconnect generation must be two");
+            write(marker, "VIDEO_DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    private static RuntimeFixture newRuntime(Path root, StreamKind kind) {
+        boolean video = kind == StreamKind.VIDEO;
+        CountingLocalStreamingProvider provider = new CountingLocalStreamingProvider(
+                video ? VIDEO_PROVIDER_ID : PROVIDER_ID, kind);
         MediaRuntime runtime = new MediaRuntime(
                 new MediaRuntimeConfig(true, "test", 8093, 1_024, 64, 1_024,
                         Duration.ofSeconds(5), 1, "", "", false, false, root),
@@ -161,8 +270,17 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
                 false, false);
     }
 
+    private static MediaGovernanceContext videoGovernance() {
+        return new MediaGovernanceContext("synthetic-local-consent", VIDEO_PURPOSE, "local", Set.of("local"),
+                false, false);
+    }
+
     private static AudioStreamSession.DecodedFrame frame(int sequence) {
         return new AudioStreamSession.DecodedFrame(sequence, sequence * 20L, new byte[] {1, 2, 3});
+    }
+
+    private static VideoStreamSession.DecodedFrame videoFrame(int sequence) {
+        return new VideoStreamSession.DecodedFrame(sequence, sequence == 0, sequence * 33L, new byte[] {4, 5, 6});
     }
 
     private static void write(Path marker, String value) throws Exception {
@@ -175,9 +293,16 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
 
     private static final class CountingLocalStreamingProvider implements MediaStreamingProvider {
         private final AtomicInteger calls = new AtomicInteger();
+        private final String providerId;
+        private final StreamKind kind;
 
-        @Override public String providerId() { return PROVIDER_ID; }
-        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+        CountingLocalStreamingProvider(String providerId, StreamKind kind) {
+            this.providerId = providerId;
+            this.kind = kind;
+        }
+
+        @Override public String providerId() { return providerId; }
+        @Override public Set<StreamKind> capabilities() { return Set.of(kind); }
         @Override public boolean ready() { return true; }
         @Override public boolean productionEligible() { return false; }
         @Override public int priority() { return 1; }

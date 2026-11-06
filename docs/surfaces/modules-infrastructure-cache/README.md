@@ -30,6 +30,12 @@ retention eligibility, source version or transcript revision.
   policy epoch. Scope values alone never grant access. Absent/deleted source
   results are not negative-cached. Call `invalidateTranscriptionScoped` with
   the prior scope for explicit revocation/retention cleanup.
+- The generic `AudioVideoCache.getOrLoadScoped` uses the same before-access and
+  before-disclosure authority checks. A denied or unavailable recheck returns no
+  protected value and starts best-effort invalidation for that exact scoped key.
+  A cache write may already have completed before a revocation is observed; in
+  that case disclosure still fails, and later lookups remain gated by fresh
+  authority and the policy/source-version key.
 
 ## Public operations
 

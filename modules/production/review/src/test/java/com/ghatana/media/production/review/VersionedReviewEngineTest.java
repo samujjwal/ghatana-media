@@ -94,6 +94,64 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void authorizationIdentityMustMatchTheAuthenticatedTenantAndPrincipal() {
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        VersionedReviewEngine wrongTenant = engine(store, (actor, reviewCase, operation, now) ->
+                authorization(actor, reviewCase, "tenant-other", actor.principalId(), V1.reference()));
+        assertThatThrownBy(() -> wrongTenant.inspect(REVIEWER, CASE)).isInstanceOf(ReviewDeniedException.class);
+
+        VersionedReviewEngine wrongPrincipal = engine(store, (actor, reviewCase, operation, now) ->
+                authorization(actor, reviewCase, actor.tenantId(), "forged-principal", V1.reference()));
+        assertThatThrownBy(() -> wrongPrincipal.append(REVIEWER,
+                new AppendRequest(CASE, 0, "authority-v1", "req-forged",
+                        new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                        new Comment("must not store", CommentDisposition.OPEN, null))))
+                .isInstanceOf(ReviewDeniedException.class);
+        assertThat(store.read(REVIEWER, CASE)).isEmpty();
+    }
+
+    @Test
+    void storeReadbackCannotDiscloseARecordForAnotherTenantOrVersion() {
+        ReviewRecord foreign = new ReviewRecord("record-foreign", "tenant-other", CASE.reviewCaseId(), V2,
+                "req-foreign", "media.operation.action.record-review-comment",
+                new Actor("tenant-other", "principal-other"),
+                new Comment("private text", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        ReviewStore hostileStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(foreign); }
+        };
+        VersionedReviewEngine engine = engine(hostileStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewCaseMismatchException.class);
+    }
+
+    @Test
+    void appendReceiptMustNameTheExactRequestedRevisionAndPayload() {
+        ReviewStore hostileStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                return new ReviewRecord(appendRecordId, actor.tenantId(), reviewCase.reviewCaseId(), V2,
+                        requestId, payload.operationId(), actor, payload, expectedCaseRevision + 1,
+                        createdAt, authorityVersion);
+            }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(); }
+        };
+        VersionedReviewEngine engine = engine(hostileStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+        AppendRequest request = new AppendRequest(CASE, 0, "authority-v1", "req-wrong-target",
+                new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                new Comment("safe", CommentDisposition.OPEN, null));
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, request)).isInstanceOf(ReviewUnavailableException.class);
+    }
+
+    @Test
     void exactTimeAndRoiAnnotationsRemainBoundToTheReviewedVersion() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
         Annotation annotation = new Annotation(
@@ -194,6 +252,19 @@ class VersionedReviewEngineTest {
         } catch (ReviewConflictException expected) {
             return false;
         }
+    }
+
+    private static VersionedReviewEngine engine(ReviewStore store, AuthorizationPort authorization) {
+        return new VersionedReviewEngine(store, authorization, value -> value,
+                Clock.fixed(NOW, ZoneOffset.UTC), () -> "record-test");
+    }
+
+    private static AuthorizationDecision authorization(Actor actor, ReviewCaseRef reviewCase,
+                                                        String tenantId, String principalId,
+                                                        String currentMaterialVersionRef) {
+        return new AuthorizationDecision(AuthorizationStatus.ALLOW, tenantId, principalId,
+                reviewCase.reviewCaseId(), reviewCase.exactTargetRef(), reviewCase.scopeRef(),
+                "authority-v1", NOW.plusSeconds(60), currentMaterialVersionRef, RetentionStatus.ACTIVE);
     }
 
     private static final class Fixture {

@@ -66,6 +66,124 @@ class Ip06LegacyMigrationCompatibilityTest {
     }
 
     @Test
+    void currentV001ToV009BaselineUpgradesThroughV029WithoutLosingRows() throws Exception {
+        String schema = "current_lineage_upgrade_"
+                + java.util.UUID.randomUUID().toString().replace("-", "");
+
+        // This starts from the current checked-in V001..V009 bytes, unlike the separate
+        // historical V001..V016 fixture tests below.
+        assertThat(flyway(CURRENT_LOCATION, schema, "9").migrate().migrationsExecuted).isEqualTo(9);
+        seedCurrentV009Rows(schema);
+
+        Flyway current = flyway(CURRENT_LOCATION, schema, "29");
+        assertThat(current.migrate().migrationsExecuted).isEqualTo(20);
+        assertCurrentLineageRows(schema);
+        assertAppliedHistory(schema, 29);
+
+        assertThat(current.migrate().migrationsExecuted).isZero();
+        assertCurrentLineageRows(schema);
+        assertAppliedHistory(schema, 29);
+    }
+
+    @Test
+    void currentV029FailureRollsBackAndResumesFromV028(@TempDir Path tempDir) throws Exception {
+        String schema = "current_lineage_interrupted_"
+                + java.util.UUID.randomUUID().toString().replace("-", "");
+        Path currentChain = copyCurrentMigrations(tempDir, 1, 29);
+        assertThat(flyway("filesystem:" + currentChain.toAbsolutePath(), schema, "28")
+                .migrate().migrationsExecuted).isEqualTo(28);
+
+        Path v029 = currentChain.resolve("V029__media_transcript_version_ref_readback.sql");
+        byte[] pinnedV029 = Files.readAllBytes(v029);
+        byte[] injectedFailure = "\nSELECT 1 / 0; -- test-only migration fault\n"
+                .getBytes(StandardCharsets.UTF_8);
+        byte[] failingV029 = java.util.Arrays.copyOf(pinnedV029, pinnedV029.length + injectedFailure.length);
+        System.arraycopy(injectedFailure, 0, failingV029, pinnedV029.length, injectedFailure.length);
+        Files.write(v029, failingV029);
+
+        assertThat(catchThrowable(() -> flyway("filesystem:" + currentChain.toAbsolutePath(), schema, "29")
+                .migrate())).isNotNull();
+        assertAppliedHistory(schema, 28);
+        assertThat(hasIndex(schema, "media_transcript_attempt_version_ref_idx")).isFalse();
+
+        Files.write(v029, pinnedV029);
+        assertThat(flyway("filesystem:" + currentChain.toAbsolutePath(), schema, "29")
+                .migrate().migrationsExecuted).isEqualTo(1);
+        assertAppliedHistory(schema, 29);
+        assertThat(hasIndex(schema, "media_transcript_attempt_version_ref_idx")).isTrue();
+        assertThat(flyway("filesystem:" + currentChain.toAbsolutePath(), schema, "29")
+                .migrate().migrationsExecuted).isZero();
+    }
+
+    private static Path copyCurrentMigrations(Path tempDir, int firstVersion, int lastVersion)
+            throws Exception {
+        Path current = Files.createDirectories(tempDir.resolve("current-migrations"));
+        for (int version = firstVersion; version <= lastVersion; version++) {
+            String resource = String.format("V%03d__", version);
+            try (var paths = Files.walk(Path.of("src/main/resources/db/media-runtime"))) {
+                Path source = paths.filter(path -> path.getFileName().toString().startsWith(resource))
+                        .findFirst().orElseThrow(() -> new IllegalStateException(
+                                "missing current migration " + resource));
+                Files.copy(source, current.resolve(source.getFileName().toString()));
+            }
+        }
+        return current;
+    }
+
+    private static boolean hasIndex(String schema, String index) throws Exception {
+        try (Connection connection = connection(); var statement = connection.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname=? AND indexname=?)")) {
+            statement.setString(1, schema);
+            statement.setString(2, index);
+            try (ResultSet rows = statement.executeQuery()) {
+                rows.next();
+                return rows.getBoolean(1);
+            }
+        }
+    }
+
+    private static void seedCurrentV009Rows(String schema) throws Exception {
+        try (Connection connection = connection(); var statement = connection.createStatement()) {
+            statement.executeUpdate("INSERT INTO " + schema + ".media_artifacts"
+                    + " (tenant_id,artifact_id,file_name,content_type,size_bytes,sha256,object_reference,"
+                    + "classification,created_at,expires_at,metadata_json,principal_id) VALUES"
+                    + " ('current-tenant','current-artifact','current.wav','audio/wav',128,"
+                    + "'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',"
+                    + "'s3://fixture/current','INTERNAL',1700000000000,1800000000000,'{}','current-principal')");
+            statement.executeUpdate("INSERT INTO " + schema + ".media_processing_jobs"
+                    + " (tenant_id,job_id,request_id,artifact_id,job_type,provider_id,status,created_at,"
+                    + "result_json,failure_code,version,principal_id,request_fingerprint) VALUES"
+                    + " ('current-tenant','current-job','current-request','current-artifact','STT',"
+                    + "'fixture-provider','COMPLETED',1700000000000,'{\"current\":true}','',1,"
+                    + "'current-principal','0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')");
+            statement.executeUpdate("INSERT INTO " + schema + ".media_upload_sessions"
+                    + " (tenant_id,upload_id,file_name,content_type,expected_size_bytes,expected_sha256,"
+                    + "classification,retention_millis,created_at,expires_at,bytes_received,next_chunk_index,"
+                    + "status,metadata_json,updated_at,principal_id) VALUES"
+                    + " ('current-tenant','current-upload','current.wav','audio/wav',128,"
+                    + "'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb','INTERNAL',"
+                    + "86400000,1700000000000,1800000000000,0,0,'OPEN','{}',1700000000000,'current-principal')");
+        }
+    }
+
+    private static void assertCurrentLineageRows(String schema) throws Exception {
+        try (Connection connection = connection()) {
+            assertThat(stringValue(connection, "SELECT submission_digest FROM " + schema
+                    + ".media_processing_jobs WHERE job_id='current-job'"))
+                    .isEqualTo("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+            assertThat(stringValue(connection, "SELECT expected_artifact_version FROM " + schema
+                    + ".media_processing_jobs WHERE job_id='current-job'"))
+                    .isEqualTo("sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            assertThat(stringValue(connection, "SELECT scan_status FROM " + schema
+                    + ".media_artifacts WHERE artifact_id='current-artifact'"))
+                    .isEqualTo("UNVERIFIED");
+            assertThat(stringValue(connection, "SELECT principal_id FROM " + schema
+                    + ".media_upload_sessions WHERE upload_id='current-upload'"))
+                    .isEqualTo("current-principal");
+        }
+    }
+
+    @Test
     void forwardMigrationRollsBackFailedVersionAndResumesWithPinnedBytes(@TempDir Path tempDir)
             throws Exception {
         String schema = "ip06_interrupted_forward";

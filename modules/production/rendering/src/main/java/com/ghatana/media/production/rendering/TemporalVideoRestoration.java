@@ -15,6 +15,10 @@ import java.util.OptionalDouble;
 public final class TemporalVideoRestoration {
     public static final String OPERATION_ID = "media.enhance.video.temporal-denoise";
     public static final String PROFILE_ID = "TEMPORAL_MEDIAN_3FRAME_RGB8_V1";
+    public static final String UNSHARP_OPERATION_ID = "media.enhance.video.unsharp-mask";
+    public static final String COLOR_OPERATION_ID = "media.enhance.video.rgb-adjustment";
+    public static final String UNSHARP_PROFILE_ID = "ROI_BOX_UNSHARP_RGB8_V1";
+    public static final String COLOR_PROFILE_ID = "ROI_LINEAR_RGB_ADJUSTMENT_V1";
     public static final int MAX_FRAME_DIMENSION = 2_048;
     public static final int MAX_FRAMES = 64;
     public static final long MAX_TOTAL_PIXELS = 16_000_000L;
@@ -26,6 +30,7 @@ public final class TemporalVideoRestoration {
     private TemporalVideoRestoration() {}
 
     public enum AuthorityStatus { ALLOWED, DENIED, UNAVAILABLE }
+    public enum FilterOperation { TEMPORAL_MEDIAN, UNSHARP_MASK, RGB_COLOR_ADJUSTMENT }
     public enum Outcome { COMPLETED, NOT_ADMITTED, UNAVAILABLE }
     public enum MetricStatus { MEASURED, EXACT_REFERENCE_MATCH, UNAVAILABLE }
     public enum MetricUnavailableReason {
@@ -88,10 +93,82 @@ public final class TemporalVideoRestoration {
         }
     }
 
-    public record RestorationRequest(String requestId, ArtifactBinding source) {
+    /** Immutable, caller-versioned local filter parameters. Parameter identity is content-derived. */
+    public record FilterParameters(FilterOperation operation, String version, double amount,
+            double redGain, double greenGain, double blueGain,
+            int redOffset, int greenOffset, int blueOffset) {
+        public FilterParameters {
+            Objects.requireNonNull(operation, "operation");
+            version = opaqueId(version, "parameter version", 128);
+            if (!Double.isFinite(amount) || !Double.isFinite(redGain)
+                    || !Double.isFinite(greenGain) || !Double.isFinite(blueGain)) {
+                throw invalid("filter parameters must be finite");
+            }
+            switch (operation) {
+                case TEMPORAL_MEDIAN -> {
+                    if (amount != 0 || redGain != 1 || greenGain != 1 || blueGain != 1
+                            || redOffset != 0 || greenOffset != 0 || blueOffset != 0) {
+                        throw invalid("temporal median does not accept numeric filter parameters");
+                    }
+                }
+                case UNSHARP_MASK -> {
+                    if (amount < 0 || amount > 2 || redGain != 1 || greenGain != 1 || blueGain != 1
+                            || redOffset != 0 || greenOffset != 0 || blueOffset != 0) {
+                        throw invalid("unsharp amount must be 0..2 and color controls must be identity values");
+                    }
+                }
+                case RGB_COLOR_ADJUSTMENT -> {
+                    if (amount != 0 || redGain < 0 || redGain > 4 || greenGain < 0 || greenGain > 4
+                            || blueGain < 0 || blueGain > 4 || redOffset < -255 || redOffset > 255
+                            || greenOffset < -255 || greenOffset > 255 || blueOffset < -255 || blueOffset > 255) {
+                        throw invalid("RGB gains must be 0..4 and offsets must be -255..255");
+                    }
+                }
+            }
+        }
+
+        public static FilterParameters temporalMedian() {
+            return new FilterParameters(FilterOperation.TEMPORAL_MEDIAN, "1", 0, 1, 1, 1, 0, 0, 0);
+        }
+        public static FilterParameters unsharpMask(String version, double amount) {
+            return new FilterParameters(FilterOperation.UNSHARP_MASK, version, amount, 1, 1, 1, 0, 0, 0);
+        }
+        public static FilterParameters rgbAdjustment(String version, double redGain, double greenGain,
+                double blueGain, int redOffset, int greenOffset, int blueOffset) {
+            return new FilterParameters(FilterOperation.RGB_COLOR_ADJUSTMENT, version, 0,
+                    redGain, greenGain, blueGain, redOffset, greenOffset, blueOffset);
+        }
+
+        public String operationId() {
+            return switch (operation) {
+                case TEMPORAL_MEDIAN -> OPERATION_ID;
+                case UNSHARP_MASK -> UNSHARP_OPERATION_ID;
+                case RGB_COLOR_ADJUSTMENT -> COLOR_OPERATION_ID;
+            };
+        }
+        public String profileId() {
+            return switch (operation) {
+                case TEMPORAL_MEDIAN -> PROFILE_ID;
+                case UNSHARP_MASK -> UNSHARP_PROFILE_ID;
+                case RGB_COLOR_ADJUSTMENT -> COLOR_PROFILE_ID;
+            };
+        }
+        public String parameterSha256() {
+            String canonical = operation.name() + "\n" + version + "\n" + Double.toHexString(amount) + "\n"
+                    + Double.toHexString(redGain) + "\n" + Double.toHexString(greenGain) + "\n"
+                    + Double.toHexString(blueGain) + "\n" + redOffset + "\n" + greenOffset + "\n" + blueOffset;
+            return sha256(canonical.getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    public record RestorationRequest(String requestId, ArtifactBinding source, FilterParameters filter) {
+        public RestorationRequest(String requestId, ArtifactBinding source) {
+            this(requestId, source, FilterParameters.temporalMedian());
+        }
         public RestorationRequest {
             requestId = opaqueId(requestId, "requestId", 128);
             Objects.requireNonNull(source, "source");
+            Objects.requireNonNull(filter, "filter");
         }
     }
 
@@ -232,9 +309,13 @@ public final class TemporalVideoRestoration {
 
     public record CandidateLineage(String operationId, String profileId, String methodVersion,
             String requestId, String sourceArtifactId, String sourceVersionId, String sourceSha256,
-            String sourceRightsDecisionId, String candidateSha256, String outputDisclosure) {
+            String sourceRightsDecisionId, String parameterVersion, String parameterSha256,
+            String candidateSha256, String outputDisclosure) {
         public CandidateLineage {
-            if (!OPERATION_ID.equals(operationId) || !PROFILE_ID.equals(profileId)) {
+            boolean knownProfile = OPERATION_ID.equals(operationId) && PROFILE_ID.equals(profileId)
+                    || UNSHARP_OPERATION_ID.equals(operationId) && UNSHARP_PROFILE_ID.equals(profileId)
+                    || COLOR_OPERATION_ID.equals(operationId) && COLOR_PROFILE_ID.equals(profileId);
+            if (!knownProfile) {
                 throw invalid("candidate lineage must name the exact supported operation and profile");
             }
             methodVersion = requiredText(methodVersion, "methodVersion", 64);
@@ -243,9 +324,11 @@ public final class TemporalVideoRestoration {
             sourceVersionId = opaqueId(sourceVersionId, "sourceVersionId", 128);
             sourceSha256 = requiredText(sourceSha256, "sourceSha256", 64).toLowerCase(java.util.Locale.ROOT);
             sourceRightsDecisionId = requiredText(sourceRightsDecisionId, "sourceRightsDecisionId", 256);
+            parameterVersion = opaqueId(parameterVersion, "parameterVersion", 128);
+            parameterSha256 = requiredText(parameterSha256, "parameterSha256", 64).toLowerCase(java.util.Locale.ROOT);
             candidateSha256 = requiredText(candidateSha256, "candidateSha256", 64).toLowerCase(java.util.Locale.ROOT);
             outputDisclosure = requiredText(outputDisclosure, "outputDisclosure", 512);
-            if (!sourceSha256.matches(SHA256) || !candidateSha256.matches(SHA256)) {
+            if (!sourceSha256.matches(SHA256) || !parameterSha256.matches(SHA256) || !candidateSha256.matches(SHA256)) {
                 throw invalid("lineage digests must be SHA-256 values");
             }
         }
@@ -296,7 +379,8 @@ public final class TemporalVideoRestoration {
     }
 
     public record Candidate(List<CandidateFrame> frames, TimeBase timeBase, CandidateLineage lineage,
-            SourceDelta sourceDelta, ReferenceMetrics referenceMetrics, boolean dimensionsPreserved, boolean timingPreserved,
+            SourceDelta sourceDelta, ReferenceMetrics referenceMetrics, long clippedSamples,
+            boolean dimensionsPreserved, boolean timingPreserved,
             boolean sourcePixelsPreservedOutsideRoi, boolean improvementClaimed) {
         public Candidate {
             frames = List.copyOf(Objects.requireNonNull(frames, "frames"));
@@ -304,6 +388,9 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(lineage, "lineage");
             Objects.requireNonNull(sourceDelta, "sourceDelta");
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
+            if (clippedSamples < 0 || clippedSamples > sourceDelta.comparedSamples()) {
+                throw invalid("clipped sample count is outside the compared ROI sample bound");
+            }
             if (!dimensionsPreserved || !timingPreserved || !sourcePixelsPreservedOutsideRoi || improvementClaimed) {
                 throw invalid("candidate must preserve source structure and cannot claim quality improvement");
             }
@@ -341,7 +428,7 @@ public final class TemporalVideoRestoration {
             return Result.blocked(Outcome.UNAVAILABLE, Reason.SOURCE_READ_UNAVAILABLE);
         }
         ArtifactBinding sourceBinding = request.source();
-        AuthorityDecision sourceDecision = checkSource(sourceAuthority, sourceBinding);
+        AuthorityDecision sourceDecision = checkSource(sourceAuthority, sourceBinding, request.filter().operationId());
         if (sourceDecision.status() != AuthorityStatus.ALLOWED) {
             return blockedSource(sourceDecision.status());
         }
@@ -353,8 +440,9 @@ public final class TemporalVideoRestoration {
             return Result.blocked(Outcome.UNAVAILABLE, Reason.SOURCE_READ_UNAVAILABLE);
         }
         verifySequenceBinding(original, sourceBinding);
-        List<CandidateFrame> restored = temporalMedian(original);
-        AuthorityDecision sourceBeforeReference = checkSource(sourceAuthority, sourceBinding);
+        FilterOutput filtered = applyFilter(original, request.filter());
+        List<CandidateFrame> restored = filtered.frames();
+        AuthorityDecision sourceBeforeReference = checkSource(sourceAuthority, sourceBinding, request.filter().operationId());
         if (sourceBeforeReference.status() != AuthorityStatus.ALLOWED
                 || !sourceBeforeReference.decisionId().equals(sourceDecision.decisionId())) {
             return Result.blocked(sourceBeforeReference.status() == AuthorityStatus.UNAVAILABLE
@@ -397,7 +485,7 @@ public final class TemporalVideoRestoration {
             }
         }
 
-        AuthorityDecision current = checkSource(sourceAuthority, sourceBinding);
+        AuthorityDecision current = checkSource(sourceAuthority, sourceBinding, request.filter().operationId());
         if (current.status() != AuthorityStatus.ALLOWED || !current.decisionId().equals(sourceDecision.decisionId())) {
             return Result.blocked(current.status() == AuthorityStatus.UNAVAILABLE
                     ? Outcome.UNAVAILABLE : Outcome.NOT_ADMITTED, Reason.SOURCE_REVOKED_OR_UNKNOWN);
@@ -409,7 +497,7 @@ public final class TemporalVideoRestoration {
                         referenceAuthority.check(referenceBinding, referenceBinding.purposeRef()), "reference decision");
             } catch (RuntimeException authorityFailure) {
                 metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_AUTHORITY_UNAVAILABLE);
-                return completed(request, sourceBinding, sourceDecision, original, restored, metrics);
+                return completed(request, sourceBinding, sourceDecision, original, filtered, metrics);
             }
             if (referenceCurrent.status() != AuthorityStatus.ALLOWED
                     || !referenceCurrent.decisionId().equals(referenceDecision.decisionId())) {
@@ -417,23 +505,25 @@ public final class TemporalVideoRestoration {
                         ? MetricUnavailableReason.REFERENCE_NOT_ADMITTED : MetricUnavailableReason.REFERENCE_AUTHORITY_UNAVAILABLE);
             }
         }
-        return completed(request, sourceBinding, sourceDecision, original, restored, metrics);
+        return completed(request, sourceBinding, sourceDecision, original, filtered, metrics);
     }
 
     private static Result completed(RestorationRequest request, ArtifactBinding binding, AuthorityDecision decision,
-            DecodedFrameSequence original, List<CandidateFrame> frames, ReferenceMetrics metrics) {
-        String candidateDigest = candidateDigest(original.timeBase(), frames);
-        CandidateLineage lineage = new CandidateLineage(OPERATION_ID, PROFILE_ID, "1", request.requestId(),
-                binding.artifactId(), binding.versionId(), binding.sha256(), decision.decisionId(), candidateDigest,
-                "Only temporal median RGB8 denoising was produced; decoded pixels, dimensions, PTS, time base and explicit ROI were preserved. No deblur, color reconstruction, resolution increase, codec output, or subjective quality improvement is claimed.");
+            DecodedFrameSequence original, FilterOutput filtered, ReferenceMetrics metrics) {
+        FilterParameters filter = request.filter();
+        List<CandidateFrame> frames = filtered.frames();
+        String candidateDigest = candidateDigest(original.timeBase(), frames, filter);
+        CandidateLineage lineage = new CandidateLineage(filter.operationId(), filter.profileId(), "1", request.requestId(),
+                binding.artifactId(), binding.versionId(), binding.sha256(), decision.decisionId(),
+                filter.version(), filter.parameterSha256(), candidateDigest, disclosure(filter));
         Candidate candidate = new Candidate(frames, original.timeBase(), lineage,
-                sourceDelta(original, frames), metrics, true, true, true, false);
+                sourceDelta(original, frames), metrics, filtered.clippedSamples(), true, true, true, false);
         return new Result(Outcome.COMPLETED, Optional.of(candidate), Optional.empty());
     }
 
-    private static AuthorityDecision checkSource(SourceRightsAuthority authority, ArtifactBinding binding) {
+    private static AuthorityDecision checkSource(SourceRightsAuthority authority, ArtifactBinding binding, String operationId) {
         try {
-            return Objects.requireNonNull(authority.check(binding, OPERATION_ID), "source authority decision");
+            return Objects.requireNonNull(authority.check(binding, operationId), "source authority decision");
         } catch (RuntimeException unavailable) {
             return new AuthorityDecision(AuthorityStatus.UNAVAILABLE, "");
         }
@@ -444,26 +534,65 @@ public final class TemporalVideoRestoration {
                 status == AuthorityStatus.DENIED ? Reason.SOURCE_RIGHTS_DENIED : Reason.SOURCE_AUTHORITY_UNAVAILABLE);
     }
 
+    private record FilterOutput(List<CandidateFrame> frames, long clippedSamples) {
+        private FilterOutput { frames = List.copyOf(frames); }
+    }
+
+    private static FilterOutput applyFilter(DecodedFrameSequence sequence, FilterParameters filter) {
+        if (filter.operation() == FilterOperation.TEMPORAL_MEDIAN) return new FilterOutput(temporalMedian(sequence), 0);
+        List<Frame> inputs = sequence.frames();
+        ArrayList<CandidateFrame> outputs = new ArrayList<>(inputs.size());
+        long clippedSamples = 0;
+        double[] gains = {filter.redGain(), filter.greenGain(), filter.blueGain()};
+        int[] offsets = {filter.redOffset(), filter.greenOffset(), filter.blueOffset()};
+        for (int index = 0; index < inputs.size(); index++) {
+            Frame center = inputs.get(index);
+            byte[] input = center.rgb();
+            byte[] output = input.clone();
+            Roi roi = center.roi();
+            for (int y = roi.y(); y < roi.y() + roi.height(); y++) {
+                for (int x = roi.x(); x < roi.x() + roi.width(); x++) {
+                    int offset = (y * center.width() + x) * 3;
+                    if (filter.operation() == FilterOperation.UNSHARP_MASK) {
+                        for (int channel = 0; channel < 3; channel++) {
+                            double blur = roiBoxBlur(input, center.width(), roi, x, y, channel);
+                            int original = input[offset + channel] & 0xff;
+                            long rounded = Math.round(original + filter.amount() * (original - blur));
+                            if (rounded < 0 || rounded > 255) clippedSamples++;
+                            output[offset + channel] = (byte) clamp8(rounded);
+                        }
+                    } else {
+                        for (int channel = 0; channel < 3; channel++) {
+                            int original = input[offset + channel] & 0xff;
+                            long rounded = Math.round(original * gains[channel] + offsets[channel]);
+                            if (rounded < 0 || rounded > 255) clippedSamples++;
+                            output[offset + channel] = (byte) clamp8(rounded);
+                        }
+                    }
+                }
+            }
+            outputs.add(new CandidateFrame(center.frameIndex(), center.presentationTicks(), center.width(),
+                    center.height(), center.roi(), output, sha256(output)));
+        }
+        return new FilterOutput(outputs, clippedSamples);
+    }
+
     private static List<CandidateFrame> temporalMedian(DecodedFrameSequence sequence) {
         List<Frame> inputs = sequence.frames();
         ArrayList<CandidateFrame> outputs = new ArrayList<>(inputs.size());
         for (int index = 0; index < inputs.size(); index++) {
             Frame center = inputs.get(index);
             byte[] output = center.rgb();
-            Frame left = inputs.get(Math.max(0, index - 1));
-            Frame right = inputs.get(Math.min(inputs.size() - 1, index + 1));
-            byte[] leftBytes = left.rgb();
             byte[] centerBytes = center.rgb();
-            byte[] rightBytes = right.rgb();
+            byte[] leftBytes = inputs.get(Math.max(0, index - 1)).rgb();
+            byte[] rightBytes = inputs.get(Math.min(inputs.size() - 1, index + 1)).rgb();
             Roi roi = center.roi();
             for (int y = roi.y(); y < roi.y() + roi.height(); y++) {
                 for (int x = roi.x(); x < roi.x() + roi.width(); x++) {
                     int offset = (y * center.width() + x) * 3;
                     for (int channel = 0; channel < 3; channel++) {
-                        int a = leftBytes[offset + channel] & 0xff;
-                        int b = centerBytes[offset + channel] & 0xff;
-                        int c = rightBytes[offset + channel] & 0xff;
-                        output[offset + channel] = (byte) median(a, b, c);
+                        output[offset + channel] = (byte) median(leftBytes[offset + channel] & 0xff,
+                                centerBytes[offset + channel] & 0xff, rightBytes[offset + channel] & 0xff);
                     }
                 }
             }
@@ -471,6 +600,29 @@ public final class TemporalVideoRestoration {
                     center.height(), center.roi(), output, sha256(output)));
         }
         return List.copyOf(outputs);
+    }
+
+    /** 3x3 RGB sample mean with edge coordinates clamped to the explicit ROI. */
+    private static double roiBoxBlur(byte[] rgb, int width, Roi roi, int x, int y, int channel) {
+        int sum = 0;
+        for (int dy = -1; dy <= 1; dy++) {
+            int sampleY = Math.max(roi.y(), Math.min(roi.y() + roi.height() - 1, y + dy));
+            for (int dx = -1; dx <= 1; dx++) {
+                int sampleX = Math.max(roi.x(), Math.min(roi.x() + roi.width() - 1, x + dx));
+                sum += rgb[(sampleY * width + sampleX) * 3 + channel] & 0xff;
+            }
+        }
+        return (double) sum / 9.0;
+    }
+
+    private static int clamp8(long value) { return (int) Math.max(0, Math.min(255, value)); }
+
+    private static String disclosure(FilterParameters filter) {
+        return switch (filter.operation()) {
+            case TEMPORAL_MEDIAN -> "Applied a per-channel three-frame median. Frame order, dimensions, PTS, rational time base, source revision and pixels outside ROI were preserved. No deblur, color reconstruction, codec output or quality improvement is claimed.";
+            case UNSHARP_MASK -> "Applied RGB8 ROI 3x3 box-blur unsharp mask: round-half-up(original + amount*(original - blur)), then clamp to [0,255]. Edge samples clamp within ROI; clipped samples are measured in sourceDelta. No codec output or quality improvement is claimed.";
+            case RGB_COLOR_ADJUSTMENT -> "Applied caller-versioned per-channel RGB8 gain/offset: round-half-up(sample*gain + offset), then clamp to [0,255]. Clipped samples are measured in sourceDelta. No automatic color inference, codec output or quality improvement is claimed.";
+        };
     }
 
     private static ReferenceMetrics compare(List<CandidateFrame> candidate, DecodedFrameSequence source,
@@ -591,9 +743,10 @@ public final class TemporalVideoRestoration {
         }
     }
 
-    private static String candidateDigest(TimeBase timeBase, List<CandidateFrame> frames) {
+    private static String candidateDigest(TimeBase timeBase, List<CandidateFrame> frames, FilterParameters filter) {
         MessageDigest digest = digest();
-        digest.update((PROFILE_ID + "\n" + timeBase.numerator() + "/" + timeBase.denominator() + "\n")
+        digest.update((filter.profileId() + "\n" + filter.version() + "\n" + filter.parameterSha256() + "\n"
+                + timeBase.numerator() + "/" + timeBase.denominator() + "\n")
                 .getBytes(StandardCharsets.UTF_8));
         for (CandidateFrame frame : frames) {
             digest.update(ByteBuffer.allocate(Integer.BYTES + Long.BYTES + Integer.BYTES * 4)

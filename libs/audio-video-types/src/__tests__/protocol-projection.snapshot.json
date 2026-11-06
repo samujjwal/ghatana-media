@@ -67,6 +67,10 @@
           "error",
           "meta"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
           "error",
           "meta"
@@ -122,6 +126,10 @@
           "count"
         ],
         "400": [
+          "error",
+          "meta"
+        ],
+        "401": [
           "error",
           "meta"
         ],
@@ -187,6 +195,10 @@
           "sourceClockId"
         ],
         "400": [
+          "error",
+          "meta"
+        ],
+        "401": [
           "error",
           "meta"
         ],
@@ -449,7 +461,15 @@
           "error",
           "meta"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -487,6 +507,14 @@
       "responseFieldsByStatus": {
         "200": [
           "consents"
+        ],
+        "401": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
         ]
       },
       "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
@@ -533,7 +561,15 @@
           "tenantId",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -588,7 +624,15 @@
           "tenantId",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -654,7 +698,15 @@
           "error",
           "meta"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -706,7 +758,15 @@
           "tenantId",
           "uploadId"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -768,7 +828,15 @@
           "error",
           "meta"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "409": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -818,7 +886,15 @@
           "sizeBytes",
           "tenantId"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "409": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -868,7 +944,15 @@
           "sizeBytes",
           "tenantId"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -930,6 +1014,10 @@
           "error",
           "meta"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
           "error",
           "meta"
@@ -972,6 +1060,14 @@
       "responseFieldsByStatus": {
         "200": [
           "jobs"
+        ],
+        "401": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
         ]
       },
       "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
@@ -1002,6 +1098,12 @@
           "in": "path",
           "required": true,
           "type": "string"
+        },
+        {
+          "name": "requestId",
+          "in": "query",
+          "required": false,
+          "type": "string"
         }
       ],
       "responseFieldsByStatus": {
@@ -1023,7 +1125,15 @@
           "tenantId",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1077,7 +1187,15 @@
           "tenantId",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1125,7 +1243,15 @@
           "error",
           "meta"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1175,7 +1301,15 @@
           "updatedAt",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1231,11 +1365,19 @@
           "updatedAt",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
           "error",
           "meta"
         ],
         "409": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1289,11 +1431,19 @@
           "backpressured",
           "bufferedBytes"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
           "error",
           "meta"
         ],
         "409": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1349,7 +1499,15 @@
           "updatedAt",
           "version"
         ],
+        "401": [
+          "error",
+          "meta"
+        ],
         "403": [
+          "error",
+          "meta"
+        ],
+        "503": [
           "error",
           "meta"
         ]
@@ -1376,6 +1534,14 @@
           "processingProviders",
           "streamStoreId",
           "streamingProviders"
+        ],
+        "401": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
         ]
       },
       "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"

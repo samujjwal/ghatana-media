@@ -18,10 +18,10 @@
     "principalRef": { "$ref": "#/$defs/redactedId" },
     "correlationRef": { "$ref": "#/$defs/redactedId" },
     "causationRef": { "oneOf": [{ "$ref": "#/$defs/redactedId" }, { "const": "" }] },
-    "aggregateType": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "aggregateType": { "enum": ["upload", "artifact", "job", "stream"] },
     "aggregateRef": { "$ref": "#/$defs/redactedId" },
     "aggregateVersion": { "type": "integer", "minimum": 1 },
-    "classification": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "classification": { "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"] },
     "occurredAt": { "type": "string", "format": "date-time" },
     "appendFinality": { "const": "NON_FINAL_APPEND" },
     "terminalReadbackRequired": { "type": "boolean" }

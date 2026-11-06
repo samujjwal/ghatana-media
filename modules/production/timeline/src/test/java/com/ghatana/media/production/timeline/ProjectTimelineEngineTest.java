@@ -50,6 +50,26 @@ class ProjectTimelineEngineTest {
 
         assertThatThrownBy(() -> engine.requireCurrentSources(OWNER, projectId, edited.revisionId(), ignored -> false))
                 .isInstanceOf(SourceEligibilityException.class);
+        assertThatThrownBy(() -> engine.requireCurrentSources(OWNER, projectId, edited.revisionId(),
+                (SourceEligibilityPort) (actor, source) -> SourceEligibility.REVOKED))
+                .isInstanceOf(SourceEligibilityException.class)
+                .satisfies(error -> assertThat(((SourceEligibilityException) error).observed())
+                        .isEqualTo(SourceEligibility.REVOKED));
+        assertThatThrownBy(() -> engine.requireCurrentSources(OWNER, projectId, edited.revisionId(),
+                (SourceEligibilityPort) (actor, source) -> null))
+                .isInstanceOf(SourceEligibilityException.class)
+                .satisfies(error -> assertThat(((SourceEligibilityException) error).observed())
+                        .isEqualTo(SourceEligibility.UNKNOWN));
+        assertThatThrownBy(() -> engine.requireCurrentSources(OWNER, projectId, edited.revisionId(),
+                (SourceEligibilityPort) null))
+                .isInstanceOf(SourceEligibilityException.class)
+                .satisfies(error -> assertThat(((SourceEligibilityException) error).observed())
+                        .isEqualTo(SourceEligibility.UNKNOWN));
+        engine.requireCurrentSources(OWNER, projectId, edited.revisionId(), (actor, source) -> {
+            assertThat(actor).isEqualTo(OWNER);
+            assertThat(source).isEqualTo(new SourceVersion("artifact-1", "version-7"));
+            return SourceEligibility.ELIGIBLE;
+        });
         engine.requireCurrentSources(OWNER, projectId, edited.revisionId(), source ->
                 source.artifactId().equals("artifact-1") && source.artifactVersionId().equals("version-7"));
 
@@ -115,6 +135,21 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void storeRejectsChangingTimelineIdentityAcrossRevisions() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        AtomicInteger id = new AtomicInteger();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store, () -> "id-" + id.incrementAndGet());
+        Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-timeline-id");
+
+        assertThatThrownBy(() -> store.commit(OWNER, created.project().projectId(),
+                created.initialRevision().revisionId(), "revision-new", Graph.empty("different-timeline")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("timeline identity is immutable");
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId())
+                .isEqualTo(created.initialRevision().revisionId());
+    }
+
+    @Test
     void emptyEditDoesNotCreateARevision() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-6");
@@ -125,6 +160,20 @@ class ProjectTimelineEngineTest {
                 .hasMessageContaining("at least one operation");
         assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId())
                 .isEqualTo(created.initialRevision().revisionId());
+    }
+
+    @Test
+    void missingDurableAuthorityFailsClosedWithTypedNotAdmittedResult() {
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(new NotAdmittedProjectTimelineStore());
+
+        assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-a", "Cut", "create-unavailable"))
+                .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class)
+                .satisfies(error -> {
+                    var unavailable = (com.ghatana.media.runtime.MediaCapabilityNotAdmittedException) error;
+                    assertThat(unavailable.reason())
+                            .isEqualTo(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED);
+                    assertThat(unavailable.modality()).isEqualTo("PROJECT_TIMELINE_STORE");
+                });
     }
 
     private static Runnable command(ProjectTimelineEngine engine, Created created, String sceneId,

@@ -22,7 +22,7 @@ public final class FileInvocationLedgerClaimWorker {
         Path directory = Path.of(args[0]);
         String invocationId = args[1];
         String fingerprint = args[2];
-        FileInvocationLedger ledger = new FileInvocationLedger(directory);
+        FileInvocationLedger ledger = FileInvocationLedgerTest.ledger(directory);
         RequestIdentity identity = new RequestIdentity("stt", "1.0.0", "caller-agent",
                 "rel-1", "tenant-1", ToolActionClass.CALL_EXTERNAL, "1.0", fingerprint, true);
         ClaimResult result = ledger.claim(

@@ -13,6 +13,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -27,6 +29,11 @@ import java.util.HexFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,6 +92,112 @@ class MediaUploadChunkLostAckRecoveryTest {
         } finally {
             deleteBucket(bucket);
         }
+    }
+
+    @Test
+    void retryCannotCommitChunkWhileLostAckCleanupCanStillDeleteItsObject() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-upload-lost-ack-race-" + runId;
+        String prefix = "upload-lost-ack-race/" + runId;
+        String tenant = "tenant-upload-lost-ack-race-" + runId;
+        String principal = "principal-upload-lost-ack-race-" + runId;
+        byte[] bytes = wav(("lost-chunk-ack-race:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        String uploadId;
+        String chunkKey;
+        createBucket(bucket);
+        Map<String, String> environment = environment(bucket, prefix);
+        AtomicBoolean loseAcknowledgement = new AtomicBoolean(true);
+        CountDownLatch cleanupEntered = new CountDownLatch(1);
+        CountDownLatch releaseCleanup = new CountDownLatch(1);
+        CountDownLatch retryStarted = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(
+                     environment, delegate -> losePutAcknowledgementAndPauseCleanup(
+                             delegate, loseAcknowledgement, bucket, cleanupEntered, releaseCleanup));
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            var upload = store.begin(new UploadRequest(tenant, principal, "source.wav", "audio/wav",
+                    bytes.length, digest, "RESTRICTED", Duration.ofDays(7), Map.of()),
+                    "upload-lost-ack-race-" + runId);
+            uploadId = upload.uploadId();
+            chunkKey = prefix + "/uploads/" + opaque(tenant) + "/" + uploadId + "/chunks/0";
+
+            Future<Boolean> firstAppend = executor.submit(() -> {
+                try {
+                    store.append(tenant, principal, uploadId, 0, bytes);
+                    return false;
+                } catch (S3Exception expectedLostAcknowledgement) {
+                    return expectedLostAcknowledgement.getMessage().contains(
+                            "injected lost S3 PutObject acknowledgement");
+                }
+            });
+            assertThat(cleanupEntered.await(10, TimeUnit.SECONDS))
+                    .as("first append reaches orphan cleanup after its PG transaction rolls back")
+                    .isTrue();
+
+            Future<?> retry = executor.submit(() -> {
+                retryStarted.countDown();
+                return store.append(tenant, principal, uploadId, 0, bytes);
+            });
+            assertThat(retryStarted.await(10, TimeUnit.SECONDS)).isTrue();
+            // Give the retry a bounded window to contend on the durable upload row. The
+            // reconciler must keep that row locked through DELETE; otherwise this read can
+            // observe a committed manifest while cleanup is still paused.
+            Thread.sleep(200);
+            assertThat(store.upload(tenant, uploadId).orElseThrow().nextChunkIndex())
+                    .as("a retry cannot commit the manifest until the orphan cleanup releases its lock")
+                    .isZero();
+
+            releaseCleanup.countDown();
+            assertThat(firstAppend.get(10, TimeUnit.SECONDS)).isTrue();
+            retry.get(10, TimeUnit.SECONDS);
+            assertThat(store.upload(tenant, uploadId).orElseThrow().nextChunkIndex()).isEqualTo(1);
+            assertThat(chunkRowCount(tenant, uploadId)).isEqualTo(1);
+            assertThat(s3Object(bucket, chunkKey)).containsExactly(bytes);
+        } finally {
+            releaseCleanup.countDown();
+            executor.shutdownNow();
+            deleteBucket(bucket);
+        }
+    }
+
+    private static S3Client losePutAcknowledgementAndPauseCleanup(
+            S3Client delegate,
+            AtomicBoolean loseAcknowledgement,
+            String bucket,
+            CountDownLatch cleanupEntered,
+            CountDownLatch releaseCleanup) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("putObject") && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof PutObjectRequest request
+                            && bucket.equals(request.bucket()) && request.key().contains("/chunks/0")) {
+                        try {
+                            Object response = method.invoke(delegate, arguments);
+                            if (loseAcknowledgement.compareAndSet(true, false)) {
+                                throw S3Exception.builder().statusCode(503)
+                                        .message("injected lost S3 PutObject acknowledgement").build();
+                            }
+                            return response;
+                        } catch (InvocationTargetException failure) {
+                            throw failure.getCause();
+                        }
+                    }
+                    if (method.getName().equals("deleteObject") && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof DeleteObjectRequest request
+                            && bucket.equals(request.bucket()) && request.key().contains("/chunks/0")) {
+                        cleanupEntered.countDown();
+                        if (!releaseCleanup.await(10, TimeUnit.SECONDS)) {
+                            throw new IllegalStateException("timed out waiting to resume orphan cleanup");
+                        }
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
     }
 
     private static S3Client losePutAcknowledgement(
@@ -155,6 +268,12 @@ class MediaUploadChunkLostAckRecoveryTest {
         } catch (S3Exception missing) {
             if (missing.statusCode() == 404) return false;
             throw missing;
+        }
+    }
+
+    private static byte[] s3Object(String bucket, String key) {
+        try (S3Client s3 = s3Client()) {
+            return s3.getObjectAsBytes(GetObjectRequest.builder().bucket(bucket).key(key).build()).asByteArray();
         }
     }
 

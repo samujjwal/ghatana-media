@@ -1,8 +1,16 @@
 package com.ghatana.media.production.spatial;
 
 import java.math.BigInteger;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +23,11 @@ public final class SpatialRigEngine {
     public static final int MAX_TRACKS_PER_BONE = 256;
     public static final int MAX_SOURCE_VERSIONS = 256;
     public static final int MAX_DEPTH = 64;
+    public static final int MAX_GLB_BYTES = 16 * 1024 * 1024;
     public static final double MAX_POSITION = 1_000_000.0;
+    /** Explicit local export profile; not a canonical PDP unit identity. */
+    public static final String GLB_METRE_UNIT_REF = "urn:media:spatial:unit:metre:v1";
+    public static final String GLB_QUATERNION_UNIT_REF = "urn:media:spatial:orientation:unit-quaternion-xyzw:v1";
     private static final double EPSILON = 1e-10;
 
     public enum Handedness { RIGHT_HANDED, LEFT_HANDED }
@@ -27,8 +39,12 @@ public final class SpatialRigEngine {
     }
     public enum TransformOperation { REEXPRESS_SIGNED_ORTHONORMAL_AXES }
     public enum JointKind { BALL }
+    public enum RightsOutcome { ELIGIBLE, REVOKED, UNKNOWN }
     @FunctionalInterface public interface ExactFrameResolver {
         CoordinateFrame resolve(String frameRef, String frameVersionRef);
+    }
+    @FunctionalInterface public interface SourceRightsPort {
+        RightsOutcome current(SourceVersionRef exactSourceVersion);
     }
 
     public record Vec3(double x, double y, double z) {
@@ -181,7 +197,13 @@ public final class SpatialRigEngine {
         public PoseKeyframe { Objects.requireNonNull(time, "time"); Objects.requireNonNull(localPose, "localPose"); }
     }
     public record Rig(String id, CoordinateFrame coordinateFrame, String orientationRepresentation,
-            List<SourceVersionRef> sourceVersions, List<Bone> bones, Map<String, List<PoseKeyframe>> tracks) {
+            List<SourceVersionRef> sourceVersions, List<Bone> bones, Map<String, List<PoseKeyframe>> tracks,
+            String sourceProjectRevisionRef) {
+        public Rig(String id, CoordinateFrame coordinateFrame, String orientationRepresentation,
+                List<SourceVersionRef> sourceVersions, List<Bone> bones, Map<String, List<PoseKeyframe>> tracks) {
+            this(id, coordinateFrame, orientationRepresentation, sourceVersions, bones, tracks, null);
+        }
+
         public Rig {
             id = required(id, "rig.id"); Objects.requireNonNull(coordinateFrame, "coordinateFrame");
             if (!"UNIT_QUATERNION_XYZW".equals(orientationRepresentation)) throw new IllegalArgumentException("orientation representation must be explicit UNIT_QUATERNION_XYZW");
@@ -206,15 +228,49 @@ public final class SpatialRigEngine {
                 copied.put(boneId, track);
             });
             tracks = Map.copyOf(copied);
+            sourceProjectRevisionRef = sourceProjectRevisionRef == null ? null
+                    : required(sourceProjectRevisionRef, "sourceProjectRevisionRef");
             validateHierarchy(bones);
         }
     }
     public record WorldPose(Vec3 position, Quaternion orientation) { }
     public record PoseResult(String rigId, String frameRef, String frameVersionRef, RationalTime sampleTime,
-            Map<String, WorldPose> bones, String outputScope, boolean encodedSpatialOutputAvailable) {
-        public PoseResult { bones = java.util.Collections.unmodifiableMap(new TreeMap<>(bones)); }
+            Map<String, WorldPose> bones, String outputScope, boolean encodedSpatialOutputAvailable,
+            String sourceProjectRevisionRef, List<SourceVersionRef> sourceVersions) {
+        public PoseResult(String rigId, String frameRef, String frameVersionRef, RationalTime sampleTime,
+                Map<String, WorldPose> bones, String outputScope, boolean encodedSpatialOutputAvailable) {
+            this(rigId, frameRef, frameVersionRef, sampleTime, bones, outputScope,
+                    encodedSpatialOutputAvailable, null, List.of());
+        }
+        public PoseResult {
+            bones = java.util.Collections.unmodifiableMap(new TreeMap<>(bones));
+            sourceProjectRevisionRef = sourceProjectRevisionRef == null ? null
+                    : required(sourceProjectRevisionRef, "sourceProjectRevisionRef");
+            sourceVersions = List.copyOf(sourceVersions);
+        }
     }
     public record ProjectedPoint(double xPixels, double yPixels, double depth) { }
+    /** Decodable GLB 2.0 skeleton/animation candidate, bound to one source project revision. */
+    public record GlbArtifact(String rigId, String sourceProjectRevisionRef, String frameRef,
+            String frameVersionRef, List<SourceVersionRef> sourceVersions, String mimeType,
+            String timeEncoding, String lossDisposition, String sha256, byte[] bytes) {
+        public GlbArtifact {
+            rigId = required(rigId, "rigId");
+            sourceProjectRevisionRef = required(sourceProjectRevisionRef, "sourceProjectRevisionRef");
+            frameRef = required(frameRef, "frameRef"); frameVersionRef = required(frameVersionRef, "frameVersionRef");
+            sourceVersions = List.copyOf(sourceVersions);
+            if (!"model/gltf-binary".equals(mimeType) || !"FLOAT32_SECONDS".equals(timeEncoding)
+                    || !"FLOAT32_APPROXIMATION".equals(lossDisposition)) {
+                throw new IllegalArgumentException("GLB artifact metadata does not match the bounded export profile");
+            }
+            Objects.requireNonNull(bytes, "bytes"); bytes = bytes.clone();
+            sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
+            if (!sha256.matches("^[a-f0-9]{64}$") || !SpatialRigEngine.sha256(bytes).equals(sha256)) {
+                throw new IllegalArgumentException("GLB artifact SHA-256 does not match its bytes");
+            }
+        }
+        @Override public byte[] bytes() { return bytes.clone(); }
+    }
     public record PerspectiveCamera(CoordinateFrame coordinateFrame, Vec3 position, Quaternion orientation,
             double verticalFovRadians, double nearPlane, double farPlane, int width, int height) {
         public PerspectiveCamera {
@@ -226,7 +282,25 @@ public final class SpatialRigEngine {
     }
 
     public static final class SourceRightsDeniedException extends RuntimeException {
-        public SourceRightsDeniedException() { super("one or more exact spatial source versions are not currently eligible"); }
+        private final RightsOutcome outcome;
+        public SourceRightsDeniedException() { this(RightsOutcome.UNKNOWN); }
+        public SourceRightsDeniedException(RightsOutcome outcome) {
+            super("one or more exact spatial source versions are not currently eligible: " + outcome);
+            this.outcome = Objects.requireNonNull(outcome, "outcome");
+            if (outcome == RightsOutcome.ELIGIBLE) throw new IllegalArgumentException("eligible is not a denial outcome");
+        }
+        public RightsOutcome outcome() { return outcome; }
+    }
+
+    public enum ExportBlocker { PROJECT_REVISION_MISSING, COORDINATE_PROFILE_UNSUPPORTED, MOTION_CONSTRAINT_INVALID,
+        NON_MONOTONIC_FLOAT_TIME, OUTPUT_TOO_LARGE }
+    public static final class SpatialExportBlockedException extends IllegalStateException {
+        private final ExportBlocker blocker;
+        public SpatialExportBlockedException(ExportBlocker blocker) {
+            super("spatial GLB export blocked: " + Objects.requireNonNull(blocker, "blocker"));
+            this.blocker = blocker;
+        }
+        public ExportBlocker blocker() { return blocker; }
     }
 
     public Vec3 reexpressPoint(Vec3 point, TransformDeclaration declaration, ExactFrameResolver exactFrames) {
@@ -242,13 +316,101 @@ public final class SpatialRigEngine {
     }
 
     public PoseResult evaluate(Rig rig, RationalTime time, Predicate<SourceVersionRef> currentlyEligible) {
-        Objects.requireNonNull(rig, "rig"); Objects.requireNonNull(time, "time"); Objects.requireNonNull(currentlyEligible, "currentlyEligible");
-        for (SourceVersionRef source : rig.sourceVersions()) if (!currentlyEligible.test(source)) throw new SourceRightsDeniedException();
+        Objects.requireNonNull(rig, "rig"); Objects.requireNonNull(time, "time");
+        if (currentlyEligible == null && !rig.sourceVersions().isEmpty()) {
+            throw new SourceRightsDeniedException(RightsOutcome.UNKNOWN);
+        }
+        for (SourceVersionRef source : rig.sourceVersions()) {
+            final boolean allowed;
+            try { allowed = currentlyEligible.test(source); }
+            catch (RuntimeException unavailable) { throw new SourceRightsDeniedException(RightsOutcome.UNKNOWN); }
+            if (!allowed) throw new SourceRightsDeniedException(RightsOutcome.REVOKED);
+        }
         Map<String, Bone> byId = new HashMap<>(); rig.bones().forEach(bone -> byId.put(bone.id(), bone));
         Map<String, WorldPose> worlds = new HashMap<>();
         for (Bone bone : rig.bones()) evaluateBone(bone, byId, rig.tracks(), time, worlds, 0);
         return new PoseResult(rig.id(), rig.coordinateFrame().frameRef(), rig.coordinateFrame().frameVersionRef(), time,
-                worlds, "POSE_ONLY", false);
+                worlds, "POSE_ONLY", false, rig.sourceProjectRevisionRef(), rig.sourceVersions());
+    }
+
+    /** Typed authority overload; absent, failing or unknown rights never authorize a pose read. */
+    public PoseResult evaluateWithAuthority(Rig rig, RationalTime time, SourceRightsPort authority) {
+        Objects.requireNonNull(rig, "rig"); Objects.requireNonNull(time, "time");
+        requireSourceRights(rig, authority);
+        return evaluate(rig, time, (Predicate<SourceVersionRef>) source -> true);
+    }
+
+    /** Exports a bounded, portable GLB skeleton animation; no third-party renderer/provider is invoked. */
+    public GlbArtifact exportGlb(Rig rig, SourceRightsPort authority) {
+        Objects.requireNonNull(rig, "rig");
+        requireSourceRights(rig, authority);
+        if (rig.sourceProjectRevisionRef() == null) {
+            throw new SpatialExportBlockedException(ExportBlocker.PROJECT_REVISION_MISSING);
+        }
+        CoordinateFrame frame = rig.coordinateFrame();
+        if (frame.handedness() != Handedness.RIGHT_HANDED
+                || frame.xAxis() != AxisDirection.POS_X || frame.yAxis() != AxisDirection.POS_Y
+                || frame.zAxis() != AxisDirection.POS_Z
+                || !GLB_METRE_UNIT_REF.equals(frame.positionUnitRef())
+                || !GLB_QUATERNION_UNIT_REF.equals(frame.orientationUnitRef())) {
+            throw new SpatialExportBlockedException(ExportBlocker.COORDINATE_PROFILE_UNSUPPORTED);
+        }
+        validateRigMotion(rig);
+        byte[] bytes = encodeGlb(rig);
+        if (bytes.length > MAX_GLB_BYTES) throw new SpatialExportBlockedException(ExportBlocker.OUTPUT_TOO_LARGE);
+        return new GlbArtifact(rig.id(), rig.sourceProjectRevisionRef(), frame.frameRef(), frame.frameVersionRef(),
+                rig.sourceVersions().stream().sorted(Comparator.comparing(SourceVersionRef::tenantId)
+                        .thenComparing(SourceVersionRef::artifactId).thenComparing(SourceVersionRef::versionId)).toList(),
+                "model/gltf-binary", "FLOAT32_SECONDS", "FLOAT32_APPROXIMATION", sha256(bytes), bytes);
+    }
+
+    private static void requireSourceRights(Rig rig, SourceRightsPort authority) {
+        if (rig.sourceVersions().isEmpty()) return;
+        if (authority == null) throw new SourceRightsDeniedException(RightsOutcome.UNKNOWN);
+        for (SourceVersionRef source : rig.sourceVersions()) {
+            final RightsOutcome outcome;
+            try { outcome = authority.current(source); }
+            catch (RuntimeException unavailable) { throw new SourceRightsDeniedException(RightsOutcome.UNKNOWN); }
+            if (outcome != RightsOutcome.ELIGIBLE) {
+                throw new SourceRightsDeniedException(outcome == null ? RightsOutcome.UNKNOWN : outcome);
+            }
+        }
+    }
+
+    private static void validateRigMotion(Rig rig) {
+        Map<String, Bone> byId = new HashMap<>(); rig.bones().forEach(bone -> byId.put(bone.id(), bone));
+        for (Map.Entry<String, List<PoseKeyframe>> entry : rig.tracks().entrySet()) {
+            Bone bone = byId.get(entry.getKey());
+            List<PoseKeyframe> track = entry.getValue();
+            float previousSeconds = -1;
+            for (int index = 0; index < track.size(); index++) {
+                PoseKeyframe key = track.get(index);
+                requireJointConstraint(bone, key.localPose());
+                float currentSeconds = checkFloatTime(key.time());
+                if (index > 0 && currentSeconds <= previousSeconds) {
+                    throw new SpatialExportBlockedException(ExportBlocker.NON_MONOTONIC_FLOAT_TIME);
+                }
+                previousSeconds = currentSeconds;
+                if (index + 1 < track.size()) {
+                    LocalTransform left = key.localPose(), right = track.get(index + 1).localPose();
+                    requireJointConstraint(bone, new LocalTransform(left.position().scale(0.5)
+                            .add(right.position().scale(0.5)), left.orientation().slerp(right.orientation(), 0.5)));
+                }
+            }
+        }
+    }
+
+    private static void requireJointConstraint(Bone bone, LocalTransform pose) {
+        double deviation = bone.restPose().orientation().angularDistance(pose.orientation());
+        if (deviation > bone.constraint().maxAngularDeviationRadians() + EPSILON) {
+            throw new SpatialExportBlockedException(ExportBlocker.MOTION_CONSTRAINT_INVALID);
+        }
+    }
+
+    private static float checkFloatTime(RationalTime time) {
+        float seconds = (float) ((double) time.numerator().longValueExact() / time.denominator().longValueExact());
+        if (!Float.isFinite(seconds)) throw new SpatialExportBlockedException(ExportBlocker.NON_MONOTONIC_FLOAT_TIME);
+        return seconds;
     }
 
     /** Projects a point into the explicitly bounded camera profile (camera looks along local -Z). */
@@ -262,6 +424,189 @@ public final class SpatialRigEngine {
         double focal = camera.height() / (2.0 * Math.tan(camera.verticalFovRadians() / 2.0));
         return new ProjectedPoint(camera.width() / 2.0 + focal * local.x() / depth,
                 camera.height() / 2.0 - focal * local.y() / depth, depth);
+    }
+
+    private static byte[] encodeGlb(Rig rig) {
+        List<Bone> bones = rig.bones().stream().sorted(Comparator.comparing(Bone::id)).toList();
+        Map<String, Integer> nodeIndex = new HashMap<>();
+        for (int index = 0; index < bones.size(); index++) nodeIndex.put(bones.get(index).id(), index);
+        ByteArrayOutputStream binary = new ByteArrayOutputStream();
+        ArrayList<String> bufferViews = new ArrayList<>();
+        ArrayList<String> accessors = new ArrayList<>();
+        ArrayList<String> samplers = new ArrayList<>();
+        ArrayList<String> channels = new ArrayList<>();
+
+        rig.tracks().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+            List<PoseKeyframe> track = entry.getValue();
+            if (track.isEmpty()) return;
+            int input = addTimeAccessor(track, binary, bufferViews, accessors);
+            int translation = addVec3Accessor(track, false, binary, bufferViews, accessors);
+            int rotation = addVec3Accessor(track, true, binary, bufferViews, accessors);
+            int node = nodeIndex.get(entry.getKey());
+            int translationSampler = samplers.size();
+            samplers.add("{\"input\":" + input + ",\"output\":" + translation + ",\"interpolation\":\"LINEAR\"}");
+            channels.add("{\"sampler\":" + translationSampler + ",\"target\":{\"node\":" + node + ",\"path\":\"translation\"}}");
+            int rotationSampler = samplers.size();
+            samplers.add("{\"input\":" + input + ",\"output\":" + rotation + ",\"interpolation\":\"LINEAR\"}");
+            channels.add("{\"sampler\":" + rotationSampler + ",\"target\":{\"node\":" + node + ",\"path\":\"rotation\"}}");
+        });
+
+        ArrayList<String> nodes = new ArrayList<>();
+        for (Bone bone : bones) {
+            LocalTransform rest = bone.restPose();
+            String children = bones.stream().filter(candidate -> bone.id().equals(candidate.parentId()))
+                    .map(candidate -> Integer.toString(nodeIndex.get(candidate.id()))).collect(java.util.stream.Collectors.joining(","));
+            nodes.add("{\"name\":" + json(bone.id()) + ",\"translation\":[" + rest.position().x() + ","
+                    + rest.position().y() + "," + rest.position().z() + "],\"rotation\":["
+                    + rest.orientation().x() + "," + rest.orientation().y() + "," + rest.orientation().z() + ","
+                    + rest.orientation().w() + "],\"extras\":{\"jointKind\":" + json(bone.constraint().kind().name())
+                    + ",\"maxAngularDeviationRadians\":" + bone.constraint().maxAngularDeviationRadians() + "}"
+                    + (children.isEmpty() ? "" : ",\"children\":[" + children + "]") + "}");
+        }
+        String roots = bones.stream().filter(bone -> bone.parentId() == null)
+                .map(bone -> Integer.toString(nodeIndex.get(bone.id()))).collect(java.util.stream.Collectors.joining(","));
+        StringBuilder document = new StringBuilder(16_384);
+        document.append("{\"asset\":{\"version\":\"2.0\",\"generator\":\"Ghatana Media bounded spatial rig\"},")
+                .append("\"scene\":0,\"scenes\":[{\"nodes\":[").append(roots).append("]}],\"nodes\":[")
+                .append(String.join(",", nodes)).append(']');
+        if (!channels.isEmpty()) {
+            document.append(",\"animations\":[{\"name\":\"rig-motion\",\"samplers\":[")
+                    .append(String.join(",", samplers)).append("],\"channels\":[")
+                    .append(String.join(",", channels)).append("]}]");
+        }
+        if (binary.size() > 0) {
+            document.append(",\"buffers\":[{\"byteLength\":").append(binary.size()).append("}],\"bufferViews\":[")
+                    .append(String.join(",", bufferViews)).append("],\"accessors\":[")
+                    .append(String.join(",", accessors)).append(']');
+        }
+        appendSpatialMetadata(document, rig);
+        document.append('}');
+        return glb(document.toString(), binary.toByteArray());
+    }
+
+    private static int addTimeAccessor(List<PoseKeyframe> track, ByteArrayOutputStream binary,
+            List<String> views, List<String> accessors) {
+        float[] values = new float[track.size()];
+        for (int index = 0; index < track.size(); index++) values[index] = checkFloatTime(track.get(index).time());
+        int accessor = addFloatAccessor(values, 1, track.size(), binary, views, accessors,
+                ",\"min\":[" + values[0] + "],\"max\":[" + values[values.length - 1] + "]");
+        return accessor;
+    }
+
+    private static int addVec3Accessor(List<PoseKeyframe> track, boolean rotation, ByteArrayOutputStream binary,
+            List<String> views, List<String> accessors) {
+        int components = rotation ? 4 : 3;
+        float[] values = new float[track.size() * components];
+        for (int index = 0; index < track.size(); index++) {
+            LocalTransform pose = track.get(index).localPose();
+            int offset = index * components;
+            if (rotation) {
+                values[offset] = (float) pose.orientation().x(); values[offset + 1] = (float) pose.orientation().y();
+                values[offset + 2] = (float) pose.orientation().z(); values[offset + 3] = (float) pose.orientation().w();
+            } else {
+                values[offset] = (float) pose.position().x(); values[offset + 1] = (float) pose.position().y();
+                values[offset + 2] = (float) pose.position().z();
+            }
+        }
+        return addFloatAccessor(values, components, track.size(), binary, views, accessors, "");
+    }
+
+    private static int addFloatAccessor(float[] values, int components, int count, ByteArrayOutputStream binary,
+            List<String> views, List<String> accessors, String extraFields) {
+        int byteOffset = binary.size();
+        for (float value : values) {
+            if (!Float.isFinite(value)) throw new SpatialExportBlockedException(ExportBlocker.NON_MONOTONIC_FLOAT_TIME);
+            writeFloat(binary, value);
+        }
+        int viewIndex = views.size();
+        views.add("{\"buffer\":0,\"byteOffset\":" + byteOffset + ",\"byteLength\":" + (values.length * 4) + "}");
+        int accessorIndex = accessors.size();
+        String type = switch (components) { case 1 -> "SCALAR"; case 3 -> "VEC3"; case 4 -> "VEC4"; default -> throw new IllegalArgumentException("unsupported accessor width"); };
+        accessors.add("{\"bufferView\":" + viewIndex + ",\"componentType\":5126,\"count\":" + count
+                + ",\"type\":" + json(type) + extraFields + "}");
+        return accessorIndex;
+    }
+
+    private static void appendSpatialMetadata(StringBuilder json, Rig rig) {
+        CoordinateFrame frame = rig.coordinateFrame();
+        json.append(",\"extras\":{\"mediaSpatial\":{\"rigId\":").append(json(rig.id()))
+                .append(",\"sourceProjectRevisionRef\":").append(json(rig.sourceProjectRevisionRef()))
+                .append(",\"frameRef\":").append(json(frame.frameRef()))
+                .append(",\"frameVersionRef\":").append(json(frame.frameVersionRef()))
+                .append(",\"handedness\":").append(json(frame.handedness().name()))
+                .append(",\"axisDirections\":[").append(json(frame.xAxis().name())).append(',')
+                .append(json(frame.yAxis().name())).append(',').append(json(frame.zAxis().name())).append(']')
+                .append(",\"positionUnitRef\":").append(json(frame.positionUnitRef()))
+                .append(",\"orientationUnitRef\":").append(json(frame.orientationUnitRef()))
+                .append(",\"timeEncoding\":\"FLOAT32_SECONDS\",\"lossDisposition\":\"FLOAT32_APPROXIMATION\",\"sourceVersions\":[");
+        List<SourceVersionRef> sources = rig.sourceVersions().stream().sorted(Comparator.comparing(SourceVersionRef::tenantId)
+                .thenComparing(SourceVersionRef::artifactId).thenComparing(SourceVersionRef::versionId)).toList();
+        for (int index = 0; index < sources.size(); index++) {
+            SourceVersionRef source = sources.get(index);
+            if (index > 0) json.append(',');
+            json.append("{\"tenantId\":").append(json(source.tenantId())).append(",\"artifactId\":")
+                    .append(json(source.artifactId())).append(",\"versionId\":").append(json(source.versionId())).append('}');
+        }
+        json.append("],\"exactKeyframeTimes\":[");
+        List<Map.Entry<String, List<PoseKeyframe>>> tracks = rig.tracks().entrySet().stream()
+                .filter(entry -> !entry.getValue().isEmpty()).sorted(Map.Entry.comparingByKey()).toList();
+        for (int trackIndex = 0; trackIndex < tracks.size(); trackIndex++) {
+            if (trackIndex > 0) json.append(',');
+            Map.Entry<String, List<PoseKeyframe>> entry = tracks.get(trackIndex);
+            json.append("{\"boneId\":").append(json(entry.getKey())).append(",\"times\":[");
+            for (int keyIndex = 0; keyIndex < entry.getValue().size(); keyIndex++) {
+                if (keyIndex > 0) json.append(',');
+                RationalTime time = entry.getValue().get(keyIndex).time();
+                json.append('[').append(json(time.numerator().toString())).append(',')
+                        .append(json(time.denominator().toString())).append(']');
+            }
+            json.append("]}");
+        }
+        json.append("]}}");
+    }
+
+    private static byte[] glb(String jsonDocument, byte[] binaryData) {
+        byte[] jsonBytes = jsonDocument.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        int jsonLength = (jsonBytes.length + 3) & ~3;
+        int binaryLength = binaryData.length == 0 ? 0 : (binaryData.length + 3) & ~3;
+        int chunkCount = binaryData.length == 0 ? 1 : 2;
+        long total = 12L + 8 + jsonLength + (binaryData.length == 0 ? 0 : 8L + binaryLength);
+        if (total > MAX_GLB_BYTES) throw new SpatialExportBlockedException(ExportBlocker.OUTPUT_TOO_LARGE);
+        ByteBuffer output = ByteBuffer.allocate((int) total).order(ByteOrder.LITTLE_ENDIAN);
+        output.putInt(0x46546c67).putInt(2).putInt((int) total);
+        output.putInt(jsonLength).putInt(0x4e4f534a).put(jsonBytes);
+        while (output.position() % 4 != 0) output.put((byte) 0x20);
+        if (chunkCount == 2) {
+            output.putInt(binaryLength).putInt(0x004e4942).put(binaryData);
+            while (output.position() % 4 != 0) output.put((byte) 0);
+        }
+        return output.array();
+    }
+
+    private static void writeFloat(ByteArrayOutputStream output, float value) {
+        int bits = Float.floatToIntBits(value);
+        output.write(bits & 0xff); output.write((bits >>> 8) & 0xff);
+        output.write((bits >>> 16) & 0xff); output.write((bits >>> 24) & 0xff);
+    }
+
+    private static String json(String value) {
+        StringBuilder escaped = new StringBuilder(value.length() + 2).append('"');
+        for (int index = 0; index < value.length(); index++) {
+            char ch = value.charAt(index);
+            switch (ch) {
+                case '"' -> escaped.append("\\\""); case '\\' -> escaped.append("\\\\");
+                case '\b' -> escaped.append("\\b"); case '\f' -> escaped.append("\\f");
+                case '\n' -> escaped.append("\\n"); case '\r' -> escaped.append("\\r");
+                case '\t' -> escaped.append("\\t");
+                default -> { if (ch < 0x20) escaped.append(String.format("\\u%04x", (int) ch)); else escaped.append(ch); }
+            }
+        }
+        return escaped.append('"').toString();
+    }
+
+    private static String sha256(byte[] bytes) {
+        try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
+        catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 
     private static void evaluateBone(Bone bone, Map<String, Bone> byId, Map<String, List<PoseKeyframe>> tracks,

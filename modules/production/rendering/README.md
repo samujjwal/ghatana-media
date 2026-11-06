@@ -1,17 +1,28 @@
 # Bounded video frame restoration
 
-This module implements one local candidate operation: temporal median denoising
-over host decoded, 8-bit RGB frames for the exact `media.enhance.video.temporal-denoise`
-capability. It requires an explicit source artifact id, exact version and SHA-256,
-purpose, policy decision, and rights evidence. A host supplied rights authority is
-checked before reading source pixels and again before returning a candidate. The
-frame source must return bytes for that exact version; this module verifies the
-frame set's identity, order, rational PTS, ROI, frame digests, and size limits.
+This module implements bounded local candidate filters over host decoded, 8-bit
+RGB frames: temporal median denoising, opt-in ROI unsharp mask, and caller-tuned
+per-channel RGB gain/offset. It requires an explicit source artifact id, exact
+version and SHA-256, purpose, policy decision, and rights evidence. A host supplied
+rights authority is checked before reading source pixels, before reference access,
+and again before returning a candidate. Each filter uses an exact operation id;
+unsharp/color parameters carry a caller version and content-derived SHA-256 in
+candidate lineage. The frame source must return bytes for that exact version; this
+module verifies frame identity, order, rational PTS, ROI, frame digests, and size
+limits.
 
-The algorithm uses a three-frame per-channel median and preserves all input
-frame dimensions, ordering, timestamps, time base, and ROI. Pixels outside the
-explicit ROI are copied unchanged. The operation emits an immutable decoded RGB
-candidate plus exact lineage and a content digest. It does not create or mutate a
+The temporal median uses a three-frame per-channel median. Unsharp mask uses a
+3x3 RGB box mean with edges clamped within the ROI, then computes
+`round-half-up(original + amount * (original - blur))`; amount is finite and
+bounded to `[0,2]`. RGB adjustment computes
+`round-half-up(sample * channelGain + channelOffset)`; gains are finite in
+`[0,4]`, offsets are in `[-255,255]`. Both local filters clamp output channels
+to `[0,255]`. All operations preserve input dimensions, ordering, PTS, rational
+time base, exact source version, and pixels outside the explicit ROI. The
+operation emits an immutable decoded RGB candidate plus exact lineage and a
+content digest. `clippedSamples` counts output channel samples whose rounded
+pre-clamp value fell outside `[0,255]`; `sourceDelta` reports the observed
+source/candidate sample change separately. It does not create or mutate a
 canonical Media artifact or job.
 
 Each result includes a source-versus-candidate RGB sample delta (changed sample
@@ -28,9 +39,17 @@ such instead of serializing infinite PSNR.
 
 This is a frame-processing SPI, not a video decoder, motion compensator, codec,
 container muxer, upload path, runtime endpoint, or qualified restoration
-provider. Motion can create temporal artifacts; callers must inspect the
-candidate. Deblur, color reconstruction, super-resolution, and unsupported
-profiles remain unavailable. No output is claimed to be playable video.
+provider. Temporal median may create motion artifacts; unsharp mask may amplify
+noise or halos; RGB adjustment is a deterministic arithmetic transform, not
+automatic color correction. No filter claims subjective improvement. An
+independently authorized aligned reference can produce measured candidate-vs-
+reference metrics; these filters do not claim improvement from that comparison
+alone.
+Blur-kernel estimation, deblur, automatic color reconstruction, super-resolution,
+and unsupported profiles remain unavailable. No output is claimed to be playable
+video. Reference metrics are emitted only after a separate exact reference
+version is authorized and aligned; they measure candidate-vs-reference values,
+not general real-image/video quality.
 
 ## Limits
 

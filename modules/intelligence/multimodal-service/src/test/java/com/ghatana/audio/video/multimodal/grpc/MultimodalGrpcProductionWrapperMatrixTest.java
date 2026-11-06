@@ -59,6 +59,7 @@ class MultimodalGrpcProductionWrapperMatrixTest {
     private ManagedChannel channel;
     private MultimodalAnalysisEngine engine;
     private PlatformMultimodalAdapter adapter;
+    private MultimodalGrpcService service;
     private AudioVideoHealthService readiness;
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub authenticated;
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub unauthenticated;
@@ -71,7 +72,7 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         adapter = mock(PlatformMultimodalAdapter.class);
         lenient().when(adapter.backendName()).thenReturn("test-fixture-backend");
         lenient().when(adapter.metricsEnabled()).thenReturn(false);
-        MultimodalGrpcService service = new MultimodalGrpcService(engine, adapter,
+        service = new MultimodalGrpcService(engine, adapter,
                 MediaProcessingMetrics.noop(), request -> SourceAuthorization.Decision.ADMITTED,
                 fixtureExecutor());
         readiness = MultimodalGrpcServer.readinessService(service);
@@ -177,6 +178,48 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         assertUnauthenticated(() -> unauthenticated.listModels(ListModelsRequest.getDefaultInstance()));
         assertUnauthenticated(() -> unauthenticated.getStatus(StatusRequest.getDefaultInstance()));
         assertUnauthenticated(() -> unauthenticated.healthCheck(HealthCheckRequest.getDefaultInstance()));
+        verifyNoInteractions(engine, adapter);
+    }
+
+    @Test
+    void serverRestartPreservesJwtReadinessAndTypedProviderUnavailableOutcome() throws Exception {
+        assertUnavailable(() -> authenticated.loadModel(LoadModelRequest.newBuilder()
+                .setModelId("restart-probe-model").build()));
+        assertThat(authenticated.healthCheck(HealthCheckRequest.getDefaultInstance()).getHealthy()).isFalse();
+        assertUnauthenticated(() -> unauthenticated.loadModel(LoadModelRequest.newBuilder()
+                .setModelId("restart-probe-model").build()));
+
+        channel.shutdownNow();
+        server.shutdownNow();
+        readiness.close();
+
+        engine = mock(MultimodalAnalysisEngine.class);
+        adapter = mock(PlatformMultimodalAdapter.class);
+        lenient().when(adapter.backendName()).thenReturn("test-fixture-backend");
+        lenient().when(adapter.metricsEnabled()).thenReturn(false);
+        service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                request -> SourceAuthorization.Decision.ADMITTED, fixtureExecutor());
+        readiness = MultimodalGrpcServer.readinessService(service);
+        String name = InProcessServerBuilder.generateName();
+        server = InProcessServerBuilder.forName(name).directExecutor()
+                .addService(service)
+                .addService(readiness)
+                .intercept(new JwtServerInterceptor())
+                .build().start();
+        channel = InProcessChannelBuilder.forName(name).directExecutor().build();
+
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + signedJwt());
+        authenticated = MultimodalServiceGrpc.newBlockingStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+        unauthenticated = MultimodalServiceGrpc.newBlockingStub(channel);
+
+        assertUnavailable(() -> authenticated.loadModel(LoadModelRequest.newBuilder()
+                .setModelId("restart-probe-model").build()));
+        assertThat(authenticated.healthCheck(HealthCheckRequest.getDefaultInstance()).getHealthy()).isFalse();
+        assertUnauthenticated(() -> unauthenticated.loadModel(LoadModelRequest.newBuilder()
+                .setModelId("restart-probe-model").build()));
         verifyNoInteractions(engine, adapter);
     }
 

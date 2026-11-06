@@ -350,7 +350,9 @@ public final class MediaHttpHandler implements HttpHandler {
         if (!principalId.equals(request.principalId())) {
             throw new SecurityException("Job principal does not match authenticated principal");
         }
-        json(exchange, 202, runtime.projectJobView(runtime.submit(request, authenticatedPrincipal(exchange))));
+        ProcessingJob submitted = runtime.submit(request, authenticatedPrincipal(exchange));
+        operationStatusHeaders(exchange, "/api/v1/jobs/" + submitted.jobId());
+        json(exchange, 202, runtime.projectJobView(submitted));
     }
 
     private void listJobs(HttpExchange exchange, String tenantId, String principalId) throws IOException {
@@ -420,9 +422,11 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         boolean end = Boolean.parseBoolean(optionalHeader(exchange, "X-End-Of-Stream", "false"));
         byte[] payload = boundedBody(exchange, runtime.config().maximumChunkBytes(), end);
-        json(exchange, 202, runtime.acceptFrame(new StreamFrame(
+        var acknowledgement = runtime.acceptFrame(new StreamFrame(
                 tenantId, sessionId, requiredHeader(exchange, "X-Stream-Token"),
-                sequence, payload, end, Instant.now())));
+                sequence, payload, end, Instant.now()));
+        operationStatusHeaders(exchange, "/api/v1/streams/" + sessionId);
+        json(exchange, 202, acknowledgement);
     }
 
     private void closeStream(
@@ -757,6 +761,11 @@ public final class MediaHttpHandler implements HttpHandler {
         exchange.getResponseHeaders().set("Cache-Control", "no-store");
         exchange.sendResponseHeaders(status, bytes.length);
         try (var output = exchange.getResponseBody()) { output.write(bytes); }
+    }
+
+    private static void operationStatusHeaders(HttpExchange exchange, String statusPath) {
+        exchange.getResponseHeaders().set("Location", statusPath);
+        exchange.getResponseHeaders().set("Retry-After", "1");
     }
 
     private static String decode(String value) { return URLDecoder.decode(value, StandardCharsets.UTF_8); }

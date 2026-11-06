@@ -51,12 +51,24 @@ public final class MediaLifecycleEventConsumer {
                 || !redactor.redact("tenant", envelope.tenantId()).equals(event.tenantRef())) {
             throw new LifecycleEventException(Failure.INVALID_ABI, "Lifecycle envelope and payload identities do not match");
         }
-        if (!authorization.mayObserve(principal, envelope.tenantId(), event.principalRef())) {
-            throw new LifecycleEventException(Failure.FORBIDDEN, "Lifecycle observation is not authorized");
+        final boolean allowed;
+        try {
+            allowed = authorization.mayObserve(principal, envelope.tenantId(), event.principalRef());
+        } catch (RuntimeException unavailable) {
+            throw new LifecycleEventException(Failure.UNAVAILABLE, "Lifecycle authorization is unavailable");
         }
-        ProjectionDisposition disposition = Objects.requireNonNull(projectionStore.apply(
-                envelope.tenantId(), event.aggregateType(), event.aggregateRef(),
-                event.aggregateVersion(), event.eventRef()), "projection disposition");
+        if (!allowed) throw new LifecycleEventException(Failure.FORBIDDEN, "Lifecycle observation is not authorized");
+        final ProjectionDisposition disposition;
+        try {
+            disposition = Objects.requireNonNull(projectionStore.apply(
+                    envelope.tenantId(), event.aggregateType(), event.aggregateRef(),
+                    event.aggregateVersion(), event.eventRef()), "projection disposition");
+        } catch (RuntimeException uncertainApply) {
+            // The store may have committed before its response was lost. It must deduplicate eventRef
+            // atomically so a caller can safely redeliver and learn APPLIED or DUPLICATE.
+            throw new LifecycleEventException(Failure.CONSUMPTION_UNKNOWN,
+                    "Lifecycle projection outcome requires idempotent replay/readback");
+        }
         return new Observation(disposition, MediaPublicLifecycleEvent.AppendFinality.NON_FINAL_APPEND,
                 event.terminalReadbackRequired(), event.aggregateVersion());
     }
@@ -67,10 +79,19 @@ public final class MediaLifecycleEventConsumer {
         String principal = required(consumerPrincipal, "consumerPrincipal");
         String tenant = required(tenantId, "tenantId");
         String reference = required(jobRef, "jobRef");
-        if (!authorization.mayReadTerminalJob(principal, tenant, reference)) {
-            throw new LifecycleEventException(Failure.FORBIDDEN, "Terminal job readback is not authorized");
+        final boolean allowed;
+        try {
+            allowed = authorization.mayReadTerminalJob(principal, tenant, reference);
+        } catch (RuntimeException unavailable) {
+            throw new LifecycleEventException(Failure.UNAVAILABLE, "Terminal job authorization is unavailable");
         }
-        Optional<TerminalJobSnapshot> snapshot = terminalJobReadback.read(principal, tenant, reference);
+        if (!allowed) throw new LifecycleEventException(Failure.FORBIDDEN, "Terminal job readback is not authorized");
+        final Optional<TerminalJobSnapshot> snapshot;
+        try {
+            snapshot = terminalJobReadback.read(principal, tenant, reference);
+        } catch (RuntimeException unavailable) {
+            return new TerminalReadbackResult(TerminalReadbackDisposition.UNAVAILABLE, null, 0);
+        }
         if (snapshot == null || snapshot.isEmpty()) {
             return new TerminalReadbackResult(TerminalReadbackDisposition.UNAVAILABLE, null, 0);
         }
@@ -111,7 +132,7 @@ public final class MediaLifecycleEventConsumer {
 
     public enum ProjectionDisposition { APPLIED, DUPLICATE, OUT_OF_ORDER }
     public enum TerminalReadbackDisposition { TERMINAL_READBACK_CONFIRMED, NOT_TERMINAL, UNAVAILABLE }
-    public enum Failure { INVALID_ABI, FORBIDDEN }
+    public enum Failure { INVALID_ABI, FORBIDDEN, UNAVAILABLE, CONSUMPTION_UNKNOWN }
     public record Observation(ProjectionDisposition disposition,
             MediaPublicLifecycleEvent.AppendFinality appendFinality,
             boolean terminalReadbackRequired, long aggregateVersion) { }

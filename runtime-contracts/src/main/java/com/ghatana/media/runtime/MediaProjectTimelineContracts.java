@@ -10,6 +10,7 @@ public final class MediaProjectTimelineContracts {
 
     public enum Clock { SOURCE_PRESENTATION, STORY }
     public enum TrackKind { VIDEO, AUDIO, CAPTION, OVERLAY }
+    public enum SourceEligibility { ELIGIBLE, REVOKED, UNKNOWN }
 
     /** Exact non-negative time point. Rates are ticks per second and are normalized. */
     public record RationalTime(long ticks, long rateNumerator, long rateDenominator, Clock clock)
@@ -123,7 +124,7 @@ public final class MediaProjectTimelineContracts {
             unique(tracks.stream().map(Track::trackId).toList(), "trackId");
             unique(clips.stream().map(Clip::clipId).toList(), "clipId");
             unique(scenes.stream().map(Scene::order).toList(), "scene order");
-            unique(tracks.stream().map(t -> t.sceneId() + "\u0000" + t.order()).toList(), "track order within scene");
+            unique(tracks.stream().map(t -> new TrackOrder(t.sceneId(), t.order())).toList(), "track order within scene");
             java.util.Set<String> sceneIds = scenes.stream().map(Scene::sceneId).collect(java.util.stream.Collectors.toSet());
             java.util.Set<String> trackIds = tracks.stream().map(Track::trackId).collect(java.util.stream.Collectors.toSet());
             java.util.Map<String, Track> trackById = tracks.stream().collect(java.util.stream.Collectors.toMap(Track::trackId, t -> t));
@@ -136,6 +137,17 @@ public final class MediaProjectTimelineContracts {
                     throw new IllegalArgumentException("clip scene and track must belong to the same graph scene");
                 }
             }
+            java.util.Map<String, Integer> sceneOrder = scenes.stream()
+                    .collect(java.util.stream.Collectors.toMap(Scene::sceneId, Scene::order));
+            java.util.Map<String, Integer> trackOrder = tracks.stream()
+                    .collect(java.util.stream.Collectors.toMap(Track::trackId, Track::order));
+            scenes = scenes.stream().sorted(java.util.Comparator.comparingInt(Scene::order)
+                    .thenComparing(Scene::sceneId)).toList();
+            tracks = tracks.stream().sorted(java.util.Comparator.comparingInt((Track track) -> sceneOrder.get(track.sceneId()))
+                    .thenComparingInt(Track::order).thenComparing(Track::trackId)).toList();
+            clips = clips.stream().sorted(java.util.Comparator.comparingInt((Clip clip) -> sceneOrder.get(clip.sceneId()))
+                    .thenComparingInt(clip -> trackOrder.get(clip.trackId()))
+                    .thenComparing(Clip::storyStart).thenComparing(Clip::clipId)).toList();
         }
 
         public static Graph empty(String timelineId) { return new Graph(timelineId, List.of(), List.of(), List.of()); }
@@ -188,6 +200,12 @@ public final class MediaProjectTimelineContracts {
                        String newRevisionId, Graph graph);
     }
 
+    /** Host-owned live authority read. UNKNOWN or an unavailable port blocks a rights-dependent effect. */
+    @FunctionalInterface
+    public interface SourceEligibilityPort {
+        SourceEligibility current(Actor actor, SourceVersion exactSourceVersion);
+    }
+
     public static class ProjectNotFoundException extends IllegalArgumentException {
         public ProjectNotFoundException() { super("project is not available in this tenant scope"); }
     }
@@ -213,7 +231,19 @@ public final class MediaProjectTimelineContracts {
     }
 
     public static class SourceEligibilityException extends SecurityException {
-        public SourceEligibilityException() { super("one or more exact source versions are not currently eligible"); }
+        private final SourceEligibility observed;
+
+        public SourceEligibilityException() { this(SourceEligibility.UNKNOWN); }
+
+        public SourceEligibilityException(SourceEligibility observed) {
+            super("one or more exact source versions are not currently eligible: " + observed);
+            this.observed = Objects.requireNonNull(observed, "observed");
+            if (observed == SourceEligibility.ELIGIBLE) {
+                throw new IllegalArgumentException("eligible source status cannot represent an admission failure");
+            }
+        }
+
+        public SourceEligibility observed() { return observed; }
     }
 
     public static String required(String value, String name) {
@@ -221,4 +251,6 @@ public final class MediaProjectTimelineContracts {
         if (value.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         return value;
     }
+
+    private record TrackOrder(String sceneId, int order) { }
 }

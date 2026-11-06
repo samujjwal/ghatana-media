@@ -9,20 +9,39 @@ immutable revision in one store transaction.
 
 The local graph binds every clip to an exact artifact version and keeps source
 presentation time separate from story time. Rational tick rates are reduced
-and comparisons use integer arithmetic. The graph validates scene/track/clip
-references but permits overlapping clips because transition and overlap
-semantics are not fully bound to an accepted PDP-1 graph mapping.
+and comparisons use integer arithmetic. Graph snapshots are immutable and
+canonicalized by declared scene, track, and story-time order. Edits produce a
+new revision with a parent pointer; the CAS head check prevents stale writes.
+Diff ordering is stable, and `restore` creates a new successor revision from an
+exact immutable historical graph for guarded undo/redo. The graph validates
+scene/track/clip references but permits overlapping clips because transition
+and overlap semantics are not fully bound to an accepted PDP-1 graph mapping.
 
-Source-rights currentness is checked through a caller-supplied current
-eligibility predicate at the effect boundary. This module does not render,
-resolve artifact bytes, establish rights, or claim provider readiness. PDP-1
+Source-rights currentness is checked through `SourceEligibilityPort` at the
+effect boundary for every exact source version. `REVOKED`, `UNKNOWN`, absent
+authority, and authority failures block the effect with a typed result. The
+predicate overload remains for local compatibility. This module does not
+render, resolve artifact bytes, establish rights, or claim provider readiness. PDP-1
 defines project and timeline identities and immutable project revisions, but
 the exact project-revision-to-scene/clip/track graph field mapping remains
 unresolved; the fields here are a conservative, explicitly local assumption.
 The current reference authority applies owner-principal-only access within the
 tenant; shared workspace membership and project-policy evaluation remain
 unbound and must be supplied by the admitted host/policy boundary before a
-durable runtime adapter can expose shared editing.
+durable runtime adapter can expose shared editing. `InMemoryProjectTimelineStore`
+is only a process-local development/test authority. Hosts without an admitted
+durable single-writer store can bind `NotAdmittedProjectTimelineStore`, which
+returns the typed `PROJECT_TIMELINE_STORE / NOT_ADMITTED` outcome instead of
+accepting edits that would disappear on restart. No durable adapter or launcher
+binding currently exists.
+
+`StoryboardPlanner` prepares deterministic authored-only scene/shot editions. Declared scene and shot
+order is retained independently from exact rational story-time values, and every brief/shot source
+reference is checked by current rights at preparation and again before save/review. Editions transition
+through `LOCAL_DRAFT`, `PERSISTED_DRAFT`, and `REVIEWED` only when the corresponding append port returns
+an exact owner receipt; a review receipt is separate and does not imply approval. The planner contains
+no model generation or renderer readiness claim. Its ports are integration seams, not durable authority
+implementations; no persistent storyboard adapter or renderer is currently admitted.
 
 ## Local conditioned-scene and tracked-region candidates
 

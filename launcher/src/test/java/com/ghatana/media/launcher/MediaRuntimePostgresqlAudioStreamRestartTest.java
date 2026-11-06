@@ -78,6 +78,47 @@ class MediaRuntimePostgresqlAudioStreamRestartTest {
         }
     }
 
+    @Test
+    void freshRuntimeReconnectsFromDurableVideoAckWithoutReplayingOldFrames(@TempDir Path tempDir)
+            throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String tenantId = "tenant-video-restart-" + runId;
+        String bucket = "media-video-restart-" + runId;
+        createBucket(bucket);
+        Path bindingFile = tempDir.resolve("caller-held-video-stream-binding.properties");
+        Path seedMarker = tempDir.resolve("video-seed-acked.marker");
+        Path seedLog = tempDir.resolve("video-seed-worker.log");
+        Map<String, String> environment = environment(bucket);
+
+        Process seed = startWorker(environment, "seed-video", bindingFile, seedMarker, tenantId, seedLog);
+        try {
+            awaitMarker(seed, seedMarker, "VIDEO_FRAME_ZERO_ACKNOWLEDGED", seedLog);
+            seed.destroyForcibly();
+            assertThat(seed.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (seed.isAlive()) seed.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        Properties callerBinding = new Properties();
+        try (var input = Files.newInputStream(bindingFile)) {
+            callerBinding.load(input);
+        }
+        assertThat(callerBinding.getProperty("connectionToken")).isNotBlank();
+        assertThat(callerBinding.getProperty("lastAcknowledgedSequence")).isEqualTo("-1");
+
+        Path recoveryMarker = tempDir.resolve("video-recovered.marker");
+        Path recoveryLog = tempDir.resolve("video-recovery-worker.log");
+        Process recovery = startWorker(
+                environment, "recover-video", bindingFile, recoveryMarker, tenantId, recoveryLog);
+        try {
+            awaitMarker(recovery, recoveryMarker, "VIDEO_DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED", recoveryLog);
+            assertThat(recovery.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            assertThat(recovery.exitValue()).isZero();
+        } finally {
+            if (recovery.isAlive()) recovery.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+    }
+
     private static Process startWorker(
             Map<String, String> environment,
             String mode,

@@ -23,8 +23,12 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.health.v1.HealthCheckRequest;
+import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.health.v1.HealthGrpc;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.protobuf.services.HealthStatusManager;
 import io.grpc.stub.MetadataUtils;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
@@ -463,6 +467,68 @@ class TtsGrpcServiceInProcessIntegrationTest {
             if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
             else System.setProperty("AV_JWT_SECRET", previousSecret);
         }
+    }
+
+    @Test
+    @DisplayName("TTS server restart preserves JWT enforcement, not-serving health and typed NOT_ADMITTED result")
+    void restartAndRebindKeepsAuthenticationHealthAndTypedOutcome() throws Exception {
+        String secret = "tts-inprocess-rpc-matrix-test-secret";
+        String previousSecret = System.getProperty("AV_JWT_SECRET");
+        System.setProperty("AV_JWT_SECRET", secret);
+        HealthStatusManager health = new HealthStatusManager();
+        health.setStatus("tts-service", HealthCheckResponse.ServingStatus.NOT_SERVING);
+        Server firstServer = null;
+        ManagedChannel firstChannel = null;
+        Server restartedServer = null;
+        ManagedChannel restartedChannel = null;
+        try {
+            if (channel != null) channel.shutdownNow();
+            if (server != null) server.shutdownNow();
+
+            String firstServerName = InProcessServerBuilder.generateName();
+            firstServer = InProcessServerBuilder.forName(firstServerName).directExecutor()
+                    .addService(new TtsGrpcService(mock(AudioVideoLibrary.class), new SimpleMeterRegistry()))
+                    .addService(health.getHealthService())
+                    .intercept(new JwtServerInterceptor())
+                    .build().start();
+            firstChannel = InProcessChannelBuilder.forName(firstServerName).directExecutor().build();
+            assertTtsRestartDisposition(firstChannel, secret);
+            firstChannel.shutdownNow();
+            firstServer.shutdownNow();
+
+            String serverName = InProcessServerBuilder.generateName();
+            restartedServer = InProcessServerBuilder.forName(serverName).directExecutor()
+                    .addService(new TtsGrpcService(mock(AudioVideoLibrary.class), new SimpleMeterRegistry()))
+                    .addService(health.getHealthService())
+                    .intercept(new JwtServerInterceptor())
+                    .build().start();
+            restartedChannel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+            assertTtsRestartDisposition(restartedChannel, secret);
+        } finally {
+            if (firstChannel != null) firstChannel.shutdownNow();
+            if (firstServer != null) firstServer.shutdownNow();
+            if (restartedChannel != null) restartedChannel.shutdownNow();
+            if (restartedServer != null) restartedServer.shutdownNow();
+            if (previousSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousSecret);
+        }
+    }
+
+    private static void assertTtsRestartDisposition(ManagedChannel channel, String secret) throws Exception {
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + testJwt(secret));
+        TTSServiceGrpc.TTSServiceBlockingStub authenticated = TTSServiceGrpc.newBlockingStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+        assertRpcError(() -> authenticated.getStatus(
+                        com.ghatana.tts.core.grpc.proto.StatusRequest.getDefaultInstance()),
+                Status.Code.UNIMPLEMENTED, "GetStatus is NOT_ADMITTED");
+        assertRpcError(() -> TTSServiceGrpc.newBlockingStub(channel).getStatus(
+                        com.ghatana.tts.core.grpc.proto.StatusRequest.getDefaultInstance()),
+                Status.Code.UNAUTHENTICATED, null);
+        assertThat(HealthGrpc.newBlockingStub(channel).check(HealthCheckRequest.newBuilder()
+                        .setService("tts-service").build()).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);
     }
 
     private static void assertStreamErrorWithoutChunks(

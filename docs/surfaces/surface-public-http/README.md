@@ -2,8 +2,8 @@
 
 Public HTTP channel. Physical owners: `launcher` (route hosting,
 `MediaHttpHandler`) and `runtime-contracts` (request/response/error
-contracts). Contract source: `contracts/openapi/media.yaml` (30
-operations).
+contracts). Contract source: `contracts/openapi/media.yaml` (34
+operations: 8 public operational probes and 26 authenticated API operations).
 
 ## Supported operations
 
@@ -19,6 +19,11 @@ responses. Runtime route manifest: `config/route-manifest.json`.
   tests bind the published contract, not internals.
 - Unknown provider outcomes surface as `OUTCOME_UNKNOWN`-class states —
   never inferred success from HTTP 202 or event append.
+- Accepted job submissions and stream frames return `Location` pointing to
+  their canonical job/session read route and `Retry-After: 1`; the header is a
+  polling hint and does not assert provider completion. `GET /api/v1/jobs/{jobId}`
+  accepts an optional exact `requestId` reconciliation query; mismatches are
+  deliberately returned as not found.
 - Contract parity is enforced by `scripts/check-media-contract-parity.mjs`
   against OpenAPI, SDK operations and the operation-parity manifest.
 

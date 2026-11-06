@@ -38,6 +38,15 @@ and independently verified effects.
   aggregate-version fencing in the host integration. A terminal-shaped event
   sets `terminalReadbackRequired`; only the separately authorized
   `TerminalJobReadback` can report a terminal job state.
+- The public v1 projection permits only the known aggregate kinds and
+  classification labels; IDs are purpose-separated redacted aliases and
+  arbitrary attributes are omitted. Authorization unavailable fails before
+  projection; an exception during projection returns `CONSUMPTION_UNKNOWN`
+  because the effect may already be durable. Hosts must replay through the
+  idempotent projection store or reconcile before reporting consumption.
+- Terminal readback errors remain `UNAVAILABLE`, never confirmed completion.
+  Event append, broker publication, consumer application, terminal job state,
+  and provider effect receipts remain separate facts.
 - The public typed v1 consumer is not wired into the legacy map-payload
   outbox rows or an admitted broker subscription yet. Existing outbox relay
   acceptance records broker publication only. Consumer retries, durable

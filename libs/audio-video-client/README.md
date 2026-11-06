@@ -69,12 +69,27 @@ type, classification, and metadata against the session. The legacy
 bind the returned artifact to an expected upload payload because the wire
 artifact contains no source upload ID.
 
-## Host-configured artifact inspection CLI
+## Host-configured production CLI
 
-The package exposes `ghatanamedia-api artifact inspect` as a read-only consumer
-of the accepted `getMediaArtifact` query through `MediaOperationClient.getArtifact()`.
-It requires an explicit endpoint and caller scope; the bearer token is read only
-from `GHATANA_MEDIA_BEARER_TOKEN` and is never accepted in command arguments.
+The package exposes `ghatanamedia-api` as an authenticated consumer of the
+canonical SDK. Current operation coverage is:
+
+| CLI operation | SDK operation | Result boundary |
+| --- | --- | --- |
+| `artifact inspect` | `MediaOperationClient.getArtifact()` | Scoped artifact observation |
+| `job submit` | `MediaCanonicalClient.submitJob()` | Canonical job state; `ACCEPTED` is not completion and `OUTCOME_UNKNOWN` exits nonzero |
+| `job status` | `MediaCanonicalClient.getJob()` | Scoped current state; `OUTCOME_UNKNOWN` exits nonzero |
+| `job cancel` | `MediaCanonicalClient.cancelJob()` | Canonical job state; `OUTCOME_UNKNOWN` exits nonzero |
+| `capture start` | No admitted capture route in the canonical SDK | Typed `NOT_ADMITTED`, no dispatch |
+| `recorder start` | No admitted recorder route in the canonical SDK | Typed `NOT_ADMITTED`, no dispatch |
+
+Commands require an explicit endpoint and tenant/principal scope. The bearer
+token is read only from `GHATANA_MEDIA_BEARER_TOKEN` and is never accepted in
+command arguments. Requests use the SDK's bounded timeout, configurable with
+`GHATANA_MEDIA_REQUEST_TIMEOUT_MS` (integer milliseconds, 1–300000; default
+30000). Job parameters must be a bounded strict JSON object; duplicate keys,
+non-finite values, excessive depth/size, and unknown job types are rejected
+before dispatch.
 
 ```sh
 GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \
@@ -84,19 +99,37 @@ GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \
   --artifact artifact-1
 ```
 
-The command writes a `media.cli-result.v1` JSON envelope to stdout containing
-the exact `CanonicalMediaArtifactObservation`. Errors use a JSON
-`media.cli-error.v1` envelope on stderr and preserve the server correlation ID
-when available. A 404 means the artifact was not visible in the supplied tenant
-and principal scope; it does not establish global absence. The result is a
-point-in-time metadata observation and does not establish rights, content
-retrieval, publication, or downstream availability. Remote endpoints require
-HTTPS; plain HTTP is accepted only for loopback testing. Redirects are rejected
-so bearer credentials are not forwarded to another endpoint.
+Job submission follows the same canonical authentication and scope path:
 
-This host-configured command is separate from the 11 deterministic fixture
-commands in the Explorer simulator. The local consumer implementation does not
-qualify any production host or release.
+```sh
+GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api job submit \
+  --endpoint https://media.example.test \
+  --tenant tenant-1 \
+  --principal principal-1 \
+  --request-id request-1 \
+  --correlation-id correlation-1 \
+  --artifact artifact-1 \
+  --job-type SPEECH_TO_TEXT \
+  --idempotency-key submit-1 \
+  --parameters '{"language":"en"}'
+```
+
+Successful SDK observations use a `media.cli-result.v1` JSON envelope on
+stdout. Errors use a typed `media.cli-error.v1` envelope on stderr and a
+nonzero exit code; auth/transport details are sanitized. A 404 means the
+artifact or job was not visible in the supplied tenant and principal scope; it
+does not establish global absence. Artifact output is a point-in-time metadata
+observation and does not establish rights, content retrieval, publication, or
+downstream availability. `ACCEPTED` is preserved and never rewritten to
+completion. `OUTCOME_UNKNOWN` and `NOT_ADMITTED` are typed nonzero outcomes.
+Remote endpoints require HTTPS; plain HTTP is accepted only for loopback
+testing. Redirects are rejected so bearer credentials are not forwarded to
+another endpoint.
+
+This production CLI is separate from the 11 deterministic fixture commands in
+the Explorer simulator. The fixture executable does not call this SDK; fixture
+responses never stand in for provider or host behavior. Local consumer tests do
+not qualify a production host or release.
 
 ## Current HTTP bindings
 

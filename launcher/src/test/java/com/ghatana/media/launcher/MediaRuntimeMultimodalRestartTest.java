@@ -6,9 +6,12 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaChildJobDispatcher;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
+import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
@@ -100,11 +103,50 @@ class MediaRuntimeMultimodalRestartTest {
         }
     }
 
+    @Test
+    void crashedParentWithFailedAndStillRunningChildrenRemainsRecoverable() throws Exception {
+        var root = Files.createTempDirectory("media-mm-restart-sibling-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var submitted = new CountDownLatch(1);
+        var providers = List.of(
+                blockingMmProvider(submitted, Map.of()), failedSttProvider(), blockingVisionProvider());
+        var runtime1 = runtime(root, jobStore, providers);
+        var source = artifact(runtime1);
+        var sttArtifact = artifact(runtime1);
+        var visionArtifact = artifact(runtime1);
+        var operation = specWithVision(source, sttArtifact, visionArtifact);
+        runtime1.submit(mmRequest(source, operation));
+        assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
+        awaitStatus(jobStore, "req-mm:stt", JobStatus.FAILED);
+        awaitStatus(jobStore, "req-mm:vision", JobStatus.RUNNING);
+        runtime1.close();
+
+        var runtime2 = runtime(root, jobStore, providers);
+        try {
+            var parent = jobStore.findByRequest("tenant-a", "req-mm").orElseThrow();
+            // Restart readback must not turn one known failure into parent finality while
+            // the independently dispatched vision child may still produce an effect.
+            assertThat(parent.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:stt").orElseThrow().status())
+                    .isEqualTo(JobStatus.FAILED);
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow().status())
+                    .isEqualTo(JobStatus.RUNNING);
+        } finally {
+            runtime2.close();
+        }
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaRuntime runtime(
             java.nio.file.Path root, LocalMediaRuntimeSupport.JobStore jobStore,
             MediaProcessingProvider mmProvider, MediaProcessingProvider sttProvider) {
+        return runtime(root, jobStore, List.of(mmProvider, sttProvider));
+    }
+
+    private static MediaRuntime runtime(
+            java.nio.file.Path root, LocalMediaRuntimeSupport.JobStore jobStore,
+            List<MediaProcessingProvider> providers) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
                         Duration.ofSeconds(30), 8, "", "", false, false, root),
@@ -114,7 +156,7 @@ class MediaRuntimeMultimodalRestartTest {
                 null,
                 com.ghatana.media.launcher.MediaSemanticRedactionRuntime.disabled(Duration.ofSeconds(30)),
                 MediaLifecyclePublisher.disabled(),
-                List.of(mmProvider, sttProvider),
+                providers,
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()),
                 List.of(), allowAll(), transcriptStore(), Clock.systemUTC());
     }
@@ -200,6 +242,55 @@ class MediaRuntimeMultimodalRestartTest {
         };
     }
 
+    private static MediaProcessingProvider failedSttProvider() {
+        var base = sttProvider(Map.of());
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-stt-failed"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.SPEECH_TO_TEXT); }
+            @Override public java.util.Optional<com.ghatana.media.runtime
+                    .MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+                return base.speechToTextProfile().map(profile -> new com.ghatana.media.runtime
+                        .MediaSpeechToTextAdmission.Profile("test-stt-failed", profile.providerVersion(),
+                        profile.profileId(), profile.profileVersion(), profile.configurationDigest(),
+                        profile.qualification(), profile.supportedLocales(), profile.streaming(),
+                        profile.timingDisposition(), profile.evidenceRef()));
+            }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.completedFuture(Map.of());
+            }
+            @Override public CompletableFuture<ProviderSubmission> processAttempt(
+                    ProcessingContext context, ProviderAttemptContext attempt) {
+                return CompletableFuture.completedFuture(new ProviderSubmission(
+                        AttemptFinality.FAILED, "failed-op", "failed-receipt", Map.of(),
+                        "a".repeat(64), Instant.now()));
+            }
+        };
+    }
+
+    private static MediaProcessingProvider blockingVisionProvider() {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-vision-blocking"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return new CompletableFuture<>();
+            }
+        };
+    }
+
     private static MediaSourceAuthorizationContracts.Authority allowAll() {
         return new MediaSourceAuthorizationContracts.Authority() {
             @Override public String authorityId() { return "fixture-authority"; }
@@ -265,6 +356,24 @@ class MediaRuntimeMultimodalRestartTest {
                 List.of(new MultimodalOperationSpec.ChildOperationSpec("stt",
                         JobType.SPEECH_TO_TEXT, child.artifactId(), child.version().value(),
                         child.sha256(), "", sttParameters())),
+                new MultimodalOperationSpec.SourceClockBinding(
+                        "fixture-clock-evidence", 48_000, 0, "src-clock", 96_000),
+                Map.of("purpose", "mm-observe"));
+    }
+
+    private static MultimodalOperationSpec specWithVision(
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact source,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact stt,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact vision) {
+        return new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                source.artifactId(), source.version().value(), source.sha256(),
+                List.of(new MultimodalOperationSpec.ChildOperationSpec("stt",
+                                JobType.SPEECH_TO_TEXT, stt.artifactId(), stt.version().value(),
+                                stt.sha256(), "", sttParameters()),
+                        new MultimodalOperationSpec.ChildOperationSpec("vision",
+                                JobType.VISION, vision.artifactId(), vision.version().value(),
+                                vision.sha256(), "", Map.of())),
                 new MultimodalOperationSpec.SourceClockBinding(
                         "fixture-clock-evidence", 48_000, 0, "src-clock", 96_000),
                 Map.of("purpose", "mm-observe"));
