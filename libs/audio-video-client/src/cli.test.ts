@@ -507,15 +507,18 @@ describe('ghatanamedia-api canonical job commands', () => {
     });
   });
 
-  it('does not dispatch capture/recorder commands without their canonical contracts', async () => {
+  it('returns an authenticated exact NOT_ADMITTED error for capture/recorder without transport dispatch', async () => {
     for (const [name, subcommand] of [['capture', 'start'], ['recorder', 'start']]) {
       const result = await invoke([name, subcommand, '--endpoint', 'http://127.0.0.1:1', '--tenant', 'tenant-a', '--principal', 'principal-a']);
       expect(result.status).toBe(3);
       expect(result.stdout).toBe('');
-      expect(JSON.parse(result.stderr)).toMatchObject({
-        schemaVersion: 'media.cli-error.v1', code: 'NOT_ADMITTED',
+      expect(result.stderr).toBe(`${JSON.stringify({
+        schemaVersion: 'media.cli-error.v1',
         commandId: `media.cli.${name}.${subcommand}`,
-      });
+        code: 'NOT_ADMITTED',
+        message: 'Capture and recorder execution require contracts not exposed by the canonical SDK.',
+      })}\n`);
+      expect(result.stdout + result.stderr).not.toContain(token);
     }
   });
 
