@@ -36,6 +36,7 @@ public final class MediaLauncherProcessFixtures {
     public static final String PRINCIPAL = "media-local-development";
     public static final String PROVIDER_ID = "launcher-synthetic-stt-fixture";
     public static final String BLOCKING_PROVIDER_ID = "launcher-blocking-transcode-fixture";
+    public static final String FALLBACK_PROVIDER_ID = "launcher-fallback-transcode-fixture";
     public static final String PROFILE_ID = "launcher-synthetic-profile";
     public static final String PROFILE_DIGEST = "sha256:" + "b".repeat(64);
 
@@ -170,6 +171,42 @@ public final class MediaLauncherProcessFixtures {
                 return CompletableFuture.failedFuture(failure);
             }
             return new CompletableFuture<>();
+        }
+    }
+
+    /** Available alternate used to prove an ambiguous durable attempt is never silently replayed. */
+    public static final class AvailableFallbackTranscode implements MediaProcessingProvider {
+        @Override public String providerId() { return FALLBACK_PROVIDER_ID; }
+        @Override public String providerVersion() { return "fixture-fallback-v1"; }
+        @Override public String modelVersion(JobType type) { return "fixture-fallback-v1"; }
+        @Override public Set<JobType> capabilities() { return Set.of(JobType.TRANSCODE); }
+        @Override public Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+            return Optional.empty();
+        }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 100; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+        @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+        @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+            return CompletableFuture.failedFuture(
+                    new AssertionError("durable fallback fixture must use processAttempt"));
+        }
+        @Override public CompletableFuture<ProviderSubmission> processAttempt(
+                ProcessingContext context, ProviderAttemptContext attempt) {
+            String markerValue = System.getenv("MEDIA_FIXTURE_FALLBACK_PROVIDER_MARKER");
+            if (markerValue != null && !markerValue.isBlank()) {
+                try {
+                    Files.writeString(Path.of(markerValue), attempt.requestId() + "\n",
+                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                } catch (IOException failure) {
+                    return CompletableFuture.failedFuture(failure);
+                }
+            }
+            return CompletableFuture.completedFuture(new ProviderSubmission(
+                    AttemptFinality.SUCCEEDED, "fallback-operation", "fallback-receipt",
+                    Map.of("fixtureOutput", "fallback-must-not-run"), "c".repeat(64), Instant.now()));
         }
     }
 }

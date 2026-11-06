@@ -224,6 +224,7 @@ class MediaLauncherSttProcessIT {
         Path serviceRoot = null;
         Path log = null;
         Path dispatchMarker = null;
+        Path fallbackMarker = null;
         String environmentClasspath = null;
         try {
             try (S3Client s3 = s3()) {
@@ -241,10 +242,14 @@ class MediaLauncherSttProcessIT {
             dispatchMarker = Files.createTempFile("media-launcher-provider-dispatch-", ".log");
             Files.deleteIfExists(dispatchMarker);
             env.put("MEDIA_FIXTURE_PROVIDER_DISPATCH_MARKER", dispatchMarker.toString());
+            fallbackMarker = Files.createTempFile("media-launcher-fallback-dispatch-", ".log");
+            Files.deleteIfExists(fallbackMarker);
+            env.put("MEDIA_FIXTURE_FALLBACK_PROVIDER_MARKER", fallbackMarker.toString());
             log = Files.createTempFile("media-launcher-job-recovery-", ".log");
             String baseClasspath = System.getProperty("media.child.classpath", "");
             assertThat(baseClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
-            installChildServiceDescriptors(serviceRoot, MediaLauncherProcessFixtures.BlockingTranscode.class);
+            installChildServiceDescriptors(serviceRoot, MediaLauncherProcessFixtures.BlockingTranscode.class,
+                    MediaLauncherProcessFixtures.AvailableFallbackTranscode.class);
             environmentClasspath = serviceRoot + java.io.File.pathSeparator + baseClasspath;
             String token = authenticatedJwt(PRINCIPAL, TENANT, env.get("MEDIA_LAUNCHER_TEST_JWT_SECRET"));
 
@@ -280,13 +285,17 @@ class MediaLauncherSttProcessIT {
 
             launcher = startLauncher(environmentClasspath, env, log);
             awaitReady(launcher, port);
+            HttpResponse<String> providers = send(port, TENANT, "GET",
+                    "/api/v1/providers", "", "application/json", null);
+            assertThat(providers.statusCode()).as(providers.body()).isEqualTo(200);
+            assertThat(providers.body()).contains(FALLBACK_PROVIDER_ID);
             String requestId = "launcher-recovery-" + run;
             String sourceVersion = "sha256:" + sha;
             String jobBody = """
                     {"requestId":"%s","tenantId":"%s","principalId":"%s",
                      "correlationId":"launcher-recovery-corr-%s","artifactId":"%s",
                      "expectedArtifactVersion":"sha256:%s","jobType":"TRANSCODE",
-                     "providerHint":"%s","parameters":{}}
+                    "providerHint":"%s","parameters":{}}
                     """.formatted(requestId, TENANT, PRINCIPAL, run, artifactId, sha,
                     MediaLauncherProcessFixtures.BLOCKING_PROVIDER_ID);
             HttpResponse<String> accepted = sendAuthenticated(port, TENANT, token, "POST",
@@ -375,6 +384,7 @@ class MediaLauncherSttProcessIT {
             assertThat(replayed.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
             assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
             assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
+            assertThat(Files.exists(fallbackMarker)).isFalse();
         } finally {
             try {
                 if (launcher != null && launcher.isAlive()) launcher.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
@@ -382,6 +392,7 @@ class MediaLauncherSttProcessIT {
                 try {
                     if (log != null) Files.deleteIfExists(log);
                     if (dispatchMarker != null) Files.deleteIfExists(dispatchMarker);
+                    if (fallbackMarker != null) Files.deleteIfExists(fallbackMarker);
                 } finally {
                     try {
                         deleteBucket(bucket);
@@ -530,13 +541,14 @@ class MediaLauncherSttProcessIT {
         installChildServiceDescriptors(root, MediaLauncherProcessFixtures.Stt.class);
     }
 
-    private static void installChildServiceDescriptors(Path root, Class<?> providerClass) throws Exception {
+    private static void installChildServiceDescriptors(Path root, Class<?>... providerClasses) throws Exception {
         Path services = root.resolve("META-INF/services");
         Files.createDirectories(services);
         Files.writeString(services.resolve("com.ghatana.governance.PolicyEngine"),
                 MediaLauncherProcessFixtures.Policy.class.getName() + "\n");
         Files.writeString(services.resolve("com.ghatana.media.runtime.MediaRuntimeContracts$MediaProcessingProvider"),
-                providerClass.getName() + "\n");
+                java.util.Arrays.stream(providerClasses).map(Class::getName)
+                        .collect(java.util.stream.Collectors.joining("\n", "", "\n")));
     }
 
     private static Process startLauncher(String classpath, Map<String, String> env, Path log) throws Exception {
