@@ -32,6 +32,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /** Source-free J-25 boundary scenario; no owner mapping or provider effect is admitted here. */
 class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
 
+    private record HandlerCase(String toolId, String unavailableCode, Map<String, Object> input,
+            ToolHandler handler) { }
+
     private static final class Ledger implements InvocationLedger {
         private final Map<String, LogicalAction> actions = new HashMap<>();
 
@@ -111,10 +114,75 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         assertThat(providerCalls).hasValue(0);
     }
 
+    @Test
+    void allFourUnadmittedToolsKeepTypedUnavailableAcrossExactReplayAndTenantConflict() {
+        Ledger ledger = new Ledger();
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicBoolean replayAuthority = new AtomicBoolean(true);
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get());
+        ToolHandler configuredProvider = (envelope, contract) -> {
+            providerCalls.incrementAndGet();
+            return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
+                    envelope.invocationId(), Map.of("fixtureOutput", "must-not-be-produced"), Map.of(),
+                    envelope.invocationId(), Instant.now(), java.time.Duration.ZERO));
+        };
+        var cases = java.util.List.of(
+                new HandlerCase(SpeechToTextToolHandler.TOOL_ID, "STT_NOT_ADMITTED",
+                        Map.of("audioSource", Map.of("mediaArtifactId", "source-stt-v1"), "languageCode", "en-US"),
+                        new SpeechToTextToolHandler(configuredProvider)),
+                new HandlerCase(TextToSpeechToolHandler.TOOL_ID, "TTS_NOT_ADMITTED",
+                        Map.of("text", "fixture speech", "voiceId", "en-US-default", "storeAsArtifact", true),
+                        new TextToSpeechToolHandler(configuredProvider)),
+                new HandlerCase(VisionAnalysisToolHandler.TOOL_ID, "VISION_NOT_ADMITTED",
+                        Map.of("mediaSource", Map.of("mediaArtifactId", "source-vision-v1"),
+                                "analysisTypes", java.util.List.of("OBJECT_DETECTION")),
+                        new VisionAnalysisToolHandler(configuredProvider)),
+                new HandlerCase(MultimodalInferenceToolHandler.TOOL_ID, "MULTIMODAL_NOT_ADMITTED",
+                        Map.of("mediaArtifactId", "source-multimodal-v1", "inferenceMode", "SUMMARY",
+                                "samplingRateMs", 1_000, "enableTranscription", true,
+                                "enableVisionAnalysis", true, "languageCode", "en-US"),
+                        new MultimodalInferenceToolHandler(configuredProvider)));
+
+        for (HandlerCase tool : cases) {
+            ToolExecutionEnvelope original = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
+            ToolContract contract = contract(original);
+
+            ToolExecutionResult notAdmitted = runPromise(() -> binder.execute(tool.handler(), original, contract));
+            assertThat(notAdmitted.status()).as(tool.toolId()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(notAdmitted.failure().kind()).as(tool.toolId()).isEqualTo(
+                    com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
+            assertThat(notAdmitted.failure().stage()).as(tool.toolId()).isEqualTo(
+                    com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.ADMISSION);
+            assertThat(notAdmitted.failure().code()).as(tool.toolId()).isEqualTo(tool.unavailableCode());
+            assertThat(notAdmitted.output()).as(tool.toolId()).isNull();
+
+            AuthenticatedPrincipal authenticated = new AuthenticatedPrincipal(
+                    original.tenantId(), original.callerAgentId(), Instant.now());
+            ToolExecutionResult replay = runPromise(() -> binder.execute(
+                    tool.handler(), original, contract, authenticated));
+            assertThat(replay).as(tool.toolId()).isSameAs(notAdmitted);
+
+            ToolExecutionEnvelope wrongTenant = sameInvocation(original, "tenant-other-j25", original.callerAgentId());
+            assertThatThrownBy(() -> runPromise(() -> binder.execute(
+                    tool.handler(), wrongTenant, contract(wrongTenant))))
+                    .as(tool.toolId()).isInstanceOf(MediaToolExecutionBinder.InvocationIdentityConflictException.class);
+        }
+
+        assertThat(providerCalls).hasValue(0);
+    }
+
     private static ToolExecutionEnvelope envelope(String tenantId, String callerAgentId) {
-        return ToolExecutionEnvelope.of(SpeechToTextToolHandler.TOOL_ID, "1.0.0", callerAgentId, null,
+        return envelope(SpeechToTextToolHandler.TOOL_ID,
+                Map.of("audioSource", Map.of("mediaArtifactId", "source-v1"), "languageCode", "en-US"),
+                tenantId, callerAgentId);
+    }
+
+    private static ToolExecutionEnvelope envelope(
+            String toolId, Map<String, Object> input, String tenantId, String callerAgentId) {
+        return ToolExecutionEnvelope.of(toolId, "1.0.0", callerAgentId, null,
                 tenantId, ToolActionClass.CALL_EXTERNAL, "1.0",
-                Map.of("audioSource", Map.of("mediaArtifactId", "source-v1"), "languageCode", "en-US"));
+                input);
     }
 
     private static ToolExecutionEnvelope sameInvocation(
