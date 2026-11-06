@@ -2449,7 +2449,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: GuardedCrossModalityStreamStateMachineTest PASS 2/2. After detach, current-consent denial blocks reconnect/resume and rejects stale worker leases. A live-session case also changes audio/video consent to NOT_ADMITTED; pending provider egress and the next frame are rejected while ACK remains 0. These are in-memory fixtures. Still OPEN: canonical durable lease/cursor/PTS binding, process restart, authenticated transport, and real host session recovery."
+      "progress": "2026-11-05: GuardedCrossModalityStreamStateMachineTest PASS 2/2. After detach, current-consent denial blocks reconnect/resume and rejects stale worker leases. A live-session case also changes audio/video consent to NOT_ADMITTED; pending provider egress and the next frame are rejected while ACK remains 0. These are in-memory fixtures. Still OPEN: canonical durable lease/cursor/PTS binding, process restart, authenticated transport, and real host session recovery.\n2026-11-06 increment: MediaRuntimeUnknownStreamPrefixScenarioIT PASS 1/1. After frame 0 is acknowledged, frame 1 times out with UNKNOWN; the acknowledged cursor stays 0, in-flight sequence remains 1, cancellation is signaled, and retry is blocked without a third provider call. Adjacent focused selectors also pass for consent-revoked reconnect, timeout, PostgreSQL lease expiry, restart readback, and bounded audio/video stream state. Synthetic authorities/providers only; canonical source artifact/version/PTS semantics, authenticated transport, and real host/provider recovery remain open."
     },
     {
       "id": "media.dev.outcome-eligible-provider-catalog",
