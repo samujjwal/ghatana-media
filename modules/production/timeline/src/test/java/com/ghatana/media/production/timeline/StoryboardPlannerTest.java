@@ -111,6 +111,67 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void revokedOrUnknownSourceBetweenPreparationAndSaveBlocksAppend() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-revoke", "plan-revoke", "v1",
+                brief(List.of()), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of(SOURCE_A))))));
+        MutableAuthority authority = new MutableAuthority("head-revoke");
+
+        rights.decision(SOURCE_A, StoryboardPlanner.SourceDecision.REVOKED);
+        assertThatThrownBy(() -> planner.save(OWNER, plan, null, "save-revoked", authority))
+                .isInstanceOf(StoryboardPlanner.SourceRightsDeniedException.class);
+        assertThat(authority.saved).isEmpty();
+
+        rights.decision(SOURCE_A, StoryboardPlanner.SourceDecision.UNKNOWN);
+        assertThatThrownBy(() -> planner.save(OWNER, plan, null, "save-unknown", authority))
+                .isInstanceOf(StoryboardPlanner.SourceAuthorityUnavailableException.class);
+        assertThat(authority.saved).isEmpty();
+    }
+
+    @Test
+    void forgedAppendReceiptForAnotherEditionIsRejected() {
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-receipt", "plan-receipt", "v1",
+                brief(List.of()), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlan other = planner.prepare(OWNER, "project-1", "head-receipt", "plan-other", "v1",
+                brief(List.of()), List.of(scene("other-scene", 0, 0,
+                        List.of(shot("other-shot", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlanAuthority forged = (actor, requested, head, parent, requestId) ->
+                new StoryboardPlanner.SavedPlan(other, "controlled-test-receipt");
+
+        assertThatThrownBy(() -> planner.save(OWNER, plan, null, "save-forged", forged))
+                .isInstanceOf(StoryboardPlanner.ScenePlanAuthorityProtocolException.class)
+                .hasMessageContaining("exact draft edition");
+    }
+
+    @Test
+    void missingDurablePlanAndReviewAuthoritiesFailClosed() {
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-unavailable", "plan-unavailable", "v1",
+                brief(List.of()), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of())))));
+        NotAdmittedStoryboardAuthority unavailable = new NotAdmittedStoryboardAuthority();
+
+        assertThatThrownBy(() -> planner.save(OWNER, plan, null, "save-unavailable", unavailable))
+                .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class)
+                .satisfies(error -> {
+                    var notAdmitted = (com.ghatana.media.runtime.MediaCapabilityNotAdmittedException) error;
+                    assertThat(notAdmitted.reason()).isEqualTo(
+                            com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED);
+                    assertThat(notAdmitted.modality()).isEqualTo("STORYBOARD_PLAN_STORE");
+                });
+
+        StoryboardPlanner.SavedPlan saved = new StoryboardPlanner.SavedPlan(plan, "controlled-owner-receipt");
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-unavailable", "review-unavailable", unavailable))
+                .isInstanceOf(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class)
+                .satisfies(error -> assertThat(((com.ghatana.media.runtime.MediaCapabilityNotAdmittedException) error)
+                        .modality()).isEqualTo("STORYBOARD_REVIEW_AUTHORITY"));
+    }
+
+    @Test
     void staleProjectHeadPlanParentAndDuplicateVersionAreConflictsWithoutReplacingPriorEdition() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
         MutableAuthority authority = new MutableAuthority("head-3");

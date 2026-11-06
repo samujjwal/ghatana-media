@@ -44,6 +44,28 @@ class MediaProjectTimelineContractsTest {
     }
 
     @Test
+    void clipStoryEndUsesExactRationalAdditionAndRejectsUnrepresentableOverflow() {
+        Scene scene = new Scene("scene", 0);
+        Track track = new Track("track", scene.sceneId(), TrackKind.VIDEO, 0);
+        Clip fractional = new Clip("fractional", scene.sceneId(), track.trackId(),
+                new SourceVersion("artifact", "version"),
+                new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION),
+                new RationalTime(24, 24, 1, Clock.SOURCE_PRESENTATION),
+                new RationalTime(1, 3, 1, Clock.STORY),
+                new RationalTime(1, 6, 1, Clock.STORY));
+        assertThat(fractional.storyEnd()).isEqualTo(new RationalTime(1, 2, 1, Clock.STORY));
+
+        assertThatThrownBy(() -> new Clip("overflow", scene.sceneId(), track.trackId(),
+                new SourceVersion("artifact", "version"),
+                new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION),
+                new RationalTime(24, 24, 1, Clock.SOURCE_PRESENTATION),
+                new RationalTime(Long.MAX_VALUE, 1, 1, Clock.STORY),
+                new RationalTime(1, 1, 1, Clock.STORY)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("story interval end is not representable");
+    }
+
+    @Test
     void graphSnapshotsAreImmutableAndCanonicalizedByDeclaredOrder() {
         Scene later = new Scene("a-scene", 1);
         Scene earlier = new Scene("z-scene", 0);

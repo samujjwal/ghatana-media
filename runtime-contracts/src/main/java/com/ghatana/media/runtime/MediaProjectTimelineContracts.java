@@ -110,7 +110,14 @@ public final class MediaProjectTimelineContracts {
             if (sourceIn.compareTo(sourceOut) >= 0 || storyDuration.ticks() == 0) {
                 throw new IllegalArgumentException("clip source interval and story duration must be positive");
             }
+            try {
+                storyStart.plus(storyDuration);
+            } catch (ArithmeticException unrepresentableEnd) {
+                throw new IllegalArgumentException("clip story interval end is not representable", unrepresentableEnd);
+            }
         }
+
+        public RationalTime storyEnd() { return storyStart.plus(storyDuration); }
     }
 
     /** Complete immutable graph snapshot. A caller cannot smuggle detached nodes into a revision. */

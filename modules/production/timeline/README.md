@@ -8,8 +8,10 @@ The eventual durable adapter must atomically commit the project head and its
 immutable revision in one store transaction.
 
 The local graph binds every clip to an exact artifact version and keeps source
-presentation time separate from story time. Rational tick rates are reduced
-and comparisons use integer arithmetic. Graph snapshots are immutable and
+presentation time separate from story time. Rational tick rates are reduced,
+comparisons and additions use integer arithmetic, and clip end times that cannot
+be represented exactly within the bounded rational contract are rejected.
+Graph snapshots are immutable and
 canonicalized by declared scene, track, and story-time order. Edits produce a
 new revision with a parent pointer; the CAS head check prevents stale writes.
 Diff ordering is stable, and `restore` creates a new successor revision from an
@@ -41,7 +43,10 @@ reference is checked by current rights at preparation and again before save/revi
 through `LOCAL_DRAFT`, `PERSISTED_DRAFT`, and `REVIEWED` only when the corresponding append port returns
 an exact owner receipt; a review receipt is separate and does not imply approval. The planner contains
 no model generation or renderer readiness claim. Its ports are integration seams, not durable authority
-implementations; no persistent storyboard adapter or renderer is currently admitted.
+implementations. Hosts without the admitted authority can bind
+`NotAdmittedStoryboardAuthority`, which returns a typed zero-effect result for save or
+review. No persistent storyboard adapter, reviewer authority, or renderer is currently
+admitted.
 
 ## Local conditioned-scene and tracked-region candidates
 
