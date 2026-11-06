@@ -198,6 +198,13 @@ public final class ErrorHandler {
     public static <T> T executeWithHandling(Supplier<T> operation, String errorContext) {
         try {
             return operation.get();
+        } catch (java.util.concurrent.CancellationException cancelled) {
+            // Cancellation is terminal, not an operation error to translate into a retryable
+            // or generic platform failure.
+            throw cancelled;
+        } catch (CancellationException cancelled) {
+            // Preserve the Shared platform cancellation signal by identity as well.
+            throw cancelled;
         } catch (Exception e) {
             BaseException translated = translate(e, errorContext);
             logException(LOG, Level.WARNING, errorContext + " failed", translated);

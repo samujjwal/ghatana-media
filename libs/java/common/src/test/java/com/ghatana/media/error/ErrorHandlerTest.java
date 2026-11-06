@@ -102,6 +102,23 @@ class ErrorHandlerTest {
     }
 
     @Test
+    @DisplayName("Should propagate both cancellation types unchanged through error handling")
+    void testExecuteWithHandlingPropagatesCancellation() {
+        java.util.concurrent.CancellationException jdkCancellation =
+                new java.util.concurrent.CancellationException("cancelled by caller");
+        java.util.concurrent.CancellationException thrownJdk = assertThrows(
+                java.util.concurrent.CancellationException.class,
+                () -> ErrorHandler.executeWithHandling(() -> { throw jdkCancellation; }, "cancelled operation"));
+        assertSame(jdkCancellation, thrownJdk);
+
+        CancellationException sharedCancellation = new CancellationException("cancelled by platform");
+        CancellationException thrownShared = assertThrows(
+                CancellationException.class,
+                () -> ErrorHandler.executeWithHandling(() -> { throw sharedCancellation; }, "cancelled operation"));
+        assertSame(sharedCancellation, thrownShared);
+    }
+
+    @Test
     @DisplayName("Should execute with fallback on failure")
     void testExecuteWithFallback() { 
         String result = ErrorHandler.executeWithFallback( 
