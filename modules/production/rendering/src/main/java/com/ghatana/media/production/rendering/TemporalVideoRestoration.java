@@ -463,7 +463,7 @@ public final class TemporalVideoRestoration {
             };
             if (clippedSamples == 0 && clippedMagnitude != 0
                     || maximumClippedMagnitudePerSample == 0 && clippedSamples != 0
-                    || clippedSamples > 0 && clippedMagnitude == 0
+                    || clippedSamples > 0 && clippedMagnitude < clippedSamples
                     || maximumClippedMagnitudePerSample > 0 && clippedSamples > 0
                             && (clippedMagnitude / clippedSamples > maximumClippedMagnitudePerSample
                                     || clippedMagnitude / clippedSamples == maximumClippedMagnitudePerSample

@@ -538,6 +538,9 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> candidateWith(unsharp, unsharp.frames(), 1, 511))
                 .isInstanceOf(InvalidRestorationInputException.class)
                 .hasMessageContaining("selected RGB8 filter bounds");
+        assertThatThrownBy(() -> candidateWith(unsharp, unsharp.frames(), 2, 1))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("selected RGB8 filter bounds");
     }
 
     private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] pixels) {
