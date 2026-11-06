@@ -56,6 +56,9 @@ resolution; HTTP provider clients call configured provider endpoints.
 - Upload idempotency, finalization claims, worker leases and stream-ACK
   fencing provide crash/restart-safe semantics; lost-ack and
   process-crash recovery are covered by dedicated tests.
+- Durable job and outbox lease deadlines use epoch-millisecond precision;
+  returned lease values match the persisted deadline, and overflow rejects
+  the claim before any publisher effect.
 - Tenant isolation is enforced at the store boundary
   (`MediaPostgresqlS3TenantIsolationTest`).
 - `PostgresqlMediaSourceAuthorizationAuthority` binds source rights to the
