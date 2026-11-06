@@ -74,6 +74,49 @@ class ReferenceContinuityScenarioTest {
         assertThat(providerCalls).hasValue(0);
     }
 
+    @Test
+    void admittedProviderWithoutTypedOutputCannotCreateContinuitySuccess() {
+        RecordingAuthority authority = new RecordingAuthority();
+        AtomicInteger providerCalls = new AtomicInteger();
+        ReferenceGuidedScenePlanner.ModelProvider provider = new ReferenceGuidedScenePlanner.ModelProvider() {
+            @Override public boolean admitted() { return true; }
+            @Override public ReferenceGuidedScenePlanner.ModelResult generate(
+                    ReferenceGuidedScenePlanner.Candidate candidate) {
+                if (providerCalls.incrementAndGet() == 1) return null;
+                throw new IllegalStateException("provider secret=must-not-escape");
+            }
+        };
+        ReferenceGuidedScenePlanner planner = new ReferenceGuidedScenePlanner(authority, provider);
+        ReferenceGuidedScenePlanner.Candidate candidate = planner.prepare(ACTOR, request(continuity("blue")));
+
+        assertThat(candidate.provenance()).containsExactly(
+                new ReferenceGuidedScenePlanner.Provenance("continuity-record", CONTINUITY_VERSION, D4),
+                new ReferenceGuidedScenePlanner.Provenance("authored-prompt", PROMPT_VERSION, D1),
+                new ReferenceGuidedScenePlanner.Provenance("reference-image", REFERENCE_VERSION, D2),
+                new ReferenceGuidedScenePlanner.Provenance("authored-template", TEMPLATE_VERSION, D3));
+        assertThat(candidate.priorContinuity().facts())
+                .containsExactly(new ReferenceGuidedScenePlanner.ContinuityFact("wardrobe", "blue"));
+        assertThat(candidate.continuityFacts())
+                .containsExactly(new ReferenceGuidedScenePlanner.ContinuityFact("wardrobe", "blue"));
+        assertThat(candidate.preparation())
+                .isEqualTo(ReferenceGuidedScenePlanner.Preparation.AUTHORED_TEMPLATE_CANDIDATE);
+
+        ReferenceGuidedScenePlanner.ModelResult missing = planner.generateWithModel(candidate);
+        ReferenceGuidedScenePlanner.ModelResult thrown = planner.generateWithModel(candidate);
+
+        assertThat(missing).isEqualTo(
+                new ReferenceGuidedScenePlanner.ModelOutcomeUnknown("PROVIDER_RESULT_MISSING"));
+        assertThat(thrown).isEqualTo(
+                new ReferenceGuidedScenePlanner.ModelOutcomeUnknown("PROVIDER_OUTCOME_UNKNOWN"));
+        assertThat(thrown.toString()).doesNotContain("provider secret");
+        assertThat(missing).isNotInstanceOf(ReferenceGuidedScenePlanner.ModelOutput.class);
+        assertThat(thrown).isNotInstanceOf(ReferenceGuidedScenePlanner.ModelOutput.class);
+        assertThat(providerCalls).hasValue(2);
+        assertThat(authority.inspected).hasSize(12);
+        assertThat(authority.inspected.subList(8, 12)).extracting(ReferenceGuidedScenePlanner.BoundSource::source)
+                .containsExactly(CONTINUITY_VERSION, PROMPT_VERSION, REFERENCE_VERSION, TEMPLATE_VERSION);
+    }
+
     private static ReferenceGuidedScenePlanner planner(RecordingAuthority authority, AtomicInteger providerCalls) {
         return new ReferenceGuidedScenePlanner(authority, new ReferenceGuidedScenePlanner.ModelProvider() {
             @Override public boolean admitted() { return false; }
