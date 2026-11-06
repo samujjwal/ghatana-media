@@ -33,6 +33,7 @@ dependencies {
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
+    testImplementation(project(":services:media:modules:production:timeline"))
     testImplementation(libs.h2)
     testImplementation(libs.testcontainers.postgresql)
     testImplementation(libs.testcontainers.localstack)

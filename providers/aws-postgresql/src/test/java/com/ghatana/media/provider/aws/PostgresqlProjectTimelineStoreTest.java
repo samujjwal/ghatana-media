@@ -6,6 +6,9 @@ import com.ghatana.media.runtime.MediaProjectTimelineContracts.Graph;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddScene;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -28,6 +31,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.sql.DriverManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,6 +154,76 @@ class PostgresqlProjectTimelineStoreTest {
             String head = fixture.store.project(actor, "project-1").headRevisionId();
             assertThat(head).isIn("revision-2", "revision-3");
             assertThat(fixture.store.revision(actor, "project-1", head).parentRevisionId()).isEqualTo("revision-1");
+        }
+    }
+
+    /** Test-only V030 integration with a fixture Actor; this is not Shared sign-in or production runtime admission. */
+    @Test
+    void engineReplayEditStaleCasAndRestartReadbackUseDurableStore() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor fixtureActor = new Actor("tenant-j01-fixture", "creator-j01-fixture");
+            AtomicInteger ids = new AtomicInteger();
+            ProjectTimelineEngine engine = new ProjectTimelineEngine(fixture.store,
+                    () -> "j01-engine-id-" + ids.incrementAndGet());
+
+            var created = engine.createProject(fixtureActor, "workspace-j01-fixture", "J-01 test project",
+                    "j01-create-request-1");
+            var replay = engine.createProject(fixtureActor, "workspace-j01-fixture", "J-01 test project",
+                    "j01-create-request-1");
+            assertThat(created.createdNow()).isTrue();
+            assertThat(replay.createdNow()).isFalse();
+            assertThat(replay.project()).isEqualTo(created.project());
+            assertThat(replay.initialRevision()).isEqualTo(created.initialRevision());
+
+            String projectId = created.project().projectId();
+            String initialRevisionId = created.initialRevision().revisionId();
+            var child = engine.edit(fixtureActor, projectId, initialRevisionId,
+                    List.of(new AddScene(new Scene("scene-j01-authored", 0))));
+            assertThat(child.parentRevisionId()).isEqualTo(initialRevisionId);
+            assertThat(child.graph().scenes()).containsExactly(new Scene("scene-j01-authored", 0));
+            assertThat(engine.project(fixtureActor, projectId).headRevisionId()).isEqualTo(child.revisionId());
+            assertThat(fixture.store.revision(fixtureActor, projectId, initialRevisionId).graph().scenes()).isEmpty();
+
+            MediaAwsPostgresqlRuntimeState heldState = MediaAwsPostgresqlRuntimeState.acquire();
+            try {
+                fixture.store.close();
+                try (PostgresqlProjectTimelineStore restartedStore = new PostgresqlProjectTimelineStore()) {
+                    AtomicInteger restartIds = new AtomicInteger();
+                    ProjectTimelineEngine restartedEngine = new ProjectTimelineEngine(restartedStore,
+                            () -> "j01-restarted-id-" + restartIds.incrementAndGet());
+
+                    assertThat(restartedEngine.project(fixtureActor, projectId).headRevisionId())
+                            .isEqualTo(child.revisionId());
+                    assertThat(restartedStore.revision(fixtureActor, projectId, child.revisionId()))
+                            .isEqualTo(child);
+                    assertThat(restartedStore.revision(fixtureActor, projectId, initialRevisionId).graph().scenes())
+                            .isEmpty();
+
+                    var restartReplay = restartedEngine.createProject(fixtureActor, "workspace-j01-fixture",
+                            "J-01 test project", "j01-create-request-1");
+                    assertThat(restartReplay.createdNow()).isFalse();
+                    assertThat(restartReplay.project()).isEqualTo(created.project());
+                    assertThat(restartReplay.initialRevision()).isEqualTo(created.initialRevision());
+
+                    assertThatThrownBy(() -> restartedEngine.edit(fixtureActor, projectId, initialRevisionId,
+                            List.of(new AddScene(new Scene("scene-j01-stale", 1)))))
+                            .isInstanceOf(RevisionConflictException.class);
+                    assertThat(restartedEngine.project(fixtureActor, projectId).headRevisionId())
+                            .isEqualTo(child.revisionId());
+                    assertThat(restartedStore.revision(fixtureActor, projectId, child.revisionId()).graph().scenes())
+                            .containsExactly(new Scene("scene-j01-authored", 0));
+
+                    assertThatThrownBy(() -> restartedStore.commit(fixtureActor, projectId, initialRevisionId,
+                            "j01-stale-store-revision", Graph.empty(created.initialRevision().graph().timelineId())))
+                            .isInstanceOf(RevisionConflictException.class);
+                    assertThat(restartedEngine.project(fixtureActor, projectId).headRevisionId())
+                            .isEqualTo(child.revisionId());
+                    assertThatThrownBy(() -> restartedStore.revision(fixtureActor, projectId,
+                            "j01-stale-store-revision")).isInstanceOf(ProjectNotFoundException.class);
+                }
+            } finally {
+                heldState.release();
+            }
         }
     }
 
