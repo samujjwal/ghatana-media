@@ -108,6 +108,31 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void durableReadbackRejectsDelimiterCollisionInArtifactAndVersionScope() {
+        Fixture f = new Fixture();
+        byte[] content = bytes(16);
+        String digest = MediaCreationContracts.sha256(content);
+        ExportRequest first = new ExportRequest("tenant:1", "principal:1", "request:1",
+                new Artifact("tenant:1", "artifact\nversion", "tail", digest, content), "destination:exact");
+        ExportRequest collision = new ExportRequest("tenant:1", "principal:1", "request:1",
+                new Artifact("tenant:1", "artifact", "version\ntail", digest, content), "destination:exact");
+
+        assertThat(String.join("\n", first.tenantId(), first.principalId(), first.requestId(),
+                first.artifact().artifactId(), first.artifact().versionRef(), first.artifact().digest(), first.destinationRef()))
+                .isEqualTo(String.join("\n", collision.tenantId(), collision.principalId(), collision.requestId(),
+                        collision.artifact().artifactId(), collision.artifact().versionRef(), collision.artifact().digest(),
+                        collision.destinationRef()));
+        assertThat(f.engine.export(first).status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, f.operations);
+        assertThatThrownBy(() -> restarted.export(collision))
+                .isInstanceOf(DeliveryException.class)
+                .extracting(error -> ((DeliveryException) error).code())
+                .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+        assertThat(f.destination.sendCount).isEqualTo(1);
+    }
+
+    @Test
     void findUsesCachedTypedKeyAndRejectsMismatchedDurableReadback() {
         Fixture f = new Fixture();
         ExportRequest request = f.request(bytes(16));

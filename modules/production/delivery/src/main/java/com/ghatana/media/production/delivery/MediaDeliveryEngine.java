@@ -522,14 +522,25 @@ public final class MediaDeliveryEngine {
         Optional<DeliveryOperationStore.Operation> stored = operations.find(request.tenantId(), request.requestId());
         if (stored.isEmpty()) return null;
         DeliveryOperationStore.Operation operation = stored.get();
-        String fingerprint = fingerprint(request);
-        if (!operation.requestFingerprint().equals(fingerprint)) {
+        if (!matchesScope(operation, request)) {
             throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
                     "request id is already bound to different export content or destination");
         }
-        Entry loaded = new Entry(request, fingerprint, result(operation));
+        // Preserve the persisted fingerprint so older rows remain resumable. Exact stored
+        // fields are checked independently because delimiter-joined fingerprints can collide.
+        Entry loaded = new Entry(request, operation.requestFingerprint(), result(operation));
         entries.put(key(request), loaded);
         return loaded;
+    }
+
+    private static boolean matchesScope(DeliveryOperationStore.Operation operation, ExportRequest request) {
+        return operation.tenantId().equals(request.tenantId())
+                && operation.principalId().equals(request.principalId())
+                && operation.requestId().equals(request.requestId())
+                && operation.artifactId().equals(request.artifact().artifactId())
+                && operation.versionRef().equals(request.artifact().versionRef())
+                && operation.artifactDigest().equals(request.artifact().digest())
+                && operation.destinationRef().equals(request.destinationRef());
     }
 
     private DeliveryResult refreshEntry(Entry entry) {
