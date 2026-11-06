@@ -5,7 +5,9 @@ This module implements immutable editorial graph revisions behind the
 process-local reference/test implementation; it is not durable storage, is not
 wired into the launcher, and must not be used as a second production writer.
 The eventual durable adapter must atomically commit the project head and its
-immutable revision in one store transaction.
+immutable revision in one store transaction. A development adapter now exists
+in `providers/aws-postgresql`; its additive V030 schema is test-resource-only
+and is not discovered by the launcher's V001-V029 migration location.
 
 The local graph binds every clip to an exact artifact version and keeps source
 presentation time separate from story time. Rational tick rates are reduced,
@@ -27,15 +29,20 @@ render, resolve artifact bytes, establish rights, or claim provider readiness. P
 defines project and timeline identities and immutable project revisions, but
 the exact project-revision-to-scene/clip/track graph field mapping remains
 unresolved; the fields here are a conservative, explicitly local assumption.
+The PostgreSQL development adapter preserves the existing typed `Graph` as a
+canonical serialized JSON snapshot without mapping it to PDP project fields.
+That storage choice is local and provisional; it does not resolve the PDP-1
+field mapping or establish production migration/cutover authority.
 The current reference authority applies owner-principal-only access within the
 tenant; shared workspace membership and project-policy evaluation remain
 unbound and must be supplied by the admitted host/policy boundary before a
 durable runtime adapter can expose shared editing. `InMemoryProjectTimelineStore`
-is only a process-local development/test authority. Hosts without an admitted
-durable single-writer store can bind `NotAdmittedProjectTimelineStore`, which
+is only a process-local development/test authority. The PostgreSQL adapter is
+an isolated development slice, not launcher-wired or production-qualified.
+Hosts without an admitted durable single-writer store can bind
+`NotAdmittedProjectTimelineStore`, which
 returns the typed `PROJECT_TIMELINE_STORE / NOT_ADMITTED` outcome instead of
-accepting edits that would disappear on restart. No durable adapter or launcher
-binding currently exists.
+accepting edits that would disappear on restart. No launcher binding exists.
 
 `StoryboardPlanner` prepares deterministic authored-only scene/shot editions. Declared scene and shot
 order is retained independently from exact rational story-time values, and every brief/shot source
