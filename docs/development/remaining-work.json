@@ -2233,7 +2233,8 @@
         "media.dev.versioned-review-and-approval"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: VersionSpecificReviewScenarioTest passed 1/1: an ACCEPT statement against V1 becomes stale after the source advances to V2, and another append to the old case is rejected without adding a record. This is a process-local in-memory fixture; it is not HUMAN_REVIEW_APPROVAL. Still OPEN: authentic owner-issued case/reviewer authority, hosted client/runtime wiring, durable storage and restart/readback evidence."
     },
     {
       "id": "media.dev.outcome-acknowledged-delivery",
@@ -2351,7 +2352,8 @@
         "media.dev.canonical-artifact-storage"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: MediaPostgresqlS3ArtifactErasureTreeTest passed 8/8 with Testcontainers PostgreSQL and LocalStack, covering tenant-scoped source/derived deletion, legal-hold preservation, tenant isolation, shared-object aliasing, and lost-delete-ACK retry/race/fault behavior. This is existing retention/erasure-tree coverage, not a request-driven J-26 API or rights-revocation gate. Source admission remains NOT_ADMITTED/UNBOUND; all-copy J-26 erasure finality and post-erasure disclosure behavior remain unproved."
     },
     {
       "id": "media.dev.outcome-provider-outage-safe-path",

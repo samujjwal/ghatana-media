@@ -760,6 +760,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-21 — Immutable-review approval invalidated by changed source revision.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `VersionSpecificReviewScenarioTest` passed 1/1: an ACCEPT statement against V1 becomes stale after the source advances to V2, and another append to the old case is rejected without adding a record. This is a process-local in-memory fixture; it is not `HUMAN_REVIEW_APPROVAL`. Still OPEN: authentic owner-issued case/reviewer authority, hosted client/runtime wiring, durable storage and restart/readback evidence.
 - **Predecessors:** `media.dev.versioned-review-and-approval`
 
 **`media.dev.outcome-acknowledged-delivery`** · OPEN
@@ -796,6 +797,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-26 — Real revoke/hold/deletion and no post-erasure disclosure.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `MediaPostgresqlS3ArtifactErasureTreeTest` passed 8/8 with Testcontainers PostgreSQL and LocalStack, covering tenant-scoped source/derived deletion, legal-hold preservation, tenant isolation, shared-object aliasing, and lost-delete-ACK retry/race/fault behavior. This is existing retention/erasure-tree coverage, not a request-driven J-26 API or rights-revocation gate. Source admission remains `NOT_ADMITTED`/`UNBOUND`; all-copy J-26 erasure finality and post-erasure disclosure behavior remain unproved.
 - **Predecessors:** `media.dev.rights-and-policy`, `media.dev.canonical-artifact-storage`
 
 **`media.dev.outcome-provider-outage-safe-path`** · OPEN
