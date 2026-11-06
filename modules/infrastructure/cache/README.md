@@ -4,9 +4,9 @@ Media caching adapter source; not an independently deployed cache service or a r
 
 ## Purpose
 
-Provides a unified facade for audio-video cache operations while keeping services decoupled from the underlying cache backend. Transcription APIs currently do not read or write transcript values: their inputs lack authenticated principal, rights/purpose/classification, immutable artifact/transcript revisions, source fingerprint, and policy epoch. `getOrLoadTranscription` calls the current source/authorization loader on every request and returns only its matching non-deleted result. On a valid source read it best-effort invalidates the legacy tenant/transcription key, which has no source-version dimension and could contain an older snapshot; absent or deleted source results invalidate that same exact key. Cache invalidation failure never replaces the current source result or its denial. Direct cache lookup methods return a miss.
+Provides a unified facade for audio-video cache operations while keeping services decoupled from the underlying cache backend. Unscoped transcription methods do not read or write protected transcript values because their inputs lack authenticated principal, rights/purpose/classification, immutable artifact/transcript revisions, source fingerprint, and policy epoch. `getOrLoadTranscription` calls the current source/authorization loader on every request and returns only its matching non-deleted result. On a valid source read it best-effort invalidates the legacy tenant/transcription key, which has no source-version dimension and could contain an older snapshot; absent or deleted source results invalidate that same exact key. Cache invalidation failure never replaces the current source result or its denial. Direct unscoped cache lookup methods return a miss.
 
-The generic protected-cache API requires a complete `CacheKeyScope`, including tenant, principal, immutable artifact/transcript/source identity and policy epoch. `getOrLoadScoped` checks trusted current authority before cache access and checks it again after a cache hit or source load, immediately before returning the value. Only explicit `true` at both points permits disclosure. A denied, null, or failed/unknown authority check returns no value and triggers best-effort exact-key invalidation; an initially denied or unavailable authority performs no cache read or source load. Source or policy epoch changes produce distinct keys, preventing reuse of entries from prior versions. Callers processing a revocation, consent, or retention event can use `invalidateScoped` with the prior scope for exact-key cleanup; no tenant-wide invalidation is claimed because the platform cache port does not provide that operation. Cache key scope partitions entries but never grants authority by itself.
+The generic protected-cache API requires a complete `CacheKeyScope`, including tenant, principal, rights, purpose, classification, immutable artifact/transcript/source identity, and policy epoch. `getOrLoadScopedWithAuthority` accepts a typed `ScopedAuthorityResult`: only `CURRENT` with an exact echo of the requested scope permits a cache lookup, and authority is checked again immediately before disclosure. `REJECTED`, `UNKNOWN`, null, error, or mismatched scope fails closed and triggers best-effort invalidation of only that exact key. The deprecated Boolean `getOrLoadScoped` overload cannot authorize protected cache reads or writes; it evicts the exact scoped key best-effort and returns an unavailable error without invoking the loader. A typed callback is only an SPI: production use requires a host owner-backed current-authority provider. Local test fixtures exercise the boundary but do not establish production authority. Source or policy epoch changes produce distinct keys, preventing reuse of entries from prior versions. Callers processing a revocation, consent, or retention change can use `invalidateScoped` with the prior scope for exact-key cleanup; this adapter does not claim event wiring or tenant-wide invalidation. Cache key scope partitions entries but never grants authority by itself.
 
 ## Layer
 
@@ -17,7 +17,7 @@ The generic protected-cache API requires a complete `CacheKeyScope`, including t
 | Class | Responsibility |
 |---|---|
 | `AudioVideoCache` | Cache facade; read-through / write-through helper for audio artefacts |
-| `TranscriptionCacheService` | Source-backed transcript reads; unscoped transcript cache reads and writes fail closed |
+| `TranscriptionCacheService` | Source-backed transcript reads; unscoped reads are source-only, scoped cache requires typed exact-scope authority |
 
 ## Configuration
 
@@ -28,11 +28,12 @@ cache.redis.port=6379
 ```
 
 The generic `AudioVideoCache` facade uses a 30-minute default TTL and caps
-caller-supplied TTLs at 30 minutes. Transcription cache writes are currently
-disabled because the transcription API does not carry complete protected
-scope; there is no active `cache.transcription.ttl-seconds` setting. The
+caller-supplied TTLs at 30 minutes. There is no active
+`cache.transcription.ttl-seconds` setting. The
 Shared `DistributedCachePort` owns backend storage and expiration behavior,
-while this adapter applies its local TTL cap before calling the port.
+while this adapter applies its local TTL cap before calling the port. Unscoped
+transcript APIs remain source-read-only; protected scoped cache use is available
+only through the typed authority SPI and has no production provider wired here.
 
 ## Dependencies
 

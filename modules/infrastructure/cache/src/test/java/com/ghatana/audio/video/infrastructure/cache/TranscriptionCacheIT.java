@@ -323,13 +323,12 @@ class TranscriptionCacheIT {
         source.setVersion(14L);
         AtomicInteger sourceLoads = new AtomicInteger();
         AtomicInteger authorityReads = new AtomicInteger();
-        var authority = (java.util.function.Function<AudioVideoCache.CacheKeyScope,
-                AsyncOperation<Boolean>>) checked -> {
+        var authority = (AudioVideoCache.ScopedAuthority) checked -> {
                     authorityReads.incrementAndGet();
-                    return AsyncOperation.success(true);
+                    return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked));
                 };
 
-        TranscriptionEntity initial = await(cacheService.getOrLoadTranscription(scope, transcriptionId,
+        TranscriptionEntity initial = await(cacheService.getOrLoadTranscriptionWithAuthority(scope, transcriptionId,
                 authority, id -> {
                     sourceLoads.incrementAndGet();
                     return AsyncOperation.success(Optional.of(source));
@@ -342,7 +341,7 @@ class TranscriptionCacheIT {
         cachePort = new DistributedCacheService(redisBackend, "transcription-cache-it");
         cacheService = new TranscriptionCacheService(cachePort, objectMapper);
 
-        TranscriptionEntity afterRestart = await(cacheService.getOrLoadTranscription(scope, transcriptionId,
+        TranscriptionEntity afterRestart = await(cacheService.getOrLoadTranscriptionWithAuthority(scope, transcriptionId,
                 authority, id -> {
                     sourceLoads.incrementAndGet();
                     return AsyncOperation.success(Optional.of(source));

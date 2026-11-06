@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -216,16 +217,16 @@ class AudioVideoCacheKeyRedactionTest {
         when(port.put(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.any(Duration.class))).thenReturn(AsyncOperation.success(null));
 
-        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScoped(oldScope, ignored -> {
+        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(oldScope, ignored -> {
             authorityCalls.incrementAndGet();
-            return AsyncOperation.success(false); // revoked
+            return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.rejected(oldScope)); // revoked
         }, ignored -> {
             loaderCalls.incrementAndGet();
             return AsyncOperation.success("must-not-load");
         }))).hasRootCauseInstanceOf(SecurityException.class);
-        assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScoped(newScope, ignored -> {
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(newScope, ignored -> {
             authorityCalls.incrementAndGet();
-            return AsyncOperation.success(true);
+            return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(newScope));
         }, ignored -> {
             loaderCalls.incrementAndGet();
             return AsyncOperation.success("current-policy-value");
@@ -238,16 +239,21 @@ class AudioVideoCacheKeyRedactionTest {
 
     @Test
     void scopedReadFailsClosedWhenCurrentAuthorityIsUnavailable() {
-        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        DistributedCacheService port = mock(DistributedCacheService.class);
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
         AudioVideoCache.CacheKeyScope scope = scopedKey("tenant", "principal", "rights",
                 "transcription", "sensitive", "artifact", "source-v1", "transcript-v1", "policy-v1");
 
-        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScoped(scope,
-                ignored -> AsyncOperation.failure(new IllegalStateException("authority unavailable")),
+        String key = cache.buildScopedKey(scope);
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(scope,
+                ignored -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.unknown()),
                 ignored -> AsyncOperation.success("must-not-load"))))
-                .hasRootCauseMessage("authority unavailable");
-        verifyNoInteractions(port);
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+        verify(port, never()).get(key);
+        verify(port, never()).put(any(), any(), any());
+        verify(port).invalidateAsync(key);
     }
 
     @Test
