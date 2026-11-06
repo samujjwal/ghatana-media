@@ -121,6 +121,33 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void concurrentMixedOutcomesAccountForEveryRequestedOperationExactlyOnce() throws Exception {
+        MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
+                16, 32, Duration.ofSeconds(2), index -> {
+                    if (index % 4 == 0) throw new IOException("fixture failure");
+                });
+
+        assertThat(report.outcome()).isEqualTo(MediaResourceProfileHarness.Outcome.FAILED);
+        assertThat(report.completedOperations()).isEqualTo(32);
+        assertThat(report.failedOperations()).isEqualTo(8);
+        assertThat(report.incompleteOperations()).isZero();
+    }
+
+    @Test
+    void reportRejectsImpossibleOperationAccounting() {
+        var environment = new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 1,
+                "NOT_CONFIGURED", "NOT_CONFIGURED");
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                16, 4, 3, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1.0, 0.0, 0.0, 0.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                16, 4, 2, 3, 2, MediaResourceProfileHarness.Outcome.FAILED, true,
+                1, 1, 1.0, 0.0, 0.0, 0.0, environment, java.util.Map.of()));
+    }
+
+    @Test
     void reportsRuntimeIdentityAndKeepsUnconfiguredProviderProfileExplicit() throws Exception {
         MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
                 1, 1, Duration.ofSeconds(1), index -> { });

@@ -122,6 +122,12 @@ public final class MediaResourceProfileHarness {
         public Report {
             Objects.requireNonNull(outcome, "outcome");
             Objects.requireNonNull(environment, "environment");
+            if (requestedOperations < 1 || completedOperations < 0 || failedOperations < 0
+                    || incompleteOperations < 0
+                    || completedOperations + incompleteOperations != requestedOperations
+                    || failedOperations > completedOperations) {
+                throw new IllegalArgumentException("operation counts must account for each request exactly once");
+            }
             resources = Map.copyOf(resources);
         }
 
