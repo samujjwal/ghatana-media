@@ -344,6 +344,18 @@ class MediaLauncherSttProcessIT {
             assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
             assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
 
+            // Cancellation is terminally idempotent here: it cannot turn an ambiguous
+            // provider outcome into CANCELLED or create a second dispatch attempt.
+            HttpResponse<String> cancelUnknown = sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/jobs/" + jobId + "/cancel", "", "application/json", null);
+            assertThat(cancelUnknown.statusCode()).as(cancelUnknown.body()).isEqualTo(200);
+            JsonNode stillUnknown = JSON.readTree(cancelUnknown.body());
+            assertThat(stillUnknown.path("jobId").asText()).isEqualTo(jobId);
+            assertThat(stillUnknown.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(stillUnknown.path("failureCode").asText()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+
             // Exact command replay after restart remains the same unknown job and cannot
             // manufacture a second attempt or convert the fixture marker into provider truth.
             HttpResponse<String> replay = sendAuthenticated(port, TENANT, token, "POST",
@@ -591,7 +603,7 @@ class MediaLauncherSttProcessIT {
         String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
         String permissions = String.join(",", Set.of(
                 "media:artifact:create", "media:artifact:write", "media:artifact:read",
-                "media:job:create", "media:job:read").stream()
+                "media:job:create", "media:job:read", "media:job:cancel").stream()
                 .sorted().map(permission -> "\"" + permission + "\"").toList());
         String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + tenant
                 + "\",\"iss\":\"https://issuer.example\",\"aud\":\"ghatana-runtime\",\"exp\":"
