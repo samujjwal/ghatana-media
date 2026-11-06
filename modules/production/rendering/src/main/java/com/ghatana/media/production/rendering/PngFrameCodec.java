@@ -399,10 +399,7 @@ public final class PngFrameCodec {
     public record DecodedPngFrameSequence(TimeBase timeBase, List<Frame> frames) {
         public DecodedPngFrameSequence {
             Objects.requireNonNull(timeBase, "timeBase");
-            frames = List.copyOf(Objects.requireNonNull(frames, "frames"));
-            if (frames.size() < 3 || frames.size() > TemporalVideoRestoration.MAX_FRAMES) {
-                throw invalid("decoded PNG sequence must contain between 3 and 64 frames");
-            }
+            frames = copyBoundedDecodedFrames(frames);
             Frame first = Objects.requireNonNull(frames.getFirst(), "frames[]");
             long pixels = 0, previousPts = -1;
             for (int index = 0; index < frames.size(); index++) {
@@ -422,6 +419,26 @@ public final class PngFrameCodec {
                 throw invalid("decoded PNG sequence exceeds the aggregate pixel or RGB byte budget");
             }
         }
+    }
+
+    private static List<Frame> copyBoundedDecodedFrames(List<Frame> frames) {
+        Objects.requireNonNull(frames, "frames");
+        int declaredSize = frames.size();
+        if (declaredSize < 3 || declaredSize > TemporalVideoRestoration.MAX_FRAMES) {
+            throw invalid("decoded PNG sequence must contain between 3 and 64 frames");
+        }
+        ArrayList<Frame> copy = new ArrayList<>(declaredSize);
+        Iterator<Frame> iterator = frames.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= TemporalVideoRestoration.MAX_FRAMES) {
+                throw invalid("decoded PNG sequence must contain between 3 and 64 frames");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), "frames[]"));
+        }
+        if (copy.size() != declaredSize) {
+            throw invalid("decoded PNG sequence must contain between 3 and 64 frames");
+        }
+        return List.copyOf(copy);
     }
 
     /** Ordered still PNGs plus their declared clock; this is not a video container or provenance claim. */

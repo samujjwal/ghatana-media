@@ -38,6 +38,67 @@ class PngFrameCodecTest {
     }
 
     @Test
+    void decodedSequenceRejectsDeclaredOversizeBeforeReadingFrames() {
+        AtomicInteger reads = new AtomicInteger();
+        List<Frame> hostile = new AbstractList<>() {
+            @Override public Frame get(int index) {
+                reads.incrementAndGet();
+                throw new AssertionError("declared oversized list must be rejected before frame access");
+            }
+            @Override public int size() { return Integer.MAX_VALUE; }
+        };
+
+        assertThatThrownBy(() -> new PngFrameCodec.DecodedPngFrameSequence(TIME_BASE, hostile))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("between 3 and 64 frames");
+        assertThat(reads).hasValue(0);
+    }
+
+    @Test
+    void decodedSequenceRejectsUnderreportedIteratorAtFrameLimit() {
+        AtomicInteger reads = new AtomicInteger();
+        Roi roi = new Roi(0, 0, 1, 1);
+        Frame frame = new Frame(0, 1, 1, 1, roi, new byte[] {1, 2, 3});
+        List<Frame> underreported = new AbstractList<>() {
+            @Override public Frame get(int index) { throw new AssertionError("custom iterator should be used"); }
+            @Override public int size() { return 3; }
+            @Override public Iterator<Frame> iterator() {
+                return new Iterator<>() {
+                    private int index;
+                    @Override public boolean hasNext() { return index < 100; }
+                    @Override public Frame next() {
+                        reads.incrementAndGet();
+                        index++;
+                        return frame;
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new PngFrameCodec.DecodedPngFrameSequence(TIME_BASE, underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("between 3 and 64 frames");
+        assertThat(reads).hasValue(TemporalVideoRestoration.MAX_FRAMES);
+    }
+
+    @Test
+    void decodedSequenceKeepsAnImmutableSnapshotOfValidFrames() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        List<Frame> input = new java.util.ArrayList<>(List.of(
+                new Frame(0, 1, 1, 1, roi, new byte[] {1, 2, 3}),
+                new Frame(1, 2, 1, 1, roi, new byte[] {4, 5, 6}),
+                new Frame(2, 3, 1, 1, roi, new byte[] {7, 8, 9})));
+
+        PngFrameCodec.DecodedPngFrameSequence decoded =
+                new PngFrameCodec.DecodedPngFrameSequence(TIME_BASE, input);
+        input.clear();
+
+        assertThat(decoded.frames()).hasSize(3);
+        assertThat(decoded.frames()).extracting(Frame::frameIndex).containsExactly(0, 1, 2);
+        assertThatThrownBy(() -> decoded.frames().clear()).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
     void candidatePngRoundTripEncodesActualRgbPayloadAndCallerMetadataRemainsAvailable() {
         byte[] pixels = {(byte) 250, 2, 3, 4, 5, 6};
         Roi roi = new Roi(0, 0, 2, 1);
