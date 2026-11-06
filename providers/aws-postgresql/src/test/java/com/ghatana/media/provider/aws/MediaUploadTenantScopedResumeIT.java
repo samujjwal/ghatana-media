@@ -134,6 +134,11 @@ class MediaUploadTenantScopedResumeIT {
                 assertThatThrownBy(() -> restartedWorker.append("tenant-owner", "principal-owner", uploadId,
                         0, "corrupt-substitution".getBytes(java.nio.charset.StandardCharsets.UTF_8)))
                         .isInstanceOf(RuntimeException.class);
+                UploadSession afterConflictingReplay = restartedWorker.upload("tenant-owner", uploadId).orElseThrow();
+                assertThat(afterConflictingReplay.status()).isEqualTo(UploadStatus.OPEN);
+                assertThat(afterConflictingReplay.nextChunkIndex()).isEqualTo(1);
+                assertThat(afterConflictingReplay.bytesReceived()).isEqualTo(acknowledged.length);
+
                 restartedWorker.append("tenant-owner", "principal-owner", uploadId, 1, remainder);
                 MediaArtifact artifact = restartedWorker.complete("tenant-owner", "principal-owner", uploadId);
                 assertThat(artifact.sha256()).isEqualTo(sha256(sourceRevision));
