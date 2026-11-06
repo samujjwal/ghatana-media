@@ -71,6 +71,26 @@ class HealthMetricsServerTest {
     }
 
     @Test
+    void healthAndMetricsRejectContextPrefixPaths() throws Exception {
+        HealthMetricsServer server = new HealthMetricsServer(
+                "test-service", () -> true, () -> "", 0, 1, 1, 1);
+        server.start();
+        try {
+            HttpResponse<String> health = get(server.getPort(), "/health/extra");
+            HttpResponse<String> ready = get(server.getPort(), "/ready/extra");
+            HttpResponse<String> metrics = get(server.getPort(), "/metrics/extra");
+
+            assertThat(health.statusCode()).isEqualTo(404);
+            assertThat(health.body()).isEqualTo("Not Found");
+            assertThat(ready.statusCode()).isEqualTo(404);
+            assertThat(metrics.statusCode()).isEqualTo(404);
+            assertThat(metrics.body()).isEqualTo("Not Found");
+        } finally {
+            server.close();
+        }
+    }
+
+    @Test
     void saturatedReadinessAdmissionReturnsDeterministic503AndRecovers() throws Exception {
         CountDownLatch probeStarted = new CountDownLatch(1);
         CountDownLatch releaseProbe = new CountDownLatch(1);

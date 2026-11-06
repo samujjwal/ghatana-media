@@ -162,6 +162,11 @@ public class HealthMetricsServer implements AutoCloseable {
     // -------------------------------------------------------------------------
 
     private void handleHealth(HttpExchange ex) throws IOException {
+        if (!"/health".equals(ex.getRequestURI().getPath())
+                && !"/ready".equals(ex.getRequestURI().getPath())) {
+            sendResponse(ex, 404, "text/plain", "Not Found");
+            return;
+        }
         if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
             sendResponse(ex, 405, "text/plain", "Method Not Allowed");
             return;
@@ -183,6 +188,10 @@ public class HealthMetricsServer implements AutoCloseable {
     }
 
     private void handleMetrics(HttpExchange ex) throws IOException {
+        if (!"/metrics".equals(ex.getRequestURI().getPath())) {
+            sendResponse(ex, 404, "text/plain", "Not Found");
+            return;
+        }
         if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
             sendResponse(ex, 405, "text/plain", "Method Not Allowed");
             return;
