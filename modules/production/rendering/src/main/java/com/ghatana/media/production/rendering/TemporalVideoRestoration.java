@@ -455,6 +455,21 @@ public final class TemporalVideoRestoration {
             if (clippedSamples < 0 || clippedSamples > sourceDelta.comparedSamples() || clippedMagnitude < 0) {
                 throw invalid("clipped sample count is outside the compared ROI sample bound");
             }
+            long maximumClippedMagnitudePerSample = switch (lineage.profileId()) {
+                case PROFILE_ID -> 0L; // A median of RGB8 samples cannot leave the RGB8 range.
+                case UNSHARP_PROFILE_ID -> 510L; // amount <= 2 and both sample and ROI blur are in [0,255].
+                case COLOR_PROFILE_ID -> 1_020L; // gain <= 4 and offset <= 255.
+                default -> throw invalid("candidate lineage names an unsupported filter profile");
+            };
+            if (clippedSamples == 0 && clippedMagnitude != 0
+                    || maximumClippedMagnitudePerSample == 0 && clippedSamples != 0
+                    || clippedSamples > 0 && clippedMagnitude == 0
+                    || maximumClippedMagnitudePerSample > 0 && clippedSamples > 0
+                            && (clippedMagnitude / clippedSamples > maximumClippedMagnitudePerSample
+                                    || clippedMagnitude / clippedSamples == maximumClippedMagnitudePerSample
+                                            && clippedMagnitude % clippedSamples != 0)) {
+                throw invalid("clipped magnitude is inconsistent with the selected RGB8 filter bounds");
+            }
             if (!dimensionsPreserved || !timingPreserved || !sourcePixelsPreservedOutsideRoi || improvementClaimed) {
                 throw invalid("candidate must preserve source structure and cannot claim quality improvement");
             }

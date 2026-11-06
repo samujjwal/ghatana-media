@@ -75,6 +75,30 @@ class DubbingOrchestratorTest {
                 .hasMessageContaining("dubbed audio");
     }
 
+    @Test
+    void completedResultCannotOmitTranslationOrSynthesisFinalityAccounting() {
+        SourceVersion source = new SourceVersion("artifact-a", "version-a");
+        VoiceIdentity voice = new VoiceIdentity("voice-a", "voice-v1");
+        List<DubbedSegment> segments = List.of(new DubbedSegment("seg-1", "hola", new byte[] { 1 },
+                "digest", 100, 300, 120, 280));
+
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                false, 1, segments))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("synthesis cannot be dispatched before translation");
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                true, 0, segments))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("every translated synthesis segment");
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                true, 2, segments))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("every translated synthesis segment");
+    }
+
     private static <T> List<T> underreportedList(AtomicInteger yielded, IntFunction<T> elementFactory) {
         return new AbstractList<>() {
             @Override public T get(int index) { throw new UnsupportedOperationException(); }

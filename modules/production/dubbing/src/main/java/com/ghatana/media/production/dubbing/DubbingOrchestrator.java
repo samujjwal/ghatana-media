@@ -232,6 +232,16 @@ public final class DubbingOrchestrator {
             segments = boundedSegmentCopy(segments == null ? List.of() : segments, "segments");
             if ((status == ResultStatus.COMPLETED) != reason.isEmpty()) throw new IllegalArgumentException("only completed dubbing has no failure reason");
             if (status != ResultStatus.COMPLETED && !segments.isEmpty()) throw new IllegalArgumentException("incomplete dubbing cannot expose a completed segment set");
+            if (synthesisDispatchCount < 0 || synthesisDispatchCount > MAX_SEGMENTS) {
+                throw new IllegalArgumentException("synthesis dispatch count is outside bounds");
+            }
+            if (!translationDispatched && synthesisDispatchCount != 0) {
+                throw new IllegalArgumentException("synthesis cannot be dispatched before translation");
+            }
+            if (status == ResultStatus.COMPLETED
+                    && (!translationDispatched || synthesisDispatchCount == 0 || synthesisDispatchCount != segments.size())) {
+                throw new IllegalArgumentException("completed dubbing must account for every translated synthesis segment");
+            }
         }
     }
 

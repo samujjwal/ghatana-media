@@ -518,6 +518,28 @@ class TemporalVideoRestorationTest {
                 .hasMessageContaining("lineage digest does not match");
     }
 
+    @Test
+    void candidateRejectsClippingMetricsOutsideTheSelectedFilterBounds() {
+        Candidate temporal = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.empty(), null, null).candidate().orElseThrow();
+        assertThatThrownBy(() -> candidateWith(temporal, temporal.frames(), 1, 1))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("selected RGB8 filter bounds");
+        assertThatThrownBy(() -> candidateWith(temporal, temporal.frames(), 0, 1))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("selected RGB8 filter bounds");
+
+        Candidate unsharp = TemporalVideoRestoration.restore(request(FilterParameters.unsharpMask("bounded-v1", 2)),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.empty(), null, null).candidate().orElseThrow();
+        assertThatThrownBy(() -> candidateWith(unsharp, unsharp.frames(), 1, 511))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("selected RGB8 filter bounds");
+    }
+
     private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] pixels) {
         try {
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(pixels));
@@ -528,8 +550,13 @@ class TemporalVideoRestorationTest {
     }
 
     private static Candidate candidateWith(Candidate source, List<CandidateFrame> frames) {
+        return candidateWith(source, frames, source.clippedSamples(), source.clippedMagnitude());
+    }
+
+    private static Candidate candidateWith(Candidate source, List<CandidateFrame> frames,
+            long clippedSamples, long clippedMagnitude) {
         return new Candidate(frames, source.timeBase(), source.lineage(), source.sourceDelta(),
-                source.referenceMetrics(), source.clippedSamples(), source.clippedMagnitude(),
+                source.referenceMetrics(), clippedSamples, clippedMagnitude,
                 true, true, true, false);
     }
 
