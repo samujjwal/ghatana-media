@@ -57,17 +57,22 @@ public final class AudioRepairComparison {
     private static void requireCompatible(AudioData left, AudioData right, String label) {
         Objects.requireNonNull(left, "left audio");
         Objects.requireNonNull(right, "right audio");
-        byte[] leftBytes = left.data();
-        byte[] rightBytes = right.data();
+        int leftLength = left.dataLength();
+        int rightLength = right.dataLength();
         if (left.format() != AudioFormat.PCM || right.format() != AudioFormat.PCM
                 || left.sampleRate() != right.sampleRate()
                 || left.channels() != right.channels()
                 || left.bitsPerSample() != right.bitsPerSample()
                 || !left.duration().equals(right.duration())
-                || leftBytes.length == 0
-                || leftBytes.length != rightBytes.length
-                || leftBytes.length > MAX_PCM_BYTES) {
+                || leftLength == 0
+                || leftLength != rightLength
+                || leftLength > MAX_PCM_BYTES) {
             throw new IllegalArgumentException(label + " must be non-empty bounded PCM with identical format and length");
+        }
+        byte[] leftBytes = left.data();
+        byte[] rightBytes = right.data();
+        if (leftBytes.length != leftLength || rightBytes.length != rightLength) {
+            throw new IllegalArgumentException(label + " changed while it was being read");
         }
         if (!supportedBits(left.bitsPerSample())) {
             throw new IllegalArgumentException("PCM comparison supports signed 16-, 24-, or 32-bit samples");

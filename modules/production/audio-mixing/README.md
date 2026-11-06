@@ -4,7 +4,8 @@ This module keeps source and repaired PCM revisions separate and reports
 SHA-256 fingerprints, changed-sample count, RMS, peak, and SNR only when the
 caller supplies an independent reference. Inputs are bounded to 16 MiB and
 must have the same signed PCM format, sample rate, channels, duration, and
-length. The defensive `AudioData` copies make both stored revisions immutable
+length. The byte ceiling is checked from metadata before materializing input
+copies. The defensive `AudioData` copies make both stored revisions immutable
 to callers.
 
 `AudioRepairComparison.undo()` returns a fresh copy of the exact source branch.

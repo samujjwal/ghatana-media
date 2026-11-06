@@ -47,7 +47,7 @@ public record AudioData(
     }
 
     /** Return the payload size without materializing a defensive copy. */
-    int dataLength() {
+    public int dataLength() {
         return data.length;
     }
 
