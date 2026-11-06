@@ -55,6 +55,62 @@ class PngFrameCodecTest {
     }
 
     @Test
+    void candidateSequenceEncodingPreservesFrameClockRoiAndPixelsWithoutClaimingAContainer() {
+        Roi roi = new Roi(0, 0, 2, 1);
+        List<CandidateFrame> candidates = List.of(
+                candidateFrame(0, 0, roi, new byte[] {10, 20, 30, 40, 50, 60}),
+                candidateFrame(1, 1_001, roi, new byte[] {11, 21, 31, 41, 51, 61}),
+                candidateFrame(2, 3_003, roi, new byte[] {12, 22, 32, 42, 52, 62}));
+
+        PngFrameCodec.EncodedPngFrameSequence encoded = PngFrameCodec.encodeSequence(TIME_BASE, candidates);
+        PngFrameCodec.DecodedPngFrameSequence decoded =
+                PngFrameCodec.decodeSequence(encoded.timeBase(), encoded.frames());
+
+        assertThat(encoded.timeBase()).isEqualTo(TIME_BASE);
+        assertThat(encoded.frames()).extracting(frame -> frame.metadata().frameIndex()).containsExactly(0, 1, 2);
+        assertThat(encoded.frames()).extracting(frame -> frame.metadata().presentationTicks())
+                .containsExactly(0L, 1_001L, 3_003L);
+        assertThat(decoded.timeBase()).isEqualTo(TIME_BASE);
+        assertThat(decoded.frames()).extracting(Frame::presentationTicks).containsExactly(0L, 1_001L, 3_003L);
+        assertThat(decoded.frames()).extracting(Frame::roi).containsOnly(roi);
+        assertThat(decoded.frames()).extracting(Frame::rgb)
+                .containsExactly(candidates.get(0).rgb(), candidates.get(1).rgb(), candidates.get(2).rgb());
+    }
+
+    @Test
+    void candidateSequenceEnforcesActualIteratorAndAggregateOutputBounds() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        CandidateFrame candidate = candidateFrame(0, 1, roi, new byte[] {1, 2, 3, 4, 5, 6});
+        int[] yielded = {0};
+        List<CandidateFrame> underreported = new AbstractList<>() {
+            @Override public CandidateFrame get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return 3; }
+            @Override public Iterator<CandidateFrame> iterator() {
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return yielded[0] < 100; }
+                    @Override public CandidateFrame next() {
+                        yielded[0]++;
+                        return new CandidateFrame(yielded[0] - 1, yielded[0], 2, 1, roi,
+                                candidate.rgb(), candidate.frameSha256());
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> PngFrameCodec.encodeSequence(TIME_BASE, underreported))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("between 3 and 64 frames");
+        assertThat(yielded[0]).isEqualTo(TemporalVideoRestoration.MAX_FRAMES);
+
+        List<CandidateFrame> withinLimit = List.of(
+                candidateFrame(0, 1, roi, new byte[] {1, 2, 3, 4, 5, 6}),
+                candidateFrame(1, 2, roi, new byte[] {4, 5, 6, 7, 8, 9}),
+                candidateFrame(2, 3, roi, new byte[] {7, 8, 9, 10, 11, 12}));
+        PngFrameCodec.Limits tinyAggregate = new PngFrameCodec.Limits(1_000, 1_000, 10, 10, 10);
+        assertThatThrownBy(() -> PngFrameCodec.encodeSequence(TIME_BASE, withinLimit, tinyAggregate))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("output bound");
+    }
+
+    @Test
     void rejectsTrailingBytesMalformedPngDimensionMismatchAndEncodedInputOverflow() throws Exception {
         byte[] valid = png(2, 1, new byte[] {1, 2, 3, 4, 5, 6});
         PngFrameCodec.FrameMetadata metadata = new PngFrameCodec.FrameMetadata(0, 0, 2, 1, new Roi(0, 0, 2, 1));
@@ -155,6 +211,10 @@ class PngFrameCodecTest {
     private static PngFrameCodec.PngFrame inputFrame(int index, long pts, Roi roi, byte[] rgb) {
         return new PngFrameCodec.PngFrame(png(2, 1, rgb),
                 new PngFrameCodec.FrameMetadata(index, pts, 2, 1, roi));
+    }
+
+    private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] rgb) {
+        return new CandidateFrame(index, pts, 2, 1, roi, rgb, sha256(rgb));
     }
 
     private static byte[] png(int width, int height, byte[] rgb) {

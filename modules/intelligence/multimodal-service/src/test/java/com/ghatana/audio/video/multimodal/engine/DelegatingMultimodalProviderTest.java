@@ -205,7 +205,7 @@ class DelegatingMultimodalProviderTest {
                     .with(JobStatus.COMPLETED, Map.of("text", "grounded",
                             "timedObservations", List.of(Map.of(
                                     "startTick", 0L, "endTick", 48_000L,
-                                    "sourceClockId", "src-clock"))));
+                                    "sourceClockId", "src-clock", "ticksPerSecond", 48_000L))));
             var submission = provider.processAttempt(clockedContext(dispatcher), attempt())
                     .get(10, TimeUnit.SECONDS);
             assertThat(submission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);

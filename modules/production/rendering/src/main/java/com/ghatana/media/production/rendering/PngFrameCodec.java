@@ -121,6 +121,73 @@ public final class PngFrameCodec {
         }
     }
 
+    /**
+     * Encodes an ordered collection of still-frame candidates. The result carries the caller-supplied frame clock
+     * and ROI beside each PNG; it is not a video container and does not establish artifact provenance.
+     */
+    public static EncodedPngFrameSequence encodeSequence(TimeBase timeBase, List<CandidateFrame> frames) {
+        return encodeSequence(timeBase, frames, Limits.defaults());
+    }
+
+    /** Encodes a bounded ordered still-frame collection with per-frame and aggregate output limits. */
+    public static EncodedPngFrameSequence encodeSequence(
+            TimeBase timeBase, List<CandidateFrame> frames, Limits limits) {
+        Objects.requireNonNull(timeBase, "timeBase");
+        Objects.requireNonNull(frames, "frames");
+        Objects.requireNonNull(limits, "limits");
+        List<CandidateFrame> candidates = copyBoundedCandidates(frames);
+        CandidateFrame first = candidates.getFirst();
+        long totalPixels = 0;
+        long previousPts = -1;
+        for (int index = 0; index < candidates.size(); index++) {
+            CandidateFrame candidate = candidates.get(index);
+            checkDimensions(candidate.width(), candidate.height(), limits);
+            if (candidate.frameIndex() != index || candidate.presentationTicks() <= previousPts) {
+                throw invalid("candidate frame indexes must be contiguous and PTS values strictly increasing");
+            }
+            if (candidate.width() != first.width() || candidate.height() != first.height()
+                    || !candidate.roi().equals(first.roi())) {
+                throw invalid("candidate frame dimensions and ROI must remain identical within a sequence");
+            }
+            previousPts = candidate.presentationTicks();
+            totalPixels = Math.addExact(totalPixels, (long) candidate.width() * candidate.height());
+        }
+        if (totalPixels > TemporalVideoRestoration.MAX_TOTAL_PIXELS
+                || totalPixels * 3 > TemporalVideoRestoration.MAX_TOTAL_RGB_BYTES) {
+            throw invalid("PNG candidate sequence exceeds the aggregate pixel or RGB byte budget");
+        }
+
+        List<PngFrame> encoded = new ArrayList<>(candidates.size());
+        long totalEncodedBytes = 0;
+        for (CandidateFrame candidate : candidates) {
+            long remainingBytes = limits.maxTotalEncodedBytes() - totalEncodedBytes;
+            if (remainingBytes < 1) throw invalid("PNG candidate sequence exceeds its aggregate encoded byte bound");
+            int frameOutputLimit = (int) Math.min(limits.maxOutputBytes(), remainingBytes);
+            Limits frameLimits = new Limits(limits.maxEncodedBytes(), frameOutputLimit, limits.maxDimension(),
+                    limits.maxPixels(), limits.maxTotalEncodedBytes());
+            byte[] png = encode(candidate, frameLimits);
+            totalEncodedBytes = Math.addExact(totalEncodedBytes, png.length);
+            if (totalEncodedBytes > limits.maxTotalEncodedBytes()) {
+                throw invalid("PNG candidate sequence exceeds its aggregate encoded byte bound");
+            }
+            FrameMetadata metadata = new FrameMetadata(candidate.frameIndex(), candidate.presentationTicks(),
+                    candidate.width(), candidate.height(), candidate.roi());
+            encoded.add(new PngFrame(png, metadata));
+        }
+        return new EncodedPngFrameSequence(timeBase, encoded);
+    }
+
+    private static List<CandidateFrame> copyBoundedCandidates(List<CandidateFrame> frames) {
+        List<CandidateFrame> copy = new ArrayList<>(TemporalVideoRestoration.MAX_FRAMES);
+        Iterator<CandidateFrame> iterator = frames.iterator();
+        while (copy.size() < TemporalVideoRestoration.MAX_FRAMES && iterator.hasNext()) {
+            copy.add(Objects.requireNonNull(iterator.next(), "candidate frames[]"));
+        }
+        if (iterator.hasNext()) throw invalid("PNG candidate sequence must contain between 3 and 64 frames");
+        if (copy.size() < 3) throw invalid("PNG candidate sequence must contain between 3 and 64 frames");
+        return List.copyOf(copy);
+    }
+
     public static Frame decode(byte[] encodedPng, FrameMetadata metadata) {
         return decode(encodedPng, metadata, Limits.defaults());
     }
@@ -328,6 +395,33 @@ public final class PngFrameCodec {
             if (pixels > TemporalVideoRestoration.MAX_TOTAL_PIXELS
                     || pixels * 3 > TemporalVideoRestoration.MAX_TOTAL_RGB_BYTES) {
                 throw invalid("decoded PNG sequence exceeds the aggregate pixel or RGB byte budget");
+            }
+        }
+    }
+
+    /** Ordered still PNGs plus their declared clock; this is not a video container or provenance claim. */
+    public record EncodedPngFrameSequence(TimeBase timeBase, List<PngFrame> frames) {
+        public EncodedPngFrameSequence {
+            Objects.requireNonNull(timeBase, "timeBase");
+            frames = copyBoundedFrames(Objects.requireNonNull(frames, "frames"));
+            FrameMetadata first = frames.getFirst().metadata();
+            long totalEncodedBytes = 0;
+            long previousPts = -1;
+            for (int index = 0; index < frames.size(); index++) {
+                PngFrame frame = frames.get(index);
+                FrameMetadata metadata = frame.metadata();
+                if (metadata.frameIndex() != index || metadata.presentationTicks() <= previousPts) {
+                    throw invalid("encoded PNG frame indexes must be contiguous and PTS values strictly increasing");
+                }
+                if (metadata.width() != first.width() || metadata.height() != first.height()
+                        || !metadata.roi().equals(first.roi())) {
+                    throw invalid("encoded PNG frame dimensions and ROI must remain identical");
+                }
+                previousPts = metadata.presentationTicks();
+                totalEncodedBytes = Math.addExact(totalEncodedBytes, frame.png.length);
+                if (totalEncodedBytes > TemporalVideoRestoration.MAX_TOTAL_RGB_BYTES) {
+                    throw invalid("encoded PNG sequence exceeds the aggregate encoded byte bound");
+                }
             }
         }
     }

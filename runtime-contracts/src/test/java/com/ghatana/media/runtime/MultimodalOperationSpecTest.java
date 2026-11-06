@@ -114,12 +114,13 @@ class MultimodalOperationSpecTest {
                 Map.of("text", "hello",
                         "timedObservations", List.of(
                                 Map.of("startTick", 9_600L, "endTick", 14_400L,
-                                        "sourceClockId", "src-clock", "label", "seg-1"))));
+                                        "sourceClockId", "src-clock", "ticksPerSecond", 48_000L,
+                                        "label", "seg-1"))));
         var vision = completedChild("job-vis", JobType.VISION,
                 Map.of("caption", "a cat",
                         "timedObservations", List.of(
                                 Map.of("startTick", 24_000L, "endTick", 28_800L,
-                                        "sourceClockId", "src-clock"))));
+                                        "sourceClockId", "src-clock", "ticksPerSecond", 48_000L))));
         Map<String, Object> fused = MultimodalOperationSpec.fusedResult(
                 spec, List.of(stt, vision));
         assertThat(fused.get("clockComparability")).isEqualTo("SOURCE_CLOCK_SHARED");
@@ -148,18 +149,29 @@ class MultimodalOperationSpecTest {
         var spec = clockedSpec(binding);
         var wrongClock = completedChild("job-a", JobType.SPEECH_TO_TEXT,
                 Map.of("timedObservations", List.of(
-                        Map.of("startTick", 0L, "endTick", 1_000L, "sourceClockId", "other-clock"))));
+                        Map.of("startTick", 0L, "endTick", 1_000L, "sourceClockId", "other-clock",
+                                "ticksPerSecond", 48_000L))));
         var outOfDuration = completedChild("job-b", JobType.VISION,
                 Map.of("timedObservations", List.of(
-                        Map.of("startTick", 0L, "endTick", 96_000L, "sourceClockId", "src-clock"))));
+                        Map.of("startTick", 0L, "endTick", 96_000L, "sourceClockId", "src-clock",
+                                "ticksPerSecond", 48_000L))));
+        var missingTimebase = completedChild("job-d", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", List.of(
+                        Map.of("startTick", 0L, "endTick", 1_000L, "sourceClockId", "src-clock"))));
+        var mismatchedTimebase = completedChild("job-e", JobType.VISION,
+                Map.of("timedObservations", List.of(
+                        Map.of("startTick", 0L, "endTick", 1_000L, "sourceClockId", "src-clock",
+                                "ticksPerSecond", 90_000L))));
         var malformed = completedChild("job-c", JobType.SPEECH_TO_TEXT,
                 Map.of("timedObservations", List.of(Map.of("startTick", "oops"))));
         Map<String, Object> fused = MultimodalOperationSpec.fusedResult(
-                spec, List.of(wrongClock, outOfDuration, malformed));
+                spec, List.of(wrongClock, outOfDuration, malformed, missingTimebase, mismatchedTimebase));
         List<?> observations = (List<?>) fused.get("observations");
         assertThat(undetermined(observations, 0)).isEqualTo("SOURCE_CLOCK_MISMATCH");
         assertThat(undetermined(observations, 1)).isEqualTo("SOURCE_TICKS_OUT_OF_DURATION");
         assertThat(undetermined(observations, 2)).isEqualTo("TIMED_OBSERVATION_MALFORMED");
+        assertThat(undetermined(observations, 3)).isEqualTo("SOURCE_CLOCK_MISMATCH");
+        assertThat(undetermined(observations, 4)).isEqualTo("SOURCE_CLOCK_MISMATCH");
         assertThat(fused.get("clockComparability")).isEqualTo("SYNC_UNDETERMINED");
         // No binding at all: nothing is claimed comparable.
         var unbound = clockedSpec(null);

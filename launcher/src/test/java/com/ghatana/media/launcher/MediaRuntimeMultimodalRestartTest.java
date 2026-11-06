@@ -78,7 +78,7 @@ class MediaRuntimeMultimodalRestartTest {
                 sttProvider(Map.of("text", "grounded",
                         "timedObservations", List.of(Map.of(
                                 "startTick", 0L, "endTick", 48_000L,
-                                "sourceClockId", "src-clock")))));
+                                "sourceClockId", "src-clock", "ticksPerSecond", 48_000L)))));
         var source = artifact(runtime1);
         var childArtifact = artifact(runtime1);
         runtime1.submit(mmRequest(source, spec(source, childArtifact)), authenticatedPrincipal());

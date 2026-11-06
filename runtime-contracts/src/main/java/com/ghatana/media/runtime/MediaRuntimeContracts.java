@@ -1009,7 +1009,7 @@ public final class MediaRuntimeContracts {
             } else if (binding.clockId().isBlank() || declaredClockId.isBlank()) {
                 reason = "SOURCE_CLOCK_ID_UNAVAILABLE";
             } else if (!declaredClockId.equals(binding.clockId())
-                    || (declaredTps != null && declaredTps != binding.ticksPerSecond())) {
+                    || declaredTps == null || declaredTps != binding.ticksPerSecond()) {
                 reason = "SOURCE_CLOCK_MISMATCH";
             } else if (binding.durationTicks() > 0 && endTick > binding.durationTicks()) {
                 reason = "SOURCE_TICKS_OUT_OF_DURATION";

@@ -4,6 +4,7 @@ import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import java.util.function.Supplier;
 
 /** Applies deterministic graph edits and delegates every canonical mutation to one CAS store. */
 public final class ProjectTimelineEngine {
+    private static final int MAX_EDIT_OPERATIONS = 10_000;
     private final ProjectTimelineStore store;
     private final Supplier<String> ids;
 
@@ -93,11 +95,23 @@ public final class ProjectTimelineEngine {
 
     public static Graph apply(Graph graph, List<Edit> edits) {
         Objects.requireNonNull(graph, "graph");
-        List<Edit> commands = List.copyOf(edits == null ? List.of() : edits);
+        List<Edit> commands = copyBoundedEdits(edits);
         if (commands.isEmpty()) throw new IllegalArgumentException("an edit command must contain at least one operation");
         Graph result = graph;
         for (Edit edit : commands) result = Objects.requireNonNull(edit, "edit").apply(result);
         return result;
+    }
+
+    /** Copies by actual iterator traversal; List.size() is only a hint for untrusted custom Lists. */
+    private static List<Edit> copyBoundedEdits(List<Edit> edits) {
+        if (edits == null) return List.of();
+        List<Edit> commands = new ArrayList<>();
+        Iterator<Edit> iterator = edits.iterator();
+        while (commands.size() < MAX_EDIT_OPERATIONS && iterator.hasNext()) {
+            commands.add(Objects.requireNonNull(iterator.next(), "edit"));
+        }
+        if (iterator.hasNext()) throw new IllegalArgumentException("an edit command exceeds the 10000 operation limit");
+        return List.copyOf(commands);
     }
 
     public static GraphDiff diff(Graph before, Graph after) {

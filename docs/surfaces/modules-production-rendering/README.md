@@ -11,11 +11,12 @@ candidate comparison in `modules/production/rendering`.
 - `TemporalVideoRestoration` applies deterministic temporal median, unsharp
   mask, or RGB gain/offset transforms to exact-version decoded RGB8 frames,
   with source/reference rights checks, candidate lineage, and bounded metrics.
-- `PngFrameCodec` decodes and encodes bounded **PNG still frames**. It is not a
-  video-container decoder or encoder and does not establish artifact
-  provenance. A trusted host decoder must bind source bytes to the requested
-  artifact/version before constructing `DecodedFrameSequence`; the codec's
-  `DecodedPngFrameSequence` alone is not such a binding.
+- `PngFrameCodec` decodes and encodes bounded **PNG still frames and ordered
+  collections of still PNGs**. It is not a video-container decoder or encoder
+  and does not establish artifact provenance. A trusted host decoder must bind
+  source bytes to the requested artifact/version before constructing
+  `DecodedFrameSequence`; the codec's `DecodedPngFrameSequence` alone is not
+  such a binding.
 - `QualityComparisonAndOptimization` retains immutable source/candidate
   revisions, compares them with an independently supplied authorized reference
   when available, and supports restoring the exact source revision.
@@ -38,7 +39,10 @@ adapters own those decisions and exact-byte reads.
 - `PngFrameCodec.decode(encodedPng, metadata[, limits])` decodes one supported
   RGB PNG image. `decodeSequence(timeBase, frames[, limits])` validates and
   decodes 3–64 PNG images with ordered indexes and timestamps.
-  `encode(candidateFrame[, limits])` encodes one RGB candidate frame to PNG.
+  `encode(candidateFrame[, limits])` encodes one RGB candidate frame to PNG;
+  `encodeSequence(timeBase, candidateFrames[, limits])` returns 3–64 ordered
+  still PNGs with caller-supplied timebase and per-frame PTS/ROI metadata. The
+  sequence output is not a video container or a provenance-bearing artifact.
 - `QualityComparisonAndOptimization.optimize(...)` runs bounded candidate
   attempts, reports source delta and reference metrics where authorized, and
   returns an explicit quality disposition. `undo(run, exactSourceRevision)`
@@ -119,8 +123,9 @@ Run the focused module suite from the repository root:
 The tests cover planner validation and execution refusal, deterministic filter
 arithmetic and ROI preservation, authority denial/unavailability, reference
 alignment and metrics, optimization bounds and undo, PNG encode/decode round
-trips, malformed/unsupported PNG chunks and CRCs, inconsistent metadata,
-defensive copies, and resource limits. These tests and reported metrics validate
+trips, ordered candidate-sequence encoding, malformed/unsupported PNG chunks
+and CRCs, inconsistent metadata, defensive copies, and resource limits. These
+tests and reported metrics validate
 code paths and pixel arithmetic only; they do not prove perceptual quality,
 production decoder/encoder behavior, lawful media rights, or real reference
 qualification.

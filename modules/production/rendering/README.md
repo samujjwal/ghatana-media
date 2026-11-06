@@ -42,9 +42,12 @@ such instead of serializing infinite PSNR.
 
 This is a frame-processing SPI, not a video decoder, motion compensator, codec,
 container muxer, upload path, runtime endpoint, or qualified restoration
-provider. Temporal median may create motion artifacts; unsharp mask may amplify
-noise or halos; RGB adjustment is a deterministic arithmetic transform, not
-automatic color correction. No filter claims subjective improvement. An
+provider. `PngFrameCodec.encodeSequence` returns ordered still PNG bytes with
+their declared timebase and per-frame PTS/ROI metadata; it does not package a
+playable video or bind the frame bytes to an artifact. Temporal median may
+create motion artifacts; unsharp mask may amplify noise or halos; RGB adjustment
+is a deterministic arithmetic transform, not automatic color correction. No
+filter claims subjective improvement. An
 independently authorized aligned reference can produce measured candidate-vs-
 reference metrics; these filters do not claim improvement from that comparison
 alone.

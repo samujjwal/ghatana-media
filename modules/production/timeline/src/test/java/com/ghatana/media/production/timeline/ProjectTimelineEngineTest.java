@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
+import java.util.AbstractList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -236,6 +238,33 @@ class ProjectTimelineEngineTest {
                 .hasMessageContaining("at least one operation");
         assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId())
                 .isEqualTo(created.initialRevision().revisionId());
+    }
+
+    @Test
+    void editCopyStopsAtBoundWhenCustomListUnderreportsItsIterator() {
+        AtomicInteger visited = new AtomicInteger();
+        List<ProjectTimelineEngine.Edit> underreported = new AbstractList<>() {
+            @Override public ProjectTimelineEngine.Edit get(int index) {
+                throw new UnsupportedOperationException("iterator is authoritative");
+            }
+
+            @Override public int size() { return 1; }
+
+            @Override public Iterator<ProjectTimelineEngine.Edit> iterator() {
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return true; }
+                    @Override public ProjectTimelineEngine.Edit next() {
+                        visited.incrementAndGet();
+                        return new ProjectTimelineEngine.AddScene(new Scene("scene-1", 0));
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> ProjectTimelineEngine.apply(Graph.empty("timeline-bounded"), underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("10000 operation limit");
+        assertThat(visited).hasValue(10_000);
     }
 
     @Test
