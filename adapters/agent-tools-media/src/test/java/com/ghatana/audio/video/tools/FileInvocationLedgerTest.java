@@ -291,6 +291,24 @@ class FileInvocationLedgerTest {
     }
 
     @Test
+    void existingLedgerFileWithOwnerExecutePermissionIsRejected() throws Exception {
+        FileInvocationLedger ledger = ledger(dir);
+        ledger.claim(fence("executable-record", identity("stt", "fp")));
+        Path record;
+        try (Stream<Path> files = Files.list(dir)) {
+            record = files.filter(path -> path.getFileName().toString().endsWith(".json"))
+                    .findFirst().orElseThrow();
+        }
+        Files.setPosixFilePermissions(record, PosixFilePermissions.fromString("rwx------"));
+
+        assertThatThrownBy(() -> ledger.find("executable-record"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("owner-only permissions (0600)");
+        assertThat(ledger.claim(fence("executable-record", identity("stt", "fp"))))
+                .isEqualTo(ClaimResult.ALREADY_CLAIMED);
+    }
+
+    @Test
     void directoryPermissionDriftAfterConstructionFailsClosed() throws Exception {
         FileInvocationLedger ledger = ledger(dir);
         Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwxr-----"));

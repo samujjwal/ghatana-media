@@ -165,10 +165,7 @@ public final class FileInvocationLedger implements InvocationLedger {
             throw new IllegalStateException("invocation ledger file is not owned by the current user");
         }
         Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file, LinkOption.NOFOLLOW_LINKS);
-        if (!permissions.contains(PosixFilePermission.OWNER_READ)
-                || !permissions.contains(PosixFilePermission.OWNER_WRITE)
-                || permissions.stream().anyMatch(permission -> permission.name().startsWith("GROUP_")
-                        || permission.name().startsWith("OTHERS_"))) {
+        if (!permissions.equals(FILE_PERMISSIONS)) {
             throw new IllegalStateException("invocation ledger files must have owner-only permissions (0600)");
         }
     }
