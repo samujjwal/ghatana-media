@@ -104,8 +104,16 @@ class AudioRepairComparisonTest {
     }
 
     @Test
-    void rejectsPcmAboveComparisonByteBudget() {
-        int bytes = 16 * 1024 * 1024 + 2;
+    void acceptsExactPcmByteBudgetAndRejectsFirstCompleteFrameAboveIt() {
+        int maxBytes = 16 * 1024 * 1024;
+        long maxFrames = maxBytes / 2L;
+        AudioData exactLimit = new AudioData(new byte[maxBytes], 8_000, 1, 16,
+                Duration.ofNanos(maxFrames * 1_000_000_000L / 8_000), AudioFormat.PCM);
+        AudioRepairComparison comparison = AudioRepairComparison.compare(exactLimit, exactLimit);
+        assertThat(comparison.source().dataLength()).isEqualTo(maxBytes);
+        assertThat(comparison.metrics().changedSampleCount()).isZero();
+
+        int bytes = maxBytes + 2;
         long frames = bytes / 2L;
         AudioData oversized = new AudioData(new byte[bytes], 8_000, 1, 16,
                 Duration.ofNanos(frames * 1_000_000_000L / 8_000), AudioFormat.PCM);
