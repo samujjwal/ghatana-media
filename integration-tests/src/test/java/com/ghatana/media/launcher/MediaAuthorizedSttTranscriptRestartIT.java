@@ -300,6 +300,47 @@ class MediaAuthorizedSttTranscriptRestartIT {
         }
     }
 
+    /** A stale clock tuple for the exact transcript parent must not create a caption version. */
+    @Test
+    void staleExactTranscriptParentClockRejectsCaptionWithoutWriting() throws Exception {
+        try (AutoCloseable installed = TestAwsStateInstall.install(environment());
+             var captions = new com.ghatana.media.provider.aws.PostgresqlMediaCaptionStore()) {
+            String requestId = "j03-stale-parent-" + java.util.UUID.randomUUID();
+            var request = new RegistrationRequest(
+                    requestId, "fixture-stale-artifact", "fixture-stale-source-v1",
+                    ParentVersionKind.TRANSCRIPT_VERSION, "fixture-exact-transcript-v1",
+                    "fixture-current-clock", 1_000, 10_000, LanguageDisposition.DECLARED_BY_USER,
+                    java.util.Optional.of("en"), List.of(CaptionSegment.of(
+                            "fixture-stale-segment", "synthetic correction", 0, 1_000,
+                            SegmentOrigin.USER_EDITED)),
+                    java.util.Optional.of("operator supplied fixture correction"));
+            var authority = (com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority)
+                    check -> com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority.Decision.ADMITTED;
+            var observedLookup = new java.util.concurrent.atomic.AtomicReference<String>();
+            var staleParent = (com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup)
+                    (kind, parentId, artifactId, sourceVersion) -> {
+                        observedLookup.set(String.join("|", kind.name(), parentId, artifactId, sourceVersion));
+                        return java.util.Optional.of(
+                                new com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup.ParentFacts(
+                                        "fixture-stale-clock", 1_000, 10_000));
+                    };
+
+            var rejected = captions.register("tenant-a", "principal-a", request, authority, staleParent);
+            assertThat(observedLookup.get()).isEqualTo(String.join("|", "TRANSCRIPT_VERSION",
+                    "fixture-exact-transcript-v1", "fixture-stale-artifact", "fixture-stale-source-v1"));
+            assertThat(rejected).isInstanceOf(com.ghatana.media.runtime.MediaCaptionContracts.Rejected.class)
+                    .satisfies(result -> {
+                        var failure = (com.ghatana.media.runtime.MediaCaptionContracts.Rejected) result;
+                        assertThat(failure.requestId()).isEqualTo(requestId);
+                        assertThat(failure.error()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCaptionContracts.RegistrationError.CAPTION_ALIGNMENT_REQUIRED);
+                        assertThat(failure.retryable()).isFalse();
+                    });
+            assertThat(captions.versions("tenant-a", "principal-a",
+                    "fixture-stale-artifact", "fixture-stale-source-v1")).isEmpty();
+        }
+    }
+
     /** Ingress-authenticated credential used by both registration and job submission. */
     private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated(
             String tenantId, String principalId) {
