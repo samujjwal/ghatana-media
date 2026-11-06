@@ -36,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,6 +64,7 @@ class MultimodalGrpcProductionWrapperMatrixTest {
     private AudioVideoHealthService readiness;
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub authenticated;
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub unauthenticated;
+    private AtomicReference<SourceAuthorization.AuthorizationRequest> lastAuthorizationRequest;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -70,10 +72,14 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         System.setProperty("AV_JWT_SECRET", SECRET);
         engine = mock(MultimodalAnalysisEngine.class);
         adapter = mock(PlatformMultimodalAdapter.class);
+        lastAuthorizationRequest = new AtomicReference<>();
         lenient().when(adapter.backendName()).thenReturn("test-fixture-backend");
         lenient().when(adapter.metricsEnabled()).thenReturn(false);
         service = new MultimodalGrpcService(engine, adapter,
-                MediaProcessingMetrics.noop(), request -> SourceAuthorization.Decision.ADMITTED,
+                MediaProcessingMetrics.noop(), request -> {
+                    lastAuthorizationRequest.set(request);
+                    return SourceAuthorization.Decision.ADMITTED;
+                },
                 fixtureExecutor());
         readiness = MultimodalGrpcServer.readinessService(service);
         String name = InProcessServerBuilder.generateName();
@@ -122,6 +128,10 @@ class MultimodalGrpcProductionWrapperMatrixTest {
                 .build());
         assertThat(process.getCombinedAnalysis()).isEqualTo("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE");
         assertThat(process.getAudioAnalysis().getTranscription()).isEqualTo("fixture transcript");
+        assertThat(lastAuthorizationRequest.get()).satisfies(authorization -> {
+            assertThat(authorization.tenantId()).isEqualTo(TENANT);
+            assertThat(authorization.principalId()).isEqualTo(SUBJECT);
+        });
 
         VideoAudioResponse video = authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
                 .setVideoData(ByteString.copyFrom(new byte[] {2})).setExtractAudio(true).setAnalyzeFrames(true)
@@ -178,6 +188,25 @@ class MultimodalGrpcProductionWrapperMatrixTest {
         assertUnauthenticated(() -> unauthenticated.listModels(ListModelsRequest.getDefaultInstance()));
         assertUnauthenticated(() -> unauthenticated.getStatus(StatusRequest.getDefaultInstance()));
         assertUnauthenticated(() -> unauthenticated.healthCheck(HealthCheckRequest.getDefaultInstance()));
+        verifyNoInteractions(engine, adapter);
+    }
+
+    @Test
+    void malformedVerifiedPrincipalIsRejectedBeforeSourceAuthorizationOrProviderDispatch() throws Exception {
+        lastAuthorizationRequest.set(null);
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + signedJwt("not-a-uuid", TENANT));
+        var malformedIdentity = MultimodalServiceGrpc.newBlockingStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+
+        assertCode(() -> malformedIdentity.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded"))
+                .build()), Status.Code.UNAUTHENTICATED);
+
+        assertThat(lastAuthorizationRequest.get()).isNull();
         verifyNoInteractions(engine, adapter);
     }
 
@@ -416,8 +445,12 @@ class MultimodalGrpcProductionWrapperMatrixTest {
     }
 
     private static String signedJwt() throws Exception {
+        return signedJwt(SUBJECT.toString(), TENANT);
+    }
+
+    private static String signedJwt(String subject, String tenant) throws Exception {
         String header = base64("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
-        String payload = base64("{\"sub\":\"" + SUBJECT + "\",\"tenantId\":\"" + TENANT
+        String payload = base64("{\"sub\":\"" + subject + "\",\"tenantId\":\"" + tenant
                 + "\",\"exp\":" + (System.currentTimeMillis() / 1000 + 600) + "}");
         String content = header + "." + payload;
         Mac hmac = Mac.getInstance("HmacSHA256");
