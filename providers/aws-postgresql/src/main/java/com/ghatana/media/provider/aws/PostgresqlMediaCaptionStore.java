@@ -228,26 +228,13 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
     @Override
     public Optional<ParentClockLookup.ParentFacts> parentClock(String tenantId, String principalId,
             String captionVersionId, String sourceArtifactId, String sourceArtifactVersionId) {
-        try (Connection connection = state.connection();
-             PreparedStatement select = connection.prepareStatement("""
-                SELECT source_clock_id,ticks_per_second,source_duration_ticks
-                FROM media_caption_registrations
-                WHERE tenant_id=? AND principal_id=? AND caption_version_id=?
-                  AND source_artifact_id=? AND source_artifact_version_id=?
-                """)) {
-            select.setString(1, tenantId);
-            select.setString(2, principalId);
-            select.setString(3, captionVersionId);
-            select.setString(4, sourceArtifactId);
-            select.setString(5, sourceArtifactVersionId);
-            try (ResultSet row = select.executeQuery()) {
-                if (!row.next()) return Optional.empty();
-                return Optional.of(new ParentClockLookup.ParentFacts(
-                        row.getString(1), row.getLong(2), row.getLong(3)));
-            }
-        } catch (SQLException failure) {
-            throw new IllegalStateException("caption parent clock readback failed", failure);
-        }
+        // Resolve through the immutable snapshot path so a parent cannot qualify by
+        // clock columns alone when its stored request body has been altered.
+        return version(tenantId, principalId, captionVersionId)
+                .filter(snapshot -> snapshot.sourceArtifactId().equals(sourceArtifactId)
+                        && snapshot.sourceArtifactVersionId().equals(sourceArtifactVersionId))
+                .map(snapshot -> new ParentClockLookup.ParentFacts(
+                        snapshot.sourceClockId(), snapshot.ticksPerSecond(), snapshot.sourceDurationTicks()));
     }
 
     @Override public boolean ready() { return !closed.get() && state.ready(); }
