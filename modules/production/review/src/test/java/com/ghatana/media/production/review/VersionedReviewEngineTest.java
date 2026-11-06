@@ -294,6 +294,24 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void inMemoryStoreRejectsDuplicateAppendRecordIdentityWithoutAdvancingCase() {
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        Comment firstPayload = new Comment("first", CommentDisposition.OPEN, null);
+        ReviewRecord first = store.append(REVIEWER, CASE, 0, "req-first", "fingerprint-first", "record-reused",
+                "authority-v1", firstPayload, NOW);
+
+        assertThatThrownBy(() -> store.append(REVIEWER, CASE, 1, "req-second", "fingerprint-second",
+                "record-reused", "authority-v1",
+                new Comment("second", CommentDisposition.OPEN, null), NOW))
+                .isInstanceOf(ReviewUnavailableException.class);
+
+        assertThat(store.read(REVIEWER, CASE)).containsExactly(first);
+        assertThat(store.append(REVIEWER, CASE, 1, "req-third", "fingerprint-third", "record-next",
+                "authority-v1", new Comment("third", CommentDisposition.OPEN, null), NOW).caseRevision())
+                .isEqualTo(2);
+    }
+
+    @Test
     void exhaustedCaseRevisionFailsBeforeAuthorizationOrStorageEffect() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
 

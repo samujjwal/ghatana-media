@@ -42,6 +42,11 @@ public final class InMemoryReviewStore implements ReviewStore {
         if (state.records.size() != expectedCaseRevision) {
             throw new ReviewConflictException(expectedCaseRevision, state.records.size());
         }
+        if (state.records.stream().anyMatch(record -> record.appendRecordId().equals(appendRecordId))) {
+            // V033 makes appendRecordId unique within the exact tenant/case scope. Keep this
+            // development store fail-closed instead of accepting evidence PostgreSQL rejects.
+            throw new ReviewUnavailableException();
+        }
         ReviewRecord record = new ReviewRecord(appendRecordId, actor.tenantId(), reviewCase.reviewCaseId(),
                 reviewCase.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
                 state.records.size() + 1L, createdAt, authorityVersion);
