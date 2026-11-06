@@ -128,6 +128,11 @@ class MediaUploadCorruptChunkRestartIT {
                         .isInstanceOf(IllegalStateException.class)
                         .hasMessageContaining("Stored upload chunk failed integrity verification");
 
+                // A retry after the caller observed the failed completion must remain fail-closed.
+                assertThatThrownBy(() -> restartedWorker.complete("tenant-a", "principal-a", uploadId))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("Stored upload chunk failed integrity verification");
+
                 UploadSession afterFailure = restartedWorker.upload("tenant-a", uploadId).orElseThrow();
                 assertThat(afterFailure.status()).isEqualTo(UploadStatus.OPEN);
                 assertThat(afterFailure.nextChunkIndex()).isEqualTo(1);
