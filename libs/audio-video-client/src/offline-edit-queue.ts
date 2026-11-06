@@ -343,7 +343,17 @@ export class OfflineEditQueue {
       this.options.encryptionKey,
       this.copyBufferSource(record.ciphertext),
     );
-    return { ...record, payload: JSON.parse(decoder.decode(plaintext)) as T };
+    // Keep the storage envelope private to the queue. In particular, replay
+    // adapters should receive the edit contract only, never IndexedDB fields
+    // such as ciphertext, nonce, state or byte-accounting metadata.
+    return {
+      tenantId: record.tenantId,
+      projectId: record.projectId,
+      editId: record.editId,
+      idempotencyKey: record.idempotencyKey,
+      expectedVersion: record.expectedVersion,
+      payload: JSON.parse(decoder.decode(plaintext)) as T,
+    };
   }
 
   private async transition(record: OfflineEditRecord, state: OfflineEditState): Promise<OfflineEditRecord | undefined> {

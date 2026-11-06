@@ -369,4 +369,28 @@ describe("OfflineReconnectCoordinator", () => {
     expect(mismatch.status).toBe("RECONNECTED");
     if (mismatch.status === "RECONNECTED") expect(mismatch.results.find((item) => item.editId === "edit-b")?.state).toBe("OUTCOME_UNKNOWN");
   });
+
+  it("keeps encrypted storage envelope fields out of reconnect operation inputs", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    const observed: Record<string, unknown>[] = [];
+    const capture = (value: object) => observed.push(value as Record<string, unknown>);
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async (queued) => { capture(queued); return { ...scope, disposition: "AUTHORIZED" }; },
+      applyEdit: async (queued) => {
+        capture(queued);
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
+      },
+    })).reconnect(true);
+
+    expect(result.status).toBe("RECONNECTED");
+    expect(observed).toHaveLength(3); // two authorization reads and one apply
+    for (const operationInput of observed) {
+      expect(Object.keys(operationInput).sort()).toEqual([
+        "editId", "expectedVersion", "idempotencyKey", "payload", "projectId", "tenantId",
+      ]);
+      expect(operationInput.payload).toEqual(edit.payload);
+    }
+  });
 });
