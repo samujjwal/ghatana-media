@@ -586,7 +586,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: J-20 recovery accepts an optional authenticated canonical getJob reader, aborts stale reads on job change/unmount, and distinguishes loading, denied, unknown, server OUTCOME_UNKNOWN and terminal states; absent client remains NOT_ADMITTED. Demo captions announce through a polite atomic live region. UI Vitest/TypeScript checks could not start because the workspace lacks installed vitest/tsc; no browser E2E, live route or backend integration is claimed."
+      "progress": "2026-11-05: J-20 recovery accepts an optional authenticated canonical getJob reader, aborts stale reads on job change/unmount, and distinguishes loading, denied, unknown, server OUTCOME_UNKNOWN and terminal states; absent client remains NOT_ADMITTED. Demo captions announce through a polite atomic live region. UI Vitest/TypeScript checks could not start because the workspace lacks installed vitest/tsc. Offline filtered install with --frozen-lockfile was refused because the workspace lock is stale against ghatana-lifecycle/libs/evidence-contracts/package.json (`@ghatana/lifecycle-protected-host-files-native@0.1.0-rc.2` added; `@ghatana/contract-governance@workspace:*` removed); no lockfile change was made. No browser E2E, live route or backend integration is claimed."
     },
     {
       "id": "media.dev.explorer-fidelity",
@@ -627,7 +627,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added UNKNOWN/NOT_ADMITTED/DENIED readiness states and fail-closed absent capability observations; consent checkbox/reference are user assertions, not current authority. The host must recheck rights before effects. UI checks cannot start because React is missing and TypeScript is not linked; current SDK keeps synthesis/training NOT_ADMITTED, so real TTS/consent integration remains open."
+      "progress": "2026-11-05: Added UNKNOWN/NOT_ADMITTED/DENIED readiness states and fail-closed absent capability observations; consent checkbox/reference are user assertions, not current authority. The host must recheck rights before effects. UI checks cannot start because local dependencies are absent (`tsc: command not found`). Offline filtered install with --frozen-lockfile was refused because the workspace lock is stale against ghatana-lifecycle/libs/evidence-contracts/package.json; no lockfile change was made. Current SDK keeps synthesis/training NOT_ADMITTED, so real TTS/consent integration remains open."
     },
     {
       "id": "media.dev.native-media-dsp",
