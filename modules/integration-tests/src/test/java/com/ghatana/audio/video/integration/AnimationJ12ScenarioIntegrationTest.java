@@ -122,6 +122,29 @@ class AnimationJ12ScenarioIntegrationTest {
         assertThat(unsupported.status()).isEqualTo(AnimationRenderer.ExportStatus.UNSUPPORTED_CODEC);
         assertThat(unsupported.encoded()).isEmpty();
 
+        // The source-backed degraded branch keeps the authored source graph
+        // intact when export timing is unsupported. This is a local renderer
+        // check only: it does not assert journey completion or a qualified
+        // fallback export.
+        AnimationSpec animationSpec = spec();
+        AnimationRenderer.Scene sourceGraph = scene();
+        AnimationRenderer.Profile previewProfile = new AnimationRenderer.Profile(10, 1, 3);
+        var beforeUnsupportedTiming = renderer.render(animationSpec, sourceGraph, previewProfile);
+        var unsupportedTiming = renderer.renderAnimated(animationSpec, sourceGraph,
+                new AnimationRenderer.Profile(24, 1, 3), AnimationRenderer.AnimatedFormat.GIF);
+        assertThat(unsupportedTiming.status()).isEqualTo(AnimationRenderer.ExportStatus.UNSUPPORTED_FRAME_RATE);
+        assertThat(unsupportedTiming.failure())
+                .contains(AnimationRenderer.ExportFailure.FRAME_RATE_NOT_EXACTLY_REPRESENTABLE);
+        assertThat(unsupportedTiming.encoded()).isEmpty();
+
+        var afterUnsupportedTiming = renderer.render(animationSpec, sourceGraph, previewProfile);
+        assertThat(sourceGraph).isEqualTo(scene());
+        assertThat(afterUnsupportedTiming.frames()).hasSize(beforeUnsupportedTiming.frames().size());
+        for (int index = 0; index < beforeUnsupportedTiming.frames().size(); index++) {
+            assertThat(afterUnsupportedTiming.frames().get(index).png())
+                    .containsExactly(beforeUnsupportedTiming.frames().get(index).png());
+        }
+
         ProjectTimelineEngine engine = new ProjectTimelineEngine(new NotAdmittedProjectTimelineStore());
         assertThatThrownBy(() -> engine.createProject(new Actor(TENANT, ACTOR), WORKSPACE,
                 "J-12 fixture", "j12-fixture-create-1"))
