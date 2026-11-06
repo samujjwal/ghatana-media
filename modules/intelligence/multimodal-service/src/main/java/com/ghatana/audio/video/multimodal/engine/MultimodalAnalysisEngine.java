@@ -364,19 +364,30 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         if (image == null) return video;
         if (video == null) return image;
 
+        String imageScene = normalizedSceneDescription(image.getSceneDescription());
+        String videoScene = normalizedSceneDescription(video.getSceneDescription());
+        if (!imageScene.isEmpty() && !videoScene.isEmpty() && !imageScene.equals(videoScene)) {
+            // The current aggregate contract has one scene description and no child provenance or
+            // conflict disposition. Do not choose one claim arbitrarily or attach it to the other
+            // child's detections; reconciliation needs source-bound child provenance first.
+            return VisualResult.error("Visual analysis unavailable");
+        }
+
         // Combine detections from both
         List<DetectionResult> merged = new ArrayList<>(image.getDetections());
         merged.addAll(video.getDetections());
 
-        String scene = image.getSceneDescription() != null
-                ? image.getSceneDescription()
-                : video.getSceneDescription();
+        String scene = !imageScene.isEmpty() ? image.getSceneDescription() : video.getSceneDescription();
 
         return VisualResult.builder()
                 .sceneDescription(scene)
                 .detections(merged)
                 .frameResults(video.getFrameResults())
                 .build();
+    }
+
+    private static String normalizedSceneDescription(String description) {
+        return description == null ? "" : description.trim();
     }
 
     private static MultimodalResult.Outcome modalityOutcome(

@@ -640,6 +640,26 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Distinct image and video scene claims are not silently reconciled")
+    void conflictingVisualDescriptionsMakeAggregateUnavailable() {
+        VisualResult image = VisualResult.builder().sceneDescription("A red car is parked").build();
+        VisualResult video = VisualResult.builder().sceneDescription("A blue bus is moving").build();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"), image, video);
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder()
+                    .imageData(new byte[] {1}).videoData(new byte[] {2}).build());
+
+            assertTrue(result.getVisualResult().isError());
+            assertEquals("Visual analysis unavailable", result.getVisualResult().getError());
+            assertEquals("", result.getVisualResult().getSceneDescription());
+            assertTrue(result.getVisualResult().getDetections().isEmpty());
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+        }
+    }
+
+    @Test
     @DisplayName("Image and video confidence scores are not collapsed into one visual score")
     void mergedVisualResultLeavesAggregateConfidenceUnknown() {
         DetectionResult imageDetection = new DetectionResult("image-object", 0.82, 1, 2, 3, 4);
