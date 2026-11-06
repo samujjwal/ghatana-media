@@ -17,6 +17,11 @@ import {
   type CaptureRequest,
   type CapturedFrame,
 } from "./capture-adapters.js";
+import {
+  type MediaOperationClient,
+  type CanonicalMediaArtifactObservation,
+  type CanonicalMediaClassification,
+} from "./operations.js";
 
 export interface ScenarioActor {
   readonly actorId: string;
@@ -526,3 +531,362 @@ export function scenesRequiringRecapture(
 }
 
 export { noAdmittedCaptureAdapter };
+
+/** Rational rate/time-base values used by the final container contract. */
+export interface RenderRational {
+  readonly numerator: number;
+  readonly denominator: number;
+}
+
+export interface RenderCaptionTiming {
+  readonly captionRef: string;
+  readonly startTicks: number;
+  readonly endTicks: number;
+}
+
+export interface FinalRenderRequest {
+  readonly renderId: string;
+  readonly plan: OrchestrationResult;
+  readonly frameRate: RenderRational;
+  readonly variableFrameRate: boolean;
+  readonly timeBase: RenderRational;
+  readonly durationTicks: number;
+  readonly captions: readonly RenderCaptionTiming[];
+  /** Versioned, rights-gated source refs for the closing credit sequence. */
+  readonly creditRefs: readonly string[];
+  readonly fileName: string;
+  readonly retention: string;
+  readonly classification: CanonicalMediaClassification;
+}
+
+export interface RenderAdmissionDecision {
+  readonly status: "ADMITTED" | "NOT_ADMITTED";
+  /** Exact authority references returned by the trusted source/rights owner. */
+  readonly decisionRefs: readonly string[];
+}
+
+/** Host authority is rechecked immediately before render effects. */
+export interface FinalRenderAdmissionPort {
+  admit(request: FinalRenderRequest): Promise<RenderAdmissionDecision>;
+}
+
+export interface RenderedContainer {
+  readonly bytes: Uint8Array;
+  readonly contentType: string;
+  /** Facts observed by the host ffprobe/decode path, not request echoes. */
+  readonly probe: {
+    readonly container: string;
+    readonly frameRate: RenderRational;
+    readonly variableFrameRate: boolean;
+    readonly timeBase: RenderRational;
+    readonly durationTicks: number;
+    readonly decodedFrameCount: number;
+    readonly audioTrackCount: number;
+    /** Source references verified in the muxed audio track inventory. */
+    readonly narrationTrackRefs: readonly string[];
+    /** Subtitle/caption tracks observed in the decoded container. */
+    readonly captionTrackCount: number;
+    readonly captionTimings: readonly RenderCaptionTiming[];
+    /** Credit source references verified in the rendered closing sequence. */
+    readonly creditRefsIncluded: readonly string[];
+  };
+}
+
+/**
+ * This port must be backed by the admitted host codec and decoder/probe. The
+ * SDK intentionally ships no codec implementation, so absence is NOT_ADMITTED.
+ */
+export interface FinalRenderMuxAndProbePort {
+  muxAndVerify(request: FinalRenderRequest): Promise<RenderedContainer>;
+}
+
+export type FinalRenderPublishResult =
+  | { readonly outcome: "PUBLISHED"; readonly artifact: CanonicalMediaArtifactObservation; readonly sha256: string }
+  | { readonly outcome: "NOT_ADMITTED"; readonly reason: string }
+  | { readonly outcome: "PARTIAL_UPLOAD_NOT_FINALIZED"; readonly reason: string; readonly uploadId: string }
+  | { readonly outcome: "OUTCOME_UNKNOWN"; readonly reason: string; readonly uploadId?: string };
+
+const MAX_RENDER_BYTES = 1_073_741_824;
+const RENDER_UPLOAD_CHUNK_BYTES = 4 * 1024 * 1024;
+
+function freezeRenderValue<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    for (const nested of Object.values(value as Record<string, unknown>)) freezeRenderValue(nested);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRenderRequest {
+  requireText(request.renderId, "renderId");
+  if (!request.plan || request.plan.dryRunOnly !== true) {
+    throw new ScenarioError("INVALID_SCENARIO", "render plan must be a validated scenario plan");
+  }
+  assertBoundedSceneRuns(request.plan, "prior");
+  if (request.plan.sceneRuns.length < 1 || request.plan.sceneRuns.length > MAX_SCENES) {
+    throw new ScenarioError("INVALID_SCENARIO", `render plan must contain 1..${MAX_SCENES} scenes`);
+  }
+  requireText(request.plan.scenarioId, "plan.scenarioId");
+  requireText(request.plan.revision, "plan.revision");
+  if (typeof request.plan.planIdentity !== "string" || request.plan.planIdentity.trim().length === 0
+    || request.plan.planIdentity.length > MAX_PLAN_IDENTITY_CHARS + 256
+    || request.plan.planIdentity !== request.plan.planIdentity.trim()) {
+    throw new ScenarioError("INVALID_SCENARIO", "plan.planIdentity must be canonical and bounded");
+  }
+
+  // Rebuild the plan from its typed materialization. A caller-supplied digest,
+  // lineage ID, or partial scene object is not accepted as proof of the plan.
+  const actorsById = new Map<string, ScenarioActor>();
+  for (const [index, run] of request.plan.sceneRuns.entries()) {
+    if (!Array.isArray(run.actorBindings) || run.actorBindings.length > MAX_ACTORS
+      || !Array.isArray(run.narration) || run.narration.length > MAX_SCENE_NARRATION_CUES
+      || !Array.isArray(run.captionRefs) || run.captionRefs.length > MAX_SCENE_CAPTION_REFS) {
+      throw new ScenarioError("INVALID_SCENARIO", `plan.sceneRuns[${index}] exceeds bounded actor, narration, or caption inputs`);
+    }
+    for (const [actorIndex, actor] of run.actorBindings.entries()) {
+      if (!actor || typeof actor !== "object") {
+        throw new ScenarioError("INVALID_SCENARIO", `plan.sceneRuns[${index}].actorBindings[${actorIndex}] must be an object`);
+      }
+      const actorId = requireText(actor.actorId, `plan.sceneRuns[${index}].actorBindings[${actorIndex}].actorId`);
+      const role = requireText(actor.role, `plan.sceneRuns[${index}].actorBindings[${actorIndex}].role`);
+      const existing = actorsById.get(actorId);
+      if (existing && existing.role !== role) {
+        throw new ScenarioError("INVALID_SCENARIO", `actor ${actorId} has inconsistent roles across render scenes`);
+      }
+      actorsById.set(actorId, { actorId, role });
+    }
+  }
+  const canonicalPlan = orchestrateScenario({
+    scenarioId: request.plan.scenarioId,
+    revision: request.plan.revision,
+    actors: [...actorsById.values()],
+    scenes: request.plan.sceneRuns.map((run) => ({
+      sceneId: run.sceneId,
+      sourceRef: run.capturePlan,
+      actorRefs: run.actorBindings.map((actor) => actor.actorId),
+      narration: run.narration,
+      captionRefs: run.captionRefs,
+      durationMillis: run.durationMillis,
+    })),
+  });
+  if (canonicalPlan.planIdentity !== request.plan.planIdentity
+    || canonicalPlan.sceneRuns.some((run, index) => run.lineageId !== request.plan.sceneRuns[index]?.lineageId
+      || run.sourceRevision !== request.plan.sceneRuns[index]?.sourceRevision)) {
+    throw new ScenarioError("INVALID_SCENARIO", "render plan identity or scene lineage does not match its materialized inputs");
+  }
+
+  for (const [field, value] of [["frameRate", request.frameRate], ["timeBase", request.timeBase]] as const) {
+    if (!value || !Number.isSafeInteger(value.numerator) || value.numerator < 1
+      || !Number.isSafeInteger(value.denominator) || value.denominator < 1) {
+      throw new ScenarioError("INVALID_SCENARIO", `${field} must be a positive rational`);
+    }
+  }
+  if (!Number.isSafeInteger(request.durationTicks) || request.durationTicks < 1) {
+    throw new ScenarioError("INVALID_SCENARIO", "durationTicks must be a positive safe integer");
+  }
+  if (typeof request.variableFrameRate !== "boolean") {
+    throw new ScenarioError("INVALID_SCENARIO", "variableFrameRate must be a boolean");
+  }
+  if (!Array.isArray(request.captions) || request.captions.length > 4096) {
+    throw new ScenarioError("INVALID_SCENARIO", "captions must contain at most 4096 timed cues");
+  }
+  const seenCaptionRefs = new Set<string>();
+  const captions = request.captions.map((caption, index) => {
+    const ref = requireText(caption.captionRef, `captions[${index}].captionRef`);
+    if (seenCaptionRefs.has(ref)) throw new ScenarioError("INVALID_SCENARIO", `duplicate captionRef: ${ref}`);
+    seenCaptionRefs.add(ref);
+    if (!Number.isSafeInteger(caption.startTicks) || !Number.isSafeInteger(caption.endTicks)
+      || caption.startTicks < 0 || caption.endTicks <= caption.startTicks
+      || caption.endTicks > request.durationTicks) {
+      throw new ScenarioError("INVALID_SCENARIO", `captions[${index}] is outside the render timebase`);
+    }
+    return { captionRef: ref, startTicks: caption.startTicks, endTicks: caption.endTicks };
+  });
+  if (!Array.isArray(request.creditRefs) || request.creditRefs.length > 256) {
+    throw new ScenarioError("INVALID_SCENARIO", "creditRefs must contain at most 256 references");
+  }
+  const creditsSeen = new Set<string>();
+  const creditRefs = request.creditRefs.map((refValue, index) => {
+    const ref = requireText(refValue, `creditRefs[${index}]`);
+    if (creditsSeen.has(ref)) throw new ScenarioError("INVALID_SCENARIO", `duplicate creditRef: ${ref}`);
+    creditsSeen.add(ref);
+    return ref;
+  });
+  if (request.classification !== "PUBLIC" && request.classification !== "INTERNAL"
+    && request.classification !== "CONFIDENTIAL" && request.classification !== "RESTRICTED") {
+    throw new ScenarioError("INVALID_SCENARIO", "classification is outside the canonical media enum");
+  }
+  const snapshot: FinalRenderRequest = {
+    renderId: request.renderId,
+    plan: canonicalPlan,
+    frameRate: { numerator: request.frameRate.numerator, denominator: request.frameRate.denominator },
+    variableFrameRate: request.variableFrameRate,
+    timeBase: { numerator: request.timeBase.numerator, denominator: request.timeBase.denominator },
+    durationTicks: request.durationTicks,
+    captions,
+    creditRefs,
+    fileName: requireText(request.fileName, "fileName"),
+    retention: requireText(request.retention, "retention"),
+    classification: request.classification,
+  };
+  return freezeRenderValue(snapshot);
+}
+
+function stableRenderIdentity(request: FinalRenderRequest): string {
+  return JSON.stringify([
+    request.renderId,
+    request.plan.planIdentity,
+    request.plan.sceneRuns.map((run) => [run.sceneId, run.lineageId, run.sourceRevision]),
+    [request.frameRate.numerator, request.frameRate.denominator],
+    request.variableFrameRate,
+    [request.timeBase.numerator, request.timeBase.denominator],
+    request.durationTicks,
+    request.captions.map(({ captionRef, startTicks, endTicks }) => [captionRef, startTicks, endTicks]),
+    request.creditRefs,
+    request.fileName,
+    request.retention,
+    request.classification,
+  ]);
+}
+
+/**
+ * Publishes only bytes returned by the admitted mux+decoder/probe host port.
+ * The canonical upload's declared idempotency key is stable for the same
+ * validated render request. Runtime replay guarantees remain unqualified;
+ * this function never retries an ambiguous mutation. Incomplete uploads are
+ * deliberately never finalized as artifacts.
+ */
+export async function publishFinalRender(
+  request: FinalRenderRequest,
+  admission: FinalRenderAdmissionPort | undefined,
+  muxer: FinalRenderMuxAndProbePort | undefined,
+  artifactClient: MediaOperationClient | undefined,
+  signal?: AbortSignal,
+): Promise<FinalRenderPublishResult> {
+  const safeRequest = validateAndSnapshotRenderRequest(request);
+  if (!admission || !muxer || !artifactClient) {
+    return { outcome: "NOT_ADMITTED", reason: "trusted render authority, codec/probe, and canonical artifact client are required" };
+  }
+  const admittedRefs = new Set<string>();
+  const checkAdmission = async (): Promise<boolean> => {
+    let decision: RenderAdmissionDecision;
+    try {
+      decision = await admission.admit(safeRequest);
+    } catch {
+      return false;
+    }
+    if (decision.status !== "ADMITTED" || !Array.isArray(decision.decisionRefs)
+      || decision.decisionRefs.length === 0
+      || decision.decisionRefs.some((ref) => typeof ref !== "string" || ref.trim().length === 0)) {
+      return false;
+    }
+    for (const ref of decision.decisionRefs) admittedRefs.add(ref);
+    return true;
+  };
+  if (!await checkAdmission()) {
+    return { outcome: "NOT_ADMITTED", reason: "render rights or source authority did not admit this request" };
+  }
+
+  let rendered: RenderedContainer;
+  try {
+    rendered = await muxer.muxAndVerify(safeRequest);
+  } catch {
+    return { outcome: "NOT_ADMITTED", reason: "qualified mux/decoder verification is unavailable or failed" };
+  }
+  // Detach from caller/adapter-owned memory before any further await.
+  const bytes = rendered?.bytes instanceof Uint8Array ? rendered.bytes.slice() : undefined;
+  if (!rendered || !bytes || bytes.byteLength < 1
+    || bytes.byteLength > MAX_RENDER_BYTES || typeof rendered.contentType !== "string"
+    || !/^video\/[a-z0-9.+-]+$/u.test(rendered.contentType)) {
+    return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
+  }
+  const probe = rendered.probe;
+  const narrationRefs = [...new Set(safeRequest.plan.sceneRuns.flatMap((run) => run.narration.map((cue) => cue.trackRef)))];
+  if (!probe || !probe.frameRate || !probe.timeBase || !Array.isArray(probe.captionTimings)
+    || typeof probe.container !== "string" || probe.container.trim().length === 0
+    || !Number.isSafeInteger(probe.decodedFrameCount) || probe.decodedFrameCount < 1
+    || !Number.isSafeInteger(probe.audioTrackCount) || probe.audioTrackCount < 0
+    || !Array.isArray(probe.narrationTrackRefs)
+    || !Number.isSafeInteger(probe.captionTrackCount) || probe.captionTrackCount < 0
+    || !Array.isArray(probe.creditRefsIncluded)
+    || probe.frameRate.numerator !== safeRequest.frameRate.numerator
+    || probe.frameRate.denominator !== safeRequest.frameRate.denominator
+    || probe.variableFrameRate !== safeRequest.variableFrameRate
+    || probe.timeBase.numerator !== safeRequest.timeBase.numerator
+    || probe.timeBase.denominator !== safeRequest.timeBase.denominator
+    || probe.durationTicks !== safeRequest.durationTicks
+    || (narrationRefs.length > 0 && probe.audioTrackCount < 1)
+    || JSON.stringify(probe.narrationTrackRefs) !== JSON.stringify(narrationRefs)
+    || (safeRequest.captions.length > 0 && probe.captionTrackCount < 1)
+    || JSON.stringify(probe.captionTimings) !== JSON.stringify(safeRequest.captions)
+    || JSON.stringify(probe.creditRefsIncluded) !== JSON.stringify(safeRequest.creditRefs)) {
+    return { outcome: "NOT_ADMITTED", reason: "decoder/probe or mux observations do not prove requested frame timing, narration, caption track/timing, or credit inclusion" };
+  }
+
+  const sha256 = await sha256Hex(bytes);
+  const identityDigest = await sha256Hex(new TextEncoder().encode(stableRenderIdentity(safeRequest)));
+  const idempotencyKey = `media-render-v1-${identityDigest}`;
+  let uploadId: string | undefined;
+  let completionStarted = false;
+  try {
+    if (!await checkAdmission()) {
+      return { outcome: "NOT_ADMITTED", reason: "render authority was denied or unavailable before canonical artifact creation" };
+    }
+    let session = await artifactClient.createUploadSession({
+      fileName: safeRequest.fileName,
+      contentType: rendered.contentType,
+      expectedSizeBytes: bytes.byteLength,
+      expectedSha256: sha256,
+      classification: safeRequest.classification,
+      retention: safeRequest.retention,
+      metadata: freezeRenderValue({
+        operation: "media.recorder.final-render.v1",
+        renderIdentitySha256: identityDigest,
+        sourceLineage: safeRequest.plan.sceneRuns.map((run) => ({
+          sceneId: run.sceneId, lineageId: run.lineageId, sourceRevision: run.sourceRevision,
+        })),
+        authorityDecisionRefs: [...admittedRefs],
+        frameRate: safeRequest.frameRate,
+        variableFrameRate: safeRequest.variableFrameRate,
+        timeBase: safeRequest.timeBase,
+        durationTicks: safeRequest.durationTicks,
+        captions: safeRequest.captions,
+        creditRefs: safeRequest.creditRefs,
+      }),
+      idempotencyKey,
+    }, signal);
+    uploadId = session.uploadId;
+    if (session.status !== "OPEN") {
+      return { outcome: "OUTCOME_UNKNOWN", reason: "idempotent upload session is not open; read canonical state before replay", uploadId };
+    }
+    let offset = session.bytesReceived;
+    let chunkIndex = session.nextChunkIndex;
+    if (offset > bytes.byteLength || (offset !== bytes.byteLength && offset % RENDER_UPLOAD_CHUNK_BYTES !== 0)) {
+      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload resume position does not align with a verified chunk boundary", uploadId };
+    }
+    while (offset < bytes.byteLength) {
+      if (!await checkAdmission()) {
+        return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render authority was denied or unavailable before a chunk dispatch", uploadId };
+      }
+      const end = Math.min(offset + RENDER_UPLOAD_CHUNK_BYTES, bytes.byteLength);
+      session = await artifactClient.uploadPart(session, chunkIndex,
+        new Blob([bytes.slice(offset, end)], { type: "application/octet-stream" }), { signal });
+      offset = end;
+      chunkIndex += 1;
+    }
+    if (!await checkAdmission()) {
+      return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render authority was denied or unavailable before canonical completion", uploadId };
+    }
+    completionStarted = true;
+    const artifact = await artifactClient.completeUploadSession(session, signal);
+    if (artifact.sha256 !== sha256 || artifact.sizeBytes !== bytes.byteLength
+      || artifact.fileName !== safeRequest.fileName || artifact.contentType !== rendered.contentType) {
+      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not match verified render bytes", uploadId };
+    }
+    return { outcome: "PUBLISHED", artifact, sha256 };
+  } catch (error) {
+    if (completionStarted) return { outcome: "OUTCOME_UNKNOWN", reason: "canonical completion acknowledgement is missing; read upload/artifact state before replay", uploadId };
+    if (uploadId) return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "upload failed before canonical artifact completion; session is left for canonical recovery/expiry", uploadId };
+    return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload creation outcome is unknown" };
+  }
+}

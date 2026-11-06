@@ -11,8 +11,10 @@ import {
   orchestrateScenario,
   recaptureScenario,
   scenesRequiringRecapture,
+  publishFinalRender,
   type Scenario,
 } from "./recorder-orchestrator";
+import type { MediaOperationClient } from "./operations";
 import {
   CaptureNotAdmittedError,
   CaptureOutcomeUnknownError,
@@ -723,5 +725,211 @@ describe("executeScenario", () => {
     await expect(executeScenario(plan, { check: () => "ADMITTED" }, adapter,
       { maxScenes: 1 })).rejects.toBeInstanceOf(ScenarioError);
     expect(calls).toBe(0);
+  });
+});
+
+describe("publishFinalRender", () => {
+  const request = () => ({
+    renderId: "render/demo/v1",
+    plan: orchestrateScenario(scenario()),
+    frameRate: { numerator: 30, denominator: 1 },
+    variableFrameRate: false,
+    timeBase: { numerator: 1, denominator: 90_000 },
+    durationTicks: 1_350_000,
+    captions: [{ captionRef: "captions/intro@v1", startTicks: 90_000, endTicks: 180_000 }],
+    creditRefs: ["credits/demo@v1"],
+    fileName: "demo.mp4",
+    retention: "P30D",
+    classification: "INTERNAL" as const,
+  });
+  const verifiedContainer = (bytes = new Uint8Array([1, 2, 3])) => ({
+    bytes,
+    contentType: "video/mp4",
+    probe: {
+      container: "mov,mp4,m4a,3gp,3g2,mj2",
+      frameRate: { numerator: 30, denominator: 1 },
+      variableFrameRate: false,
+      timeBase: { numerator: 1, denominator: 90_000 },
+      durationTicks: 1_350_000,
+      decodedFrameCount: 450,
+      audioTrackCount: 1,
+      narrationTrackRefs: ["narration/intro@v1"],
+      captionTrackCount: 1,
+      captionTimings: [{ captionRef: "captions/intro@v1", startTicks: 90_000, endTicks: 180_000 }],
+      creditRefsIncluded: ["credits/demo@v1"],
+    },
+  });
+  const admitted = { admit: async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] }) };
+  const muxer = { muxAndVerify: async () => verifiedContainer() };
+  const uploadSession = (overrides: Record<string, unknown> = {}) => ({
+    uploadId: "upload-1", tenantId: "tenant-1", principalId: "principal-1", fileName: "demo.mp4",
+    contentType: "video/mp4", expectedSizeBytes: 3, expectedSha256: "a".repeat(64), classification: "INTERNAL",
+    createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-11-06T00:00:00Z", bytesReceived: 0,
+    nextChunkIndex: 0, status: "OPEN", metadata: {}, ...overrides,
+  });
+  const fakeClient = (overrides: Record<string, unknown> = {}) => {
+    let submittedSha256 = "";
+    return ({
+    createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => {
+      submittedSha256 = input.expectedSha256;
+      return uploadSession({ expectedSha256: submittedSha256 });
+    }),
+    uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) =>
+      uploadSession({ bytesReceived: session.bytesReceived + blob.size, nextChunkIndex: session.nextChunkIndex + 1 })),
+    completeUploadSession: vi.fn(async () => ({
+      tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1", fileName: "demo.mp4",
+      contentType: "video/mp4", sizeBytes: 3, sha256: submittedSha256, objectReference: "objects/demo",
+      classification: "INTERNAL", createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-12-05T00:00:00Z", metadata: {},
+    })),
+    ...overrides,
+  }) as unknown as MediaOperationClient;
+  };
+
+  it("fails closed when trusted codec/probe or canonical artifact client is absent", async () => {
+    const client = fakeClient();
+    await expect(publishFinalRender(request(), undefined, muxer, client)).resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("rejects probe timing drift before the canonical upload effect", async () => {
+    const client = fakeClient();
+    const badMuxer = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      probe: { ...verifiedContainer().probe, durationTicks: 1_350_001 },
+    }) };
+    await expect(publishFinalRender(request(), admitted, badMuxer, client)).resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("rejects a forged scenario identity or lineage before authority or upload calls", async () => {
+    const client = fakeClient();
+    const admission = { admit: vi.fn(async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] })) };
+    const input = request();
+    const forged = {
+      ...input,
+      plan: { ...input.plan, planIdentity: `${input.plan.planIdentity}tampered` },
+    };
+
+    await expect(publishFinalRender(forged, admission, muxer, client))
+      .rejects.toMatchObject({ code: "INVALID_SCENARIO" });
+    expect(admission.admit).not.toHaveBeenCalled();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("rejects missing narration, caption-track, or credit inclusion observations", async () => {
+    for (const missing of [
+      { narrationTrackRefs: [] },
+      { captionTrackCount: 0 },
+      { creditRefsIncluded: [] },
+    ]) {
+      const client = fakeClient();
+      const noEvidenceMuxer = { muxAndVerify: async () => ({
+        ...verifiedContainer(), probe: { ...verifiedContainer().probe, ...missing },
+      }) };
+      await expect(publishFinalRender(request(), admitted, noEvidenceMuxer, client))
+        .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+      expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+        .not.toHaveBeenCalled();
+    }
+  });
+
+  it("rechecks rights after mux and before creating the canonical artifact", async () => {
+    let checks = 0;
+    const revokesAfterMux = { admit: async () => ({
+      status: ++checks === 1 ? "ADMITTED" as const : "NOT_ADMITTED" as const,
+      decisionRefs: checks === 1 ? ["rights-decision/demo"] : [],
+    }) };
+    const client = fakeClient();
+    await expect(publishFinalRender(request(), revokesAfterMux, muxer, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect(checks).toBe(2);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("rechecks rights between chunks and leaves a revoked partial upload unfinalized", async () => {
+    const bigBytes = new Uint8Array(4 * 1024 * 1024 + 1);
+    let checks = 0;
+    const revokeOnSecondChunk = { admit: async () => ({
+      status: ++checks === 4 ? "NOT_ADMITTED" as const : "ADMITTED" as const,
+      decisionRefs: ["rights-decision/demo"],
+    }) };
+    const uploadPart = vi.fn(async (session: { readonly bytesReceived: number; readonly nextChunkIndex: number }, _index: number, blob: Blob) =>
+      uploadSession({ bytesReceived: session.bytesReceived + blob.size, nextChunkIndex: session.nextChunkIndex + 1 }));
+    const client = fakeClient({ uploadPart });
+    await expect(publishFinalRender(request(), revokeOnSecondChunk,
+      { muxAndVerify: async () => verifiedContainer(bigBytes) }, client)).resolves.toMatchObject({
+      outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", uploadId: "upload-1",
+    });
+    expect(checks).toBe(4);
+    expect(uploadPart).toHaveBeenCalledTimes(1);
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("rechecks rights immediately before completion", async () => {
+    let checks = 0;
+    const revokeBeforeComplete = { admit: async () => ({
+      status: ++checks === 4 ? "NOT_ADMITTED" as const : "ADMITTED" as const,
+      decisionRefs: ["rights-decision/demo"],
+    }) };
+    const client = fakeClient();
+    await expect(publishFinalRender(request(), revokeBeforeComplete, muxer, client)).resolves.toMatchObject({
+      outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", uploadId: "upload-1",
+    });
+    expect(checks).toBe(4);
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("clones mux output before an asynchronous authority recheck can mutate it", async () => {
+    const muxBytes = new Uint8Array([1, 2, 3]);
+    let checks = 0;
+    const mutateDuringRecheck = { admit: async () => {
+      checks += 1;
+      if (checks === 2) muxBytes.fill(9);
+      return { status: "ADMITTED" as const, decisionRefs: [`rights-decision/${checks}`] };
+    } };
+    let uploadedBytes: number[] = [];
+    const client = fakeClient({
+      uploadPart: vi.fn(async (_session: unknown, _index: number, blob: Blob) => {
+        uploadedBytes = [...new Uint8Array(await blob.arrayBuffer())];
+        return uploadSession({ bytesReceived: 3, nextChunkIndex: 1 });
+      }),
+    });
+    await expect(publishFinalRender(request(), mutateDuringRecheck,
+      { muxAndVerify: async () => verifiedContainer(muxBytes) }, client))
+      .resolves.toMatchObject({ outcome: "PUBLISHED" });
+    expect(uploadedBytes).toEqual([1, 2, 3]);
+  });
+
+  it("uploads verified bytes through the canonical API with lineage and stable request binding", async () => {
+    const client = fakeClient();
+    const firstRequest = request();
+    const secondRequest = {
+      ...request(),
+      frameRate: { denominator: 1, numerator: 30 },
+      timeBase: { denominator: 90_000, numerator: 1 },
+    };
+    const first = await publishFinalRender(firstRequest, admitted, muxer, client);
+    const second = await publishFinalRender(secondRequest, admitted, muxer, client);
+    expect(first).toMatchObject({ outcome: "PUBLISHED", artifact: { artifactId: "artifact-1" } });
+    expect(second).toMatchObject({ outcome: "PUBLISHED" });
+    const create = (client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession;
+    expect(create.mock.calls[0]![0].idempotencyKey).toBe(create.mock.calls[1]![0].idempotencyKey);
+    expect(create.mock.calls[0]![0].metadata.sourceLineage).toEqual(
+      firstRequest.plan.sceneRuns.map(({ sceneId, lineageId, sourceRevision }) => ({ sceneId, lineageId, sourceRevision })));
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not finalize or claim success when a partial canonical upload fails", async () => {
+    const client = fakeClient({
+      uploadPart: vi.fn(async () => { throw new Error("transport interruption"); }),
+    });
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", uploadId: "upload-1",
+    });
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession).not.toHaveBeenCalled();
   });
 });
