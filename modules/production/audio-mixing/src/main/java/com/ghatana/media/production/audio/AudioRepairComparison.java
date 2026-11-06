@@ -145,7 +145,10 @@ public final class AudioRepairComparison {
 
     /** Zero-lag channel correlation is an explicit stereo phase/polarity proxy, not a perceptual score. */
     private static Double stereoCorrelation(byte[] bytes, AudioData format) {
-        if (format.channels() < 2) return null;
+        // This proxy compares exactly the left and right channels. For a
+        // multichannel layout, treating channel 0/1 as stereo would mislabel
+        // a partial-layout statistic as stereo correlation.
+        if (format.channels() != 2) return null;
         int sampleBytes = format.bitsPerSample() / 8;
         int frameBytes = sampleBytes * format.channels();
         double leftRight = 0.0;

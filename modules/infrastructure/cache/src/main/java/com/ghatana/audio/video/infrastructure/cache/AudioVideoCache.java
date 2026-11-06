@@ -921,6 +921,8 @@ public class AudioVideoCache<K, V> {
             CacheKeyScope scope,
             ScopedAuthority authority) {
         java.util.concurrent.CompletableFuture<Boolean> checked = new java.util.concurrent.CompletableFuture<>();
+        CompletableFuture.delayedExecutor(cacheOperationTimeoutNanos, TimeUnit.NANOSECONDS)
+                .execute(() -> checked.complete(false));
         try {
             AsyncOperation<ScopedAuthorityResult> readback = authority.readCurrent(scope);
             if (readback == null) return AsyncOperation.success(false);

@@ -91,6 +91,18 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void multichannelPcmDoesNotExposeFirstTwoChannelsAsStereoCorrelation() {
+        AudioData source = multichannelPcm(1_000, 1_000, -1_000, 2_000, -2_000, 2_000);
+        AudioData repaired = multichannelPcm(1_000, -1_000, 1_000, 2_000, -2_000, 2_000);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired);
+
+        assertThat(comparison.metrics().sourceStereoCorrelation()).isNull();
+        assertThat(comparison.metrics().repairedStereoCorrelation()).isNull();
+        assertThat(comparison.metrics().stereoCorrelationDelta()).isNull();
+    }
+
+    @Test
     void decodesSignedTwentyFourAndThirtyTwoBitPcmAtFullScaleBoundaries() {
         AudioRepairComparison pcm24 = AudioRepairComparison.compare(
                 signedPcm(24, 0x800000, 0x7fffff), signedPcm(24, 0x800000, 0x7fffff));
@@ -154,6 +166,17 @@ class AudioRepairComparisonTest {
         }
         int frames = samples.length / 2;
         return new AudioData(bytes, 8_000, 2, 16,
+                Duration.ofNanos((long) frames * 1_000_000_000L / 8_000), AudioFormat.PCM);
+    }
+
+    private static AudioData multichannelPcm(int... samples) {
+        byte[] bytes = new byte[samples.length * 2];
+        for (int index = 0; index < samples.length; index++) {
+            bytes[index * 2] = (byte) samples[index];
+            bytes[index * 2 + 1] = (byte) (samples[index] >>> 8);
+        }
+        int frames = samples.length / 3;
+        return new AudioData(bytes, 8_000, 3, 16,
                 Duration.ofNanos((long) frames * 1_000_000_000L / 8_000), AudioFormat.PCM);
     }
 

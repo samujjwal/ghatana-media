@@ -158,6 +158,42 @@ class PostgresqlMediaDeliveryOperationStoreTest {
         }
     }
 
+    @Test
+    void subMillisecondLeaseRemainsLiveAndReturnsExactPersistedExpiry() throws Exception {
+        try (Fixture fixture = openFixture();
+             PostgresqlMediaDeliveryOperationStore store = new PostgresqlMediaDeliveryOperationStore()) {
+            DeliveryOperationStore.Operation operation = operation(
+                    "request-submillisecond-claim", "h".repeat(64), Status.QUEUED, 0, null);
+            assertThat(store.insertIfAbsent(operation)).isTrue();
+            java.time.Instant beforeAcquire;
+            try (var connection = java.sql.DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var select = connection.prepareStatement("SELECT clock_timestamp()");
+                 var row = select.executeQuery()) {
+                row.next();
+                beforeAcquire = row.getTimestamp(1).toInstant();
+            }
+
+            DeliveryOperationStore.DispatchClaim claim = store.acquireDispatchClaim(
+                    operation, "worker-short-lease", Duration.ofNanos(999_999)).orElseThrow();
+            assertThat(claim.expiresAt()).isAfter(beforeAcquire);
+
+            try (var connection = java.sql.DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var select = connection.prepareStatement("""
+                         SELECT dispatch_claim_expires_at FROM media_delivery_operations
+                         WHERE tenant_id=? AND request_id=?
+                         """)) {
+                select.setString(1, operation.tenantId());
+                select.setString(2, operation.requestId());
+                try (var row = select.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getTimestamp(1).toInstant()).isEqualTo(claim.expiresAt());
+                }
+            }
+        }
+    }
+
     private static void claimWhenReleased(PostgresqlMediaDeliveryOperationStore store,
             DeliveryOperationStore.Operation operation, String owner, CountDownLatch ready,
             CountDownLatch start, AtomicInteger winners) {

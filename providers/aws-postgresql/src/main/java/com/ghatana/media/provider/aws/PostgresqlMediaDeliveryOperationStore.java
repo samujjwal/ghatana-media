@@ -93,7 +93,7 @@ public final class PostgresqlMediaDeliveryOperationStore implements DeliveryOper
         ensureOpen();
         ownerId = ownerId == null ? "" : ownerId.trim();
         if (ownerId.isEmpty() || ownerId.length() > 255) throw new IllegalArgumentException("ownerId is invalid");
-        long leaseMillis = DeliveryOperationStore.checkedLease(lease).toMillis();
+        long leaseMillis = leaseMillis(lease);
         try (Connection connection = state.connection();
              PreparedStatement update = connection.prepareStatement("""
                      UPDATE media_delivery_operations
@@ -122,7 +122,7 @@ public final class PostgresqlMediaDeliveryOperationStore implements DeliveryOper
 
     @Override public Optional<DispatchClaim> renewDispatchClaim(DispatchClaim claim, Duration lease) {
         ensureOpen();
-        long leaseMillis = DeliveryOperationStore.checkedLease(lease).toMillis();
+        long leaseMillis = leaseMillis(lease);
         try (Connection connection = state.connection();
              PreparedStatement update = connection.prepareStatement("""
                      UPDATE media_delivery_operations
@@ -238,6 +238,13 @@ public final class PostgresqlMediaDeliveryOperationStore implements DeliveryOper
         return new DispatchClaim(operation.tenantId(), operation.principalId(), operation.requestId(),
                 operation.artifactId(), operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
                 operation.requestFingerprint(), ownerId, fence, expiresAt);
+    }
+
+    /** PostgreSQL stores timestamptz at microsecond precision; never truncate a valid positive lease to zero. */
+    private static long leaseMillis(Duration lease) {
+        Duration checked = DeliveryOperationStore.checkedLease(lease);
+        long millis = checked.toMillis();
+        return checked.minusMillis(millis).isZero() ? millis : Math.addExact(millis, 1);
     }
 
     private static DispatchClaim claim(DispatchClaim current, Instant expiresAt) {

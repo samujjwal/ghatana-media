@@ -257,6 +257,26 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void scopedReadFailsClosedWhenAuthorityReadbackNeverCompletes() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(
+                port, "transcription", Duration.ofMillis(10));
+        AudioVideoCache.CacheKeyScope scope = scopedKey("tenant", "principal", "rights",
+                "transcription", "sensitive", "artifact", "source-v1", "transcript-v1", "policy-v1");
+        String key = cache.buildScopedKey(scope);
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+
+        assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(scope,
+                ignored -> AsyncOperation.from(new java.util.concurrent.CompletableFuture<>()),
+                ignored -> AsyncOperation.success("must-not-load"))))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+        verify(port, never()).get(key);
+        verify(port, never()).put(any(), any(), any());
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
     void protectedScopeRequiresAllDimensions() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", "fingerprint", " "))
