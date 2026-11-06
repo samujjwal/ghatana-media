@@ -199,6 +199,11 @@ public final class StoryboardPlanner {
             for (PlannedShot shot : shots) {
                 if (!ids.add(shot.shotId())) throw new IllegalArgumentException("duplicate planned shot identity");
                 if (!orders.add(shot.authoredOrder())) throw new IllegalArgumentException("duplicate planned shot order");
+                RationalTime sceneEnd = storyStart.plus(storyDuration);
+                RationalTime shotEnd = shot.storyStart().plus(shot.storyDuration());
+                if (shot.storyStart().compareTo(storyStart) < 0 || shotEnd.compareTo(sceneEnd) > 0) {
+                    throw new IllegalArgumentException("planned shot story interval must be contained by its scene");
+                }
             }
         }
     }

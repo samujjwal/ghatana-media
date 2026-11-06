@@ -27,6 +27,8 @@ public final class PcmStemMixer {
     public static final int CHANNELS = 2;
     public static final int BITS_PER_SAMPLE = 16;
     private static final int BYTES_PER_FRAME = CHANNELS * (BITS_PER_SAMPLE / 8);
+    /** Largest PCM payload any single stem can contribute to a valid mix. */
+    public static final int MAX_STEM_PCM_BYTES = MAX_FRAMES * CHANNELS * (BITS_PER_SAMPLE / 8);
     private static final int TRUE_PEAK_OVERSAMPLE = 4;
     private static final int TRUE_PEAK_KERNEL_RADIUS = 4;
     private static final double TRUE_PEAK_HEADROOM = 1.02;
@@ -94,8 +96,8 @@ public final class PcmStemMixer {
             this.sampleRate = sampleRate;
             this.channels = channels;
             this.bitsPerSample = bitsPerSample;
-            if (pcmS16Le != null && pcmS16Le.length > MAX_AGGREGATE_INPUT_BYTES) {
-                throw error(ErrorCode.RESOURCE_LIMIT, "one PCM stem exceeds the aggregate input byte budget");
+            if (pcmS16Le != null && pcmS16Le.length > MAX_STEM_PCM_BYTES) {
+                throw error(ErrorCode.RESOURCE_LIMIT, "one PCM stem exceeds the maximum frame budget");
             }
             this.pcmS16Le = pcmS16Le == null ? null : pcmS16Le.clone();
             this.gain = gain;

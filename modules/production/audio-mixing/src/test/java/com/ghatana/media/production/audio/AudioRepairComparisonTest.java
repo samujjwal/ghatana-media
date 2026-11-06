@@ -73,10 +73,21 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void rejectsReferenceAliasedToEitherComparedRevision() {
+        AudioData source = pcm(10, 20);
+        AudioData repaired = pcm(9, 19);
+
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                AudioRepairComparison.compare(source, repaired, source));
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                AudioRepairComparison.compare(source, repaired, repaired));
+    }
+
+    @Test
     void silenceHasTransparentMetricsAndNoInventedStereoPhaseMeasurement() {
         AudioData silence = pcm(0, 0, 0, 0);
 
-        AudioRepairComparison comparison = AudioRepairComparison.compare(silence, silence, silence);
+        AudioRepairComparison comparison = AudioRepairComparison.compare(silence, silence, pcm(0, 0, 0, 0));
 
         assertThat(comparison.sourceSha256()).isEqualTo(comparison.repairedSha256());
         assertThat(comparison.metrics().sourceRms()).isZero();

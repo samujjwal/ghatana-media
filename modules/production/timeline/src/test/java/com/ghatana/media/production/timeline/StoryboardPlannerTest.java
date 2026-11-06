@@ -291,6 +291,18 @@ class StoryboardPlannerTest {
                 story(10), story(5), List.of(new StoryboardPlanner.ShotInput("inside", 0, "shot intent",
                         new RationalTime(21, 2, 1, Clock.STORY), new RationalTime(1, 2, 1, Clock.STORY), List.of()))))
                 .isNotNull();
+
+        // The immutable planned value is also a public construction boundary; callers must not
+        // bypass the authored-input interval check and then persist an invalid plan.
+        assertThatThrownBy(() -> new StoryboardPlanner.PlannedScene("planned", 0, "scene intent",
+                story(10), story(5), List.of(new StoryboardPlanner.PlannedShot("outside", 0, "shot intent",
+                        story(9), story(1), List.of()))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("planned shot story interval must be contained by its scene");
+        assertThat(new StoryboardPlanner.PlannedScene("planned", 0, "scene intent", story(10), story(5),
+                List.of(new StoryboardPlanner.PlannedShot("inside", 0, "shot intent",
+                        new RationalTime(21, 2, 1, Clock.STORY), new RationalTime(1, 2, 1, Clock.STORY), List.of()))))
+                .isNotNull();
     }
 
     private static StoryboardPlanner.AuthoredBrief brief(List<SourceVersion> refs) {

@@ -21,6 +21,7 @@ public final class QualityComparisonAndOptimization {
     public static final long MAX_BYTES = 64L * 1024 * 1024;
     public static final int MAX_ATTEMPTS = 8;
     private static final String SHA256 = "^[a-f0-9]{64}$";
+    private static final String REPORT_FORMAT_VERSION = "quality-comparison-v2";
     private static final String PSNR_ID = "RGB8_SAMPLE_PSNR_V1";
     private static final String SSIM_ID = "GLOBAL_SRGB_LUMA_SSIM_V1";
     private static final double SSIM_C1 = 6.5025;
@@ -381,14 +382,15 @@ public final class QualityComparisonAndOptimization {
             String sourceDecision, List<RevisionId> retained,
             Optional<RevisionId> reference, String refDecision, Optional<UnavailableReason> unavailable,
             List<CandidateComparison> comparisons) {
-        StringBuilder out = new StringBuilder("quality-comparison-v1\n");
-        out.append("operation=").append(operationId).append('\n')
-                .append("budget=").append(budget.maxPixels()).append(',').append(budget.maxBytes()).append(',')
+        // V2 records caller-controlled strings as length-prefixed fields.
+        StringBuilder out = new StringBuilder(REPORT_FORMAT_VERSION).append('\n');
+        appendCanonicalField(out, "operation", operationId);
+        out.append("budget=").append(budget.maxPixels()).append(',').append(budget.maxBytes()).append(',')
                 .append(budget.maxAttempts()).append('\n').append("attemptsUsed=").append(attemptsUsed).append('\n');
-        appendRevision(out, source); out.append("sourceDecision=").append(sourceDecision).append('\n');
+        appendRevision(out, source); appendCanonicalField(out, "sourceDecision", sourceDecision);
         retained.forEach(id -> { out.append("retained="); appendRevision(out, id); });
         reference.ifPresent(id -> { out.append("reference="); appendRevision(out, id); });
-        out.append("referenceDecision=").append(refDecision).append('\n');
+        appendCanonicalField(out, "referenceDecision", refDecision);
         out.append("referenceUnavailable=").append(unavailable.map(Enum::name).orElse("")).append('\n');
         for (CandidateComparison item : comparisons) {
             out.append("candidate="); appendRevision(out, item.candidate());
@@ -401,11 +403,21 @@ public final class QualityComparisonAndOptimization {
     }
 
     private static void appendRevision(StringBuilder out, RevisionId id) {
-        out.append(id.tenantId()).append('|').append(id.principalId()).append('|').append(id.artifactId()).append('|')
-                .append(id.versionId()).append('|').append(id.sha256()).append('\n');
+        // Length-prefix caller-supplied identity components so delimiters and line
+        // breaks cannot make distinct revision tuples share a canonical encoding.
+        appendCanonicalField(out, "tenant", id.tenantId());
+        appendCanonicalField(out, "principal", id.principalId());
+        appendCanonicalField(out, "artifact", id.artifactId());
+        appendCanonicalField(out, "version", id.versionId());
+        appendCanonicalField(out, "sha256", id.sha256());
+    }
+    private static void appendCanonicalField(StringBuilder out, String name, String value) {
+        out.append(name).append(':').append(value.length()).append(':').append(value).append('\n');
     }
     private static void appendMetric(StringBuilder out, String name, Metric metric) {
-        out.append(name).append('=').append(metric.algorithm()).append(':').append(metric.status()).append(':')
+        out.append(name).append('=');
+        appendCanonicalField(out, "algorithm", metric.algorithm());
+        out.append(metric.status()).append(':')
                 .append(metric.value().isPresent() ? Double.toHexString(metric.value().getAsDouble()) : "").append('\n');
     }
 

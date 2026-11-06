@@ -146,8 +146,11 @@ class PcmStemMixerTest {
         expect(ErrorCode.FORMAT_MISMATCH, () -> mix(List.of(wrongChannels), 2, 0.98f));
         expect(ErrorCode.FORMAT_MISMATCH, () -> mix(List.of(wrongLength), 2, 0.98f));
 
+        Stem maximumSingleStem = new Stem("maximum-single-stem-v1", RATE, 2, 16,
+                new byte[PcmStemMixer.MAX_STEM_PCM_BYTES], 1, 0, syntheticProvenance("maximum-single-stem"));
+        assertThat(maximumSingleStem.pcmS16Le()).hasSize(PcmStemMixer.MAX_STEM_PCM_BYTES);
         assertThatThrownBy(() -> new Stem("oversized-v1", RATE, 2, 16,
-                new byte[PcmStemMixer.MAX_AGGREGATE_INPUT_BYTES + 1], 1, 0,
+                new byte[PcmStemMixer.MAX_STEM_PCM_BYTES + 1], 1, 0,
                 syntheticProvenance("test-gen")))
                 .isInstanceOf(MixException.class)
                 .extracting(error -> ((MixException) error).code()).isEqualTo(ErrorCode.RESOURCE_LIMIT);

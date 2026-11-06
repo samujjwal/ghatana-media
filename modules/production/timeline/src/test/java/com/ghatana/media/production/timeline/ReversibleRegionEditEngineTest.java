@@ -133,6 +133,20 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void revisionRejectsTrackingEvidenceForAnotherSourceDigest() {
+        ReversibleRegionEditEngine.TrackingEvidence otherSourceEvidence = new ReversibleRegionEditEngine.TrackingEvidence(
+                "vision-track-other-source", SOURCE, "b".repeat(64), "region-1",
+                List.of(bboxSample(0, .1, .1, 0)));
+
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditRevision(
+                OWNER.tenantId(), OWNER.principalId(), "project-region", "r1", "r0", "plan-1",
+                SOURCE, DIGEST, "local-region-edit", "region-1", otherSourceEvidence,
+                state("snapshot", "edit", "value"), null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("revision must preserve exact source and region evidence identity");
+    }
+
+    @Test
     void undoRestoresByteExactPriorMetadataOnlyForMatchingTargetAndIsIdempotent() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.EditSnapshot before = new ReversibleRegionEditEngine.EditSnapshot(

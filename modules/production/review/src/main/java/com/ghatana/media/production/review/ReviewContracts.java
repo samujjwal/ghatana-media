@@ -86,9 +86,17 @@ public final class ReviewContracts {
     public record NormalizedRoi(double x, double y, double width, double height) {
         public NormalizedRoi {
             if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(width) || !Double.isFinite(height)
-                    || x < 0 || y < 0 || width <= 0 || height <= 0 || x + width > 1 || y + height > 1) {
+                    || x < 0 || y < 0 || width <= 0 || height <= 0
+                    || exceedsUnitSquare(x, width) || exceedsUnitSquare(y, height)) {
                 throw new IllegalArgumentException("ROI must be finite, positive, and contained in the normalized unit square");
             }
+        }
+
+        private static boolean exceedsUnitSquare(double origin, double extent) {
+            // Floating-point addition can round a genuine overrun back to 1.0 (for example,
+            // 1.0 + Double.MIN_VALUE). Compare the caller's decimal values without that loss.
+            return java.math.BigDecimal.valueOf(origin).add(java.math.BigDecimal.valueOf(extent))
+                    .compareTo(java.math.BigDecimal.ONE) > 0;
         }
     }
 

@@ -223,6 +223,23 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportDigestDistinguishesRevisionTuplesContainingDelimiters() {
+        // Both identities collapsed to the same pipe-delimited text before the
+        // report encoder length-prefixed each source identity component.
+        RevisionId firstId = new RevisionId("tenant|principal", "owner", "artifact", "v1", "a".repeat(64));
+        RevisionId secondId = new RevisionId("tenant", "principal|owner", "artifact", "v1", "a".repeat(64));
+        Revision firstSource = revision(firstId, 40);
+        Revision secondSource = revision(secondId, 40);
+
+        String firstDigest = run(firstSource, List.of(firstSource), null, allowed("src"), null, 1, BUDGET)
+                .report().orElseThrow().reportSha256();
+        String secondDigest = run(secondSource, List.of(secondSource), null, allowed("src"), null, 1, BUDGET)
+                .report().orElseThrow().reportSha256();
+
+        assertThat(firstDigest).isNotEqualTo(secondDigest);
+    }
+
+    @Test
     void sourceRightsRevocationSuppressesReportAndCandidatePortEffects() {
         Revision source = revision("source", "v1", "a", 40);
         AtomicInteger calls = new AtomicInteger();
@@ -368,6 +385,10 @@ class QualityComparisonAndOptimizationTest {
 
     private static Revision revision(String artifact, String version, String marker, int value) {
         return new Revision(referenceId(artifact, version, marker), TB, frames(value));
+    }
+
+    private static Revision revision(RevisionId id, int value) {
+        return new Revision(id, TB, frames(value));
     }
 
     private static RevisionId referenceId(String artifact, String version, String marker) {

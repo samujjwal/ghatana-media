@@ -268,6 +268,10 @@ class VersionedReviewEngineTest {
         assertThatThrownBy(() -> new ReviewCaseRef("tenant-a", "case-1", V2.reference(), V1, "scope"))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new NormalizedRoi(0.8, 0.2, 0.3, 0.2)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new NormalizedRoi(1.0, 0.2, Double.MIN_VALUE, 0.2))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new NormalizedRoi(0.2, 1.0, 0.2, Double.MIN_VALUE))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new TimeRange(
                 new RationalTime(5, 30, 1, ClockDomain.STORY),
                 new RationalTime(4, 24, 1, ClockDomain.STORY))).isInstanceOf(IllegalArgumentException.class);

@@ -36,7 +36,12 @@ public final class AudioRepairComparison {
      */
     public static AudioRepairComparison compare(AudioData source, AudioData repaired, AudioData reference) {
         requireCompatible(source, repaired, "source and repaired revisions");
-        if (reference != null) requireCompatible(repaired, reference, "reference and repaired revision");
+        if (reference != null) {
+            if (reference == source || reference == repaired) {
+                throw new IllegalArgumentException("independent reference must be a separate audio value");
+            }
+            requireCompatible(repaired, reference, "reference and repaired revision");
+        }
         return new AudioRepairComparison(source, repaired, reference);
     }
 
