@@ -42,6 +42,8 @@ export interface OfflineEditStore {
   put(record: OfflineEditRecord): Promise<void>;
   /** Atomically replaces the exact expected row and preserves scoped edit/key uniqueness. */
   compareAndSet?(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean>;
+  /** Atomically removes the exact expected row, including its ciphertext and state. */
+  removeIfMatches?(expected: OfflineEditRecord): Promise<boolean>;
   remove(scope: OfflineEditScope, editId: string): Promise<void>;
 }
 
@@ -66,7 +68,7 @@ export interface OfflineEditQueueOptions {
 }
 
 export class OfflineEditQueueError extends Error {
-  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE") {
+  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE" | "STORE_RECORD_CHANGED") {
     super(`Offline edit queue failed: ${code}`);
     this.name = "OfflineEditQueueError";
   }
@@ -297,9 +299,10 @@ export class OfflineEditQueue {
   public async discardUnknown(scope: OfflineEditScope, editId: string, confirmedNotApplied: boolean): Promise<void> {
     assertScope(scope);
     if (!confirmedNotApplied) throw new Error("OUTCOME_UNKNOWN requires authoritative no-effect reconciliation.");
+    if (!this.options.store.removeIfMatches) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
     const record = (await this.listScoped(scope)).find((candidate) => candidate.editId === editId);
     if (record?.state !== "OUTCOME_UNKNOWN") throw new Error("The edit is not awaiting unknown-outcome reconciliation.");
-    await this.options.store.remove(scope, editId);
+    if (!await this.options.store.removeIfMatches(record)) throw new OfflineEditQueueError("STORE_RECORD_CHANGED");
   }
 
   private async decrypt<T>(record: OfflineEditRecord): Promise<OfflineEdit<T>> {

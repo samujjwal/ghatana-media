@@ -53,6 +53,16 @@ class MemoryStore implements OfflineEditStore {
     this.records.set(replacement.editId, replacement);
     return true;
   }
+  async removeIfMatches(expected: OfflineEditRecord): Promise<boolean> {
+    const current = this.records.get(expected.editId);
+    if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
+      || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
+      || current.expectedVersion !== expected.expectedVersion || current.payloadBytes !== expected.payloadBytes
+      || current.state !== expected.state || !sameBytes(current.nonce, expected.nonce)
+      || !sameBytes(current.ciphertext, expected.ciphertext)) return false;
+    this.records.delete(expected.editId);
+    return true;
+  }
   async remove(_query: OfflineEditScope, editId: string): Promise<void> { this.records.delete(editId); }
 }
 
@@ -181,6 +191,35 @@ describe("OfflineEditQueue", () => {
     await queue.discardUnknown(scope, edit.editId, true);
     expect(store.records.has(edit.editId)).toBe(false);
     expect(await queue.hasDirtyEdits(scope)).toBe(false);
+  });
+
+  it("does not delete a replacement row when unknown-outcome cleanup races with another context", async () => {
+    class ReplacingStore extends MemoryStore {
+      replaceAfterNextList = false;
+      override async list(query: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
+        const snapshot = await super.list(query);
+        if (this.replaceAfterNextList) {
+          this.replaceAfterNextList = false;
+          const current = this.records.get(edit.editId)!;
+          this.records.set(edit.editId, { ...current, idempotencyKey: "replacement-key", state: "PENDING" });
+        }
+        return snapshot;
+      }
+    }
+
+    const store = new ReplacingStore();
+    const { queue } = await createQueue(store);
+    await queue.enqueue(edit);
+    await queue.replay(scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => { throw new Error("connection lost after dispatch"); },
+    });
+    const replacement = { ...store.records.get(edit.editId)!, idempotencyKey: "replacement-key", state: "PENDING" as const };
+    store.replaceAfterNextList = true;
+
+    await expect(queue.discardUnknown(scope, edit.editId, true)).rejects.toMatchObject({ code: "STORE_RECORD_CHANGED" });
+    expect(store.records.get(edit.editId)).toEqual(replacement);
   });
 
   it("persists an outcome fence before dispatch across queue instances sharing the encrypted store", async () => {

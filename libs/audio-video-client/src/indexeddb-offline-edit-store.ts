@@ -123,6 +123,22 @@ export class IndexedDbOfflineEditStore implements OfflineEditStore {
     await done;
   }
 
+  public async removeIfMatches(expected: OfflineEditRecord): Promise<boolean> {
+    const db = await this.database();
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const done = transactionDone(tx);
+    const store = tx.objectStore(STORE_NAME);
+    const current = await requestResult<StoredRecord | undefined>(store.get(keyFor(expected)));
+    if (!current || !sameRecord(fromStored(current), expected)) {
+      tx.abort();
+      await ignoreAbort(done);
+      return false;
+    }
+    store.delete(keyFor(expected));
+    await done;
+    return true;
+  }
+
   /** Close this connection so hosts can release resources or perform upgrades. */
   public async close(): Promise<void> {
     const pending = this.databasePromise;
