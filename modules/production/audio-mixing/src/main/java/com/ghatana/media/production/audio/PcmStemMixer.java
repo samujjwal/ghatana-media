@@ -180,17 +180,17 @@ public final class PcmStemMixer {
                 throw error(ErrorCode.RESOURCE_LIMIT, "stem count exceeds the mixer budget");
             }
             validateStem(stem, spec, now);
-            byte[] source = stem.pcmS16Le.clone();
-            if (source.length != expectedBytes) {
+            int sourceLength = stem.pcmS16Le.length;
+            if (sourceLength != expectedBytes) {
                 throw error(ErrorCode.FORMAT_MISMATCH,
                         "all stems must have exactly the requested frame count; no implicit trim or padding is applied");
             }
-            aggregateBytes += source.length;
+            aggregateBytes += sourceLength;
             if (aggregateBytes > MAX_AGGREGATE_INPUT_BYTES) {
                 throw error(ErrorCode.RESOURCE_LIMIT, "aggregate PCM input exceeds the byte budget");
             }
             acceptedStems.add(stem);
-            sources.add(source);
+            sources.add(stem.pcmS16Le.clone());
         }
         if (acceptedStems.isEmpty()) {
             throw error(ErrorCode.RESOURCE_LIMIT, "stem count must be within 1..=" + MAX_STEMS);
