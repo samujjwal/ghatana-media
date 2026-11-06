@@ -215,6 +215,37 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void projectionCommitWithLostResponseReplaysAsDuplicateWithoutClaimingFinality() {
+        var committed = new MemoryProjection();
+        boolean[] loseFirstResponse = {true};
+        MediaLifecycleEventConsumer.ProjectionStore commitThenLoseResponse =
+                (tenant, aggregateType, aggregateRef, aggregateVersion, eventRef) -> {
+                    var disposition = committed.apply(
+                            tenant, aggregateType, aggregateRef, aggregateVersion, eventRef);
+                    if (loseFirstResponse[0]) {
+                        loseFirstResponse[0] = false;
+                        throw new IllegalStateException("projection commit response lost");
+                    }
+                    return disposition;
+                };
+        var consumer = new MediaLifecycleEventConsumer(REDACTOR, allowAll(), commitThenLoseResponse,
+                (principal, tenant, jobRef) -> Optional.empty());
+        var message = envelope(event("media.job.completed", 1));
+
+        assertThatThrownBy(() -> consumer.consume("consumer-a", message))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.CONSUMPTION_UNKNOWN);
+        assertThat(committed.applied).hasSize(1);
+
+        var replay = consumer.consume("consumer-a", message);
+        assertThat(replay.disposition()).isEqualTo(MediaLifecycleEventConsumer.ProjectionDisposition.DUPLICATE);
+        assertThat(replay.appendFinality()).isEqualTo(MediaPublicLifecycleEvent.AppendFinality.NON_FINAL_APPEND);
+        assertThat(replay.terminalReadbackRequired()).isTrue();
+        assertThat(committed.applied).hasSize(1);
+    }
+
+    @Test
     void terminalReadbackUnavailableNeverLooksLikeConfirmedFinality() {
         var consumer = new MediaLifecycleEventConsumer(REDACTOR, allowAll(), new MemoryProjection(),
                 (principal, tenant, jobRef) -> { throw new IllegalStateException("readback unavailable"); });
