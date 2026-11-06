@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * A09 historical-lineage fixture: a database built at the Media pre-V010 lineage (V001–V009)
- * must migrate forward through V010–V029 and V031 without checksum conflicts, row loss or phantom state;
+ * must migrate forward through V010–V029 and V031–V032 without checksum conflicts, row loss or phantom state;
  * a repeated migrate pass must be a no-op and the V009-era column surface must remain readable.
  */
 class MediaMigrationLineageFixtureTest {
@@ -73,7 +73,7 @@ class MediaMigrationLineageFixtureTest {
         }
 
         MigrateResult forward = flyway(ds, null).migrate();
-        assertThat(forward.migrationsExecuted).isEqualTo(21); // V010..V029 and additive V031
+        assertThat(forward.migrationsExecuted).isEqualTo(22); // V010..V029 plus additive V031..V032
 
         try (Connection connection = ds.getConnection()) {
             assertThat(count(connection, "media_processing_jobs")).isEqualTo(3);
@@ -127,11 +127,14 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(30);
+                assertThat(history.getLong(1)).isEqualTo(31);
                 assertThat(history.getLong(2)).isZero();
             }
             assertThat(tableExists(connection, "media_delivery_operations")).isTrue();
             assertThat(columnExists(connection, "media_delivery_operations", "version_ref")).isTrue();
+            assertThat(columnExists(connection, "media_delivery_operations", "dispatch_claim_owner_id")).isTrue();
+            assertThat(columnExists(connection, "media_delivery_operations", "dispatch_claim_fence")).isTrue();
+            assertThat(columnExists(connection, "media_delivery_operations", "dispatch_claim_expires_at")).isTrue();
         }
 
         // Mid-backfill crash/retry equivalence: a second migrate is a strict no-op and the
@@ -183,13 +186,13 @@ class MediaMigrationLineageFixtureTest {
             insertJob(connection, "job-ip06-retry", "req-ip06-retry", "FAILED", FINGERPRINT);
         }
 
-        Path migration = migrationDirectory.resolve("V032__ip06_recovery_probe.sql");
+        Path migration = migrationDirectory.resolve("V033__ip06_recovery_probe.sql");
         Files.writeString(migration, "UPDATE media_processing_jobs SET result_json='partial'"
                 + " WHERE job_id='job-ip06-retry';\n"
                 + "INSERT INTO ip06_missing_recovery_table (id) VALUES (2);\n");
-        Files.writeString(migrationDirectory.resolve("V033__ip06_after_failure_probe.sql"),
-                "CREATE TABLE ip06_v033_applied_marker (id INTEGER PRIMARY KEY);\n"
-                        + "INSERT INTO ip06_v033_applied_marker (id) VALUES (33);\n");
+        Files.writeString(migrationDirectory.resolve("V034__ip06_after_failure_probe.sql"),
+                "CREATE TABLE ip06_v034_applied_marker (id INTEGER PRIMARY KEY);\n"
+                        + "INSERT INTO ip06_v034_applied_marker (id) VALUES (34);\n");
 
         assertThatThrownBy(() -> flywayWithExtraLocation(ds, null, migrationDirectory).migrate())
                 .isInstanceOf(RuntimeException.class);
@@ -204,7 +207,7 @@ class MediaMigrationLineageFixtureTest {
              PreparedStatement history = connection.prepareStatement(
                              "SELECT COUNT(*), SUM(CASE WHEN success=FALSE THEN 1 ELSE 0 END),"
                              + " SUM(CASE WHEN success=TRUE THEN 1 ELSE 0 END)"
-                             + " FROM flyway_schema_history WHERE CAST(version AS INTEGER)=32");
+                             + " FROM flyway_schema_history WHERE CAST(version AS INTEGER)=33");
              ResultSet rows = history.executeQuery()) {
             rows.next();
             assertThat(rows.getLong(1)).isEqualTo(1);
@@ -212,7 +215,7 @@ class MediaMigrationLineageFixtureTest {
             assertThat(rows.getLong(3)).isZero();
         }
         try (Connection connection = ds.getConnection()) {
-            assertThat(tableExists(connection, "ip06_v033_applied_marker")).isFalse();
+            assertThat(tableExists(connection, "ip06_v034_applied_marker")).isFalse();
         }
         try (Connection connection = ds.getConnection();
              PreparedStatement history = connection.prepareStatement(
@@ -220,15 +223,15 @@ class MediaMigrationLineageFixtureTest {
                              + " WHERE CAST(version AS INTEGER)=33");
              ResultSet rows = history.executeQuery()) {
             rows.next();
-            assertThat(rows.getLong(1)).isZero();
+            assertThat(rows.getLong(1)).isEqualTo(1);
         }
 
         // H2 keeps a failed history row, so retry without a separately authorized repair
-        // must fail validation before V033's visible table/data side effect can run.
+        // must fail validation before V034's visible table/data side effect can run.
         assertThatThrownBy(() -> flywayWithExtraLocation(ds, null, migrationDirectory).migrate())
                 .isInstanceOf(FlywayValidateException.class);
         try (Connection connection = ds.getConnection()) {
-            assertThat(tableExists(connection, "ip06_v033_applied_marker")).isFalse();
+            assertThat(tableExists(connection, "ip06_v034_applied_marker")).isFalse();
         }
         try (Connection connection = ds.getConnection();
              PreparedStatement history = connection.prepareStatement(
@@ -236,7 +239,7 @@ class MediaMigrationLineageFixtureTest {
                              + " WHERE CAST(version AS INTEGER)=33");
              ResultSet rows = history.executeQuery()) {
             rows.next();
-            assertThat(rows.getLong(1)).isZero();
+            assertThat(rows.getLong(1)).isEqualTo(1);
         }
     }
 

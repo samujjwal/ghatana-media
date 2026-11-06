@@ -4,10 +4,12 @@ import com.ghatana.media.runtime.MediaCreationContracts;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ghatana.media.production.delivery.MediaDeliveryEngine.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,6 +86,96 @@ class MediaDeliveryEngineTest {
         assertThat(resumed.artifactId()).isEqualTo(request.artifact().artifactId());
         assertThat(resumed.versionRef()).isEqualTo(request.artifact().versionRef());
         assertThat(f.destination.offsets).containsExactly(0, CHUNK_BYTES);
+        assertThat(f.engine.export(request)).isEqualTo(resumed);
+        assertThat(f.destination.sendCount).isEqualTo(2);
+    }
+
+    @Test
+    void queuedOperationAfterPreDispatchCrashReauthorizesAndResumesAfterRestart() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(24));
+        DeliveryOperationStore crashBeforeUnknown = new DeliveryOperationStore() {
+            @Override public Optional<Operation> find(String tenantId, String requestId) {
+                return f.operations.find(tenantId, requestId);
+            }
+            @Override public boolean insertIfAbsent(Operation operation) {
+                return f.operations.insertIfAbsent(operation);
+            }
+            @Override public boolean update(Operation operation) { return f.operations.update(operation); }
+            @Override public boolean supportsDurableDispatchClaims() { return true; }
+            @Override public Optional<DispatchClaim> acquireDispatchClaim(Operation operation, String ownerId,
+                    Duration lease) { return f.operations.acquireDispatchClaim(operation, ownerId, lease); }
+            @Override public Optional<DispatchClaim> renewDispatchClaim(DispatchClaim claim, Duration lease) {
+                return f.operations.renewDispatchClaim(claim, lease);
+            }
+            @Override public boolean isDispatchClaimCurrent(DispatchClaim claim) {
+                return f.operations.isDispatchClaimCurrent(claim);
+            }
+            @Override public boolean releaseDispatchClaim(DispatchClaim claim) {
+                return f.operations.releaseDispatchClaim(claim);
+            }
+            @Override public boolean update(Operation operation, DispatchClaim claim) {
+                if (operation.status() == Status.OUTCOME_UNKNOWN) {
+                    throw new IllegalStateException("simulated process stop before pre-dispatch barrier");
+                }
+                return f.operations.update(operation, claim);
+            }
+        };
+        MediaDeliveryEngine firstProcess = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, crashBeforeUnknown);
+
+        assertThatThrownBy(() -> firstProcess.export(request))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("before pre-dispatch barrier");
+        assertThat(f.operations.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryOperationStore.Operation::status,
+                        DeliveryOperationStore.Operation::acknowledgedBytes)
+                .containsExactly(Status.QUEUED, 0);
+        assertThat(f.destination.sendCount).isZero();
+
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, f.operations);
+        assertThat(restarted.reconcileAndResume(request).status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(f.destination.offsets).containsExactly(0);
+    }
+
+    @Test
+    void failedPreDispatchBarrierUpdateNeverCallsDestinationWhileClaimIsLive() {
+        Fixture f = new Fixture();
+        DeliveryOperationStore barrierFailure = new DeliveryOperationStore() {
+            @Override public Optional<Operation> find(String tenantId, String requestId) {
+                return f.operations.find(tenantId, requestId);
+            }
+            @Override public boolean insertIfAbsent(Operation operation) {
+                return f.operations.insertIfAbsent(operation);
+            }
+            @Override public boolean update(Operation operation) { return f.operations.update(operation); }
+            @Override public boolean supportsDurableDispatchClaims() { return true; }
+            @Override public Optional<DispatchClaim> acquireDispatchClaim(Operation operation, String ownerId,
+                    Duration lease) { return f.operations.acquireDispatchClaim(operation, ownerId, lease); }
+            @Override public Optional<DispatchClaim> renewDispatchClaim(DispatchClaim claim, Duration lease) {
+                return f.operations.renewDispatchClaim(claim, lease);
+            }
+            @Override public boolean isDispatchClaimCurrent(DispatchClaim claim) {
+                return f.operations.isDispatchClaimCurrent(claim);
+            }
+            @Override public boolean releaseDispatchClaim(DispatchClaim claim) {
+                return f.operations.releaseDispatchClaim(claim);
+            }
+            @Override public boolean update(Operation operation, DispatchClaim claim) {
+                if (operation.status() == Status.OUTCOME_UNKNOWN) return false;
+                return f.operations.update(operation, claim);
+            }
+        };
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, barrierFailure);
+
+        assertThat(engine.export(f.request(bytes(24))).status()).isEqualTo(Status.QUEUED);
+        assertThat(f.destination.sendCount).isZero();
+        assertThat(f.operations.find("tenant:1", "request:1")).get()
+                .extracting(DeliveryOperationStore.Operation::status,
+                        DeliveryOperationStore.Operation::acknowledgedBytes)
+                .containsExactly(Status.QUEUED, 0);
     }
 
     @Test
@@ -95,9 +187,27 @@ class MediaDeliveryEngineTest {
                 return backing.find(tenantId, requestId);
             }
             @Override public boolean insertIfAbsent(Operation operation) { return backing.insertIfAbsent(operation); }
+            @Override public boolean supportsDurableDispatchClaims() { return true; } // Deterministic test double only.
             @Override public boolean update(Operation operation) {
                 if (operation.status() == Status.SENT) throw new IllegalStateException("simulated ledger write failure after ACK");
                 return backing.update(operation);
+            }
+            @Override public Optional<DispatchClaim> acquireDispatchClaim(Operation operation, String ownerId,
+                    Duration lease) { return backing.acquireDispatchClaim(operation, ownerId, lease); }
+            @Override public Optional<DispatchClaim> renewDispatchClaim(DispatchClaim claim, Duration lease) {
+                return backing.renewDispatchClaim(claim, lease);
+            }
+            @Override public boolean isDispatchClaimCurrent(DispatchClaim claim) {
+                return backing.isDispatchClaimCurrent(claim);
+            }
+            @Override public boolean releaseDispatchClaim(DispatchClaim claim) {
+                return backing.releaseDispatchClaim(claim);
+            }
+            @Override public boolean update(Operation operation, DispatchClaim claim) {
+                if (operation.status() == Status.SENT) {
+                    throw new IllegalStateException("simulated ledger write failure after ACK");
+                }
+                return backing.update(operation, claim);
             }
         };
         MediaDeliveryEngine engine = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, failing);
@@ -242,6 +352,105 @@ class MediaDeliveryEngineTest {
         assertThat(artifact.digest()).isEqualTo(MediaCreationContracts.sha256(bytesPattern(24)));
     }
 
+    @Test
+    void durableDispatchClaimFencesExpiredOwnerAndScopesExactOperation() {
+        AtomicReference<Instant> now = new AtomicReference<>(NOW);
+        InMemoryDeliveryOperationStore store = new InMemoryDeliveryOperationStore(now::get);
+        Fixture fixture = new Fixture();
+        ExportRequest request = fixture.request(bytes(8));
+        DeliveryOperationStore.Operation operation = new DeliveryOperationStore.Operation(
+                request.tenantId(), request.principalId(), request.requestId(), request.artifact().artifactId(),
+                request.artifact().versionRef(), request.artifact().digest(), request.destinationRef(),
+                "a".repeat(64), Status.QUEUED, 0, null);
+        assertThat(store.insertIfAbsent(operation)).isTrue();
+        DeliveryOperationStore.Operation illegalSent = new DeliveryOperationStore.Operation(
+                operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                operation.requestFingerprint(), Status.SENT, 8, null);
+        assertThat(store.update(illegalSent)).isFalse();
+
+        DeliveryOperationStore.DispatchClaim first = store.acquireDispatchClaim(
+                operation, "worker-a", Duration.ofSeconds(10)).orElseThrow();
+        assertThat(store.acquireDispatchClaim(operation, "worker-b", Duration.ofSeconds(10))).isEmpty();
+        assertThat(store.update(illegalSent, first)).isFalse();
+        assertThat(store.update(new DeliveryOperationStore.Operation(
+                operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                operation.requestFingerprint(), Status.UNAVAILABLE, 0, null))).isFalse();
+        assertThat(first.matches(operation)).isTrue();
+        assertThat(store.isDispatchClaimCurrent(first)).isTrue();
+        now.set(NOW.plusSeconds(5));
+        DeliveryOperationStore.DispatchClaim renewed = store.renewDispatchClaim(
+                first, Duration.ofSeconds(10)).orElseThrow();
+        assertThat(renewed.fence()).isEqualTo(first.fence());
+        assertThat(renewed.expiresAt()).isAfter(first.expiresAt());
+
+        now.set(NOW.plusSeconds(16));
+        DeliveryOperationStore.DispatchClaim second = store.acquireDispatchClaim(
+                operation, "worker-b", Duration.ofSeconds(10)).orElseThrow();
+        assertThat(second.fence()).isGreaterThan(first.fence());
+        assertThat(store.isDispatchClaimCurrent(first)).isFalse();
+        assertThat(store.releaseDispatchClaim(renewed)).isFalse();
+        assertThat(store.update(new DeliveryOperationStore.Operation(
+                operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                operation.requestFingerprint(), Status.SENT, 8, null), first)).isFalse();
+        assertThat(store.isDispatchClaimCurrent(second)).isTrue();
+        assertThat(store.releaseDispatchClaim(second)).isTrue();
+        assertThat(store.acquireDispatchClaim(operation, "worker-c", Duration.ofSeconds(10))
+                .orElseThrow().fence()).isGreaterThan(second.fence());
+    }
+
+    @Test
+    void legacyUnfencedDestinationIsNeverCalled() {
+        Fixture f = new Fixture();
+        AtomicBoolean called = new AtomicBoolean();
+        DestinationPort legacy = new DestinationPort() {
+            @Override public ChunkReceipt sendChunk(ExportRequest request, int offset, byte[] chunk,
+                    String digest, TransferAuthorization authorization) {
+                called.set(true);
+                throw new AssertionError("unfenced destination must not be called");
+            }
+            @Override public Reconciliation reconcile(ExportRequest request) {
+                called.set(true);
+                throw new AssertionError("unfenced destination must not be called");
+            }
+        };
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(f.authorization, legacy, () -> NOW, f.operations);
+
+        assertThat(engine.export(f.request(bytes(8))).status()).isEqualTo(Status.UNAVAILABLE);
+        assertThat(called).isFalse();
+    }
+
+    @Test
+    void destinationReceiptAndReadbackMustEchoCurrentDispatchFence() {
+        Fixture chunkFence = new Fixture();
+        chunkFence.destination.wrongChunkFence = true;
+        assertThat(chunkFence.engine.export(chunkFence.request(bytes(8))).status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(chunkFence.engine.find("tenant:1", "request:1").orElseThrow().destinationReceiptRef()).isEmpty();
+
+        Fixture reconciliationFence = new Fixture();
+        reconciliationFence.destination.wrongReconciliationFence = true;
+        assertThat(reconciliationFence.engine.export(reconciliationFence.request(bytes(8))).status())
+                .isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(reconciliationFence.destination.sendCount).isEqualTo(1);
+
+        Fixture finalFence = new Fixture();
+        finalFence.destination.wrongFinalReceiptFence = true;
+        assertThat(finalFence.engine.export(finalFence.request(bytes(8))).status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(finalFence.engine.find("tenant:1", "request:1").orElseThrow().destinationReceiptRef()).isEmpty();
+    }
+
+    @Test
+    void processLocalClaimStoreCannotAuthorizeDestinationDispatch() {
+        Fixture f = new Fixture();
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, new InMemoryDeliveryOperationStore());
+
+        assertThat(engine.export(f.request(bytes(8))).status()).isEqualTo(Status.UNAVAILABLE);
+        assertThat(f.destination.sendCount).isZero();
+    }
+
     private static byte[] bytes(int length) { return bytesPattern(length); }
     private static byte[] bytesPattern(int length) {
         byte[] value = new byte[length];
@@ -252,11 +461,36 @@ class MediaDeliveryEngineTest {
     private static final class Fixture {
         final FakeAuthorization authorization = new FakeAuthorization();
         final FakeDestination destination = new FakeDestination();
-        final InMemoryDeliveryOperationStore operations = new InMemoryDeliveryOperationStore();
+        final ClaimCapableTestStore operations = new ClaimCapableTestStore();
         final MediaDeliveryEngine engine = new MediaDeliveryEngine(authorization, destination, () -> NOW, operations);
         ExportRequest request(byte[] bytes) {
             Artifact artifact = new Artifact("tenant:1", "artifact:1", "version:1", MediaCreationContracts.sha256(bytes), bytes);
         return new ExportRequest("tenant:1", "principal:1", "request:1", artifact, "destination:exact");
+        }
+    }
+
+    /** In-memory test double for the durable-store capability; PostgreSQL tests prove persistence separately. */
+    private static final class ClaimCapableTestStore implements DeliveryOperationStore {
+        private final InMemoryDeliveryOperationStore backing = new InMemoryDeliveryOperationStore();
+        @Override public Optional<Operation> find(String tenantId, String requestId) {
+            return backing.find(tenantId, requestId);
+        }
+        @Override public boolean insertIfAbsent(Operation operation) { return backing.insertIfAbsent(operation); }
+        @Override public boolean update(Operation operation) { return backing.update(operation); }
+        @Override public boolean supportsDurableDispatchClaims() { return true; } // Test capability, not durable evidence.
+        @Override public Optional<DispatchClaim> acquireDispatchClaim(Operation operation, String ownerId,
+                Duration lease) { return backing.acquireDispatchClaim(operation, ownerId, lease); }
+        @Override public Optional<DispatchClaim> renewDispatchClaim(DispatchClaim claim, Duration lease) {
+            return backing.renewDispatchClaim(claim, lease);
+        }
+        @Override public boolean isDispatchClaimCurrent(DispatchClaim claim) {
+            return backing.isDispatchClaimCurrent(claim);
+        }
+        @Override public boolean releaseDispatchClaim(DispatchClaim claim) {
+            return backing.releaseDispatchClaim(claim);
+        }
+        @Override public boolean update(Operation operation, DispatchClaim claim) {
+            return backing.update(operation, claim);
         }
     }
 
@@ -278,7 +512,7 @@ class MediaDeliveryEngineTest {
         }
     }
 
-    private static final class FakeDestination implements DestinationPort {
+    private static final class FakeDestination implements FencedDestinationPort {
         int sendCount;
         int acceptedOffset;
         boolean loseFirstAckAfterAccept;
@@ -287,30 +521,48 @@ class MediaDeliveryEngineTest {
         boolean badFinalDestination;
         boolean badFinalPrincipal;
         boolean nullReconciliation;
+        boolean wrongChunkFence;
+        boolean wrongReconciliationFence;
+        boolean wrongFinalReceiptFence;
         Runnable afterFirstSend = () -> { };
         final List<Integer> offsets = new ArrayList<>();
-        @Override public ChunkReceipt sendChunk(ExportRequest r, int offset, byte[] chunk, String chunkDigest,
-                                                TransferAuthorization authorization) {
+        @Override public FencedChunkReceipt sendChunk(ExportRequest r, int offset, byte[] chunk, String chunkDigest,
+                                                TransferAuthorization authorization,
+                                                DeliveryOperationStore.DispatchClaim claim) {
+            assertThat(claim.matches(new DeliveryOperationStore.Operation(
+                    r.tenantId(), r.principalId(), r.requestId(), r.artifact().artifactId(),
+                    r.artifact().versionRef(), r.artifact().digest(), r.destinationRef(),
+                    claim.requestFingerprint(), Status.OUTCOME_UNKNOWN, offset, null))).isTrue();
+            assertThat(claim.fence()).isPositive();
             sendCount++;
             offsets.add(offset);
             acceptedOffset = offset + chunk.length;
             if (sendCount == 1) afterFirstSend.run();
             if (loseFirstAckAfterAccept && sendCount == 1) throw new IllegalStateException("simulated response lost after destination accepted chunk");
-            return new ChunkReceipt("chunk-receipt:" + sendCount, r.tenantId(), r.principalId(), r.requestId(),
+            ChunkReceipt receipt = new ChunkReceipt("chunk-receipt:" + sendCount, r.tenantId(), r.principalId(), r.requestId(),
                     r.artifact().artifactId(), r.artifact().versionRef(), r.destinationRef(),
                     r.artifact().digest(), offset, chunkDigest, chunk.length, acceptedOffset);
+            return new FencedChunkReceipt(receipt, claim.fence() + (wrongChunkFence ? 1 : 0));
         }
-        @Override public Reconciliation reconcile(ExportRequest r) {
+        @Override public FencedReconciliation reconcile(ExportRequest r, DeliveryOperationStore.DispatchClaim claim) {
+            assertThat(claim.tenantId()).isEqualTo(r.tenantId());
+            assertThat(claim.requestId()).isEqualTo(r.requestId());
+            assertThat(claim.destinationRef()).isEqualTo(r.destinationRef());
+            assertThat(claim.fence()).isPositive();
             if (nullReconciliation) return null;
             if (omitFinalReceipt || acceptedOffset != r.artifact().bytes().length) {
-                return new Reconciliation(acceptedOffset, Optional.empty());
+                return new FencedReconciliation(acceptedOffset, Optional.empty(),
+                        claim.fence() + (wrongReconciliationFence ? 1 : 0));
             }
             DestinationReceipt receipt = new DestinationReceipt("destination-receipt:1", r.tenantId(),
                     badFinalPrincipal ? "principal:other" : r.principalId(), r.requestId(),
                     r.artifact().artifactId(), r.artifact().versionRef(), r.artifact().digest(),
                     badFinalDestination ? "destination:wrong" : r.destinationRef(),
                     r.artifact().bytes().length, badFinalChecksum ? "sha256:" + "0".repeat(64) : r.artifact().digest());
-            return new Reconciliation(acceptedOffset, Optional.of(receipt));
+            return new FencedReconciliation(acceptedOffset,
+                    Optional.of(new FencedDestinationReceipt(receipt,
+                            claim.fence() + (wrongFinalReceiptFence ? 1 : 0))),
+                    claim.fence() + (wrongReconciliationFence ? 1 : 0));
         }
     }
 }

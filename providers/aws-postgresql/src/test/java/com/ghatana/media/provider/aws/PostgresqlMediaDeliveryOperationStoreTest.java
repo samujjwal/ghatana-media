@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,6 +77,112 @@ class PostgresqlMediaDeliveryOperationStoreTest {
                 rightResult.get();
                 assertThat(inserted.get()).isEqualTo(1);
             }
+        }
+    }
+
+    @Test
+    void dispatchClaimIsAtomicScopedAndFencesExpiredOwnerAcrossStoreInstances() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            DeliveryOperationStore.Operation operation = operation(
+                    "request-claim", "e".repeat(64), Status.OUTCOME_UNKNOWN, 0, null);
+            try (PostgresqlMediaDeliveryOperationStore left = new PostgresqlMediaDeliveryOperationStore();
+                 PostgresqlMediaDeliveryOperationStore right = new PostgresqlMediaDeliveryOperationStore()) {
+                assertThat(left.supportsDurableDispatchClaims()).isTrue();
+                DeliveryOperationStore.Operation queued = operation(
+                        "request-claim-transition", "g".repeat(64), Status.QUEUED, 0, null);
+                assertThat(left.insertIfAbsent(queued)).isTrue();
+                DeliveryOperationStore.Operation illegalQueuedToSent = new DeliveryOperationStore.Operation(
+                        queued.tenantId(), queued.principalId(), queued.requestId(), queued.artifactId(),
+                        queued.versionRef(), queued.artifactDigest(), queued.destinationRef(),
+                        queued.requestFingerprint(), Status.SENT, 8, null);
+                assertThat(left.update(illegalQueuedToSent)).isFalse();
+                DeliveryOperationStore.DispatchClaim queuedClaim = left.acquireDispatchClaim(
+                        queued, "worker-transition", Duration.ofSeconds(30)).orElseThrow();
+                assertThat(left.update(illegalQueuedToSent, queuedClaim)).isFalse();
+                assertThat(left.releaseDispatchClaim(queuedClaim)).isTrue();
+
+                assertThat(left.insertIfAbsent(operation)).isTrue();
+                DeliveryOperationStore.DispatchClaim first = left.acquireDispatchClaim(
+                        operation, "worker-left", Duration.ofSeconds(30)).orElseThrow();
+                assertThat(right.acquireDispatchClaim(operation, "worker-right", Duration.ofSeconds(30))).isEmpty();
+                assertThat(right.isDispatchClaimCurrent(first)).isTrue();
+                assertThat(left.update(new DeliveryOperationStore.Operation(
+                        operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                        operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                        operation.requestFingerprint(), Status.UNAVAILABLE, 0, null))).isFalse();
+                DeliveryOperationStore.DispatchClaim renewed = left.renewDispatchClaim(
+                        first, Duration.ofSeconds(60)).orElseThrow();
+                assertThat(renewed.fence()).isEqualTo(first.fence());
+                assertThat(renewed.expiresAt()).isAfter(first.expiresAt());
+
+                DeliveryOperationStore.Operation wrongDestination = new DeliveryOperationStore.Operation(
+                        operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                        operation.versionRef(), operation.artifactDigest(), "destination:other",
+                        operation.requestFingerprint(), operation.status(), operation.acknowledgedBytes(), null);
+                assertThat(right.acquireDispatchClaim(wrongDestination, "forged-scope", Duration.ofSeconds(30))).isEmpty();
+
+                DeliveryOperationStore.Operation sent = new DeliveryOperationStore.Operation(
+                        operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                        operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                        operation.requestFingerprint(), Status.SENT, 8, null);
+                assertThat(left.update(sent, renewed)).isTrue();
+                expireClaim(operation.requestId());
+                assertThat(left.releaseDispatchClaim(renewed)).isFalse();
+                assertThat(right.acquireDispatchClaim(operation, "stale-worker", Duration.ofSeconds(30))).isEmpty();
+
+                DeliveryOperationStore.DispatchClaim second = right.acquireDispatchClaim(
+                        sent, "worker-right", Duration.ofSeconds(30)).orElseThrow();
+                assertThat(second.fence()).isGreaterThan(first.fence());
+                assertThat(left.isDispatchClaimCurrent(first)).isFalse();
+                assertThat(left.update(new DeliveryOperationStore.Operation(
+                        operation.tenantId(), operation.principalId(), operation.requestId(), operation.artifactId(),
+                        operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                        operation.requestFingerprint(), Status.OUTCOME_UNKNOWN, 8, null), first)).isFalse();
+                assertThat(right.releaseDispatchClaim(second)).isTrue();
+
+                DeliveryOperationStore.Operation contested = operation(
+                        "request-claim-race", "f".repeat(64), Status.QUEUED, 0, null);
+                assertThat(left.insertIfAbsent(contested)).isTrue();
+                try (ExecutorService workers = Executors.newFixedThreadPool(2)) {
+                    CountDownLatch ready = new CountDownLatch(2);
+                    CountDownLatch start = new CountDownLatch(1);
+                    AtomicInteger winners = new AtomicInteger();
+                    Future<?> a = workers.submit(() -> claimWhenReleased(
+                            left, contested, "race-a", ready, start, winners));
+                    Future<?> b = workers.submit(() -> claimWhenReleased(
+                            right, contested, "race-b", ready, start, winners));
+                    ready.await(); start.countDown(); a.get(); b.get();
+                    assertThat(winners.get()).isEqualTo(1);
+                }
+            }
+        }
+    }
+
+    private static void claimWhenReleased(PostgresqlMediaDeliveryOperationStore store,
+            DeliveryOperationStore.Operation operation, String owner, CountDownLatch ready,
+            CountDownLatch start, AtomicInteger winners) {
+        ready.countDown();
+        try {
+            start.await();
+            if (store.acquireDispatchClaim(operation, owner, Duration.ofSeconds(30)).isPresent()) {
+                winners.incrementAndGet();
+            }
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("interrupted while testing claim race", interrupted);
+        }
+    }
+
+    private static void expireClaim(String requestId) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var update = connection.prepareStatement("""
+                     UPDATE media_delivery_operations
+                     SET dispatch_claim_expires_at=CURRENT_TIMESTAMP - INTERVAL '1 second'
+                     WHERE tenant_id=? AND request_id=?
+                     """)) {
+            update.setString(1, "tenant-1"); update.setString(2, requestId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
         }
     }
 

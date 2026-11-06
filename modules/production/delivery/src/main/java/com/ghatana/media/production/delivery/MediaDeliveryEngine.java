@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.time.Duration;
+import java.util.UUID;
 
 /** Bounded, destination-acknowledged delivery coordinator. No network destination is supplied here. */
 public final class MediaDeliveryEngine {
@@ -116,10 +118,54 @@ public final class MediaDeliveryEngine {
         }
     }
 
+    /** Fenced response envelopes preserve the existing receipt DTOs and add the active dispatch token. */
+    public record FencedChunkReceipt(ChunkReceipt receipt, long dispatchFence) {
+        public FencedChunkReceipt {
+            Objects.requireNonNull(receipt, "receipt");
+            if (dispatchFence < 1) throw new IllegalArgumentException("dispatchFence must be positive");
+        }
+    }
+
+    public record FencedDestinationReceipt(DestinationReceipt receipt, long dispatchFence) {
+        public FencedDestinationReceipt {
+            Objects.requireNonNull(receipt, "receipt");
+            if (dispatchFence < 1) throw new IllegalArgumentException("dispatchFence must be positive");
+        }
+    }
+
+    public record FencedReconciliation(int nextOffset, Optional<FencedDestinationReceipt> finalReceipt,
+                                       long dispatchFence) {
+        public FencedReconciliation {
+            if (nextOffset < 0) throw new IllegalArgumentException("nextOffset must not be negative");
+            if (dispatchFence < 1) throw new IllegalArgumentException("dispatchFence must be positive");
+            finalReceipt = finalReceipt == null ? Optional.empty() : finalReceipt;
+        }
+    }
+
     public interface DestinationPort {
         ChunkReceipt sendChunk(ExportRequest request, int offset, byte[] chunk, String chunkDigest,
                                TransferAuthorization authorization);
         Reconciliation reconcile(ExportRequest request);
+    }
+
+    /**
+     * Destination boundary that receives the durable operation fence on every read or write.
+     * Implementations must reject stale fencing tokens and deduplicate by exact request/chunk identity.
+     * A legacy DestinationPort remains source compatible, but is never called by this engine.
+     */
+    public interface FencedDestinationPort extends DestinationPort {
+        FencedChunkReceipt sendChunk(ExportRequest request, int offset, byte[] chunk, String chunkDigest,
+                                     TransferAuthorization authorization, DeliveryOperationStore.DispatchClaim claim);
+        FencedReconciliation reconcile(ExportRequest request, DeliveryOperationStore.DispatchClaim claim);
+
+        @Override default ChunkReceipt sendChunk(ExportRequest request, int offset, byte[] chunk, String chunkDigest,
+                                                 TransferAuthorization authorization) {
+            throw new UnsupportedOperationException("fenced dispatch claim is required");
+        }
+
+        @Override default Reconciliation reconcile(ExportRequest request) {
+            throw new UnsupportedOperationException("fenced dispatch claim is required");
+        }
     }
 
     public record DeliveryResult(String tenantId, String principalId, String requestId, String artifactId,
@@ -148,6 +194,8 @@ public final class MediaDeliveryEngine {
     private final java.util.function.Supplier<Instant> clock;
     private final DeliveryOperationStore operations;
     private final Map<String, Entry> entries = new HashMap<>();
+    private final String dispatcherId = UUID.randomUUID().toString();
+    private static final Duration DISPATCH_CLAIM_LEASE = Duration.ofMinutes(5);
 
     public MediaDeliveryEngine(AuthorizationPort authorization, DestinationPort destination,
                                java.util.function.Supplier<Instant> clock) {
@@ -168,43 +216,19 @@ public final class MediaDeliveryEngine {
         Entry existing = loadEntry(request);
         if (existing != null) {
             assertSame(existing.request, request);
-            return existing.result;
+            refreshEntry(existing);
+            return existing.result.status() == Status.QUEUED ? dispatchQueued(existing) : existing.result;
         }
         Entry entry = new Entry(request, fingerprint(request), result(request, Status.QUEUED, 0, null));
         if (!operations.insertIfAbsent(operation(entry))) {
             Entry raced = loadEntry(request);
             if (raced == null) throw new IllegalStateException("delivery operation could not be read after idempotency race");
             assertSame(raced.request, request);
-            return raced.result;
+            refreshEntry(raced);
+            return raced.result.status() == Status.QUEUED ? dispatchQueued(raced) : raced.result;
         }
         entries.put(key(request), entry);
-        TransferAuthorization grant;
-        try {
-            grant = authorization.authorize(request);
-        } catch (RuntimeException denied) {
-            setResult(entry, result(request, Status.UNAVAILABLE, 0, null));
-            throw new DeliveryException(DeliveryException.Code.AUTHORIZATION_UNAVAILABLE, "transfer authorization is unavailable");
-        }
-        if (grant == null) {
-            setResult(entry, result(request, Status.UNAVAILABLE, 0, null));
-            throw new DeliveryException(DeliveryException.Code.AUTHORIZATION_UNAVAILABLE, "transfer authorization is unavailable");
-        }
-        try { validateScope(grant, request); }
-        catch (DeliveryException denied) {
-            setResult(entry, result(request, Status.REVOKED, 0, null));
-            throw denied;
-        }
-        AuthorizationCurrentness currentness = currentness(grant);
-        if (currentness != AuthorizationCurrentness.CURRENT) {
-            Status status = currentness == AuthorizationCurrentness.REVOKED ? Status.REVOKED : Status.UNAVAILABLE;
-            setResult(entry, result(request, status, 0, null));
-            DeliveryException.Code code = status == Status.REVOKED
-                    ? DeliveryException.Code.AUTHORIZATION_DENIED : DeliveryException.Code.AUTHORIZATION_UNAVAILABLE;
-            throw new DeliveryException(code, status == Status.REVOKED
-                    ? "transfer authorization is revoked or expired" : "transfer authorization currentness is unavailable");
-        }
-        transfer(entry, grant, 0);
-        return entry.result;
+        return dispatchQueued(entry);
     }
 
     /** Resolve uncertainty first; any resumed send uses the same idempotency identity and verified offset. */
@@ -224,13 +248,42 @@ public final class MediaDeliveryEngine {
     }
 
     private DeliveryResult reconcileAndResume(Entry entry) {
+        refreshEntry(entry);
+        if (entry.result.status() == Status.QUEUED) return dispatchQueued(entry);
         if (entry.result.status() != Status.OUTCOME_UNKNOWN && entry.result.status() != Status.SENT) return entry.result;
-        Reconciliation reconciliation;
-        try { reconciliation = destination.reconcile(entry.request); }
-        catch (RuntimeException unavailable) { setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null)); return entry.result; }
+        if (!(destination instanceof FencedDestinationPort fencedDestination)
+                || !operations.supportsDurableDispatchClaims()) return entry.result;
+        DeliveryOperationStore.DispatchClaim claim = operations.acquireDispatchClaim(
+                operation(entry), dispatcherId, DISPATCH_CLAIM_LEASE).orElse(null);
+        if (claim == null) return refreshEntry(entry);
+        try {
+            refreshEntry(entry);
+            if (entry.result.status() != Status.OUTCOME_UNKNOWN && entry.result.status() != Status.SENT) {
+                return entry.result;
+            }
+            return reconcileAndResume(entry, fencedDestination, claim);
+        } finally {
+            operations.releaseDispatchClaim(claim);
+        }
+    }
+
+    private DeliveryResult reconcileAndResume(Entry entry, FencedDestinationPort fencedDestination,
+                                               DeliveryOperationStore.DispatchClaim initialClaim) {
+        DeliveryOperationStore.DispatchClaim claim = renew(initialClaim);
+        if (claim == null) return refreshEntry(entry);
+        FencedReconciliation reconciliation;
+        try { reconciliation = fencedDestination.reconcile(entry.request, claim); }
+        catch (RuntimeException unavailable) {
+            return setResultOrReadback(entry,
+                    result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null), claim);
+        }
         if (reconciliation == null) {
-            setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null));
-            return entry.result;
+            return setResultOrReadback(entry,
+                    result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null), claim);
+        }
+        if (reconciliation.dispatchFence() != claim.fence()) {
+            return setResultOrReadback(entry,
+                    result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null), claim);
         }
         int artifactSize = entry.request.artifact().size();
         int reconciledOffset = reconciliation.nextOffset();
@@ -239,40 +292,106 @@ public final class MediaDeliveryEngine {
                 || (reconciledOffset != artifactSize && reconciledOffset % CHUNK_BYTES != 0)
                 || (entry.result.status() == Status.SENT && reconciledOffset != entry.result.acknowledgedBytes());
         if (invalidOffset) {
-            setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null));
-            return entry.result;
+            return setResultOrReadback(entry,
+                    result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null), claim);
         }
         if (reconciliation.finalReceipt().isPresent()) {
-            setResult(entry, confirmOrUnknown(entry.request, reconciliation.finalReceipt().get(), reconciliation.nextOffset()));
-            return entry.result;
+            FencedDestinationReceipt finalReceipt = reconciliation.finalReceipt().get();
+            if (finalReceipt.dispatchFence() != claim.fence()) {
+                return setResultOrReadback(entry,
+                        result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null), claim);
+            }
+            return setResultOrReadback(entry,
+                    confirmOrUnknown(entry.request, finalReceipt.receipt(), reconciliation.nextOffset()), claim);
         }
         TransferAuthorization grant;
         try { grant = authorization.authorize(entry.request); validateScope(grant, entry.request); }
-        catch (RuntimeException denied) { setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null)); return entry.result; }
+        catch (RuntimeException denied) {
+            return setResultOrReadback(entry,
+                    result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null), claim);
+        }
         if (currentness(grant) != AuthorizationCurrentness.CURRENT) {
-            setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null));
+            return setResultOrReadback(entry,
+                    result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null), claim);
+        }
+        transfer(entry, grant, reconciliation.nextOffset(), fencedDestination, claim);
+        return entry.result;
+    }
+
+    /** Reauthorizes and resumes a pre-effect operation whose process may have stopped while queued. */
+    private DeliveryResult dispatchQueued(Entry entry) {
+        ExportRequest request = entry.request;
+        if (entry.result.status() != Status.QUEUED) return entry.result;
+        if (!(destination instanceof FencedDestinationPort fencedDestination)
+                || !operations.supportsDurableDispatchClaims()) {
+            if (!persistResult(entry, result(request, Status.UNAVAILABLE, 0, null))) return refreshEntry(entry);
             return entry.result;
         }
-        transfer(entry, grant, reconciliation.nextOffset());
-        return entry.result;
+        DeliveryOperationStore.DispatchClaim claim = operations.acquireDispatchClaim(
+                operation(entry), dispatcherId, DISPATCH_CLAIM_LEASE).orElse(null);
+        if (claim == null) return refreshEntry(entry);
+        try {
+            refreshEntry(entry);
+            if (entry.result.status() != Status.QUEUED) return entry.result;
+            TransferAuthorization grant;
+            try {
+                grant = authorization.authorize(request);
+            } catch (RuntimeException unavailable) {
+                if (!setResult(entry, result(request, Status.UNAVAILABLE, 0, null), claim)) return refreshEntry(entry);
+                throw authorizationUnavailable();
+            }
+            if (grant == null) {
+                if (!setResult(entry, result(request, Status.UNAVAILABLE, 0, null), claim)) return refreshEntry(entry);
+                throw authorizationUnavailable();
+            }
+            try {
+                validateScope(grant, request);
+            } catch (DeliveryException denied) {
+                if (!setResult(entry, result(request, Status.REVOKED, 0, null), claim)) return refreshEntry(entry);
+                throw denied;
+            }
+            AuthorizationCurrentness currentness = currentness(grant);
+            if (currentness != AuthorizationCurrentness.CURRENT) {
+                Status status = currentness == AuthorizationCurrentness.REVOKED ? Status.REVOKED : Status.UNAVAILABLE;
+                if (!setResult(entry, result(request, status, 0, null), claim)) return refreshEntry(entry);
+                DeliveryException.Code code = status == Status.REVOKED
+                        ? DeliveryException.Code.AUTHORIZATION_DENIED : DeliveryException.Code.AUTHORIZATION_UNAVAILABLE;
+                throw new DeliveryException(code, status == Status.REVOKED
+                        ? "transfer authorization is revoked or expired" : "transfer authorization currentness is unavailable");
+            }
+            transfer(entry, grant, 0, fencedDestination, claim);
+            return entry.result;
+        } finally {
+            operations.releaseDispatchClaim(claim);
+        }
+    }
+
+    private static DeliveryException authorizationUnavailable() {
+        return new DeliveryException(DeliveryException.Code.AUTHORIZATION_UNAVAILABLE,
+                "transfer authorization is unavailable");
     }
 
     public synchronized Optional<DeliveryResult> find(String tenantId, String requestId) {
         Entry entry = entries.get(required(tenantId, "tenantId") + "\u0000" + required(requestId, "requestId"));
-        return entry == null ? operations.find(tenantId, requestId).map(MediaDeliveryEngine::result)
-                : Optional.of(entry.result);
+        if (entry == null) return operations.find(tenantId, requestId).map(MediaDeliveryEngine::result);
+        return Optional.of(refreshEntry(entry));
     }
 
-    private void transfer(Entry entry, TransferAuthorization grant, int start) {
+    private void transfer(Entry entry, TransferAuthorization grant, int start,
+                          FencedDestinationPort fencedDestination,
+                          DeliveryOperationStore.DispatchClaim initialClaim) {
         ExportRequest request = entry.request;
         int offset = start;
         byte[] bytes = request.artifact().bytes();
+        DeliveryOperationStore.DispatchClaim claim = initialClaim;
         while (offset < bytes.length) {
+            claim = renew(claim);
+            if (claim == null) { refreshEntry(entry); return; }
             AuthorizationCurrentness currentness = currentness(grant);
             if (currentness != AuthorizationCurrentness.CURRENT) {
                 Status status = offset > 0 ? Status.OUTCOME_UNKNOWN
                         : currentness == AuthorizationCurrentness.REVOKED ? Status.REVOKED : Status.UNAVAILABLE;
-                setResult(entry, result(request, status, offset, null));
+                if (!setResult(entry, result(request, status, offset, null), claim)) refreshEntry(entry);
                 return;
             }
             int count = Math.min(CHUNK_BYTES, bytes.length - offset);
@@ -280,27 +399,54 @@ public final class MediaDeliveryEngine {
             String chunkDigest = MediaCreationContracts.sha256(chunk);
             // Persist ambiguity before crossing the destination boundary. A process death
             // after acceptance but before ACK/readback must never leave a replayable QUEUED row.
-            setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null));
-            ChunkReceipt receipt;
-            try { receipt = destination.sendChunk(request, offset, chunk, chunkDigest, grant); }
-            catch (RuntimeException lostAck) { setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null)); return; }
-            if (!validChunkReceipt(receipt, request, offset, count, chunkDigest)) {
-                setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null));
+            if (!setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null), claim)) {
+                refreshEntry(entry);
                 return;
             }
-            offset = receipt.nextOffset();
-            setResult(entry, result(request, Status.SENT, offset, null));
+            if (!operations.isDispatchClaimCurrent(claim)) { refreshEntry(entry); return; }
+            FencedChunkReceipt fencedReceipt;
+            try { fencedReceipt = fencedDestination.sendChunk(request, offset, chunk, chunkDigest, grant, claim); }
+            catch (RuntimeException lostAck) { refreshEntry(entry); return; }
+            if (fencedReceipt == null || fencedReceipt.dispatchFence() != claim.fence()
+                    || !validChunkReceipt(fencedReceipt.receipt(), request, offset, count, chunkDigest)) {
+                refreshEntry(entry);
+                return;
+            }
+            offset = fencedReceipt.receipt().nextOffset();
+            if (!setResult(entry, result(request, Status.SENT, offset, null), claim)) {
+                refreshEntry(entry);
+                return;
+            }
         }
         // Requiring destination reconciliation prevents transport completion from becoming confirmation.
-        Reconciliation finalState;
-        try { finalState = destination.reconcile(request); }
-        catch (RuntimeException unavailable) { setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null)); return; }
-        if (finalState == null) { setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null)); return; }
-        if (finalState.finalReceipt().isEmpty()) {
-            setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null));
+        claim = renew(claim);
+        if (claim == null) { refreshEntry(entry); return; }
+        FencedReconciliation finalState;
+        try { finalState = fencedDestination.reconcile(request, claim); }
+        catch (RuntimeException unavailable) {
+            if (!setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null), claim)) refreshEntry(entry);
             return;
         }
-        setResult(entry, confirmOrUnknown(request, finalState.finalReceipt().get(), finalState.nextOffset()));
+        if (finalState == null) {
+            if (!setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null), claim)) refreshEntry(entry);
+            return;
+        }
+        if (finalState.dispatchFence() != claim.fence()) {
+            if (!setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null), claim)) refreshEntry(entry);
+            return;
+        }
+        if (finalState.finalReceipt().isEmpty()) {
+            if (!setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null), claim)) refreshEntry(entry);
+            return;
+        }
+        FencedDestinationReceipt finalReceipt = finalState.finalReceipt().get();
+        if (finalReceipt.dispatchFence() != claim.fence()) {
+            if (!setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null), claim)) refreshEntry(entry);
+            return;
+        }
+        if (!setResult(entry, confirmOrUnknown(request, finalReceipt.receipt(), finalState.nextOffset()), claim)) {
+            refreshEntry(entry);
+        }
     }
 
     private DeliveryResult confirmOrUnknown(ExportRequest request, DestinationReceipt receipt, int offset) {
@@ -383,12 +529,50 @@ public final class MediaDeliveryEngine {
         return loaded;
     }
 
+    private DeliveryResult refreshEntry(Entry entry) {
+        DeliveryOperationStore.Operation stored = operations.find(
+                entry.request.tenantId(), entry.request.requestId()).orElseThrow(
+                () -> new IllegalStateException("delivery operation disappeared from durable readback"));
+        if (!stored.requestFingerprint().equals(entry.fingerprint)
+                || !stored.tenantId().equals(entry.request.tenantId())
+                || !stored.principalId().equals(entry.request.principalId())
+                || !stored.artifactId().equals(entry.request.artifact().artifactId())
+                || !stored.versionRef().equals(entry.request.artifact().versionRef())
+                || !stored.artifactDigest().equals(entry.request.artifact().digest())
+                || !stored.destinationRef().equals(entry.request.destinationRef())) {
+            throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
+                    "delivery operation readback differs from exact immutable request scope");
+        }
+        entry.result = result(stored);
+        return entry.result;
+    }
+
     private void setResult(Entry entry, DeliveryResult result) {
-        if (!operations.update(operation(entry, result))) {
+        if (!persistResult(entry, result)) {
             throw new IllegalStateException("delivery operation state changed during update");
         }
+    }
+
+    private boolean persistResult(Entry entry, DeliveryResult result) {
+        if (!operations.update(operation(entry, result))) return false;
         // Publish in-memory state only after the durable store confirms the update.
         entry.result = result;
+        return true;
+    }
+
+    private boolean setResult(Entry entry, DeliveryResult result, DeliveryOperationStore.DispatchClaim claim) {
+        if (!operations.update(operation(entry, result), claim)) return false;
+        entry.result = result;
+        return true;
+    }
+
+    private DeliveryResult setResultOrReadback(Entry entry, DeliveryResult result,
+                                                DeliveryOperationStore.DispatchClaim claim) {
+        return setResult(entry, result, claim) ? entry.result : refreshEntry(entry);
+    }
+
+    private DeliveryOperationStore.DispatchClaim renew(DeliveryOperationStore.DispatchClaim claim) {
+        return operations.renewDispatchClaim(claim, DISPATCH_CLAIM_LEASE).orElse(null);
     }
 
     private static DeliveryOperationStore.Operation operation(Entry entry) {
