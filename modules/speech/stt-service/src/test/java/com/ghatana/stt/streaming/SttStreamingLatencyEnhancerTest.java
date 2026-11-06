@@ -240,9 +240,11 @@ class SttStreamingLatencyEnhancerTest {
 
         assertThat(bounded.ingest(new byte[] {1, 2}, 1, 1000L)).isTrue();
         assertThat(bounded.bufferedBytes()).isZero();
+        assertThat(bounded.stats().batchesEmitted()).isZero();
         assertThat(bounded.ingest(new byte[] {3, 4}, 2, 1010L)).isTrue();
         assertThat(bounded.bufferedBytes()).isZero();
         assertThat(bounded.stats().chunksReceived()).isEqualTo(2);
+        assertThat(bounded.stats().batchesEmitted()).isZero();
     }
 
     @Test

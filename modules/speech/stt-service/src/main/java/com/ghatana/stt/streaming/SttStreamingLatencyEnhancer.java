@@ -234,8 +234,8 @@ public final class SttStreamingLatencyEnhancer {
                     avgLatencyMs
             );
 
-            batchesEmitted.incrementAndGet();
             emitter.accept(batch);
+            batchesEmitted.incrementAndGet();
         } catch (Exception e) {
             LOG.error("Batch emitter failed failureType={}", e.getClass().getSimpleName());
         } finally {
