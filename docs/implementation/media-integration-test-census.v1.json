@@ -598,7 +598,7 @@
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
       "selectors": [
-        "com.ghatana.audio.video.integration.VideoEnhancementAdmissionIntegrationTest.missingDecoderAndDeniedRightsNeverProduceCandidateOrChangeSourceBinding"
+        "com.ghatana.audio.video.integration.VideoEnhancementAdmissionIntegrationTest.missingDecoderAndUnavailableOrDeniedRightsNeverProduceCandidateOrChangeSourceBinding"
       ],
       "sources": [
         "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/VideoEnhancementAdmissionIntegrationTest.java"
