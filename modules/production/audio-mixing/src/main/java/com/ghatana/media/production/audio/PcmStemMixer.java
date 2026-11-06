@@ -171,9 +171,14 @@ public final class PcmStemMixer {
 
         int expectedBytes = checkedPcmBytes(spec.frameCount());
         long aggregateBytes = 0;
-        ArrayList<byte[]> sources = new ArrayList<>(stems.size());
+        ArrayList<Stem> acceptedStems = new ArrayList<>(MAX_STEMS);
+        ArrayList<byte[]> sources = new ArrayList<>(MAX_STEMS);
         Instant now = clock.instant();
+        int stemCount = 0;
         for (Stem stem : stems) {
+            if (++stemCount > MAX_STEMS) {
+                throw error(ErrorCode.RESOURCE_LIMIT, "stem count exceeds the mixer budget");
+            }
             validateStem(stem, spec, now);
             byte[] source = stem.pcmS16Le.clone();
             if (source.length != expectedBytes) {
@@ -184,12 +189,16 @@ public final class PcmStemMixer {
             if (aggregateBytes > MAX_AGGREGATE_INPUT_BYTES) {
                 throw error(ErrorCode.RESOURCE_LIMIT, "aggregate PCM input exceeds the byte budget");
             }
+            acceptedStems.add(stem);
             sources.add(source);
+        }
+        if (acceptedStems.isEmpty()) {
+            throw error(ErrorCode.RESOURCE_LIMIT, "stem count must be within 1..=" + MAX_STEMS);
         }
 
         double[] sums = new double[expectedBytes / 2];
-        for (int stemIndex = 0; stemIndex < stems.size(); stemIndex++) {
-            Stem stem = stems.get(stemIndex);
+        for (int stemIndex = 0; stemIndex < acceptedStems.size(); stemIndex++) {
+            Stem stem = acceptedStems.get(stemIndex);
             byte[] source = sources.get(stemIndex);
             double gain = stem.gain();
             double leftPan = stem.pan() > 0 ? 1.0 - stem.pan() : 1.0;

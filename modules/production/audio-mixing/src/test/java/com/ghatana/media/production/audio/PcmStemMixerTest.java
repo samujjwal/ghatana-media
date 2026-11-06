@@ -21,8 +21,10 @@ import java.time.ZoneOffset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -200,6 +202,47 @@ class PcmStemMixerTest {
         }
         // Format length is valid; total bytes exceed the 16 MiB aggregate cap before mixing.
         expect(ErrorCode.RESOURCE_LIMIT, () -> mix(tooManyBytes, 1_000_000, 0.98f));
+    }
+
+    @Test
+    void enforces_stem_count_while_consuming_a_list_with_inaccurate_size() {
+        Stem stem = synthetic("bounded-list-v1", pcm(new short[] {1, 1}), 1, 1, 0);
+        List<Stem> dishonestSize = new AbstractList<>() {
+            private final List<Stem> actual = java.util.Collections.nCopies(
+                    PcmStemMixer.MAX_STEMS + 1, stem);
+
+            @Override
+            public Stem get(int index) {
+                return stem;
+            }
+
+            @Override
+            public int size() {
+                return 1;
+            }
+
+            @Override
+            public Iterator<Stem> iterator() {
+                return actual.iterator();
+            }
+        };
+
+        expect(ErrorCode.RESOURCE_LIMIT, () -> mix(dishonestSize, 1, 0.98f));
+    }
+
+    @Test
+    void mixes_every_accepted_stem_from_the_bounded_iterator_snapshot() {
+        Stem first = synthetic("snapshot-first-v1", pcm(new short[] {1_000, 1_000}), 1, 1.0f, 0.0f);
+        Stem second = synthetic("snapshot-second-v1", pcm(new short[] {2_000, 2_000}), 1, 1.0f, 0.0f);
+        List<Stem> inaccurateSize = new AbstractList<>() {
+            private final List<Stem> actual = List.of(first, second);
+            @Override public Stem get(int index) { return actual.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<Stem> iterator() { return actual.iterator(); }
+        };
+
+        assertThat(samples(mix(inaccurateSize, 1, 0.98f).pcmS16Le()))
+                .containsExactly((short) 3_000, (short) 3_000);
     }
 
     private static MixResult mix(List<Stem> stems, int frames, float ceiling) {
