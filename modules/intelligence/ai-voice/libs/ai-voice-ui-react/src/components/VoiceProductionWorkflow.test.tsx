@@ -63,7 +63,7 @@ describe("VoiceProductionWorkflow", () => {
       />,
     );
 
-    expect(html).toContain("rights attestation and a consent reference");
+    expect(html).toContain("user rights assertion and a consent reference");
     expect(html).toContain("disabled=\"\"");
     expect(html).toContain("Approve output");
   });
@@ -104,5 +104,60 @@ describe("VoiceProductionWorkflow", () => {
     );
 
     expect(html).toContain("recovering and cannot start new work yet");
+  });
+
+  it.each([
+    ["UNKNOWN", "Current capability readiness is unknown"],
+    ["NOT_ADMITTED", "NOT_ADMITTED for the current host"],
+    ["DENIED", "denied for the current request"],
+  ] as const)("blocks processing when readiness is %s", (state, reason) => {
+    const html = renderToStaticMarkup(
+      <VoiceProductionWorkflow
+        projectName="Voice campaign"
+        currentStep="process"
+        source={{ artifactId: "source-1", fileName: "source.wav" }}
+        consent={{ rightsAttested: false }}
+        capabilities={{ ...activeCapabilities, process: state }}
+        onProcess={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("Start processing");
+    expect(html).toContain("disabled=\"\"");
+    expect(html).toContain(reason);
+  });
+
+  it("fails closed when no current capability observation is supplied", () => {
+    const html = renderToStaticMarkup(
+      <VoiceProductionWorkflow
+        projectName="Voice campaign"
+        currentStep="process"
+        source={{ artifactId: "source-1", fileName: "source.wav" }}
+        consent={{ rightsAttested: false }}
+        capabilities={{}}
+        onProcess={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("disabled=\"\"");
+    expect(html).toContain("Current capability readiness is unknown");
+  });
+
+  it("labels user attestation as an input rather than proof of current voice authority", () => {
+    const html = renderToStaticMarkup(
+      <VoiceProductionWorkflow
+        projectName="Voice campaign"
+        currentStep="approve"
+        completedSteps={["process", "review"]}
+        source={{ artifactId: "source-1", fileName: "source.wav" }}
+        consent={{ rightsAttested: true, consentReference: "consent-1" }}
+        capabilities={activeCapabilities}
+        onApprove={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("User assertion recorded; authority unverified");
+    expect(html).toContain("This checkbox records a user assertion for review.");
+    expect(html).toContain("does not verify current voice rights or consent");
   });
 });

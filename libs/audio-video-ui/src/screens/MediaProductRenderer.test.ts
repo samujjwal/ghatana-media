@@ -9,6 +9,7 @@ import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 import {
+  MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS,
   MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS,
   MEDIA_SCREEN_COMPONENTS,
   MediaProductRenderer,
@@ -160,8 +161,24 @@ describe("MediaProductRenderer", () => {
     expect(html).toContain("The remote outcome is not known yet.");
     expect(html).toContain("UNKNOWN");
     expect(html).toContain("Check job outcome");
+    expect(html).toContain("Canonical job status refresh is NOT_ADMITTED. No live status was requested.");
     expect(html).not.toContain('role="progressbar"');
     expect(html).not.toContain("<progress");
+  });
+
+  it("forwards the optional canonical job reader without creating a product route", () => {
+    const canonicalJobReadClient = { getJob: vi.fn(async () => ({ jobId: "media-job-42", status: "COMPLETED" as const, version: 3 })) };
+    const props: MediaProductRendererProps = {
+      kind: "job-recovery",
+      ...common,
+      job: { jobId: "media-job-42" },
+      canonicalJobReadClient,
+    };
+    const element = MediaProductRenderer(props);
+
+    expect(element.type).toBe(JobRecoveryScreen);
+    expect((element.props as { canonicalJobReadClient?: unknown }).canonicalJobReadClient).toBe(canonicalJobReadClient);
+    expect(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["job-recovery"].productRoute).toBe("NOT_ADMITTED");
   });
 
   it("uses CSP-compatible native progress for measured operation progress", () => {

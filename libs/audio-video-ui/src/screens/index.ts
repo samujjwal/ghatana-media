@@ -5,7 +5,7 @@ export type { FirstUseProjectProjection, FirstUseProjectScreenProps, FirstUsePro
 export { ArtifactIntakeScreen } from "./ArtifactIntakeScreen";
 export type { ArtifactIntakeProjection, ArtifactIntakeScreenProps, ArtifactIntakeView } from "./ArtifactIntakeScreen";
 export { JobRecoveryScreen } from "./JobRecoveryScreen";
-export type { JobRecoveryProjection, JobRecoveryScreenProps } from "./JobRecoveryScreen";
+export type { CanonicalJobReadClient, CanonicalJobStatus, JobRecoveryProjection, JobRecoveryScreenProps } from "./JobRecoveryScreen";
 export { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 export type { TranscriptCaptionProjection, TranscriptCaptionScreenProps, TranscriptCaptionView } from "./TranscriptCaptionScreen";
 export { MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS, MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS, MediaProductRenderer } from "./MediaProductRenderer";

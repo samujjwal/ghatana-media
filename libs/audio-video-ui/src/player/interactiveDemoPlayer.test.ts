@@ -1,4 +1,6 @@
+// @vitest-environment jsdom
 import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import {
@@ -353,6 +355,28 @@ describe("interactive demo player", () => {
     expect(html).not.toContain("<video");
     expect(html).not.toContain("<iframe");
     expect(html).not.toContain("src=");
+  });
+
+  it("keeps branch, seek, playback, and caption updates reachable through accessible native controls", () => {
+    render(React.createElement(InteractiveDemoPlayer, {
+      manifest: BASE,
+      verificationPort: testAuthority(BASE),
+    }));
+
+    const play = screen.getByRole("button", { name: "Play Introduction" });
+    expect(play.disabled).toBe(false);
+    fireEvent.click(play);
+    expect(screen.getByRole("button", { name: "Pause Introduction" }).disabled).toBe(false);
+
+    const seek = screen.getByRole("slider", { name: "Seek within Introduction" });
+    expect(seek.tabIndex).toBe(0);
+    fireEvent.change(seek, { target: { value: "100" } });
+    expect(screen.getByLabelText("Captions").textContent).toBe("Choose a path.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore left path; continue to Left path" }));
+    expect(screen.getByRole("group", { name: "Left path" })).toBeTruthy();
+    expect(screen.getByRole("slider", { name: "Seek within Left path" })).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toContain("Showing Left path.");
   });
 
   it("withholds keyboard-operable actions when policy denies a cross-origin asset", () => {

@@ -52,7 +52,16 @@ export function InteractiveDemoPlayer({
       <p className="media-interactive-demo-player__source" aria-label={`Source: ${sourceLabel}`}>{sourceLabel}</p>
       <div role="group" className="media-interactive-demo-player__scene" aria-label={activeScene?.label ?? "Demonstration scene unavailable"}>
         <p>{activeScene?.label ?? viewState.announcement}</p>
-        {activeScene && <p lang={activeScene.captions.language}>{demoCaptionAt(activeScene, viewState.positionMs)}</p>}
+        {activeScene && (
+          <p
+            lang={activeScene.captions.language}
+            aria-label="Captions"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {demoCaptionAt(activeScene, viewState.positionMs)}
+          </p>
+        )}
       </div>
       <p role="status" aria-live="polite" aria-atomic="true">{viewState.announcement}</p>
       {activeScene && viewState.status === "READY" && (

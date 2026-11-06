@@ -27,7 +27,10 @@ export type VoiceCapabilityState =
   | "RECOVERING"
   | "DISABLED"
   | "MISCONFIGURED"
-  | "UNAVAILABLE";
+  | "UNAVAILABLE"
+  | "UNKNOWN"
+  | "NOT_ADMITTED"
+  | "DENIED";
 
 export interface VoiceSourceSummary {
   readonly artifactId?: string;
@@ -121,7 +124,16 @@ const STEP_DEFINITIONS: ReadonlyArray<{
 function unavailableReason(
   capability: VoiceCapabilityState | undefined,
 ): string | undefined {
-  if (!capability || capability === "ACTIVE") return undefined;
+  if (capability === "ACTIVE") return undefined;
+  if (!capability || capability === "UNKNOWN") {
+    return "Current capability readiness is unknown. Refresh the host status before starting work.";
+  }
+  if (capability === "NOT_ADMITTED") {
+    return "This capability is NOT_ADMITTED for the current host; no operation can start.";
+  }
+  if (capability === "DENIED") {
+    return "This capability was denied for the current request.";
+  }
   if (capability === "DEGRADED") {
     return "This capability is degraded. Review runtime guidance before continuing.";
   }
@@ -176,7 +188,7 @@ export function VoiceProductionWorkflow({
     completed.has("approve") ||
     completed.has("export");
   const approved = completed.has("approve") || completed.has("export");
-  const consentComplete =
+  const userAttestationRecorded =
     consent.rightsAttested && Boolean(consent.consentReference?.trim());
 
   const steps: readonly MediaTaskStep[] = STEP_DEFINITIONS.map((definition) => {
@@ -252,13 +264,13 @@ export function VoiceProductionWorkflow({
               onAction: onApprove,
               disabled:
                 !processed ||
-                !consentComplete ||
+                !userAttestationRecorded ||
                 Boolean(unavailableReason(capabilities.approve)),
               disabledReason:
                 (!processed
                   ? "Complete processing and review first."
-                  : !consentComplete
-                    ? "Record rights attestation and a consent reference before approval."
+                  : !userAttestationRecorded
+                    ? "Record the user rights assertion and a consent reference before requesting approval."
                     : undefined) ?? unavailableReason(capabilities.approve),
             }
           : undefined;
@@ -280,7 +292,7 @@ export function VoiceProductionWorkflow({
   }, [
     approved,
     capabilities,
-    consentComplete,
+    userAttestationRecorded,
     currentStep,
     onApprove,
     onExport,
@@ -374,6 +386,10 @@ export function VoiceProductionWorkflow({
                 {selectedModel.version ? ` · version ${selectedModel.version}` : ""}
               </p>
             )}
+            <p role="note">
+              A selected model and a ready capability do not prove voice rights or consent. The host must
+              verify current scoped authority before each training, conversion, or synthesis effect.
+            </p>
           </div>
         );
       case "review":
@@ -402,6 +418,10 @@ export function VoiceProductionWorkflow({
         return (
           <fieldset className="space-y-4">
             <legend className="font-semibold">Rights and consent evidence</legend>
+            <p role="note">
+              This checkbox records a user assertion for review. It does not verify current voice rights or
+              consent; the host must recheck authority before any voice operation or export.
+            </p>
             <label className="flex min-h-11 items-start gap-3 rounded-lg border p-3 text-sm">
               <input
                 type="checkbox"
@@ -483,7 +503,7 @@ export function VoiceProductionWorkflow({
           </div>
           <div>
             <dt className="text-xs" style={{ color: colors.contentSecondary }}>Rights evidence</dt>
-            <dd>{consentComplete ? "Complete" : "Required before approval"}</dd>
+            <dd>{userAttestationRecorded ? "User assertion recorded; authority unverified" : "User assertion required before review"}</dd>
           </div>
         </dl>
       }
