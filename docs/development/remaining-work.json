@@ -795,7 +795,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: LetterboxTransform rejects caller-supplied anisotropic transforms while allowing rounded aspect-preserving sizes and centered YOLOv8/top-left YOLOX padding. Commit 2de9e8ff; LetterboxTransformTest PASS 10/10. VideoFrameExtractor.selectExactFrameAtUs now preserves negative source PTS consistently with SourceMediaTimestamp; regression proves exact -500us selection and -499us nonmatch. Focused VideoFrameExtractorProcessTest PASS with the regression. No detector was selected/qualified; real bbox/mAP, tracking and worker isolation remain open."
+      "progress": "2026-11-05: LetterboxTransform rejects caller-supplied anisotropic transforms while allowing rounded aspect-preserving sizes and centered YOLOv8/top-left YOLOX padding. Commit 2de9e8ff; LetterboxTransformTest PASS 10/10. VideoFrameExtractor.selectExactFrameAtUs now preserves negative source PTS consistently with SourceMediaTimestamp; regression proves exact -500us selection and -499us nonmatch. Focused VideoFrameExtractorProcessTest PASS with the regression. 2026-11-06 source review confirmed existing ExifOrientationTransform and tests cover EXIF orientations 1-8, inverse pixel/box mapping, ROI-to-letterbox mappings, clipping, and invalid geometry. The focused Vision module test passed; the delegated-cgroup host test was skipped. No detector was selected/qualified; real bbox/mAP, tracking, licensed model/reference inputs and worker isolation remain open."
     },
     {
       "id": "media.dev.vision-document-intelligence",
@@ -1391,7 +1391,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Asset stem version must match the source version bound by rights evidence. Mix results expose sample rate, frame count and post-ceiling stereo RMS dBFS (explicitly not LUFS). Commit d8a320a5; PcmStemMixerTest PASS 8/8, covering WAV decode/checksum, estimated peak ceiling, silence, half-scale RMS and deterministic output. Still OPEN: lawful production source and durable project revision."
+      "progress": "2026-11-05: Asset stem version must match the source version bound by rights evidence. Mix results expose sample rate, frame count and post-ceiling stereo RMS dBFS (explicitly not LUFS). Commit d8a320a5; PcmStemMixerTest PASS 8/8, covering WAV decode/checksum, estimated peak ceiling, silence, half-scale RMS and deterministic output. 2026-11-06 increment: strengthened the inter-sample test with a phase-shifted quarter-cycle fixture; the existing bounded 4x windowed-sinc estimate exceeds the input sample peak while limited output remains under the ceiling. This is not standards-certified true-peak qualification. Focused PcmStemMixerTest PASS 9/9. Still OPEN: lawful production source and durable project revision."
     },
     {
       "id": "media.dev.multitrack-composition-render",
@@ -1417,7 +1417,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added a bounded deterministic media-graph planner with rational VFR mapping, caption/transition validation, immutable source refs, graph/output limits and manifest SHA-256. Commit 54c94dff; MultitrackRenderPlannerTest PASS 5/5. Codec execution remains NOT_ADMITTED/UNAVAILABLE; no playable mux, sync, cancellation/partial-result recovery or actual output-space enforcement. 2026-11-05 increment: MultitrackRenderPlanner bounds graph/clip list copying by declared limits and caps iterator consumption when custom List.size is inaccurate; MultitrackRenderPlannerTest PASS 6/6. Codec execution and playable mux remain NOT_ADMITTED/UNAVAILABLE."
+      "progress": "2026-11-05: Added a bounded deterministic media-graph planner with rational VFR mapping, caption/transition validation, immutable source refs, graph/output limits and manifest SHA-256. Commit 54c94dff; MultitrackRenderPlannerTest PASS 5/5. Codec execution remains NOT_ADMITTED/UNAVAILABLE; no playable mux, sync, cancellation/partial-result recovery or actual output-space enforcement. 2026-11-05 increment: MultitrackRenderPlanner bounds graph/clip list copying by declared limits and caps iterator consumption when custom List.size is inaccurate; MultitrackRenderPlannerTest PASS 6/6. 2026-11-06 increment: added internal BoundedRenderOutput with cumulative byte-budget rejection before overflow reaches its delegate and digest availability only after clean close. MultitrackRenderPlannerTest PASS 10/10 for exact cap, overflow, partial write/close failures, and cleanup. The sink is not wired to a codec or runtime, so actual output-space enforcement remains unclaimed; codec execution and playable mux remain NOT_ADMITTED/UNAVAILABLE."
     },
     {
       "id": "media.dev.quality-comparison-and-optimization",
@@ -1538,7 +1538,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: GLB export rejects missing immutable source versions; readback covers fractional rational keyframe times, declared FLOAT32 timing loss, defensive byte ownership, digest consistency and exact source/revision/frame refs. SpatialRigEngine emits deterministic float32LossFields metadata for animation.inputTimeSeconds, animation.outputTranslation, and animation.outputRotation when tracks exist, and an empty list otherwise. Additional decoded-GLB regression verifies exact frameRef, version, handedness, axis directions and position/orientation unit metadata and confirms absent calibration/world-frame fields are not invented. SpatialRigEngineTest PASS 11/11, 0 failures/skips. Still OPEN: coordinate/profile registry join, complete field-level loss report, output registration/lineage, 360 orientation, GLB viewer parity, and admitted destination/runtime acknowledgment are absent."
+      "progress": "2026-11-05: GLB export rejects missing immutable source versions; readback covers fractional rational keyframe times, declared FLOAT32 timing loss, defensive byte ownership, digest consistency and exact source/revision/frame refs. SpatialRigEngine emits deterministic float32LossFields metadata for animation.inputTimeSeconds, animation.outputTranslation, and animation.outputRotation when tracks exist, and an empty list otherwise. Additional decoded-GLB regression verifies exact frameRef, version, handedness, axis directions and position/orientation unit metadata and confirms absent calibration/world-frame fields are not invented. SpatialRigEngineTest PASS 11/11, 0 failures/skips. 2026-11-06 source review found no authoritative coordinate/profile registry identities or further field-loss semantics, so no metadata was invented. Still OPEN: coordinate/profile registry join, complete field-level loss report, output registration/lineage, 360 orientation, GLB viewer parity, and admitted destination/runtime acknowledgment are absent."
     },
     {
       "id": "media.dev.interactive-demo-player",
@@ -1590,7 +1590,8 @@
         "media.dev.web-host"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-06 coordinator review: no safe Studio UI/runtime vertical slice is currently bound to an admitted canonical project/edit/render/review/export operation. PDP-1 recorder-studio-contracts.yaml labels the proposed operations definition-only with runtimeStatus NOT_ADMITTED; PDP-3 requires one immutable MediaProject revision and expectedRevision CAS/undo parity, while manual edits remain NOT_ADMITTED. The UI renderer is a contract preview and the canonical SDK route inventory has no project/revision/edit routes. Keep this task OPEN. Exact implementation predecessors remain media.dev.project-timeline-engine, media.dev.multitrack-composition-render, media.dev.versioned-review-and-approval, and media.dev.web-host; no placeholder Studio screen or operation was added."
     },
     {
       "id": "media.dev.cross-surface-integration-harness",

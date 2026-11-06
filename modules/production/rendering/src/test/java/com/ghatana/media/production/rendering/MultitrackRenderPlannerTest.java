@@ -2,13 +2,84 @@ package com.ghatana.media.production.rendering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import org.junit.jupiter.api.Test;
 
 class MultitrackRenderPlannerTest {
     private static final String SHA = "a".repeat(64);
+
+    @Test
+    void boundedOutputAcceptsExactCapAndExposesDigestOnlyAfterCleanClose() throws Exception {
+        var destination = new ByteArrayOutputStream();
+        var output = new BoundedRenderOutput(destination, 5);
+        output.write("ab".getBytes(StandardCharsets.UTF_8));
+        output.write("cde".getBytes(StandardCharsets.UTF_8));
+
+        assertThat(output.bytesWritten()).isEqualTo(5);
+        assertThat(output.completedSha256()).isNull();
+        output.close();
+
+        assertThat(destination.toString(StandardCharsets.UTF_8)).isEqualTo("abcde");
+        assertThat(output.completedSha256()).isEqualTo(HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest("abcde".getBytes(StandardCharsets.UTF_8))));
+    }
+
+    @Test
+    void boundedOutputRejectsOverCapBeforeDelegateReceivesAnyOverflowBytes() throws Exception {
+        var destination = new ByteArrayOutputStream();
+        var output = new BoundedRenderOutput(destination, 4);
+        output.write("abc".getBytes(StandardCharsets.UTF_8));
+
+        assertThatThrownBy(() -> output.write("de".getBytes(StandardCharsets.UTF_8)))
+                .isInstanceOf(IOException.class).hasMessageContaining("budget exceeded");
+        assertThat(destination.toString(StandardCharsets.UTF_8)).isEqualTo("abc");
+        assertThat(output.bytesWritten()).isEqualTo(3);
+        output.close();
+        assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
+    void failedDelegateWriteInvalidatesPartialOutputAndClosesDestinationForCleanup() {
+        var state = new FailingDestination();
+        var output = new BoundedRenderOutput(state, 8);
+
+        assertThatThrownBy(() -> output.write("abc".getBytes(StandardCharsets.UTF_8)))
+                .isInstanceOf(IOException.class).hasMessage("simulated partial write");
+        assertThat(output.bytesWritten()).isZero();
+        try {
+            output.close();
+        } catch (IOException e) {
+            throw new AssertionError("cleanup close should succeed", e);
+        }
+        assertThat(state.partialWriteAttempted).isTrue();
+        assertThat(state.closed).isTrue();
+        assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
+    void boundedOutputClosesAndInvalidatesAfterDestinationCloseFailure() {
+        var state = new FailingDestination();
+        state.failWrite = false;
+        state.failClose = true;
+        var output = new BoundedRenderOutput(state, 8);
+        try {
+            output.write(1);
+        } catch (IOException e) {
+            throw new AssertionError("write should succeed", e);
+        }
+        assertThatThrownBy(output::close).isInstanceOf(IOException.class).hasMessage("simulated close failure");
+        assertThat(output.bytesWritten()).isEqualTo(1);
+        assertThat(output.completedSha256()).isNull();
+    }
 
     @Test
     void retainsVariableFrameTimestampsAndBuildsStableExactManifestDigest() {
@@ -125,4 +196,30 @@ class MultitrackRenderPlannerTest {
     }
 
     private record Pipeline(boolean admitted, boolean available) implements MultitrackRenderPlanner.CodecPipeline { }
+
+    private static final class FailingDestination extends OutputStream {
+        private boolean closed;
+        private boolean partialWriteAttempted;
+        private boolean failWrite = true;
+        private boolean failClose;
+
+        @Override public void write(int value) throws IOException {
+            if (failWrite) {
+                partialWriteAttempted = true;
+                throw new IOException("simulated partial write");
+            }
+        }
+
+        @Override public void write(byte[] bytes, int offset, int length) throws IOException {
+            if (failWrite) {
+                if (length > 0) write(bytes[offset]);
+                throw new IOException("simulated partial write");
+            }
+        }
+
+        @Override public void close() throws IOException {
+            closed = true;
+            if (failClose) throw new IOException("simulated close failure");
+        }
+    }
 }

@@ -70,18 +70,18 @@ class PcmStemMixerTest {
     }
 
     @Test
-    void limits_inter_sample_overshoot_from_alternating_samples() {
-        // Alternating near-full-scale samples have a lower sample peak than their
-        // reconstructed waveform. This checks the oversampled limiter path directly.
-        short[] alternating = new short[64];
-        for (int index = 0; index < alternating.length; index++) {
-            alternating[index] = (short) (index % 2 == 0 ? 28_000 : -28_000);
-        }
-        MixResult result = mix(List.of(synthetic("inter-sample-fixture-v1", pcm(alternating),
-                alternating.length / 2, 1.0f, 0.0f)), alternating.length / 2, 0.55f);
+    void limits_phase_shifted_inter_sample_overshoot_without_claiming_certified_true_peak() {
+        // A phase-shifted quarter-cycle tone has sample values below its reconstructed
+        // inter-sample crest. This exercises the bounded 4x estimate, not a standards
+        // certified true-peak measurement.
+        short[] tone = new short[128];
+        short[] cycle = {17_000, 17_000, -17_000, -17_000};
+        for (int index = 0; index < tone.length; index++) tone[index] = cycle[index % cycle.length];
+        double inputSamplePeak = 17_000 / 32768.0;
+        MixResult result = mix(List.of(synthetic("inter-sample-fixture-v1", pcm(tone),
+                tone.length / 2, 1.0f, 0.0f)), tone.length / 2, 0.55f);
 
-        assertThat(result.estimatedTruePeakBeforeCeiling())
-                .isGreaterThan(result.samplePeakAfterCeiling());
+        assertThat(result.estimatedTruePeakBeforeCeiling()).isGreaterThan(inputSamplePeak);
         assertThat(result.estimatedTruePeakAfterCeiling()).isLessThanOrEqualTo(0.5501);
         assertThat(result.samplePeakAfterCeiling()).isLessThanOrEqualTo(0.55);
         assertThat(samples(result.pcmS16Le())).doesNotContain((short) Short.MIN_VALUE);
