@@ -496,6 +496,7 @@ export class CameraCaptureSession {
   private controller: AbortController | null = null;
   private unsubscribe: (() => void) | null = null;
   private revoked = false;
+  private permissionFailure: CameraCaptureError | null = null;
   private switching = false;
   private closed = false;
   private stopped = true;
@@ -526,6 +527,7 @@ export class CameraCaptureSession {
     }
     const track = this.track;
     const controller = this.controller;
+    if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
     if (this.controller.signal.aborted) {
       throw this.switching
@@ -542,7 +544,7 @@ export class CameraCaptureSession {
     } catch (error) {
       if (this.revoked) {
         await this.close();
-        throw abortError();
+        throw this.permissionFailure ?? abortError();
       }
       if (this.switching) {
         throw fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch");
@@ -550,6 +552,7 @@ export class CameraCaptureSession {
       await this.close();
       throw error;
     }
+    if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
     if (controller.signal.aborted || this.closed) {
       throw this.switching
@@ -562,7 +565,7 @@ export class CameraCaptureSession {
     } catch (error) {
       if (this.revoked) {
         await this.close();
-        throw abortError();
+        throw this.permissionFailure ?? abortError();
       }
       if (controller.signal.aborted && this.switching) {
         throw fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch");
@@ -577,6 +580,7 @@ export class CameraCaptureSession {
       await this.close();
       throw fail("DEVICE_UNAVAILABLE", "camera frame read failed; provider details were omitted");
     }
+    if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
     if (controller.signal.aborted || this.closed) {
       throw this.switching
@@ -600,7 +604,7 @@ export class CameraCaptureSession {
     } catch (error) {
       if (this.revoked) {
         await this.close();
-        throw abortError();
+        throw this.permissionFailure ?? abortError();
       }
       if (this.switching) {
         throw fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch");
@@ -608,6 +612,7 @@ export class CameraCaptureSession {
       await this.close();
       throw error;
     }
+    if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
     if (controller.signal.aborted || this.closed) {
       throw this.switching
@@ -672,6 +677,7 @@ export class CameraCaptureSession {
       await this.stopCurrentSource();
       this.request = nextRequest;
       this.revoked = false;
+      this.permissionFailure = null;
       this.lastPts = null;
       this.lastSourcePts = null;
       this.frames = 0;
@@ -694,11 +700,17 @@ export class CameraCaptureSession {
     const controller = new AbortController();
     this.controller = controller;
     this.revoked = false;
+    this.permissionFailure = null;
     try {
       await this.checkPermission(request, controller.signal);
       this.unsubscribe = this.options.consent.subscribe(request, (disposition) => {
         if (disposition !== "GRANTED") {
           this.revoked = true;
+          this.permissionFailure = disposition === "DENIED"
+            ? fail("PERMISSION_DENIED", "current camera permission was denied")
+            : disposition === "UNKNOWN"
+              ? fail("PERMISSION_UNKNOWN", "current camera permission became unknown")
+              : abortError();
           controller.abort();
           void this.stopCurrentTrack();
         }
@@ -706,6 +718,7 @@ export class CameraCaptureSession {
       // The check is repeated after listener installation and immediately
       // before media-device open to close the authorization/start race.
       await this.assertFreshPermission(request);
+      if (this.permissionFailure) throw this.permissionFailure;
       if (this.revoked || controller.signal.aborted) throw abortError();
       const opening = this.options.mediaDevices.open(request, controller.signal);
       // A host may resolve open late despite an abort. If that happens after
@@ -727,7 +740,7 @@ export class CameraCaptureSession {
       this.sourceMetadata = this.validateSourceMetadata(request, track.sourceMetadata);
       if (this.revoked || controller.signal.aborted) {
         await this.stopCurrentTrack();
-        throw abortError();
+        throw this.permissionFailure ?? abortError();
       }
       const sourcePermission = await this.assertFreshPermission(request);
       this.sourceMetadata = Object.freeze({ ...this.sourceMetadata, permissionDecisionRef: sourcePermission.decisionRef });
@@ -744,6 +757,7 @@ export class CameraCaptureSession {
       this.startedAt = this.options.frameClock.nowEpochMillis();
     } catch (error) {
       await this.stopCurrentSource();
+      if (this.permissionFailure) throw this.permissionFailure;
       if (this.revoked) throw abortError();
       if (this.switching) throw fail("DEVICE_SWITCHED", "camera device open was cancelled during device switch");
       if (this.closed) throw fail("SESSION_CLOSED", "camera session was closed while opening the device");
@@ -776,6 +790,7 @@ export class CameraCaptureSession {
     const decision = await this.checkPermission(request, this.controller?.signal);
     const now = this.options.frameClock.nowEpochMillis();
     this.validateDecision(request, decision, now);
+    if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked || decision.disposition === "REVOKED") throw abortError();
     if (decision.disposition === "UNKNOWN") {
       throw fail("PERMISSION_UNKNOWN", "current camera permission is unknown");

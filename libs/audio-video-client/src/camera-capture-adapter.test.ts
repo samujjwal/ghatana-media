@@ -343,6 +343,24 @@ describe("CameraCaptureAdapter", () => {
     expect(h.opens).toHaveLength(1);
   });
 
+  it("preserves permission denial as denial when it interrupts an in-flight frame", async () => {
+    let resolvePending: ((bytes: Uint8Array) => void) | undefined;
+    const track: FakeTrack = {
+      stopCalls: 0,
+      nextFrame: () => new Promise<Uint8Array>((resolve) => { resolvePending = resolve; }),
+      stopTracks() { track.stopCalls++; },
+    };
+    const h = harness({ tracks: [track] });
+    const session = await h.adapter.openSession(request);
+    const pending = session.nextFrame();
+    await Promise.resolve();
+    h.revoke(0, "DENIED");
+    await expectCode(pending, "PERMISSION_DENIED");
+    resolvePending?.(new Uint8Array([0xde, 0xad]));
+    await session.close();
+    expect(track.stopCalls).toBe(1);
+  });
+
   it("switches to a newly authorized device, detaches old tracks once and resets PTS by epoch", async () => {
     const oldTrack = frameTrack([new Uint8Array([1])]);
     const newTrack = frameTrack([new Uint8Array([2])]);
