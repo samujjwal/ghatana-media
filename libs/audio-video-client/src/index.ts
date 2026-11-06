@@ -88,6 +88,8 @@ export type {
   OfflineEditState,
   OfflineEditStore,
 } from './offline-edit-queue.js';
+export { IndexedDbOfflineEditStore, IndexedDbOfflineEditStoreError } from './indexeddb-offline-edit-store.js';
+export type { IndexedDbOfflineEditStoreErrorCode, IndexedDbOfflineEditStoreOptions } from './indexeddb-offline-edit-store.js';
 export { OfflineReconnectCoordinator } from './offline-reconnect.js';
 export type {
   OfflineReconnectOperations,

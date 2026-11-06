@@ -84,6 +84,11 @@
       "import": "./dist/offline-edit-queue.js",
       "require": "./dist-cjs/offline-edit-queue.js"
     },
+    "./offline-edit-store": {
+      "types": "./dist/indexeddb-offline-edit-store.d.ts",
+      "import": "./dist/indexeddb-offline-edit-store.js",
+      "require": "./dist-cjs/indexeddb-offline-edit-store.js"
+    },
     "./offline-reconnect": {
       "types": "./dist/offline-reconnect.d.ts",
       "import": "./dist/offline-reconnect.js",

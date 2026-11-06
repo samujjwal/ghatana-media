@@ -146,6 +146,7 @@ try {
     import * as capture from '@audio-video/client/capture-adapters';
     import * as recorder from '@audio-video/client/recorder-orchestrator';
     import * as production from '@audio-video/client/production-plan';
+    import * as offlineStore from '@audio-video/client/offline-edit-store';
     import { DocumentIntelligenceSceneTextAdapter, SceneTextAdapterError,
       DOCUMENT_INTELLIGENCE_PROTOCOL_V1, DOCUMENT_INTELLIGENCE_WORKER_V1 } from '@audio-video/client';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
@@ -157,6 +158,8 @@ try {
     assert.equal(typeof capture.captureWithAdmission, 'function');
     assert.equal(typeof recorder.orchestrateScenario, 'function');
     assert.equal(typeof production.compileProductionPlan, 'function');
+    assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
+    assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
     assert.equal(typeof DocumentIntelligenceSceneTextAdapter, 'function');
     assert.equal(typeof SceneTextAdapterError, 'function');
     assert.equal(MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
@@ -270,6 +273,7 @@ try {
     const capture = require('@audio-video/client/capture-adapters');
     const recorder = require('@audio-video/client/recorder-orchestrator');
     const production = require('@audio-video/client/production-plan');
+    const offlineStore = require('@audio-video/client/offline-edit-store');
     const contracts = require('@audio-video/types/contracts');
     assert.equal(typeof client.createAudioVideoClient, 'function');
     assert.equal(typeof operations.createMediaOperationClient, 'function');
@@ -279,6 +283,8 @@ try {
     assert.equal(typeof capture.captureWithAdmission, 'function');
     assert.equal(typeof recorder.orchestrateScenario, 'function');
     assert.equal(typeof production.compileProductionPlan, 'function');
+    assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
+    assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
   `);
   run(process.execPath, [path.join(consumerRoot, 'consumer.cjs')], { cwd: consumerRoot });
@@ -293,11 +299,14 @@ try {
     import type * as capture from '@audio-video/client/capture-adapters';
     import type * as recorder from '@audio-video/client/recorder-orchestrator';
     import type * as productionExports from '@audio-video/client/production-plan';
+    import { IndexedDbOfflineEditStore, type IndexedDbOfflineEditStoreOptions } from '@audio-video/client/offline-edit-store';
     import { compileProductionPlan, type CaptureSourceResolver } from '@audio-video/client/production-plan';
     import type { SceneTextAdapterErrorCode } from '@audio-video/client';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
     const create: typeof createMediaOperationClient = createMediaOperationClient;
     const compile: typeof compileProductionPlan = compileProductionPlan;
+    const offlineStoreConstructor: typeof IndexedDbOfflineEditStore = IndexedDbOfflineEditStore;
+    const offlineStoreOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
     const publicExportTypes: [typeof main, typeof operations, typeof routes, typeof canonical,
       typeof http, typeof capture, typeof recorder, typeof productionExports] = null!;
     const kind = MediaArtifactKindSchema.parse('AUDIO');
@@ -313,7 +322,8 @@ try {
     ] as const satisfies readonly SceneTextAdapterErrorCode[];
     type MissingDiErrorCode = Exclude<SceneTextAdapterErrorCode, typeof diErrorCodes[number]>;
     const diVocabularyIsExhaustive: MissingDiErrorCode extends never ? true : never = true;
-    void [create, compile, kind, resolver, publicExportTypes, diVocabularyIsExhaustive];
+    void [create, compile, kind, resolver, publicExportTypes, offlineStoreConstructor,
+      offlineStoreOptions, diVocabularyIsExhaustive];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
@@ -326,6 +336,8 @@ try {
     import capture = require('@audio-video/client/capture-adapters');
     import recorder = require('@audio-video/client/recorder-orchestrator');
     import production = require('@audio-video/client/production-plan');
+    import offlineStore = require('@audio-video/client/offline-edit-store');
+    import type { IndexedDbOfflineEditStoreOptions } from '@audio-video/client/offline-edit-store';
     import types = require('@audio-video/types/contracts');
     const createClient: typeof client.createAudioVideoClient = client.createAudioVideoClient;
     const createOperationClient: typeof operations.createMediaOperationClient = operations.createMediaOperationClient;
@@ -335,9 +347,11 @@ try {
     const captureWithAdmission: typeof capture.captureWithAdmission = capture.captureWithAdmission;
     const orchestrate: typeof recorder.orchestrateScenario = recorder.orchestrateScenario;
     const compilePlan: typeof production.compileProductionPlan = production.compileProductionPlan;
+    const indexedDbStore: typeof offlineStore.IndexedDbOfflineEditStore = offlineStore.IndexedDbOfflineEditStore;
+    const storeOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
     const kind: typeof types.MediaArtifactKindSchema = types.MediaArtifactKindSchema;
     void [createClient, createOperationClient, routeTable, createCanonicalClient, transport,
-      captureWithAdmission, orchestrate, compilePlan, kind];
+      captureWithAdmission, orchestrate, compilePlan, indexedDbStore, storeOptions, kind];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.cts'], { cwd: consumerRoot });
