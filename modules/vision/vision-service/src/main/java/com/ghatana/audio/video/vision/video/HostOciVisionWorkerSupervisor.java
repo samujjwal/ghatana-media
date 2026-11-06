@@ -42,6 +42,8 @@ final class HostOciVisionWorkerSupervisor {
     private static final int PID_LIMIT = 32;
     private static final int FILE_DESCRIPTOR_LIMIT = 64;
     private static final long DEFAULT_OUTPUT_FILE_LIMIT = 512L * 1024 * 1024;
+    /** One output root plus the maximum accepted output entry count. */
+    static final int OUTPUT_TMPFS_INODES = VideoFrameExtractor.MAX_OUTPUT_ENTRIES + 1;
     private static final Pattern PINNED_IMAGE = Pattern.compile("(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}");
     private static final Pattern CONTAINER_ID = Pattern.compile("[a-f0-9]{64}");
     private static final int AUXILIARY_OUTPUT_LIMIT = 8192;
@@ -149,11 +151,13 @@ final class HostOciVisionWorkerSupervisor {
         Path directory = root.resolve("media-vision-output-" + UUID.randomUUID());
         Files.createDirectory(directory);
         try {
-            Files.setPosixFilePermissions(directory, PosixFilePermissions.fromString("rwxr-x---"));
+            Files.setPosixFilePermissions(directory, PosixFilePermissions.fromString("rwxrwx---"));
+            int currentMode = ((Number) Files.getAttribute(directory, "unix:mode", LinkOption.NOFOLLOW_LINKS)).intValue();
+            Files.setAttribute(directory, "unix:mode", (currentMode & 07777) | 02000, LinkOption.NOFOLLOW_LINKS);
             if (Files.isSymbolicLink(directory) || !Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)
                     || unixId(directory, "uid") != expectedUid || unixId(directory, "gid") != expectedGid
                     || (((Number) Files.getAttribute(directory, "unix:mode", LinkOption.NOFOLLOW_LINKS)).intValue()
-                            & 07777) != 0750) {
+                            & 07777) != 02770) {
                 throw new IOException("Broker output directory could not preserve the pinned owner/group permissions");
             }
             return directory.toRealPath(LinkOption.NOFOLLOW_LINKS);
@@ -463,8 +467,7 @@ final class HostOciVisionWorkerSupervisor {
             create.addAll(List.of("--mount", "type=bind,source=" + source + ",target=/source/input,readonly"));
         }
         if (output != null) {
-            requireDockerMountPath(output);
-            create.addAll(List.of("--mount", "type=bind,source=" + output + ",target=/output"));
+            create.addAll(List.of("--tmpfs", outputTmpfsOptions(outputFileLimit)));
         }
         String executable = Path.of(command.getFirst()).getFileName().toString().toLowerCase(Locale.ROOT);
         create.addAll(List.of("--entrypoint=/usr/bin/" + executable, image));
@@ -692,7 +695,10 @@ final class HostOciVisionWorkerSupervisor {
         requireMatch(mismatches, "security-opt", stringArrayEquals(host.get("SecurityOpt"), "no-new-privileges:true"));
         Map<String, Object> tmpfs = object(host.get("Tmpfs"));
         requireMatch(mismatches, "tmpfs-temp", "rw,nosuid,nodev,exec,size=128m,nr_inodes=4096".equals(string(tmpfs, "/tmp")));
-        requireMatch(mismatches, "tmpfs-output", !tmpfs.containsKey("/output"));
+        requireMatch(mismatches, "tmpfs-output", hasOutputMount
+                ? outputTmpfsOptions(expectedOutputFileLimit).substring("/output:".length())
+                        .equals(string(tmpfs, "/output"))
+                : !tmpfs.containsKey("/output"));
         requireMatch(mismatches, "ports", host.get("PortBindings") instanceof Map<?, ?> ports && ports.isEmpty()
                 && Boolean.FALSE.equals(host.get("PublishAllPorts")));
         requireMatch(mismatches, "user", expectedUser.equals(string(config, "User")));
@@ -703,8 +709,9 @@ final class HostOciVisionWorkerSupervisor {
             requireMatch(mismatches, "command", stringArrayEquals(config.get("Cmd"), expectedCommand));
         }
         requireMatch(mismatches, "socket", !mounts.toString().contains("/var/run/docker.sock"));
-        int expectedMounts = (hasSourceMount ? 1 : 0) + (hasOutputMount ? 1 : 0);
-        requireMatch(mismatches, "mount-count", mounts.size() == expectedMounts
+        int expectedMounts = hasSourceMount ? 1 : 0;
+        boolean runtimeOutputListed = runtimeMountExists(mounts, "/output");
+        requireMatch(mismatches, "mount-count", mounts.size() == expectedMounts + (runtimeOutputListed ? 1 : 0)
                 && host.get("Mounts") instanceof List<?> configuredMounts && configuredMounts.size() == expectedMounts);
         if (hasSourceMount) {
             requireMatch(mismatches, "source-readonly-config", configuredMountMatches(host.get("Mounts"),
@@ -713,12 +720,34 @@ final class HostOciVisionWorkerSupervisor {
                     "/source/input", expectedSource, false));
         }
         if (hasOutputMount) {
-            requireMatch(mismatches, "output-writable-config", configuredMountMatches(host.get("Mounts"),
-                    "/output", expectedOutput, false));
-            requireMatch(mismatches, "output-writable-runtime", runtimeMountMatches(mounts,
-                    "/output", expectedOutput, true));
+            requireMatch(mismatches, "output-bind-absent", !configuredMountExists(host.get("Mounts"), "/output")
+                    && runtimeOutputMountMatches(mounts));
         }
         return List.copyOf(mismatches);
+    }
+
+    static String outputTmpfsOptions(long outputByteLimit) {
+        long boundedBytes = Math.max(1L, Math.min(outputByteLimit, DEFAULT_OUTPUT_FILE_LIMIT));
+        return "/output:rw,nosuid,nodev,noexec,size=" + boundedBytes + ",nr_inodes=" + OUTPUT_TMPFS_INODES;
+    }
+
+    private static boolean configuredMountExists(Object mounts, String destination) {
+        if (!(mounts instanceof List<?> list)) return false;
+        return list.stream().map(HostOciVisionWorkerSupervisor::object)
+                .anyMatch(mount -> destination.equals(string(mount, "Target")));
+    }
+
+    private static boolean runtimeMountExists(List<?> mounts, String destination) {
+        return mounts.stream().map(HostOciVisionWorkerSupervisor::object)
+                .anyMatch(mount -> destination.equals(string(mount, "Destination")));
+    }
+
+    private static boolean runtimeOutputMountMatches(List<?> mounts) {
+        List<Map<String, Object>> output = mounts.stream().map(HostOciVisionWorkerSupervisor::object)
+                .filter(mount -> "/output".equals(string(mount, "Destination"))).toList();
+        return output.isEmpty() || (output.size() == 1
+                && "tmpfs".equals(string(output.getFirst(), "Type"))
+                && Boolean.TRUE.equals(output.getFirst().get("RW")));
     }
 
     private static void requireMatch(List<String> mismatches, String name, boolean matches) {
@@ -1013,6 +1042,19 @@ final class HostOciVisionWorkerSupervisor {
                 throw new IOException("Vision OCI OOM observation is unavailable");
             }
             return result.output().trim().equals("true");
+        }
+
+        /** Copy the bounded OCI tmpfs result to the existing private host staging directory. */
+        void copyOutput() throws IOException {
+            if (plan.output() == null) return;
+            Path output = canonicalPrivateDirectory(plan.output(), "Vision worker output directory");
+            try (var entries = Files.list(output)) {
+                if (entries.findAny().isPresent()) {
+                    throw new IOException("Vision worker output directory changed before bounded result transfer");
+                }
+            }
+            BoundedDockerOutputTransfer.copyFromContainer(plan.dockerCli(), containerId,
+                    output, plan.outputFileLimit(), Duration.ofSeconds(30));
         }
 
         void killAll() {

@@ -160,6 +160,10 @@ public final class MediaOciBrokerDaemon {
             System.err.println("MEDIA_OCI_BROKER_WORKER_GID must equal the configured allowed peer/shared GID");
             System.exit(2);
         }
+        if (!processHasGroup(gid)) {
+            System.err.println("Broker OS process must be a member of the configured worker/peer shared GID");
+            System.exit(2);
+        }
         Path sourceReal = Path.of(sourceRoot).toRealPath();
         Path outputReal = MediaOciBrokerPolicy.validateSharedOutputRoot(Path.of(outputRoot), uid, gid);
         Path stageReal = validateStageRoot(Path.of(stageRoot), sourceReal, outputReal, brokerOsUser, allowedPeerUser);
@@ -430,6 +434,25 @@ public final class MediaOciBrokerDaemon {
         return workerGid > 0 && workerGid <= Integer.MAX_VALUE && workerGid == allowedPeerGid;
     }
 
+    static boolean processHasGroup(long groupId) throws IOException {
+        if (groupId < 0 || groupId > Integer.MAX_VALUE) return false;
+        return processHasGroup(groupId, Files.readString(Path.of("/proc/self/status")));
+    }
+
+    static boolean processHasGroup(long groupId, String procStatus) {
+        if (groupId < 0 || groupId > Integer.MAX_VALUE || procStatus == null) return false;
+        for (String line : procStatus.split("\\R")) {
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length < 2) continue;
+            if (parts[0].equals("Gid:")) {
+                for (int i = 1; i < parts.length; i++) if (Long.toString(groupId).equals(parts[i])) return true;
+            } else if (parts[0].equals("Groups:")) {
+                for (int i = 1; i < parts.length; i++) if (Long.toString(groupId).equals(parts[i])) return true;
+            }
+        }
+        return false;
+    }
+
     static Path validateSocketParent(Path socket, String brokerOsUser, long allowedPeerGid) throws IOException {
         if (socket == null || brokerOsUser == null || brokerOsUser.isBlank()
                 || allowedPeerGid <= 0 || allowedPeerGid > Integer.MAX_VALUE) {
@@ -604,12 +627,26 @@ public final class MediaOciBrokerDaemon {
             List<String> workerArgs, Path source, String sourceSha256, Path stageRoot, Path output,
             long uid, long gid, Duration timeout, long outputLimit) throws IOException {
         return runWorkerWithSnapshot(docker, image, name, executable, workerArgs, source, sourceSha256,
-                stageRoot, output, uid, gid, timeout, outputLimit, MediaOciBrokerDaemon::run);
+                stageRoot, output, uid, gid, timeout, outputLimit, MediaOciBrokerDaemon::run,
+                MediaOciBrokerDaemon::copyBoundedOutput);
     }
 
     static String runWorkerWithSnapshot(String docker, String image, String name, String executable,
             List<String> workerArgs, Path source, String sourceSha256, Path stageRoot, Path output,
             long uid, long gid, Duration timeout, long outputLimit, WorkerCommandRunner runner) throws IOException {
+        return runWorkerWithSnapshot(docker, image, name, executable, workerArgs, source, sourceSha256,
+                stageRoot, output, uid, gid, timeout, outputLimit, runner,
+                (cli, id, directory, bytes) -> {
+                    CommandResult copied = runner.run(List.of(cli, "cp", id + ":/output/.", directory.toString()),
+                            Duration.ofSeconds(30));
+                    return !copied.timedOut() && copied.exitCode() == 0;
+                });
+    }
+
+    private static String runWorkerWithSnapshot(String docker, String image, String name, String executable,
+            List<String> workerArgs, Path source, String sourceSha256, Path stageRoot, Path output,
+            long uid, long gid, Duration timeout, long outputLimit, WorkerCommandRunner runner,
+            WorkerOutputTransfer outputTransfer) throws IOException {
         Path snapshot = stageSnapshot(source, sourceSha256, stageRoot);
         boolean[] removalConfirmed = {false};
         WorkerCommandRunner trackingRunner = (command, commandTimeout) -> {
@@ -620,7 +657,7 @@ public final class MediaOciBrokerDaemon {
         };
         try {
             String result = runWorker(docker, image, name, executable, workerArgs, snapshot, output,
-                    uid, gid, timeout, outputLimit, trackingRunner);
+                    uid, gid, timeout, outputLimit, trackingRunner, outputTransfer);
             Files.delete(snapshot); // runWorker returns only after a confirmed container removal.
             return result;
         } catch (IOException unknownCleanupOrWorkerFailure) {
@@ -629,6 +666,13 @@ public final class MediaOciBrokerDaemon {
                     + snapshot.getFileName());
             throw unknownCleanupOrWorkerFailure;
         }
+    }
+
+    private static boolean copyBoundedOutput(String docker, String id, Path output, long bytes) {
+        try {
+            BoundedDockerOutputTransfer.copyFromContainer(docker, id, output, bytes, Duration.ofSeconds(30));
+            return true;
+        } catch (IOException | RuntimeException invalid) { return false; }
     }
 
 
@@ -921,17 +965,35 @@ public final class MediaOciBrokerDaemon {
         CommandResult run(List<String> command, Duration timeout) throws IOException;
     }
 
+    @FunctionalInterface
+    interface WorkerOutputTransfer {
+        boolean copy(String docker, String containerId, Path output, long maximumBytes) throws IOException;
+    }
+
     static String runWorker(String docker, String image, String name,
             String executable, List<String> workerArgs, Path source, Path output,
             long uid, long gid, Duration timeout, long outputLimit) throws IOException {
         return runWorker(docker, image, name, executable, workerArgs, source, output,
-                uid, gid, timeout, outputLimit, MediaOciBrokerDaemon::run);
+                uid, gid, timeout, outputLimit, MediaOciBrokerDaemon::run,
+                MediaOciBrokerDaemon::copyBoundedOutput);
     }
 
     static String runWorker(String docker, String image, String name,
             String executable, List<String> workerArgs, Path source, Path output,
             long uid, long gid, Duration timeout, long outputLimit,
             WorkerCommandRunner runner) throws IOException {
+        return runWorker(docker, image, name, executable, workerArgs, source, output,
+                uid, gid, timeout, outputLimit, runner, (cli, id, directory, bytes) -> {
+                    CommandResult copied = runner.run(List.of(cli, "cp", id + ":/output/.", directory.toString()),
+                            Duration.ofSeconds(30));
+                    return !copied.timedOut() && copied.exitCode() == 0;
+                });
+    }
+
+    static String runWorker(String docker, String image, String name,
+            String executable, List<String> workerArgs, Path source, Path output,
+            long uid, long gid, Duration timeout, long outputLimit,
+            WorkerCommandRunner runner, WorkerOutputTransfer outputTransfer) throws IOException {
         if (source != null && !safeDockerPath(source))
             throw new IOException("Vision source snapshot path is not safe for Docker mount syntax");
         if (output != null && !safeDockerPath(output))
@@ -953,7 +1015,8 @@ public final class MediaOciBrokerDaemon {
                     "type=bind,source=" + source + ",target=/source/input,readonly"));
         }
         if (output != null) {
-            create.addAll(List.of("--mount", "type=bind,source=" + output + ",target=/output"));
+            create.addAll(List.of("--tmpfs",
+                    HostOciVisionWorkerSupervisor.outputTmpfsOptions(outputLimit)));
         }
         create.add("--entrypoint=/usr/bin/" + executable);
         create.add(image);
@@ -987,8 +1050,13 @@ public final class MediaOciBrokerDaemon {
             CommandResult oom = runner.run(List.of(docker, "inspect",
                     "--format", "{{.State.OOMKilled}}", id), Duration.ofSeconds(10));
             boolean oomKilled = parseOomKilledState(oom.exitCode(), oom.output(), oom.timedOut());
+            boolean outputTransferRejected = false;
+            if (output != null && !timedOut && !oomKilled && started.exitCode() == 0) {
+                outputTransferRejected = !outputTransfer.copy(docker, id, output, outputLimit);
+            }
             remove(docker, id, runner);
             OutputSummary outputSummary = output == null || timedOut || oomKilled || started.exitCode() != 0
+                    || outputTransferRejected
                     ? OutputSummary.empty()
                     : inspectVisionOutput(output, workerArgs, outputLimit);
             String tail = started.output().length() > OUTPUT_TAIL
@@ -1002,11 +1070,12 @@ public final class MediaOciBrokerDaemon {
                     + ",\"oomKilled\":" + oomKilled
                     + ",\"outputBytes\":" + returnedBytes
                     + ",\"outputExceeded\":" + outputSummary.exceeded()
-                    + ",\"outputRejected\":" + outputSummary.rejected()
+                    + ",\"outputRejected\":" + (outputTransferRejected || outputSummary.rejected())
                     + ",\"files\":" + outputFilesJson(returnedFiles)
                     + ",\"tail\":" + json(tail) + "}";
-        } catch (IOException failure) {
-            remove(docker, name, runner);
+        } catch (IOException | RuntimeException | Error failure) {
+            try { remove(docker, name, runner); }
+            catch (IOException | RuntimeException | Error cleanupFailure) { failure.addSuppressed(cleanupFailure); }
             throw failure;
         }
     }

@@ -453,7 +453,7 @@ class MediaOciBrokerPolicyTest {
     void outputRejectsNestedParentDirectorySymlink() throws Exception {
         var policy = policy();
         Path realOutput = Files.createDirectory(root.resolve("media-vision-output-" + java.util.UUID.randomUUID()));
-        Files.setPosixFilePermissions(realOutput, PosixFilePermissions.fromString("rwxr-x---"));
+        Files.setAttribute(realOutput, "unix:mode", 02770);
         Path alias = root.resolve("output-alias");
         Files.createSymbolicLink(alias, realOutput);
 
@@ -471,14 +471,22 @@ class MediaOciBrokerPolicyTest {
         Path outputRoot = MediaOciBrokerPolicy.validateSharedOutputRoot(root, uid, gid);
         assertThat(outputRoot).isEqualTo(root.toRealPath());
         Path output = Files.createDirectory(root.resolve("media-vision-output-" + java.util.UUID.randomUUID()));
-        Files.setPosixFilePermissions(output, PosixFilePermissions.fromString("rwxr-x---"));
+        Files.setAttribute(output, "unix:mode", 02770);
         assertThat(output.toRealPath().getParent()).isEqualTo(root.toRealPath());
         assertThat(uidOf(output)).isEqualTo(uid);
         assertThat(gidOf(output)).isEqualTo(gid);
-        assertThat(((Number) Files.getAttribute(output, "unix:mode")).intValue() & 07777).isEqualTo(0750);
+        assertThat(((Number) Files.getAttribute(output, "unix:mode")).intValue() & 07777).isEqualTo(02770);
         assertThat(output.getFileName().toString()).matches("media-vision-output-[a-f0-9-]{36}");
         assertThat(MediaOciBrokerPolicy.outputAllowed(
                 new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid, outputRoot, outputRoot), output.toString())).isTrue();
+        assertThat(MediaOciBrokerPolicy.outputAllowed(
+                new MediaOciBrokerPolicy.Policy(Set.of(), uid + 1, gid, outputRoot, outputRoot), output.toString())).isFalse();
+        assertThat(MediaOciBrokerPolicy.outputAllowed(
+                new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid + 1, outputRoot, outputRoot), output.toString())).isFalse();
+        Files.setPosixFilePermissions(output, PosixFilePermissions.fromString("rwxr-x---"));
+        assertThat(MediaOciBrokerPolicy.outputAllowed(
+                new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid, outputRoot, outputRoot), output.toString())).isFalse();
+        Files.setAttribute(output, "unix:mode", 02770);
         Files.writeString(output.resolve("unexpected"), "x");
         assertThat(MediaOciBrokerPolicy.outputAllowed(
                 new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid, outputRoot, outputRoot), output.toString())).isFalse();

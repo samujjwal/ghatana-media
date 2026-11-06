@@ -77,7 +77,8 @@ class HostOciVisionWorkerSupervisorTest {
                 "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
                 "--tmpfs", "/tmp:rw,nosuid,nodev,exec,size=128m,nr_inodes=4096", "--user=" + uid + ":" + gid,
                 "--mount", "type=bind,source=" + source + ",target=/source/input,readonly",
-                "--mount", "type=bind,source=" + output + ",target=/output", "--entrypoint=/usr/bin/ffmpeg");
+                "--tmpfs", "/output:rw,nosuid,nodev,noexec,size=536870912,nr_inodes=4097",
+                "--entrypoint=/usr/bin/ffmpeg");
         assertThat(plan.createCommand()).contains("/source/input", "/output/frame_%04d.jpg")
                 .doesNotContain(source.toString(), output.toString(), "/var/run/docker.sock");
         assertThat(plan.createCommand()).doesNotContain("AWS_SECRET_ACCESS_KEY", "MEDIA_POSTGRES_PASSWORD", "DOCKER_HOST");
@@ -157,17 +158,16 @@ class HostOciVisionWorkerSupervisorTest {
                 + "\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Privileged\":false,"
                 + "\"CapDrop\":[\"ALL\"],\"CapAdd\":null,\"Devices\":[],\"DeviceRequests\":null,"
                 + "\"SecurityOpt\":[\"no-new-privileges:true\"],"
-                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\"},"
+                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\","
+                + "\"/output\":\"rw,nosuid,nodev,noexec,size=536870912,nr_inodes=4097\"},"
                 + "\"PublishAllPorts\":false,\"Mounts\":["
-                + "{\"Type\":\"bind\",\"Source\":\"/tmp/input.mp4\",\"Target\":\"/source/input\",\"ReadOnly\":true},"
-                + "{\"Type\":\"bind\",\"Source\":\"/tmp/output\",\"Target\":\"/output\"}]}";
+                + "{\"Type\":\"bind\",\"Source\":\"/tmp/input.mp4\",\"Target\":\"/source/input\",\"ReadOnly\":true}]}";
         String config = "{\"User\":\"501:20\",\"Entrypoint\":[\"/usr/bin/ffmpeg\"],"
                 + "\"Cmd\":[\"-i\",\"/tmp/input.mp4\"],"
                 + "\"Image\":\"" + IMAGE + "\","
                 + "\"Env\":[\"HOME=/tmp\",\"TMPDIR=/tmp\",\"PATH=/usr/bin:/bin\","
                 + "\"LANG=C.UTF-8\",\"LC_ALL=C.UTF-8\"]}";
-        String mounts = "[{\"Type\":\"bind\",\"Destination\":\"/source/input\",\"ReadOnly\":true,\"Source\":\"/tmp/input.mp4\",\"RW\":false},"
-                + "{\"Type\":\"bind\",\"Destination\":\"/output\",\"ReadOnly\":false,\"Source\":\"/tmp/output\",\"RW\":true}]";
+        String mounts = "[{\"Type\":\"bind\",\"Destination\":\"/source/input\",\"ReadOnly\":true,\"Source\":\"/tmp/input.mp4\",\"RW\":false}]";
         host = host.replace("\"NetworkMode\":\"none\"", "\"NetworkMode\":\"none\",\"PortBindings\":{}");
 
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
@@ -220,10 +220,15 @@ class HostOciVisionWorkerSupervisorTest {
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
                 Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
         assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
-                host.replace("\"Target\":\"/output\"", "\"Target\":\"/output\",\"ReadOnly\":true")
+                host.replace("nr_inodes=4097", "nr_inodes=4096")
                         + "|" + config + "|" + mounts,
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
                 Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveLimitsMatch(
+                host.replace("size=536870912", "size=536870911") + "|" + config + "|" + mounts,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
+                List.of("-i", "/tmp/input.mp4"))).isFalse();
     }
 
     @Test
@@ -295,6 +300,7 @@ class HostOciVisionWorkerSupervisorTest {
         long gid = ((Number) Files.getAttribute(sharedRoot, "unix:gid")).longValue();
         Path output = HostOciVisionWorkerSupervisor.createBrokerOutputDirectory(sharedRoot, uid, gid);
         assertThat(output.getFileName().toString()).matches("media-vision-output-[a-f0-9-]{36}");
+        assertThat(((Number) Files.getAttribute(output, "unix:mode")).intValue() & 07777).isEqualTo(02770);
         return output;
     }
 

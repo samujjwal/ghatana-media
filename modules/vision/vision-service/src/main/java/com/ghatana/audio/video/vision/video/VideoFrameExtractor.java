@@ -98,7 +98,7 @@ public class VideoFrameExtractor {
     private static final ThreadLocal<ProcessAdmissionState> PROCESS_ADMISSION = new ThreadLocal<>();
     /** Bound cleanup bookkeeping even if a compromised child creates a large process tree. */
     private static final int MAX_OBSERVED_CHILD_PROCESSES = 256;
-    private static final int MAX_OUTPUT_ENTRIES = 4096;
+    static final int MAX_OUTPUT_ENTRIES = 4096;
     private static final int MAX_SELECTABLE_FRAMES = 10_000;
     private static final java.util.Set<String> ALLOWED_VIDEO_EXTENSIONS =
             java.util.Set.of("mp4", "mov", "mkv", "avi", "webm");
@@ -1194,8 +1194,12 @@ public class VideoFrameExtractor {
                     output = captured.toString(StandardCharsets.UTF_8);
                 }
                 boolean diagnosticsExceeded = diagnosticExceeded.get();
-                // The worker writes to a private owner-only host directory. RLIMIT_FSIZE bounds
-                // each file and this live/final walk bounds aggregate bytes and entry count.
+                // `/output` is a per-invocation OCI tmpfs with byte and inode ceilings. Copy
+                // successful results into the existing private host staging directory only
+                // after the worker exits; the final walk still validates the copied result.
+                if (finished && process.exitValue() == 0 && monitoredOutput != null && workerOci != null) {
+                    workerOci.copyOutput();
+                }
                 if (finished && monitoredOutput != null && outputBudgetExceeded(monitoredOutput, maxOutputBytes)) {
                     outputExceeded = true;
                 }

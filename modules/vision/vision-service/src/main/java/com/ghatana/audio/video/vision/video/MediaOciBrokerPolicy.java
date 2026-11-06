@@ -421,7 +421,7 @@ final class MediaOciBrokerPolicy {
                 || !Files.isDirectory(resolved, LinkOption.NOFOLLOW_LINKS)
                 || Files.isSymbolicLink(resolved)
                 || !unixIdentityMatches(resolved, policy.workerUid(), policy.workerGid())
-                || unixMode(resolved) != 0750) return false;
+                || unixMode(resolved) != 02770 || !Files.isWritable(resolved)) return false;
         try (var entries = Files.list(resolved)) { return entries.findAny().isEmpty(); }
     }
 

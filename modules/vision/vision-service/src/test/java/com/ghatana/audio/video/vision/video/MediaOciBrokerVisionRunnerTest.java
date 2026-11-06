@@ -36,7 +36,7 @@ class MediaOciBrokerVisionRunnerTest {
         String image = "worker@sha256:" + "b".repeat(64);
         MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
             commands.add(List.copyOf(command));
-            if (command.get(1).equals("start")) Files.write(outputRoot.resolve("frame.png"),
+            if (command.get(1).equals("cp")) Files.write(outputRoot.resolve("frame.png"),
                     "encoded-frame".getBytes());
             if (command.get(1).equals("create")) {
                 Files.write(source, "caller-mutated".getBytes());
@@ -62,6 +62,7 @@ class MediaOciBrokerVisionRunnerTest {
                     yield new MediaOciBrokerDaemon.CommandResult(0, "false", false);
                 }
                 case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                case "cp" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
                 default -> throw new AssertionError("unexpected OCI operation " + command);
             };
         };
@@ -138,6 +139,7 @@ class MediaOciBrokerVisionRunnerTest {
             }
             return switch (command.get(1)) {
                 case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                case "cp" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
                 case "inspect" -> command.get(3).contains("HostConfig")
                         ? new MediaOciBrokerDaemon.CommandResult(0,
                                 preflightInspection(stagedSource[0], outputRoot, 501, 20,
@@ -160,7 +162,91 @@ class MediaOciBrokerVisionRunnerTest {
     }
 
     @Test
+    void failedOrTimedOutOutputTransferReturnsNoFilesAndStillRemovesContainer() throws Exception {
+        List<MediaOciBrokerDaemon.CommandResult> transferResults = List.of(
+                new MediaOciBrokerDaemon.CommandResult(1, "copy failed", false),
+                new MediaOciBrokerDaemon.CommandResult(-1, "", true));
+        for (int index = 0; index < transferResults.size(); index++) {
+            Path work = Files.createDirectory(temp.resolve("transfer-" + index));
+            Path source = Files.writeString(Files.createFile(work.resolve("input.mp4")), "source");
+            Path output = Files.createDirectory(work.resolve("result"));
+            long uid = ((Number) Files.getAttribute(source, "unix:uid")).longValue();
+            long gid = ((Number) Files.getAttribute(source, "unix:gid")).longValue();
+            String image = "worker@sha256:" + "c".repeat(64);
+            List<String> operations = new ArrayList<>();
+            MediaOciBrokerDaemon.CommandResult transfer = transferResults.get(index);
+            MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
+                operations.add(command.get(1));
+                return switch (command.get(1)) {
+                    case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
+                    case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                    case "inspect" -> command.get(3).contains("HostConfig")
+                            ? new MediaOciBrokerDaemon.CommandResult(0,
+                                    preflightInspection(source, output, uid, gid, image, "ffmpeg", 1024,
+                                            List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i",
+                                                    "/source/input", "-y", "/output/frame.png")), false)
+                            : new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                    case "cp" -> transfer;
+                    case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                    default -> throw new AssertionError("unexpected OCI operation " + command);
+                };
+            };
+
+            String result = MediaOciBrokerDaemon.runWorker("docker", image, "vision-transfer-failure",
+                    "ffmpeg", List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i",
+                            "/source/input", "-y", "/output/frame.png"), source, output,
+                    uid, gid, Duration.ofSeconds(3), 1024, runner);
+
+            assertThat(result).contains("\"outputRejected\":true", "\"outputBytes\":0", "\"files\":[]");
+            assertThat(Files.list(output)).isEmpty();
+            assertThat(operations).containsSubsequence("start", "inspect", "cp", "rm");
+        }
+    }
+
+    @Test
+    void unexpectedOutputTransferFailureStillRemovesContainer() throws Exception {
+        Path work = Files.createDirectory(temp.resolve("transfer-runtime-failure"));
+        Path source = Files.writeString(Files.createFile(work.resolve("input.mp4")), "source");
+        Path output = Files.createDirectory(work.resolve("result"));
+        long uid = ((Number) Files.getAttribute(source, "unix:uid")).longValue();
+        long gid = ((Number) Files.getAttribute(source, "unix:gid")).longValue();
+        String image = "worker@sha256:" + "d".repeat(64);
+        List<String> operations = new ArrayList<>();
+        MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
+            operations.add(command.get(1));
+            return switch (command.get(1)) {
+                case "create" -> new MediaOciBrokerDaemon.CommandResult(0, ID, false);
+                case "start" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                case "inspect" -> command.get(3).contains("HostConfig")
+                        ? new MediaOciBrokerDaemon.CommandResult(0,
+                                preflightInspection(source, output, uid, gid, image, "ffmpeg", 1024,
+                                        List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i",
+                                                "/source/input", "-y", "/output/frame.png")), false)
+                        : new MediaOciBrokerDaemon.CommandResult(0, "false", false);
+                case "rm" -> new MediaOciBrokerDaemon.CommandResult(0, "", false);
+                default -> throw new AssertionError("unexpected OCI operation " + command);
+            };
+        };
+
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.runWorker("docker", image, "vision-transfer-runtime-failure",
+                "ffmpeg", List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i",
+                        "/source/input", "-y", "/output/frame.png"), source, output,
+                uid, gid, Duration.ofSeconds(3), 1024, runner,
+                (docker, id, directory, bytes) -> { throw new SecurityException("synthetic transfer failure"); }))
+                .isInstanceOf(SecurityException.class);
+
+        assertThat(operations).containsSubsequence("start", "inspect", "rm");
+        assertThat(Files.list(output)).isEmpty();
+    }
+
+    @Test
     void sourceBoundsDigestAndDockerPathSyntaxFailClosed() throws Exception {
+        assertThat(MediaOciBrokerDaemon.processHasGroup(20,
+                "Name:\tmedia-oci-broker\nGid:\t1000\t1000\t1000\t1000\nGroups:\t20 30\n")).isTrue();
+        assertThat(MediaOciBrokerDaemon.processHasGroup(21,
+                "Name:\tmedia-oci-broker\nGid:\t1000\t1000\t1000\t1000\nGroups:\t20 30\n")).isFalse();
+        assertThat(MediaOciBrokerDaemon.processHasGroup(1000,
+                "Name:\tmedia-oci-broker\nGid:\t1000\t1000\t1000\t1000\nGroups:\t20 30\n")).isTrue();
         Path stage = Files.createDirectory(temp.resolve("stage3"));
         Files.setPosixFilePermissions(stage, PosixFilePermissions.fromString("rwx------"));
         Path source = temp.resolve("tiny");
@@ -353,19 +439,16 @@ class MediaOciBrokerVisionRunnerTest {
             runtimeMounts.add("{\"Type\":\"bind\",\"Source\":\"" + source
                     + "\",\"Destination\":\"/source/input\",\"ReadOnly\":true,\"RW\":false}");
         }
-        if (output != null) {
-            hostMounts.add("{\"Type\":\"bind\",\"Source\":\"" + output
-                    + "\",\"Target\":\"/output\"}");
-            runtimeMounts.add("{\"Type\":\"bind\",\"Source\":\"" + output
-                    + "\",\"Destination\":\"/output\",\"ReadOnly\":false,\"RW\":true}");
-        }
+        String outputTmpfs = output == null ? "" : ",\"/output\":\""
+                + HostOciVisionWorkerSupervisor.outputTmpfsOptions(outputLimit).substring("/output:".length()) + "\"";
         String host = "{\"Memory\":1610612736,\"MemorySwap\":1610612736,\"NanoCpus\":2000000000,"
                 + "\"PidsLimit\":32,\"Ulimits\":[{\"Name\":\"nofile\",\"Soft\":64,\"Hard\":64},"
                 + "{\"Name\":\"fsize\",\"Soft\":" + outputLimit + ",\"Hard\":" + outputLimit + "}],"
                 + "\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Privileged\":false,"
                 + "\"CapDrop\":[\"ALL\"],\"CapAdd\":null,\"Devices\":[],\"DeviceRequests\":null,"
                 + "\"SecurityOpt\":[\"no-new-privileges:true\"],"
-                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\"},"
+                + "\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\""
+                + outputTmpfs + "},"
                 + "\"PortBindings\":{},\"PublishAllPorts\":false,\"Mounts\":["
                 + String.join(",", hostMounts) + "]}";
         String commandJson = workerArgs.stream().map(argument -> "\"" + argument
