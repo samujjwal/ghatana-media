@@ -1777,7 +1777,8 @@
         "media.dev.web-host"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Added MediaUploadTenantScopedResumeIT, commit 7a0af761; focused provider Gradle selector PASS 1/1 with LocalStack S3. Foreign tenant cannot inspect or append to an open upload; after worker restart the exact acknowledged prefix resumes, a conflicting replay is rejected, and final artifact digest/bytes match the synthetic WAV input. Still OPEN: test-profile store boundary only, not authenticated source authorization/rights/consent or hosted J-02 journey."
     },
     {
       "id": "media.dev.outcome-transcript-to-reviewed-captions",

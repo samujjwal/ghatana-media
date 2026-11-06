@@ -614,6 +614,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-02 — Real chunked upload/versioned artifact and corrupt/resume/restart.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** Added `MediaUploadTenantScopedResumeIT` (commit `7a0af761`); focused provider Gradle selector PASS 1/1 with LocalStack S3. A foreign tenant cannot inspect or append to an open upload; after worker restart the exact acknowledged prefix resumes, conflicting replay is rejected, and the final artifact digest/bytes match the synthetic WAV input. Still OPEN: this is a test-profile store boundary, not authenticated source authorization/rights/consent or the hosted J-02 journey.
 - **Predecessors:** `media.dev.canonical-artifact-storage`, `media.dev.web-host`
 
 **`media.dev.outcome-transcript-to-reviewed-captions`** · OPEN
