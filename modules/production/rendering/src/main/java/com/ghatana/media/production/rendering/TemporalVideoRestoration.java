@@ -447,6 +447,11 @@ public final class TemporalVideoRestoration {
             if (pixels > MAX_TOTAL_PIXELS || pixels * 3 > MAX_TOTAL_RGB_BYTES) {
                 throw invalid("candidate exceeds the aggregate pixel or RGB byte budget");
             }
+            String expectedCandidateSha256 = candidateDigest(timeBase, frames, lineage.profileId(),
+                    lineage.parameterVersion(), lineage.parameterSha256());
+            if (!lineage.candidateSha256().equals(expectedCandidateSha256)) {
+                throw invalid("candidate lineage digest does not match its frame, PTS, timebase, and ROI data");
+            }
             if (clippedSamples < 0 || clippedSamples > sourceDelta.comparedSamples() || clippedMagnitude < 0) {
                 throw invalid("clipped sample count is outside the compared ROI sample bound");
             }
@@ -811,8 +816,13 @@ public final class TemporalVideoRestoration {
     }
 
     private static String candidateDigest(TimeBase timeBase, List<CandidateFrame> frames, FilterParameters filter) {
+        return candidateDigest(timeBase, frames, filter.profileId(), filter.version(), filter.parameterSha256());
+    }
+
+    private static String candidateDigest(TimeBase timeBase, List<CandidateFrame> frames,
+            String profileId, String parameterVersion, String parameterSha256) {
         MessageDigest digest = digest();
-        digest.update((filter.profileId() + "\n" + filter.version() + "\n" + filter.parameterSha256() + "\n"
+        digest.update((profileId + "\n" + parameterVersion + "\n" + parameterSha256 + "\n"
                 + timeBase.numerator() + "/" + timeBase.denominator() + "\n")
                 .getBytes(StandardCharsets.UTF_8));
         for (CandidateFrame frame : frames) {

@@ -496,10 +496,28 @@ class TemporalVideoRestorationTest {
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("dimensions and ROI");
     }
 
+    @Test
+    void candidateRejectsFramePayloadThatDoesNotMatchTheLineageDigest() {
+        Candidate valid = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.empty(), null, null).candidate().orElseThrow();
+        List<CandidateFrame> changedFrames = new ArrayList<>(valid.frames());
+        CandidateFrame original = changedFrames.getFirst();
+        byte[] modifiedRgb = original.rgb();
+        modifiedRgb[0] ^= 1;
+        changedFrames.set(0, candidateFrame(original.frameIndex(), original.presentationTicks(),
+                original.roi(), modifiedRgb));
+
+        assertThatThrownBy(() -> candidateWith(valid, changedFrames))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("lineage digest does not match");
+    }
+
     private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] pixels) {
         try {
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(pixels));
-            return new CandidateFrame(index, pts, 2, 1, roi, pixels, digest);
+            return new CandidateFrame(index, pts, pixels.length / 3, 1, roi, pixels, digest);
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new AssertionError(impossible);
         }
