@@ -28,7 +28,7 @@ class Ip06FlywayHistoryCandidateReconcilerTest {
 
         assertThat(report.disposition())
                 .isEqualTo("UNVERIFIED_CANDIDATE_PENDING_OPERATOR_PROVENANCE");
-        assertThat(report.comparisonStatus()).isEqualTo("SOURCE_MATCH");
+        assertThat(report.comparisonStatus()).as(report.findings().toString()).isEqualTo("SOURCE_MATCH");
         assertThat(report.exitCode()).isZero();
         assertThat(report.exportSha256()).hasSize(64);
         assertThat(report.manifestSha256()).hasSize(64);
@@ -49,7 +49,7 @@ class Ip06FlywayHistoryCandidateReconcilerTest {
         rows.set(4, v4);
         rows.add(rows.get(0));
         rows.remove(10); // leave V011 absent
-        rows.add("30,31,unowned migration,SQL,V031__unowned.sql,1,test,2026-11-02T00:00:00Z,0,true");
+        rows.add("31,30,unowned migration,SQL,V030__unowned.sql,1,test,2026-11-02T00:00:00Z,0,true");
         rows.set(0, rows.get(0).replace(",true", ",false"));
 
         var report = Ip06FlywayHistoryCandidateReconciler.reconcile(
@@ -59,7 +59,7 @@ class Ip06FlywayHistoryCandidateReconcilerTest {
         assertThat(report.findings()).anyMatch(f -> f.startsWith("MISSING_VERSION: V011"));
         assertThat(report.findings()).anyMatch(f -> f.startsWith("OUT_OF_ORDER_VERSION:"));
         assertThat(report.findings()).anyMatch(f -> f.startsWith("FAILED_HISTORY_ROW: V001"));
-        assertThat(report.findings()).anyMatch(f -> f.startsWith("UNEXPECTED_VERSION: V031"));
+        assertThat(report.findings()).anyMatch(f -> f.startsWith("UNEXPECTED_VERSION: V030"));
         assertThat(report.disposition()).isEqualTo("UNVERIFIED_CANDIDATE_PENDING_OPERATOR_PROVENANCE");
     }
 
@@ -253,10 +253,11 @@ class Ip06FlywayHistoryCandidateReconcilerTest {
         Map<Integer, Ip06FlywayHistoryCandidateReconciler.Expected> expected =
                 Ip06FlywayHistoryCandidateReconciler.expectedMigrations();
         List<String> rows = new ArrayList<>();
-        for (int version = 1; version <= 29; version++) {
+        int rank = 0;
+        for (int version : expected.keySet()) {
             var migration = expected.get(version);
             rows.add("%d,%d,%s,%s,%s,%s,test,2026-11-02T00:00:00Z,1,true".formatted(
-                    version, version, migration.description(), migration.type(), migration.script(),
+                    ++rank, version, migration.description(), migration.type(), migration.script(),
                     migration.checksum()));
         }
         return rows;

@@ -12,4 +12,6 @@ Every `DeliveryResult` carries the exact tenant, principal, request, artifact ID
 
 ## Bounds and limitations
 
-Artifacts are snapshotted and capped at 64 MiB; transfer chunks are capped at 1 MiB. The request ledger is in memory only and does not survive process restart. A durable job/outbox integration, durable idempotency store, authenticated destination adapter, and production authorization resolver remain unimplemented. The test destination is a local fixture only.
+Artifacts are snapshotted and capped at 64 MiB; transfer chunks are capped at 1 MiB. The default engine constructor still uses an in-memory ledger. A `DeliveryOperationStore` SPI and PostgreSQL adapter now persist exact operation identity/status, and the additive V031 runtime migration creates that table. The adapter is not wired into the default launcher runtime. Its current update API is not an exclusive cross-process dispatch/resume claim, so concurrent resume workers are not safe for real destination effects.
+
+A durable job/outbox integration, signed authorization resolver, authenticated destination adapter, and production destination reconciliation remain unimplemented. The test destination and its receipts are local fixtures only; the PostgreSQL ledger proves persisted operation readback, not delivery or destination finality.

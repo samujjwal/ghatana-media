@@ -136,52 +136,68 @@ public final class MediaDeliveryEngine {
 
     private static final class Entry {
         final ExportRequest request;
+        final String fingerprint;
         DeliveryResult result;
-        Entry(ExportRequest request, DeliveryResult result) { this.request = request; this.result = result; }
+        Entry(ExportRequest request, String fingerprint, DeliveryResult result) {
+            this.request = request; this.fingerprint = fingerprint; this.result = result;
+        }
     }
 
     private final AuthorizationPort authorization;
     private final DestinationPort destination;
     private final java.util.function.Supplier<Instant> clock;
+    private final DeliveryOperationStore operations;
     private final Map<String, Entry> entries = new HashMap<>();
 
     public MediaDeliveryEngine(AuthorizationPort authorization, DestinationPort destination,
                                java.util.function.Supplier<Instant> clock) {
+        this(authorization, destination, clock, new InMemoryDeliveryOperationStore());
+    }
+
+    public MediaDeliveryEngine(AuthorizationPort authorization, DestinationPort destination,
+                               java.util.function.Supplier<Instant> clock, DeliveryOperationStore operations) {
         this.authorization = Objects.requireNonNull(authorization, "authorization");
         this.destination = Objects.requireNonNull(destination, "destination");
         this.clock = Objects.requireNonNull(clock, "clock");
+        this.operations = Objects.requireNonNull(operations, "operations");
     }
 
     /** Enqueue and dispatch once. A duplicate exact request reuses its state; a key collision fails. */
     public synchronized DeliveryResult export(ExportRequest request) {
         Objects.requireNonNull(request, "request");
-        Entry existing = entries.get(key(request));
+        Entry existing = loadEntry(request);
         if (existing != null) {
             assertSame(existing.request, request);
             return existing.result;
         }
-        Entry entry = new Entry(request, result(request, Status.QUEUED, 0, null));
+        Entry entry = new Entry(request, fingerprint(request), result(request, Status.QUEUED, 0, null));
+        if (!operations.insertIfAbsent(operation(entry))) {
+            Entry raced = loadEntry(request);
+            if (raced == null) throw new IllegalStateException("delivery operation could not be read after idempotency race");
+            assertSame(raced.request, request);
+            return raced.result;
+        }
         entries.put(key(request), entry);
         TransferAuthorization grant;
         try {
             grant = authorization.authorize(request);
         } catch (RuntimeException denied) {
-            entry.result = result(request, Status.UNAVAILABLE, 0, null);
+            setResult(entry, result(request, Status.UNAVAILABLE, 0, null));
             throw new DeliveryException(DeliveryException.Code.AUTHORIZATION_UNAVAILABLE, "transfer authorization is unavailable");
         }
         if (grant == null) {
-            entry.result = result(request, Status.UNAVAILABLE, 0, null);
+            setResult(entry, result(request, Status.UNAVAILABLE, 0, null));
             throw new DeliveryException(DeliveryException.Code.AUTHORIZATION_UNAVAILABLE, "transfer authorization is unavailable");
         }
         try { validateScope(grant, request); }
         catch (DeliveryException denied) {
-            entry.result = result(request, Status.REVOKED, 0, null);
+            setResult(entry, result(request, Status.REVOKED, 0, null));
             throw denied;
         }
         AuthorizationCurrentness currentness = currentness(grant);
         if (currentness != AuthorizationCurrentness.CURRENT) {
             Status status = currentness == AuthorizationCurrentness.REVOKED ? Status.REVOKED : Status.UNAVAILABLE;
-            entry.result = result(request, status, 0, null);
+            setResult(entry, result(request, status, 0, null));
             DeliveryException.Code code = status == Status.REVOKED
                     ? DeliveryException.Code.AUTHORIZATION_DENIED : DeliveryException.Code.AUTHORIZATION_UNAVAILABLE;
             throw new DeliveryException(code, status == Status.REVOKED
@@ -195,12 +211,25 @@ public final class MediaDeliveryEngine {
     public synchronized DeliveryResult reconcileAndResume(String tenantId, String requestId) {
         Entry entry = entries.get(required(tenantId, "tenantId") + "\u0000" + required(requestId, "requestId"));
         if (entry == null) throw new DeliveryException(DeliveryException.Code.INVALID_REQUEST, "unknown export request");
+        return reconcileAndResume(entry);
+    }
+
+    /** Restart-safe reconciliation when the caller supplies the same immutable artifact snapshot. */
+    public synchronized DeliveryResult reconcileAndResume(ExportRequest request) {
+        Objects.requireNonNull(request, "request");
+        Entry entry = loadEntry(request);
+        if (entry == null) throw new DeliveryException(DeliveryException.Code.INVALID_REQUEST, "unknown export request");
+        assertSame(entry.request, request);
+        return reconcileAndResume(entry);
+    }
+
+    private DeliveryResult reconcileAndResume(Entry entry) {
         if (entry.result.status() != Status.OUTCOME_UNKNOWN && entry.result.status() != Status.SENT) return entry.result;
         Reconciliation reconciliation;
         try { reconciliation = destination.reconcile(entry.request); }
-        catch (RuntimeException unavailable) { entry.result = result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null); return entry.result; }
+        catch (RuntimeException unavailable) { setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null)); return entry.result; }
         if (reconciliation == null) {
-            entry.result = result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null);
+            setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null));
             return entry.result;
         }
         int artifactSize = entry.request.artifact().size();
@@ -210,18 +239,18 @@ public final class MediaDeliveryEngine {
                 || (reconciledOffset != artifactSize && reconciledOffset % CHUNK_BYTES != 0)
                 || (entry.result.status() == Status.SENT && reconciledOffset != entry.result.acknowledgedBytes());
         if (invalidOffset) {
-            entry.result = result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null);
+            setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, entry.result.acknowledgedBytes(), null));
             return entry.result;
         }
         if (reconciliation.finalReceipt().isPresent()) {
-            entry.result = confirmOrUnknown(entry.request, reconciliation.finalReceipt().get(), reconciliation.nextOffset());
+            setResult(entry, confirmOrUnknown(entry.request, reconciliation.finalReceipt().get(), reconciliation.nextOffset()));
             return entry.result;
         }
         TransferAuthorization grant;
         try { grant = authorization.authorize(entry.request); validateScope(grant, entry.request); }
-        catch (RuntimeException denied) { entry.result = result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null); return entry.result; }
+        catch (RuntimeException denied) { setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null)); return entry.result; }
         if (currentness(grant) != AuthorizationCurrentness.CURRENT) {
-            entry.result = result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null);
+            setResult(entry, result(entry.request, Status.OUTCOME_UNKNOWN, reconciliation.nextOffset(), null));
             return entry.result;
         }
         transfer(entry, grant, reconciliation.nextOffset());
@@ -230,7 +259,8 @@ public final class MediaDeliveryEngine {
 
     public synchronized Optional<DeliveryResult> find(String tenantId, String requestId) {
         Entry entry = entries.get(required(tenantId, "tenantId") + "\u0000" + required(requestId, "requestId"));
-        return Optional.ofNullable(entry).map(e -> e.result);
+        return entry == null ? operations.find(tenantId, requestId).map(MediaDeliveryEngine::result)
+                : Optional.of(entry.result);
     }
 
     private void transfer(Entry entry, TransferAuthorization grant, int start) {
@@ -242,32 +272,35 @@ public final class MediaDeliveryEngine {
             if (currentness != AuthorizationCurrentness.CURRENT) {
                 Status status = offset > 0 ? Status.OUTCOME_UNKNOWN
                         : currentness == AuthorizationCurrentness.REVOKED ? Status.REVOKED : Status.UNAVAILABLE;
-                entry.result = result(request, status, offset, null);
+                setResult(entry, result(request, status, offset, null));
                 return;
             }
             int count = Math.min(CHUNK_BYTES, bytes.length - offset);
             byte[] chunk = request.artifact().chunk(offset, count);
             String chunkDigest = MediaCreationContracts.sha256(chunk);
+            // Persist ambiguity before crossing the destination boundary. A process death
+            // after acceptance but before ACK/readback must never leave a replayable QUEUED row.
+            setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null));
             ChunkReceipt receipt;
             try { receipt = destination.sendChunk(request, offset, chunk, chunkDigest, grant); }
-            catch (RuntimeException lostAck) { entry.result = result(request, Status.OUTCOME_UNKNOWN, offset, null); return; }
+            catch (RuntimeException lostAck) { setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null)); return; }
             if (!validChunkReceipt(receipt, request, offset, count, chunkDigest)) {
-                entry.result = result(request, Status.OUTCOME_UNKNOWN, offset, null);
+                setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null));
                 return;
             }
             offset = receipt.nextOffset();
-            entry.result = result(request, Status.SENT, offset, null);
+            setResult(entry, result(request, Status.SENT, offset, null));
         }
         // Requiring destination reconciliation prevents transport completion from becoming confirmation.
         Reconciliation finalState;
         try { finalState = destination.reconcile(request); }
-        catch (RuntimeException unavailable) { entry.result = result(request, Status.OUTCOME_UNKNOWN, offset, null); return; }
-        if (finalState == null) { entry.result = result(request, Status.OUTCOME_UNKNOWN, offset, null); return; }
+        catch (RuntimeException unavailable) { setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null)); return; }
+        if (finalState == null) { setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null)); return; }
         if (finalState.finalReceipt().isEmpty()) {
-            entry.result = result(request, Status.OUTCOME_UNKNOWN, offset, null);
+            setResult(entry, result(request, Status.OUTCOME_UNKNOWN, offset, null));
             return;
         }
-        entry.result = confirmOrUnknown(request, finalState.finalReceipt().get(), finalState.nextOffset());
+        setResult(entry, confirmOrUnknown(request, finalState.finalReceipt().get(), finalState.nextOffset()));
     }
 
     private DeliveryResult confirmOrUnknown(ExportRequest request, DestinationReceipt receipt, int offset) {
@@ -332,6 +365,53 @@ public final class MediaDeliveryEngine {
                 || !a.artifact().versionRef().equals(b.artifact().versionRef()) || !a.artifact().digest().equals(b.artifact().digest())) {
             throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT, "request id is already bound to different export content or destination");
         }
+    }
+
+    private Entry loadEntry(ExportRequest request) {
+        Entry cached = entries.get(key(request));
+        if (cached != null) return cached;
+        Optional<DeliveryOperationStore.Operation> stored = operations.find(request.tenantId(), request.requestId());
+        if (stored.isEmpty()) return null;
+        DeliveryOperationStore.Operation operation = stored.get();
+        String fingerprint = fingerprint(request);
+        if (!operation.requestFingerprint().equals(fingerprint)) {
+            throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
+                    "request id is already bound to different export content or destination");
+        }
+        Entry loaded = new Entry(request, fingerprint, result(operation));
+        entries.put(key(request), loaded);
+        return loaded;
+    }
+
+    private void setResult(Entry entry, DeliveryResult result) {
+        if (!operations.update(operation(entry, result))) {
+            throw new IllegalStateException("delivery operation state changed during update");
+        }
+        // Publish in-memory state only after the durable store confirms the update.
+        entry.result = result;
+    }
+
+    private static DeliveryOperationStore.Operation operation(Entry entry) {
+        return operation(entry, entry.result);
+    }
+
+    private static DeliveryOperationStore.Operation operation(Entry entry, DeliveryResult value) {
+        return new DeliveryOperationStore.Operation(value.tenantId(), value.principalId(), value.requestId(),
+                value.artifactId(), value.versionRef(), value.artifactDigest(), value.destinationRef(),
+                entry.fingerprint, value.status(), value.acknowledgedBytes(), value.destinationReceiptRef().orElse(null));
+    }
+
+    private static DeliveryResult result(DeliveryOperationStore.Operation operation) {
+        return new DeliveryResult(operation.tenantId(), operation.principalId(), operation.requestId(),
+                operation.artifactId(), operation.versionRef(), operation.artifactDigest(), operation.destinationRef(),
+                operation.status(), operation.acknowledgedBytes(), Optional.ofNullable(operation.destinationReceiptRef()));
+    }
+
+    private static String fingerprint(ExportRequest request) {
+        String material = String.join("\n", request.tenantId(), request.principalId(), request.requestId(),
+                request.artifact().artifactId(), request.artifact().versionRef(), request.artifact().digest(),
+                request.destinationRef());
+        return MediaCreationContracts.sha256(material.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     private static String key(ExportRequest r) { return r.tenantId() + "\u0000" + r.requestId(); }

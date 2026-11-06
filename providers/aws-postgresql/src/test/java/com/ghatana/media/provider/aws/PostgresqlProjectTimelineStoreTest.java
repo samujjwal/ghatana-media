@@ -177,9 +177,10 @@ class PostgresqlProjectTimelineStoreTest {
         }
         AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket, schema));
         try {
-            // Test-only V030 is applied explicitly after the provider's V001-V029 runtime chain.
+            // Test-only V030 is an isolated projection migration; allow its test schema after current V031.
             Flyway.configure().dataSource(scopedJdbcUrl(schema), POSTGRES.getUsername(), POSTGRES.getPassword())
                     .locations("classpath:db/media-runtime", "classpath:db/media-project-timeline")
+                    .outOfOrder(true)
                     .load().migrate();
             return new Fixture(installed, new PostgresqlProjectTimelineStore(), schema);
         } catch (RuntimeException failure) {

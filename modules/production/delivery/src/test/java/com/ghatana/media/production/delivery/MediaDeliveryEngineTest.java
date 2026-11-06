@@ -63,6 +63,59 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void operationLedgerReadbackSurvivesEngineRestartAndResumesExactArtifactVersion() {
+        Fixture f = new Fixture();
+        f.destination.loseFirstAckAfterAccept = true;
+        ExportRequest request = f.request(bytes(CHUNK_BYTES + 7));
+        DeliveryResult beforeRestart = f.engine.export(request);
+        assertThat(beforeRestart.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(f.operations.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryOperationStore.Operation::artifactId,
+                        DeliveryOperationStore.Operation::versionRef,
+                        DeliveryOperationStore.Operation::status)
+                .containsExactly(request.artifact().artifactId(), request.artifact().versionRef(), Status.OUTCOME_UNKNOWN);
+
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, f.operations);
+        assertThat(restarted.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryResult::artifactId, DeliveryResult::versionRef, DeliveryResult::status)
+                .containsExactly(request.artifact().artifactId(), request.artifact().versionRef(), Status.OUTCOME_UNKNOWN);
+        DeliveryResult resumed = restarted.reconcileAndResume(request);
+        assertThat(resumed.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(resumed.artifactId()).isEqualTo(request.artifact().artifactId());
+        assertThat(resumed.versionRef()).isEqualTo(request.artifact().versionRef());
+        assertThat(f.destination.offsets).containsExactly(0, CHUNK_BYTES);
+    }
+
+    @Test
+    void failedPersistenceAfterChunkAckKeepsPriorUnknownStateVisible() {
+        Fixture f = new Fixture();
+        InMemoryDeliveryOperationStore backing = new InMemoryDeliveryOperationStore();
+        DeliveryOperationStore failing = new DeliveryOperationStore() {
+            @Override public Optional<Operation> find(String tenantId, String requestId) {
+                return backing.find(tenantId, requestId);
+            }
+            @Override public boolean insertIfAbsent(Operation operation) { return backing.insertIfAbsent(operation); }
+            @Override public boolean update(Operation operation) {
+                if (operation.status() == Status.SENT) throw new IllegalStateException("simulated ledger write failure after ACK");
+                return backing.update(operation);
+            }
+        };
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, failing);
+        ExportRequest request = f.request(bytes(24));
+
+        assertThatThrownBy(() -> engine.export(request)).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("simulated ledger write failure");
+        assertThat(engine.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryResult::status, DeliveryResult::acknowledgedBytes)
+                .containsExactly(Status.OUTCOME_UNKNOWN, 0);
+        assertThat(backing.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryOperationStore.Operation::status,
+                        DeliveryOperationStore.Operation::acknowledgedBytes)
+                .containsExactly(Status.OUTCOME_UNKNOWN, 0);
+        assertThat(f.destination.sendCount).isEqualTo(1);
+    }
+
+    @Test
     void revokedTokenStopsBeforeFirstExternalChunk() {
         Fixture f = new Fixture();
         f.authorization.revoked.set(true);
@@ -199,7 +252,8 @@ class MediaDeliveryEngineTest {
     private static final class Fixture {
         final FakeAuthorization authorization = new FakeAuthorization();
         final FakeDestination destination = new FakeDestination();
-        final MediaDeliveryEngine engine = new MediaDeliveryEngine(authorization, destination, () -> NOW);
+        final InMemoryDeliveryOperationStore operations = new InMemoryDeliveryOperationStore();
+        final MediaDeliveryEngine engine = new MediaDeliveryEngine(authorization, destination, () -> NOW, operations);
         ExportRequest request(byte[] bytes) {
             Artifact artifact = new Artifact("tenant:1", "artifact:1", "version:1", MediaCreationContracts.sha256(bytes), bytes);
         return new ExportRequest("tenant:1", "principal:1", "request:1", artifact, "destination:exact");
