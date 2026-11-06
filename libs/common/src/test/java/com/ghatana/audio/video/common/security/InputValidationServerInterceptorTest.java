@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,6 +66,29 @@ class InputValidationServerInterceptorTest {
                 argThat(status -> status.getCode() == Status.Code.INVALID_ARGUMENT),
                 any(Metadata.class));
         verify(delegate, org.mockito.Mockito.never()).onMessage(any());
+    }
+
+    @Test
+    @DisplayName("A rejected stream never forwards later messages or closes twice")
+    void rejectedStreamRemainsClosedForLaterMessages() {
+        var interceptor = new InputValidationServerInterceptor();
+        ServerCall<Object, Object> call = mock(ServerCall.class);
+        when(call.getMethodDescriptor()).thenReturn(method());
+        ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+        ServerCall.Listener<Object> delegate = listenerFor(handler);
+        ServerCall.Listener<Object> listener = interceptor.interceptCall(call, new Metadata(), handler);
+
+        MessageLite oversized = mock(MessageLite.class);
+        when(oversized.getSerializedSize()).thenReturn(100 * 1024 * 1024 + 1);
+        listener.onMessage(oversized);
+        listener.onMessage("must not reach service");
+        listener.onMessage(oversized);
+
+        verify(delegate, org.mockito.Mockito.never()).onMessage(any());
+        verify(call, times(1)).close(
+                org.mockito.ArgumentMatchers.<Status>argThat(
+                        status -> status.getCode() == Status.Code.INVALID_ARGUMENT),
+                any(Metadata.class));
     }
 
     @Test

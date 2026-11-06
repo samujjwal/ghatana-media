@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.MessageLite;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * gRPC server interceptor that enforces request size limits.
@@ -52,21 +53,26 @@ public class InputValidationServerInterceptor implements ServerInterceptor {
             ServerCallHandler<ReqT, RespT> next) {
 
         ServerCall.Listener<ReqT> delegate = next.startCall(call, headers);
+        AtomicBoolean rejected = new AtomicBoolean();
 
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(delegate) {
             @Override
             public void onMessage(ReqT message) {
+                // Once a streaming call violates the limit, never forward later messages.
+                if (rejected.get()) return;
                 if (message instanceof MessageLite msg) {
                     int serializedSize = msg.getSerializedSize();
                     if (serializedSize > maxRequestBytes) {
                         LOG.warn("Request too large: {} bytes > {} limit on {}",
                                 serializedSize, maxRequestBytes,
                                 call.getMethodDescriptor().getFullMethodName());
-                        call.close(
-                                Status.INVALID_ARGUMENT.withDescription(
-                                        "Request payload too large: " + serializedSize
-                                                + " bytes (max " + maxRequestBytes + ")"),
-                                new Metadata());
+                        if (rejected.compareAndSet(false, true)) {
+                            call.close(
+                                    Status.INVALID_ARGUMENT.withDescription(
+                                            "Request payload too large: " + serializedSize
+                                                    + " bytes (max " + maxRequestBytes + ")"),
+                                    new Metadata());
+                        }
                         return;
                     }
                 }
