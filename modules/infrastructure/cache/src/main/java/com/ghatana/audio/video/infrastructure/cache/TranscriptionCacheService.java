@@ -113,13 +113,12 @@ public class TranscriptionCacheService {
     }
 
     /**
-     * Gets a transcript under an immutable, caller-specific authority scope.
-     * The supplied authority reader must consult the current trusted rights and
-     * source owner; scope values partition entries but do not grant access.
-     * Authority is checked before the cache lookup and again immediately before
-     * a decoded value is returned. A scope change, revocation, retention change,
-     * or source revision change therefore cannot reuse an older entry.
+     * Legacy Boolean authority cannot prove an exact current scope. Keep this API source-read-only:
+     * a positive Boolean permits a read through the caller's current source path but never a
+     * protected cache lookup/write. Unknown or rejected authority fails before the loader. Local
+     * callers must not treat this compatibility path as production authority.
      */
+    @Deprecated(forRemoval = false)
     public AsyncOperation<TranscriptionEntity> getOrLoadTranscription(
             AudioVideoCache.CacheKeyScope scope,
             UUID transcriptionId,
@@ -130,11 +129,66 @@ public class TranscriptionCacheService {
         }
         Objects.requireNonNull(authorityCheck, "authorityCheck cannot be null");
         Objects.requireNonNull(loader, "loader cannot be null");
+        return checkLegacyAuthority(scope, authorityCheck).flatMap(current -> {
+            if (!Boolean.TRUE.equals(current)) {
+                invalidateScopedBestEffort(scope, transcriptionId);
+                return AsyncOperation.failure(new SecurityException(
+                        "Boolean cache authority is unavailable; source read was not started"));
+            }
+            invalidateScopedBestEffort(scope, transcriptionId);
+            return loadCurrentTranscription(scope.tenantId(), transcriptionId,
+                    buildKey(scope.tenantId(), transcriptionId.toString()), loader);
+        });
+    }
 
-        return cache.getOrLoadScoped(scope, transcriptionId.toString(), authorityCheck,
+    /**
+     * Uses a host owner-backed authority provider for exact current-scope readback before lookup
+     * and before disclosure. Fixtures may verify this gate but do not establish a production
+     * source, consent, retention, or policy authority provider.
+     */
+    public AsyncOperation<TranscriptionEntity> getOrLoadTranscriptionWithAuthority(
+            AudioVideoCache.CacheKeyScope scope,
+            UUID transcriptionId,
+            AudioVideoCache.ScopedAuthority authority,
+            Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader) {
+        if (!isValidScopedIdentity(scope, transcriptionId)) {
+            return AsyncOperation.failure(identityMismatch());
+        }
+        Objects.requireNonNull(authority, "authority cannot be null");
+        Objects.requireNonNull(loader, "loader cannot be null");
+
+        return cache.getOrLoadScopedWithAuthority(scope, transcriptionId.toString(), authority,
                 ignoredKey -> loadScopedEnvelope(scope, transcriptionId, loader))
                 .flatMap(encoded -> decodeOrRepairScopedEnvelope(scope, transcriptionId, encoded,
-                        authorityCheck, loader, false));
+                        authority, loader, false));
+    }
+
+    private AsyncOperation<Boolean> checkLegacyAuthority(
+            AudioVideoCache.CacheKeyScope scope,
+            Function<AudioVideoCache.CacheKeyScope, AsyncOperation<Boolean>> authorityCheck) {
+        CompletableFuture<Boolean> checked = new CompletableFuture<>();
+        try {
+            AsyncOperation<Boolean> result = authorityCheck.apply(scope);
+            if (result == null) return AsyncOperation.success(false);
+            result.whenComplete((current, failure) -> checked.complete(failure == null && Boolean.TRUE.equals(current)));
+        } catch (Throwable unavailable) {
+            checked.complete(false);
+        }
+        return AsyncOperation.from(checked);
+    }
+
+    private void invalidateScopedBestEffort(
+            AudioVideoCache.CacheKeyScope scope, UUID transcriptionId) {
+        try {
+            cache.invalidateScoped(scope, transcriptionId.toString()).whenComplete((ignored, failure) -> {
+                if (failure != null) LOG.debug(
+                        "Scoped transcription cache invalidation failed: causeType={}",
+                        failure.getClass().getSimpleName());
+            });
+        } catch (RuntimeException failure) {
+            LOG.debug("Scoped transcription cache invalidation failed: causeType={}",
+                    failure.getClass().getSimpleName());
+        }
     }
 
     /** Invalidates one exact transcript and immutable authority/source scope. */
@@ -173,7 +227,7 @@ public class TranscriptionCacheService {
             AudioVideoCache.CacheKeyScope scope,
             UUID transcriptionId,
             String encoded,
-            Function<AudioVideoCache.CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
+            AudioVideoCache.ScopedAuthority authority,
             Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader,
             boolean refreshed) {
         // getOrLoadScoped rechecks authority after the cache/source operation and
@@ -191,10 +245,10 @@ public class TranscriptionCacheService {
         // Malformed or scope-mismatched values are never exposed. Retire the exact
         // key and use the same bounded, authority-checked single-flight path again.
         return cache.invalidateScoped(scope, transcriptionId.toString()).flatMap(ignored ->
-                cache.getOrLoadScoped(scope, transcriptionId.toString(), authorityCheck,
+                cache.getOrLoadScopedWithAuthority(scope, transcriptionId.toString(), authority,
                         key -> loadScopedEnvelope(scope, transcriptionId, loader))
                         .flatMap(reloaded -> decodeOrRepairScopedEnvelope(scope, transcriptionId, reloaded,
-                                authorityCheck, loader, true)));
+                                authority, loader, true)));
     }
 
     private String encodeEnvelope(

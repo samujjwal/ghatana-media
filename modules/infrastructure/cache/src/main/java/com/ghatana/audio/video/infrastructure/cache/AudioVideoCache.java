@@ -67,6 +67,43 @@ public class AudioVideoCache<K, V> {
             }
         }
     }
+
+    /** Typed result returned by a host-owned authority provider for one protected scope read. */
+    public enum ScopedAuthorityStatus { CURRENT, REJECTED, UNKNOWN }
+
+    /**
+     * Exact owner-authority readback. A CURRENT decision is usable only when its scope equals
+     * the requested immutable scope. Production callers must supply a host owner-backed
+     * authority provider; local fixtures exercise this boundary but do not establish production
+     * authority or policy integration.
+     */
+    public record ScopedAuthorityResult(ScopedAuthorityStatus status, CacheKeyScope currentScope) {
+        public ScopedAuthorityResult {
+            Objects.requireNonNull(status, "status");
+            if (status == ScopedAuthorityStatus.CURRENT && currentScope == null) {
+                throw new IllegalArgumentException("CURRENT authority result requires exact current scope");
+            }
+        }
+
+        public static ScopedAuthorityResult current(CacheKeyScope scope) {
+            return new ScopedAuthorityResult(ScopedAuthorityStatus.CURRENT,
+                    Objects.requireNonNull(scope, "scope"));
+        }
+
+        public static ScopedAuthorityResult rejected(CacheKeyScope currentScope) {
+            return new ScopedAuthorityResult(ScopedAuthorityStatus.REJECTED, currentScope);
+        }
+
+        public static ScopedAuthorityResult unknown() {
+            return new ScopedAuthorityResult(ScopedAuthorityStatus.UNKNOWN, null);
+        }
+    }
+
+    /** Host owner-backed current-scope readback; callers cannot substitute a Boolean grant. */
+    @FunctionalInterface
+    public interface ScopedAuthority {
+        AsyncOperation<ScopedAuthorityResult> readCurrent(CacheKeyScope requestedScope);
+    }
     
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoCache.class);
     private static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
@@ -799,37 +836,61 @@ public class AudioVideoCache<K, V> {
     }
 
     /**
-     * Read protected content only after the caller's current authority source
-     * has positively revalidated the complete scope. A miss is never treated as
-     * authorization, and an unavailable/unknown authority result fails closed.
+     * Legacy Boolean authority cannot echo the exact current scope. Invalidate its exact key and
+     * fail closed without reading the protected cache or invoking the loader.
      */
+    @Deprecated(forRemoval = false)
     public AsyncOperation<V> getOrLoadScoped(
             CacheKeyScope scope,
             Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
             Function<String, AsyncOperation<V>> loader) {
         Objects.requireNonNull(scope, "scope cannot be null");
-        return getOrLoadScoped(buildScopedKey(scope), scope, authorityCheck, loader);
+        invalidateScopedBestEffort(buildScopedKey(scope));
+        return AsyncOperation.failure(new SecurityException(
+                "Boolean cache authority is unavailable; exact scoped readback is required"));
     }
 
-    /** Scoped cache lookup additionally binds the key to one exact cache object identity. */
+    /** Legacy Boolean authority cannot authorize a protected cache lookup. */
+    @Deprecated(forRemoval = false)
     public AsyncOperation<V> getOrLoadScoped(
             CacheKeyScope scope,
             String objectIdentity,
             Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
             Function<String, AsyncOperation<V>> loader) {
         Objects.requireNonNull(scope, "scope cannot be null");
-        return getOrLoadScoped(buildScopedKey(scope, objectIdentity), scope, authorityCheck, loader);
+        invalidateScopedBestEffort(buildScopedKey(scope, objectIdentity));
+        return AsyncOperation.failure(new SecurityException(
+                "Boolean cache authority is unavailable; exact scoped readback is required"));
     }
 
-    private AsyncOperation<V> getOrLoadScoped(
-            String key,
+    /** Read protected content only with host-owner readback of the exact immutable scope. */
+    public AsyncOperation<V> getOrLoadScopedWithAuthority(
             CacheKeyScope scope,
-            Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck,
+            ScopedAuthority authority,
             Function<String, AsyncOperation<V>> loader) {
-        Objects.requireNonNull(authorityCheck, "authorityCheck cannot be null");
+        Objects.requireNonNull(scope, "scope cannot be null");
+        return getOrLoadScopedByKey(scope, buildScopedKey(scope), authority, loader);
+    }
+
+    /** Typed scoped lookup additionally binds the key to one exact cache object identity. */
+    public AsyncOperation<V> getOrLoadScopedWithAuthority(
+            CacheKeyScope scope,
+            String objectIdentity,
+            ScopedAuthority authority,
+            Function<String, AsyncOperation<V>> loader) {
+        Objects.requireNonNull(scope, "scope cannot be null");
+        return getOrLoadScopedByKey(scope, buildScopedKey(scope, objectIdentity), authority, loader);
+    }
+
+    private AsyncOperation<V> getOrLoadScopedByKey(
+            CacheKeyScope scope,
+            String key,
+            ScopedAuthority authority,
+            Function<String, AsyncOperation<V>> loader) {
+        Objects.requireNonNull(authority, "authority cannot be null");
         Objects.requireNonNull(loader, "loader cannot be null");
-        final AsyncOperation<Boolean> authority = checkScopedAuthority(scope, authorityCheck);
-        return authority.whenComplete((allowed, failure) -> {
+        final AsyncOperation<Boolean> initialAuthority = checkScopedAuthority(scope, authority);
+        return initialAuthority.whenComplete((allowed, failure) -> {
             if (failure != null || !Boolean.TRUE.equals(allowed)) {
                 // A denied or unavailable current authority must not disclose cached
                 // content. Retire this exact immutable scope key as best-effort cleanup
@@ -842,7 +903,7 @@ public class AudioVideoCache<K, V> {
                         "Current cache authority is denied or unknown"));
             }
             return getOrLoad(asCacheKey(key), ignored -> loader.apply(key))
-                    .flatMap(value -> checkScopedAuthority(scope, authorityCheck)
+                    .flatMap(value -> checkScopedAuthority(scope, authority)
                             .whenComplete((current, failure) -> {
                                 if (failure != null || !Boolean.TRUE.equals(current)) {
                                     invalidateScopedBestEffort(key);
@@ -858,13 +919,19 @@ public class AudioVideoCache<K, V> {
 
     private AsyncOperation<Boolean> checkScopedAuthority(
             CacheKeyScope scope,
-            Function<CacheKeyScope, AsyncOperation<Boolean>> authorityCheck) {
+            ScopedAuthority authority) {
+        java.util.concurrent.CompletableFuture<Boolean> checked = new java.util.concurrent.CompletableFuture<>();
         try {
-            return Objects.requireNonNull(authorityCheck.apply(scope),
-                    "authorityCheck returned null operation");
-        } catch (RuntimeException failure) {
-            return AsyncOperation.failure(failure);
+            AsyncOperation<ScopedAuthorityResult> readback = authority.readCurrent(scope);
+            if (readback == null) return AsyncOperation.success(false);
+            readback.whenComplete((result, failure) -> checked.complete(failure == null
+                    && result != null
+                    && result.status() == ScopedAuthorityStatus.CURRENT
+                    && scope.equals(result.currentScope())));
+        } catch (Throwable unavailable) {
+            checked.complete(false);
         }
+        return AsyncOperation.from(checked);
     }
 
     /** Best-effort retirement must never turn a denied or unknown authority into a value. */

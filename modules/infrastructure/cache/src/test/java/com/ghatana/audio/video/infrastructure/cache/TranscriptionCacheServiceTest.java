@@ -46,9 +46,9 @@ class TranscriptionCacheServiceTest {
         UUID id = UUID.randomUUID();
         TranscriptionCacheService service = new TranscriptionCacheService(cachePort, objectMapper);
 
-        assertThatThrownBy(() -> await(service.getOrLoadTranscription(
+        assertThatThrownBy(() -> await(service.getOrLoadTranscriptionWithAuthority(
                 scopedScope("tenant-b", "principal-a", "policy-1"), id,
-                scope -> AsyncOperation.success(true),
+                currentAuthority(),
                 requested -> AsyncOperation.success(Optional.of(entity("tenant-a", requested, false))))))
                 .hasRootCauseInstanceOf(IllegalStateException.class)
                 .hasRootCauseMessage("Transcription identity does not match requested scope");
@@ -62,14 +62,15 @@ class TranscriptionCacheServiceTest {
         UUID id = UUID.randomUUID();
         TranscriptionCacheService service = new TranscriptionCacheService(cachePort, objectMapper);
 
-        assertThatThrownBy(() -> await(service.getOrLoadTranscription(
+        assertThatThrownBy(() -> await(service.getOrLoadTranscriptionWithAuthority(
                 scopedScope("tenant-a", "principal-a", "policy-1"), id,
-                scope -> AsyncOperation.success(false),
+                scope -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.rejected(scope)),
                 requested -> AsyncOperation.success(Optional.of(entity("tenant-a", requested, false))))))
                 .hasRootCauseInstanceOf(SecurityException.class)
                 .hasRootCauseMessage("Current cache authority is denied or unknown");
 
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -81,8 +82,8 @@ class TranscriptionCacheServiceTest {
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
 
-        assertThatThrownBy(() -> await(service.getOrLoadTranscription(scope, id,
-                ignored -> AsyncOperation.success(null),
+        assertThatThrownBy(() -> await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                ignored -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.unknown()),
                 requested -> AsyncOperation.success(Optional.of(entity("tenant-a", requested, false))))))
                 .hasRootCauseInstanceOf(SecurityException.class)
                 .hasRootCauseMessage("Current cache authority is denied or unknown");
@@ -90,6 +91,108 @@ class TranscriptionCacheServiceTest {
         verify(port, never()).get(any());
         verify(port, never()).put(any(), any(), any(Duration.class));
         verify(port).invalidateAsync(key);
+    }
+
+    @Test
+    void forgedCurrentReadbackWithStalePolicyEpochEvictsOnlyRequestedKey() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-epoch-current");
+        var stale = new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
+                scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
+                scope.artifactRevision(), scope.transcriptRevision(), scope.sourceFingerprint(), "policy-epoch-old");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        AtomicInteger sourceLoads = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                requested -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(stale)),
+                requested -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(entity("tenant-a", requested, false)));
+                })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+
+        assertThat(sourceLoads).hasValue(0);
+        verify(port, never()).get(any());
+        verify(port, never()).put(any(), any(), any(Duration.class));
+        verify(port).invalidateAsync(key);
+        verify(port, never()).invalidateAll();
+    }
+
+    @Test
+    void typedAuthorityErrorFailsClosedBeforeLoaderAndEvictsExactKey() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        AtomicInteger sourceLoads = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                requested -> AsyncOperation.failure(new IllegalStateException("authority offline")),
+                requested -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(entity("tenant-a", requested, false)));
+                })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+
+        assertThat(sourceLoads).hasValue(0);
+        verify(port, never()).get(any());
+        verify(port, never()).put(any(), any(), any(Duration.class));
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
+    void legacyBooleanPathUsesOnlyCurrentSourceReadAndEvictsScopedKey() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String scopedKey = scopedKey(scope, id);
+        String legacyKey = key(scope.tenantId(), id.toString());
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.invalidateAsync(scopedKey)).thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(legacyKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity source = versionedEntity("tenant-a", id, 13L, "source read only");
+
+        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
+                ignored -> AsyncOperation.success(true),
+                requested -> AsyncOperation.success(Optional.of(source))));
+
+        assertThat(result.getText()).isEqualTo("source read only");
+        verify(port, never()).get(any());
+        verify(port, never()).put(any(), any(), any(Duration.class));
+        verify(port).invalidateAsync(scopedKey);
+        verify(port).invalidateAsync(legacyKey);
+    }
+
+    @Test
+    void legacyBooleanUnknownDoesNotStartSourceRead() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String scopedKey = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.invalidateAsync(scopedKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        AtomicInteger sourceLoads = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(service.getOrLoadTranscription(scope, id,
+                ignored -> AsyncOperation.failure(new IllegalStateException("unknown authority")),
+                requested -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(entity("tenant-a", requested, false)));
+                })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Boolean cache authority is unavailable; source read was not started");
+
+        assertThat(sourceLoads).hasValue(0);
+        verify(port, never()).get(any());
+        verify(port, never()).put(any(), any(), any(Duration.class));
+        verify(port).invalidateAsync(scopedKey);
     }
 
     @Test
@@ -118,8 +221,8 @@ class TranscriptionCacheServiceTest {
         TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
         TranscriptionEntity source = versionedEntity("tenant-a", id, 9L, "current scoped transcript");
 
-        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(true),
+        TranscriptionEntity result = await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                currentAuthority(),
                 requested -> AsyncOperation.success(Optional.of(source))));
 
         assertThat(result.getText()).isEqualTo(source.getText());
@@ -144,15 +247,17 @@ class TranscriptionCacheServiceTest {
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
         TranscriptionEntity source = versionedEntity("tenant-a", id, 9L, "current scoped transcript");
-        await(service.getOrLoadTranscription(scope, id, checked -> AsyncOperation.success(true),
+        await(service.getOrLoadTranscriptionWithAuthority(scope, id, currentAuthority(),
                 requested -> AsyncOperation.success(Optional.of(source))));
         ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
         verify(port).put(eq(key), stored.capture(), any(Duration.class));
 
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of(stored.getValue())));
         AtomicInteger authorityReads = new AtomicInteger();
-        TranscriptionEntity cached = await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(authorityReads.incrementAndGet() <= 2),
+        TranscriptionEntity cached = await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                checked -> AsyncOperation.success(authorityReads.incrementAndGet() <= 2
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 requested -> { throw new AssertionError("valid cache hit must not load source"); }));
 
         assertThat(cached.getText()).isEqualTo("current scoped transcript");
@@ -170,15 +275,17 @@ class TranscriptionCacheServiceTest {
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
         TranscriptionEntity source = versionedEntity("tenant-a", id, 9L, "protected scoped transcript");
-        await(service.getOrLoadTranscription(scope, id, checked -> AsyncOperation.success(true),
+        await(service.getOrLoadTranscriptionWithAuthority(scope, id, currentAuthority(),
                 requested -> AsyncOperation.success(Optional.of(source))));
         ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
         verify(port).put(eq(key), stored.capture(), any(Duration.class));
 
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of(stored.getValue())));
         AtomicInteger authorityReads = new AtomicInteger();
-        assertThatThrownBy(() -> await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(authorityReads.incrementAndGet() == 1),
+        assertThatThrownBy(() -> await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                checked -> AsyncOperation.success(authorityReads.incrementAndGet() == 1
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 requested -> { throw new AssertionError("revoked cache hit must not load source"); })))
                 .hasRootCauseInstanceOf(SecurityException.class)
                 .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
@@ -201,8 +308,8 @@ class TranscriptionCacheServiceTest {
         AtomicInteger sourceLoads = new AtomicInteger();
         TranscriptionEntity source = versionedEntity("tenant-a", id, 10L, "authoritative replacement");
 
-        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(true),
+        TranscriptionEntity result = await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                currentAuthority(),
                 requested -> {
                     sourceLoads.incrementAndGet();
                     return AsyncOperation.success(Optional.of(source));
@@ -225,7 +332,7 @@ class TranscriptionCacheServiceTest {
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
         TranscriptionEntity original = versionedEntity("tenant-a", id, 9L, "old source version");
-        await(service.getOrLoadTranscription(scope, id, checked -> AsyncOperation.success(true),
+        await(service.getOrLoadTranscriptionWithAuthority(scope, id, currentAuthority(),
                 requested -> AsyncOperation.success(Optional.of(original))));
         ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
         verify(port).put(eq(key), stored.capture(), any(Duration.class));
@@ -235,8 +342,8 @@ class TranscriptionCacheServiceTest {
         AtomicInteger sourceLoads = new AtomicInteger();
         TranscriptionEntity current = versionedEntity("tenant-a", id, 10L, "current source version");
 
-        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(true),
+        TranscriptionEntity result = await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                currentAuthority(),
                 requested -> {
                     sourceLoads.incrementAndGet();
                     return AsyncOperation.success(Optional.of(current));
@@ -261,17 +368,17 @@ class TranscriptionCacheServiceTest {
         CompletableFuture<Optional<TranscriptionEntity>> sourceRead = new CompletableFuture<>();
         AtomicInteger sourceLoads = new AtomicInteger();
         AtomicInteger authorityReads = new AtomicInteger();
-        Function<AudioVideoCache.CacheKeyScope, AsyncOperation<Boolean>> authority = checked -> {
+        AudioVideoCache.ScopedAuthority authority = checked -> {
             authorityReads.incrementAndGet();
-            return AsyncOperation.success(true);
+            return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked));
         };
         Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader = requested -> {
             sourceLoads.incrementAndGet();
             return AsyncOperation.from(sourceRead);
         };
 
-        AsyncOperation<TranscriptionEntity> first = service.getOrLoadTranscription(scope, id, authority, loader);
-        AsyncOperation<TranscriptionEntity> second = service.getOrLoadTranscription(scope, id, authority, loader);
+        AsyncOperation<TranscriptionEntity> first = service.getOrLoadTranscriptionWithAuthority(scope, id, authority, loader);
+        AsyncOperation<TranscriptionEntity> second = service.getOrLoadTranscriptionWithAuthority(scope, id, authority, loader);
         cacheRead.complete(Optional.empty());
 
         assertThat(sourceLoads).hasValue(1);
@@ -294,8 +401,8 @@ class TranscriptionCacheServiceTest {
         TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
         TranscriptionEntity source = versionedEntity("tenant-a", id, 11L, "source survives cache outage");
 
-        TranscriptionEntity result = await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(true),
+        TranscriptionEntity result = await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                currentAuthority(),
                 requested -> AsyncOperation.success(Optional.of(source))));
 
         assertThat(result.getText()).isEqualTo(source.getText());
@@ -318,10 +425,8 @@ class TranscriptionCacheServiceTest {
             return AsyncOperation.success(Optional.empty());
         };
 
-        assertThat(await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(true), loader))).isNull();
-        assertThat(await(service.getOrLoadTranscription(scope, id,
-                checked -> AsyncOperation.success(true), loader))).isNull();
+        assertThat(await(service.getOrLoadTranscriptionWithAuthority(scope, id, currentAuthority(), loader))).isNull();
+        assertThat(await(service.getOrLoadTranscriptionWithAuthority(scope, id, currentAuthority(), loader))).isNull();
 
         assertThat(sourceLoads).hasValue(2);
         verify(port, org.mockito.Mockito.times(2)).get(key);
@@ -1013,6 +1118,11 @@ class TranscriptionCacheServiceTest {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, "rights-current", "transcription",
                 "confidential", "artifact-7", "artifact-revision-4", "transcript-revision-9",
                 "source-sha256-1", policyEpoch);
+    }
+
+    /** Test-only exact-scope decision; this does not establish a production authority provider. */
+    private static AudioVideoCache.ScopedAuthority currentAuthority() {
+        return scope -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(scope));
     }
 
     private String scopedKey(AudioVideoCache.CacheKeyScope scope, UUID transcriptionId) {

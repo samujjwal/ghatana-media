@@ -118,8 +118,10 @@ class AudioVideoCacheTest {
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         AtomicInteger checks = new AtomicInteger();
 
-        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a",
-                checked -> AsyncOperation.success(checks.incrementAndGet() == 1),
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
+                checked -> AsyncOperation.success(checks.incrementAndGet() == 1
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 ignored -> { throw new AssertionError("cache hit should not call source"); })))
                 .hasRootCauseInstanceOf(SecurityException.class)
                 .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
@@ -139,8 +141,8 @@ class AudioVideoCacheTest {
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
 
-        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a",
-                checked -> AsyncOperation.success(false),
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
+                checked -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 ignored -> { throw new AssertionError("denied authority must not load source"); })))
                 .hasRootCauseInstanceOf(SecurityException.class)
                 .hasRootCauseMessage("Current cache authority is denied or unknown");
@@ -163,15 +165,38 @@ class AudioVideoCacheTest {
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         AtomicInteger checks = new AtomicInteger();
 
-        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a", checked -> {
-            if (checks.incrementAndGet() == 1) return AsyncOperation.success(true);
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a", checked -> {
+            if (checks.incrementAndGet() == 1) {
+                return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked));
+            }
             return AsyncOperation.failure(new IllegalStateException("rights authority unavailable"));
         }, ignored -> AsyncOperation.success("protected payload"))))
-                .hasRootCauseInstanceOf(IllegalStateException.class)
-                .hasRootCauseMessage("rights authority unavailable");
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
 
         assertThat(checks).hasValue(2);
         verify(port).put(eq(key), eq("protected payload"), any(Duration.class));
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
+    void legacyBooleanScopedLookupInvalidatesExactKeyWithoutCacheReadOrLoader() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScoped(scope, "transcript-a",
+                ignored -> AsyncOperation.success(true),
+                ignored -> { throw new AssertionError("legacy Boolean must not invoke loader"); })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Boolean cache authority is unavailable; exact scoped readback is required");
+
+        verify(port, org.mockito.Mockito.never()).get(key);
+        verify(port, org.mockito.Mockito.never()).put(eq(key), any(), any(Duration.class));
         verify(port).invalidateAsync(key);
     }
 
