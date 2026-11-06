@@ -294,6 +294,31 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void appendUsesCanonicalSha256FingerprintRequiredByDurableStore() {
+        AtomicReference<String> fingerprint = new AtomicReference<>();
+        ReviewStore capturingStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String requestFingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                fingerprint.set(requestFingerprint);
+                return new ReviewRecord(appendRecordId, actor.tenantId(), reviewCase.reviewCaseId(),
+                        reviewCase.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
+                        expectedCaseRevision + 1, createdAt, authorityVersion);
+            }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(); }
+        };
+        VersionedReviewEngine engine = engine(capturingStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+
+        engine.append(REVIEWER, new AppendRequest(CASE, 0, "authority-v1", "req-fingerprint",
+                new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                new Comment("text with delimiters \u0000 and unicode λ", CommentDisposition.OPEN, null)));
+
+        assertThat(fingerprint.get()).matches("[0-9a-f]{64}");
+    }
+
+    @Test
     void inMemoryStoreRejectsDuplicateAppendRecordIdentityWithoutAdvancingCase() {
         InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
         Comment firstPayload = new Comment("first", CommentDisposition.OPEN, null);

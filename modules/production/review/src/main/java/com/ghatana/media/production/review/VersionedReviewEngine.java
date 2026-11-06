@@ -164,10 +164,71 @@ public final class VersionedReviewEngine {
 
     private static String fingerprint(ReviewCaseRef reviewCase, long expectedCaseRevision,
                                       String expectedAuthorityVersion, Payload payload) {
-        return reviewCase.tenantId() + "\u0000" + reviewCase.reviewCaseId() + "\u0000"
-                + reviewCase.exactTargetRef() + "\u0000" + reviewCase.scopeRef() + "\u0000"
-                + expectedCaseRevision + "\u0000" + expectedAuthorityVersion + "\u0000"
-                + payload.operationId() + "\u0000" + payload.toString();
+        // Tenant/scope values are not all opaque identifiers and may contain separators. Encode
+        // every component with an explicit length so distinct request tuples cannot alias.
+        StringBuilder canonical = new StringBuilder();
+        field(canonical, reviewCase.tenantId());
+        field(canonical, reviewCase.reviewCaseId());
+        field(canonical, reviewCase.exactTargetRef());
+        field(canonical, reviewCase.scopeRef());
+        field(canonical, Long.toString(expectedCaseRevision));
+        field(canonical, expectedAuthorityVersion);
+        field(canonical, payload.getClass().getName());
+        field(canonical, payload.operationId());
+        if (payload instanceof Comment comment) {
+            field(canonical, comment.text());
+            field(canonical, comment.disposition().name());
+            annotation(canonical, comment.annotation());
+        } else if (payload instanceof DecisionRecord decision) {
+            field(canonical, decision.decision().name());
+            field(canonical, decision.reason());
+        } else {
+            throw new IllegalArgumentException("unsupported review payload");
+        }
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(canonical.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return java.util.HexFormat.of().formatHex(digest);
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+    }
+
+    private static void annotation(StringBuilder canonical, Annotation annotation) {
+        if (annotation == null) {
+            field(canonical, "no-annotation");
+            return;
+        }
+        field(canonical, "annotation");
+        TimeRange range = annotation.timeRange();
+        if (range == null) {
+            field(canonical, "no-time-range");
+        } else {
+            field(canonical, "time-range");
+            rationalTime(canonical, range.start());
+            rationalTime(canonical, range.end());
+        }
+        NormalizedRoi roi = annotation.roi();
+        if (roi == null) {
+            field(canonical, "no-roi");
+        } else {
+            field(canonical, "roi");
+            field(canonical, Double.toHexString(roi.x()));
+            field(canonical, Double.toHexString(roi.y()));
+            field(canonical, Double.toHexString(roi.width()));
+            field(canonical, Double.toHexString(roi.height()));
+        }
+    }
+
+    private static void rationalTime(StringBuilder canonical, RationalTime time) {
+        field(canonical, Long.toString(time.ticks()));
+        field(canonical, Long.toString(time.rateNumerator()));
+        field(canonical, Long.toString(time.rateDenominator()));
+        field(canonical, time.clock().name());
+    }
+
+    private static void field(StringBuilder canonical, String value) {
+        canonical.append(value.length()).append(':').append(value);
     }
 
     private static void requireExpectedAuthorityVersion(String expected, AuthorizationDecision decision) {
