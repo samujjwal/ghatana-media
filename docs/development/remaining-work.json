@@ -1038,7 +1038,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added BrowserCameraMediaDevicePort (commits f3404fe2 and 49fc436f) requiring explicit host permission/device/codec ports and exact source identity/version; it maps permission changes to typed denial/unknown/revoked outcomes, aborts stale reads, handles hot unplug/cancellation and performs best-effort teardown. Camera suite PASS 18/18; client typecheck PASS. Still OPEN: no concrete getUserMedia/WebCodecs transport, authenticated canonical stream binding, durable source cursor/version/PTS, or qualified cross-clock alignment."
+      "progress": "2026-11-05: Added BrowserCameraMediaDevicePort (commits f3404fe2 and 49fc436f) and concrete createBrowserCameraMediaDevicePort (commit 7778de92) using exact-device getUserMedia, bounded JPEG frames, pre-canvas pixel/dimension ceilings, and revoke/cancel teardown. Browser-host tests PASS 6/6; client typecheck PASS. Browser permission prompt remains UNKNOWN and does not trigger a prompt; an already-GRANTED browser permission is required. Still OPEN: no authenticated canonical stream binding, durable source cursor/version/PTS, qualified source-clock mapping, hardware/browser E2E, or camera/mic indicator integration."
     },
     {
       "id": "media.dev.recorder-actual-execution",
@@ -1751,7 +1751,8 @@
         "media.dev.web-host"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Added FirstUseProjectBoundaryIntegrationTest, commit f422168f; focused J-01 selector PASS 2/2. Deterministic local store covers wrong-tenant non-disclosure, changed-workspace duplicate-create conflict and stale-head CAS with unchanged graph; NotAdmittedProjectTimelineStore returns typed NOT_ADMITTED. Still OPEN: Shared sign-in and canonical durable project creation/host readback are not integrated, so this is not J-01 completion."
     },
     {
       "id": "media.dev.outcome-resumable-artifact-intake",
