@@ -966,4 +966,23 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
       .not.toHaveBeenCalled();
   });
+
+  it("does not dispatch or complete when a resumed session chunk index contradicts its byte offset", async () => {
+    const client = fakeClient({
+      createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => uploadSession({
+        expectedSha256: input.expectedSha256,
+        bytesReceived: 3,
+        nextChunkIndex: 0,
+      })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("resume position"),
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
 });

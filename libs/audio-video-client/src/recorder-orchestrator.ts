@@ -871,7 +871,9 @@ export async function publishFinalRender(
     }
     let offset = session.bytesReceived;
     let chunkIndex = session.nextChunkIndex;
-    if (offset > bytes.byteLength || (offset !== bytes.byteLength && offset % RENDER_UPLOAD_CHUNK_BYTES !== 0)) {
+    const expectedChunkIndex = Math.ceil(offset / RENDER_UPLOAD_CHUNK_BYTES);
+    if (offset > bytes.byteLength || (offset !== bytes.byteLength && offset % RENDER_UPLOAD_CHUNK_BYTES !== 0)
+      || !Number.isSafeInteger(chunkIndex) || chunkIndex !== expectedChunkIndex) {
       return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload resume position does not align with a verified chunk boundary", uploadId };
     }
     while (offset < bytes.byteLength) {
