@@ -66,6 +66,23 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void fatalDelegateFailureAfterPartialWriteCannotExposeACompletedDigest() {
+        var state = new FatalPartialWriteDestination();
+        var output = new BoundedRenderOutput(state, 8);
+
+        assertThatThrownBy(() -> output.write("abc".getBytes(StandardCharsets.UTF_8)))
+                .isInstanceOf(AssertionError.class).hasMessage("simulated fatal partial write");
+        assertThat(state.emitted.toString(StandardCharsets.UTF_8)).isEqualTo("a");
+        assertThat(output.bytesWritten()).isZero();
+        try {
+            output.close();
+        } catch (IOException e) {
+            throw new AssertionError("cleanup close should succeed", e);
+        }
+        assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
     void boundedOutputClosesAndInvalidatesAfterDestinationCloseFailure() {
         var state = new FailingDestination();
         state.failWrite = false;
@@ -241,6 +258,15 @@ class MultitrackRenderPlannerTest {
         @Override public void close() throws IOException {
             closed = true;
             if (failClose) throw new IOException("simulated close failure");
+        }
+    }
+
+    private static final class FatalPartialWriteDestination extends OutputStream {
+        private final ByteArrayOutputStream emitted = new ByteArrayOutputStream();
+
+        @Override public void write(int value) {
+            emitted.write(value);
+            throw new AssertionError("simulated fatal partial write");
         }
     }
 }

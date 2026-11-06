@@ -404,6 +404,37 @@ describe("CameraCaptureAdapter", () => {
     expect(newTrack.stopCalls).toBe(1);
   });
 
+  it("does not open a replacement camera when the session closes during switch cleanup", async () => {
+    let markStopStarted: (() => void) | undefined;
+    let finishStop: (() => void) | undefined;
+    const stopStarted = new Promise<void>((resolve) => { markStopStarted = resolve; });
+    const stopGate = new Promise<void>((resolve) => { finishStop = resolve; });
+    const oldTrack = frameTrack([]);
+    oldTrack.stopTracks = () => {
+      oldTrack.stopCalls++;
+      markStopStarted?.();
+      return stopGate;
+    };
+    const newTrack = frameTrack([new Uint8Array([2])]);
+    const h = harness({ tracks: [oldTrack, newTrack] });
+    const session = await h.adapter.openSession(request);
+    const switching = session.switchDevice({ ...request,
+      sourceIdentity: "camera:device-2",
+      exactRightsScope: "rights/camera-device-2/v1",
+      sourceVersionRef: "camera-device-2@v1",
+    });
+
+    await stopStarted;
+    const closing = session.close();
+    finishStop?.();
+
+    await closing;
+    await expectCode(switching, "SESSION_CLOSED");
+    expect(h.opens.map((item) => item.sourceIdentity)).toEqual(["camera:device-1"]);
+    expect(oldTrack.stopCalls).toBe(1);
+    expect(newTrack.stopCalls).toBe(0);
+  });
+
   it("discards a pending old-device frame during switch before opening the new source", async () => {
     let markReadStarted: (() => void) | undefined;
     const readStarted = new Promise<void>((resolve) => { markReadStarted = resolve; });

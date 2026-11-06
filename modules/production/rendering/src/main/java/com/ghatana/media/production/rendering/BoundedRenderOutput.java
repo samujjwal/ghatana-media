@@ -41,7 +41,7 @@ final class BoundedRenderOutput extends OutputStream {
             destination.write(value);
             digest.update((byte) value);
             bytesWritten++;
-        } catch (IOException | RuntimeException failure) {
+        } catch (IOException | RuntimeException | Error failure) {
             failed = true;
             throw failure;
         }
@@ -55,7 +55,7 @@ final class BoundedRenderOutput extends OutputStream {
             destination.write(bytes, offset, length);
             digest.update(bytes, offset, length);
             bytesWritten += length;
-        } catch (IOException | RuntimeException failure) {
+        } catch (IOException | RuntimeException | Error failure) {
             // The delegate may have emitted a prefix before failing. Treat the
             // destination as partial and never expose its digest as complete.
             failed = true;
@@ -78,7 +78,7 @@ final class BoundedRenderOutput extends OutputStream {
         if (failed) throw new IOException("render output has failed");
         try {
             destination.flush();
-        } catch (IOException | RuntimeException failure) {
+        } catch (IOException | RuntimeException | Error failure) {
             failed = true;
             throw failure;
         }
@@ -91,7 +91,7 @@ final class BoundedRenderOutput extends OutputStream {
         try {
             destination.close();
             if (!failed) completedSha256 = HexFormat.of().formatHex(digest.digest());
-        } catch (IOException | RuntimeException failure) {
+        } catch (IOException | RuntimeException | Error failure) {
             failed = true;
             throw failure;
         }

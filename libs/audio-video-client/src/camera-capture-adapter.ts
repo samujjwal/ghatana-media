@@ -719,6 +719,9 @@ export class CameraCaptureSession {
     this.sourceGeneration += 1;
     try {
       await this.stopCurrentSource();
+      if (this.closed) {
+        throw fail("SESSION_CLOSED", "camera capture session closed during device switch");
+      }
       this.request = nextRequest;
       this.revoked = false;
       this.permissionFailure = null;
