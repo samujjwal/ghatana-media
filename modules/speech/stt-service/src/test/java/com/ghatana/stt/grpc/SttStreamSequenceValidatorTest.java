@@ -2,6 +2,14 @@ package com.ghatana.stt.grpc;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -23,6 +31,48 @@ class SttStreamSequenceValidatorTest {
         assertThat(validator.accept("session", 1, 16_000, 0, 2)).isEqualTo(1);
         assertInvalid(validator, 1, "STT_STREAM_SEQUENCE_DUPLICATE");
         assertInvalid(validator, 3, "STT_STREAM_SEQUENCE_GAP");
+        assertThat(validator.lastSequence()).isEqualTo(1);
+    }
+
+    @Test
+    void concurrentDuplicateChunksHaveExactlyOneCursorWinner() throws Exception {
+        SttStreamSequenceValidator validator = new SttStreamSequenceValidator("concurrent-session");
+        int callers = 16;
+        var ready = new CountDownLatch(callers);
+        var start = new CountDownLatch(1);
+        var accepted = new AtomicInteger();
+        var rejectedAsDuplicate = new AtomicInteger();
+        List<Future<?>> workers = new ArrayList<>(callers);
+
+        try (var pool = Executors.newFixedThreadPool(callers)) {
+            for (int index = 0; index < callers; index++) {
+                workers.add(pool.submit(() -> {
+                    ready.countDown();
+                    if (!start.await(5, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("concurrent sequence test start timed out");
+                    }
+                    try {
+                        validator.accept("concurrent-session", 1, 16_000, 0, 320);
+                        accepted.incrementAndGet();
+                    } catch (SttStreamSequenceValidator.StreamInputException duplicate) {
+                        if (duplicate.failure() != SttStreamSequenceValidator.Failure.INVALID
+                                || !duplicate.getMessage().contains("STT_STREAM_SEQUENCE_DUPLICATE")) {
+                            throw duplicate;
+                        }
+                        rejectedAsDuplicate.incrementAndGet();
+                    }
+                    return null;
+                }));
+            }
+            if (!ready.await(5, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("concurrent sequence workers did not become ready");
+            }
+            start.countDown();
+            for (Future<?> worker : workers) worker.get(10, TimeUnit.SECONDS);
+        }
+
+        assertThat(accepted).hasValue(1);
+        assertThat(rejectedAsDuplicate).hasValue(callers - 1);
         assertThat(validator.lastSequence()).isEqualTo(1);
     }
 

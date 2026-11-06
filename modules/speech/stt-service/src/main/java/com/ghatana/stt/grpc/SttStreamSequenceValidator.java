@@ -31,7 +31,8 @@ final class SttStreamSequenceValidator {
         this.sessionId = sessionId;
     }
 
-    long accept(String requestedSessionId, long sequence, int requestedSampleRate, long timestampMs, int payloadBytes) {
+    synchronized long accept(String requestedSessionId, long sequence, int requestedSampleRate,
+                            long timestampMs, int payloadBytes) {
         if (requestedSessionId != null && !requestedSessionId.isBlank()
                 && !sessionId.equals(requestedSessionId)) {
             throw invalid("STT_STREAM_SESSION_MISMATCH: session identity changed within the RPC");
@@ -115,7 +116,7 @@ final class SttStreamSequenceValidator {
         return next;
     }
 
-    long lastSequence() { return lastSequence; }
+    synchronized long lastSequence() { return lastSequence; }
     String sessionId() { return sessionId; }
 
     private static StreamInputException invalid(String message) {
