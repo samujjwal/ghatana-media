@@ -7,9 +7,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ghatana.media.runtime.MediaTimebase;
 import com.ghatana.media.runtime.MediaTimebase.ClockDomain;
 import com.ghatana.media.runtime.MediaVisualContracts.NormalizedBox;
+import java.util.AbstractList;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class ReversibleRegionEditEngineTest {
@@ -190,6 +196,56 @@ class ReversibleRegionEditEngineTest {
                 new byte[] {1}, Map.of("key", "v".repeat(4_097))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("field exceeds character bound");
+    }
+
+    @Test
+    void reportedCollectionSizesCannotBypassTrackedSampleOrMetadataBounds() {
+        AtomicInteger visitedSamples = new AtomicInteger();
+        ReversibleRegionEditEngine.TrackedSample sample = bboxSample(0, .1, .1, 0);
+        List<ReversibleRegionEditEngine.TrackedSample> oversizedSamples = new AbstractList<>() {
+            @Override public int size() { return 1; }
+            @Override public ReversibleRegionEditEngine.TrackedSample get(int index) { return sample; }
+            @Override public Iterator<ReversibleRegionEditEngine.TrackedSample> iterator() {
+                return new Iterator<>() {
+                    private int index;
+                    @Override public boolean hasNext() { return index < 10_001; }
+                    @Override public ReversibleRegionEditEngine.TrackedSample next() {
+                        index++;
+                        visitedSamples.incrementAndGet();
+                        return sample;
+                    }
+                };
+            }
+        };
+        assertThatThrownBy(() -> evidence(oversizedSamples))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("10000-frame local bound");
+        assertThat(visitedSamples).hasValue(10_000);
+
+        AtomicInteger visitedMetadata = new AtomicInteger();
+        Map<String, String> oversizedMetadata = new AbstractMap<>() {
+            @Override public int size() { return 1; }
+            @Override public Set<Entry<String, String>> entrySet() {
+                return new AbstractSet<>() {
+                    @Override public int size() { return 1; }
+                    @Override public Iterator<Entry<String, String>> iterator() {
+                        return new Iterator<>() {
+                            private int index;
+                            @Override public boolean hasNext() { return index < 257; }
+                            @Override public Entry<String, String> next() {
+                                int value = index++;
+                                visitedMetadata.incrementAndGet();
+                                return Map.entry("key-" + value, "value");
+                            }
+                        };
+                    }
+                };
+            }
+        };
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditSnapshot(new byte[] {1}, oversizedMetadata))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("metadata exceeds entry bound");
+        assertThat(visitedMetadata).hasValue(256);
     }
 
     private static ReversibleRegionEditEngine.EditRequest fixtureRequest(String digest) {

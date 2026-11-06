@@ -6,9 +6,11 @@ import com.ghatana.media.runtime.MediaTimebase;
 import com.ghatana.media.runtime.MediaVisualContracts.NormalizedBox;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -162,6 +164,20 @@ public final class ReversibleRegionEditEngine {
 
     private static boolean near(double left, double right) { return Math.abs(left - right) <= BOX_EPSILON; }
 
+    /** Bound the actual iterator before snapshotting; a collection-reported size is only a hint. */
+    private static List<TrackedSample> copyBoundedSamples(List<TrackedSample> samples) {
+        if (samples == null) return List.of();
+        Iterator<TrackedSample> iterator = samples.iterator();
+        List<TrackedSample> copy = new ArrayList<>(MAX_TRACKED_SAMPLES);
+        while (iterator.hasNext()) {
+            if (copy.size() == MAX_TRACKED_SAMPLES) {
+                throw new IllegalArgumentException("tracked samples exceed the 10000-frame local bound");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), "tracked sample"));
+        }
+        return List.copyOf(copy);
+    }
+
     private static String digest(byte[] bytes) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
@@ -218,10 +234,7 @@ public final class ReversibleRegionEditEngine {
             Objects.requireNonNull(source, "source");
             sourceSha256 = requireSha256(sourceSha256);
             regionId = required(regionId, "regionId");
-            if (samples != null && samples.size() > MAX_TRACKED_SAMPLES) {
-                throw new IllegalArgumentException("tracked samples exceed the 10000-frame local bound");
-            }
-            samples = List.copyOf(samples == null ? List.of() : samples);
+            samples = copyBoundedSamples(samples);
         }
     }
 
@@ -327,12 +340,16 @@ public final class ReversibleRegionEditEngine {
             if (source.length > MAX_SNAPSHOT_BYTES) throw new IllegalArgumentException("edit snapshot exceeds byte bound");
             byte[] copy = source.clone();
             TreeMap<String, String> sorted = new TreeMap<>();
-            if (metadata != null && metadata.size() > MAX_SNAPSHOT_METADATA_ENTRIES) {
-                throw new IllegalArgumentException("edit snapshot metadata exceeds entry bound");
-            }
             int metadataBytes = 0;
+            int metadataEntries = 0;
             if (metadata != null) {
-                for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                Iterator<Map.Entry<String, String>> iterator = metadata.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    if (metadataEntries == MAX_SNAPSHOT_METADATA_ENTRIES) {
+                        throw new IllegalArgumentException("edit snapshot metadata exceeds entry bound");
+                    }
+                    Map.Entry<String, String> entry = iterator.next();
+                    metadataEntries++;
                     String key = required(entry.getKey(), "metadata key");
                     String value = Objects.requireNonNull(entry.getValue(), "metadata value");
                     if (key.length() > MAX_SNAPSHOT_METADATA_KEY_CHARS
