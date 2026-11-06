@@ -101,6 +101,8 @@ export {
   CameraCaptureError,
   CameraCaptureSession,
 } from './camera-capture-adapter.js';
+export { createBrowserCameraMediaDevicePort } from './browser-camera-host.js';
+export type { BrowserCameraHostOptions } from './browser-camera-host.js';
 export type {
   CameraCaptureAdapterOptions,
   CameraCaptureErrorCode,
