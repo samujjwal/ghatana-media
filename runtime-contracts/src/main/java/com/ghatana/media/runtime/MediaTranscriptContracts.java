@@ -1,5 +1,6 @@
 package com.ghatana.media.runtime;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +11,7 @@ public final class MediaTranscriptContracts {
 
     private static final long MAX_PDP_SAFE_INTEGER = 9_007_199_254_740_991L;
     private static final int MAX_SEGMENT_TEXT_CODE_POINTS = 1_000_000;
+    private static final int MAX_TRANSCRIPT_SEGMENTS = 4096;
 
     /** Legacy constructor value; stores must reject it because no purpose was bound. */
     public static final String UNBOUND_PURPOSE_REF = "__UNBOUND_PURPOSE_REF__";
@@ -198,9 +200,15 @@ public final class MediaTranscriptContracts {
     /** JSON-safe projection of the ordered segment array for durable persistence. */
     public static java.util.List<Map<String, Object>> segmentsToParametersValue(
             java.util.List<TranscriptSegment> segments) {
-        if (segments == null || segments.isEmpty()) return java.util.List.of();
-        java.util.List<Map<String, Object>> value = new java.util.ArrayList<>(segments.size());
-        for (TranscriptSegment segment : segments) value.add(segment.toParametersValue());
+        if (segments == null) return java.util.List.of();
+        int declaredSize = boundedSegmentListSize(segments);
+        java.util.List<Map<String, Object>> value = new java.util.ArrayList<>(declaredSize);
+        Iterator<TranscriptSegment> iterator = segments.iterator();
+        while (iterator.hasNext()) {
+            if (value.size() >= MAX_TRANSCRIPT_SEGMENTS) throw invalidSegmentList();
+            value.add(Objects.requireNonNull(iterator.next(), "segments[]").toParametersValue());
+        }
+        if (value.size() != declaredSize) throw invalidSegmentList();
         return java.util.List.copyOf(value);
     }
 
@@ -211,12 +219,16 @@ public final class MediaTranscriptContracts {
      */
     public static java.util.List<TranscriptSegment> segmentsFromParameterValue(Object value) {
         if (value == null) return java.util.List.of();
-        if (!(value instanceof java.util.List<?> list) || list.size() > 4096) {
+        if (!(value instanceof java.util.List<?> list)) {
             throw new IllegalArgumentException("transcript segments must be a bounded ordered array");
         }
-        java.util.List<TranscriptSegment> segments = new java.util.ArrayList<>(list.size());
+        int declaredSize = boundedSegmentListSize(list);
+        java.util.List<TranscriptSegment> segments = new java.util.ArrayList<>(declaredSize);
         long aggregateTextCodePoints = 0;
-        for (Object item : list) {
+        Iterator<?> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            if (segments.size() >= MAX_TRANSCRIPT_SEGMENTS) throw invalidSegmentList();
+            Object item = iterator.next();
             if (!(item instanceof Map<?, ?> map)
                     || !hasExactKeys(map, "segmentId", "text", "origin", "timing")
                     || !(map.get("segmentId") instanceof String segmentId)
@@ -256,7 +268,18 @@ public final class MediaTranscriptContracts {
                 throw new IllegalArgumentException("aggregate transcript segment text exceeds the bounded length");
             }
         }
+        if (segments.size() != declaredSize) throw invalidSegmentList();
         return java.util.List.copyOf(segments);
+    }
+
+    private static int boundedSegmentListSize(java.util.List<?> segments) {
+        int declaredSize = segments.size();
+        if (declaredSize < 0 || declaredSize > MAX_TRANSCRIPT_SEGMENTS) throw invalidSegmentList();
+        return declaredSize;
+    }
+
+    private static IllegalArgumentException invalidSegmentList() {
+        return new IllegalArgumentException("transcript segments must be a bounded ordered array");
     }
 
     private static boolean hasExactKeys(Map<?, ?> map, String... expected) {
@@ -371,11 +394,7 @@ public final class MediaTranscriptContracts {
             if (processingPurpose.codePointCount(0, processingPurpose.length()) > 255) {
                 throw new IllegalArgumentException("processingPurpose exceeds 255 characters");
             }
-            segments = java.util.List.copyOf(
-                    java.util.Objects.requireNonNull(segments, "segments"));
-            if (segments.size() > 4096) {
-                throw new IllegalArgumentException("transcript segments exceed the bounded array limit");
-            }
+            segments = copySegmentsBounded(segments);
             java.util.Set<String> seen = new java.util.HashSet<>();
             long aggregateSegmentTextCodePoints = 0;
             for (TranscriptSegment segment : segments) {
@@ -388,6 +407,20 @@ public final class MediaTranscriptContracts {
                     throw new IllegalArgumentException("aggregate transcript segment text exceeds the bounded length");
                 }
             }
+        }
+
+        private static java.util.List<TranscriptSegment> copySegmentsBounded(
+                java.util.List<TranscriptSegment> input) {
+            Objects.requireNonNull(input, "segments");
+            int declaredSize = boundedSegmentListSize(input);
+            java.util.ArrayList<TranscriptSegment> copy = new java.util.ArrayList<>(declaredSize);
+            Iterator<TranscriptSegment> iterator = input.iterator();
+            while (iterator.hasNext()) {
+                if (copy.size() >= MAX_TRANSCRIPT_SEGMENTS) throw invalidSegmentList();
+                copy.add(Objects.requireNonNull(iterator.next(), "segments[]"));
+            }
+            if (copy.size() != declaredSize) throw invalidSegmentList();
+            return java.util.List.copyOf(copy);
         }
     }
 
