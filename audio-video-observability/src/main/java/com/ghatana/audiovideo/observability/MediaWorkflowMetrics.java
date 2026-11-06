@@ -29,6 +29,7 @@ public final class MediaWorkflowMetrics {
             "launcher", "stt", "tts", "vision", "multimodal", "ai-voice", "unknown");
     private static final MemoryMXBean MEMORY = ManagementFactory.getMemoryMXBean();
     private static final ThreadMXBean THREADS = ManagementFactory.getThreadMXBean();
+    private static final Runtime JVM_RUNTIME = Runtime.getRuntime();
     private static final com.sun.management.OperatingSystemMXBean PROCESS =
             ManagementFactory.getOperatingSystemMXBean() instanceof com.sun.management.OperatingSystemMXBean bean
                     ? bean : null;
@@ -307,8 +308,16 @@ public final class MediaWorkflowMetrics {
                 })
                 .description("Configured JVM heap maximum in bytes; NaN when the runtime does not report a limit")
                 .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+        Gauge.builder("media.runtime.jvm.heap.committed.bytes", MEMORY,
+                        bean -> (double) bean.getHeapMemoryUsage().getCommitted())
+                .description("Heap memory committed by the JVM in bytes")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
         Gauge.builder("media.runtime.jvm.threads", THREADS, bean -> (double) bean.getThreadCount())
                 .description("Current live JVM thread count")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+        Gauge.builder("media.runtime.jvm.processors.available", JVM_RUNTIME,
+                        runtime -> (double) runtime.availableProcessors())
+                .description("Processors reported available to this JVM; this is not a provider or container quota qualification")
                 .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
         Gauge.builder("media.runtime.process.cpu.utilization", MEMORY,
                         ignored -> processCpuLoad())

@@ -178,6 +178,11 @@ class MediaWorkflowMetricsTest {
 
         assertThat(registry.get("media.runtime.jvm.heap.used.bytes")
                 .tag("service", "vision").gauge().value()).isGreaterThanOrEqualTo(0);
+        assertThat(registry.get("media.runtime.jvm.heap.committed.bytes")
+                .tag("service", "vision").gauge().value()).isGreaterThan(0);
+        assertThat(registry.get("media.runtime.jvm.processors.available")
+                .tag("service", "vision").gauge().value())
+                .isEqualTo(Runtime.getRuntime().availableProcessors());
         assertThat(registry.get("media.runtime.jvm.threads")
                 .tag("service", "vision").gauge().value()).isGreaterThan(0);
         double heapMaximum = registry.get("media.runtime.jvm.heap.max.bytes")
