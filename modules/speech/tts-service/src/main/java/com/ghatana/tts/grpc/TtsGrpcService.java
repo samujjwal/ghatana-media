@@ -776,10 +776,16 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                             if (providerData.length == 0 || providerData.length > MAX_STREAM_CHUNK_BYTES) {
                                 throw new IllegalStateException("TTS stream chunk exceeds the admitted non-empty 64 KiB bound");
                             }
+                            long acceptedBytes = outputBytes.get();
+                            if (acceptedBytes > MAX_STREAM_OUTPUT_BYTES
+                                    || providerData.length > MAX_STREAM_OUTPUT_BYTES - acceptedBytes) {
+                                throw new IllegalStateException("TTS stream output exceeds the 50 MiB bound");
+                            }
                             // The shared chunk value carries a mutable byte array. Snapshot it at
                             // the callback boundary because the final chunk is retained until
                             // asynchronous session completion and providers may reuse buffers.
-                            // Enforce the size ceiling before copying provider-owned memory.
+                            // Both the per-chunk and cumulative ceilings are enforced before
+                            // copying provider-owned memory.
                             byte[] chunkData = providerData.clone();
                             com.ghatana.media.common.AudioChunk chunkSnapshot =
                                     new com.ghatana.media.common.AudioChunk(
@@ -801,10 +807,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                             if (finalChunkSeen.get()) {
                                 throw new IllegalStateException("TTS provider emitted audio after its final chunk");
                             }
-                            long total = outputBytes.addAndGet(chunkData.length);
-                            if (total > MAX_STREAM_OUTPUT_BYTES) {
-                                throw new IllegalStateException("TTS stream output exceeds the 50 MiB bound");
-                            }
+                            outputBytes.addAndGet(chunkData.length);
                             if (chunk.isLast()) {
                                 finalChunkSeen.set(true);
                                 pendingFinalChunk.set(chunkSnapshot);
