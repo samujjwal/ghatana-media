@@ -371,6 +371,9 @@ public final class ReversibleRegionEditEngine {
                     if (metadataBytes > MAX_SNAPSHOT_METADATA_UTF8_BYTES) {
                         throw new IllegalArgumentException("edit snapshot metadata exceeds encoded byte bound");
                     }
+                    if (sorted.containsKey(key)) {
+                        throw new IllegalArgumentException("edit snapshot metadata keys must be unique");
+                    }
                     sorted.put(key, value);
                 }
             }

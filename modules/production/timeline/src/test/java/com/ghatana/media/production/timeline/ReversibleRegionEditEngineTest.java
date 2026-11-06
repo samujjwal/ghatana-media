@@ -269,6 +269,35 @@ class ReversibleRegionEditEngineTest {
         assertThat(visitedMetadata).hasValue(256);
     }
 
+    @Test
+    void duplicateMetadataKeysFromHostileMapAreRejected() {
+        AtomicInteger visited = new AtomicInteger();
+        Map<String, String> duplicateKeys = new AbstractMap<>() {
+            @Override public int size() { return 1; }
+            @Override public Set<Entry<String, String>> entrySet() {
+                return new AbstractSet<>() {
+                    @Override public int size() { return 1; }
+                    @Override public Iterator<Entry<String, String>> iterator() {
+                        return new Iterator<>() {
+                            private int index;
+                            @Override public boolean hasNext() { return index < 2; }
+                            @Override public Entry<String, String> next() {
+                                visited.incrementAndGet();
+                                return Map.entry("selection", index++ == 0 ? "ROI-A" : "ROI-B");
+                            }
+                        };
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditSnapshot(
+                new byte[] {1}, duplicateKeys))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("metadata keys must be unique");
+        assertThat(visited).hasValue(2);
+    }
+
     private static ReversibleRegionEditEngine.EditRequest fixtureRequest(String digest) {
         return new ReversibleRegionEditEngine.EditRequest("project", "plan-test", "r0", SOURCE, digest, "purpose", "region",
                 PTS, evidence(List.of(bboxSample(0, .1, .1, 0))), ReversibleRegionEditEngine.EditIntent.MOVE_OR_RESIZE_REGION);
