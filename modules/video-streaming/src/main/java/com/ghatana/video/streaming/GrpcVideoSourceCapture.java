@@ -190,7 +190,11 @@ public final class GrpcVideoSourceCapture {
             if (frame.presentationPts().status() == VideoFrameTimebase.Status.KNOWN) {
                 previousKnownPts = frame.presentationPts();
             }
-            if (offered.feedbackAvailable() && offered.backpressured()) {
+            if (!offered.feedbackAvailable()) {
+                return new Result(Disposition.UNKNOWN, accepted, lastCursor,
+                        "canonical backpressure feedback is unavailable");
+            }
+            if (offered.backpressured()) {
                 return new Result(Disposition.BACKPRESSURED, accepted, lastCursor, "canonical stream is backpressured");
             }
         }

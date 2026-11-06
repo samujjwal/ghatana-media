@@ -176,7 +176,11 @@ public final class GrpcAudioSourceCapture {
             accepted++;
             lastCursor = frame.sourceCursor();
             expectedSourceCursor++;
-            if (offered.feedbackAvailable() && offered.backpressured()) {
+            if (!offered.feedbackAvailable()) {
+                return new Result(Disposition.UNKNOWN, accepted, lastCursor,
+                        "canonical backpressure feedback is unavailable");
+            }
+            if (offered.backpressured()) {
                 return new Result(Disposition.BACKPRESSURED, accepted, lastCursor, "canonical stream is backpressured");
             }
         }

@@ -146,6 +146,20 @@ class GrpcAudioSourceCaptureTest {
         assertThat(port.offeredSequences).containsExactly(0);
     }
 
+    @Test
+    void unavailableBackpressureFeedbackStopsFurtherFrameOffers() {
+        FakePort port = new FakePort();
+        port.feedbackUnavailable = true;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(
+                frame(10, 0, "source@v7"), frame(11, 1, "source@v7")), false));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
     private static GrpcAudioSourceCapture.SourceFrame frame(long cursor, int sequence, String version) {
         return new GrpcAudioSourceCapture.SourceFrame(version, cursor, sequence, 1234L, new byte[] {(byte) sequence});
     }
@@ -186,6 +200,7 @@ class GrpcAudioSourceCaptureTest {
         private int offerCalls;
         private int eosCalls;
         private boolean backpressured;
+        private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
         private Result offerResult;
 
@@ -205,6 +220,7 @@ class GrpcAudioSourceCaptureTest {
         @Override public OfferFeedback offerWithFeedback(Binding expected, AudioStreamSession.DecodedFrame frame) {
             Result result = offer(expected, frame);
             if (nullOfferFeedback) return null;
+            if (feedbackUnavailable) return OfferFeedback.unavailable(result);
             return new OfferFeedback(result, 0, backpressured, true);
         }
 

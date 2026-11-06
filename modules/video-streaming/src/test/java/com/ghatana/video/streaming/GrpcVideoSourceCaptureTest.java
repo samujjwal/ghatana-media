@@ -175,6 +175,20 @@ class GrpcVideoSourceCaptureTest {
         assertThat(port.offeredSequences).containsExactly(0);
     }
 
+    @Test
+    void unavailableBackpressureFeedbackStopsFurtherFrameOffers() {
+        FakePort port = new FakePort();
+        port.feedbackUnavailable = true;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
+                frame(10, 0, "video@v3", 20), frame(11, 1, "video@v3", 30)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
     private static GrpcVideoSourceCapture.SourceFrame frame(long cursor, int sequence, String version, long pts) {
         return new GrpcVideoSourceCapture.SourceFrame(version, cursor, sequence, sequence == 0, 700L + sequence,
                 VideoFrameTimebase.SourceTimestamp.known(pts, 1, 90_000, "source-clock"),
@@ -220,6 +234,7 @@ class GrpcVideoSourceCaptureTest {
         private int offerCalls;
         private int eosCalls;
         private boolean backpressured;
+        private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
         private Result offerResult;
 
@@ -240,6 +255,7 @@ class GrpcVideoSourceCaptureTest {
         @Override public OfferFeedback offerWithFeedback(Binding expected, VideoStreamSession.DecodedFrame frame) {
             Result result = offer(expected, frame);
             if (nullOfferFeedback) return null;
+            if (feedbackUnavailable) return OfferFeedback.unavailable(result);
             return new OfferFeedback(result, 0, backpressured, true);
         }
 
