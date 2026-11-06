@@ -514,6 +514,8 @@ export class CameraCaptureSession {
   /** Serialize reads so concurrent callers cannot overrun frame/byte/session bounds. */
   private frameReadTail: Promise<void> = Promise.resolve();
   private outstandingFrameReads = 0;
+  /** Bind queued frame requests to the exact source active when each call arrived. */
+  private sourceGeneration = 0;
 
   public constructor(options: CameraCaptureAdapterOptions, request: CaptureRequest,
     limits: CameraCaptureSessionLimits) {
@@ -529,11 +531,15 @@ export class CameraCaptureSession {
 
   public nextFrame(): Promise<CameraCapturedFrame> {
     if (this.closed) return Promise.reject(fail("SESSION_CLOSED", "camera capture session is not active"));
+    if (this.switching) {
+      return Promise.reject(fail("DEVICE_SWITCHED", "camera frame request arrived during device switch"));
+    }
     if (this.outstandingFrameReads >= MAX_OUTSTANDING_CAMERA_FRAME_READS) {
       return Promise.reject(fail("FRAME_QUEUE_LIMIT", "camera frame request queue reached its internal safety bound"));
     }
     this.outstandingFrameReads += 1;
-    const operation = this.frameReadTail.then(() => this.readNextFrame());
+    const requestedGeneration = this.sourceGeneration;
+    const operation = this.frameReadTail.then(() => this.readNextFrame(requestedGeneration));
     this.frameReadTail = operation.then(() => {
       this.outstandingFrameReads -= 1;
     }, () => {
@@ -542,7 +548,10 @@ export class CameraCaptureSession {
     return operation;
   }
 
-  private async readNextFrame(): Promise<CameraCapturedFrame> {
+  private async readNextFrame(requestedGeneration: number): Promise<CameraCapturedFrame> {
+    if (requestedGeneration !== this.sourceGeneration || this.switching) {
+      throw fail("DEVICE_SWITCHED", "queued camera frame was discarded after its source changed");
+    }
     if (this.closed || this.track === null || this.controller === null) {
       throw fail("SESSION_CLOSED", "camera capture session is not active");
     }
@@ -694,6 +703,10 @@ export class CameraCaptureSession {
       throw fail("INVALID_REQUEST", "device switch must select a different exact source revision");
     }
     this.switching = true;
+    // Invalidate both the active read and reads queued behind it. The latter
+    // could otherwise resume against the replacement track after this switch
+    // opens it successfully.
+    this.sourceGeneration += 1;
     try {
       await this.stopCurrentSource();
       this.request = nextRequest;

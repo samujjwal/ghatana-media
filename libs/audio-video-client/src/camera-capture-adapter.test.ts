@@ -417,6 +417,44 @@ describe("CameraCaptureAdapter", () => {
     expect(newTrack.stopCalls).toBe(1);
   });
 
+  it("discards reads queued before a device switch instead of using the replacement camera", async () => {
+    let markReadStarted: (() => void) | undefined;
+    const readStarted = new Promise<void>((resolve) => { markReadStarted = resolve; });
+    let oldReadCalls = 0;
+    const oldTrack: FakeTrack = {
+      stopCalls: 0,
+      nextFrame: () => {
+        oldReadCalls++;
+        markReadStarted?.();
+        return new Promise<Uint8Array>(() => undefined);
+      },
+      stopTracks() { oldTrack.stopCalls++; },
+    };
+    const newTrack = frameTrack([new Uint8Array([2]), new Uint8Array([3])]);
+    const h = harness({ tracks: [oldTrack, newTrack] });
+    const session = await h.adapter.openSession(request);
+
+    const activeRead = session.nextFrame();
+    const queuedRead = session.nextFrame();
+    await readStarted;
+    const switching = session.switchDevice({ ...request,
+      sourceIdentity: "camera:device-2",
+      exactRightsScope: "rights/camera-device-2/v1",
+      sourceVersionRef: "camera-device-2@v1",
+    });
+
+    await expectCode(activeRead, "DEVICE_SWITCHED");
+    await expectCode(queuedRead, "DEVICE_SWITCHED");
+    await switching;
+    expect(oldReadCalls).toBe(1);
+    expect(newTrack.stopCalls).toBe(0);
+    expect((await session.nextFrame()).bytes).toEqual(new Uint8Array([2]));
+
+    await session.close();
+    expect(oldTrack.stopCalls).toBe(1);
+    expect(newTrack.stopCalls).toBe(1);
+  });
+
   it("rejects non-increasing PTS inside one epoch and rejects oversized frames", async () => {
     const repeated = harness({ tracks: [frameTrack([new Uint8Array([1]), new Uint8Array([2])])],
       pts: () => 10 });
