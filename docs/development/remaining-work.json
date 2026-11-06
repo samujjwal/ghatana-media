@@ -350,7 +350,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: bounded health-check registration to 64 checks per service and 128 control-free characters per name; capacity replacement and oversized required-check sets fail safely. Focused AudioVideoHealthServiceTest and MediaWorkflowMetricsTest PASS 37/37, 0 failures/skips. Existing metrics preserve quality absence as UNKNOWN/NaN, bound labels, redact provider details, and cap profile series. Still OPEN: capture/render probes lack runtime producers; synthetic 1/16/64 harness, real modality load, Prometheus scrape/alert delivery/restart qualification remain unrun."
+      "progress": "2026-11-05: Health registration remains bounded (64 checks/service, 128 control-free chars); previous focused health/metrics selectors PASS 37/37. Added fixed-label JVM committed-heap and available-processor gauges; MediaWorkflowMetricsTest PASS 18/18. Available processors are not a provider/container quota claim. Still OPEN: capture/render runtime producers, 1/16/64 load, real scrape, alert delivery, restart and quota qualification."
     },
     {
       "id": "media.dev.http-operation-parity",
@@ -493,7 +493,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 read-only implementation check: existing `libs/audio-video-client/src/cli.ts` already uses canonical authenticated SDK calls for artifact/job commands, strict bounded JSON/argument validation, typed NOT_ADMITTED for capture/recorder without SDK routes, and UNKNOWN on dispatched submit timeout; fixtures have separate command names. Agent reported client build PASS and fixture suite 6/6. Production binary tests could not bind loopback (`listen EPERM` in sandbox); targeted Vitest hung at startup, and simulation package build lacks `tsc`. No source changes made; OPEN pending repeatable production binary success/forbidden/timeout/UNKNOWN/schema/process-restart evidence and executable toolchain."
+      "progress": "2026-11-05: Added a source-free child-process regression proving oversized UTF-8 --parameters returns INVALID_INVOCATION with exit 2; focused selector PASS 1 with 42 other tests filtered, and client typecheck PASS. Commit 67652f4f. Still OPEN: network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence; loopback listen fails with sandbox EPERM."
     },
     {
       "id": "media.dev.public-events",
@@ -516,7 +516,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "verified-2026-11-05: fixed public lifecycle consumer/schema ABI mismatch by using MediaPublicLifecycleEvent.SCHEMA_URI, pinned to JSON Schema $id. Runtime contract test 5/5 and consumer test 8/8 pass. Still OPEN: public outbox binding, replay/out-of-order/auth semantics and separate terminal job readback are not proved; internal relay URI is distinct."
+      "progress": "verified-2026-11-05: Fixed public lifecycle consumer/schema ABI mismatch using MediaPublicLifecycleEvent.SCHEMA_URI, pinned to the JSON Schema $id. Runtime contract test 5/5 and consumer test 8/8 pass. Still OPEN: active relay publishes a distinct internal payload/schema; Shared OutboundEvent omits principalId required by the public ABI, and two outbox tables remain unreconciled. No accurate public projection can be emitted without inventing identity or changing a Shared contract. Replay/out-of-order/auth semantics and separate terminal job readback are unproved."
     },
     {
       "id": "media.dev.authorized-agent-delegation",
@@ -585,7 +585,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: J-20 recovery screen now accepts an optional authenticated canonical getJob reader for the exact job identity and reports loading, denied, unknown, server OUTCOME_UNKNOWN and terminal states; without it the action stays NOT_ADMITTED. Demo-player captions announce changes through an accessible live region. UI Vitest/TypeScript checks could not start because this workspace lacks installed vitest/tsc; no browser E2E, live host route or backend integration is claimed."
+      "progress": "2026-11-05: J-20 recovery accepts an optional authenticated canonical getJob reader, aborts stale reads on job change/unmount, and distinguishes loading, denied, unknown, server OUTCOME_UNKNOWN and terminal states; absent client remains NOT_ADMITTED. Demo captions announce through a polite atomic live region. UI Vitest/TypeScript checks could not start because the workspace lacks installed vitest/tsc; no browser E2E, live route or backend integration is claimed."
     },
     {
       "id": "media.dev.explorer-fidelity",
@@ -626,7 +626,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: added explicit UNKNOWN/NOT_ADMITTED/DENIED readiness states and fail-closed absent capability observations; consent checkbox/reference are labeled user assertions rather than current authority. Host-side current-rights rechecks are called out. Syntax transpilation and diff checks pass; package tests cannot start because React is missing and TypeScript is not linked. The current SDK keeps synthesis/training NOT_ADMITTED, so real TTS/consent integration remains open."
+      "progress": "2026-11-05: Added UNKNOWN/NOT_ADMITTED/DENIED readiness states and fail-closed absent capability observations; consent checkbox/reference are user assertions, not current authority. The host must recheck rights before effects. UI checks cannot start because React is missing and TypeScript is not linked; current SDK keeps synthesis/training NOT_ADMITTED, so real TTS/consent integration remains open."
     },
     {
       "id": "media.dev.native-media-dsp",
@@ -665,7 +665,8 @@
         "media.dev.domain-contract-parity"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: FileSystemModelStore missing-model errors no longer disclose host paths in message/cause; focused FileSystemModelStoreTest PASS. Still OPEN: four-service auth parity, native leak audit and retry-under-cancellation evidence."
     },
     {
       "id": "media.dev.stt-model-and-quality",
@@ -715,7 +716,8 @@
         "media.dev.stream-session-authority"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: STT streaming bounds source timestamp plus chunk duration to the same five-minute sample window as PCM bytes; a rejected overrun does not advance sequence and corrected retry succeeds. SttStreamSequenceValidatorTest PASS 6/6. Still OPEN: durable resume, exact transcript/caption revision persistence, real licensed audio/provider quality and revoked-rights runtime integration."
     },
     {
       "id": "media.dev.tts-model-and-rights",
@@ -787,7 +789,8 @@
         "media.dev.shared-engine-consolidation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: LetterboxTransform rejects caller-supplied anisotropic transforms while allowing rounded aspect-preserving sizes and centered YOLOv8/top-left YOLOX padding. Commit 2de9e8ff; LetterboxTransformTest PASS 10/10. No detector was selected/qualified; real bbox/mAP, tracking and worker isolation remain open."
     },
     {
       "id": "media.dev.vision-document-intelligence",
@@ -854,7 +857,8 @@
         "media.dev.multimodal-child-orchestration"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Source-bound fusion requires the exact length-prefixed sourceTimelineClockId for immutable region source/version as well as shared clock and instant; mismatched version abstains and quality remains HEURISTIC_UNCALIBRATED. Commit b9316307; CrossModalFusionEngineTest PASS 47/47. Still OPEN: real child outputs, calibrated quality, production clock mapping and governed rights integration."
     },
     {
       "id": "media.dev.load-and-quality-profiles",
@@ -1033,7 +1037,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: host-neutral camera capture now carries typed allowed/selected signals, sync-policy and codec identity, dimensions/MIME, exact source clock/stream/origin/timebase, source PTS and audio sample clock, discontinuity disposition, and explicit UNKNOWN mappings; generic capture() preserves epoch and metadata. Focused camera tests PASS 13/13; @audio-video/client typecheck and isolated `test:package` ESM/CJS/types consumers pass. Coverage includes permission UNKNOWN/revoke with no disclosed bytes, hot-unplug/device switch, source PTS ordering, unsupported/missing metadata and exact propagation. Still OPEN: no concrete authenticated host/device/codec transport binding, no durable canonical source cursor/version/PTS, and no qualified cross-clock alignment; absent host declarations remain unavailable/UNKNOWN."
+      "progress": "2026-11-05: Added BrowserCameraMediaDevicePort (commits f3404fe2 and 49fc436f) requiring explicit host permission/device/codec ports and exact source identity/version; it maps permission changes to typed denial/unknown/revoked outcomes, aborts stale reads, handles hot unplug/cancellation and performs best-effort teardown. Camera suite PASS 18/18; client typecheck PASS. Still OPEN: no concrete getUserMedia/WebCodecs transport, authenticated canonical stream binding, durable source cursor/version/PTS, or qualified cross-clock alignment."
     },
     {
       "id": "media.dev.recorder-actual-execution",
@@ -1329,7 +1333,8 @@
         "media.dev.vision-model-and-geometry"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Tracked-edit samples are bounded to 10,000; snapshot metadata entries/fields/encoded size and mask/snapshot byte lengths are checked before copying. ReversibleRegionEditEngineTest PASS 8/8. Still OPEN: durable canonical project CAS, Vision tracking and real rendered edit."
     },
     {
       "id": "media.dev.dubbing-and-translation",
@@ -1353,7 +1358,8 @@
         "media.dev.tts-streaming-and-finality"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Translation segments are normalized to source transcript order before synthesis/alignment and final cue emission; dubbing module tests PASS 10/10. Still OPEN: real translation/TTS/forced alignment, rights, intelligibility and lip-sync qualification."
     },
     {
       "id": "media.dev.foley-stems-mix-master",
@@ -1376,7 +1382,8 @@
         "media.dev.project-timeline-engine"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Asset stem version must match the source version bound by rights evidence. Mix results expose sample rate, frame count and post-ceiling stereo RMS dBFS (explicitly not LUFS). Commit d8a320a5; PcmStemMixerTest PASS 8/8, covering WAV decode/checksum, estimated peak ceiling, silence, half-scale RMS and deterministic output. Still OPEN: lawful production source and durable project revision."
     },
     {
       "id": "media.dev.multitrack-composition-render",
@@ -1401,7 +1408,8 @@
         "media.dev.foley-stems-mix-master"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Added a bounded deterministic media-graph planner with rational VFR mapping, caption/transition validation, immutable source refs, graph/output limits and manifest SHA-256. Commit 54c94dff; MultitrackRenderPlannerTest PASS 5/5. Codec execution remains NOT_ADMITTED/UNAVAILABLE; no playable mux, sync, cancellation/partial-result recovery or actual output-space enforcement."
     },
     {
       "id": "media.dev.quality-comparison-and-optimization",
@@ -1472,7 +1480,8 @@
         "media.dev.versioned-review-and-approval"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Delivery results return exact artifactId and immutable versionRef; lost-ACK resume preserves the pair. MediaDeliveryEngineTest PASS 14/14. Still OPEN: in-memory ledger only, no signed authorization, durable restart/readback, or real destination adapter/ACK."
     },
     {
       "id": "media.dev.offline-reconnect",
@@ -1496,7 +1505,8 @@
         "media.dev.project-timeline-engine"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Replay persists OUTCOME_UNKNOWN with exact-row CAS before external dispatch and CASes to APPLIED/CONFLICT only on a valid result; malformed/lost ACKs remain unknown. AES-GCM binds idempotency metadata. compareAndSet stays optional for exported-store compatibility; missing CAS returns OFFLINE_STORE_CAS_UNAVAILABLE before authority reads/effects. Queue/reconnect selectors PASS 20/20; pnpm run typecheck PASS. Still OPEN: no production cross-process encrypted CAS store or canonical project-edit operation."
     },
     {
       "id": "media.dev.spatial-and-interactive-export",
@@ -1544,7 +1554,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: added an aria-live polite/atomic caption announcement and interaction assertions for player controls. Focused UI test could not start because the workspace lacks installed vitest; the player remains OPEN and live-output fidelity is not implied."
+      "progress": "2026-11-05: Added polite atomic live caption announcements plus interaction tests for branch, seek, play/pause and caption controls. UI Vitest could not start because the workspace lacks installed vitest; change is unverified and open; no live-output fidelity is implied."
     },
     {
       "id": "media.dev.production-studio-host",

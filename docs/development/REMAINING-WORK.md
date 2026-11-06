@@ -142,7 +142,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Expose truthful runtime/provider/capture/render health and resource limits.
 - **How:** Reuse real registry and metrics route; bound label cardinality; report quality absence UNKNOWN rather than zero and trace/secret redaction.
 - **Test/exit:** Local Prometheus scrape, alert fire/clear, restart, no provider leakage; 1/16/64 budgets.
-- **Progress:** Health-check registration is bounded to 64 per service and 128 control-free characters per name; focused health/metrics selectors pass 37/37. Existing metrics keep missing quality UNKNOWN/NaN, bound labels, redact provider details, and cap profile series. Capture/render probes still lack runtime producers; the synthetic 1/16/64 harness and real load, scrape, alert-delivery and restart qualification remain unrun.
+- **Progress:** Health-check registration is bounded to 64 per service and 128 control-free characters per name; focused health/metrics selectors pass 37/37. Added fixed-label JVM committed-heap and available-processor gauges; `MediaWorkflowMetricsTest` passes 18/18. Available processors are explicitly not a provider/container quota claim. Existing metrics keep missing quality UNKNOWN/NaN, bound labels, redact provider details, and cap profile series. Capture/render probes still lack runtime producers; the synthetic 1/16/64 harness and real load, scrape, alert-delivery and restart qualification remain unrun.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`
 
 #### interfaces
@@ -189,7 +189,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Provide real authenticated CLI for artifact/job/capture/recorder operations.
 - **How:** Separate fixture command names from production CLI, strict JSON schema, exact exit codes, no sync job-success guessing; use the canonical SDK.
 - **Test/exit:** Source-free binary tests with successful result, forbidden operations, timeout/UNKNOWN, schema error and process restart.
-- **Progress:** Existing `libs/audio-video-client/src/cli.ts` uses canonical authenticated SDK calls for artifact/job operations, strict bounded JSON/argument validation, typed NOT_ADMITTED for capture/recorder without SDK routes, and OUTCOME_UNKNOWN on dispatched submit timeout; fixtures use separate command names. Agent reported client build PASS and fixture tests 6/6. Production binary tests could not bind loopback (`listen EPERM` in sandbox); targeted Vitest hung at startup, and the simulation package build lacks `tsc`. No source changes were made; OPEN pending repeatable production binary success/forbidden/timeout/UNKNOWN/schema/process-restart evidence and executable toolchain.
+- **Progress:** Existing `libs/audio-video-client/src/cli.ts` uses canonical authenticated SDK calls for artifact/job operations, strict bounded JSON/argument validation, typed NOT_ADMITTED for capture/recorder without SDK routes, and OUTCOME_UNKNOWN on dispatched submit timeout; fixtures use separate command names. Added a source-free child-process regression for oversized UTF-8 `--parameters` (`INVALID_INVOCATION`, exit 2); the focused selector passed 1 test with 42 filtered, and client typecheck passed. Network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence remains open because loopback `listen` fails with sandbox `EPERM`.
 - **Predecessors:** `media.dev.sdk-canonical-migration`
 
 **`media.dev.public-events`** · OPEN
@@ -197,7 +197,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Offer versioned, typed lifecycle events and consumer semantics.
 - **How:** Map event schemas to public contracts and outbox, disclose redacted IDs only; nonfinal append never promises provider effect.
 - **Test/exit:** Consumer test replay/out-of-order, auth and event payload ABI, distinct terminal job readback.
-- **Progress:** Fixed the consumer/schema ABI mismatch: the public lifecycle consumer now uses the URI owned by `MediaPublicLifecycleEvent.SCHEMA_URI` and pinned to the JSON Schema `$id`. Focused runtime-contract and consumer selectors pass 5/5 and 8/8. Still OPEN: end-to-end public outbox binding, replay/out-of-order/auth semantics, and separate terminal job readback are not yet proved; the internal relay URI remains a distinct contract.
+- **Progress:** Fixed the consumer/schema ABI mismatch: the public lifecycle consumer now uses the URI owned by `MediaPublicLifecycleEvent.SCHEMA_URI` and pinned to the JSON Schema `$id`. Focused runtime-contract and consumer selectors pass 5/5 and 8/8. Still OPEN: the active relay publishes a different internal payload/schema; its Shared `OutboundEvent` omits `principalId`, which the public ABI requires, and the runtime still has two unreconciled outbox tables. No accurate public projection can be emitted from that shape without inventing identity or changing a Shared contract. Replay/out-of-order/auth semantics and separate terminal job readback are also unproved.
 - **Predecessors:** `media.dev.transactional-event-outbox`
 
 **`media.dev.authorized-agent-delegation`** · OPEN
@@ -219,7 +219,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Ship real authenticated product-host actions beyond the four implemented presentation families.
 - **How:** Build typed SDK ports for all applicable 47 screens, route versioned actions to real backend, and render pending/denied/unknown/terminal states without fixture claims.
 - **Test/exit:** Browser E2E against local backend, a11y/keyboard/responsive/tenant and visual regression.
-- **Progress:** Added an optional authenticated canonical `getJob` reader to the J-20 recovery screen; it preserves the exact job identity and distinguishes loading, denied, unknown, server-reported `OUTCOME_UNKNOWN`, and terminal states. The route remains `NOT_ADMITTED` without the injected client. Added focused status/identity tests and an accessible live caption announcement to the demo player. UI Vitest and TypeScript checks could not start because this workspace has no installed `vitest`/`tsc`; no browser E2E ran. No live host route or backend integration is claimed.
+- **Progress:** Added an optional authenticated canonical `getJob` reader to the J-20 recovery screen; it preserves the exact job identity, aborts stale reads on job change/unmount, and distinguishes loading, denied, unknown, server-reported `OUTCOME_UNKNOWN`, and terminal states. The route remains `NOT_ADMITTED` without the injected client. Added status/identity/abort tests and an accessible live caption announcement to the demo player. UI Vitest and TypeScript checks could not start because this workspace has no installed `vitest`/`tsc`; no browser E2E ran. No live host route or backend integration is claimed.
 - **Predecessors:** `media.dev.sdk-canonical-migration`, `media.dev.rights-and-policy`
 
 **`media.dev.explorer-fidelity`** · VERIFIED (strict CSP, always-labeled simulated state, no live fetch, deterministic scenario replay, caption sync — `test/explorer-fidelity.test.mjs` green)
@@ -251,6 +251,8 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Deduplicate engine pools, security transport helpers and model/codec adapters safely.
 - **How:** One ownership for Whisper/Piper/vision/native worker, TLS/JWT/deadline and errors; retain ABI until all installed consumers migrate.
 - **Test/exit:** Source-free ABI, 4-service auth and no native leaks, test retries under cancellation.
+- **Progress:** `FileSystemModelStore` no longer discloses host paths in missing-model errors or their causes; focused `FileSystemModelStoreTest` passes. Four-service auth parity, native leak audit, and retry-under-cancellation remain unverified.
+- **Progress:** `FileSystemModelStore` now removes host filesystem paths from missing-model errors and their causes; focused `FileSystemModelStoreTest` passes. Four-service auth parity, native leak audit, and retry-under-cancellation remain unverified.
 - **Predecessors:** `media.dev.domain-contract-parity`
 
 **`media.dev.stt-model-and-quality`** · OPEN
@@ -265,6 +267,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Finish bounded STT stream -> exact transcript revision -> correction/caption version flow.
 - **How:** Use word PTS/locale, anonymous diarization, source rights and immutable parents; persist idempotent commit with provider-attempt fence.
 - **Test/exit:** 12 STT RPCs, real audio, partial/final, gap/restart, corrected caption parent exact match, revoked rights.
+- **Progress:** STT stream validation now bounds both received PCM bytes and source timestamp plus chunk duration to the same five-minute sample window; a rejected overrun does not advance the sequence, so a corrected retry is accepted. `SttStreamSequenceValidatorTest` passes 6/6. Durable resume, exact transcript/caption revision persistence, real licensed audio/provider quality and revoked-rights runtime integration remain open.
 - **Predecessors:** `media.dev.stt-model-and-quality`, `media.dev.canonical-job-reconciliation`, `media.dev.stream-session-authority`
 
 **`media.dev.tts-model-and-rights`** · OPEN
@@ -286,6 +289,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Select legally usable pinned detector and finish real image/video geometry, tracking and OCI isolation.
 - **How:** Reuse YOLOX/OCI broker and verify RGB/BGR, EXIF, rotation, inverse letterbox, frame/ROI/version/PTS; remove any synthetic provider fallback.
 - **Test/exit:** Real bbox/classes, mAP/reference, VFR, multi-object tracking and worker OOM/PID/deadline/cancel tests.
+- **Progress:** `LetterboxTransform` now rejects caller-supplied anisotropic transforms while accepting floor/round pixel sizing and both centered YOLOv8 and top-left YOLOX padding. Focused `LetterboxTransformTest` passes 10/10. No detector was selected or qualified; real bbox/mAP, tracking and worker isolation remain open.
 - **Predecessors:** `media.dev.rights-and-policy`, `media.dev.shared-engine-consolidation`
 
 **`media.dev.vision-document-intelligence`** · OPEN
@@ -308,6 +312,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Ensure fused observations are source-grounded with calibrated or expressly uncalibrated quality.
 - **How:** Bind spans/regions/PTS and provenance to exact immutable versions, distinguish observed evidence and inferred relation; no biometric identity without rights.
 - **Test/exit:** Ambiguous clock, conflicting child outputs, confidence provenance, replay and threshold tests.
+- **Progress:** Source-bound fusion now requires the exact length-prefixed `sourceTimelineClockId` for the immutable region source/version as well as a shared clock and instant; a mismatched version abstains and confidence remains `HEURISTIC_UNCALIBRATED`. `CrossModalFusionEngineTest` passes 47/47. Real child outputs, calibrated quality, production clock mapping and governed rights integration remain open.
 - **Predecessors:** `media.dev.multimodal-child-orchestration`
 
 **`media.dev.load-and-quality-profiles`** · OPEN
@@ -367,7 +372,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement camera source intake with permission and device-state handling.
 - **How:** Host camera permission and actual encoder with bounded buffers, camera/mic indicators, timestamps and hot unplug recovery.
 - **Test/exit:** Consent revoked midframe, device switch, no leaked capture and PTS ordering.
-- **Current disposition (2026-11-05):** The host-neutral adapter now carries typed signal selection, sync policy, codec/media properties, source clock identity, exact source PTS/timebase, audio sample clock, discontinuity, and explicit unknown cross-clock mappings; generic capture preserves epoch and metadata. Focused tests pass 13/13 and client typecheck passes. The task remains OPEN because no concrete authenticated host/device/codec transport is bound, no canonical source cursor/version/PTS is durable, and no cross-clock alignment is qualified. Missing host declarations remain unavailable/UNKNOWN.
+- **Current disposition (2026-11-05):** The host-neutral adapter carries typed signal selection, sync policy, codec/media properties, source clock identity, exact source PTS/timebase, audio sample clock, discontinuity, and explicit unknown cross-clock mappings; generic capture preserves epoch and metadata. Added `BrowserCameraMediaDevicePort` (`f3404fe2`, hardened in `49fc436f`), which requires explicit host permission/device/codec ports, exact source identity/version, maps permission changes to typed denial/unknown/revoked outcomes, aborts stale reads, handles hot unplug/cancellation and performs best-effort teardown. Focused camera tests pass 18/18 and client typecheck passes. This is not a concrete `getUserMedia`/WebCodecs adapter or authenticated canonical stream binding; no durable source cursor/version/PTS or cross-clock alignment is qualified. Missing host declarations remain unavailable/UNKNOWN.
 - **Predecessors:** `media.dev.stream-session-authority`
 
 **`media.dev.recorder-actual-execution`** · VERIFIED (executeScenario records per-scene digest/outcome honestly; scenesRequiringRecapture selects only changed scenes — 5 tests green)
@@ -466,6 +471,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Apply tracked ROI edits with immutable source and revision-specific undo.
 - **How:** Track PTS and mask coordinates through original->edited frame transforms; CAS edit commit and source-rights refresh.
 - **Test/exit:** Mask/bbox drift, VFR, undo exact bytes/metadata, stale editor conflict.
+- **Progress:** Bounded tracked-edit samples to 10,000 and snapshot metadata entry/field/encoded-size limits; mask/snapshot byte lengths are checked before copying. `ReversibleRegionEditEngineTest` passes 8/8. Durable canonical project CAS, Vision tracking and a real rendered edit remain open.
 - **Predecessors:** `media.dev.project-timeline-engine`, `media.dev.vision-model-and-geometry`
 
 **`media.dev.dubbing-and-translation`** · OPEN
@@ -473,6 +479,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Produce real translated/dubbed audio bound to source transcript timing.
 - **How:** Use admitted translation public capability, legal TTS voice, source/locale revision and forced alignment; label unavailable language/control.
 - **Test/exit:** Actual intelligible output, word time alignment, no clone/translation if unadmitted, visual lip timing metadata.
+- **Progress:** Translation segments are normalized to source transcript order before synthesis/alignment and final cue emission; the shuffled-response regression passes in the dubbing module (10/10). Real translation/TTS/forced alignment, rights, intelligibility and lip-sync qualification remain open.
 - **Predecessors:** `media.dev.stt-streaming-and-caption`, `media.dev.tts-streaming-and-finality`
 
 **`media.dev.foley-stems-mix-master`** · OPEN
@@ -480,6 +487,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Produce rights-cleared original audio stems and final master.
 - **How:** Define audio stem version refs, gain/pan/loudness/peak, deterministic sample clock and preview/render; reject clips and unlicensed content.
 - **Test/exit:** Stereo reference, true peak, no clipping, silence/large inputs, final decodable audio.
+- **Progress:** Asset stem versions must now match the exact source version in their rights evidence. Mix results expose sample rate, frame count and post-ceiling stereo RMS dBFS (explicitly not LUFS). `PcmStemMixerTest` passes 8/8, including WAV decode/checksum, estimated true-peak ceiling, silence, half-scale RMS and deterministic output. No lawful production source or durable project revision is established.
 - **Predecessors:** `media.dev.native-media-dsp`, `media.dev.project-timeline-engine`
 
 **`media.dev.multitrack-composition-render`** · OPEN
@@ -487,6 +495,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Render combined clips, narration, captions, graphics, audio and color accurately.
 - **How:** Implement bounded media graph -> FFmpeg/qualified codec pipeline, VFR time map, subtitle mux, transition effects, exact output digest.
 - **Test/exit:** Playable mux and audio/visual/caption sync, cancellation/partial result/space budget.
+- **Progress:** Added a bounded deterministic media-graph planner with exact rational VFR mapping, caption/transition validation, immutable source refs, graph/output limits and canonical manifest digest. `MultitrackRenderPlannerTest` passes 5/5. Codec execution remains typed `NOT_ADMITTED`/`UNAVAILABLE`; no playable mux, audio/visual/caption sync, cancellation, partial-result recovery or actual output-space enforcement is claimed.
 - **Predecessors:** `media.dev.project-timeline-engine`, `media.dev.animation-2d-renderer`, `media.dev.foley-stems-mix-master`
 
 **`media.dev.quality-comparison-and-optimization`** · OPEN
@@ -509,6 +518,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement download/export/publication with exact destination acknowledgment.
 - **How:** Produce bounded immutable artifact; sign scoped transfer; distinguish queued/sent/destination confirmed; never infer from transport 201.
 - **Test/exit:** Wrong destination, lost ACK, token revoke, duplicate export, checksum and resume.
+- **Progress:** Delivery results now return the exact artifact ID and immutable version reference; a lost-ACK resume regression preserves that tuple. `MediaDeliveryEngineTest` passes 14/14. Durable idempotency/restart, signed authorization and destination adapters remain open; no publication or destination ACK is claimed.
 - **Predecessors:** `media.dev.multitrack-composition-render`, `media.dev.versioned-review-and-approval`
 
 **`media.dev.offline-reconnect`** · OPEN
@@ -516,6 +526,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Support private local edits/capture with safe reconnect and conflict reconciliation.
 - **How:** Bound encrypted offline queue per tenant/project, renew rights before push, compare version and idempotency; never replay after revoke.
 - **Test/exit:** Offline dirty state, conflict resolution, stale authorization, loss/retry and no duplicate effect.
+- **Progress:** Replay now atomically fences each edit as `OUTCOME_UNKNOWN` before external dispatch, then CASes to final state only on a valid receipt/conflict. Idempotency metadata is authenticated with AES-GCM; old stores remain source-compatible and return explicit `OFFLINE_STORE_CAS_UNAVAILABLE` without authority reads or dispatch. Queue/reconnect selectors pass 20/20 and client typecheck passes. Production cross-process encrypted CAS storage and a canonical project-edit operation remain open.
 - **Predecessors:** `media.dev.sdk-canonical-migration`, `media.dev.project-timeline-engine`
 
 **`media.dev.spatial-and-interactive-export`** · OPEN
@@ -531,7 +542,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement sandboxed branching player for authored interactive demo and real outputs.
 - **How:** Use deterministic branch/seek/cue state machine, origin-bound permissions and simulated-vs-live label; strict keyboard/screen-reader controls.
 - **Test/exit:** Branch replay/seek, cross-origin denial, stale asset/caption, a11y and live-vs-curated truth.
-- **Progress:** Added a polite atomic live announcement for caption changes and interaction assertions for player controls. The focused UI test could not start because the workspace has no installed `vitest`; the change is unverified and remains open, with live output fidelity still unclaimed.
+- **Progress:** Added a polite atomic live announcement for caption changes and interaction assertions for branch, seek, play/pause and caption controls. The focused UI test could not start because the workspace has no installed `vitest`; the change is unverified and remains open, with live output fidelity still unclaimed.
 - **Predecessors:** `media.dev.web-host`, `media.dev.explorer-fidelity`
 
 **`media.dev.production-studio-host`** · OPEN
