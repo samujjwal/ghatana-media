@@ -3435,10 +3435,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             var spec = snapshot.orElseThrow().operationSpec();
             List<ProcessingJob> children = new java.util.ArrayList<>();
             for (var child : spec.children()) {
-                var found = jobStore.findByRequest(job.tenantId(),
-                        com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
-                                .childRequestId(job.requestId(), child.childKey()))
-                        .filter(found2 -> found2.principalId().equals(job.principalId()));
+                String childRequestId = com.ghatana.media.runtime.MediaRuntimeContracts
+                        .MultimodalOperationSpec.childRequestId(job.requestId(), child.childKey());
+                var found = jobStore.findByRequest(job.tenantId(), childRequestId)
+                        .filter(found2 -> matchesMultimodalChildBinding(
+                                job, childRequestId, child, found2));
                 if (found.isEmpty()) return false;
                 children.add(found.orElseThrow());
             }
@@ -3502,6 +3503,20 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     job.tenantId(), job.jobId(), failure.getClass().getSimpleName());
             return false;
         }
+    }
+
+    /** A terminal child is usable only when its durable identity still matches the parent spec. */
+    static boolean matchesMultimodalChildBinding(
+            ProcessingJob parent,
+            String expectedRequestId,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec.ChildOperationSpec child,
+            ProcessingJob actual) {
+        return actual.requestId().equals(expectedRequestId)
+                && actual.tenantId().equals(parent.tenantId())
+                && actual.principalId().equals(parent.principalId())
+                && actual.artifactId().equals(child.artifactId())
+                && actual.expectedArtifactVersion().equals(child.artifactVersion())
+                && actual.jobType() == child.jobType();
     }
 
     private void publishLifecycle(

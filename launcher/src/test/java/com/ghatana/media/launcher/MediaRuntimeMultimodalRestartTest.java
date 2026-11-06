@@ -9,6 +9,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
@@ -34,6 +35,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** M5: restart recovery of a crashed multimodal parent from durable spec + child states. */
 class MediaRuntimeMultimodalRestartTest {
+
+    @Test
+    void terminalChildReadbackMustMatchPersistedTenantAndSourceBinding() {
+        Instant now = Instant.now();
+        var parent = new ProcessingJob("parent", "parent-request", "tenant-a", "principal-a",
+                "source", JobType.MULTIMODAL, "mm", JobStatus.OUTCOME_UNKNOWN,
+                now, now, null, Map.of(), "", 1, "sha256:" + "a".repeat(64),
+                "sha256:" + "b".repeat(64));
+        var childSpec = new MultimodalOperationSpec.ChildOperationSpec(
+                "stt", JobType.SPEECH_TO_TEXT, "stt-artifact",
+                "sha256:" + "c".repeat(64), "c".repeat(64), "", Map.of());
+        String requestId = MultimodalOperationSpec.childRequestId(parent.requestId(), "stt");
+        var matching = new ProcessingJob("child", requestId, "tenant-a", "principal-a",
+                "stt-artifact", JobType.SPEECH_TO_TEXT, "stt", JobStatus.COMPLETED,
+                now, now, now, Map.of("text", "fixture"), "", 2,
+                "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64));
+
+        assertThat(MediaRuntime.matchesMultimodalChildBinding(parent, requestId, childSpec, matching))
+                .isTrue();
+        assertThat(MediaRuntime.matchesMultimodalChildBinding(parent, requestId, childSpec,
+                new ProcessingJob("child", requestId, "other-tenant", "principal-a",
+                        "stt-artifact", JobType.SPEECH_TO_TEXT, "stt", JobStatus.COMPLETED,
+                        now, now, now, Map.of("text", "fixture"), "", 2,
+                        "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64))))
+                .isFalse();
+        assertThat(MediaRuntime.matchesMultimodalChildBinding(parent, requestId, childSpec,
+                new ProcessingJob("child", requestId, "tenant-a", "principal-a",
+                        "different-artifact", JobType.SPEECH_TO_TEXT, "stt", JobStatus.COMPLETED,
+                        now, now, now, Map.of("text", "fixture"), "", 2,
+                        "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64))))
+                .isFalse();
+    }
 
     @Test
     void crashedParentWithCompletedChildrenReconcilesToExactCompletedResult() throws Exception {
