@@ -184,6 +184,74 @@ describe("OfflineReconnectCoordinator", () => {
     if (applied.status === "RECONNECTED") expect(applied.results[0]).toMatchObject({ state: "APPLIED", receipt: "receipt:idem-rebased" });
   });
 
+  it("keeps an offline edit dirty through conflict resolution, then honors revocation after queue recreation", async () => {
+    const offlineQueue = await queue();
+    await offlineQueue.enqueue(edit);
+    let authorizationReads = 0;
+    let versionReads = 0;
+    let applyCount = 0;
+
+    const offline = await new OfflineReconnectCoordinator(offlineQueue, scope, operations({
+      reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      readProjectVersion: async () => { versionReads++; return { ...scope, disposition: "CURRENT", version: "revision-8" }; },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(false);
+    expect(offline).toEqual({ status: "OFFLINE", dirty: true });
+    expect(authorizationReads).toBe(0);
+    expect(versionReads).toBe(0);
+    expect(applyCount).toBe(0);
+
+    const conflict = await new OfflineReconnectCoordinator(offlineQueue, scope, operations({
+      readProjectVersion: async () => { versionReads++; return { ...scope, disposition: "CURRENT", version: "revision-8" }; },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(conflict.status).toBe("RECONNECTED");
+    if (conflict.status === "RECONNECTED") expect(conflict.results).toEqual([{ editId: edit.editId, state: "CONFLICT" }]);
+    expect(await offlineQueue.readEdits(scope)).toMatchObject([{ edit, state: "CONFLICT" }]);
+    expect(await offlineQueue.hasDirtyEdits(scope)).toBe(true);
+    expect(authorizationReads).toBe(0);
+    expect(versionReads).toBe(1);
+    expect(applyCount).toBe(0);
+
+    const rebasedEdit = { ...edit, idempotencyKey: "idem-rebased", expectedVersion: "revision-8",
+      payload: { ...edit.payload, position: 8 } };
+    await offlineQueue.resolveConflict(rebasedEdit);
+    let reconnectAuthorizationReads = 0;
+    let reconnectVersionReads = 0;
+    const revoked = await new OfflineReconnectCoordinator(offlineQueue, scope, operations({
+      reauthorize: async () => {
+        reconnectAuthorizationReads++;
+        return { ...scope, disposition: "REVOKED" };
+      },
+      readProjectVersion: async () => {
+        reconnectVersionReads++;
+        return { ...scope, disposition: "CURRENT", version: "revision-8" };
+      },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(revoked.status).toBe("RECONNECTED");
+    if (revoked.status === "RECONNECTED") expect(revoked.results).toEqual([{ editId: edit.editId, state: "REVOKED" }]);
+    expect(reconnectVersionReads).toBe(1);
+    expect(reconnectAuthorizationReads).toBe(1);
+    expect(await offlineQueue.readEdits(scope)).toMatchObject([{ edit: rebasedEdit, state: "REVOKED" }]);
+    expect(await offlineQueue.hasDirtyEdits(scope)).toBe(true);
+    expect(applyCount).toBe(0);
+
+    // This creates a fresh queue object over the same in-memory store fixture; it does not
+    // establish process-restart or durable-store recovery behavior.
+    const recreatedQueue = await queue();
+    const afterQueueRecreation = await new OfflineReconnectCoordinator(recreatedQueue, scope, operations({
+      reauthorize: async () => { reconnectAuthorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      readProjectVersion: async () => { reconnectVersionReads++; return { ...scope, disposition: "CURRENT", version: "revision-8" }; },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(afterQueueRecreation).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
+    expect(reconnectAuthorizationReads).toBe(1);
+    expect(reconnectVersionReads).toBe(1);
+    expect(applyCount).toBe(0);
+    expect(await recreatedQueue.readEdits(scope)).toMatchObject([{ edit: rebasedEdit, state: "REVOKED" }]);
+  });
+
   it("stores lost apply acknowledgment as unknown and never blindly reapplies, including after restart", async () => {
     const q = await queue();
     await q.enqueue(edit);

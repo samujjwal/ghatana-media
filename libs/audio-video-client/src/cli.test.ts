@@ -522,6 +522,63 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
+  it('keeps the J-24 CLI scenario truthful across the currently supported command boundary', async () => {
+    const endpoint = 'http://127.0.0.1:1';
+    const identity = ['--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a'];
+    const malformedParameters = await invoke([
+      'job', 'submit', ...identity,
+      '--request-id', 'request-j24', '--correlation-id', 'corr-j24', '--artifact', 'artifact-a', '--job-type', 'SPEECH_TO_TEXT',
+      '--idempotency-key', 'key-j24', '--parameters', '{"duplicate":1,"duplicate":2}',
+    ]);
+    expect(malformedParameters).toEqual({
+      status: 2,
+      stdout: '',
+      stderr: `${JSON.stringify({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'INVALID_INVOCATION',
+        message: '--parameters must be a strict JSON object.',
+      })}\n`,
+    });
+
+    const missingAuthentication = await invoke([
+      'job', 'submit', ...identity,
+      '--request-id', 'request-j24', '--correlation-id', 'corr-j24', '--artifact', 'artifact-a', '--job-type', 'SPEECH_TO_TEXT',
+      '--idempotency-key', 'key-j24', '--parameters', '{"language":"en"}',
+    ], '');
+    expect(missingAuthentication).toEqual({
+      status: 2,
+      stdout: '',
+      stderr: `${JSON.stringify({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'MISSING_AUTH_TOKEN',
+        message: 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.',
+      })}\n`,
+    });
+
+    const notAdmitted = await invoke(['capture', 'start', ...identity]);
+    expect(notAdmitted).toEqual({
+      status: 3,
+      stdout: '',
+      stderr: `${JSON.stringify({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.capture.start', code: 'NOT_ADMITTED',
+        message: 'Capture and recorder execution require contracts not exposed by the canonical SDK.',
+      })}\n`,
+    });
+
+    // J-24 describes a batch, but no batch route is admitted by the canonical SDK.
+    // Keep that proposed spelling an invocation error instead of reporting simulated success.
+    const unsupportedBatch = await invoke(['job', 'batch', ...identity, '--parameters', '{"language":"en"}']);
+    expect(unsupportedBatch.status).toBe(2);
+    expect(unsupportedBatch.stdout).toBe('');
+    expect(JSON.parse(unsupportedBatch.stderr)).toMatchObject({
+      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.invocation', code: 'INVALID_INVOCATION',
+    });
+
+    for (const result of [malformedParameters, missingAuthentication, notAdmitted, unsupportedBatch]) {
+      expect(result.status).not.toBe(0);
+      expect(result.stdout).not.toContain('media.cli-result.v1');
+      expect(result.stdout + result.stderr).not.toContain(token);
+    }
+  });
+
   it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
     'rejects invalid, duplicate-key, non-finite, or over-deep JSON parameters before dispatch (%s)', async parameters => {
       const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
