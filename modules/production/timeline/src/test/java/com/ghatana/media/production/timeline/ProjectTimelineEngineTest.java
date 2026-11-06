@@ -78,6 +78,13 @@ class ProjectTimelineEngineTest {
         Revision redo = engine.restore(OWNER, projectId, undo.revisionId(), edited.revisionId());
         assertThat(redo.graph()).isEqualTo(edited.graph());
         assertThat(redo.revisionId()).isNotEqualTo(edited.revisionId());
+
+        assertThatThrownBy(() -> engine.restore(OWNER, projectId, undo.revisionId(),
+                created.initialRevision().revisionId()))
+                .isInstanceOf(RevisionConflictException.class)
+                .satisfies(error -> assertThat(((RevisionConflictException) error).currentHeadRevisionId())
+                        .isEqualTo(redo.revisionId()));
+        assertThat(engine.project(OWNER, projectId).headRevisionId()).isEqualTo(redo.revisionId());
     }
 
     @Test

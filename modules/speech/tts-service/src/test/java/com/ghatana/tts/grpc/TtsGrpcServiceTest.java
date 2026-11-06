@@ -1715,6 +1715,39 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void bufferedFinalChunkSnapshotsProviderOwnedBytesUntilCompletion() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        @SuppressWarnings("unchecked")
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        byte[] providerBuffer = new byte[] {1, 2, 3, 4};
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(providerBuffer, 0, true, 7));
+
+        // The final chunk remains buffered until the provider confirms completion.
+        // A provider may reuse its mutable array as soon as onChunk returns.
+        java.util.Arrays.fill(providerBuffer, (byte) 9);
+        verify(observer, never()).onNext(any());
+        completionRef.get().complete(null);
+
+        verify(observer, org.mockito.Mockito.timeout(1_000)).onNext(
+                org.mockito.ArgumentMatchers.argThat(chunk -> chunk.getIsFinal()
+                        && chunk.getTimestampMs() == 7
+                        && chunk.getAudioData().equals(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))));
+        verify(observer, org.mockito.Mockito.timeout(1_000)).onCompleted();
+        verify(observer, never()).onError(any());
+    }
+
+    @Test
     void admittedStreamRejectsAudioBeforeFormatDeclaration() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
