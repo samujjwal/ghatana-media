@@ -281,6 +281,7 @@ class MediaLauncherSttProcessIT {
             launcher = startLauncher(environmentClasspath, env, log);
             awaitReady(launcher, port);
             String requestId = "launcher-recovery-" + run;
+            String sourceVersion = "sha256:" + sha;
             String jobBody = """
                     {"requestId":"%s","tenantId":"%s","principalId":"%s",
                      "correlationId":"launcher-recovery-corr-%s","artifactId":"%s",
@@ -295,6 +296,8 @@ class MediaLauncherSttProcessIT {
             String jobId = acceptedJob.path("jobId").asText();
             assertThat(jobId).isNotBlank();
             assertThat(acceptedJob.path("requestId").asText()).isEqualTo(requestId);
+            assertThat(acceptedJob.path("artifactId").asText()).isEqualTo(artifactId);
+            assertThat(acceptedJob.path("expectedArtifactVersion").asText()).isEqualTo(sourceVersion);
 
             awaitDispatchMarker(launcher, dispatchMarker);
             JsonNode running = JSON.readTree(sendAuthenticated(port, TENANT, token, "GET",
@@ -319,6 +322,8 @@ class MediaLauncherSttProcessIT {
             JsonNode leaseProtected = JSON.readTree(leaseProtectedRead.body());
             assertThat(leaseProtected.path("jobId").asText()).isEqualTo(jobId);
             assertThat(leaseProtected.path("requestId").asText()).isEqualTo(requestId);
+            assertThat(leaseProtected.path("artifactId").asText()).isEqualTo(artifactId);
+            assertThat(leaseProtected.path("expectedArtifactVersion").asText()).isEqualTo(sourceVersion);
             assertThat(leaseProtected.path("status").asText()).isEqualTo("RUNNING");
             assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
             assertThat(attemptState(TENANT, jobId)).isEqualTo("DISPATCH_INTENDED");
@@ -338,6 +343,7 @@ class MediaLauncherSttProcessIT {
             assertThat(recovered.path("jobId").asText()).isEqualTo(jobId);
             assertThat(recovered.path("requestId").asText()).isEqualTo(requestId);
             assertThat(recovered.path("artifactId").asText()).isEqualTo(artifactId);
+            assertThat(recovered.path("expectedArtifactVersion").asText()).isEqualTo(sourceVersion);
             assertThat(recovered.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
             assertThat(recovered.path("logicalStatus").asText()).isEqualTo("OUTCOME_UNKNOWN");
             assertThat(recovered.path("failureCode").asText()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
@@ -363,6 +369,9 @@ class MediaLauncherSttProcessIT {
             assertThat(replay.statusCode()).as(replay.body()).isEqualTo(202);
             JsonNode replayed = JSON.readTree(replay.body());
             assertThat(replayed.path("jobId").asText()).isEqualTo(jobId);
+            assertThat(replayed.path("requestId").asText()).isEqualTo(requestId);
+            assertThat(replayed.path("artifactId").asText()).isEqualTo(artifactId);
+            assertThat(replayed.path("expectedArtifactVersion").asText()).isEqualTo(sourceVersion);
             assertThat(replayed.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
             assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
             assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");

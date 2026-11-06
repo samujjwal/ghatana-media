@@ -465,7 +465,8 @@
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
       "selectors": [
-        "com.ghatana.audio.video.vision.grpc.VisionRoiAdmissionIntegrationTest.roiRequestsFailClosedBeforeProviderEffects"
+        "com.ghatana.audio.video.vision.grpc.VisionRoiAdmissionIntegrationTest.roiRequestsFailClosedBeforeProviderEffects",
+        "com.ghatana.audio.video.vision.grpc.VisionRoiAdmissionIntegrationTest.unavailableDetectorDoesNotProduceDetectionOutput"
       ],
       "sources": [
         "modules/integration-tests/src/test/java/com/ghatana/audio/video/vision/grpc/VisionRoiAdmissionIntegrationTest.java"
@@ -551,10 +552,12 @@
       "gradleTestTask": ":services:media:modules:integration-tests:test",
       "selectors": [
         "com.ghatana.audio.video.integration.BriefToReviewedMediaScenarioTest.exactBriefAndStoryboardCanBePreparedButMissingRightsStoreAndReviewerAuthorityFailClosed",
-        "com.ghatana.audio.video.integration.BriefToReviewedMediaScenarioTest.deniedSourceRightsPreventEvenLocalDraftPreparation"
+        "com.ghatana.audio.video.integration.BriefToReviewedMediaScenarioTest.deniedSourceRightsPreventEvenLocalDraftPreparation",
+        "com.ghatana.audio.video.integration.BriefToReviewedMediaRenderBoundaryTest.exactStoryboardVersionsReachRenderPlanButCannotBecomeOutputOrReviewReceiptWithoutAdmission"
       ],
       "sources": [
-        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/BriefToReviewedMediaScenarioTest.java"
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/BriefToReviewedMediaScenarioTest.java",
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/BriefToReviewedMediaRenderBoundaryTest.java"
       ],
       "resources": [
         "JUnit Jupiter",
@@ -659,7 +662,8 @@
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
       "selectors": [
-        "com.ghatana.audio.video.integration.MultitrackFinishedMasterScenarioTest.freezesMultitrackFixtureAndKeepsMissingEncoderNotAdmitted"
+        "com.ghatana.audio.video.integration.MultitrackFinishedMasterScenarioTest.freezesMultitrackFixtureAndKeepsMissingEncoderNotAdmitted",
+        "com.ghatana.audio.video.integration.MultitrackFinishedMasterScenarioTest.unavailableCodecCannotTurnAValidCombinedPlanIntoAFinishedMaster"
       ],
       "sources": [
         "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MultitrackFinishedMasterScenarioTest.java"
@@ -831,11 +835,35 @@
       "evidenceLimit": "J-27 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j27-process-restart-unknown",
+      "tier": "ISOLATED_INTEGRATION",
+      "gradleTestTask": ":services:media:integration-tests:test",
+      "selectors": [
+        "com.ghatana.media.integration.MediaLauncherSttProcessIT.dispatchedJobBecomesUnknownAfterHardProcessRestartWithoutRedispatch"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherSttProcessIT.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "Testcontainers PostgreSQL",
+        "Testcontainers LocalStack S3",
+        "separate MediaLauncher child processes"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers"
+      ],
+      "assets": "Synthetic WAV, authority and provider process fixtures only.",
+      "safety": "A hard-killed fixture provider leaves the canonical job OUTCOME_UNKNOWN; exact replay does not dispatch again.",
+      "evidenceLimit": "J-27 process-restart selector slice only; synthetic process ambiguity handling does not establish admitted fallback, real provider qualification, or journey completion."
+    },
+    {
       "id": "journey-outcome-j28",
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:production:spatial:test",
       "selectors": [
-        "com.ghatana.media.production.spatial.SpatialInteractiveDeliveryScenarioTest.unknownRightsKeepSpatialDeliveryUnavailableAndPoseIsNotAnEncodedExport"
+        "com.ghatana.media.production.spatial.SpatialInteractiveDeliveryScenarioTest.unknownRightsKeepSpatialDeliveryUnavailableAndPoseIsNotAnEncodedExport",
+        "com.ghatana.media.production.spatial.SpatialInteractiveDeliveryScenarioTest.encodedCandidateRetainsExactInputsAndDisclosesFloat32LossWithoutClaimingDelivery"
       ],
       "sources": [
         "modules/production/spatial/src/test/java/com/ghatana/media/production/spatial/SpatialInteractiveDeliveryScenarioTest.java"

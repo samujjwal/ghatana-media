@@ -23,6 +23,24 @@ class MultitrackFinishedMasterScenarioTest {
     private static final long OUTPUT_BUDGET_BYTES = 1_000_000;
 
     @Test
+    void unavailableCodecCannotTurnAValidCombinedPlanIntoAFinishedMaster() {
+        var planned = MultitrackRenderPlanner.plan(fixtureGraph());
+        assertThat(planned.outcome()).isEqualTo(MultitrackRenderPlanner.Outcome.PLAN_READY);
+
+        var unavailable = MultitrackRenderPlanner.execute(planned.plan(),
+                new MultitrackRenderPlanner.CodecPipeline() {
+                    @Override public boolean admitted() { return true; }
+                    @Override public boolean available() { return false; }
+                });
+
+        assertThat(unavailable.outcome()).isEqualTo(MultitrackRenderPlanner.Outcome.UNAVAILABLE);
+        assertThat(unavailable.reason())
+                .isEqualTo(MultitrackRenderPlanner.Reason.CODEC_PIPELINE_UNAVAILABLE);
+        // A plan digest identifies the composition manifest, not an encoded/playable output.
+        assertThat(unavailable.plan()).isNull();
+    }
+
+    @Test
     void freezesMultitrackFixtureAndKeepsMissingEncoderNotAdmitted() {
         Graph fixture = fixtureGraph();
 

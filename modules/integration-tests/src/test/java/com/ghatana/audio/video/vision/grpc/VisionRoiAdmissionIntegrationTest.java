@@ -27,6 +27,45 @@ import org.junit.jupiter.api.Test;
 class VisionRoiAdmissionIntegrationTest {
 
     @Test
+    @DisplayName("unavailable detector is reported before provider or output effects")
+    void unavailableDetectorDoesNotProduceDetectionOutput() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        VisionDetector detector = new VisionDetector() {
+            @Override
+            public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                    byte[] imageData, DetectionOptions options) {
+                providerCalls.incrementAndGet();
+                return List.of();
+            }
+
+            @Override
+            public boolean isInitialized() {
+                return true;
+            }
+        };
+        VisionGrpcService service = new VisionGrpcService(detector, null) {
+            @Override
+            protected boolean isInferenceProviderAdmitted() {
+                return false;
+            }
+        };
+        CapturingObserver observer = new CapturingObserver();
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(png(4, 3)))
+                .build();
+
+        withTenant("tenant-j05", () -> service.detectObjects(request, observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNAVAILABLE.getCode());
+        assertThat(failure.getStatus().getDescription()).contains("PROVIDER_NOT_ADMITTED");
+        assertThat(observer.responses).isZero();
+        assertThat(observer.completed).isFalse();
+        assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     @DisplayName("malformed ROI is rejected and valid ROI remains NOT_ADMITTED before provider dispatch")
     void roiRequestsFailClosedBeforeProviderEffects() {
         AtomicInteger providerCalls = new AtomicInteger();
@@ -104,9 +143,13 @@ class VisionRoiAdmissionIntegrationTest {
 
     private static final class CapturingObserver implements StreamObserver<DetectResponse> {
         private Throwable error;
+        private int responses;
+        private boolean completed;
 
         @Override
-        public void onNext(DetectResponse value) { }
+        public void onNext(DetectResponse value) {
+            responses++;
+        }
 
         @Override
         public void onError(Throwable failure) {
@@ -114,6 +157,8 @@ class VisionRoiAdmissionIntegrationTest {
         }
 
         @Override
-        public void onCompleted() { }
+        public void onCompleted() {
+            completed = true;
+        }
     }
 }

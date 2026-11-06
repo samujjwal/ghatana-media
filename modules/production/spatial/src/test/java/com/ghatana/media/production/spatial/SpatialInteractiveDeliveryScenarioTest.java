@@ -3,9 +3,13 @@ package com.ghatana.media.production.spatial;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -17,6 +21,65 @@ import org.junit.jupiter.api.Test;
  * destination delivery, or consumer receipt.
  */
 class SpatialInteractiveDeliveryScenarioTest {
+    @Test
+    void encodedCandidateRetainsExactInputsAndDisclosesFloat32LossWithoutClaimingDelivery() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-j28", "scene-j28", "scene-version-6");
+        var frame = new SpatialRigEngine.CoordinateFrame(
+                "urn:media:frame:j28-world", "frame-version-2",
+                SpatialRigEngine.Handedness.RIGHT_HANDED,
+                SpatialRigEngine.AxisDirection.POS_X,
+                SpatialRigEngine.AxisDirection.POS_Y,
+                SpatialRigEngine.AxisDirection.POS_Z,
+                SpatialRigEngine.GLB_METRE_UNIT_REF,
+                SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
+        var root = new SpatialRigEngine.Bone("camera-root", null,
+                SpatialRigEngine.LocalTransform.identity(),
+                new SpatialRigEngine.JointConstraint(SpatialRigEngine.JointKind.BALL, Math.PI));
+        var rig = new SpatialRigEngine.Rig("j28-spatial-scene", frame, "UNIT_QUATERNION_XYZW",
+                List.of(source), List.of(root),
+                Map.of("camera-root", List.of(
+                        new SpatialRigEngine.PoseKeyframe(SpatialRigEngine.RationalTime.of(1, 3),
+                                new SpatialRigEngine.LocalTransform(new SpatialRigEngine.Vec3(0.1, 0, 0),
+                                        SpatialRigEngine.Quaternion.IDENTITY)),
+                        new SpatialRigEngine.PoseKeyframe(SpatialRigEngine.RationalTime.of(2, 3),
+                                new SpatialRigEngine.LocalTransform(new SpatialRigEngine.Vec3(0.2, 0, 0),
+                                        SpatialRigEngine.Quaternion.IDENTITY)))),
+                "project:revision:j28-9");
+
+        var candidate = new SpatialRigEngine().exportGlb(rig,
+                ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        ByteBuffer glb = ByteBuffer.wrap(candidate.bytes()).order(ByteOrder.LITTLE_ENDIAN);
+        assertThat(glb.getInt()).isEqualTo(0x46546c67);
+        assertThat(glb.getInt()).isEqualTo(2);
+        assertThat(glb.getInt()).isEqualTo(glb.capacity());
+        int jsonLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x4e4f534a);
+        byte[] jsonBytes = new byte[jsonLength];
+        glb.get(jsonBytes);
+        JsonNode metadata = new ObjectMapper().readTree(jsonBytes).path("extras").path("mediaSpatial");
+
+        assertThat(candidate.sourceProjectRevisionRef()).isEqualTo("project:revision:j28-9");
+        assertThat(candidate.sourceVersions()).containsExactly(source);
+        assertThat(candidate.frameRef()).isEqualTo(frame.frameRef());
+        assertThat(candidate.frameVersionRef()).isEqualTo(frame.frameVersionRef());
+        assertThat(candidate.timeEncoding()).isEqualTo("FLOAT32_SECONDS");
+        assertThat(candidate.lossDisposition()).isEqualTo("FLOAT32_APPROXIMATION");
+        assertThat(metadata.path("float32LossFields").size()).isEqualTo(3);
+        assertThat(metadata.path("float32LossFields").get(0).asString()).isEqualTo("animation.inputTimeSeconds");
+        assertThat(metadata.path("float32LossFields").get(1).asString()).isEqualTo("animation.outputTranslation");
+        assertThat(metadata.path("float32LossFields").get(2).asString()).isEqualTo("animation.outputRotation");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(0).get(0).asString())
+                .isEqualTo("1");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(0).get(1).asString())
+                .isEqualTo("3");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(0).asString())
+                .isEqualTo("2");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(1).asString())
+                .isEqualTo("3");
+        assertThat(metadata.has("destinationRef")).isFalse();
+        assertThat(metadata.has("consumerReceiptRef")).isFalse();
+    }
+
     @Test
     void unknownRightsKeepSpatialDeliveryUnavailableAndPoseIsNotAnEncodedExport() {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-j28", "scene-j28", "scene-version-6");

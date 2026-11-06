@@ -66,6 +66,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j19", "journey-outcome-j20", "journey-outcome-j21",
                         "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
                         "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29",
+                        "journey-outcome-j27-process-restart-unknown",
                         "journey-outcome-j30-unavailable-readiness",
                         "journey-outcome-j23-browser-offline-reconnect-fixture",
                         "journey-outcome-j24-cli-command-boundary-fixture");
