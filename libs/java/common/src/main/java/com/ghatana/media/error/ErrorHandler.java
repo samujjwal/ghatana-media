@@ -217,6 +217,15 @@ public final class ErrorHandler {
     public static <T> T executeWithFallback(Supplier<T> operation, Supplier<T> fallback, String errorContext) {
         try {
             return operation.get();
+        } catch (java.util.concurrent.CancellationException cancelled) {
+            // Cancellation is a terminal lifecycle outcome, not a recoverable
+            // operation failure. Returning a fallback would make callers observe
+            // success after their work was cancelled.
+            throw cancelled;
+        } catch (CancellationException cancelled) {
+            // Preserve the shared platform cancellation type as well as the JDK
+            // cancellation signal.
+            throw cancelled;
         } catch (Exception e) {
             logException(LOG, Level.INFO, errorContext + " failed, using fallback", e);
             return fallback.get();

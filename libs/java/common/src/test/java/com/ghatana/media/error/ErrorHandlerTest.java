@@ -121,6 +121,43 @@ class ErrorHandlerTest {
     }
 
     @Test
+    @DisplayName("Should propagate cancellation instead of returning fallback")
+    void testExecuteWithFallbackPropagatesCancellation() {
+        java.util.concurrent.CancellationException cancellation =
+            new java.util.concurrent.CancellationException("cancelled by caller");
+        java.util.concurrent.atomic.AtomicBoolean fallbackCalled =
+            new java.util.concurrent.atomic.AtomicBoolean();
+
+        java.util.concurrent.CancellationException thrown = assertThrows(
+            java.util.concurrent.CancellationException.class,
+            () -> ErrorHandler.executeWithFallback(
+                () -> { throw cancellation; },
+                () -> { fallbackCalled.set(true); return "fallback"; },
+                "cancelled operation"));
+
+        assertSame(cancellation, thrown);
+        assertFalse(fallbackCalled.get());
+    }
+
+    @Test
+    @DisplayName("Should propagate shared platform cancellation instead of returning fallback")
+    void testExecuteWithFallbackPropagatesSharedCancellation() {
+        CancellationException cancellation = new CancellationException("cancelled by platform");
+        java.util.concurrent.atomic.AtomicBoolean fallbackCalled =
+            new java.util.concurrent.atomic.AtomicBoolean();
+
+        CancellationException thrown = assertThrows(
+            CancellationException.class,
+            () -> ErrorHandler.executeWithFallback(
+                () -> { throw cancellation; },
+                () -> { fallbackCalled.set(true); return "fallback"; },
+                "cancelled operation"));
+
+        assertSame(cancellation, thrown);
+        assertFalse(fallbackCalled.get());
+    }
+
+    @Test
     @DisplayName("Should wrap checked exceptions as runtime")
     void testWrapAsRuntime() { 
         Exception checked = new Exception("Checked exception");
