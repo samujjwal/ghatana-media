@@ -52,6 +52,23 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void chunkReceiptFromWrongDestinationCannotAdvanceAcknowledgedOffset() {
+        Fixture f = new Fixture();
+        f.destination.badChunkDestination = true;
+        ExportRequest request = f.request(bytes(16));
+
+        DeliveryResult result = f.engine.export(request);
+        assertThat(result.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(result.acknowledgedBytes()).isZero();
+        assertThat(result.destinationReceiptRef()).isEmpty();
+        assertThat(f.engine.find(request.tenantId(), request.requestId()).orElseThrow())
+                .extracting(DeliveryResult::status, DeliveryResult::acknowledgedBytes,
+                        DeliveryResult::destinationReceiptRef)
+                .containsExactly(Status.OUTCOME_UNKNOWN, 0, Optional.empty());
+        assertThat(f.destination.sendCount).isEqualTo(1);
+    }
+
+    @Test
     void transportCompletionWithoutDestinationReceiptIsNotConfirmation() {
         Fixture f = new Fixture();
         f.destination.omitFinalReceipt = true;
@@ -556,6 +573,7 @@ class MediaDeliveryEngineTest {
         boolean omitFinalReceipt;
         boolean badFinalChecksum;
         boolean badFinalDestination;
+        boolean badChunkDestination;
         boolean badFinalPrincipal;
         boolean nullReconciliation;
         boolean wrongChunkFence;
@@ -578,7 +596,8 @@ class MediaDeliveryEngineTest {
             if (sendCount == 1) afterFirstSend.run();
             if (loseFirstAckAfterAccept && sendCount == 1) throw new IllegalStateException("simulated response lost after destination accepted chunk");
             ChunkReceipt receipt = new ChunkReceipt("chunk-receipt:" + sendCount, r.tenantId(), r.principalId(), r.requestId(),
-                    r.artifact().artifactId(), r.artifact().versionRef(), r.destinationRef(),
+                    r.artifact().artifactId(), r.artifact().versionRef(),
+                    badChunkDestination ? "destination:wrong" : r.destinationRef(),
                     r.artifact().digest(), offset, wrongChunkDigest ? "sha256:" + "0".repeat(64) : chunkDigest,
                     chunk.length, acceptedOffset);
             return new FencedChunkReceipt(receipt, claim.fence() + (wrongChunkFence ? 1 : 0));
