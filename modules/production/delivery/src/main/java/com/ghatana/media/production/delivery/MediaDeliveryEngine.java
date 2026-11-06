@@ -177,7 +177,7 @@ public final class MediaDeliveryEngine {
             if ((status == Status.DESTINATION_CONFIRMED) != destinationReceiptRef.isPresent()) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");
             }
-            if (acknowledgedBytes < 0) throw new IllegalArgumentException("acknowledgedBytes must not be negative");
+            validateProgress(status, acknowledgedBytes);
         }
     }
 
@@ -600,6 +600,14 @@ public final class MediaDeliveryEngine {
     }
 
     private static String key(ExportRequest r) { return r.tenantId() + "\u0000" + r.requestId(); }
+    static void validateProgress(Status status, int acknowledgedBytes) {
+        if (acknowledgedBytes < 0) throw new IllegalArgumentException("acknowledgedBytes must not be negative");
+        boolean requiresZero = status == Status.QUEUED || status == Status.REVOKED || status == Status.UNAVAILABLE;
+        boolean requiresPositive = status == Status.SENT || status == Status.DESTINATION_CONFIRMED;
+        if ((requiresZero && acknowledgedBytes != 0) || (requiresPositive && acknowledgedBytes == 0)) {
+            throw new IllegalArgumentException("acknowledgedBytes is inconsistent with delivery status");
+        }
+    }
     private static DeliveryResult result(ExportRequest r, Status status, int acknowledged, String receipt) {
         return new DeliveryResult(r.tenantId(), r.principalId(), r.requestId(), r.artifact().artifactId(),
                 r.artifact().versionRef(), r.artifact().digest(), r.destinationRef(), status,

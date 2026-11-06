@@ -34,6 +34,31 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void rejectsAcknowledgedOffsetsThatCannotBelongToTheirDeliveryState() {
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", "sha256:request", Status.QUEUED, 1, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("inconsistent with delivery status");
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", "sha256:request", Status.SENT, 0, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("inconsistent with delivery status");
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", "sha256:request", Status.REVOKED, 1, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("inconsistent with delivery status");
+
+        assertThatThrownBy(() -> new DeliveryResult(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", Status.DESTINATION_CONFIRMED, 0, Optional.of("receipt:1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("inconsistent with delivery status");
+    }
+
+    @Test
     void requiresExactDestinationReceiptAndChecksumForConfirmation() {
         Fixture f = new Fixture();
         f.destination.badFinalChecksum = true;
