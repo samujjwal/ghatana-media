@@ -253,8 +253,9 @@ class MediaRuntimeMultimodalRestartTest {
                 return base.speechToTextProfile().map(profile -> new com.ghatana.media.runtime
                         .MediaSpeechToTextAdmission.Profile("test-stt-failed", profile.providerVersion(),
                         profile.profileId(), profile.profileVersion(), profile.configurationDigest(),
-                        profile.qualification(), profile.supportedLocales(), profile.streaming(),
-                        profile.timingDisposition(), profile.evidenceRef()));
+                        profile.qualification(), profile.supportedLanguageTags(),
+                        profile.autoDetectionQualified(), profile.timingDisposition(),
+                        profile.qualificationEvidenceRef()));
             }
             @Override public boolean ready() { return true; }
             @Override public boolean productionEligible() { return false; }

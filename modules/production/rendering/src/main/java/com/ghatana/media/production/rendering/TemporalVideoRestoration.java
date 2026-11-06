@@ -380,6 +380,7 @@ public final class TemporalVideoRestoration {
 
     public record Candidate(List<CandidateFrame> frames, TimeBase timeBase, CandidateLineage lineage,
             SourceDelta sourceDelta, ReferenceMetrics referenceMetrics, long clippedSamples,
+            long clippedMagnitude,
             boolean dimensionsPreserved, boolean timingPreserved,
             boolean sourcePixelsPreservedOutsideRoi, boolean improvementClaimed) {
         public Candidate {
@@ -388,7 +389,7 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(lineage, "lineage");
             Objects.requireNonNull(sourceDelta, "sourceDelta");
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
-            if (clippedSamples < 0 || clippedSamples > sourceDelta.comparedSamples()) {
+            if (clippedSamples < 0 || clippedSamples > sourceDelta.comparedSamples() || clippedMagnitude < 0) {
                 throw invalid("clipped sample count is outside the compared ROI sample bound");
             }
             if (!dimensionsPreserved || !timingPreserved || !sourcePixelsPreservedOutsideRoi || improvementClaimed) {
@@ -517,7 +518,8 @@ public final class TemporalVideoRestoration {
                 binding.artifactId(), binding.versionId(), binding.sha256(), decision.decisionId(),
                 filter.version(), filter.parameterSha256(), candidateDigest, disclosure(filter));
         Candidate candidate = new Candidate(frames, original.timeBase(), lineage,
-                sourceDelta(original, frames), metrics, filtered.clippedSamples(), true, true, true, false);
+                sourceDelta(original, frames), metrics, filtered.clippedSamples(), filtered.clippedMagnitude(),
+                true, true, true, false);
         return new Result(Outcome.COMPLETED, Optional.of(candidate), Optional.empty());
     }
 
@@ -534,15 +536,16 @@ public final class TemporalVideoRestoration {
                 status == AuthorityStatus.DENIED ? Reason.SOURCE_RIGHTS_DENIED : Reason.SOURCE_AUTHORITY_UNAVAILABLE);
     }
 
-    private record FilterOutput(List<CandidateFrame> frames, long clippedSamples) {
+    private record FilterOutput(List<CandidateFrame> frames, long clippedSamples, long clippedMagnitude) {
         private FilterOutput { frames = List.copyOf(frames); }
     }
 
     private static FilterOutput applyFilter(DecodedFrameSequence sequence, FilterParameters filter) {
-        if (filter.operation() == FilterOperation.TEMPORAL_MEDIAN) return new FilterOutput(temporalMedian(sequence), 0);
+        if (filter.operation() == FilterOperation.TEMPORAL_MEDIAN) return new FilterOutput(temporalMedian(sequence), 0, 0);
         List<Frame> inputs = sequence.frames();
         ArrayList<CandidateFrame> outputs = new ArrayList<>(inputs.size());
         long clippedSamples = 0;
+        long clippedMagnitude = 0;
         double[] gains = {filter.redGain(), filter.greenGain(), filter.blueGain()};
         int[] offsets = {filter.redOffset(), filter.greenOffset(), filter.blueOffset()};
         for (int index = 0; index < inputs.size(); index++) {
@@ -558,14 +561,20 @@ public final class TemporalVideoRestoration {
                             double blur = roiBoxBlur(input, center.width(), roi, x, y, channel);
                             int original = input[offset + channel] & 0xff;
                             long rounded = Math.round(original + filter.amount() * (original - blur));
-                            if (rounded < 0 || rounded > 255) clippedSamples++;
+                            if (rounded < 0 || rounded > 255) {
+                                clippedSamples++;
+                                clippedMagnitude += rounded < 0 ? -rounded : rounded - 255;
+                            }
                             output[offset + channel] = (byte) clamp8(rounded);
                         }
                     } else {
                         for (int channel = 0; channel < 3; channel++) {
                             int original = input[offset + channel] & 0xff;
                             long rounded = Math.round(original * gains[channel] + offsets[channel]);
-                            if (rounded < 0 || rounded > 255) clippedSamples++;
+                            if (rounded < 0 || rounded > 255) {
+                                clippedSamples++;
+                                clippedMagnitude += rounded < 0 ? -rounded : rounded - 255;
+                            }
                             output[offset + channel] = (byte) clamp8(rounded);
                         }
                     }
@@ -574,7 +583,7 @@ public final class TemporalVideoRestoration {
             outputs.add(new CandidateFrame(center.frameIndex(), center.presentationTicks(), center.width(),
                     center.height(), center.roi(), output, sha256(output)));
         }
-        return new FilterOutput(outputs, clippedSamples);
+        return new FilterOutput(outputs, clippedSamples, clippedMagnitude);
     }
 
     private static List<CandidateFrame> temporalMedian(DecodedFrameSequence sequence) {
@@ -620,8 +629,8 @@ public final class TemporalVideoRestoration {
     private static String disclosure(FilterParameters filter) {
         return switch (filter.operation()) {
             case TEMPORAL_MEDIAN -> "Applied a per-channel three-frame median. Frame order, dimensions, PTS, rational time base, source revision and pixels outside ROI were preserved. No deblur, color reconstruction, codec output or quality improvement is claimed.";
-            case UNSHARP_MASK -> "Applied RGB8 ROI 3x3 box-blur unsharp mask: round-half-up(original + amount*(original - blur)), then clamp to [0,255]. Edge samples clamp within ROI; clipped samples are measured in sourceDelta. No codec output or quality improvement is claimed.";
-            case RGB_COLOR_ADJUSTMENT -> "Applied caller-versioned per-channel RGB8 gain/offset: round-half-up(sample*gain + offset), then clamp to [0,255]. Clipped samples are measured in sourceDelta. No automatic color inference, codec output or quality improvement is claimed.";
+            case UNSHARP_MASK -> "Applied RGB8 ROI 3x3 box-blur unsharp mask: round-half-up(original + amount*(original - blur)), then clamp to [0,255]. Edge samples clamp within ROI; clipped sample count and magnitude are reported separately. No codec output or quality improvement is claimed.";
+            case RGB_COLOR_ADJUSTMENT -> "Applied caller-versioned per-channel RGB8 gain/offset: round-half-up(sample*gain + offset), then clamp to [0,255]. Clipped sample count and magnitude are reported separately. No automatic color inference, codec output or quality improvement is claimed.";
         };
     }
 

@@ -21,9 +21,11 @@ to `[0,255]`. All operations preserve input dimensions, ordering, PTS, rational
 time base, exact source version, and pixels outside the explicit ROI. The
 operation emits an immutable decoded RGB candidate plus exact lineage and a
 content digest. `clippedSamples` counts output channel samples whose rounded
-pre-clamp value fell outside `[0,255]`; `sourceDelta` reports the observed
-source/candidate sample change separately. It does not create or mutate a
-canonical Media artifact or job.
+pre-clamp value fell outside `[0,255]`; `clippedMagnitude` sums the distance of
+those rounded values beyond the nearest representable endpoint. `sourceDelta`
+reports observed source/candidate sample changes separately. These are exact
+RGB8 arithmetic facts, not subjective loss estimates. The operation does not
+create or mutate a canonical Media artifact or job.
 
 Each result includes a source-versus-candidate RGB sample delta (changed sample
 count, mean absolute change, and maximum absolute change). This describes the

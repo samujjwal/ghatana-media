@@ -148,6 +148,7 @@ class TemporalVideoRestorationTest {
         assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.EXACT_REFERENCE_MATCH);
         assertThat(candidate.improvementClaimed()).isFalse();
         assertThat(candidate.clippedSamples()).isEqualTo(18);
+        assertThat(candidate.clippedMagnitude()).isEqualTo(594);
         assertThat(checked).hasValue(3);
         for (int index = 0; index < sourcePixels.length; index++) {
             assertThat(sourcePixels[index]).containsExactly(original[index]);
@@ -175,6 +176,7 @@ class TemporalVideoRestorationTest {
         assertThat(candidate.lineage().outputDisclosure()).contains("gain/offset", "clamp to [0,255]");
         assertThat(candidate.sourceDelta().maximumAbsoluteChange()).isEqualTo(55);
         assertThat(candidate.clippedSamples()).isEqualTo(3);
+        assertThat(candidate.clippedMagnitude()).isEqualTo(435);
         assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.UNAVAILABLE);
         assertThat(candidate.improvementClaimed()).isFalse();
         for (int index = 0; index < sourcePixels.length; index++) {
@@ -192,6 +194,12 @@ class TemporalVideoRestorationTest {
         assertThat(noOp.frames().getFirst().rgb()).containsExactly((byte) 10, (byte) 20, (byte) 30);
         assertThat(noOp.sourceDelta().changedSamples()).isZero();
         assertThat(noOp.clippedSamples()).isZero();
+        assertThat(noOp.clippedMagnitude()).isZero();
+        Candidate zeroAmount = TemporalVideoRestoration.restore(request(FilterParameters.unsharpMask("zero-v1", 0)),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.empty(), null, null).candidate().orElseThrow();
+        assertThat(zeroAmount.sourceDelta().changedSamples()).isZero();
+        assertThat(zeroAmount.clippedSamples()).isZero();
         assertThat(noOp.improvementClaimed()).isFalse();
 
         assertThatThrownBy(() -> FilterParameters.unsharpMask("unbounded", 2.01))
@@ -202,6 +210,24 @@ class TemporalVideoRestorationTest {
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("RGB gains");
         assertThatThrownBy(() -> FilterParameters.rgbAdjustment("invalid-offset", 1, 1, 1, 0, 0, 256))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("offsets");
+    }
+
+    @Test
+    void selectedFilterAuthorizationIsCheckedBeforeReadingSourceFrames() {
+        DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+        AtomicInteger reads = new AtomicInteger();
+        Result denied = TemporalVideoRestoration.restore(request(FilterParameters.unsharpMask("mask-v1", 0.75)),
+                (binding, operation) -> {
+                    assertThat(operation).isEqualTo(UNSHARP_OPERATION_ID);
+                    return new AuthorityDecision(AuthorityStatus.DENIED, "");
+                }, binding -> {
+                    reads.incrementAndGet();
+                    return source;
+                }, Optional.empty(), null, null);
+
+        assertThat(denied.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(denied.candidate()).isEmpty();
+        assertThat(reads).hasValue(0);
     }
 
     @Test
