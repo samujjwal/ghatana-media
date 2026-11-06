@@ -172,6 +172,62 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         assertThat(providerCalls).hasValue(0);
     }
 
+    @Test
+    void allFourUnadmittedToolsDenyRevokedReplayAndPreserveUnknownWithoutProviderDispatch() {
+        Ledger ledger = new Ledger();
+        AtomicBoolean replayAuthority = new AtomicBoolean(true);
+        AtomicInteger providerCalls = new AtomicInteger();
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get());
+        ToolHandler configuredProvider = (envelope, contract) -> {
+            providerCalls.incrementAndGet();
+            return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
+                    envelope.invocationId(), Map.of("fixtureOutput", "must-not-be-produced"), Map.of(),
+                    envelope.invocationId(), Instant.now(), java.time.Duration.ZERO));
+        };
+        var cases = java.util.List.of(
+                new HandlerCase(SpeechToTextToolHandler.TOOL_ID, "STT_NOT_ADMITTED",
+                        Map.of("audioSource", Map.of("mediaArtifactId", "source-stt-unknown"), "languageCode", "en-US"),
+                        new SpeechToTextToolHandler(configuredProvider)),
+                new HandlerCase(TextToSpeechToolHandler.TOOL_ID, "TTS_NOT_ADMITTED",
+                        Map.of("text", "private fixture text", "voiceId", "en-US-default", "storeAsArtifact", true),
+                        new TextToSpeechToolHandler(configuredProvider)),
+                new HandlerCase(VisionAnalysisToolHandler.TOOL_ID, "VISION_NOT_ADMITTED",
+                        Map.of("mediaSource", Map.of("mediaArtifactId", "source-vision-unknown"),
+                                "analysisTypes", java.util.List.of("OBJECT_DETECTION")),
+                        new VisionAnalysisToolHandler(configuredProvider)),
+                new HandlerCase(MultimodalInferenceToolHandler.TOOL_ID, "MULTIMODAL_NOT_ADMITTED",
+                        Map.of("mediaArtifactId", "source-multimodal-unknown", "inferenceMode", "SUMMARY",
+                                "samplingRateMs", 1_000, "enableTranscription", true,
+                                "enableVisionAnalysis", true, "languageCode", "en-US"),
+                        new MultimodalInferenceToolHandler(configuredProvider)));
+
+        for (HandlerCase tool : cases) {
+            ToolExecutionEnvelope envelope = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
+            ToolContract contract = contract(envelope);
+            AuthenticatedPrincipal authenticated = new AuthenticatedPrincipal(
+                    envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+
+            ToolExecutionResult denied = runPromise(() -> binder.execute(tool.handler(), envelope, contract));
+            replayAuthority.set(false);
+            assertThatThrownBy(() -> runPromise(() -> binder.execute(
+                    tool.handler(), envelope, contract, authenticated)))
+                    .as(tool.toolId()).isInstanceOf(MediaToolExecutionBinder.InvocationReplayDeniedException.class);
+            replayAuthority.set(true);
+            assertThat(runPromise(() -> binder.execute(tool.handler(), envelope, contract, authenticated)))
+                    .as(tool.toolId()).isSameAs(denied);
+
+            ToolExecutionEnvelope unknown = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
+            ledger.record(new LogicalAction(unknown.invocationId(),
+                    MediaToolExecutionBinder.RequestIdentity.from(unknown), LogicalOutcome.OUTCOME_UNKNOWN, null));
+            assertThatThrownBy(() -> runPromise(() -> binder.execute(
+                    tool.handler(), unknown, contract(unknown), authenticated)))
+                    .as(tool.toolId()).isInstanceOf(MediaToolExecutionBinder.OutcomeUnknownException.class);
+        }
+
+        assertThat(providerCalls).hasValue(0);
+    }
+
     private static ToolExecutionEnvelope envelope(String tenantId, String callerAgentId) {
         return envelope(SpeechToTextToolHandler.TOOL_ID,
                 Map.of("audioSource", Map.of("mediaArtifactId", "source-v1"), "languageCode", "en-US"),
