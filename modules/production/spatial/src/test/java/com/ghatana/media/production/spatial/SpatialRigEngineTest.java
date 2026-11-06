@@ -153,6 +153,8 @@ class SpatialRigEngineTest {
         var rig = new SpatialRigEngine.Rig("rig-export", frame, "UNIT_QUATERNION_XYZW", List.of(source),
                 List.of(root, child), Map.of("root", List.of(
                         key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 3, new SpatialRigEngine.Vec3(1.0 / 3.0, 0, 0), axisAngle(
+                                new SpatialRigEngine.Vec3(0, 0, 1), Math.PI / 6)),
                         key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), q90))), "project:edit:revision-8");
         AtomicInteger checks = new AtomicInteger();
 
@@ -169,6 +171,13 @@ class SpatialRigEngineTest {
         assertThat(artifact.mimeType()).isEqualTo("model/gltf-binary");
         assertThat(artifact.lossDisposition()).isEqualTo("FLOAT32_APPROXIMATION");
         assertThat(artifact.sha256()).hasSize(64);
+        byte[] exposedBytes = artifact.bytes();
+        exposedBytes[0] = 0;
+        assertThat(artifact.bytes()[0]).isEqualTo((byte) 0x67);
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                artifact.sha256(), exposedBytes));
 
         ByteBuffer glb = ByteBuffer.wrap(artifact.bytes()).order(ByteOrder.LITTLE_ENDIAN);
         assertThat(glb.getInt()).isEqualTo(0x46546c67);
@@ -187,6 +196,9 @@ class SpatialRigEngineTest {
         assertThat(metadata.path("frameVersionRef").asString()).isEqualTo(frame.frameVersionRef());
         assertThat(metadata.path("sourceProjectRevisionRef").asString()).isEqualTo("project:edit:revision-8");
         assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(0).asString()).isEqualTo("1");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(1).asString()).isEqualTo("3");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(2).get(0).asString()).isEqualTo("1");
+        assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(2).get(1).asString()).isEqualTo("1");
 
         int binLength = glb.getInt();
         assertThat(glb.getInt()).isEqualTo(0x004e4942);
@@ -200,14 +212,15 @@ class SpatialRigEngineTest {
         JsonNode translationView = document.path("bufferViews").get(translationAccessor.path("bufferView").intValue());
         ByteBuffer binary = ByteBuffer.wrap(bin).order(ByteOrder.LITTLE_ENDIAN);
         int translationOffset = translationView.path("byteOffset").intValue();
-        assertThat(binary.getFloat(translationOffset + 12)).isEqualTo(1.0f);
+        assertThat(binary.getFloat(translationOffset + 12)).isEqualTo(1.0f / 3.0f);
+        assertThat(binary.getFloat(translationOffset + 24)).isEqualTo(1.0f);
         JsonNode rotationAccessor = document.path("accessors").get(
                 animation.path("samplers").get(1).path("output").intValue());
         JsonNode rotationView = document.path("bufferViews").get(rotationAccessor.path("bufferView").intValue());
         int rotationOffset = rotationView.path("byteOffset").intValue();
-        assertThat(binary.getFloat(rotationOffset + 24)).isCloseTo((float) Math.sin(Math.PI / 4),
+        assertThat(binary.getFloat(rotationOffset + 40)).isCloseTo((float) Math.sin(Math.PI / 4),
                 org.assertj.core.data.Offset.offset(1e-6f));
-        assertThat(binary.getFloat(rotationOffset + 28)).isCloseTo((float) Math.cos(Math.PI / 4),
+        assertThat(binary.getFloat(rotationOffset + 44)).isCloseTo((float) Math.cos(Math.PI / 4),
                 org.assertj.core.data.Offset.offset(1e-6f));
         assertThat(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(jsonBytes)).toString()).contains("FLOAT32_APPROXIMATION");
     }
@@ -240,6 +253,12 @@ class SpatialRigEngineTest {
                 .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
                 .satisfies(failure -> assertThat(((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
                         .isEqualTo(SpatialRigEngine.ExportBlocker.PROJECT_REVISION_MISSING));
+        assertThatThrownBy(() -> engine.exportGlb(new SpatialRigEngine.Rig("no-source-version", glbFrame(),
+                "UNIT_QUATERNION_XYZW", List.of(), List.of(bone), Map.of(), "project:edit:revision-8"),
+                ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.SOURCE_VERSION_MISSING));
         var unsupportedFrameRig = new SpatialRigEngine.Rig("unsupported-frame", canonicalFrame(),
                 "UNIT_QUATERNION_XYZW", List.of(source), List.of(bone), Map.of(), "project:revision:v1");
         assertThatThrownBy(() -> engine.exportGlb(unsupportedFrameRig,

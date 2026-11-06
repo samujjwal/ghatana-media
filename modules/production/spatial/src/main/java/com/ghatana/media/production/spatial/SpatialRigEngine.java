@@ -292,7 +292,7 @@ public final class SpatialRigEngine {
         public RightsOutcome outcome() { return outcome; }
     }
 
-    public enum ExportBlocker { PROJECT_REVISION_MISSING, COORDINATE_PROFILE_UNSUPPORTED, MOTION_CONSTRAINT_INVALID,
+    public enum ExportBlocker { PROJECT_REVISION_MISSING, SOURCE_VERSION_MISSING, COORDINATE_PROFILE_UNSUPPORTED, MOTION_CONSTRAINT_INVALID,
         NON_MONOTONIC_FLOAT_TIME, OUTPUT_TOO_LARGE }
     public static final class SpatialExportBlockedException extends IllegalStateException {
         private final ExportBlocker blocker;
@@ -346,6 +346,9 @@ public final class SpatialRigEngine {
         requireSourceRights(rig, authority);
         if (rig.sourceProjectRevisionRef() == null) {
             throw new SpatialExportBlockedException(ExportBlocker.PROJECT_REVISION_MISSING);
+        }
+        if (rig.sourceVersions().isEmpty()) {
+            throw new SpatialExportBlockedException(ExportBlocker.SOURCE_VERSION_MISSING);
         }
         CoordinateFrame frame = rig.coordinateFrame();
         if (frame.handedness() != Handedness.RIGHT_HANDED
