@@ -73,6 +73,15 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void rejectsIncompleteFramesWhenChannelMetadataWouldOverflowIntMultiplication() {
+        AudioData malformed = new AudioData(new byte[] {1, 0}, 8_000, Integer.MAX_VALUE, 16,
+                Duration.ZERO, AudioFormat.PCM);
+
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                AudioRepairComparison.compare(malformed, malformed));
+    }
+
+    @Test
     void rejectsReferenceAliasedToEitherComparedRevision() {
         AudioData source = pcm(10, 20);
         AudioData repaired = pcm(9, 19);
