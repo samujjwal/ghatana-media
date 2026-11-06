@@ -150,4 +150,59 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThat(video.pendingCount()).isEqualTo(1);
         assertThat(video.detached()).isTrue();
     }
+
+    @Test
+    @DisplayName("live NOT_ADMITTED consent blocks next frame and pending provider egress")
+    void liveConsentNotAdmittedDoesNotAdvanceAckOrReachProvider() {
+        AtomicReference<StreamConsentGate.Decision> audioConsent =
+                new AtomicReference<>(StreamConsentGate.Decision.ADMITTED);
+        AtomicReference<GuardedVideoStreamSession.ConsentDecision> videoConsent =
+                new AtomicReference<>(GuardedVideoStreamSession.ConsentDecision.ADMITTED);
+        StreamFrameReconciler.SessionIdentity audioIdentity =
+                new StreamFrameReconciler.SessionIdentity("live-audio", TENANT, PRINCIPAL, PURPOSE, 1L);
+        VideoFrameReconciler.SessionIdentity videoIdentity =
+                new VideoFrameReconciler.SessionIdentity("live-video", TENANT, PRINCIPAL, PURPOSE, 1L);
+        GuardedAudioStreamSession audio = GuardedAudioStreamSession.connect(
+                audioIdentity, context -> audioConsent.get());
+        GuardedVideoStreamSession video = GuardedVideoStreamSession.open(
+                videoIdentity, context -> videoConsent.get(), "worker-live");
+        AudioStreamSession.DecodedFrame admittedAudio =
+                new AudioStreamSession.DecodedFrame(0, 0L, new byte[]{0x11});
+        AudioStreamSession.DecodedFrame deniedAudio =
+                new AudioStreamSession.DecodedFrame(1, 20L, new byte[]{0x12});
+        VideoStreamSession.DecodedFrame admittedVideo =
+                new VideoStreamSession.DecodedFrame(0, true, 0L, new byte[]{0x21});
+        VideoStreamSession.DecodedFrame deniedVideo =
+                new VideoStreamSession.DecodedFrame(1, false, 33L, new byte[]{0x22});
+        AtomicInteger providerEffects = new AtomicInteger();
+
+        assertThat(audio.submitFrame(admittedAudio))
+                .isEqualTo(StreamFrameReconciler.Disposition.DELIVERED);
+        assertThat(video.submitFrame("worker-live", 1L, admittedVideo))
+                .isEqualTo(GuardedVideoStreamSession.FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(audio.nextAck()).isZero();
+        assertThat(video.nextAck("worker-live", 1L)).isZero();
+
+        // The session stays attached, but a newly unavailable authorization result
+        // blocks both already-buffered egress and the next frame on each modality.
+        audioConsent.set(StreamConsentGate.Decision.NOT_ADMITTED);
+        videoConsent.set(GuardedVideoStreamSession.ConsentDecision.NOT_ADMITTED);
+        assertThat(audio.attachment()).isEqualTo(GuardedAudioStreamSession.Attachment.ATTACHED);
+        assertThat(video.detached()).isFalse();
+
+        assertThatThrownBy(() -> audio.dispatchToProvider(admittedAudio,
+                frame -> providerEffects.incrementAndGet()))
+                .isInstanceOf(GuardedAudioStreamSession.ConsentDeniedException.class);
+        assertThatThrownBy(() -> audio.submitFrame(deniedAudio))
+                .isInstanceOf(GuardedAudioStreamSession.ConsentDeniedException.class);
+        assertThatThrownBy(() -> video.egress("worker-live", 1L, admittedVideo,
+                frame -> providerEffects.incrementAndGet()))
+                .isInstanceOf(GuardedVideoStreamSession.ConsentDeniedException.class);
+        assertThatThrownBy(() -> video.submitFrame("worker-live", 1L, deniedVideo))
+                .isInstanceOf(GuardedVideoStreamSession.ConsentDeniedException.class);
+
+        assertThat(audio.nextAck()).isZero();
+        assertThat(video.nextAck("worker-live", 1L)).isZero();
+        assertThat(providerEffects).hasValue(0);
+    }
 }
