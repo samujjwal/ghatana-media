@@ -221,6 +221,19 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void eosRequiresAcknowledgementOfTheExactNextMediaSequence() {
+        FakePort port = new FakePort();
+        port.eosResult = CanonicalVideoStreamFramePort.Result.acknowledged(1);
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(port.eosCalls).isEqualTo(1);
+    }
+
+    @Test
     void exactSourceVersionMustMatchEveryFrame() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v4", 20)), false));

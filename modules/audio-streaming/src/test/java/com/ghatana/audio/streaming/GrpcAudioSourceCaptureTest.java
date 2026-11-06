@@ -219,6 +219,19 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void eosRequiresAcknowledgementOfTheExactNextMediaSequence() {
+        FakePort port = new FakePort();
+        port.eosResult = CanonicalStreamFramePort.Result.acknowledged(1);
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(port.eosCalls).isEqualTo(1);
+    }
+
+    @Test
     void exactSourceVersionIsRequiredForEveryFrame() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(frame(10, 0, "source@v8")), false));

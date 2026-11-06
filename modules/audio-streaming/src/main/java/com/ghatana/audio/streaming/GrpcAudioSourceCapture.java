@@ -218,8 +218,13 @@ public final class GrpcAudioSourceCapture {
             if (eos == null || eos.result() == null) {
                 return new Result(Disposition.OUTCOME_UNKNOWN, accepted, lastCursor, "canonical EOS outcome unknown");
             }
-            if (eos.result().disposition() == CanonicalStreamFramePort.Disposition.ACKNOWLEDGED) {
+            if (eos.result().disposition() == CanonicalStreamFramePort.Disposition.ACKNOWLEDGED
+                    && eos.result().acknowledgedSequence() == eosMediaSequence) {
                 return new Result(Disposition.EOS, accepted, lastCursor, "");
+            }
+            if (eos.result().disposition() == CanonicalStreamFramePort.Disposition.ACKNOWLEDGED) {
+                return new Result(Disposition.UNKNOWN, accepted, lastCursor,
+                        "canonical EOS acknowledgement sequence did not match the requested cursor");
             }
             Disposition disposition = switch (eos.result().disposition()) {
                 case OUTCOME_UNKNOWN -> Disposition.OUTCOME_UNKNOWN;
