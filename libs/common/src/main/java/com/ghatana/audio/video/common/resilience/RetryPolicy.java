@@ -126,6 +126,12 @@ public final class RetryPolicy {
                 Thread.currentThread().interrupt();
                 throw ie;
             } catch (Exception e) {
+                if (e instanceof java.util.concurrent.CancellationException
+                        || e instanceof com.ghatana.core.exception.CancellationException) {
+                    // Cancellation is a terminal lifecycle signal. Even a broad retry predicate
+                    // must not restart work after the caller or platform has cancelled it.
+                    throw (RuntimeException) e;
+                }
                 lastError = e;
                 if (!retryOn.test(e)) {
                     LOG.warn("Non-retryable error on attempt {}/{}: {}", attempt, maxAttempts,

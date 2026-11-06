@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
@@ -218,11 +219,16 @@ public final class PcmStemMixer {
         double guardedPeak = peakBefore * TRUE_PEAK_HEADROOM;
         double limiterGain = guardedPeak <= ceiling || guardedPeak == 0.0 ? 1.0 : ceiling / guardedPeak;
         byte[] pcm = new byte[expectedBytes];
+        int maximumQuantizedMagnitude = (int) Math.floor(ceiling * 32768.0);
         double samplePeak = 0.0;
         double sumSquares = 0.0;
         for (int index = 0; index < sums.length; index++) {
             double normalized = sums[index] / 32768.0 * limiterGain;
             int quantized = (int) Math.round(normalized * 32768.0);
+            // Rounding can turn a sub-LSB ceiling target into a sample above the
+            // requested limit even though the pre-quantized signal was below it.
+            quantized = Math.max(-maximumQuantizedMagnitude,
+                    Math.min(maximumQuantizedMagnitude, quantized));
             if (quantized < Short.MIN_VALUE || quantized > Short.MAX_VALUE) {
                 throw error(ErrorCode.ENCODE_FAILED, "peak ceiling failed to prevent PCM clipping");
             }
@@ -234,6 +240,16 @@ public final class PcmStemMixer {
         }
         double peakAfter = estimateTruePeak(spec.frameCount(),
                 (frame, channel) -> decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
+        if (peakAfter > ceiling) {
+            // At very low ceilings, the smallest representable PCM step can
+            // still exceed the cap after inter-sample reconstruction. Silence
+            // is the only bounded PCM result when no nonzero level is safe.
+            Arrays.fill(pcm, (byte) 0);
+            peakAfter = 0.0;
+            samplePeak = 0.0;
+            sumSquares = 0.0;
+            limiterGain = 0.0;
+        }
         double rms = Math.sqrt(sumSquares / sums.length);
         double rmsDbfs = rms == 0.0 ? Double.NEGATIVE_INFINITY : 20.0 * Math.log10(rms);
         return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), spec.sampleRate(),

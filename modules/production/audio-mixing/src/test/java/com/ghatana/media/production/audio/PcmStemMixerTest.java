@@ -72,6 +72,28 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void sub_lsb_peak_ceiling_does_not_round_output_above_the_requested_cap() {
+        float ceiling = 0.00002f;
+        Stem stem = synthetic("sub-lsb-ceiling-v1", pcm(new short[] {30_000, -30_000}), 1, 1.0f, 0.0f);
+
+        MixResult result = mix(List.of(stem), 1, ceiling);
+
+        assertThat(result.samplePeakAfterCeiling()).isLessThanOrEqualTo(ceiling);
+        assertThat(result.estimatedTruePeakAfterCeiling()).isLessThanOrEqualTo(ceiling);
+        assertThat(result.pcmS16Le()).containsOnly((byte) 0);
+
+        short[] phaseShifted = new short[32];
+        short[] cycle = {17_000, 17_000, -17_000, -17_000};
+        for (int index = 0; index < phaseShifted.length; index++) phaseShifted[index] = cycle[index % cycle.length];
+        float quantizedCeiling = 0.000035f;
+        MixResult interSample = mix(List.of(synthetic("sub-lsb-phase-v1", pcm(phaseShifted),
+                phaseShifted.length / 2, 1.0f, 0.0f)), phaseShifted.length / 2, quantizedCeiling);
+        assertThat(interSample.samplePeakAfterCeiling()).isLessThanOrEqualTo(quantizedCeiling);
+        assertThat(interSample.estimatedTruePeakAfterCeiling()).isLessThanOrEqualTo(quantizedCeiling);
+        assertThat(interSample.pcmS16Le()).containsOnly((byte) 0);
+    }
+
+    @Test
     void limits_phase_shifted_inter_sample_overshoot_without_claiming_certified_true_peak() {
         // A phase-shifted quarter-cycle tone has sample values below its reconstructed
         // inter-sample crest. This exercises the bounded 4x estimate, not a standards

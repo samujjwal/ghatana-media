@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -216,6 +217,29 @@ class RetryPolicyTest {
             });
 
         assertThat(calls.get()).isEqualTo(1); 
+    }
+
+    @Test
+    @DisplayName("executeWithResult: JDK and platform cancellation propagate without retry")
+    void executeWithResult_cancellationPropagatesEvenWhenPredicateAllowsRetry() {
+        RetryPolicy policy = RetryPolicy.builder()
+                .maxAttempts(5)
+                .initialDelay(Duration.ofMillis(1))
+                .jitterFactor(0)
+                .retryOn(ignored -> true)
+                .build();
+
+        for (RuntimeException cancellation : List.of(
+                new java.util.concurrent.CancellationException("caller cancelled"),
+                new com.ghatana.core.exception.CancellationException("platform cancelled"))) {
+            AtomicInteger calls = new AtomicInteger();
+
+            assertThatThrownBy(() -> policy.executeWithResult(() -> {
+                calls.incrementAndGet();
+                throw cancellation;
+            })).isSameAs(cancellation);
+            assertThat(calls).hasValue(1);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
