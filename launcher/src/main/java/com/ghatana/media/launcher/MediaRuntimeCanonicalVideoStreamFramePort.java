@@ -147,6 +147,17 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
                             sequence, payload, endOfStream, Instant.now()),
                     Math.toIntExact(expected.sessionRevision()), expected.storeVersion(),
                     expected.lastAcknowledgedSequence(), expected.leaseExpiresAt());
+            if (acknowledgement.acceptedSequence() != sequence) {
+                return OfferFeedback.unavailable(new Result(Disposition.OUTCOME_UNKNOWN, -1,
+                        "canonical video stream provider acknowledgement did not match the offered sequence"));
+            }
+            StreamSession persisted = runtime.stream(expected.tenantId(), expected.principalId(), expected.streamId())
+                    .orElse(null);
+            if (!confirmsAcknowledgement(persisted, expected, sequence,
+                    acknowledgement.bufferedBytes(), endOfStream)) {
+                return OfferFeedback.unavailable(new Result(Disposition.OUTCOME_UNKNOWN, -1,
+                        "canonical video stream acknowledgement was not confirmed by session-store readback"));
+            }
             return new OfferFeedback(Result.acknowledged(acknowledgement.acceptedSequence()),
                     acknowledgement.bufferedBytes(), acknowledgement.backpressured(), true);
         } catch (MediaRuntime.StreamBindingConflictException staleGeneration) {
@@ -159,6 +170,29 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
             return OfferFeedback.unavailable(new Result(Disposition.OUTCOME_UNKNOWN, -1,
                     "canonical video stream frame outcome is unknown"));
         }
+    }
+
+    private static boolean confirmsAcknowledgement(
+            StreamSession persisted,
+            Binding expected,
+            long sequence,
+            long bufferedBytes,
+            boolean endOfStream) {
+        if (persisted == null) return false;
+        return persisted.tenantId().equals(expected.tenantId())
+                && persisted.sessionId().equals(expected.streamId())
+                && persisted.principalId().equals(expected.principalId())
+                && persisted.streamKind() == StreamKind.VIDEO
+                && persisted.reconnectCount() == expected.sessionRevision()
+                && persisted.version() == expected.storeVersion() + 2
+                && persisted.lastSequence() == sequence
+                && persisted.bufferedBytes() == bufferedBytes
+                && persisted.inFlightSequence() == null
+                && persisted.inFlightAttemptId().isBlank()
+                && persisted.finality() == StreamFinality.NONE
+                && (endOfStream
+                        ? persisted.state() == StreamState.DRAINING
+                        : connected(persisted.state()));
     }
 
     private Result bindingRejection(Binding expected) {

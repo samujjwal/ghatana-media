@@ -3,6 +3,7 @@ package com.ghatana.media.launcher;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
@@ -13,6 +14,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
 import com.ghatana.video.streaming.VideoStreamSession;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
@@ -23,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -111,6 +115,49 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
             assertThat(port.offer(binding, frame(0)).disposition())
                     .isEqualTo(CanonicalVideoStreamFramePort.Disposition.OUTCOME_UNKNOWN);
             assertThat(provider.calls()).isEqualTo(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void videoAckRequiresExactCanonicalStoreReadbackAndCannotBeRetriedBlindly() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-video-stream-readback-");
+        var provider = new VideoStreamingProvider();
+        var backingStore = new LocalMediaRuntimeSupport.StreamStore();
+        var hideCommittedReadback = new AtomicBoolean();
+        MediaStreamSessionStore streamStore = (MediaStreamSessionStore) Proxy.newProxyInstance(
+                MediaStreamSessionStore.class.getClassLoader(),
+                new Class<?>[] {MediaStreamSessionStore.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("find") && hideCommittedReadback.get()) {
+                        return java.util.Optional.empty();
+                    }
+                    try {
+                        Object result = method.invoke(backingStore, arguments);
+                        if (method.getName().equals("recordFrame")) hideCommittedReadback.set(true);
+                        return result;
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
+        var runtime = runtime(root, provider, Duration.ofSeconds(2), streamStore);
+
+        try {
+            var registration = runtime.openStream(request(provider, StreamKind.VIDEO));
+            runtime.connectStream("tenant-video", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.videoStreamFramePort(
+                    "tenant-video", "principal-video", registration.session().sessionId(), registration.connectionToken());
+            var binding = port.currentBinding(
+                    "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
+
+            assertThat(port.offer(binding, frame(0)).disposition())
+                    .isEqualTo(CanonicalVideoStreamFramePort.Disposition.OUTCOME_UNKNOWN);
+            assertThat(port.offer(binding, frame(0)).disposition())
+                    .isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).isEqualTo(1);
+            assertThat(backingStore.find("tenant-video", registration.session().sessionId()).orElseThrow()
+                    .lastSequence()).isZero();
         } finally {
             runtime.close();
         }
@@ -316,7 +363,7 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
     }
 
     private static MediaRuntime runtime(java.nio.file.Path root, MediaStreamingProvider provider,
-            Duration timeout, LocalMediaRuntimeSupport.StreamStore streamStore) {
+            Duration timeout, MediaStreamSessionStore streamStore) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
                         timeout, 1, "", "", true, false, root),
