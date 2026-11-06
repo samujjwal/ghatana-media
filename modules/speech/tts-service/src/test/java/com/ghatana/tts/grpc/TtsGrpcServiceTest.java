@@ -1674,6 +1674,47 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void providerConnectionLossAfterFinalCallbackDiscardsBufferedFinalAndPreservesUnknown() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        @SuppressWarnings("unchecked")
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            providerStarted.countDown();
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        });
+        doAnswer(invocation -> {
+            error.set(invocation.getArgument(0));
+            errorReceived.countDown();
+            return null;
+        }).when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        assertThat(providerStarted.await(1, TimeUnit.SECONDS)).isTrue();
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 0));
+        completionRef.get().completeExceptionally(
+                Status.UNKNOWN.withDescription("provider connection lost after final callback").asRuntimeException());
+
+        assertThat(errorReceived.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.UNKNOWN);
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        Timer unknownResponse = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response").tag("outcome", "unknown")
+                .timer();
+        assertThat(unknownResponse).isNotNull();
+        assertThat(unknownResponse.count()).isEqualTo(1);
+    }
+
+    @Test
     void admittedStreamRejectsAudioBeforeFormatDeclaration() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {

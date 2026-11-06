@@ -897,6 +897,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                         Throwable cause = failure instanceof CompletionException && failure.getCause() != null
                                 ? failure.getCause() : failure;
                         if (terminal.compareAndSet(false, true)) {
+                            // A provider final chunk is only provisional until the session
+                            // completion succeeds. Drop it on every failed completion so an
+                            // ambiguous provider outcome cannot become successful final output.
+                            pendingFinalChunk.set(null);
                             if (cause instanceof StatusRuntimeException statusFailure
                                     && statusFailure.getStatus().getCode() == Status.Code.UNKNOWN) {
                                 // A provider can lose its connection after producing a prefix. Keep
