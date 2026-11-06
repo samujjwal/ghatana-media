@@ -58,6 +58,17 @@ class VisionRoiAdmissionIntegrationTest {
         assertThat(((StatusRuntimeException) malformedObserver.error).getStatus().getCode())
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
 
+        DetectRequest missingSourceFrameVersion = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(image))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(1).setY(1).setWidth(2).setHeight(2))
+                .build();
+        CapturingObserver missingVersionObserver = new CapturingObserver();
+        withTenant("tenant-j05", () -> service.detectObjects(missingSourceFrameVersion, missingVersionObserver));
+        assertThat(missingVersionObserver.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) missingVersionObserver.error).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+
         DetectRequest validButUnadmitted = DetectRequest.newBuilder()
                 .setImageData(ByteString.copyFrom(image))
                 .setSourceRasterRoi(SourceRasterRoi.newBuilder()

@@ -1863,7 +1863,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: VisionRoiAdmissionIntegrationTest PASS 1/1: malformed out-of-raster ROI is rejected as INVALID_ARGUMENT; valid ROI remains NOT_ADMITTED as FAILED_PRECONDITION; detector calls stay at zero. Still OPEN: source-frame version binding at provider dispatch, qualified ROI-aware detection, real image/video geometry, tracking and source PTS evidence."
+      "progress": "2026-11-05: VisionRoiAdmissionIntegrationTest focused selector PASS 1/1, no skips: malformed out-of-raster ROI and an in-bounds ROI missing required sourceFrameVersion return INVALID_ARGUMENT; a valid in-bounds ROI with a frame version remains NOT_ADMITTED as FAILED_PRECONDITION; detector calls stay at zero. Still OPEN: source-frame version binding at provider dispatch, qualified ROI-aware detection, real image/video geometry, tracking and source PTS evidence."
     },
     {
       "id": "media.dev.outcome-grounded-cross-modal-result",

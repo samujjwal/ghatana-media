@@ -647,7 +647,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-05 — Actual image/video geometry+track source PTS; malformed ROI.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
-- **Progress:** `VisionRoiAdmissionIntegrationTest` passes 1/1: malformed out-of-raster ROI is rejected as `INVALID_ARGUMENT`; valid ROI remains `NOT_ADMITTED` as `FAILED_PRECONDITION`; detector calls stay at zero. Still OPEN: source-frame version binding at provider dispatch, qualified ROI-aware detection, real image/video geometry, tracking and source PTS evidence.
+- **Progress:** `VisionRoiAdmissionIntegrationTest` passes 1/1 with no skips: malformed out-of-raster ROI and an in-bounds ROI missing required `sourceFrameVersion` return `INVALID_ARGUMENT`; a valid in-bounds ROI with a frame version remains `NOT_ADMITTED` as `FAILED_PRECONDITION`; detector calls stay at zero. Still OPEN: source-frame version binding at provider dispatch, qualified ROI-aware detection, real image/video geometry, tracking and source PTS evidence.
 - **Predecessors:** `media.dev.vision-model-and-geometry`
 
 **`media.dev.outcome-grounded-cross-modal-result`** · OPEN
