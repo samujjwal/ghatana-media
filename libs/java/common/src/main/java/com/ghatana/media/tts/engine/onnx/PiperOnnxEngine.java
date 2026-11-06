@@ -254,15 +254,32 @@ public final class PiperOnnxEngine implements TtsEngine {
     public void close() {
         LOG.info("Closing Piper TTS engine...");
         state.set(EngineStatus.State.CLOSED);
+        closeResources(session, environment, executor);
+    }
 
+    /** Closes every owned resource even when an earlier native close operation fails. */
+    static void closeResources(AutoCloseable session, AutoCloseable environment, ExecutorService executor) {
         try {
-            session.close();
-            environment.close();
-        } catch (OrtException e) {
-            LOG.warning("Error closing TTS ONNX session: " + e.getMessage());
+            closeResource(session, "TTS ONNX session");
+        } finally {
+            try {
+                closeResource(environment, "TTS ONNX environment");
+            } finally {
+                try {
+                    executor.shutdown();
+                } catch (RuntimeException e) {
+                    LOG.warning("Error shutting down TTS executor: " + e.getMessage());
+                }
+            }
         }
+    }
 
-        executor.shutdown();
+    private static void closeResource(AutoCloseable resource, String name) {
+        try {
+            resource.close();
+        } catch (Exception e) {
+            LOG.warning("Error closing " + name + ": " + e.getMessage());
+        }
     }
 
     @Override
