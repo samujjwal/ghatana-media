@@ -23,6 +23,9 @@ public interface DeliveryOperationStore {
             requestFingerprint = required(requestFingerprint, "requestFingerprint");
             java.util.Objects.requireNonNull(status, "status");
             MediaDeliveryEngine.validateProgress(status, acknowledgedBytes);
+            if (destinationReceiptRef != null) {
+                destinationReceiptRef = required(destinationReceiptRef, "destinationReceiptRef");
+            }
             if ((status == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED) != (destinationReceiptRef != null)) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");
             }

@@ -174,6 +174,7 @@ public final class MediaDeliveryEngine {
         public DeliveryResult {
             Objects.requireNonNull(status, "status");
             destinationReceiptRef = destinationReceiptRef == null ? Optional.empty() : destinationReceiptRef;
+            destinationReceiptRef = destinationReceiptRef.map(receipt -> required(receipt, "destinationReceiptRef"));
             if ((status == Status.DESTINATION_CONFIRMED) != destinationReceiptRef.isPresent()) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");
             }
