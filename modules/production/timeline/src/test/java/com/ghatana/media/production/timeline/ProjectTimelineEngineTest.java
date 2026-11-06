@@ -35,6 +35,22 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void sameRequestIdBoundToDifferentTitleConflictsAndPreservesOriginalReceipt() {
+        ProjectTimelineEngine engine = engine();
+        Created first = engine.createProject(OWNER, "workspace-a", "Cut", "create-title-1");
+
+        assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-a", "Renamed cut", "create-title-1"))
+                .isInstanceOf(IdempotencyConflictException.class);
+
+        Created replay = engine.createProject(OWNER, "workspace-a", "Cut", "create-title-1");
+        assertThat(replay.createdNow()).isFalse();
+        assertThat(replay.project()).isEqualTo(first.project());
+        assertThat(replay.initialRevision()).isEqualTo(first.initialRevision());
+        assertThat(engine.project(OWNER, first.project().projectId()).headRevisionId())
+                .isEqualTo(first.initialRevision().revisionId());
+    }
+
+    @Test
     void createRequestIdMatchesOwnerWireSchemaAtEngineAndStoreBoundaries() {
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
         AtomicInteger nextId = new AtomicInteger();
