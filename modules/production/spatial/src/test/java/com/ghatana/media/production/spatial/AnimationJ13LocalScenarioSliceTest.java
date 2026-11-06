@@ -135,6 +135,27 @@ class AnimationJ13LocalScenarioSliceTest {
         assertThat(checkedSources).containsExactly(SOURCE, SOURCE);
     }
 
+    @Test
+    void glbPreflightRejectsJointLimitExceededAwayFromKeyframesAndSegmentMidpoint() {
+        var limitedRoot = new SpatialRigEngine.Bone("root", null,
+                SpatialRigEngine.LocalTransform.identity(), new SpatialRigEngine.JointConstraint(
+                        SpatialRigEngine.JointKind.BALL, Math.toRadians(170)));
+        var rig = new SpatialRigEngine.Rig("j13-limited-rig", GLB_FRAME, "UNIT_QUATERNION_XYZW",
+                List.of(SOURCE), List.of(limitedRoot), Map.of("root", List.of(
+                        key(0, SpatialRigEngine.Vec3.ZERO, axisAngleX(Math.toRadians(100))),
+                        key(1, SpatialRigEngine.Vec3.ZERO, axisAngleX(Math.toRadians(-140))))),
+                "project:j13:revision-8");
+
+        // Both keys (100/140 degrees) and the 1/2 s midpoint (160 degrees) pass,
+        // while shortest-arc interpolation reaches 180 degrees at 2/3 s.
+        assertThatThrownBy(() -> new SpatialRigEngine().exportGlb(rig,
+                source -> SpatialRigEngine.RightsOutcome.ELIGIBLE))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(
+                        ((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.MOTION_CONSTRAINT_INVALID));
+    }
+
     private static SpatialRigEngine.Rig authoredRig() {
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity());
         var hand = bone("hand", "root", new SpatialRigEngine.LocalTransform(
@@ -160,5 +181,9 @@ class AnimationJ13LocalScenarioSliceTest {
 
     private static SpatialRigEngine.Quaternion axisAngleZ(double radians) {
         return new SpatialRigEngine.Quaternion(0, 0, Math.sin(radians / 2), Math.cos(radians / 2));
+    }
+
+    private static SpatialRigEngine.Quaternion axisAngleX(double radians) {
+        return new SpatialRigEngine.Quaternion(Math.sin(radians / 2), 0, 0, Math.cos(radians / 2));
     }
 }

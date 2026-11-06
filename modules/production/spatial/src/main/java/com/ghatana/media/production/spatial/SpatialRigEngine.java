@@ -410,11 +410,49 @@ public final class SpatialRigEngine {
                 previousSeconds = currentSeconds;
                 if (index + 1 < track.size()) {
                     LocalTransform left = key.localPose(), right = track.get(index + 1).localPose();
-                    requireJointConstraint(bone, new LocalTransform(left.position().scale(0.5)
-                            .add(right.position().scale(0.5)), left.orientation().slerp(right.orientation(), 0.5)));
+                    double maximumDeviation = maximumSlerpDeviation(bone.restPose().orientation(),
+                            left.orientation(), right.orientation());
+                    if (maximumDeviation > bone.constraint().maxAngularDeviationRadians() + EPSILON) {
+                        throw new SpatialExportBlockedException(ExportBlocker.MOTION_CONSTRAINT_INVALID);
+                    }
                 }
             }
         }
+    }
+
+    /** Finds the farthest point from the rest orientation along the shortest quaternion arc. */
+    private static double maximumSlerpDeviation(Quaternion rest, Quaternion start, Quaternion end) {
+        double endpointDot = quaternionDot(start, end);
+        double endSign = endpointDot < 0 ? -1.0 : 1.0;
+        double theta = Math.acos(Math.min(1.0, Math.abs(endpointDot)));
+        if (theta < 1e-12) return Math.max(rest.angularDistance(start), rest.angularDistance(end));
+
+        // Along the shortest arc q(x) = start*cos(x) + tangent*sin(x), x in [0, theta].
+        // Distance from rest is 2*acos(abs(dot(rest, q(x)))), so its maximum occurs
+        // at a zero or a stationary point of that sinusoid, or at an endpoint.
+        double a = quaternionDot(rest, start);
+        double b = (endSign * quaternionDot(rest, end) - a * Math.cos(theta)) / Math.sin(theta);
+        double minimumAbsoluteDot = Math.min(Math.abs(a), Math.abs(endSign * quaternionDot(rest, end)));
+
+        double rootBase = Math.atan2(-a, b);
+        for (int turn = -1; turn <= 1; turn++) {
+            double root = rootBase + turn * Math.PI;
+            if (root >= 0 && root <= theta) return Math.PI;
+        }
+
+        double stationaryBase = Math.atan2(b, a);
+        for (int turn = -1; turn <= 1; turn++) {
+            double stationary = stationaryBase + turn * Math.PI;
+            if (stationary >= 0 && stationary <= theta) {
+                minimumAbsoluteDot = Math.min(minimumAbsoluteDot,
+                        Math.abs(a * Math.cos(stationary) + b * Math.sin(stationary)));
+            }
+        }
+        return 2 * Math.acos(Math.min(1.0, minimumAbsoluteDot));
+    }
+
+    private static double quaternionDot(Quaternion left, Quaternion right) {
+        return left.x() * right.x() + left.y() * right.y() + left.z() * right.z() + left.w() * right.w();
     }
 
     private static void requireJointConstraint(Bone bone, LocalTransform pose) {
