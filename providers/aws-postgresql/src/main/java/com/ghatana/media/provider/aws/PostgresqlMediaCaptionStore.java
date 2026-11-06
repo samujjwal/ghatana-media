@@ -198,7 +198,7 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
             select.setString(3, captionVersionId);
             try (ResultSet row = select.executeQuery()) {
                 if (!row.next()) return Optional.empty();
-                return Optional.of(new MediaCaptionContracts.CaptionVersionSnapshot(
+                var snapshot = new MediaCaptionContracts.CaptionVersionSnapshot(
                         row.getString(1), row.getString(2), captionVersionId, row.getString(3),
                         row.getString(4), row.getString(5),
                         ParentVersionKind.valueOf(row.getString(6)), row.getString(7),
@@ -207,7 +207,18 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
                         row.getBoolean(12) ? Optional.ofNullable(row.getString(13)) : Optional.empty(),
                         MediaCaptionContracts.parseSegmentsJson(row.getString(16)),
                         row.getBoolean(14) ? Optional.ofNullable(row.getString(15)) : Optional.empty(),
-                        row.getLong(17)));
+                        row.getLong(17));
+                var request = new RegistrationRequest(snapshot.requestId(), snapshot.sourceArtifactId(),
+                        snapshot.sourceArtifactVersionId(), snapshot.parentVersionKind(), snapshot.parentVersionId(),
+                        snapshot.sourceClockId(), snapshot.ticksPerSecond(), snapshot.sourceDurationTicks(),
+                        snapshot.languageDisposition(), snapshot.languageTag(), snapshot.captionSegments(),
+                        snapshot.purpose());
+                if (!MediaCaptionContracts.fingerprint(tenantId, principalId, request)
+                        .equals(snapshot.requestFingerprint())) {
+                    throw new IllegalStateException(
+                            "caption version readback differs from its immutable request fingerprint");
+                }
+                return Optional.of(snapshot);
             }
         } catch (SQLException failure) {
             throw new IllegalStateException("caption version readback failed", failure);

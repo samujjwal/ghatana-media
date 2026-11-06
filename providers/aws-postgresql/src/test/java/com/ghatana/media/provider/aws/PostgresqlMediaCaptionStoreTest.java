@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
+import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,6 +142,31 @@ class PostgresqlMediaCaptionStoreTest {
             assertThat(clock.get().ticksPerSecond()).isEqualTo(90_000);
             assertThat(clock.get().sourceDurationTicks()).isEqualTo(9_000_000);
             assertThat(f.store().parentClock("tenant-1", "principal-1", versionId, "artifact-1", "src-v2")).isEmpty();
+        }
+    }
+
+    @Test
+    void snapshotReadbackRejectsValidButChangedSegmentsUnderTheOriginalVersion() throws Exception {
+        try (Fixture f = openFixture()) {
+            Registered registered = (Registered) f.store().register(
+                    "tenant-1", "principal-1", request("req-tamper"), ADMITTED, PARENT);
+            String changedSegments = MediaCaptionContracts.segmentsJson(List.of(
+                    CaptionSegment.of("seg-1", "altered text", 10, 900, SegmentOrigin.USER_EDITED)));
+            try (PreparedStatement update = f.state().connection().prepareStatement("""
+                    UPDATE media_caption_registrations SET segments_json=?
+                    WHERE tenant_id=? AND principal_id=? AND caption_version_id=?
+                    """)) {
+                update.setString(1, changedSegments);
+                update.setString(2, "tenant-1");
+                update.setString(3, "principal-1");
+                update.setString(4, registered.captionVersionId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            assertThatThrownBy(() -> f.store().version(
+                    "tenant-1", "principal-1", registered.captionVersionId()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("immutable request fingerprint");
         }
     }
 
