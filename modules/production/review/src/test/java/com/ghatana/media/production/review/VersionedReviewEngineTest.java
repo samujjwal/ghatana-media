@@ -152,6 +152,27 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void compositeIdempotencyIdentityCannotCollideOnDelimiterCharacters() {
+        String firstTenant = "tenant-a\u0000principal-a";
+        ReviewCaseRef firstCase = new ReviewCaseRef(firstTenant, "case-a", V1.reference(), V1, "scope-a");
+        ReviewCaseRef secondCase = new ReviewCaseRef("tenant-a", "case-b", V1.reference(), V1, "scope-b");
+        Actor firstActor = new Actor(firstTenant, "principal-b");
+        Actor secondActor = new Actor("tenant-a", "principal-a\u0000principal-b");
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(firstCase, secondCase));
+        Comment payload = new Comment("same request id, distinct authenticated identities", CommentDisposition.OPEN, null);
+
+        ReviewRecord first = store.append(firstActor, firstCase, 0, "request-1", "fingerprint-a", "record-a",
+                "authority-a", payload, NOW);
+        ReviewRecord second = store.append(secondActor, secondCase, 0, "request-1", "fingerprint-b", "record-b",
+                "authority-b", payload, NOW);
+
+        assertThat(first.reviewCaseId()).isEqualTo("case-a");
+        assertThat(second.reviewCaseId()).isEqualTo("case-b");
+        assertThat(store.read(firstActor, firstCase)).containsExactly(first);
+        assertThat(store.read(secondActor, secondCase)).containsExactly(second);
+    }
+
+    @Test
     void exactTimeAndRoiAnnotationsRemainBoundToTheReviewedVersion() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
         Annotation annotation = new Annotation(

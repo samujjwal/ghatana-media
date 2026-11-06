@@ -10,14 +10,14 @@ import java.util.Objects;
 
 /** Single-process development/test store. It is not a canonical or multi-host review writer. */
 public final class InMemoryReviewStore implements ReviewStore {
-    private final Map<String, CaseState> cases = new HashMap<>();
-    private final Map<String, IdempotencyEntry> idempotency = new HashMap<>();
+    private final Map<CaseKey, CaseState> cases = new HashMap<>();
+    private final Map<IdempotencyKey, IdempotencyEntry> idempotency = new HashMap<>();
 
     /** Seeds only externally issued case references; this adapter never mints owner case identity. */
     public InMemoryReviewStore(List<ReviewCaseRef> issuedCases) {
         for (ReviewCaseRef reviewCase : List.copyOf(issuedCases)) {
             Objects.requireNonNull(reviewCase, "reviewCase");
-            if (cases.putIfAbsent(caseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()), new CaseState(reviewCase)) != null) {
+            if (cases.putIfAbsent(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()), new CaseState(reviewCase)) != null) {
                 throw new IllegalArgumentException("duplicate review case identity");
             }
         }
@@ -30,10 +30,10 @@ public final class InMemoryReviewStore implements ReviewStore {
         Objects.requireNonNull(actor, "actor");
         Objects.requireNonNull(reviewCase, "reviewCase");
         if (!actor.tenantId().equals(reviewCase.tenantId())) throw new ReviewCaseMismatchException();
-        CaseState state = cases.get(caseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));
+        CaseState state = cases.get(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));
         if (state == null || !state.ref.equals(reviewCase)) throw new ReviewCaseMismatchException();
 
-        String idempotencyKey = actor.tenantId() + "\u0000" + actor.principalId() + "\u0000" + requestId;
+        IdempotencyKey idempotencyKey = new IdempotencyKey(actor.tenantId(), actor.principalId(), requestId);
         IdempotencyEntry previous = idempotency.get(idempotencyKey);
         if (previous != null) {
             if (!previous.fingerprint.equals(fingerprint)) throw new ReviewIdempotencyConflictException();
@@ -55,12 +55,13 @@ public final class InMemoryReviewStore implements ReviewStore {
         Objects.requireNonNull(actor, "actor");
         Objects.requireNonNull(reviewCase, "reviewCase");
         if (!actor.tenantId().equals(reviewCase.tenantId())) throw new ReviewCaseMismatchException();
-        CaseState state = cases.get(caseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));
+        CaseState state = cases.get(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));
         if (state == null || !state.ref.equals(reviewCase)) throw new ReviewCaseMismatchException();
         return List.copyOf(state.records);
     }
 
-    private static String caseKey(String tenantId, String caseId) { return tenantId + "\u0000" + caseId; }
+    private record CaseKey(String tenantId, String caseId) { }
+    private record IdempotencyKey(String tenantId, String principalId, String requestId) { }
 
     private static final class CaseState {
         private final ReviewCaseRef ref;
