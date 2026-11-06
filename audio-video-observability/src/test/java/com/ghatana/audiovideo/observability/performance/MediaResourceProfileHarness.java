@@ -131,6 +131,10 @@ public final class MediaResourceProfileHarness {
                     || failedOperations > completedOperations) {
                 throw new IllegalArgumentException("operation counts must account for each request exactly once");
             }
+            if (outcome == Outcome.COMPLETED && (failedOperations != 0 || incompleteOperations != 0)
+                    || outcome == Outcome.FAILED && (failedOperations == 0 || incompleteOperations != 0)) {
+                throw new IllegalArgumentException("outcome must match completed, failed, and incomplete counts");
+            }
             resources = Map.copyOf(resources);
         }
 

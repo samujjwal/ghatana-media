@@ -145,6 +145,12 @@ class MediaResourceProfileHarnessTest {
         assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
                 16, 4, 2, 3, 2, MediaResourceProfileHarness.Outcome.FAILED, true,
                 1, 1, 1.0, 0.0, 0.0, 0.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                16, 4, 4, 1, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1.0, 0.0, 0.0, 0.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                16, 4, 4, 0, 0, MediaResourceProfileHarness.Outcome.FAILED, true,
+                1, 1, 1.0, 0.0, 0.0, 0.0, environment, java.util.Map.of()));
     }
 
     @Test
