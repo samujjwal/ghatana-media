@@ -37,7 +37,25 @@ class MemoryStore implements OfflineEditStore {
     if (this.failNextPut) { this.failNextPut = false; throw new Error("local storage unavailable"); }
     this.records.set(record.editId, record);
   }
+  async compareAndSet(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean> {
+    const current = this.records.get(expected.editId);
+    if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
+      || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
+      || current.expectedVersion !== expected.expectedVersion || current.state !== expected.state
+      || !sameBytes(current.nonce, expected.nonce) || !sameBytes(current.ciphertext, expected.ciphertext)
+      || replacement.tenantId !== expected.tenantId || replacement.projectId !== expected.projectId
+      || replacement.editId !== expected.editId
+      || [...this.records.values()].some((item) => item.tenantId === replacement.tenantId
+        && item.projectId === replacement.projectId && item.editId !== replacement.editId
+        && item.idempotencyKey === replacement.idempotencyKey)) return false;
+    this.records.set(replacement.editId, replacement);
+    return true;
+  }
   async remove(_query: OfflineEditScope, editId: string): Promise<void> { this.records.delete(editId); }
+}
+
+function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
 async function createQueue(store = new MemoryStore()): Promise<{ queue: OfflineEditQueue; store: MemoryStore }> {
@@ -93,10 +111,20 @@ describe("OfflineEditQueue", () => {
         expectedVersion: "v1", nonce: new Uint8Array(12), ciphertext: new Uint8Array(), payloadBytes: 0, state: "PENDING" }],
       insert: async () => false,
       put: async () => undefined,
+      compareAndSet: async () => false,
       remove: async () => undefined,
     };
     const q = new OfflineEditQueue({ store: leakingStore, encryptionKey: key });
     await expect(q.readEdits(scope)).rejects.toMatchObject({ code: "STORE_SCOPE_MISMATCH" });
+  });
+
+  it("authenticates the offline idempotency key with the encrypted edit metadata", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    const record = store.records.get(edit.editId)!;
+    store.records.set(edit.editId, { ...record, idempotencyKey: "tampered-key" });
+
+    await expect(queue.readEdits(scope)).rejects.toThrow();
   });
 
   it("requires fresh authorization and detects a stale project version before dispatch", async () => {
@@ -151,6 +179,61 @@ describe("OfflineEditQueue", () => {
     await queue.discardUnknown(scope, edit.editId, true);
     expect(store.records.has(edit.editId)).toBe(false);
     expect(await queue.hasDirtyEdits(scope)).toBe(false);
+  });
+
+  it("persists an outcome fence before dispatch across queue instances sharing the encrypted store", async () => {
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const store = new MemoryStore();
+    const firstQueue = new OfflineEditQueue({ store, encryptionKey: key });
+    const secondQueue = new OfflineEditQueue({ store, encryptionKey: key });
+    await firstQueue.enqueue(edit);
+
+    let dispatches = 0;
+    let releaseDispatch!: () => void;
+    let markStarted!: () => void;
+    const release = new Promise<void>((resolve) => { releaseDispatch = resolve; });
+    const started = new Promise<void>((resolve) => { markStarted = resolve; });
+    const adapter = {
+      reauthorize: async () => ({ authorized: true, disposition: "AUTHORIZED" as const }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => {
+        dispatches += 1;
+        expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
+        markStarted();
+        await release;
+        return { outcome: "APPLIED" as const, receipt: "receipt-1" };
+      },
+    };
+
+    const firstRun = firstQueue.replay(scope, adapter);
+    await started;
+    const concurrentRun = await secondQueue.replay(scope, adapter);
+    expect(concurrentRun).toEqual([]);
+    releaseDispatch();
+    expect(await firstRun).toMatchObject([{ state: "APPLIED", receipt: "receipt-1" }]);
+    expect(dispatches).toBe(1);
+  });
+
+  it("keeps malformed version and apply observations out of conflict or success states", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    let applyCount = 0;
+    const unknownVersion = await queue.replay(scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => ({ disposition: "CURRENT", version: "   " }),
+      apply: async () => { applyCount++; return { outcome: "APPLIED", receipt: "receipt" }; },
+    });
+    expect(unknownVersion[0]?.state).toBe("VERSION_UNKNOWN");
+    expect(store.records.get(edit.editId)?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+
+    const malformedAck = await queue.replay(scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => ({ outcome: "APPLIED" }) as { outcome: "APPLIED"; receipt: string },
+    });
+    expect(malformedAck[0]?.state).toBe("OUTCOME_UNKNOWN");
+    expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
   });
 
   it("allows a failed local persistence attempt to be retried without losing the edit", async () => {

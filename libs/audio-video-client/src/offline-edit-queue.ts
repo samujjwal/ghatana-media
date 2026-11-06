@@ -17,7 +17,7 @@ export interface OfflineEdit<T = unknown> extends OfflineEditScope {
 
 export type OfflineEditState = "PENDING" | "APPLIED" | "CONFLICT" | "REVOKED"
   | "OUTCOME_UNKNOWN";
-export type OfflineEditReplayState = OfflineEditState | "AUTHORIZATION_UNKNOWN" | "VERSION_UNKNOWN";
+export type OfflineEditReplayState = OfflineEditState | "AUTHORIZATION_UNKNOWN" | "VERSION_UNKNOWN" | "STORE_CAS_UNAVAILABLE";
 
 export interface OfflineEditRecord extends OfflineEditScope {
   readonly editId: string;
@@ -40,6 +40,8 @@ export interface OfflineEditStore {
   insert(record: OfflineEditRecord, maximumEntries: number): Promise<boolean>;
   /** Atomically replaces an existing record with the same editId. */
   put(record: OfflineEditRecord): Promise<void>;
+  /** Atomically replaces the exact expected row and preserves scoped edit/key uniqueness. */
+  compareAndSet?(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean>;
   remove(scope: OfflineEditScope, editId: string): Promise<void>;
 }
 
@@ -64,7 +66,7 @@ export interface OfflineEditQueueOptions {
 }
 
 export class OfflineEditQueueError extends Error {
-  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH") {
+  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE") {
     super(`Offline edit queue failed: ${code}`);
     this.name = "OfflineEditQueueError";
   }
@@ -106,6 +108,10 @@ export class OfflineEditQueue {
     }
   }
 
+  public get canReplaySafely(): boolean {
+    return typeof this.options.store.compareAndSet === "function";
+  }
+
   public async enqueue<T>(edit: OfflineEdit<T>): Promise<void> {
     assertEdit(edit);
     const records = await this.listScoped(edit);
@@ -142,6 +148,8 @@ export class OfflineEditQueue {
   /** Explicitly rebase a conflict with a new exact version and idempotency key. */
   public async resolveConflict<T>(edit: OfflineEdit<T>): Promise<void> {
     assertEdit(edit);
+    const compareAndSet = this.options.store.compareAndSet;
+    if (!compareAndSet) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
     const previous = (await this.listScoped(edit)).find((record) => record.editId === edit.editId);
     if (previous?.state !== "CONFLICT" || previous.idempotencyKey === edit.idempotencyKey
       || previous.expectedVersion === edit.expectedVersion) {
@@ -156,7 +164,10 @@ export class OfflineEditQueue {
     if (serialized === undefined) throw new OfflineEditQueueError("INVALID_EDIT");
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
-    await this.options.store.put(await this.encrypt(edit, plaintext, "PENDING"));
+    const replacement = await this.encrypt(edit, plaintext, "PENDING");
+    if (!await compareAndSet.call(this.options.store, previous, replacement)) {
+      throw new OfflineEditQueueError("INVALID_EDIT");
+    }
   }
 
   public async hasDirtyEdits(scope: OfflineEditScope): Promise<boolean> {
@@ -181,6 +192,10 @@ export class OfflineEditQueue {
   }[]> {
     assertScope(scope);
     const records = await this.listScoped(scope);
+    if (!this.canReplaySafely) {
+      return records.filter((record) => record.state === "PENDING")
+        .map((record) => ({ editId: record.editId, state: "STORE_CAS_UNAVAILABLE" as const }));
+    }
     const results: { editId: string; state: OfflineEditReplayState; receipt?: R }[] = [];
     for (const record of records) {
       if (record.state !== "PENDING") continue; // unknown, revoked, conflicts are never auto-replayed.
@@ -194,14 +209,23 @@ export class OfflineEditQueue {
         results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
         continue;
       }
+      if (typeof versionRead !== "string" && (!versionRead || typeof versionRead !== "object"
+        || (versionRead.disposition !== "CURRENT" && versionRead.disposition !== "UNKNOWN"))) {
+        results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
+        continue;
+      }
       if (typeof versionRead !== "string" && versionRead.disposition === "UNKNOWN") {
         results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
         continue;
       }
       const currentVersion = typeof versionRead === "string" ? versionRead : versionRead.version;
+      if (typeof currentVersion !== "string" || !currentVersion.trim()) {
+        results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
+        continue;
+      }
       if (currentVersion !== record.expectedVersion) {
-        await this.update(record, "CONFLICT");
-        results.push({ editId: record.editId, state: "CONFLICT" });
+        const transitioned = await this.transition(record, "CONFLICT");
+        results.push({ editId: record.editId, state: transitioned ? "CONFLICT" : "OUTCOME_UNKNOWN" });
         continue;
       }
       // Check rights after read-only version preflight, immediately before the
@@ -213,23 +237,56 @@ export class OfflineEditQueue {
         results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
         continue;
       }
+      if (!authorization || typeof authorization.authorized !== "boolean"
+        || (authorization.disposition !== undefined
+          && authorization.disposition !== "AUTHORIZED" && authorization.disposition !== "REVOKED"
+          && authorization.disposition !== "UNKNOWN")
+        || (authorization.authorized && authorization.disposition === "REVOKED")
+        || (!authorization.authorized && authorization.disposition === "AUTHORIZED")) {
+        results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+        continue;
+      }
       if (authorization.disposition === "UNKNOWN") {
         results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
         continue;
       }
       if (!authorization.authorized || authorization.disposition === "REVOKED") {
-        await this.update(record, "REVOKED");
-        results.push({ editId: record.editId, state: "REVOKED" });
+        const transitioned = await this.transition(record, "REVOKED");
+        results.push({ editId: record.editId, state: transitioned ? "REVOKED" : "OUTCOME_UNKNOWN" });
         continue;
       }
-      // A thrown error is ambiguous after dispatch; persist OUTCOME_UNKNOWN and do not retry.
+      // Persist unknown state before crossing the external boundary. A crash
+      // after this CAS cannot leave a PENDING edit available for blind replay.
+      const dispatchIntent = await this.transition(record, "OUTCOME_UNKNOWN");
+      if (!dispatchIntent) {
+        results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+        continue;
+      }
+      // A thrown or malformed result is ambiguous after dispatch; leave the
+      // durable record OUTCOME_UNKNOWN until an owner readback resolves it.
       try {
         const outcome = await adapter.apply(edit);
-        await this.update(record, outcome.outcome);
+        if (!outcome || (outcome.outcome !== "APPLIED" && outcome.outcome !== "CONFLICT"
+          && outcome.outcome !== "OUTCOME_UNKNOWN")) {
+          results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+          continue;
+        }
+        if (outcome.outcome === "APPLIED" && !validReceipt(outcome.receipt)) {
+          results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+          continue;
+        }
+        if (outcome.outcome === "OUTCOME_UNKNOWN") {
+          results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+          continue;
+        }
+        const confirmed = await this.transition(dispatchIntent, outcome.outcome);
+        if (!confirmed) {
+          results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+          continue;
+        }
         results.push({ editId: record.editId, state: outcome.outcome,
           ...(outcome.outcome === "APPLIED" ? { receipt: outcome.receipt } : {}) });
       } catch {
-        await this.update(record, "OUTCOME_UNKNOWN");
         results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
       }
     }
@@ -254,8 +311,10 @@ export class OfflineEditQueue {
     return { ...record, payload: JSON.parse(decoder.decode(plaintext)) as T };
   }
 
-  private async update(record: OfflineEditRecord, state: OfflineEditState): Promise<void> {
-    await this.options.store.put({ ...record, state });
+  private async transition(record: OfflineEditRecord, state: OfflineEditState): Promise<OfflineEditRecord | undefined> {
+    const replacement = { ...record, state };
+    return this.options.store.compareAndSet && await this.options.store.compareAndSet(record, replacement)
+      ? replacement : undefined;
   }
 
   private async listScoped(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
@@ -279,9 +338,13 @@ export class OfflineEditQueue {
       payloadBytes: plaintext.byteLength, state };
   }
 
-  private aad(scope: OfflineEditScope & { readonly editId?: string; readonly expectedVersion?: string }): ArrayBuffer {
+  private aad(scope: OfflineEditScope & {
+    readonly editId?: string;
+    readonly expectedVersion?: string;
+    readonly idempotencyKey?: string;
+  }): ArrayBuffer {
     return this.copyBufferSource(encoder.encode(
-      `${scope.tenantId}\u0000${scope.projectId}\u0000${scope.editId ?? ""}\u0000${scope.expectedVersion ?? ""}`,
+      `${scope.tenantId}\u0000${scope.projectId}\u0000${scope.editId ?? ""}\u0000${scope.expectedVersion ?? ""}\u0000${scope.idempotencyKey ?? ""}`,
     ));
   }
 
@@ -290,4 +353,9 @@ export class OfflineEditQueue {
     copy.set(bytes);
     return copy.buffer;
   }
+}
+
+function validReceipt<R>(receipt: R | undefined): receipt is R {
+  if (receipt === undefined || receipt === null) return false;
+  return typeof receipt !== "string" || receipt.trim().length > 0;
 }

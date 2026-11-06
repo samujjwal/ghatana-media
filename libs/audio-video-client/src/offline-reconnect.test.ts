@@ -29,6 +29,19 @@ class MemoryStore implements OfflineEditStore {
     return true;
   }
   async put(record: OfflineEditRecord): Promise<void> { this.records.set(record.editId, record); }
+  async compareAndSet(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean> {
+    const current = this.records.get(expected.editId);
+    if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
+      || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
+      || current.expectedVersion !== expected.expectedVersion || current.state !== expected.state
+      || replacement.tenantId !== expected.tenantId || replacement.projectId !== expected.projectId
+      || replacement.editId !== expected.editId
+      || [...this.records.values()].some((item) => item.tenantId === replacement.tenantId
+        && item.projectId === replacement.projectId && item.editId !== replacement.editId
+        && item.idempotencyKey === replacement.idempotencyKey)) return false;
+    this.records.set(replacement.editId, replacement);
+    return true;
+  }
   async remove(_scope: OfflineEditScope, editId: string): Promise<void> { this.records.delete(editId); }
 }
 
@@ -40,8 +53,8 @@ describe("OfflineReconnectCoordinator", () => {
     key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
   });
 
-  async function queue(): Promise<OfflineEditQueue> {
-    return new OfflineEditQueue({ store, encryptionKey: key });
+  async function queue(editStore: OfflineEditStore = store): Promise<OfflineEditQueue> {
+    return new OfflineEditQueue({ store: editStore, encryptionKey: key });
   }
   function operations(overrides: Partial<OfflineReconnectOperations<typeof edit.payload>> = {}): OfflineReconnectOperations<typeof edit.payload> {
     return {
@@ -60,6 +73,30 @@ describe("OfflineReconnectCoordinator", () => {
     await expect(coordinator.reconnect(false)).resolves.toEqual({ status: "OFFLINE", dirty: true });
     await expect(coordinator.reconnect(true)).resolves.toEqual({ status: "UNAVAILABLE",
       reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty: true });
+  });
+
+  it("preserves legacy stores but reports unavailable before authority reads when replay CAS is unsupported", async () => {
+    const legacyStore: OfflineEditStore = {
+      list: (query) => store.list(query),
+      insert: (record, maximumEntries) => store.insert(record, maximumEntries),
+      put: (record) => store.put(record),
+      remove: (query, editId) => store.remove(query, editId),
+    };
+    const q = await queue(legacyStore);
+    await q.enqueue(edit);
+    let authorityReads = 0;
+    let applyCount = 0;
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async () => { authorityReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      readProjectVersion: async () => { authorityReads++; return { ...scope, disposition: "CURRENT", version: "revision-7" }; },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(result).toEqual({ status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: true,
+      results: [{ editId: edit.editId, state: "STORE_CAS_UNAVAILABLE" }] });
+    expect(authorityReads).toBe(0);
+    expect(applyCount).toBe(0);
+    expect(store.records.get(edit.editId)?.state).toBe("PENDING");
   });
 
   it("records stale authorization as revoked without applying any local edit", async () => {

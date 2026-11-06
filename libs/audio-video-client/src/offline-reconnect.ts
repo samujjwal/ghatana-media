@@ -32,6 +32,9 @@ export interface OfflineReconnectOperations<T = unknown> {
 
 export type OfflineReconnectResult<R = unknown> =
   | { readonly status: "UNAVAILABLE"; readonly reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE"; readonly dirty: boolean }
+  | { readonly status: "UNAVAILABLE"; readonly reason: "OFFLINE_STORE_CAS_UNAVAILABLE"; readonly dirty: boolean; readonly results: readonly {
+      readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R;
+    }[] }
   | { readonly status: "OFFLINE"; readonly dirty: boolean }
   | { readonly status: "RECONNECTED"; readonly dirty: boolean; readonly results: readonly {
       readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R;
@@ -83,7 +86,11 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       },
     };
     const results = await this.queue.replay<T, R>(this.scope, adapter);
-    return { status: "RECONNECTED", dirty: await this.queue.hasDirtyEdits(this.scope), results };
+    const stillDirty = await this.queue.hasDirtyEdits(this.scope);
+    if (results.some((result) => result.state === "STORE_CAS_UNAVAILABLE")) {
+      return { status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: stillDirty, results };
+    }
+    return { status: "RECONNECTED", dirty: stillDirty, results };
   }
 }
 
