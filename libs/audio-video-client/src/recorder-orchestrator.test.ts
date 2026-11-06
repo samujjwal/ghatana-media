@@ -755,12 +755,29 @@ describe("publishFinalRender", () => {
   const fakeClient = (overrides: Record<string, unknown> = {}) => {
     let submittedSha256 = "";
     return ({
-    createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => {
+    createUploadSession: vi.fn(async (input: {
+      readonly fileName: string;
+      readonly contentType: string;
+      readonly expectedSizeBytes: number;
+      readonly expectedSha256: string;
+      readonly classification: string;
+      readonly metadata?: Readonly<Record<string, unknown>>;
+    }) => {
       submittedSha256 = input.expectedSha256;
-      return uploadSession({ expectedSha256: submittedSha256 });
+      return uploadSession({
+        fileName: input.fileName,
+        contentType: input.contentType,
+        expectedSizeBytes: input.expectedSizeBytes,
+        expectedSha256: submittedSha256,
+        classification: input.classification,
+        metadata: input.metadata ?? {},
+      });
     }),
     uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) =>
-      uploadSession({ bytesReceived: session.bytesReceived + blob.size, nextChunkIndex: session.nextChunkIndex + 1 })),
+      uploadSession({ ...session,
+        bytesReceived: session.bytesReceived + blob.size,
+        nextChunkIndex: session.nextChunkIndex + 1,
+      })),
     completeUploadSession: vi.fn(async () => ({
       tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1", fileName: "demo.mp4",
       contentType: "video/mp4", sizeBytes: 3, sha256: submittedSha256, objectReference: "objects/demo",
@@ -855,8 +872,11 @@ describe("publishFinalRender", () => {
       status: ++checks === 4 ? "NOT_ADMITTED" as const : "ADMITTED" as const,
       decisionRefs: ["rights-decision/demo"],
     }) };
-    const uploadPart = vi.fn(async (session: { readonly bytesReceived: number; readonly nextChunkIndex: number }, _index: number, blob: Blob) =>
-      uploadSession({ bytesReceived: session.bytesReceived + blob.size, nextChunkIndex: session.nextChunkIndex + 1 }));
+    const uploadPart = vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) =>
+      uploadSession({ ...session,
+        bytesReceived: session.bytesReceived + blob.size,
+        nextChunkIndex: session.nextChunkIndex + 1,
+      }));
     const client = fakeClient({ uploadPart });
     await expect(publishFinalRender(request(), revokeOnSecondChunk,
       { muxAndVerify: async () => verifiedContainer(bigBytes) }, client)).resolves.toMatchObject({
@@ -893,9 +913,9 @@ describe("publishFinalRender", () => {
     } };
     let uploadedBytes: number[] = [];
     const client = fakeClient({
-      uploadPart: vi.fn(async (_session: unknown, _index: number, blob: Blob) => {
+      uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) => {
         uploadedBytes = [...new Uint8Array(await blob.arrayBuffer())];
-        return uploadSession({ bytesReceived: 3, nextChunkIndex: 1 });
+        return uploadSession({ ...session, bytesReceived: 3, nextChunkIndex: 1 });
       }),
     });
     await expect(publishFinalRender(request(), mutateDuringRecheck,
@@ -947,6 +967,21 @@ describe("publishFinalRender", () => {
       outcome: "OUTCOME_UNKNOWN",
       uploadId: "upload-1",
       reason: expect.stringContaining("chunk acknowledgement is missing"),
+    });
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("does not complete when the chunk receipt fails to confirm exact session progress", async () => {
+    const client = fakeClient({
+      uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>) =>
+        uploadSession({ ...session, bytesReceived: 2, nextChunkIndex: 1 })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("does not confirm the exact upload session progress"),
     });
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
       .not.toHaveBeenCalled();

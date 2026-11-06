@@ -22,6 +22,7 @@ import {
   type MediaOperationClient,
   type CanonicalMediaArtifactObservation,
   type CanonicalMediaClassification,
+  type CanonicalMediaUploadSessionObservation,
 } from "./operations.js";
 
 export interface ScenarioActor {
@@ -752,6 +753,24 @@ function stableRenderIdentity(request: FinalRenderRequest): string {
   ]);
 }
 
+/** Compare a chunk receipt to the exact immutable session that authorized dispatch. */
+function sameUploadSessionIdentity(
+  actual: CanonicalMediaUploadSessionObservation,
+  expected: CanonicalMediaUploadSessionObservation,
+): boolean {
+  return actual.uploadId === expected.uploadId
+    && actual.tenantId === expected.tenantId
+    && actual.principalId === expected.principalId
+    && actual.fileName === expected.fileName
+    && actual.contentType === expected.contentType
+    && actual.expectedSizeBytes === expected.expectedSizeBytes
+    && actual.expectedSha256 === expected.expectedSha256
+    && actual.classification === expected.classification
+    && actual.createdAt === expected.createdAt
+    && actual.expiresAt === expected.expiresAt
+    && JSON.stringify(actual.metadata) === JSON.stringify(expected.metadata);
+}
+
 /**
  * Publishes only bytes returned by the admitted mux+decoder/probe host port.
  * The canonical upload's declared idempotency key is stable for the same
@@ -882,8 +901,19 @@ export async function publishFinalRender(
         return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render authority was denied or unavailable before a chunk dispatch", uploadId };
       }
       const end = Math.min(offset + RENDER_UPLOAD_CHUNK_BYTES, bytes.byteLength);
-      session = await artifactClient.uploadPart(session, chunkIndex,
+      // Preserve the exact pre-dispatch receipt; an adapter may mutate its
+      // session object while handling the request, so never compare against
+      // that same mutable reference after awaiting the chunk effect.
+      const dispatchedSession = JSON.parse(JSON.stringify(session)) as CanonicalMediaUploadSessionObservation;
+      const acknowledgedSession = await artifactClient.uploadPart(session, chunkIndex,
         new Blob([bytes.slice(offset, end)], { type: "application/octet-stream" }), { signal });
+      if (!acknowledgedSession || acknowledgedSession.status !== "OPEN"
+        || !sameUploadSessionIdentity(acknowledgedSession, dispatchedSession)
+        || acknowledgedSession.bytesReceived !== end
+        || acknowledgedSession.nextChunkIndex !== chunkIndex + 1) {
+        return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement does not confirm the exact upload session progress", uploadId };
+      }
+      session = acknowledgedSession;
       offset = end;
       chunkIndex += 1;
     }
