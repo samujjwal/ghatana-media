@@ -621,6 +621,25 @@ function freezeRenderValue<T>(value: T): T {
   return value;
 }
 
+/** JSON object key order is not part of the canonical metadata value. */
+function sameRenderJson(actual: unknown, expected: unknown): boolean {
+  if (Object.is(actual, expected)) return true;
+  if (actual === null || expected === null || typeof actual !== "object" || typeof expected !== "object") {
+    return false;
+  }
+  if (Array.isArray(actual) || Array.isArray(expected)) {
+    return Array.isArray(actual) && Array.isArray(expected) && actual.length === expected.length
+      && actual.every((value, index) => sameRenderJson(value, expected[index]));
+  }
+  const actualRecord = actual as Record<string, unknown>;
+  const expectedRecord = expected as Record<string, unknown>;
+  const actualKeys = Object.keys(actualRecord);
+  const expectedKeys = Object.keys(expectedRecord);
+  return actualKeys.length === expectedKeys.length
+    && actualKeys.every((key) => Object.hasOwn(expectedRecord, key)
+      && sameRenderJson(actualRecord[key], expectedRecord[key]));
+}
+
 function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRenderRequest {
   requireText(request.renderId, "renderId");
   if (!request.plan || request.plan.dryRunOnly !== true) {
@@ -768,7 +787,7 @@ function sameUploadSessionIdentity(
     && actual.classification === expected.classification
     && actual.createdAt === expected.createdAt
     && actual.expiresAt === expected.expiresAt
-    && JSON.stringify(actual.metadata) === JSON.stringify(expected.metadata);
+    && sameRenderJson(actual.metadata, expected.metadata);
 }
 
 /**
@@ -861,6 +880,20 @@ export async function publishFinalRender(
     if (!await checkAdmission()) {
       return { outcome: "NOT_ADMITTED", reason: "render authority was denied or unavailable before canonical artifact creation" };
     }
+    const uploadMetadata = freezeRenderValue({
+      operation: "media.recorder.final-render.v1",
+      renderIdentitySha256: identityDigest,
+      sourceLineage: safeRequest.plan.sceneRuns.map((run) => ({
+        sceneId: run.sceneId, lineageId: run.lineageId, sourceRevision: run.sourceRevision,
+      })),
+      authorityDecisionRefs: [...admittedRefs],
+      frameRate: safeRequest.frameRate,
+      variableFrameRate: safeRequest.variableFrameRate,
+      timeBase: safeRequest.timeBase,
+      durationTicks: safeRequest.durationTicks,
+      captions: safeRequest.captions,
+      creditRefs: safeRequest.creditRefs,
+    });
     let session = await artifactClient.createUploadSession({
       fileName: safeRequest.fileName,
       contentType: rendered.contentType,
@@ -868,25 +901,18 @@ export async function publishFinalRender(
       expectedSha256: sha256,
       classification: safeRequest.classification,
       retention: safeRequest.retention,
-      metadata: freezeRenderValue({
-        operation: "media.recorder.final-render.v1",
-        renderIdentitySha256: identityDigest,
-        sourceLineage: safeRequest.plan.sceneRuns.map((run) => ({
-          sceneId: run.sceneId, lineageId: run.lineageId, sourceRevision: run.sourceRevision,
-        })),
-        authorityDecisionRefs: [...admittedRefs],
-        frameRate: safeRequest.frameRate,
-        variableFrameRate: safeRequest.variableFrameRate,
-        timeBase: safeRequest.timeBase,
-        durationTicks: safeRequest.durationTicks,
-        captions: safeRequest.captions,
-        creditRefs: safeRequest.creditRefs,
-      }),
+      metadata: uploadMetadata,
       idempotencyKey,
     }, signal);
     uploadId = session.uploadId;
     if (session.status !== "OPEN") {
       return { outcome: "OUTCOME_UNKNOWN", reason: "idempotent upload session is not open; read canonical state before replay", uploadId };
+    }
+    if (session.fileName !== safeRequest.fileName || session.contentType !== rendered.contentType
+      || session.expectedSizeBytes !== bytes.byteLength || session.expectedSha256 !== sha256
+      || session.classification !== safeRequest.classification
+      || !sameRenderJson(session.metadata, uploadMetadata)) {
+      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload session does not bind the verified render request; inspect state before replay", uploadId };
     }
     let offset = session.bytesReceived;
     let chunkIndex = session.nextChunkIndex;

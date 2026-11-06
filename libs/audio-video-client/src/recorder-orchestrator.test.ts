@@ -953,6 +953,65 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession).not.toHaveBeenCalled();
   });
 
+  it("does not dispatch render bytes when the created upload session binds another digest", async () => {
+    const client = fakeClient({
+      createUploadSession: vi.fn(async () => uploadSession({
+        expectedSha256: "b".repeat(64),
+      })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("does not bind the verified render request"),
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("accepts the exact created session when JSON metadata object keys are reordered", async () => {
+    const reverseJsonKeys = (value: unknown): unknown => {
+      if (Array.isArray(value)) return value.map(reverseJsonKeys);
+      if (value !== null && typeof value === "object") {
+        return Object.fromEntries(Object.entries(value).reverse().map(([key, nested]) => [key, reverseJsonKeys(nested)]));
+      }
+      return value;
+    };
+    let submittedSha256 = "";
+    const client = fakeClient({
+      createUploadSession: vi.fn(async (input: {
+        readonly fileName: string;
+        readonly contentType: string;
+        readonly expectedSizeBytes: number;
+        readonly expectedSha256: string;
+        readonly classification: string;
+        readonly metadata?: Readonly<Record<string, unknown>>;
+      }) => {
+        submittedSha256 = input.expectedSha256;
+        return uploadSession({
+          fileName: input.fileName,
+          contentType: input.contentType,
+          expectedSizeBytes: input.expectedSizeBytes,
+          expectedSha256: input.expectedSha256,
+          classification: input.classification,
+          metadata: reverseJsonKeys(input.metadata),
+        });
+      }),
+      completeUploadSession: vi.fn(async () => ({
+        tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1", fileName: "demo.mp4",
+        contentType: "video/mp4", sizeBytes: 3, sha256: submittedSha256, objectReference: "objects/demo",
+        classification: "INTERNAL", createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-12-05T00:00:00Z", metadata: {},
+      })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "PUBLISHED",
+      artifact: { artifactId: "artifact-1" },
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).toHaveBeenCalledTimes(1);
+  });
+
   it("preserves UNKNOWN when a dispatched chunk has no canonical acknowledgement", async () => {
     const client = fakeClient({
       uploadPart: vi.fn(async () => {
@@ -989,8 +1048,12 @@ describe("publishFinalRender", () => {
 
   it("does not dispatch or complete when a resumed session chunk index contradicts its byte offset", async () => {
     const client = fakeClient({
-      createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => uploadSession({
+      createUploadSession: vi.fn(async (input: {
+        readonly expectedSha256: string;
+        readonly metadata?: Readonly<Record<string, unknown>>;
+      }) => uploadSession({
         expectedSha256: input.expectedSha256,
+        metadata: input.metadata ?? {},
         bytesReceived: 3,
         nextChunkIndex: 0,
       })),
@@ -1008,8 +1071,12 @@ describe("publishFinalRender", () => {
 
   it("rejects a negative aligned resume offset before dispatch", async () => {
     const client = fakeClient({
-      createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => uploadSession({
+      createUploadSession: vi.fn(async (input: {
+        readonly expectedSha256: string;
+        readonly metadata?: Readonly<Record<string, unknown>>;
+      }) => uploadSession({
         expectedSha256: input.expectedSha256,
+        metadata: input.metadata ?? {},
         bytesReceived: -4 * 1024 * 1024,
         nextChunkIndex: -1,
       })),
@@ -1027,8 +1094,12 @@ describe("publishFinalRender", () => {
 
   it("rejects a negative resume chunk index before dispatch", async () => {
     const client = fakeClient({
-      createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => uploadSession({
+      createUploadSession: vi.fn(async (input: {
+        readonly expectedSha256: string;
+        readonly metadata?: Readonly<Record<string, unknown>>;
+      }) => uploadSession({
         expectedSha256: input.expectedSha256,
+        metadata: input.metadata ?? {},
         bytesReceived: 0,
         nextChunkIndex: -1,
       })),
