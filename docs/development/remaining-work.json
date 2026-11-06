@@ -400,7 +400,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "verified-2026-11-05: MediaGrpcOperationParityTest checks all 44 declared STT/TTS/Vision/Multimodal RPC descriptors against generated async clients and active handlers; focused Gradle selector passed. STT focused proto, handler, auth, typed-error, bounded-stream, transport-policy and fixture-restart selectors pass. TTS grouped gRPC/auth/stream/restart selectors pass 164/164, no skips. Vision matrix 6/6, OCR-only 5/5, in-process 6/6, server startup/close 3/3; a mis-scoped full-module run had one deadline timing failure, the test now awaits async server-context cancellation and focused rerun passes 1/1. Multimodal wrapper and in-process suites pass 8/8 each, including JWT and service restart matrix. Fresh `VisionGrpcServerCompositionTest.productionRootStartsNotServingAndRecordsBoundedHealthRpcThenDrains` PASS 1/1: a real local server reports health and typed provider-unavailable with zero provider calls, closes, then rebinds the same port. Still OPEN: no live mTLS handshake evidence; Vision close/rebind and Multimodal service restart tests do not prove durable job/result recovery; real provider effects/quality are not admitted. Production restart, persisted cross-tenant isolation, production SLOs, canonical STT session/consent and transcript revision/CAS remain outstanding. OCR is proposal-only and Vision stays unavailable without Document Intelligence. Full Vision module was not rerun after the focused deadline test fix."
+      "progress": "verified-2026-11-05: MediaGrpcOperationParityTest checks all 44 declared STT/TTS/Vision/Multimodal RPC descriptors against generated async clients and active handlers; focused Gradle selector passed. STT focused proto, handler, auth, typed-error, bounded-stream, transport-policy and fixture-restart selectors pass. TTS grouped gRPC/auth/stream/restart selectors pass 164/164, no skips. Vision matrix 6/6, OCR-only 5/5, in-process 6/6, server startup/close 3/3; a mis-scoped full-module run had one deadline timing failure, the test now awaits async server-context cancellation and focused rerun passes 1/1. Multimodal wrapper and in-process suites pass 8/8 each, including JWT and service restart matrix. `VisionGrpcServerCompositionTest.productionRootStartsNotServingAndRecordsBoundedHealthRpcThenDrains` PASS 1/1: a real local server reports health and typed provider-unavailable with zero provider calls, closes, then rebinds the same port. `VisionGrpcServerMtlsHandshakeTest` PASS 1/1 with checked-in test-only TLS identities: the local gRPC listener rejects a client without a certificate and accepts the trusted test identity for health, which reports NOT_SERVING. This is local transport evidence only; production credential rotation, durable job/result recovery, real provider effects/quality and production SLOs remain unproved. Production restart, persisted cross-tenant isolation, canonical STT session/consent and transcript revision/CAS remain outstanding. OCR is proposal-only and Vision stays unavailable without Document Intelligence. Full Vision module was not rerun after the focused deadline test fix."
     },
     {
       "id": "media.dev.sdk-source-declaration-crosswalk",
@@ -516,7 +516,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "verified-2026-11-05: Fixed public lifecycle consumer/schema ABI mismatch using MediaPublicLifecycleEvent.SCHEMA_URI, pinned to the JSON Schema $id. Runtime contract test 5/5 and consumer test 8/8 pass. Still OPEN: active relay publishes a distinct internal payload/schema; Shared OutboundEvent omits principalId required by the public ABI, and two outbox tables remain unreconciled. No accurate public projection can be emitted without inventing identity or changing a Shared contract. Replay/out-of-order/auth semantics and separate terminal job readback are unproved."
+      "progress": "verified-2026-11-05: Fixed public lifecycle consumer/schema ABI mismatch using MediaPublicLifecycleEvent.SCHEMA_URI, pinned to the JSON Schema $id. Runtime contract selector PASS 5/5; MediaLifecycleEventConsumerTest PASS 9/9, covering replay/out-of-order projection behavior, authorization, separate terminal readback, and stable redacted aggregate references passed to authorization/readback ports. Still OPEN: active relay publishes a distinct internal payload/schema; Shared OutboundEvent omits principalId required by the public ABI, and two outbox tables remain unreconciled. No accurate public projection can be emitted without inventing identity or changing a Shared contract. Durable relay-to-public projection and authoritative terminal readback integration remain unproved."
     },
     {
       "id": "media.dev.authorized-agent-delegation",
@@ -812,7 +812,8 @@
         "media.dev.rights-and-policy"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: SceneTextRecognitionServiceTest PASS 28/28 for source authority/version/frame digest checks, crop resolution, DI region validation and frame-coordinate mapping. Current DI v1 request has no source version/digest/ROI fields and its protocol excludes Media source authority from the boundary; the response echoes none of these. Adding custom metadata or response fields would invent or duplicate contract semantics. DI owner disposition is needed on whether source-digest binding belongs in existing v1 semantics. No Media OCR engine was added."
     },
     {
       "id": "media.dev.multimodal-child-orchestration",
@@ -1508,7 +1509,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Replay persists OUTCOME_UNKNOWN with exact-row CAS before external dispatch and CASes to APPLIED/CONFLICT only on a valid result; malformed/lost ACKs remain unknown. AES-GCM binds idempotency metadata. compareAndSet stays optional for exported-store compatibility; missing CAS returns OFFLINE_STORE_CAS_UNAVAILABLE before authority reads/effects. Queue/reconnect selectors PASS 20/20; pnpm run typecheck PASS. Still OPEN: no production cross-process encrypted CAS store or canonical project-edit operation."
+      "progress": "2026-11-05: Replay persists OUTCOME_UNKNOWN with exact-row CAS before external dispatch and CASes to APPLIED/CONFLICT only on a valid result; malformed/lost ACKs remain unknown. AES-GCM binds idempotency metadata. compareAndSet stays optional for exported-store compatibility; missing CAS returns OFFLINE_STORE_CAS_UNAVAILABLE before authority reads/effects. CAS exceptions are treated as indeterminate: pre-dispatch failure prevents effect; post-dispatch failure preserves the durable unknown fence and prevents replay. Focused queue/reconnect selectors PASS 22/22; client typecheck PASS. Still OPEN: no production cross-process encrypted CAS store or canonical project-edit operation."
     },
     {
       "id": "media.dev.spatial-and-interactive-export",
