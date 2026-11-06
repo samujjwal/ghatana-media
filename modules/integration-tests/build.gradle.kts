@@ -16,6 +16,7 @@ dependencies {
     testImplementation(project(":services:media:modules:production:audio-mixing"))
     testImplementation(project(":services:media:modules:production:delivery"))
     testImplementation(project(":services:media:modules:production:rendering"))
+    testImplementation(project(":services:media:modules:production:review"))
     testImplementation(project(":services:media:modules:production:simulation"))
     testImplementation(project(":integration-tests:service-contract-test-utils"))
 
