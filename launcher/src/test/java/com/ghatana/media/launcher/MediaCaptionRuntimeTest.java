@@ -174,6 +174,49 @@ class MediaCaptionRuntimeTest {
     }
 
     @Test
+    void correctionCannotRegisterAgainstExactTranscriptVersionWithMixedSourceClocks() {
+        String sourceVersion = "sha256:" + "a".repeat(64);
+        MediaTranscriptStore transcripts = new MediaTranscriptStore() {
+            @Override public TranscriptRevision append(TranscriptDraft draft) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
+            @Override public List<TranscriptRevision> revisions(String t, String p, String i) { return List.of(); }
+            @Override public Optional<TranscriptRevision> revisionByVersionRef(String t, String p, String ref) {
+                if (!"transcript:v1:exact".equals(ref)) return Optional.empty();
+                var draft = new TranscriptDraft(t, p, "transcript-1", "artifact-1", sourceVersion,
+                        "a".repeat(64), "job-1", "profile-1", "provider-1", "model-1", "en",
+                        "SOURCE_TICKS", "hello world", "consent-1", "rights-1", "policy-1",
+                        "purpose-1", "captions", List.of(
+                                new TranscriptSegment("s1", "hello", "RECOGNIZED",
+                                        TranscriptSegmentTiming.sourceTicks(10, 400, "clock.v1", 90_000, 9_000_000)),
+                                new TranscriptSegment("s2", "world", "RECOGNIZED",
+                                        TranscriptSegmentTiming.sourceTicks(500, 900, "clock.v2", 90_000, 9_000_000))));
+                return Optional.of(new TranscriptRevision(draft, 2, 0, "ADMITTED"));
+            }
+            @Override public boolean productionEligible() { return true; }
+            @Override public boolean ready() { return true; }
+            @Override public void close() { }
+        };
+        var store = new FakeCaptionStore();
+        var runtime = new MediaCaptionRuntime(store,
+                rights(List.of(record(sourceVersion, "principal-1", false, false,
+                        Set.of("caption_version_write")))), transcripts, CLOCK);
+        RegistrationRequest correction = new RegistrationRequest("correction-1", "artifact-1", sourceVersion,
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact", "clock.v1", 90_000, 9_000_000,
+                LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("s1", "corrected text", 10, 900, SegmentOrigin.USER_EDITED)),
+                Optional.empty());
+
+        RegistrationResult result = runtime.register("tenant-1", "principal-1", correction);
+
+        assertThat(result).isInstanceOf(Rejected.class);
+        assertThat(((Rejected) result).error()).isEqualTo(RegistrationError.SOURCE_NOT_READY);
+        assertThat(((Rejected) result).retryable()).isTrue();
+        assertThat(store.lastAuthority.parentVersionId()).isEqualTo("transcript:v1:exact");
+    }
+
+    @Test
     void optionalTranscriptParentStoreMustBeUnambiguousAndProductionEligible() {
         MediaTranscriptStore unavailable = new TestTranscriptStore(false, true);
         MediaTranscriptStore development = new TestTranscriptStore(true, false);
