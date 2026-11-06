@@ -218,6 +218,37 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void planFrameMapCopyStopsAtItsBoundWhenListUnderreportsSize() {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var oversized = new AbstractList<MultitrackRenderPlanner.MappedFrame>() {
+            @Override public MultitrackRenderPlanner.MappedFrame get(int index) {
+                throw new AssertionError("custom iterator supplies the bounded sequence");
+            }
+
+            @Override public int size() { return 0; }
+
+            @Override public java.util.Iterator<MultitrackRenderPlanner.MappedFrame> iterator() {
+                return new java.util.Iterator<>() {
+                    private int index;
+
+                    @Override public boolean hasNext() {
+                        return index <= MultitrackRenderPlanner.MAX_FRAMES_PER_PLAN;
+                    }
+
+                    @Override public MultitrackRenderPlanner.MappedFrame next() {
+                        index++;
+                        return new MultitrackRenderPlanner.MappedFrame("clip", index, start, start);
+                    }
+                };
+            }
+        };
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                MultitrackRenderPlanner.CAPABILITY_ID, "manifest", SHA, start,
+                oversized, 1_000)).withMessageContaining("frame map exceeds limit");
+    }
+
+    @Test
     void codecExecutionNeverTurnsManifestIntoClaimedPlayableOutput() {
         var plan = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
                 List.of(video("v", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)))),

@@ -18,6 +18,7 @@ public final class MultitrackRenderPlanner {
     public static final String CAPABILITY_ID = "media.dev.multitrack-composition-render";
     public static final int MAX_CLIPS = 256;
     public static final int MAX_FRAMES_PER_CLIP = 100_000;
+    public static final int MAX_FRAMES_PER_PLAN = 100_000;
     public static final int MAX_CAPTIONS = 20_000;
     public static final int MAX_TRANSITIONS = 256;
     public static final long MAX_GRAPH_DURATION_NANOS = 24L * 60 * 60 * 1_000_000_000;
@@ -163,7 +164,8 @@ public final class MultitrackRenderPlanner {
     public record Plan(String capabilityId, String canonicalManifest, String manifestSha256,
             Time duration, List<MappedFrame> frameMap, long declaredOutputBudgetBytes) {
         public Plan {
-            frameMap = List.copyOf(frameMap);
+            frameMap = boundedCopy(frameMap, MAX_FRAMES_PER_PLAN, "frameMap",
+                    "plan frame map exceeds limit");
         }
     }
     public record PlanResult(Outcome outcome, Plan plan, Reason reason) {
