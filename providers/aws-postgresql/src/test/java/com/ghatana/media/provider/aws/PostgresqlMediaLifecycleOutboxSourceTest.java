@@ -133,7 +133,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                         if (!release.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("publisher timed out");
                     }), 10));
             assertThat(publishing.await(5, TimeUnit.SECONDS)).isTrue();
-            Thread.sleep(150);
+            expireClaim("media:test:outbox-expired-claim");
             assertThat(recoveryOwner.publishPending(publisher(event -> brokerAccepted.add(event.eventId())), 10)
                     .published()).isEqualTo(1);
             release.countDown();
@@ -145,6 +145,19 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             worker.shutdownNow();
             expiredOwner.close();
             recoveryOwner.close();
+        }
+    }
+
+    private static void expireClaim(String eventId) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_outbox SET claim_expires_at=? WHERE event_id=? "
+                        + "AND published_at IS NULL AND claim_owner IS NOT NULL")) {
+            update.setLong(1, System.currentTimeMillis() - 1);
+            update.setString(2, eventId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
         }
     }
 
