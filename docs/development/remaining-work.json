@@ -49,7 +49,7 @@
         "docs/surfaces"
       ],
       "what": "Reconcile every authored capability intent to active code/delegate/test and document the truly inapplicable leaves.",
-      "how": "Derive an implementation inventory from current PDP0\u20133, routes, provider profiles and 56 topology nodes; classify IMPLEMENTED, DELEGATED, OPTIONAL, NOT_IMPLEMENTED with exact source links; make unknown counts a failing development audit.",
+      "how": "Derive an implementation inventory from current PDP0–3, routes, provider profiles and 56 topology nodes; classify IMPLEMENTED, DELEGATED, OPTIONAL, NOT_IMPLEMENTED with exact source links; make unknown counts a failing development audit.",
       "acceptance": "No unclassified active intent; no fake success/N/A; retain authoritative PDP IDs.",
       "requires": [],
       "verificationEvidence": "verified-2026-11-05: per-leaf inventory at docs/development/capability-implementation-crosswalk.v1.json classifies all 469 PDP-0 capability leaves (463 NOT_IMPLEMENTED with exact blocking task refs + evidence paths, 6 OPTIONAL_DEFERRED); unknown/unclassified intents fail check:capability-implementation-crosswalk; tests/media-capability-implementation-crosswalk.test.mjs green",
@@ -140,7 +140,7 @@
         "providers/aws-postgresql/src/main/resources/db/media-runtime",
         "modules/infrastructure/persistence"
       ],
-      "what": "Verify actual compatible V001\u2013V029 schema upgrades without duplicate writers.",
+      "what": "Verify actual compatible V001–V029 schema upgrades without duplicate writers.",
       "how": "Exercise migrations on authentic nonproduction lineage; use DB-only single writer and revert-safe readback; do not claim production cutover.",
       "acceptance": "Testcontainers baseline->upgrade, interrupted migration, rollback and legacy-writer-denial.",
       "requires": [
@@ -152,7 +152,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "verificationEvidence": "verified-2026-11-05: focused Testcontainers suites MediaMigrationLineageFixtureTest, Ip06LegacyMigrationCompatibilityTest, and Ip06FlywayProcessCrashRecoveryTest PASS 11/11, 0 failures, 0 skips. Covers current V001-V009 and historical V001-V016 baselines through V029, row preservation, repeat no-op, checksum rejection, V029 and injected forward-migration rollback/retry, real PostgreSQL child-JVM death during V021/V029 transactions, and synthetic legacy-writer privilege revocation (SQLSTATE 42501). No production cutover or deployed-lineage claim."
+      "verificationEvidence": "verified-2026-11-05: focused Testcontainers suites MediaMigrationLineageFixtureTest, Ip06LegacyMigrationCompatibilityTest, and Ip06FlywayProcessCrashRecoveryTest PASS 11/11, 0 failures, 0 skips. Covers current V001-V009 and historical V001-V016 baselines through V029, row preservation, repeat no-op, checksum rejection, V029 and injected forward-migration rollback/retry, real PostgreSQL child-JVM death during V021/V029 transactions, and synthetic legacy-writer privilege revocation (SQLSTATE 42501). Additive V031-V032 delivery ledger/claim follow-up: MediaMigrationLineageFixtureTest PASS 3/3 verifies the ledger and claim columns plus repeat migration; Ip06FlywayHistoryCandidateReconcilerTest PASS 13/13 recognizes canonical V031-V032 while rejecting V030 as unexpected; PostgresqlMediaDeliveryOperationStoreTest PASS 2/2 covers persistent claim scope/fencing and operation recreation; PostgresqlProjectTimelineStoreTest PASS 6/6 with its unchanged test-only V030 projection migration. No production cutover or deployed-lineage claim."
     },
     {
       "id": "media.dev.canonical-job-reconciliation",
@@ -200,7 +200,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 local outbox verification: PostgreSQL provider selectors PostgresqlMediaOutboxPublicationSourceTest + PostgresqlMediaLifecycleOutboxSourceTest PASS 7/7; infrastructure messaging selectors MediaLifecycleOutboxRelayTest + MediaLifecycleEventConsumerTest PASS 11/11; no skips. Added bounded claim/failure inputs, exact append rollback/readback and broker-envelope parity checks. Existing tests cover leases/fencing, stable lost-ACK redelivery, capped retry/backoff/dead-letter, broker partition, double-consumer idempotency, ordering and tenant isolation. Still OPEN: runtime ServiceLoader drains media_processing_lifecycle_outbox via MediaLifecycleOutboxSource while media_lifecycle_outbox uses the distinct OutboxPublicationSource, so one active event/outbox identity is not yet reconciled; Event Plane exact append/lookup admission and durable receipt are NOT_ADMITTED. 2026-11-05 increment: PostgresqlMediaLifecycleOutboxSourceTest PASS 2/2 after replacing a sleep-based lost-ACK race with direct DB claim expiry after broker acceptance; same event ID is redelivered and the stale worker cannot acknowledge the replaced claim."
+      "progress": "2026-11-05 local outbox verification: PostgreSQL provider selectors PostgresqlMediaOutboxPublicationSourceTest + PostgresqlMediaLifecycleOutboxSourceTest PASS 7/7; infrastructure messaging selectors MediaLifecycleOutboxRelayTest + MediaLifecycleEventConsumerTest PASS 11/11; no skips. Added bounded claim/failure inputs, exact append rollback/readback and broker-envelope parity checks. Existing tests cover leases/fencing, stable lost-ACK redelivery, capped retry/backoff/dead-letter, broker partition, double-consumer idempotency, ordering and tenant isolation. Current source confirms runtime ServiceLoader drains V016 media_processing_lifecycle_outbox while job acceptance/finality append to V011 media_lifecycle_outbox; source does not declare V011 retired or define stable event identity/version remapping and drain proof. Preserve both families without routing/suppressing events until the owner decides compatibility semantics. Event Plane append/lookup still lacks a durable receipt. 2026-11-05 increment: PostgresqlMediaLifecycleOutboxSourceTest PASS 2/2 after replacing a sleep-based lost-ACK race with direct DB claim expiry after broker acceptance; same event ID is redelivered and the stale worker cannot acknowledge the replaced claim. Independent current-source outbox selectors PASS 8/8."
     },
     {
       "id": "media.dev.rights-aware-cache",
@@ -245,7 +245,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter now rejects video-kind sessions; MediaRuntimeCanonicalStreamFramePortTest passes 7/7, including zero provider effects for a forged audio binding to a video session. Still OPEN: helper tiers are not canonical runtime/transport qualification; durable lease expiry, process restart and source cursor/version/PTS in canonical ACK remain launcher/store gaps. 2026-11-05 increment: GrpcAudioSourceCaptureTest PASS 13/13 and GrpcVideoSourceCaptureTest PASS 16/16. Both adapters now surface canonical LEASE_EXPIRED for frame and EOS outcomes with zero acknowledged frames/cursor advance and no blind retry. These are module adapter checks, not durable lease/restart proof."
+      "progress": "2026-11-05: Audio/video focused selectors pass 42/42 and 59/59. Added helper-only in-process 1/16/64 guarded-session tiers and require exact durable session revision for video resume; module tests cover gap/reorder, revoke, bounded backpressure, detach/cancel, EOS/lost ACK and local resume. The canonical audio frame adapter rejects video-kind sessions and now returns ACK only after provider sequence matches and fresh canonical store readback confirms session identity, generation, exact post-CAS version, acknowledged sequence, buffer count, cleared in-flight reservation, finality and resulting state; missing readback returns OUTCOME_UNKNOWN and blocks blind retry. MediaRuntimeCanonicalStreamFramePortTest PASS 8/8. The canonical frame contract still lacks immutable source artifact/version and PTS fields, so this is not source-clock provenance. GrpcAudioSourceCaptureTest PASS 13/13 and GrpcVideoSourceCaptureTest PASS 16/16; both surface canonical LEASE_EXPIRED with no cursor advance or blind retry. Still OPEN: durable lease expiry, process restart and canonical source cursor/version/PTS binding."
     },
     {
       "id": "media.dev.exclusive-invocation-claim-verification",
@@ -351,7 +351,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Health registration remains bounded (64 checks/service, 128 control-free chars); previous focused health/metrics selectors PASS 37/37. Added fixed-label JVM committed-heap and available-processor gauges; MediaWorkflowMetricsTest PASS 18/18. Available processors are not a provider/container quota claim. Still OPEN: capture/render runtime producers, 1/16/64 load, real scrape, alert delivery, restart and quota qualification. 2026-11-05 increment: MediaRuntime emits fixed-label media.capture.frames success only after canonical frame ACK and UNKNOWN after ambiguous outcomes. MediaWorkflowMetricsTest PASS 19/19 and MediaRuntimeCanonicalStreamFramePortTest PASS 7/7, including redaction of session/source/tenant/provider labels. Render probes, real scrape/alert delivery, restart, load, and quota qualification remain open."
+      "progress": "2026-11-05: Health registration remains bounded (64 checks/service, 128 control-free chars); previous focused health/metrics selectors PASS 37/37. Added fixed-label JVM committed-heap and available-processor gauges; MediaWorkflowMetricsTest PASS 18/18. Available processors are not a provider/container quota claim. Still OPEN: capture/render runtime producers, 1/16/64 load, real scrape, alert delivery, restart and quota qualification. 2026-11-05 increment: MediaRuntime emits fixed-label media.capture.frames success only after canonical frame ACK and UNKNOWN after ambiguous outcomes. MediaWorkflowMetricsTest PASS 19/19 and MediaRuntimeCanonicalStreamFramePortTest PASS 7/7, including redaction of session/source/tenant/provider labels. Added exact health/ready/metrics endpoint matching; HealthMetricsServerTest PASS 4/4 including suffix-path 404, canonical endpoints, redaction and admission recovery. Render probes, real scrape/alert delivery, restart, load, and quota qualification remain open."
     },
     {
       "id": "media.dev.http-operation-parity",
@@ -494,7 +494,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added a source-free child-process regression proving oversized UTF-8 --parameters returns INVALID_INVOCATION with exit 2; focused selector PASS 1 with 42 other tests filtered, and client typecheck PASS. Commit 67652f4f. Added authenticated capture/recorder negative selector: exact NOT_ADMITTED, exit 3, empty stdout, no bearer-token leak; selector PASS 1/1, commit 52c56584. Still OPEN: no production batch command is defined by the admitted SDK/runtime contract; network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence is unavailable because loopback listen fails with sandbox EPERM."
+      "progress": "2026-11-05: Added a source-free child-process regression proving oversized UTF-8 --parameters returns INVALID_INVOCATION with exit 2; focused selector PASS 1 with 42 other tests filtered, and client typecheck PASS. Commit 67652f4f. Added authenticated capture/recorder negative selector: exact NOT_ADMITTED, exit 3, empty stdout, no bearer-token leak; selector PASS 1/1, commit 52c56584. Added artifact inspect missing-auth subprocess case: exact media.cli-error.v1/MISSING_AUTH_TOKEN, exit 2, empty stdout, no token disclosure; selector PASS 1 with 44 filtered, client typecheck PASS. Still OPEN: no production batch command is defined by the admitted SDK/runtime contract; network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence is unavailable because loopback listen fails with sandbox EPERM."
     },
     {
       "id": "media.dev.public-events",
@@ -587,7 +587,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: J-20 recovery accepts an optional authenticated canonical getJob reader, aborts stale reads on job change/unmount, and distinguishes loading, denied, unknown, server OUTCOME_UNKNOWN and terminal states; absent client remains NOT_ADMITTED. Demo captions announce through a polite atomic live region. UI Vitest/TypeScript checks could not start because the workspace lacks installed vitest/tsc. Offline filtered install with --frozen-lockfile was refused because the workspace lock is stale against ghatana-lifecycle/libs/evidence-contracts/package.json (`@ghatana/lifecycle-protected-host-files-native@0.1.0-rc.2` added; `@ghatana/contract-governance@workspace:*` removed); no lockfile change was made. No browser E2E, live route or backend integration is claimed."
+      "progress": "2026-11-05: J-20 recovery accepts an optional authenticated canonical getJob reader, aborts stale reads on job change/unmount, and distinguishes loading, denied, unknown, server OUTCOME_UNKNOWN and terminal states; absent client remains NOT_ADMITTED. Demo captions announce through a polite atomic live region. UI Vitest/TypeScript checks could not start because the workspace lacks installed vitest/tsc. Offline filtered install with --frozen-lockfile was refused because the workspace lock is stale against ghatana-lifecycle/libs/evidence-contracts/package.json (`@ghatana/lifecycle-protected-host-files-native@0.1.0-rc.2` added; `@ghatana/contract-governance@workspace:*` removed). Retry with lockfile writes disabled failed because cached axe-core registry metadata is missing in Shared accessibility; no lockfile change was made. No browser E2E, live route or backend integration is claimed."
     },
     {
       "id": "media.dev.explorer-fidelity",
@@ -628,7 +628,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added UNKNOWN/NOT_ADMITTED/DENIED readiness states and fail-closed absent capability observations; consent checkbox/reference are user assertions, not current authority. The host must recheck rights before effects. UI checks cannot start because local dependencies are absent (`tsc: command not found`). Offline filtered install with --frozen-lockfile was refused because the workspace lock is stale against ghatana-lifecycle/libs/evidence-contracts/package.json; no lockfile change was made. Current SDK keeps synthesis/training NOT_ADMITTED, so real TTS/consent integration remains open."
+      "progress": "2026-11-05: Added UNKNOWN/NOT_ADMITTED/DENIED readiness states and fail-closed absent capability observations; consent checkbox/reference are user assertions, not current authority. The host must recheck rights before effects. UI checks cannot start because local dependencies are absent (`tsc: command not found`). Offline filtered install with --frozen-lockfile was refused because the workspace lock is stale against ghatana-lifecycle/libs/evidence-contracts/package.json; retry with lockfile writes disabled failed because cached axe-core metadata is missing in Shared accessibility. No lockfile change was made. Current SDK keeps synthesis/training NOT_ADMITTED, so real TTS/consent integration remains open."
     },
     {
       "id": "media.dev.native-media-dsp",
@@ -668,7 +668,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: FileSystemModelStore missing-model errors no longer disclose host paths in message/cause; focused FileSystemModelStoreTest PASS. StreamingRetryHandler now propagates CancellationException regardless of a broad retry predicate, and interrupted retry backoff preserves the interrupt and escapes fallback; StreamingRetryHandlerTest PASS 14/14. Still OPEN: four-service auth parity and native leak audit; the retry handler owns no native sessions/resources."
+      "progress": "2026-11-05: FileSystemModelStore missing-model errors no longer disclose host paths in message/cause; focused FileSystemModelStoreTest PASS. StreamingRetryHandler propagates CancellationException regardless of a broad retry predicate and interrupted backoff preserves interruption; StreamingRetryHandlerTest PASS 14/14. Auth boundary selectors pass: STT SttGrpcServiceInProcessIntegrationTest 12/12, TTS TtsGrpcServiceInProcessIntegrationTest 9/9, Vision ProductionVisionGrpcServiceRpcMatrixTest 6/6, Multimodal MultimodalGrpcProductionWrapperMatrixTest 9/9. Multimodal coverage proves a valid test identity reaches source authorization with exact tenant/principal and malformed principal identity is rejected before authorization/provider dispatch. Local fixtures do not establish production trust or identical principal-format policy across services. Still OPEN: broader auth parity and native leak audit; retry handler owns no native sessions/resources."
     },
     {
       "id": "media.dev.stt-model-and-quality",
@@ -720,7 +720,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: STT stream validation bounds PCM bytes, source timestamp and chunk end to the five-minute sample window; rejected overrun does not advance sequence and a corrected retry succeeds. SttStreamSequenceValidatorTest PASS 6/6. The legacy SttStreamingLatencyEnhancer now increments batchesEmitted only after its emitter returns; its throwing-emitter test confirms failed delivery is not counted and reserved bytes are released; SttStreamingLatencyEnhancerTest PASS 15/15. MediaCaptionRuntime now selects only one ready transcript parent store and ignores development-only stores in production-like profiles, preventing class-order selection across conflicting transcript histories; MediaCaptionRuntimeTest PASS 6/6. The helper remains unwired to the canonical RPC. Still OPEN: durable resume, exact integrated transcript/caption revision persistence, real licensed audio/provider quality and revoked-rights runtime integration."
+      "progress": "2026-11-05: STT stream validation bounds received PCM bytes and source timestamp plus chunk duration to the same five-minute sample window; rejected overrun does not advance sequence. A new regression proves rejected session, sample-rate, and regressed-PTS candidates do not poison the cursor; a corrected chunk at the last accepted PTS uses the next sequence (SttStreamSequenceValidatorTest PASS 6/6). The legacy SttStreamingLatencyEnhancer increments batchesEmitted only after its emitter returns; its throwing-emitter test confirms failed delivery is not counted and bytes are released (SttStreamingLatencyEnhancerTest PASS 15/15). MediaCaptionRuntime selects only one ready transcript parent store and ignores development-only stores in production-like profiles (MediaCaptionRuntimeTest PASS 6/6). Stream validation remains unwired to the canonical RPC. Durable resume, exact integrated transcript/caption revision persistence, real licensed audio/provider quality, and revoked-rights runtime integration remain open."
     },
     {
       "id": "media.dev.tts-model-and-rights",
@@ -817,7 +817,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: SceneTextRecognitionServiceTest PASS 28/28 for source authority/version/frame digest checks, crop resolution, DI region validation and frame-coordinate mapping. Current DI v1 request has no source version/digest/ROI fields and its protocol excludes Media source authority from the boundary; the response echoes none of these. Adding custom metadata or response fields would invent or duplicate contract semantics. DI owner disposition is needed on whether source-digest binding belongs in existing v1 semantics. No Media OCR engine was added."
+      "progress": "2026-11-05: SceneTextRecognitionServiceTest PASS 28/28 for source authority/version/frame digest checks, crop resolution, DI region validation and frame-coordinate mapping. The existing authorized scene-text caller uses the frozen DI v1 client; pre-dispatch catalog/provider failures map to typed RECOGNIZER_NOT_ADMITTED or RECOGNIZER_UNAVAILABLE, post-dispatch parse failure remains RECOGNIZER_OUTCOME_UNKNOWN, and response identity/scope/shape/geometry/confidence failures map to sanitized RECOGNIZER_RESULT_INVALID. Client scene-text selectors PASS 36/36 and package typecheck passes. DI v1 has no source version/digest/ROI fields and its response echoes none of those values; adding custom metadata or response fields would invent or duplicate contract semantics. Exact owner disposition is needed on whether source-digest binding belongs in existing v1 semantics. No Media OCR engine or live DI/model-quality claim was added."
     },
     {
       "id": "media.dev.multimodal-child-orchestration",
@@ -843,7 +843,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: restart reconciliation no longer treats a durable RUNNING child row as proof of a live owner; a nonterminal child set remains OUTCOME_UNKNOWN, while exact parent completion is rebuilt only from durable terminal child results. MediaRuntimeMultimodalRestartTest PASS 3/3, 0 failures/skips: completed-child exact result, unknown child, and failed child with unresolved sibling. Still OPEN: real admissible STT/Vision child outputs, source/clock/rights grounding, and durable integrated parent result remain unavailable/unqualified."
+      "progress": "2026-11-05: restart reconciliation no longer treats a durable RUNNING child row as proof of a live owner; a nonterminal child set remains OUTCOME_UNKNOWN, while exact parent completion is rebuilt only from durable terminal child results. MediaRuntimeMultimodalRestartTest PASS 3/3, 0 failures/skips: completed-child exact result, unknown child, and failed child with unresolved sibling. Still OPEN: real admissible STT/Vision child outputs, source/clock/rights grounding, and durable integrated parent result remain unavailable/unqualified. 2026-11-05 fixture regression triage: authorization-sensitive child cases now supply the exact local AuthenticatedPrincipal and preserve the fail-closed identity guard; MediaRuntimeMultimodalAdmissionTest PASS 9/9. This does not qualify production identity or real provider output."
     },
     {
       "id": "media.dev.multimodal-grounding-and-quality",
@@ -864,7 +864,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Source-bound fusion requires the exact length-prefixed sourceTimelineClockId for immutable region source/version as well as shared clock and instant; mismatched version abstains and quality remains HEURISTIC_UNCALIBRATED. Commit b9316307; CrossModalFusionEngineTest PASS 47/47. Still OPEN: real child outputs, calibrated quality, production clock mapping and governed rights integration."
+      "progress": "2026-11-05: Source-bound fusion requires the exact length-prefixed sourceTimelineClockId for immutable region source/version as well as shared clock and instant; mismatched versions abstain and quality remains HEURISTIC_UNCALIBRATED. Commit b9316307; CrossModalFusionEngineTest PASS 47/47. MediaCanonicalOperationExecutor rejects parent and child artifact readbacks whose tenant, principal, or requested artifact ID differs from the authenticated caller before inline upload, child fusion, or parent submission; its focused selector passes 33/33. Real child outputs, owner-bound per-child source/version identity in durable results, calibrated quality, production clock mapping, and governed rights integration remain open."
     },
     {
       "id": "media.dev.load-and-quality-profiles",
@@ -908,7 +908,7 @@
       "how": "Review content bounds, redirects, TLS/SSRF, file roots, symlinks, sourceVersion/rights/clock echo and recapture with real bytes.",
       "acceptance": "Existing 381-client-suite baseline plus security adversarial cases and isolated package tests.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: source review confirms bounds \u2014 http-capture-adapter: manual per-hop redirect revalidation (0..5 hops), no userinfo, https-only except loopback, origin allowlist, 8KB URL cap, streamed body cancel at maxBytes, single deadline; file-capture-adapter: realpath containment in allowedRoot, regular-file check, stat+stream byte bounds, no path disclosure in errors; both echo purposeRef/exactRightsScope/sourceVersionRef/frameClockRef; vitest 381 passed incl. redirect-escape/userinfo/symlink/oversize adversarial cases; isolated package consumer checks pass",
+      "verificationEvidence": "verified-2026-11-05: source review confirms bounds — http-capture-adapter: manual per-hop redirect revalidation (0..5 hops), no userinfo, https-only except loopback, origin allowlist, 8KB URL cap, streamed body cancel at maxBytes, single deadline; file-capture-adapter: realpath containment in allowedRoot, regular-file check, stat+stream byte bounds, no path disclosure in errors; both echo purposeRef/exactRightsScope/sourceVersionRef/frameClockRef; vitest 381 passed incl. redirect-escape/userinfo/symlink/oversize adversarial cases; isolated package consumer checks pass",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
@@ -929,7 +929,7 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: BrowserCaptureAdapter \u2014 host-resolved origin-permitted source only (Playwright/MediaRecorder wired by host, no arbitrary privilege), per-frame origin permission+visibility recheck, source-version binding, viewport geometry + bounded clock-drift validation, bounds, detach-once; 9 vitest cases",
+      "verificationEvidence": "verified-2026-11-05: BrowserCaptureAdapter — host-resolved origin-permitted source only (Playwright/MediaRecorder wired by host, no arbitrary privilege), per-frame origin permission+visibility recheck, source-version binding, viewport geometry + bounded clock-drift validation, bounds, detach-once; 9 vitest cases",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.capture-http-and-file-regression"
@@ -951,7 +951,7 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/desktop-capture-adapter.ts \u2014 opt-in host-resolved DesktopCaptureSource only (no display enumeration, no Tauri), per-frame consent recheck (no pixels after mid-run revoke), geometry validation on display change, frame/byte/duration bounds, detach exactly-once; 9 vitest cases incl. denied-before-read, revoke, resize, off-source refusal, admission seam; typecheck clean",
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/desktop-capture-adapter.ts — opt-in host-resolved DesktopCaptureSource only (no display enumeration, no Tauri), per-frame consent recheck (no pixels after mid-run revoke), geometry validation on display change, frame/byte/duration bounds, detach exactly-once; 9 vitest cases incl. denied-before-read, revoke, resize, off-source refusal, admission seam; typecheck clean",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.capture-http-and-file-regression"
@@ -972,7 +972,7 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: MobileCaptureAdapter \u2014 host-resolved permission-scoped source only, per-frame permission recheck, backgrounded app emits no media, clock-epoch change on reconnect fails closed, bounds, detach-once; 9 vitest cases",
+      "verificationEvidence": "verified-2026-11-05: MobileCaptureAdapter — host-resolved permission-scoped source only, per-frame permission recheck, backgrounded app emits no media, clock-epoch change on reconnect fails closed, bounds, detach-once; 9 vitest cases",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.capture-http-and-file-regression"
@@ -993,7 +993,7 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts \u2014 host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean",
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts — host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.capture-http-and-file-regression"
@@ -1044,7 +1044,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: BrowserCameraMediaDevicePort uses exact-device getUserMedia, bounded JPEG frames and pre-canvas pixel/dimension ceilings; browser permission prompt stays UNKNOWN and does not trigger a prompt. Client typecheck passed. The late-cancellation regression proves a stream resolving after session close is stopped before DOM element creation/playback and reports SESSION_CLOSED; actual permission revocation remains CONSENT_REVOKED. browser-camera-host.test.ts PASS 7/7. Still OPEN: no authenticated canonical stream binding, durable source cursor/version/PTS, qualified source-clock mapping, hardware/browser E2E, or camera/mic indicator integration."
+      "progress": "2026-11-05: BrowserCameraMediaDevicePort uses exact-device getUserMedia, bounded JPEG frames and pre-canvas pixel/dimension ceilings; browser permission prompt stays UNKNOWN and does not trigger a prompt. Client typecheck passed. Added an in-flight frame regression preserving PERMISSION_DENIED when permission changes to DENIED and stopping the track exactly once; focused camera adapter tests PASS 26/26. The late-cancellation regression proves a stream resolving after session close is stopped before DOM element creation/playback and reports SESSION_CLOSED; actual permission revocation remains CONSENT_REVOKED. browser-camera-host.test.ts PASS 7/7. Still OPEN: no authenticated canonical stream binding, durable source cursor/version/PTS, qualified source-clock mapping, hardware/browser E2E, or camera/mic indicator integration."
     },
     {
       "id": "media.dev.recorder-actual-execution",
@@ -1060,7 +1060,7 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: executeScenario + scenesRequiringRecapture added to recorder-orchestrator.ts \u2014 unattended bounded execution records per-scene lineageId/sourceRevision/outcome/real-SHA256-digest/bytes; NOT_ADMITTED and OUTCOME_UNKNOWN recorded verbatim, never coerced; two-run identical scenes skip, changed scene alone recaptures, non-CAPTURED reruns; 5 new vitest cases, suite 398 green, typecheck clean",
+      "verificationEvidence": "verified-2026-11-05: executeScenario + scenesRequiringRecapture added to recorder-orchestrator.ts — unattended bounded execution records per-scene lineageId/sourceRevision/outcome/real-SHA256-digest/bytes; NOT_ADMITTED and OUTCOME_UNKNOWN recorded verbatim, never coerced; two-run identical scenes skip, changed scene alone recaptures, non-CAPTURED reruns; 5 new vitest cases, suite 398 green, typecheck clean",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.capture-http-and-file-regression"
@@ -1082,7 +1082,7 @@
       "requires": [
         "media.dev.recorder-actual-execution"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/scene-captions.ts \u2014 integer-tick VTT/TTML emitters frame-aligned to declared source clock (no float drift), cue validation (ordered, integer, inside sourceDuration), cuesAtOffset seek + truncateCuesAt cancel, admitNarrationSource admits only APPROVED_TTS/USER_PROVIDED and refuses voice substitution, private-content redaction; 10 vitest cases, suite 408 green, typecheck clean",
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/scene-captions.ts — integer-tick VTT/TTML emitters frame-aligned to declared source clock (no float drift), cue validation (ordered, integer, inside sourceDuration), cuesAtOffset seek + truncateCuesAt cancel, admitNarrationSource admits only APPROVED_TTS/USER_PROVIDED and refuses voice substitution, private-content redaction; 10 vitest cases, suite 408 green, typecheck clean",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.recorder-actual-execution"
@@ -1137,7 +1137,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Clip now validates exact rational storyStart + storyDuration at construction and exposes storyEnd(); unrepresentable sums fail closed. MediaProjectTimelineContractsTest PASS 4/4 and ProjectTimelineEngineTest PASS 8/8. Added an isolated PostgreSQL ProjectTimelineStore development adapter with immutable graph snapshots, tenant/principal checks, create replay, head CAS, and closed-store rejection; PostgresqlProjectTimelineStoreTest PASS 6/6 for restart, replay after commit, wrong tenant/principal, stale CAS, one-winner concurrent CAS, and closed/invalid identity. Test-only V030 is not launcher-wired; serialized Graph is a provisional assumption because PDP-1 graph-field mapping remains unresolved. Still OPEN: canonical durable store/launcher binding is unavailable; production persistence remains typed NOT_ADMITTED and UI bindings must not become another source of truth. Increment: ProjectTimelineEngineTest PASS 9/9, including one million exact 1001/30000-second frame increments compared with the direct rational sum and elapsed value. Timeline arithmetic evidence only; canonical durable store/launcher binding remains unavailable, PDP-1 graph-field mapping unresolved, and production persistence remains NOT_ADMITTED; still OPEN."
+      "progress": "2026-11-05: Clip now validates exact rational storyStart + storyDuration at construction and exposes storyEnd(); unrepresentable sums fail closed. MediaProjectTimelineContractsTest PASS 4/4 and ProjectTimelineEngineTest PASS 8/8. Added an isolated PostgreSQL ProjectTimelineStore development adapter with immutable graph snapshots, tenant/principal checks, create replay, head CAS, and closed-store rejection; PostgresqlProjectTimelineStoreTest PASS 6/6 for restart, replay after commit, wrong tenant/principal, stale CAS, one-winner concurrent CAS, and closed/invalid identity. Test-only V030 is not launcher-wired; serialized Graph is a provisional assumption because PDP-1 graph-field mapping remains unresolved. Still OPEN: canonical durable store/launcher binding is unavailable; production persistence remains typed NOT_ADMITTED and UI bindings must not become another source of truth. Increment: ProjectTimelineEngineTest PASS 9/9, including one million exact 1001/30000-second frame increments compared with the direct rational sum and elapsed value. Timeline arithmetic evidence only; canonical durable store/launcher binding remains unavailable, PDP-1 graph-field mapping unresolved, and production persistence remains NOT_ADMITTED; still OPEN. 2026-11-05 increment: edit-algebra test proves batch and sequential application agree, inverse edits restore the graph, and a later invalid operation leaves revision/head unchanged. ProjectTimelineEngineTest PASS 10/10; timeline module selector PASS 35/35. Durable store/launcher binding and PDP-1 graph mapping remain unresolved."
     },
     {
       "id": "media.dev.storyboard-and-shot-plan",
@@ -1226,7 +1226,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "verificationEvidence": "verified-2026-11-05: `MediaSimulationContractsTest` PASS 2/2 and `PhysicalSimulationTest` + `SimulationSemanticValidatorTest` PASS 17/17, no skips. Typed SI contract runs Newton m=2 kg/F=6 N/t=2 s -> a=3 m/s\u00b2, v=6 m/s, x=6 m; bounded velocity-Verlet step/iteration limits, energy conservation, uncertainty/dimension negatives and COMPLETED/ABSTAINED/INVALID_INPUT outcomes with no partial trace. Output remains labeled simulation-only, not measurement evidence."
+      "verificationEvidence": "verified-2026-11-05: `MediaSimulationContractsTest` PASS 2/2 and `PhysicalSimulationTest` + `SimulationSemanticValidatorTest` PASS 17/17, no skips. Typed SI contract runs Newton m=2 kg/F=6 N/t=2 s -> a=3 m/s², v=6 m/s, x=6 m; bounded velocity-Verlet step/iteration limits, energy conservation, uncertainty/dimension negatives and COMPLETED/ABSTAINED/INVALID_INPUT outcomes with no partial trace. Output remains labeled simulation-only, not measurement evidence. Additional overflow regression: PhysicalSimulationTest PASS 8/8; finite inputs with non-finite propagated uncertainty return INVALID_INPUT without a partial trace."
     },
     {
       "id": "media.dev.simulation-semantic-validation",
@@ -1248,7 +1248,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "verificationEvidence": "verified-2026-11-05: SimulationSemanticValidatorTest PASS 10/10 and PhysicalSimulationTest PASS 7/7, no skips. The public validator requires exact versioned model/initial-condition/solver/policy references, owner currentness readback, declared unit-safe invariants, stable repeatability and bounded solver traces; it ABSTAINS/REJECTS when evidence is incomplete, unstable, stale, incompatible or non-repeatable. Every result remains DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE. The validator is a public local SPI; the Media Studio journey and measurement-device integration remain separate and open.",
+      "verificationEvidence": "verified-2026-11-05: SimulationSemanticValidatorTest PASS 10/10 and PhysicalSimulationTest PASS 7/7, no skips. The public validator requires exact versioned model/initial-condition/solver/policy references, owner currentness readback, declared unit-safe invariants, stable repeatability and bounded solver traces; it ABSTAINS/REJECTS when evidence is incomplete, unstable, stale, incompatible or non-repeatable. Every result remains DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE. The validator is a public local SPI; the Media Studio journey and measurement-device integration remain separate and open. Additional solver regression: PhysicalSimulationTest PASS 8/8; finite inputs with non-finite propagated uncertainty return INVALID_INPUT without a partial trace.",
       "remaining": []
     },
     {
@@ -1273,7 +1273,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: The Java comparison path rejects PCM above 16 MiB before copying and caches the defensive reference copy once per comparison. AudioRepairComparisonTest PASS 7/7, including the exact-cap positive (16 MiB accepted) and first complete 16-bit mono frame over cap (16 MiB + 2 bytes rejected), independent-reference metrics, silence, clipping/phase proxy, drift, PCM24/32 full scale, digest, preservation/undo and bounds. This is resource-bound evidence only. Existing Rust DSP tests were not rerun. Still OPEN: lawful representative-corpus quality qualification for the local noise-profile gate and linear declipper; no learned provider or durable project-timeline A/B wiring is admitted."
+      "progress": "2026-11-05: The Java comparison path rejects PCM above 16 MiB before copying and caches the defensive reference copy once per comparison. AudioRepairComparisonTest PASS 7/7, including the exact-cap positive (16 MiB accepted) and first complete 16-bit mono frame over cap (16 MiB + 2 bytes rejected), independent-reference metrics, silence, clipping/phase proxy, drift, PCM24/32 full scale, digest, preservation/undo and bounds. This is resource-bound evidence only. Rust comparison integrity now exposes borrowing accessors and undo() as a separate stored-source copy; the integration test proves mutation of that copy cannot alter the retained comparison. cargo test --offline PASS 67 unit + 1 integration test; cargo fmt --check and clippy --offline --all-targets -- -D warnings pass. Public fields remain source-compatible, so callers must treat comparison values as snapshots. Synthetic checks do not qualify perceptual quality. Still OPEN: lawful representative-corpus quality qualification for the local noise-profile gate and linear declipper; no learned provider or durable project-timeline A/B wiring is admitted."
     },
     {
       "id": "media.dev.video-restoration-and-comparison",
@@ -1490,7 +1490,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Delivery results return exact artifactId and immutable versionRef; lost-ACK resume preserves the pair. MediaDeliveryEngineTest PASS 14/14. Still OPEN: in-memory ledger only, no signed authorization, durable restart/readback, or real destination adapter/ACK."
+      "progress": "2026-11-05: Delivery results return exact artifactId and immutable versionRef; lost-ACK resume preserves the pair. V031 persists operation snapshots; additive V032 adds an exact-scope PostgreSQL dispatch claim with database-time expiry and a monotonic fence. Claim acquisition compares stored status and acknowledged offset; stores reject illegal state regressions and decreasing acknowledged offsets, and unfenced state writes cannot replace an active claim. MediaDeliveryEngine dispatches only through FencedDestinationPort while holding a durable claim; legacy destination ports and process-local stores fail closed. OUTCOME_UNKNOWN must be durably written before each external call, and a false barrier update leaves the operation queued without calling the destination. A restart regression covers recovery when a crash leaves the operation QUEUED before the pre-dispatch barrier. Media delivery module PASS 22/22; PostgresqlMediaDeliveryOperationStoreTest PASS 2/2; migration-lineage and IP06 selectors PASS 18/18. V030 test-only migration files remain unchanged. The PostgreSQL adapter is not wired into the default runtime; no real destination enforces stale fences, so a destination call longer than the lease still depends on destination-side fencing to prevent overlapping external effects. Still OPEN: signed authorization, real destination adapter/reconciliation, and safe production wiring; no publication or destination ACK is claimed."
     },
     {
       "id": "media.dev.offline-reconnect",
@@ -1563,7 +1563,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added polite atomic live caption announcements plus interaction tests for branch, seek, play/pause and caption controls. UI Vitest could not start because the workspace lacks installed vitest; change is unverified and open; no live-output fidelity is implied."
+      "progress": "2026-11-05: Added polite atomic live caption announcements plus interaction tests for branch, seek, play/pause and caption controls. UI Vitest could not start because dependencies are not installed. An offline filtered install with lockfile writes disabled stopped at missing cached axe-core registry metadata in Shared accessibility; no lockfile changed. The UI change remains unverified and open; no live-output fidelity is implied."
     },
     {
       "id": "media.dev.production-studio-host",
@@ -1603,7 +1603,7 @@
       ],
       "what": "Establish deterministic source-free client/host end-to-end tests for every supported workflow.",
       "how": "Use Postgres/S3 + fake authority for negatives and permitted real provider for positives; compose rather than rerun module unit suites; inject crash at boundaries.",
-      "acceptance": "Test selectors for J01\u2013J30, grants/denials/UNKNOWN/restart and actual output checks.",
+      "acceptance": "Test selectors for J01–J30, grants/denials/UNKNOWN/restart and actual output checks.",
       "requires": [
         "media.dev.canonical-job-reconciliation",
         "media.dev.sdk-canonical-migration"
@@ -1631,7 +1631,7 @@
       "requires": [
         "media.dev.source-capability-crosswalk"
       ],
-      "verificationEvidence": "verified-2026-11-05: scripts/check-surface-docs.mjs reconciles all 56 docs/surfaces/*/README.md against real source \u2014 438 cited types resolve, named test classes exist, gradle module paths and pnpm filter targets resolve, no unproven admission claims; stale AuthenticationInterceptor/JwtTokenProvider/MediaFamilyAccessibility citations replaced with real implementation names",
+      "verificationEvidence": "verified-2026-11-05: scripts/check-surface-docs.mjs reconciles all 56 docs/surfaces/*/README.md against real source — 438 cited types resolve, named test classes exist, gradle module paths and pnpm filter targets resolve, no unproven admission claims; stale AuthenticationInterceptor/JwtTokenProvider/MediaFamilyAccessibility citations replaced with real implementation names",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.source-capability-crosswalk"
@@ -1651,7 +1651,7 @@
       "how": "Generate path-by-path hash, inbound references, source-vs-derived-vs-record, restore requirements and retention ownership; mark DELETE/KEEP/EXTERNAL_ARCHIVE with reason.",
       "acceptance": "Zero unclassified tracked historical bytes; read-only report and no unreviewed deletions.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: docs/implementation/historical-artifact-inventory.v1.json classifies all 1375 tracked historical files (999,081,965 bytes) with sha256, inbound refs, kind (source/derived/record), retention owner, disposition \u2014 1333 KEEP, 42 EXTERNAL_ARCHIVE review candidates, 0 unclassified, read-only report",
+      "verificationEvidence": "verified-2026-11-05: docs/implementation/historical-artifact-inventory.v1.json classifies all 1375 tracked historical files (999,081,965 bytes) with sha256, inbound refs, kind (source/derived/record), retention owner, disposition — 1333 KEEP, 42 EXTERNAL_ARCHIVE review candidates, 0 unclassified, read-only report",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
@@ -1746,7 +1746,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-01 \u2014 Real sign-in/workspace/project revision; wrong tenant, duplicate create.",
+      "what": "J-01 — Real sign-in/workspace/project revision; wrong tenant, duplicate create.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1761,7 +1761,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added FirstUseProjectBoundaryIntegrationTest, commit f422168f; focused J-01 selector PASS 2/2. Deterministic local store covers wrong-tenant non-disclosure, changed-workspace duplicate-create conflict and stale-head CAS with unchanged graph; NotAdmittedProjectTimelineStore returns typed NOT_ADMITTED. Still OPEN: Shared sign-in and canonical durable project creation/host readback are not integrated, so this is not J-01 completion."
+      "progress": "2026-11-05: Added FirstUseProjectBoundaryIntegrationTest, commit f422168f; focused J-01 selector PASS 2/2. Deterministic local store covers wrong-tenant non-disclosure, changed-workspace duplicate-create conflict and stale-head CAS with unchanged graph; NotAdmittedProjectTimelineStore returns typed NOT_ADMITTED. Still OPEN: Shared sign-in and canonical durable project creation/host readback are not integrated, so this is not J-01 completion. 2026-11-05 increment: exact create replay returns the original project/revision receipt; invalid create and same-tenant wrong-principal access leave the local fixture unchanged. Focused J-01 selector PASS 4/4. This remains fixture-only; Shared sign-in, canonical durable create/readback, cancellation, ambiguous result, and restart remain open."
     },
     {
       "id": "media.dev.outcome-resumable-artifact-intake",
@@ -1772,7 +1772,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-02 \u2014 Real chunked upload/versioned artifact and corrupt/resume/restart.",
+      "what": "J-02 — Real chunked upload/versioned artifact and corrupt/resume/restart.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1787,7 +1787,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added MediaUploadTenantScopedResumeIT, commit 7a0af761; focused provider Gradle selector PASS 1/1 with LocalStack S3. Foreign tenant cannot inspect or append to an open upload; after worker restart the exact acknowledged prefix resumes, a conflicting replay is rejected, and final artifact digest/bytes match the synthetic WAV input. Still OPEN: test-profile store boundary only, not authenticated source authorization/rights/consent or hosted J-02 journey."
+      "progress": "2026-11-05: Added MediaUploadTenantScopedResumeIT, commit 7a0af761; focused provider Gradle selector PASS 1/1 with LocalStack S3. Foreign tenant cannot inspect or append to an open upload; after worker restart the exact acknowledged prefix resumes, a conflicting replay is rejected, and final artifact digest/bytes match the synthetic WAV input. Added MediaHttpUploadJourneyTest, commit 3baba5d7; focused launcher selector PASS 1/1. Authenticated HTTP upload covers cross-principal non-disclosure, local runtime recreation, exact versus conflicting chunk replay, completion, and tenant/principal/size/SHA-256 readback. This remains a same-JVM local file-store fixture, not abrupt process death, production storage wiring, rights/consent authorization, or hosted J-02 completion. Task remains OPEN."
     },
     {
       "id": "media.dev.outcome-transcript-to-reviewed-captions",
@@ -1798,7 +1798,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-03 \u2014 Real licensed audio -> transcript revision -> corrected caption; revoke/UNKNOWN/restart.",
+      "what": "J-03 — Real licensed audio -> transcript revision -> corrected caption; revoke/UNKNOWN/restart.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1824,7 +1824,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-04 \u2014 Lawful voice -> real decoded audio; denied locale/profile/revoke.",
+      "what": "J-04 — Lawful voice -> real decoded audio; denied locale/profile/revoke.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1850,7 +1850,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-05 \u2014 Actual image/video geometry+track source PTS; malformed ROI.",
+      "what": "J-05 — Actual image/video geometry+track source PTS; malformed ROI.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1874,7 +1874,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-06 \u2014 Real STT/Vision+DI child -> grounded typed response; wrong clock/rights.",
+      "what": "J-06 — Real STT/Vision+DI child -> grounded typed response; wrong clock/rights.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1887,7 +1887,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: MultimodalGroundedOutcomeIntegrationTest PASS 1/1: a source-free in-process gRPC request with opaque audio/video bytes receives UNAVAILABLE when trusted artifact-rights authority is absent; no completed parent response is returned. Fixture bytes are not treated as child output. Still OPEN: real owned source/version and rights, admitted STT/Vision children with matching source/clock/version evidence, and supported DI outcome integration."
+      "progress": "2026-11-05: MultimodalGroundedOutcomeIntegrationTest PASS 1/1: a source-free in-process gRPC request with opaque audio/video bytes receives UNAVAILABLE when trusted artifact-rights authority is absent; no completed parent response is returned. MediaCanonicalOperationExecutorTest PASS 33/33 and proves foreign-tenant parent and foreign-principal child readbacks produce no upload, fusion, or parent submission. Fixtures do not prove real child output. Still OPEN: trusted rights, owner-bound durable child source/version identity, admitted STT/Vision outputs with matching source/clock/version evidence, and supported DI integration."
     },
     {
       "id": "media.dev.outcome-audio-restoration",
@@ -1898,7 +1898,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-07 \u2014 Real denoise/declip measured A/B with source preservation.",
+      "what": "J-07 — Real denoise/declip measured A/B with source preservation.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1922,7 +1922,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-08 \u2014 Real codec/frame repair and independent measured comparison.",
+      "what": "J-08 — Real codec/frame repair and independent measured comparison.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1946,7 +1946,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-09 \u2014 Versioned brief/storyboard -> render -> review output.",
+      "what": "J-09 — Versioned brief/storyboard -> render -> review output.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1972,7 +1972,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-10 \u2014 Rights-checked conditioned output, continuity metrics and typed unavailability.",
+      "what": "J-10 — Rights-checked conditioned output, continuity metrics and typed unavailability.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1996,7 +1996,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-11 \u2014 Real tracked ROI mask edit with precise version CAS and undo.",
+      "what": "J-11 — Real tracked ROI mask edit with precise version CAS and undo.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2020,7 +2020,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-12 \u2014 Deterministic 2D animation renders decodable frames and golden curves.",
+      "what": "J-12 — Deterministic 2D animation renders decodable frames and golden curves.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2044,7 +2044,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-13 \u2014 Rig/3D spatial render with coordinate/kinematic correctness.",
+      "what": "J-13 — Rig/3D spatial render with coordinate/kinematic correctness.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2068,7 +2068,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-14 \u2014 Unit-correct dynamics and instrument values; solver negatives.",
+      "what": "J-14 — Unit-correct dynamics and instrument values; solver negatives.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2092,7 +2092,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-15 \u2014 Executable constrained pass with semantic validity and abstention.",
+      "what": "J-15 — Executable constrained pass with semantic validity and abstention.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2116,7 +2116,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-16 \u2014 Actual translation+legal dubbing, lip/timing metadata and source rights.",
+      "what": "J-16 — Actual translation+legal dubbing, lip/timing metadata and source rights.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2140,7 +2140,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-17 \u2014 Playable stems/foley/mix master with lawful input and peak caps.",
+      "what": "J-17 — Playable stems/foley/mix master with lawful input and peak caps.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2164,7 +2164,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-18 \u2014 Combined video+audio+caption+graphic color render with checksum.",
+      "what": "J-18 — Combined video+audio+caption+graphic color render with checksum.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2188,7 +2188,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-19 \u2014 Real quality metric and bounded optimization/reversible comparison.",
+      "what": "J-19 — Real quality metric and bounded optimization/reversible comparison.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2212,7 +2212,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-20 \u2014 Job pending/running/UNKNOWN/terminal across real process restart.",
+      "what": "J-20 — Job pending/running/UNKNOWN/terminal across real process restart.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2236,7 +2236,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-21 \u2014 Immutable-review approval invalidated by changed source revision.",
+      "what": "J-21 — Immutable-review approval invalidated by changed source revision.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2260,7 +2260,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-22 \u2014 Actual export/publish destination ACK, lost-ACK reconciliation.",
+      "what": "J-22 — Actual export/publish destination ACK, lost-ACK reconciliation.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2284,7 +2284,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-23 \u2014 Encrypted offline edits, fresh-rights reconnect, version conflict handling.",
+      "what": "J-23 — Encrypted offline edits, fresh-rights reconnect, version conflict handling.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2308,7 +2308,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-24 \u2014 Authenticated CLI JSON batch with true finality and typed failures.",
+      "what": "J-24 — Authenticated CLI JSON batch with true finality and typed failures.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2332,7 +2332,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-25 \u2014 Four agent handlers authorized delegate, no duplicate side effects.",
+      "what": "J-25 — Four agent handlers authorized delegate, no duplicate side effects.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2345,7 +2345,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: AgentOutcomeAdmissionScenarioTest passed 1/1 across the STT handler plus execution binder: typed STT_NOT_ADMITTED, authorized replay returns the recorded denial, changed-tenant reuse conflicts, revoked host replay authority is denied, prior OUTCOME_UNKNOWN stays unknown, and configured provider calls remain zero. Still OPEN: admitted per-tool canonical mappings, verified Tools actor/source rights, durable output receipts, and genuine positive outcome/restart."
+      "progress": "2026-11-05: AgentOutcomeAdmissionScenarioTest PASS 2/2. Its four-handler matrix confirms STT, TTS, Vision, and Multimodal remain typed *_NOT_ADMITTED across exact replay; changed-tenant reuse conflicts and configured providers receive zero calls. The STT case also covers revoked replay authority and retained OUTCOME_UNKNOWN. Still OPEN: admitted per-tool canonical mappings, verified Tools actor/source rights, durable output receipts, and genuine positive outcome/restart."
     },
     {
       "id": "media.dev.outcome-retention-and-erasure",
@@ -2356,7 +2356,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-26 \u2014 Real revoke/hold/deletion and no post-erasure disclosure.",
+      "what": "J-26 — Real revoke/hold/deletion and no post-erasure disclosure.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2382,7 +2382,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-27 \u2014 Unavailable/degraded/no-fallback/UNKNOWN behavior without fake success.",
+      "what": "J-27 — Unavailable/degraded/no-fallback/UNKNOWN behavior without fake success.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2408,7 +2408,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-28 \u2014 Real 360/spatial/interactive export and viewer fidelity.",
+      "what": "J-28 — Real 360/spatial/interactive export and viewer fidelity.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2434,7 +2434,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-29 \u2014 Real media loss/reconnect/consent revoke and bounded stream recovery.",
+      "what": "J-29 — Real media loss/reconnect/consent revoke and bounded stream recovery.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -2447,7 +2447,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: GuardedCrossModalityStreamStateMachineTest passed 1/1: after audio/video detach, current-consent denial blocks reconnect/resume, preserves only the documented video in-memory gap state, rejects stale worker leases, and produces no provider effect. This is fixture-only in-memory evidence. Still OPEN: canonical durable lease/cursor/PTS binding, process restart, authenticated transport and real host session recovery."
+      "progress": "2026-11-05: GuardedCrossModalityStreamStateMachineTest PASS 2/2. After detach, current-consent denial blocks reconnect/resume and rejects stale worker leases. A live-session case also changes audio/video consent to NOT_ADMITTED; pending provider egress and the next frame are rejected while ACK remains 0. These are in-memory fixtures. Still OPEN: canonical durable lease/cursor/PTS binding, process restart, authenticated transport, and real host session recovery."
     },
     {
       "id": "media.dev.outcome-eligible-provider-catalog",
@@ -2458,7 +2458,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-30 \u2014 Real qualified model/voice/host readiness with unavailable cases.",
+      "what": "J-30 — Real qualified model/voice/host readiness with unavailable cases.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [

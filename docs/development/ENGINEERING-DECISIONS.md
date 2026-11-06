@@ -25,7 +25,7 @@ Java runtime and the existing canonical TypeScript SDK already use **OPEN, CONNE
 | `DP-UPLOAD-STATES` | Preserve two non-equivalent models and expose exact runtime enum. | Shared golden vectors plus exact HTTP SDK and Java enum tests. |
 | `DP-STREAM-STATES` | Shared runtime six-state enum is aligned. | TypeScript/Java enum equality and SDK parser tests. |
 
-The five/six divergence counts in older summaries are descriptive, not a demand to invent correspondence. The golden vector currently enumerates all six named divergences. The design choices above resolve semantic ambiguity; `domain-contract-parity` remains OPEN for executable cross-language typecheck, package and DTO tests. Ordinary implementation starts without waiting for the final whole-contract task acceptance.
+The five/six divergence counts in older summaries are descriptive, not a demand to invent correspondence. The golden vector currently enumerates all six named divergences. The design choices above resolve semantic ambiguity. The machine-readable register marks `domain-contract-parity` VERIFIED after executable cross-language typecheck, package, DTO and catalog checks; the separate semantic parity projection still reports `REVIEW_REQUIRED` because resolved source findings remain dispositioned without asserting feature support. Ordinary implementation starts without waiting for the final whole-contract task acceptance.
 
 ## Execution dependency decision
 
@@ -48,6 +48,8 @@ The owner authorizes retention in the active Git tree pending a real authenticat
 
 ## Verification and implementation commands
 
-Run `pnpm --filter @audio-video/types check`, `pnpm --filter @audio-video/client test:package`, the focused `MediaDomainParityGoldenVectorTest` under the supported source-composite Gradle profile, and affected OpenAPI/HTTP gRPC/SDK consistency tests. Mark `domain-contract-parity` VERIFIED only after these are genuinely green. Run affected source-free consumers before deleting any compatibility export.
+Run `pnpm --filter @audio-video/types check`, `pnpm --filter @audio-video/client test:package`, the focused `MediaDomainParityGoldenVectorTest` under the supported source-composite Gradle profile, and affected OpenAPI/HTTP gRPC/SDK consistency tests. The 2026-11-05 current-source run passed: types check (105 tests and package consumers), client isolated package consumers, golden vectors (8/8), typed contract bindings (39/39), and structural contract parity. The register task is VERIFIED; `pnpm check:contract-parity` continues to report semantic `REVIEW_REQUIRED` while all 37 audited active findings are dispositioned and none unresolved. Run affected source-free consumers before deleting any compatibility export.
 
 The source changes in this decision were committed through GitHub and **the repository Gradle/pnpm suites were not executed by this review**. The register's existing VERIFIED records are previous reported passes, not fresh tests from this review.
+
+The verification addendum above records a later focused 2026-11-05 run on the current working source. It does not change the independent semantic review result, add unsupported operation mappings, or imply lifecycle, release, or deployment admission.
