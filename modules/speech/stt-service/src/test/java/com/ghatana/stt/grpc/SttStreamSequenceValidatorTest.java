@@ -51,6 +51,10 @@ class SttStreamSequenceValidatorTest {
         assertInvalid(validator, 2, "STT_STREAM_SESSION_MISMATCH", "other", 16_000, 20);
         assertInvalid(validator, 2, "STT_STREAM_SAMPLE_RATE_CHANGED", "session", 48_000, 20);
         assertInvalid(validator, 2, "STT_STREAM_TIMESTAMP_INVALID", "session", 16_000, 9);
+        // Rejected identity, clock, and PTS candidates must not poison the next valid chunk.
+        // In particular, the lower rejected PTS must not become the validator's last clock.
+        assertThat(validator.accept("session", 2, 16_000, 10, 2)).isEqualTo(2);
+        assertThat(validator.lastSequence()).isEqualTo(2);
     }
 
     @Test
