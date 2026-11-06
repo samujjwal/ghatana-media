@@ -30,6 +30,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -170,6 +171,12 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
             assertThat(lineageCount(tenant, derivedId)).isZero();
             assertObjectAbsent(admin, bucket, sourceKey);
             assertObjectAbsent(admin, bucket, derivedKey);
+            // Read-after-erasure must remain closed at the artifact-store boundary: stale
+            // artifact/version coordinates cannot disclose bytes after the row and object are gone.
+            ByteArrayOutputStream postErasureRead = new ByteArrayOutputStream();
+            assertThat(store.copyContent(tenant, principal, source.artifactId(), source.version(),
+                    postErasureRead, source.sizeBytes())).isEmpty();
+            assertThat(postErasureRead.size()).as("erased content is never copied to the caller").isZero();
             assertArtifactPresent(tenant, aliasId);
             assertObjectExists(admin, bucket, aliasedSourceKey);
 

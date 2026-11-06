@@ -675,6 +675,31 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
+  it('rejects the unadmitted J-24 batch spelling before the configured fetch boundary', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-j24-batch-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const result = await invoke([
+      'job', 'batch', '--endpoint', 'https://media.example.test', '--tenant', 'tenant-a', '--principal', 'principal-a',
+      '--parameters', '{"language":"en"}',
+    ], token, {
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ jobId: 'fixture-job' }),
+      GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+    }, fetchFixture);
+
+    try {
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.invocation', code: 'INVALID_INVOCATION',
+      });
+      expect(result.stdout + result.stderr).not.toContain(token);
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('rejects bearer credential material inside job parameters before authenticated dispatch', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-j24-credential-parameter-'));
     const requestLogPath = join(directory, 'requests.jsonl');

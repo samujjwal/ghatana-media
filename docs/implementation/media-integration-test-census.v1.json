@@ -1031,14 +1031,14 @@
       "id": "journey-outcome-j24-cli-command-boundary-fixture",
       "tier": "LOCAL_FIXTURE",
       "commandKind": "PNPM",
-      "commandArguments": ["pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run", "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary"],
-      "selectors": ["keeps the J-24 CLI scenario truthful across the currently supported command boundary"],
+      "commandArguments": ["pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run", "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary|rejects the unadmitted J-24 batch spelling before the configured fetch boundary"],
+      "selectors": ["keeps the J-24 CLI scenario truthful across the currently supported command boundary", "rejects the unadmitted J-24 batch spelling before the configured fetch boundary"],
       "sources": ["libs/audio-video-client/src/cli.test.ts"],
       "resources": ["PNPM workspace package", "Vitest", "CLI invocation fixture"],
       "prerequisites": ["PNPM workspace dependencies"],
       "assets": "Synthetic CLI arguments and loopback endpoint only.",
       "safety": "No canonical batch route is present or invoked; the test asserts current command-boundary behavior only.",
-      "evidenceLimit": "J-24 CLI selector only; no canonical batch route or success claim, and the selector does not complete the journey."
+      "evidenceLimit": "J-24 CLI boundary selectors only; no canonical batch route or success claim, and the selectors do not complete the journey."
     }
   ],
   "journeySelectorCoverage": {

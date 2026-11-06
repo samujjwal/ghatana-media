@@ -171,9 +171,10 @@ class MediaTestHarnessCatalogTest {
                 .contains("\"test:browser:offline-store\": \"pnpm build && node scripts/test-indexeddb-offline-edit-store-browser.mjs\"");
         var j24 = profiles.get("journey-outcome-j24-cli-command-boundary-fixture");
         assertThat(j24.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run",
-                "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary");
+                "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary"
+                        + "|rejects the unadmitted J-24 batch spelling before the configured fetch boundary");
         assertThat(Files.readString(root.resolve(j24.sources().getFirst())))
-                .contains(j24.selectors().getFirst(), "NOT_ADMITTED");
+                .contains(j24.selectors().get(0), "NOT_ADMITTED", j24.selectors().get(1), "INVALID_INVOCATION");
         var j30 = profiles.get("journey-outcome-j30-unavailable-readiness");
         assertThat(j30.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
         assertThat(j30.selectors()).containsExactly(
