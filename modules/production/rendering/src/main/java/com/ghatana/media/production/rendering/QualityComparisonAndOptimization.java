@@ -91,7 +91,10 @@ public final class QualityComparisonAndOptimization {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(timeBase, "timeBase");
             Objects.requireNonNull(frames, "frames");
-            if (frames.isEmpty() || frames.size() > MAX_FRAMES) throw invalid("revision frame count is outside bounds");
+            // Enforce the count before copying so an oversized caller-owned list cannot
+            // force an unbounded defensive allocation before the revision is rejected.
+            int frameCount = frames.size();
+            if (frameCount < 1 || frameCount > MAX_FRAMES) throw invalid("revision frame count is outside bounds");
             frames = List.copyOf(frames);
             RgbFrame first = Objects.requireNonNull(frames.getFirst(), "frames[0]");
             long pixels = 0;

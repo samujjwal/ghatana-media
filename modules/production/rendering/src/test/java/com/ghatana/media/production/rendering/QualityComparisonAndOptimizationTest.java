@@ -2,6 +2,7 @@ package com.ghatana.media.production.rendering;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,6 +90,19 @@ class QualityComparisonAndOptimizationTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("aggregate pixel/byte budget");
         assertThatThrownBy(() -> runOptimization(source, port, 2, new Budget(100, 300, 1), null, null))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("attempts");
+    }
+
+    @Test
+    void oversizedFrameListIsRejectedBeforeCopyingOrTraversal() {
+        List<RgbFrame> oversized = new AbstractList<>() {
+            @Override public RgbFrame get(int index) {
+                throw new AssertionError("oversized frame list must be rejected before traversal");
+            }
+            @Override public int size() { return MAX_FRAMES + 1; }
+        };
+
+        assertThatThrownBy(() -> new Revision(referenceId("source", "v1", "a"), TB, oversized))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frame count");
     }
 
     @Test
