@@ -562,13 +562,19 @@ export class CameraCaptureSession {
     if (requestedGeneration !== this.sourceGeneration || this.switching) {
       throw fail("DEVICE_SWITCHED", "queued camera frame was discarded after its source changed");
     }
-    if (this.closed || this.track === null || this.controller === null) {
+    if (this.closed) {
+      throw fail("SESSION_CLOSED", "camera capture session is not active");
+    }
+    // A permission callback stops and clears the track immediately. Preserve its
+    // typed denial/revocation outcome for later callers instead of misreporting the
+    // absent track as an ordinary session close.
+    if (this.permissionFailure) throw this.permissionFailure;
+    if (this.revoked) throw abortError();
+    if (this.track === null || this.controller === null) {
       throw fail("SESSION_CLOSED", "camera capture session is not active");
     }
     const track = this.track;
     const controller = this.controller;
-    if (this.permissionFailure) throw this.permissionFailure;
-    if (this.revoked) throw abortError();
     if (this.controller.signal.aborted) {
       throw this.switching
         ? fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch")

@@ -380,6 +380,32 @@ describe("CameraCaptureAdapter", () => {
     expect(track.stopCalls).toBe(1);
   });
 
+  it("preserves idle permission denial or revocation after the track is stopped", async () => {
+    for (const [disposition, code] of [
+      ["DENIED", "PERMISSION_DENIED"],
+      ["REVOKED", "CONSENT_REVOKED"],
+    ] as const) {
+      let readCalls = 0;
+      const track = frameTrack([new Uint8Array([1]), new Uint8Array([2])]);
+      const originalRead = track.nextFrame;
+      track.nextFrame = async (signal) => {
+        readCalls++;
+        return originalRead(signal);
+      };
+      const h = harness({ tracks: [track] });
+      const session = await h.adapter.openSession(request);
+      await session.nextFrame();
+
+      h.revoke(0, disposition);
+      await expectCode(session.nextFrame(), code);
+
+      expect(readCalls).toBe(1);
+      expect(track.stopCalls).toBe(1);
+      await session.close();
+      expect(track.stopCalls).toBe(1);
+    }
+  });
+
   it("switches to a newly authorized device, detaches old tracks once and resets PTS by epoch", async () => {
     const oldTrack = frameTrack([new Uint8Array([1])]);
     const newTrack = frameTrack([new Uint8Array([2])]);
