@@ -173,6 +173,25 @@ class ReversibleRegionEditEngineTest {
                 .hasMessageContaining("source presentation clock");
     }
 
+    @Test
+    void trackedSamplesAndSnapshotMetadataAreBoundedBeforeCopyOrAuthorityDispatch() {
+        List<ReversibleRegionEditEngine.TrackedSample> excessiveSamples =
+                java.util.Collections.nCopies(10_001, bboxSample(0, .1, .1, 0));
+        assertThatThrownBy(() -> evidence(excessiveSamples))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("10000-frame local bound");
+
+        Map<String, String> excessiveMetadata = new HashMap<>();
+        for (int index = 0; index < 257; index++) excessiveMetadata.put("key-" + index, "value");
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditSnapshot(new byte[] {1}, excessiveMetadata))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("metadata exceeds entry bound");
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditSnapshot(
+                new byte[] {1}, Map.of("key", "v".repeat(4_097))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("field exceeds character bound");
+    }
+
     private static ReversibleRegionEditEngine.EditRequest fixtureRequest(String digest) {
         return new ReversibleRegionEditEngine.EditRequest("project", "plan-test", "r0", SOURCE, digest, "purpose", "region",
                 PTS, evidence(List.of(bboxSample(0, .1, .1, 0))), ReversibleRegionEditEngine.EditIntent.MOVE_OR_RESIZE_REGION);

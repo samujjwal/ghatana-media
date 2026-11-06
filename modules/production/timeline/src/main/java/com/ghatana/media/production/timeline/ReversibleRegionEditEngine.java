@@ -26,6 +26,11 @@ import java.util.TreeMap;
  */
 public final class ReversibleRegionEditEngine {
     private static final int MAX_SNAPSHOT_BYTES = 64 * 1024 * 1024;
+    private static final int MAX_TRACKED_SAMPLES = 10_000;
+    private static final int MAX_SNAPSHOT_METADATA_ENTRIES = 256;
+    private static final int MAX_SNAPSHOT_METADATA_KEY_CHARS = 256;
+    private static final int MAX_SNAPSHOT_METADATA_VALUE_CHARS = 4_096;
+    private static final int MAX_SNAPSHOT_METADATA_UTF8_BYTES = 1_048_576;
     private static final double BOX_EPSILON = 1.0e-9;
 
     private final RegionEditStore store;
@@ -112,6 +117,9 @@ public final class ReversibleRegionEditEngine {
 
     private static void validateSamples(MediaTimebase timebase, TrackingEvidence evidence) {
         Objects.requireNonNull(timebase, "timebase");
+        if (evidence.samples().size() > MAX_TRACKED_SAMPLES) {
+            throw new IllegalArgumentException("tracked samples exceed the 10000-frame local bound");
+        }
         long previous = -1;
         for (TrackedSample sample : evidence.samples()) {
             MediaTimebase.Timestamp pts = sample.sourcePts();
@@ -210,6 +218,9 @@ public final class ReversibleRegionEditEngine {
             Objects.requireNonNull(source, "source");
             sourceSha256 = requireSha256(sourceSha256);
             regionId = required(regionId, "regionId");
+            if (samples != null && samples.size() > MAX_TRACKED_SAMPLES) {
+                throw new IllegalArgumentException("tracked samples exceed the 10000-frame local bound");
+            }
             samples = List.copyOf(samples == null ? List.of() : samples);
         }
     }
@@ -242,8 +253,9 @@ public final class ReversibleRegionEditEngine {
             if (width < 1 || height < 1 || (long) width * height > 16_777_216L) {
                 throw new IllegalArgumentException("mask dimensions are invalid or exceed the local pixel bound");
             }
-            byte[] copy = Objects.requireNonNull(occupancy, "occupancy").clone();
-            if (copy.length != (long) width * height) throw new IllegalArgumentException("mask byte count must equal width × height");
+            byte[] source = Objects.requireNonNull(occupancy, "occupancy");
+            if (source.length != (long) width * height) throw new IllegalArgumentException("mask byte count must equal width × height");
+            byte[] copy = source.clone();
             for (byte bit : copy) if (bit != 0 && bit != 1) throw new IllegalArgumentException("mask occupancy bytes must be 0 or 1");
             this.width = width;
             this.height = height;
@@ -311,10 +323,32 @@ public final class ReversibleRegionEditEngine {
         private final byte[] bytes;
         private final Map<String, String> metadata;
         public EditSnapshot(byte[] bytes, Map<String, String> metadata) {
-            byte[] copy = Objects.requireNonNull(bytes, "bytes").clone();
-            if (copy.length > MAX_SNAPSHOT_BYTES) throw new IllegalArgumentException("edit snapshot exceeds byte bound");
+            byte[] source = Objects.requireNonNull(bytes, "bytes");
+            if (source.length > MAX_SNAPSHOT_BYTES) throw new IllegalArgumentException("edit snapshot exceeds byte bound");
+            byte[] copy = source.clone();
             TreeMap<String, String> sorted = new TreeMap<>();
-            if (metadata != null) metadata.forEach((key, value) -> sorted.put(required(key, "metadata key"), Objects.requireNonNull(value, "metadata value")));
+            if (metadata != null && metadata.size() > MAX_SNAPSHOT_METADATA_ENTRIES) {
+                throw new IllegalArgumentException("edit snapshot metadata exceeds entry bound");
+            }
+            int metadataBytes = 0;
+            if (metadata != null) {
+                for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                    String key = required(entry.getKey(), "metadata key");
+                    String value = Objects.requireNonNull(entry.getValue(), "metadata value");
+                    if (key.length() > MAX_SNAPSHOT_METADATA_KEY_CHARS
+                            || value.length() > MAX_SNAPSHOT_METADATA_VALUE_CHARS) {
+                        throw new IllegalArgumentException("edit snapshot metadata field exceeds character bound");
+                    }
+                    metadataBytes = Math.addExact(metadataBytes,
+                            key.getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+                    metadataBytes = Math.addExact(metadataBytes,
+                            value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+                    if (metadataBytes > MAX_SNAPSHOT_METADATA_UTF8_BYTES) {
+                        throw new IllegalArgumentException("edit snapshot metadata exceeds encoded byte bound");
+                    }
+                    sorted.put(key, value);
+                }
+            }
             this.bytes = copy;
             this.metadata = Collections.unmodifiableMap(sorted);
         }
