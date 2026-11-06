@@ -259,6 +259,47 @@ class MediaAuthorizedSttTranscriptRestartIT {
         }
     }
 
+    /** Synthetic J-03 recovery check: an unavailable exact parent blocks registration without a write. */
+    @Test
+    void captionRegistrationCanRetryAfterExactParentObservationReturns() throws Exception {
+        try (AutoCloseable installed = TestAwsStateInstall.install(environment());
+             var captions = new com.ghatana.media.provider.aws.PostgresqlMediaCaptionStore()) {
+            var request = new RegistrationRequest(
+                    "j03-parent-observation-retry", "fixture-artifact", "fixture-source-v1",
+                    ParentVersionKind.TRANSCRIPT_VERSION, "fixture-transcript-version",
+                    "fixture-clock", 1_000, 10_000, LanguageDisposition.DECLARED_BY_USER,
+                    java.util.Optional.of("en"), List.of(CaptionSegment.of(
+                            "fixture-segment", "synthetic caption", 0, 1_000, SegmentOrigin.USER_EDITED)),
+                    java.util.Optional.of("operator supplied fixture correction"));
+            var authority = (com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority)
+                    check -> com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority.Decision.ADMITTED;
+            var unavailableParent = (com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup)
+                    (kind, parentId, artifactId, sourceVersion) -> java.util.Optional.empty();
+
+            var unavailable = captions.register("tenant-a", "principal-a", request,
+                    authority, unavailableParent);
+            assertThat(unavailable).isInstanceOf(com.ghatana.media.runtime.MediaCaptionContracts.Rejected.class)
+                    .satisfies(result -> {
+                        var rejected = (com.ghatana.media.runtime.MediaCaptionContracts.Rejected) result;
+                        assertThat(rejected.requestId()).isEqualTo(request.requestId());
+                        assertThat(rejected.error()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCaptionContracts.RegistrationError.SOURCE_NOT_READY);
+                        assertThat(rejected.retryable()).isTrue();
+                    });
+            assertThat(captions.versions("tenant-a", "principal-a", "fixture-artifact", "fixture-source-v1"))
+                    .isEmpty();
+
+            var observedParent = (com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup)
+                    (kind, parentId, artifactId, sourceVersion) -> java.util.Optional.of(
+                            new com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup.ParentFacts(
+                                    "fixture-clock", 1_000, 10_000));
+            var recovered = captions.register("tenant-a", "principal-a", request, authority, observedParent);
+            assertThat(recovered).isInstanceOf(Registered.class);
+            assertThat(captions.versions("tenant-a", "principal-a", "fixture-artifact", "fixture-source-v1"))
+                    .containsExactly((Registered) recovered);
+        }
+    }
+
     /** Ingress-authenticated credential used by both registration and job submission. */
     private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated(
             String tenantId, String principalId) {
