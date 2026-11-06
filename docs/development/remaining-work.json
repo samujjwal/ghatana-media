@@ -2098,7 +2098,8 @@
         "media.dev.simulation-semantic-validation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: ValidatedSimulationPassIntegrationTest passed 2/2: the exact versioned constant-force fixture validates as VALID, a changed protected terminal position is REJECTED, and unknown physical-model currentness ABSTAINS. Every result remains DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE; the PDP-3 registry has no exact seeded J-15 scenario. Still OPEN: hosted source/rights/job binding, durable outputs/restart, and independently measured evidence."
     },
     {
       "id": "media.dev.outcome-translated-dubbed-video",
@@ -2144,7 +2145,8 @@
         "media.dev.foley-stems-mix-master"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: J17MusicEffectsLocalScenarioTest passed 1/1 using synthetic waveform fixtures: WAV decodes as stereo 48 kHz/16-bit, frame count and sample/true-peak ceilings are bounded, invalid ceiling is rejected, and typed asset-rights denial returns no result bytes. Mixer exposes no actor-authority API; this is transient local DSP only, not licensed music or a production master. Still OPEN: authenticated rights/consent integration, durable stems/project revisions and qualified foley/production output."
     },
     {
       "id": "media.dev.outcome-multitrack-finished-master",
@@ -2167,7 +2169,8 @@
         "media.dev.multitrack-composition-render"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: MultitrackFinishedMasterScenarioTest passed 1/1: the synthetic multitrack plan manifest is deterministic, but missing encoder returns NOT_ADMITTED and an admitted/available placeholder returns UNAVAILABLE. Its digest is explicitly only the plan checksum. Still OPEN: encoder/muxer output, color-profile semantics, rights/tenant/job binding, encoded artifact checksum and UNKNOWN/restart reconciliation; source J-18 has no exact scenario refs."
     },
     {
       "id": "media.dev.outcome-bounded-quality-improvement",

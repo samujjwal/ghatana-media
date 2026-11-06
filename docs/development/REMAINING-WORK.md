@@ -721,6 +721,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-15 — Executable constrained pass with semantic validity and abstention.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `ValidatedSimulationPassIntegrationTest` passed 2/2: the exact versioned constant-force fixture validates as `VALID`, a changed protected terminal position is `REJECTED`, and unknown physical-model currentness `ABSTAINS`. Every result remains `DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE`; the PDP-3 registry has no exact seeded J-15 scenario. Still OPEN: hosted source/rights/job binding, durable outputs/restart, and independently measured evidence.
 - **Predecessors:** `media.dev.simulation-semantic-validation`
 
 **`media.dev.outcome-translated-dubbed-video`** · OPEN
@@ -735,6 +736,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-17 — Playable stems/foley/mix master with lawful input and peak caps.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `J17MusicEffectsLocalScenarioTest` passed 1/1 using synthetic waveform fixtures: WAV decodes as stereo 48 kHz/16-bit, frame count and sample/true-peak ceilings are bounded, invalid ceiling is rejected, and typed asset-rights denial returns no result bytes. Mixer exposes no actor-authority API; this is transient local DSP only, not licensed music or a production master. Still OPEN: authenticated rights/consent integration, durable stems/project revisions and qualified foley/production output.
 - **Predecessors:** `media.dev.foley-stems-mix-master`
 
 **`media.dev.outcome-multitrack-finished-master`** · OPEN
@@ -742,6 +744,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-18 — Combined video+audio+caption+graphic color render with checksum.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `MultitrackFinishedMasterScenarioTest` passed 1/1: the synthetic multitrack plan manifest is deterministic, but missing encoder returns `NOT_ADMITTED` and an admitted/available placeholder returns `UNAVAILABLE`. Its digest is explicitly only the plan checksum. Still OPEN: encoder/muxer output, color-profile semantics, rights/tenant/job binding, encoded artifact checksum and UNKNOWN/restart reconciliation; source J-18 has no exact scenario refs.
 - **Predecessors:** `media.dev.multitrack-composition-render`
 
 **`media.dev.outcome-bounded-quality-improvement`** · OPEN
