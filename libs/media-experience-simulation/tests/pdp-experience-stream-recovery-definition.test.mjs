@@ -64,6 +64,21 @@ test('J-29 contradictory evidence or acknowledgement beyond the supplied fence h
   assert.equal(acknowledgementAheadOfFence.dispatchAllowed, false);
 });
 
+test('J-29 UNKNOWN frame finality cannot be cleared by a conflicting rejection for the same sequence', () => {
+  const result = evaluateStreamRecoveryDefinition({
+    ...base,
+    unresolvedFrameEffects: [
+      { tenantId: 'tenant-a', sessionId: 'session-1', sequence: 18, evidence: 'UNKNOWN' },
+      { tenantId: 'tenant-a', sessionId: 'session-1', sequence: 18, evidence: 'REJECTED' },
+    ],
+  });
+
+  assert.equal(result.disposition, 'FENCE_AND_HOLD');
+  assert.equal(result.reason, 'UNRESOLVED_FRAME_EFFECT');
+  assert.deepEqual(result.frameEffects, ['UNKNOWN', 'REJECTED']);
+  assert.equal(result.dispatchAllowed, false);
+});
+
 test('J-29 reconnect requires exact current scoped budget with safe positive allowance and live deadline', () => {
   for (const [patch, reason] of [
     [{ recoveryBudget: null }, 'RECOVERY_BUDGET_MISSING_OR_MISMATCHED'],
