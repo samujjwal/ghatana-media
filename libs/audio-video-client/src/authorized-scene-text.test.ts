@@ -189,7 +189,11 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     const bad = diClient({ ...parsed, operationId: 'op-forged' });
     await expect(recognizeAuthorizedMediaSceneText(
       authorized(), bad, policy, 'op-1', frame, await admission()))
-      .rejects.toMatchObject({ code: 'RESPONSE_IDENTITY_MISMATCH' });
+      .rejects.toMatchObject({
+        name: 'MediaSceneTextAdmissionError',
+        code: 'RECOGNIZER_RESULT_INVALID',
+        message: 'Media scene-text operation rejected: RECOGNIZER_RESULT_INVALID',
+      });
     expect(bad.parse).toHaveBeenCalledTimes(1);
   });
 
@@ -254,6 +258,63 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     expect(di.parse).toHaveBeenCalledTimes(1);
   });
 
+  it('maps an unadmitted DI provider to a typed Media NOT_ADMITTED failure before parse', async () => {
+    const di = diClient();
+    di.providers.mockResolvedValueOnce({
+      protocolVersion: 'document-intelligence.v1',
+      workerCapabilityVersion: 'document-intelligence-worker.v1',
+      providers: [],
+    });
+    await expect(recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({
+        name: 'MediaSceneTextAdmissionError',
+        code: 'RECOGNIZER_NOT_ADMITTED',
+        message: 'Media scene-text operation rejected: RECOGNIZER_NOT_ADMITTED',
+      });
+    expect(di.providers).toHaveBeenCalledTimes(1);
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('maps a mismatched DI response identity to a sanitized invalid-result failure', async () => {
+    const di = diClient();
+    di.parse.mockResolvedValueOnce({ ...parsed, operationId: 'other-operation' });
+    const rejection = recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission());
+    await expect(rejection).rejects.toMatchObject({
+      name: 'MediaSceneTextAdmissionError',
+      code: 'RECOGNIZER_RESULT_INVALID',
+      message: 'Media scene-text operation rejected: RECOGNIZER_RESULT_INVALID',
+    });
+    await expect(rejection).rejects.not.toThrow('EXIT');
+    expect(di.parse).toHaveBeenCalledTimes(1);
+  });
+
+  it('maps invalid DI geometry to a sanitized invalid-result failure without returning text', async () => {
+    const di = diClient();
+    const line = parsed.pages[0].blocks[0].lines[0];
+    const invalidGeometry: SceneTextWireDocument = {
+      ...parsed,
+      pages: [{
+        ...parsed.pages[0],
+        blocks: [{
+          ...parsed.pages[0].blocks[0],
+          lines: [{ ...line, text: 'private OCR text', boundingRegion: { x: -1, y: 0.2, width: 0.3, height: 0.1 } }],
+        }],
+      }],
+    };
+    di.parse.mockResolvedValueOnce(invalidGeometry);
+    const rejection = recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission());
+    await expect(rejection).rejects.toMatchObject({
+      name: 'MediaSceneTextAdmissionError',
+      code: 'RECOGNIZER_RESULT_INVALID',
+      message: 'Media scene-text operation rejected: RECOGNIZER_RESULT_INVALID',
+    });
+    await expect(rejection).rejects.not.toThrow('private OCR text');
+    expect(di.parse).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps a typed DI timeout outcome unknown until the public contract proves finality', async () => {
     const di = diClient();
     const timeout = Object.assign(new Error('worker timeout; sensitive detail'), {
@@ -277,8 +338,9 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     await expect(recognizeAuthorizedMediaSceneText(
       authorized(), di, policy, 'op-1', frame, await admission()))
       .rejects.toMatchObject({
-        code: 'PROVIDER_CATALOG_UNAVAILABLE',
-        message: 'Scene-text adapter rejected the operation: PROVIDER_CATALOG_UNAVAILABLE',
+        name: 'MediaSceneTextAdmissionError',
+        code: 'RECOGNIZER_UNAVAILABLE',
+        message: 'Media scene-text operation rejected: RECOGNIZER_UNAVAILABLE',
       });
     expect(di.parse).not.toHaveBeenCalled();
   });
@@ -292,7 +354,10 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     });
     await expect(recognizeAuthorizedMediaSceneText(
       authorized(), di, policy, 'op-1', frame, await admission()))
-      .rejects.toMatchObject({ code: 'PROVIDER_NOT_ADMITTED' });
+      .rejects.toMatchObject({
+        name: 'MediaSceneTextAdmissionError',
+        code: 'RECOGNIZER_NOT_ADMITTED',
+      });
     expect(di.parse).not.toHaveBeenCalled();
   });
 });

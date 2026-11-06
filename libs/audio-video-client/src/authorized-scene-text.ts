@@ -42,6 +42,7 @@ export interface MediaSceneTextSourceAuthority {
 export type MediaSceneTextAdmissionCode =
   | 'INVALID_SOURCE' | 'SOURCE_DIGEST_MISMATCH' | 'SOURCE_VERSION_MISMATCH'
   | 'SOURCE_DENIED' | 'SOURCE_NOT_ADMITTED' | 'SOURCE_UNAVAILABLE'
+  | 'RECOGNIZER_NOT_ADMITTED' | 'RECOGNIZER_UNAVAILABLE'
   | 'RECOGNIZER_OUTCOME_UNKNOWN' | 'RECOGNIZER_RESULT_INVALID';
 
 export class MediaSceneTextAdmissionError extends Error {
@@ -142,12 +143,35 @@ export async function recognizeAuthorizedMediaSceneText(
   try {
     results = await di.recognizeFrame(operationId, frozenFrame, signal);
   } catch (error) {
-    if (error instanceof SceneTextAdapterError && error.code === 'OUTCOME_UNKNOWN') {
-      // The installed client's typed rejection contract is not available at
-      // this seam. Once parse is invoked, an unclassified rejection does not
-      // say whether DI dispatched work. Do not expose provider details or
-      // imply no effect.
-      reject('RECOGNIZER_OUTCOME_UNKNOWN');
+    if (error instanceof SceneTextAdapterError) {
+      switch (error.code) {
+        case 'PROVIDER_NOT_ADMITTED':
+        case 'PROVIDER_VERSION_MISMATCH':
+        case 'CLIENT_PROTOCOL_MISMATCH':
+        case 'WORKER_VERSION_NOT_ADMITTED':
+        case 'MODEL_IDENTITY_MISSING':
+        case 'MODEL_VERSION_MISMATCH':
+        case 'SOURCE_MEDIA_TYPE_NOT_ADMITTED':
+        case 'SOURCE_LANGUAGE_NOT_ADMITTED':
+          // These checks complete before parse dispatch, so report a typed
+          // admission failure without implying an OCR effect.
+          reject('RECOGNIZER_NOT_ADMITTED');
+        case 'PROVIDER_CATALOG_UNAVAILABLE':
+          reject('RECOGNIZER_UNAVAILABLE');
+        case 'OUTCOME_UNKNOWN':
+          // The installed client's typed rejection contract is not available
+          // at this seam. Once parse is invoked, an unclassified rejection
+          // cannot establish whether DI dispatched work.
+          reject('RECOGNIZER_OUTCOME_UNKNOWN');
+        case 'RESPONSE_IDENTITY_MISMATCH':
+        case 'PAGE_SCOPE_UNSUPPORTED':
+        case 'RESULT_GEOMETRY_INVALID':
+        case 'RESULT_CONFIDENCE_MISSING':
+        case 'RESULT_SHAPE_UNSUPPORTED':
+          // DI has returned, but its payload cannot be safely attached to the
+          // admitted Media source. Never expose any response text on rejection.
+          reject('RECOGNIZER_RESULT_INVALID');
+      }
     }
     throw error;
   }
