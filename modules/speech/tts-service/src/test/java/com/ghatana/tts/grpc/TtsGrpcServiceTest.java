@@ -1548,6 +1548,37 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void providerChunkAfterFinalMarkerCancelsSessionAndSuppressesBufferedFinal() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, completion);
+        });
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        TtsStreamSink sink = sinkRef.get();
+        sink.onAudioFormat(monoPcm16Format());
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, false, 2));
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertThat(sessionCancelled).isTrue();
+
+        // The later successful completion cannot restore a final chunk after the
+        // provider violated its final-marker contract.
+        completion.complete(null);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+    }
+
+    @Test
     void admittedStreamRejectsSequenceGapAfterPreservingOnlyPriorPartialChunk() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();
