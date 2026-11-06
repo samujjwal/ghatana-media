@@ -914,6 +914,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
 - **Progress:** `DeliveryDestinationReceiptScenarioTest` passes 1/1: a fixture destination receipt scoped to another destination leaves the export `OUTCOME_UNKNOWN`, exposes no destination receipt reference, and exact replay remains unknown. Still OPEN: signed authoritative transfer authorization, a real destination adapter/receipt and durable restart/readback.
+- **Additional progress (2026-11-06):** The dedicated scenario now uses the engine's fenced destination seam; it had previously targeted an obsolete destination port the engine no longer calls. `DeliveryDestinationReceiptScenarioTest` passes 2/2: a wrong-destination receipt remains `OUTCOME_UNKNOWN`, and a lost final-chunk ACK reconciles the exact artifact/version/digest/destination without retransmitting accepted bytes. Fixture ports only; signed authoritative transfer authorization, real destination receipts and durable scenario-level restart/readback remain open.
 - **Predecessors:** `media.dev.delivery-export-destination-ack`
 
 **`media.dev.outcome-offline-conflict-reconnect`** · OPEN

@@ -2275,7 +2275,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: DeliveryDestinationReceiptScenarioTest PASS 1/1: a fixture destination receipt scoped to another destination leaves export OUTCOME_UNKNOWN, exposes no destination receipt reference, and exact replay remains unknown. Still OPEN: signed authoritative transfer authorization, a real destination adapter/receipt and durable restart/readback."
+      "progress": "2026-11-05: DeliveryDestinationReceiptScenarioTest PASS 1/1: a fixture destination receipt scoped to another destination leaves export OUTCOME_UNKNOWN, exposes no destination receipt reference, and exact replay remains unknown. Still OPEN: signed authoritative transfer authorization, a real destination adapter/receipt and durable restart/readback.\n2026-11-06 increment: DeliveryDestinationReceiptScenarioTest now uses the current fenced destination seam; the prior fixture targeted a legacy destination port the engine no longer calls. Focused selector PASS 2/2: wrong-destination receipt remains OUTCOME_UNKNOWN, and a lost final-chunk ACK reconciles exact artifact/version/digest/destination without retransmitting accepted bytes. Fixture ports only; signed authoritative transfer authorization, real destination receipts, and durable scenario-level restart/readback remain open."
     },
     {
       "id": "media.dev.outcome-offline-conflict-reconnect",
