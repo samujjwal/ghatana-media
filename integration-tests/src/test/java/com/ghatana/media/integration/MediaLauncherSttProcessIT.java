@@ -63,7 +63,7 @@ class MediaLauncherSttProcessIT {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     @Test
-    void launcherProcessKeepsSttNotAdmittedThenReadsArtifactAfterRestart() throws Exception {
+    void revokedSttSourceIsDeniedWithoutJobOrTranscriptAndSurvivesRestart() throws Exception {
         String run = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-launcher-stt-" + run;
         Process launcher = null;
@@ -114,7 +114,7 @@ class MediaLauncherSttProcessIT {
             stopLauncher(launcher);
             launcher = null;
 
-            String consentId = registerSyntheticRights(env, artifactId, sha, run);
+            String consentId = registerSyntheticRightsAndRevoke(env, artifactId, sha, run);
             env.put("MEDIA_FIXTURE_ARTIFACT_ID", artifactId);
             env.put("MEDIA_FIXTURE_SOURCE_VERSION", "sha256:" + sha);
             launcher = startLauncher(environmentClasspath, env, log);
@@ -147,7 +147,7 @@ class MediaLauncherSttProcessIT {
             assertThat(afterDenied.attempts()).isEqualTo(before.attempts());
             assertThat(afterDenied.transcripts()).isEqualTo(before.transcripts());
             assertThat(afterDenied.lifecycleOutbox()).isEqualTo(before.lifecycleOutbox());
-            assertThat(afterDenied.sourceRightsDecisions()).isEqualTo(before.sourceRightsDecisions() + 1);
+            assertThat(afterDenied.sourceRightsDecisions()).isEqualTo(before.sourceRightsDecisions());
 
             stopLauncher(launcher);
             launcher = null;
@@ -355,7 +355,7 @@ class MediaLauncherSttProcessIT {
         }
     }
 
-    private static String registerSyntheticRights(Map<String, String> env, String artifactId,
+    private static String registerSyntheticRightsAndRevoke(Map<String, String> env, String artifactId,
             String sha, String run) throws Exception {
         try (AutoCloseable installed = TestAwsStateInstall.install(env);
              var consentAdmin = new PostgresqlMediaConsentAdministration();
@@ -376,6 +376,12 @@ class MediaLauncherSttProcessIT {
                             TENANT, PRINCIPAL, Instant.now()));
             assertThat(source.sourceKind()).isEqualTo(MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN);
             assertThat(source.provenanceRef()).isEqualTo("fixture:launcher-synthetic-nonhuman");
+            var revoked = rightsAdmin.revoke(TENANT, artifactId, "sha256:" + sha,
+                    new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            TENANT, PRINCIPAL, Instant.now()), "launcher-process-revocation-" + run)
+                    .orElseThrow();
+            assertThat(revoked.revoked()).isTrue();
+            assertThat(revoked.revocationEpoch()).isEqualTo(source.revocationEpoch() + 1);
             return consent.consentId();
         }
     }
