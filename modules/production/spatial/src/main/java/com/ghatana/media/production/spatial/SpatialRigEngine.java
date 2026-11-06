@@ -611,7 +611,12 @@ public final class SpatialRigEngine {
                 case '\b' -> escaped.append("\\b"); case '\f' -> escaped.append("\\f");
                 case '\n' -> escaped.append("\\n"); case '\r' -> escaped.append("\\r");
                 case '\t' -> escaped.append("\\t");
-                default -> { if (ch < 0x20) escaped.append(String.format("\\u%04x", (int) ch)); else escaped.append(ch); }
+                default -> {
+                    // Escape UTF-16 surrogate code units so malformed pairs survive UTF-8
+                    // encoding as JSON data instead of being replaced by the encoder.
+                    if (ch < 0x20 || Character.isSurrogate(ch)) escaped.append(String.format("\\u%04x", (int) ch));
+                    else escaped.append(ch);
+                }
             }
         }
         return escaped.append('"').toString();

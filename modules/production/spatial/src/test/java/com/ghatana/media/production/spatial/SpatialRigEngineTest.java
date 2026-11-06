@@ -286,6 +286,27 @@ class SpatialRigEngineTest {
                         .isEqualTo(SpatialRigEngine.ExportBlocker.NON_MONOTONIC_FLOAT_TIME));
     }
 
+    @Test
+    void glbJsonPreservesMalformedUtf16InExactSourceIdentity() throws Exception {
+        String unpairedSurrogate = "artifact-" + (char) 0xd800;
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", unpairedSurrogate, "version-v1");
+        var rig = new SpatialRigEngine.Rig("rig-utf16", glbFrame(), "UNIT_QUATERNION_XYZW",
+                List.of(source), List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)),
+                Map.of(), "project:revision:utf16");
+
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        ByteBuffer glb = ByteBuffer.wrap(artifact.bytes()).order(ByteOrder.LITTLE_ENDIAN);
+        glb.position(12);
+        int jsonLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x4e4f534a);
+        byte[] jsonBytes = new byte[jsonLength];
+        glb.get(jsonBytes);
+        JsonNode metadata = new ObjectMapper().readTree(jsonBytes).path("extras").path("mediaSpatial");
+
+        assertThat(metadata.path("sourceVersions").get(0).path("artifactId").asString())
+                .isEqualTo(unpairedSurrogate);
+    }
+
     private static SpatialRigEngine.CoordinateFrame canonicalFrame() {
         return frame("world", "world:v1", SpatialRigEngine.Handedness.RIGHT_HANDED,
                 SpatialRigEngine.AxisDirection.POS_X, SpatialRigEngine.AxisDirection.POS_Y, SpatialRigEngine.AxisDirection.POS_Z);
