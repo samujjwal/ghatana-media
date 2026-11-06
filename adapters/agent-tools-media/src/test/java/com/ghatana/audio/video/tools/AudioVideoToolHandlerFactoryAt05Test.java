@@ -63,7 +63,7 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
     }
 
     @Test
-    void injectedBinderWrapsFactoryHandlerAndReplaysTerminalNotAdmittedOutcome() {
+    void injectedBinderWrapsFactoryHandlerAndRequiresAuthenticationForReplay() {
         TestLedger ledger = new TestLedger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger, (tenant, invocation) -> Optional.empty());
         AudioVideoToolHandlerFactory factory = new AudioVideoToolHandlerFactory(binder);
@@ -84,7 +84,8 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
                 Set.of(), ToolTransport.IN_PROCESS, null, Map.of());
 
         ToolExecutionResult first = runPromise(() -> handler.handle(envelope, contract));
-        ToolExecutionResult replay = runPromise(() -> handler.handle(envelope, contract));
+        assertThatThrownBy(() -> runPromise(() -> handler.handle(envelope, contract)))
+                .isInstanceOf(MediaToolExecutionBinder.InvocationReplayDeniedException.class);
 
         assertThat(first.status()).isEqualTo(ToolExecutionStatus.FAILED);
         assertThat(first.failure().kind()).isEqualTo(
@@ -94,7 +95,6 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
         assertThat(first.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         assertThat(first.invocationId()).isEqualTo(envelope.invocationId());
         assertThat(first.correlationId()).isEqualTo(envelope.invocationId());
-        assertThat(replay).isSameAs(first);
         assertThat(ledger.claims).hasValue(2);
         assertThat(ledger.find(envelope.invocationId())).hasValueSatisfying(action -> {
             assertThat(action.outcome()).isEqualTo(LogicalOutcome.FAILED);
