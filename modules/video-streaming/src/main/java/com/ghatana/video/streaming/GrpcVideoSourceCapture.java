@@ -82,21 +82,30 @@ public final class GrpcVideoSourceCapture {
 
     public record Batch(List<SourceFrame> frames, boolean endOfStream) {
         public Batch {
-            frames = List.copyOf(Objects.requireNonNull(frames, "frames"));
-            if (frames.size() > MAX_BATCH_FRAMES) {
-                throw new IllegalArgumentException("video source batch exceeds the frame bound");
-            }
-            long bytes = 0;
-            for (SourceFrame frame : frames) {
-                bytes += Objects.requireNonNull(frame, "frame").payload().length;
-                if (bytes > MAX_BATCH_BYTES) {
-                    throw new IllegalArgumentException("video source batch exceeds the byte bound");
-                }
-            }
+            frames = copyBoundedBatchFrames(Objects.requireNonNull(frames, "frames"));
             if (frames.isEmpty() && !endOfStream) {
                 throw new IllegalArgumentException("empty non-terminal video source batch is invalid");
             }
         }
+    }
+
+    private static List<SourceFrame> copyBoundedBatchFrames(List<SourceFrame> frames) {
+        ArrayList<SourceFrame> copy = new ArrayList<>();
+        java.util.Iterator<SourceFrame> iterator = frames.iterator();
+        long bytes = 0;
+        while (iterator.hasNext()) {
+            if (copy.size() >= MAX_BATCH_FRAMES) {
+                throw new IllegalArgumentException("video source batch exceeds the frame bound");
+            }
+            SourceFrame frame = Objects.requireNonNull(iterator.next(), "frame");
+            long frameBytes = frame.payload.length;
+            if (frameBytes > MAX_BATCH_BYTES - bytes) {
+                throw new IllegalArgumentException("video source batch exceeds the byte bound");
+            }
+            bytes += frameBytes;
+            copy.add(frame);
+        }
+        return List.copyOf(copy);
     }
 
     /** Implemented by an authenticated gRPC transport and trusted source-readback authority. */

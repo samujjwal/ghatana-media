@@ -1,15 +1,77 @@
 package com.ghatana.audio.streaming;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class GrpcAudioSourceCaptureTest {
     private static final GrpcAudioSourceCapture.Request REQUEST = new GrpcAudioSourceCapture.Request(
             "tenant-1", "stream-1", "principal-1", "purpose-1", "source@v7");
+
+    @Test
+    void batchRejectsUnderreportedFrameListBeforeTraversingPastItsBound() {
+        GrpcAudioSourceCapture.SourceFrame sourceFrame = frame(10, 0, "source@v7");
+        List<GrpcAudioSourceCapture.SourceFrame> actualFrames = new ArrayList<>(
+                java.util.Collections.nCopies(GrpcAudioSourceCapture.MAX_BATCH_FRAMES + 1, sourceFrame));
+        AtomicInteger consumed = new AtomicInteger();
+        List<GrpcAudioSourceCapture.SourceFrame> underreported = new AbstractList<>() {
+            @Override public GrpcAudioSourceCapture.SourceFrame get(int index) { return actualFrames.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<GrpcAudioSourceCapture.SourceFrame> iterator() {
+                Iterator<GrpcAudioSourceCapture.SourceFrame> delegate = actualFrames.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public GrpcAudioSourceCapture.SourceFrame next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Batch(underreported, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("audio source batch exceeds the frame bound");
+        assertThat(consumed).hasValue(GrpcAudioSourceCapture.MAX_BATCH_FRAMES);
+    }
+
+    @Test
+    void batchRejectsAggregateByteOverflowBeforeReadingLaterFrames() {
+        GrpcAudioSourceCapture.SourceFrame first = new GrpcAudioSourceCapture.SourceFrame(
+                "source@v7", 10, 0, 1234L, new byte[Math.toIntExact(GrpcAudioSourceCapture.MAX_BATCH_BYTES - 1)]);
+        GrpcAudioSourceCapture.SourceFrame overBudget = new GrpcAudioSourceCapture.SourceFrame(
+                "source@v7", 11, 1, 1235L, new byte[] {1, 2});
+        GrpcAudioSourceCapture.SourceFrame sentinel = frame(12, 2, "source@v7");
+        List<GrpcAudioSourceCapture.SourceFrame> actualFrames = List.of(first, overBudget, sentinel);
+        AtomicInteger consumed = new AtomicInteger();
+        List<GrpcAudioSourceCapture.SourceFrame> underreported = new AbstractList<>() {
+            @Override public GrpcAudioSourceCapture.SourceFrame get(int index) { return actualFrames.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<GrpcAudioSourceCapture.SourceFrame> iterator() {
+                Iterator<GrpcAudioSourceCapture.SourceFrame> delegate = actualFrames.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public GrpcAudioSourceCapture.SourceFrame next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Batch(underreported, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("audio source batch exceeds the byte bound");
+        assertThat(consumed).hasValue(2);
+    }
 
     @Test
     void reordersWithinBoundAndUsesCanonicalPortAsOnlyWriter() {

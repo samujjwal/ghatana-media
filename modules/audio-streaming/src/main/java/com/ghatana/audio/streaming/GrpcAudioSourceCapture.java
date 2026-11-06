@@ -75,21 +75,30 @@ public final class GrpcAudioSourceCapture {
 
     public record Batch(List<SourceFrame> frames, boolean endOfStream) {
         public Batch {
-            frames = List.copyOf(Objects.requireNonNull(frames, "frames"));
-            if (frames.size() > MAX_BATCH_FRAMES) {
-                throw new IllegalArgumentException("audio source batch exceeds the frame bound");
-            }
-            long bytes = 0;
-            for (SourceFrame frame : frames) {
-                bytes += Objects.requireNonNull(frame, "frame").payload().length;
-                if (bytes > MAX_BATCH_BYTES) {
-                    throw new IllegalArgumentException("audio source batch exceeds the byte bound");
-                }
-            }
+            frames = copyBoundedFrames(Objects.requireNonNull(frames, "frames"));
             if (frames.isEmpty() && !endOfStream) {
                 throw new IllegalArgumentException("empty non-terminal audio source batch is invalid");
             }
         }
+    }
+
+    private static List<SourceFrame> copyBoundedFrames(List<SourceFrame> frames) {
+        ArrayList<SourceFrame> copy = new ArrayList<>(Math.min(MAX_BATCH_FRAMES, 16));
+        var iterator = frames.iterator();
+        long bytes = 0;
+        while (iterator.hasNext()) {
+            if (copy.size() >= MAX_BATCH_FRAMES) {
+                throw new IllegalArgumentException("audio source batch exceeds the frame bound");
+            }
+            SourceFrame frame = Objects.requireNonNull(iterator.next(), "frame");
+            int frameBytes = frame.payload.length;
+            if (frameBytes > MAX_BATCH_BYTES - bytes) {
+                throw new IllegalArgumentException("audio source batch exceeds the byte bound");
+            }
+            bytes += frameBytes;
+            copy.add(frame);
+        }
+        return List.copyOf(copy);
     }
 
     /** Implemented by the authenticated source client; methods must not return unverified claims. */

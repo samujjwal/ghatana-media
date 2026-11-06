@@ -1,16 +1,77 @@
 package com.ghatana.video.streaming;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class GrpcVideoSourceCaptureTest {
     private static final GrpcVideoSourceCapture.Request REQUEST = new GrpcVideoSourceCapture.Request(
             "tenant-1", "stream-1", "principal-1", "purpose-1", "video@v3");
+
+    @Test
+    void batchFrameCapUsesActualIteratorEntriesBeforeCopying() {
+        GrpcVideoSourceCapture.SourceFrame repeated = frame(10, 0, "video@v3", 20);
+        List<GrpcVideoSourceCapture.SourceFrame> actualFrames = new ArrayList<>(
+                Collections.nCopies(GrpcVideoSourceCapture.MAX_BATCH_FRAMES + 1, repeated));
+        AtomicInteger consumed = new AtomicInteger();
+        List<GrpcVideoSourceCapture.SourceFrame> underreported = new AbstractList<>() {
+            @Override public GrpcVideoSourceCapture.SourceFrame get(int index) { return actualFrames.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<GrpcVideoSourceCapture.SourceFrame> iterator() {
+                Iterator<GrpcVideoSourceCapture.SourceFrame> delegate = actualFrames.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public GrpcVideoSourceCapture.SourceFrame next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Batch(underreported, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("video source batch exceeds the frame bound");
+        assertThat(consumed).hasValue(GrpcVideoSourceCapture.MAX_BATCH_FRAMES);
+    }
+
+    @Test
+    void batchByteCapStopsAtFirstOverBudgetFrameBeforeReadingLaterEntries() {
+        int maximumBytes = Math.toIntExact(GrpcVideoSourceCapture.MAX_BATCH_BYTES);
+        List<GrpcVideoSourceCapture.SourceFrame> actualFrames = List.of(
+                frameWithPayload(0, new byte[maximumBytes]),
+                frameWithPayload(1, new byte[] {1}),
+                frameWithPayload(2, new byte[] {2}));
+        AtomicInteger consumed = new AtomicInteger();
+        List<GrpcVideoSourceCapture.SourceFrame> underreported = new AbstractList<>() {
+            @Override public GrpcVideoSourceCapture.SourceFrame get(int index) { return actualFrames.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<GrpcVideoSourceCapture.SourceFrame> iterator() {
+                Iterator<GrpcVideoSourceCapture.SourceFrame> delegate = actualFrames.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public GrpcVideoSourceCapture.SourceFrame next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Batch(underreported, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("video source batch exceeds the byte bound");
+        assertThat(consumed).hasValue(2);
+    }
 
     @Test
     void reordersFramesAndUsesCanonicalPortAsOnlyWriter() {
@@ -227,6 +288,12 @@ class GrpcVideoSourceCaptureTest {
         return new GrpcVideoSourceCapture.SourceFrame(version, cursor, sequence, sequence == 0, 700L + sequence,
                 VideoFrameTimebase.SourceTimestamp.known(pts, 1, 90_000, "source-clock"),
                 new byte[] {(byte) sequence});
+    }
+
+    private static GrpcVideoSourceCapture.SourceFrame frameWithPayload(int sequence, byte[] payload) {
+        return new GrpcVideoSourceCapture.SourceFrame("video@v3", 10 + sequence, sequence, sequence == 0,
+                700L + sequence,
+                VideoFrameTimebase.SourceTimestamp.known(20 + sequence, 1, 90_000, "source-clock"), payload);
     }
 
     private static GrpcVideoSourceCapture.SourceFrame knownFrame(long cursor, int sequence, long pts) {
