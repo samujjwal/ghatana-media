@@ -166,6 +166,33 @@ class MediaLauncherArtifactIntakeRestartIT {
                 assertThat(stored).containsExactly(completeBytes);
                 assertThat(sha256(stored)).isEqualTo(expectedDigest);
             }
+
+            // A syntactically valid WAV with a deliberately false expected digest must never
+            // produce an artifact receipt. The upload ID remains the reconciliation identity;
+            // this test does not retry completion under a new identity after the terminal reject.
+            byte[] corruptBytes = syntheticWav();
+            corruptBytes[corruptBytes.length - 1] ^= 0x01;
+            String rejectedRequest = """
+                    {"tenantId":"%s","principalId":"%s","fileName":"corrupt.wav",
+                     "contentType":"audio/wav","expectedSizeBytes":%d,
+                     "expectedSha256":"%s","classification":"CONFIDENTIAL",
+                     "retention":"P30D","metadata":{}}
+                    """.formatted(TENANT, PRINCIPAL, corruptBytes.length, sha256(syntheticWav()));
+            HttpResponse<String> rejectedBegin = send(port, TENANT, token, "POST", "/api/v1/artifacts/uploads",
+                    rejectedRequest, "application/json", "artifact-intake-corrupt-" + run);
+            assertThat(rejectedBegin.statusCode()).as(rejectedBegin.body()).isEqualTo(201);
+            String rejectedUploadId = JSON.readTree(rejectedBegin.body()).path("uploadId").asString();
+            HttpResponse<String> corruptChunk = sendBytes(port, TENANT, token, "PUT",
+                    "/api/v1/artifacts/uploads/" + rejectedUploadId + "/chunks/0", corruptBytes);
+            assertThat(corruptChunk.statusCode()).as(corruptChunk.body()).isEqualTo(200);
+            HttpResponse<String> rejectedCompletion = send(port, TENANT, token, "POST",
+                    "/api/v1/artifacts/uploads/" + rejectedUploadId + "/complete", "", "application/json", null);
+            assertThat(rejectedCompletion.statusCode()).as(rejectedCompletion.body()).isEqualTo(409);
+            assertThat(rejectedCompletion.body()).contains("MEDIA_STATE_CONFLICT");
+            String absentArtifactId = UUID.randomUUID().toString();
+            HttpResponse<String> absentArtifact = send(port, TENANT, token, "GET",
+                    "/api/v1/artifacts/" + absentArtifactId, "", "application/json", null);
+            assertThat(absentArtifact.statusCode()).as(absentArtifact.body()).isEqualTo(404);
         } finally {
             try {
                 if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
