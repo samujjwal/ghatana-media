@@ -15,6 +15,7 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
     public synchronized Created create(Actor actor, String workspaceId, String title, String requestId,
                                        String projectId, String initialRevisionId, String timelineId) {
         Objects.requireNonNull(actor, "actor");
+        requireCreateProjectRequestId(requestId);
         RequestKey requestKey = new RequestKey(actor.tenantId(), actor.principalId(), required(requestId, "requestId"));
         CreateReceipt prior = requests.get(requestKey);
         if (prior != null) {

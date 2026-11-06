@@ -27,7 +27,7 @@ public final class ProjectTimelineEngine {
 
     public Created createProject(Actor actor, String workspaceId, String title, String requestId) {
         Objects.requireNonNull(actor, "actor");
-        validateRequestId(requestId);
+        requireCreateProjectRequestId(requestId);
         if (workspaceId == null || workspaceId.isBlank()) throw new IllegalArgumentException("workspaceId must not be blank");
         if (title == null || title.isBlank()) throw new IllegalArgumentException("title must not be blank");
         if (title.length() > 200) throw new IllegalArgumentException("title exceeds the 200 character project limit");
@@ -205,12 +205,6 @@ public final class ProjectTimelineEngine {
 
     private static Graph graph(Graph g, List<Scene> scenes, List<Track> tracks, List<Clip> clips) {
         return new Graph(g.timelineId(), scenes, tracks, clips);
-    }
-
-    private static void validateRequestId(String requestId) {
-        if (requestId == null || !requestId.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}")) {
-            throw new IllegalArgumentException("requestId must be a 1-128 character ASCII opaque key");
-        }
     }
 
     private String nextId() {

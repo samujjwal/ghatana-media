@@ -4,6 +4,7 @@ import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +30,40 @@ class ProjectTimelineEngineTest {
         assertThat(lateReplay.project().headRevisionId()).isEqualTo(first.initialRevision().revisionId());
         assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-b", "Cut", "create-1"))
                 .isInstanceOf(IdempotencyConflictException.class);
+    }
+
+    @Test
+    void createRequestIdMatchesOwnerWireSchemaAtEngineAndStoreBoundaries() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        AtomicInteger nextId = new AtomicInteger();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store, () -> "generated-id-" + nextId.getAndIncrement());
+        String maximum = "A" + "._~-".repeat(31) + "._~";
+        assertThat(maximum).hasSize(128);
+        assertThat(engine.createProject(OWNER, "workspace-a", "Cut", maximum).createdNow()).isTrue();
+
+        for (String invalid : List.of("", ":bad", "a".repeat(129), "å", "_first")) {
+            assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-a", "Cut", invalid))
+                    .as("engine requestId %s", invalid)
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> store.create(OWNER, "workspace-a", "Cut", invalid,
+                    "direct-project-" + invalid.hashCode(), "direct-revision", "direct-timeline"))
+                    .as("direct store requestId %s", invalid)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        assertThat(engine.createProject(OWNER, "workspace-a", "Cut", "a:b.c_d~e-f").createdNow()).isTrue();
+        assertThat(store.create(OWNER, "workspace-a", "Cut", "a.b_c~d-e",
+                "direct-project-valid", "direct-revision-valid", "direct-timeline").createdNow()).isTrue();
+        assertThat(store.create(OWNER, "workspace-a", "Cut", "a:b.direct",
+                "direct-project-colon", "direct-revision-colon", "direct-timeline-colon").createdNow()).isTrue();
+
+        NotAdmittedProjectTimelineStore unavailable = new NotAdmittedProjectTimelineStore();
+        assertThatThrownBy(() -> unavailable.create(OWNER, "workspace-a", "Cut", ":bad",
+                "invalid-not-admitted-project", "invalid-not-admitted-revision", "invalid-not-admitted-timeline"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> unavailable.create(OWNER, "workspace-a", "Cut", "a:b",
+                "not-admitted-project", "not-admitted-revision", "not-admitted-timeline"))
+                .isInstanceOf(MediaCapabilityNotAdmittedException.class);
     }
 
     @Test

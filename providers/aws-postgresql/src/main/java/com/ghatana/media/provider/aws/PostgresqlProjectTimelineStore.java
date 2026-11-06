@@ -31,6 +31,7 @@ public final class PostgresqlProjectTimelineStore implements ProjectTimelineStor
                           String projectId, String initialRevisionId, String timelineId) {
         ensureOpen();
         Objects.requireNonNull(actor, "actor");
+        MediaProjectTimelineContracts.requireCreateProjectRequestId(requestId);
         workspaceId = MediaProjectTimelineContracts.required(workspaceId, "workspaceId");
         title = MediaProjectTimelineContracts.required(title, "title");
         requestId = MediaProjectTimelineContracts.required(requestId, "requestId");

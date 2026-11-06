@@ -14,6 +14,7 @@ public final class NotAdmittedProjectTimelineStore implements ProjectTimelineSto
 
     @Override public Created create(Actor actor, String workspaceId, String title, String requestId,
                                    String projectId, String initialRevisionId, String timelineId) {
+        requireCreateProjectRequestId(requestId);
         throw unavailable();
     }
 

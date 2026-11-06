@@ -46,6 +46,24 @@ class PostgresqlProjectTimelineStoreTest {
             DockerImageName.parse("localstack/localstack:3.8")).withServices("s3");
 
     @Test
+    void directStoreMatchesOwnerWireSchemaRequestIdGrammar() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor actor = new Actor("tenant-request-id", "principal-request-id");
+            for (String invalid : List.of("", ":bad", "a".repeat(129), "å", "_first")) {
+                assertThatThrownBy(() -> fixture.store.create(actor, "workspace", "Title", invalid,
+                        "project-" + invalid.hashCode(), "revision", "timeline"))
+                        .isInstanceOf(IllegalArgumentException.class);
+            }
+            String maximum = "A" + "._~-".repeat(31) + "._~";
+            assertThat(maximum).hasSize(128);
+            assertThat(fixture.store.create(actor, "workspace", "Title", maximum,
+                    "project-valid", "revision-valid", "timeline-valid").createdNow()).isTrue();
+            assertThat(fixture.store.create(actor, "workspace", "Title", "a:b.c_d~e-f",
+                    "project-colon", "revision-colon", "timeline-colon").createdNow()).isTrue();
+        }
+    }
+
+    @Test
     void restartReadbackPreservesCreateReceiptAndImmutableGraphSnapshot() throws Exception {
         try (Fixture fixture = openFixture()) {
             Actor actor = new Actor("tenant-a", "principal-a");
