@@ -423,6 +423,30 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("reconnect releases old-generation dispatch capacity without permitting stale replay")
+    void reconnectReleasesStaleProviderCapacity() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        for (int sequence = 0; sequence < 256; sequence++) {
+            assertThat(session.submitFrame(frame(sequence))).isEqualTo(Disposition.DELIVERED);
+        }
+        AudioStreamSession.DecodedFrame oldGenerationFrame = frame(0);
+        session.detach();
+        session.reconnect(1);
+
+        assertThat(session.submitFrame(frame(256))).isEqualTo(Disposition.DELIVERED);
+        assertThat(session.nextAck()).isEqualTo(256);
+
+        AtomicInteger providerEffects = new AtomicInteger();
+        assertThatThrownBy(() -> session.dispatchToProvider(
+                oldGenerationFrame, ignored -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("stale session generation");
+        assertThat(providerEffects).hasValue(0);
+        assertThat(session.generation()).isEqualTo(1);
+    }
+
+    @Test
     @DisplayName("unauthorized reconnect — consent revoked while detached — stays detached")
     void unauthorizedReconnect() {
         AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);

@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 
 /**
@@ -96,6 +97,8 @@ public final class GuardedAudioStreamSession {
     private final StreamFrameReconciler reconciler;
     /** Bounded candidates bind dispatch to exact frames and the generation that accepted them. */
     private final LinkedHashMap<Integer, ProviderCandidate> providerCandidates = new LinkedHashMap<>();
+    /** Bounded tombstones preserve stale-generation rejection after reconnect purges old candidates. */
+    private final LinkedHashSet<Integer> staleProviderCandidateSequences = new LinkedHashSet<>();
     private Attachment attachment;
     private long generation;
 
@@ -197,7 +200,15 @@ public final class GuardedAudioStreamSession {
         }
         AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         ProviderCandidate candidate = providerCandidates.get(snapshot.sequenceNumber());
-        if (candidate == null || !Arrays.equals(candidate.digest(), frameDigest(snapshot))) {
+        if (candidate == null) {
+            if (staleProviderCandidateSequences.contains(snapshot.sequenceNumber())) {
+                throw new IllegalArgumentException(
+                        "audio frame provider retry belongs to a stale session generation");
+            }
+            throw new IllegalArgumentException(
+                    "audio frame was not delivered by this session or was already dispatched");
+        }
+        if (!Arrays.equals(candidate.digest(), frameDigest(snapshot))) {
             throw new IllegalArgumentException(
                     "audio frame was not delivered by this session or was already dispatched");
         }
@@ -248,6 +259,15 @@ public final class GuardedAudioStreamSession {
             discardUndispatchedFrames();
             throw denied;
         }
+        for (Integer sequence : providerCandidates.keySet()) {
+            staleProviderCandidateSequences.add(sequence);
+        }
+        while (staleProviderCandidateSequences.size() > MAX_PROVIDER_CANDIDATES) {
+            var iterator = staleProviderCandidateSequences.iterator();
+            iterator.next();
+            iterator.remove();
+        }
+        providerCandidates.clear();
         generation = reconnectGeneration;
         attachment = Attachment.ATTACHED;
     }
