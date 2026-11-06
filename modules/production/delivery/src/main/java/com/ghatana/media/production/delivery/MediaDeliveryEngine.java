@@ -383,9 +383,9 @@ public final class MediaDeliveryEngine {
                           DeliveryOperationStore.DispatchClaim initialClaim) {
         ExportRequest request = entry.request;
         int offset = start;
-        byte[] bytes = request.artifact().bytes();
+        int artifactSize = request.artifact().size();
         DeliveryOperationStore.DispatchClaim claim = initialClaim;
-        while (offset < bytes.length) {
+        while (offset < artifactSize) {
             claim = renew(claim);
             if (claim == null) { refreshEntry(entry); return; }
             AuthorizationCurrentness currentness = currentness(grant);
@@ -395,7 +395,7 @@ public final class MediaDeliveryEngine {
                 if (!setResult(entry, result(request, status, offset, null), claim)) refreshEntry(entry);
                 return;
             }
-            int count = Math.min(CHUNK_BYTES, bytes.length - offset);
+            int count = Math.min(CHUNK_BYTES, artifactSize - offset);
             byte[] chunk = request.artifact().chunk(offset, count);
             String chunkDigest = MediaCreationContracts.sha256(chunk);
             // Persist ambiguity before crossing the destination boundary. A process death
