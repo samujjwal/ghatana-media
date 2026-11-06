@@ -155,7 +155,8 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             TtsProviderAdmission admissionResolver,
             TtsRequestAuthorization requestAuthorization,
             Function<TtsConfig, AudioVideoLibrary> libraryFactory) {
-        this(createInitializedRuntime(environment, libraryFactory, admissionResolver, ignored -> {}),
+        this(createInitializedRuntime(environment, libraryFactory, admissionResolver,
+                        requestAuthorization, ignored -> {}),
                 metrics, requestAuthorization);
     }
 
@@ -712,7 +713,11 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             Function<TtsConfig, AudioVideoLibrary> libraryFactory,
             TtsProviderAdmission admissionResolver,
             Consumer<FileChannel> beforeModelHash) {
-        return createInitializedRuntime(environment, libraryFactory, admissionResolver, beforeModelHash).library();
+        // Validation-only composition seam used by package tests. It records that the
+        // resolver path is configured, but never admits an operation or provider effect.
+        TtsRequestAuthorization unavailableRequests = request -> TtsRequestAuthorization.Decision.UNAVAILABLE;
+        return createInitializedRuntime(environment, libraryFactory, admissionResolver,
+                unavailableRequests, beforeModelHash).library();
     }
 
     private static InitializedRuntime createInitializedRuntime(
@@ -727,8 +732,34 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             Function<TtsConfig, AudioVideoLibrary> libraryFactory,
             TtsProviderAdmission admissionResolver,
             Consumer<FileChannel> beforeModelHash) {
+        return createInitializedRuntime(environment, libraryFactory, admissionResolver,
+                TtsRequestAuthorization.unavailable(), beforeModelHash);
+    }
+
+    private static InitializedRuntime createInitializedRuntime(
+            Map<String, String> environment,
+            Function<TtsConfig, AudioVideoLibrary> libraryFactory,
+            TtsProviderAdmission admissionResolver,
+            TtsRequestAuthorization requestAuthorization,
+            Consumer<FileChannel> beforeModelHash) {
         Objects.requireNonNull(environment, "environment");
         Objects.requireNonNull(libraryFactory, "libraryFactory");
+        Objects.requireNonNull(requestAuthorization, "requestAuthorization");
+        try {
+            if (!requestAuthorization.isConfigured()) {
+                throw new IllegalStateException(
+                        "TTS_PROVIDER_NOT_ADMITTED: source-authoritative voice consent resolver is unavailable");
+            }
+        } catch (RuntimeException unavailable) {
+            if (unavailable instanceof IllegalStateException illegal
+                    && illegal.getMessage() != null
+                    && illegal.getMessage().startsWith("TTS_PROVIDER_NOT_ADMITTED:")) {
+                throw illegal;
+            }
+            throw new IllegalStateException(
+                    "TTS_PROVIDER_NOT_ADMITTED: source-authoritative voice consent resolver is unavailable",
+                    unavailable);
+        }
         RuntimeConfiguration runtime = resolveConfiguration(environment, admissionResolver, beforeModelHash);
         AudioVideoLibrary library = null;
         try {

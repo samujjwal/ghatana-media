@@ -243,6 +243,112 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
+    void placeholderOrMismatchedLicenseIsDeniedByTrustedResolverBeforeModelInitialization() throws Exception {
+        Path model = createModelFile("tts-model-license-admission");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            String admittedLicenseReference = "controlled-test-authority:license-reference-1";
+            AtomicInteger resolverCalls = new AtomicInteger();
+            TtsProviderAdmission resolver = candidate -> {
+                resolverCalls.incrementAndGet();
+                if (!admittedLicenseReference.equals(candidate.modelLicenseReference())) {
+                    return new TtsProviderAdmission.Decision(java.util.Set.of(), null,
+                            "exact model license reference is not admitted");
+                }
+                return new TtsProviderAdmission.Decision(
+                        java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                        "controlled-test-authority:decision-1", "fixture only");
+            };
+            TtsRequestAuthorization voiceAuthority = admittedVoiceAuthorization(true);
+
+            Map<String, String> missingLicense = new java.util.HashMap<>(localProfile(model, digest));
+            missingLicense.remove("TTS_MODEL_LICENSE");
+            var missingLicenseProfile = ProductionTtsGrpcService.resolveProviderProfile(missingLicense, resolver);
+            assertThat(missingLicenseProfile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(missingLicenseProfile.reason()).contains("TTS_MODEL_LICENSE");
+            assertThat(resolverCalls).hasValue(0);
+            AtomicInteger missingLicenseFactoryCalls = new AtomicInteger();
+            assertThatThrownBy(() -> new ProductionTtsGrpcService(
+                    missingLicense, new SimpleMeterRegistry(), resolver, voiceAuthority, config -> {
+                        missingLicenseFactoryCalls.incrementAndGet();
+                        return mock(AudioVideoLibrary.class);
+                    }))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("TTS_PROVIDER_NOT_ADMITTED");
+            assertThat(missingLicenseFactoryCalls).hasValue(0);
+
+            for (String license : List.of("test-fixture-license-placeholder", "other-license-reference")) {
+                Map<String, String> environment = new java.util.HashMap<>(localProfile(model, digest));
+                environment.put("TTS_MODEL_LICENSE", license);
+                AtomicInteger factoryCalls = new AtomicInteger();
+
+                assertThatThrownBy(() -> new ProductionTtsGrpcService(
+                        environment, new SimpleMeterRegistry(), resolver, voiceAuthority, config -> {
+                            factoryCalls.incrementAndGet();
+                            return mock(AudioVideoLibrary.class);
+                        }))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("TTS_PROVIDER_NOT_ADMITTED")
+                        .hasMessageContaining("exact model license reference is not admitted");
+                assertThat(factoryCalls).hasValue(0);
+            }
+            assertThat(resolverCalls).hasValue(2);
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void missingVoiceConsentAuthorityCannotReachModelLoaderEvenWhenModelAdmissionExists() throws Exception {
+        Path model = createModelFile("tts-model-missing-voice-consent-authority");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            AtomicInteger factoryCalls = new AtomicInteger();
+            TtsProviderAdmission admittedModel = candidate -> new TtsProviderAdmission.Decision(
+                    java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                    "controlled-test-authority:model-decision", "fixture model only");
+
+            assertThatThrownBy(() -> new ProductionTtsGrpcService(
+                    localProfile(model, digest), new SimpleMeterRegistry(), admittedModel,
+                    TtsRequestAuthorization.unavailable(), config -> {
+                        factoryCalls.incrementAndGet();
+                        return mock(AudioVideoLibrary.class);
+                    }))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("TTS_PROVIDER_NOT_ADMITTED")
+                    .hasMessageContaining("voice consent resolver is unavailable");
+            assertThat(factoryCalls).hasValue(0);
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    private static TtsRequestAuthorization admittedVoiceAuthorization(boolean configured) {
+        return new TtsRequestAuthorization() {
+            @Override
+            public Decision authorize(Request request) {
+                return Decision.ADMITTED;
+            }
+
+            @Override
+            public String configuredDefaultVoiceId() {
+                return "piper-en";
+            }
+
+            @Override
+            public boolean isConfigured() {
+                return configured;
+            }
+        };
+    }
+
+    @Test
     void malformedOrUndefinedLanguageCannotReachTrustedProviderAdmission() throws Exception {
         Path model = createModelFile("tts-model-invalid-language");
         try {
@@ -297,6 +403,8 @@ class ProductionTtsGrpcServiceConfigTest {
 
                 assertThat(profile.status()).as("language %s", language).isEqualTo("NOT_ADMITTED");
                 assertThat(profile.reason()).contains("supports en-US only");
+                assertRejectedBeforeInitialization(environment, IllegalStateException.class,
+                        "TTS_PROVIDER_NOT_ADMITTED");
             }
             assertThat(resolverCalls).hasValue(0);
         } finally {
@@ -457,7 +565,7 @@ class ProductionTtsGrpcServiceConfigTest {
                     "local-fixture-resolver:test-only", "controlled fixture only");
 
             assertThatThrownBy(() -> new ProductionTtsGrpcService(environment, new SimpleMeterRegistry(),
-                    admission, config -> {
+                    admission, readyFixtureAuthorization(), config -> {
                         try {
                             Files.writeString(Path.of(config.voiceModelPath().toString() + ".json"),
                                     "{\"phoneme_id_map\":{\"^\":[9],\"$\":[8],\"_\":[7]}}\n");
