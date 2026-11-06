@@ -66,6 +66,19 @@ afterEach(async () => {
 });
 
 describe('ghatanamedia-api artifact inspect executable', () => {
+  it('denies artifact inspection without bearer authentication before endpoint dispatch', async () => {
+    const result = await invoke(command('https://media.example.test'), '');
+
+    expect(result.status).toBe(2);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toBe(`${JSON.stringify({
+      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+      code: 'MISSING_AUTH_TOKEN',
+      message: 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.',
+    })}\n`);
+    expect(result.stdout + result.stderr).not.toContain(token);
+  });
+
   it('executes an installed-style linked bin target through the SDK as a scoped read', async () => {
     let requests = 0;
     await withServer((request, response) => {
