@@ -85,6 +85,14 @@ class PostgresqlMediaOutboxPublicationSourceTest {
                 var winner = a.events().isEmpty() ? b : a;
                 assertThat(winner.events()).extracting("eventId").containsExactly(first, second);
                 assertThat(winner.events()).extracting("publicationAttempts").containsExactly(0, 0);
+                var firstEvent = winner.events().getFirst();
+                assertThat(firstEvent.eventId()).isEqualTo(first);
+                assertThat(firstEvent.tenantId()).isEqualTo("tenant-a");
+                assertThat(firstEvent.subjectId()).isEqualTo("subject-a");
+                assertThat(firstEvent.eventType()).isEqualTo("FIRST");
+                assertThat(firstEvent.payload()).containsEntry("value", 1);
+                assertThat(firstEvent.occurredAt()).isEqualTo(Instant.ofEpochMilli(1_000L));
+                assertThat(firstEvent.correlationId()).isEqualTo("correlation-subject-a");
                 assertThat(fixture.attempts(first)).singleElement().satisfies(attempt -> {
                     assertThat(attempt.status).isEqualTo("CLAIMED");
                     assertThat(attempt.fingerprint).matches("[0-9a-f]{64}");
@@ -104,6 +112,12 @@ class PostgresqlMediaOutboxPublicationSourceTest {
                     assertThat(result.publishedEvents()).isEqualTo(2);
                     assertThat(broker.envelopes).extracting(EventEnvelope::id).containsExactly(first.toString(), second.toString());
                     assertThat(broker.envelopes).extracting(EventEnvelope::tenantId).containsExactly("tenant-a", "tenant-b");
+                    assertThat(broker.envelopes).extracting(EventEnvelope::eventType).containsExactly("FIRST", "SECOND");
+                    assertThat(broker.envelopes).extracting(EventEnvelope::correlationId)
+                            .containsExactly("correlation-subject-a", "correlation-subject-b");
+                    assertThat(broker.envelopes.getFirst().payload()).isEqualTo(Map.of("value", 1));
+                    assertThat(broker.envelopes.getFirst().schemaUri()).isEqualTo("urn:ghatana:media-lifecycle-event:v1");
+                    assertThat(broker.envelopes.getFirst().idempotencyKey()).isEqualTo(first.toString());
                 }
             }
             assertThat(fixture.attempts(first)).extracting(attempt -> attempt.status).containsExactly("CLAIM_RELEASED", "PUBLISHED");
@@ -113,6 +127,60 @@ class PostgresqlMediaOutboxPublicationSourceTest {
             assertThat(fixture.publishedAt(first)).isNotNull();
             assertThat(fixture.publishedAt(second)).isNotNull();
             assertThat(fixture.hasConsumerReceiptApi()).isFalse();
+        }
+    }
+
+    @Test
+    void appendUsesCallerTransactionAndRollbackLeavesNoPublicationIntent() throws Exception {
+        Fixture fixture = new Fixture("media_outbox_atomic_append");
+        try (fixture) {
+            UUID eventId = UUID.randomUUID();
+            MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (Connection connection = h2(fixture.jdbcUrl).getConnection()) {
+                connection.setAutoCommit(false);
+                PostgresqlMediaOutboxPublicationSource.append(connection,
+                        new PostgresqlMediaOutboxPublicationSource.MediaLifecycleEventRow(
+                                eventId, "tenant-atomic", "subject-atomic", "MEDIA_TEST_EVENT",
+                                Map.of("version", "exact-v1"), Instant.ofEpochMilli(10_000L), "request-atomic"),
+                        state);
+                try (PreparedStatement read = connection.prepareStatement(
+                        "SELECT event_id,tenant_id,subject_id,event_type,payload_json,occurred_at,correlation_id "
+                                + "FROM media_lifecycle_outbox WHERE event_id=?")) {
+                    read.setString(1, eventId.toString());
+                    try (ResultSet row = read.executeQuery()) {
+                        assertThat(row.next()).isTrue();
+                        assertThat(row.getString("event_id")).isEqualTo(eventId.toString());
+                        assertThat(row.getString("tenant_id")).isEqualTo("tenant-atomic");
+                        assertThat(row.getString("subject_id")).isEqualTo("subject-atomic");
+                        assertThat(row.getString("event_type")).isEqualTo("MEDIA_TEST_EVENT");
+                        assertThat(row.getString("payload_json")).isEqualTo("{\"version\":\"exact-v1\"}");
+                        assertThat(row.getLong("occurred_at")).isEqualTo(10_000L);
+                        assertThat(row.getString("correlation_id")).isEqualTo("request-atomic");
+                    }
+                }
+                connection.rollback();
+            } finally {
+                state.release();
+            }
+            assertThat(fixture.eventExists(eventId)).isFalse();
+        }
+    }
+
+    @Test
+    void publicationInputsAreBoundedBeforeDatabaseMutation() throws Exception {
+        Fixture fixture = new Fixture("media_outbox_invalid_inputs");
+        try (fixture; PostgresqlMediaOutboxPublicationSource source = new PostgresqlMediaOutboxPublicationSource()) {
+            assertThatThrownBy(() -> AsyncOperations.toFuture(source.claimBatch(
+                    "x".repeat(256), 1, Instant.EPOCH, Duration.ofSeconds(1))).join())
+                    .hasRootCauseInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> AsyncOperations.toFuture(source.claimBatch(
+                    "publisher", 1, Instant.EPOCH, Duration.ofNanos(1))).join())
+                    .hasRootCauseInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> AsyncOperations.toFuture(source.markFailed(
+                    UUID.randomUUID(), UUID.randomUUID(), "x".repeat(129), Instant.EPOCH)).join())
+                    .hasRootCauseInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> AsyncOperations.toFuture(source.releaseClaim(null, Instant.EPOCH)).join())
+                    .hasRootCauseInstanceOf(IllegalArgumentException.class);
         }
     }
 
@@ -325,6 +393,15 @@ class PostgresqlMediaOutboxPublicationSourceTest {
                     long value = row.getLong(1);
                     return row.wasNull() ? null : value;
                 }
+            }
+        }
+
+        private boolean eventExists(UUID eventId) throws Exception {
+            try (Connection connection = h2(jdbcUrl).getConnection();
+                 PreparedStatement query = connection.prepareStatement(
+                         "SELECT 1 FROM media_lifecycle_outbox WHERE event_id=?")) {
+                query.setString(1, eventId.toString());
+                try (ResultSet row = query.executeQuery()) { return row.next(); }
             }
         }
 

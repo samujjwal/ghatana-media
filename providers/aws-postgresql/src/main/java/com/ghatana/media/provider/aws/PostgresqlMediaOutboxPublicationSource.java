@@ -28,9 +28,11 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
     @Override
     public AsyncOperation<Claim> claimBatch(
             String ownerId, int maximumEvents, Instant observedAt, Duration claimDuration) {
-        if (ownerId == null || ownerId.isBlank()) return AsyncOperation.failure(new IllegalArgumentException("ownerId is required"));
+        String normalizedOwner = boundedToken(ownerId, 255);
+        if (normalizedOwner == null) return AsyncOperation.failure(new IllegalArgumentException("ownerId is required and bounded"));
         if (maximumEvents < 1 || maximumEvents > 256) return AsyncOperation.failure(new IllegalArgumentException("maximumEvents must be between 1 and 256"));
-        if (observedAt == null || claimDuration == null || claimDuration.isNegative() || claimDuration.isZero()) {
+        if (observedAt == null || claimDuration == null || claimDuration.isNegative()
+                || claimDuration.isZero() || claimDuration.toMillis() < 1) {
             return AsyncOperation.failure(new IllegalArgumentException("claim time and positive duration are required"));
         }
         return async(() -> {
@@ -49,7 +51,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                         long activeExpiry = activeLease.getLong("claim_expires_at");
                         if (activeToken != null && activeExpiry > observedAt.toEpochMilli()) {
                             connection.commit();
-                            return new Claim(ownerId, token, expiresAt, List.of());
+                            return new Claim(normalizedOwner, token, expiresAt, List.of());
                         }
                     }
                     List<OutboundEvent> events = new ArrayList<>();
@@ -71,7 +73,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                                         rows.getLong("occurred_at"), rows.getString("correlation_id"));
                                 try (PreparedStatement update = connection.prepareStatement(
                                         "UPDATE media_lifecycle_outbox SET claim_owner=?,claim_token=?,claim_expires_at=?,publication_attempts=? WHERE event_id=?")) {
-                                    update.setString(1, ownerId);
+                                    update.setString(1, normalizedOwner);
                                     update.setObject(2, token);
                                     update.setLong(3, expiresAt.toEpochMilli());
                                     update.setInt(4, attemptNumber);
@@ -93,7 +95,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                                                 + "VALUES (?,?,?,?,?,?,?,'CLAIMED')")) {
                                     attempt.setObject(1, eventId);
                                     attempt.setInt(2, attemptNumber);
-                                    attempt.setString(3, ownerId);
+                                    attempt.setString(3, normalizedOwner);
                                     attempt.setObject(4, token);
                                     attempt.setString(5, fingerprint);
                                     attempt.setLong(6, observedAt.toEpochMilli());
@@ -112,14 +114,14 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                         try (PreparedStatement lease = connection.prepareStatement(
                                 "UPDATE media_lifecycle_outbox_publisher_lease SET claim_owner=?,claim_token=?,claim_expires_at=? "
                                         + "WHERE publisher_key='media-lifecycle'")) {
-                            lease.setString(1, ownerId);
+                            lease.setString(1, normalizedOwner);
                             lease.setObject(2, token);
                             lease.setLong(3, expiresAt.toEpochMilli());
                             if (lease.executeUpdate() != 1) throw new SQLException("Media lifecycle publisher lease was not persisted");
                         }
                     }
                     connection.commit();
-                    return new Claim(ownerId, token, expiresAt, events);
+                    return new Claim(normalizedOwner, token, expiresAt, events);
                 } catch (Exception failure) {
                     rollback(connection, failure);
                     throw failure instanceof RuntimeException runtime ? runtime : databaseFailure("claim Media lifecycle outbox", (Exception) failure);
@@ -168,7 +170,8 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
     }
 
     @Override public AsyncOperation<Void> markFailed(UUID claimToken, UUID eventId, String failureCode, Instant observedAt) {
-        if (failureCode == null || failureCode.isBlank()) return AsyncOperation.failure(new IllegalArgumentException("failureCode is required"));
+        String normalizedFailure = boundedFailureCode(failureCode);
+        if (normalizedFailure == null) return AsyncOperation.failure(new IllegalArgumentException("failureCode is invalid"));
         if (claimToken == null || eventId == null || observedAt == null) return AsyncOperation.failure(new IllegalArgumentException("claim token, event ID, and timestamp are required"));
         return async(() -> {
             ensureOpen();
@@ -178,7 +181,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                     try (PreparedStatement event = connection.prepareStatement(
                             "UPDATE media_lifecycle_outbox SET failed_at=?,failure_code=? WHERE event_id=? AND claim_token=? AND published_at IS NULL AND claim_expires_at>?")) {
                         event.setLong(1, observedAt.toEpochMilli());
-                        event.setString(2, failureCode);
+                        event.setString(2, normalizedFailure);
                         event.setObject(3, eventId);
                         event.setObject(4, claimToken);
                         event.setLong(5, observedAt.toEpochMilli());
@@ -187,7 +190,7 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                     try (PreparedStatement attempt = connection.prepareStatement(
                             "UPDATE media_lifecycle_outbox_delivery_attempts SET status='FAILED',failure_code=? "
                                     + "WHERE event_id=? AND claim_token=? AND status='CLAIMED'")) {
-                        attempt.setString(1, failureCode);
+                        attempt.setString(1, normalizedFailure);
                         attempt.setObject(2, eventId);
                         attempt.setObject(3, claimToken);
                         if (attempt.executeUpdate() != 1) throw new SQLException("Media outbox failure attempt was not persisted");
@@ -207,6 +210,9 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
 
     @Override
     public AsyncOperation<Integer> releaseClaim(UUID claimToken, Instant observedAt) {
+        if (claimToken == null || observedAt == null) {
+            return AsyncOperation.failure(new IllegalArgumentException("claim token and timestamp are required"));
+        }
         return async(() -> {
             ensureOpen();
             try (Connection connection = state.connection()) {
@@ -272,6 +278,20 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
     }
 
     private void ensureOpen() { if (closed.get()) throw new IllegalStateException("Media outbox source is closed"); }
+
+    private static String boundedToken(String value, int maxLength) {
+        if (value == null) return null;
+        String token = value.trim();
+        if (token.isEmpty() || token.length() > maxLength
+                || !token.matches("^[A-Za-z0-9][A-Za-z0-9._:/-]*$")) return null;
+        return token;
+    }
+
+    private static String boundedFailureCode(String value) {
+        if (value == null) return null;
+        String token = value.trim().toUpperCase(java.util.Locale.ROOT);
+        return token.matches("^[A-Z][A-Z0-9_]{0,127}$") ? token : null;
+    }
     @Override public void close() { if (closed.compareAndSet(false, true)) state.release(); }
 
     private static void rollback(Connection connection, Exception failure) {
