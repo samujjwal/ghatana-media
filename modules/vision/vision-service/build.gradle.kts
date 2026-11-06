@@ -71,6 +71,12 @@ dependencies {
     testImplementation("com.ghatana.platform:testing-activej:${providers.gradleProperty("ghatana.shared.version").get()}")
 }
 
+// Reuse the common module's checked-in test-only TLS identities without adding them to
+// Vision's production/runtime classpath or duplicating private test keys.
+sourceSets.named("test") {
+    resources.srcDir(rootProject.file("libs/common/src/test/resources"))
+}
+
 application {
     mainClass.set("com.ghatana.audio.video.vision.grpc.VisionGrpcServer")
 }
