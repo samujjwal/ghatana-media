@@ -270,6 +270,25 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void referenceMetricsRejectUnavailableOrInvalidValuesMasqueradingAsMeasurements() {
+        Psnr unavailablePsnr = new Psnr(MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty());
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.UNAVAILABLE, "reference", "v7", REF_SHA,
+                "RGB8_SAMPLE_PSNR_V1", unavailablePsnr, java.util.OptionalDouble.empty(),
+                java.util.Optional.of(MetricUnavailableReason.REFERENCE_UNAVAILABLE)))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("unavailable reference metrics");
+
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.MEASURED, "reference", "v7", REF_SHA,
+                "RGB8_SAMPLE_PSNR_V1", new Psnr(MetricStatus.MEASURED, java.util.OptionalDouble.of(20.0)),
+                java.util.OptionalDouble.of(Double.NaN), java.util.Optional.empty()))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("finite measurements");
+
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.EXACT_REFERENCE_MATCH, "reference", "v7", REF_SHA,
+                "RGB8_SAMPLE_PSNR_V1", new Psnr(MetricStatus.EXACT_REFERENCE_MATCH,
+                        java.util.OptionalDouble.empty()), java.util.OptionalDouble.of(0.9), java.util.Optional.empty()))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("infinite PSNR omission");
+    }
+
+    @Test
     void sourceDenialOrUnknownPreventsPixelReadAndCandidateDisclosure() {
         DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
         AtomicInteger reads = new AtomicInteger();

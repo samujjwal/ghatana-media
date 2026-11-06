@@ -59,6 +59,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-j16-dubbing-capability-slice",
                         "journey-j17-music-effects-local-dsp",
                         "journey-outcome-j01", "journey-outcome-j02", "journey-outcome-j05",
+                        "journey-outcome-j04-voice-consent-negative",
                         "journey-outcome-j06", "journey-outcome-j07", "journey-outcome-j08",
                         "journey-outcome-j09", "journey-outcome-j10", "journey-outcome-j11",
                         "journey-outcome-j14", "journey-outcome-j15", "journey-outcome-j18",
@@ -118,7 +119,7 @@ class MediaTestHarnessCatalogTest {
         var unrepresentedNode = catalog.path("journeySelectorCoverage").path("unrepresentedJourneyIds");
         assertThat(unrepresentedNode)
                 .extracting(var -> var.asString())
-                .containsExactly("J-04", "J-23", "J-24", "J-30");
+                .containsExactly("J-23", "J-24", "J-30");
         assertThat(catalog.path("journeySelectorCoverage").path("meaning").asString())
                 .contains("not a completion or admission status");
 

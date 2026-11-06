@@ -439,6 +439,28 @@
       "evidenceLimit": "J-02 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j04-voice-consent-negative",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:speech:tts-service:test",
+      "selectors": [
+        "com.ghatana.tts.grpc.TtsVoiceConsentNegativeTest"
+      ],
+      "sources": [
+        "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsVoiceConsentNegativeTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "in-process gRPC",
+        "synthetic authority and model-sidecar fixtures"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic JWTs, temporary model bytes, test-owned profile and generated PCM only.",
+      "safety": "Pre-effect voice consent, tenant, purpose, locale, and revocation negatives; any admitted engine response uses a mock and is not qualified voice output.",
+      "evidenceLimit": "J-04 voice admission negative-path slice only; no licensed model/voice, genuine decoded audio, durable job/restart, or journey completion is established."
+    },
+    {
       "id": "journey-outcome-j05",
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
@@ -853,7 +875,7 @@
     }
   ],
   "journeySelectorCoverage": {
-    "unrepresentedJourneyIds": ["J-04", "J-23", "J-24", "J-30"],
+    "unrepresentedJourneyIds": ["J-23", "J-24", "J-30"],
     "meaning": "No source-validated selector is registered here for these outcomes; this is not a completion or admission status."
   },
   "unrepresentedSourceAreas": [

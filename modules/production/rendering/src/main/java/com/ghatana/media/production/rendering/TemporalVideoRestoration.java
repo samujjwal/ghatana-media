@@ -388,6 +388,26 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(psnr, "psnr");
             Objects.requireNonNull(globalLumaSsim, "globalLumaSsim");
             Objects.requireNonNull(unavailableReason, "unavailableReason");
+            if (status == MetricStatus.UNAVAILABLE) {
+                if (unavailableReason.isEmpty() || psnr.status() != MetricStatus.UNAVAILABLE
+                        || psnr.finiteDb().isPresent() || globalLumaSsim.isPresent()
+                        || !referenceArtifactId.isEmpty() || !referenceVersionId.isEmpty()
+                        || !referenceSha256.isEmpty() || !algorithm.isEmpty()) {
+                    throw invalid("unavailable reference metrics must not expose measurements or reference identity");
+                }
+            } else {
+                if (unavailableReason.isPresent() || referenceArtifactId.isBlank() || referenceVersionId.isBlank()
+                        || !referenceSha256.matches(SHA256) || algorithm.isBlank()
+                        || globalLumaSsim.isEmpty() || !Double.isFinite(globalLumaSsim.getAsDouble())
+                        || globalLumaSsim.getAsDouble() < -1.0 || globalLumaSsim.getAsDouble() > 1.0
+                        || psnr.status() != status) {
+                    throw invalid("available reference metrics require aligned reference identity and finite measurements");
+                }
+                if (status == MetricStatus.EXACT_REFERENCE_MATCH
+                        && (psnr.finiteDb().isPresent() || globalLumaSsim.getAsDouble() != 1.0)) {
+                    throw invalid("exact reference matches use infinite PSNR omission and SSIM 1.0");
+                }
+            }
         }
         static ReferenceMetrics unavailable(MetricUnavailableReason reason) {
             return new ReferenceMetrics(MetricStatus.UNAVAILABLE, "", "", "", "",
