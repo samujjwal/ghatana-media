@@ -30,14 +30,14 @@ public final class QualityComparisonAndOptimization {
     private QualityComparisonAndOptimization() {}
 
     public enum AuthorityStatus { ALLOWED, DENIED, UNAVAILABLE }
-    public enum RunStatus { COMPLETED, NOT_ADMITTED, UNAVAILABLE }
+    public enum RunStatus { COMPLETED, NOT_ADMITTED, UNAVAILABLE, CANCELLED }
     public enum MetricStatus { MEASURED, EXACT_MATCH, UNAVAILABLE }
     public enum OptimizationStatus { COMPLETED, NOT_ADMITTED, UNAVAILABLE }
     public enum QualityDisposition { IMPROVED, NOT_IMPROVED, UNAVAILABLE }
     public enum UnavailableReason { NO_REFERENCE, REFERENCE_DENIED, REFERENCE_AUTHORITY_UNAVAILABLE,
         REFERENCE_UNAVAILABLE, REFERENCE_NOT_ALIGNED }
     public enum BlockReason { SOURCE_DENIED, SOURCE_AUTHORITY_UNAVAILABLE, SOURCE_REVOKED,
-        CANDIDATE_PORT_UNAVAILABLE, CANDIDATE_PORT_UNSUPPORTED, CANDIDATE_UNAVAILABLE,
+        CANDIDATE_PORT_UNAVAILABLE, CANDIDATE_PORT_UNSUPPORTED, CANDIDATE_UNAVAILABLE, CANCELLED,
         REFERENCE_AUTHORITY_UNAVAILABLE, SOURCE_UNAVAILABLE }
 
     /** Identity for a complete immutable media revision. Digests identify original media bytes. */
@@ -262,6 +262,12 @@ public final class QualityComparisonAndOptimization {
             AuthorityDecision dispatchDecision = checkRights(sourceRights, source.id(), operationId);
             if (!sameAllowedDecision(sourceDecision, dispatchDecision)) {
                 return Run.blockedAttempts(RunStatus.NOT_ADMITTED, BlockReason.SOURCE_REVOKED, attemptsMade);
+            }
+            // Check after the final authority callback and immediately before
+            // dispatch, so cancellation raised during that callback cannot slip
+            // through to a potentially externally effective attempt.
+            if (Thread.currentThread().isInterrupted()) {
+                return Run.blockedKeeping(RunStatus.CANCELLED, BlockReason.CANCELLED, retained, attemptsMade);
             }
             OptimizationAttempt result;
             attemptsMade++;

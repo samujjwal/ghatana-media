@@ -416,6 +416,38 @@ class QualityComparisonAndOptimizationTest {
         assertThat(attempts).hasValue(0);
     }
 
+    @Test
+    void interruptedBeforeDispatchDoesNotStartOptimizationAndPreservesCompletedWork() {
+        Revision source = revision("source", "v1", "a", 40);
+        AtomicInteger rightsChecks = new AtomicInteger();
+        AtomicInteger dispatches = new AtomicInteger();
+        CandidatePort port = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return true; }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget budget) {
+                dispatches.incrementAndGet();
+                throw new AssertionError("interrupted operation must not dispatch");
+            }
+        };
+        boolean wasInterrupted = Thread.currentThread().isInterrupted();
+        try {
+            Run result = optimize(OPERATION, source, (id, purpose) -> {
+                if (rightsChecks.incrementAndGet() == 2) Thread.currentThread().interrupt();
+                return allowed("src");
+            }, port, 1, BUDGET, Optional.empty(), null, null);
+
+            assertThat(result.status()).isEqualTo(RunStatus.CANCELLED);
+            assertThat(result.reason()).contains(BlockReason.CANCELLED);
+            assertThat(result.report()).isEmpty();
+            assertThat(result.retainedRevisions()).containsExactly(source);
+            assertThat(result.attemptsUsed()).isZero();
+            assertThat(dispatches).hasValue(0);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        } finally {
+            Thread.interrupted();
+            if (wasInterrupted) Thread.currentThread().interrupt();
+        }
+    }
+
     private static Run run(Revision source, List<Revision> candidates, Revision reference,
             AuthorityDecision sourceDecision, AuthorityDecision referenceDecision, int attempts, Budget budget) {
         Optional<ReferenceRequest> request = reference == null ? Optional.empty()
