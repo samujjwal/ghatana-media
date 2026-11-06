@@ -146,6 +146,12 @@ public class StreamingRetryHandler {
                 if (e instanceof CancellationException cancellation) {
                     throw cancellation;
                 }
+                if (e instanceof com.ghatana.core.exception.CancellationException cancellation) {
+                    // Keep Shared's platform cancellation terminal too. RetryPolicy in
+                    // libs/common applies the same rule, and a broad predicate must not
+                    // restart work cancelled by either runtime contract.
+                    throw cancellation;
+                }
                 lastException = e;
 
                 if (attempt >= maxRetries || !shouldRetry.test(e)) {

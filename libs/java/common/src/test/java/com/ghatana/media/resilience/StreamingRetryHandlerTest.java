@@ -154,6 +154,35 @@ class StreamingRetryHandlerTest {
     }
 
     @Test
+    @DisplayName("Shared platform cancellation is terminal and is not converted to fallback")
+    void sharedCancellationIsTerminalEvenWhenRetryPredicateAcceptsEveryFailure() {
+        StreamingRetryHandler handler = StreamingRetryHandler.builder()
+            .maxRetries(3)
+            .initialDelay(Duration.ofMillis(1))
+            .build();
+        AtomicInteger calls = new AtomicInteger();
+        com.ghatana.core.exception.CancellationException cancellation =
+            new com.ghatana.core.exception.CancellationException("platform cancelled");
+
+        com.ghatana.core.exception.CancellationException thrown = assertThrows(
+            com.ghatana.core.exception.CancellationException.class,
+            () -> handler.executeWithRetry(() -> {
+                calls.incrementAndGet();
+                throw cancellation;
+            }, "cancelled operation", ignored -> true));
+
+        assertSame(cancellation, thrown, "platform cancellation identity should be preserved");
+        assertEquals(1, calls.get(), "platform cancellation must not trigger retry");
+
+        assertThrows(com.ghatana.core.exception.CancellationException.class,
+            () -> handler.executeWithFallback(() -> {
+                calls.incrementAndGet();
+                throw cancellation;
+            }, "fallback", "cancelled operation"));
+        assertEquals(2, calls.get(), "platform cancellation must not be converted to fallback");
+    }
+
+    @Test
     @DisplayName("Interrupting retry backoff stops retries and preserves interruption")
     void interruptDuringBackoffStopsRetriesAndDoesNotReturnFallback() throws Exception {
         StreamingRetryHandler handler = StreamingRetryHandler.builder()
