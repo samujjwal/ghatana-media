@@ -73,6 +73,26 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void scopedUnknownAuthorityCannotUseCallerScopeMetadataAsCacheAuthority() {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+
+        assertThatThrownBy(() -> await(service.getOrLoadTranscription(scope, id,
+                ignored -> AsyncOperation.success(null),
+                requested -> AsyncOperation.success(Optional.of(entity("tenant-a", requested, false))))))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+
+        verify(port, never()).get(any());
+        verify(port, never()).put(any(), any(), any(Duration.class));
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
     void explicitRightsChangeInvalidationUsesTheExactPriorScopeAndTranscriptKey() {
         UUID id = UUID.randomUUID();
         var priorScope = scopedScope("tenant-a", "principal-a", "policy-epoch-before-revocation");
