@@ -350,7 +350,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Health registration remains bounded (64 checks/service, 128 control-free chars); previous focused health/metrics selectors PASS 37/37. Added fixed-label JVM committed-heap and available-processor gauges; MediaWorkflowMetricsTest PASS 18/18. Available processors are not a provider/container quota claim. Still OPEN: capture/render runtime producers, 1/16/64 load, real scrape, alert delivery, restart and quota qualification."
+      "progress": "2026-11-05: Health registration remains bounded (64 checks/service, 128 control-free chars); previous focused health/metrics selectors PASS 37/37. Added fixed-label JVM committed-heap and available-processor gauges; MediaWorkflowMetricsTest PASS 18/18. Available processors are not a provider/container quota claim. Still OPEN: capture/render runtime producers, 1/16/64 load, real scrape, alert delivery, restart and quota qualification. 2026-11-05 increment: MediaRuntime emits fixed-label media.capture.frames success only after canonical frame ACK and UNKNOWN after ambiguous outcomes. MediaWorkflowMetricsTest PASS 19/19 and MediaRuntimeCanonicalStreamFramePortTest PASS 7/7, including redaction of session/source/tenant/provider labels. Render probes, real scrape/alert delivery, restart, load, and quota qualification remain open."
     },
     {
       "id": "media.dev.http-operation-parity",
@@ -1111,7 +1111,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "verified-2026-11-05: added publishFinalRender fail-closed boundary requiring admitted authority, host mux/probe port and canonical artifact client. Reconstructs/validates the complete scenario plan, snapshots inputs, bounds authority references, checks timing and narration/caption/credit observations, hashes bytes, rechecks rights before upload creation/every chunk/completion, and never finalizes ambiguous/partial sessions. Focused selected cases 11 pass; 38 other cases in the test file were filtered out. Client typecheck passes. Still OPEN: no qualified host muxer/decoder or playable output, runtime idempotency replay unqualified, and durable partial-upload rollback/recovery plus real ffprobe evidence absent."
+      "progress": "verified-2026-11-05: added publishFinalRender fail-closed boundary requiring admitted authority, host mux/probe port and canonical artifact client. Reconstructs/validates the complete scenario plan, snapshots inputs, bounds authority references, checks timing and narration/caption/credit observations, hashes bytes, rechecks rights before upload creation/every chunk/completion, and never finalizes ambiguous/partial sessions. Focused selected cases 11 pass; 38 other cases in the test file were filtered out. Client typecheck passes. Still OPEN: no qualified host muxer/decoder or playable output, runtime idempotency replay unqualified, and durable partial-upload rollback/recovery plus real ffprobe evidence absent. 2026-11-05 increment: an ambiguous dispatched chunk acknowledgement now returns OUTCOME_UNKNOWN with the upload ID and does not complete the upload. Focused Vitest selector PASS 1/1 (49 tests filtered). This does not prove durable upload recovery or playable output."
     },
     {
       "id": "media.dev.project-timeline-engine",
@@ -1416,7 +1416,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added a bounded deterministic media-graph planner with rational VFR mapping, caption/transition validation, immutable source refs, graph/output limits and manifest SHA-256. Commit 54c94dff; MultitrackRenderPlannerTest PASS 5/5. Codec execution remains NOT_ADMITTED/UNAVAILABLE; no playable mux, sync, cancellation/partial-result recovery or actual output-space enforcement."
+      "progress": "2026-11-05: Added a bounded deterministic media-graph planner with rational VFR mapping, caption/transition validation, immutable source refs, graph/output limits and manifest SHA-256. Commit 54c94dff; MultitrackRenderPlannerTest PASS 5/5. Codec execution remains NOT_ADMITTED/UNAVAILABLE; no playable mux, sync, cancellation/partial-result recovery or actual output-space enforcement. 2026-11-05 increment: MultitrackRenderPlanner bounds graph/clip list copying by declared limits and caps iterator consumption when custom List.size is inaccurate; MultitrackRenderPlannerTest PASS 6/6. Codec execution and playable mux remain NOT_ADMITTED/UNAVAILABLE."
     },
     {
       "id": "media.dev.quality-comparison-and-optimization",
