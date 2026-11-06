@@ -296,6 +296,16 @@ class MediaRuntimeRestartReconciliationTest {
                     .containsEntry("providerOutcome", "UNKNOWN");
             assertThat(reconciled.status()).isNotEqualTo(JobStatus.CANCELLED);
             assertThat(calls).hasValue(1);
+
+            // J-20 fixture binding: after restart, authenticated cancellation is an
+            // observation against the same canonical job. It cannot convert an
+            // unresolved provider outcome into cancellation or create another dispatch.
+            var cancelReplay = restarted.cancel("tenant-a", "principal-a", jobId);
+            var readReplay = restarted.job("tenant-a", "principal-a", jobId).orElseThrow();
+            assertThat(cancelReplay).isEqualTo(reconciled);
+            assertThat(readReplay).isEqualTo(reconciled);
+            assertThat(readReplay.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(calls).hasValue(1);
         } finally {
             restarted.close();
         }
