@@ -28,6 +28,8 @@ public final class SpatialRigEngine {
     /** Explicit local export profile; not a canonical PDP unit identity. */
     public static final String GLB_METRE_UNIT_REF = "urn:media:spatial:unit:metre:v1";
     public static final String GLB_QUATERNION_UNIT_REF = "urn:media:spatial:orientation:unit-quaternion-xyzw:v1";
+    private static final List<String> GLB_FLOAT32_LOSS_FIELDS = List.of(
+            "animation.inputTimeSeconds", "animation.outputTranslation", "animation.outputRotation");
     private static final double EPSILON = 1e-10;
 
     public enum Handedness { RIGHT_HANDED, LEFT_HANDED }
@@ -541,7 +543,15 @@ public final class SpatialRigEngine {
                 .append(json(frame.yAxis().name())).append(',').append(json(frame.zAxis().name())).append(']')
                 .append(",\"positionUnitRef\":").append(json(frame.positionUnitRef()))
                 .append(",\"orientationUnitRef\":").append(json(frame.orientationUnitRef()))
-                .append(",\"timeEncoding\":\"FLOAT32_SECONDS\",\"lossDisposition\":\"FLOAT32_APPROXIMATION\",\"sourceVersions\":[");
+                .append(",\"timeEncoding\":\"FLOAT32_SECONDS\",\"lossDisposition\":\"FLOAT32_APPROXIMATION\",\"float32LossFields\":[");
+        boolean hasAnimation = rig.tracks().values().stream().anyMatch(track -> !track.isEmpty());
+        if (hasAnimation) {
+            for (int index = 0; index < GLB_FLOAT32_LOSS_FIELDS.size(); index++) {
+                if (index > 0) json.append(',');
+                json.append(json(GLB_FLOAT32_LOSS_FIELDS.get(index)));
+            }
+        }
+        json.append("],\"sourceVersions\":[");
         List<SourceVersionRef> sources = rig.sourceVersions().stream().sorted(Comparator.comparing(SourceVersionRef::tenantId)
                 .thenComparing(SourceVersionRef::artifactId).thenComparing(SourceVersionRef::versionId)).toList();
         for (int index = 0; index < sources.size(); index++) {

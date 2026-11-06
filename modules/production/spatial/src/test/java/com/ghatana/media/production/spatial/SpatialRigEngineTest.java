@@ -195,6 +195,11 @@ class SpatialRigEngineTest {
         JsonNode metadata = document.path("extras").path("mediaSpatial");
         assertThat(metadata.path("frameVersionRef").asString()).isEqualTo(frame.frameVersionRef());
         assertThat(metadata.path("sourceProjectRevisionRef").asString()).isEqualTo("project:edit:revision-8");
+        JsonNode float32LossFields = metadata.path("float32LossFields");
+        assertThat(float32LossFields.size()).isEqualTo(3);
+        assertThat(float32LossFields.get(0).asString()).isEqualTo("animation.inputTimeSeconds");
+        assertThat(float32LossFields.get(1).asString()).isEqualTo("animation.outputTranslation");
+        assertThat(float32LossFields.get(2).asString()).isEqualTo("animation.outputRotation");
         assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(0).asString()).isEqualTo("1");
         assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(1).get(1).asString()).isEqualTo("3");
         assertThat(metadata.path("exactKeyframeTimes").get(0).path("times").get(2).get(0).asString()).isEqualTo("1");
