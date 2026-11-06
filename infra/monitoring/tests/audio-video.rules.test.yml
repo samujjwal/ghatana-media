@@ -1089,3 +1089,33 @@ tests:
   - eval_time: 20m
     alertname: MediaProviderQualityEvidenceMissing
     exp_alerts: []
+- name: capture-unknown-outcome-alert-fires-and-clears-with-bounded-labels
+  interval: 1m
+  input_series:
+  - series: media_capture_frames_total{contract_version="v1",kind="video",outcome="unknown",service="launcher"}
+    values: 0 1x10
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: MediaCaptureFrameOutcomeUnknown
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: capture
+        service: launcher
+        kind: video
+      exp_annotations:
+        summary: A canonical Media capture frame has unknown outcome
+        description: The launcher observed an audio/video frame that did not reach acknowledged finality for video capture. Reconcile the canonical stream state before retrying; UNKNOWN does not establish that the frame failed or was accepted.
+  - eval_time: 7m
+    alertname: MediaCaptureFrameOutcomeUnknown
+    exp_alerts: []
+- name: capture-known-success-does-not-alert
+  interval: 1m
+  input_series:
+  - series: media_capture_frames_total{contract_version="v1",kind="audio",outcome="success",service="launcher"}
+    values: 0 1x10
+  alert_rule_test:
+  - eval_time: 7m
+    alertname: MediaCaptureFrameOutcomeUnknown
+    exp_alerts: []

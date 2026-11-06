@@ -678,3 +678,15 @@ groups:
         annotations:
           summary: "Media outbox cannot supply aggregate lease metrics"
           description: "The configured Media outbox on {{ $labels.service }} reports unsupported or failed expired-claim queries. Initial NaN/unknown state does not trigger this alert; a known unsupported or failed refresh does."
+
+  - name: media.capture
+    rules:
+      - alert: MediaCaptureFrameOutcomeUnknown
+        expr: sum by (service, kind) (increase(media_capture_frames_total{contract_version="v1",outcome="unknown"}[5m])) > 0
+        labels:
+          severity: warning
+          product: audio-video
+          component: capture
+        annotations:
+          summary: "A canonical Media capture frame has unknown outcome"
+          description: "The launcher observed an audio/video frame that did not reach acknowledged finality for {{ $labels.kind }} capture. Reconcile the canonical stream state before retrying; UNKNOWN does not establish that the frame failed or was accepted."

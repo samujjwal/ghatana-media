@@ -14,7 +14,11 @@ Media business RPC, provider, job store or generic telemetry engine.
   are bounded (250 ms default, 5 s maximum).
 - `MediaWorkflowMetrics` — bounded-cardinality metrics for job
   processing/delivery: stage timers, event counters, provider-profile
-  gauges and quality-series samples with finite label vocabularies.
+  gauges and quality-series samples with finite label vocabularies. The
+  canonical launcher stream-frame path records `media.capture.frames` only
+  after exact provider acknowledgement and canonical-store readback; ambiguous
+  frame finality is counted as `outcome="unknown"`. Labels are limited to the
+  fixed `kind`, `outcome`, `service`, and contract version values.
 - Each gRPC service supplies its process-local Prometheus registry to the
   shared `HealthMetricsServer`; that sidecar combines those instruments with
   the bounded gRPC/readiness exposition. The standalone launcher keeps its
@@ -86,6 +90,9 @@ when running `MediaResourceProfileHarnessTest` to retain its local TSV report.
 Each production service composition must pass its own registry into its
 `MediaWorkflowMetrics` instrumentation and sidecar scrape. The standalone
 launcher exposes a separate runtime registry at `/metrics`. Real authorized
-profile and quality observations still come from their owning providers;
-capture/render providers are not invented here, so absent series remain
-unknown rather than zero.
+profile and quality observations still come from their owning providers.
+Canonical capture frame outcomes have a runtime-owned success/unknown counter
+and a warning rule for recent ambiguous outcomes. This does not provide a
+render metric: the render path has no canonical runtime producer or metrics
+handoff, so render remains absent/unknown rather than zero. Capture telemetry
+does not establish model quality or provider eligibility.
