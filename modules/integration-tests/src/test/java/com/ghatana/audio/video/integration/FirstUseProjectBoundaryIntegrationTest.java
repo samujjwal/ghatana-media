@@ -2,6 +2,7 @@ package com.ghatana.audio.video.integration;
 
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.IdempotencyConflictException;
+import static com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene;
@@ -47,6 +48,43 @@ class FirstUseProjectBoundaryIntegrationTest {
                             .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED);
                     assertThat(notAdmitted.modality()).isEqualTo("PROJECT_TIMELINE_STORE");
                 });
+    }
+
+    @Test
+    void exactCreateReplayReturnsOriginalReceiptAndDoesNotCreateAnotherProject() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-replay-id-" + ids.incrementAndGet());
+
+        var first = engine.createProject(CREATOR, WORKSPACE, "First cut", REQUEST);
+        var replay = engine.createProject(CREATOR, WORKSPACE, "First cut", REQUEST);
+
+        assertThat(first.createdNow()).isTrue();
+        assertThat(replay.createdNow()).isFalse();
+        assertThat(replay.project().projectId()).isEqualTo(first.project().projectId());
+        assertThat(replay.initialRevision().revisionId()).isEqualTo(first.initialRevision().revisionId());
+        assertThat(replay.initialRevision().graph().scenes()).isEmpty();
+        assertThat(engine.project(CREATOR, first.project().projectId()).headRevisionId())
+                .isEqualTo(first.initialRevision().revisionId());
+    }
+
+    @Test
+    void invalidCreateAndSameTenantWrongPrincipalDoNotExposeOrMutateProject() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-denial-id-" + ids.incrementAndGet());
+
+        assertThatThrownBy(() -> engine.createProject(CREATOR, WORKSPACE, "  ", REQUEST))
+                .isInstanceOf(IllegalArgumentException.class);
+        var created = engine.createProject(CREATOR, WORKSPACE, "First cut", REQUEST);
+        String head = created.initialRevision().revisionId();
+
+        assertThatThrownBy(() -> engine.project(new Actor(CREATOR.tenantId(), "another-principal"),
+                created.project().projectId())).isInstanceOf(ProjectAccessDeniedException.class);
+        assertThat(engine.project(CREATOR, created.project().projectId()).headRevisionId()).isEqualTo(head);
+        assertThat(store.revision(CREATOR, created.project().projectId(), head).graph().scenes()).isEmpty();
     }
 
     @Test
