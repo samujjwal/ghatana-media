@@ -91,6 +91,162 @@ export interface CameraMediaDevicePort {
   open(request: CaptureRequest, signal: AbortSignal): Promise<CameraTrack>;
 }
 
+export type CameraHostPermissionDisposition = "GRANTED" | "DENIED" | "REVOKED" | "UNKNOWN";
+
+/** Browser host permission is separate from Media consent and must be supplied explicitly. */
+export interface CameraHostPermissionPort {
+  check(request: CaptureRequest): Promise<CameraHostPermissionDisposition>;
+  subscribe(request: CaptureRequest,
+    onChange: (disposition: CameraHostPermissionDisposition) => void): () => void;
+}
+
+/** A browser device selection bound to the exact requested source. */
+export interface BrowserCameraDevice {
+  readonly sourceIdentity: string;
+  readonly sourceVersionRef: string;
+  readFrame(signal: AbortSignal): Promise<Uint8Array | null>;
+  stop(): Promise<void> | void;
+}
+
+export interface BrowserCameraDevicePort {
+  openExact(request: CaptureRequest, signal: AbortSignal): Promise<BrowserCameraDevice>;
+}
+
+/** Codec binding is explicit; encoded bytes and declarations come from this port. */
+export interface BrowserCameraCodecBinding {
+  readonly sourceMetadata: CameraTrackSourceMetadata;
+  encode(frame: Uint8Array, signal: AbortSignal): Promise<CameraFrameRead>;
+  close(): Promise<void> | void;
+}
+
+export interface BrowserCameraCodecPort {
+  bind(request: CaptureRequest, device: BrowserCameraDevice,
+    signal: AbortSignal): Promise<BrowserCameraCodecBinding>;
+}
+
+/**
+ * Browser-host bridge for a device selector and encoder supplied by the host.
+ * It does not call getUserMedia or activate a camera itself. Host permission is
+ * checked before device open and observed until the returned track is stopped.
+ */
+export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
+  public constructor(private readonly permission: CameraHostPermissionPort,
+    private readonly devices: BrowserCameraDevicePort,
+    private readonly codecs: BrowserCameraCodecPort) {
+    if (typeof permission?.check !== "function" || typeof permission?.subscribe !== "function"
+      || typeof devices?.openExact !== "function" || typeof codecs?.bind !== "function") {
+      throw new TypeError("explicit host permission, browser device and codec ports are required");
+    }
+  }
+
+  public async open(request: CaptureRequest, signal: AbortSignal): Promise<CameraTrack> {
+    const assertHostPermission = async (): Promise<void> => {
+      if (signal.aborted) throw fail("SESSION_CLOSED", "camera host open was cancelled");
+      let disposition: CameraHostPermissionDisposition;
+      try {
+        disposition = await this.permission.check(request);
+      } catch {
+        throw fail("PERMISSION_MISSING", "browser camera permission evidence is unavailable");
+      }
+      if (signal.aborted) throw fail("SESSION_CLOSED", "camera host open was cancelled");
+      if (disposition === "UNKNOWN") throw fail("PERMISSION_UNKNOWN", "browser camera permission is unknown");
+      if (disposition === "REVOKED") throw fail("CONSENT_REVOKED", "browser camera permission was revoked");
+      if (disposition !== "GRANTED") throw fail("PERMISSION_DENIED", "browser camera permission does not authorize capture");
+    };
+
+    await assertHostPermission();
+    let device: BrowserCameraDevice | null = null;
+    let codec: BrowserCameraCodecBinding | null = null;
+    let unsubscribe: (() => void) | null = null;
+    let stopOpenedTrack: (() => Promise<void>) | null = null;
+    const hostController = new AbortController();
+    const abortHost = () => hostController.abort();
+    signal.addEventListener("abort", abortHost, { once: true });
+    try {
+      unsubscribe = this.permission.subscribe(request, (disposition) => {
+        if (disposition !== "GRANTED") {
+          hostController.abort();
+          void stopOpenedTrack?.();
+        }
+      });
+      await assertHostPermission();
+      device = await this.devices.openExact(request, hostController.signal);
+      if (!device || device.sourceIdentity !== request.sourceIdentity
+        || device.sourceVersionRef !== request.sourceVersionRef) {
+        throw fail("SOURCE_METADATA_UNAVAILABLE", "browser selected a different camera source revision");
+      }
+      if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during device open");
+      codec = await this.codecs.bind(request, device, hostController.signal);
+      await assertHostPermission();
+      if (!codec || !codec.sourceMetadata) {
+        throw fail("CODEC_UNAVAILABLE", "browser camera encoder binding is unavailable");
+      }
+      const boundDevice = device;
+      const boundCodec = codec;
+      let stopped = false;
+      const stopTracks = async (): Promise<void> => {
+        if (stopped) return;
+        stopped = true;
+        hostController.abort();
+        signal.removeEventListener("abort", abortHost);
+        unsubscribe?.();
+        unsubscribe = null;
+        try {
+          await boundCodec.close();
+        } finally {
+          await boundDevice.stop();
+        }
+      };
+      stopOpenedTrack = stopTracks;
+      return {
+        sourceMetadata: boundCodec.sourceMetadata,
+        async nextFrame(frameSignal) {
+          if (stopped || hostController.signal.aborted || frameSignal.aborted) {
+            throw fail("SESSION_CLOSED", "browser camera capture was cancelled");
+          }
+          await assertHostPermission();
+          let raw: Uint8Array | null;
+          try {
+            raw = await boundDevice.readFrame(hostController.signal);
+          } catch (error) {
+            if (frameSignal.aborted) throw fail("SESSION_CLOSED", "browser camera read was cancelled");
+            if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during frame read");
+            throw error;
+          }
+          if (raw === null) return null;
+          if (!(raw instanceof Uint8Array) || raw.byteLength === 0) {
+            throw fail("FRAME_INVALID", "browser camera returned an empty frame");
+          }
+          let encoded: CameraFrameRead;
+          try {
+            encoded = await boundCodec.encode(raw, hostController.signal);
+          } catch (error) {
+            if (frameSignal.aborted) throw fail("SESSION_CLOSED", "browser camera encoding was cancelled");
+            if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during frame encoding");
+            throw error;
+          }
+          await assertHostPermission();
+          if (stopped || hostController.signal.aborted || frameSignal.aborted) {
+            throw fail("CONSENT_REVOKED", "browser camera permission changed during frame encoding");
+          }
+          return encoded;
+        },
+        stopTracks,
+      };
+    } catch (error) {
+      signal.removeEventListener("abort", abortHost);
+      unsubscribe?.();
+      hostController.abort();
+      try {
+        await codec?.close();
+      } finally {
+        await device?.stop();
+      }
+      throw error;
+    }
+  }
+}
+
 export interface CameraFrameClockPort {
   nowEpochMillis(): number;
   /** Start a new unique PTS epoch for a newly opened source/device. */
@@ -397,6 +553,10 @@ export class CameraCaptureSession {
       }
       if (controller.signal.aborted || this.closed) {
         throw fail("SESSION_CLOSED", "camera session stopped before frame completion");
+      }
+      if (error instanceof CameraCaptureError) {
+        await this.close();
+        throw error;
       }
       await this.close();
       throw fail("DEVICE_UNAVAILABLE", "camera frame read failed; provider details were omitted");

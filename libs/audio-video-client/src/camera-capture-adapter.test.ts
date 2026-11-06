@@ -3,6 +3,7 @@ import { captureWithAdmission, type CaptureRequest } from "./capture-adapters.js
 import {
   CameraCaptureAdapter,
   CameraCaptureError,
+  BrowserCameraMediaDevicePort,
   type CameraCaptureSession,
   type CameraAudioSampleObservation,
   type CameraFrameRead,
@@ -89,6 +90,7 @@ function harness(options: {
   tracks?: FakeTrack[];
   pts?: (epochRef: string, index: number) => bigint | number;
   metadata?: (candidate: CaptureRequest) => CameraTrackSourceMetadata | null;
+  mediaDevices?: CameraMediaDevicePort;
 } = {}) {
   const tracks = options.tracks ?? [frameTrack([new Uint8Array([1, 2, 3])])];
   const opens: CaptureRequest[] = [];
@@ -112,7 +114,7 @@ function harness(options: {
       return () => { entry.active = false; };
     },
   };
-  const mediaDevices: CameraMediaDevicePort = {
+  const fakeMediaDevices: CameraMediaDevicePort = {
     async open(candidate, signal) {
       opens.push(candidate);
       if (signal.aborted) throw new Error("aborted before open");
@@ -124,7 +126,7 @@ function harness(options: {
       return track;
     },
   };
-  const adapter = new CameraCaptureAdapter({ mediaDevices, consent, frameClock: clock,
+  const adapter = new CameraCaptureAdapter({ mediaDevices: options.mediaDevices ?? fakeMediaDevices, consent, frameClock: clock,
     maxFrameBytes: 64, maxFrames: 10, maxSessionMillis: 10_000 });
   return {
     adapter,
@@ -138,11 +140,111 @@ function harness(options: {
   };
 }
 
+function browserHarness(options: {
+  permission?: "GRANTED" | "DENIED" | "REVOKED" | "UNKNOWN";
+  read?: (signal: AbortSignal) => Promise<Uint8Array | null>;
+  encode?: (bytes: Uint8Array, signal: AbortSignal) => Promise<CameraFrameRead>;
+} = {}) {
+  let permission = options.permission ?? "GRANTED";
+  const permissionListeners: Array<(state: typeof permission) => void> = [];
+  let deviceOpens = 0;
+  let deviceStops = 0;
+  let codecCloses = 0;
+  const mediaDevices = new BrowserCameraMediaDevicePort({
+    async check() { return permission; },
+    subscribe(_candidate, listener) {
+      permissionListeners.push(listener);
+      return () => {
+        const index = permissionListeners.indexOf(listener);
+        if (index >= 0) permissionListeners.splice(index, 1);
+      };
+    },
+  }, {
+    async openExact(candidate, signal) {
+      deviceOpens++;
+      if (signal.aborted) throw new Error("open cancelled");
+      return {
+        sourceIdentity: candidate.sourceIdentity,
+        sourceVersionRef: candidate.sourceVersionRef,
+        readFrame: options.read ?? (async () => new Uint8Array([4, 5])),
+        stop() { deviceStops++; },
+      };
+    },
+  }, {
+    async bind(candidate, _device, signal) {
+      if (signal.aborted) throw new Error("bind cancelled");
+      return {
+        sourceMetadata: sourceMetadataFor(candidate),
+        encode: options.encode ?? (async (bytes) => ({ bytes: Uint8Array.from(bytes) })),
+        close() { codecCloses++; },
+      };
+    },
+  });
+  const h = harness({ mediaDevices });
+  return {
+    ...h,
+    counts: () => ({ deviceOpens, deviceStops, codecCloses }),
+    setPermission(next: typeof permission) {
+      permission = next;
+      for (const listener of [...permissionListeners]) listener(next);
+    },
+  };
+}
+
 async function expectCode(operation: Promise<unknown>, code: string): Promise<void> {
   await expect(operation).rejects.toMatchObject({ name: "CameraCaptureError", code });
 }
 
 describe("CameraCaptureAdapter", () => {
+  it("requires explicit browser host permission before opening an exact device", async () => {
+    for (const [permission, code] of [["DENIED", "PERMISSION_DENIED"], ["UNKNOWN", "PERMISSION_UNKNOWN"]] as const) {
+      const h = browserHarness({ permission });
+      await expectCode(h.adapter.openSession(request), code);
+      expect(h.counts().deviceOpens).toBe(0);
+    }
+    const granted = browserHarness();
+    const session = await granted.adapter.openSession(request);
+    expect(granted.counts().deviceOpens).toBe(1);
+    await session.close();
+  });
+
+  it("revokes a pending browser read without returning encoded bytes", async () => {
+    let readStarted: (() => void) | undefined;
+    const started = new Promise<void>((resolve) => { readStarted = resolve; });
+    const h = browserHarness({ read: (_signal) => new Promise((resolve, reject) => {
+      readStarted?.();
+      _signal.addEventListener("abort", () => reject(new Error("host permission revoked")), { once: true });
+    }) });
+    const session = await h.adapter.openSession(request);
+    const pending = session.nextFrame();
+    await started;
+    h.setPermission("REVOKED");
+    await expectCode(pending, "CONSENT_REVOKED");
+    expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+  });
+
+  it("stops the browser device and codec on hot unplug or caller cancellation", async () => {
+    const unplugged = browserHarness({ read: async () => { throw new Error("device unplugged"); } });
+    const unpluggedSession = await unplugged.adapter.openSession(request);
+    await expectCode(unpluggedSession.nextFrame(), "DEVICE_UNAVAILABLE");
+    expect(unplugged.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+
+    let encodingStarted: (() => void) | undefined;
+    let finishEncoding: ((frame: CameraFrameRead) => void) | undefined;
+    const started = new Promise<void>((resolve) => { encodingStarted = resolve; });
+    const cancelled = browserHarness({ encode: async (_bytes, _signal) => new Promise((resolve) => {
+      encodingStarted?.();
+      finishEncoding = resolve;
+    }) });
+    const session = await cancelled.adapter.openSession(request);
+    const pending = session.nextFrame();
+    await started;
+    await session.close();
+    finishEncoding?.({ bytes: new Uint8Array([0xfa, 0xce]) });
+    await expectCode(pending, "SESSION_CLOSED");
+    expect(cancelled.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+  });
+
   it("requires fresh exact source and purpose permission before opening the camera", async () => {
     for (const [code, decision] of [
       ["PERMISSION_DENIED", permissionFor(request, { disposition: "DENIED" })],
