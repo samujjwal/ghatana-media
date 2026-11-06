@@ -81,10 +81,7 @@ final class MediaCaptionRuntime implements AutoCloseable {
                         "Expected at most one ready Media caption store and rights administration, found "
                                 + readyStores.size() + " store(s) and " + readyRights.size() + " administration(s)");
             }
-            MediaTranscriptStore transcriptStore = transcriptStores.stream()
-                    .filter(MediaCaptionRuntime::safeReady)
-                    .sorted(Comparator.comparing(store -> store.getClass().getName()))
-                    .findFirst().orElse(null);
+            MediaTranscriptStore transcriptStore = selectOptionalTranscriptStore(transcriptStores, productionLike);
             if (readyStores.isEmpty() || readyRights.isEmpty()) {
                 closeAll(captionStores, rightsCandidates, transcriptStores);
                 if (productionLike) {
@@ -183,6 +180,31 @@ final class MediaCaptionRuntime implements AutoCloseable {
         } catch (RuntimeException unavailable) {
             return false;
         }
+    }
+
+    /**
+     * Transcript version reads are used to bind caption timing to an exact parent. Selecting
+     * one of several ready stores by class-name order could silently bind a caption to a
+     * different transcript history, so the optional dependency must have one unambiguous
+     * owner. In production-like profiles, development-only stores are not eligible parents.
+     */
+    static MediaTranscriptStore selectOptionalTranscriptStore(
+            List<MediaTranscriptStore> candidates, boolean productionLike) {
+        List<MediaTranscriptStore> eligible = candidates.stream()
+                .filter(MediaCaptionRuntime::safeReady)
+                .filter(store -> !productionLike || safeProductionEligible(store))
+                .sorted(Comparator.comparing(store -> store.getClass().getName()))
+                .toList();
+        if (eligible.size() > 1) {
+            throw new IllegalStateException(
+                    "Expected at most one eligible Media caption transcript store, found " + eligible.size());
+        }
+        return eligible.isEmpty() ? null : eligible.getFirst();
+    }
+
+    private static boolean safeProductionEligible(MediaTranscriptStore store) {
+        try { return store.productionEligible(); }
+        catch (RuntimeException unavailable) { return false; }
     }
 
     private static String canonical(String value) {

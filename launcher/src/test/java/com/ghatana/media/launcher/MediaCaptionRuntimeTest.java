@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Registration authority, parent-clock and runtime wiring coverage for caption versions. */
 class MediaCaptionRuntimeTest {
@@ -173,6 +174,24 @@ class MediaCaptionRuntimeTest {
     }
 
     @Test
+    void optionalTranscriptParentStoreMustBeUnambiguousAndProductionEligible() {
+        MediaTranscriptStore unavailable = new TestTranscriptStore(false, true);
+        MediaTranscriptStore development = new TestTranscriptStore(true, false);
+        MediaTranscriptStore canonical = new TestTranscriptStore(true, true);
+
+        assertThat(MediaCaptionRuntime.selectOptionalTranscriptStore(
+                List.of(unavailable, development), false)).isSameAs(development);
+        assertThat(MediaCaptionRuntime.selectOptionalTranscriptStore(
+                List.of(development), true)).isNull();
+        assertThat(MediaCaptionRuntime.selectOptionalTranscriptStore(
+                List.of(development, canonical), true)).isSameAs(canonical);
+        assertThatThrownBy(() -> MediaCaptionRuntime.selectOptionalTranscriptStore(
+                List.of(development, canonical), false))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("at most one eligible Media caption transcript store");
+    }
+
+    @Test
     void captionVersionParentClockReadsOwnStoreAndRegistrationPassesThrough() {
         var store = new FakeCaptionStore();
         var runtime = new MediaCaptionRuntime(store,
@@ -228,6 +247,26 @@ class MediaCaptionRuntimeTest {
         }
         @Override public boolean ready() { return true; }
         @Override public boolean productionEligible() { return true; }
+        @Override public void close() { }
+    }
+
+    private static final class TestTranscriptStore implements MediaTranscriptStore {
+        private final boolean ready;
+        private final boolean productionEligible;
+
+        private TestTranscriptStore(boolean ready, boolean productionEligible) {
+            this.ready = ready;
+            this.productionEligible = productionEligible;
+        }
+
+        @Override public TranscriptRevision append(TranscriptDraft draft) {
+            throw new UnsupportedOperationException();
+        }
+        @Override public List<TranscriptRevision> revisions(String tenantId, String transcriptId) {
+            return List.of();
+        }
+        @Override public boolean ready() { return ready; }
+        @Override public boolean productionEligible() { return productionEligible; }
         @Override public void close() { }
     }
 }
