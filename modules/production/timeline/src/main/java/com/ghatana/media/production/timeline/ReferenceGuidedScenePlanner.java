@@ -272,14 +272,36 @@ public final class ReferenceGuidedScenePlanner {
     }
 
     private static String deterministicSeed(Request request, List<BoundSource> sources) {
-        StringBuilder material = new StringBuilder().append(request.projectId()).append('\n')
-                .append(request.sceneId()).append('\n').append(request.expectedProjectRevisionId()).append('\n')
-                .append(request.seedInput()).append('\n').append(request.prompt().authoredText()).append('\n')
-                .append(request.template().templateId()).append('@').append(request.template().version()).append('\n');
-        sources.forEach(s -> material.append(s.role()).append('|').append(s.source().artifactId()).append('@')
-                .append(s.source().artifactVersionId()).append('|').append(s.sha256()).append('\n'));
-        request.template().continuityFacts().forEach(f -> material.append(f.key()).append('=').append(f.value()).append('\n'));
+        StringBuilder material = new StringBuilder();
+        appendField(material, "project", request.projectId());
+        appendField(material, "scene", request.sceneId());
+        appendField(material, "projectRevision", request.expectedProjectRevisionId());
+        appendField(material, "purpose", request.purpose());
+        appendField(material, "seedInput", Long.toString(request.seedInput()));
+        appendField(material, "prompt", request.prompt().authoredText());
+        appendField(material, "templateId", request.template().templateId());
+        appendField(material, "templateVersion", request.template().version());
+        appendField(material, "continuityStateId", request.continuity().stateId());
+        appendField(material, "continuityVersion", request.continuity().semanticVersion());
+        request.continuity().facts().forEach(f -> appendFact(material, "priorContinuity", f));
+        request.template().continuityFacts().forEach(f -> appendFact(material, "templateContinuity", f));
+        sources.forEach(s -> {
+            appendField(material, "sourceRole", s.role());
+            appendField(material, "sourceArtifact", s.source().artifactId());
+            appendField(material, "sourceVersion", s.source().artifactVersionId());
+            appendField(material, "sourceSha256", s.sha256());
+        });
         return sha256(material.toString());
+    }
+
+    private static void appendFact(StringBuilder material, String label, ContinuityFact fact) {
+        appendField(material, label + "Key", fact.key());
+        appendField(material, label + "Value", fact.value());
+    }
+
+    private static void appendField(StringBuilder material, String label, String value) {
+        material.append(label.length()).append(':').append(label)
+                .append(value.length()).append(':').append(value);
     }
 
     private static List<BoundSource> canonicalSources(List<BoundSource> values) {

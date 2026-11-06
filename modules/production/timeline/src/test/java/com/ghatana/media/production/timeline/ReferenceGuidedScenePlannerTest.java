@@ -77,6 +77,26 @@ class ReferenceGuidedScenePlannerTest {
     }
 
     @Test
+    void deterministicSeedBindsPriorContinuitySnapshotFacts() {
+        Authority authority = new Authority();
+        var planner = planner(authority, unavailableProvider());
+        var template = template(List.of(fact("wardrobe", "blue")));
+        var first = request(List.of(source("reference-image", IMAGE_VERSION, D2)), template,
+                continuity(List.of(fact("wardrobe", "blue"), fact("weather", "morning"))));
+        var changedSnapshot = new ReferenceGuidedScenePlanner.ContinuitySnapshot("continuity-1", "v5",
+                List.of(fact("wardrobe", "blue"), fact("weather", "evening")),
+                List.of(source("continuity-record", CONTINUITY_VERSION, D4)));
+        var second = new ReferenceGuidedScenePlanner.Request(first.projectId(), first.sceneId(),
+                first.expectedProjectRevisionId(), first.purpose(), first.seedInput(), first.prompt(),
+                first.references(), first.template(), changedSnapshot);
+
+        var firstCandidate = planner.prepare(ACTOR, first);
+        var secondCandidate = planner.prepare(ACTOR, second);
+
+        assertThat(firstCandidate.deterministicSeed()).isNotEqualTo(secondCandidate.deterministicSeed());
+    }
+
+    @Test
     void mismatchOrMissingContinuityFactBlocksCandidate() {
         var planner = planner(new Authority(), unavailableProvider());
         var request = request(List.of(source("reference-image", IMAGE_VERSION, D2)),
@@ -130,6 +150,27 @@ class ReferenceGuidedScenePlannerTest {
         assertThat(authority.observed.subList(4, 6)).containsExactly(
                 new Seen(CONTINUITY_VERSION, D4, "source-conditioned-scene"),
                 new Seen(IMAGE_VERSION, D2, "source-conditioned-scene"));
+        assertThat(calls).hasValue(0);
+    }
+
+    @Test
+    void unknownRightsOnDispatchRecheckStopsBeforeModelCall() {
+        Authority authority = new Authority();
+        AtomicInteger calls = new AtomicInteger();
+        var provider = new ReferenceGuidedScenePlanner.ModelProvider() {
+            @Override public boolean admitted() { return true; }
+            @Override public ReferenceGuidedScenePlanner.ModelResult generate(ReferenceGuidedScenePlanner.Candidate candidate) {
+                calls.incrementAndGet();
+                return new ReferenceGuidedScenePlanner.ModelOutput("generated", "v1", D1);
+            }
+        };
+        var planner = planner(authority, provider);
+        var candidate = planner.prepare(ACTOR, request(List.of(source("reference-image", IMAGE_VERSION, D2)),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue")))));
+        authority.set(PROMPT_VERSION, D1, ReferenceGuidedScenePlanner.Decision.UNKNOWN);
+
+        assertThatThrownBy(() -> planner.generateWithModel(candidate))
+                .isInstanceOf(ReferenceGuidedScenePlanner.SourceAuthorityUnavailableException.class);
         assertThat(calls).hasValue(0);
     }
 
