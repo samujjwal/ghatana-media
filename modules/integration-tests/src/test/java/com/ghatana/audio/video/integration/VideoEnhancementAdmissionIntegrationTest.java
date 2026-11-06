@@ -19,7 +19,7 @@ class VideoEnhancementAdmissionIntegrationTest {
             "purpose:video-enhancement", List.of("rights-evidence:j08"), "policy-decision:j08");
 
     @Test
-    void missingDecoderAndDeniedRightsNeverProduceCandidateOrChangeSourceBinding() {
+    void missingDecoderAndUnavailableOrDeniedRightsNeverProduceCandidateOrChangeSourceBinding() {
         ArtifactBinding originalBinding = SOURCE;
         AtomicInteger decoderCalls = new AtomicInteger();
         RestorationRequest request = new RestorationRequest("request-j08-missing-decoder", SOURCE);
@@ -35,6 +35,26 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(noDecoder.outcome()).isEqualTo(Outcome.UNAVAILABLE);
         assertThat(noDecoder.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
         assertThat(noDecoder.candidate()).isEmpty();
+        assertThat(decoderCalls).hasValue(0);
+        assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE).isEqualTo(originalBinding);
+
+        AtomicInteger sourceReads = new AtomicInteger();
+        Result unknownAuthority = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-unknown-source-rights", SOURCE),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.UNAVAILABLE, ""),
+                binding -> {
+                    sourceReads.incrementAndGet();
+                    throw new AssertionError("source must not be read when source rights are unknown");
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        assertThat(unknownAuthority.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(unknownAuthority.reason()).contains(Reason.SOURCE_AUTHORITY_UNAVAILABLE);
+        assertThat(unknownAuthority.candidate()).isEmpty();
+        assertThat(sourceReads).hasValue(0);
         assertThat(decoderCalls).hasValue(0);
         assertThat(SOURCE).isSameAs(originalBinding);
         assertThat(SOURCE).isEqualTo(originalBinding);
