@@ -162,6 +162,12 @@ class VideoFrameReconcilerTest {
                 identity("t2"), durable, 41, 40, 9000))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("cross-tenant");
+        SessionIdentity futureRevision = new SessionIdentity(
+                "vstream-1", "t1", "principal-1", "purpose-1", 2L);
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                futureRevision, durable, 41, 40, 9000))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("revision does not match");
     }
 
     @Test

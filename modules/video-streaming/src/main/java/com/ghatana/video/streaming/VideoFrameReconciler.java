@@ -91,7 +91,7 @@ public final class VideoFrameReconciler {
 
     /**
      * Resumes after process loss at the durable ACK/keyframe position. A
-     * different tenant or an older revision is denied — never silently merged.
+     * different tenant or revision is denied — never silently merged.
      * The legacy unqualified {@code lastDeliveredPts} argument is ignored; the
      * session contract has no source clock/origin/version binding to restore.
      */
@@ -112,9 +112,9 @@ public final class VideoFrameReconciler {
         if (!identity.purposeRef().equals(durable.purposeRef())) {
             throw new IllegalArgumentException("resume purpose does not match the durable session");
         }
-        if (identity.sessionRevision() < durable.sessionRevision()) {
+        if (identity.sessionRevision() != durable.sessionRevision()) {
             throw new IllegalArgumentException(
-                    "resume carries an older session revision than the durable session");
+                    "resume session revision does not match the durable session generation");
         }
         if (lastAckedSequence < -1 || lastAckedSequence >= VideoStreamSession.MAX_FRAME_SEQUENCE) {
             throw new IllegalArgumentException("resume last ACK is outside the supported sequence range");
