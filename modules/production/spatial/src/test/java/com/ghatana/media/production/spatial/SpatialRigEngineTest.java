@@ -193,7 +193,16 @@ class SpatialRigEngineTest {
         assertThat(document.path("scenes").get(0).path("nodes").get(0).intValue()).isEqualTo(1);
         assertThat(document.path("nodes").get(1).path("children").get(0).intValue()).isEqualTo(0);
         JsonNode metadata = document.path("extras").path("mediaSpatial");
+        assertThat(metadata.path("frameRef").asString()).isEqualTo(frame.frameRef());
         assertThat(metadata.path("frameVersionRef").asString()).isEqualTo(frame.frameVersionRef());
+        assertThat(metadata.path("handedness").asString()).isEqualTo(frame.handedness().name());
+        assertThat(metadata.path("axisDirections").get(0).asString()).isEqualTo(frame.xAxis().name());
+        assertThat(metadata.path("axisDirections").get(1).asString()).isEqualTo(frame.yAxis().name());
+        assertThat(metadata.path("axisDirections").get(2).asString()).isEqualTo(frame.zAxis().name());
+        assertThat(metadata.path("positionUnitRef").asString()).isEqualTo(frame.positionUnitRef());
+        assertThat(metadata.path("orientationUnitRef").asString()).isEqualTo(frame.orientationUnitRef());
+        assertThat(metadata.has("calibration")).isFalse();
+        assertThat(metadata.has("worldFrameRef")).isFalse();
         assertThat(metadata.path("sourceProjectRevisionRef").asString()).isEqualTo("project:edit:revision-8");
         JsonNode float32LossFields = metadata.path("float32LossFields");
         assertThat(float32LossFields.size()).isEqualTo(3);
