@@ -41,6 +41,12 @@ public final class VersionedReviewEngine {
                 || !request.confirmation().exactTargetRef().equals(reviewCase.exactTargetRef())) {
             throw new ReviewDeniedException();
         }
+        long expectedNextRevision;
+        try {
+            expectedNextRevision = Math.addExact(request.expectedCaseRevision(), 1L);
+        } catch (ArithmeticException exhausted) {
+            throw new ReviewRevisionExhaustedException();
+        }
         AuthorizationDecision authority = authorize(actor, reviewCase, operation);
         requireExpectedAuthorityVersion(request.expectedAuthorityVersion(), authority);
         Currentness currentness = authority.currentnessFor(reviewCase.reviewSubjectRef());
@@ -68,7 +74,7 @@ public final class VersionedReviewEngine {
         if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
         ReviewRecord record = store.append(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
                 fingerprint, nextId(), effectAuthority.authorityVersion(), safePayload, now);
-        requireExactAppendReceipt(actor, reviewCase, request, safePayload, effectAuthority, record);
+        requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision, safePayload, effectAuthority, record);
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
                 record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);
     }
@@ -95,7 +101,7 @@ public final class VersionedReviewEngine {
     }
 
     private static void requireExactAppendReceipt(Actor actor, ReviewCaseRef reviewCase, AppendRequest request,
-                                                  Payload payload, AuthorizationDecision authority,
+                                                  long expectedNextRevision, Payload payload, AuthorizationDecision authority,
                                                   ReviewRecord record) {
         if (record == null) throw new ReviewUnavailableException();
         if (!record.tenantId().equals(actor.tenantId())
@@ -106,7 +112,7 @@ public final class VersionedReviewEngine {
                 || !record.operationId().equals(payload.operationId())
                 || !record.payload().equals(payload)
                 || !record.authorityVersion().equals(authority.authorityVersion())
-                || record.caseRevision() != request.expectedCaseRevision() + 1L) {
+                || record.caseRevision() != expectedNextRevision) {
             throw new ReviewUnavailableException();
         }
     }

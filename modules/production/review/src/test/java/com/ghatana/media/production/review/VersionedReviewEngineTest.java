@@ -230,6 +230,19 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void exhaustedCaseRevisionFailsBeforeAuthorizationOrStorageEffect() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+
+        assertThatThrownBy(() -> fixture.engine.append(REVIEWER,
+                fixture.request(Long.MAX_VALUE, "req-exhausted",
+                        new Comment("must not append", CommentDisposition.OPEN, null))))
+                .isInstanceOf(ReviewRevisionExhaustedException.class);
+
+        assertThat(fixture.authorizationChecks.get()).isZero();
+        assertThat(fixture.store.read(REVIEWER, CASE)).isEmpty();
+    }
+
+    @Test
     void exactTargetMismatchAndInvalidAnnotationsAreRejected() {
         assertThatThrownBy(() -> new ReviewCaseRef("tenant-a", "case-1", V2.reference(), V1, "scope"))
                 .isInstanceOf(IllegalArgumentException.class);

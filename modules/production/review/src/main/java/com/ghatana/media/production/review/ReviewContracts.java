@@ -246,6 +246,9 @@ public final class ReviewContracts {
     public static final class ReviewConflictException extends IllegalStateException {
         public ReviewConflictException(long expected, long actual) { super("review case changed: expected revision " + expected + " but found " + actual); }
     }
+    public static final class ReviewRevisionExhaustedException extends IllegalStateException {
+        public ReviewRevisionExhaustedException() { super("review case revision cannot advance beyond its maximum value"); }
+    }
     public static final class ReviewAuthorityConflictException extends IllegalStateException {
         public ReviewAuthorityConflictException() { super("reviewer authority changed since the request was prepared"); }
     }
