@@ -119,11 +119,12 @@ class TemporalVideoRestorationTest {
     void unsharpMaskUsesDocumentedRgbRoundingAndAuthorizedReferenceMetrics() {
         Roi roi = new Roi(0, 0, 3, 1);
         TimeBase timeBase = new TimeBase(1, 30);
-        byte[][] sourcePixels = {{0, 100, 0, 0, 100, 0, 0, 100, 0},
-                {0, 100, 0, 0, 100, 0, 0, 100, 0}, {0, 100, 0, 0, 100, 0, 0, 100, 0}};
+        byte[][] sourcePixels = {{0, 0, 0, 100, 100, 100, 0, 0, 0},
+                {0, 0, 0, 100, 100, 100, 0, 0, 0}, {0, 0, 0, 100, 100, 100, 0, 0, 0}};
         DecodedFrameSequence source = sequenceWithTimeBase("source", "v3", SOURCE_SHA, sourcePixels, roi, timeBase);
-        byte[][] expectedPixels = {{0, 0, 0, 0, (byte) 167, 0, 0, 0, 0},
-                {0, 0, 0, 0, (byte) 167, 0, 0, 0, 0}, {0, 0, 0, 0, (byte) 167, 0, 0, 0, 0}};
+        byte[][] expectedPixels = {{0, 0, 0, (byte) 167, (byte) 167, (byte) 167, 0, 0, 0},
+                {0, 0, 0, (byte) 167, (byte) 167, (byte) 167, 0, 0, 0},
+                {0, 0, 0, (byte) 167, (byte) 167, (byte) 167, 0, 0, 0}};
         DecodedFrameSequence reference = sequenceWithTimeBase("reference", "v7", REF_SHA,
                 expectedPixels, roi, timeBase);
         byte[][] original = cloneFrames(sourcePixels);
