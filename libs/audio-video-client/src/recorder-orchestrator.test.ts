@@ -1,6 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createServer, type Server } from "node:http";
-import type { AddressInfo } from "node:net";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -465,9 +463,8 @@ describe("recaptureScenario", () => {
   });
 });
 
-describe("recaptureScenario with real routed capture adapters", () => {
+describe("recaptureScenario with routed capture adapters", () => {
   const dirs: string[] = [];
-  const servers: Server[] = [];
 
   async function tempDir(): Promise<string> {
     const dir = await mkdtemp(join(tmpdir(), "media-recapture-"));
@@ -475,21 +472,7 @@ describe("recaptureScenario with real routed capture adapters", () => {
     return dir;
   }
 
-  async function withHttpServer(
-    handler: (req: import("node:http").IncomingMessage,
-      res: import("node:http").ServerResponse) => void,
-    run: (origin: string) => Promise<void>,
-  ): Promise<void> {
-    const server = createServer(handler);
-    servers.push(server);
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-    const address = server.address() as AddressInfo;
-    await run(`http://127.0.0.1:${address.port}`);
-  }
-
   afterEach(async () => {
-    await Promise.all(servers.splice(0).map((server) =>
-      new Promise<void>((resolve) => server.close(() => resolve()))));
     await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
   });
 
@@ -516,52 +499,54 @@ describe("recaptureScenario with real routed capture adapters", () => {
     };
   }
 
-  it("captures real file and HTTP bytes through the routed adapters", async () => {
+  it("captures file bytes and an injected HTTP response through the routed adapters", async () => {
     const dir = await tempDir();
     const filePayload = new Uint8Array([9, 8, 7, 6, 5]);
     const filePath = join(dir, "scene.bin");
     await writeFile(filePath, filePayload);
-    const httpPayload = "http-scene-real-bytes";
+    const httpPayload = "http-scene-response-bytes";
     let httpRequests = 0;
 
-    await withHttpServer((_req, res) => {
-      httpRequests += 1;
-      res.writeHead(200, { "content-type": "application/octet-stream" }).end(httpPayload);
-    }, async (origin) => {
-      const fileRequest = captureRequest("MEDIA_FILE", "media-file:scene-a");
-      const httpRequest = captureRequest("HTTP_API", "api:scene-b");
-      const plan = orchestrateScenario({
-        scenarioId: "real-capture",
-        revision: "rev-1",
-        actors: [],
-        scenes: [realScene("file-scene", fileRequest), realScene("http-scene", httpRequest)],
-      });
-      expect(plan.dryRunOnly).toBe(true);
-
-      const routed = routedCaptureAdapter({
-        MEDIA_FILE: new MediaFileCaptureAdapter({
-          resolveSource: (request) => (request.sourceIdentity === "media-file:scene-a"
-            ? filePath
-            : Promise.reject(new Error("unmapped source"))),
-          allowedRoot: dir,
-        }),
-        HTTP_API: new HttpApiCaptureAdapter({
-          resolveEndpoint: () => `${origin}/capture`,
-          allowedOrigins: [origin],
-        }),
-      });
-
-      const frames = await recaptureScenario(plan, { check: () => "ADMITTED" }, routed);
-
-      expect(frames).toHaveLength(2);
-      expect(frames[0]!.bytes).toEqual(filePayload);
-      expect(frames[0]!.sourceIdentity).toBe("media-file:scene-a");
-      expect(frames[0]!.sourceVersionRef).toBe("media-file:scene-a@v1");
-      expect(frames[0]!.frameClockRef).toBe("clock/recapture-host");
-      expect(new TextDecoder().decode(frames[1]!.bytes)).toBe(httpPayload);
-      expect(frames[1]!.sourceIdentity).toBe("api:scene-b");
-      expect(httpRequests).toBe(1);
+    const origin = "http://127.0.0.1";
+    const fileRequest = captureRequest("MEDIA_FILE", "media-file:scene-a");
+    const httpRequest = captureRequest("HTTP_API", "api:scene-b");
+    const plan = orchestrateScenario({
+      scenarioId: "real-capture",
+      revision: "rev-1",
+      actors: [],
+      scenes: [realScene("file-scene", fileRequest), realScene("http-scene", httpRequest)],
     });
+    expect(plan.dryRunOnly).toBe(true);
+
+    const routed = routedCaptureAdapter({
+      MEDIA_FILE: new MediaFileCaptureAdapter({
+        resolveSource: (request) => (request.sourceIdentity === "media-file:scene-a"
+          ? filePath
+          : Promise.reject(new Error("unmapped source"))),
+        allowedRoot: dir,
+      }),
+      HTTP_API: new HttpApiCaptureAdapter({
+        resolveEndpoint: () => `${origin}/capture`,
+        allowedOrigins: [origin],
+        fetchImpl: async (input, init) => {
+          httpRequests += 1;
+          expect(input).toEqual(new URL(`${origin}/capture`));
+          expect(init).toMatchObject({ method: "GET", redirect: "manual", cache: "no-store" });
+          return new Response(httpPayload, { status: 200, headers: { "content-type": "application/octet-stream" } });
+        },
+      }),
+    });
+
+    const frames = await recaptureScenario(plan, { check: () => "ADMITTED" }, routed);
+
+    expect(frames).toHaveLength(2);
+    expect(frames[0]!.bytes).toEqual(filePayload);
+    expect(frames[0]!.sourceIdentity).toBe("media-file:scene-a");
+    expect(frames[0]!.sourceVersionRef).toBe("media-file:scene-a@v1");
+    expect(frames[0]!.frameClockRef).toBe("clock/recapture-host");
+    expect(new TextDecoder().decode(frames[1]!.bytes)).toBe(httpPayload);
+    expect(frames[1]!.sourceIdentity).toBe("api:scene-b");
+    expect(httpRequests).toBe(1);
   });
 
   it("denied eligibility performs zero resolver, fetch or file effects", async () => {
@@ -973,6 +958,44 @@ describe("publishFinalRender", () => {
         expectedSha256: input.expectedSha256,
         bytesReceived: 3,
         nextChunkIndex: 0,
+      })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("resume position"),
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("rejects a negative aligned resume offset before dispatch", async () => {
+    const client = fakeClient({
+      createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => uploadSession({
+        expectedSha256: input.expectedSha256,
+        bytesReceived: -4 * 1024 * 1024,
+        nextChunkIndex: -1,
+      })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("resume position"),
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("rejects a negative resume chunk index before dispatch", async () => {
+    const client = fakeClient({
+      createUploadSession: vi.fn(async (input: { readonly expectedSha256: string }) => uploadSession({
+        expectedSha256: input.expectedSha256,
+        bytesReceived: 0,
+        nextChunkIndex: -1,
       })),
     });
 

@@ -300,6 +300,36 @@ describe("OfflineReconnectCoordinator", () => {
     expect((await recreatedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
   });
 
+  it("treats a malformed non-string receipt as unknown and preserves the no-replay fence", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    const malformedReceipt = operations({
+      applyEdit: async (queued) => {
+        applyCount++;
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: 42 } as never;
+      },
+    });
+
+    const first = await new OfflineReconnectCoordinator(q, scope, malformedReceipt).reconnect(true);
+    expect(first.status).toBe("RECONNECTED");
+    if (first.status === "RECONNECTED") expect(first.results[0]?.state).toBe("OUTCOME_UNKNOWN");
+    expect((await q.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+
+    const recreatedQueue = await queue();
+    const afterRecreation = await new OfflineReconnectCoordinator(recreatedQueue, scope, operations({
+      applyEdit: async (queued) => {
+        applyCount++;
+        return operations().applyEdit(queued);
+      },
+    })).reconnect(true);
+
+    expect(afterRecreation).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
+    expect(applyCount).toBe(1);
+    expect((await recreatedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+  });
+
   it("resumes a still-pending encrypted edit after restart with the same idempotency key", async () => {
     const originalQueue = await queue();
     await originalQueue.enqueue(edit);

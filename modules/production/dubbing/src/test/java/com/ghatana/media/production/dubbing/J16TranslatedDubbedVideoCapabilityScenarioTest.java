@@ -4,6 +4,7 @@ import com.ghatana.media.production.dubbing.DubbingOrchestrator.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,6 +44,53 @@ class J16TranslatedDubbedVideoCapabilityScenarioTest {
             assertThat(result.synthesisDispatchCount()).isZero();
             assertThat(result.segments()).isEmpty();
         }
+    }
+
+    @Test
+    void voiceConsentRevokedAfterTranslationPreventsSynthesisAndReturnsNoPartialDub() {
+        Request request = request();
+        AtomicBoolean voiceCurrent = new AtomicBoolean(true);
+        RightsConsentPort rights = new RightsConsentPort() {
+            @Override public RightsDecision evaluate(RightsScope scope) {
+                return new RightsDecision(RightsStatus.ALLOW, "fixture-authority", "fixture-decision");
+            }
+            @Override public boolean isCurrent(RightsScope scope, RightsDecision decision) {
+                return scope.kind() != RightsKind.VOICE_SYNTHESIS || voiceCurrent.get();
+            }
+        };
+        TranslationPort translation = new TranslationPort() {
+            @Override public Capability capability(String sourceLocale, String targetLocale) {
+                return Capability.available();
+            }
+            @Override public TranslationResult translate(TranslationRequest input) {
+                voiceCurrent.set(false);
+                return new TranslationResult(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.sourceLocale(), input.targetLocale(),
+                        input.sourceClockId(), input.ticksPerSecond(), input.sourceDurationTicks(),
+                        input.segments().stream().map(segment -> new TranslatedSegment(
+                                segment.segmentId(), "synthetic translated text", segment.startTick(), segment.endTick())).toList());
+            }
+        };
+        AtomicBoolean synthesisCalled = new AtomicBoolean();
+        SynthesisPort synthesis = new SynthesisPort() {
+            @Override public Capability capability(String targetLocale, VoiceIdentity voice) {
+                return Capability.available();
+            }
+            @Override public SynthesizedAudio synthesize(SynthesisRequest input) {
+                synthesisCalled.set(true);
+                throw new AssertionError("revoked voice consent must prevent synthesis dispatch");
+            }
+        };
+        AlignmentPort alignment = alignment(true);
+
+        DubbingResult result = new DubbingOrchestrator(rights, translation, synthesis, alignment).dub(request);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.REVOKED);
+        assertThat(result.reason()).contains(Reason.VOICE_RIGHTS_REVOKED);
+        assertThat(result.translationDispatched()).isTrue();
+        assertThat(result.synthesisDispatchCount()).isZero();
+        assertThat(result.segments()).isEmpty();
+        assertThat(synthesisCalled).isFalse();
     }
 
     private static Request request() {

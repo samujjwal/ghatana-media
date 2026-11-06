@@ -79,7 +79,9 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
           return { outcome: "OUTCOME_UNKNOWN" };
         }
         if (response.outcome === "APPLIED") {
-          if (!response.receipt?.trim()) return { outcome: "OUTCOME_UNKNOWN" };
+          if (typeof response.receipt !== "string" || !response.receipt.trim()) {
+            return { outcome: "OUTCOME_UNKNOWN" };
+          }
           return { outcome: "APPLIED", receipt: response.receipt as R };
         }
         return { outcome: response.outcome };
