@@ -805,6 +805,9 @@ export async function publishFinalRender(
   signal?: AbortSignal,
 ): Promise<FinalRenderPublishResult> {
   const safeRequest = validateAndSnapshotRenderRequest(request);
+  if (signal?.aborted) {
+    return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before authority or codec work began" };
+  }
   if (!admission || !muxer || !artifactClient) {
     return { outcome: "NOT_ADMITTED", reason: "trusted render authority, codec/probe, and canonical artifact client are required" };
   }
@@ -834,12 +837,18 @@ export async function publishFinalRender(
   if (!await checkAdmission()) {
     return { outcome: "NOT_ADMITTED", reason: "render rights or source authority did not admit this request" };
   }
+  if (signal?.aborted) {
+    return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before codec work began" };
+  }
 
   let rendered: RenderedContainer;
   try {
     rendered = await muxer.muxAndVerify(safeRequest);
   } catch {
     return { outcome: "NOT_ADMITTED", reason: "qualified mux/decoder verification is unavailable or failed" };
+  }
+  if (signal?.aborted) {
+    return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before artifact upload began" };
   }
   // Detach from caller/adapter-owned memory before any further await.
   const bytes = rendered?.bytes instanceof Uint8Array ? rendered.bytes.slice() : undefined;
@@ -877,6 +886,9 @@ export async function publishFinalRender(
   let uploadId: string | undefined;
   let completionStarted = false;
   try {
+    if (signal?.aborted) {
+      return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before canonical artifact creation" };
+    }
     if (!await checkAdmission()) {
       return { outcome: "NOT_ADMITTED", reason: "render authority was denied or unavailable before canonical artifact creation" };
     }

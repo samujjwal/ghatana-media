@@ -795,6 +795,36 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("does not start authority, codec, or upload work for an already-aborted signal", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const client = fakeClient();
+    const admission = { admit: vi.fn(async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] })) };
+    const mux = { muxAndVerify: vi.fn(async () => verifiedContainer()) };
+
+    await expect(publishFinalRender(request(), admission, mux, client, controller.signal))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect(admission.admit).not.toHaveBeenCalled();
+    expect(mux.muxAndVerify).not.toHaveBeenCalled();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("does not create an upload when cancellation occurs during muxing", async () => {
+    const controller = new AbortController();
+    const client = fakeClient();
+    const mux = { muxAndVerify: vi.fn(async () => {
+      controller.abort();
+      return verifiedContainer();
+    }) };
+
+    await expect(publishFinalRender(request(), admitted, mux, client, controller.signal))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect(mux.muxAndVerify).toHaveBeenCalledOnce();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("rejects unbounded or malformed authority references before mux dispatch", async () => {
     const client = fakeClient();
     const mux = { muxAndVerify: vi.fn(async () => verifiedContainer()) };
