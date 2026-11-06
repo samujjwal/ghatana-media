@@ -69,6 +69,21 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void identityMappingCannotRelabelTheTrackedCoordinateContext() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.TrackedSample relabeled = new ReversibleRegionEditEngine.TrackedSample(
+                sourcePts(0), "source-frame-v1", "edited-frame-v2",
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .1, .2, .2)),
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .1, .2, .2)),
+                ReversibleRegionEditEngine.AffineTransform.identity());
+
+        assertThatThrownBy(() -> fixture.prepare(evidence(List.of(relabeled))))
+                .isInstanceOf(ReversibleRegionEditEngine.RegionMappingConflictException.class)
+                .hasMessageContaining("identity transform cannot change coordinate context");
+        assertThat(fixture.rightsCalls).isZero();
+    }
+
+    @Test
     void bboxTransformUsesAllCornersAndRejectsAreaCollapsingMapping() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.TrackedSample sheared = new ReversibleRegionEditEngine.TrackedSample(
