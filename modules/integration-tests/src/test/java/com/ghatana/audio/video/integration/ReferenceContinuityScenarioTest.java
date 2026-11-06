@@ -42,6 +42,32 @@ class ReferenceContinuityScenarioTest {
     }
 
     @Test
+    void sourceVersionBecomingStaleAfterPreparationBlocksDispatch() {
+        RecordingAuthority authority = new RecordingAuthority();
+        AtomicInteger providerCalls = new AtomicInteger();
+        ReferenceGuidedScenePlanner planner = new ReferenceGuidedScenePlanner(authority,
+                new ReferenceGuidedScenePlanner.ModelProvider() {
+                    @Override public boolean admitted() { return true; }
+                    @Override public ReferenceGuidedScenePlanner.ModelResult generate(
+                            ReferenceGuidedScenePlanner.Candidate candidate) {
+                        providerCalls.incrementAndGet();
+                        return new ReferenceGuidedScenePlanner.ModelOutput("fixture-output", "v1", D1);
+                    }
+                });
+
+        ReferenceGuidedScenePlanner.Candidate candidate = planner.prepare(ACTOR, request(continuity("blue")));
+        authority.staleSource = REFERENCE_VERSION;
+
+        assertThatThrownBy(() -> planner.generateWithModel(candidate))
+                .isInstanceOf(ReferenceGuidedScenePlanner.StaleSourceVersionException.class);
+
+        assertThat(authority.inspected).hasSize(7);
+        assertThat(authority.inspected.subList(4, 7)).extracting(ReferenceGuidedScenePlanner.BoundSource::source)
+                .containsExactly(CONTINUITY_VERSION, PROMPT_VERSION, REFERENCE_VERSION);
+        assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     void continuityConflictPreventsCandidateAndModelDispatch() {
         RecordingAuthority authority = new RecordingAuthority();
         AtomicInteger providerCalls = new AtomicInteger();
@@ -150,6 +176,7 @@ class ReferenceContinuityScenarioTest {
     private static final class RecordingAuthority implements ReferenceGuidedScenePlanner.CurrentSourceAuthority {
         private final List<ReferenceGuidedScenePlanner.BoundSource> inspected = new ArrayList<>();
         private SourceVersion deniedSource;
+        private SourceVersion staleSource;
 
         @Override
         public ReferenceGuidedScenePlanner.Decision inspect(Actor actor,
@@ -157,6 +184,7 @@ class ReferenceContinuityScenarioTest {
             assertThat(actor).isEqualTo(ACTOR);
             assertThat(purpose).isEqualTo(PURPOSE);
             inspected.add(source);
+            if (source.source().equals(staleSource)) return ReferenceGuidedScenePlanner.Decision.STALE;
             return source.source().equals(deniedSource)
                     ? ReferenceGuidedScenePlanner.Decision.DENIED
                     : ReferenceGuidedScenePlanner.Decision.ELIGIBLE;
