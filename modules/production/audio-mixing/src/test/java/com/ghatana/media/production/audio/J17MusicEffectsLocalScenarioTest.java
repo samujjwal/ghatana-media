@@ -88,6 +88,44 @@ class J17MusicEffectsLocalScenarioTest {
                 .isEqualTo(ErrorCode.INVALID_INPUT);
     }
 
+    @Test
+    void unknown_or_malformed_later_asset_rights_return_no_partial_mix_result() throws Exception {
+        Stem validFixture = synthetic("fixture-before-rights-check", pcm(new short[] {1_000, 1_000}), 1.0f, 0.0f);
+        String sourceVersion = "fixture-source:v7";
+        RightsEvidence unknown = new RightsEvidence(sourceVersion, "fixture-rights-unknown:v1",
+                RightsPurpose.PCM_STEM_MIX, RightsDisposition.UNKNOWN,
+                NOW.minusSeconds(60), NOW.plusSeconds(60));
+        Stem unknownRightsAsset = new Stem(sourceVersion, SAMPLE_RATE, 2, 16,
+                pcm(new short[] {2_000, 2_000}), 1.0f, 0.0f,
+                new AssetProvenance(sourceVersion, unknown));
+
+        assertNoResultOnFailure(List.of(validFixture, unknownRightsAsset), ErrorCode.RIGHTS_DENIED);
+
+        // The evidence object is present and nominally cleared, but its source-version
+        // binding is malformed. A valid preceding stem must not produce a partial mix.
+        RightsEvidence wrongVersion = new RightsEvidence("fixture-source:v6", "fixture-rights:v1",
+                RightsPurpose.PCM_STEM_MIX, RightsDisposition.CLEARED,
+                NOW.minusSeconds(60), NOW.plusSeconds(60));
+        Stem malformedRightsAsset = new Stem(sourceVersion, SAMPLE_RATE, 2, 16,
+                pcm(new short[] {2_000, 2_000}), 1.0f, 0.0f,
+                new AssetProvenance(sourceVersion, wrongVersion));
+
+        assertNoResultOnFailure(List.of(validFixture, malformedRightsAsset), ErrorCode.RIGHTS_MISSING);
+    }
+
+    private static void assertNoResultOnFailure(List<Stem> stems, ErrorCode expectedCode) {
+        MixResult result = null;
+        MixException observedFailure = null;
+        try {
+            result = MIXER.mix(stems, new MixSpec(SAMPLE_RATE, 1, CEILING), CLOCK);
+        } catch (MixException failure) {
+            observedFailure = failure;
+        }
+        assertThat(observedFailure).as("invalid or unknown rights must fail closed").isNotNull();
+        assertThat(observedFailure.code()).isEqualTo(expectedCode);
+        assertThat(result).as("a failed mix must not expose partial PCM or WAV bytes").isNull();
+    }
+
     private static Stem synthetic(String id, byte[] pcm, float gain, float pan) throws Exception {
         byte[] digest = MessageDigest.getInstance("SHA-256").digest(id.getBytes(StandardCharsets.UTF_8));
         SyntheticProvenance provenance = new SyntheticProvenance(
