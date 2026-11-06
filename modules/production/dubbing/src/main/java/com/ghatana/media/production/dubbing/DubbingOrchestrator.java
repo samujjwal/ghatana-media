@@ -228,6 +228,17 @@ public final class DubbingOrchestrator {
                                 long sourceDurationTicks, boolean translationDispatched,
                                 int synthesisDispatchCount, List<DubbedSegment> segments) {
         public DubbingResult {
+            Objects.requireNonNull(status, "status");
+            tenantId = required(tenantId, "tenantId");
+            requestId = required(requestId, "requestId");
+            Objects.requireNonNull(sourceVersion, "sourceVersion");
+            transcriptVersionId = required(transcriptVersionId, "transcriptVersionId");
+            targetLocale = locale(targetLocale);
+            Objects.requireNonNull(voice, "voice");
+            sourceClockId = required(sourceClockId, "sourceClockId");
+            if (ticksPerSecond < 1 || sourceDurationTicks < 1) {
+                throw new IllegalArgumentException("completed dubbing source clock tuple must be positive");
+            }
             reason = reason == null ? Optional.empty() : reason;
             segments = boundedSegmentCopy(segments == null ? List.of() : segments, "segments");
             if ((status == ResultStatus.COMPLETED) != reason.isEmpty()) throw new IllegalArgumentException("only completed dubbing has no failure reason");
@@ -241,6 +252,37 @@ public final class DubbingOrchestrator {
             if (status == ResultStatus.COMPLETED
                     && (!translationDispatched || synthesisDispatchCount == 0 || synthesisDispatchCount != segments.size())) {
                 throw new IllegalArgumentException("completed dubbing must account for every translated synthesis segment");
+            }
+            if (status == ResultStatus.COMPLETED) validateCompletedSegments(segments, sourceDurationTicks);
+        }
+    }
+
+    /** Validates the public completed-result constructor, not only the provider assembly path. */
+    private static void validateCompletedSegments(List<DubbedSegment> segments, long sourceDurationTicks) {
+        java.util.Set<String> segmentIds = new java.util.HashSet<>();
+        long totalTextCodePoints = 0;
+        long totalAudioBytes = 0;
+        for (DubbedSegment segment : segments) {
+            String id = required(segment.segmentId(), "dubbed segmentId");
+            if (!segmentIds.add(id)) throw new IllegalArgumentException("completed dubbing contains duplicate segment identities");
+            String text = bounded(segment.text(), MAX_TRANSLATED_TEXT_CODE_POINTS, "dubbed text");
+            if (text.isBlank()) throw new IllegalArgumentException("completed dubbing segment text must not be blank");
+            if (segment.sourceStartTick() < 0 || segment.sourceEndTick() > sourceDurationTicks
+                    || segment.sourceEndTick() <= segment.sourceStartTick()
+                    || segment.alignedStartTick() < segment.sourceStartTick()
+                    || segment.alignedEndTick() > segment.sourceEndTick()
+                    || segment.alignedEndTick() <= segment.alignedStartTick()) {
+                throw new IllegalArgumentException("completed dubbing segment timing is outside its exact source interval");
+            }
+            byte[] audio = segment.audioBytes;
+            if (audio.length == 0 || audio.length > MAX_SEGMENT_AUDIO_BYTES
+                    || !MediaCreationContracts.sha256(audio).equals(segment.audioDigest())) {
+                throw new IllegalArgumentException("completed dubbing segment audio digest does not match its bounded bytes");
+            }
+            totalTextCodePoints += text.codePointCount(0, text.length());
+            totalAudioBytes += audio.length;
+            if (totalTextCodePoints > MAX_TOTAL_TEXT_CODE_POINTS || totalAudioBytes > MAX_TOTAL_AUDIO_BYTES) {
+                throw new IllegalArgumentException("completed dubbing result exceeds aggregate output bounds");
             }
         }
     }

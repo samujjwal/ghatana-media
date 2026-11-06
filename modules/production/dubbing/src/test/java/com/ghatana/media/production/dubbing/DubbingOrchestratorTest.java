@@ -99,6 +99,39 @@ class DubbingOrchestratorTest {
                 .hasMessageContaining("every translated synthesis segment");
     }
 
+    @Test
+    void publicCompletedResultRejectsMalformedStatusTimingAndAudioBinding() {
+        SourceVersion source = new SourceVersion("artifact-a", "version-a");
+        VoiceIdentity voice = new VoiceIdentity("voice-a", "voice-v1");
+        byte[] audio = { 1 };
+        String digest = com.ghatana.media.runtime.MediaCreationContracts.sha256(audio);
+        DubbedSegment valid = new DubbedSegment("seg-1", "hola", audio, digest,
+                100, 300, 120, 280);
+
+        assertThatThrownBy(() -> new DubbingResult(null, Optional.of(Reason.PROVIDER_OUTCOME_UNKNOWN), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                false, 0, List.of()))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("status");
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                true, 1, List.of(new DubbedSegment("seg-1", "hola", audio, "0".repeat(64),
+                        100, 300, 120, 280))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("audio digest");
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                true, 1, List.of(new DubbedSegment("seg-1", "hola", audio, digest,
+                        100, 10_001, 120, 280))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("timing");
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", 48_000, 10_000,
+                true, 2, List.of(valid, valid)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("duplicate segment");
+    }
+
     private static <T> List<T> underreportedList(AtomicInteger yielded, IntFunction<T> elementFactory) {
         return new AbstractList<>() {
             @Override public T get(int index) { throw new UnsupportedOperationException(); }
