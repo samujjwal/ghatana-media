@@ -102,6 +102,40 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void expiredCanonicalLeaseStopsBeforeAcknowledgingOrRetryingFrame() {
+        FakePort port = new FakePort();
+        port.offerResult = new CanonicalVideoStreamFramePort.Result(
+                CanonicalVideoStreamFramePort.Disposition.LEASE_EXPIRED, -1, "lease expired");
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(result.lastSourceCursor()).isEqualTo(-1);
+        assertThat(port.offerCalls).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(0);
+        assertThat(port.lastAck).isEqualTo(-1);
+    }
+
+    @Test
+    void expiredCanonicalLeaseDuringEosKeepsLeaseExpiryDistinctFromUnknown() {
+        FakePort port = new FakePort();
+        port.eosResult = new CanonicalVideoStreamFramePort.Result(
+                CanonicalVideoStreamFramePort.Disposition.LEASE_EXPIRED, -1, "lease expired");
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(result.lastSourceCursor()).isEqualTo(-1);
+        assertThat(port.offerCalls).isZero();
+        assertThat(port.eosCalls).isEqualTo(1);
+    }
+
+    @Test
     void nullCanonicalOfferFeedbackIsUnknownAndNotRetried() {
         FakePort port = new FakePort();
         port.nullOfferFeedback = true;
@@ -237,6 +271,7 @@ class GrpcVideoSourceCaptureTest {
         private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
         private Result offerResult;
+        private Result eosResult;
 
         @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
             return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", 1, 1, lastAck,
@@ -261,7 +296,9 @@ class GrpcVideoSourceCaptureTest {
 
         @Override public OfferFeedback endOfStreamWithFeedback(Binding expected) {
             eosCalls++;
-            return OfferFeedback.unavailable(Result.acknowledged(expected.lastAcknowledgedSequence() + 1));
+            Result result = eosResult == null
+                    ? Result.acknowledged(expected.lastAcknowledgedSequence() + 1) : eosResult;
+            return OfferFeedback.unavailable(result);
         }
     }
 }

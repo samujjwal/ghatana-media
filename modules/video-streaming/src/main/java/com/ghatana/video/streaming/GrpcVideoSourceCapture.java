@@ -25,7 +25,8 @@ public final class GrpcVideoSourceCapture {
 
     public enum Authorization { AUTHORIZED, DENIED, REVOKED, UNKNOWN }
     public enum Disposition {
-        ACCEPTED, GAP, DENIED, REVOKED, UNKNOWN, NOT_ADMITTED, BACKPRESSURED, OUTCOME_UNKNOWN, EOS
+        ACCEPTED, GAP, DENIED, REVOKED, LEASE_EXPIRED, UNKNOWN, NOT_ADMITTED,
+        BACKPRESSURED, OUTCOME_UNKNOWN, EOS
     }
 
     public record Request(
@@ -180,6 +181,10 @@ public final class GrpcVideoSourceCapture {
             if (offered.result().disposition() == CanonicalVideoStreamFramePort.Disposition.OUTCOME_UNKNOWN) {
                 return new Result(Disposition.OUTCOME_UNKNOWN, accepted, lastCursor, "canonical offer outcome unknown");
             }
+            if (offered.result().disposition() == CanonicalVideoStreamFramePort.Disposition.LEASE_EXPIRED) {
+                return new Result(Disposition.LEASE_EXPIRED, accepted, lastCursor,
+                        "canonical video stream lease expired before frame acceptance");
+            }
             if (offered.result().disposition() != CanonicalVideoStreamFramePort.Disposition.ACKNOWLEDGED
                     || offered.result().acknowledgedSequence() != expectedMediaSequence) {
                 return new Result(Disposition.UNKNOWN, accepted, lastCursor, "canonical frame was not acknowledged");
@@ -221,9 +226,12 @@ public final class GrpcVideoSourceCapture {
             if (eos.result().disposition() == CanonicalVideoStreamFramePort.Disposition.ACKNOWLEDGED) {
                 return new Result(Disposition.EOS, accepted, lastCursor, "");
             }
-            return new Result(eos.result().disposition() == CanonicalVideoStreamFramePort.Disposition.OUTCOME_UNKNOWN
-                    ? Disposition.OUTCOME_UNKNOWN : Disposition.UNKNOWN, accepted, lastCursor,
-                    "canonical EOS was not acknowledged");
+            Disposition disposition = switch (eos.result().disposition()) {
+                case OUTCOME_UNKNOWN -> Disposition.OUTCOME_UNKNOWN;
+                case LEASE_EXPIRED -> Disposition.LEASE_EXPIRED;
+                default -> Disposition.UNKNOWN;
+            };
+            return new Result(disposition, accepted, lastCursor, "canonical EOS was not acknowledged");
         } catch (RuntimeException unknown) {
             return new Result(Disposition.OUTCOME_UNKNOWN, accepted, lastCursor, "canonical EOS outcome unknown");
         }

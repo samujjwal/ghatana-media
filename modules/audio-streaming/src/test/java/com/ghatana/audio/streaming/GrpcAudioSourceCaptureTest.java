@@ -85,6 +85,40 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void expiredCanonicalLeaseStopsBeforeAcknowledgingOrRetryingFrame() {
+        FakePort port = new FakePort();
+        port.offerResult = new CanonicalStreamFramePort.Result(
+                CanonicalStreamFramePort.Disposition.LEASE_EXPIRED, -1, "lease expired");
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                List.of(frame(10, 0, "source@v7")), false));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(result.lastSourceCursor()).isEqualTo(-1);
+        assertThat(port.offerCalls).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(0);
+        assertThat(port.lastAck).isEqualTo(-1);
+    }
+
+    @Test
+    void expiredCanonicalLeaseDuringEosKeepsLeaseExpiryDistinctFromUnknown() {
+        FakePort port = new FakePort();
+        port.eosResult = new CanonicalStreamFramePort.Result(
+                CanonicalStreamFramePort.Disposition.LEASE_EXPIRED, -1, "lease expired");
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(result.lastSourceCursor()).isEqualTo(-1);
+        assertThat(port.offerCalls).isZero();
+        assertThat(port.eosCalls).isEqualTo(1);
+    }
+
+    @Test
     void initialReadbackOutageReturnsUnknownWithoutThrowingOrFetchingFrames() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(frame(10, 0, "source@v7")), false));
@@ -203,6 +237,7 @@ class GrpcAudioSourceCaptureTest {
         private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
         private Result offerResult;
+        private Result eosResult;
 
         @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
             return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", 1, 1, lastAck,
@@ -226,7 +261,9 @@ class GrpcAudioSourceCaptureTest {
 
         @Override public OfferFeedback endOfStreamWithFeedback(Binding expected) {
             eosCalls++;
-            return OfferFeedback.unavailable(Result.acknowledged(expected.lastAcknowledgedSequence() + 1));
+            Result result = eosResult == null
+                    ? Result.acknowledged(expected.lastAcknowledgedSequence() + 1) : eosResult;
+            return OfferFeedback.unavailable(result);
         }
     }
 }
