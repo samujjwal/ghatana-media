@@ -368,6 +368,33 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void candidateFrameRejectsMalformedPublicValues() {
+        byte[] rgb = {1, 2, 3};
+        String digest = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81";
+        assertThatThrownBy(() -> new CandidateFrame(-1, 0, 1, 1,
+                new Roi(0, 0, 1, 1), rgb, digest))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("frameIndex");
+        assertThatThrownBy(() -> new CandidateFrame(MAX_FRAMES, 0, 1, 1,
+                new Roi(0, 0, 1, 1), rgb, digest))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("frameIndex");
+        assertThatThrownBy(() -> new CandidateFrame(0, -1, 1, 1,
+                new Roi(0, 0, 1, 1), rgb, digest))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("presentationTicks");
+        assertThatThrownBy(() -> new CandidateFrame(0, 0, MAX_FRAME_DIMENSION + 1, 1,
+                new Roi(0, 0, 1, 1), rgb, digest))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("dimensions");
+        assertThatThrownBy(() -> new CandidateFrame(0, 0, 1, 1,
+                new Roi(1, 0, 1, 1), rgb, digest))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("ROI");
+        assertThatThrownBy(() -> new CandidateFrame(0, 0, 2, 1,
+                new Roi(0, 0, 1, 1), rgb, digest))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("payload length");
+        assertThatThrownBy(() -> new CandidateFrame(0, 0, 1, 1,
+                new Roi(0, 0, 1, 1), rgb, "not-a-digest"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("digest");
+    }
+
+    @Test
     void sequenceRejectsFrameOrderTimestampAndRoiDrift() {
         assertThatThrownBy(() -> new DecodedFrameSequence("source", "v3", SOURCE_SHA, TIME_BASE,
                 List.of(frame(0, 0, new byte[] {0, 0, 0}, new Roi(0, 0, 1, 1)),

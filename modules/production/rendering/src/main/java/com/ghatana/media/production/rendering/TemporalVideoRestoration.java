@@ -299,10 +299,27 @@ public final class TemporalVideoRestoration {
     public record CandidateFrame(int frameIndex, long presentationTicks, int width, int height,
             Roi roi, byte[] rgb, String frameSha256) {
         public CandidateFrame {
+            if (frameIndex < 0 || frameIndex >= MAX_FRAMES) {
+                throw invalid("candidate frameIndex is outside the bounded sequence");
+            }
+            if (presentationTicks < 0) throw invalid("candidate presentationTicks must be non-negative");
+            if (width < 1 || width > MAX_FRAME_DIMENSION || height < 1 || height > MAX_FRAME_DIMENSION) {
+                throw invalid("candidate frame dimensions exceed the RGB8 bounds");
+            }
             Objects.requireNonNull(roi, "roi");
+            if ((long) roi.x() + roi.width() > width || (long) roi.y() + roi.height() > height) {
+                throw invalid("candidate ROI is outside the frame bounds");
+            }
             Objects.requireNonNull(rgb, "rgb");
+            long expectedLength = (long) width * height * 3;
+            if (expectedLength > MAX_TOTAL_RGB_BYTES || rgb.length != expectedLength) {
+                throw invalid("candidate RGB8 payload length does not match the bounded frame dimensions");
+            }
             rgb = rgb.clone();
-            if (!sha256(rgb).equals(frameSha256)) throw invalid("candidate frame digest mismatch");
+            frameSha256 = requiredText(frameSha256, "candidate frameSha256", 64).toLowerCase(java.util.Locale.ROOT);
+            if (!frameSha256.matches(SHA256) || !sha256(rgb).equals(frameSha256)) {
+                throw invalid("candidate frame digest mismatch");
+            }
         }
         @Override public byte[] rgb() { return rgb.clone(); }
     }
