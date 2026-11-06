@@ -258,6 +258,44 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void knownPtsClockChangeStopsBeforeOfferingTheChangedFrame() {
+        FakePort port = new FakePort();
+        var first = knownFrame(10, 0, 20);
+        var changedClock = new GrpcVideoSourceCapture.SourceFrame("video@v3", 11, 1,
+                false, 701L,
+                VideoFrameTimebase.SourceTimestamp.known(21, 1, 90_000, "other-source-clock"),
+                new byte[] {1});
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(first, changedClock), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isEqualTo(1);
+        assertThat(result.lastSourceCursor()).isEqualTo(10);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
+    @Test
+    void knownPtsTimebaseChangeStopsBeforeOfferingTheChangedFrame() {
+        FakePort port = new FakePort();
+        var first = knownFrame(10, 0, 20);
+        var changedTimebase = new GrpcVideoSourceCapture.SourceFrame("video@v3", 11, 1,
+                false, 701L,
+                VideoFrameTimebase.SourceTimestamp.known(21, 1, 1_000, "source-clock"),
+                new byte[] {1});
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(first, changedTimebase), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isEqualTo(1);
+        assertThat(result.lastSourceCursor()).isEqualTo(10);
+        assertThat(port.offeredSequences).containsExactly(0);
+    }
+
+    @Test
     void backpressureStopsFurtherFrameOffers() {
         FakePort port = new FakePort();
         port.backpressured = true;
