@@ -231,6 +231,9 @@ public final class QualityComparisonAndOptimization {
         operationId = text(operationId, "operationId", 128);
         Objects.requireNonNull(source, "source"); Objects.requireNonNull(budget, "budget");
         Objects.requireNonNull(referenceRequest, "referenceRequest");
+        if (requestedAttempts < 1 || requestedAttempts > budget.maxAttempts()) {
+            throw invalid("requested attempts exceed explicit attempt budget");
+        }
         validateBudget(source, budget);
         if (sourceRights == null) return Run.blocked(RunStatus.UNAVAILABLE, BlockReason.SOURCE_AUTHORITY_UNAVAILABLE);
         AuthorityDecision sourceDecision = checkRights(sourceRights, source.id(), operationId);
@@ -241,8 +244,13 @@ public final class QualityComparisonAndOptimization {
                             ? BlockReason.SOURCE_DENIED : BlockReason.SOURCE_AUTHORITY_UNAVAILABLE);
         }
         if (candidatePort == null) return Run.blocked(RunStatus.UNAVAILABLE, BlockReason.CANDIDATE_PORT_UNAVAILABLE);
-        if (!candidatePort.supports(operationId)) return Run.blocked(RunStatus.NOT_ADMITTED, BlockReason.CANDIDATE_PORT_UNSUPPORTED);
-        if (requestedAttempts < 1 || requestedAttempts > budget.maxAttempts()) throw invalid("requested attempts exceed explicit attempt budget");
+        final boolean supported;
+        try {
+            supported = candidatePort.supports(operationId);
+        } catch (RuntimeException unavailable) {
+            return Run.blocked(RunStatus.UNAVAILABLE, BlockReason.CANDIDATE_PORT_UNAVAILABLE);
+        }
+        if (!supported) return Run.blocked(RunStatus.NOT_ADMITTED, BlockReason.CANDIDATE_PORT_UNSUPPORTED);
 
         ArrayList<Revision> retained = new ArrayList<>();
         retained.add(source);

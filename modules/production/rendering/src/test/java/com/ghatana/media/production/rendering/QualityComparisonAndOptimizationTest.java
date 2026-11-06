@@ -367,6 +367,55 @@ class QualityComparisonAndOptimizationTest {
         assertThat(partialRun.attemptsUsed()).isEqualTo(2);
     }
 
+    @Test
+    void invalidAttemptCountFailsBeforeRightsOrCapabilityReads() {
+        Revision source = revision("source", "v1", "a", 40);
+        AtomicInteger rightsCalls = new AtomicInteger();
+        AtomicInteger capabilityCalls = new AtomicInteger();
+        CandidatePort port = new CandidatePort() {
+            @Override public boolean supports(String operationId) {
+                capabilityCalls.incrementAndGet();
+                return true;
+            }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget budget) {
+                throw new AssertionError("invalid attempt count must not dispatch");
+            }
+        };
+
+        assertThatThrownBy(() -> optimize(OPERATION, source, (id, purpose) -> {
+            rightsCalls.incrementAndGet();
+            return allowed("source-rights");
+        }, port, 0, BUDGET, Optional.empty(), null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("attempt budget");
+
+        assertThat(rightsCalls).hasValue(0);
+        assertThat(capabilityCalls).hasValue(0);
+    }
+
+    @Test
+    void candidateCapabilityProbeFailureReturnsTypedUnavailableWithoutDispatch() {
+        Revision source = revision("source", "v1", "a", 40);
+        AtomicInteger attempts = new AtomicInteger();
+        CandidatePort unavailable = new CandidatePort() {
+            @Override public boolean supports(String operationId) {
+                throw new IllegalStateException("host detail must not escape");
+            }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget budget) {
+                attempts.incrementAndGet();
+                throw new AssertionError("capability failure must not dispatch");
+            }
+        };
+
+        Run result = runOptimization(source, unavailable, 1, BUDGET, null, null);
+
+        assertThat(result.status()).isEqualTo(RunStatus.UNAVAILABLE);
+        assertThat(result.reason()).contains(BlockReason.CANDIDATE_PORT_UNAVAILABLE);
+        assertThat(result.report()).isEmpty();
+        assertThat(result.attemptsUsed()).isZero();
+        assertThat(attempts).hasValue(0);
+    }
+
     private static Run run(Revision source, List<Revision> candidates, Revision reference,
             AuthorityDecision sourceDecision, AuthorityDecision referenceDecision, int attempts, Budget budget) {
         Optional<ReferenceRequest> request = reference == null ? Optional.empty()
