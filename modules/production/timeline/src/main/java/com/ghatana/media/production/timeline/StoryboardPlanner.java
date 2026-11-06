@@ -94,7 +94,7 @@ public final class StoryboardPlanner {
                 "expectedProjectRevisionId"))) {
             throw new ScenePlanConflictException("project revision does not match the saved draft");
         }
-        String request = ownerActionRequestId(requestId);
+        String request = required(requestId, "requestId");
         verifyCurrent(reviewer, plan.brief().purpose(), plan.exactSources());
         ReviewedPlan reviewed = Objects.requireNonNull(authority.appendReview(
                 reviewer, saved, expectedProjectRevisionId, request),

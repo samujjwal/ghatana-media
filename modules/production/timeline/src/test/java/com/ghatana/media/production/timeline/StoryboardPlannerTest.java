@@ -222,7 +222,7 @@ class StoryboardPlannerTest {
     }
 
     @Test
-    void storyboardSaveAndReviewRequestIdsFollowOwnerActionWireShapeBeforeAuthorityCalls() {
+    void storyboardSaveRequestIdsFollowOwnerActionWireShapeAndReviewRequiresAnIdentity() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
         StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-request", "plan-request", "v1",
                 brief(List.of()), List.of(scene("scene", 0, 0,
@@ -250,9 +250,9 @@ class StoryboardPlannerTest {
             return new StoryboardPlanner.ReviewedPlan(exact, reviewer, revision, "review-" + requestId,
                     StoryboardPlanner.EditionState.REVIEWED);
         };
-        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-request", "bad/id", reviewAuthority))
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-request", " ", reviewAuthority))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("owner-action format");
+                .hasMessageContaining("requestId");
         assertThat(reviewCalls).hasValue(0);
         assertThat(planner.review(OWNER, saved, "head-request", "review:owner-action.v1", reviewAuthority)
                 .reviewReceipt()).isEqualTo("review-review:owner-action.v1");
