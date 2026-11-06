@@ -295,7 +295,7 @@ pub struct AudioQualityMetrics {
     pub clipped_sample_count: usize,
     pub changed_sample_count: usize,
     pub snr_db_vs_reference: Option<f64>,
-    /// Absolute change in zero-lag first-two-channel correlation; None for mono.
+    /// Absolute change in zero-lag stereo correlation; None unless the layout is exactly stereo.
     pub stereo_correlation_delta: Option<f64>,
 }
 
@@ -383,7 +383,7 @@ pub fn compare_audio(
     } else {
         None
     };
-    let stereo_correlation_delta = if source.config.channels >= 2 {
+    let stereo_correlation_delta = if source.config.channels == 2 {
         match (stereo_correlation(source), stereo_correlation(repaired)) {
             (Some(source_corr), Some(repaired_corr)) => Some((source_corr - repaired_corr).abs()),
             _ => None,
@@ -730,5 +730,25 @@ mod tests {
         assert_eq!(result.metrics.source_near_clip_sample_count, 4);
         assert_eq!(result.metrics.clipped_sample_count, 0);
         assert!((result.metrics.stereo_correlation_delta.unwrap() - 2.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn comparison_omits_stereo_correlation_for_multichannel_layouts() {
+        let multichannel = |samples: Vec<f32>| {
+            AudioBuffer::new(
+                samples,
+                crate::AudioConfig {
+                    sample_rate: 8_000,
+                    channels: 3,
+                    sample_format: SampleFormat::F32,
+                },
+            )
+        };
+        let source = multichannel(vec![1.0, 1.0, 0.2, -1.0, -1.0, -0.2]);
+        let repaired = multichannel(vec![1.0, -1.0, 0.1, -1.0, 1.0, -0.1]);
+
+        let result = compare_audio(&source, &repaired, None).unwrap();
+
+        assert_eq!(result.metrics.stereo_correlation_delta, None);
     }
 }
