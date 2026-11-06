@@ -105,6 +105,15 @@ class AnimationJ12ScenarioIntegrationTest {
         var export = renderer.renderAnimated(spec, scene, profile, AnimationRenderer.AnimatedFormat.GIF);
         assertThat(export.status()).isEqualTo(AnimationRenderer.ExportStatus.ENCODED);
         var encoded = export.encoded().orElseThrow();
+        assertThat(encoded.format()).isEqualTo("gif");
+        assertThat(encoded.framesPerSecondNumerator()).isEqualTo(10);
+        assertThat(encoded.framesPerSecondDenominator()).isEqualTo(1);
+        assertThat(encoded.frameDelayCentiseconds()).isEqualTo(10);
+        assertThat(encoded.frameCount()).isEqualTo(3);
+        assertThat(encoded.frameTimes()).containsExactly(
+                new AnimationRenderer.FrameTime(0, "0", "1", "100", "1"),
+                new AnimationRenderer.FrameTime(1, "1", "10", "512", "5"),
+                new AnimationRenderer.FrameTime(2, "1", "5", "524", "5"));
         assertThat(encoded.sha256()).matches("[a-f0-9]{64}");
         assertThat(encoded.sha256()).isNotEqualTo(binding.sourceDigest()); // Fixture source and output have distinct digests.
         assertThat(decodeGifFrameCount(encoded.bytes())).isEqualTo(3);
