@@ -82,9 +82,7 @@ public final class VersionedReviewEngine {
     public ReviewSnapshot inspect(Actor actor, ReviewCaseRef reviewCase) {
         Objects.requireNonNull(actor, "actor");
         Objects.requireNonNull(reviewCase, "reviewCase");
-        AuthorizationDecision authority = authorize(actor, reviewCase, INSPECT_OPERATION);
-        Currentness currentness = authority.currentnessFor(reviewCase.reviewSubjectRef());
-        if (currentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
+        authorize(actor, reviewCase, INSPECT_OPERATION);
         List<ReviewRecord> stored = store.read(actor, reviewCase);
         if (stored == null) throw new ReviewUnavailableException();
         List<ReviewRecord> ordered = stored.stream().map(record -> {
@@ -94,9 +92,15 @@ public final class VersionedReviewEngine {
         for (int index = 0; index < ordered.size(); index++) {
             if (ordered.get(index).caseRevision() != index + 1L) throw new ReviewUnavailableException();
         }
-        List<RecordObservation> observations = ordered.stream()
-                .map(record -> new RecordObservation(redacted(record),
-                        authority.currentnessFor(record.reviewSubjectRef()))).toList();
+        List<ReviewRecord> redactedRecords = ordered.stream().map(this::redacted).toList();
+        // Recheck after storage and redaction, at the disclosure boundary. A read may race with
+        // reviewer revocation or retention expiry just as an append can race with a material edit.
+        AuthorizationDecision disclosureAuthority = authorize(actor, reviewCase, INSPECT_OPERATION);
+        Currentness currentness = disclosureAuthority.currentnessFor(reviewCase.reviewSubjectRef());
+        if (currentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
+        List<RecordObservation> observations = redactedRecords.stream()
+                .map(record -> new RecordObservation(record,
+                        disclosureAuthority.currentnessFor(record.reviewSubjectRef()))).toList();
         return new ReviewSnapshot(reviewCase, observations.size(), observations, currentness, clock.instant());
     }
 

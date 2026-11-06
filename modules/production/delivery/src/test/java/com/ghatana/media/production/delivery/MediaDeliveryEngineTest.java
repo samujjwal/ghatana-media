@@ -82,6 +82,31 @@ class MediaDeliveryEngineTest {
         assertThat(f.engine.find(requestB.tenantId(), requestB.requestId())).get()
                 .extracting(DeliveryResult::tenantId, DeliveryResult::requestId)
                 .containsExactly(requestB.tenantId(), requestB.requestId());
+
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, f.operations);
+        assertThat(restarted.find(requestA.tenantId(), requestA.requestId())).get()
+                .extracting(DeliveryResult::tenantId, DeliveryResult::requestId)
+                .containsExactly(requestA.tenantId(), requestA.requestId());
+        assertThat(restarted.find(requestB.tenantId(), requestB.requestId())).get()
+                .extracting(DeliveryResult::tenantId, DeliveryResult::requestId)
+                .containsExactly(requestB.tenantId(), requestB.requestId());
+    }
+
+    @Test
+    void findUsesCachedTypedKeyAndRejectsMismatchedDurableReadback() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(16));
+        f.engine.export(request);
+        DeliveryOperationStore.Operation mismatched = new DeliveryOperationStore.Operation(
+                request.tenantId(), "principal:other", request.requestId(), "artifact:other",
+                request.artifact().versionRef(), request.artifact().digest(), request.destinationRef(),
+                "different-fingerprint", Status.DESTINATION_CONFIRMED, request.artifact().bytes().length,
+                "destination-receipt:other");
+        f.operations.overrideFind(mismatched);
+
+        assertThatThrownBy(() -> f.engine.find(request.tenantId(), request.requestId()))
+                .isInstanceOf(DeliveryException.class)
+                .hasMessageContaining("readback differs from exact immutable request scope");
     }
 
     @Test
@@ -577,7 +602,13 @@ class MediaDeliveryEngineTest {
     /** In-memory test double for the durable-store capability; PostgreSQL tests prove persistence separately. */
     private static final class ClaimCapableTestStore implements DeliveryOperationStore {
         private final InMemoryDeliveryOperationStore backing = new InMemoryDeliveryOperationStore();
+        private Operation findOverride;
+
+        void overrideFind(Operation operation) { findOverride = operation; }
+
         @Override public Optional<Operation> find(String tenantId, String requestId) {
+            if (findOverride != null && findOverride.tenantId().equals(tenantId)
+                    && findOverride.requestId().equals(requestId)) return Optional.of(findOverride);
             return backing.find(tenantId, requestId);
         }
         @Override public boolean insertIfAbsent(Operation operation) { return backing.insertIfAbsent(operation); }

@@ -130,6 +130,31 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void reviewerRevocationDuringReadIsRecheckedBeforeReturningDisclosure() {
+        AtomicInteger authorizationChecks = new AtomicInteger();
+        ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-1", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("sensitive review detail", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        ReviewStore revokingStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                return List.of(record);
+            }
+        };
+        VersionedReviewEngine engine = engine(revokingStore, (actor, reviewCase, operation, now) -> {
+            boolean allowed = authorizationChecks.getAndIncrement() == 0;
+            return new AuthorizationDecision(allowed ? AuthorizationStatus.ALLOW : AuthorizationStatus.DENY,
+                    actor.tenantId(), actor.principalId(), reviewCase.reviewCaseId(), reviewCase.exactTargetRef(),
+                    reviewCase.scopeRef(), "authority-v1", NOW.plusSeconds(60), V1.reference(), RetentionStatus.ACTIVE);
+        });
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewDeniedException.class);
+        assertThat(authorizationChecks).hasValue(2);
+    }
+
+    @Test
     void appendReceiptMustNameTheExactRequestedRevisionAndPayload() {
         ReviewStore hostileStore = new ReviewStore() {
             @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,

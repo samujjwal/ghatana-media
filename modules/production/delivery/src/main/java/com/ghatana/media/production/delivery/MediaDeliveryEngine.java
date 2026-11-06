@@ -374,7 +374,7 @@ public final class MediaDeliveryEngine {
     }
 
     public synchronized Optional<DeliveryResult> find(String tenantId, String requestId) {
-        Entry entry = entries.get(required(tenantId, "tenantId") + "\u0000" + required(requestId, "requestId"));
+        Entry entry = entries.get(new OperationKey(required(tenantId, "tenantId"), required(requestId, "requestId")));
         if (entry == null) return operations.find(tenantId, requestId).map(MediaDeliveryEngine::result);
         return Optional.of(refreshEntry(entry));
     }
