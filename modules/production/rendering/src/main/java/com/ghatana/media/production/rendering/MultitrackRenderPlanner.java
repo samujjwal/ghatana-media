@@ -4,7 +4,9 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -88,7 +90,8 @@ public final class MultitrackRenderPlanner {
             if (timelineStart.numerator() < 0 || sourceStart.numerator() < 0 || sourceEnd.compareTo(sourceStart) <= 0) {
                 throw invalid("clip times must be non-negative and sourceEnd must follow sourceStart");
             }
-            sourceFramePts = List.copyOf(Objects.requireNonNull(sourceFramePts, "sourceFramePts"));
+            sourceFramePts = boundedCopy(sourceFramePts, MAX_FRAMES_PER_CLIP, "sourceFramePts",
+                    "each clip must retain between 1 and " + MAX_FRAMES_PER_CLIP + " source PTS values");
             if (sourceFramePts.isEmpty() || sourceFramePts.size() > MAX_FRAMES_PER_CLIP) {
                 throw invalid("each clip must retain between 1 and " + MAX_FRAMES_PER_CLIP + " source PTS values");
             }
@@ -141,9 +144,9 @@ public final class MultitrackRenderPlanner {
     public record Graph(List<Clip> clips, List<Caption> captions, List<Transition> transitions,
             long declaredOutputBudgetBytes) {
         public Graph {
-            clips = List.copyOf(Objects.requireNonNull(clips, "clips"));
-            captions = List.copyOf(Objects.requireNonNull(captions, "captions"));
-            transitions = List.copyOf(Objects.requireNonNull(transitions, "transitions"));
+            clips = boundedCopy(clips, MAX_CLIPS, "clips", "graph clip count exceeds limit");
+            captions = boundedCopy(captions, MAX_CAPTIONS, "captions", "caption count exceeds limit");
+            transitions = boundedCopy(transitions, MAX_TRANSITIONS, "transitions", "transition count exceeds limit");
             if (clips.isEmpty() || clips.size() > MAX_CLIPS) throw invalid("graph must contain 1.." + MAX_CLIPS + " clips");
             if (captions.size() > MAX_CAPTIONS) throw invalid("caption count exceeds limit");
             if (transitions.size() > MAX_TRANSITIONS) throw invalid("transition count exceeds limit");
@@ -264,6 +267,23 @@ public final class MultitrackRenderPlanner {
             throw invalid(name + " must be non-empty bounded single-line text");
         }
         return result;
+    }
+
+    /**
+     * Copies caller-owned lists only after checking the advertised bound, and
+     * caps iteration as well in case a custom List reports an inaccurate size.
+     */
+    private static <T> List<T> boundedCopy(List<T> values, int maximum, String name, String limitMessage) {
+        Objects.requireNonNull(values, name);
+        int reportedSize = values.size();
+        if (reportedSize > maximum) throw invalid(limitMessage);
+        var copy = new ArrayList<T>(reportedSize);
+        Iterator<T> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() == maximum) throw invalid(limitMessage);
+            copy.add(Objects.requireNonNull(iterator.next(), name + " element"));
+        }
+        return List.copyOf(copy);
     }
 
     private static String digest(String value, String name) {

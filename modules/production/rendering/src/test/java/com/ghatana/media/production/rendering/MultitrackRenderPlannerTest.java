@@ -3,6 +3,7 @@ package com.ghatana.media.production.rendering;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.util.AbstractList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -75,6 +76,23 @@ class MultitrackRenderPlannerTest {
         assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Graph(
                 List.of(video("v", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)))),
                 List.of(), List.of(), MultitrackRenderPlanner.MAX_DECLARED_OUTPUT_BYTES + 1));
+    }
+
+    @Test
+    void rejectsAdvertisedOversizedGraphListBeforeTraversingIt() {
+        var traversals = new int[1];
+        List<MultitrackRenderPlanner.Clip> oversized = new AbstractList<>() {
+            @Override public MultitrackRenderPlanner.Clip get(int index) {
+                traversals[0]++;
+                throw new AssertionError("oversized input must be rejected before traversal");
+            }
+
+            @Override public int size() { return MultitrackRenderPlanner.MAX_CLIPS + 1; }
+        };
+
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                new MultitrackRenderPlanner.Graph(oversized, List.of(), List.of(), 1_000));
+        assertThat(traversals[0]).isZero();
     }
 
     @Test
