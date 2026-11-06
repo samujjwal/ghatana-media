@@ -112,6 +112,22 @@ class AudioRepairComparisonTest {
         assertThatIllegalArgumentException().isThrownBy(() -> AudioRepairComparison.compare(oversized, oversized));
     }
 
+    @Test
+    void computesReferenceMetricsForLargeBoundedPcmWithoutPerSamplePayloadCopies() {
+        byte[] bytes = new byte[1024 * 1024];
+        long frames = bytes.length / 2L;
+        Duration duration = Duration.ofNanos(frames * 1_000_000_000L / 8_000);
+        AudioData source = new AudioData(bytes, 8_000, 1, 16, duration, AudioFormat.PCM);
+        AudioData repaired = new AudioData(bytes.clone(), 8_000, 1, 16, duration, AudioFormat.PCM);
+        AudioData reference = new AudioData(bytes.clone(), 8_000, 1, 16, duration, AudioFormat.PCM);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired, reference);
+
+        assertThat(comparison.metrics().hasIndependentReference()).isTrue();
+        assertThat(comparison.metrics().snrDbVsReference()).isEqualTo(Double.POSITIVE_INFINITY);
+        assertThat(comparison.metrics().changedSampleCount()).isZero();
+    }
+
     private static AudioData pcm(int... samples) {
         byte[] bytes = new byte[samples.length * 2];
         for (int index = 0; index < samples.length; index++) {

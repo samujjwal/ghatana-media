@@ -93,6 +93,9 @@ public final class AudioRepairComparison {
     private static Metrics measure(AudioData source, AudioData repaired, AudioData reference) {
         byte[] original = source.data();
         byte[] output = repaired.data();
+        // AudioData.data() returns a defensive copy. Read the reference once so
+        // per-sample metrics stay linear in payload size and allocation.
+        byte[] expectedBytes = reference == null ? null : reference.data();
         long changed = 0;
         double inputEnergy = 0;
         double outputEnergy = 0;
@@ -115,7 +118,7 @@ public final class AudioRepairComparison {
             if (Math.abs(left) >= nearClipThreshold) sourceNearClip++;
             if (Math.abs(right) >= nearClipThreshold) repairedNearClip++;
             if (reference != null) {
-                long expected = readSigned(reference.data(), offset, bytes);
+                long expected = readSigned(expectedBytes, offset, bytes);
                 double error = (double) expected - right;
                 referenceEnergy += (double) expected * expected;
                 errorEnergy += error * error;
