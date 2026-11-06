@@ -194,7 +194,8 @@ public final class MediaDeliveryEngine {
     private final DestinationPort destination;
     private final java.util.function.Supplier<Instant> clock;
     private final DeliveryOperationStore operations;
-    private final Map<String, Entry> entries = new HashMap<>();
+    private record OperationKey(String tenantId, String requestId) {}
+    private final Map<OperationKey, Entry> entries = new HashMap<>();
     private final String dispatcherId = UUID.randomUUID().toString();
     private static final Duration DISPATCH_CLAIM_LEASE = Duration.ofMinutes(5);
 
@@ -234,7 +235,7 @@ public final class MediaDeliveryEngine {
 
     /** Resolve uncertainty first; any resumed send uses the same idempotency identity and verified offset. */
     public synchronized DeliveryResult reconcileAndResume(String tenantId, String requestId) {
-        Entry entry = entries.get(required(tenantId, "tenantId") + "\u0000" + required(requestId, "requestId"));
+        Entry entry = entries.get(new OperationKey(required(tenantId, "tenantId"), required(requestId, "requestId")));
         if (entry == null) throw new DeliveryException(DeliveryException.Code.INVALID_REQUEST, "unknown export request");
         return reconcileAndResume(entry);
     }
@@ -599,7 +600,7 @@ public final class MediaDeliveryEngine {
         return MediaCreationContracts.sha256(material.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
-    private static String key(ExportRequest r) { return r.tenantId() + "\u0000" + r.requestId(); }
+    private static OperationKey key(ExportRequest r) { return new OperationKey(r.tenantId(), r.requestId()); }
     static void validateProgress(Status status, int acknowledgedBytes) {
         if (acknowledgedBytes < 0) throw new IllegalArgumentException("acknowledgedBytes must not be negative");
         boolean requiresZero = status == Status.QUEUED || status == Status.REVOKED || status == Status.UNAVAILABLE;

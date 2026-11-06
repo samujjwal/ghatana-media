@@ -535,6 +535,46 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void qualityRefreshValidatesAndPublishesOneSnapshotOfMutableInput() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-11-03T12:00:00Z");
+        var validated = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "wer", 0.25, now, "reference_only");
+        var substituted = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "hin", "wer", 0.75, now, "reference_only");
+        java.util.List<MediaWorkflowMetrics.ProviderQualitySeriesSample> changingInput =
+                new java.util.AbstractList<>() {
+                    private int traversals;
+
+                    @Override
+                    public int size() {
+                        return 1;
+                    }
+
+                    @Override
+                    public MediaWorkflowMetrics.ProviderQualitySeriesSample get(int index) {
+                        throw new UnsupportedOperationException("iterator supplies the row");
+                    }
+
+                    @Override
+                    public java.util.Iterator<MediaWorkflowMetrics.ProviderQualitySeriesSample> iterator() {
+                        MediaWorkflowMetrics.ProviderQualitySeriesSample row =
+                                traversals++ == 0 ? validated : substituted;
+                        return java.util.List.of(row).iterator();
+                    }
+                };
+
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now, changingInput)).isTrue();
+
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isEqualTo(0.25);
+        assertThat(registry.find("media.provider.quality.measured_value")
+                .tag("locale", "hin").meters()).isEmpty();
+    }
+
+    @Test
     void qualityRefreshRejectsConflictingEqualTimeAndFutureMeasurements() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");

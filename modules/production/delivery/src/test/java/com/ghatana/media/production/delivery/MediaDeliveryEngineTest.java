@@ -59,6 +59,32 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void delimiterBearingTenantAndRequestIdsRemainDistinctOperationKeys() {
+        Fixture f = new Fixture();
+        byte[] bytes = bytes(16);
+        String digest = MediaCreationContracts.sha256(bytes);
+        Artifact artifactA = new Artifact("tenant:1", "artifact:1", "version:1", digest, bytes);
+        Artifact artifactB = new Artifact("tenant:1\u0000left", "artifact:1", "version:1", digest, bytes);
+        ExportRequest requestA = new ExportRequest("tenant:1", "principal:1", "left\u0000request:1",
+                artifactA, "destination:exact");
+        ExportRequest requestB = new ExportRequest("tenant:1\u0000left", "principal:1", "request:1",
+                artifactB, "destination:exact");
+        assertThat(requestA.tenantId() + "\u0000" + requestA.requestId())
+                .isEqualTo(requestB.tenantId() + "\u0000" + requestB.requestId());
+
+        assertThat(f.engine.export(requestA).status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(f.engine.export(requestB).status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(f.operations.find(requestA.tenantId(), requestA.requestId())).isPresent();
+        assertThat(f.operations.find(requestB.tenantId(), requestB.requestId())).isPresent();
+        assertThat(f.engine.find(requestA.tenantId(), requestA.requestId())).get()
+                .extracting(DeliveryResult::tenantId, DeliveryResult::requestId)
+                .containsExactly(requestA.tenantId(), requestA.requestId());
+        assertThat(f.engine.find(requestB.tenantId(), requestB.requestId())).get()
+                .extracting(DeliveryResult::tenantId, DeliveryResult::requestId)
+                .containsExactly(requestB.tenantId(), requestB.requestId());
+    }
+
+    @Test
     void requiresExactDestinationReceiptAndChecksumForConfirmation() {
         Fixture f = new Fixture();
         f.destination.badFinalChecksum = true;

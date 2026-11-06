@@ -9,9 +9,10 @@ import java.util.function.Supplier;
 
 /** Process-local development implementation. Runtime durability requires a persistent store. */
 public final class InMemoryDeliveryOperationStore implements DeliveryOperationStore {
-    private final Map<String, Operation> operations = new HashMap<>();
-    private final Map<String, DispatchClaim> claims = new HashMap<>();
-    private final Map<String, Long> fences = new HashMap<>();
+    private record OperationKey(String tenantId, String requestId) {}
+    private final Map<OperationKey, Operation> operations = new HashMap<>();
+    private final Map<OperationKey, DispatchClaim> claims = new HashMap<>();
+    private final Map<OperationKey, Long> fences = new HashMap<>();
     private final Supplier<Instant> clock;
 
     public InMemoryDeliveryOperationStore() { this(Instant::now); }
@@ -29,7 +30,7 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
     }
 
     @Override public synchronized boolean update(Operation operation) {
-        String key = key(operation.tenantId(), operation.requestId());
+        OperationKey key = key(operation.tenantId(), operation.requestId());
         Operation prior = operations.get(key);
         if (!DeliveryOperationStore.isAllowedTransition(prior, operation)) return false;
         DispatchClaim active = claims.get(key);
@@ -43,7 +44,7 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
         Duration checked = DeliveryOperationStore.checkedLease(lease);
         ownerId = ownerId == null ? "" : ownerId.trim();
         if (ownerId.isEmpty() || ownerId.length() > 255) throw new IllegalArgumentException("ownerId is invalid");
-        String key = key(operation.tenantId(), operation.requestId());
+        OperationKey key = key(operation.tenantId(), operation.requestId());
         Operation stored = operations.get(key);
         if (!operation.equals(stored)) return Optional.empty();
         Instant now = now();
@@ -58,7 +59,7 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
 
     @Override public synchronized Optional<DispatchClaim> renewDispatchClaim(DispatchClaim claim, Duration lease) {
         Duration checked = DeliveryOperationStore.checkedLease(lease);
-        String key = key(claim.tenantId(), claim.requestId());
+        OperationKey key = key(claim.tenantId(), claim.requestId());
         Instant now = now();
         if (!isCurrent(key, claim, now)) return Optional.empty();
         DispatchClaim renewed = claim(operationFor(claim), claim.ownerId(), claim.fence(), now.plus(checked));
@@ -71,14 +72,14 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
     }
 
     @Override public synchronized boolean releaseDispatchClaim(DispatchClaim claim) {
-        String key = key(claim.tenantId(), claim.requestId());
+        OperationKey key = key(claim.tenantId(), claim.requestId());
         if (!isCurrent(key, claim, now())) return false;
         claims.remove(key);
         return true;
     }
 
     @Override public synchronized boolean update(Operation operation, DispatchClaim claim) {
-        String key = key(operation.tenantId(), operation.requestId());
+        OperationKey key = key(operation.tenantId(), operation.requestId());
         if (!claim.matches(operation) || !isCurrent(key, claim, now())) return false;
         Operation prior = operations.get(key);
         if (!DeliveryOperationStore.isAllowedTransition(prior, operation)) return false;
@@ -86,7 +87,7 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
         return true;
     }
 
-    private boolean isCurrent(String key, DispatchClaim claim, Instant now) {
+    private boolean isCurrent(OperationKey key, DispatchClaim claim, Instant now) {
         DispatchClaim stored = claims.get(key);
         Operation operation = operations.get(key);
         return stored != null && operation != null && stored.ownerId().equals(claim.ownerId())
@@ -108,5 +109,5 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
                 operation.requestFingerprint(), ownerId, fence, expiry);
     }
 
-    private static String key(String tenantId, String requestId) { return tenantId + "\u0000" + requestId; }
+    private static OperationKey key(String tenantId, String requestId) { return new OperationKey(tenantId, requestId); }
 }

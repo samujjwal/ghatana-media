@@ -85,6 +85,22 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void directStoreCreateRejectsInvalidTitleBeforeRecordingIdempotencyReceipt() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+
+        for (String invalidTitle : List.of("", "  ", "x".repeat(201))) {
+            assertThatThrownBy(() -> store.create(OWNER, "workspace-a", invalidTitle, "create-title-boundary",
+                    "project-invalid", "revision-invalid", "timeline-invalid"))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        Created created = store.create(OWNER, "workspace-a", "Cut", "create-title-boundary",
+                "project-valid", "revision-valid", "timeline-valid");
+        assertThat(created.createdNow()).isTrue();
+        assertThat(created.project().title()).isEqualTo("Cut");
+    }
+
+    @Test
     void editRestoreDiffAndSourceRevocationUseExactImmutableVersions() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-2");

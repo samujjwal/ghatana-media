@@ -16,6 +16,9 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
                                        String projectId, String initialRevisionId, String timelineId) {
         Objects.requireNonNull(actor, "actor");
         requireCreateProjectRequestId(requestId);
+        if (workspaceId == null || workspaceId.isBlank()) throw new IllegalArgumentException("workspaceId must not be blank");
+        if (title == null || title.isBlank()) throw new IllegalArgumentException("title must not be blank");
+        if (title.length() > 200) throw new IllegalArgumentException("title exceeds the 200 character project limit");
         RequestKey requestKey = new RequestKey(actor.tenantId(), actor.principalId(), required(requestId, "requestId"));
         CreateReceipt prior = requests.get(requestKey);
         if (prior != null) {

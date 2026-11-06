@@ -548,8 +548,18 @@ public final class MediaWorkflowMetrics {
         } catch (IllegalArgumentException invalidIdentity) {
             return false;
         }
-        java.util.List<ProviderQualitySeriesSample> rows =
-                samples == null ? java.util.List.of() : samples;
+        // Take one defensive snapshot before validation and publication. Callers may supply a
+        // mutable collection; iterating it once to validate and again to publish could otherwise
+        // validate one set of labels and register another (or partially publish on mutation).
+        java.util.List<ProviderQualitySeriesSample> rows;
+        try {
+            rows = samples == null ? java.util.List.of()
+                    : java.util.Arrays.asList(samples.toArray(ProviderQualitySeriesSample[]::new));
+        } catch (RuntimeException unstableInput) {
+            registry.counter("media.provider.quality.series.rejected",
+                    "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+            return false;
+        }
         if (rows.size() > MAX_QUALITY_SAMPLES_PER_MODEL) {
             registry.counter("media.provider.quality.series.rejected",
                     "service", safeService, "contract_version", CONTRACT_VERSION).increment();
