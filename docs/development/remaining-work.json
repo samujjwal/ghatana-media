@@ -2050,7 +2050,8 @@
         "media.dev.animation-3d-rig-and-spatial"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: AnimationJ13LocalScenarioSliceTest passed 2/2: exact-source revocation blocks pose/export; eligible fixture input yields bounded local GLB bytes with source revision, frame, digest, exact keyframe metadata and decoded parent/child world-space checks. Still OPEN: hosted project/job/UI integration, durable readback, restart/finality and production renderer qualification."
     },
     {
       "id": "media.dev.outcome-scientific-simulation",
@@ -2284,7 +2285,8 @@
         "media.dev.offline-reconnect"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: offline-reconnect.test.ts passed 10/10: the J-23 scenario retains dirty state offline, detects a stale version, requires explicit rebase, then records fresh rights revocation without dispatch; recreating the queue over the same in-memory store does not replay the revoked edit. This is not process-restart or durable-store proof. Still OPEN: production cross-process encrypted CAS storage, canonical project-edit integration and durable restart evidence."
     },
     {
       "id": "media.dev.outcome-structured-command-batch",
@@ -2307,7 +2309,8 @@
         "media.dev.structured-cli"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Client build passed and the focused J-24 CLI test passed 1/1 (43 unrelated tests filtered): strict duplicate-key JSON and missing-auth inputs fail with exact errors, capture stays NOT_ADMITTED, and unsupported job batch is rejected with no success envelope or credential leakage. Still OPEN: no canonical batch operation exists; network-backed job success/forbidden/timeout/UNKNOWN/restart proof remains unavailable."
     },
     {
       "id": "media.dev.outcome-authorized-agent-outcome",

@@ -705,6 +705,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-13 — Rig/3D spatial render with coordinate/kinematic correctness.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `AnimationJ13LocalScenarioSliceTest` passed 2/2: exact-source revocation blocks pose/export; eligible fixture input yields bounded local GLB bytes with source revision, frame, digest, exact keyframe metadata and decoded parent/child world-space checks. Still OPEN: hosted project/job/UI integration, durable readback, restart/finality and production renderer qualification.
 - **Predecessors:** `media.dev.animation-3d-rig-and-spatial`
 
 **`media.dev.outcome-scientific-simulation`** · OPEN
@@ -779,6 +780,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-23 — Encrypted offline edits, fresh-rights reconnect, version conflict handling.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** `offline-reconnect.test.ts` passed 10/10: the J-23 scenario retains dirty state offline, detects a stale version, requires explicit rebase, then records fresh rights revocation without dispatch; recreating the queue over the same in-memory store does not replay the revoked edit. This is not process-restart or durable-store proof. Still OPEN: production cross-process encrypted CAS storage, canonical project-edit integration and durable restart evidence.
 - **Predecessors:** `media.dev.offline-reconnect`
 
 **`media.dev.outcome-structured-command-batch`** · OPEN
@@ -786,6 +788,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-24 — Authenticated CLI JSON batch with true finality and typed failures.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** Client build passed and the focused J-24 CLI test passed 1/1 (43 unrelated tests filtered): strict duplicate-key JSON and missing-auth inputs fail with exact errors, capture stays `NOT_ADMITTED`, and unsupported `job batch` is rejected with no success envelope or credential leakage. Still OPEN: no canonical batch operation exists; network-backed job success/forbidden/timeout/UNKNOWN/restart proof remains unavailable.
 - **Predecessors:** `media.dev.structured-cli`
 
 **`media.dev.outcome-authorized-agent-outcome`** · OPEN
