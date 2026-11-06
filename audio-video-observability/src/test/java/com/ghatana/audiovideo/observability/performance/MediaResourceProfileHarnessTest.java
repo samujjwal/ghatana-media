@@ -106,6 +106,21 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void failedFixtureOperationCannotBeReportedAsACompletedLoadProfile() throws Exception {
+        MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
+                1, 3, Duration.ofSeconds(2), index -> {
+                    if (index == 1) throw new IOException("fixture failure");
+                });
+
+        assertThat(report.outcome()).isEqualTo(MediaResourceProfileHarness.Outcome.FAILED);
+        assertThat(report.completedOperations()).isEqualTo(3);
+        assertThat(report.failedOperations()).isEqualTo(1);
+        assertThat(report.incompleteOperations()).isZero();
+        assertThat(report.toTsv()).contains("\t1\t0\tFAILED\t");
+        assertThat(report.toTsv()).startsWith("local-test-workload-no-provider\tNOT_ADMITTED\t");
+    }
+
+    @Test
     void reportsRuntimeIdentityAndKeepsUnconfiguredProviderProfileExplicit() throws Exception {
         MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
                 1, 1, Duration.ofSeconds(1), index -> { });
