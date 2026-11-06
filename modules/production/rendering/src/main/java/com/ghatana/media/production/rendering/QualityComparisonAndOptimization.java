@@ -109,7 +109,9 @@ public final class QualityComparisonAndOptimization {
                 if (frame.presentationTicks() <= priorTicks) throw invalid("frame timestamps must strictly increase");
                 priorTicks = frame.presentationTicks();
                 pixels = Math.addExact(pixels, (long) frame.width() * frame.height());
-                bytes = Math.addExact(bytes, frame.rgb().length);
+                // Read the record's private immutable snapshot directly. Calling the
+                // public accessor here would clone the entire payload just to read its length.
+                bytes = Math.addExact(bytes, frame.rgb.length);
             }
             if (pixels > MAX_PIXELS || bytes > MAX_BYTES) throw invalid("revision exceeds pixel or byte bound");
         }
@@ -503,7 +505,7 @@ public final class QualityComparisonAndOptimization {
         return revision.frames().stream().mapToLong(f -> (long) f.width() * f.height()).sum();
     }
     private static long byteCount(Revision revision) {
-        return revision.frames().stream().mapToLong(f -> f.rgb().length).sum();
+        return revision.frames().stream().mapToLong(f -> f.rgb.length).sum();
     }
     private static String text(String value, String field, int max) {
         if (value == null || value.isBlank() || value.length() > max) throw invalid(field + " is required and bounded");

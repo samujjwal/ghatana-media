@@ -41,6 +41,50 @@ class PostgresqlReviewStoreTest {
     private static final Actor ACTOR = new Actor("tenant-review", "reviewer-1");
 
     @Test
+    void revisionOverflowRejectsAppendWithoutChangingCaseOrRecords() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            try (PostgresqlReviewStore registered = new PostgresqlReviewStore(List.of(CASE))) {
+                assertThat(registered.read(ACTOR, CASE)).isEmpty();
+            }
+            try (var connection = DriverManager.getConnection(scopedJdbcUrl(fixture.schema()), POSTGRES.getUsername(),
+                    POSTGRES.getPassword());
+                 var update = connection.prepareStatement("""
+                         UPDATE media_review_cases SET case_revision=?
+                         WHERE tenant_id=? AND review_case_id=?
+                         """)) {
+                update.setLong(1, Long.MAX_VALUE);
+                update.setString(2, CASE.tenantId());
+                update.setString(3, CASE.reviewCaseId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            try (PostgresqlReviewStore store = new PostgresqlReviewStore(List.of(CASE))) {
+                assertThatThrownBy(() -> store.append(ACTOR, CASE, Long.MAX_VALUE, "overflow-request",
+                        "e".repeat(64), "overflow-record", "authority-v1",
+                        new DecisionRecord(Decision.ACCEPT, "reviewed"), Instant.parse("2026-11-06T10:02:00Z")))
+                        .isInstanceOf(ReviewRevisionOverflowException.class);
+            }
+
+            try (var connection = DriverManager.getConnection(scopedJdbcUrl(fixture.schema()), POSTGRES.getUsername(),
+                    POSTGRES.getPassword());
+                 var query = connection.createStatement()) {
+                try (var row = query.executeQuery("SELECT case_revision FROM media_review_cases WHERE tenant_id='tenant-review' AND review_case_id='owner-issued-case'")) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getLong(1)).isEqualTo(Long.MAX_VALUE);
+                }
+                try (var row = query.executeQuery("SELECT COUNT(*) FROM media_review_records WHERE tenant_id='tenant-review' AND review_case_id='owner-issued-case'")) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getLong(1)).isZero();
+                }
+                try (var row = query.executeQuery("SELECT COUNT(*) FROM media_review_idempotency WHERE tenant_id='tenant-review' AND review_case_id='owner-issued-case'")) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getLong(1)).isZero();
+                }
+            }
+        }
+    }
+
+    @Test
     void durableStoreEnforcesExactTenantIdempotencyCasAndRestartReadback() throws Exception {
         try (Fixture fixture = openFixture()) {
             String fingerprint = "a".repeat(64);

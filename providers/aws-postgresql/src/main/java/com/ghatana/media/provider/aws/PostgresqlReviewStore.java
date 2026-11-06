@@ -73,6 +73,7 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
                 if (replay != null) { c.commit(); return replay; }
                 long actual = revision(c, ref);
                 if (actual != expectedRevision) throw new ReviewConflictException(expectedRevision, actual);
+                if (expectedRevision == Long.MAX_VALUE) throw new ReviewRevisionOverflowException();
                 try (PreparedStatement update = c.prepareStatement("""
                         UPDATE media_review_cases SET case_revision=?
                         WHERE tenant_id=? AND review_case_id=? AND case_revision=?
