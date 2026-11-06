@@ -48,6 +48,7 @@ class VisionGrpcDeadlineProviderIntegrationTest {
     void clientDeadlineReachesBoundedProviderAndSuppressesItsLateSuccess() throws Exception {
         VisionDetector detector = mock(VisionDetector.class);
         CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch providerContextCancelled = new CountDownLatch(1);
         CountDownLatch releaseProvider = new CountDownLatch(1);
         CountDownLatch providerFinished = new CountDownLatch(1);
         CountDownLatch queuedProviderStarted = new CountDownLatch(1);
@@ -56,8 +57,10 @@ class VisionGrpcDeadlineProviderIntegrationTest {
         AtomicReference<Context> providerContext = new AtomicReference<>();
         when(detector.detectObjects(any(byte[].class), any(DetectionOptions.class))).thenAnswer(invocation -> {
             if (dispatches.incrementAndGet() == 1) {
-                providerContext.set(Context.current());
-                providerDeadline.set(Context.current().getDeadline());
+                Context context = Context.current();
+                providerContext.set(context);
+                context.addListener(ignored -> providerContextCancelled.countDown(), Runnable::run);
+                providerDeadline.set(context.getDeadline());
                 providerStarted.countDown();
                 try {
                     for (;;) {
@@ -112,6 +115,7 @@ class VisionGrpcDeadlineProviderIntegrationTest {
                     .hasCauseInstanceOf(StatusRuntimeException.class)
                     .satisfies(failure -> assertThat(Status.fromThrowable(failure.getCause()).getCode())
                             .isEqualTo(Status.Code.DEADLINE_EXCEEDED));
+            assertThat(providerContextCancelled.await(1, TimeUnit.SECONDS)).isTrue();
             assertThat(providerContext.get().isCancelled()).isTrue();
 
             var secondCall = callers.submit(() -> VisionServiceGrpc.newBlockingStub(channel)
