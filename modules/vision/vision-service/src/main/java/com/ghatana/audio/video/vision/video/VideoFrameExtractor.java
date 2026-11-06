@@ -263,7 +263,7 @@ public class VideoFrameExtractor {
     public static FrameSelection selectExactFrameAtUs(List<ExtractedFrame> frames, int frameNumber,
                                                         long ptsUs) {
         if (frames == null || frames.isEmpty() || frames.size() > MAX_SELECTABLE_FRAMES
-                || frameNumber < 0 || ptsUs < 0) {
+                || frameNumber < 0) {
             return new FrameSelection(FrameSelectionStatus.INVALID_REQUEST, null);
         }
         ExtractedFrame exactMatch = null;

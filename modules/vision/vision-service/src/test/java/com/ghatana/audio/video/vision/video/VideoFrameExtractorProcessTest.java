@@ -735,6 +735,18 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void exactMicrosecondSelectorPreservesNegativeSourcePts() {
+        var preroll = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("preroll.png"),
+                SourceMediaTimestamp.fromPts("-1", "1/2000"), 0);
+
+        var exact = VideoFrameExtractor.selectExactFrameAtUs(List.of(preroll), 0, -500);
+        assertThat(exact.status()).isEqualTo(VideoFrameExtractor.FrameSelectionStatus.FOUND);
+        assertThat(exact.frame()).isSameAs(preroll);
+        assertThat(VideoFrameExtractor.selectExactFrameAtUs(List.of(preroll), 0, -499).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+    }
+
+    @Test
     void collectedFramesPreserveEmissionSequenceGapsAndExactSourcePts() throws Exception {
         Path output = Files.createDirectory(tempDir.resolve("sequence-gap"));
         Files.write(output.resolve("frame_0001.jpg"), new byte[] {1});

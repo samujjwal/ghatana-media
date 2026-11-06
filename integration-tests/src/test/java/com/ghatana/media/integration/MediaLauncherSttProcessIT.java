@@ -87,7 +87,7 @@ class MediaLauncherSttProcessIT {
             launcher = startLauncher(environmentClasspath, env, log);
             awaitReady(launcher, port);
 
-            byte[] audio = syntheticWav();
+            byte[] audio = syntheticWav((short) 1);
             String sha = sha256(audio);
             String metadata = "\"sourceClockId\":\"fixture-clock\","
                     + "\"sourceClockMappingEvidenceRef\":\"fixture-clock-evidence\","
@@ -110,6 +110,8 @@ class MediaLauncherSttProcessIT {
             String artifactId = artifact.path("artifactId").asText();
             objectReference = artifact.path("objectReference").asText();
             assertThat(artifactId).isNotBlank();
+            assertThat(objectReference).startsWith("s3://" + bucket + "/");
+            String key = URI.create(objectReference).getPath().substring(1);
 
             stopLauncher(launcher);
             launcher = null;
@@ -188,7 +190,6 @@ class MediaLauncherSttProcessIT {
             launcher = null;
 
             try (S3Client s3 = s3()) {
-                String key = URI.create(objectReference).getPath().substring(1);
                 assertThat(s3.getObjectAsBytes(GetObjectRequest.builder().bucket(bucket).key(key).build())
                         .asByteArray()).containsExactly(audio);
             }
@@ -250,7 +251,7 @@ class MediaLauncherSttProcessIT {
             launcher = startLauncher(environmentClasspath, env, log);
             awaitReady(launcher, port);
 
-            byte[] audio = syntheticWav();
+            byte[] audio = syntheticWav((short) 2);
             String sha = sha256(audio);
             String metadata = "\"sourceClockId\":\"fixture-clock\","
                     + "\"sourceClockMappingEvidenceRef\":\"fixture-clock-evidence\","
@@ -655,7 +656,7 @@ class MediaLauncherSttProcessIT {
         }
     }
 
-    private static byte[] syntheticWav() {
+    private static byte[] syntheticWav(short firstSample) {
         int samples = 16000;
         byte[] wav = new byte[44 + samples * 2];
         java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(wav).order(java.nio.ByteOrder.LITTLE_ENDIAN);
@@ -663,6 +664,7 @@ class MediaLauncherSttProcessIT {
                 .put("WAVEfmt ".getBytes(StandardCharsets.US_ASCII)).putInt(16).putShort((short) 1)
                 .putShort((short) 1).putInt(16000).putInt(32000).putShort((short) 2).putShort((short) 16)
                 .put("data".getBytes(StandardCharsets.US_ASCII)).putInt(samples * 2);
+        buffer.putShort(firstSample);
         return wav;
     }
 
