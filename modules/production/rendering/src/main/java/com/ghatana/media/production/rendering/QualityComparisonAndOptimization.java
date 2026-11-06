@@ -308,6 +308,9 @@ public final class QualityComparisonAndOptimization {
     public static Revision undo(Run run, RevisionId exactSourceRevision) {
         Objects.requireNonNull(run, "run"); Objects.requireNonNull(exactSourceRevision, "exactSourceRevision");
         if (run.status() != RunStatus.COMPLETED || run.report().isEmpty()) throw invalid("cannot undo an incomplete optimization run");
+        if (!run.report().orElseThrow().source().equals(exactSourceRevision)) {
+            throw invalid("undo must select the exact source revision from this run");
+        }
         return run.retainedRevisions().stream().filter(revision -> revision.id().equals(exactSourceRevision))
                 .findFirst().orElseThrow(() -> invalid("exact source revision is not retained by this run"));
     }

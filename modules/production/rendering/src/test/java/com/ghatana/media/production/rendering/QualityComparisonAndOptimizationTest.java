@@ -217,6 +217,9 @@ class QualityComparisonAndOptimizationTest {
         Revision restored = undo(first, source.id());
         assertThat(restored.id()).isEqualTo(source.id());
         assertThat(restored.frames().getFirst().rgb()).containsExactly(source.frames().getFirst().rgb());
+        assertThatThrownBy(() -> undo(first, candidates.getFirst().id()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact source revision");
     }
 
     @Test
