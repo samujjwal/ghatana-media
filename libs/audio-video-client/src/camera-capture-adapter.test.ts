@@ -91,6 +91,7 @@ function harness(options: {
   pts?: (epochRef: string, index: number) => bigint | number;
   metadata?: (candidate: CaptureRequest) => CameraTrackSourceMetadata | null;
   mediaDevices?: CameraMediaDevicePort;
+  maxFrames?: number;
 } = {}) {
   const tracks = options.tracks ?? [frameTrack([new Uint8Array([1, 2, 3])])];
   const opens: CaptureRequest[] = [];
@@ -127,7 +128,7 @@ function harness(options: {
     },
   };
   const adapter = new CameraCaptureAdapter({ mediaDevices: options.mediaDevices ?? fakeMediaDevices, consent, frameClock: clock,
-    maxFrameBytes: 64, maxFrames: 10, maxSessionMillis: 10_000 });
+    maxFrameBytes: 64, maxFrames: options.maxFrames ?? 10, maxSessionMillis: 10_000 });
   return {
     adapter,
     opens,
@@ -438,6 +439,51 @@ describe("CameraCaptureAdapter", () => {
     await sourceSession.nextFrame();
     await expectCode(sourceSession.nextFrame(), "PTS_INVALID");
     expect(sourceReorderedTrack.stopCalls).toBe(1);
+  });
+
+  it("serializes concurrent frame reads so the session frame cap cannot be exceeded", async () => {
+    const track = frameTrack([new Uint8Array([1]), new Uint8Array([2])]);
+    const h = harness({ tracks: [track], maxFrames: 1 });
+    const session = await h.adapter.openSession(request);
+
+    const firstRead = session.nextFrame();
+    const secondRead = session.nextFrame();
+    const first = await firstRead;
+    await expectCode(secondRead, "FRAME_LIMIT");
+
+    expect(first.bytes).toEqual(new Uint8Array([1]));
+    expect(track.stopCalls).toBe(1);
+    await session.close();
+    expect(track.stopCalls).toBe(1);
+  });
+
+  it("rejects excess outstanding frame calls before they can queue or reach the track", async () => {
+    let trackReadCalls = 0;
+    let markReadStarted: (() => void) | undefined;
+    let finishTrackRead: ((frame: Uint8Array) => void) | undefined;
+    const readStarted = new Promise<void>((resolve) => { markReadStarted = resolve; });
+    const track: FakeTrack = {
+      stopCalls: 0,
+      nextFrame: () => {
+        trackReadCalls++;
+        markReadStarted?.();
+        return new Promise<Uint8Array>((resolve) => { finishTrackRead = resolve; });
+      },
+      stopTracks() { track.stopCalls++; },
+    };
+    const h = harness({ tracks: [track] });
+    const session = await h.adapter.openSession(request);
+
+    const reads = Array.from({ length: 9 }, () => session.nextFrame());
+    await expectCode(reads[8]!, "FRAME_QUEUE_LIMIT");
+    await readStarted;
+    expect(trackReadCalls).toBe(1);
+
+    await session.close();
+    await Promise.all(reads.slice(0, 8).map((read) => expectCode(read, "SESSION_CLOSED")));
+    finishTrackRead?.(new Uint8Array([1]));
+    expect(trackReadCalls).toBe(1);
+    expect(track.stopCalls).toBe(1);
   });
 
   it("treats device unplug during a frame read as unavailable and releases the device", async () => {

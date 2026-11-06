@@ -288,6 +288,8 @@ const DEFAULT_FRAMES = 30_000;
 const MAX_SESSION_MILLIS = 3_600_000;
 const DEFAULT_SESSION_MILLIS = 300_000;
 const MAX_CAMERA_SESSION_BYTES = MAX_CAPTURED_FRAME_BYTES;
+/** Internal memory-safety ceiling for active plus queued frame requests. */
+const MAX_OUTSTANDING_CAMERA_FRAME_READS = 8;
 
 export type CameraCaptureErrorCode =
   | "INVALID_REQUEST"
@@ -304,6 +306,7 @@ export type CameraCaptureErrorCode =
   | "SIGNAL_UNSUPPORTED"
   | "FRAME_INVALID"
   | "FRAME_LIMIT"
+  | "FRAME_QUEUE_LIMIT"
   | "PTS_INVALID"
   | "DEVICE_SWITCHED"
   | "SESSION_CLOSED";
@@ -508,6 +511,9 @@ export class CameraCaptureSession {
   private bytes = 0;
   private startedAt: number;
   private readonly seenEpochRefs = new Set<string>();
+  /** Serialize reads so concurrent callers cannot overrun frame/byte/session bounds. */
+  private frameReadTail: Promise<void> = Promise.resolve();
+  private outstandingFrameReads = 0;
 
   public constructor(options: CameraCaptureAdapterOptions, request: CaptureRequest,
     limits: CameraCaptureSessionLimits) {
@@ -521,7 +527,22 @@ export class CameraCaptureSession {
     await this.replaceSource(this.request, false);
   }
 
-  public async nextFrame(): Promise<CameraCapturedFrame> {
+  public nextFrame(): Promise<CameraCapturedFrame> {
+    if (this.closed) return Promise.reject(fail("SESSION_CLOSED", "camera capture session is not active"));
+    if (this.outstandingFrameReads >= MAX_OUTSTANDING_CAMERA_FRAME_READS) {
+      return Promise.reject(fail("FRAME_QUEUE_LIMIT", "camera frame request queue reached its internal safety bound"));
+    }
+    this.outstandingFrameReads += 1;
+    const operation = this.frameReadTail.then(() => this.readNextFrame());
+    this.frameReadTail = operation.then(() => {
+      this.outstandingFrameReads -= 1;
+    }, () => {
+      this.outstandingFrameReads -= 1;
+    });
+    return operation;
+  }
+
+  private async readNextFrame(): Promise<CameraCapturedFrame> {
     if (this.closed || this.track === null || this.controller === null) {
       throw fail("SESSION_CLOSED", "camera capture session is not active");
     }
