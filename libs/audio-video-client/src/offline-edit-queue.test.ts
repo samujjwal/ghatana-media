@@ -255,6 +255,36 @@ describe("OfflineEditQueue", () => {
     expect(dispatches).toBe(1);
   });
 
+  it("rechecks revocation after the pre-dispatch fence and never applies after a rights change during storage", async () => {
+    let revoked = false;
+    class RevokingFenceStore extends MemoryStore {
+      override async compareAndSet(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean> {
+        const committed = await super.compareAndSet(expected, replacement);
+        if (committed && replacement.state === "OUTCOME_UNKNOWN") revoked = true;
+        return committed;
+      }
+    }
+
+    const { queue, store } = await createQueue(new RevokingFenceStore());
+    await queue.enqueue(edit);
+    let authorizationReads = 0;
+    let dispatches = 0;
+    const result = await queue.replay(scope, {
+      reauthorize: async () => {
+        authorizationReads++;
+        return revoked ? { authorized: false, disposition: "REVOKED" as const }
+          : { authorized: true, disposition: "AUTHORIZED" as const };
+      },
+      readCurrentVersion: async () => "v7",
+      apply: async () => { dispatches++; return { outcome: "APPLIED" as const, receipt: "receipt" }; },
+    });
+
+    expect(result).toEqual([{ editId: edit.editId, state: "REVOKED" }]);
+    expect(authorizationReads).toBe(2);
+    expect(dispatches).toBe(0);
+    expect(store.records.get(edit.editId)?.state).toBe("REVOKED");
+  });
+
   it("fails closed when the pre-dispatch CAS throws and can retry while the edit remains pending", async () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);

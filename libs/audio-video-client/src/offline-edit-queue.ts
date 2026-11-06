@@ -264,6 +264,38 @@ export class OfflineEditQueue {
         results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
         continue;
       }
+      // The durable barrier can take time (for example, a cross-tab IndexedDB
+      // transaction). Refresh authorization after it so a revocation observed
+      // during that write cannot cross the provider boundary. The canonical
+      // operation must still enforce its own atomic authorization policy.
+      let dispatchAuthorization: Awaited<ReturnType<typeof adapter.reauthorize>>;
+      try {
+        dispatchAuthorization = await adapter.reauthorize(edit);
+      } catch {
+        const reset = await this.transition(dispatchIntent, "PENDING");
+        results.push({ editId: record.editId, state: reset ? "AUTHORIZATION_UNKNOWN" : "OUTCOME_UNKNOWN" });
+        continue;
+      }
+      if (!dispatchAuthorization || typeof dispatchAuthorization.authorized !== "boolean"
+        || (dispatchAuthorization.disposition !== undefined
+          && dispatchAuthorization.disposition !== "AUTHORIZED" && dispatchAuthorization.disposition !== "REVOKED"
+          && dispatchAuthorization.disposition !== "UNKNOWN")
+        || (dispatchAuthorization.authorized && dispatchAuthorization.disposition === "REVOKED")
+        || (!dispatchAuthorization.authorized && dispatchAuthorization.disposition === "AUTHORIZED")) {
+        const reset = await this.transition(dispatchIntent, "PENDING");
+        results.push({ editId: record.editId, state: reset ? "AUTHORIZATION_UNKNOWN" : "OUTCOME_UNKNOWN" });
+        continue;
+      }
+      if (dispatchAuthorization.disposition === "UNKNOWN") {
+        const reset = await this.transition(dispatchIntent, "PENDING");
+        results.push({ editId: record.editId, state: reset ? "AUTHORIZATION_UNKNOWN" : "OUTCOME_UNKNOWN" });
+        continue;
+      }
+      if (!dispatchAuthorization.authorized || dispatchAuthorization.disposition === "REVOKED") {
+        const revoked = await this.transition(dispatchIntent, "REVOKED");
+        results.push({ editId: record.editId, state: revoked ? "REVOKED" : "OUTCOME_UNKNOWN" });
+        continue;
+      }
       // A thrown or malformed result is ambiguous after dispatch; leave the
       // durable record OUTCOME_UNKNOWN until an owner readback resolves it.
       try {

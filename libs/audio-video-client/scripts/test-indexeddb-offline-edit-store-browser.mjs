@@ -211,7 +211,7 @@ try {
     status: "RECONNECTED", dirty: false,
     results: [{ editId: edit.editId, state: "APPLIED", receipt: "fixture-receipt-j23" }],
   });
-  assert.deepEqual(applied.counts, { authorizationReads: 1, versionReads: 2, applyCount: 1 });
+  assert.deepEqual(applied.counts, { authorizationReads: 2, versionReads: 2, applyCount: 1 });
   const duplicateReconnect = await reloadedApp.evaluate(async (counts) => {
     const result = await window.__workflowCoordinator({
       reauthorize: async (queued) => {
@@ -227,7 +227,7 @@ try {
     return { result, counts };
   }, applied.counts);
   assert.deepEqual(duplicateReconnect.result, { status: "RECONNECTED", dirty: false, results: [] });
-  assert.deepEqual(duplicateReconnect.counts, { authorizationReads: 1, versionReads: 2, applyCount: 1 });
+  assert.deepEqual(duplicateReconnect.counts, { authorizationReads: 2, versionReads: 2, applyCount: 1 });
   assert.deepEqual(await readEditProjection(reloadedApp), [
     { edit: { ...rebasedEdit, state: "APPLIED" }, state: "APPLIED" },
   ]);
