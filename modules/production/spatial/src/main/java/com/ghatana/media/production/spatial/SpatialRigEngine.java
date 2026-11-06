@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -209,26 +210,37 @@ public final class SpatialRigEngine {
         public Rig {
             id = required(id, "rig.id"); Objects.requireNonNull(coordinateFrame, "coordinateFrame");
             if (!"UNIT_QUATERNION_XYZW".equals(orientationRepresentation)) throw new IllegalArgumentException("orientation representation must be explicit UNIT_QUATERNION_XYZW");
-            sourceVersions = List.copyOf(Objects.requireNonNull(sourceVersions, "sourceVersions"));
-            if (sourceVersions.size() > MAX_SOURCE_VERSIONS) throw new IllegalArgumentException("rig source-version count exceeds ceiling");
+            sourceVersions = copyBounded(Objects.requireNonNull(sourceVersions, "sourceVersions"),
+                    MAX_SOURCE_VERSIONS, "rig source-version count exceeds ceiling", "sourceVersions[]");
             if (new HashSet<>(sourceVersions).size() != sourceVersions.size()) throw new IllegalArgumentException("rig source versions must be unique");
-            bones = List.copyOf(Objects.requireNonNull(bones, "bones"));
-            if (bones.isEmpty() || bones.size() > MAX_BONES) throw new IllegalArgumentException("rig bone count is outside bounds");
+            bones = copyBounded(Objects.requireNonNull(bones, "bones"), MAX_BONES,
+                    "rig bone count is outside bounds", "bones[]");
+            if (bones.isEmpty()) throw new IllegalArgumentException("rig bone count is outside bounds");
             HashSet<String> ids = new HashSet<>();
             for (Bone bone : bones) if (!ids.add(Objects.requireNonNull(bone, "bones[]").id())) throw new IllegalArgumentException("bone ids must be unique");
             HashMap<String, List<PoseKeyframe>> copied = new HashMap<>();
-            Objects.requireNonNull(tracks, "tracks").forEach((boneId, values) -> {
+            Iterator<? extends Map.Entry<String, List<PoseKeyframe>>> trackEntries =
+                    Objects.requireNonNull(tracks, "tracks").entrySet().iterator();
+            int trackEntryCount = 0;
+            while (trackEntries.hasNext()) {
+                if (trackEntryCount >= MAX_BONES) throw new IllegalArgumentException("pose track count exceeds bone ceiling");
+                Map.Entry<String, List<PoseKeyframe>> entry = trackEntries.next();
+                trackEntryCount++;
+                String boneId = entry.getKey();
+                List<PoseKeyframe> values = entry.getValue();
                 if (!ids.contains(boneId)) throw new IllegalArgumentException("pose track references an unknown bone");
-                List<PoseKeyframe> track = List.copyOf(Objects.requireNonNull(values, "track"));
-                if (track.size() > MAX_TRACKS_PER_BONE) throw new IllegalArgumentException("pose track exceeds keyframe ceiling");
+                List<PoseKeyframe> track = copyBounded(Objects.requireNonNull(values, "track"),
+                        MAX_TRACKS_PER_BONE, "pose track exceeds keyframe ceiling", "track[]");
                 RationalTime prior = null;
                 for (PoseKeyframe keyframe : track) {
                     Objects.requireNonNull(keyframe, "track[]");
                     if (prior != null && keyframe.time().compareTo(prior) <= 0) throw new IllegalArgumentException("pose track times must be strictly increasing");
                     prior = keyframe.time();
                 }
-                copied.put(boneId, track);
-            });
+                if (copied.putIfAbsent(boneId, track) != null) {
+                    throw new IllegalArgumentException("pose track ids must be unique");
+                }
+            }
             tracks = Map.copyOf(copied);
             sourceProjectRevisionRef = sourceProjectRevisionRef == null ? null
                     : required(sourceProjectRevisionRef, "sourceProjectRevisionRef");
@@ -691,5 +703,16 @@ public final class SpatialRigEngine {
     private static String required(String value, String label) {
         if (value == null || value.isBlank() || value.length() > 384 || !value.equals(value.trim())) throw new IllegalArgumentException(label + " must be nonblank, trimmed and bounded");
         return value;
+    }
+
+    private static <T> List<T> copyBounded(Iterable<? extends T> values, int maximum,
+            String limitMessage, String elementLabel) {
+        ArrayList<T> copy = new ArrayList<>(Math.min(maximum, 8));
+        Iterator<? extends T> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= maximum) throw new IllegalArgumentException(limitMessage);
+            copy.add(Objects.requireNonNull(iterator.next(), elementLabel));
+        }
+        return List.copyOf(copy);
     }
 }

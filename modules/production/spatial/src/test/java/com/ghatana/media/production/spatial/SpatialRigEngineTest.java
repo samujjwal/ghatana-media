@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Map;
+import java.util.AbstractList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -125,6 +126,42 @@ class SpatialRigEngineTest {
         assertThatIllegalArgumentException().isThrownBy(() -> rig(canonicalFrame(), List.of(
                 bone("a", "b", SpatialRigEngine.LocalTransform.identity(), Math.PI),
                 bone("b", "a", SpatialRigEngine.LocalTransform.identity(), Math.PI)), Map.of()));
+    }
+
+    @Test
+    void rigCapsConsumeActualCollectionEntriesInsteadOfTrustingReportedSize() {
+        var frame = glbFrame();
+        var root = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
+
+        AtomicInteger sourceReads = new AtomicInteger();
+        List<SpatialRigEngine.SourceVersionRef> sources = new java.util.ArrayList<>();
+        for (int index = 0; index <= SpatialRigEngine.MAX_SOURCE_VERSIONS; index++) {
+            sources.add(new SpatialRigEngine.SourceVersionRef("tenant", "artifact-" + index, "v1"));
+        }
+        assertThatThrownBy(() -> new SpatialRigEngine.Rig("too-many-sources", frame,
+                "UNIT_QUATERNION_XYZW", underreported(sources, sourceReads), List.of(root), Map.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("source-version count");
+        assertThat(sourceReads).hasValue(SpatialRigEngine.MAX_SOURCE_VERSIONS);
+
+        AtomicInteger boneReads = new AtomicInteger();
+        List<SpatialRigEngine.Bone> bones = new java.util.ArrayList<>();
+        for (int index = 0; index <= SpatialRigEngine.MAX_BONES; index++) {
+            bones.add(bone("bone-" + index, null, SpatialRigEngine.LocalTransform.identity(), Math.PI));
+        }
+        assertThatThrownBy(() -> new SpatialRigEngine.Rig("too-many-bones", frame,
+                "UNIT_QUATERNION_XYZW", List.of(), underreported(bones, boneReads), Map.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bone count");
+        assertThat(boneReads).hasValue(SpatialRigEngine.MAX_BONES);
+
+        AtomicInteger keyframeReads = new AtomicInteger();
+        List<SpatialRigEngine.PoseKeyframe> keyframes = new java.util.ArrayList<>();
+        for (int index = 0; index <= SpatialRigEngine.MAX_TRACKS_PER_BONE; index++) {
+            keyframes.add(key(index, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY));
+        }
+        assertThatThrownBy(() -> new SpatialRigEngine.Rig("too-many-keyframes", frame,
+                "UNIT_QUATERNION_XYZW", List.of(), List.of(root), Map.of("root", underreported(keyframes, keyframeReads))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("keyframe ceiling");
+        assertThat(keyframeReads).hasValue(SpatialRigEngine.MAX_TRACKS_PER_BONE);
     }
 
     @Test
@@ -338,5 +375,22 @@ class SpatialRigEngineTest {
     private static SpatialRigEngine.Quaternion axisAngle(SpatialRigEngine.Vec3 axis, double angle) {
         var unit = axis.normalized(); double s = Math.sin(angle / 2);
         return new SpatialRigEngine.Quaternion(unit.x() * s, unit.y() * s, unit.z() * s, Math.cos(angle / 2));
+    }
+
+    private static <T> List<T> underreported(List<T> values, AtomicInteger consumed) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { return values.get(index); }
+            @Override public int size() { return 0; }
+            @Override public java.util.Iterator<T> iterator() {
+                java.util.Iterator<T> delegate = values.iterator();
+                return new java.util.Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public T next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
     }
 }
