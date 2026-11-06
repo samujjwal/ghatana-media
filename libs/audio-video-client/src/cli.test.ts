@@ -675,6 +675,38 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
+  it('rejects bearer credential material inside job parameters before authenticated dispatch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-j24-credential-parameter-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const result = await invoke(jobCommand('https://media.example.test', 'submit', [
+      '--request-id', 'request-j24-credential', '--correlation-id', 'corr-j24-credential', '--artifact', 'artifact-a',
+      '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-j24-credential',
+      '--parameters', JSON.stringify({ nested: { diagnostic: `provider setting ${token}` } }),
+    ]), token, {
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({
+        jobId: 'job-1', requestId: 'request-j24-credential', tenantId: 'tenant-a', principalId: 'principal-a',
+        artifactId: 'artifact-a', jobType: 'SPEECH_TO_TEXT', providerId: null, status: 'ACCEPTED',
+        createdAt: timestamp, startedAt: null, completedAt: null, result: {}, failureCode: null,
+        version: 1, expectedArtifactVersion: '', requestFingerprint: `sha256:${'f'.repeat(64)}`,
+      }),
+      GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+    }, fetchFixture);
+
+    try {
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(result.stderr).toBe(`${JSON.stringify({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'INVALID_INVOCATION',
+        message: '--parameters must not contain bearer credential material.',
+      })}\n`);
+      expect(result.stdout + result.stderr).not.toContain(token);
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
     'rejects invalid, duplicate-key, non-finite, or over-deep JSON parameters before dispatch (%s)', async parameters => {
       const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [

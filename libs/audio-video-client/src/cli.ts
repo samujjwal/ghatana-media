@@ -289,6 +289,10 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
           writeError('INVALID_INVOCATION', error instanceof Error ? error.message : '--parameters is invalid.', {}, 2, args.command);
           return;
         }
+        if (containsCredential(parameters, token)) {
+          writeError('INVALID_INVOCATION', '--parameters must not contain bearer credential material.', {}, 2, args.command);
+          return;
+        }
         job = await client.submitJob({
           requestId: args.values['--request-id']!, correlationId: args.values['--correlation-id']!,
           artifactId: args.values['--artifact']!, jobType: jobType as 'TRANSCODE' | 'SPEECH_TO_TEXT' | 'TEXT_TO_SPEECH' | 'VISION' | 'MULTIMODAL',
