@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.zip.CRC32;
@@ -40,10 +41,7 @@ public final class PngFrameCodec {
         Objects.requireNonNull(timeBase, "timeBase");
         Objects.requireNonNull(limits, "limits");
         Objects.requireNonNull(frames, "frames");
-        if (frames.size() < 3 || frames.size() > TemporalVideoRestoration.MAX_FRAMES) {
-            throw invalid("PNG frame source must contain between 3 and 64 frames");
-        }
-        List<PngFrame> copiedFrames = List.copyOf(frames);
+        List<PngFrame> copiedFrames = copyBoundedFrames(frames);
         FrameMetadata first = copiedFrames.getFirst().metadata();
         long totalPixels = 0, totalEncodedBytes = 0;
         long previousPts = -1;
@@ -72,9 +70,20 @@ public final class PngFrameCodec {
                 || totalPixels * 3 > TemporalVideoRestoration.MAX_TOTAL_RGB_BYTES) {
             throw invalid("PNG frame source exceeds the aggregate pixel or RGB byte budget");
         }
-        List<Frame> decoded = new ArrayList<>(frames.size());
+        List<Frame> decoded = new ArrayList<>(copiedFrames.size());
         for (PngFrame input : copiedFrames) decoded.add(decode(input.png, input.metadata(), limits));
         return new DecodedPngFrameSequence(timeBase, decoded);
+    }
+
+    private static List<PngFrame> copyBoundedFrames(List<PngFrame> frames) {
+        List<PngFrame> copy = new ArrayList<>(TemporalVideoRestoration.MAX_FRAMES);
+        Iterator<PngFrame> iterator = frames.iterator();
+        while (copy.size() < TemporalVideoRestoration.MAX_FRAMES && iterator.hasNext()) {
+            copy.add(Objects.requireNonNull(iterator.next(), "frames[]"));
+        }
+        if (iterator.hasNext()) throw invalid("PNG frame source must contain between 3 and 64 frames");
+        if (copy.size() < 3) throw invalid("PNG frame source must contain between 3 and 64 frames");
+        return List.copyOf(copy);
     }
 
     /** Encodes the candidate's actual RGB8 payload as a single PNG image. */

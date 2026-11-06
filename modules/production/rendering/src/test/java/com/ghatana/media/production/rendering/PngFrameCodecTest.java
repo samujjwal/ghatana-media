@@ -7,7 +7,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
+import java.util.AbstractList;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
@@ -123,6 +125,31 @@ class PngFrameCodecTest {
 
         assertThatThrownBy(() -> PngFrameCodec.decodeSequence(TIME_BASE, frames, limits))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("aggregate encoded byte bound");
+    }
+
+    @Test
+    void rejectsUnderreportedFrameListAfterReadingAtMostTheBoundedFrameCount() {
+        int[] yielded = {0};
+        PngFrameCodec.FrameMetadata metadata =
+                new PngFrameCodec.FrameMetadata(0, 1, 1, 1, new Roi(0, 0, 1, 1));
+        PngFrameCodec.PngFrame frame = new PngFrameCodec.PngFrame(new byte[] {1}, metadata);
+        List<PngFrameCodec.PngFrame> underreported = new AbstractList<>() {
+            @Override public PngFrameCodec.PngFrame get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return 3; }
+            @Override public Iterator<PngFrameCodec.PngFrame> iterator() {
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return yielded[0] < 100; }
+                    @Override public PngFrameCodec.PngFrame next() {
+                        yielded[0]++;
+                        return frame;
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> PngFrameCodec.decodeSequence(TIME_BASE, underreported))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("between 3 and 64 frames");
+        assertThat(yielded[0]).isEqualTo(TemporalVideoRestoration.MAX_FRAMES);
     }
 
     private static PngFrameCodec.PngFrame inputFrame(int index, long pts, Roi roi, byte[] rgb) {
