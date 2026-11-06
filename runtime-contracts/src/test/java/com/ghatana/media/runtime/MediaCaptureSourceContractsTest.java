@@ -11,6 +11,11 @@ import com.ghatana.media.runtime.MediaCaptureSourceContracts.ProbeRequest;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.ProbeResult;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -81,6 +86,32 @@ class MediaCaptureSourceContractsTest {
         assertThat(duplicated.requestedSignals()).containsExactly("screen", "clock", "screen");
         assertThatThrownBy(() -> duplicated.requestedSignals().add("mutate"))
                 .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void captureProbeRejectsUnderreportedSignalListAtObservedLimit() {
+        AtomicInteger reads = new AtomicInteger();
+        java.util.List<String> underreported = new AbstractList<>() {
+            @Override public String get(int index) { throw new AssertionError("iterator should be used"); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<String> iterator() {
+                return new Iterator<>() {
+                    private int index;
+                    @Override public boolean hasNext() { return index < 100; }
+                    @Override public String next() {
+                        if (!hasNext()) throw new NoSuchElementException();
+                        reads.incrementAndGet();
+                        return "signal-" + index++;
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new ProbeRequest("tenant-1", "source-1", "profile-1",
+                underreported, "policy/v1"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("requestedSignals must contain 1..32 entries");
+        assertThat(reads).hasValue(32);
     }
 
     @Test

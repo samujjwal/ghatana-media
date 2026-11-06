@@ -1,5 +1,8 @@
 package com.ghatana.media.runtime;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -21,6 +24,7 @@ import java.util.Objects;
 public final class MediaCaptureSourceContracts {
 
     public static final int MAX_CAPTURED_FRAME_BYTES = 64 * 1024 * 1024;
+    private static final int MAX_REQUESTED_SIGNALS = 32;
     private static final long MAX_SAFE_TIMESTAMP_MILLIS = 9_007_199_254_740_991L;
 
     private MediaCaptureSourceContracts() {
@@ -56,12 +60,30 @@ public final class MediaCaptureSourceContracts {
             requireCaptureField(sourceId);
             requireCaptureField(providerProfileId);
             requireCaptureField(policyRef);
-            if (requestedSignals == null || requestedSignals.isEmpty() || requestedSignals.size() > 32) {
-                throw new IllegalArgumentException("requestedSignals must contain 1..32 entries");
-            }
-            requestedSignals = java.util.List.copyOf(requestedSignals);
+            requestedSignals = copyRequestedSignalsBounded(requestedSignals);
+            if (requestedSignals.isEmpty()) throw new IllegalArgumentException("requestedSignals must contain 1..32 entries");
             requestedSignals.forEach(MediaCaptureSourceContracts::requireCaptureField);
         }
+    }
+
+    /** Copies caller-controlled probe signals only after enforcing both declared and observed bounds. */
+    private static List<String> copyRequestedSignalsBounded(List<String> requestedSignals) {
+        if (requestedSignals == null) throw new IllegalArgumentException("requestedSignals must contain 1..32 entries");
+        int declaredSize = requestedSignals.size();
+        if (declaredSize < 1 || declaredSize > MAX_REQUESTED_SIGNALS) {
+            throw new IllegalArgumentException("requestedSignals must contain 1..32 entries");
+        }
+        ArrayList<String> copy = new ArrayList<>(declaredSize);
+        Iterator<String> iterator = requestedSignals.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= MAX_REQUESTED_SIGNALS) {
+                throw new IllegalArgumentException("requestedSignals must contain 1..32 entries");
+            }
+            String signal = iterator.next();
+            if (signal == null) throw new NullPointerException("requestedSignals contains null");
+            copy.add(signal);
+        }
+        return List.copyOf(copy);
     }
 
     /** Typed probe result. Qualification is an observation and never starts capture. */
