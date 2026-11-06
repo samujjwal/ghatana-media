@@ -69,19 +69,14 @@ public final class AudioRepairComparison {
                 || leftLength > MAX_PCM_BYTES) {
             throw new IllegalArgumentException(label + " must be non-empty bounded PCM with identical format and length");
         }
-        byte[] leftBytes = left.data();
-        byte[] rightBytes = right.data();
-        if (leftBytes.length != leftLength || rightBytes.length != rightLength) {
-            throw new IllegalArgumentException(label + " changed while it was being read");
-        }
         if (!supportedBits(left.bitsPerSample())) {
             throw new IllegalArgumentException("PCM comparison supports signed 16-, 24-, or 32-bit samples");
         }
         int bytesPerSample = left.bitsPerSample() / 8;
-        if (leftBytes.length % (bytesPerSample * left.channels()) != 0) {
+        if (leftLength % (bytesPerSample * left.channels()) != 0) {
             throw new IllegalArgumentException("PCM payload must contain complete interleaved frames");
         }
-        long frames = leftBytes.length / ((long) bytesPerSample * left.channels());
+        long frames = leftLength / ((long) bytesPerSample * left.channels());
         long expectedNanos = (frames * 1_000_000_000L + left.sampleRate() / 2L) / left.sampleRate();
         if (!left.duration().equals(Duration.ofNanos(expectedNanos))) {
             throw new IllegalArgumentException("PCM duration does not match its frame count and sample rate");
