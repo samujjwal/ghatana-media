@@ -79,16 +79,17 @@ public final class MediaLifecycleEventConsumer {
         String principal = required(consumerPrincipal, "consumerPrincipal");
         String tenant = required(tenantId, "tenantId");
         String reference = required(jobRef, "jobRef");
+        String redactedReference = redactor.redact("aggregate", reference);
         final boolean allowed;
         try {
-            allowed = authorization.mayReadTerminalJob(principal, tenant, reference);
+            allowed = authorization.mayReadTerminalJob(principal, tenant, redactedReference);
         } catch (RuntimeException unavailable) {
             throw new LifecycleEventException(Failure.UNAVAILABLE, "Terminal job authorization is unavailable");
         }
         if (!allowed) throw new LifecycleEventException(Failure.FORBIDDEN, "Terminal job readback is not authorized");
         final Optional<TerminalJobSnapshot> snapshot;
         try {
-            snapshot = terminalJobReadback.read(principal, tenant, reference);
+            snapshot = terminalJobReadback.read(principal, tenant, redactedReference);
         } catch (RuntimeException unavailable) {
             return new TerminalReadbackResult(TerminalReadbackDisposition.UNAVAILABLE, null, 0);
         }

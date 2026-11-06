@@ -166,6 +166,31 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void terminalReadbackPassesOnlyTheStableRedactedAggregateReferenceToPorts() {
+        String rawJobRef = "job-private";
+        String expectedRedactedRef = REDACTOR.redact("aggregate", rawJobRef);
+        var authorizationReference = new java.util.concurrent.atomic.AtomicReference<String>();
+        var readbackReference = new java.util.concurrent.atomic.AtomicReference<String>();
+        var consumer = new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) { return true; }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String redactedJobRef) {
+                authorizationReference.set(redactedJobRef);
+                return true;
+            }
+        }, new MemoryProjection(), (principal, tenant, redactedJobRef) -> {
+            readbackReference.set(redactedJobRef);
+            return Optional.of(new MediaLifecycleEventConsumer.TerminalJobSnapshot(LogicalJobStatus.COMPLETED, 3));
+        });
+
+        var result = consumer.readTerminalJob("consumer-a", "tenant-private", rawJobRef);
+
+        assertThat(result.disposition())
+                .isEqualTo(MediaLifecycleEventConsumer.TerminalReadbackDisposition.TERMINAL_READBACK_CONFIRMED);
+        assertThat(authorizationReference.get()).isEqualTo(expectedRedactedRef).isNotEqualTo(rawJobRef);
+        assertThat(readbackReference.get()).isEqualTo(expectedRedactedRef).isNotEqualTo(rawJobRef);
+    }
+
+    @Test
     void authorizationUnavailableFailsBeforeProjectionAndProjectionFailureIsExplicitlyUnknown() {
         var store = new MemoryProjection();
         var unavailableAuth = new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
