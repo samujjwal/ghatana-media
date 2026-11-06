@@ -3433,12 +3433,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 case COMPLETED, FAILED, CANCELLED, OUTCOME_UNKNOWN -> true;
                 default -> false;
             });
-            if (!allTerminal) {
-                // A known failed child does not make the parent final while another child
-                // may still be executing. Keep the parent recoverable so a later readback
-                // can retain every independently durable child outcome.
-                return true;
-            }
+            // A RUNNING child row alone does not prove a live lease owner or a safe resume
+            // path after restart. Leave the parent for generic OUTCOME_UNKNOWN recovery;
+            // only durable terminal child outcomes can establish parent finality here.
+            if (!allTerminal) return false;
             if (!allCompleted && (anyUnknown || !anyFailed)) return false;
             ProcessingJob terminal;
             if (allCompleted) {

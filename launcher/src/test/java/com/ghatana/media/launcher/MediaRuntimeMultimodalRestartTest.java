@@ -104,7 +104,7 @@ class MediaRuntimeMultimodalRestartTest {
     }
 
     @Test
-    void crashedParentWithFailedAndStillRunningChildrenRemainsRecoverable() throws Exception {
+    void crashedParentWithFailedChildAndUnresolvedSiblingPreservesOutcomeUnknown() throws Exception {
         var root = Files.createTempDirectory("media-mm-restart-sibling-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
         var submitted = new CountDownLatch(1);
@@ -119,18 +119,20 @@ class MediaRuntimeMultimodalRestartTest {
         assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
         awaitStatus(jobStore, "req-mm:stt", JobStatus.FAILED);
         awaitStatus(jobStore, "req-mm:vision", JobStatus.RUNNING);
+        assertThat(jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow().status())
+                .isEqualTo(JobStatus.RUNNING);
         runtime1.close();
 
         var runtime2 = runtime(root, jobStore, providers);
         try {
             var parent = jobStore.findByRequest("tenant-a", "req-mm").orElseThrow();
-            // Restart readback must not turn one known failure into parent finality while
-            // the independently dispatched vision child may still produce an effect.
-            assertThat(parent.status()).isEqualTo(JobStatus.RUNNING);
+            // A failed child cannot finalize the parent while its sibling is still
+            // nonterminal, but RUNNING alone does not prove a live owner after restart.
+            assertThat(parent.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
             assertThat(jobStore.findByRequest("tenant-a", "req-mm:stt").orElseThrow().status())
                     .isEqualTo(JobStatus.FAILED);
             assertThat(jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow().status())
-                    .isEqualTo(JobStatus.RUNNING);
+                    .isEqualTo(JobStatus.OUTCOME_UNKNOWN);
         } finally {
             runtime2.close();
         }
