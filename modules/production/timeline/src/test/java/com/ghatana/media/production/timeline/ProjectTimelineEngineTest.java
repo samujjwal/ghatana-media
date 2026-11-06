@@ -176,6 +176,22 @@ class ProjectTimelineEngineTest {
                 });
     }
 
+    @Test
+    void repeatedFrameAccumulationMatchesExactDirectSumAfterLongDuration() {
+        int frameCount = 1_000_000;
+        RationalTime frameDuration = new RationalTime(1_001, 30_000, 1, Clock.STORY);
+        RationalTime accumulated = new RationalTime(0, 1, 1, Clock.STORY);
+
+        for (int frame = 0; frame < frameCount; frame++) {
+            accumulated = accumulated.plus(frameDuration);
+        }
+
+        RationalTime directSum = new RationalTime((long) frameCount * 1_001, 30_000, 1, Clock.STORY);
+        RationalTime expectedElapsed = new RationalTime(100_100, 3, 1, Clock.STORY);
+        assertThat(accumulated.compareTo(directSum)).isZero();
+        assertThat(accumulated.compareTo(expectedElapsed)).isZero();
+    }
+
     private static Runnable command(ProjectTimelineEngine engine, Created created, String sceneId,
                                     CountDownLatch ready, CountDownLatch go, AtomicInteger success,
                                     AtomicInteger conflicts) {
