@@ -322,6 +322,7 @@
         "media.dev.projection-pre-dispatch-fence-verification"
       ],
       "verificationEvidence": "verified-2026-11-05: FileRunLedgerProjectionState.forExclusiveWriter claims a durable hard-link writer fence; second instance fails closed (ProjectionWriterConflictException); ownership re-verified on every load/save (ProjectionWriterLostException on reclaim); close releases only for matching owner; 6-JVM race test proves exactly one claimant; multi-host still requires transactional CAS (documented, not claimed)",
+      "progress": "2026-11-05: MediaObservationPublicationCoordinatorTest PASS 24/24 with exclusive coordinator claims, mismatched-claim rejection, live source/rights rechecks, lost-receipt no-redispatch and no outbox mutation on denied/unavailable disclosure. Focused pre-dispatch safety evidence only; Data Cloud remains optional and no real projection effect is enabled.",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.projection-pre-dispatch-fence-verification"
@@ -543,7 +544,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: MediaToolExecutionBinderTest 25/25, SpeechToolAdmissionTest 4/4 and VisionMultimodalAdmissionTest 7/7 pass. Claim/replay fencing, fresh authorization, unknown no-redispatch, redaction and zero dispatch without admission remain covered. Still OPEN: no admitted per-tool canonical operation mapping with verified Tools actor, source/version rights/consent and durable output receipt; all four handlers remain typed *_NOT_ADMITTED."
+      "progress": "2026-11-05: MediaToolExecutionBinderTest PASS 25/25, SpeechToolAdmissionTest 4/4 and VisionMultimodalAdmissionTest 7/7. The full agent-tools-media suite now passes after correcting the AT-05 factory test to expect unauthenticated replay denial. Claim/replay fencing, fresh authorization, unknown no-redispatch, redaction and zero dispatch without admission remain covered. Still OPEN: no admitted per-tool canonical operation mapping with verified Tools actor, source/version rights/consent and durable output receipt; all four handlers remain typed *_NOT_ADMITTED."
     },
     {
       "id": "media.dev.optional-data-cloud-adapter",
@@ -719,7 +720,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: STT streaming bounds source timestamp plus chunk duration to the same five-minute sample window as PCM bytes; a rejected overrun does not advance sequence and corrected retry succeeds. SttStreamSequenceValidatorTest PASS 6/6. Still OPEN: durable resume, exact transcript/caption revision persistence, real licensed audio/provider quality and revoked-rights runtime integration."
+      "progress": "2026-11-05: STT stream validation bounds PCM bytes, source timestamp and chunk end to the five-minute sample window; rejected overrun does not advance sequence and a corrected retry succeeds. SttStreamSequenceValidatorTest PASS 6/6. The legacy SttStreamingLatencyEnhancer now increments batchesEmitted only after its emitter returns; its throwing-emitter test confirms failed delivery is not counted and reserved bytes are released; SttStreamingLatencyEnhancerTest PASS 15/15. The helper remains unwired to the canonical RPC. Still OPEN: durable resume, exact transcript/caption revision persistence, real licensed audio/provider quality and revoked-rights runtime integration."
     },
     {
       "id": "media.dev.tts-model-and-rights",
@@ -1043,7 +1044,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added BrowserCameraMediaDevicePort (commits f3404fe2 and 49fc436f) and concrete createBrowserCameraMediaDevicePort (commit 7778de92) using exact-device getUserMedia, bounded JPEG frames, pre-canvas pixel/dimension ceilings, and revoke/cancel teardown. Browser-host tests PASS 6/6; client typecheck PASS. Browser permission prompt remains UNKNOWN and does not trigger a prompt; an already-GRANTED browser permission is required. Still OPEN: no authenticated canonical stream binding, durable source cursor/version/PTS, qualified source-clock mapping, hardware/browser E2E, or camera/mic indicator integration."
+      "progress": "2026-11-05: BrowserCameraMediaDevicePort uses exact-device getUserMedia, bounded JPEG frames and pre-canvas pixel/dimension ceilings; browser permission prompt stays UNKNOWN and does not trigger a prompt. Client typecheck passed. The late-cancellation regression proves a stream resolving after session close is stopped before DOM element creation/playback and reports SESSION_CLOSED; actual permission revocation remains CONSENT_REVOKED. browser-camera-host.test.ts PASS 7/7. Still OPEN: no authenticated canonical stream binding, durable source cursor/version/PTS, qualified source-clock mapping, hardware/browser E2E, or camera/mic indicator integration."
     },
     {
       "id": "media.dev.recorder-actual-execution",
@@ -1272,7 +1273,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Bounded Java audio repair rejects PCM above 16 MiB before copying and now caches the defensive reference PCM copy once per comparison; AudioRepairComparisonTest PASS 7/7, including 1 MiB reference metrics, independent-reference SNR, silence, clipping/phase proxy, drift, signed PCM24/32 full scale, exact SHA-256, source preservation/undo, and size bound. Existing Rust DSP tests are unchanged and were not rerun. Still OPEN: local noise-profile gate and linear declipper lack lawful representative-corpus quality qualification; no learned model/provider or durable project-timeline A/B wiring is admitted."
+      "progress": "2026-11-05: The Java comparison path rejects PCM above 16 MiB before copying and caches the defensive reference copy once per comparison. AudioRepairComparisonTest PASS 7/7, including the exact-cap positive (16 MiB accepted) and first complete 16-bit mono frame over cap (16 MiB + 2 bytes rejected), independent-reference metrics, silence, clipping/phase proxy, drift, PCM24/32 full scale, digest, preservation/undo and bounds. This is resource-bound evidence only. Existing Rust DSP tests were not rerun. Still OPEN: lawful representative-corpus quality qualification for the local noise-profile gate and linear declipper; no learned provider or durable project-timeline A/B wiring is admitted."
     },
     {
       "id": "media.dev.video-restoration-and-comparison",
