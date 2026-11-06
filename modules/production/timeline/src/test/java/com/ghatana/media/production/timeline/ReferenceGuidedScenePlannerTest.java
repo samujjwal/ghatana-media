@@ -177,6 +177,30 @@ class ReferenceGuidedScenePlannerTest {
     }
 
     @Test
+    void admittedProviderNullOrExceptionReturnsTypedUnknownWithoutLeakingDetails() {
+        ReferenceGuidedScenePlanner.ModelProvider nullResult = new ReferenceGuidedScenePlanner.ModelProvider() {
+            @Override public boolean admitted() { return true; }
+            @Override public ReferenceGuidedScenePlanner.ModelResult generate(ReferenceGuidedScenePlanner.Candidate candidate) {
+                return null;
+            }
+        };
+        ReferenceGuidedScenePlanner.ModelProvider throwing = new ReferenceGuidedScenePlanner.ModelProvider() {
+            @Override public boolean admitted() { return true; }
+            @Override public ReferenceGuidedScenePlanner.ModelResult generate(ReferenceGuidedScenePlanner.Candidate candidate) {
+                throw new IllegalStateException("provider credential=secret");
+            }
+        };
+        var request = request(List.of(source("reference-image", IMAGE_VERSION, D2)),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue"))));
+        var candidate = planner(new Authority(), nullResult).prepare(ACTOR, request);
+
+        assertThat(planner(new Authority(), nullResult).generateWithModel(candidate))
+                .isEqualTo(new ReferenceGuidedScenePlanner.ModelOutcomeUnknown("PROVIDER_RESULT_MISSING"));
+        assertThat(planner(new Authority(), throwing).generateWithModel(candidate))
+                .isEqualTo(new ReferenceGuidedScenePlanner.ModelOutcomeUnknown("PROVIDER_OUTCOME_UNKNOWN"));
+    }
+
+    @Test
     void staleSourceAndMalformedDigestFailClosed() {
         Authority authority = new Authority();
         authority.set(IMAGE_VERSION, D2, ReferenceGuidedScenePlanner.Decision.STALE);

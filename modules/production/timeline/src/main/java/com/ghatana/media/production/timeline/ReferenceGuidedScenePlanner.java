@@ -70,7 +70,12 @@ public final class ReferenceGuidedScenePlanner {
         verifyCurrentSourceRights(new Actor(candidate.tenantId(), candidate.ownerPrincipalId()), candidate.purpose(),
                 candidate.provenance().stream()
                         .map(p -> new BoundSource(p.role(), p.source(), p.sha256())).toList());
-        return modelProvider.generate(candidate);
+        try {
+            ModelResult result = modelProvider.generate(candidate);
+            return result == null ? new ModelOutcomeUnknown("PROVIDER_RESULT_MISSING") : result;
+        } catch (RuntimeException outcomeUnknown) {
+            return new ModelOutcomeUnknown("PROVIDER_OUTCOME_UNKNOWN");
+        }
     }
 
     private void verifyCurrentSourceRights(Actor actor, String purpose, List<BoundSource> sources) {
@@ -104,9 +109,13 @@ public final class ReferenceGuidedScenePlanner {
         ModelResult generate(Candidate candidate);
     }
 
-    public sealed interface ModelResult permits ModelUnavailable, ModelOutput { }
+    public sealed interface ModelResult permits ModelUnavailable, ModelOutput, ModelOutcomeUnknown { }
     public record ModelUnavailable(String reason) implements ModelResult {
         public ModelUnavailable { reason = required(reason, "reason"); }
+    }
+    /** A dispatched provider call did not yield a trustworthy typed result. */
+    public record ModelOutcomeUnknown(String reason) implements ModelResult {
+        public ModelOutcomeUnknown { reason = required(reason, "reason"); }
     }
     /** Kept in the type system for a future admitted adapter; this planner never fabricates it. */
     public record ModelOutput(String artifactId, String artifactVersionId, String sha256) implements ModelResult {
