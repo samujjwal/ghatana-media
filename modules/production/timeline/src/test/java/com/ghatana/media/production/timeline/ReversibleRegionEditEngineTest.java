@@ -105,6 +105,21 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void bboxTransformOutsideNormalizedEditedFrameIsTypedMappingConflictBeforeRightsCheck() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.TrackedSample outsideFrame = new ReversibleRegionEditEngine.TrackedSample(
+                sourcePts(0), "source-frame-v1", "edited-frame-v1",
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.8, .1, .15, .2)),
+                new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.9, .1, .1, .2)),
+                new ReversibleRegionEditEngine.AffineTransform(1, 0, 0, 1, .2, 0));
+
+        assertThatThrownBy(() -> fixture.prepare(evidence(List.of(outsideFrame))))
+                .isInstanceOf(ReversibleRegionEditEngine.RegionMappingConflictException.class)
+                .hasMessageContaining("outside normalized edited-frame bounds");
+        assertThat(fixture.rightsCalls).isZero();
+    }
+
+    @Test
     void sourceVersionDigestAndFreshRightsMustMatchAtPrepareAndCommit() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.RegionEditPlan plan = fixture.prepare(evidence(List.of(bboxSample(0, .1, .1, 0))));

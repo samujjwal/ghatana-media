@@ -145,7 +145,13 @@ public final class ReversibleRegionEditEngine {
             if (!sample.originalToEdited().preservesArea()) {
                 throw new RegionMappingConflictException("bounding-box frame transform must be finite and invertible");
             }
-            NormalizedBox mapped = sample.originalToEdited().map(sourceBox.box());
+            NormalizedBox mapped;
+            try {
+                mapped = sample.originalToEdited().map(sourceBox.box());
+            } catch (IllegalArgumentException outsideNormalizedFrame) {
+                throw new RegionMappingConflictException(
+                        "declared frame transform maps the tracked box outside normalized edited-frame bounds");
+            }
             if (!near(mapped.x(), editedBox.box().x()) || !near(mapped.y(), editedBox.box().y())
                     || !near(mapped.width(), editedBox.box().width()) || !near(mapped.height(), editedBox.box().height())) {
                 throw new RegionMappingConflictException("caller-supplied edited box drifts from the declared frame transform");
