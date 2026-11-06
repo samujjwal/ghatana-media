@@ -138,13 +138,14 @@ class TemporalVideoRestorationTest {
                 Optional.of(referenceRequest()), binding -> reference,
                 (binding, purpose) -> allowed("reference-decision-v2")).candidate().orElseThrow();
 
-        assertThat(candidate.frames()).extracting(CandidateFrame::rgb)
-                .containsExactly(expectedPixels[0], expectedPixels[1], expectedPixels[2]);
+        for (int index = 0; index < expectedPixels.length; index++) {
+            assertThat(candidate.frames().get(index).rgb()).containsExactly(expectedPixels[index]);
+        }
         assertThat(candidate.lineage().operationId()).isEqualTo(UNSHARP_OPERATION_ID);
         assertThat(candidate.lineage().profileId()).isEqualTo(UNSHARP_PROFILE_ID);
         assertThat(candidate.lineage().parameterVersion()).isEqualTo("noise-profile-v2");
         assertThat(candidate.lineage().parameterSha256()).matches("[a-f0-9]{64}");
-        assertThat(candidate.lineage().outputDisclosure()).contains("round-half-up", "clamp to [0,255]");
+        assertThat(candidate.lineage().outputDisclosure()).contains("Math.round", "clamp to [0,255]");
         assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.EXACT_REFERENCE_MATCH);
         assertThat(candidate.improvementClaimed()).isFalse();
         assertThat(candidate.clippedSamples()).isEqualTo(18);

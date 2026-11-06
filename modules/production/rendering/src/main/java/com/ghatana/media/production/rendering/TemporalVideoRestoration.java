@@ -629,8 +629,8 @@ public final class TemporalVideoRestoration {
     private static String disclosure(FilterParameters filter) {
         return switch (filter.operation()) {
             case TEMPORAL_MEDIAN -> "Applied a per-channel three-frame median. Frame order, dimensions, PTS, rational time base, source revision and pixels outside ROI were preserved. No deblur, color reconstruction, codec output or quality improvement is claimed.";
-            case UNSHARP_MASK -> "Applied RGB8 ROI 3x3 box-blur unsharp mask: round-half-up(original + amount*(original - blur)), then clamp to [0,255]. Edge samples clamp within ROI; clipped sample count and magnitude are reported separately. No codec output or quality improvement is claimed.";
-            case RGB_COLOR_ADJUSTMENT -> "Applied caller-versioned per-channel RGB8 gain/offset: round-half-up(sample*gain + offset), then clamp to [0,255]. Clipped sample count and magnitude are reported separately. No automatic color inference, codec output or quality improvement is claimed.";
+            case UNSHARP_MASK -> "Applied RGB8 ROI 3x3 box-blur unsharp mask: Java Math.round(original + amount*(original - blur)), then clamp to [0,255]. Math.round ties toward positive infinity; edge samples clamp within ROI; clipped sample count and magnitude are reported separately. No codec output or quality improvement is claimed.";
+            case RGB_COLOR_ADJUSTMENT -> "Applied caller-versioned per-channel RGB8 gain/offset: Java Math.round(sample*gain + offset), then clamp to [0,255]. Math.round ties toward positive infinity; clipped sample count and magnitude are reported separately. No automatic color inference, codec output or quality improvement is claimed.";
         };
     }
 

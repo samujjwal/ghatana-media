@@ -48,7 +48,7 @@ class MediaRuntimeMultimodalRestartTest {
                                 "sourceClockId", "src-clock")))));
         var source = artifact(runtime1);
         var childArtifact = artifact(runtime1);
-        runtime1.submit(mmRequest(source, spec(source, childArtifact)));
+        runtime1.submit(mmRequest(source, spec(source, childArtifact)), authenticatedPrincipal());
         assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
         awaitStatus(jobStore, "req-mm:stt", JobStatus.COMPLETED);
         runtime1.close(); // parent attempt thread dies mid-dispatch; job stays RUNNING
@@ -84,7 +84,7 @@ class MediaRuntimeMultimodalRestartTest {
                 failingSttProvider());
         var source = artifact(runtime1);
         var childArtifact = artifact(runtime1);
-        runtime1.submit(mmRequest(source, spec(source, childArtifact)));
+        runtime1.submit(mmRequest(source, spec(source, childArtifact)), authenticatedPrincipal());
         assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
         awaitStatus(jobStore, "req-mm:stt", JobStatus.OUTCOME_UNKNOWN);
         runtime1.close();
@@ -115,7 +115,7 @@ class MediaRuntimeMultimodalRestartTest {
         var sttArtifact = artifact(runtime1);
         var visionArtifact = artifact(runtime1);
         var operation = specWithVision(source, sttArtifact, visionArtifact);
-        runtime1.submit(mmRequest(source, operation));
+        runtime1.submit(mmRequest(source, operation), authenticatedPrincipal());
         assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
         awaitStatus(jobStore, "req-mm:stt", JobStatus.FAILED);
         awaitStatus(jobStore, "req-mm:vision", JobStatus.RUNNING);
@@ -325,6 +325,11 @@ class MediaRuntimeMultimodalRestartTest {
                         MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
             }
         };
+    }
+
+    private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticatedPrincipal() {
+        return new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", "principal-a", Instant.now());
     }
 
     private static com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore

@@ -13,9 +13,10 @@ limits.
 
 The temporal median uses a three-frame per-channel median. Unsharp mask uses a
 3x3 RGB box mean with edges clamped within the ROI, then computes
-`round-half-up(original + amount * (original - blur))`; amount is finite and
+`Math.round(original + amount * (original - blur))`; ties round toward positive
+infinity. Amount is finite and
 bounded to `[0,2]`. RGB adjustment computes
-`round-half-up(sample * channelGain + channelOffset)`; gains are finite in
+`Math.round(sample * channelGain + channelOffset)` with the same tie rule; gains are finite in
 `[0,4]`, offsets are in `[-255,255]`. Both local filters clamp output channels
 to `[0,255]`. All operations preserve input dimensions, ordering, PTS, rational
 time base, exact source version, and pixels outside the explicit ROI. The
