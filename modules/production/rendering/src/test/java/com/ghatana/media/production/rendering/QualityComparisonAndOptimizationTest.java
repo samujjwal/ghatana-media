@@ -101,7 +101,19 @@ class QualityComparisonAndOptimizationTest {
 
         assertThat(comparison.psnr().status()).isEqualTo(MetricStatus.EXACT_MATCH);
         assertThat(comparison.psnr().value()).isEmpty();
+        assertThat(comparison.ssim().value()).hasValue(1.0);
         assertThat(comparison.disposition()).isEqualTo(QualityDisposition.IMPROVED);
+    }
+
+    @Test
+    void framePixelsRemainIsolatedFromCallerMutation() {
+        byte[] callerPixels = {10, 20, 30};
+        RgbFrame frame = new RgbFrame(0, 1, 1, 0, callerPixels);
+        callerPixels[0] = 99;
+        byte[] exposedPixels = frame.rgb();
+        exposedPixels[1] = 88;
+
+        assertThat(frame.rgb()).containsExactly(10, 20, 30);
     }
 
     @Test

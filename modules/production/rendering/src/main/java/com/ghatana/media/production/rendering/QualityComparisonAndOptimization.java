@@ -412,7 +412,7 @@ public final class QualityComparisonAndOptimization {
     private static Metric psnr(Revision a, Revision b) {
         long samples = 0; double squared = 0;
         for (int f = 0; f < a.frames().size(); f++) {
-            byte[] x = a.frames().get(f).rgb(), y = b.frames().get(f).rgb();
+            byte[] x = pixels(a.frames().get(f)), y = pixels(b.frames().get(f));
             for (int i = 0; i < x.length; i++) { double d = (x[i] & 0xff) - (y[i] & 0xff); squared += d * d; samples++; }
         }
         double mse = squared / samples;
@@ -420,35 +420,39 @@ public final class QualityComparisonAndOptimization {
         return new Metric(PSNR_ID, MetricStatus.MEASURED, OptionalDouble.of(10.0 * Math.log10(65_025.0 / mse)));
     }
     private static Metric ssim(Revision a, Revision b) {
-        double[] x = luma(a), y = luma(b);
-        double mx = mean(x), my = mean(y), vx = 0, vy = 0, cov = 0;
-        for (int i = 0; i < x.length; i++) {
-            double dx = x[i] - mx, dy = y[i] - my; vx += dx * dx; vy += dy * dy; cov += dx * dy;
+        // Online population moments keep memory independent of the number of pixels.
+        // The RGB arrays are private immutable snapshots, so internal reads avoid
+        // allocating defensive copies for each metric pass.
+        long count = 0;
+        double meanX = 0, meanY = 0, sumXX = 0, sumYY = 0, sumXY = 0;
+        for (int f = 0; f < a.frames().size(); f++) {
+            byte[] x = pixels(a.frames().get(f)), y = pixels(b.frames().get(f));
+            for (int i = 0; i < x.length; i += 3) {
+                double valueX = luma(x, i), valueY = luma(y, i);
+                count++;
+                double dx = valueX - meanX, dy = valueY - meanY;
+                meanX += dx / count;
+                meanY += dy / count;
+                sumXX += dx * (valueX - meanX);
+                sumYY += dy * (valueY - meanY);
+                sumXY += dx * (valueY - meanY);
+            }
         }
-        double n = x.length;
-        vx /= n; vy /= n; cov /= n;
-        double value = ((2 * mx * my + SSIM_C1) * (2 * cov + SSIM_C2))
-                / ((mx * mx + my * my + SSIM_C1) * (vx + vy + SSIM_C2));
+        double vx = sumXX / count, vy = sumYY / count, cov = sumXY / count;
+        double value = ((2 * meanX * meanY + SSIM_C1) * (2 * cov + SSIM_C2))
+                / ((meanX * meanX + meanY * meanY + SSIM_C1) * (vx + vy + SSIM_C2));
         value = Math.max(-1.0, Math.min(1.0, value));
         return new Metric(SSIM_ID, MetricStatus.MEASURED, OptionalDouble.of(value));
     }
-    private static double[] luma(Revision revision) {
-        int count = Math.toIntExact(revision.frames().stream().mapToLong(f -> (long) f.width() * f.height()).sum());
-        double[] values = new double[count]; int p = 0;
-        for (RgbFrame frame : revision.frames()) {
-            byte[] rgb = frame.rgb();
-            for (int i = 0; i < rgb.length; i += 3) {
-                values[p++] = .2126 * (rgb[i] & 0xff) + .7152 * (rgb[i + 1] & 0xff) + .0722 * (rgb[i + 2] & 0xff);
-            }
-        }
-        return values;
+    private static double luma(byte[] rgb, int offset) {
+        return .2126 * (rgb[offset] & 0xff) + .7152 * (rgb[offset + 1] & 0xff) + .0722 * (rgb[offset + 2] & 0xff);
     }
-    private static double mean(double[] values) { double sum = 0; for (double value : values) sum += value; return sum / values.length; }
+    private static byte[] pixels(RgbFrame frame) { return frame.rgb; }
 
     private static double meanAbsDelta(Revision source, Revision candidate) {
         long total = 0; long count = 0;
         for (int f = 0; f < source.frames().size(); f++) {
-            byte[] x = source.frames().get(f).rgb(), y = candidate.frames().get(f).rgb();
+            byte[] x = pixels(source.frames().get(f)), y = pixels(candidate.frames().get(f));
             for (int i = 0; i < x.length; i++) { total += Math.abs((x[i] & 0xff) - (y[i] & 0xff)); count++; }
         }
         return (double) total / count;
@@ -456,7 +460,7 @@ public final class QualityComparisonAndOptimization {
     private static double spatialActivity(Revision revision) {
         long total = 0, count = 0;
         for (RgbFrame frame : revision.frames()) {
-            byte[] rgb = frame.rgb();
+            byte[] rgb = pixels(frame);
             for (int y = 0; y < frame.height(); y++) for (int x = 0; x < frame.width(); x++) {
                 int pixel = (y * frame.width() + x) * 3;
                 if (x + 1 < frame.width()) for (int c = 0; c < 3; c++) { total += Math.abs((rgb[pixel + c] & 0xff) - (rgb[pixel + 3 + c] & 0xff)); count++; }
