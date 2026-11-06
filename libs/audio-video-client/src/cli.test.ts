@@ -491,6 +491,33 @@ describe('ghatanamedia-api canonical job commands', () => {
     });
   });
 
+  it.each([
+    ['requestId', { requestId: 'another-request' }],
+    ['artifactId', { artifactId: 'another-artifact' }],
+    ['jobType', { jobType: 'TRANSCODE' }],
+  ])('rejects a submit acknowledgement whose %s differs from the request', async (_field, override) => {
+    let requests = 0;
+    await withServer((_request, response) => {
+      requests++;
+      response.writeHead(202, { 'content-type': 'application/json' }).end(JSON.stringify({ ...job, ...override }));
+    }, async endpoint => {
+      const result = await invoke(jobCommand(endpoint, 'submit', [
+        '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
+        '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-1', '--parameters', '{}',
+      ]));
+
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit',
+        code: 'INVALID_MEDIA_RESPONSE',
+        message: 'Media returned a job response that does not match the submitted request.',
+      });
+      expect(result.stderr).not.toContain(token);
+      expect(requests).toBe(1);
+    });
+  });
+
   it('never exits successfully when the canonical submit acknowledgement is OUTCOME_UNKNOWN', async () => {
     await withServer((_request, response) => {
       response.writeHead(202, { 'content-type': 'application/json' }).end(JSON.stringify({ ...job, status: 'OUTCOME_UNKNOWN' }));

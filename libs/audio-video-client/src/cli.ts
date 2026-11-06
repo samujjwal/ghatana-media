@@ -303,6 +303,13 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
         writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.', {}, 1, args.command);
         return;
       }
+      if (args.command === 'job submit'
+        && (job.requestId !== args.values['--request-id']
+          || job.artifactId !== args.values['--artifact']
+          || job.jobType !== args.values['--job-type'])) {
+        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response that does not match the submitted request.', {}, 1, args.command);
+        return;
+      }
       const canonicalJob = { ...job, result: canonicalizeJsonValue(job.result) };
       if (job.status === 'OUTCOME_UNKNOWN') {
         writeError('OUTCOME_UNKNOWN', args.command === 'job status'
