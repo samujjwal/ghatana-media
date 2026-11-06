@@ -406,6 +406,30 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(lineage, "lineage");
             Objects.requireNonNull(sourceDelta, "sourceDelta");
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
+            if (frames.size() < 3 || frames.size() > MAX_FRAMES) {
+                throw invalid("candidate must contain between 3 and 64 ordered frames");
+            }
+            CandidateFrame first = Objects.requireNonNull(frames.getFirst(), "candidate.frames[]");
+            long pixels = 0;
+            long previousPts = -1;
+            for (int index = 0; index < frames.size(); index++) {
+                CandidateFrame frame = Objects.requireNonNull(frames.get(index), "candidate.frames[]");
+                if (frame.frameIndex() != index) {
+                    throw invalid("candidate frame indexes must be contiguous and ordered from zero");
+                }
+                if (frame.presentationTicks() <= previousPts) {
+                    throw invalid("candidate PTS values must strictly increase");
+                }
+                previousPts = frame.presentationTicks();
+                if (frame.width() != first.width() || frame.height() != first.height()
+                        || !frame.roi().equals(first.roi())) {
+                    throw invalid("candidate dimensions and ROI must remain identical within a sequence");
+                }
+                pixels = Math.addExact(pixels, (long) frame.width() * frame.height());
+            }
+            if (pixels > MAX_TOTAL_PIXELS || pixels * 3 > MAX_TOTAL_RGB_BYTES) {
+                throw invalid("candidate exceeds the aggregate pixel or RGB byte budget");
+            }
             if (clippedSamples < 0 || clippedSamples > sourceDelta.comparedSamples() || clippedMagnitude < 0) {
                 throw invalid("clipped sample count is outside the compared ROI sample bound");
             }

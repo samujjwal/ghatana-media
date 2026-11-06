@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 
 import static com.ghatana.media.production.rendering.TemporalVideoRestoration.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -392,6 +394,52 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> new CandidateFrame(0, 0, 1, 1,
                 new Roi(0, 0, 1, 1), rgb, "not-a-digest"))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("digest");
+    }
+
+    @Test
+    void candidateRejectsUnorderedOrStructurallyDriftingFrameLists() {
+        Candidate valid = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.empty(), null, null).candidate().orElseThrow();
+
+        assertThatThrownBy(() -> candidateWith(valid, List.of()))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("between 3 and 64");
+        List<CandidateFrame> reordered = new ArrayList<>(valid.frames());
+        reordered.set(1, reordered.get(2));
+        assertThatThrownBy(() -> candidateWith(valid, reordered))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("contiguous and ordered");
+
+        List<CandidateFrame> duplicatePts = new ArrayList<>(valid.frames());
+        CandidateFrame original = duplicatePts.get(1);
+        duplicatePts.set(1, new CandidateFrame(1, 0, original.width(), original.height(), original.roi(),
+                original.rgb(), original.frameSha256()));
+        assertThatThrownBy(() -> candidateWith(valid, duplicatePts))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("PTS");
+
+        // A candidate cannot mix dimensions/ROI across frames, even if each frame is individually valid.
+        byte[] widePixels = {10, 20, 30, 10, 20, 30};
+        List<CandidateFrame> changedRoi = List.of(
+                candidateFrame(0, 0, new Roi(0, 0, 2, 1), widePixels),
+                candidateFrame(1, 1, new Roi(0, 0, 1, 1), widePixels),
+                candidateFrame(2, 2, new Roi(0, 0, 2, 1), widePixels));
+        assertThatThrownBy(() -> candidateWith(valid, changedRoi))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("dimensions and ROI");
+    }
+
+    private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] pixels) {
+        try {
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(pixels));
+            return new CandidateFrame(index, pts, 2, 1, roi, pixels, digest);
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new AssertionError(impossible);
+        }
+    }
+
+    private static Candidate candidateWith(Candidate source, List<CandidateFrame> frames) {
+        return new Candidate(frames, source.timeBase(), source.lineage(), source.sourceDelta(),
+                source.referenceMetrics(), source.clippedSamples(), source.clippedMagnitude(),
+                true, true, true, false);
     }
 
     @Test
