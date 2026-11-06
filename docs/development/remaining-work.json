@@ -493,7 +493,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: Added a source-free child-process regression proving oversized UTF-8 --parameters returns INVALID_INVOCATION with exit 2; focused selector PASS 1 with 42 other tests filtered, and client typecheck PASS. Commit 67652f4f. Still OPEN: network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence; loopback listen fails with sandbox EPERM."
+      "progress": "2026-11-05: Added a source-free child-process regression proving oversized UTF-8 --parameters returns INVALID_INVOCATION with exit 2; focused selector PASS 1 with 42 other tests filtered, and client typecheck PASS. Commit 67652f4f. Added authenticated capture/recorder negative selector: exact NOT_ADMITTED, exit 3, empty stdout, no bearer-token leak; selector PASS 1/1, commit 52c56584. Still OPEN: no production batch command is defined by the admitted SDK/runtime contract; network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence is unavailable because loopback listen fails with sandbox EPERM."
     },
     {
       "id": "media.dev.public-events",
@@ -542,7 +542,8 @@
         "media.dev.canonical-job-reconciliation"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: MediaToolExecutionBinderTest 25/25, SpeechToolAdmissionTest 4/4 and VisionMultimodalAdmissionTest 7/7 pass. Claim/replay fencing, fresh authorization, unknown no-redispatch, redaction and zero dispatch without admission remain covered. Still OPEN: no admitted per-tool canonical operation mapping with verified Tools actor, source/version rights/consent and durable output receipt; all four handlers remain typed *_NOT_ADMITTED."
     },
     {
       "id": "media.dev.optional-data-cloud-adapter",
@@ -1988,7 +1989,8 @@
         "media.dev.tracked-region-reversible-edits"
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
-      "externalRightsAndQualifiedEffectsNotImplied": true
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "progress": "2026-11-05: Added ReversibleTrackedRegionRecoveryIntegrationTest, commit b8cbea83; focused Gradle selector PASS 1/1. Deterministic in-memory ports bind exact tenant/source digest, frame PTS/timebase and region; revoked/unknown rights leave head and snapshot unchanged, stale revision CAS conflicts, and undo restores exact bytes/metadata. The test does not prove tracking, mask-pixel transformation, durable canonical CAS or journey completion; those remain open."
     },
     {
       "id": "media.dev.outcome-two-dimensional-animation",

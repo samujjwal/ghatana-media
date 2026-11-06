@@ -189,7 +189,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Provide real authenticated CLI for artifact/job/capture/recorder operations.
 - **How:** Separate fixture command names from production CLI, strict JSON schema, exact exit codes, no sync job-success guessing; use the canonical SDK.
 - **Test/exit:** Source-free binary tests with successful result, forbidden operations, timeout/UNKNOWN, schema error and process restart.
-- **Progress:** Existing `libs/audio-video-client/src/cli.ts` uses canonical authenticated SDK calls for artifact/job operations, strict bounded JSON/argument validation, typed NOT_ADMITTED for capture/recorder without SDK routes, and OUTCOME_UNKNOWN on dispatched submit timeout; fixtures use separate command names. Added a source-free child-process regression for oversized UTF-8 `--parameters` (`INVALID_INVOCATION`, exit 2); the focused selector passed 1 test with 42 filtered, and client typecheck passed. Network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence remains open because loopback `listen` fails with sandbox `EPERM`.
+- **Progress:** Existing `libs/audio-video-client/src/cli.ts` uses canonical authenticated SDK calls for artifact/job operations, strict bounded JSON/argument validation, typed NOT_ADMITTED for capture/recorder without SDK routes, and OUTCOME_UNKNOWN on dispatched submit timeout; fixtures use separate command names. Added a source-free child-process regression for oversized UTF-8 `--parameters` (`INVALID_INVOCATION`, exit 2); the focused selector passed 1 test with 42 filtered, and client typecheck passed (commit `67652f4f`). Added an authenticated `capture start` / `recorder start` negative selector proving exact `NOT_ADMITTED`, exit 3, empty stdout, and no bearer-token leak (commit `52c56584`; 1/1 passed). Still OPEN: no production batch command is defined by the admitted SDK/runtime contract, and network-backed success/forbidden/timeout/UNKNOWN/restart CLI evidence is unavailable because loopback `listen` fails with sandbox `EPERM`.
 - **Predecessors:** `media.dev.sdk-canonical-migration`
 
 **`media.dev.public-events`** · OPEN
@@ -205,6 +205,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Replace four handler NOT_ADMITTED-only paths with vetted delegation to Media canonical public ports.
 - **How:** Host supplies verified Tools envelope/actor identity and current rights; binder claim before effect; map to canonical job submit/readback; reauthorize every replay and redact result.
 - **Test/exit:** Four tools: real positive for qualified operation, duplicate, wrong tenant, revoked consent, ambiguous retry, no provider bypass.
+- **Progress:** The claim/replay binder and admission selectors pass: `MediaToolExecutionBinderTest` 25/25, `SpeechToolAdmissionTest` 4/4, and `VisionMultimodalAdmissionTest` 7/7. They cover atomic claim, fresh authorization on replay, unknown no-redispatch, redaction and zero dispatch when a configured delegate lacks admission. Still OPEN: no admitted per-tool mapping to canonical Media operations with verified Tools actor, source/version rights/consent and durable output receipt; the four handlers remain typed `*_NOT_ADMITTED`. Do not enable direct provider delegates.
 - **Predecessors:** `media.dev.exclusive-invocation-claim-verification`, `media.dev.rights-and-policy`, `media.dev.canonical-job-reconciliation`
 
 **`media.dev.optional-data-cloud-adapter`** · OPTIONAL_DEFERRED_NO_CORE_BLOCKER
@@ -675,6 +676,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-11 — Real tracked ROI mask edit with precise version CAS and undo.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
+- **Progress:** Added `ReversibleTrackedRegionRecoveryIntegrationTest` (commit `b8cbea83`); focused Gradle selector PASS 1/1. Its deterministic in-memory ports bind exact tenant/source digest, frame PTS/timebase and region; revoked/unknown rights leave head and snapshot unchanged, stale revision CAS conflicts, and undo restores exact bytes/metadata. The test does not prove tracking, mask-pixel transformation, durable canonical CAS or journey completion; those remain open.
 - **Predecessors:** `media.dev.tracked-region-reversible-edits`
 
 **`media.dev.outcome-two-dimensional-animation`** · OPEN
