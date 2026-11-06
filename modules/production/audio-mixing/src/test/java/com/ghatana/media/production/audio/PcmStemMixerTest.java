@@ -63,7 +63,23 @@ class PcmStemMixerTest {
         assertThat(first.samplePeakAfterCeiling()).isLessThanOrEqualTo(0.7);
         assertThat(first.wavSha256()).isEqualTo(second.wavSha256());
         assertThat(first.pcmSha256()).isEqualTo(second.pcmSha256());
+        assertThat(first.sampleRate()).isEqualTo(RATE);
+        assertThat(first.frameCount()).isEqualTo(loud.length / 2);
+        assertThat(first.rmsDbfsAfterCeiling()).isEqualTo(second.rmsDbfsAfterCeiling());
         assertThat(first.wavSha256()).hasSize(64);
+    }
+
+    @Test
+    void reports_stereo_rms_dbfs_and_exact_sample_clock() {
+        // Both channels carry half-scale constant samples: RMS is 0.5, or approximately -6.02 dBFS.
+        Stem stem = synthetic("half-scale-v1", pcm(new short[] {16_384, 16_384, 16_384, 16_384}),
+                2, 1.0f, 0.0f);
+
+        MixResult result = mix(List.of(stem), 2, 0.98f);
+
+        assertThat(result.sampleRate()).isEqualTo(RATE);
+        assertThat(result.frameCount()).isEqualTo(2);
+        assertThat(result.rmsDbfsAfterCeiling()).isCloseTo(-6.0206, org.assertj.core.data.Offset.offset(0.001));
     }
 
     @Test
@@ -88,6 +104,7 @@ class PcmStemMixerTest {
         MixResult result = mix(List.of(silence), 4, 0.98f);
         assertThat(result.appliedMasterGain()).isEqualTo(1.0f);
         assertThat(result.estimatedTruePeakAfterCeiling()).isZero();
+        assertThat(result.rmsDbfsAfterCeiling()).isEqualTo(Double.NEGATIVE_INFINITY);
         assertThat(result.pcmS16Le()).containsOnly((byte) 0);
 
         expect(ErrorCode.RESOURCE_LIMIT, () -> mix(List.of(), 4, 0.98f));
@@ -129,6 +146,10 @@ class PcmStemMixerTest {
         expect(ErrorCode.RIGHTS_STALE, () -> mix(List.of(stale), 2, 0.98f));
         Stem wrongVersion = asset("asset:v7", evidence("asset:v6", NOW.minusSeconds(60), NOW.plusSeconds(60)));
         expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(wrongVersion), 2, 0.98f));
+        Stem evidenceForOtherStemVersion = new Stem("asset:v8", RATE, 2, 16, pcm,
+                1, 0, new AssetProvenance("asset:v7",
+                evidence("asset:v7", NOW.minusSeconds(60), NOW.plusSeconds(60))));
+        expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(evidenceForOtherStemVersion), 2, 0.98f));
         Stem denied = asset("asset:v7", new RightsEvidence("asset:v7", "rights:v9",
                 RightsPurpose.PCM_STEM_MIX, RightsDisposition.DENIED,
                 NOW.minusSeconds(60), NOW.plusSeconds(60)));

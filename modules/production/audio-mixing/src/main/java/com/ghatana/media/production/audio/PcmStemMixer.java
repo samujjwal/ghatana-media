@@ -120,33 +120,44 @@ public final class PcmStemMixer {
         private final byte[] wav;
         private final String pcmSha256;
         private final String wavSha256;
+        private final int sampleRate;
+        private final int frameCount;
         private final float appliedMasterGain;
         private final double estimatedTruePeakBeforeCeiling;
         private final double estimatedTruePeakAfterCeiling;
         private final double samplePeakAfterCeiling;
+        private final double rmsDbfsAfterCeiling;
 
-        private MixResult(byte[] pcmS16Le, byte[] wav, float appliedMasterGain,
+        private MixResult(byte[] pcmS16Le, byte[] wav, int sampleRate, int frameCount,
+                          float appliedMasterGain,
                           double estimatedTruePeakBeforeCeiling,
                           double estimatedTruePeakAfterCeiling,
-                          double samplePeakAfterCeiling) {
+                          double samplePeakAfterCeiling, double rmsDbfsAfterCeiling) {
             this.pcmS16Le = pcmS16Le.clone();
             this.wav = wav.clone();
             this.pcmSha256 = sha256(this.pcmS16Le);
             this.wavSha256 = sha256(this.wav);
+            this.sampleRate = sampleRate;
+            this.frameCount = frameCount;
             this.appliedMasterGain = appliedMasterGain;
             this.estimatedTruePeakBeforeCeiling = estimatedTruePeakBeforeCeiling;
             this.estimatedTruePeakAfterCeiling = estimatedTruePeakAfterCeiling;
             this.samplePeakAfterCeiling = samplePeakAfterCeiling;
+            this.rmsDbfsAfterCeiling = rmsDbfsAfterCeiling;
         }
 
         public byte[] pcmS16Le() { return pcmS16Le.clone(); }
         public byte[] wav() { return wav.clone(); }
         public String pcmSha256() { return pcmSha256; }
         public String wavSha256() { return wavSha256; }
+        public int sampleRate() { return sampleRate; }
+        public int frameCount() { return frameCount; }
         public float appliedMasterGain() { return appliedMasterGain; }
         public double estimatedTruePeakBeforeCeiling() { return estimatedTruePeakBeforeCeiling; }
         public double estimatedTruePeakAfterCeiling() { return estimatedTruePeakAfterCeiling; }
         public double samplePeakAfterCeiling() { return samplePeakAfterCeiling; }
+        /** Unweighted stereo sample RMS in dBFS; this is not an ITU-R BS.1770 LUFS measurement. */
+        public double rmsDbfsAfterCeiling() { return rmsDbfsAfterCeiling; }
     }
 
     public MixResult mix(List<Stem> stems, MixSpec spec, Clock clock) {
@@ -197,6 +208,7 @@ public final class PcmStemMixer {
         double limiterGain = guardedPeak <= ceiling || guardedPeak == 0.0 ? 1.0 : ceiling / guardedPeak;
         byte[] pcm = new byte[expectedBytes];
         double samplePeak = 0.0;
+        double sumSquares = 0.0;
         for (int index = 0; index < sums.length; index++) {
             double normalized = sums[index] / 32768.0 * limiterGain;
             int quantized = (int) Math.round(normalized * 32768.0);
@@ -204,13 +216,17 @@ public final class PcmStemMixer {
                 throw error(ErrorCode.ENCODE_FAILED, "peak ceiling failed to prevent PCM clipping");
             }
             samplePeak = Math.max(samplePeak, Math.abs(quantized / 32768.0));
+            double normalizedSample = quantized / 32768.0;
+            sumSquares += normalizedSample * normalizedSample;
             pcm[index * 2] = (byte) quantized;
             pcm[index * 2 + 1] = (byte) (quantized >>> 8);
         }
         double peakAfter = estimateTruePeak(spec.frameCount(),
                 (frame, channel) -> decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
-        return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), (float) limiterGain,
-                peakBefore, peakAfter, samplePeak);
+        double rms = Math.sqrt(sumSquares / sums.length);
+        double rmsDbfs = rms == 0.0 ? Double.NEGATIVE_INFINITY : 20.0 * Math.log10(rms);
+        return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), spec.sampleRate(),
+                spec.frameCount(), (float) limiterGain, peakBefore, peakAfter, samplePeak, rmsDbfs);
     }
 
     private static void validateSpec(MixSpec spec) {
@@ -259,6 +275,10 @@ public final class PcmStemMixer {
         }
         if (blank(asset.sourceVersionRef()) || asset.rightsEvidence() == null) {
             throw error(ErrorCode.RIGHTS_MISSING, "asset stem is missing version-bound rights evidence");
+        }
+        if (!stem.versionRef().equals(asset.sourceVersionRef())) {
+            throw error(ErrorCode.RIGHTS_MISSING,
+                    "asset stem version must match the exact source version bound by its rights evidence");
         }
         RightsEvidence evidence = asset.rightsEvidence();
         if (blank(evidence.sourceVersionRef()) || blank(evidence.decisionRef())
