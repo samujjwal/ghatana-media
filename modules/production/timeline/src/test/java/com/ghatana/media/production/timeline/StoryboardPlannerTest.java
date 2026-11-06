@@ -275,7 +275,14 @@ class StoryboardPlannerTest {
         };
         assertThatThrownBy(() -> planner.review(OWNER, saved, "head-request", " ", reviewAuthority))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("requestId");
+                .hasMessageContaining("owner-action format");
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-request", ":starts-with-punctuation", reviewAuthority))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("owner-action format");
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head-request", "r".repeat(129), reviewAuthority))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("owner-action format");
+        assertThat(reviewCalls).hasValue(0);
         assertThat(reviewCalls).hasValue(0);
         assertThat(planner.review(OWNER, saved, "head-request", "review:owner-action.v1", reviewAuthority)
                 .reviewReceipt()).isEqualTo("review-review:owner-action.v1");

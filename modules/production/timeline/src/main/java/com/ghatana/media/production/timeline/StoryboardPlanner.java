@@ -94,7 +94,9 @@ public final class StoryboardPlanner {
                 "expectedProjectRevisionId"))) {
             throw new ScenePlanConflictException("project revision does not match the saved draft");
         }
-        String request = required(requestId, "requestId");
+        // Reviews are append records under the same owner-defined save-storyboard-revision
+        // action, so they must preserve its request identity shape as well.
+        String request = ownerActionRequestId(requestId);
         verifyCurrent(reviewer, plan.brief().purpose(), plan.exactSources());
         ReviewedPlan reviewed = Objects.requireNonNull(authority.appendReview(
                 reviewer, saved, expectedProjectRevisionId, request),
