@@ -28,6 +28,31 @@ public final class PngFrameCodec {
 
     private PngFrameCodec() { }
 
+    /**
+     * Host adapter for PNG frame sequences fetched from an exact, already-authorized artifact revision.
+     * The callback is a trust boundary: it must return only frames decoded from the requested binding. PNG
+     * bytes and caller-supplied frame metadata do not prove that relationship.
+     */
+    @FunctionalInterface
+    public interface ExactPngFrameSource {
+        DecodedPngFrameSequence readExact(ArtifactBinding source);
+    }
+
+    /**
+     * Adapts a trusted host's exact-revision PNG reader to the restoration SPI. Restoration performs the
+     * rights check before invoking this adapter; this method retains the declared timebase, PTS, ROI and
+     * decoded pixels while carrying the source identity from the binding used for the read.
+     */
+    public static DecodedFrameSource asTrustedDecodedFrameSource(ExactPngFrameSource source) {
+        Objects.requireNonNull(source, "source");
+        return binding -> {
+            Objects.requireNonNull(binding, "binding");
+            DecodedPngFrameSequence decoded = Objects.requireNonNull(source.readExact(binding), "decoded PNG sequence");
+            return new DecodedFrameSequence(binding.artifactId(), binding.versionId(), binding.sha256(),
+                    decoded.timeBase(), decoded.frames());
+        };
+    }
+
     /** Decodes a bounded still-frame sequence without claiming which artifact produced those bytes. */
     public static DecodedPngFrameSequence decodeSequence(TimeBase timeBase, List<PngFrame> frames) {
         return decodeSequence(timeBase, frames, Limits.defaults());

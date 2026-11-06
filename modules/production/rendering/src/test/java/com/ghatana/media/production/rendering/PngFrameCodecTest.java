@@ -11,6 +11,8 @@ import java.util.AbstractList;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
 
@@ -75,6 +77,67 @@ class PngFrameCodecTest {
         assertThat(decoded.frames()).extracting(Frame::roi).containsOnly(roi);
         assertThat(decoded.frames()).extracting(Frame::rgb)
                 .containsExactly(candidates.get(0).rgb(), candidates.get(1).rgb(), candidates.get(2).rgb());
+    }
+
+    @Test
+    void trustedPngSourceRestoresAndReencodesWhileRetainingCallerFrameMetadata() {
+        ArtifactBinding binding = sourceBinding();
+        Roi roi = new Roi(1, 0, 1, 1);
+        List<PngFrameCodec.PngFrame> pngs = List.of(
+                inputFrame(0, 0, roi, new byte[] {1, 2, 3, 4, 5, 6}),
+                inputFrame(1, 1_001, roi, new byte[] {11, 12, 13, 40, 50, 60}),
+                inputFrame(2, 3_003, roi, new byte[] {21, 22, 23, 70, 80, 90}));
+        AtomicInteger reads = new AtomicInteger();
+        DecodedFrameSource source = PngFrameCodec.asTrustedDecodedFrameSource(requested -> {
+            reads.incrementAndGet();
+            assertThat(requested).isEqualTo(binding);
+            return PngFrameCodec.decodeSequence(TIME_BASE, pngs);
+        });
+
+        Result result = TemporalVideoRestoration.restore(
+                new RestorationRequest("png-restore", binding),
+                (requested, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "rights-v4"),
+                source,
+                Optional.empty(), null, null);
+
+        assertThat(result.outcome()).isEqualTo(Outcome.COMPLETED);
+        assertThat(reads).hasValue(1);
+        Candidate candidate = result.candidate().orElseThrow();
+        assertThat(candidate.timeBase()).isEqualTo(TIME_BASE);
+        assertThat(candidate.frames()).extracting(CandidateFrame::frameIndex).containsExactly(0, 1, 2);
+        assertThat(candidate.frames()).extracting(CandidateFrame::presentationTicks).containsExactly(0L, 1_001L, 3_003L);
+        assertThat(candidate.frames()).extracting(CandidateFrame::roi).containsOnly(roi);
+        assertThat(candidate.frames().get(1).rgb()).containsExactly(new byte[] {11, 12, 13, 40, 50, 60});
+        assertThat(candidate.lineage().sourceArtifactId()).isEqualTo(binding.artifactId());
+        assertThat(candidate.lineage().sourceVersionId()).isEqualTo(binding.versionId());
+        assertThat(candidate.lineage().sourceSha256()).isEqualTo(binding.sha256());
+
+        PngFrameCodec.EncodedPngFrameSequence output =
+                PngFrameCodec.encodeSequence(candidate.timeBase(), candidate.frames());
+        assertThat(output.timeBase()).isEqualTo(TIME_BASE);
+        assertThat(output.frames()).extracting(frame -> frame.metadata().presentationTicks())
+                .containsExactly(0L, 1_001L, 3_003L);
+        assertThat(PngFrameCodec.decodeSequence(output.timeBase(), output.frames()).frames().get(1).rgb())
+                .containsExactly(candidate.frames().get(1).rgb());
+    }
+
+    @Test
+    void deniedRightsStopBeforeTrustedPngSourceIsRead() {
+        AtomicInteger reads = new AtomicInteger();
+        DecodedFrameSource source = PngFrameCodec.asTrustedDecodedFrameSource(binding -> {
+            reads.incrementAndGet();
+            throw new AssertionError("denied source must not be read");
+        });
+
+        Result result = TemporalVideoRestoration.restore(
+                new RestorationRequest("png-denied", sourceBinding()),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.DENIED, ""),
+                source,
+                Optional.empty(), null, null);
+
+        assertThat(result.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(result.reason()).contains(Reason.SOURCE_RIGHTS_DENIED);
+        assertThat(reads).hasValue(0);
     }
 
     @Test
@@ -215,6 +278,11 @@ class PngFrameCodecTest {
 
     private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] rgb) {
         return new CandidateFrame(index, pts, 2, 1, roi, rgb, sha256(rgb));
+    }
+
+    private static ArtifactBinding sourceBinding() {
+        return new ArtifactBinding("tenant-a", "principal-a", "video-source", "revision-7", "a".repeat(64),
+                "restore-purpose", List.of("rights-evidence-1"), "policy-decision-3");
     }
 
     private static byte[] png(int width, int height, byte[] rgb) {
