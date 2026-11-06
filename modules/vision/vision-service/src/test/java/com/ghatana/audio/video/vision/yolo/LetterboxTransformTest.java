@@ -21,6 +21,23 @@ class LetterboxTransformTest {
                 .hasMessageContaining("Invalid letterbox geometry");
     }
 
+    @Test void rejectsCallerSuppliedAnisotropicTransformsButAllowsYoloXTopLeftPadding() {
+        // This geometry fits inside the canvas, but stretches the 16:9 source to a square.
+        assertThatThrownBy(() -> new LetterboxTransform(1920, 1080, 640,
+                640, 640, 0, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("preserve the source aspect ratio");
+
+        // YOLOX uses top-left placement, while YOLOv8 centers its padding. Both map back
+        // through the same scale-preserving transform with different explicit pad offsets.
+        var topLeft = new LetterboxTransform(1920, 1080, 640, 640, 360, 0, 0);
+        var centered = LetterboxTransform.fit(1920, 1080, 640);
+        assertThat(topLeft.toSourcePixels(new LetterboxTransform.Box(100, 100, 50, 50)).x())
+                .isEqualTo(300.0);
+        assertThat(centered.toSourcePixels(new LetterboxTransform.Box(100, 240, 50, 50)).x())
+                .isEqualTo(300.0);
+    }
+
     @Test void rejectsBoxesWhoseRightOrBottomEdgeOverflows() {
         assertThatThrownBy(() -> new LetterboxTransform.Box(Double.MAX_VALUE, 0, Double.MAX_VALUE, 1))
                 .isInstanceOf(IllegalArgumentException.class);

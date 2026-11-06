@@ -12,6 +12,11 @@ public record LetterboxTransform(
                 || resizedWidth > inputSize - padLeft || resizedHeight > inputSize - padTop) {
             throw new IllegalArgumentException("Invalid letterbox geometry");
         }
+        double scale = Math.min((double) inputSize / sourceWidth, (double) inputSize / sourceHeight);
+        if (!matchesRoundedDimension(resizedWidth, sourceWidth * scale)
+                || !matchesRoundedDimension(resizedHeight, sourceHeight * scale)) {
+            throw new IllegalArgumentException("Letterbox geometry must preserve the source aspect ratio");
+        }
     }
 
     public static LetterboxTransform fit(int sourceWidth, int sourceHeight, int inputSize) {
@@ -45,6 +50,12 @@ public record LetterboxTransform(
 
     private static double clamp(double value, double minimum, double maximum) {
         return Math.max(minimum, Math.min(maximum, value));
+    }
+
+    private static boolean matchesRoundedDimension(int actual, double scaled) {
+        int truncated = Math.max(1, (int) scaled);
+        int rounded = Math.max(1, (int) Math.round(scaled));
+        return actual == truncated || actual == rounded;
     }
 
     public record Box(double x, double y, double width, double height) {
