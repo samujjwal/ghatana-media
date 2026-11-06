@@ -80,11 +80,7 @@ public final class AnimationRenderer {
             if (primitive == Primitive.LINE && strokeWidth <= 0.0) {
                 throw new IllegalArgumentException("line strokeWidth must be positive");
             }
-            Objects.requireNonNull(keyframes, "shape.keyframes");
-            if (keyframes.size() > MAX_KEYFRAMES_PER_SHAPE) {
-                throw new IllegalArgumentException("shape.keyframes exceed the renderer ceiling");
-            }
-            keyframes = List.copyOf(keyframes);
+            keyframes = copyBounded(keyframes, MAX_KEYFRAMES_PER_SHAPE, "shape.keyframes");
         }
     }
 
@@ -165,21 +161,9 @@ public final class AnimationRenderer {
             if (pixels > MAX_FRAME_PIXELS) {
                 throw new IllegalArgumentException("scene frame pixel count exceeds the renderer ceiling");
             }
-            Objects.requireNonNull(shapes, "scene.shapes");
-            if (shapes.size() > MAX_SHAPES) {
-                throw new IllegalArgumentException("scene.shapes exceed the renderer ceiling");
-            }
-            shapes = List.copyOf(shapes);
-            Objects.requireNonNull(particleFields, "scene.particleFields");
-            if (particleFields.size() > MAX_PARTICLE_FIELDS) {
-                throw new IllegalArgumentException("scene.particleFields exceed the renderer ceiling");
-            }
-            particleFields = List.copyOf(particleFields);
-            Objects.requireNonNull(assets, "scene.assets");
-            if (assets.size() > MAX_RASTER_ASSETS) {
-                throw new IllegalArgumentException("scene.assets exceed the renderer ceiling");
-            }
-            assets = List.copyOf(assets);
+            shapes = copyBounded(shapes, MAX_SHAPES, "scene.shapes");
+            particleFields = copyBounded(particleFields, MAX_PARTICLE_FIELDS, "scene.particleFields");
+            assets = copyBounded(assets, MAX_RASTER_ASSETS, "scene.assets");
             HashSet<String> ids = new HashSet<>();
             for (Shape shape : shapes) {
                 Objects.requireNonNull(shape, "scene.shapes[]");
@@ -235,11 +219,18 @@ public final class AnimationRenderer {
     public record Frame(int index, String ptsNumerator, String ptsDenominator,
             String storyTicksNumerator, String storyTicksDenominator, byte[] png) {
         public Frame {
+            if (index < 0 || index >= MAX_FRAMES) {
+                throw new IllegalArgumentException("frame.index is outside the renderer ceiling");
+            }
             Objects.requireNonNull(ptsNumerator, "ptsNumerator");
             Objects.requireNonNull(ptsDenominator, "ptsDenominator");
             Objects.requireNonNull(storyTicksNumerator, "storyTicksNumerator");
             Objects.requireNonNull(storyTicksDenominator, "storyTicksDenominator");
-            png = Objects.requireNonNull(png, "png").clone();
+            Objects.requireNonNull(png, "png");
+            if (png.length == 0 || png.length > MAX_ENCODED_FRAME_BYTES) {
+                throw new IllegalArgumentException("frame PNG bytes exceed the renderer ceiling");
+            }
+            png = png.clone();
         }
 
         @Override
@@ -251,7 +242,7 @@ public final class AnimationRenderer {
     public record RenderedAnimation(AnimationSpecCompiler.ReferencePlan plan, List<Frame> frames) {
         public RenderedAnimation {
             Objects.requireNonNull(plan, "plan");
-            frames = List.copyOf(frames);
+            frames = copyBounded(frames, MAX_FRAMES, "renderedAnimation.frames");
         }
     }
 
@@ -278,15 +269,19 @@ public final class AnimationRenderer {
         public EncodedAnimation {
             Objects.requireNonNull(plan, "plan");
             if (!"gif".equals(format) || framesPerSecondNumerator < 1 || framesPerSecondDenominator < 1
-                    || frameDelayCentiseconds < 1 || frameDelayCentiseconds > 65_535 || frameCount < 1) {
+                    || frameDelayCentiseconds < 1 || frameDelayCentiseconds > 65_535
+                    || frameCount < 1 || frameCount > MAX_FRAMES) {
                 throw new IllegalArgumentException("encoded animation metadata is invalid");
             }
-            frameTimes = List.copyOf(Objects.requireNonNull(frameTimes, "frameTimes"));
+            frameTimes = copyBounded(frameTimes, MAX_FRAMES, "frameTimes");
             if (frameTimes.size() != frameCount) throw new IllegalArgumentException("frame time count must match frame count");
             for (int index = 0; index < frameTimes.size(); index++) {
                 if (frameTimes.get(index).index() != index) throw new IllegalArgumentException("frame times must be ordered");
             }
             Objects.requireNonNull(bytes, "bytes");
+            if (bytes.length == 0 || bytes.length > MAX_ENCODED_ANIMATION_BYTES) {
+                throw new IllegalArgumentException("encoded animation bytes exceed the renderer ceiling");
+            }
             bytes = bytes.clone();
             sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches("^[a-f0-9]{64}$") || !AnimationRenderer.sha256(bytes).equals(sha256)) {
@@ -439,6 +434,26 @@ public final class AnimationRenderer {
     private static String sha256(byte[] bytes) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
         catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
+    }
+
+    private static <T> List<T> copyBounded(List<T> values, int maximum, String field) {
+        Objects.requireNonNull(values, field);
+        int declaredSize = values.size();
+        if (declaredSize < 0 || declaredSize > maximum) {
+            throw new IllegalArgumentException(field + " exceed the renderer ceiling");
+        }
+        ArrayList<T> copy = new ArrayList<>(declaredSize);
+        Iterator<T> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() >= maximum) {
+                throw new IllegalArgumentException(field + " exceed the renderer ceiling");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), field + "[]"));
+        }
+        if (copy.size() != declaredSize) {
+            throw new IllegalArgumentException(field + " size does not match its iterator");
+        }
+        return List.copyOf(copy);
     }
 
     /** Seekable bounded ImageOutputStream for ImageIO writers; allocation never exceeds the output ceiling. */

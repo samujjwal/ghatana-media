@@ -11,8 +11,10 @@ import javax.imageio.stream.ImageInputStream;
 import org.w3c.dom.Node;
 import org.w3c.dom.NamedNodeMap;
 import java.io.ByteArrayInputStream;
+import java.util.AbstractList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -107,6 +109,82 @@ class AnimationRendererTest {
                 new AnimationRenderer.Scene(2_048, 2_048, 0, List.of()),
                 new AnimationRenderer.Profile(24, 1, 9)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("pixel budget");
+    }
+
+    @Test
+    void recordBoundariesRejectDeclaredAndUnderreportedOversizedLists() {
+        var key = new AnimationRenderer.Keyframe(0, 0, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR);
+        assertThatThrownBy(() -> new AnimationRenderer.Shape("too-many-keys", AnimationRenderer.Primitive.RECTANGLE,
+                0, 0, 1, 1, 0, 0xffffffff,
+                underreportedList(0, AnimationRenderer.MAX_KEYFRAMES_PER_SHAPE + 1, key)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("keyframes");
+        assertThatThrownBy(() -> new AnimationRenderer.Shape("declared-too-many-keys", AnimationRenderer.Primitive.RECTANGLE,
+                0, 0, 1, 1, 0, 0xffffffff,
+                declaredOversizedList(AnimationRenderer.MAX_KEYFRAMES_PER_SHAPE + 1)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("keyframes");
+
+        var shape = new AnimationRenderer.Shape("s", AnimationRenderer.Primitive.RECTANGLE,
+                0, 0, 1, 1, 0, 0xffffffff, List.of());
+        var field = new AnimationRenderer.ParticleField("p", 1, 1, 0, 0, 1, 1, 1, 0xffffffff);
+        var asset = new AnimationRenderer.RasterAsset("a", 1, 1, new int[] { 0xffffffff });
+        assertThatThrownBy(() -> new AnimationRenderer.Scene(2, 2, 0,
+                underreportedList(0, AnimationRenderer.MAX_SHAPES + 1, shape)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("shapes");
+        assertThatThrownBy(() -> new AnimationRenderer.Scene(2, 2, 0, List.of(),
+                underreportedList(0, AnimationRenderer.MAX_PARTICLE_FIELDS + 1, field)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("particleFields");
+        assertThatThrownBy(() -> new AnimationRenderer.Scene(2, 2, 0, List.of(), List.of(),
+                underreportedList(0, AnimationRenderer.MAX_RASTER_ASSETS + 1, asset)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("assets");
+    }
+
+    @Test
+    void directFrameAndEncodedAnimationValuesRespectOutputCeilings() {
+        assertThatThrownBy(() -> new AnimationRenderer.Frame(AnimationRenderer.MAX_FRAMES, "0", "1", "0", "1",
+                new byte[] { 1 }))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("index");
+        assertThatThrownBy(() -> new AnimationRenderer.Frame(0, "0", "1", "0", "1",
+                new byte[AnimationRenderer.MAX_ENCODED_FRAME_BYTES + 1]))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("PNG bytes");
+
+        var plan = new AnimationRenderer().render(spec(), new AnimationRenderer.Scene(2, 2, 0, List.of()),
+                new AnimationRenderer.Profile(10, 1, 1)).plan();
+        assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(plan, "gif", 10, 1, 10,
+                AnimationRenderer.MAX_FRAMES + 1, List.of(), "0".repeat(64), new byte[] { 1 }))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("metadata");
+        var time = new AnimationRenderer.FrameTime(0, "0", "1", "0", "1");
+        assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(plan, "gif", 10, 1, 10,
+                AnimationRenderer.MAX_FRAMES, underreportedList(AnimationRenderer.MAX_FRAMES,
+                        AnimationRenderer.MAX_FRAMES + 1, time), "0".repeat(64), new byte[] { 1 }))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frameTimes");
+        assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(plan, "gif", 10, 1, 10,
+                1, List.of(time), "0".repeat(64), new byte[AnimationRenderer.MAX_ENCODED_ANIMATION_BYTES + 1]))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bytes");
+    }
+
+    private static <T> List<T> underreportedList(int reportedSize, int actualSize, T value) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return reportedSize; }
+            @Override public Iterator<T> iterator() {
+                return new Iterator<>() {
+                    private int next;
+                    @Override public boolean hasNext() { return next < actualSize; }
+                    @Override public T next() {
+                        if (!hasNext()) throw new NoSuchElementException();
+                        next++;
+                        return value;
+                    }
+                };
+            }
+        };
+    }
+
+    private static <T> List<T> declaredOversizedList(int size) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return size; }
+        };
     }
 
     @Test
