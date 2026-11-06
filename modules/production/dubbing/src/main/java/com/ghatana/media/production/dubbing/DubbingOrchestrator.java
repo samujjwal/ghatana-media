@@ -2,7 +2,6 @@ package com.ghatana.media.production.dubbing;
 
 import com.ghatana.media.runtime.MediaCreationContracts;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -266,6 +265,9 @@ public final class DubbingOrchestrator {
             return unknown(request, true, 0);
         }
         if (!validTranslation(request, translated)) return invalid(request, true, 0);
+        // Provider list order is not an identity or timing guarantee; align every
+        // downstream list to the exact transcript revision's source segment order.
+        translated = sourceOrder(request, translated);
 
         Map<String, SynthesizedAudio> audioBySegment = new HashMap<>();
         int dispatched = 0;
@@ -284,8 +286,10 @@ public final class DubbingOrchestrator {
             } catch (RuntimeException unknown) {
                 return unknown(request, true, dispatched);
             }
-            if (!validAudio(request, segment, audio)) return invalid(request, true, dispatched);
-            totalAudioBytes += audio.audioBytes().length;
+            if (audio == null) return invalid(request, true, dispatched);
+            byte[] audioBytes = audio.audioBytes();
+            if (!validAudio(request, segment, audio, audioBytes)) return invalid(request, true, dispatched);
+            totalAudioBytes += audioBytes.length;
             if (totalAudioBytes > MAX_TOTAL_AUDIO_BYTES) return invalid(request, true, dispatched);
             audioBySegment.put(segment.segmentId(), audio);
         }
@@ -376,8 +380,18 @@ public final class DubbingOrchestrator {
         return true;
     }
 
-    private boolean validAudio(Request r, TranslatedSegment segment, SynthesizedAudio audio) {
-        return audio != null && r.tenantId().equals(audio.tenantId()) && r.requestId().equals(audio.requestId())
+    private static TranslationResult sourceOrder(Request request, TranslationResult result) {
+        Map<String, TranslatedSegment> bySegmentId = new HashMap<>();
+        result.segments().forEach(segment -> bySegmentId.put(segment.segmentId(), segment));
+        List<TranslatedSegment> ordered = request.transcript().segments().stream()
+                .map(source -> bySegmentId.get(source.segmentId())).toList();
+        return new TranslationResult(result.tenantId(), result.requestId(), result.sourceVersion(),
+                result.transcriptVersionId(), result.sourceLocale(), result.targetLocale(), result.sourceClockId(),
+                result.ticksPerSecond(), result.sourceDurationTicks(), ordered);
+    }
+
+    private boolean validAudio(Request r, TranslatedSegment segment, SynthesizedAudio audio, byte[] audioBytes) {
+        return r.tenantId().equals(audio.tenantId()) && r.requestId().equals(audio.requestId())
                 && r.sourceVersion().equals(audio.sourceVersion())
                 && r.transcript().transcriptVersionId().equals(audio.transcriptVersionId())
                 && r.targetLocale().equalsIgnoreCase(audio.targetLocale()) && r.voice().equals(audio.voice())
@@ -386,9 +400,9 @@ public final class DubbingOrchestrator {
                 && r.transcript().sourceDurationTicks() == audio.sourceDurationTicks()
                 && segment.sourceStartTick() == audio.sourceStartTick()
                 && segment.sourceEndTick() == audio.sourceEndTick()
-                && segment.segmentId().equals(audio.segmentId()) && audio.audioBytes().length > 0
-                && audio.audioBytes().length <= MAX_SEGMENT_AUDIO_BYTES
-                && MediaCreationContracts.sha256(audio.audioBytes()).equals(audio.digest());
+                && segment.segmentId().equals(audio.segmentId()) && audioBytes.length > 0
+                && audioBytes.length <= MAX_SEGMENT_AUDIO_BYTES
+                && MediaCreationContracts.sha256(audioBytes).equals(audio.digest());
     }
 
     private List<DubbedSegment> validateAlignment(Request r, TranslationResult translated,
@@ -407,7 +421,7 @@ public final class DubbingOrchestrator {
         Map<String, TranslatedSegment> localized = new HashMap<>();
         translated.segments().forEach(s -> localized.put(s.segmentId(), s));
         java.util.Set<String> seen = new java.util.HashSet<>();
-        List<DubbedSegment> output = new ArrayList<>();
+        Map<String, DubbedSegment> outputBySegmentId = new HashMap<>();
         for (AlignedSegment segment : result.segments()) {
             TranscriptSegment original = source.get(segment.segmentId());
             SynthesizedAudio synthesized = audio.get(segment.segmentId());
@@ -416,10 +430,10 @@ public final class DubbingOrchestrator {
                     || !synthesized.digest().equals(segment.audioDigest())
                     || segment.startTick() < original.startTick() || segment.endTick() > original.endTick()
                     || segment.endTick() <= segment.startTick()) return null;
-            output.add(new DubbedSegment(segment.segmentId(), translatedSegment.text(), synthesized.audioBytes(),
+            outputBySegmentId.put(segment.segmentId(), new DubbedSegment(segment.segmentId(), translatedSegment.text(), synthesized.audioBytes(),
                     synthesized.digest(), original.startTick(), original.endTick(), segment.startTick(), segment.endTick()));
         }
-        return List.copyOf(output);
+        return r.transcript().segments().stream().map(segment -> outputBySegmentId.get(segment.segmentId())).toList();
     }
 
     private static Capability safeCapability(java.util.function.Supplier<Capability> lookup) {

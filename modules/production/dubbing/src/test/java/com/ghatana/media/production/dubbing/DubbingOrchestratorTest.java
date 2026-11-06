@@ -2,7 +2,9 @@ package com.ghatana.media.production.dubbing;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ghatana.media.production.dubbing.DubbingOrchestrator.*;
@@ -88,6 +90,67 @@ class DubbingOrchestratorTest {
             assertThat(segment.alignedEndTick()).isEqualTo(280);
             assertThat(segment.text()).isEqualTo("hola");
         });
+    }
+
+    @Test
+    void providerSegmentOrderCannotChangeSynthesisAlignmentOrFinalCueOrder() {
+        Fixture f = new Fixture();
+        Request original = f.request();
+        List<TranscriptSegment> sourceSegments = List.of(
+                new TranscriptSegment("seg-1", "hello", 100, 300),
+                new TranscriptSegment("seg-2", "world", 400, 800));
+        TranscriptRevision transcript = new TranscriptRevision("transcript-v3", original.sourceVersion(),
+                "en-US", "source-clock-9", 48_000, 10_000, sourceSegments);
+        Request request = new Request(original.tenantId(), original.requestId(), original.sourceVersion(), transcript,
+                "es-MX", original.voice(), original.purpose());
+        List<String> synthesisOrder = new ArrayList<>();
+        List<String> alignmentTranslationOrder = new ArrayList<>();
+        List<String> alignmentAudioOrder = new ArrayList<>();
+        Map<String, String> digests = new java.util.HashMap<>();
+
+        TranslationPort translation = new TranslationPort() {
+            @Override public Capability capability(String sourceLocale, String targetLocale) { return Capability.available(); }
+            @Override public TranslationResult translate(TranslationRequest input) {
+                return new TranslationResult(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.sourceLocale(), input.targetLocale(), input.sourceClockId(),
+                        input.ticksPerSecond(), input.sourceDurationTicks(), List.of(
+                        new TranslatedSegment("seg-2", "mundo", 400, 800),
+                        new TranslatedSegment("seg-1", "hola", 100, 300)));
+            }
+        };
+        SynthesisPort synthesis = new SynthesisPort() {
+            @Override public Capability capability(String targetLocale, VoiceIdentity voice) { return Capability.available(); }
+            @Override public SynthesizedAudio synthesize(SynthesisRequest input) {
+                synthesisOrder.add(input.segmentId());
+                byte[] bytes = new byte[] { (byte) (input.segmentId().equals("seg-1") ? 1 : 2) };
+                String digest = com.ghatana.media.runtime.MediaCreationContracts.sha256(bytes);
+                digests.put(input.segmentId(), digest);
+                return new SynthesizedAudio(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.targetLocale(), input.voice(), input.sourceClockId(),
+                        input.ticksPerSecond(), input.sourceDurationTicks(), input.sourceStartTick(),
+                        input.sourceEndTick(), input.segmentId(), bytes, digest);
+            }
+        };
+        AlignmentPort alignment = new AlignmentPort() {
+            @Override public Capability capability(String targetLocale) { return Capability.available(); }
+            @Override public AlignmentResult align(AlignmentRequest input) {
+                input.translatedSegments().forEach(segment -> alignmentTranslationOrder.add(segment.segmentId()));
+                input.synthesizedAudio().forEach(segment -> alignmentAudioOrder.add(segment.segmentId()));
+                return new AlignmentResult(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.targetLocale(), input.sourceClockId(),
+                        input.ticksPerSecond(), input.sourceDurationTicks(), List.of(
+                        new AlignedSegment("seg-2", digests.get("seg-2"), 450, 700),
+                        new AlignedSegment("seg-1", digests.get("seg-1"), 120, 280)));
+            }
+        };
+
+        DubbingResult result = new DubbingOrchestrator(f.rights, translation, synthesis, alignment).dub(request);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.COMPLETED);
+        assertThat(synthesisOrder).containsExactly("seg-1", "seg-2");
+        assertThat(alignmentTranslationOrder).containsExactly("seg-1", "seg-2");
+        assertThat(alignmentAudioOrder).containsExactly("seg-1", "seg-2");
+        assertThat(result.segments()).extracting(DubbedSegment::segmentId).containsExactly("seg-1", "seg-2");
     }
 
     @Test
