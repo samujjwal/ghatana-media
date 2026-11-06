@@ -72,6 +72,16 @@ final class SttStreamSequenceValidator {
         if (wholeSecondSamples > Long.MAX_VALUE - fractionalSamples) {
             throw invalid("STT_STREAM_TIMESTAMP_LIMIT: source timestamp exceeds the supported sample clock");
         }
+        long timestampSamples = wholeSecondSamples + fractionalSamples;
+        // Bound the source clock as well as the amount of PCM received. Otherwise a tiny
+        // chunk could carry an arbitrarily distant PTS and create word timings outside the
+        // same five-minute media window enforced for the decoded audio.
+        long maximumDurationSamples = maxPcmBytes / Short.BYTES;
+        long chunkSamples = payloadBytes / Short.BYTES;
+        if (timestampSamples > maximumDurationSamples - chunkSamples) {
+            throw new StreamInputException(Failure.NOT_ADMITTED,
+                    "STT_STREAM_TIMESTAMP_DURATION_LIMIT: source timestamp exceeds the configured duration limit");
+        }
 
         boolean hasSequence = sequence > 0;
         if (sequence < 0) throw invalid("STT_STREAM_SEQUENCE_INVALID: sequence cannot be negative");

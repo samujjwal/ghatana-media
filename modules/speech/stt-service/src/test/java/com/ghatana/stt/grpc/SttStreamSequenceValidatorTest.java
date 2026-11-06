@@ -78,6 +78,25 @@ class SttStreamSequenceValidatorTest {
     }
 
     @Test
+    void boundsSourceTimestampAndChunkEndToTheFiveMinuteWindow() {
+        SttStreamSequenceValidator validator = new SttStreamSequenceValidator("session");
+
+        // At 16 kHz, 320 bytes are 10 ms. This chunk ends exactly at the five-minute
+        // boundary and is accepted.
+        assertThat(validator.accept("session", 1, 16_000, 299_990, 320)).isEqualTo(1);
+
+        // The next source PTS would put its PCM beyond the bounded media window. Rejection
+        // must not consume sequence 2, so the caller's corrected retry remains possible.
+        assertThatThrownBy(() -> validator.accept("session", 2, 16_000, 300_000, 2))
+                .isInstanceOfSatisfying(SttStreamSequenceValidator.StreamInputException.class, failure -> {
+                    assertThat(failure.failure()).isEqualTo(SttStreamSequenceValidator.Failure.NOT_ADMITTED);
+                    assertThat(failure).hasMessageContaining("STT_STREAM_TIMESTAMP_DURATION_LIMIT");
+                });
+        assertThat(validator.lastSequence()).isEqualTo(1);
+        assertThat(validator.accept("session", 2, 16_000, 299_990, 2)).isEqualTo(2);
+    }
+
+    @Test
     void rejectsTimestampBeyondRepresentableSampleClock() {
         SttStreamSequenceValidator validator = new SttStreamSequenceValidator("session");
         long impossibleTimestamp = Long.MAX_VALUE;
