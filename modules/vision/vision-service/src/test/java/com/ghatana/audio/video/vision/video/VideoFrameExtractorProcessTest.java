@@ -747,6 +747,19 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void exactMicrosecondSelectorRejectsDuplicateFrameIdentityEvenWhenOnePtsMatches() {
+        var exact = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("exact.png"),
+                SourceMediaTimestamp.fromPts("90000", "1/90000"), 7);
+        var conflicting = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("conflicting.png"),
+                SourceMediaTimestamp.fromPts("90001", "1/90000"), 7);
+
+        var selected = VideoFrameExtractor.selectExactFrameAtUs(List.of(exact, conflicting), 7, 1_000_000);
+
+        assertThat(selected.status()).isEqualTo(VideoFrameExtractor.FrameSelectionStatus.AMBIGUOUS);
+        assertThat(selected.frame()).isNull();
+    }
+
+    @Test
     void collectedFramesPreserveEmissionSequenceGapsAndExactSourcePts() throws Exception {
         Path output = Files.createDirectory(tempDir.resolve("sequence-gap"));
         Files.write(output.resolve("frame_0001.jpg"), new byte[] {1});
