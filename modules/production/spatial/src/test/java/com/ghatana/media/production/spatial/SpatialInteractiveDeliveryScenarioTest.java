@@ -3,6 +3,7 @@ package com.ghatana.media.production.spatial;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -49,5 +50,36 @@ class SpatialInteractiveDeliveryScenarioTest {
                 .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
                 .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
                         .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+    }
+
+    @Test
+    void oneUnknownSourceVersionBlocksExportAfterCheckingEveryExactVersion() {
+        var firstSource = new SpatialRigEngine.SourceVersionRef("tenant-j28", "scene-j28", "scene-version-6");
+        var secondSource = new SpatialRigEngine.SourceVersionRef("tenant-j28", "overlay-j28", "overlay-version-3");
+        var frame = new SpatialRigEngine.CoordinateFrame(
+                "urn:media:frame:j28-world", "frame-version-2",
+                SpatialRigEngine.Handedness.RIGHT_HANDED,
+                SpatialRigEngine.AxisDirection.POS_X,
+                SpatialRigEngine.AxisDirection.POS_Y,
+                SpatialRigEngine.AxisDirection.POS_Z,
+                SpatialRigEngine.GLB_METRE_UNIT_REF,
+                SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
+        var root = new SpatialRigEngine.Bone("camera-root", null,
+                SpatialRigEngine.LocalTransform.identity(),
+                new SpatialRigEngine.JointConstraint(SpatialRigEngine.JointKind.BALL, Math.PI));
+        var rig = new SpatialRigEngine.Rig("j28-spatial-scene", frame, "UNIT_QUATERNION_XYZW",
+                List.of(firstSource, secondSource), List.of(root), Map.of(), "project:revision:j28-9");
+        List<SpatialRigEngine.SourceVersionRef> checked = new ArrayList<>();
+
+        assertThatThrownBy(() -> new SpatialRigEngine().exportGlb(rig, source -> {
+            checked.add(source);
+            return source.equals(firstSource)
+                    ? SpatialRigEngine.RightsOutcome.ELIGIBLE
+                    : SpatialRigEngine.RightsOutcome.UNKNOWN;
+        }))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+        assertThat(checked).containsExactly(firstSource, secondSource);
     }
 }
