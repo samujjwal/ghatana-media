@@ -126,8 +126,11 @@ class MediaCaptionRuntimeTest {
             @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
             @Override public List<TranscriptRevision> revisions(String t, String p, String i) { return List.of(); }
             @Override public Optional<TranscriptRevision> revisionByVersionRef(String t, String p, String ref) {
-                if (!"transcript:v1:exact".equals(ref)) return Optional.empty();
-                var draft = new TranscriptDraft(t, p, "transcript-1", "artifact-1", "sha256:" + "a".repeat(64), "a".repeat(64),
+                if (!Set.of("transcript:v1:exact", "transcript:v1:wrong-tenant",
+                        "transcript:v1:wrong-principal").contains(ref)) return Optional.empty();
+                String returnedTenant = "transcript:v1:wrong-tenant".equals(ref) ? "tenant-other" : t;
+                String returnedPrincipal = "transcript:v1:wrong-principal".equals(ref) ? "principal-other" : p;
+                var draft = new TranscriptDraft(returnedTenant, returnedPrincipal, "transcript-1", "artifact-1", "sha256:" + "a".repeat(64), "a".repeat(64),
                         "job-1", "profile-1", "provider-1", "model-1", "en", "SOURCE_TICKS", "hello",
                         "consent-1", "rights-1", "policy-1", "purpose-1", "captions",
                         List.of(new TranscriptSegment("s1", "hello", "RECOGNIZED",
@@ -151,6 +154,10 @@ class MediaCaptionRuntimeTest {
         assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
                 "artifact-1", "sha256:" + "b".repeat(64))).isEmpty();
         assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:other",
+                "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
+        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:wrong-tenant",
+                "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
+        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:wrong-principal",
                 "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
     }
 

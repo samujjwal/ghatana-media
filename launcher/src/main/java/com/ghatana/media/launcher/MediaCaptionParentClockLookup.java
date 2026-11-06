@@ -60,7 +60,8 @@ final class MediaCaptionParentClockLookup implements ParentClockLookup {
         }
         if (versioned.isEmpty()) return Optional.empty();
         var draft = versioned.get().draft();
-        if (!sourceArtifactId.equals(draft.sourceArtifactId())
+        if (!tenantId.equals(draft.tenantId()) || !principalId.equals(draft.principalId())
+                || !sourceArtifactId.equals(draft.sourceArtifactId())
                 || !sourceArtifactVersionId.equals(draft.sourceVersion())) {
             return Optional.empty();
         }
