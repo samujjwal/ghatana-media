@@ -133,6 +133,19 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void rejectsWhitespacePaddedSourceIdentityInsteadOfNormalizingItsVersion() {
+        var zero = new MultitrackRenderPlanner.Time(0, 1);
+        var end = new MultitrackRenderPlanner.Time(1, 1);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Clip(
+                "clip", MultitrackRenderPlanner.Modality.VIDEO, "artifact", " v1", SHA,
+                zero, zero, end, List.of(zero)));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Clip(
+                "clip", MultitrackRenderPlanner.Modality.VIDEO, " artifact", "v1", SHA,
+                zero, zero, end, List.of(zero)));
+    }
+
+    @Test
     void rejectsCaptionOutsideGraphAndTransitionWithoutSharedCoverage() {
         var clip = video("v", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)));
         var outsideCaption = new MultitrackRenderPlanner.Graph(List.of(clip),

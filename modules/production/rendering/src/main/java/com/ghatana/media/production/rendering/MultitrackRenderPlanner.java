@@ -265,11 +265,10 @@ public final class MultitrackRenderPlanner {
 
     private static String opaque(String value, String name) {
         Objects.requireNonNull(value, name);
-        String result = value.trim();
-        if (!result.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,254}")) {
+        if (!value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,254}")) {
             throw invalid(name + " must be non-empty bounded single-line text");
         }
-        return result;
+        return value;
     }
 
     private static boolean hasUnpairedSurrogate(String value) {

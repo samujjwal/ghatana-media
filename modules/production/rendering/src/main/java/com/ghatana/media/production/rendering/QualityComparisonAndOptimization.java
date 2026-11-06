@@ -44,10 +44,10 @@ public final class QualityComparisonAndOptimization {
     public record RevisionId(String tenantId, String principalId, String artifactId, String versionId,
             String sha256) {
         public RevisionId {
-            tenantId = text(tenantId, "tenantId", 255);
-            principalId = text(principalId, "principalId", 255);
-            artifactId = text(artifactId, "artifactId", 128);
-            versionId = text(versionId, "versionId", 128);
+            tenantId = exactIdentity(tenantId, "tenantId", 255);
+            principalId = exactIdentity(principalId, "principalId", 255);
+            artifactId = exactIdentity(artifactId, "artifactId", 128);
+            versionId = exactIdentity(versionId, "versionId", 128);
             sha256 = digest(sha256, "revision sha256");
         }
     }
@@ -525,6 +525,12 @@ public final class QualityComparisonAndOptimization {
     private static String text(String value, String field, int max) {
         if (value == null || value.isBlank() || value.length() > max) throw invalid(field + " is required and bounded");
         return value.trim();
+    }
+    private static String exactIdentity(String value, String field, int max) {
+        if (value == null || value.isBlank() || value.length() > max || !value.equals(value.strip())) {
+            throw invalid(field + " must be an exact, non-blank bounded identity without surrounding whitespace");
+        }
+        return value;
     }
     private static String digest(String value, String field) {
         String result = text(value, field, 64).toLowerCase(java.util.Locale.ROOT);

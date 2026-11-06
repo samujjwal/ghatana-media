@@ -119,6 +119,14 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void revisionIdentityRejectsWhitespaceNormalization() {
+        assertThatThrownBy(() -> new RevisionId("tenant ", "principal", "artifact", "v1", "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
+        assertThatThrownBy(() -> new RevisionId("tenant", "principal", "artifact", " v1", "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
+    }
+
+    @Test
     void absentOrUnalignedReferenceLeavesMeasuredMetricsUnavailableAndNoImprovementClaim() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v1", "b", 25);
