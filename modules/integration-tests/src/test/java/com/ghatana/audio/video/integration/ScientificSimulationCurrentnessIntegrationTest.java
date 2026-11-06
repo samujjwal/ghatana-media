@@ -1,7 +1,9 @@
 package com.ghatana.audio.video.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ghatana.media.runtime.MediaSimulationContracts;
 import com.ghatana.media.production.simulation.PhysicalSimulation;
 import com.ghatana.media.production.simulation.SimulationSemanticValidator;
 import java.util.List;
@@ -71,5 +73,51 @@ class ScientificSimulationCurrentnessIntegrationTest {
             assertThat(finding.subject()).isEqualTo("model.constant-force");
             assertThat(finding.detail()).contains("currentness is unknown");
         });
+    }
+
+    @Test
+    void dimensionMismatchIsRejectedBeforeSolverAndNeverProducesAResult() {
+        var invalidMass = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(2, MediaSimulationContracts.Unit.METER),
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER));
+        var force = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(6, MediaSimulationContracts.Unit.NEWTON),
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.NEWTON));
+
+        assertThatThrownBy(() -> new MediaSimulationContracts.ConstantForce(invalidMass, force))
+                .isInstanceOf(MediaSimulationContracts.InvalidQuantityException.class)
+                .hasMessageContaining("mass requires MASS");
+    }
+
+    @Test
+    void solverBudgetExhaustionAbstainsWithoutPartialNumericOutput() {
+        var mass = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(2, MediaSimulationContracts.Unit.KILOGRAM),
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.KILOGRAM));
+        var force = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(6, MediaSimulationContracts.Unit.NEWTON),
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.NEWTON));
+        var zeroPosition = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER),
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER));
+        var zeroVelocity = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER_PER_SECOND),
+                new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER_PER_SECOND));
+        var request = new MediaSimulationContracts.RunRequest(
+                new MediaSimulationContracts.ConstantForce(mass, force),
+                new MediaSimulationContracts.InitialState(zeroPosition, zeroVelocity),
+                new MediaSimulationContracts.SolverPolicy(
+                        new MediaSimulationContracts.Quantity(2, MediaSimulationContracts.Unit.SECOND),
+                        new MediaSimulationContracts.Quantity(0.25, MediaSimulationContracts.Unit.SECOND),
+                        new MediaSimulationContracts.Quantity(0.01, MediaSimulationContracts.Unit.SECOND),
+                        new MediaSimulationContracts.Quantity(1e-8, MediaSimulationContracts.Unit.METER),
+                        new MediaSimulationContracts.Quantity(1e-8, MediaSimulationContracts.Unit.METER_PER_SECOND),
+                        100, 1));
+
+        var outcome = PhysicalSimulation.run(request);
+
+        assertThat(outcome.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.ABSTAINED);
+        assertThat(outcome.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.SOLVER_LIMIT_REACHED);
+        assertThat(outcome.trace()).isNull();
     }
 }

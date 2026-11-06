@@ -113,6 +113,28 @@ class AnimationJ13LocalScenarioSliceTest {
                 .contains("FLOAT32_APPROXIMATION");
     }
 
+    @Test
+    void unknownCurrentRightsBlockPoseAndLocalGlbBeforeProducingAnEffect() {
+        var engine = new SpatialRigEngine();
+        var rig = authoredRig();
+        var checkedSources = new java.util.ArrayList<SpatialRigEngine.SourceVersionRef>();
+        SpatialRigEngine.SourceRightsPort unknown = source -> {
+            checkedSources.add(source);
+            return SpatialRigEngine.RightsOutcome.UNKNOWN;
+        };
+
+        assertThatThrownBy(() -> engine.evaluateWithAuthority(rig,
+                SpatialRigEngine.RationalTime.of(1, 1), unknown))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+        assertThatThrownBy(() -> engine.exportGlb(rig, unknown))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+        assertThat(checkedSources).containsExactly(SOURCE, SOURCE);
+    }
+
     private static SpatialRigEngine.Rig authoredRig() {
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity());
         var hand = bone("hand", "root", new SpatialRigEngine.LocalTransform(

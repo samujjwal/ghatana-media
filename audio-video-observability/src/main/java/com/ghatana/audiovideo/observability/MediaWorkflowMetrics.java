@@ -666,7 +666,14 @@ public final class MediaWorkflowMetrics {
                 || normalized.contains("api-key") || normalized.contains("apikey")
                 || normalized.contains("access-token") || normalized.contains("accesstoken")
                 || normalized.startsWith("sk-") || normalized.startsWith("ghp_")
-                || normalized.startsWith("gho_") || normalized.startsWith("akia");
+                || normalized.startsWith("gho_") || normalized.startsWith("akia")
+                || looksLikeJwt(value);
+    }
+
+    /** JWTs are not provider identities and must not become metric labels. */
+    private static boolean looksLikeJwt(String value) {
+        return value.matches("eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")
+                || value.matches("[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]+");
     }
 
     public void recordRequest() {

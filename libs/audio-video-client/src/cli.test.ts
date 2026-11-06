@@ -386,7 +386,7 @@ describe('ghatanamedia-api canonical job commands', () => {
       GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
     });
     const submitArgs = jobCommand('https://media.example.test', 'submit', [
-      '--request-id', 'request-source-free', '--correlation-id', 'corr-source-free', '--artifact', 'artifact-a',
+      '--request-id', 'request-1', '--correlation-id', 'corr-source-free', '--artifact', 'artifact-a',
       '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-source-free', '--parameters', '{}',
     ]);
 

@@ -237,6 +237,28 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void jwtShapedProviderIdentityIsRejectedWithoutExportingTokenSegments() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.signature-segment";
+
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
+                token, "v1", "profile", "revision",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                Instant.parse("2026-11-06T12:00:00Z"), null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageNotContaining(token)
+                .hasMessageNotContaining("eyJhbGciOiJIUzI1NiJ9");
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                token, "v1", "model", Instant.parse("2026-11-06T12:00:00Z"),
+                java.util.List.of())).isFalse();
+        assertThat(registry.getMeters().stream()
+                .flatMap(meter -> meter.getId().getTags().stream())
+                .map(tag -> tag.getValue()))
+                .doesNotContain(token, "eyJhbGciOiJIUzI1NiJ9");
+    }
+
+    @Test
     void modalityBoundariesRecordMonotonicDurationsWithBoundedPhaseAndOutcomeTags() throws Exception {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
