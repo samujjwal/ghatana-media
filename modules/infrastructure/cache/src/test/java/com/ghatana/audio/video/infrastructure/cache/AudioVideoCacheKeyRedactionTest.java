@@ -57,7 +57,7 @@ class AudioVideoCacheKeyRedactionTest {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
         String baseline = cache.buildKey("a:audio", "123e4567-e89b-12d3-a456-426614174000");
 
-        assertThat(baseline).matches("av2-[0-9a-f]{64}");
+        assertThat(baseline).matches("av2u-[0-9a-f]{64}");
         assertThat(baseline).doesNotContain(":", "*", "?");
         assertThat(baseline).isEqualTo(cache.buildKey("a:audio",
                 "123e4567-e89b-12d3-a456-426614174000"));
@@ -149,16 +149,22 @@ class AudioVideoCacheKeyRedactionTest {
                         "artifact-1", "artifact-rev-1", "transcript-rev-1", "policy-epoch-2"));
 
         String fingerprint = "audio-sha256:" + "a".repeat(64);
-        String baseKey = cache.buildScopedKey(withFingerprint(baseline, fingerprint));
-        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(baseKey, ignored -> {
+        AudioVideoCache.CacheKeyScope baseScope = withFingerprint(baseline, fingerprint);
+        String baseKey = cache.buildScopedKey(baseScope);
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(baseScope,
+                authority -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(authority)),
+                ignored -> {
             loads.incrementAndGet();
             return AsyncOperation.success("baseline-transcript");
         }))).isEqualTo("baseline-transcript");
 
         for (AudioVideoCache.CacheKeyScope scope : otherScopes) {
-            String key = cache.buildScopedKey(withFingerprint(scope, fingerprint));
-            assertThat(key).matches("av2-[0-9a-f]{64}").isNotEqualTo(baseKey);
-            assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(key, ignored -> {
+            AudioVideoCache.CacheKeyScope scoped = withFingerprint(scope, fingerprint);
+            String key = cache.buildScopedKey(scoped);
+            assertThat(key).matches("av2p-[0-9a-f]{64}").isNotEqualTo(baseKey);
+            assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(scoped,
+                    authority -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(authority)),
+                    ignored -> {
                 loads.incrementAndGet();
                 return AsyncOperation.success("isolated-transcript");
             }))).isEqualTo("isolated-transcript");
@@ -187,11 +193,15 @@ class AudioVideoCacheKeyRedactionTest {
         String firstKey = cache.buildScopedKey(withFingerprint(scope, "source-sha256:revision-one"));
         String changedSourceKey = cache.buildScopedKey(withFingerprint(scope, "source-sha256:revision-two"));
 
-        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(firstKey, ignored -> {
+        AudioVideoCache.ScopedAuthority authority = requested ->
+                AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(requested));
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(
+                withFingerprint(scope, "source-sha256:revision-one"), authority, ignored -> {
             loads.incrementAndGet();
             return AsyncOperation.success("transcript-for-source-one");
         }))).isEqualTo("transcript-for-source-one");
-        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(changedSourceKey, ignored -> {
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(
+                withFingerprint(scope, "source-sha256:revision-two"), authority, ignored -> {
             loads.incrementAndGet();
             return AsyncOperation.success("transcript-for-source-two");
         }))).isEqualTo("transcript-for-source-two");

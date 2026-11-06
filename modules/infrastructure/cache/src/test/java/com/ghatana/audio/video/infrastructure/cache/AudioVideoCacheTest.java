@@ -63,7 +63,7 @@ class AudioVideoCacheTest {
 
         String key = cache.buildKey("tenant-1", "id-1");
 
-        assertThat(key).matches("av2-[0-9a-f]{64}");
+        assertThat(key).matches("av2u-[0-9a-f]{64}");
         assertThat(key).doesNotContain(":", "*", "?");
     }
 
@@ -129,6 +129,45 @@ class AudioVideoCacheTest {
         assertThat(checks).hasValue(2);
         verify(port).get(key);
         verify(port).invalidateAsync(key);
+    }
+
+    @Test
+    void genericRawOperationsCannotReadOrWriteProtectedOrLegacyScopedKeys() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        String protectedKey = cache.buildScopedKey(scope, "transcript-a");
+        String legacySharedKey = "av2-" + "0".repeat(64);
+        String rawKey = cache.buildKey("tenant-a", "unprotected-fixture");
+        when(port.get(rawKey)).thenReturn(AsyncOperation.success(Optional.of("raw-value")));
+
+        assertThat(protectedKey).startsWith("av2p-");
+        assertThat(rawKey).startsWith("av2u-");
+        assertThatThrownBy(() -> cache.get(protectedKey))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
+        assertThatThrownBy(() -> cache.getOrLoad(protectedKey,
+                ignored -> AsyncOperation.success("must-not-load")))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
+        assertThatThrownBy(() -> cache.put(protectedKey, "must-not-write"))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
+        assertThatThrownBy(() -> cache.get(legacySharedKey))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
+        assertThatThrownBy(() -> cache.getOrLoad(legacySharedKey,
+                ignored -> AsyncOperation.success("must-not-load")))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("scoped authority");
+
+        assertThat(await(cache.get(rawKey))).contains("raw-value");
+        verify(port).get(rawKey);
+        verify(port, org.mockito.Mockito.never()).get(protectedKey);
+        verify(port, org.mockito.Mockito.never()).get(legacySharedKey);
+        verify(port, org.mockito.Mockito.never()).put(eq(protectedKey), any(), any(Duration.class));
     }
 
     @Test

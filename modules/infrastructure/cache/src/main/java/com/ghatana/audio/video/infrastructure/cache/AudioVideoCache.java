@@ -190,6 +190,7 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<Optional<V>> get(K key) {
         Objects.requireNonNull(key, "key cannot be null");
         validateCacheKey(key);
+        rejectProtectedKey(key);
         EpochSnapshot capturedEpoch;
         synchronized (mutationLock) {
             if (portInvalidationPending || pendingCacheWrites.containsKey(key)) {
@@ -280,6 +281,7 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<Void> put(K key, V value) {
         Objects.requireNonNull(key, "key cannot be null");
         validateCacheKey(key);
+        rejectProtectedKey(key);
         Objects.requireNonNull(value, "value cannot be null");
         validateCacheValue(value);
         return putTracked(key, value, DEFAULT_TTL);
@@ -291,6 +293,7 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<Void> put(K key, V value, Duration ttl) {
         Objects.requireNonNull(key, "key cannot be null");
         validateCacheKey(key);
+        rejectProtectedKey(key);
         Objects.requireNonNull(value, "value cannot be null");
         Objects.requireNonNull(ttl, "ttl cannot be null");
         validateCacheValue(value);
@@ -304,6 +307,12 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<V> getOrLoad(K key, Function<K, AsyncOperation<V>> loader) {
         Objects.requireNonNull(key, "key cannot be null");
         validateCacheKey(key);
+        rejectProtectedKey(key);
+        return getOrLoadInternal(key, loader);
+    }
+
+    /** Runs a cache operation after the caller has established protected-scope authority. */
+    private AsyncOperation<V> getOrLoadInternal(K key, Function<K, AsyncOperation<V>> loader) {
         Objects.requireNonNull(loader, "loader cannot be null");
 
         CompletableFuture<V> existing = inFlightLoads.get(key);
@@ -757,7 +766,9 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, namespace);
             updateFramedUtf16(digest, tenantId);
             updateFramedUtf16(digest, id);
-            StringBuilder key = new StringBuilder("av2-");
+            // Unprotected raw-cache key namespace. Protected keys use av2p- and
+            // are denied by the generic public get/put/getOrLoad methods.
+            StringBuilder key = new StringBuilder("av2u-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
                         .append(Character.forDigit(value & 0xf, 16));
@@ -788,7 +799,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.transcriptRevision());
             updateFramedUtf16(digest, scope.sourceFingerprint());
             updateFramedUtf16(digest, scope.policyEpoch());
-            StringBuilder key = new StringBuilder("av2-");
+            StringBuilder key = new StringBuilder("av2p-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
                         .append(Character.forDigit(value & 0xf, 16));
@@ -824,7 +835,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.sourceFingerprint());
             updateFramedUtf16(digest, scope.policyEpoch());
             updateFramedUtf16(digest, objectIdentity);
-            StringBuilder key = new StringBuilder("av2-");
+            StringBuilder key = new StringBuilder("av2p-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
                         .append(Character.forDigit(value & 0xf, 16));
@@ -902,7 +913,7 @@ public class AudioVideoCache<K, V> {
                 return AsyncOperation.failure(new SecurityException(
                         "Current cache authority is denied or unknown"));
             }
-            return getOrLoad(asCacheKey(key), ignored -> loader.apply(key))
+            return getOrLoadInternal(asCacheKey(key), ignored -> loader.apply(key))
                     .flatMap(value -> checkScopedAuthority(scope, authority)
                             .whenComplete((current, failure) -> {
                                 if (failure != null || !Boolean.TRUE.equals(current)) {
@@ -1053,6 +1064,19 @@ public class AudioVideoCache<K, V> {
         if (key instanceof String text && text.length() > CachePolicy.MAX_KEY_LENGTH) {
             throw new IllegalArgumentException("Cache key exceeds supported length of "
                     + CachePolicy.MAX_KEY_LENGTH);
+        }
+    }
+
+    /**
+     * Protected entries must only be read or written through the authority-checked
+     * scoped API. The old av2- prefix is also reserved: it was shared by raw and
+     * protected keys before the key namespaces were separated, so accepting it
+     * through a raw method could disclose a persisted protected entry.
+     */
+    private static void rejectProtectedKey(Object key) {
+        if (key instanceof String text
+                && (text.startsWith("av2p-") || text.startsWith("av2-"))) {
+            throw new SecurityException("Protected cache keys require scoped authority readback");
         }
     }
 
