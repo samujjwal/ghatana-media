@@ -243,6 +243,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "multimodal child source artifact is unavailable: "
                                         + selection.artifactId()));
+                verifyArtifactOwner(artifact, authenticated, selection.artifactId(), "child");
                 referencedChildren.add(artifact);
             }
         }
@@ -367,11 +368,22 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                         binding.getSourceArtifactId()))
                 .orElseThrow(() -> new IllegalArgumentException(
                         "multimodal source artifact is unavailable: " + binding.getSourceArtifactId()));
+        verifyArtifactOwner(source, authenticated, binding.getSourceArtifactId(), "source");
         if (!source.version().value().equals(binding.getSourceVersionId())) {
             throw new IllegalArgumentException(
                     "multimodal source artifact version does not match the operation binding");
         }
         return source;
+    }
+
+    private static void verifyArtifactOwner(
+            MediaArtifact artifact, AuthenticatedPrincipal authenticated, String expectedArtifactId, String role) {
+        if (!artifact.tenantId().equals(authenticated.tenantId())
+                || !artifact.principalId().equals(authenticated.principalId())
+                || !artifact.artifactId().equals(expectedArtifactId)) {
+            throw new IllegalArgumentException(
+                    "multimodal " + role + " artifact readback does not match authenticated owner and requested identity");
+        }
     }
 
     /**

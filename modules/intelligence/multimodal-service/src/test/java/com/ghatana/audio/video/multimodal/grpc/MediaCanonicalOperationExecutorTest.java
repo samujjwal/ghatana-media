@@ -909,6 +909,67 @@ class MediaCanonicalOperationExecutorTest {
         assertThat(port.submitted).isEmpty();
     }
 
+    @Test
+    void sourceArtifactReadbackMustMatchAuthenticatedOwnerAndRequestedIdentity() {
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(
+                    String tenantId, String principalId, String artifactId) {
+                super.artifact(tenantId, principalId, artifactId);
+                if ("src".equals(artifactId)) {
+                    return Optional.of(new MediaArtifact("tenant-other", "principal-a", "src",
+                            "src.bin", "application/octet-stream", 4, SHA, "ref", "CONFIDENTIAL",
+                            Instant.now(), Instant.now().plusSeconds(3_600), Map.of()));
+                }
+                return super.artifact(tenantId, principalId, artifactId);
+            }
+        };
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", inlineOperation(
+                "inline-child".getBytes(java.nio.charset.StandardCharsets.UTF_8)), AUTH))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("authenticated owner and requested identity");
+
+        assertThat(port.artifactReads).hasValue(1);
+        assertThat(port.uploads).isEmpty();
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void referencedChildReadbackMustMatchAuthenticatedOwnerBeforeParentSubmit() {
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(
+                    String tenantId, String principalId, String artifactId) {
+                super.artifact(tenantId, principalId, artifactId);
+                if ("child-art".equals(artifactId)) {
+                    return Optional.of(new MediaArtifact("tenant-a", "principal-other", "child-art",
+                            "child.bin", "application/octet-stream", 4, SHA, "ref", "CONFIDENTIAL",
+                            Instant.now(), Instant.now().plusSeconds(3_600), Map.of()));
+                }
+                if ("src".equals(artifactId)) return Optional.of(FixturePort.artifact("src", SHA, Map.of()));
+                return Optional.empty();
+            }
+        };
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        AtomicBoolean fused = new AtomicBoolean();
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
+                () -> null, outcome -> {
+                    fused.set(true);
+                    return outcome;
+                });
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("authenticated owner and requested identity");
+
+        assertThat(port.artifactReads).hasValue(2);
+        assertThat(port.uploads).isEmpty();
+        assertThat(port.submitted).isEmpty();
+        assertThat(fused).isFalse();
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaCanonicalOperationExecutor executor(
