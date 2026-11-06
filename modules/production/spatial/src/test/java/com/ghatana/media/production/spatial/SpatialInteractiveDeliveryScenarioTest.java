@@ -78,6 +78,12 @@ class SpatialInteractiveDeliveryScenarioTest {
                 .isEqualTo("3");
         assertThat(metadata.has("destinationRef")).isFalse();
         assertThat(metadata.has("consumerReceiptRef")).isFalse();
+
+        // Caller mutation of an exposed payload must not mutate the immutable candidate.
+        byte[] exposedBytes = candidate.bytes();
+        exposedBytes[0] = 0;
+        assertThat(candidate.bytes()[0]).isEqualTo((byte) 'g');
+        assertThat(candidate.sha256()).isEqualTo(candidateSha256(candidate.bytes()));
     }
 
     @Test
@@ -144,5 +150,9 @@ class SpatialInteractiveDeliveryScenarioTest {
                 .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
                         .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
         assertThat(checked).containsExactly(firstSource, secondSource);
+    }
+
+    private static String candidateSha256(byte[] bytes) throws Exception {
+        return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
     }
 }
