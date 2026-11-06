@@ -123,6 +123,25 @@ class MediaHttpContractParityTest {
         assertThat(hasRequestId).as("job reconciliation requestId query must be documented").isTrue();
     }
 
+    @Test
+    void consentGrantAndStreamOpenDoNotClaimReplaySafeIdempotency() throws Exception {
+        JsonNode openApi = YAML.readTree(Files.readString(repositoryFile("contracts/openapi/media.yaml")));
+        assertUnsupportedIdempotency(openApi, "/api/v1/consents", "post");
+        assertUnsupportedIdempotency(openApi, "/api/v1/streams", "post");
+    }
+
+    private static void assertUnsupportedIdempotency(JsonNode openApi, String path, String method) {
+        JsonNode declaration = openApi.path("paths").path(path).path(method).path("x-ghatana-idempotency");
+        assertThat(declaration.path("required").asBoolean())
+                .as("%s %s must not claim replay-safe idempotency", method.toUpperCase(), path)
+                .isFalse();
+        assertThat(declaration.path("reason").asText())
+                .as("%s %s must explain its replay boundary", method.toUpperCase(), path)
+                .isNotBlank();
+        assertThat(declaration.has("scopeTemplate")).isFalse();
+        assertThat(declaration.has("payloadHashRequired")).isFalse();
+    }
+
     private static String routeId(RouteEntry route) {
         return route.method() + " " + route.path();
     }

@@ -223,9 +223,8 @@ paths:
         }
       x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
       x-ghatana-idempotency:
-        required: true
-        payloadHashRequired: true
-        scopeTemplate: tenantId|consentId
+        required: false
+        reason: No client idempotency key or durable grant replay receipt is defined; grant retries can create a new consent record and must not be automatic.
     get:
       tags: [Consents]
       operationId: listMediaConsents
@@ -779,9 +778,8 @@ paths:
         }
       x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
       x-ghatana-idempotency:
-        required: true
-        payloadHashRequired: true
-        scopeTemplate: tenantId|correlationId
+        required: false
+        reason: No idempotency key or durable registration and one-time-token replay receipt is defined; retries can create another session and must not be automatic.
   /api/v1/streams/{sessionId}:
     get:
       tags: [Streams]

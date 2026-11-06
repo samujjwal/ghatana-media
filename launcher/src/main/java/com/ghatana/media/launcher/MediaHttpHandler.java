@@ -660,7 +660,9 @@ public final class MediaHttpHandler implements HttpHandler {
                     throw new IllegalArgumentException("requestId must be supplied once");
                 }
                 requestId = decode(pair[1]);
-                if (requestId.isBlank()) throw new IllegalArgumentException("requestId must not be blank");
+                if (requestId.isBlank() || requestId.codePointCount(0, requestId.length()) > 255) {
+                    throw new IllegalArgumentException("requestId must contain between 1 and 255 characters");
+                }
             }
         }
         return requestId;
