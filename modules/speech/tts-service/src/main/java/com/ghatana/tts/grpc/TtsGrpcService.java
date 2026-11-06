@@ -809,8 +809,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                             }
                             outputBytes.addAndGet(chunkData.length);
                             if (chunk.isLast()) {
-                                finalChunkSeen.set(true);
+                                // Publish the payload before the marker. Completion runs on a
+                                // separate thread and uses finalChunkSeen as its readiness gate;
+                                // the atomic marker must not become visible before the payload.
                                 pendingFinalChunk.set(chunkSnapshot);
+                                finalChunkSeen.set(true);
                                 return;
                             }
                             try {

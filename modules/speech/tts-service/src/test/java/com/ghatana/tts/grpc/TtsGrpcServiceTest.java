@@ -778,10 +778,16 @@ class TtsGrpcServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("ambiguous stream error callback");
 
-        Timer responseUnknown = registry.find("media.modality.boundary.duration")
-                .tag("modality", "tts").tag("service", "tts")
-                .tag("boundary", "response").tag("execution_class", "control")
-                .tag("outcome", "unknown").timer();
+        long metricDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+        Timer responseUnknown;
+        do {
+            responseUnknown = registry.find("media.modality.boundary.duration")
+                    .tag("modality", "tts").tag("service", "tts")
+                    .tag("boundary", "response").tag("execution_class", "control")
+                    .tag("outcome", "unknown").timer();
+            if (responseUnknown != null && responseUnknown.count() == 1) break;
+            Thread.yield();
+        } while (System.nanoTime() < metricDeadline);
         assertThat(responseUnknown).isNotNull();
         assertThat(responseUnknown.count()).isEqualTo(1);
         assertThat(registry.find("media.modality.boundary.duration")
