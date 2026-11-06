@@ -86,7 +86,8 @@ function sourceMetadataFor(candidate: CaptureRequest,
 }
 
 function harness(options: {
-  decide?: (candidate: CaptureRequest, at: number) => CameraPermissionDecision;
+  decide?: (candidate: CaptureRequest, at: number) =>
+    CameraPermissionDecision | Promise<CameraPermissionDecision>;
   tracks?: FakeTrack[];
   pts?: (epochRef: string, index: number) => bigint | number;
   metadata?: (candidate: CaptureRequest) => CameraTrackSourceMetadata | null;
@@ -341,6 +342,53 @@ describe("CameraCaptureAdapter", () => {
     expect(first.cameraMetadata.clockMappings).toHaveLength(4);
     await session.close();
     expect(track.stopCalls).toBe(1);
+  });
+
+  it("snapshots host frame bytes and timing before awaiting fresh permission", async () => {
+    let readCompleted = false;
+    let markFreshPermissionCheck: (() => void) | undefined;
+    let allowFreshPermission: (() => void) | undefined;
+    const freshPermissionCheck = new Promise<void>((resolve) => { markFreshPermissionCheck = resolve; });
+    const permissionGate = new Promise<void>((resolve) => { allowFreshPermission = resolve; });
+    const suppliedFrame: CameraFrameRead = {
+      bytes: new Uint8Array([1, 2, 3]),
+      presentationTicks: "9000",
+      discontinuity: { disposition: "NONE" },
+    };
+    const track = frameTrack([suppliedFrame]);
+    track.nextFrame = async () => {
+      readCompleted = true;
+      return suppliedFrame;
+    };
+    const h = harness({
+      tracks: [track],
+      decide: async (candidate) => {
+        if (readCompleted) {
+          markFreshPermissionCheck?.();
+          await permissionGate;
+        }
+        return permissionFor(candidate);
+      },
+    });
+    const session = await h.adapter.openSession(request);
+    const pending = session.nextFrame();
+    await freshPermissionCheck;
+
+    const mutableFrame = suppliedFrame as unknown as {
+      bytes: Uint8Array;
+      presentationTicks: string;
+    };
+    mutableFrame.bytes.fill(9);
+    mutableFrame.presentationTicks = "18000";
+    allowFreshPermission?.();
+
+    const captured = await pending;
+    expect(captured.bytes).toEqual(new Uint8Array([1, 2, 3]));
+    expect(captured.sourcePresentationTime).toMatchObject({
+      disposition: "KNOWN",
+      presentationTicks: "9000",
+    });
+    await session.close();
   });
 
   it("revocation aborts an in-flight read, stops tracks once and never returns frame bytes", async () => {

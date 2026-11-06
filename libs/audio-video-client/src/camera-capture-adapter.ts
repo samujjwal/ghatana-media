@@ -637,14 +637,30 @@ export class CameraCaptureSession {
       await this.close();
       throw fail("DEVICE_UNAVAILABLE", "camera source ended before a frame was produced");
     }
-    const frameRead = raw instanceof Uint8Array ? { bytes: raw } : raw;
-    if (!frameRead || !(frameRead.bytes instanceof Uint8Array)
-      || frameRead.bytes.byteLength < 1 || frameRead.bytes.byteLength > this.limits.maxFrameBytes) {
+    const suppliedFrameRead = raw instanceof Uint8Array ? { bytes: raw } : raw;
+    if (!suppliedFrameRead || !(suppliedFrameRead.bytes instanceof Uint8Array)
+      || suppliedFrameRead.bytes.byteLength < 1 || suppliedFrameRead.bytes.byteLength > this.limits.maxFrameBytes) {
       await this.close();
       throw fail("FRAME_INVALID", "camera frame is empty or exceeds its byte bound");
     }
-    // Re-read exact permission after the await. A revoked/stale decision rejects
-    // before the provider-owned byte array is copied or returned to the caller.
+    // Host ports may reuse mutable buffers and metadata while a fresh permission
+    // read is pending. Detach the complete observation before that await so one
+    // admitted frame cannot be relabeled or have its bytes replaced afterward.
+    const frameRead: CameraFrameRead = {
+      bytes: Uint8Array.from(suppliedFrameRead.bytes),
+      ...(suppliedFrameRead.presentationTicks === undefined
+        ? {} : { presentationTicks: suppliedFrameRead.presentationTicks }),
+      ...(suppliedFrameRead.discontinuity === undefined
+        ? {} : { discontinuity: Object.freeze({ ...suppliedFrameRead.discontinuity }) }),
+      ...(suppliedFrameRead.audioSample === undefined ? {} : {
+        audioSample: Object.freeze({
+          ...suppliedFrameRead.audioSample,
+          sampleRate: Object.freeze({ ...suppliedFrameRead.audioSample.sampleRate }),
+        }),
+      }),
+    };
+    // Re-read exact permission after the await. A revoked/stale decision still
+    // rejects before this detached frame can be returned to the caller.
     try {
       await this.assertFreshPermission(this.request);
     } catch (error) {
