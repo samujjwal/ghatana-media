@@ -519,7 +519,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement review/comments/approval on exact immutable revision only.
 - **How:** CAS reviewers and roles, invalidation on any material edit, annotation time/ROI, redacted disclosures.
 - **Test/exit:** Stale approval, wrong role, simultaneous edit, retention and revision identity.
-- **Progress:** 14/14 focused review tests pass. The local module enforces exact version, current role/identity, CAS, retention and redacted readback; owner-issued durable cases, runtime/UI wiring, and authentic HUMAN_REVIEW_APPROVAL remain open.
+- **Progress:** 14/14 focused review tests pass. The local module enforces exact version, current role/identity, review-record CAS, retention and redacted readback. Source review confirms the engine rechecks source currentness at the effect boundary and the in-memory store CASes review records, but there is no shared compare-and-set boundary between a material project revision and review append; a concurrent edit-versus-approval winner cannot be proven without the canonical timeline revision owner. The J-21 product contract keeps record append separate from `HUMAN_REVIEW_APPROVAL`: approval mutation remains blocked, its query is read-only, and runtime remains `NOT_ADMITTED`. Keep OPEN pending an owner-issued durable case/receipt and source-revision CAS integration, runtime/UI wiring, and authentic human approval evidence.
 - **Predecessors:** `media.dev.project-timeline-engine`, `media.dev.rights-and-policy`
 
 **`media.dev.delivery-export-destination-ack`** · OPEN
@@ -775,7 +775,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-21 — Immutable-review approval invalidated by changed source revision.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
-- **Progress:** `VersionSpecificReviewScenarioTest` passed 1/1: an ACCEPT statement against V1 becomes stale after the source advances to V2, and another append to the old case is rejected without adding a record. This is a process-local in-memory fixture; it is not `HUMAN_REVIEW_APPROVAL`. Still OPEN: authentic owner-issued case/reviewer authority, hosted client/runtime wiring, durable storage and restart/readback evidence.
+- **Progress:** `VersionSpecificReviewScenarioTest` passed 1/1: an ACCEPT statement against V1 becomes stale after the source advances to V2, and another append to the old case is rejected without adding a record. `VersionedReviewEngineTest` passed 14/14, no skips. The local scenario is not `HUMAN_REVIEW_APPROVAL`; review-record CAS does not share an atomic boundary with material project revision CAS, so a concurrent edit-versus-approval winner cannot be proven. Still OPEN: authentic owner-issued case/reviewer authority, canonical source-revision CAS, hosted client/runtime wiring, durable storage and restart/readback evidence.
 - **Predecessors:** `media.dev.versioned-review-and-approval`
 
 **`media.dev.outcome-acknowledged-delivery`** · OPEN

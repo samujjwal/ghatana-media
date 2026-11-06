@@ -1465,7 +1465,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05 local SPI verification: selector :services:media:modules:production:review:test with VersionedReviewEngineTest PASS 14/14, no skips. Tests cover exact-version review/comments/annotations, stale material revision, role and tenant/principal binding, concurrent CAS, retention, redaction, hostile append receipt/readback, and no approval grant. Still OPEN: module uses process-local InMemoryReviewStore and is not wired to Media runtime/UI or an owner-issued durable case/receipt service; ACCEPT remains a reviewer statement and never HUMAN_REVIEW_APPROVAL."
+      "progress": "2026-11-05 local SPI verification: selector :services:media:modules:production:review:test with VersionedReviewEngineTest PASS 14/14, no skips. Tests cover exact-version review/comments/annotations, stale material revision, role and tenant/principal binding, concurrent review-record CAS, retention, redaction, hostile append receipt/readback, and no approval grant. Source review confirms effect-boundary currentness recheck and review-record CAS, but no shared compare-and-set boundary exists between material project revision and review append, so a concurrent edit-versus-approval winner cannot be proven without the canonical timeline revision owner. The J-21 contract keeps record append separate from HUMAN_REVIEW_APPROVAL; approval mutation remains blocked, query is read-only, and runtime remains NOT_ADMITTED. Keep OPEN pending an owner-issued durable case/receipt and source-revision CAS integration, runtime/UI wiring, and authentic human approval evidence."
     },
     {
       "id": "media.dev.delivery-export-destination-ack",
@@ -2249,7 +2249,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-05: VersionSpecificReviewScenarioTest passed 1/1: an ACCEPT statement against V1 becomes stale after the source advances to V2, and another append to the old case is rejected without adding a record. This is a process-local in-memory fixture; it is not HUMAN_REVIEW_APPROVAL. Still OPEN: authentic owner-issued case/reviewer authority, hosted client/runtime wiring, durable storage and restart/readback evidence."
+      "progress": "2026-11-05: VersionSpecificReviewScenarioTest passed 1/1: an ACCEPT statement against V1 becomes stale after the source advances to V2, and another append to the old case is rejected without adding a record. VersionedReviewEngineTest passed 14/14, no skips. The local scenario is not HUMAN_REVIEW_APPROVAL; review-record CAS does not share an atomic boundary with material project revision CAS, so a concurrent edit-versus-approval winner cannot be proven. Still OPEN: authentic owner-issued case/reviewer authority, canonical source-revision CAS, hosted client/runtime wiring, durable storage and restart/readback evidence."
     },
     {
       "id": "media.dev.outcome-acknowledged-delivery",
