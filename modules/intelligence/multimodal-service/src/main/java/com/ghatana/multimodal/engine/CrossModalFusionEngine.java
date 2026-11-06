@@ -240,6 +240,7 @@ public class CrossModalFusionEngine {
                 || audioTime.domain() != com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE
                 || visualTime.domain() != com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE
                 || !audioTime.sharesClock(visualTime)
+                || !sourceTimelineClockId(audioRegion).equals(audioTime.clockId())
                 || !sameInstant(audioTime, visualTime)) {
             return abstain("SYNC_UNDETERMINED");
         }
@@ -259,6 +260,16 @@ public class CrossModalFusionEngine {
 
     private static boolean boundedIdentity(String value) {
         return value != null && !value.isBlank() && value.length() <= 256;
+    }
+
+    /**
+     * SourceClockAssociation maps admitted audio/video clocks to this version-scoped identity.
+     * A shared clock alone is insufficient: the timestamps must be grounded in the exact
+     * immutable artifact version named by the regions being fused.
+     */
+    private static String sourceTimelineClockId(RegionFrame region) {
+        return "source-timeline:" + region.sourceId().length() + ":" + region.sourceId()
+                + ":" + region.sourceVersion().length() + ":" + region.sourceVersion();
     }
 
     private boolean sameInstant(

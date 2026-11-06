@@ -312,6 +312,18 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("source-bound fusion rejects a shared timestamp clock from a different immutable version")
+    void sourceBoundFusionRejectsClockFromDifferentVersion() {
+        var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),
+                region("source-v2", 10, 20), region("source-v2", 10, 20),
+                sourceTime(100, 1, 1_000), sourceTime(100, 1, 1_000));
+
+        assertThat(outcome.fusion()).isEmpty();
+        assertThat(outcome.abstentionReason()).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(outcome.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
     @DisplayName("source-bound fusion abstains on invalid weights")
     void sourceBoundFusionAbstainsOnInvalidWeights() {
         var outcome = engine.fuseAudioVisual(makeAudio(DIM, Double.NaN), makeVisual(DIM, 0.5),
@@ -584,7 +596,7 @@ class CrossModalFusionEngineTest {
                 com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.Status.KNOWN,
                 ticks, numerator, denominator,
                 com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp.ClockDomain.SOURCE,
-                "source-id:source-v1:source-timeline", null);
+                "source-timeline:9:source-id:9:source-v1", null);
     }
 
     private void assertInvalidAudioConfidence(double confidence) {
