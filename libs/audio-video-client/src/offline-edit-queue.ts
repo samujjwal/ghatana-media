@@ -313,8 +313,15 @@ export class OfflineEditQueue {
 
   private async transition(record: OfflineEditRecord, state: OfflineEditState): Promise<OfflineEditRecord | undefined> {
     const replacement = { ...record, state };
-    return this.options.store.compareAndSet && await this.options.store.compareAndSet(record, replacement)
-      ? replacement : undefined;
+    try {
+      return this.options.store.compareAndSet && await this.options.store.compareAndSet(record, replacement)
+        ? replacement : undefined;
+    } catch {
+      // A store exception is an indeterminate CAS result: it may have failed
+      // before or after committing. Treat it like a conflict so replay never
+      // crosses the effect boundary without a confirmed durable fence.
+      return undefined;
+    }
   }
 
   private async listScoped(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {

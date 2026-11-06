@@ -19,6 +19,7 @@ const edit = {
 class MemoryStore implements OfflineEditStore {
   readonly records = new Map<string, OfflineEditRecord>();
   failNextPut = false;
+  failNextCas = false;
   async list(query: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
     return [...this.records.values()].filter((record) => record.tenantId === query.tenantId
       && record.projectId === query.projectId);
@@ -38,6 +39,7 @@ class MemoryStore implements OfflineEditStore {
     this.records.set(record.editId, record);
   }
   async compareAndSet(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean> {
+    if (this.failNextCas) { this.failNextCas = false; throw new Error("local CAS unavailable"); }
     const current = this.records.get(expected.editId);
     if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
       || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
@@ -211,6 +213,45 @@ describe("OfflineEditQueue", () => {
     expect(concurrentRun).toEqual([]);
     releaseDispatch();
     expect(await firstRun).toMatchObject([{ state: "APPLIED", receipt: "receipt-1" }]);
+    expect(dispatches).toBe(1);
+  });
+
+  it("fails closed when the pre-dispatch CAS throws and can retry while the edit remains pending", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    store.failNextCas = true;
+    let dispatches = 0;
+    const adapter = {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => { dispatches++; return { outcome: "APPLIED" as const, receipt: "receipt" }; },
+    };
+
+    expect(await queue.replay(scope, adapter)).toMatchObject([{ state: "OUTCOME_UNKNOWN" }]);
+    expect(store.records.get(edit.editId)?.state).toBe("PENDING");
+    expect(dispatches).toBe(0);
+
+    expect(await queue.replay(scope, adapter)).toMatchObject([{ state: "APPLIED", receipt: "receipt" }]);
+    expect(dispatches).toBe(1);
+  });
+
+  it("keeps the durable unknown fence when the post-dispatch result CAS throws", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    let dispatches = 0;
+    const adapter = {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => {
+        dispatches++;
+        store.failNextCas = true;
+        return { outcome: "APPLIED" as const, receipt: "receipt" };
+      },
+    };
+
+    expect(await queue.replay(scope, adapter)).toMatchObject([{ state: "OUTCOME_UNKNOWN" }]);
+    expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
+    expect(await queue.replay(scope, adapter)).toEqual([]);
     expect(dispatches).toBe(1);
   });
 
