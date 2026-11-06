@@ -118,7 +118,9 @@
     "check:surface-docs": "node scripts/check-surface-docs.mjs",
     "generate:historical-inventory": "node scripts/media-historical-artifact-inventory.mjs",
     "check:historical-inventory": "node scripts/media-historical-artifact-inventory.mjs --check",
-    "test:development-work-register": "node --test tests/media-development-work-register.test.mjs"
+    "test:development-work-register": "node --test tests/media-development-work-register.test.mjs",
+    "prepare:historical-export": "node scripts/prepare-media-historical-export.mjs",
+    "test:historical-export": "node --test tests/media-historical-export.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
