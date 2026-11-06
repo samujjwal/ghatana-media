@@ -4,8 +4,11 @@ import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.common.CanonicalAudioFormat;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.media.tts.api.TtsStreamSink;
+import com.ghatana.media.tts.api.TtsStreamingSession;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
@@ -17,6 +20,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.MetadataUtils;
+import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +34,10 @@ import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 
@@ -225,6 +233,74 @@ class TtsVoiceConsentNegativeTest {
         // The revoked retry is denied at ingress and never reaches the dispatch recheck.
         assertThat(observed).hasSize(3);
         verify(engine).synthesize(eq("hello"), any());
+    }
+
+    @Test
+    @DisplayName("authenticated stream with revoked voice withholds buffered final audio")
+    void revocationBeforeFinalDisclosureOverGrpcSuppressesFinalAndCompletion() throws Exception {
+        AtomicReference<TtsRequestAuthorization.Decision> decision =
+                new AtomicReference<>(TtsRequestAuthorization.Decision.ADMITTED);
+        start(request -> decision.get(), "admitted-stream-voice");
+
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        when(engine.startStreaming(any(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            providerStarted.countDown();
+            return TtsStreamingSession.create(sessionCancelled, completion);
+        });
+
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + jwt(OWNER_SUBJECT, "tenant-test"));
+        var streaming = TTSServiceGrpc.newStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+        CopyOnWriteArrayList<com.ghatana.tts.core.grpc.proto.AudioChunk> chunks = new CopyOnWriteArrayList<>();
+        AtomicReference<Throwable> terminalError = new AtomicReference<>();
+        AtomicBoolean completed = new AtomicBoolean();
+        CountDownLatch firstChunk = new CountDownLatch(1);
+        CountDownLatch terminal = new CountDownLatch(1);
+        streaming.streamSynthesize(synthesisRequest("synthetic J-04 stream", "admitted-stream-voice"),
+                new StreamObserver<>() {
+                    @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk chunk) {
+                        chunks.add(chunk);
+                        firstChunk.countDown();
+                    }
+                    @Override public void onError(Throwable failure) {
+                        terminalError.set(failure);
+                        terminal.countDown();
+                    }
+                    @Override public void onCompleted() {
+                        completed.set(true);
+                        terminal.countDown();
+                    }
+                });
+
+        assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+        TtsStreamSink sink = sinkRef.get();
+        sink.onAudioFormat(new CanonicalAudioFormat(22_050, 1, 16, AudioFormat.PCM));
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1));
+        assertThat(firstChunk.await(2, TimeUnit.SECONDS)).isTrue();
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, true, 2));
+
+        // The provider final marker is still buffered. Revoking the exact voice
+        // grant before session completion must prevent that chunk from crossing gRPC.
+        decision.set(TtsRequestAuthorization.Decision.REVOKED);
+        completionRef.get().complete(null);
+
+        assertThat(terminal.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(chunks).hasSize(1);
+        assertThat(chunks.getFirst().getIsFinal()).isFalse();
+        assertThat(terminalError.get()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException status = (StatusRuntimeException) terminalError.get();
+        assertThat(status.getStatus().getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+        assertThat(status.getStatus().getDescription()).contains("TTS_VOICE_AUTH_REVOKED");
+        assertThat(completed).isFalse();
+        assertThat(sessionCancelled).isTrue();
     }
 
     @Test
