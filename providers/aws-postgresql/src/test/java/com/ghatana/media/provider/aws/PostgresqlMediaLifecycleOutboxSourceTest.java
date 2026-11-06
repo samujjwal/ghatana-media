@@ -76,6 +76,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             try {
                 verifyConcurrentClaimFencing();
                 verifyExpiredClaimRecovery();
+                verifyClaimTokenOverflowFailsClosed();
                 verifyRetryDelayAndDeadLetter();
             } finally {
                 anchor.release();
@@ -189,6 +190,55 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 assertThat(row.getLong("dead_lettered_at")).isPositive();
                 assertThat(row.getString("claim_owner")).isNull();
             }
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyClaimTokenOverflowFailsClosed() throws Exception {
+        String eventId = "media:test:outbox-claim-token-overflow";
+        insertEvent(eventId);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_outbox SET claim_token=? WHERE event_id=?")) {
+            update.setLong(1, Long.MAX_VALUE);
+            update.setString(2, eventId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        AtomicInteger providerEffects = new AtomicInteger();
+        try {
+            assertThatThrownBy(() -> source.publishPending(publisher(event -> providerEffects.incrementAndGet()), 1))
+                    .isInstanceOf(ArithmeticException.class);
+            assertThat(providerEffects).hasValue(0);
+        } finally {
+            source.close();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT claim_token,claim_owner,published_at FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getLong("claim_token")).isEqualTo(Long.MAX_VALUE);
+                assertThat(row.getString("claim_owner")).isNull();
+                assertThat(row.getObject("published_at")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+
+        // Keep the deliberately unclaimable fixture from poisoning later batch tests
+        // in the same isolated schema.
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
         } finally {
             state.release();
         }

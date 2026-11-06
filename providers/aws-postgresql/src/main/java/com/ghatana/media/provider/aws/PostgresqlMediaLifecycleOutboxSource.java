@@ -161,7 +161,9 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                         attempts = row.getInt("attempts");
                     }
                 }
-                long token = priorToken + 1;
+                // claim_token is the durable fencing generation. Never allow signed BIGINT
+                // overflow to wrap it negative and potentially make an old generation current.
+                long token = Math.addExact(priorToken, 1L);
                 try (PreparedStatement update = connection.prepareStatement(
                         "UPDATE media_processing_lifecycle_outbox SET claim_owner=?,claim_token=?,claim_expires_at=? "
                                 + "WHERE event_id=? AND claim_token=? AND published_at IS NULL AND dead_lettered_at IS NULL")) {
