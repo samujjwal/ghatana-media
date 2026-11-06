@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +19,15 @@ import java.util.Objects;
  * unresolved, so this class is a local candidate builder rather than a canonical graph writer.
  */
 public final class ReferenceGuidedScenePlanner {
+    // Local candidate-builder ceilings keep deterministic seed/provenance construction bounded.
+    // These are implementation safety limits, not a claim about canonical product wire limits.
+    private static final int MAX_IDENTIFIER_CHARS = 256;
+    private static final int MAX_TEXT_CHARS = 16_384;
+    private static final int MAX_SCENE_CHARS = 65_536;
+    private static final int MAX_FACTS = 256;
+    private static final int MAX_SOURCES = 128;
+    private static final int MAX_COMBINED_SOURCES = 1 + 3 * MAX_SOURCES;
+
     private final CurrentSourceAuthority sourceAuthority;
     private final ModelProvider modelProvider;
 
@@ -109,31 +119,33 @@ public final class ReferenceGuidedScenePlanner {
 
     public record BoundSource(String role, SourceVersion source, String sha256) {
         public BoundSource {
-            role = required(role, "source role");
+            role = boundedRequired(role, "source role", MAX_IDENTIFIER_CHARS);
             Objects.requireNonNull(source, "source");
+            boundedRequired(source.artifactId(), "source artifactId", MAX_IDENTIFIER_CHARS);
+            boundedRequired(source.artifactVersionId(), "source artifactVersionId", MAX_IDENTIFIER_CHARS);
             sha256 = digest(sha256);
         }
     }
 
     public record Prompt(String authoredText, BoundSource authoredSource) {
         public Prompt {
-            authoredText = required(authoredText, "authoredText");
+            authoredText = boundedRequired(authoredText, "authoredText", MAX_TEXT_CHARS);
             Objects.requireNonNull(authoredSource, "authoredSource");
         }
     }
 
     public record ContinuityFact(String key, String value) {
         public ContinuityFact {
-            key = required(key, "continuity key");
-            value = required(value, "continuity value");
+            key = boundedRequired(key, "continuity key", MAX_IDENTIFIER_CHARS);
+            value = boundedRequired(value, "continuity value", MAX_TEXT_CHARS);
         }
     }
 
     public record ContinuitySnapshot(String stateId, String semanticVersion, List<ContinuityFact> facts,
                                      List<BoundSource> exactSources) {
         public ContinuitySnapshot {
-            stateId = required(stateId, "continuity stateId");
-            semanticVersion = required(semanticVersion, "continuity semanticVersion");
+            stateId = boundedRequired(stateId, "continuity stateId", MAX_IDENTIFIER_CHARS);
+            semanticVersion = boundedRequired(semanticVersion, "continuity semanticVersion", MAX_IDENTIFIER_CHARS);
             facts = canonicalFacts(facts);
             exactSources = canonicalSources(exactSources);
         }
@@ -142,9 +154,9 @@ public final class ReferenceGuidedScenePlanner {
     public record Template(String templateId, String version, String authoredScene,
                            List<ContinuityFact> continuityFacts, List<BoundSource> exactSources) {
         public Template {
-            templateId = required(templateId, "templateId");
-            version = required(version, "template version");
-            authoredScene = required(authoredScene, "authoredScene");
+            templateId = boundedRequired(templateId, "templateId", MAX_IDENTIFIER_CHARS);
+            version = boundedRequired(version, "template version", MAX_IDENTIFIER_CHARS);
+            authoredScene = boundedRequired(authoredScene, "authoredScene", MAX_SCENE_CHARS);
             continuityFacts = canonicalFacts(continuityFacts);
             exactSources = canonicalSources(exactSources);
         }
@@ -154,10 +166,10 @@ public final class ReferenceGuidedScenePlanner {
                          long seedInput, Prompt prompt, List<BoundSource> references, Template template,
                          ContinuitySnapshot continuity) {
         public Request {
-            projectId = required(projectId, "projectId");
-            sceneId = required(sceneId, "sceneId");
-            expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
-            purpose = required(purpose, "purpose");
+            projectId = boundedRequired(projectId, "projectId", MAX_IDENTIFIER_CHARS);
+            sceneId = boundedRequired(sceneId, "sceneId", MAX_IDENTIFIER_CHARS);
+            expectedProjectRevisionId = boundedRequired(expectedProjectRevisionId, "expectedProjectRevisionId", MAX_IDENTIFIER_CHARS);
+            purpose = boundedRequired(purpose, "purpose", MAX_IDENTIFIER_CHARS);
             Objects.requireNonNull(prompt, "prompt");
             references = canonicalSources(references);
             Objects.requireNonNull(template, "template");
@@ -171,7 +183,7 @@ public final class ReferenceGuidedScenePlanner {
             all.addAll(references);
             all.addAll(template.exactSources());
             all.addAll(continuity.exactSources());
-            return canonicalSources(all);
+            return canonicalSources(all, MAX_COMBINED_SOURCES);
         }
     }
 
@@ -305,8 +317,13 @@ public final class ReferenceGuidedScenePlanner {
     }
 
     private static List<BoundSource> canonicalSources(List<BoundSource> values) {
+        return canonicalSources(values, MAX_SOURCES);
+    }
+
+    private static List<BoundSource> canonicalSources(List<BoundSource> values, int maximum) {
         if (values == null) return List.of();
-        return values.stream().map(v -> Objects.requireNonNull(v, "source" )).distinct()
+        List<BoundSource> bounded = boundedCopy(values, maximum, "source count", "source");
+        return bounded.stream().distinct()
                 .sorted(Comparator.comparing((BoundSource s) -> s.source().artifactId())
                         .thenComparing(s -> s.source().artifactVersionId()).thenComparing(BoundSource::role)
                         .thenComparing(BoundSource::sha256)).toList();
@@ -314,12 +331,24 @@ public final class ReferenceGuidedScenePlanner {
 
     private static List<ContinuityFact> canonicalFacts(List<ContinuityFact> values) {
         if (values == null) return List.of();
-        var sorted = values.stream().map(v -> Objects.requireNonNull(v, "continuity fact"))
+        var sorted = boundedCopy(values, MAX_FACTS, "continuity fact count", "continuity fact").stream()
                 .sorted(Comparator.comparing(ContinuityFact::key)).toList();
         if (sorted.stream().map(ContinuityFact::key).distinct().count() != sorted.size()) {
             throw new IllegalArgumentException("duplicate continuity fact key");
         }
         return sorted;
+    }
+
+    private static <T> List<T> boundedCopy(List<T> values, int maximum, String countName, String elementName) {
+        List<T> copy = new ArrayList<>(maximum);
+        Iterator<T> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            if (copy.size() == maximum) {
+                throw new IllegalArgumentException(countName + " exceeds local candidate bound");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), elementName));
+        }
+        return List.copyOf(copy);
     }
 
     private static String digest(String value) {
@@ -340,5 +369,13 @@ public final class ReferenceGuidedScenePlanner {
         Objects.requireNonNull(value, name);
         if (value.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         return value;
+    }
+
+    private static String boundedRequired(String value, String name, int maximumChars) {
+        String checked = required(value, name);
+        if (checked.length() > maximumChars) {
+            throw new IllegalArgumentException(name + " exceeds local candidate bound of " + maximumChars + " characters");
+        }
+        return checked;
     }
 }

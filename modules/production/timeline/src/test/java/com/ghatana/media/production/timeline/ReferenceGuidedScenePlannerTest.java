@@ -5,8 +5,10 @@ import static com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVers
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -187,6 +189,75 @@ class ReferenceGuidedScenePlannerTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    void oversizedCandidateInputsAreRejectedBeforeAuthorityInspection() {
+        Authority authority = new Authority();
+        var planner = planner(authority, unavailableProvider());
+        var template = template(List.of(fact("wardrobe", "blue")));
+        var continuity = continuity(List.of(fact("wardrobe", "blue")));
+
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.Prompt("x".repeat(16_385),
+                source("authored-prompt", PROMPT_VERSION, D1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("authoredText");
+
+        List<ReferenceGuidedScenePlanner.BoundSource> tooManyReferences = new ArrayList<>();
+        for (int index = 0; index < 129; index++) {
+            tooManyReferences.add(source("reference-" + index,
+                    new SourceVersion("asset-" + index, "v1"), D2));
+        }
+        assertThatThrownBy(() -> request(tooManyReferences, template, continuity))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("source count");
+        assertThat(authority.observed).isEmpty();
+    }
+
+    @Test
+    void underreportedCollectionsAreBoundedByIterationWithoutConsumingExcess() {
+        List<ReferenceGuidedScenePlanner.BoundSource> sourceValues = new ArrayList<>();
+        for (int index = 0; index < 129; index++) {
+            sourceValues.add(source("reference-" + index,
+                    new SourceVersion("asset-" + index, "v1"), D2));
+        }
+        AtomicInteger sourceReads = new AtomicInteger();
+        assertThatThrownBy(() -> request(underreportedList(sourceValues, sourceReads),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue")))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("source count");
+        assertThat(sourceReads).hasValue(128);
+
+        List<ReferenceGuidedScenePlanner.ContinuityFact> factValues = new ArrayList<>();
+        for (int index = 0; index < 257; index++) factValues.add(fact("fact-" + index, "value"));
+        AtomicInteger factReads = new AtomicInteger();
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.ContinuitySnapshot("continuity", "v1",
+                underreportedList(factValues, factReads), List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("continuity fact count");
+        assertThat(factReads).hasValue(256);
+    }
+
+    @Test
+    void repeatedSourcesAcrossCategoriesAreDeduplicatedWithinCombinedBound() {
+        Authority authority = new Authority();
+        var planner = planner(authority, unavailableProvider());
+        List<ReferenceGuidedScenePlanner.BoundSource> exactSources = new ArrayList<>();
+        for (int index = 0; index < 128; index++) {
+            exactSources.add(source("reference-" + index,
+                    new SourceVersion("asset-" + index, "v1"), D2));
+        }
+        var first = repeatedSourceRequest(exactSources);
+        List<ReferenceGuidedScenePlanner.BoundSource> reversed = new ArrayList<>(exactSources);
+        java.util.Collections.reverse(reversed);
+        var reordered = repeatedSourceRequest(reversed);
+
+        var candidate = planner.prepare(ACTOR, first);
+        var reorderedCandidate = planner.prepare(ACTOR, reordered);
+
+        assertThat(candidate.provenance()).hasSize(128).isEqualTo(reorderedCandidate.provenance());
+        assertThat(candidate.deterministicSeed()).isEqualTo(reorderedCandidate.deterministicSeed());
+        assertThat(authority.observed).hasSize(256);
+    }
+
     private static ReferenceGuidedScenePlanner planner(Authority authority, ReferenceGuidedScenePlanner.ModelProvider provider) {
         return new ReferenceGuidedScenePlanner(authority, provider);
     }
@@ -205,6 +276,15 @@ class ReferenceGuidedScenePlannerTest {
         return new ReferenceGuidedScenePlanner.Request("project-1", "scene-1", "head-12", "source-conditioned-scene", 42,
                 new ReferenceGuidedScenePlanner.Prompt("A quiet harbor at dawn",
                         source("authored-prompt", PROMPT_VERSION, D1)), refs, template, continuity);
+    }
+
+    private static ReferenceGuidedScenePlanner.Request repeatedSourceRequest(
+            List<ReferenceGuidedScenePlanner.BoundSource> sources) {
+        var facts = List.of(fact("wardrobe", "blue"));
+        return new ReferenceGuidedScenePlanner.Request("project-1", "scene-1", "head-12", "source-conditioned-scene", 42,
+                new ReferenceGuidedScenePlanner.Prompt("A quiet harbor at dawn", sources.get(0)), sources,
+                new ReferenceGuidedScenePlanner.Template("template-1", "v2", "A composed authored scene", facts, sources),
+                new ReferenceGuidedScenePlanner.ContinuitySnapshot("continuity-1", "v5", facts, sources));
     }
 
     private static ReferenceGuidedScenePlanner.Template template(List<ReferenceGuidedScenePlanner.ContinuityFact> facts) {
@@ -227,6 +307,23 @@ class ReferenceGuidedScenePlannerTest {
 
     private static ReferenceGuidedScenePlanner.Provenance provenance(String role, SourceVersion version, String digest) {
         return new ReferenceGuidedScenePlanner.Provenance(role, version, digest);
+    }
+
+    private static <T> List<T> underreportedList(List<T> values, AtomicInteger reads) {
+        return new AbstractList<>() {
+            @Override public T get(int index) { return values.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<T> iterator() {
+                Iterator<T> delegate = values.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public T next() {
+                        reads.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
     }
 
     private record Seen(SourceVersion source, String digest, String purpose) { }
