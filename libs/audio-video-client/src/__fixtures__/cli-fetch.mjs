@@ -15,6 +15,8 @@ globalThis.fetch = async (input, init = {}) => {
       method: init.method ?? 'GET',
       tenant: headers.get('x-tenant-id'),
       principal: headers.get('x-principal-id'),
+      requestId: headers.get('x-request-id'),
+      idempotencyKey: headers.get('idempotency-key'),
       authenticated: /^Bearer .+$/u.test(headers.get('authorization') ?? ''),
     })}\n`);
   }
@@ -40,7 +42,7 @@ globalThis.fetch = async (input, init = {}) => {
     return json({ error: { code: 'FORBIDDEN', message: 'denied', retryable: false } }, 403);
   }
   if (mode === 'malformed') return json({ jobId: job.jobId }, 200);
-  if (mode === 'unknown') return json({ ...job, status: 'OUTCOME_UNKNOWN' }, 202);
+  if (mode === 'unknown') return json({ ...job, status: 'OUTCOME_UNKNOWN' }, init.method === 'POST' ? 202 : 200);
   if (mode === 'success') return json(job, init.method === 'POST' ? 202 : 200);
   if (mode === 'restart') {
     const statePath = process.env.GHATANA_MEDIA_CLI_TEST_STATE;
