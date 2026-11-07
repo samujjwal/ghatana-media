@@ -130,6 +130,39 @@ test("manifest rejects duplicate branch IDs that make a local choice ambiguous",
   assert.equal(state.route.length, 0);
 });
 
+test("manifest rejects duplicate caption cue IDs within a scene before playback", () => {
+  const ambiguous = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => scene.id === "intro"
+      ? {
+          ...scene,
+          captions: {
+            ...scene.captions,
+            cues: [
+              { id: "caption-1", startMs: 0, endMs: 400, text: "First cue." },
+              { id: "caption-1", startMs: 400, endMs: 800, text: "Second cue." },
+            ],
+          },
+        }
+      : scene),
+  };
+  const state = createDemoPlayerState(ambiguous, {
+    attest: () => ({
+      manifestId: ambiguous.id,
+      revision: ambiguous.revision,
+      sha256: ambiguous.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: ambiguous.sourceTruth,
+      originPermissions: ambiguous.originPermissions,
+    }),
+  });
+
+  assert.equal(state.status, "UNAVAILABLE");
+  assert.equal(state.failure, "INVALID_BUNDLE");
+  assert.equal(state.route.length, 0);
+  assert.equal(state.playing, false);
+});
+
 test("replay reproduces play and progress state, status, and history", () => {
   const actions = [
     { type: "play" },

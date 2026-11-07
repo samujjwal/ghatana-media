@@ -352,12 +352,15 @@ function validateManifest(
         return "UNAUTHORIZED_CAPTION_ORIGIN";
       }
     }
+    const cueIds = new Set<string>();
     for (const cue of scene.captions.cues) {
       if (
         !cue || typeof cue.id !== "string" || typeof cue.text !== "string" ||
         !cue.id || !cue.text || !Number.isFinite(cue.startMs) || !Number.isFinite(cue.endMs) ||
-        cue.startMs < scene.startMs || cue.endMs > scene.endMs || cue.endMs <= cue.startMs
+        cue.startMs < scene.startMs || cue.endMs > scene.endMs || cue.endMs <= cue.startMs ||
+        cueIds.has(cue.id)
       ) return "INVALID_BUNDLE";
+      cueIds.add(cue.id);
     }
     const branchIds = new Set<string>();
     for (const branch of scene.branches) {
