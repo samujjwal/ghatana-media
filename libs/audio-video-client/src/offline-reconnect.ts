@@ -42,12 +42,18 @@ export type OfflineReconnectResult<R = unknown> =
 
 /** Coordinates reconnect through the existing encrypted queue; it never owns storage or retries unknown effects. */
 export class OfflineReconnectCoordinator<T = unknown, R = string> {
+  private readonly scope: OfflineEditScope;
+
   public constructor(
     private readonly queue: OfflineEditQueue,
-    private readonly scope: OfflineEditScope,
+    scope: OfflineEditScope,
     private readonly operations?: OfflineReconnectOperations<T>,
   ) {
-    assertScope(scope);
+    const snapshot = Object.freeze({ tenantId: scope.tenantId, projectId: scope.projectId });
+    assertScope(snapshot);
+    // Tenant/project identity is a constructor-time boundary. Keep later host
+    // mutation of the caller's object from redirecting queue reads or checks.
+    this.scope = snapshot;
   }
 
   public async reconnect(online: boolean): Promise<OfflineReconnectResult<R>> {

@@ -76,6 +76,53 @@ describe("OfflineReconnectCoordinator", () => {
       reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty: true });
   });
 
+  it("keeps the constructor-time tenant and project scope when the caller mutates its input", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    const mutableScope = { ...scope };
+    const observedScopes: OfflineEditScope[] = [];
+    const coordinator = new OfflineReconnectCoordinator(q, mutableScope, operations({
+      reauthorize: async (queued) => {
+        observedScopes.push({ tenantId: queued.tenantId, projectId: queued.projectId });
+        return { ...scope, disposition: "AUTHORIZED" };
+      },
+      readProjectVersion: async (queriedScope) => {
+        observedScopes.push({ ...queriedScope });
+        return { ...scope, disposition: "CURRENT", version: edit.expectedVersion };
+      },
+      applyEdit: async (queued) => {
+        observedScopes.push({ tenantId: queued.tenantId, projectId: queued.projectId });
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
+      },
+    }));
+
+    mutableScope.tenantId = "tenant-other";
+    mutableScope.projectId = "project-other";
+    const result = await coordinator.reconnect(true);
+
+    expect(result).toMatchObject({ status: "RECONNECTED", dirty: false,
+      results: [{ editId: edit.editId, state: "APPLIED" }] });
+    expect(observedScopes).toEqual([scope, scope, scope, scope]);
+  });
+
+  it("validates the copied scope rather than rereading caller getters", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let tenantReads = 0;
+    const getterScope = {
+      get tenantId() {
+        tenantReads += 1;
+        return tenantReads === 1 ? scope.tenantId : "tenant-other";
+      },
+      projectId: scope.projectId,
+    };
+    const coordinator = new OfflineReconnectCoordinator(q, getterScope);
+
+    await expect(coordinator.reconnect(false)).resolves.toEqual({ status: "OFFLINE", dirty: true });
+    expect(tenantReads).toBe(1);
+  });
+
   it("preserves legacy stores but reports unavailable before authority reads when replay CAS is unsupported", async () => {
     const legacyStore: OfflineEditStore = {
       list: (query) => store.list(query),
