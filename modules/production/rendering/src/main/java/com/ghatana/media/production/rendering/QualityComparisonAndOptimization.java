@@ -69,7 +69,6 @@ public final class QualityComparisonAndOptimization {
             if (width < 1 || width > MAX_FRAME_DIMENSION || height < 1 || height > MAX_FRAME_DIMENSION) {
                 throw invalid("frame dimensions exceed the bound");
             }
-            if (presentationTicks < 0) throw invalid("presentation ticks must be non-negative");
             Objects.requireNonNull(rgb, "rgb");
             long expected = (long) width * height * 3;
             if (expected != rgb.length || expected > MAX_BYTES) throw invalid("RGB8 frame length is invalid");
@@ -101,14 +100,18 @@ public final class QualityComparisonAndOptimization {
             RgbFrame first = Objects.requireNonNull(frames.getFirst(), "frames[0]");
             long pixels = 0;
             long bytes = 0;
-            long priorTicks = -1;
+            long priorTicks = 0;
+            boolean hasPriorTicks = false;
             for (int i = 0; i < frames.size(); i++) {
                 RgbFrame frame = Objects.requireNonNull(frames.get(i), "frame");
                 if (frame.index() != i || frame.width() != first.width() || frame.height() != first.height()) {
                     throw invalid("frames must be ordered with consistent dimensions");
                 }
-                if (frame.presentationTicks() <= priorTicks) throw invalid("frame timestamps must strictly increase");
+                if (hasPriorTicks && frame.presentationTicks() <= priorTicks) {
+                    throw invalid("frame timestamps must strictly increase");
+                }
                 priorTicks = frame.presentationTicks();
+                hasPriorTicks = true;
                 pixels = Math.addExact(pixels, (long) frame.width() * frame.height());
                 // Read the record's private immutable snapshot directly. Calling the
                 // public accessor here would clone the entire payload just to read its length.

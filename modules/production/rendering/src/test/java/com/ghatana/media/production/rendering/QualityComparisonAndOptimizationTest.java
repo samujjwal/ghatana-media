@@ -313,6 +313,17 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void revisionPreservesSignedSourcePresentationTicksInOrder() {
+        Revision revision = new Revision(referenceId("source", "v1", "a"), TB, List.of(
+                new RgbFrame(0, 1, 1, Long.MIN_VALUE, new byte[] {1, 2, 3}),
+                new RgbFrame(1, 1, 1, -1, new byte[] {4, 5, 6}),
+                new RgbFrame(2, 1, 1, 0, new byte[] {7, 8, 9})));
+
+        assertThat(revision.frames()).extracting(RgbFrame::presentationTicks)
+                .containsExactly(Long.MIN_VALUE, -1L, 0L);
+    }
+
+    @Test
     void revisionIdentityRejectsWhitespaceNormalization() {
         assertThatThrownBy(() -> new RevisionId("tenant ", "principal", "artifact", "v1", "a".repeat(64)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
