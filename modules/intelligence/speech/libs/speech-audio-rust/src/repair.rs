@@ -158,7 +158,6 @@ pub fn denoise_bounded(
         || profile.channels != input.config.channels
         || profile.rms_by_channel.len() != input.config.channels as usize
         || profile.profile_frames == 0
-        || profile.profile_frames > MAX_PROFILE_FRAMES
         || profile
             .rms_by_channel
             .iter()
@@ -166,6 +165,11 @@ pub fn denoise_bounded(
     {
         return Err(SpeechAudioError::InvalidInput(
             "noise profile format does not match the source buffer".into(),
+        ));
+    }
+    if profile.profile_frames > limits.max_profile_frames {
+        return Err(SpeechAudioError::ResourceLimit(
+            "noise profile exceeds the configured frame budget".into(),
         ));
     }
     if input.samples.is_empty() {
@@ -582,6 +586,30 @@ mod tests {
 
         assert!(repaired.samples.iter().all(|sample| sample.abs() < 1.0e-21));
         assert_eq!(quiet_input.samples, vec![1.0e-21; 8]);
+    }
+
+    #[test]
+    fn denoise_rejects_profile_above_custom_frame_limit() {
+        let input = mono(vec![0.01; 16]);
+        let estimated = NoiseProfile::estimate(&input, 0, 9).unwrap();
+        let limits = RepairLimits {
+            max_profile_frames: 8,
+            ..RepairLimits::DEFAULT
+        };
+
+        assert!(matches!(
+            denoise_bounded(&input, &estimated, DenoiseOptions::DEFAULT, limits),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+
+        let forged = NoiseProfile {
+            profile_frames: 9,
+            ..estimated
+        };
+        assert!(matches!(
+            denoise_bounded(&input, &forged, DenoiseOptions::DEFAULT, limits),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
     }
 
     #[test]
