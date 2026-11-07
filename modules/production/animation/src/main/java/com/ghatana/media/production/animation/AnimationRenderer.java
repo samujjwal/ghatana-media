@@ -81,6 +81,9 @@ public final class AnimationRenderer {
             if (primitive == Primitive.LINE && strokeWidth <= 0.0) {
                 throw new IllegalArgumentException("line strokeWidth must be positive");
             }
+            if (primitive == Primitive.LINE && (float) strokeWidth == 0.0f) {
+                throw new IllegalArgumentException("line strokeWidth must be representable as a positive float");
+            }
             keyframes = copyBounded(keyframes, MAX_KEYFRAMES_PER_SHAPE, "shape.keyframes");
         }
     }

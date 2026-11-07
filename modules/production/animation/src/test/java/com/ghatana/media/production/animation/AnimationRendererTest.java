@@ -109,6 +109,13 @@ class AnimationRendererTest {
     }
 
     @Test
+    void rejectsLineStrokeThatUnderflowsAtTheRasterBoundary() {
+        assertThatThrownBy(() -> new AnimationRenderer.Shape("subpixel-line", AnimationRenderer.Primitive.LINE,
+                0, 0, 1, 1, Double.MIN_VALUE, 0xffffffff, List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("positive float");
+    }
+
+    @Test
     void rejectsMalformedCurvesDimensionsAndExcessiveRasterWorkBeforeRendering() {
         assertThatThrownBy(() -> new AnimationRenderer.Keyframe(0, Double.NaN, 0,
                 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR))
