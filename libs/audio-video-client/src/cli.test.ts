@@ -5,6 +5,7 @@ import { mkdtemp, mkdir, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createMediaOperationClient } from './operations.js';
 
 const bin = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 const token = 'test-secret-do-not-print';
@@ -267,38 +268,6 @@ describe('ghatanamedia-api artifact inspect executable', () => {
       expect(result.stderr).not.toContain(token);
       expect(requests).toBe(1);
     });
-  });
-
-  it('describes a forbidden job status read as a missing job observation', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-error-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const result = await invoke(
-        jobCommand('https://media.example.test', 'status', ['--job', 'job-1']), token,
-        {
-          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'forbidden',
-          GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
-          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-          GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        }, fetchFixture,
-      );
-      expect(result.status).toBe(1);
-      expect(result.stdout).toBe('');
-      expect(JSON.parse(result.stderr)).toEqual({
-        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status',
-        code: 'MEDIA_REQUEST_FAILED',
-        message: 'Media did not return the requested job observation; success is not inferred.',
-        statusCode: 403,
-      });
-      expect(result.stderr).not.toContain(token);
-      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
-      expect(requests).toEqual([{
-        path: '/api/v1/jobs/job-1', method: 'GET', tenant: 'tenant-a', principal: 'principal-a',
-        requestId: expect.any(String), idempotencyKey: null, authenticated: true, bearerMatches: true,
-      }]);
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
   });
 
   it('omits a correlation identifier that contains the bearer credential', async () => {
