@@ -90,7 +90,7 @@ Do **not** expose the Docker socket inside an ordinary Media service/model conta
 ## 4. Exact code-first execution waves and exit checks
 
 **Wave 0 — after current source fetch (one focused test iteration).**
-- Verify Media/Shared/Ghatana source SHAs, preserve dirty files and remote status. Run the **new** `WhisperOnnxThreadPolicyTest` and `WhisperDecoderPolicyTest` with JDK27 on Mac and Linux ARM64. Verify `WhisperReferenceModelIntegrationTest` now requires `GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT` when the pinned private profile and WAV are supplied. Run no fake gold. The strengthened gold and no-EOT safety patch is code in main, **not yet JDK27-qualified**.
+- Verify Media/Shared/Ghatana source SHAs, preserve dirty files and remote status. **Mac JDK27 preflight completed 2026-11-07:** `WhisperOnnxThreadPolicyTest` + `WhisperDecoderPolicyTest` passed 7/7; `WhisperReferenceModelIntegrationTest.pinnedProfileAndAudioRequireIndependentGoldBeforeModelLoading` passed 1/1. This qualifies the local policy/gold guard only. The private model profile, rights-cleared WAV and independent transcript were absent, so no inference, complete-transcript comparison or CPU A/B ran. Linux ARM64 policy/decoder execution remains outstanding. Run no fake gold.
 - Do not re-run all 1,860 core cases until affected focused selectors pass.
 
 **Wave 1 — in parallel on disjoint files:**
