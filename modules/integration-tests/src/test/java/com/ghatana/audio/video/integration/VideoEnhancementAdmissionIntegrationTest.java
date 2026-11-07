@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.ghatana.media.production.rendering.TemporalVideoRestoration.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Source-free J-08 scenario boundary checks. These verify fail-closed status
@@ -132,6 +133,34 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(authorityBinding.get().rightsEvidenceRefs()).containsExactly("rights-evidence:j08");
         assertThat(authorizedOperation.get()).isEqualTo(OPERATION_ID);
         assertThat(decoderBinding.get()).isSameAs(SOURCE);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
+
+    @Test
+    void decoderReturningDifferentSourceDigestIsRejectedBeforeCandidateCreation() {
+        ArtifactBinding originalBinding = SOURCE;
+        AtomicInteger decoderCalls = new AtomicInteger();
+        DecodedFrameSequence differentArtifactBytes = new DecodedFrameSequence(
+                SOURCE.artifactId(), SOURCE.versionId(), "e".repeat(64), new TimeBase(1, 30), List.of(
+                        new Frame(0, 0, 1, 1, new Roi(0, 0, 1, 1), new byte[] {1, 2, 3}),
+                        new Frame(1, 1, 1, 1, new Roi(0, 0, 1, 1), new byte[] {4, 5, 6}),
+                        new Frame(2, 2, 1, 1, new Roi(0, 0, 1, 1), new byte[] {7, 8, 9})));
+
+        assertThatThrownBy(() -> TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-source-digest-mismatch", SOURCE),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
+                binding -> {
+                    decoderCalls.incrementAndGet();
+                    return differentArtifactBytes;
+                },
+                Optional.empty(),
+                null,
+                null))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("exact requested source artifact version");
+
+        assertThat(decoderCalls).hasValue(1);
+        assertThat(SOURCE).isSameAs(originalBinding);
         assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
     }
 }

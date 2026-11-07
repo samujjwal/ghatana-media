@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 
 class MultitrackRenderPlannerTest {
@@ -44,6 +45,33 @@ class MultitrackRenderPlannerTest {
         assertThat(destination.toString(StandardCharsets.UTF_8)).isEqualTo("abc");
         assertThat(output.bytesWritten()).isEqualTo(3);
         output.close();
+        assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
+    void cancellationStopsSubsequentWritesAndWithholdsDigestButStillCleansUp() throws Exception {
+        var emitted = new ByteArrayOutputStream();
+        var closed = new AtomicBoolean();
+        var cancelled = new AtomicBoolean();
+        OutputStream destination = new OutputStream() {
+            @Override public void write(int value) { emitted.write(value); }
+            @Override public void write(byte[] bytes, int offset, int length) {
+                emitted.write(bytes, offset, length);
+            }
+            @Override public void close() { closed.set(true); }
+        };
+        var output = new BoundedRenderOutput(destination, 16, cancelled::get);
+        output.write("partial".getBytes(StandardCharsets.UTF_8));
+        cancelled.set(true);
+
+        assertThatThrownBy(() -> output.write("-tail".getBytes(StandardCharsets.UTF_8)))
+                .isInstanceOf(IOException.class).hasMessage("render output cancellation requested");
+        assertThat(emitted.toString(StandardCharsets.UTF_8)).isEqualTo("partial");
+        assertThat(output.bytesWritten()).isEqualTo("partial".length());
+        assertThatThrownBy(output::flush).isInstanceOf(IOException.class).hasMessage("render output has failed");
+
+        output.close();
+        assertThat(closed).isTrue();
         assertThat(output.completedSha256()).isNull();
     }
 
