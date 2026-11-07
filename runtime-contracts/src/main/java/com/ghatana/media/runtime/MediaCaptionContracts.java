@@ -192,6 +192,10 @@ public final class MediaCaptionContracts {
             }
             copy.add(Objects.requireNonNull(iterator.next(), "captionSegments[]"));
         }
+        if (copy.size() != declaredSize) {
+            throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST,
+                    "segment list size does not match observed elements");
+        }
         return List.copyOf(copy);
     }
 

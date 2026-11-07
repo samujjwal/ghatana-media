@@ -51,6 +51,31 @@ class MediaCaptionContractsTest {
         assertThatThrownBy(() -> snapshot.captionSegments().clear()).isInstanceOf(UnsupportedOperationException.class);
     }
 
+    @Test
+    void rejectsSegmentListsWhoseDeclaredSizeDoesNotMatchObservedElements() {
+        AtomicInteger reads = new AtomicInteger();
+        List<CaptionSegment> underreported = new AbstractList<>() {
+            @Override public CaptionSegment get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return 0; }
+            @Override public java.util.Iterator<CaptionSegment> iterator() {
+                java.util.Iterator<CaptionSegment> source = List.of(CaptionSegment.of(
+                        "segment-1", "hello", 0, 1_000, SegmentOrigin.USER_EDITED)).iterator();
+                return new java.util.Iterator<>() {
+                    @Override public boolean hasNext() { return source.hasNext(); }
+                    @Override public CaptionSegment next() {
+                        reads.incrementAndGet();
+                        return source.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> request(underreported))
+                .isInstanceOf(CaptionRegistrationException.class)
+                .hasMessageContaining("segment list size does not match observed elements");
+        assertThat(reads).hasValue(1);
+    }
+
     private static void assertInvalidRequestBeforeRead(Runnable construction) {
         assertThatThrownBy(construction::run)
                 .isInstanceOf(CaptionRegistrationException.class)
