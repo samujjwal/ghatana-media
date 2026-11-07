@@ -244,8 +244,25 @@ public final class VersionedReviewEngine {
             throw new IllegalArgumentException("unsupported review payload");
         }
         try {
+            byte[] canonicalBytes;
+            try {
+                java.nio.ByteBuffer encoded = java.nio.charset.StandardCharsets.UTF_8.newEncoder()
+                        .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                        .encode(java.nio.CharBuffer.wrap(canonical));
+                canonicalBytes = new byte[encoded.remaining()];
+                encoded.get(canonicalBytes);
+            } catch (java.nio.charset.CharacterCodingException malformedUtf16) {
+                // Preserve the existing UTF-8 fingerprint for valid text. For malformed UTF-16,
+                // encode code units behind a byte that valid UTF-8 cannot contain, so distinct
+                // Java strings cannot collapse to replacement characters or alias valid text.
+                byte[] utf16 = canonical.toString().getBytes(java.nio.charset.StandardCharsets.UTF_16BE);
+                canonicalBytes = new byte[utf16.length + 1];
+                canonicalBytes[0] = (byte) 0xFF;
+                System.arraycopy(utf16, 0, canonicalBytes, 1, utf16.length);
+            }
             byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
-                    .digest(canonical.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    .digest(canonicalBytes);
             return java.util.HexFormat.of().formatHex(digest);
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 is unavailable", impossible);

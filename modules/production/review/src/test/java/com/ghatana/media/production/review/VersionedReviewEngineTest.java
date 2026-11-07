@@ -521,6 +521,30 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void malformedUtf16PayloadCannotAliasUtf8ReplacementCharacterFingerprint() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        fixture.engine.append(REVIEWER, fixture.request(0, "req-malformed-unicode",
+                new Comment("\uD800", CommentDisposition.OPEN, null)));
+
+        assertThatThrownBy(() -> fixture.engine.append(REVIEWER, fixture.request(0, "req-malformed-unicode",
+                new Comment("?", CommentDisposition.OPEN, null))))
+                .isInstanceOf(ReviewIdempotencyConflictException.class);
+        assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
+    void malformedUtf16PayloadCannotAliasValidUtf8CodePointFingerprint() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        fixture.engine.append(REVIEWER, fixture.request(0, "req-surrogate-utf8-overlap",
+                new Comment("\uD880", CommentDisposition.OPEN, null)));
+
+        assertThatThrownBy(() -> fixture.engine.append(REVIEWER, fixture.request(0, "req-surrogate-utf8-overlap",
+                new Comment("\u0600", CommentDisposition.OPEN, null))))
+                .isInstanceOf(ReviewIdempotencyConflictException.class);
+        assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
     void appendUsesCanonicalSha256FingerprintRequiredByDurableStore() {
         AtomicReference<String> fingerprint = new AtomicReference<>();
         ReviewStore capturingStore = new ReviewStore() {
