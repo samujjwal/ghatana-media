@@ -1038,6 +1038,42 @@ describe("publishFinalRender", () => {
       .not.toHaveBeenCalled();
   });
 
+  it("snapshots host bytes and content type without invoking mutable adapter methods", async () => {
+    let sliceCalled = false;
+    let byteLengthReads = 0;
+    let contentTypeReads = 0;
+    const hostBytes = new Uint8Array([1, 2, 3]);
+    Object.defineProperty(hostBytes, "slice", {
+      value: () => {
+        sliceCalled = true;
+        return new Uint8Array(1024 * 1024);
+      },
+    });
+    Object.defineProperty(hostBytes, "byteLength", {
+      get: () => {
+        byteLengthReads += 1;
+        return 2;
+      },
+    });
+    const hostContainer = verifiedContainer(hostBytes);
+    Object.defineProperty(hostContainer, "contentType", {
+      get: () => {
+        contentTypeReads += 1;
+        return contentTypeReads === 1 ? "video/mp4" : "video/webm";
+      },
+    });
+    const client = fakeClient();
+
+    await expect(publishFinalRender(request(), admitted,
+      { muxAndVerify: async () => hostContainer }, client))
+      .resolves.toMatchObject({ outcome: "PUBLISHED" });
+    expect(sliceCalled).toBe(false);
+    expect(byteLengthReads).toBe(0);
+    expect(contentTypeReads).toBe(1);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .toHaveBeenCalledWith(expect.objectContaining({ contentType: "video/mp4", expectedSizeBytes: 3 }), undefined);
+  });
+
   it("rejects a forged scenario identity or lineage before authority or upload calls", async () => {
     const client = fakeClient();
     const admission = { admit: vi.fn(async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] })) };

@@ -609,6 +609,11 @@ export type FinalRenderPublishResult =
   | { readonly outcome: "OUTCOME_UNKNOWN"; readonly reason: string; readonly uploadId?: string };
 
 const MAX_RENDER_BYTES = 1_073_741_824;
+const UINT8_ARRAY_BYTE_LENGTH_GETTER = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype),
+  "byteLength",
+)?.get;
+const UINT8_ARRAY_SET = Uint8Array.prototype.set;
 const RENDER_UPLOAD_CHUNK_BYTES = 4 * 1024 * 1024;
 const MAX_RENDER_AUTHORITY_REFS_PER_CHECK = 64;
 const MAX_RENDER_AUTHORITY_REFS_TOTAL = 256;
@@ -826,6 +831,24 @@ function copyExactHostArray<T>(value: unknown, expectedLength: number): T[] | un
   return copy;
 }
 
+/** Copy host bytes without invoking an adapter-owned slice/species implementation. */
+function copyBoundedHostBytes(value: unknown): Uint8Array | undefined {
+  try {
+    if (!(value instanceof Uint8Array)) return undefined;
+    if (!UINT8_ARRAY_BYTE_LENGTH_GETTER) return undefined;
+    const length = Reflect.apply(UINT8_ARRAY_BYTE_LENGTH_GETTER, value, []) as number;
+    if (!Number.isSafeInteger(length) || length < 1 || length > MAX_RENDER_BYTES) return undefined;
+    const copy = new Uint8Array(length);
+    // Use captured intrinsics so adapter-owned properties cannot run and the
+    // bounded copy stays on the engine's native typed-array path.
+    Reflect.apply(UINT8_ARRAY_SET, copy, [value]);
+    return copy;
+  } catch {
+    // Detached/proxied host buffers are invalid observations, not escaping failures.
+    return undefined;
+  }
+}
+
 /** Reject clearly disjoint ffprobe container families; format names are not exact MIME proof. */
 function containerFamilyCompatible(container: string, contentType: string): boolean {
   if (container.length > 256) return false;
@@ -973,27 +996,30 @@ export async function publishFinalRender(
     return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before artifact upload began" };
   }
   // Detach from caller/adapter-owned memory before any further await.
-  if (!rendered || !(rendered.bytes instanceof Uint8Array)
-    || typeof rendered.contentType !== "string"
-    || !/^video\/[a-z0-9.+-]+$/u.test(rendered.contentType)) {
+  if (!rendered || typeof rendered !== "object") {
     return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
   }
-  // Check the host-owned buffer length before copying it. A broken or hostile
-  // adapter must not be able to force an unbounded allocation past our output
-  // ceiling merely by returning an oversized typed array.
-  const sourceByteLength = rendered.bytes.byteLength;
-  if (!Number.isSafeInteger(sourceByteLength) || sourceByteLength < 1
-    || sourceByteLength > MAX_RENDER_BYTES) {
+  let contentType: string;
+  let bytes: Uint8Array | undefined;
+  try {
+    contentType = rendered.contentType;
+    if (typeof contentType !== "string" || !/^video\/[a-z0-9.+-]+$/u.test(contentType)) {
+      return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
+    }
+    // Inspect the byte bound once, then copy only that many indexed bytes.
+    // Calling host-owned slice() could invoke an overridden implementation or
+    // species constructor and allocate outside the checked bound.
+    bytes = copyBoundedHostBytes(rendered.bytes);
+  } catch {
     return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
   }
-  const bytes = rendered.bytes.slice();
-  if (bytes.byteLength !== sourceByteLength) {
-    return { outcome: "NOT_ADMITTED", reason: "muxer output changed size while being snapshotted" };
+  if (!bytes) {
+    return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
   }
   const narrationRefs = [...new Set(safeRequest.plan.sceneRuns.flatMap((run) => run.narration.map((cue) => cue.trackRef)))];
   let probeIsValid = false;
   try {
-    probeIsValid = probeMatchesRequest(rendered.probe, safeRequest, narrationRefs, rendered.contentType);
+    probeIsValid = probeMatchesRequest(rendered.probe, safeRequest, narrationRefs, contentType);
   } catch {
     // Includes revoked proxies encountered while obtaining the probe object.
   }
@@ -1033,7 +1059,7 @@ export async function publishFinalRender(
     });
     const createdSession = await artifactClient.createUploadSession({
       fileName: safeRequest.fileName,
-      contentType: rendered.contentType,
+      contentType,
       expectedSizeBytes: bytes.byteLength,
       expectedSha256: sha256,
       classification: safeRequest.classification,
@@ -1048,7 +1074,7 @@ export async function publishFinalRender(
     if (session.status !== "OPEN") {
       return { outcome: "OUTCOME_UNKNOWN", reason: "idempotent upload session is not open; read canonical state before replay", uploadId };
     }
-    if (session.fileName !== safeRequest.fileName || session.contentType !== rendered.contentType
+    if (session.fileName !== safeRequest.fileName || session.contentType !== contentType
       || session.expectedSizeBytes !== bytes.byteLength || session.expectedSha256 !== sha256
       || session.classification !== safeRequest.classification
       || !sameRenderJson(session.metadata, uploadMetadata)) {
@@ -1100,7 +1126,7 @@ export async function publishFinalRender(
     const artifact = await artifactClient.completeUploadSession(session, signal);
     if (artifact.tenantId !== session.tenantId || artifact.principalId !== session.principalId
       || artifact.sha256 !== sha256 || artifact.sizeBytes !== bytes.byteLength
-      || artifact.fileName !== safeRequest.fileName || artifact.contentType !== rendered.contentType) {
+      || artifact.fileName !== safeRequest.fileName || artifact.contentType !== contentType) {
       return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not match verified render bytes or upload scope", uploadId };
     }
     if (artifact.classification !== session.classification
