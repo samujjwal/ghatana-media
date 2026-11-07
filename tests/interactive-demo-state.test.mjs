@@ -209,3 +209,13 @@ test("replay reproduces play and progress state, status, and history", () => {
   assert.equal(replayed.status, "READY");
   assert.deepEqual(replayed.history, actions);
 });
+
+test("replay rejects action streams above the recorded-action bound before processing a prefix", () => {
+  const actions = Array.from({ length: 10_001 }, () => ({ type: "play" }));
+  const replayed = replayDemoActions(manifest, verifier, actions);
+
+  assert.equal(replayed.status, "UNAVAILABLE");
+  assert.equal(replayed.failure, "PLAYBACK_LIMIT_REACHED");
+  assert.equal(replayed.playing, false);
+  assert.deepEqual(replayed.history, []);
+});

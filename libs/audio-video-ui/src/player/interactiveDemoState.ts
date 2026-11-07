@@ -560,9 +560,17 @@ export function replayDemoActions(
   verificationPort: DemoHostVerificationPort | undefined,
   actions: readonly DemoPlayerAction[],
 ): DemoPlayerState {
+  const initial = createDemoPlayerState(manifest, verificationPort);
+  // Replay input is an untrusted local action stream. Keep its work and the
+  // state history under the same finite bound, and reject oversized streams
+  // before replaying a prefix that could look like a successful partial run.
+  if (initial.status !== "READY") return initial;
+  if (actions.length > MAX_RECORDED_ACTIONS) {
+    return unavailableFrom(initial, "PLAYBACK_LIMIT_REACHED");
+  }
   return actions.reduce(
     (state, action) => reduceDemoPlayerState(manifest, state, action, verificationPort),
-    createDemoPlayerState(manifest, verificationPort),
+    initial,
   );
 }
 
