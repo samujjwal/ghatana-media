@@ -1309,6 +1309,35 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void duplicateProviderChunkSequenceFailsWithoutDeliveringTheChunkTwice() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(ServerCallStreamObserver.class);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1));
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 0, false, 2));
+
+        var failure = org.mockito.ArgumentCaptor.forClass(Throwable.class);
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk ->
+                chunk.getAudioData().equals(ByteString.copyFrom(new byte[] {1, 2}))));
+        verify(observer, org.mockito.Mockito.timeout(1_000)).onError(failure.capture());
+        assertThat(Status.fromThrowable(failure.getValue()).getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
+        assertThat(sessionCancelled).isTrue();
+        verify(observer, org.mockito.Mockito.times(1)).onNext(any());
+        verify(observer, never()).onCompleted();
+    }
+
+    @Test
     void ambiguousDownstreamChunkDeliveryCancelsProviderWithoutSendingContradictoryError() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         @SuppressWarnings("unchecked")
