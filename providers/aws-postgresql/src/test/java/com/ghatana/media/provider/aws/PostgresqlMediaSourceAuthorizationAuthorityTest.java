@@ -380,6 +380,24 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
     }
 
     @Test
+    void mismatchedSharedPolicyTargetCannotIssueSourceRightsEvidence() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-policy-binding", "principal-a", "artifact-a"),
+                    authenticated("tenant-policy-binding", "principal-a"));
+            fixture.engine().targetIdOverride.set("different-artifact");
+
+            var decision = fixture.authority().resolve(
+                    request("tenant-policy-binding", "principal-a", "artifact-a"),
+                    authenticated("tenant-policy-binding", "principal-a"));
+
+            assertThat(decision.status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
+            assertThat(decision.evidence()).isNull();
+            assertThat(decisionCount(fixture.state(), "tenant-policy-binding")).isZero();
+        }
+    }
+
+    @Test
     void revalidationDetectsMismatchedOrExpiredDecisions() throws Exception {
         try (Fixture fixture = openFixture()) {
             fixture.administration().register(register("tenant-mis", "principal-a", "artifact-a"),
@@ -652,12 +670,14 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
     private static final class FakePolicyEngine implements PolicyEngine {
         private final AtomicReference<PolicyDecisionOutcome> outcome = new AtomicReference<>(PolicyDecisionOutcome.ALLOW);
         private final AtomicReference<Boolean> throwOnEvaluate = new AtomicReference<>(false);
+        private final AtomicReference<String> targetIdOverride = new AtomicReference<>();
 
         @Override public CompletionStage<PolicyDecisionRecord> evaluate(PolicyEvaluationRequest request) {
             if (throwOnEvaluate.get()) throw new IllegalStateException("policy engine unavailable");
             PolicyEvaluationContext context = new PolicyEvaluationContext(
                     request.principalId(), request.tenantId(), request.actionClass(), request.targetType(),
-                    request.targetId(), request.toolId(), request.criticality(), request.reversibility(),
+                    targetIdOverride.get() == null ? request.targetId() : targetIdOverride.get(),
+                    request.toolId(), request.criticality(), request.reversibility(),
                     request.attributes(), Instant.now(), request.correlationId(), request.verifiedContext());
             PolicyDecisionOutcome actual = outcome.get();
             PolicyDecisionRecord decision = new PolicyDecisionRecord(

@@ -105,12 +105,13 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             MediaSourceAuthorizationContracts.Status consent = currentConsentStatus(record, request, Instant.now());
             if (consent != MediaSourceAuthorizationContracts.Status.ALLOWED) return decision(consent);
 
-            PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
+            PolicyEvaluationRequest evaluation = policyEvaluationRequest(request, record, authenticated);
+            PolicyDecisionRecord policy = evaluatePolicy(evaluation);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             if (policy.outcome() == PolicyDecisionOutcome.DENY) {
                 return decision(MediaSourceAuthorizationContracts.Status.DENIED);
             }
-            if (!authoritativeAllow(policy, authenticated)) {
+            if (!authoritativeAllow(policy, authenticated, evaluation)) {
                 return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             }
             return issue(request, record, policy);
@@ -151,12 +152,13 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             MediaSourceAuthorizationContracts.Status consent = currentConsentStatus(record, request, now);
             if (consent != MediaSourceAuthorizationContracts.Status.ALLOWED) return decision(consent);
 
-            PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
+            PolicyEvaluationRequest evaluation = policyEvaluationRequest(request, record, authenticated);
+            PolicyDecisionRecord policy = evaluatePolicy(evaluation);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             if (policy.outcome() == PolicyDecisionOutcome.DENY) {
                 return decision(MediaSourceAuthorizationContracts.Status.DENIED);
             }
-            if (!authoritativeAllow(policy, authenticated)) {
+            if (!authoritativeAllow(policy, authenticated, evaluation)) {
                 return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             }
             return new MediaSourceAuthorizationContracts.Decision(
@@ -511,18 +513,17 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                         .isAfter(Instant.now().plus(Duration.ofMinutes(1)));
     }
 
-    private PolicyDecisionRecord evaluatePolicy(
+    private static PolicyEvaluationRequest policyEvaluationRequest(
             MediaSourceAuthorizationContracts.Request request,
             SourceRecord record,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
-        if (policyEngine == null) return null;
         String correlationId = UUID.randomUUID().toString();
         // The Shared verified context derives from the ingress-authenticated credential with
         // its real verification time, never from a request identity re-minted here.
         PrincipalIdentity principal = new PrincipalIdentity(
                 authenticated.tenantId(), authenticated.principalId(), null, Set.of(),
                 authenticated.authenticatedAt());
-        PolicyEvaluationRequest evaluation = PolicyEvaluationRequest.builder()
+        return PolicyEvaluationRequest.builder()
                 .principalId(request.principalId())
                 .tenantId(request.tenantId())
                 .actionClass("CALL_EXTERNAL")
@@ -534,6 +535,10 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                 .correlationId(correlationId)
                 .verifiedContext(VerifiedPolicyContext.from(principal, correlationId))
                 .build();
+    }
+
+    private PolicyDecisionRecord evaluatePolicy(PolicyEvaluationRequest evaluation) {
+        if (policyEngine == null) return null;
         CompletionStage<PolicyDecisionRecord> stage;
         try {
             stage = policyEngine.evaluate(evaluation);
@@ -566,7 +571,8 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
 
     private static boolean authoritativeAllow(
             PolicyDecisionRecord decision,
-            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
+            PolicyEvaluationRequest evaluation) {
         if (decision.outcome() != PolicyDecisionOutcome.ALLOW || !decision.isAuthoritative()
                 || decision.policyVersion() == null || decision.policyVersion().isBlank()) {
             return false;
@@ -580,7 +586,29 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
         }
         var verified = context.verifiedContext();
         return verified.principalId().equals(authenticated.principalId())
-                && verified.tenantId().equals(authenticated.tenantId());
+                && verified.tenantId().equals(authenticated.tenantId())
+                && matchesPolicyEvaluation(decision, evaluation);
+    }
+
+    /** A trusted ALLOW must attest to this exact policy request, not only the same identity. */
+    static boolean matchesPolicyEvaluation(
+            PolicyDecisionRecord decision, PolicyEvaluationRequest request) {
+        if (decision == null || request == null || decision.context() == null) return false;
+        var context = decision.context();
+        return context.isTrusted()
+                && context.principalId().equals(request.principalId())
+                && context.tenantId().equals(request.tenantId())
+                && context.actionClass().equals(request.actionClass())
+                && context.targetType().equals(request.targetType())
+                && Objects.equals(context.targetId(), request.targetId())
+                && Objects.equals(context.toolId(), request.toolId())
+                && context.criticality().equals(request.criticality())
+                && context.reversibility().equals(request.reversibility())
+                && context.attributes().equals(request.attributes())
+                && Objects.equals(context.correlationId(), request.correlationId())
+                && Objects.equals(context.verifiedContext(), request.verifiedContext())
+                && (request.policyVersion() == null || request.policyVersion().isBlank()
+                        || request.policyVersion().equals(decision.policyVersion()));
     }
 
     private static MediaSourceAuthorizationContracts.Decision decision(
