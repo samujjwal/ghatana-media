@@ -37,18 +37,23 @@ interface CreateProjectRequest {
 }
 
 function createProjectRequest(action: MediaScreenAction | undefined): CreateProjectRequest | undefined {
-  if (!action || typeof action !== "object" || !("payload" in action)) return undefined;
-  const payload = action.payload;
-  if (!payload || typeof payload !== "object") return undefined;
-  const keys = Object.keys(payload).sort();
-  if (keys.length !== 3 || keys[0] !== "requestId" || keys[1] !== "selectedAuthorizedWorkspaceId" || keys[2] !== "title") return undefined;
-  const { selectedAuthorizedWorkspaceId, title, requestId } = payload;
-  if (typeof selectedAuthorizedWorkspaceId !== "string" || selectedAuthorizedWorkspaceId.length > 128
-    || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(selectedAuthorizedWorkspaceId)) return undefined;
-  if (typeof title !== "string" || [...title].length > 200 || !/\S/.test(title)) return undefined;
-  if (typeof requestId !== "string" || requestId.length > 128
-    || !/^[A-Za-z0-9][A-Za-z0-9._~:-]*$/.test(requestId)) return undefined;
-  return { selectedAuthorizedWorkspaceId, title, requestId };
+  try {
+    if (!action || typeof action !== "object" || !("payload" in action)) return undefined;
+    const payload = action.payload;
+    if (!payload || typeof payload !== "object") return undefined;
+    const keys = Object.keys(payload).sort();
+    if (keys.length !== 3 || keys[0] !== "requestId" || keys[1] !== "selectedAuthorizedWorkspaceId" || keys[2] !== "title") return undefined;
+    const { selectedAuthorizedWorkspaceId, title, requestId } = payload;
+    if (typeof selectedAuthorizedWorkspaceId !== "string" || selectedAuthorizedWorkspaceId.length > 128
+      || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(selectedAuthorizedWorkspaceId)) return undefined;
+    if (typeof title !== "string" || [...title].length > 200 || !/\S/.test(title)) return undefined;
+    if (typeof requestId !== "string" || requestId.length > 128
+      || !/^[A-Za-z0-9][A-Za-z0-9._~:-]*$/.test(requestId)) return undefined;
+    return Object.freeze({ selectedAuthorizedWorkspaceId, title, requestId });
+  } catch {
+    // Malformed host projections fail closed without rendering attacker text.
+    return undefined;
+  }
 }
 
 function safeCreateFeedback(result: MediaActionDispatchResult): MediaActionFeedbackValue {
@@ -105,7 +110,7 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
   }[project.view];
   const createAction = actions.find((action) => action.id === "media.action.create-project");
   const request = createProjectRequest(createAction);
-  const subjectRefs = createAction?.subjectRefs;
+  const subjectRefs = Object.freeze([...(createAction?.subjectRefs ?? [])]);
   const createReady = project.accessState === "resolved"
     && Boolean(project.workspaceName?.trim())
     && Boolean(createAction?.enabled)
@@ -151,7 +156,12 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
           setCreateFeedback({ state: "pending", message: "Requesting project creation; completion remains unknown until exact owner reconciliation." });
           void (async () => {
             try {
-              const result = await dispatchGuard.actionPort.invoke(createAction.id, createAction.payload, { subjectRefs });
+              const payload = Object.freeze({
+                selectedAuthorizedWorkspaceId: request.selectedAuthorizedWorkspaceId,
+                title: request.title,
+                requestId: request.requestId,
+              });
+              const result = await dispatchGuard.actionPort.invoke(createAction.id, payload, { subjectRefs });
               setCreateFeedback(safeCreateFeedback(result));
             } catch {
               setCreateFeedback({ state: "unknown", message: "Request outcome is unknown. Reconcile the exact project request before retrying." });

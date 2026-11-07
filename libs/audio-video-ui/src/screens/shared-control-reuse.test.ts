@@ -126,6 +126,29 @@ describe("Shared control reuse in Media screens", () => {
     expect(screen.getByText(/exact approved request and reconciliation references/)).toBeTruthy();
   });
 
+  it("dispatches an immutable snapshot of the request shown for confirmation", async () => {
+    const payload = { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "request-1" };
+    let dispatchedPayload: Readonly<Record<string, string | number | boolean | null>> | undefined;
+    const invoke = vi.fn(async (_actionId: string, request?: Readonly<Record<string, string | number | boolean | null>>) => {
+      dispatchedPayload = request;
+      return { status: "request-acknowledged" as const, requestId: "request-1" };
+    });
+    render(React.createElement(FirstUseProjectScreen, {
+      data,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+        payload, subjectRefs: ["workspace:workspace-1", "project-create:request-1"] }],
+      actionPort: { invoke },
+      context,
+      project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: "workspace-1", accessState: "resolved", projects: [], projectNameDraft: "Rough cut" },
+    }));
+
+    payload.title = "Mutated after render";
+    fireEvent.click(screen.getByRole("button", { name: "Create project" }));
+    await screen.findByText("The project request was acknowledged. Completion remains unobserved.");
+    expect(dispatchedPayload).toEqual({ selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "request-1" });
+    expect(Object.isFrozen(dispatchedPayload)).toBe(true);
+  });
+
   it("fails closed for a blank title, mismatched workspace, or missing reconciliation subject", () => {
     const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "request-1" }));
     const cases = [
