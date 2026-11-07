@@ -94,7 +94,7 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
         status.addEventListener("change", changed);
         // Keep removal paired with the exact listener.
         unsubscribeChange = () => status?.removeEventListener("change", changed);
-      }).catch(() => listener("UNKNOWN"));
+      }).catch(() => { if (active) listener("UNKNOWN"); });
       let unsubscribeChange: () => void = () => {};
       return () => { active = false; unsubscribeChange(); };
     },

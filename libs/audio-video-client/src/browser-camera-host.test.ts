@@ -99,6 +99,22 @@ async function expectCode(promise: Promise<unknown>, code: string) {
 }
 
 describe("concrete browser camera host", () => {
+  it("does not report a late permission-query failure after the subscription was removed", async () => {
+    let rejectQuery!: (error: Error) => void;
+    const port = createBrowserCameraMediaDevicePort({
+      sourceVersionRef: () => undefined,
+      browser: { permissions: { query: () => new Promise((_, reject) => { rejectQuery = reject; }) } } as never,
+    });
+    const observations: string[] = [];
+    const permission = (port as unknown as { permission: { subscribe: (candidate: CaptureRequest, listener: (state: string) => void) => () => void } }).permission;
+    const unsubscribe = permission.subscribe(request, (state) => observations.push(state));
+    unsubscribe();
+    rejectQuery(new Error("late host permission query failure"));
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(observations).toEqual([]);
+  });
+
   it("fails closed for denied, unknown and absent browser APIs without opening a device", async () => {
     for (const [state, code] of [["denied", "PERMISSION_DENIED"], ["prompt", "PERMISSION_UNKNOWN"]] as const) {
       const h = setup(state);

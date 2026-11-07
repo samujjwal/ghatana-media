@@ -490,7 +490,7 @@ export function reduceDemoPlayerState(
         announcement: "Interactive demonstration unavailable: media playback failed.",
       });
     case "seek": {
-      if (!Number.isFinite(action.positionMs) || action.positionMs < 0) {
+      if (!Number.isFinite(action.positionMs) || !Number.isInteger(action.positionMs) || action.positionMs < 0) {
         return state;
       }
       const reachable = state.route

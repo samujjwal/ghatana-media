@@ -240,6 +240,7 @@ describe("interactive demo player", () => {
     const authority = testAuthority(BASE);
     const initial = createDemoPlayerState(BASE, authority);
     expect(reduceDemoPlayerState(BASE, initial, { type: "seek", positionMs: -1 }, authority)).toEqual(initial);
+    expect(reduceDemoPlayerState(BASE, initial, { type: "seek", positionMs: 0.5 }, authority)).toBe(initial);
     expect(reduceDemoPlayerState(BASE, initial, { type: "choose-branch", branchId: "missing" }, authority)).toEqual(initial);
     expect(reduceDemoPlayerState(BASE, initial, null as unknown as DemoPlayerAction, authority)).toEqual(initial);
     expect(reduceDemoPlayerState(BASE, initial, { type: "unknown" } as unknown as DemoPlayerAction, authority)).toEqual(initial);
