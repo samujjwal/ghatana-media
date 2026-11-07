@@ -84,17 +84,30 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       apply: async (edit) => {
         if (!sameScope(edit, this.scope)) return { outcome: "OUTCOME_UNKNOWN" };
         const response = await this.operations!.applyEdit(edit);
-        if (!sameScope(response, this.scope) || response.editId !== edit.editId
-          || response.idempotencyKey !== edit.idempotencyKey || response.expectedVersion !== edit.expectedVersion) {
+        if (!response || typeof response !== "object") return { outcome: "OUTCOME_UNKNOWN" };
+        // Treat adapter output as an untrusted readback. Snapshot each field
+        // once so accessors cannot return one value during validation and a
+        // different receipt/outcome when the replay result is persisted.
+        const responseTenantId = response.tenantId;
+        const responseProjectId = response.projectId;
+        const responseEditId = response.editId;
+        const responseIdempotencyKey = response.idempotencyKey;
+        const responseExpectedVersion = response.expectedVersion;
+        const outcome = response.outcome;
+        const receipt = response.receipt;
+        if (responseTenantId !== this.scope.tenantId || responseProjectId !== this.scope.projectId
+          || responseEditId !== edit.editId || responseIdempotencyKey !== edit.idempotencyKey
+          || responseExpectedVersion !== edit.expectedVersion) {
           return { outcome: "OUTCOME_UNKNOWN" };
         }
-        if (response.outcome === "APPLIED") {
-          if (typeof response.receipt !== "string" || !response.receipt.trim()) {
+        if (outcome === "APPLIED") {
+          if (typeof receipt !== "string" || !receipt.trim()) {
             return { outcome: "OUTCOME_UNKNOWN" };
           }
-          return { outcome: "APPLIED", receipt: response.receipt as R };
+          return { outcome: "APPLIED", receipt: receipt as R };
         }
-        return { outcome: response.outcome };
+        if (outcome === "CONFLICT" || outcome === "OUTCOME_UNKNOWN") return { outcome };
+        return { outcome: "OUTCOME_UNKNOWN" };
       },
     };
     const results = await this.queue.replay<T, R>(this.scope, adapter);

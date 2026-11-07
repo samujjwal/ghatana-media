@@ -561,6 +561,29 @@ describe("OfflineReconnectCoordinator", () => {
     expect((await recreatedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
   });
 
+  it("validates and persists the same single read of an apply receipt", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let receiptReads = 0;
+    const changingReceipt = operations({
+      applyEdit: async (queued) => {
+        const response = { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED" as const };
+        Object.defineProperty(response, "receipt", {
+          get: () => ++receiptReads === 1 ? "receipt:exact" : 42,
+        });
+        return response;
+      },
+    });
+
+    const result = await new OfflineReconnectCoordinator(q, scope, changingReceipt).reconnect(true);
+
+    expect(receiptReads).toBe(1);
+    expect(result).toMatchObject({ status: "RECONNECTED", dirty: false,
+      results: [{ editId: edit.editId, state: "APPLIED", receipt: "receipt:exact" }] });
+    expect((await q.readEdits(scope))[0]?.state).toBe("APPLIED");
+  });
+
   it("resumes a still-pending encrypted edit after restart with the same idempotency key", async () => {
     const originalQueue = await queue();
     await originalQueue.enqueue(edit);
