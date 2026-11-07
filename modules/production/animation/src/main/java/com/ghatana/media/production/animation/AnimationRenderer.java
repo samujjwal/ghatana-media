@@ -339,6 +339,18 @@ public final class AnimationRenderer {
             if (status != ExportStatus.ENCODED && (failure.isEmpty() || encoded.isPresent())) {
                 throw new IllegalArgumentException("failed outcome must name a failure and contain no bytes");
             }
+            if (status != ExportStatus.ENCODED) {
+                ExportFailure expectedFailure = switch (status) {
+                    case UNSUPPORTED_CODEC -> ExportFailure.CODEC_NOT_SUPPORTED;
+                    case UNSUPPORTED_FRAME_RATE -> ExportFailure.FRAME_RATE_NOT_EXACTLY_REPRESENTABLE;
+                    case CODEC_UNAVAILABLE -> ExportFailure.CODEC_PROVIDER_UNAVAILABLE;
+                    case ENCODING_FAILED -> ExportFailure.ENCODING_FAILED;
+                    case ENCODED -> throw new IllegalStateException("encoded status was handled above");
+                };
+                if (failure.orElseThrow() != expectedFailure) {
+                    throw new IllegalArgumentException("export status and failure do not match");
+                }
+            }
         }
     }
 

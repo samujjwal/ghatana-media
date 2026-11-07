@@ -401,6 +401,27 @@ class AnimationRendererTest {
         assertThat(inexactRate.encoded()).isEmpty();
     }
 
+    @Test
+    void animationExportRejectsEveryMismatchedFailureStatusPair() {
+        var expectedFailures = java.util.Map.of(
+                AnimationRenderer.ExportStatus.UNSUPPORTED_CODEC, AnimationRenderer.ExportFailure.CODEC_NOT_SUPPORTED,
+                AnimationRenderer.ExportStatus.UNSUPPORTED_FRAME_RATE,
+                AnimationRenderer.ExportFailure.FRAME_RATE_NOT_EXACTLY_REPRESENTABLE,
+                AnimationRenderer.ExportStatus.CODEC_UNAVAILABLE,
+                AnimationRenderer.ExportFailure.CODEC_PROVIDER_UNAVAILABLE,
+                AnimationRenderer.ExportStatus.ENCODING_FAILED, AnimationRenderer.ExportFailure.ENCODING_FAILED);
+
+        for (var entry : expectedFailures.entrySet()) {
+            for (var failure : AnimationRenderer.ExportFailure.values()) {
+                if (failure == entry.getValue()) continue;
+                assertThatThrownBy(() -> new AnimationRenderer.AnimationExport(entry.getKey(),
+                        java.util.Optional.of(failure), java.util.Optional.empty()))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessage("export status and failure do not match");
+            }
+        }
+    }
+
     private static Node findNode(Node root, String name) {
         if (name.equals(root.getNodeName())) return root;
         for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
