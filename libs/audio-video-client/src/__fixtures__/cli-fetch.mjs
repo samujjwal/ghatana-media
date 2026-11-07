@@ -27,6 +27,13 @@ globalThis.fetch = async (input, init = {}) => {
     headers: { 'content-type': 'application/json' },
   });
 
+  if (mode === 'artifact-malformed-json') {
+    return new Response('{"artifactId":', {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }
+
   if (mode === 'artifact-not-found') {
     return json({
       error: { code: 'ARTIFACT_NOT_FOUND', message: 'not visible', retryable: false },

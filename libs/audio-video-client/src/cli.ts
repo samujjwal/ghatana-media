@@ -200,6 +200,10 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       writeError('INVALID_MEDIA_RESPONSE', 'Media returned a response that did not match the canonical runtime DTO.', {}, 1, args.command);
       return;
     }
+    if (error instanceof SyntaxError) {
+      writeError('INVALID_MEDIA_RESPONSE', 'Media returned a response that was not valid JSON.', {}, 1, args.command);
+      return;
+    }
     writeError('OBSERVATION_UNAVAILABLE', 'No observation was received. Check the configured endpoint and retry this read.', {}, 1, args.command);
   }
 }

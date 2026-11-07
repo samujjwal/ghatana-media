@@ -414,6 +414,30 @@ describe('ghatanamedia-api artifact inspect executable', () => {
 });
 
 describe('ghatanamedia-api production command boundary', () => {
+  it('classifies malformed successful JSON as an invalid Media response without exposing its body', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-malformed-json-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(command('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-malformed-json',
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_MEDIA_RESPONSE', message: 'Media returned a response that was not valid JSON.',
+      });
+      expect(result.stderr).not.toContain(token);
+      expect(result.stderr).not.toContain('artifactId');
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(1);
+      expect(requests[0]).toMatchObject({ method: 'GET', path: '/api/v1/artifacts/artifact-a' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each([
     ['job', 'status', '--job', 'job-1'],
     ['job', 'cancel', '--job', 'job-1'],
