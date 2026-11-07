@@ -49,7 +49,6 @@ public record MediaTimebase(long numerator, long denominator) {
      * @throws ArithmeticException if the result does not fit a long, or the mode rejects inexact
      */
     public long nanosForTicks(long ticks, RoundingMode rounding) {
-        requireTicks(ticks);
         return divide(tickCount(ticks).multiply(BigInteger.valueOf(denominator)).multiply(NANOS_PER_SECOND),
                 BigInteger.valueOf(numerator), rounding);
     }
@@ -66,7 +65,6 @@ public record MediaTimebase(long numerator, long denominator) {
      * Crossing clock domains is the caller's responsibility — this method only rescales rates.
      */
     public long convertTicks(long ticks, MediaTimebase target, RoundingMode rounding) {
-        requireTicks(ticks);
         java.util.Objects.requireNonNull(target, "target");
         return divide(tickCount(ticks)
                         .multiply(BigInteger.valueOf(denominator))
@@ -82,10 +80,6 @@ public record MediaTimebase(long numerator, long denominator) {
 
     private static BigInteger tickCount(long ticks) {
         return BigInteger.valueOf(ticks);
-    }
-
-    private static void requireTicks(long ticks) {
-        if (ticks < 0) throw new IllegalArgumentException("time ticks cannot be negative");
     }
 
     private static long divide(BigInteger dividend, BigInteger divisor, RoundingMode rounding) {
@@ -132,7 +126,6 @@ public record MediaTimebase(long numerator, long denominator) {
     public record Timestamp(MediaTimebase timebase, long ticks, ClockDomain domain) {
         public Timestamp {
             java.util.Objects.requireNonNull(timebase, "timebase");
-            requireTicks(ticks);
             java.util.Objects.requireNonNull(domain, "domain");
         }
 

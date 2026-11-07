@@ -41,6 +41,27 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void sourcePtsMaySpanSignedLongRangeAndStillRequireStrictIncrease() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.TrackingEvidence negativePts = evidence(List.of(
+                bboxSample(Long.MIN_VALUE, .10, .10, 0),
+                bboxSample(-1, .12, .10, 0),
+                bboxSample(0, .14, .10, 0)));
+
+        assertThat(fixture.prepare(negativePts).evidence().samples())
+                .extracting(sample -> sample.sourcePts().ticks())
+                .containsExactly(Long.MIN_VALUE, -1L, 0L);
+        assertThatThrownBy(() -> fixture.prepare(evidence(List.of(
+                bboxSample(-2, .10, .10, 0), bboxSample(-2, .12, .10, 0)))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("strictly increase");
+        assertThatThrownBy(() -> fixture.prepare(evidence(List.of(
+                bboxSample(-1, .10, .10, 0), bboxSample(-2, .12, .10, 0)))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("strictly increase");
+    }
+
+    @Test
     void bboxDriftAndMaskDriftAreRejectedAndMissingTrackingIsTypedUnsupported() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.TrackedSample badBox = new ReversibleRegionEditEngine.TrackedSample(

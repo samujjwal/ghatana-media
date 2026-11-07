@@ -18,14 +18,24 @@ class MediaTimebaseTest {
     }
 
     @Test
-    void invalidRatesAndNegativeTicksAreRejected() {
+    void invalidRatesAndNegativeDurationInputsAreRejected() {
         assertThatThrownBy(() -> new MediaTimebase(0, 1)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new MediaTimebase(1, 0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new MediaTimebase(-3, 2)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> MediaTimebase.MPEG_TS_90KHZ.nanosForTicks(-1, RoundingMode.HALF_EVEN))
-                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> MediaTimebase.MPEG_TS_90KHZ.ticksForNanos(-1, RoundingMode.HALF_EVEN))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void signedSourceTicksConvertExactlyAndUseMathematicalRounding() {
+        assertThat(MediaTimebase.MPEG_TS_90KHZ.nanosForTicks(-90_000, RoundingMode.UNNECESSARY))
+                .isEqualTo(-1_000_000_000L);
+        assertThat(MediaTimebase.NTSC_29_97.nanosForTicks(-1, RoundingMode.FLOOR))
+                .isEqualTo(-33_366_667L);
+        assertThat(MediaTimebase.NTSC_29_97.nanosForTicks(-1, RoundingMode.CEILING))
+                .isEqualTo(-33_366_666L);
+        assertThat(MediaTimebase.NTSC_29_97.convertTicks(-1, MediaTimebase.MPEG_TS_90KHZ,
+                RoundingMode.UNNECESSARY)).isEqualTo(-3_003L);
     }
 
     @Test
@@ -108,6 +118,19 @@ class MediaTimebaseTest {
         assertThatThrownBy(() -> mediaTick.ticksUntil(wallTick))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("clock domains");
+    }
+
+    @Test
+    void timestampsPreserveSignedLongEndpointsAcrossExactResampling() {
+        Timestamp minimum = MediaTimebase.NANOS.timestamp(Long.MIN_VALUE, ClockDomain.SOURCE);
+        Timestamp maximum = MediaTimebase.NANOS.timestamp(Long.MAX_VALUE, ClockDomain.SOURCE);
+
+        assertThat(minimum.resample(MediaTimebase.NANOS, RoundingMode.UNNECESSARY).ticks())
+                .isEqualTo(Long.MIN_VALUE);
+        assertThat(maximum.toNanos(RoundingMode.UNNECESSARY)).isEqualTo(Long.MAX_VALUE);
+        assertThatThrownBy(() -> minimum.ticksUntil(maximum)).isInstanceOf(ArithmeticException.class);
+        assertThat(minimum.ticksUntil(MediaTimebase.NANOS.timestamp(Long.MIN_VALUE + 1, ClockDomain.SOURCE)))
+                .isEqualTo(1L);
     }
 
     @Test

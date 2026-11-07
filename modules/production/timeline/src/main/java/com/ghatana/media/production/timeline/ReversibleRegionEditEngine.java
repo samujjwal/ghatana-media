@@ -125,15 +125,19 @@ public final class ReversibleRegionEditEngine {
         if (evidence.samples().size() > MAX_TRACKED_SAMPLES) {
             throw new IllegalArgumentException("tracked samples exceed the 10000-frame local bound");
         }
-        long previous = -1;
+        long previous = 0;
+        boolean hasPrevious = false;
         long trackedMaskBytes = 0;
         for (TrackedSample sample : evidence.samples()) {
             MediaTimebase.Timestamp pts = sample.sourcePts();
             if (pts.domain() != MediaTimebase.ClockDomain.SOURCE || !pts.timebase().equals(timebase)) {
                 throw new IllegalArgumentException("tracked sample must use the exact source presentation clock");
             }
-            if (pts.ticks() <= previous) throw new IllegalArgumentException("source presentation timestamps must strictly increase");
+            if (hasPrevious && pts.ticks() <= previous) {
+                throw new IllegalArgumentException("source presentation timestamps must strictly increase");
+            }
             previous = pts.ticks();
+            hasPrevious = true;
             trackedMaskBytes = addMaskBytes(trackedMaskBytes, sample.sourceShape());
             trackedMaskBytes = addMaskBytes(trackedMaskBytes, sample.editedShape());
             validateMapping(sample);
