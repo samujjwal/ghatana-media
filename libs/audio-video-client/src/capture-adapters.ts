@@ -470,12 +470,18 @@ export function routedCaptureAdapter(
   if (!adapters || typeof adapters !== "object" || Array.isArray(adapters)) {
     throw new TypeError("capture adapter registry must be an object");
   }
+  // Composition validates wiring once, so dispatch must use that same
+  // validated snapshot. Retaining the caller-owned registry would let a later
+  // mutation route an admitted source kind to a different adapter.
+  const routes: Partial<Record<CaptureSourceKind, (request: CaptureRequest) => Promise<CapturedFrame>>> = {};
   for (const [key, adapter] of Object.entries(adapters)) {
     if (adapter === undefined) continue;
-    if (!CAPTURE_SOURCE_KINDS.has(key) || adapter.kind !== key
-      || typeof adapter.capture !== "function") {
+    const kind = adapter.kind;
+    const capture = adapter.capture;
+    if (!CAPTURE_SOURCE_KINDS.has(key) || kind !== key || typeof capture !== "function") {
       throw new TypeError("capture adapter registry entries must match their source kind");
     }
+    routes[key as CaptureSourceKind] = capture.bind(adapter);
   }
   return {
     capture: (request: CaptureRequest): Promise<CapturedFrame> => {
@@ -483,11 +489,11 @@ export function routedCaptureAdapter(
       if (typeof kind !== "string" || !CAPTURE_SOURCE_KINDS.has(kind)) {
         return Promise.reject(new TypeError("capture request kind is outside the supported source enum"));
       }
-      const adapter = adapters[kind as CaptureSourceKind];
-      if (adapter === undefined) {
+      const capture = routes[kind as CaptureSourceKind];
+      if (capture === undefined) {
         return Promise.reject(new CaptureAdapterNotWiredError(kind));
       }
-      return adapter.capture(request);
+      return capture(request);
     },
   };
 }

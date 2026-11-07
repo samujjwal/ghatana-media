@@ -491,6 +491,45 @@ describe("routedCaptureAdapter", () => {
     }
   });
 
+  it("keeps dispatch bound to the adapter validated at composition time", async () => {
+    let originalCaptures = 0;
+    let replacementCaptures = 0;
+    const original = kindAdapter("MEDIA_FILE", [1]);
+    const replacement: CaptureSourceAdapter = {
+      kind: "HTTP_API",
+      capture: async (candidate) => {
+        replacementCaptures++;
+        return capturedFrame({
+          sourceIdentity: candidate.sourceIdentity,
+          purposeRef: candidate.purposeRef,
+          exactRightsScope: candidate.exactRightsScope,
+          sourceVersionRef: candidate.sourceVersionRef,
+          frameClockRef: candidate.frameClockRef,
+          bytes: new Uint8Array([2]),
+          capturedAtEpochMillis: 5,
+        });
+      },
+    };
+    const mutableRegistry: Partial<Record<CaptureRequest["kind"], CaptureSourceAdapter>> = {
+      MEDIA_FILE: {
+        kind: "MEDIA_FILE",
+        capture: async (candidate) => {
+          originalCaptures++;
+          return original.capture(candidate);
+        },
+      },
+    };
+    const routed = routedCaptureAdapter(mutableRegistry);
+    mutableRegistry.MEDIA_FILE = replacement;
+
+    const frame = await captureWithAdmission(
+      { check: () => "ADMITTED" }, routed, { ...request, kind: "MEDIA_FILE" });
+
+    expect(Array.from(frame.bytes)).toEqual([1]);
+    expect(originalCaptures).toBe(1);
+    expect(replacementCaptures).toBe(0);
+  });
+
   it("rejects kinds without a wired adapter before any capture", async () => {
     const routed = routedCaptureAdapter({ MEDIA_FILE: kindAdapter("MEDIA_FILE", [1]) });
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, routed,
