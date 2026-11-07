@@ -60,7 +60,11 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       reauthorize: async (edit) => {
         if (!sameScope(edit, this.scope)) return { authorized: false, disposition: "UNKNOWN" };
         const read = await this.operations!.reauthorize(edit);
-        if (!sameScope(read, this.scope)) return { authorized: false, disposition: "UNKNOWN" };
+        if (!read || typeof read !== "object" || !sameScope(read, this.scope)
+          || (read.disposition !== "AUTHORIZED" && read.disposition !== "REVOKED"
+            && read.disposition !== "UNKNOWN")) {
+          return { authorized: false, disposition: "UNKNOWN" };
+        }
         return { authorized: read.disposition === "AUTHORIZED", disposition: read.disposition };
       },
       readCurrentVersion: async (scope) => {

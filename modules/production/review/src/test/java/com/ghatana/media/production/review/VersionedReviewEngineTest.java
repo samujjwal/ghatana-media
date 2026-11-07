@@ -195,6 +195,29 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void inspectRejectsDuplicateAppendRecordIdentityAcrossCaseRevisions() {
+        ReviewRecord first = new ReviewRecord("record-reused", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-1", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("first comment", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        ReviewRecord second = new ReviewRecord("record-reused", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-2", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("second comment", CommentDisposition.RESOLVED, null), 2, NOW, "authority-v1");
+        ReviewStore hostileStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                return List.of(first, second);
+            }
+        };
+        VersionedReviewEngine engine = engine(hostileStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE)).isInstanceOf(ReviewUnavailableException.class);
+    }
+
+    @Test
     void compositeIdempotencyIdentityCannotCollideOnDelimiterCharacters() {
         String firstTenant = "tenant-a\u0000principal-a";
         ReviewCaseRef firstCase = new ReviewCaseRef(firstTenant, "case-a", V1.reference(), V1, "scope-a");

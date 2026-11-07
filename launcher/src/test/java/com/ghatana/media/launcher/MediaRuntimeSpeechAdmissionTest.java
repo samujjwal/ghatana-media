@@ -232,7 +232,9 @@ class MediaRuntimeSpeechAdmissionTest {
             var source = artifact(runtime, sourceClockMetadata());
             ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
                     speechParameters("profile-a", "en-US"), governance());
-            assertThatThrownBy(() -> runtime.submit(request))
+            assertThatThrownBy(() -> runtime.submit(request,
+                    new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            "tenant-a", "principal-a", Instant.now())))
                     .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
                     .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
                             .decision().reasons()).contains(Reason.RIGHTS_DECISION_DENIED));
@@ -306,6 +308,34 @@ class MediaRuntimeSpeechAdmissionTest {
     }
 
     @Test
+    void expiredExactSourceRightsEvidenceIsRejectedBeforeJobOrProviderEffect() throws Exception {
+        var root = Files.createTempDirectory("media-stt-expired-source-rights-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        AtomicInteger providerCalls = new AtomicInteger();
+        AtomicInteger resolutions = new AtomicInteger();
+        Profile qualified = qualifiedProfile("profile-a");
+        var runtime = runtimeWithAuthority(root, jobStore,
+                List.of(admittedProvider(providerCalls, qualified)),
+                expiredEvidenceAuthority(resolutions), transcriptStore());
+        try {
+            var source = artifact(runtime, sourceClockMetadata());
+            ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                    speechParameters("profile-a", "en-US"), governance());
+
+            assertThatThrownBy(() -> runtime.submit(request,
+                    new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            "tenant-a", "principal-a", Instant.now())))
+                    .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaSpeechToTextAdmission.NotAdmittedException) failure)
+                            .decision().reasons()).contains(Reason.RIGHTS_DECISION_STALE));
+            assertNoJobOrProviderEffect(jobStore, providerCalls);
+            assertThat(resolutions).hasValue(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void sourceAuthorizationIsRevalidatedBeforeProviderAndBoundedSourceRead() throws Exception {
         var root = Files.createTempDirectory("media-stt-admission-authorized-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();
@@ -319,7 +349,9 @@ class MediaRuntimeSpeechAdmissionTest {
             var source = artifact(runtime, sourceClockMetadata());
             ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
                     speechParameters("profile-a", "en-US"), governance());
-            var accepted = runtime.submit(request);
+            var accepted = runtime.submit(request,
+                    new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            "tenant-a", "principal-a", Instant.now()));
             assertThat(accepted.status()).isEqualTo(JobStatus.ACCEPTED);
             var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             assertThat(terminal.status()).isEqualTo(JobStatus.FAILED);
@@ -345,7 +377,9 @@ class MediaRuntimeSpeechAdmissionTest {
             var source = artifact(runtime, sourceClockMetadata());
             ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
                     speechParameters("profile-a", "en-US"), governance());
-            var accepted = runtime.submit(request);
+            var accepted = runtime.submit(request,
+                    new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                            "tenant-a", "principal-a", Instant.now()));
             var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
             assertThat(terminal.result()).containsEntry("text", "test transcript");
@@ -498,6 +532,40 @@ class MediaRuntimeSpeechAdmissionTest {
                     MediaSourceAuthorizationContracts.Evidence expectedEvidence,
                     MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
                 throw new AssertionError("denied source rights must not reach revalidation");
+            }
+        };
+    }
+
+    private static MediaSourceAuthorizationContracts.Authority expiredEvidenceAuthority(
+            AtomicInteger resolutions) {
+        return new MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "fixture-expired-source-authority"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public MediaSourceAuthorizationContracts.Decision resolve(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                resolutions.incrementAndGet();
+                var current = evidence(request);
+                var expired = new MediaSourceAuthorizationContracts.Evidence(
+                        current.authorityId(), current.decisionId(), current.tenantId(), current.principalId(),
+                        current.sourceOwnerId(), current.artifactId(), current.sourceVersion(),
+                        current.sourceSha256(), current.operation(), current.purpose(), current.providerId(),
+                        current.providerVersion(), current.processingBoundary(), current.processingRegion(),
+                        current.providerRetention(), current.allowedOperations(), current.allowedRegions(),
+                        current.allowedProviderRetentions(), current.rightsDecisionId(),
+                        current.policyDecisionId(), current.policyVersion(), current.sourceKind(),
+                        current.humanConsentDisposition(), current.consentDecisionId(),
+                        current.sourceClockEvidenceRef(), current.revocationEpoch(),
+                        Instant.now().minusSeconds(30), Instant.now().minusSeconds(1));
+                return new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, expired);
+            }
+            @Override public MediaSourceAuthorizationContracts.Decision revalidate(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                throw new AssertionError("expired evidence must not reach revalidation");
             }
         };
     }

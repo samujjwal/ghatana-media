@@ -166,6 +166,27 @@ describe("OfflineReconnectCoordinator", () => {
     if (versionRecovered.status === "RECONNECTED") expect(versionRecovered.results[0]?.state).toBe("APPLIED");
   });
 
+  it("keeps malformed authorization readback unknown instead of recording a false revocation", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    const malformed = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async () => ({ ...scope, disposition: "ALLOW" } as never),
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(malformed.status).toBe("RECONNECTED");
+    if (malformed.status === "RECONNECTED") {
+      expect(malformed.results[0]?.state).toBe("AUTHORIZATION_UNKNOWN");
+    }
+    expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+
+    const recovered = await new OfflineReconnectCoordinator(q, scope, operations()).reconnect(true);
+    expect(recovered.status).toBe("RECONNECTED");
+    if (recovered.status === "RECONNECTED") expect(recovered.results[0]?.state).toBe("APPLIED");
+  });
+
   it("detects version conflict and supports explicit rebase with a fresh idempotency key", async () => {
     const q = await queue();
     await q.enqueue(edit);

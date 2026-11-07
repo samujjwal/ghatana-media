@@ -225,7 +225,8 @@ class MediaWorkflowMetricsTest {
                 "sk-secret-provider-credential-123",
                 "ASIA1234567890EXAMPLE",
                 "ya29.a0AfH6SMB-example-token",
-                "glpat-test-only");
+                "glpat-test-only",
+                "xoxb-test-only");
 
         for (String credential : credentials) {
             assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(

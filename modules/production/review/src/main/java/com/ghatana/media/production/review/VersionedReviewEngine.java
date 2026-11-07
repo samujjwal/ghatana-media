@@ -89,8 +89,12 @@ public final class VersionedReviewEngine {
             requireExactReadback(actor, reviewCase, record);
             return record;
         }).sorted(java.util.Comparator.comparingLong(ReviewRecord::caseRevision)).toList();
+        java.util.Set<String> appendRecordIds = new java.util.HashSet<>();
         for (int index = 0; index < ordered.size(); index++) {
-            if (ordered.get(index).caseRevision() != index + 1L) throw new ReviewUnavailableException();
+            ReviewRecord record = ordered.get(index);
+            if (record.caseRevision() != index + 1L || !appendRecordIds.add(record.appendRecordId())) {
+                throw new ReviewUnavailableException();
+            }
         }
         List<ReviewRecord> redactedRecords = ordered.stream().map(this::redacted).toList();
         // Recheck after storage and redaction, at the disclosure boundary. A read may race with
