@@ -106,6 +106,46 @@ class ValidatedSimulationPassIntegrationTest {
     }
 
     @Test
+    void abstainsWhenAnyRequiredPassInputReferenceIsStaleOrUnknown() {
+        var requiredRoles = List.of(
+                SimulationSemanticValidator.InputRole.PHYSICAL_MODEL,
+                SimulationSemanticValidator.InputRole.INITIAL_CONDITIONS,
+                SimulationSemanticValidator.InputRole.SOLVER,
+                SimulationSemanticValidator.InputRole.SOLVER_POLICY);
+
+        for (var unavailableRole : requiredRoles) {
+            for (var unavailableStatus : List.of(
+                    SimulationSemanticValidator.ReferenceStatus.STALE,
+                    SimulationSemanticValidator.ReferenceStatus.UNKNOWN)) {
+                var validation = SimulationSemanticValidator.validate(binding(), deterministicPass(), input ->
+                        input.role() == unavailableRole
+                                ? unavailableStatus
+                                : SimulationSemanticValidator.ReferenceStatus.CURRENT);
+
+                assertThat(validation.disposition())
+                        .as("%s reference status %s", unavailableRole, unavailableStatus)
+                        .isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+                assertThat(validation.findings()).anySatisfy(finding -> {
+                    assertThat(finding.reason())
+                            .isEqualTo(SimulationSemanticValidator.Reason.INPUT_REFERENCE_NOT_CURRENT);
+                    assertThat(finding.subject()).isEqualTo(identityFor(unavailableRole));
+                });
+                assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+            }
+        }
+    }
+
+    private static String identityFor(SimulationSemanticValidator.InputRole role) {
+        return switch (role) {
+            case PHYSICAL_MODEL -> "model.constant-force";
+            case INITIAL_CONDITIONS -> "initial.origin";
+            case SOLVER -> "solver.velocity-verlet";
+            case SOLVER_POLICY -> "policy.precision";
+            case VISUAL_PRESENTATION -> throw new IllegalArgumentException("not a required pass input role");
+        };
+    }
+
+    @Test
     void abstainsWhenDeclaredRunHorizonDiffersFromTheSolverTrace() {
         var complete = binding();
         var wrongHorizon = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
