@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.time.Duration;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -155,6 +157,30 @@ class PostgresqlMediaDeliveryOperationStoreTest {
                     assertThat(winners.get()).isEqualTo(1);
                 }
             }
+        }
+    }
+
+    @Test
+    void readbackRejectsCorruptedPaddedPrincipalInsteadOfNormalizingIt() throws Exception {
+        try (Fixture fixture = openFixture(); PostgresqlMediaDeliveryOperationStore store =
+                new PostgresqlMediaDeliveryOperationStore()) {
+            DeliveryOperationStore.Operation operation = operation("request-corrupt-scope", "i".repeat(64),
+                    Status.QUEUED, 0, null);
+            assertThat(store.insertIfAbsent(operation)).isTrue();
+            try (Connection connection = POSTGRES.createConnection("");
+                 PreparedStatement corrupt = connection.prepareStatement("""
+                         UPDATE media_delivery_operations SET principal_id=?
+                         WHERE tenant_id=? AND request_id=?
+                         """)) {
+                corrupt.setString(1, " " + operation.principalId());
+                corrupt.setString(2, operation.tenantId());
+                corrupt.setString(3, operation.requestId());
+                assertThat(corrupt.executeUpdate()).isEqualTo(1);
+            }
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> store.find(operation.tenantId(), operation.requestId()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("principalId must not contain surrounding whitespace");
         }
     }
 

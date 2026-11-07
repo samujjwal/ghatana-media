@@ -35,7 +35,7 @@ public final class PostgresqlMediaDeliveryOperationStore implements DeliveryOper
                 if (!row.next()) return Optional.empty();
                 return Optional.of(new Operation(tenantId, row.getString(1), requestId,
                         row.getString(2), row.getString(3), row.getString(4), row.getString(5),
-                        row.getString(6).trim(), com.ghatana.media.production.delivery.MediaDeliveryEngine.Status.valueOf(row.getString(7)),
+                        row.getString(6), com.ghatana.media.production.delivery.MediaDeliveryEngine.Status.valueOf(row.getString(7)),
                         row.getInt(8), row.getString(9)));
             }
         } catch (SQLException failure) {
@@ -91,8 +91,9 @@ public final class PostgresqlMediaDeliveryOperationStore implements DeliveryOper
 
     @Override public Optional<DispatchClaim> acquireDispatchClaim(Operation operation, String ownerId, Duration lease) {
         ensureOpen();
-        ownerId = ownerId == null ? "" : ownerId.trim();
-        if (ownerId.isEmpty() || ownerId.length() > 255) throw new IllegalArgumentException("ownerId is invalid");
+        if (ownerId == null || ownerId.isBlank() || !ownerId.equals(ownerId.strip()) || ownerId.length() > 255) {
+            throw new IllegalArgumentException("ownerId is invalid");
+        }
         long leaseMillis = leaseMillis(lease);
         try (Connection connection = state.connection();
              PreparedStatement update = connection.prepareStatement("""

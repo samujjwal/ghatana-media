@@ -131,8 +131,10 @@ public interface DeliveryOperationStore {
 
     private static String required(String value, String field) {
         if (value == null) throw new IllegalArgumentException(field + " must not be blank");
-        String normalized = value.trim();
-        if (normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
-        return normalized;
+        if (value.isBlank()) throw new IllegalArgumentException(field + " must not be blank");
+        if (!value.equals(value.strip())) {
+            throw new IllegalArgumentException(field + " must not contain surrounding whitespace");
+        }
+        return value;
     }
 }

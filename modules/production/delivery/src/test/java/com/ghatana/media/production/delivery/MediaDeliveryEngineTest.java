@@ -88,6 +88,34 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void durableOperationAndClaimScopesRejectSurroundingWhitespace() {
+        String digest = "a".repeat(64);
+        String fingerprint = "b".repeat(64);
+        List<java.util.function.Function<String, DeliveryOperationStore.Operation>> paddedOperationFields = List.of(
+                value -> new DeliveryOperationStore.Operation(" " + value, "principal", "request", "artifact", "version", digest, "destination", fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", " " + value, "request", "artifact", "version", digest, "destination", fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", "principal", " " + value, "artifact", "version", digest, "destination", fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", "principal", "request", " " + value, "version", digest, "destination", fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", "principal", "request", "artifact", " " + value, digest, "destination", fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", "principal", "request", "artifact", "version", " " + value, "destination", fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", "principal", "request", "artifact", "version", digest, " " + value, fingerprint, Status.QUEUED, 0, null),
+                value -> new DeliveryOperationStore.Operation("tenant", "principal", "request", "artifact", "version", digest, "destination", " " + value, Status.QUEUED, 0, null));
+        for (var invalid : paddedOperationFields) {
+            assertThatThrownBy(() -> invalid.apply("value")).isInstanceOf(IllegalArgumentException.class);
+        }
+        assertThatThrownBy(() -> new DeliveryOperationStore.DispatchClaim(
+                "tenant", "principal", "request", "artifact", "version", digest, "destination",
+                fingerprint, " worker-1", 1, NOW))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("ownerId must not contain surrounding whitespace");
+        assertThatThrownBy(() -> new DeliveryOperationStore.DispatchClaim(
+                "tenant", "principal", "request", "artifact", "version", digest, "destination",
+                fingerprint + " ", "worker-1", 1, NOW))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("requestFingerprint must not contain surrounding whitespace");
+    }
+
+    @Test
     void rejectsAcknowledgedOffsetsThatCannotBelongToTheirDeliveryState() {
         assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
                 "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
