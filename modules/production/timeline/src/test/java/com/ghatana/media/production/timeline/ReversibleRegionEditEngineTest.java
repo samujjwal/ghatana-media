@@ -69,6 +69,37 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void editIntentMustMatchEveryTrackedSampleShapeBeforeRightsInspection() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.TrackingEvidence boxes = evidence(List.of(bboxSample(0, .1, .1, 0)));
+        assertThatThrownBy(() -> fixture.engine.prepare(OWNER, new ReversibleRegionEditEngine.EditRequest(
+                "project-region", "plan-wrong-mask-intent", "r0", SOURCE, DIGEST, "local-region-edit", "region-1",
+                PTS, boxes, ReversibleRegionEditEngine.EditIntent.ADJUST_MASK_BOUNDARY)))
+                .isInstanceOf(ReversibleRegionEditEngine.UnsupportedRegionMappingException.class)
+                .hasMessageContaining("shape does not match");
+        assertThat(fixture.rightsCalls).isZero();
+
+        ReversibleRegionEditEngine.MaskShape mask = new ReversibleRegionEditEngine.MaskShape(2, 2,
+                new byte[] {1, 0, 0, 1});
+        ReversibleRegionEditEngine.TrackedSample maskSample = new ReversibleRegionEditEngine.TrackedSample(
+                sourcePts(0), "source-mask-grid-v1", "source-mask-grid-v1", mask, mask,
+                ReversibleRegionEditEngine.AffineTransform.identity());
+        ReversibleRegionEditEngine.TrackingEvidence masks = evidence(List.of(maskSample));
+        assertThatThrownBy(() -> fixture.engine.prepare(OWNER, new ReversibleRegionEditEngine.EditRequest(
+                "project-region", "plan-wrong-move-intent", "r0", SOURCE, DIGEST, "local-region-edit", "region-1",
+                PTS, masks, ReversibleRegionEditEngine.EditIntent.MOVE_OR_RESIZE_REGION)))
+                .isInstanceOf(ReversibleRegionEditEngine.UnsupportedRegionMappingException.class)
+                .hasMessageContaining("shape does not match");
+        assertThat(fixture.rightsCalls).isZero();
+
+        assertThat(fixture.engine.prepare(OWNER, new ReversibleRegionEditEngine.EditRequest(
+                "project-region", "plan-mask-intent", "r0", SOURCE, DIGEST, "local-region-edit", "region-1",
+                PTS, masks, ReversibleRegionEditEngine.EditIntent.ADJUST_MASK_BOUNDARY)).intent())
+                .isEqualTo(ReversibleRegionEditEngine.EditIntent.ADJUST_MASK_BOUNDARY);
+        assertThat(fixture.rightsCalls).isEqualTo(1);
+    }
+
+    @Test
     void identityMappingCannotRelabelTheTrackedCoordinateContext() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.TrackedSample relabeled = new ReversibleRegionEditEngine.TrackedSample(

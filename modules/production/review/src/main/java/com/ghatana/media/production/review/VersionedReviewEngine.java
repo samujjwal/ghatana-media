@@ -72,8 +72,20 @@ public final class VersionedReviewEngine {
                 request.expectedAuthorityVersion(), safePayload);
         Instant now = clock.instant();
         if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
-        ReviewRecord record = store.append(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
-                fingerprint, nextId(), effectAuthority.authorityVersion(), safePayload, now);
+        String appendRecordId = nextId();
+        ReviewRecord record;
+        try {
+            record = store.append(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
+                    fingerprint, appendRecordId, effectAuthority.authorityVersion(), safePayload, now);
+        } catch (ReviewDeniedException | ReviewConflictException | ReviewRevisionExhaustedException
+                 | ReviewAuthorityConflictException | ReviewIdempotencyConflictException
+                 | ReviewCaseMismatchException | StaleReviewException | ReviewUnavailableException known) {
+            throw known;
+        } catch (RuntimeException uncertainStoreFailure) {
+            // An adapter can fail after its transaction committed. Keep the request outcome
+            // unknown so callers reconcile this same requestId instead of issuing a second write.
+            throw new ReviewUnavailableException();
+        }
         requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision, safePayload, effectAuthority, record);
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
                 record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);

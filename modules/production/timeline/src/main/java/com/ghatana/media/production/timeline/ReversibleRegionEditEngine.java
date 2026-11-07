@@ -56,6 +56,7 @@ public final class ReversibleRegionEditEngine {
             throw new RegionMappingConflictException("tracking evidence does not bind the exact source version and digest");
         }
         validateSamples(request.sourceTimebase(), request.evidence());
+        validateIntent(request.intent(), request.evidence());
         verifyRights(actor, request.source(), request.sourceSha256(), request.purpose(), request.regionId(),
                 request.evidence().samples());
         return new RegionEditPlan(actor.tenantId(), actor.principalId(), request.projectId(), request.editPlanId(),
@@ -131,6 +132,28 @@ public final class ReversibleRegionEditEngine {
             if (pts.ticks() <= previous) throw new IllegalArgumentException("source presentation timestamps must strictly increase");
             previous = pts.ticks();
             validateMapping(sample);
+        }
+    }
+
+    /**
+     * Conservatively pairs each local edit intent with its matching region representation.
+     * PDP-1 does not define this intent/shape cross-product, so this is a development-boundary
+     * assumption and does not establish public operation semantics.
+     */
+    private static void validateIntent(EditIntent intent, TrackingEvidence evidence) {
+        Objects.requireNonNull(intent, "intent");
+        Objects.requireNonNull(evidence, "evidence");
+        for (TrackedSample sample : evidence.samples()) {
+            boolean shapeMatches = switch (intent) {
+                case MOVE_OR_RESIZE_REGION -> sample.sourceShape() instanceof BoxShape
+                        && sample.editedShape() instanceof BoxShape;
+                case ADJUST_MASK_BOUNDARY -> sample.sourceShape() instanceof MaskShape
+                        && sample.editedShape() instanceof MaskShape;
+            };
+            if (!shapeMatches) {
+                throw new UnsupportedRegionMappingException(
+                        "tracked sample shape does not match the declared edit intent");
+            }
         }
     }
 
@@ -342,6 +365,7 @@ public final class ReversibleRegionEditEngine {
                 throw new IllegalArgumentException("plan must preserve exact source and region evidence identity");
             }
             validateSamples(sourceTimebase, evidence);
+            validateIntent(intent, evidence);
         }
     }
 

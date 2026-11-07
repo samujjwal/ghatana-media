@@ -292,6 +292,28 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void unknownChildWithFailedSiblingKeepsParentUnknownWithoutPartialFailureResult() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.FAILED, Map.of())
+                    .with(JobType.VISION, JobStatus.OUTCOME_UNKNOWN, Map.of());
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            // A known child failure does not settle the parent while its sibling may
+            // still have produced an unobserved effect. Do not expose CHILD_FAILED as
+            // a complete parent outcome until every declared child is terminal.
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void parentCancellationPropagatesToInflightChildren() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {

@@ -206,7 +206,7 @@ public final class MultitrackRenderPlanner {
             if (!expectedFrameLines.equals(manifestFrameLines)) {
                 throw invalid("plan frame map does not match the canonical manifest");
             }
-            validateFrameMappings(canonicalManifest, frameMap);
+            validateFrameMappings(canonicalManifest, frameMap, duration);
             var nextFrameIndexes = new java.util.HashMap<String, Integer>();
             var previousSourcePts = new java.util.HashMap<String, Time>();
             for (MappedFrame frame : frameMap.stream()
@@ -350,8 +350,9 @@ public final class MultitrackRenderPlanner {
         }
     }
 
-    private static void validateFrameMappings(String manifest, List<MappedFrame> frames) {
+    private static void validateFrameMappings(String manifest, List<MappedFrame> frames, Time planDuration) {
         var clipTimeMaps = new java.util.HashMap<String, ClipTimeMap>();
+        Time graphEnd = null;
         for (String line : manifest.lines().filter(value -> value.startsWith("clip=")).toList()) {
             String[] fields = line.substring("clip=".length()).split("\\|", -1);
             if (fields.length != 8) throw invalid("canonical manifest clip row is malformed");
@@ -363,11 +364,16 @@ public final class MultitrackRenderPlanner {
                     || sourceEnd.compareTo(sourceStart) <= 0) {
                 throw invalid("canonical manifest clip interval is invalid");
             }
+            Time clipEnd = timelineStart.plus(sourceEnd.minus(sourceStart));
+            if (graphEnd == null || clipEnd.compareTo(graphEnd) > 0) graphEnd = clipEnd;
             if (clipTimeMaps.putIfAbsent(clipId, new ClipTimeMap(timelineStart, sourceStart, sourceEnd)) != null) {
                 throw invalid("canonical manifest clip ids must be unique");
             }
         }
         if (clipTimeMaps.isEmpty()) throw invalid("canonical manifest must declare clip time maps");
+        if (!planDuration.equals(graphEnd)) {
+            throw invalid("plan duration must equal the latest canonical clip end");
+        }
         var mappedClipIds = new java.util.HashSet<String>();
         for (MappedFrame frame : frames) {
             ClipTimeMap clip = clipTimeMaps.get(frame.clipId());

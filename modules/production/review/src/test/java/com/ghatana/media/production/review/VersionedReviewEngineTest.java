@@ -41,6 +41,42 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void storeFailureAfterCommitReturnsUnknownWithoutLeakingAdapterFailure() {
+        AtomicReference<ReviewRecord> committed = new AtomicReference<>();
+        AtomicInteger appendCalls = new AtomicInteger();
+        ReviewStore commitThenFailStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                appendCalls.incrementAndGet();
+                committed.set(new ReviewRecord(appendRecordId, actor.tenantId(), reviewCase.reviewCaseId(),
+                        reviewCase.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
+                        expectedCaseRevision + 1, createdAt, authorityVersion));
+                throw new IllegalStateException("adapter failed after commit: private database detail");
+            }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                ReviewRecord record = committed.get();
+                return record == null ? List.of() : List.of(record);
+            }
+        };
+        VersionedReviewEngine engine = engine(commitThenFailStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+        AppendRequest request = new AppendRequest(CASE, 0, "authority-v1", "req-commit-unknown",
+                new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                new Comment("safe", CommentDisposition.OPEN, null));
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, request))
+                .isInstanceOf(ReviewUnavailableException.class)
+                .hasMessage("review evidence is unavailable, expired, or not retained")
+                .satisfies(failure -> assertThat(failure.getMessage()).doesNotContain("private database detail"));
+        assertThat(committed).isNotNull();
+        assertThat(committed.get().requestId()).isEqualTo(request.requestId());
+        assertThat(committed.get().reviewSubjectRef()).isEqualTo(V1);
+        assertThat(appendCalls).hasValue(1);
+    }
+
+    @Test
     void materialChangeMarksPriorDecisionStaleAndRejectsNewStaleDecision() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
         fixture.engine.append(REVIEWER, fixture.request(0, "req-1", new DecisionRecord(Decision.ACCEPT, "reviewed")));

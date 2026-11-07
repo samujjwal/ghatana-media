@@ -332,6 +332,34 @@ class PostgresqlMediaOutboxPublicationSourceTest {
     }
 
     @Test
+    void releasingExpiredClaimPreservesUnknownBrokerOutcomeForNextAttempt() throws Exception {
+        Fixture fixture = new Fixture("media_outbox_expired_release");
+        try (fixture; PostgresqlMediaOutboxPublicationSource originalPublisher = new PostgresqlMediaOutboxPublicationSource();
+             PostgresqlMediaOutboxPublicationSource retryPublisher = new PostgresqlMediaOutboxPublicationSource()) {
+            UUID eventId = fixture.append("tenant-expired-release", "job-expired-release", "MEDIA_JOB_ACCEPTED",
+                    "{\"state\":\"ACCEPTED\"}", 1_000L);
+            var originalClaim = AsyncOperations.toFuture(originalPublisher.claimBatch(
+                    "publisher-expiring", 1, fixture.now, Duration.ofSeconds(5))).join();
+            assertThat(originalClaim.events()).extracting("eventId").containsExactly(eventId);
+
+            Instant afterExpiry = fixture.now.plusSeconds(6);
+            assertThat(AsyncOperations.toFuture(originalPublisher.releaseClaim(
+                    originalClaim.claimToken(), afterExpiry)).join()).isEqualTo(1);
+            assertThat(fixture.publishedAt(eventId)).isNull();
+            assertThat(fixture.attempts(eventId)).singleElement().satisfies(attempt -> {
+                assertThat(attempt.status).isEqualTo("OUTCOME_UNKNOWN");
+                assertThat(attempt.failureCode).isEqualTo("CLAIM_EXPIRED_WITHOUT_ACK");
+            });
+
+            var retry = AsyncOperations.toFuture(retryPublisher.claimBatch(
+                    "publisher-after-expired-release", 1, afterExpiry.plusMillis(1), Duration.ofSeconds(30))).join();
+            assertThat(retry.events()).extracting("eventId").containsExactly(eventId);
+            assertThat(fixture.attempts(eventId)).extracting(attempt -> attempt.status)
+                    .containsExactly("OUTCOME_UNKNOWN", "CLAIMED");
+        }
+    }
+
+    @Test
     void successfulRetryClearsLatestFailureSummaryAndRetainsAttemptHistory() throws Exception {
         Fixture fixture = new Fixture("media_outbox_retry");
         try (fixture; PostgresqlMediaOutboxPublicationSource source = new PostgresqlMediaOutboxPublicationSource()) {
@@ -438,10 +466,10 @@ class PostgresqlMediaOutboxPublicationSourceTest {
             List<Attempt> attempts = new ArrayList<>();
             try (Connection connection = h2(jdbcUrl).getConnection();
                  PreparedStatement query = connection.prepareStatement(
-                         "SELECT payload_fingerprint,status FROM media_lifecycle_outbox_delivery_attempts WHERE event_id=? ORDER BY attempt_number")) {
+                         "SELECT payload_fingerprint,status,failure_code FROM media_lifecycle_outbox_delivery_attempts WHERE event_id=? ORDER BY attempt_number")) {
                 query.setString(1, eventId.toString());
                 try (ResultSet rows = query.executeQuery()) {
-                    while (rows.next()) attempts.add(new Attempt(rows.getString(1), rows.getString(2)));
+                    while (rows.next()) attempts.add(new Attempt(rows.getString(1), rows.getString(2), rows.getString(3)));
                 }
             }
             return attempts;
@@ -498,5 +526,5 @@ class PostgresqlMediaOutboxPublicationSourceTest {
         }
     }
 
-    private record Attempt(String fingerprint, String status) { }
+    private record Attempt(String fingerprint, String status, String failureCode) { }
 }

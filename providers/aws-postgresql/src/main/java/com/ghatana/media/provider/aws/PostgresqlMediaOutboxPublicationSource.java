@@ -221,9 +221,13 @@ public final class PostgresqlMediaOutboxPublicationSource implements OutboxPubli
                 connection.setAutoCommit(false);
                 try {
                     try (PreparedStatement attempts = connection.prepareStatement(
-                            "UPDATE media_lifecycle_outbox_delivery_attempts SET status='CLAIM_RELEASED' "
+                            "UPDATE media_lifecycle_outbox_delivery_attempts "
+                                    + "SET status=CASE WHEN claim_expires_at<=? THEN 'OUTCOME_UNKNOWN' ELSE 'CLAIM_RELEASED' END, "
+                                    + "failure_code=CASE WHEN claim_expires_at<=? THEN 'CLAIM_EXPIRED_WITHOUT_ACK' ELSE failure_code END "
                                     + "WHERE claim_token=? AND status='CLAIMED'")) {
-                        attempts.setObject(1, claimToken);
+                        attempts.setLong(1, observedAt.toEpochMilli());
+                        attempts.setLong(2, observedAt.toEpochMilli());
+                        attempts.setObject(3, claimToken);
                         attempts.executeUpdate();
                     }
                     int released;

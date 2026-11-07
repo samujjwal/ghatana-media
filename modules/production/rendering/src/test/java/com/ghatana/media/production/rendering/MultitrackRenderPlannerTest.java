@@ -304,6 +304,24 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanDurationMustCoverTheLatestClipEndEvenWithRecomputedDigest() throws Exception {
+        var timelineStart = new MultitrackRenderPlanner.Time(2, 1);
+        var clip = new MultitrackRenderPlanner.Clip("v", MultitrackRenderPlanner.Modality.VIDEO,
+                "artifact-v", "v1", SHA, timelineStart, new MultitrackRenderPlanner.Time(5, 1),
+                new MultitrackRenderPlanner.Time(10, 1), List.of(new MultitrackRenderPlanner.Time(5, 1)));
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(clip), List.of(), List.of(), 1_000)).plan();
+        String truncatedManifest = valid.canonicalManifest().replace("duration=7/1", "duration=1/1");
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(truncatedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), truncatedManifest, digest, new MultitrackRenderPlanner.Time(1, 1),
+                valid.frameMap(), valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("latest canonical clip end");
+    }
+
+    @Test
     void publicPlanRejectsManifestClipWithoutMappedFrames() throws Exception {
         var start = new MultitrackRenderPlanner.Time(0, 1);
         var graph = new MultitrackRenderPlanner.Graph(
