@@ -143,7 +143,7 @@ export type DemoPlayerAction =
 
 /** Select captions using deterministic half-open cue intervals [start, end). */
 export function demoCaptionAt(scene: DemoScene, positionMs: number): string {
-  if (!Number.isFinite(positionMs)) return "";
+  if (!Number.isSafeInteger(positionMs) || positionMs < 0) return "";
   return scene.captions.cues
     .filter((cue) => positionMs >= cue.startMs && positionMs < cue.endMs)
     .map((cue) => cue.text)
@@ -337,7 +337,7 @@ function validateManifest(
       typeof scene.captions !== "object" || typeof scene.captions.language !== "string" ||
       typeof scene.captions.assetVersion !== "string" || !Array.isArray(scene.captions.cues) ||
       !Array.isArray(scene.branches) ||
-      !scene.id || !scene.label || !Number.isFinite(scene.startMs) || !Number.isFinite(scene.endMs) ||
+      !scene.id || !scene.label || !Number.isSafeInteger(scene.startMs) || !Number.isSafeInteger(scene.endMs) ||
       scene.startMs < 0 || scene.endMs <= scene.startMs || scene.asset.version.length === 0
     ) return "INVALID_BUNDLE";
 
@@ -369,7 +369,7 @@ function validateManifest(
     for (const cue of scene.captions.cues) {
       if (
         !cue || typeof cue.id !== "string" || typeof cue.text !== "string" ||
-        !cue.id || !cue.text || !Number.isFinite(cue.startMs) || !Number.isFinite(cue.endMs) ||
+        !cue.id || !cue.text || !Number.isSafeInteger(cue.startMs) || !Number.isSafeInteger(cue.endMs) ||
         cue.startMs < scene.startMs || cue.endMs > scene.endMs || cue.endMs <= cue.startMs ||
         cueIds.has(cue.id)
       ) return "INVALID_BUNDLE";
@@ -478,7 +478,7 @@ export function reduceDemoPlayerState(
       return appendHistory(state, action, { playing: false, announcement: `Paused ${scene.label}.` });
     case "progress": {
       if (
-        !state.playing || !Number.isFinite(action.positionMs) || !Number.isInteger(action.positionMs) ||
+        !state.playing || !Number.isSafeInteger(action.positionMs) ||
         action.positionMs < state.positionMs || action.positionMs < scene.startMs || action.positionMs > scene.endMs
       ) return state;
       const atEnd = action.positionMs === scene.endMs;
@@ -503,7 +503,7 @@ export function reduceDemoPlayerState(
         announcement: "Interactive demonstration unavailable: media playback failed.",
       });
     case "seek": {
-      if (!Number.isFinite(action.positionMs) || !Number.isInteger(action.positionMs) || action.positionMs < 0) {
+      if (!Number.isSafeInteger(action.positionMs) || action.positionMs < 0) {
         return state;
       }
       const reachable = state.route

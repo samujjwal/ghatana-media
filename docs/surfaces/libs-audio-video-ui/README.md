@@ -15,6 +15,10 @@ product host.
   `ArtifactIntakeScreen`, `JobRecoveryScreen`, `TranscriptCaptionScreen`,
   `MediaTaskScreen`, `MediaContractScreen`, `MediaProductRenderer`,
   `MediaActionDispatchGuard`, `MediaLocalActionContracts`.
+- **Interactive player** (`src/player/`): `InteractiveDemoPlayer` renders
+  host-attested authored media with deterministic branch/replay/seek/caption
+  state. Playback uses nonnegative safe-integer millisecond positions and
+  does not dispatch product mutations.
 - **Ports** (`src/ports/`): typed host ports — the library binds to a
   host-provided adapter; it does not own runtime state, identity,
   uploads or provider calls itself.
@@ -39,6 +43,10 @@ authored contracts and dispatch actions through
   controls rather than forking a state model.
 - `MediaContractScreen`/renderer tests keep screen output reconciled
   with authored contract fixtures.
+- The player fails closed without exact host attestation; source truth is
+  labeled explicitly and unverified live evidence is not shown as live output.
+  Its Node reducer tests pass, while React component tests, browser playback,
+  and live-output/host qualification remain open.
 
 ## Dependencies and configuration
 

@@ -18,9 +18,15 @@ embed primitives).
   effects are never implied by embed presence.
 - Simulation-versus-live declaration is explicit — fixture content is
   labeled, never disguised as a real host.
-- Branching timed playback, replay, keyboard/screen-reader navigation
-  are plan targets for the interactive player; current status follows
-  the physical surface's verified capabilities only.
+- `InteractiveDemoPlayer` implements a deterministic branch/seek/caption
+  state machine. Scene, cue, seek and playback positions use nonnegative
+  safe-integer milliseconds; cue intervals are half-open `[startMs, endMs)`.
+- Native media is attached only after the supplied host verifier attests the
+  exact manifest and embedding origin. The player exposes source truth as
+  simulated, curated, or evidence-bound live output and dispatches no product
+  mutations.
+- React component tests and browser/host playback qualification remain open;
+  the local reducer suite does not qualify live output or a deployed host.
 
 ## Dependencies
 
@@ -33,6 +39,6 @@ unbound operations fail closed.
 
 ## Tests
 
-Component/port contract tests in `libs/audio-video-ui` (vitest); embed
-scope and origin-binding coverage tracked under the interactive-demo-
-player plan item.
+`pnpm test:interactive-demo-player-state` covers the source-free reducer and
+manifest boundaries. React component and browser tests remain required for
+keyboard/screen-reader behavior, media events, and host-origin enforcement.

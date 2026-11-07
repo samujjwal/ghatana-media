@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createDemoPlayerState,
+  demoCaptionAt,
   replayDemoBranchPath,
   replayDemoActions,
   reduceDemoPlayerState,
@@ -75,6 +76,102 @@ test("progress rejects paused, fractional, backward, and out-of-scene positions"
       advanced,
     );
   }
+});
+
+test("manifest accepts only safe integer milliseconds for scenes and caption cues", () => {
+  const invalidManifests = [
+    {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro"
+        ? { ...scene, startMs: 0.5 }
+        : scene),
+    },
+    {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro"
+        ? { ...scene, endMs: Number.MAX_SAFE_INTEGER + 1 }
+        : scene),
+    },
+    {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro"
+        ? {
+            ...scene,
+            captions: {
+              ...scene.captions,
+              cues: [{ id: "cue", startMs: 0.5, endMs: 100, text: "Fractional cue." }],
+            },
+          }
+        : scene),
+    },
+    {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro"
+        ? {
+            ...scene,
+            captions: {
+              ...scene.captions,
+              cues: [{ id: "cue", startMs: 0, endMs: Number.MAX_SAFE_INTEGER + 1, text: "Unsafe cue." }],
+            },
+          }
+        : scene),
+    },
+  ];
+
+  for (const candidate of invalidManifests) {
+    const state = createDemoPlayerState(candidate, {
+      attest: () => ({
+        manifestId: candidate.id,
+        revision: candidate.revision,
+        sha256: candidate.integrity.sha256,
+        actualEmbeddingOrigin: hostOrigin,
+        sourceTruth: candidate.sourceTruth,
+        originPermissions: candidate.originPermissions,
+      }),
+    });
+    assert.equal(state.status, "UNAVAILABLE");
+    assert.equal(state.failure, "INVALID_BUNDLE");
+    assert.equal(state.route.length, 0);
+  }
+});
+
+test("seek and progress reject unsafe millisecond positions without changing state", () => {
+  const initial = createDemoPlayerState(manifest, verifier);
+  const seeked = reduceDemoPlayerState(manifest, initial, { type: "seek", positionMs: 500 }, verifier);
+  assert.equal(seeked.positionMs, 500);
+  assert.equal(seeked.playing, false);
+
+  for (const positionMs of [500.5, Number.MAX_SAFE_INTEGER + 1, Number.POSITIVE_INFINITY]) {
+    assert.equal(
+      reduceDemoPlayerState(manifest, seeked, { type: "seek", positionMs }, verifier),
+      seeked,
+    );
+  }
+
+  const playing = reduceDemoPlayerState(manifest, seeked, { type: "play" }, verifier);
+  assert.equal(
+    reduceDemoPlayerState(manifest, playing, {
+      type: "progress",
+      positionMs: Number.MAX_SAFE_INTEGER + 1,
+    }, verifier),
+    playing,
+  );
+});
+
+test("caption selection uses the same safe integer millisecond clock as playback", () => {
+  const scene = {
+    ...manifest.scenes[0],
+    captions: {
+      ...manifest.scenes[0].captions,
+      cues: [{ id: "cue", startMs: 100, endMs: 200, text: "Exact interval." }],
+    },
+  };
+
+  assert.equal(demoCaptionAt(scene, 100), "Exact interval.");
+  assert.equal(demoCaptionAt(scene, 199), "Exact interval.");
+  assert.equal(demoCaptionAt(scene, 200), "");
+  assert.equal(demoCaptionAt(scene, 100.5), "");
+  assert.equal(demoCaptionAt(scene, Number.MAX_SAFE_INTEGER + 1), "");
 });
 
 test("native media ending stops at the authored scene boundary without selecting a branch", () => {
