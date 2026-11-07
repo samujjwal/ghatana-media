@@ -18,8 +18,12 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
     removeEventListener: (_: string, listener: () => void) => void }) => void;
   let opens = 0; let stops = 0; let reads = 0; let plays = 0; let creates = 0;
   let finishOpen!: () => void; let finishPlay!: () => void; let revoke!: () => void;
+  const trackListeners: Array<() => void> = [];
   const width = options.videoWidth ?? 2; const height = options.videoHeight ?? 2;
-  const track = { readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }), stop: () => { stops++; } };
+  const track = { readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }),
+    addEventListener: (_: string, listener: () => void) => trackListeners.push(listener),
+    removeEventListener: (_: string, listener: () => void) => { const i = trackListeners.indexOf(listener); if (i >= 0) trackListeners.splice(i, 1); },
+    stop: () => { stops++; } };
   const stream = { getVideoTracks: () => [track], getTracks: () => [track] };
   const video = { muted: false, playsInline: false, videoWidth: width, videoHeight: height, srcObject: null as unknown,
     play: async () => { plays++; if (options.pendingPlay) await new Promise<void>((resolve) => { finishPlay = resolve; }); }, pause: () => undefined };
@@ -63,6 +67,7 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   const adapter = new CameraCaptureAdapter({ mediaDevices: port, consent, frameClock: clock, maxFrameBytes: 64, maxFrames: 4 });
   revoke = () => { permissionState = "denied"; listeners.forEach((listener) => listener()); };
   return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke, deviceOpenStarted,
+    unplug() { track.readyState = "ended"; trackListeners.slice().forEach((listener) => listener()); },
     permissionListenerCount: () => listeners.length, resolveOpen: () => finishOpen(), resolvePlay: () => finishPlay(),
     resolvePermissionSubscription: () => finishPermissionSubscription({ get state() { return permissionState; },
       addEventListener: (_: string, listener: () => void) => listeners.push(listener),
@@ -110,6 +115,15 @@ describe("concrete browser camera host", () => {
     await rejected;
     expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
     expect(h.details()).toEqual({ plays: 0, creates: 0 });
+  });
+
+  it("releases an idle camera stream as soon as the browser reports device removal", async () => {
+    const h = setup();
+    const session = await h.adapter.openSession(request);
+    h.unplug();
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+    await expectCode(session.nextFrame(), "DEVICE_UNAVAILABLE");
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
   });
 
   it("rechecks host permission after device startup while the permission listener is still installing", async () => {

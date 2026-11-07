@@ -116,12 +116,21 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
       video.srcObject = stream;
       let stopped = false;
       const stop = () => { if (stopped) return; stopped = true; video.pause(); video.srcObject = null; stream.getTracks().forEach((item) => item.stop()); };
+      // A camera can be unplugged while the session is idle. Observe the
+      // device-state transition directly so its stream is released without
+      // waiting for a later frame request to discover `readyState !== live`.
+      const onTrackEnded = () => stop();
+      track.addEventListener("ended", onTrackEnded, { once: true });
+      const stopWithListenerCleanup = () => {
+        track.removeEventListener("ended", onTrackEnded);
+        stop();
+      };
       try {
         // Browser playback startup may remain pending after the host permission
         // changes. Do not leave an already opened camera stream alive while
         // waiting for that promise to settle.
         await awaitHostStartup(video.play(), signal);
-      } catch (error) { stop(); throw error; }
+      } catch (error) { stopWithListenerCleanup(); throw error; }
       const browserDevice: SizedBrowserCameraDevice = {
         sourceIdentity: request.sourceIdentity,
         sourceVersionRef: request.sourceVersionRef,
@@ -144,7 +153,7 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
           if (blob.size === 0 || blob.size > maxFrameBytes) throw new Error("browser camera frame exceeded the configured byte bound");
           return new Uint8Array(await blob.arrayBuffer());
         },
-        stop,
+        stop: stopWithListenerCleanup,
       };
       return browserDevice;
     },
