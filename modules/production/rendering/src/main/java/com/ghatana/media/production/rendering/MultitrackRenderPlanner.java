@@ -269,10 +269,25 @@ public final class MultitrackRenderPlanner {
 
     public static PlanResult execute(Plan plan, CodecPipeline pipeline) {
         Objects.requireNonNull(plan, "plan");
-        if (pipeline == null || !pipeline.admitted()) {
+        if (pipeline == null) {
             return new PlanResult(Outcome.NOT_ADMITTED, null, Reason.CODEC_PIPELINE_NOT_ADMITTED);
         }
-        if (!pipeline.available()) {
+        final boolean admitted;
+        try {
+            admitted = pipeline.admitted();
+        } catch (RuntimeException observationFailure) {
+            return new PlanResult(Outcome.UNAVAILABLE, null, Reason.CODEC_PIPELINE_UNAVAILABLE);
+        }
+        if (!admitted) {
+            return new PlanResult(Outcome.NOT_ADMITTED, null, Reason.CODEC_PIPELINE_NOT_ADMITTED);
+        }
+        final boolean available;
+        try {
+            available = pipeline.available();
+        } catch (RuntimeException observationFailure) {
+            return new PlanResult(Outcome.UNAVAILABLE, null, Reason.CODEC_PIPELINE_UNAVAILABLE);
+        }
+        if (!available) {
             return new PlanResult(Outcome.UNAVAILABLE, null, Reason.CODEC_PIPELINE_UNAVAILABLE);
         }
         // This package intentionally has no encoder/muxer implementation yet.

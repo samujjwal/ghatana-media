@@ -522,6 +522,36 @@ class MultitrackRenderPlannerTest {
         assertThat(noImplementation.plan()).isNull();
     }
 
+    @Test
+    void codecAdmissionObservationFailureIsTypedUnavailable() {
+        var plan = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)))),
+                List.of(), List.of(), 1_000)).plan();
+        var result = MultitrackRenderPlanner.execute(plan, new MultitrackRenderPlanner.CodecPipeline() {
+            @Override public boolean admitted() { throw new IllegalStateException("host admission failed"); }
+            @Override public boolean available() { throw new AssertionError("availability must not be observed"); }
+        });
+
+        assertThat(result.outcome()).isEqualTo(MultitrackRenderPlanner.Outcome.UNAVAILABLE);
+        assertThat(result.reason()).isEqualTo(MultitrackRenderPlanner.Reason.CODEC_PIPELINE_UNAVAILABLE);
+        assertThat(result.plan()).isNull();
+    }
+
+    @Test
+    void codecAvailabilityObservationFailureIsTypedUnavailable() {
+        var plan = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)))),
+                List.of(), List.of(), 1_000)).plan();
+        var result = MultitrackRenderPlanner.execute(plan, new MultitrackRenderPlanner.CodecPipeline() {
+            @Override public boolean admitted() { return true; }
+            @Override public boolean available() { throw new IllegalStateException("host availability failed"); }
+        });
+
+        assertThat(result.outcome()).isEqualTo(MultitrackRenderPlanner.Outcome.UNAVAILABLE);
+        assertThat(result.reason()).isEqualTo(MultitrackRenderPlanner.Reason.CODEC_PIPELINE_UNAVAILABLE);
+        assertThat(result.plan()).isNull();
+    }
+
     private static MultitrackRenderPlanner.Clip video(String id, MultitrackRenderPlanner.Time timelineStart,
             List<MultitrackRenderPlanner.Time> pts) {
         return video(id, timelineStart, pts, new MultitrackRenderPlanner.Time(10, 1));
