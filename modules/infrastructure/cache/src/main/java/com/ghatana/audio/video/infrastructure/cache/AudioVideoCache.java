@@ -843,9 +843,10 @@ public class AudioVideoCache<K, V> {
     public String buildScopedKey(CacheKeyScope scope, String objectIdentity) {
         Objects.requireNonNull(scope, "scope cannot be null");
         Objects.requireNonNull(objectIdentity, "objectIdentity cannot be null");
-        if (objectIdentity.isBlank() || objectIdentity.length() > CachePolicy.MAX_KEY_LENGTH) {
-            throw new IllegalArgumentException("objectIdentity must be nonblank and within cache key bounds");
-        }
+        // This is an identity component just like the fields in CacheKeyScope:
+        // reject ambiguous edge whitespace and enforce the same bounded input
+        // contract before it contributes to the protected key.
+        CacheKeyScope.requireScopeValue(objectIdentity, "objectIdentity");
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
             updateFramedUtf16(digest, namespace);

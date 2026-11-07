@@ -351,6 +351,23 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void protectedObjectIdentityRejectsUnicodeEdgeWhitespaceLikeOtherIdentityComponents() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(mock(DistributedCachePort.class),
+                "transcription");
+        AudioVideoCache.CacheKeyScope scope = scopedKey("tenant", "principal", "rights", "purpose",
+                "classification", "artifact", "artifact-rev", "transcript-rev");
+
+        assertThatThrownBy(() -> cache.buildScopedKey(scope, "\u00a0transcript-a"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("objectIdentity")
+                .hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> cache.buildScopedKey(scope, "transcript-a\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("objectIdentity")
+                .hasMessageContaining("surrounding whitespace");
+    }
+
+    @Test
     void oversizedStringKeysAreRejectedBeforeCacheIoOrLoaderInvocation() {
         DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
