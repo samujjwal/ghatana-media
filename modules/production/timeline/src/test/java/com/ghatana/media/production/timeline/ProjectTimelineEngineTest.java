@@ -207,6 +207,28 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void sourceAuthorityFailureIsUnknownAndDoesNotExposeAdapterDetails() {
+        ProjectTimelineEngine engine = engine();
+        Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-authority-failure");
+        Revision edited = engine.edit(OWNER, created.project().projectId(), created.initialRevision().revisionId(), List.of(
+                new ProjectTimelineEngine.AddScene(new Scene("scene-1", 0)),
+                new ProjectTimelineEngine.AddTrack(new Track("track-1", "scene-1", TrackKind.VIDEO, 0)),
+                new ProjectTimelineEngine.PutClip(clip("clip-1", "scene-1", "track-1"))));
+
+        assertThatThrownBy(() -> engine.requireCurrentSources(OWNER, created.project().projectId(), edited.revisionId(),
+                (SourceEligibilityPort) (actor, source) -> {
+                    throw new IllegalStateException("private authority adapter detail");
+                }))
+                .isInstanceOf(SourceEligibilityException.class)
+                .satisfies(error -> {
+                    SourceEligibilityException unavailable = (SourceEligibilityException) error;
+                    assertThat(unavailable.observed()).isEqualTo(SourceEligibility.UNKNOWN);
+                    assertThat(unavailable.getCause()).isNull();
+                    assertThat(unavailable.getMessage()).doesNotContain("private authority adapter detail");
+                });
+    }
+
+    @Test
     void staleEditsFailWithoutOverwritingAndOwnershipDoesNotCrossTenantOrPrincipal() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-3");
