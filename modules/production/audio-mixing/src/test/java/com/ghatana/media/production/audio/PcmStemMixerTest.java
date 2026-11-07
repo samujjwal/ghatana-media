@@ -130,12 +130,18 @@ class PcmStemMixerTest {
         MixResult result = mix(List.of(synthetic("generated-foley-tone-v1", pcm(source), 3, 0.5f, 0)), 3, 0.95f);
 
         try (AudioInputStream decoded = AudioSystem.getAudioInputStream(new ByteArrayInputStream(result.wav()))) {
+            assertThat(decoded.getFormat().getEncoding()).isEqualTo(javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED);
             assertThat(decoded.getFormat().getSampleRate()).isEqualTo((float) RATE);
+            assertThat(decoded.getFormat().getFrameRate()).isEqualTo((float) RATE);
             assertThat(decoded.getFormat().getChannels()).isEqualTo(2);
             assertThat(decoded.getFormat().getSampleSizeInBits()).isEqualTo(16);
+            assertThat(decoded.getFormat().getFrameSize()).isEqualTo(4);
+            assertThat(decoded.getFormat().isBigEndian()).isFalse();
+            assertThat(decoded.getFrameLength()).isEqualTo(result.frameCount());
             ByteArrayOutputStream decodedBytes = new ByteArrayOutputStream();
             decoded.transferTo(decodedBytes);
             assertThat(decodedBytes.toByteArray()).containsExactly(result.pcmS16Le());
+            assertThat(decodedBytes.size()).isEqualTo(result.frameCount() * decoded.getFormat().getFrameSize());
         }
         assertThat(result.wavSha256()).hasSize(64);
     }
