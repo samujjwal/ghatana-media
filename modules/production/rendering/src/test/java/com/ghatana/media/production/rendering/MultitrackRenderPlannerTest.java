@@ -201,6 +201,17 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void directPlanConstructorEnforcesDeclaredOutputBudgetCeiling() {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                MultitrackRenderPlanner.CAPABILITY_ID, "manifest", SHA, start, List.of(),
+                MultitrackRenderPlanner.MAX_DECLARED_OUTPUT_BYTES + 1));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                MultitrackRenderPlanner.CAPABILITY_ID, "manifest", SHA, start, List.of(), 0));
+    }
+
+    @Test
     void rejectsAdvertisedOversizedGraphListBeforeTraversingIt() {
         var traversals = new int[1];
         List<MultitrackRenderPlanner.Clip> oversized = new AbstractList<>() {

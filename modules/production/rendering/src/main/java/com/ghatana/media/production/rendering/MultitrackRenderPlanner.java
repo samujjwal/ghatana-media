@@ -166,6 +166,9 @@ public final class MultitrackRenderPlanner {
         public Plan {
             frameMap = boundedCopy(frameMap, MAX_FRAMES_PER_PLAN, "frameMap",
                     "plan frame map exceeds limit");
+            if (declaredOutputBudgetBytes <= 0 || declaredOutputBudgetBytes > MAX_DECLARED_OUTPUT_BYTES) {
+                throw invalid("declared output budget must be within 1.." + MAX_DECLARED_OUTPUT_BYTES + " bytes");
+            }
         }
     }
     public record PlanResult(Outcome outcome, Plan plan, Reason reason) {
