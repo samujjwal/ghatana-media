@@ -42,6 +42,25 @@ class DeliveryDestinationReceiptScenarioTest {
     }
 
     @Test
+    void wrongArtifactDigestReceiptRemainsUnknownAndExactReplayDoesNotRepeatEffects() {
+        byte[] content = new byte[] { 0x12, 0x34, 0x56 };
+        ExportRequest request = request(content, "request-wrong-receipt-digest");
+        FixtureDestination destination = new FixtureDestination(false, false, false, true);
+        MediaDeliveryEngine engine = engine(request, destination);
+
+        DeliveryResult first = engine.export(request);
+        DeliveryResult replay = engine.export(request);
+
+        assertThat(first.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(first.acknowledgedBytes()).isEqualTo(content.length);
+        assertThat(first.destinationReceiptRef()).isEmpty();
+        assertThat(replay).isEqualTo(first);
+        assertThat(engine.find(request.tenantId(), request.requestId()).orElseThrow()).isEqualTo(first);
+        assertThat(destination.sendCount).isEqualTo(1);
+        assertThat(destination.reconcileCount).isEqualTo(1);
+    }
+
+    @Test
     void shortFinalReceiptRemainsUnknownAndReplayDoesNotResend() {
         byte[] content = new byte[] { 0x12, 0x34, 0x56 };
         ExportRequest request = request(content, "request-short-final-receipt");
@@ -172,19 +191,26 @@ class DeliveryDestinationReceiptScenarioTest {
         private final boolean wrongFinalDestination;
         private final boolean loseFirstAcknowledgment;
         private final boolean shortFinalReceipt;
+        private final boolean wrongFinalArtifactDigest;
         private int sendCount;
         private int offset;
         private int reconcileCount;
 
         private FixtureDestination(boolean wrongFinalDestination, boolean loseFirstAcknowledgment) {
-            this(wrongFinalDestination, loseFirstAcknowledgment, false);
+            this(wrongFinalDestination, loseFirstAcknowledgment, false, false);
         }
 
         private FixtureDestination(boolean wrongFinalDestination, boolean loseFirstAcknowledgment,
                                    boolean shortFinalReceipt) {
+            this(wrongFinalDestination, loseFirstAcknowledgment, shortFinalReceipt, false);
+        }
+
+        private FixtureDestination(boolean wrongFinalDestination, boolean loseFirstAcknowledgment,
+                                   boolean shortFinalReceipt, boolean wrongFinalArtifactDigest) {
             this.wrongFinalDestination = wrongFinalDestination;
             this.loseFirstAcknowledgment = loseFirstAcknowledgment;
             this.shortFinalReceipt = shortFinalReceipt;
+            this.wrongFinalArtifactDigest = wrongFinalArtifactDigest;
         }
 
         @Override public FencedChunkReceipt sendChunk(ExportRequest request, int offset, byte[] chunk, String chunkDigest,
@@ -206,7 +232,8 @@ class DeliveryDestinationReceiptScenarioTest {
             if (offset == request.artifact().bytes().length) {
                 DestinationReceipt finalReceipt = new DestinationReceipt("fixture-final-receipt", request.tenantId(),
                         request.principalId(), request.requestId(), request.artifact().artifactId(),
-                        request.artifact().versionRef(), request.artifact().digest(),
+                        request.artifact().versionRef(), wrongFinalArtifactDigest
+                                ? "sha256:wrong-receipt-digest" : request.artifact().digest(),
                         wrongFinalDestination ? "destination:other" : request.destinationRef(),
                         request.artifact().bytes().length - (shortFinalReceipt ? 1 : 0),
                         request.artifact().digest());
