@@ -222,6 +222,9 @@ public final class QualityComparisonAndOptimization {
             if (attemptsUsed < 1 || attemptsUsed > budget.maxAttempts()) throw invalid("report attempts exceed budget");
             Objects.requireNonNull(source, "source");
             sourceRightsDecisionId = sourceRightsDecisionId == null ? "" : sourceRightsDecisionId;
+            if (sourceRightsDecisionId.isBlank() || !sourceRightsDecisionId.equals(sourceRightsDecisionId.strip())) {
+                throw invalid("completed report requires an exact source rights decision id");
+            }
             retainedRevisions = copyBounded(retainedRevisions, attemptsUsed + 1,
                     "report retained revisions exceed the attempt bound", "retainedRevisions[]");
             if (retainedRevisions.size() != attemptsUsed + 1 || !retainedRevisions.getFirst().equals(source)) {
@@ -230,6 +233,18 @@ public final class QualityComparisonAndOptimization {
             Objects.requireNonNull(reference, "reference");
             referenceRightsDecisionId = referenceRightsDecisionId == null ? "" : referenceRightsDecisionId;
             Objects.requireNonNull(referenceUnavailableReason, "referenceUnavailableReason");
+            if (reference.isPresent()) {
+                RevisionId referenceId = reference.orElseThrow();
+                if (!sameTenant(source, referenceId)) {
+                    throw invalid("report reference must match the source tenant and principal");
+                }
+                if (referenceUnavailableReason.isPresent() || referenceRightsDecisionId.isBlank()
+                        || !referenceRightsDecisionId.equals(referenceRightsDecisionId.strip())) {
+                    throw invalid("available report reference requires an exact rights decision and no unavailable reason");
+                }
+            } else if (referenceUnavailableReason.isEmpty() || !referenceRightsDecisionId.isEmpty()) {
+                throw invalid("unavailable report reference requires a reason and no rights decision id");
+            }
             comparisons = copyBounded(comparisons, attemptsUsed,
                     "report comparisons exceed the attempt bound", "comparisons[]");
             if (comparisons.size() != attemptsUsed) {

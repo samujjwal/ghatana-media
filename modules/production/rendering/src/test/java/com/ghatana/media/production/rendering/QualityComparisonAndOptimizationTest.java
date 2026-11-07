@@ -216,6 +216,52 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportReferenceAndRightsFieldsMustDescribeOneConsistentAuthorityOutcome() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Report withoutReference = run(source, List.of(candidate), null, allowed("src"), null, 1, BUDGET)
+                .report().orElseThrow();
+        RevisionId foreignReference = new RevisionId("other-tenant", "principal", "reference", "v1",
+                "c".repeat(64));
+
+        assertThatThrownBy(() -> new Report(withoutReference.status(), withoutReference.blockReason(),
+                withoutReference.operationId(), withoutReference.budget(), withoutReference.attemptsUsed(),
+                withoutReference.source(), withoutReference.sourceRightsDecisionId(),
+                withoutReference.retainedRevisions(), Optional.of(foreignReference),
+                withoutReference.referenceRightsDecisionId(), withoutReference.referenceUnavailableReason(),
+                withoutReference.comparisons(), withoutReference.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("reference must match the source tenant and principal");
+
+        assertThatThrownBy(() -> new Report(withoutReference.status(), withoutReference.blockReason(),
+                withoutReference.operationId(), withoutReference.budget(), withoutReference.attemptsUsed(),
+                withoutReference.source(), withoutReference.sourceRightsDecisionId(),
+                withoutReference.retainedRevisions(), Optional.of(revision("reference", "v1", "c", 20).id()),
+                "", withoutReference.referenceUnavailableReason(), withoutReference.comparisons(),
+                withoutReference.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("available report reference requires an exact rights decision");
+
+        assertThatThrownBy(() -> new Report(withoutReference.status(), withoutReference.blockReason(),
+                withoutReference.operationId(), withoutReference.budget(), withoutReference.attemptsUsed(),
+                withoutReference.source(), withoutReference.sourceRightsDecisionId(),
+                withoutReference.retainedRevisions(), Optional.empty(), "forged-reference-rights",
+                withoutReference.referenceUnavailableReason(), withoutReference.comparisons(),
+                withoutReference.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("unavailable report reference requires a reason");
+
+        assertThatThrownBy(() -> new Report(withoutReference.status(), withoutReference.blockReason(),
+                withoutReference.operationId(), withoutReference.budget(), withoutReference.attemptsUsed(),
+                withoutReference.source(), "", withoutReference.retainedRevisions(),
+                withoutReference.reference(), withoutReference.referenceRightsDecisionId(),
+                withoutReference.referenceUnavailableReason(), withoutReference.comparisons(),
+                withoutReference.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact source rights decision id");
+    }
+
+    @Test
     void reportRejectsChangedIdentityWithStaleDigestAndBlockedStatus() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v1", "b", 25);
