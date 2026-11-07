@@ -471,6 +471,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                 && submitted.principalId().equals(readback.principalId())
                 && submitted.artifactId().equals(readback.artifactId())
                 && submitted.jobType() == readback.jobType()
+                && submitted.providerId().equals(readback.providerId())
                 && submitted.expectedArtifactVersion().equals(readback.expectedArtifactVersion())
                 && hasCanonicalRequestFingerprint(submitted)
                 && hasCanonicalRequestFingerprint(readback)

@@ -446,6 +446,33 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void changedChildProviderOnReadbackCannotBeFusedAsSucceeded() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public Optional<ProcessingJob> findJob(String jobId) {
+                    return super.findJob(jobId).map(job -> new ProcessingJob(
+                            job.jobId(), job.requestId(), job.tenantId(), job.principalId(),
+                            job.artifactId(), job.jobType(), "rebound-provider", job.status(),
+                            job.createdAt(), job.startedAt(), job.completedAt(), job.result(),
+                            job.failureCode(), job.version(), job.expectedArtifactVersion(),
+                            job.requestFingerprint()));
+                }
+            }.with(JobStatus.COMPLETED, Map.of("text", "unbound result"));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void mismatchedChildTenantCannotBeFusedAsSucceeded() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
