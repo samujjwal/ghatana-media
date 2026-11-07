@@ -122,6 +122,22 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     @Test
+    void parseRejectsOverLimitBlocksBeforeBuildingConsumerList() {
+        String block = "{\"blockId\":\"block-1\",\"kind\":\"text\","
+                + "\"boundingRegion\":{\"x\":0,\"y\":0,\"width\":1,\"height\":1},\"lines\":[]}";
+        String blocks = (block + ",").repeat(DocumentIntelligenceV1.MAX_BLOCKS_PER_PAGE) + block;
+        parseStatus = 200;
+        parseBody = "{\"protocolVersion\":\"document-intelligence.v1\",\"operationId\":\"operation-1\","
+                + "\"providerRef\":\"di.ocr.en\",\"providerProvenance\":{\"providerRef\":\"di.ocr.en\","
+                + "\"providerVersion\":\"2.4.1\"},\"quality\":{},\"pages\":[{\"pageNumber\":1,"
+                + "\"blocks\":[" + blocks + "],\"tables\":[]}]}";
+
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+    }
+
+    @Test
     void hostOutsideAllowlistIsRefusedAtConstruction() {
         assertThatThrownBy(() -> new DocumentIntelligenceHttpClient(
                 URI.create("http://127.0.0.1:1"), HttpClient.newHttpClient(), Duration.ofSeconds(1), 1024,

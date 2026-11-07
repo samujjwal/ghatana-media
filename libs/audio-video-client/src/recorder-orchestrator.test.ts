@@ -1162,6 +1162,30 @@ describe("publishFinalRender", () => {
       .not.toHaveBeenCalled();
   });
 
+  it("keeps a confirmed chunk partial when cancellation arrives before canonical completion", async () => {
+    const controller = new AbortController();
+    const uploadPart = vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) => {
+      const acknowledged = uploadSession({ ...session,
+        bytesReceived: session.bytesReceived + blob.size,
+        nextChunkIndex: session.nextChunkIndex + 1,
+      });
+      // The remote chunk effect is confirmed, but cancellation wins before the
+      // next authorization/completion boundary.
+      controller.abort();
+      return acknowledged;
+    });
+    const client = fakeClient({ uploadPart });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client, controller.signal)).resolves.toMatchObject({
+      outcome: "PARTIAL_UPLOAD_NOT_FINALIZED",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("cancelled"),
+    });
+    expect(uploadPart).toHaveBeenCalledOnce();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("does not complete when the chunk receipt fails to confirm exact session progress", async () => {
     const client = fakeClient({
       uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>) =>

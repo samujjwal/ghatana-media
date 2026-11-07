@@ -388,7 +388,7 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
             keys(page, Set.of("pageNumber", "blocks", "tables", "languageTag"), Set.of("pageNumber", "blocks", "tables"));
             JsonNode blocks = page.get("blocks");
             if (!page.get("pageNumber").isIntegralNumber() || page.get("pageNumber").intValue() < 1
-                    || !blocks.isArray() || !page.get("tables").isArray()) {
+                    || !blocks.isArray() || blocks.size() > MAX_BLOCKS_PER_PAGE || !page.get("tables").isArray()) {
                 throw new IllegalArgumentException("page");
             }
             List<Block> parsedBlocks = new ArrayList<>();
