@@ -224,6 +224,26 @@ class MediaCaptionRuntimeTest {
     }
 
     @Test
+    void captionSegmentCannotExtendPastBoundSourceDuration() {
+        RegistrationRequest atSourceEnd = new RegistrationRequest(
+                "source-end-boundary", "artifact-1", "sha256:" + "a".repeat(64),
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact", "clock.v1",
+                90_000, 9_000_000, LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("seg-end", "last word", 8_999_000, 9_000_000,
+                        SegmentOrigin.USER_EDITED)), Optional.empty());
+
+        assertThat(atSourceEnd.captionSegments().getFirst().endTick()).isEqualTo(9_000_000);
+        assertThatThrownBy(() -> new RegistrationRequest(
+                "past-source-end", "artifact-1", "sha256:" + "a".repeat(64),
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact", "clock.v1",
+                90_000, 9_000_000, LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("seg-past-end", "out of range", 8_999_000, 9_000_001,
+                        SegmentOrigin.USER_EDITED)), Optional.empty()))
+                .isInstanceOf(com.ghatana.media.runtime.MediaCaptionContracts.CaptionRegistrationException.class)
+                .hasMessageContaining("CAPTION_ALIGNMENT_REQUIRED");
+    }
+
+    @Test
     void optionalTranscriptParentStoreMustBeUnambiguousAndProductionEligible() {
         MediaTranscriptStore unavailable = new TestTranscriptStore(false, true);
         MediaTranscriptStore development = new TestTranscriptStore(true, false);

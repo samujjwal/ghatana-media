@@ -143,6 +143,33 @@ class MultimodalGroundedOutcomeIntegrationTest {
         verifyNoInteractions(runtimePort);
     }
 
+    @Test
+    void singleModalityCannotBeSubmittedAsGroundedCrossModalRequest() {
+        CrossModalRequest request = CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x15, 0x26}))
+                .setOperationBinding(CanonicalOperationBinding.newBuilder()
+                        .setCapabilityRef("media.multimodal.analyze.cross-modal")
+                        .setOperationRef("media.operation.capability.media-multimodal-analyze-cross-modal")
+                        .setOperationVersion(1)
+                        .setRequestId("j06-single-modality-request")
+                        .setSourceArtifactId("j06-source-artifact")
+                        .setSourceVersionId("v1")
+                        .setPurpose("j06-single-modality-integration-test")
+                        .setCorrelationId("j06-single-modality-correlation")
+                        .build())
+                .build();
+
+        assertThatThrownBy(() -> client.analyzeCrossModal(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(failure -> {
+                    StatusRuntimeException rpcFailure = (StatusRuntimeException) failure;
+                    assertThat(rpcFailure.getStatus().getCode()).isEqualTo(Status.Code.INVALID_ARGUMENT);
+                    assertThat(rpcFailure.getStatus().getDescription())
+                            .contains("Both audio_data and video_data are required");
+                });
+        verifyNoInteractions(runtimePort);
+    }
+
     private static String signedJwt() throws Exception {
         String header = Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(StandardCharsets.UTF_8));

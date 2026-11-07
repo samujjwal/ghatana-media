@@ -97,6 +97,18 @@ class VisionRoiAdmissionIntegrationTest {
         assertThat(((StatusRuntimeException) malformedObserver.error).getStatus().getCode())
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
 
+        DetectRequest overflowingGeometry = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(image))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(Integer.MAX_VALUE).setY(0).setWidth(1).setHeight(1)
+                        .setSourceFrameVersion("source-frame-v7"))
+                .build();
+        CapturingObserver overflowingGeometryObserver = new CapturingObserver();
+        withTenant("tenant-j05", () -> service.detectObjects(overflowingGeometry, overflowingGeometryObserver));
+        assertThat(overflowingGeometryObserver.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) overflowingGeometryObserver.error).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+
         DetectRequest missingSourceFrameVersion = DetectRequest.newBuilder()
                 .setImageData(ByteString.copyFrom(image))
                 .setSourceRasterRoi(SourceRasterRoi.newBuilder()
