@@ -227,7 +227,8 @@ function containsCredential(value: unknown, token: string): boolean {
   if (typeof value === 'string') return secrets.some(secret => value.includes(secret));
   if (Array.isArray(value)) return value.some(item => containsCredential(item, token));
   if (value && typeof value === 'object') {
-    return Object.values(value).some(item => containsCredential(item, token));
+    return Object.entries(value).some(([key, item]) => secrets.some(secret => key.includes(secret))
+      || containsCredential(item, token));
   }
   return false;
 }
