@@ -254,6 +254,7 @@ class MediaWorkflowMetricsTest {
                 "sk-secret-provider-credential-123",
                 "ASIA1234567890EXAMPLE",
                 "ya29.a0AfH6SMB-example-token",
+                "AIzaSyD-example-google-api-key",
                 "glpat-test-only",
                 "xoxb-test-only",
                 "github_pat_11AA22BB33CC44DD_example-token",

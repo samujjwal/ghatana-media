@@ -687,6 +687,7 @@ public final class MediaWorkflowMetrics {
                 // Temporary AWS credentials and common hosted-service tokens are valid
                 // metric-token characters, so reject their recognizable prefixes explicitly.
                 || normalized.startsWith("asia") || normalized.startsWith("ya29.")
+                || normalized.startsWith("aiza")
                 || normalized.startsWith("glpat-") || normalized.startsWith("xoxb-")
                 || normalized.startsWith("xoxp-") || normalized.startsWith("xoxa-")
                 || normalized.startsWith("xoxr-") || normalized.startsWith("xoxs-")
