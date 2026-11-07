@@ -114,6 +114,68 @@ class AnimationJ13LocalScenarioSliceTest {
     }
 
     @Test
+    void localGlbAnimationAccessorsDecodeAuthoredRootTranslationAndRotation() {
+        var artifact = new SpatialRigEngine().exportGlb(authoredRig(),
+                source -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        ByteBuffer glb = ByteBuffer.wrap(artifact.bytes()).order(ByteOrder.LITTLE_ENDIAN);
+        glb.position(12);
+        int jsonLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x4e4f534a);
+        byte[] jsonBytes = new byte[jsonLength];
+        glb.get(jsonBytes);
+        JsonNode document = new ObjectMapper().readTree(jsonBytes);
+        int binaryLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x004e4942);
+        byte[] binary = new byte[binaryLength];
+        glb.get(binary);
+
+        JsonNode animations = document.path("animations").get(0);
+        JsonNode channels = animations.path("channels");
+        JsonNode samplers = animations.path("samplers");
+        JsonNode nodes = document.path("nodes");
+        JsonNode translationChannel = null;
+        JsonNode rotationChannel = null;
+        for (JsonNode channel : channels) {
+            JsonNode target = channel.path("target");
+            String nodeName = nodes.get(target.path("node").asInt()).path("name").asString();
+            if ("root".equals(nodeName) && "translation".equals(target.path("path").asString())) {
+                translationChannel = channel;
+            }
+            if ("root".equals(nodeName) && "rotation".equals(target.path("path").asString())) {
+                rotationChannel = channel;
+            }
+        }
+        assertThat(translationChannel).isNotNull();
+        assertThat(rotationChannel).isNotNull();
+        float[] translations = decodeAccessor(document,
+                samplers.get(translationChannel.path("sampler").asInt()).path("output").asInt(), binary, 3);
+        float[] rotations = decodeAccessor(document,
+                samplers.get(rotationChannel.path("sampler").asInt()).path("output").asInt(), binary, 4);
+
+        // The selected local GLB profile declares metre positions and XYZW unit quaternions.
+        assertThat(translations).containsExactly(0f, 0f, 0f, 2f, 0f, 0f);
+        assertThat(rotations).hasSize(8);
+        assertThat(rotations[4]).isEqualTo(0f);
+        assertThat(rotations[5]).isEqualTo(0f);
+        assertThat(rotations[6]).isCloseTo((float) Math.sqrt(0.5), org.assertj.core.data.Offset.offset(1e-6f));
+        assertThat(rotations[7]).isCloseTo((float) Math.sqrt(0.5), org.assertj.core.data.Offset.offset(1e-6f));
+    }
+
+    private static float[] decodeAccessor(JsonNode document, int accessorIndex, byte[] binary, int components) {
+        JsonNode accessor = document.path("accessors").get(accessorIndex);
+        JsonNode view = document.path("bufferViews").get(accessor.path("bufferView").asInt());
+        int offset = view.path("byteOffset").asInt(0) + accessor.path("byteOffset").asInt(0);
+        int count = accessor.path("count").asInt();
+        assertThat(accessor.path("componentType").asInt()).isEqualTo(5126);
+        assertThat(accessor.path("type").asString()).isEqualTo(components == 3 ? "VEC3" : "VEC4");
+        ByteBuffer values = ByteBuffer.wrap(binary).order(ByteOrder.LITTLE_ENDIAN);
+        values.position(offset);
+        float[] decoded = new float[count * components];
+        for (int index = 0; index < decoded.length; index++) decoded[index] = values.getFloat();
+        return decoded;
+    }
+
+    @Test
     void unknownCurrentRightsBlockPoseAndLocalGlbBeforeProducingAnEffect() {
         var engine = new SpatialRigEngine();
         var rig = authoredRig();
