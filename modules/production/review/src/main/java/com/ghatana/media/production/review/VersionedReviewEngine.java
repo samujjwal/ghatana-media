@@ -241,7 +241,9 @@ public final class VersionedReviewEngine {
 
     private String nextId() {
         String id = ids.get();
-        if (id == null || id.isBlank()) throw new IllegalStateException("id supplier returned blank value");
+        if (id == null || !id.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,255}")) {
+            throw new IllegalStateException("id supplier returned an invalid append record identity");
+        }
         return id;
     }
 }

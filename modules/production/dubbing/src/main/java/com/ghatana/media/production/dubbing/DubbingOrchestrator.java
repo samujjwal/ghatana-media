@@ -552,8 +552,19 @@ public final class DubbingOrchestrator {
     }
     private static String locale(String value) {
         String normalized = required(value, "locale");
-        java.util.Locale parsed = java.util.Locale.forLanguageTag(normalized);
-        if (parsed.getLanguage().isBlank() || parsed.toLanguageTag().equals("und")) throw new IllegalArgumentException("locale must be a valid BCP-47 tag");
+        if (normalized.length() < 2 || normalized.length() > 63
+                || !normalized.matches("[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*")) {
+            throw new IllegalArgumentException("locale must be a valid BCP-47 tag");
+        }
+        java.util.Locale parsed;
+        try {
+            parsed = new java.util.Locale.Builder().setLanguageTag(normalized).build();
+        } catch (java.util.IllformedLocaleException malformed) {
+            throw new IllegalArgumentException("locale must be a valid BCP-47 tag", malformed);
+        }
+        if (parsed.getLanguage().isBlank() || parsed.toLanguageTag().equals("und")) {
+            throw new IllegalArgumentException("locale must be a valid BCP-47 tag");
+        }
         return parsed.toLanguageTag();
     }
     private static String bounded(String value, int maxCodePoints, String field) {

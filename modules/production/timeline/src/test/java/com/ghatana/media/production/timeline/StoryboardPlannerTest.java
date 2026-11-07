@@ -197,6 +197,27 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void blankParentSemanticVersionCannotBeSilentlyReinterpretedAsNoParent() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-parent", "plan-parent", "v1",
+                brief(List.of(SOURCE_A)), List.of(scene("scene-parent", 0, 0,
+                        List.of(shot("shot-parent", 0, 0, List.of())))));
+        MutableAuthority authority = new MutableAuthority("head-parent");
+        int rightsReadsBeforeSave = rights.calls();
+
+        assertThatThrownBy(() -> planner.save(OWNER, plan, "  ", "save-blank-parent", authority))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("expectedParentSemanticVersion must not be blank");
+        assertThat(rights.calls()).isEqualTo(rightsReadsBeforeSave);
+        assertThat(authority.saved).isEmpty();
+
+        StoryboardPlanner.SavedPlan initialEdition = planner.save(OWNER, plan, null, "save-no-parent", authority);
+        assertThat(initialEdition.plan()).isEqualTo(plan);
+        assertThat(authority.saved).containsKey("plan-parent/v1");
+    }
+
+    @Test
     void ownerSceneReferenceLimitIsEnforcedBeforeRightsOrAuthorityEffects() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);

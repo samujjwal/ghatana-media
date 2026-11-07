@@ -161,6 +161,24 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void durableReadbackCannotClaimMoreBytesThanTheImmutableArtifactContains() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(16));
+        f.operations.overrideFind(new DeliveryOperationStore.Operation(
+                request.tenantId(), request.principalId(), request.requestId(), request.artifact().artifactId(),
+                request.artifact().versionRef(), request.artifact().digest(), request.destinationRef(),
+                "persisted-fingerprint", Status.OUTCOME_UNKNOWN, request.artifact().size() + 1, null));
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, f.operations);
+
+        assertThatThrownBy(() -> restarted.export(request))
+                .isInstanceOf(DeliveryException.class)
+                .extracting(error -> ((DeliveryException) error).code())
+                .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+        assertThat(f.destination.sendCount).isZero();
+    }
+
+    @Test
     void requiresExactDestinationReceiptAndChecksumForConfirmation() {
         Fixture f = new Fixture();
         f.destination.badFinalChecksum = true;

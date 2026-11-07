@@ -188,6 +188,25 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void diffReportsExactSourceVersionReplacementAsChangedClip() {
+        Scene scene = new Scene("scene-1", 0);
+        Track track = new Track("track-1", scene.sceneId(), TrackKind.VIDEO, 0);
+        Clip original = clip("clip-1", scene.sceneId(), track.trackId());
+        Graph before = new Graph("timeline-1", List.of(scene), List.of(track), List.of(original));
+        Clip replacement = new Clip(original.clipId(), original.sceneId(), original.trackId(),
+                new SourceVersion("artifact-1", "version-8"), original.sourceIn(), original.sourceOut(),
+                original.storyStart(), original.storyDuration());
+        Graph after = ProjectTimelineEngine.apply(before, List.of(new ProjectTimelineEngine.PutClip(replacement)));
+
+        ProjectTimelineEngine.GraphDiff diff = ProjectTimelineEngine.diff(before, after);
+
+        assertThat(after.clips()).containsExactly(replacement);
+        assertThat(diff.changedClips()).containsExactly("clip-1");
+        assertThat(diff.addedClips()).isEmpty();
+        assertThat(diff.removedClips()).isEmpty();
+    }
+
+    @Test
     void staleEditsFailWithoutOverwritingAndOwnershipDoesNotCrossTenantOrPrincipal() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-3");

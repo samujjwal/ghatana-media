@@ -205,6 +205,7 @@ public final class MultitrackRenderPlanner {
             if (!expectedFrameLines.equals(manifestFrameLines)) {
                 throw invalid("plan frame map does not match the canonical manifest");
             }
+            validateFrameMappings(canonicalManifest, frameMap);
             var nextFrameIndexes = new java.util.HashMap<String, Integer>();
             var previousSourcePts = new java.util.HashMap<String, Time>();
             for (MappedFrame frame : frameMap.stream()
@@ -325,6 +326,60 @@ public final class MultitrackRenderPlanner {
                 .append(t.id()).append('|').append(t.leftClipId()).append('|').append(t.rightClipId()).append('|')
                 .append(t.kind()).append('|').append(t.start()).append('|').append(t.duration()).append('\n'));
         return out.toString();
+    }
+
+    private record ClipTimeMap(Time timelineStart, Time sourceStart, Time sourceEnd) { }
+
+    private static void validateFrameMappings(String manifest, List<MappedFrame> frames) {
+        var clipTimeMaps = new java.util.HashMap<String, ClipTimeMap>();
+        for (String line : manifest.lines().filter(value -> value.startsWith("clip=")).toList()) {
+            String[] fields = line.substring("clip=".length()).split("\\|", -1);
+            if (fields.length != 8) throw invalid("canonical manifest clip row is malformed");
+            String clipId = opaque(fields[0], "manifest clip id");
+            Time timelineStart = manifestTime(fields[5]);
+            Time sourceStart = manifestTime(fields[6]);
+            Time sourceEnd = manifestTime(fields[7]);
+            if (timelineStart.numerator() < 0 || sourceStart.numerator() < 0
+                    || sourceEnd.compareTo(sourceStart) <= 0) {
+                throw invalid("canonical manifest clip interval is invalid");
+            }
+            if (clipTimeMaps.putIfAbsent(clipId, new ClipTimeMap(timelineStart, sourceStart, sourceEnd)) != null) {
+                throw invalid("canonical manifest clip ids must be unique");
+            }
+        }
+        if (clipTimeMaps.isEmpty()) throw invalid("canonical manifest must declare clip time maps");
+        var mappedClipIds = new java.util.HashSet<String>();
+        for (MappedFrame frame : frames) {
+            ClipTimeMap clip = clipTimeMaps.get(frame.clipId());
+            if (clip == null) throw invalid("mapped frame has no canonical manifest clip");
+            mappedClipIds.add(frame.clipId());
+            if (frame.sourcePts().compareTo(clip.sourceStart()) < 0
+                    || frame.sourcePts().compareTo(clip.sourceEnd()) >= 0) {
+                throw invalid("mapped frame source PTS is outside its canonical clip interval");
+            }
+            Time expectedTimelinePts = clip.timelineStart().plus(frame.sourcePts().minus(clip.sourceStart()));
+            if (!frame.timelinePts().equals(expectedTimelinePts)) {
+                throw invalid("mapped frame timeline PTS does not match its canonical clip time map");
+            }
+        }
+        if (!mappedClipIds.equals(clipTimeMaps.keySet())) {
+            throw invalid("canonical manifest clip ids must have exact frame-map coverage");
+        }
+    }
+
+    private static Time manifestTime(String value) {
+        int separator = value.indexOf('/');
+        if (separator <= 0 || separator != value.lastIndexOf('/') || separator == value.length() - 1) {
+            throw invalid("canonical manifest time is malformed");
+        }
+        try {
+            Time time = new Time(Long.parseLong(value.substring(0, separator)),
+                    Long.parseLong(value.substring(separator + 1)));
+            if (!time.toString().equals(value)) throw invalid("canonical manifest time is not normalized");
+            return time;
+        } catch (NumberFormatException malformed) {
+            throw invalid("canonical manifest time is malformed");
+        }
     }
 
     private static String opaque(String value, String name) {

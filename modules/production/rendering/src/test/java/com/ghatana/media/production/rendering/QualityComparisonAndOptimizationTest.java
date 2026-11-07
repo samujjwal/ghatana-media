@@ -161,6 +161,29 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportRejectsChangedIdentityWithStaleDigestAndBlockedStatus() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Report report = run(source, List.of(candidate), null, allowed("source-rights-v1"), null, 1, BUDGET)
+                .report().orElseThrow();
+
+        assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
+                report.budget(), report.attemptsUsed(), report.source(), "forged-source-rights-v2",
+                report.retainedRevisions(), report.reference(), report.referenceRightsDecisionId(),
+                report.referenceUnavailableReason(), report.comparisons(), report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("report sha256 does not match report content");
+
+        assertThatThrownBy(() -> new Report(RunStatus.UNAVAILABLE, Optional.of(BlockReason.SOURCE_REVOKED),
+                report.operationId(), report.budget(), report.attemptsUsed(), report.source(),
+                report.sourceRightsDecisionId(), report.retainedRevisions(), report.reference(),
+                report.referenceRightsDecisionId(), report.referenceUnavailableReason(), report.comparisons(),
+                report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("quality report must be completed without a block reason");
+    }
+
+    @Test
     void exactCandidateReferenceMatchBeatsFiniteSourcePsnr() {
         Revision source = revision("source", "v1", "a", 40);
         Revision exact = revision("candidate", "v1", "b", 20);

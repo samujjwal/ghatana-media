@@ -217,6 +217,21 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("delivery verdict rejects sequences outside the offer range")
+    void deliveryVerdictRejectsOutOfRangeSequences() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+
+        assertThatThrownBy(() -> rec.deliveryOf(frame(-1, true, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence is outside");
+        assertThatThrownBy(() -> rec.deliveryOf(frame(Integer.MAX_VALUE, true, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence is outside");
+        assertThat(rec.nextAck()).isEqualTo(-1);
+        assertThat(rec.pendingCount()).isZero();
+    }
+
+    @Test
     @DisplayName("reorder storage applies an aggregate byte cap and releases capacity with the gap")
     void reorderStorageIsByteBounded() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));

@@ -176,8 +176,12 @@ public final class VideoFrameReconciler {
      */
     public Delivery deliveryOf(VideoStreamSession.DecodedFrame frame) {
         Objects.requireNonNull(frame, "frame");
+        int sequence = frame.sequenceNumber();
+        if (sequence < 0 || sequence > VideoStreamSession.MAX_FRAME_SEQUENCE) {
+            throw new IllegalArgumentException("video frame sequence is outside the supported range");
+        }
         boolean decodable = frame.keyFrame()
-                || (lastKeyFrameSequence >= 0 && lastKeyFrameSequence <= frame.sequenceNumber());
+                || (lastKeyFrameSequence >= 0 && lastKeyFrameSequence <= sequence);
         return new Delivery(frame, decodable, "SOURCE_TIME_MAPPING_NOT_ADMITTED");
     }
 

@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Map;
 import java.util.AbstractList;
+import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -257,6 +259,17 @@ class SpatialRigEngineTest {
                 artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
                 artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
                 artifact.sha256(), exposedBytes));
+
+        byte[] wrongDeclaredLength = artifact.bytes();
+        ByteBuffer.wrap(wrongDeclaredLength).order(ByteOrder.LITTLE_ENDIAN)
+                .putInt(8, wrongDeclaredLength.length - 4);
+        String wrongLengthDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(wrongDeclaredLength));
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                wrongLengthDigest, wrongDeclaredLength))
+                .withMessageContaining("GLB header is invalid");
 
         ByteBuffer glb = ByteBuffer.wrap(artifact.bytes()).order(ByteOrder.LITTLE_ENDIAN);
         assertThat(glb.getInt()).isEqualTo(0x46546c67);

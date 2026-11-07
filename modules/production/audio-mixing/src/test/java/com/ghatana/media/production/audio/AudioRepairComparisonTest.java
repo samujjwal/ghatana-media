@@ -93,6 +93,20 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void metricsRejectImpossibleReferenceAndStereoStates() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, 0.0, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, true, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, 1.01, 0.5, 0.51));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, 1.0, 0.5, 0.25));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, null, null, 0.0));
+    }
+
+    @Test
     void silenceHasTransparentMetricsAndNoInventedStereoPhaseMeasurement() {
         AudioData silence = pcm(0, 0, 0, 0);
 

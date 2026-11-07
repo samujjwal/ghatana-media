@@ -189,6 +189,9 @@ public final class QualityComparisonAndOptimization {
             String reportSha256) {
         public Report {
             Objects.requireNonNull(status, "status"); Objects.requireNonNull(blockReason, "blockReason");
+            if (status != RunStatus.COMPLETED || blockReason.isPresent()) {
+                throw invalid("quality report must be completed without a block reason");
+            }
             operationId = text(operationId, "operationId", 128);
             Objects.requireNonNull(budget, "budget");
             if (attemptsUsed < 1 || attemptsUsed > budget.maxAttempts()) throw invalid("report attempts exceed budget");
@@ -202,6 +205,12 @@ public final class QualityComparisonAndOptimization {
             comparisons = copyBounded(comparisons, attemptsUsed,
                     "report comparisons exceed the attempt bound", "comparisons[]");
             reportSha256 = digest(reportSha256, "report sha256");
+            String expectedSha256 = sha256(canonicalReport(operationId, budget, attemptsUsed, source,
+                    sourceRightsDecisionId, retainedRevisions, reference, referenceRightsDecisionId,
+                    referenceUnavailableReason, comparisons).getBytes(StandardCharsets.UTF_8));
+            if (!reportSha256.equals(expectedSha256)) {
+                throw invalid("report sha256 does not match report content");
+            }
         }
     }
 

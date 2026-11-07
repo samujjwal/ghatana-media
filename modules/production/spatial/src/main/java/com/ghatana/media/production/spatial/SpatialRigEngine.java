@@ -286,6 +286,7 @@ public final class SpatialRigEngine {
             Objects.requireNonNull(bytes, "bytes");
             if (bytes.length > MAX_GLB_BYTES) throw new IllegalArgumentException("GLB artifact exceeds byte ceiling");
             bytes = bytes.clone();
+            validateGlbContainer(bytes);
             sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches("^[a-f0-9]{64}$") || !SpatialRigEngine.sha256(bytes).equals(sha256)) {
                 throw new IllegalArgumentException("GLB artifact SHA-256 does not match its bytes");
@@ -651,6 +652,39 @@ public final class SpatialRigEngine {
             while (output.position() % 4 != 0) output.put((byte) 0);
         }
         return output.array();
+    }
+
+    /** Validates the bounded GLB container envelope; it does not establish viewer compatibility. */
+    private static void validateGlbContainer(byte[] bytes) {
+        if (bytes.length < 20 || (bytes.length & 3) != 0) {
+            throw new IllegalArgumentException("GLB container length is invalid");
+        }
+        ByteBuffer input = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        if (input.getInt() != 0x46546c67 || input.getInt() != 2 || input.getInt() != bytes.length) {
+            throw new IllegalArgumentException("GLB header is invalid");
+        }
+        input.position(12);
+        int chunkIndex = 0;
+        while (input.hasRemaining()) {
+            if (input.remaining() < 8) throw new IllegalArgumentException("GLB chunk header is truncated");
+            int chunkLength = input.getInt();
+            int chunkType = input.getInt();
+            long chunkEnd = (long) input.position() + chunkLength;
+            if (chunkLength < 0 || (chunkLength & 3) != 0 || chunkEnd > bytes.length) {
+                throw new IllegalArgumentException("GLB chunk length is invalid");
+            }
+            if (chunkIndex == 0) {
+                if (chunkType != 0x4e4f534a || chunkLength == 0) {
+                    throw new IllegalArgumentException("GLB first chunk must contain JSON");
+                }
+            } else if (chunkType == 0x4e4f534a) {
+                throw new IllegalArgumentException("GLB must contain exactly one leading JSON chunk");
+            } else if (chunkType == 0x004e4942 && chunkIndex != 1) {
+                throw new IllegalArgumentException("GLB binary chunk must immediately follow JSON");
+            }
+            input.position((int) chunkEnd);
+            chunkIndex++;
+        }
     }
 
     private static void writeFloat(ByteArrayOutputStream output, float value) {

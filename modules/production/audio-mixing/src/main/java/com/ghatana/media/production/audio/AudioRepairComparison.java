@@ -186,5 +186,35 @@ public final class AudioRepairComparison {
                           long sourceNearClipSampleCount, long repairedNearClipSampleCount,
                           long changedSampleCount, double rmsChangeDb, double snrDbVsReference,
                           boolean hasIndependentReference, Double sourceStereoCorrelation,
-                          Double repairedStereoCorrelation, Double stereoCorrelationDelta) { }
+                          Double repairedStereoCorrelation, Double stereoCorrelationDelta) {
+        public Metrics {
+            if (!Double.isFinite(sourceRms) || sourceRms < 0.0
+                    || !Double.isFinite(repairedRms) || repairedRms < 0.0
+                    || Double.isNaN(rmsChangeDb)
+                    || sourcePeak < 0 || repairedPeak < 0
+                    || sourceNearClipSampleCount < 0 || repairedNearClipSampleCount < 0
+                    || changedSampleCount < 0) {
+                throw new IllegalArgumentException("audio comparison metrics must be non-negative and numerically defined");
+            }
+            if (hasIndependentReference == Double.isNaN(snrDbVsReference)) {
+                throw new IllegalArgumentException("reference SNR must be present exactly when an independent reference exists");
+            }
+            boolean hasStereoCorrelation = sourceStereoCorrelation != null && repairedStereoCorrelation != null;
+            if ((sourceStereoCorrelation == null) != (repairedStereoCorrelation == null)
+                    || (stereoCorrelationDelta != null) != hasStereoCorrelation
+                    || (sourceStereoCorrelation != null && !validCorrelation(sourceStereoCorrelation))
+                    || (repairedStereoCorrelation != null && !validCorrelation(repairedStereoCorrelation))
+                    || (stereoCorrelationDelta != null
+                        && (!Double.isFinite(stereoCorrelationDelta)
+                            || stereoCorrelationDelta < 0.0 || stereoCorrelationDelta > 2.0
+                            || stereoCorrelationDelta != Math.abs(
+                                sourceStereoCorrelation - repairedStereoCorrelation)))) {
+                throw new IllegalArgumentException("stereo correlation metrics must be a complete bounded set");
+            }
+        }
+
+        private static boolean validCorrelation(double value) {
+            return Double.isFinite(value) && value >= -1.0 && value <= 1.0;
+        }
+    }
 }

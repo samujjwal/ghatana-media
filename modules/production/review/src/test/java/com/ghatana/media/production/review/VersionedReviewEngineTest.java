@@ -373,6 +373,34 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void invalidGeneratedAppendIdentityIsRejectedBeforeStoreCall() {
+        AtomicInteger appendCalls = new AtomicInteger();
+        ReviewStore countingStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                appendCalls.incrementAndGet();
+                return new ReviewRecord(appendRecordId, actor.tenantId(), reviewCase.reviewCaseId(),
+                        reviewCase.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
+                        expectedCaseRevision + 1, createdAt, authorityVersion);
+            }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(); }
+        };
+        VersionedReviewEngine engine = new VersionedReviewEngine(countingStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()),
+                value -> value, Clock.fixed(NOW, ZoneOffset.UTC), () -> "invalid record id");
+
+        assertThatThrownBy(() -> engine.append(REVIEWER,
+                new AppendRequest(CASE, 0, "authority-v1", "req-invalid-record-id",
+                        new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                        new Comment("safe", CommentDisposition.OPEN, null))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("invalid append record identity");
+        assertThat(appendCalls).hasValue(0);
+    }
+
+    @Test
     void exactTargetMismatchAndInvalidAnnotationsAreRejected() {
         assertThatThrownBy(() -> new ReviewCaseRef("tenant-a", "case-1", V2.reference(), V1, "scope"))
                 .isInstanceOf(IllegalArgumentException.class);

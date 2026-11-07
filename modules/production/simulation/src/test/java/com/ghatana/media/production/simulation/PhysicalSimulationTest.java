@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ghatana.media.runtime.MediaSimulationContracts;
+import java.util.AbstractList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class PhysicalSimulationTest {
@@ -115,6 +118,65 @@ class PhysicalSimulationTest {
         var first = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
         var second = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
         assertThat(first).isEqualTo(second);
+    }
+
+    @Test
+    void publicResultRejectsCountersThatDisagreeWithAcceptedTrace() {
+        var model = new PhysicalSimulation.ConstantForce(
+                m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),
+                m(6, PhysicalSimulation.Unit.NEWTON, 0, PhysicalSimulation.Unit.NEWTON));
+        var valid = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
+
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(valid.observations(), valid.acceptedSteps() - 2,
+                valid.solverIterations(), valid.finalLocalErrorRatio(), valid.deterministic(), valid.evidenceClass()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("counters do not match");
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(valid.observations(), valid.acceptedSteps(),
+                valid.observations().size() - 2, valid.finalLocalErrorRatio(), valid.deterministic(), valid.evidenceClass()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("counters do not match");
+    }
+
+    @Test
+    void publicResultBoundsActualTraceIterationBeforeCopying() {
+        var model = new PhysicalSimulation.ConstantForce(
+                m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),
+                m(6, PhysicalSimulation.Unit.NEWTON, 0, PhysicalSimulation.Unit.NEWTON));
+        var observation = PhysicalSimulation.simulate(model, origin(), policy(1, 100, 1000)).observations().getFirst();
+        var consumed = new AtomicInteger();
+        List<PhysicalSimulation.Observation> underreportedInfiniteTrace = new AbstractList<>() {
+            @Override
+            public PhysicalSimulation.Observation get(int index) {
+                return observation;
+            }
+
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public Iterator<PhysicalSimulation.Observation> iterator() {
+                return new Iterator<>() {
+                    @Override
+                    public boolean hasNext() {
+                        return true;
+                    }
+
+                    @Override
+                    public PhysicalSimulation.Observation next() {
+                        consumed.incrementAndGet();
+                        return observation;
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(underreportedInfiniteTrace, 2, 1, 0, true,
+                "DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exceeds configured solver bound");
+        assertThat(consumed).hasValue(50_001);
     }
 
     @Test

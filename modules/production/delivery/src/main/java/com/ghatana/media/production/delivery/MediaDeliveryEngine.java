@@ -522,9 +522,9 @@ public final class MediaDeliveryEngine {
         Optional<DeliveryOperationStore.Operation> stored = operations.find(request.tenantId(), request.requestId());
         if (stored.isEmpty()) return null;
         DeliveryOperationStore.Operation operation = stored.get();
-        if (!matchesScope(operation, request)) {
+        if (!matchesScope(operation, request) || operation.acknowledgedBytes() > request.artifact().size()) {
             throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
-                    "request id is already bound to different export content or destination");
+                    "request id is already bound to different export content or impossible delivery progress");
         }
         // Preserve the persisted fingerprint so older rows remain resumable. Exact stored
         // fields are checked independently because delimiter-joined fingerprints can collide.
@@ -553,9 +553,10 @@ public final class MediaDeliveryEngine {
                 || !stored.artifactId().equals(entry.request.artifact().artifactId())
                 || !stored.versionRef().equals(entry.request.artifact().versionRef())
                 || !stored.artifactDigest().equals(entry.request.artifact().digest())
-                || !stored.destinationRef().equals(entry.request.destinationRef())) {
+                || !stored.destinationRef().equals(entry.request.destinationRef())
+                || stored.acknowledgedBytes() > entry.request.artifact().size()) {
             throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
-                    "delivery operation readback differs from exact immutable request scope");
+                    "delivery operation readback differs from exact immutable request scope or artifact progress bounds");
         }
         entry.result = result(stored);
         return entry.result;

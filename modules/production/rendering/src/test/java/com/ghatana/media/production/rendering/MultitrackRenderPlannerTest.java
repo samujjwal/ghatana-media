@@ -262,12 +262,14 @@ class MultitrackRenderPlannerTest {
                 .withMessageContaining("frame map does not match");
 
         var nonMonotonicMap = List.of(
-                new MultitrackRenderPlanner.MappedFrame("v", 0, new MultitrackRenderPlanner.Time(2, 1), start),
+                new MultitrackRenderPlanner.MappedFrame("v", 0, new MultitrackRenderPlanner.Time(2, 1),
+                        new MultitrackRenderPlanner.Time(2, 1)),
                 new MultitrackRenderPlanner.MappedFrame("v", 1, end, end));
         String manifest = "multitrack-render-manifest-v1\n"
                 + "duration=10/1\n"
                 + "output-budget-bytes=1000\n"
-                + "frame=v|0|2/1|0/1\n"
+                + "clip=v|VIDEO|artifact-v|v1|" + SHA + "|0/1|0/1|10/1\n"
+                + "frame=v|0|2/1|2/1\n"
                 + "frame=v|1|1/1|1/1\n";
         String manifestDigest = HexFormat.of().formatHex(
                 MessageDigest.getInstance("SHA-256").digest(manifest.getBytes(StandardCharsets.UTF_8)));
@@ -275,6 +277,44 @@ class MultitrackRenderPlannerTest {
                 MultitrackRenderPlanner.CAPABILITY_ID, manifest, manifestDigest,
                 new MultitrackRenderPlanner.Time(10, 1), nonMonotonicMap, 1_000))
                 .withMessageContaining("strictly increasing");
+    }
+
+    @Test
+    void publicPlanRejectsVfrFrameMapThatDoesNotFollowItsClipTimeMapping() throws Exception {
+        var timelineStart = new MultitrackRenderPlanner.Time(2, 1);
+        var sourcePts = new MultitrackRenderPlanner.Time(5, 1);
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("v", timelineStart, List.of(sourcePts))), List.of(), List.of(), 1_000);
+        var valid = MultitrackRenderPlanner.plan(graph).plan();
+        var wrongFrame = new MultitrackRenderPlanner.MappedFrame("v", 0, sourcePts,
+                new MultitrackRenderPlanner.Time(8, 1));
+        String forgedManifest = valid.canonicalManifest().replace(
+                "frame=v|0|5/1|7/1", "frame=v|0|5/1|8/1");
+        String forgedDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), List.of(wrongFrame),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("timeline PTS does not match its canonical clip time map");
+    }
+
+    @Test
+    void publicPlanRejectsManifestClipWithoutMappedFrames() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(), 1_000);
+        var valid = MultitrackRenderPlanner.plan(graph).plan();
+        String ghostClip = "clip=ghost|VIDEO|artifact-ghost|v1|" + SHA + "|0/1|0/1|10/1\n";
+        String forgedManifest = valid.canonicalManifest().replace(
+                "frame=v|0|0/1|0/1\n", ghostClip + "frame=v|0|0/1|0/1\n");
+        String forgedDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("clip ids must have exact frame-map coverage");
     }
 
     @Test

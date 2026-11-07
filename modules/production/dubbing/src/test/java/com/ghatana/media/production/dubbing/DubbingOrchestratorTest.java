@@ -18,6 +18,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DubbingOrchestratorTest {
     @Test
+    void localeValidationRejectsMalformedSuffixInsteadOfAcceptingParsedPrefix() {
+        SourceVersion source = new SourceVersion("artifact-a", "version-a");
+
+        assertThatThrownBy(() -> new TranscriptRevision("transcript-v1", source, "en-US-!", "clock", 1,
+                1, List.of(new TranscriptSegment("seg-1", "hello", 0, 1))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("valid BCP-47");
+
+        TranscriptRevision transcript = new TranscriptRevision("transcript-v1", source, "en-US", "clock", 1,
+                1, List.of(new TranscriptSegment("seg-1", "hello", 0, 1)));
+        assertThatThrownBy(() -> new Request("tenant", "request", source, transcript, "es-MX-!",
+                new VoiceIdentity("voice", "voice-v1"), "authorized-dubbing"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("valid BCP-47");
+    }
+
+    @Test
     void transcriptRejectsUnderreportedListWithoutTraversingPastSegmentLimit() {
         AtomicInteger yielded = new AtomicInteger();
         List<TranscriptSegment> underreported = underreportedList(yielded,

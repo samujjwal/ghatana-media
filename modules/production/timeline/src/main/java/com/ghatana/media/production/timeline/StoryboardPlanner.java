@@ -69,9 +69,10 @@ public final class StoryboardPlanner {
         if (!plan.tenantId().equals(actor.tenantId())) throw new ProjectNotFoundException();
         if (!plan.ownerPrincipalId().equals(actor.principalId())) throw new ProjectAccessDeniedException();
         String request = ownerActionRequestId(requestId);
+        String parentVersion = optionalVersion(expectedParentSemanticVersion);
         verifyCurrent(actor, plan.brief().purpose(), plan.exactSources());
         SavedPlan saved = Objects.requireNonNull(authority.append(actor, plan, plan.expectedProjectRevisionId(),
-                optionalVersion(expectedParentSemanticVersion), request),
+                parentVersion, request),
                 "scene plan authority returned no append receipt");
         if (!saved.plan().equals(plan) || saved.state() != EditionState.PERSISTED_DRAFT) {
             throw new ScenePlanAuthorityProtocolException("append receipt does not identify the exact draft edition");
@@ -384,7 +385,9 @@ public final class StoryboardPlanner {
     }
 
     private static String optionalVersion(String value) {
-        return value == null || value.isBlank() ? null : required(value, "expectedParentSemanticVersion");
+        if (value == null) return null;
+        if (value.isBlank()) throw new IllegalArgumentException("expectedParentSemanticVersion must not be blank");
+        return required(value, "expectedParentSemanticVersion");
     }
 
     /**

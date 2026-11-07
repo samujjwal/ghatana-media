@@ -2,6 +2,7 @@ package com.ghatana.media.production.simulation;
 
 import com.ghatana.media.runtime.MediaSimulationContracts;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 public final class PhysicalSimulation {
     private static final int MAX_CONFIGURED_STEPS = 100_000;
     private static final int MAX_CONFIGURED_ITERATIONS = 100_000;
+    private static final int MAX_RESULT_OBSERVATIONS = MAX_CONFIGURED_STEPS / 2 + 1;
 
     private PhysicalSimulation() {}
 
@@ -171,12 +173,34 @@ public final class PhysicalSimulation {
     public record Result(List<Observation> observations, int acceptedSteps, int solverIterations,
                          double finalLocalErrorRatio, boolean deterministic, String evidenceClass) {
         public Result {
-            observations = List.copyOf(observations);
-            if (observations.isEmpty()) throw new IllegalArgumentException("result needs at least one observation");
-            if (acceptedSteps < 1 || solverIterations < 1) throw new IllegalArgumentException("solver counters must be positive");
+            observations = boundedObservationCopy(observations);
+            if (observations.size() < 2) {
+                throw new IllegalArgumentException("result needs an initial and terminal observation");
+            }
+            if (acceptedSteps < 1 || acceptedSteps > MAX_CONFIGURED_STEPS
+                    || solverIterations < 1 || solverIterations > MAX_CONFIGURED_ITERATIONS) {
+                throw new IllegalArgumentException("solver counters are outside configured bounds");
+            }
+            long traceAcceptedSteps = 2L * (observations.size() - 1);
+            if (acceptedSteps != traceAcceptedSteps || solverIterations < observations.size() - 1) {
+                throw new IllegalArgumentException("solver counters do not match the accepted observation trace");
+            }
             requireFinite(finalLocalErrorRatio, "final error ratio");
             Objects.requireNonNull(evidenceClass, "evidenceClass");
         }
+    }
+
+    private static List<Observation> boundedObservationCopy(List<Observation> source) {
+        Objects.requireNonNull(source, "observations");
+        List<Observation> copy = new ArrayList<>();
+        Iterator<Observation> iterator = Objects.requireNonNull(source.iterator(), "observation iterator");
+        while (iterator.hasNext()) {
+            if (copy.size() >= MAX_RESULT_OBSERVATIONS) {
+                throw new IllegalArgumentException("result observation trace exceeds configured solver bound");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), "observation"));
+        }
+        return List.copyOf(copy);
     }
 
     private record State(double position, double velocity) {}
