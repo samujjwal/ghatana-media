@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
@@ -202,6 +203,69 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
             assertObjectExists(admin, bucket, otherTenantKey);
             assertArtifactPresent(otherTenant, otherTenantArtifact.artifactId());
         } finally {
+            deleteBucket(bucket);
+        }
+    }
+
+    @Test
+    void expiryWaitsForAnAlreadyStagedReadBeforeErasureCanCommit() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-read-fence-" + runId;
+        String prefix = "ip06-read-fence/" + runId;
+        String tenant = "tenant-ip06-read-fence-" + runId;
+        String principal = "principal-ip06-read-fence-" + runId;
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch stagedBytesReady = new CountDownLatch(1);
+        CountDownLatch allowPublication = new CountDownLatch(1);
+        ByteArrayOutputStream delivered = new ByteArrayOutputStream();
+        OutputStream blockingTarget = new OutputStream() {
+            @Override public void write(int value) { delivered.write(value); }
+            @Override public void write(byte[] bytes, int offset, int length) throws IOException {
+                stagedBytesReady.countDown();
+                try {
+                    if (!allowPublication.await(15, TimeUnit.SECONDS)) {
+                        throw new IOException("timed out waiting to publish verified fixture bytes");
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("interrupted while holding fixture read publication", interrupted);
+                }
+                delivered.write(bytes, offset, length);
+            }
+        };
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore();
+             PostgresqlMediaPrivacyMaintenance maintenance = new PostgresqlMediaPrivacyMaintenance(environment)) {
+            MediaArtifact expired = complete(store, tenant, principal, "read-race.wav", "read-race:" + runId);
+
+            Future<java.util.Optional<com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt>> read =
+                    executor.submit(() -> store.copyContent(tenant, principal, expired.artifactId(), expired.version(),
+                            blockingTarget, expired.sizeBytes()));
+            assertThat(stagedBytesReady.await(15, TimeUnit.SECONDS))
+                    .as("reader reached publication after staging and digest verification").isTrue();
+            // Make it a purge candidate only after the read has resolved its live metadata and
+            // staged its bytes, so the controlled race is specifically publication vs erasure.
+            expireArtifact(tenant, expired.artifactId(), false);
+
+            Future<com.ghatana.media.runtime.MediaPrivacyMaintenance.PurgeReport> purge =
+                    executor.submit(() -> maintenance.purgeExpired(Instant.now()));
+            // This observes the purge waiting on the same tenant mutation fence while the reader
+            // is paused between verification and caller-visible publication.
+            awaitAdvisoryWaiter(0x4d454449, tenant.hashCode());
+            assertThat(purge.isDone()).as("erasure cannot commit while verified bytes are publishing").isFalse();
+
+            allowPublication.countDown();
+            assertThat(read.get(15, TimeUnit.SECONDS)).isPresent();
+            assertThat(delivered.toByteArray()).hasSize((int) expired.sizeBytes());
+            assertThat(purge.get(15, TimeUnit.SECONDS).artifactsDeleted()).isEqualTo(1);
+            assertArtifactAbsent(tenant, expired.artifactId());
+            assertThat(delivered.toByteArray()).hasSize((int) expired.sizeBytes());
+        } finally {
+            allowPublication.countDown();
+            executor.shutdownNow();
             deleteBucket(bucket);
         }
     }

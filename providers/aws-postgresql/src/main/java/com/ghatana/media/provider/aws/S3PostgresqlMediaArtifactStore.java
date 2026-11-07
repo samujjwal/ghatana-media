@@ -713,6 +713,37 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             OutputStream target, long maxBytes) throws IOException {
         ensureOpen();
         require(tenantId, "tenantId");
+        // Serialize publication of verified bytes with retention erasure. Without this fence,
+        // a reader can stage an artifact, lose the race to purge (which removes its row and S3
+        // object), then publish the staged bytes after purge has returned successfully.
+        try (Connection fence = state.connection()) {
+            fence.setAutoCommit(false);
+            try {
+                MediaArtifactObjectOwnership.lockTenantMutation(fence, tenantId);
+                Optional<ArtifactContentReadReceipt> receipt = copyContentUnderTenantFence(
+                        tenantId, principalId, artifactId, expectedVersion, target, maxBytes);
+                fence.commit();
+                return receipt;
+            } catch (IOException | RuntimeException failure) {
+                try { fence.rollback(); } catch (SQLException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+                throw failure;
+            } catch (SQLException failure) {
+                try { fence.rollback(); } catch (SQLException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+                throw new IOException("Unable to fence Media artifact content read against erasure", failure);
+            }
+        } catch (SQLException failure) {
+            throw new IOException("Unable to open Media artifact read fence", failure);
+        }
+    }
+
+    private Optional<ArtifactContentReadReceipt> copyContentUnderTenantFence(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            OutputStream target, long maxBytes) throws IOException {
+        require(tenantId, "tenantId");
         require(principalId, "principalId");
         require(artifactId, "artifactId");
         java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
