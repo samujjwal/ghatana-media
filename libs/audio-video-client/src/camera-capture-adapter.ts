@@ -207,18 +207,24 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
       const boundDevice = device;
       const boundCodec = codec;
       let stopped = false;
-      const stopTracks = async (): Promise<void> => {
-        if (stopped) return;
+      let stopPromise: Promise<void> | null = null;
+      const stopTracks = (): Promise<void> => {
+        if (stopPromise !== null) return stopPromise;
         stopped = true;
-        hostController.abort();
-        signal.removeEventListener("abort", abortHost);
-        unsubscribe?.();
-        unsubscribe = null;
-        try {
-          await boundCodec.close();
-        } finally {
-          await boundDevice.stop();
-        }
+        // Preserve the first close outcome so repeated callers cannot turn a
+        // failed host cleanup into an apparent successful close. Memoize
+        // before any host cleanup operation can throw synchronously.
+        stopPromise = Promise.resolve().then(async () => {
+          let failed = false;
+          try { hostController.abort(); } catch { failed = true; }
+          try { signal.removeEventListener("abort", abortHost); } catch { failed = true; }
+          try { unsubscribe?.(); } catch { failed = true; }
+          unsubscribe = null;
+          try { await boundCodec.close(); } catch { failed = true; }
+          try { await boundDevice.stop(); } catch { failed = true; }
+          if (failed) throw new Error("camera stream cleanup failed");
+        });
+        return stopPromise;
       };
       stopOpenedTrack = stopTracks;
       return {
@@ -265,9 +271,10 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
         stopTracks,
       };
     } catch (error) {
-      signal.removeEventListener("abort", abortHost);
-      unsubscribe?.();
-      hostController.abort();
+      try { signal.removeEventListener("abort", abortHost); } catch { /* continue cleanup */ }
+      try { unsubscribe?.(); } catch { /* continue cleanup */ }
+      unsubscribe = null;
+      try { hostController.abort(); } catch { /* continue cleanup */ }
       await Promise.allSettled([
         Promise.resolve().then(() => codec?.close()),
         Promise.resolve().then(() => device?.stop()),
@@ -495,9 +502,14 @@ export class CameraCaptureAdapter implements CaptureSourceAdapter {
     const session = await this.openSession(request);
     try {
       const frame = await session.nextFrame();
-      return Object.freeze({ ...frame, bytes: Uint8Array.from(frame.bytes) });
-    } finally {
       await session.close();
+      return Object.freeze({ ...frame, bytes: Uint8Array.from(frame.bytes) });
+    } catch (error) {
+      // Keep the capture/permission outcome primary while still attempting
+      // teardown. A caller that explicitly closes the session can observe a
+      // cached teardown failure afterward.
+      try { await session.close(); } catch { /* preserve the capture failure */ }
+      throw error;
     }
   }
 
@@ -520,6 +532,7 @@ export class CameraCaptureSession {
   private readonly limits: CameraCaptureSessionLimits;
   private track: CameraTrack | null = null;
   private stopPromise: Promise<void> | null = null;
+  private closePromise: Promise<void> | null = null;
   private controller: AbortController | null = null;
   private unsubscribe: (() => void) | null = null;
   private revoked = false;
@@ -596,21 +609,18 @@ export class CameraCaptureSession {
     }
     if (this.frames >= this.limits.maxFrames
       || this.options.frameClock.nowEpochMillis() - this.startedAt >= this.limits.maxSessionMillis) {
-      await this.close();
-      throw fail("FRAME_LIMIT", "camera session exceeded its bounded frame or duration limit");
+      return this.closePreservingFailure(fail("FRAME_LIMIT", "camera session exceeded its bounded frame or duration limit"));
     }
     try {
       await this.assertFreshPermission(this.request);
     } catch (error) {
       if (this.revoked) {
-        await this.close();
-        throw this.permissionFailure ?? abortError();
+        return this.closePreservingFailure(this.permissionFailure ?? abortError());
       }
       if (this.switching) {
         throw fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch");
       }
-      await this.close();
-      throw error;
+      return this.closePreservingFailure(error);
     }
     if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
@@ -624,8 +634,7 @@ export class CameraCaptureSession {
       raw = await awaitOrAbort(track.nextFrame(controller.signal), controller.signal);
     } catch (error) {
       if (this.revoked) {
-        await this.close();
-        throw this.permissionFailure ?? abortError();
+        return this.closePreservingFailure(this.permissionFailure ?? abortError());
       }
       if (controller.signal.aborted && this.switching) {
         throw fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch");
@@ -634,11 +643,9 @@ export class CameraCaptureSession {
         throw fail("SESSION_CLOSED", "camera session stopped before frame completion");
       }
       if (error instanceof CameraCaptureError) {
-        await this.close();
-        throw error;
+        return this.closePreservingFailure(error);
       }
-      await this.close();
-      throw fail("DEVICE_UNAVAILABLE", "camera frame read failed; provider details were omitted");
+      return this.closePreservingFailure(fail("DEVICE_UNAVAILABLE", "camera frame read failed; provider details were omitted"));
     }
     if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
@@ -648,14 +655,12 @@ export class CameraCaptureSession {
         : fail("SESSION_CLOSED", "camera session stopped before frame completion");
     }
     if (raw === null) {
-      await this.close();
-      throw fail("DEVICE_UNAVAILABLE", "camera source ended before a frame was produced");
+      return this.closePreservingFailure(fail("DEVICE_UNAVAILABLE", "camera source ended before a frame was produced"));
     }
     const suppliedFrameRead = raw instanceof Uint8Array ? { bytes: raw } : raw;
     if (!suppliedFrameRead || !(suppliedFrameRead.bytes instanceof Uint8Array)
       || suppliedFrameRead.bytes.byteLength < 1 || suppliedFrameRead.bytes.byteLength > this.limits.maxFrameBytes) {
-      await this.close();
-      throw fail("FRAME_INVALID", "camera frame is empty or exceeds its byte bound");
+      return this.closePreservingFailure(fail("FRAME_INVALID", "camera frame is empty or exceeds its byte bound"));
     }
     // Host ports may reuse mutable buffers and metadata while a fresh permission
     // read is pending. Detach the complete observation before that await so one
@@ -679,14 +684,12 @@ export class CameraCaptureSession {
       await this.assertFreshPermission(this.request);
     } catch (error) {
       if (this.revoked) {
-        await this.close();
-        throw this.permissionFailure ?? abortError();
+        return this.closePreservingFailure(this.permissionFailure ?? abortError());
       }
       if (this.switching) {
         throw fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch");
       }
-      await this.close();
-      throw error;
+      return this.closePreservingFailure(error);
     }
     if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked) throw abortError();
@@ -697,12 +700,10 @@ export class CameraCaptureSession {
     }
     const ptsNanos = toPts(this.options.frameClock.readPtsNanos(this.epochRef));
     if (this.lastPts !== null && ptsNanos <= this.lastPts) {
-      await this.close();
-      throw fail("PTS_INVALID", "camera PTS must strictly increase within each source epoch");
+      return this.closePreservingFailure(fail("PTS_INVALID", "camera PTS must strictly increase within each source epoch"));
     }
     if (this.bytes + frameRead.bytes.byteLength > MAX_CAMERA_SESSION_BYTES) {
-      await this.close();
-      throw fail("FRAME_LIMIT", "camera session exceeded its aggregate byte budget");
+      return this.closePreservingFailure(fail("FRAME_LIMIT", "camera session exceeded its aggregate byte budget"));
     }
     let sourcePresentationTime: CameraSourcePresentationTime;
     let audioSampleTime: CameraAudioSampleTime;
@@ -710,8 +711,7 @@ export class CameraCaptureSession {
       sourcePresentationTime = this.sourcePresentationTime(frameRead);
       audioSampleTime = this.audioSampleTime(frameRead);
     } catch (error) {
-      await this.close();
-      throw error;
+      return this.closePreservingFailure(error);
     }
     const detached = Uint8Array.from(frameRead.bytes);
     this.lastPts = ptsNanos;
@@ -773,10 +773,18 @@ export class CameraCaptureSession {
   }
 
   public async close(): Promise<void> {
-    if (this.closed) return;
+    if (this.closePromise !== null) return this.closePromise;
     this.closed = true;
-    await this.stopCurrentSource();
-    this.limits.onClose(this);
+    this.closePromise = Promise.resolve()
+      .then(() => this.stopCurrentSource())
+      .finally(() => this.limits.onClose(this));
+    return this.closePromise;
+  }
+
+  /** Close during a failing operation without masking its typed primary outcome. */
+  private async closePreservingFailure<T>(error: T): Promise<never> {
+    try { await this.close(); } catch { /* retain the original operation failure */ }
+    throw error;
   }
 
   private async replaceSource(request: CaptureRequest, switching: boolean): Promise<void> {
@@ -795,7 +803,7 @@ export class CameraCaptureSession {
               ? fail("PERMISSION_UNKNOWN", "current camera permission became unknown")
               : abortError();
           controller.abort();
-          void this.stopCurrentTrack();
+          void this.stopCurrentTrack().catch(() => undefined);
         }
       });
       // The check is repeated after listener installation and immediately
@@ -822,24 +830,24 @@ export class CameraCaptureSession {
       this.stopped = false;
       this.sourceMetadata = this.validateSourceMetadata(request, track.sourceMetadata);
       if (this.revoked || controller.signal.aborted) {
-        await this.stopCurrentTrack();
+        try { await this.stopCurrentTrack(); } catch { /* preserve permission/cancellation outcome */ }
         throw this.permissionFailure ?? abortError();
       }
       const sourcePermission = await this.assertFreshPermission(request);
       this.sourceMetadata = Object.freeze({ ...this.sourceMetadata, permissionDecisionRef: sourcePermission.decisionRef });
       this.epochRef = this.options.frameClock.beginEpoch(request);
       if (typeof this.epochRef !== "string" || this.epochRef.trim().length === 0) {
-        await this.stopCurrentSource();
+        try { await this.stopCurrentSource(); } catch { /* preserve the invalid-clock outcome */ }
         throw fail("PTS_INVALID", "frame clock did not create a source epoch");
       }
       if (this.seenEpochRefs.has(this.epochRef)) {
-        await this.stopCurrentSource();
+        try { await this.stopCurrentSource(); } catch { /* preserve the invalid-clock outcome */ }
         throw fail("PTS_INVALID", "frame clock reused a source epoch");
       }
       this.seenEpochRefs.add(this.epochRef);
       this.startedAt = this.options.frameClock.nowEpochMillis();
     } catch (error) {
-      await this.stopCurrentSource();
+      try { await this.stopCurrentSource(); } catch { /* retain the primary open/permission failure */ }
       if (this.permissionFailure) throw this.permissionFailure;
       if (this.revoked) throw abortError();
       if (this.switching) throw fail("DEVICE_SWITCHED", "camera device open was cancelled during device switch");
@@ -1060,12 +1068,17 @@ export class CameraCaptureSession {
   }
 
   private async stopCurrentSource(): Promise<void> {
-    this.unsubscribe?.();
+    let cleanupFailed = false;
+    try { this.unsubscribe?.(); } catch { cleanupFailed = true; }
     this.unsubscribe = null;
-    this.controller?.abort();
-    await this.stopCurrentTrack();
-    this.controller = null;
-    this.sourceMetadata = null;
+    try { this.controller?.abort(); } catch { cleanupFailed = true; }
+    try { await this.stopCurrentTrack(); } catch {
+      cleanupFailed = true;
+    } finally {
+      this.controller = null;
+      this.sourceMetadata = null;
+    }
+    if (cleanupFailed) throw new Error("camera session cleanup failed");
   }
 
   private async stopCurrentTrack(): Promise<void> {
@@ -1073,7 +1086,7 @@ export class CameraCaptureSession {
     if (track !== null && !this.stopped) {
       this.stopped = true;
       this.track = null;
-      this.stopPromise = Promise.resolve().then(() => track.stopTracks()).catch(() => undefined);
+      this.stopPromise = Promise.resolve().then(() => track.stopTracks());
     }
     if (this.stopPromise !== null) await this.stopPromise;
   }

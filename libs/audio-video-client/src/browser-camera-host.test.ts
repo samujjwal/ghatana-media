@@ -8,7 +8,9 @@ const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device
 
 function setup(state: PermissionState = "granted", options: { available?: boolean; frame?: (done: (blob: Blob) => void) => void; deviceId?: string;
   maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean; pendingPlay?: boolean;
-  pendingPermissionSubscription?: boolean; domSetupFailure?: boolean } = {}) {
+  pendingPermissionSubscription?: boolean; domSetupFailure?: boolean; pauseFailure?: boolean;
+  listenerRemovalFailure?: boolean; trackStopFailure?: boolean; secondTrack?: boolean;
+  consentUnsubscribeFailure?: boolean; sourceVersionThrowsOnSecond?: boolean; getTracksFailure?: boolean } = {}) {
   let permissionState = state;
   const listeners: Array<() => void> = [];
   let permissionQueries = 0;
@@ -17,16 +19,26 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   let finishPermissionSubscription!: (status: { state: PermissionState; addEventListener: (_: string, listener: () => void) => void;
     removeEventListener: (_: string, listener: () => void) => void }) => void;
   let opens = 0; let stops = 0; let reads = 0; let plays = 0; let creates = 0;
+  let sourceVersionCalls = 0;
   let finishOpen!: () => void; let finishPlay!: () => void; let revoke!: () => void;
   const trackListeners: Array<() => void> = [];
   const width = options.videoWidth ?? 2; const height = options.videoHeight ?? 2;
   const track = { readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }),
     addEventListener: (_: string, listener: () => void) => trackListeners.push(listener),
-    removeEventListener: (_: string, listener: () => void) => { const i = trackListeners.indexOf(listener); if (i >= 0) trackListeners.splice(i, 1); },
-    stop: () => { stops++; } };
-  const stream = { getVideoTracks: () => [track], getTracks: () => [track] };
+    removeEventListener: (_: string, listener: () => void) => {
+      if (options.listenerRemovalFailure) throw new Error("synthetic listener cleanup failure");
+      const i = trackListeners.indexOf(listener); if (i >= 0) trackListeners.splice(i, 1);
+    },
+    stop: () => { stops++; if (options.trackStopFailure) throw new Error("synthetic device stop failure"); } };
+  const anotherTrack = { stop: () => { stops++; } };
+  const ownedTracks = options.secondTrack ? [track, anotherTrack] : [track];
+  const stream = { getVideoTracks: () => [track], getTracks: () => {
+    if (options.getTracksFailure) throw new Error("synthetic track enumeration failure");
+    return ownedTracks;
+  } };
   const video = { muted: false, playsInline: false, videoWidth: width, videoHeight: height, srcObject: null as unknown,
-    play: async () => { plays++; if (options.pendingPlay) await new Promise<void>((resolve) => { finishPlay = resolve; }); }, pause: () => undefined };
+    play: async () => { plays++; if (options.pendingPlay) await new Promise<void>((resolve) => { finishPlay = resolve; }); },
+    pause: () => { if (options.pauseFailure) throw new Error("synthetic detached element failure"); } };
   let draws = 0;
   const context = { drawImage: () => { draws++; } };
   const canvas = { width: 0, height: 0, getContext: () => context, toBlob: (callback: (blob: Blob | null) => void) => {
@@ -56,7 +68,11 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
       return tag === "video" ? video : canvas;
     } },
   };
-  const port = createBrowserCameraMediaDevicePort({ sourceVersionRef: (id) => id === "device-A" ? "device-A@rev-4" : undefined,
+  const port = createBrowserCameraMediaDevicePort({ sourceVersionRef: (id) => {
+    sourceVersionCalls++;
+    if (options.sourceVersionThrowsOnSecond && sourceVersionCalls === 2) throw new Error("synthetic revision lookup failure");
+    return id === "device-A" ? "device-A@rev-4" : undefined;
+  },
     maxFrameBytes: options.maxFrameBytes, maxPixels: options.maxPixels, browser: browser as never, frameTimeoutMillis: 100 });
   const now = 1_800_000_000_000;
   const consent: CameraConsentPort = {
@@ -64,13 +80,13 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
       exactRightsScope: candidate.exactRightsScope, sourceVersionRef: candidate.sourceVersionRef, allowedSignals: ["VIDEO"], selectedSignals: ["VIDEO"],
       syncPolicyRef: "sync-policy/independent-video:v1", codecProfileRef: "codec-profile/browser-jpeg:v1",
       decisionRef: "decision/v1", checkedAtEpochMillis: now, expiresAtEpochMillis: now + 10_000 }; },
-    subscribe: () => () => undefined,
+    subscribe: () => () => { if (options.consentUnsubscribeFailure) throw new Error("synthetic consent detach failure"); },
   };
   let epoch = 0;
   const clock: CameraFrameClockPort = { nowEpochMillis: () => now, beginEpoch: () => `epoch-${++epoch}`, readPtsNanos: () => BigInt(epoch) };
   const adapter = new CameraCaptureAdapter({ mediaDevices: port, consent, frameClock: clock, maxFrameBytes: 64, maxFrames: 4 });
   revoke = () => { permissionState = "denied"; listeners.forEach((listener) => listener()); };
-  return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke, deviceOpenStarted,
+  return { adapter, port, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke, deviceOpenStarted,
     unplug() { track.readyState = "ended"; trackListeners.slice().forEach((listener) => listener()); },
     permissionListenerCount: () => listeners.length, resolveOpen: () => finishOpen(), resolvePlay: () => finishPlay(),
     resolvePermissionSubscription: () => finishPermissionSubscription({ get state() { return permissionState; },
@@ -114,6 +130,76 @@ describe("concrete browser camera host", () => {
     await expectCode(h.adapter.openSession(request), "DEVICE_UNAVAILABLE");
     expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
     expect(h.details()).toEqual({ plays: 0, creates: 1 });
+  });
+
+  it("still releases camera tracks when media element teardown throws", async () => {
+    const h = setup("granted", { pauseFailure: true });
+    const session = await h.adapter.openSession(request);
+    await expect(session.close()).rejects.toThrow("camera session cleanup failed");
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+  });
+
+  it("stops every track and repeats a sanitized failure when listener removal and one track stop throw", async () => {
+    const h = setup("granted", { listenerRemovalFailure: true, trackStopFailure: true, secondTrack: true });
+    const opened = await h.port.open(request, new AbortController().signal);
+    const close = () => Promise.resolve(opened.stopTracks());
+    await expect(close()).rejects.toThrow("camera stream cleanup failed");
+    expect(h.counts().stops).toBe(2);
+    await expect(close()).rejects.toThrow("camera stream cleanup failed");
+    expect(h.counts().stops).toBe(2);
+  });
+
+  it("reports failed host track cleanup through explicit session close and repeated close", async () => {
+    const h = setup("granted", { trackStopFailure: true });
+    const session = await h.adapter.openSession(request);
+    await expect(session.close()).rejects.toThrow("camera session cleanup failed");
+    expect(h.counts().stops).toBe(1);
+    await expect(session.close()).rejects.toThrow("camera session cleanup failed");
+    expect(h.counts().stops).toBe(1);
+  });
+
+  it("preserves a primary permission failure when host cleanup also fails", async () => {
+    const h = setup("granted", { trackStopFailure: true });
+    const session = await h.adapter.openSession(request);
+    h.revoke();
+    await expectCode(session.nextFrame(), "PERMISSION_DENIED");
+    await expect(session.close()).rejects.toThrow("camera session cleanup failed");
+    expect(h.counts().stops).toBe(1);
+  });
+
+  it("attempts all stream tracks when exact-source startup cleanup encounters a stop failure", async () => {
+    const h = setup("granted", { deviceId: "different-device", trackStopFailure: true, secondTrack: true });
+    await expectCode(h.adapter.openSession(request), "DEVICE_UNAVAILABLE");
+    expect(h.counts().stops).toBe(2);
+  });
+
+  it("stops every opened track when the post-open source revision lookup throws", async () => {
+    const h = setup("granted", { sourceVersionThrowsOnSecond: true, secondTrack: true });
+    await expectCode(h.adapter.openSession(request), "DEVICE_UNAVAILABLE");
+    expect(h.counts().stops).toBe(2);
+    expect(h.details().plays).toBe(0);
+  });
+
+  it("stops the known video track when stream track enumeration fails during close", async () => {
+    const h = setup("granted", { getTracksFailure: true });
+    const session = await h.adapter.openSession(request);
+    await expect(session.close()).rejects.toThrow("camera session cleanup failed");
+    expect(h.counts().stops).toBe(1);
+  });
+
+  it("attempts track cleanup even when the session permission listener cannot detach", async () => {
+    const h = setup("granted", { consentUnsubscribeFailure: true });
+    const session = await h.adapter.openSession(request);
+    await expect(session.close()).rejects.toThrow("camera session cleanup failed");
+    expect(h.counts().stops).toBe(1);
+  });
+
+  it("contains cleanup failures from the ended event callback and reports them on close", async () => {
+    const h = setup("granted", { trackStopFailure: true });
+    const opened = await h.port.open(request, new AbortController().signal);
+    expect(() => h.unplug()).not.toThrow();
+    await expect(Promise.resolve(opened.stopTracks())).rejects.toThrow("camera stream cleanup failed");
+    expect(h.counts().stops).toBe(1);
   });
 
   it("stops a stream that resolves after session cancellation without creating media elements or returning a frame", async () => {

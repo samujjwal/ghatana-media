@@ -46,6 +46,20 @@ function awaitHostStartup<T>(operation: Promise<T>, signal: AbortSignal): Promis
   });
 }
 
+function stopAllStreamTracks(stream: Pick<MediaStream, "getTracks">, knownTrack?: MediaStreamTrack): boolean {
+  let failed = false;
+  let tracks: readonly MediaStreamTrack[] = [];
+  try { tracks = stream.getTracks(); } catch { failed = true; }
+  if (knownTrack && !tracks.includes(knownTrack)) tracks = [...tracks, knownTrack];
+  const attempted = new Set<MediaStreamTrack>();
+  for (const item of tracks) {
+    if (attempted.has(item)) continue;
+    attempted.add(item);
+    try { item.stop(); } catch { failed = true; /* continue attempting every owned track */ }
+  }
+  return failed;
+}
+
 /** Builds a fail-closed browser port. Permission `prompt` is UNKNOWN; this adapter never prompts. */
 export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOptions): BrowserCameraMediaDevicePort {
   const media = options.browser?.mediaDevices ?? (typeof navigator === "undefined" ? undefined : navigator.mediaDevices);
@@ -98,13 +112,22 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
       // the browser prompt/device startup is pending, release the late stream
       // before touching DOM media elements or exposing the device.
       if (signal.aborted) {
-        stream.getTracks().forEach((item) => item.stop());
+        stopAllStreamTracks(stream);
         throw new DOMException("aborted", "AbortError");
       }
-      const track = stream.getVideoTracks()[0];
-      const settings = track?.getSettings();
-      if (!track || settings?.deviceId !== deviceId || options.sourceVersionRef(deviceId) !== request.sourceVersionRef) {
-        stream.getTracks().forEach((item) => item.stop());
+      let track: MediaStreamTrack | undefined;
+      let settings: MediaTrackSettings | undefined;
+      let openedSourceVersion: string | undefined;
+      try {
+        track = stream.getVideoTracks()[0];
+        settings = track?.getSettings();
+        openedSourceVersion = options.sourceVersionRef(deviceId);
+      } catch (error) {
+        stopAllStreamTracks(stream, track);
+        throw error;
+      }
+      if (!track || settings?.deviceId !== deviceId || openedSourceVersion !== request.sourceVersionRef) {
+        stopAllStreamTracks(stream, track);
         throw new Error("browser did not bind the exact requested camera source revision");
       }
       let video: HTMLVideoElement;
@@ -122,20 +145,45 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
         video.playsInline = true;
         video.srcObject = stream;
       } catch (error) {
-        stream.getTracks().forEach((item) => item.stop());
+        stopAllStreamTracks(stream, track);
         throw error;
       }
       let stopped = false;
-      const stop = () => { if (stopped) return; stopped = true; video.pause(); video.srcObject = null; stream.getTracks().forEach((item) => item.stop()); };
+      let listenerRemovalAttempted = false;
+      let cleanupFailure: Error | null = null;
+      const recordCleanupFailure = () => {
+        // Do not retain host exception text: it may contain device details.
+        cleanupFailure ??= new Error("camera stream cleanup failed");
+      };
+      const stop = () => {
+        if (!stopped) {
+          stopped = true;
+          // Cleanup must reach every track even when a DOM cleanup operation
+          // throws (for example, a detached or host-managed media element).
+          try { video.pause(); } catch { recordCleanupFailure(); }
+          try { video.srcObject = null; } catch { recordCleanupFailure(); }
+          if (stopAllStreamTracks(stream, track)) recordCleanupFailure();
+        }
+        if (cleanupFailure) throw cleanupFailure;
+      };
       // A camera can be unplugged while the session is idle. Observe the
       // device-state transition directly so its stream is released without
       // waiting for a later frame request to discover `readyState !== live`.
-      const onTrackEnded = () => stop();
-      track.addEventListener("ended", onTrackEnded, { once: true });
+      // Event dispatch must not leak a cleanup exception as an unhandled host
+      // callback throw. The later explicit close still reports the failure.
+      const onTrackEnded = () => { try { stop(); } catch { /* surfaced by explicit close */ } };
       const stopWithListenerCleanup = () => {
-        track.removeEventListener("ended", onTrackEnded);
+        if (!listenerRemovalAttempted) {
+          listenerRemovalAttempted = true;
+          try { track.removeEventListener("ended", onTrackEnded); } catch { recordCleanupFailure(); }
+        }
         stop();
       };
+      try { track.addEventListener("ended", onTrackEnded, { once: true }); }
+      catch (error) {
+        try { stopWithListenerCleanup(); } catch { /* preserve startup failure */ }
+        throw error;
+      }
       try {
         // Browser playback startup may remain pending after the host permission
         // changes. Do not leave an already opened camera stream alive while
