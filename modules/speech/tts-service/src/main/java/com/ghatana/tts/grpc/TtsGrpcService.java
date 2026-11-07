@@ -761,10 +761,20 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                 }
                 @Override public void onChunk(com.ghatana.media.common.AudioChunk chunk) {
                     try (Scope ignored = operationContext.makeCurrent()) {
-                    if (terminal.get()) return;
+                    if (terminal.get()) {
+                        // A provider may race a late callback with successful stream completion.
+                        // The client result is already terminal, but audio after the final
+                        // marker still violates the session contract and must stop the producer.
+                        if (finalChunkSeen.get()) requestSessionCancellation.run();
+                        return;
+                    }
                     try {
                         synchronized (chunkLock) {
-                            if (isCancelled() || terminal.get()) return;
+                            if (isCancelled()) return;
+                            if (terminal.get()) {
+                                if (finalChunkSeen.get()) requestSessionCancellation.run();
+                                return;
+                            }
                             CanonicalAudioFormat format = declaredStreamFormat.get();
                             if (format == null) {
                                 throw new IllegalStateException("TTS provider emitted audio before declaring its format");

@@ -500,6 +500,25 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("transcribe: provider cancellation → CANCELLED gRPC error")
+    void transcribe_cancellation_returnsCancelled() {
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class)))
+                .thenThrow(new java.util.concurrent.CancellationException("provider cancelled"));
+
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
+                .setSampleRate(16_000)
+                .build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.CANCELLED.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Transcription was cancelled");
+        assertThat(failure.getStatus().getDescription()).doesNotContain("provider cancelled");
+    }
+
+    @Test
     @DisplayName("transcribe: omitted sample rate is rejected without provider dispatch")
     void transcribe_omittedSampleRate_returnsInvalidArgument() {
         TranscribeRequest request = TranscribeRequest.newBuilder() 

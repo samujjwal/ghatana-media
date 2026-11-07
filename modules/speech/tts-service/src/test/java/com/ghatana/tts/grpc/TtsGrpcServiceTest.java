@@ -1662,6 +1662,43 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void providerChunkAfterSuccessfulFinalDeliveryStillCancelsSession() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        CountDownLatch completed = new CountDownLatch(1);
+        AtomicInteger deliveredChunks = new AtomicInteger();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, completion);
+        });
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new StreamObserver<>() {
+            @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {
+                deliveredChunks.incrementAndGet();
+            }
+            @Override public void onError(Throwable failure) { throw new AssertionError(failure); }
+            @Override public void onCompleted() { completed.countDown(); }
+        };
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        TtsStreamSink sink = sinkRef.get();
+        sink.onAudioFormat(monoPcm16Format());
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+        completion.complete(null);
+        assertThat(completed.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(deliveredChunks).hasValue(1);
+        assertThat(sessionCancelled).isFalse();
+
+        // Success is immutable, while the provider-side contract violation still stops
+        // any producer that races a callback after final delivery.
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, false, 2));
+
+        assertThat(sessionCancelled).isTrue();
+        assertThat(deliveredChunks).hasValue(1);
+    }
+
+    @Test
     void admittedStreamRejectsSequenceGapAfterPreservingOnlyPriorPartialChunk() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();

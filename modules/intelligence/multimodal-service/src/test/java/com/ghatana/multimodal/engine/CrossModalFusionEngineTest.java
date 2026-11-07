@@ -148,6 +148,25 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("known score provenance must also match modality contribution weights")
+    void knownScoreProvenanceRejectsMismatchedModalityWeights() {
+        ConfidenceProvenance visualOnly = new ConfidenceProvenance(
+                ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED,
+                java.util.Map.of("visual", 0.8));
+
+        assertThatThrownBy(() -> new FusionResult(new double[] {0.0}, 0.4,
+                java.util.Map.of("audio", 0.2, "visual", 0.8), java.time.Duration.ZERO, true,
+                visualOnly))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Modality weights must match");
+
+        FusionResult matching = new FusionResult(new double[] {0.0}, 0.4,
+                java.util.Map.of("audio", 0.0, "visual", 1.0), java.time.Duration.ZERO, true,
+                visualOnly);
+        assertThat(matching.modalityWeights()).containsEntry("audio", 0.0).containsEntry("visual", 1.0);
+    }
+
+    @Test
     @DisplayName("fuseAudioVisual returns non-null result for valid inputs")
     void audioVisualFusionReturnsResult() { 
         AudioFeatures audio = makeAudio(DIM, 0.8); 

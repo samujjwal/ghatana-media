@@ -175,6 +175,7 @@ public class CrossModalFusionEngine {
             if (!Double.isFinite(weightSum) || Math.abs(weightSum - 1.0) > 1.0e-9) {
                 throw new IllegalArgumentException("Modality weights must sum to 1");
             }
+            validateWeightProvenance(modalityWeights, confidenceProvenance);
             fusedEmbeddings = fusedEmbeddings.clone();
         }
 
@@ -189,6 +190,42 @@ public class CrossModalFusionEngine {
     }
 
     public enum ConfidenceDisposition { HEURISTIC_UNCALIBRATED }
+
+    /** Ensures contribution weights agree with the score inputs when their ancestry is known. */
+    private static void validateWeightProvenance(
+            Map<String, Double> weights, ConfidenceProvenance provenance) {
+        if (provenance.aggregation() != ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED) {
+            return; // Compatibility results with unknown ancestry cannot be reconstructed safely.
+        }
+
+        List<Set<String>> candidatePairs;
+        Map<String, Double> scores = provenance.inputScores();
+        if (scores.size() == 2) {
+            candidatePairs = List.of(Set.copyOf(scores.keySet()));
+        } else if (scores.containsKey("audio")) {
+            candidatePairs = List.of(Set.of("audio", "visual"));
+        } else if (scores.containsKey("text")) {
+            candidatePairs = List.of(Set.of("text", "visual"));
+        } else {
+            // A visual-only score can come from either audio-visual or text-image fusion.
+            candidatePairs = List.of(Set.of("audio", "visual"), Set.of("text", "visual"));
+        }
+
+        for (Set<String> pair : candidatePairs) {
+            if (!weights.keySet().equals(pair)) continue;
+            String[] modalities = pair.toArray(String[]::new);
+            double first = scores.getOrDefault(modalities[0], 0.0);
+            double second = scores.getOrDefault(modalities[1], 0.0);
+            double total = first + second;
+            double expectedFirst = total > 0.0 ? first / total : 0.5;
+            double expectedSecond = total > 0.0 ? second / total : 0.5;
+            if (Math.abs(weights.get(modalities[0]) - expectedFirst) <= 1.0e-12
+                    && Math.abs(weights.get(modalities[1]) - expectedSecond) <= 1.0e-12) {
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Modality weights must match their recorded score provenance");
+    }
 
     /** Source-raster region identity. Coordinates are EXIF-oriented decoded-raster XYWH pixels. */
     public record RegionFrame(

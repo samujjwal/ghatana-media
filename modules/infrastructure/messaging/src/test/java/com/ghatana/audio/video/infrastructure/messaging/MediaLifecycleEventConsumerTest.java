@@ -215,6 +215,41 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void invalidTenantRedactionAndUnavailableRedactionReturnTypedFailuresBeforeAuthorizationOrProjection() {
+        var store = new MemoryProjection();
+        var authorizationCalls = new java.util.concurrent.atomic.AtomicInteger();
+        var authorization = new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) {
+                authorizationCalls.incrementAndGet();
+                return true;
+            }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) {
+                return true;
+            }
+        };
+        var event = event("media.job.accepted", 1);
+        var invalidTenantRedactor = new MediaLifecycleEventConsumer((kind, raw) -> {
+            throw new IllegalArgumentException("tenant reference is invalid");
+        }, authorization, store, (principal, tenant, jobRef) -> Optional.empty());
+
+        assertThatThrownBy(() -> invalidTenantRedactor.consume("consumer-a", envelope(event)))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.INVALID_ABI);
+
+        var unavailableRedactor = new MediaLifecycleEventConsumer((kind, raw) -> {
+            throw new IllegalStateException("redaction key unavailable");
+        }, authorization, store, (principal, tenant, jobRef) -> Optional.empty());
+        assertThatThrownBy(() -> unavailableRedactor.consume("consumer-a", envelope(event)))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.UNAVAILABLE);
+
+        assertThat(authorizationCalls).hasValue(0);
+        assertThat(store.applied).isEmpty();
+    }
+
+    @Test
     void concurrentConsumersMaterializeOneEventWhenProjectionStoreDeduplicatesAtomically() throws Exception {
         var store = new MemoryProjection();
         var consumer = consumer(true, store, LogicalJobStatus.RUNNING);

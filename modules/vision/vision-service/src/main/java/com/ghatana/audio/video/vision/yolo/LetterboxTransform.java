@@ -17,6 +17,12 @@ public record LetterboxTransform(
                 || !matchesRoundedDimension(resizedHeight, sourceHeight * scale)) {
             throw new IllegalArgumentException("Letterbox geometry must preserve the source aspect ratio");
         }
+        boolean topLeftPadded = padLeft == 0 && padTop == 0;
+        boolean centered = padLeft == (inputSize - resizedWidth) / 2
+                && padTop == (inputSize - resizedHeight) / 2;
+        if (!topLeftPadded && !centered) {
+            throw new IllegalArgumentException("Letterbox padding must be top-left or centered");
+        }
     }
 
     public static LetterboxTransform fit(int sourceWidth, int sourceHeight, int inputSize) {

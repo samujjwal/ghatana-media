@@ -38,6 +38,21 @@ class LetterboxTransformTest {
                 .isEqualTo(300.0);
     }
 
+    @Test void rejectsPaddingOffsetsOutsideSupportedTopLeftOrCenteredLayouts() {
+        assertThatThrownBy(() -> new LetterboxTransform(1080, 1920, 640,
+                360, 640, 1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("top-left or centered");
+        assertThatThrownBy(() -> new LetterboxTransform(1920, 1080, 640,
+                640, 360, 0, 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("top-left or centered");
+        assertThat(new LetterboxTransform(1080, 1920, 640, 360, 640, 0, 0))
+                .isNotNull();
+        assertThat(new LetterboxTransform(1080, 1920, 640, 360, 640, 140, 0))
+                .isNotNull();
+    }
+
     @Test void rejectsBoxesWhoseRightOrBottomEdgeOverflows() {
         assertThatThrownBy(() -> new LetterboxTransform.Box(Double.MAX_VALUE, 0, Double.MAX_VALUE, 1))
                 .isInstanceOf(IllegalArgumentException.class);

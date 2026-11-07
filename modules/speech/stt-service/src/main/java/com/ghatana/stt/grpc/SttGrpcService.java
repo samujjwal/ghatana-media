@@ -376,6 +376,10 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
                         String description = e.isRetryable()
                                 ? "Transcription provider temporarily unavailable" : "Transcription failed";
                         tracedObserver.onError(status.withDescription(description).asRuntimeException());
+                    } catch (java.util.concurrent.CancellationException e) {
+                        if (observerCancelled.get() || isCancelled(responseObserver)) return;
+                        tracedObserver.onError(io.grpc.Status.CANCELLED
+                                .withDescription("Transcription was cancelled").asRuntimeException());
                     } catch (Exception e) {
                         if (observerCancelled.get() || isCancelled(responseObserver)) return;
                         LOG.error("STT transcription failed failureType={}", failureType(e));

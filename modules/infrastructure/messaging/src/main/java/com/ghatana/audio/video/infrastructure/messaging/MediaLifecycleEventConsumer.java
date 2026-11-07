@@ -51,11 +51,21 @@ public final class MediaLifecycleEventConsumer {
         } catch (RuntimeException invalidPayload) {
             throw new LifecycleEventException(Failure.INVALID_ABI, "Lifecycle payload does not match public v1 contract");
         }
+        final String envelopeTenantRef;
+        try {
+            envelopeTenantRef = redactor.redact("tenant", envelope.tenantId());
+        } catch (IllegalArgumentException malformedTenant) {
+            throw new LifecycleEventException(Failure.INVALID_ABI,
+                    "Lifecycle envelope tenant identity is invalid");
+        } catch (RuntimeException redactionUnavailable) {
+            throw new LifecycleEventException(Failure.UNAVAILABLE,
+                    "Lifecycle identifier redaction is unavailable");
+        }
         if (!envelope.id().equals(event.eventRef()) || !event.eventRef().equals(envelope.idempotencyKey())
                 || !envelope.eventType().equals(event.eventType().wireName())
                 || !Objects.equals(envelope.correlationId(), event.correlationRef())
                 || !Objects.equals(envelope.partitionKey(), event.aggregateRef())
-                || !redactor.redact("tenant", envelope.tenantId()).equals(event.tenantRef())) {
+                || !envelopeTenantRef.equals(event.tenantRef())) {
             throw new LifecycleEventException(Failure.INVALID_ABI, "Lifecycle envelope and payload identities do not match");
         }
         final boolean allowed;
