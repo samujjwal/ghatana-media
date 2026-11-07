@@ -100,13 +100,10 @@ public class CircuitBreakerTtsEngine implements TtsEngine {
     @Override
     public AudioData synthesize(String text, SynthesisOptions options) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.synthesize(text, options),
-                () -> createDegradedAudio(text, options)
-            );
+            return circuitBreaker.executeSync(() -> delegate.synthesize(text, options));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Circuit breaker open - returning degraded (silent) audio", e);
-            return createDegradedAudio(text, options);
+            LOG.log(Level.WARNING, "Circuit breaker open - synthesis unavailable", e);
+            throw unavailable(e);
         } catch (InferenceError e) {
             throw e;
         } catch (Exception e) {
@@ -126,7 +123,11 @@ public class CircuitBreakerTtsEngine implements TtsEngine {
                         return Promise.ofException(error);
                     }
                 );
-        }, () -> createDegradedAudio(text, options));
+        }, () -> { throw unavailable(null); });
+    }
+
+    private static InferenceError unavailable(Throwable cause) {
+        return new InferenceError("Synthesis unavailable: circuit breaker is open", cause, true);
     }
 
     @Override
@@ -275,24 +276,6 @@ public class CircuitBreakerTtsEngine implements TtsEngine {
     public void resetCircuitBreaker() {
         LOG.info("Manually resetting circuit breaker for " + circuitBreaker.getName());
         circuitBreaker.reset();
-    }
-
-    /**
-     * Create degraded (silent) audio when circuit is open.
-     */
-    private AudioData createDegradedAudio(String text, SynthesisOptions options) {
-        // Return 0.5 seconds of silence
-        int sampleCount = (int) (DEFAULT_SAMPLE_RATE * 0.5);
-        byte[] silenceData = new byte[sampleCount * DEFAULT_CHANNELS * (DEFAULT_BITS_PER_SAMPLE / 8)];
-
-        return new AudioData(
-            silenceData,
-            DEFAULT_SAMPLE_RATE,
-            DEFAULT_CHANNELS,
-            DEFAULT_BITS_PER_SAMPLE,
-            java.time.Duration.ofMillis(500),
-            AudioFormat.PCM
-        );
     }
 
     /**

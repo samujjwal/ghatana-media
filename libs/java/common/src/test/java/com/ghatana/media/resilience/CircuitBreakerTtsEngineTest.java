@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +24,32 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 
 class CircuitBreakerTtsEngineTest {
+
+    @Test
+    void openCircuitRejectsSyncAndAsyncSynthesisWithoutCallingDelegate() throws Exception {
+        TtsEngine delegate = mock(TtsEngine.class);
+        CircuitBreaker breaker = CircuitBreaker.builder("open-tts-synthesis-test")
+                .failureThreshold(1).resetTimeout(Duration.ofHours(1)).build();
+        try {
+            breaker.executeSync(() -> { throw new IllegalStateException("provider unavailable"); });
+        } catch (RuntimeException expected) {
+            // The failed probe opens the breaker before wrapper invocation.
+        }
+        CircuitBreakerTtsEngine protectedEngine = new CircuitBreakerTtsEngine(delegate, null, breaker);
+
+        assertThatThrownBy(() -> protectedEngine.synthesize("hello", SynthesisOptions.defaults()))
+                .isInstanceOf(InferenceError.class)
+                .satisfies(error -> assertThat(((InferenceError) error).isRetryable()).isTrue());
+        try {
+            protectedEngine.synthesizeAsync("hello", SynthesisOptions.defaults()).toCompletableFuture().get();
+            throw new AssertionError("open circuit should reject async synthesis");
+        } catch (ExecutionException expected) {
+            assertThat(expected.getCause()).isInstanceOf(InferenceError.class)
+                    .satisfies(error -> assertThat(((InferenceError) error).isRetryable()).isTrue());
+        }
+        verify(delegate, never()).synthesize(anyString(), any());
+        verify(delegate, never()).synthesizeAsync(anyString(), any());
+    }
 
     @Test
     void openCircuitFailsStreamingWithoutEmittingFakeTerminalChunk() {

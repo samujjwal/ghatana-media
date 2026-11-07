@@ -30,8 +30,8 @@ import java.util.logging.Logger;
  *   <li>HALF_OPEN: Single probe call to test recovery</li>
  * </ul></p>
  *
- * <p>Provides degraded responses (empty results) when circuit is open, allowing
- * graceful system degradation rather than complete failure cascades.</p>
+ * <p>Reports retryable unavailability when the circuit is open; empty results would
+ * be indistinguishable from successful provider output.</p>
  *
  * @since 2026-03-27
  * @author Ghatana Audio-Video Team
@@ -90,13 +90,10 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
     @Override
     public DetectionResult detect(ImageData image, DetectionOptions options) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.detect(image, options),
-                () -> new DetectionResult(Collections.emptyList(), 0, 0, 0L, "degraded")
-            );
+            return circuitBreaker.executeSync(() -> delegate.detect(image, options));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Vision circuit breaker open - returning empty detection result", e);
-            return new DetectionResult(Collections.emptyList(), 0, 0, 0L, "degraded");
+            LOG.log(Level.WARNING, "Vision circuit breaker open - detection unavailable", e);
+            throw unavailable("Object detection", e);
         } catch (InferenceError e) {
             throw e;
         } catch (Exception e) {
@@ -116,7 +113,7 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
                         return Promise.ofException(error);
                     }
                 ),
-            () -> new DetectionResult(Collections.emptyList(), 0, 0, 0L, "degraded")
+            () -> { throw unavailable("Object detection", null); }
         );
     }
 
@@ -124,13 +121,10 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
     public StreamingDetectionSession createStreamingSession(DetectionOptions options,
                                                             Consumer<DetectionResult> resultCallback) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.createStreamingSession(options, resultCallback),
-                () -> new NoOpStreamingDetectionSession()
-            );
+            return circuitBreaker.executeSync(() -> delegate.createStreamingSession(options, resultCallback));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Vision circuit breaker open - returning no-op streaming session", e);
-            return new NoOpStreamingDetectionSession();
+            LOG.log(Level.WARNING, "Vision circuit breaker open - streaming session unavailable", e);
+            throw unavailable("Streaming detection", e);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create vision streaming session", e);
         }
@@ -139,13 +133,10 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
     @Override
     public String caption(ImageData image) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.caption(image),
-                () -> ""
-            );
+            return circuitBreaker.executeSync(() -> delegate.caption(image));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Vision circuit breaker open - returning empty caption", e);
-            return "";
+            LOG.log(Level.WARNING, "Vision circuit breaker open - captioning unavailable", e);
+            throw unavailable("Captioning", e);
         } catch (InferenceError e) {
             throw e;
         } catch (Exception e) {
@@ -157,19 +148,20 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
     @Override
     public List<Classification> classify(ImageData image, int topK) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.classify(image, topK),
-                () -> Collections.emptyList()
-            );
+            return circuitBreaker.executeSync(() -> delegate.classify(image, topK));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Vision circuit breaker open - returning empty classifications", e);
-            return Collections.emptyList();
+            LOG.log(Level.WARNING, "Vision circuit breaker open - classification unavailable", e);
+            throw unavailable("Classification", e);
         } catch (InferenceError e) {
             throw e;
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Classification failed", e);
             throw new InferenceError("Classification failed", e, false);
         }
+    }
+
+    private static InferenceError unavailable(String operation, Throwable cause) {
+        return new InferenceError(operation + " unavailable: circuit breaker is open", cause, true);
     }
 
     @Override
@@ -243,22 +235,4 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
         return circuitBreaker.getState();
     }
 
-    // ── Degraded session: no-op implementation used when circuit is open ─────
-
-    private static final class NoOpStreamingDetectionSession implements StreamingDetectionSession {
-        private final java.util.concurrent.atomic.AtomicBoolean active =
-            new java.util.concurrent.atomic.AtomicBoolean(true);
-
-        @Override
-        public void feedFrame(ImageData frame, long frameNumber) { /* no-op */ }
-
-        @Override
-        public void endStream() { active.set(false); }
-
-        @Override
-        public boolean isActive() { return active.get(); }
-
-        @Override
-        public void close() { active.set(false); }
-    }
 }

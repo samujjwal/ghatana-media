@@ -30,25 +30,31 @@ final class CircuitBreakerPromiseAdapter {
             Supplier<Promise<T>> operation,
             Supplier<T> fallback) {
         SettablePromise<T> result = new SettablePromise<>();
-        circuitBreaker.execute(() -> {
-            CompletableFuture<T> future = new CompletableFuture<>();
-            operation.get().whenComplete((value, error) -> {
+        try {
+            circuitBreaker.execute(() -> {
+                CompletableFuture<T> future = new CompletableFuture<>();
+                operation.get().whenComplete((value, error) -> {
+                    if (error == null) {
+                        future.complete(value);
+                    } else {
+                        future.completeExceptionally(error);
+                    }
+                });
+                return AsyncOperation.from(future);
+            }, fallback).whenComplete((value, error) -> {
                 if (error == null) {
-                    future.complete(value);
+                    result.set(value);
                 } else {
-                    future.completeExceptionally(error);
+                    result.setException(error instanceof Exception exception
+                            ? exception
+                            : new java.util.concurrent.CompletionException(error));
                 }
             });
-            return AsyncOperation.from(future);
-        }, fallback).whenComplete((value, error) -> {
-            if (error == null) {
-                result.set(value);
-            } else {
-                result.setException(error instanceof Exception exception
-                        ? exception
-                        : new java.util.concurrent.CompletionException(error));
-            }
-        });
+        } catch (Exception error) {
+            // The breaker may invoke a failing fallback synchronously for an open
+            // circuit. Preserve the async engine contract by completing the promise.
+            result.setException(error);
+        }
         return result;
     }
 }

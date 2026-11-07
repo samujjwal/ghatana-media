@@ -31,8 +31,8 @@ import java.util.logging.Logger;
  *   <li>HALF_OPEN: Single probe call to test recovery</li>
  * </ul></p>
  *
- * <p>Provides degraded response (empty transcription) when circuit is open to allow
- * graceful system degradation rather than complete failure.</p>
+ * <p>Reports retryable unavailability when the circuit is open; empty results would
+ * be indistinguishable from successful provider output.</p>
  *
  * @since 2026-03-27
  * @author Ghatana Audio-Video Team
@@ -95,13 +95,10 @@ public class CircuitBreakerSttEngine implements SttEngine {
     @Override
     public TranscriptionResult transcribe(AudioData audio, TranscriptionOptions options) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.transcribe(audio, options),
-                () -> createDegradedResult(audio, options)
-            );
+            return circuitBreaker.executeSync(() -> delegate.transcribe(audio, options));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Circuit breaker open - returning degraded transcription", e);
-            return createDegradedResult(audio, options);
+            LOG.log(Level.WARNING, "Circuit breaker open - transcription unavailable", e);
+            throw unavailable("Transcription", e);
         } catch (InferenceError e) {
             throw e;
         } catch (Exception e) {
@@ -121,7 +118,7 @@ public class CircuitBreakerSttEngine implements SttEngine {
                         return Promise.ofException(error);
                     }
                 );
-        }, () -> createDegradedResult(audio, options));
+        }, () -> { throw unavailable("Transcription", null); });
     }
 
     @Override
@@ -132,16 +129,17 @@ public class CircuitBreakerSttEngine implements SttEngine {
     @Override
     public StreamingSession createStreamingSession(UserProfile profile) {
         try {
-            return circuitBreaker.executeSync(
-                () -> delegate.createStreamingSession(profile),
-                () -> new DegradedStreamingSession(profile)
-            );
+            return circuitBreaker.executeSync(() -> delegate.createStreamingSession(profile));
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Circuit breaker open - returning degraded streaming session", e);
-            return new DegradedStreamingSession(profile);
+            LOG.log(Level.WARNING, "Circuit breaker open - streaming session unavailable", e);
+            throw unavailable("Streaming transcription", e);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create streaming session", e);
         }
+    }
+
+    private static InferenceError unavailable(String operation, Throwable cause) {
+        return new InferenceError(operation + " unavailable: circuit breaker is open", cause, true);
     }
 
     @Override

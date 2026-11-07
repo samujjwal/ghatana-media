@@ -101,15 +101,14 @@ class CircuitBreakerSttEngineTest {
         // Then - circuit should be open
         assertEquals(CircuitBreaker.State.OPEN, protectedEngine.getCircuitBreakerState()); 
 
-        // Additional call should return degraded result, not call delegate
-        TranscriptionResult result = protectedEngine.transcribe(audio, options); 
-        assertEquals("", result.text()); // Degraded result has empty text 
+        // Additional call must report unavailability, not fabricate a transcription.
+        assertThrows(InferenceError.class, () -> protectedEngine.transcribe(audio, options));
         verify(mockDelegate, times(3)).transcribe(any(), any()); // Only 3 calls, not 4 
     }
 
     @Test
-    @DisplayName("Should return degraded result when circuit is open")
-    void testDegradedResultWhenOpen() throws Exception { 
+    @DisplayName("Should report retryable unavailability when circuit is open")
+    void testUnavailableWhenOpen() throws Exception {
         // Given - manually create engine with open circuit
         CircuitBreaker openCircuitBreaker = CircuitBreaker.builder("open-test-circuit")
             .failureThreshold(1) 
@@ -137,16 +136,34 @@ class CircuitBreakerSttEngineTest {
         assertEquals(CircuitBreaker.State.OPEN, engineWithOpenCircuit.getCircuitBreakerState()); 
 
         // When - call while circuit is open
-        TranscriptionResult result = engineWithOpenCircuit.transcribe( 
-            createTestAudio(), 
-            TranscriptionOptions.builder().language(Locale.ENGLISH).build() 
-        );
+        InferenceError error = assertThrows(InferenceError.class, () -> engineWithOpenCircuit.transcribe(
+            createTestAudio(), TranscriptionOptions.builder().language(Locale.ENGLISH).build()));
+        assertTrue(error.isRetryable());
+    }
 
-        // Then - should return degraded result
-        assertNotNull(result); 
-        assertEquals("", result.text()); 
-        assertEquals(0.0, result.confidence()); 
-        assertTrue(result.words().isEmpty()); 
+    @Test
+    @DisplayName("Should report retryable unavailability for async transcription when circuit is open")
+    void testAsyncUnavailableWhenOpen() throws Exception {
+        CircuitBreaker breaker = CircuitBreaker.builder("async-open-test-circuit")
+            .failureThreshold(1)
+            .resetTimeout(Duration.ofHours(1))
+            .build();
+        try {
+            breaker.executeSync(() -> { throw new IllegalStateException("provider unavailable"); });
+        } catch (RuntimeException expected) {
+            // The failed probe opens the breaker before wrapper invocation.
+        }
+
+        CircuitBreakerSttEngine engine = new CircuitBreakerSttEngine(mockDelegate, eventloop, breaker);
+        try {
+            engine.transcribeAsync(createTestAudio(), TranscriptionOptions.defaults())
+                .toCompletableFuture().get();
+            fail("open circuit should reject async transcription");
+        } catch (ExecutionException expected) {
+            assertInstanceOf(InferenceError.class, expected.getCause());
+            assertTrue(((InferenceError) expected.getCause()).isRetryable());
+        }
+        verify(mockDelegate, never()).transcribeAsync(any(), any());
     }
 
     @Test
@@ -260,8 +277,8 @@ class CircuitBreakerSttEngineTest {
     }
 
     @Test
-    @DisplayName("Should provide degraded streaming session when circuit open")
-    void testDegradedStreamingSession() throws Exception { 
+    @DisplayName("Should refuse streaming session when circuit open")
+    void testStreamingSessionUnavailable() throws Exception {
         // Given - circuit is open
         CircuitBreaker breaker = CircuitBreaker.builder("streaming-test-circuit")
             .failureThreshold(1) 
@@ -281,16 +298,9 @@ class CircuitBreakerSttEngineTest {
         }
 
         // When - create session with open circuit
-        StreamingSession session = engine.createStreamingSession(null); 
-
-        // Then - should get degraded session
-        assertNotNull(session); 
-        assertTrue(session.isActive()); 
-
-        // Feed audio should not throw
-        session.feedAudio(new AudioChunk(new byte[100], 0, false, 16000)); 
-
-        session.close(); 
+        InferenceError error = assertThrows(InferenceError.class, () -> engine.createStreamingSession(null));
+        assertTrue(error.isRetryable());
+        verify(mockDelegate, times(1)).createStreamingSession(any());
     }
 
     @Test
