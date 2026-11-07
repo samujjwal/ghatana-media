@@ -26,6 +26,29 @@ class J19QualityOutcomeScenarioTest {
     private static final Budget BOUNDS = new Budget(100, 300, 2);
 
     @Test
+    void deniedSourceRightsBlockBeforeCandidateDispatch() {
+        Revision source = revision("source", "v1", "a", 40);
+        AtomicInteger candidateCalls = new AtomicInteger();
+        CandidatePort candidate = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return true; }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget budget) {
+                candidateCalls.incrementAndGet();
+                return OptimizationAttempt.available(revision("candidate", "v2", "b", 25));
+            }
+        };
+
+        Run denied = optimize(OPERATION, source, (id, purpose) -> new AuthorityDecision(AuthorityStatus.DENIED,
+                "fixture-source-rights-denied"), candidate, 1, BOUNDS, Optional.empty(), null, null);
+
+        assertThat(denied.status()).isEqualTo(RunStatus.NOT_ADMITTED);
+        assertThat(denied.reason()).contains(BlockReason.SOURCE_DENIED);
+        assertThat(denied.report()).isEmpty();
+        assertThat(denied.retainedRevisions()).isEmpty();
+        assertThat(denied.attemptsUsed()).isZero();
+        assertThat(candidateCalls).hasValue(0);
+    }
+
+    @Test
     void ambiguousSecondAttemptRetainsOnlyExactRevisionsAndPreservesSourceUndoPath() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v2", "b", 25);
