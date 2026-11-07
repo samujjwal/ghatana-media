@@ -107,7 +107,9 @@ class MediaLifecycleEventConsumerTest {
             return Optional.empty();
         });
 
-        for (String invalidPrincipal : java.util.List.of("", "consumer-a".repeat(100))) {
+        for (String invalidPrincipal : java.util.List.of(
+                "", "consumer-a".repeat(100), " consumer-a", "consumer-a ",
+                "\u00a0consumer-a", "consumer-a\u2003", "\u2003")) {
             assertThatThrownBy(() -> consumer.consume(invalidPrincipal, envelope(event("media.job.accepted", 1))))
                     .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
                     .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())

@@ -130,10 +130,22 @@ public final class MediaLifecycleEventConsumer {
 
     /** Missing caller identity is a typed authorization failure and must fail before any port call. */
     private static String requiredPrincipal(String value) {
-        if (value == null || value.isBlank() || value.length() > 512) {
+        if (value == null || value.length() > 512 || hasBoundaryWhitespace(value)) {
             throw new LifecycleEventException(Failure.FORBIDDEN, "Lifecycle consumer identity is invalid");
         }
-        return value.trim();
+        return value;
+    }
+
+    /** Identity values are exact references; normalization here could authorize a different principal. */
+    private static boolean hasBoundaryWhitespace(String value) {
+        if (value.isEmpty()) return true;
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        return isWhitespace(first) || isWhitespace(last);
+    }
+
+    private static boolean isWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
     /** Stable digest of every admitted ABI field, independent of input map iteration order. */
