@@ -76,6 +76,31 @@ test("progress rejects paused, fractional, backward, and out-of-scene positions"
   }
 });
 
+test("native media ending stops at the authored scene boundary without selecting a branch", () => {
+  const initial = createDemoPlayerState(manifest, verifier);
+  const playing = reduceDemoPlayerState(manifest, initial, { type: "play" }, verifier);
+  const advanced = reduceDemoPlayerState(manifest, playing, { type: "progress", positionMs: 500 }, verifier);
+  const ended = reduceDemoPlayerState(manifest, advanced, { type: "ended" }, verifier);
+
+  assert.equal(ended.positionMs, 1_000);
+  assert.equal(ended.playing, false);
+  assert.equal(ended.activeSceneId, "intro");
+  assert.deepEqual(ended.route, ["intro"]);
+  assert.deepEqual(ended.branches, []);
+});
+
+test("media failure is typed and does not expose provider or browser error details", () => {
+  const initial = createDemoPlayerState(manifest, verifier);
+  const playing = reduceDemoPlayerState(manifest, initial, { type: "play" }, verifier);
+  const failed = reduceDemoPlayerState(manifest, playing, { type: "playback-failed" }, verifier);
+
+  assert.equal(failed.status, "UNAVAILABLE");
+  assert.equal(failed.failure, "MEDIA_PLAYBACK_FAILED");
+  assert.equal(failed.playing, false);
+  assert.equal(failed.announcement, "Interactive demonstration unavailable: media playback failed.");
+  assert.equal(failed.announcement.includes("DOMException"), false);
+});
+
 test("replay reproduces play and progress state, status, and history", () => {
   const actions = [
     { type: "play" },

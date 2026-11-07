@@ -104,7 +104,8 @@ export type DemoPlayerFailure =
   | "INVALID_BUNDLE"
   | "PLAYBACK_LIMIT_REACHED"
   | "TRUST_VERIFIER_UNAVAILABLE"
-  | "TRUST_ATTESTATION_MISMATCH";
+  | "TRUST_ATTESTATION_MISMATCH"
+  | "MEDIA_PLAYBACK_FAILED";
 
 export interface DemoBranchVisit {
   readonly fromSceneId: string;
@@ -134,6 +135,8 @@ export type DemoPlayerAction =
   | { readonly type: "play" }
   | { readonly type: "pause" }
   | { readonly type: "progress"; readonly positionMs: number }
+  | { readonly type: "ended" }
+  | { readonly type: "playback-failed" }
   | { readonly type: "seek"; readonly positionMs: number }
   | { readonly type: "choose-branch"; readonly branchId: string }
   | { readonly type: "finish" };
@@ -431,7 +434,7 @@ export function reduceDemoPlayerState(
 ): DemoPlayerState {
   if (state.status !== "READY") return state;
   if (!action || typeof action !== "object" ||
-    !["play", "pause", "progress", "seek", "choose-branch", "finish"].includes((action as { type?: string }).type ?? "")) {
+    !["play", "pause", "progress", "ended", "playback-failed", "seek", "choose-branch", "finish"].includes((action as { type?: string }).type ?? "")) {
     return state;
   }
   const verification = requestAttestation(manifest, verificationPort);
@@ -463,6 +466,20 @@ export function reduceDemoPlayerState(
         announcement: atEnd ? `Finished ${scene.label}. Choose a path or replay.` : `Playing ${scene.label}.`,
       });
     }
+    case "ended":
+      if (!state.playing) return state;
+      return appendHistory(state, action, {
+        positionMs: scene.endMs,
+        playing: false,
+        announcement: `Finished ${scene.label}. Choose a path or replay.`,
+      });
+    case "playback-failed":
+      return appendHistory(state, action, {
+        status: "UNAVAILABLE",
+        failure: "MEDIA_PLAYBACK_FAILED",
+        playing: false,
+        announcement: "Interactive demonstration unavailable: media playback failed.",
+      });
     case "seek": {
       if (!Number.isFinite(action.positionMs) || action.positionMs < 0) {
         return state;

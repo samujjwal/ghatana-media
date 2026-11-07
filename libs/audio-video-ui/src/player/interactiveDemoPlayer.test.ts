@@ -2,7 +2,7 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   createDemoPlayerState,
   demoCaptionAt,
@@ -370,21 +370,35 @@ describe("interactive demo player", () => {
     expect(html).toContain('<input type="range"');
     expect(html).toContain("Simulated demonstration");
     expect(html).not.toContain("tabindex=\"-1\"");
-    expect(html).not.toContain("<video");
+    expect(html).toContain('<video aria-label="Media for Introduction"');
+    expect(html).toContain('src="/assets/intro.mp4"');
     expect(html).not.toContain("<iframe");
-    expect(html).not.toContain("src=");
   });
 
   it("keeps branch, seek, playback, and caption updates reachable through accessible native controls", () => {
+    const playMock = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
+      fireEvent.play(this);
+      return Promise.resolve();
+    });
     render(React.createElement(InteractiveDemoPlayer, {
       manifest: BASE,
       verificationPort: testAuthority(BASE),
     }));
 
     const play = screen.getByRole("button", { name: "Play Introduction" });
-    expect(play.disabled).toBe(false);
+    expect(play.disabled).toBe(true);
+    const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    fireEvent.loadedMetadata(video);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(play);
     expect(screen.getByRole("button", { name: "Pause Introduction" }).disabled).toBe(false);
+    expect(playMock).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0.25 });
+    fireEvent.timeUpdate(video);
+    expect((screen.getByRole("slider", { name: "Seek within Introduction" }) as HTMLInputElement).value).toBe("250");
+    fireEvent.pause(video);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
 
     const seek = screen.getByRole("slider", { name: "Seek within Introduction" });
     expect(seek.tabIndex).toBe(0);
@@ -395,6 +409,59 @@ describe("interactive demo player", () => {
     expect(screen.getByRole("group", { name: "Left path" })).toBeTruthy();
     expect(screen.getByRole("slider", { name: "Seek within Left path" })).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("Showing Left path.");
+    playMock.mockRestore();
+  });
+
+  it("stops at the authored scene boundary without choosing a branch and reports media failure", () => {
+    const { rerender } = render(React.createElement(InteractiveDemoPlayer, {
+      manifest: BASE,
+      verificationPort: testAuthority(BASE),
+    }));
+    const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    fireEvent.loadedMetadata(video);
+    fireEvent.play(video);
+    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 1 });
+    fireEvent.timeUpdate(video);
+    expect(screen.getByRole("status").textContent).toContain("Choose a path or replay.");
+    expect(screen.getByRole("group", { name: "Introduction" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Explore left path; continue to Left path" })).toBeTruthy();
+
+    fireEvent.error(video);
+    expect(screen.getByRole("status").textContent).toContain("media playback failed");
+    expect(screen.queryByRole("button", { name: "Play Introduction" })).toBeNull();
+
+    const untrusted = { ...BASE, integrity: { status: "unverified" as const } };
+    rerender(React.createElement(InteractiveDemoPlayer, { manifest: untrusted, verificationPort: testAuthority(untrusted) }));
+    expect(screen.queryByRole("group", { name: "Playback controls" })).toBeNull();
+    expect(screen.getByText("Unverified demonstration")).toBeTruthy();
+  });
+
+  it("requires the newly mounted video to position before re-enabling a previously visited scene", () => {
+    const revisitManifest: InteractiveDemoManifest = {
+      ...BASE,
+      scenes: BASE.scenes.map((scene) => scene.id === "left-scene"
+        ? { ...scene, branches: [{ id: "back", label: "Return to introduction", targetSceneId: "intro" }] }
+        : scene),
+    };
+    render(React.createElement(InteractiveDemoPlayer, {
+      manifest: revisitManifest,
+      verificationPort: testAuthority(revisitManifest),
+    }));
+
+    const firstIntroVideo = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    fireEvent.loadedMetadata(firstIntroVideo);
+    fireEvent.click(screen.getByRole("button", { name: "Explore left path; continue to Left path" }));
+    const leftVideo = screen.getByRole("group", { name: "Left path" }).querySelector("video")!;
+    Object.defineProperty(leftVideo, "currentTime", { configurable: true, writable: true, value: 1.5 });
+
+    fireEvent.click(screen.getByRole("button", { name: "Return to introduction; continue to Introduction" }));
+    const revisitedIntroVideo = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    expect(revisitedIntroVideo).not.toBe(firstIntroVideo);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(leftVideo.currentTime).toBe(1.5);
+
+    fireEvent.loadedMetadata(revisitedIntroVideo);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
   it("withholds keyboard-operable actions when policy denies a cross-origin asset", () => {
@@ -411,6 +478,7 @@ describe("interactive demo player", () => {
     expect(html).toContain('data-demo-status="POLICY_DENIED"');
     expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
     expect(html).not.toContain("Playback controls");
+    expect(html).not.toContain("<video");
     expect(html).not.toContain("<button");
     expect(html).not.toContain('type="range"');
   });
