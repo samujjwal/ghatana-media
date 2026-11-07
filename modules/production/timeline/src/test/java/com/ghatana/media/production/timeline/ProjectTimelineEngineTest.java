@@ -234,6 +234,28 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void diffTreatsEquivalentRationalTickBasesAsTheSameClipValue() {
+        Scene scene = new Scene("scene-1", 0);
+        Track track = new Track("track-1", scene.sceneId(), TrackKind.VIDEO, 0);
+        Clip original = clip("clip-1", scene.sceneId(), track.trackId());
+        Clip sameExactTimes = new Clip(original.clipId(), original.sceneId(), original.trackId(), original.source(),
+                new RationalTime(original.sourceIn().ticks() * 2, original.sourceIn().rateNumerator() * 2,
+                        original.sourceIn().rateDenominator(), Clock.SOURCE_PRESENTATION),
+                new RationalTime(original.sourceOut().ticks() * 2, original.sourceOut().rateNumerator() * 2,
+                        original.sourceOut().rateDenominator(), Clock.SOURCE_PRESENTATION),
+                new RationalTime(original.storyStart().ticks() * 2, original.storyStart().rateNumerator() * 2,
+                        original.storyStart().rateDenominator(), Clock.STORY),
+                new RationalTime(original.storyDuration().ticks() * 2,
+                        original.storyDuration().rateNumerator() * 2,
+                        original.storyDuration().rateDenominator(), Clock.STORY));
+        Graph before = new Graph("timeline-1", List.of(scene), List.of(track), List.of(original));
+        Graph after = new Graph("timeline-1", List.of(scene), List.of(track), List.of(sameExactTimes));
+
+        assertThat(sameExactTimes).isEqualTo(original);
+        assertThat(ProjectTimelineEngine.diff(before, after).changedClips()).isEmpty();
+    }
+
+    @Test
     void sourceAuthorityFailureIsUnknownAndDoesNotExposeAdapterDetails() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-authority-failure");

@@ -63,6 +63,18 @@ class MediaProjectTimelineContractsTest {
     }
 
     @Test
+    void rationalTimeValueEqualityIgnoresEquivalentTickRateRepresentations() {
+        RationalTime halfSecondAtTwoTicksPerSecond = new RationalTime(1, 2, 1, Clock.STORY);
+        RationalTime halfSecondAtFourTicksPerSecond = new RationalTime(2, 4, 1, Clock.STORY);
+
+        assertThat(halfSecondAtTwoTicksPerSecond.compareTo(halfSecondAtFourTicksPerSecond)).isZero();
+        assertThat(halfSecondAtTwoTicksPerSecond).isEqualTo(halfSecondAtFourTicksPerSecond);
+        assertThat(halfSecondAtTwoTicksPerSecond.hashCode()).isEqualTo(halfSecondAtFourTicksPerSecond.hashCode());
+        assertThat(new RationalTime(0, Long.MAX_VALUE, 1, Clock.STORY))
+                .isEqualTo(new RationalTime(0, 1, 1, Clock.STORY));
+    }
+
+    @Test
     void graphRejectsDetachedOrCrossSceneNodesAndSourceStoryClockMixing() {
         Scene scene = new Scene("scene-1", 0);
         Track track = new Track("track-1", scene.sceneId(), TrackKind.VIDEO, 0);

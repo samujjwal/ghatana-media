@@ -36,6 +36,28 @@ public final class MediaProjectTimelineContracts {
             return left.compareTo(right);
         }
 
+        /** Rational-time equality is based on the exact instant, not its chosen tick rate. */
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (!(other instanceof RationalTime time) || clock != time.clock) return false;
+            return exactSeconds().equals(time.exactSeconds());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(clock, exactSeconds());
+        }
+
+        private ExactFraction exactSeconds() {
+            BigInteger numerator = BigInteger.valueOf(ticks).multiply(BigInteger.valueOf(rateDenominator));
+            BigInteger denominator = BigInteger.valueOf(rateNumerator);
+            BigInteger gcd = numerator.gcd(denominator);
+            return new ExactFraction(numerator.divide(gcd), denominator.divide(gcd));
+        }
+
+        private record ExactFraction(BigInteger numerator, BigInteger denominator) { }
+
         /** Adds exact elapsed time in the same clock domain; unrepresentable results fail instead of rounding. */
         public RationalTime plus(RationalTime duration) {
             Objects.requireNonNull(duration, "duration");
