@@ -152,7 +152,7 @@ class AnimationRendererTest {
         assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(plan, "gif", 10, 1, 10,
                 AnimationRenderer.MAX_FRAMES + 1, List.of(), "0".repeat(64), new byte[] { 1 }))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("metadata");
-        var time = new AnimationRenderer.FrameTime(0, "0", "1", "0", "1");
+        var time = new AnimationRenderer.FrameTime(0, "0", "1", "2", "1");
         assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(plan, "gif", 10, 1, 10,
                 AnimationRenderer.MAX_FRAMES, underreportedList(AnimationRenderer.MAX_FRAMES,
                         AnimationRenderer.MAX_FRAMES + 1, time), "0".repeat(64), new byte[] { 1 }))
@@ -160,6 +160,47 @@ class AnimationRendererTest {
         assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(plan, "gif", 10, 1, 10,
                 1, List.of(time), "0".repeat(64), new byte[AnimationRenderer.MAX_ENCODED_ANIMATION_BYTES + 1]))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bytes");
+    }
+
+    @Test
+    void frameClockValuesAndEncodedCadenceMustBeExactAndBounded() {
+        assertThatThrownBy(() -> new AnimationRenderer.FrameTime(AnimationRenderer.MAX_FRAMES,
+                "0", "1", "0", "1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("index");
+        assertThatThrownBy(() -> new AnimationRenderer.FrameTime(0,
+                "0", "0", "0", "1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("denominator");
+        assertThatThrownBy(() -> new AnimationRenderer.FrameTime(0,
+                "not-an-integer", "1", "0", "1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("integer");
+        assertThatThrownBy(() -> new AnimationRenderer.Frame(0,
+                "-1", "1", "0", "1", new byte[] { 1 }))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("nonnegative");
+        assertThatThrownBy(() -> new AnimationRenderer.FrameTime(0,
+                "0", "1", "9".repeat(65), "1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("bounded");
+
+        var renderer = new AnimationRenderer();
+        var profile = new AnimationRenderer.Profile(10, 1, 3);
+        var encoded = renderer.renderAnimated(spec("gif"), scene(), profile,
+                AnimationRenderer.AnimatedFormat.GIF).encoded().orElseThrow();
+        assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(encoded.plan(), "gif",
+                10, 1, 9, encoded.frameCount(), encoded.frameTimes(), encoded.sha256(), encoded.bytes()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frame delay");
+
+        var wrongPts = new java.util.ArrayList<>(encoded.frameTimes());
+        var second = wrongPts.get(1);
+        wrongPts.set(1, new AnimationRenderer.FrameTime(1,
+                "2", "10", second.storyTicksNumerator(), second.storyTicksDenominator()));
+        assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(encoded.plan(), "gif",
+                10, 1, 10, encoded.frameCount(), wrongPts, encoded.sha256(), encoded.bytes()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("PTS");
+
+        var wrongStoryTime = new java.util.ArrayList<>(encoded.frameTimes());
+        wrongStoryTime.set(1, new AnimationRenderer.FrameTime(1, "1", "10", "13", "1"));
+        assertThatThrownBy(() -> new AnimationRenderer.EncodedAnimation(encoded.plan(), "gif",
+                10, 1, 10, encoded.frameCount(), wrongStoryTime, encoded.sha256(), encoded.bytes()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("story ticks");
     }
 
     private static <T> List<T> underreportedList(int reportedSize, int actualSize, T value) {

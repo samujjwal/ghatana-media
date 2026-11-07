@@ -48,6 +48,7 @@ public final class AnimationRenderer {
     public static final int MAX_KEYFRAMES_PER_SHAPE = 240;
     public static final int MAX_ENCODED_ANIMATION_BYTES = 64 * 1024 * 1024;
     public static final int MAX_ENCODED_FRAME_BYTES = 16 * 1024 * 1024;
+    private static final int MAX_FRAME_TIME_INTEGER_CHARS = 64;
     private static final double MAX_COORDINATE = 8_192.0;
     private static final double MAX_SCALE = 64.0;
     private static final double MAX_ROTATION_DEGREES = 36_000.0;
@@ -222,10 +223,13 @@ public final class AnimationRenderer {
             if (index < 0 || index >= MAX_FRAMES) {
                 throw new IllegalArgumentException("frame.index is outside the renderer ceiling");
             }
-            Objects.requireNonNull(ptsNumerator, "ptsNumerator");
-            Objects.requireNonNull(ptsDenominator, "ptsDenominator");
-            Objects.requireNonNull(storyTicksNumerator, "storyTicksNumerator");
-            Objects.requireNonNull(storyTicksDenominator, "storyTicksDenominator");
+            BigInteger pts = frameTimeInteger(ptsNumerator, "frame.ptsNumerator", true);
+            frameTimePositiveDenominator(ptsDenominator, "frame.ptsDenominator");
+            frameTimeInteger(storyTicksNumerator, "frame.storyTicksNumerator", true);
+            frameTimePositiveDenominator(storyTicksDenominator, "frame.storyTicksDenominator");
+            if (pts.signum() < 0) {
+                throw new IllegalArgumentException("frame.ptsNumerator must be nonnegative");
+            }
             Objects.requireNonNull(png, "png");
             if (png.length == 0 || png.length > MAX_ENCODED_FRAME_BYTES) {
                 throw new IllegalArgumentException("frame PNG bytes exceed the renderer ceiling");
@@ -255,11 +259,16 @@ public final class AnimationRenderer {
     public record FrameTime(int index, String ptsNumerator, String ptsDenominator,
             String storyTicksNumerator, String storyTicksDenominator) {
         public FrameTime {
-            if (index < 0) throw new IllegalArgumentException("frame time index must be non-negative");
-            Objects.requireNonNull(ptsNumerator, "ptsNumerator");
-            Objects.requireNonNull(ptsDenominator, "ptsDenominator");
-            Objects.requireNonNull(storyTicksNumerator, "storyTicksNumerator");
-            Objects.requireNonNull(storyTicksDenominator, "storyTicksDenominator");
+            if (index < 0 || index >= MAX_FRAMES) {
+                throw new IllegalArgumentException("frame time index is outside the renderer ceiling");
+            }
+            BigInteger pts = frameTimeInteger(ptsNumerator, "frameTime.ptsNumerator", true);
+            frameTimePositiveDenominator(ptsDenominator, "frameTime.ptsDenominator");
+            frameTimeInteger(storyTicksNumerator, "frameTime.storyTicksNumerator", true);
+            frameTimePositiveDenominator(storyTicksDenominator, "frameTime.storyTicksDenominator");
+            if (pts.signum() < 0) {
+                throw new IllegalArgumentException("frameTime.ptsNumerator must be nonnegative");
+            }
         }
     }
 
@@ -275,8 +284,34 @@ public final class AnimationRenderer {
             }
             frameTimes = copyBounded(frameTimes, MAX_FRAMES, "frameTimes");
             if (frameTimes.size() != frameCount) throw new IllegalArgumentException("frame time count must match frame count");
+            BigInteger fpsNumerator = BigInteger.valueOf(framesPerSecondNumerator);
+            BigInteger fpsDenominator = BigInteger.valueOf(framesPerSecondDenominator);
+            if (!fpsNumerator.multiply(BigInteger.valueOf(frameDelayCentiseconds))
+                    .equals(fpsDenominator.multiply(BigInteger.valueOf(100)))) {
+                throw new IllegalArgumentException("encoded animation frame delay does not match its frame rate");
+            }
+            AnimationSpecCompiler.StoryTime storyTime = plan.tStoryRef();
+            BigInteger storyTimeBaseNumerator = new BigInteger(storyTime.timeBase().numerator());
+            BigInteger storyTimeBaseDenominator = new BigInteger(storyTime.timeBase().denominator());
+            BigInteger startStoryTicks = new BigInteger(storyTime.ticks());
+            BigInteger expectedStoryDenominator = fpsNumerator.multiply(storyTimeBaseNumerator);
             for (int index = 0; index < frameTimes.size(); index++) {
-                if (frameTimes.get(index).index() != index) throw new IllegalArgumentException("frame times must be ordered");
+                FrameTime frameTime = frameTimes.get(index);
+                if (frameTime.index() != index) throw new IllegalArgumentException("frame times must be ordered");
+                BigInteger ptsNumerator = new BigInteger(frameTime.ptsNumerator());
+                BigInteger ptsDenominator = new BigInteger(frameTime.ptsDenominator());
+                if (!ptsNumerator.multiply(fpsNumerator)
+                        .equals(BigInteger.valueOf(index).multiply(fpsDenominator).multiply(ptsDenominator))) {
+                    throw new IllegalArgumentException("frame time PTS does not match its frame rate and index");
+                }
+                BigInteger storyNumerator = new BigInteger(frameTime.storyTicksNumerator());
+                BigInteger storyDenominator = new BigInteger(frameTime.storyTicksDenominator());
+                BigInteger expectedStoryNumerator = startStoryTicks.multiply(expectedStoryDenominator)
+                        .add(BigInteger.valueOf(index).multiply(fpsDenominator).multiply(storyTimeBaseDenominator));
+                if (!storyNumerator.multiply(expectedStoryDenominator)
+                        .equals(expectedStoryNumerator.multiply(storyDenominator))) {
+                    throw new IllegalArgumentException("frame time story ticks do not match the plan and frame rate");
+                }
             }
             Objects.requireNonNull(bytes, "bytes");
             if (bytes.length == 0 || bytes.length > MAX_ENCODED_ANIMATION_BYTES) {
@@ -434,6 +469,23 @@ public final class AnimationRenderer {
     private static String sha256(byte[] bytes) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
         catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
+    }
+
+    private static BigInteger frameTimeInteger(String value, String field, boolean signed) {
+        Objects.requireNonNull(value, field);
+        String pattern = signed ? "^(0|-?[1-9][0-9]*)$" : "^(0|[1-9][0-9]*)$";
+        if (value.length() > MAX_FRAME_TIME_INTEGER_CHARS || !value.matches(pattern)) {
+            throw new IllegalArgumentException(field + " must be bounded canonical integer text");
+        }
+        return new BigInteger(value);
+    }
+
+    private static BigInteger frameTimePositiveDenominator(String value, String field) {
+        BigInteger denominator = frameTimeInteger(value, field, false);
+        if (denominator.signum() <= 0) {
+            throw new IllegalArgumentException(field + " denominator must be positive");
+        }
+        return denominator;
     }
 
     private static <T> List<T> copyBounded(List<T> values, int maximum, String field) {

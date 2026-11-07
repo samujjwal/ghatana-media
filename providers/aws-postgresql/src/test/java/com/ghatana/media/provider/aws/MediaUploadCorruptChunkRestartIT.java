@@ -150,4 +150,50 @@ class MediaUploadCorruptChunkRestartIT {
             }
         }
     }
+
+    @Test
+    void changedBeginPayloadAfterRestartDoesNotCreateOrMutateUpload() throws Exception {
+        try (Harness h = harness();
+             S3PostgresqlMediaArtifactStore anchor = new S3PostgresqlMediaArtifactStore()) {
+            byte[] original = "RIFF-j02-replay-binding".getBytes(StandardCharsets.UTF_8);
+            String digest = sha256(original);
+            UploadRequest request = new UploadRequest("tenant-j02-replay", "principal-j02-replay",
+                    "clip.wav", "audio/wav", original.length, digest, "RESTRICTED", Duration.ofDays(1),
+                    Map.of("source", "local-fixture"));
+            String idempotencyKey = "j02-replay-binding-" + UUID.randomUUID();
+            String uploadId;
+
+            try (S3PostgresqlMediaArtifactStore workerA = new S3PostgresqlMediaArtifactStore()) {
+                UploadSession begun = workerA.begin(request, idempotencyKey);
+                uploadId = begun.uploadId();
+                workerA.append(request.tenantId(), request.principalId(), uploadId, 0, original);
+            }
+
+            // Metadata is part of canonical full-upload-request-v1, even when the file bytes match.
+            UploadRequest changed = new UploadRequest(request.tenantId(), request.principalId(), request.fileName(),
+                    request.contentType(), request.expectedSizeBytes(), request.expectedSha256(),
+                    request.classification(), request.retention(), Map.of("source", "rebound-fixture"));
+            try (S3PostgresqlMediaArtifactStore restartedWorker = new S3PostgresqlMediaArtifactStore()) {
+                assertThatThrownBy(() -> restartedWorker.begin(changed, idempotencyKey))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("Idempotency-Key was already used with a different upload request");
+
+                UploadSession exactReplay = restartedWorker.begin(request, idempotencyKey);
+                assertThat(exactReplay.uploadId()).isEqualTo(uploadId);
+                assertThat(exactReplay.status()).isEqualTo(UploadStatus.OPEN);
+                assertThat(exactReplay.nextChunkIndex()).isEqualTo(1);
+                assertThat(exactReplay.bytesReceived()).isEqualTo(original.length);
+                try (var connection = DriverManager.getConnection(h.jdbcUrl(), "sa", "");
+                     var statement = connection.prepareStatement(
+                             "SELECT COUNT(*) FROM media_upload_sessions WHERE tenant_id=? AND principal_id=?")) {
+                    statement.setString(1, request.tenantId());
+                    statement.setString(2, request.principalId());
+                    try (var rows = statement.executeQuery()) {
+                        assertThat(rows.next()).isTrue();
+                        assertThat(rows.getLong(1)).isEqualTo(1);
+                    }
+                }
+            }
+        }
+    }
 }

@@ -77,4 +77,27 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(SOURCE).isSameAs(originalBinding);
         assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
     }
+
+    @Test
+    void decoderReadFailureReturnsUnavailableWithoutCandidateOrSourceMutation() {
+        ArtifactBinding originalBinding = SOURCE;
+        AtomicInteger decoderCalls = new AtomicInteger();
+        Result failedRead = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-decoder-read-failure", SOURCE),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
+                binding -> {
+                    decoderCalls.incrementAndGet();
+                    throw new IllegalStateException("source decoder unavailable");
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        assertThat(failedRead.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(failedRead.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
+        assertThat(failedRead.candidate()).isEmpty();
+        assertThat(decoderCalls).hasValue(1);
+        assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
 }

@@ -892,6 +892,9 @@ export async function publishFinalRender(
     if (!await checkAdmission()) {
       return { outcome: "NOT_ADMITTED", reason: "render authority was denied or unavailable before canonical artifact creation" };
     }
+    if (signal?.aborted) {
+      return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before canonical artifact creation" };
+    }
     const uploadMetadata = freezeRenderValue({
       operation: "media.recorder.final-render.v1",
       renderIdentitySha256: identityDigest,
@@ -938,6 +941,9 @@ export async function publishFinalRender(
       if (!await checkAdmission()) {
         return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render authority was denied or unavailable before a chunk dispatch", uploadId };
       }
+      if (signal?.aborted) {
+        return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render publication was cancelled before a chunk dispatch", uploadId };
+      }
       const end = Math.min(offset + RENDER_UPLOAD_CHUNK_BYTES, bytes.byteLength);
       // Preserve the exact pre-dispatch receipt; an adapter may mutate its
       // session object while handling the request, so never compare against
@@ -957,6 +963,9 @@ export async function publishFinalRender(
     }
     if (!await checkAdmission()) {
       return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render authority was denied or unavailable before canonical completion", uploadId };
+    }
+    if (signal?.aborted) {
+      return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render publication was cancelled before canonical completion", uploadId };
     }
     completionStarted = true;
     const artifact = await artifactClient.completeUploadSession(session, signal);

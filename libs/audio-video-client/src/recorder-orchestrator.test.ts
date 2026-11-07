@@ -589,7 +589,7 @@ describe("recaptureScenario with routed capture adapters", () => {
     expect(fetchCalls).toBe(0);
   });
 
-  it("an admitted but unwired kind fails UNKNOWN before any provider dispatch", async () => {
+  it("an admitted but unwired kind is unavailable before any provider dispatch", async () => {
     let resolveCalls = 0;
     const plan = orchestrateScenario({
       scenarioId: "unwired-capture",
@@ -611,12 +611,11 @@ describe("recaptureScenario with routed capture adapters", () => {
 
     await expect(recaptureScenario(plan, { check: () => "ADMITTED" }, routed))
       .rejects.toMatchObject({
-        name: "CaptureOutcomeUnknownError",
+        name: "CaptureUnavailableError",
         kind: "CAMERA",
-        reason: "ADAPTER_REJECTED",
       });
     // The file scene was never reached: routing rejected the unwired kind
-    // before its adapter ran, and the wrapper reports post-admission UNKNOWN.
+    // before its adapter ran, so no provider effect has an unknown outcome.
     expect(resolveCalls).toBe(0);
   });
 });
@@ -822,6 +821,57 @@ describe("publishFinalRender", () => {
       .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
     expect(mux.muxAndVerify).toHaveBeenCalledOnce();
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("does not create an upload when cancellation arrives during the pre-create authority recheck", async () => {
+    const controller = new AbortController();
+    let checks = 0;
+    const admission = { admit: vi.fn(async () => {
+      checks++;
+      if (checks === 2) controller.abort();
+      return { status: "ADMITTED" as const, decisionRefs: [`rights-decision/${checks}`] };
+    }) };
+    const client = fakeClient();
+
+    await expect(publishFinalRender(request(), admission, muxer, client, controller.signal))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED", reason: expect.stringContaining("cancelled") });
+    expect(checks).toBe(2);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("does not dispatch a chunk when cancellation arrives during the pre-chunk authority recheck", async () => {
+    const controller = new AbortController();
+    let checks = 0;
+    const admission = { admit: vi.fn(async () => {
+      checks++;
+      if (checks === 3) controller.abort();
+      return { status: "ADMITTED" as const, decisionRefs: [`rights-decision/${checks}`] };
+    }) };
+    const client = fakeClient();
+
+    await expect(publishFinalRender(request(), admission, muxer, client, controller.signal))
+      .resolves.toMatchObject({ outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: expect.stringContaining("cancelled") });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("does not complete an upload when cancellation arrives during the pre-completion authority recheck", async () => {
+    const controller = new AbortController();
+    let checks = 0;
+    const admission = { admit: vi.fn(async () => {
+      checks++;
+      if (checks === 4) controller.abort();
+      return { status: "ADMITTED" as const, decisionRefs: [`rights-decision/${checks}`] };
+    }) };
+    const client = fakeClient();
+
+    await expect(publishFinalRender(request(), admission, muxer, client, controller.signal))
+      .resolves.toMatchObject({ outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: expect.stringContaining("cancelled") });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).toHaveBeenCalledOnce();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
       .not.toHaveBeenCalled();
   });
 

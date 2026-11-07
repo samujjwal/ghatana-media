@@ -62,6 +62,12 @@ class SttTranscriptionResponseMapperTest {
     }
 
     @Test
+    void rejectsEmptyDecodedAudioDurationBeforeMappingTranscript() {
+        assertInvalid(result(0.5, List.of(), List.of()), Duration.ZERO,
+                "decoded audio duration is unavailable or empty");
+    }
+
+    @Test
     void acceptsAdjacentMillisecondBoundsEndingAtAudioBoundary() {
         TranscriptionResult result = result(0.5,
                 List.of(new WordTiming("first", 0.0, 0.001, 0.5),

@@ -420,6 +420,26 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void revokedAuthorizationDuringLostAckResumeDoesNotSendAnotherChunk() {
+        Fixture f = new Fixture();
+        f.destination.loseFirstAckAfterAccept = true;
+        ExportRequest request = f.request(bytes(CHUNK_BYTES + 7));
+
+        DeliveryResult afterLostAck = f.engine.export(request);
+        assertThat(afterLostAck.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(f.destination.sendCount).isEqualTo(1);
+
+        f.authorization.revoked.set(true);
+        DeliveryResult resumed = f.engine.reconcileAndResume(request);
+
+        assertThat(resumed.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(resumed.acknowledgedBytes()).isEqualTo(CHUNK_BYTES);
+        assertThat(resumed.destinationReceiptRef()).isEmpty();
+        assertThat(f.destination.sendCount).isEqualTo(1);
+        assertThat(f.destination.offsets).containsExactly(0);
+    }
+
+    @Test
     void currentnessNullOrFailureBeforeDispatchIsTypedUnavailable() {
         for (boolean throwsFailure : List.of(false, true)) {
             Fixture f = new Fixture();

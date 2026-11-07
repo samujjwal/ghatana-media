@@ -51,7 +51,9 @@ final class SttTranscriptionResponseMapper {
         if (result.hasConfidence() && !confidence(result.confidence())) {
             throw invalid("transcript confidence must be finite and in [0, 1]");
         }
-        if (audioDuration == null || audioDuration.isNegative()) throw invalid("decoded audio duration is unavailable");
+        if (audioDuration == null || audioDuration.isZero() || audioDuration.isNegative()) {
+            throw invalid("decoded audio duration is unavailable or empty");
+        }
 
         // These collections are optional provider metadata; absent values remain absent on the wire.
         List<Alternative> alternatives = result.alternatives() == null ? List.of() : result.alternatives();
