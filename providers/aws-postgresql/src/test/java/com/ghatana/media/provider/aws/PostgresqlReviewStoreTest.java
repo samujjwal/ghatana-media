@@ -98,8 +98,10 @@ class PostgresqlReviewStoreTest {
             try (PostgresqlReviewStore afterRejectedRegistration = new PostgresqlReviewStore(List.of(CASE))) {
                 assertThat(afterRejectedRegistration.read(ACTOR, CASE)).isEmpty();
             }
-            var first = store.append(ACTOR, CASE, 0, "review-request-1", fingerprint,
+            var initialAppend = store.appendWithReplay(ACTOR, CASE, 0, "review-request-1", fingerprint,
                     "review-record-1", "authority-v1", accept, Instant.parse("2026-11-06T10:00:00Z"));
+            assertThat(initialAppend.idempotentReplay()).isFalse();
+            var first = initialAppend.record();
             assertThat(first.payload()).isEqualTo(accept);
             // The persisted ACCEPT is only a statement; it creates no approval capability or receipt.
             assertThat(first.payload()).isInstanceOf(DecisionRecord.class);
@@ -109,16 +111,19 @@ class PostgresqlReviewStoreTest {
             assertThatThrownBy(() -> store.append(ACTOR, CASE, 1, "review-request-1", "c".repeat(64),
                     "review-record-3", "authority-v1", accept, Instant.parse("2026-11-06T10:00:02Z")))
                     .isInstanceOf(ReviewIdempotencyConflictException.class);
-            var replay = store.append(ACTOR, CASE, 0, "review-request-1", fingerprint,
+            var replay = store.appendWithReplay(ACTOR, CASE, 0, "review-request-1", fingerprint,
                     "ignored-record-id", "authority-v1", accept, Instant.parse("2026-11-06T10:00:03Z"));
-            assertThat(replay).isEqualTo(first);
+            assertThat(replay.idempotentReplay()).isTrue();
+            assertThat(replay.record()).isEqualTo(first);
             store.close();
 
             MediaAwsPostgresqlRuntimeState held = MediaAwsPostgresqlRuntimeState.acquire();
             try (PostgresqlReviewStore restarted = new PostgresqlReviewStore(List.of(CASE))) {
                 assertThat(restarted.read(ACTOR, CASE)).containsExactly(first);
-                assertThat(restarted.append(ACTOR, CASE, 0, "review-request-1", fingerprint,
-                        "ignored", "authority-v1", accept, Instant.parse("2026-11-06T10:00:04Z"))).isEqualTo(first);
+                var restartedReplay = restarted.appendWithReplay(ACTOR, CASE, 0, "review-request-1", fingerprint,
+                        "ignored", "authority-v1", accept, Instant.parse("2026-11-06T10:00:04Z"));
+                assertThat(restartedReplay.idempotentReplay()).isTrue();
+                assertThat(restartedReplay.record()).isEqualTo(first);
             } finally { held.release(); }
 
             try (PostgresqlReviewStore concurrent = new PostgresqlReviewStore(List.of(CASE))) {
@@ -133,6 +138,35 @@ class PostgresqlReviewStoreTest {
                 assertThat(concurrent.read(ACTOR, CASE)).hasSize(2);
             }
         }
+    }
+
+    @Test
+    void concurrentExactReplayReturnsStoredIdentityAndMarksOnlyReplay() throws Exception {
+        try (Fixture fixture = openFixture(); PostgresqlReviewStore store = new PostgresqlReviewStore(List.of(CASE))) {
+            var ready = new CountDownLatch(2);
+            var start = new CountDownLatch(1);
+            try (var pool = Executors.newFixedThreadPool(2)) {
+                var a = pool.submit(() -> exactReplayRace(store, "candidate-a", ready, start));
+                var b = pool.submit(() -> exactReplayRace(store, "candidate-b", ready, start));
+                assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+                var first = a.get(20, TimeUnit.SECONDS);
+                var second = b.get(20, TimeUnit.SECONDS);
+                assertThat(List.of(first.idempotentReplay(), second.idempotentReplay()))
+                        .containsExactlyInAnyOrder(false, true);
+                assertThat(first.record()).isEqualTo(second.record());
+                assertThat(store.read(ACTOR, CASE)).containsExactly(first.record());
+            }
+        }
+    }
+
+    private static StoreAppendResult exactReplayRace(PostgresqlReviewStore store, String candidateId,
+                                                       CountDownLatch ready, CountDownLatch start) throws Exception {
+        ready.countDown();
+        if (!start.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("start latch timed out");
+        return store.appendWithReplay(ACTOR, CASE, 0, "same-request", "f".repeat(64), candidateId,
+                "authority-v1", new Comment("same payload", CommentDisposition.OPEN, null),
+                Instant.parse("2026-11-06T10:03:00Z"));
     }
 
     private static boolean race(PostgresqlReviewStore store, String request, CountDownLatch ready,

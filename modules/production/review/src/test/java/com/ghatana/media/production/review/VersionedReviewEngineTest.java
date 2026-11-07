@@ -359,6 +359,29 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void appendReceiptMustMatchTheRecordIdentitySuppliedToStore() {
+        ReviewStore hostileStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                return new ReviewRecord("different-record-id", actor.tenantId(), reviewCase.reviewCaseId(),
+                        reviewCase.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
+                        expectedCaseRevision + 1, createdAt, authorityVersion);
+            }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(); }
+        };
+        VersionedReviewEngine engine = engine(hostileStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+        AppendRequest request = new AppendRequest(CASE, 0, "authority-v1", "req-wrong-record-id",
+                new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                new Comment("safe", CommentDisposition.OPEN, null));
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, request))
+                .isInstanceOf(ReviewUnavailableException.class);
+    }
+
+    @Test
     void inspectRejectsDuplicateAppendRecordIdentityAcrossCaseRevisions() {
         ReviewRecord first = new ReviewRecord("record-reused", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
                 "req-1", "media.operation.action.record-review-comment", REVIEWER,

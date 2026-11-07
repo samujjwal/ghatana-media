@@ -73,9 +73,9 @@ public final class VersionedReviewEngine {
         Instant now = clock.instant();
         if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
         String appendRecordId = nextId();
-        ReviewRecord record;
+        StoreAppendResult appendResult;
         try {
-            record = store.append(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
+            appendResult = store.appendWithReplay(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
                     fingerprint, appendRecordId, effectAuthority.authorityVersion(), safePayload, now);
         } catch (ReviewDeniedException | ReviewConflictException | ReviewRevisionExhaustedException
                  | ReviewAuthorityConflictException | ReviewIdempotencyConflictException
@@ -86,7 +86,10 @@ public final class VersionedReviewEngine {
             // unknown so callers reconcile this same requestId instead of issuing a second write.
             throw new ReviewUnavailableException();
         }
-        requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision, safePayload, effectAuthority, record);
+        if (appendResult == null) throw new ReviewUnavailableException();
+        ReviewRecord record = appendResult.record();
+        requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision, appendRecordId,
+                safePayload, effectAuthority, record, appendResult.idempotentReplay());
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
                 record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);
     }
@@ -129,14 +132,16 @@ public final class VersionedReviewEngine {
     }
 
     private static void requireExactAppendReceipt(Actor actor, ReviewCaseRef reviewCase, AppendRequest request,
-                                                  long expectedNextRevision, Payload payload, AuthorizationDecision authority,
-                                                  ReviewRecord record) {
+                                                  long expectedNextRevision, String expectedAppendRecordId,
+                                                  Payload payload, AuthorizationDecision authority, ReviewRecord record,
+                                                  boolean idempotentReplay) {
         if (record == null) throw new ReviewUnavailableException();
         if (!record.tenantId().equals(actor.tenantId())
                 || !record.actor().equals(actor)
                 || !record.reviewCaseId().equals(reviewCase.reviewCaseId())
                 || !record.reviewSubjectRef().equals(reviewCase.reviewSubjectRef())
                 || !record.requestId().equals(request.requestId())
+                || (!idempotentReplay && !record.appendRecordId().equals(expectedAppendRecordId))
                 || !record.operationId().equals(payload.operationId())
                 || !record.payload().equals(payload)
                 || !record.authorityVersion().equals(authority.authorityVersion())

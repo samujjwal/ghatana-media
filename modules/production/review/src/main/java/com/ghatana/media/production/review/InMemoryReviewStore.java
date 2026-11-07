@@ -27,6 +27,15 @@ public final class InMemoryReviewStore implements ReviewStore {
     public synchronized ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
                                             String requestId, String fingerprint, String appendRecordId,
                                             String authorityVersion, Payload payload, java.time.Instant createdAt) {
+        return appendWithReplay(actor, reviewCase, expectedCaseRevision, requestId, fingerprint, appendRecordId,
+                authorityVersion, payload, createdAt).record();
+    }
+
+    @Override
+    public synchronized StoreAppendResult appendWithReplay(Actor actor, ReviewCaseRef reviewCase,
+                                            long expectedCaseRevision, String requestId, String fingerprint,
+                                            String appendRecordId, String authorityVersion, Payload payload,
+                                            java.time.Instant createdAt) {
         Objects.requireNonNull(actor, "actor");
         Objects.requireNonNull(reviewCase, "reviewCase");
         if (!actor.tenantId().equals(reviewCase.tenantId())) throw new ReviewCaseMismatchException();
@@ -37,7 +46,7 @@ public final class InMemoryReviewStore implements ReviewStore {
         IdempotencyEntry previous = idempotency.get(idempotencyKey);
         if (previous != null) {
             if (!previous.fingerprint.equals(fingerprint)) throw new ReviewIdempotencyConflictException();
-            return previous.record;
+            return new StoreAppendResult(previous.record, true);
         }
         if (state.records.size() != expectedCaseRevision) {
             throw new ReviewConflictException(expectedCaseRevision, state.records.size());
@@ -52,7 +61,7 @@ public final class InMemoryReviewStore implements ReviewStore {
                 state.records.size() + 1L, createdAt, authorityVersion);
         state.records.add(record);
         idempotency.put(idempotencyKey, new IdempotencyEntry(fingerprint, record));
-        return record;
+        return new StoreAppendResult(record, false);
     }
 
     @Override

@@ -60,6 +60,13 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
     @Override public ReviewRecord append(Actor actor, ReviewCaseRef ref, long expectedRevision, String requestId,
                                          String fingerprint, String appendRecordId, String authorityVersion,
                                          Payload payload, Instant createdAt) {
+        return appendWithReplay(actor, ref, expectedRevision, requestId, fingerprint, appendRecordId,
+                authorityVersion, payload, createdAt).record();
+    }
+
+    @Override public StoreAppendResult appendWithReplay(Actor actor, ReviewCaseRef ref, long expectedRevision,
+                                         String requestId, String fingerprint, String appendRecordId,
+                                         String authorityVersion, Payload payload, Instant createdAt) {
         ensureOpen(); Objects.requireNonNull(actor); Objects.requireNonNull(ref); Objects.requireNonNull(payload);
         Objects.requireNonNull(createdAt);
         if (!actor.tenantId().equals(ref.tenantId())) throw new ReviewCaseMismatchException();
@@ -69,7 +76,7 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
             c.setAutoCommit(false);
             try {
                 verifyCase(c, ref, true);
-                ReviewRecord replay = replay(c, actor, ref, requestId, fingerprint);
+                StoreAppendResult replay = replay(c, actor, ref, requestId, fingerprint);
                 if (replay != null) { c.commit(); return replay; }
                 long actual = revision(c, ref);
                 if (actual != expectedRevision) throw new ReviewConflictException(expectedRevision, actual);
@@ -87,7 +94,7 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
                 ReviewRecord result = new ReviewRecord(appendRecordId, actor.tenantId(), ref.reviewCaseId(),
                         ref.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
                         expectedRevision + 1, createdAt, authorityVersion);
-                c.commit(); return result;
+                c.commit(); return new StoreAppendResult(result, false);
             } catch (SQLException | RuntimeException failure) {
                 c.rollback();
                 if (failure instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
@@ -129,7 +136,7 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
         } catch (SQLException failure) { throw persistence("review read", failure); }
     }
 
-    private ReviewRecord replay(Connection c, Actor actor, ReviewCaseRef ref, String requestId, String fingerprint)
+    private StoreAppendResult replay(Connection c, Actor actor, ReviewCaseRef ref, String requestId, String fingerprint)
             throws SQLException {
         try (PreparedStatement q = c.prepareStatement("""
                 SELECT i.request_fingerprint,r.case_revision,r.append_record_id,r.request_id,r.operation_id,
@@ -147,9 +154,10 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
                     throw new ReviewIdempotencyConflictException();
                 Payload payload = readPayload(row, 7);
                 if (!payload.operationId().equals(row.getString(5))) throw new ReviewCaseMismatchException();
-                return new ReviewRecord(row.getString(3), ref.tenantId(), ref.reviewCaseId(), ref.reviewSubjectRef(),
+                ReviewRecord record = new ReviewRecord(row.getString(3), ref.tenantId(), ref.reviewCaseId(), ref.reviewSubjectRef(),
                         row.getString(4), row.getString(5), new Actor(ref.tenantId(), row.getString(13)), payload,
                         row.getLong(2), row.getTimestamp(12).toInstant(), row.getString(6));
+                return new StoreAppendResult(record, true);
             }
         }
     }
@@ -161,9 +169,9 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
         }
     }
 
-    private ReviewRecord replayAfterConflict(Actor actor, ReviewCaseRef ref, String requestId, String fingerprint) {
+    private StoreAppendResult replayAfterConflict(Actor actor, ReviewCaseRef ref, String requestId, String fingerprint) {
         try (Connection c = state.connection()) {
-            ReviewRecord found = replay(c, actor, ref, requestId, fingerprint);
+            StoreAppendResult found = replay(c, actor, ref, requestId, fingerprint);
             if (found != null) return found;
             throw new ReviewCaseMismatchException();
         } catch (SQLException failure) { throw persistence("review replay", failure); }

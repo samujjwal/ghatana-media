@@ -260,7 +260,22 @@ public final class ReviewContracts {
         ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
                             String requestId, String fingerprint, String appendRecordId,
                             String authorityVersion, Payload payload, Instant createdAt);
+        /**
+         * Appends or returns the exact prior idempotent result. Implementations that can replay
+         * existing requests should override this method so callers can distinguish the stored ID
+         * from a newly allocated candidate ID.
+         */
+        default StoreAppendResult appendWithReplay(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                                                   String requestId, String fingerprint, String appendRecordId,
+                                                   String authorityVersion, Payload payload, Instant createdAt) {
+            return new StoreAppendResult(append(actor, reviewCase, expectedCaseRevision, requestId, fingerprint,
+                    appendRecordId, authorityVersion, payload, createdAt), false);
+        }
         List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase);
+    }
+
+    public record StoreAppendResult(ReviewRecord record, boolean idempotentReplay) {
+        public StoreAppendResult { Objects.requireNonNull(record, "record"); }
     }
 
     public static final class ReviewDeniedException extends SecurityException {
