@@ -44,6 +44,13 @@ and independently verified effects.
   projection; an exception during projection returns `CONSUMPTION_UNKNOWN`
   because the effect may already be durable. Hosts must replay through the
   idempotent projection store or reconcile before reporting consumption.
+- The consumer fingerprints every parsed v1 payload field before projection:
+  same event ID and same fingerprint is a duplicate; reuse with a different
+  fingerprint is `CONFLICTING_REPLAY` and has no projection effect. This
+  local rule does not establish durable host-store or Shared relay integration.
+  Legacy five-argument projection stores remain source-compatible, but their
+  default fingerprint-aware call fails closed as `UNAVAILABLE` without invoking
+  the legacy projection method.
 - Terminal readback errors remain `UNAVAILABLE`, never confirmed completion.
   Event append, broker publication, consumer application, terminal job state,
   and provider effect receipts remain separate facts.

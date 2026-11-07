@@ -56,6 +56,10 @@ resolution; HTTP provider clients call configured provider endpoints.
 - Upload idempotency, finalization claims, worker leases and stream-ACK
   fencing provide crash/restart-safe semantics; lost-ack and
   process-crash recovery are covered by dedicated tests.
+- Frame reservation and acknowledgment lock the canonical stream-session row,
+  validate the exact revision and lease against PostgreSQL time after lock
+  acquisition, and retain a lease predicate at update. This store-level fence
+  does not qualify authenticated transport or source-clock provenance.
 - Durable job and outbox lease deadlines use epoch-millisecond precision;
   returned lease values match the persisted deadline, and overflow rejects
   the claim before any publisher effect. Lifecycle outbox claim leases that
