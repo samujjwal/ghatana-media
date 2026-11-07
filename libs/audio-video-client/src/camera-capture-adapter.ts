@@ -178,6 +178,10 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
             void stopOpenedTrack?.().catch(() => undefined);
           }
         });
+        if (typeof unsubscribe !== "function") {
+          unsubscribe = null;
+          throw fail("PERMISSION_MISSING", "browser camera permission monitoring is unavailable");
+        }
       } catch {
         // Without a live permission-state subscription we cannot safely keep a
         // camera open after the initial check. Sanitize host details and fail

@@ -666,7 +666,8 @@ public final class MediaDeliveryEngine {
             throw new IllegalArgumentException(field + " must not contain surrounding whitespace");
         }
         int maxLength = switch (field) {
-            case "tenantId", "principalId", "requestId", "artifactId", "tokenId", "ownerId" -> 128;
+            case "tenantId", "principalId", "requestId", "artifactId", "tokenId" -> 128;
+            case "ownerId" -> 255;
             case "versionRef", "destinationRef" -> 384;
             default -> 512;
         };

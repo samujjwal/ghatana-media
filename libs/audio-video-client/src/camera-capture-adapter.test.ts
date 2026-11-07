@@ -150,6 +150,7 @@ function browserHarness(options: {
   bindGate?: Promise<void>;
   rejectCodecClose?: boolean;
   rejectPermissionSubscribe?: boolean;
+  malformedPermissionUnsubscribe?: boolean;
 } = {}) {
   let permission = options.permission ?? "GRANTED";
   const permissionListeners: Array<(state: typeof permission) => void> = [];
@@ -161,6 +162,7 @@ function browserHarness(options: {
     subscribe(_candidate, listener) {
       if (options.rejectPermissionSubscribe) throw new Error("private host permission bridge detail");
       permissionListeners.push(listener);
+      if (options.malformedPermissionUnsubscribe) return undefined as never;
       return () => {
         const index = permissionListeners.indexOf(listener);
         if (index >= 0) permissionListeners.splice(index, 1);
@@ -221,6 +223,12 @@ describe("CameraCaptureAdapter", () => {
 
   it("fails closed when live host permission monitoring cannot be installed", async () => {
     const h = browserHarness({ rejectPermissionSubscribe: true });
+    await expectCode(h.adapter.openSession(request), "PERMISSION_MISSING");
+    expect(h.counts()).toEqual({ deviceOpens: 0, deviceStops: 0, codecCloses: 0 });
+  });
+
+  it("does not open a camera when the permission monitor has no usable detach handle", async () => {
+    const h = browserHarness({ malformedPermissionUnsubscribe: true });
     await expectCode(h.adapter.openSession(request), "PERMISSION_MISSING");
     expect(h.counts()).toEqual({ deviceOpens: 0, deviceStops: 0, codecCloses: 0 });
   });

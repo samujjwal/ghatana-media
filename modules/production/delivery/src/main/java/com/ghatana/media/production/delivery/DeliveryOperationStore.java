@@ -45,7 +45,7 @@ public interface DeliveryOperationStore {
             artifactDigest = required(artifactDigest, "artifactDigest");
             destinationRef = required(destinationRef, "destinationRef");
             requestFingerprint = required(requestFingerprint, "requestFingerprint");
-            ownerId = required(ownerId, "ownerId");
+            ownerId = MediaDeliveryEngine.requiredExact(ownerId, "ownerId");
             if (fence < 1) throw new IllegalArgumentException("fence must be positive");
             java.util.Objects.requireNonNull(expiresAt, "expiresAt");
         }

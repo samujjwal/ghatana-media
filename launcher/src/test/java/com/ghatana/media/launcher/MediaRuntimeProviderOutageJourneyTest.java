@@ -71,10 +71,13 @@ class MediaRuntimeProviderOutageJourneyTest {
                 observed = runtime.job("tenant-j27", "principal-j27", accepted.jobId()).orElseThrow();
             }
 
+            assertThat(observed.jobId()).isEqualTo(accepted.jobId());
             assertThat(observed.tenantId()).isEqualTo("tenant-j27");
             assertThat(observed.principalId()).isEqualTo("principal-j27");
             assertThat(observed.artifactId()).isEqualTo(artifact.artifactId());
+            assertThat(observed.expectedArtifactVersion()).isEqualTo(artifact.version().value());
             assertThat(observed.requestId()).isEqualTo("j27-request");
+            assertThat(observed.providerId()).isEqualTo(primary.providerId());
             assertThat(observed.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
             assertThat(observed.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
             assertThat(observed.result()).containsEntry("providerOutcome", "UNKNOWN")

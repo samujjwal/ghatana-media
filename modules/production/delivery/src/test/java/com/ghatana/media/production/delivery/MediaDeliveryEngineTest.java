@@ -113,6 +113,14 @@ class MediaDeliveryEngineTest {
                 fingerprint + " ", "worker-1", 1, NOW))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("requestFingerprint must not contain surrounding whitespace");
+        assertThat(new DeliveryOperationStore.DispatchClaim(
+                "tenant", "principal", "request", "artifact", "version", digest, "destination",
+                fingerprint, "w".repeat(255), 1, NOW).ownerId()).hasSize(255);
+        assertThatThrownBy(() -> new DeliveryOperationStore.DispatchClaim(
+                "tenant", "principal", "request", "artifact", "version", digest, "destination",
+                fingerprint, "w".repeat(256), 1, NOW))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("ownerId exceeds the maximum length of 255");
     }
 
     @Test
