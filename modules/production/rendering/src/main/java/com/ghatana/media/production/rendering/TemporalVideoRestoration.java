@@ -52,20 +52,20 @@ public final class TemporalVideoRestoration {
             List<String> rightsEvidenceRefs,
             String policyDecisionRef) {
         public ArtifactBinding {
-            tenantId = requiredText(tenantId, "tenantId", 255);
-            principalId = requiredText(principalId, "principalId", 255);
+            tenantId = exactText(tenantId, "tenantId", 255);
+            principalId = exactText(principalId, "principalId", 255);
             artifactId = opaqueId(artifactId, "artifactId", 128);
             versionId = opaqueId(versionId, "versionId", 128);
-            sha256 = requiredText(sha256, "sha256", 64).toLowerCase(java.util.Locale.ROOT);
+            sha256 = exactText(sha256, "sha256", 64).toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches(SHA256)) throw invalid("sha256 must be a 64-character SHA-256 hex digest");
-            purposeRef = requiredText(purposeRef, "purposeRef", 256);
+            purposeRef = exactText(purposeRef, "purposeRef", 256);
             Objects.requireNonNull(rightsEvidenceRefs, "rightsEvidenceRefs");
             rightsEvidenceRefs = boundedListCopy(rightsEvidenceRefs, 1, 32,
                     "rightsEvidenceRefs must contain between 1 and 32 references");
             rightsEvidenceRefs = rightsEvidenceRefs.stream()
-                    .map(value -> requiredText(value, "rightsEvidenceRef", 256)).distinct().toList();
+                    .map(value -> exactText(value, "rightsEvidenceRef", 256)).distinct().toList();
             if (rightsEvidenceRefs.isEmpty()) throw invalid("rightsEvidenceRefs must be unique");
-            policyDecisionRef = requiredText(policyDecisionRef, "policyDecisionRef", 384);
+            policyDecisionRef = exactText(policyDecisionRef, "policyDecisionRef", 384);
         }
     }
 
@@ -904,6 +904,12 @@ public final class TemporalVideoRestoration {
             throw invalid(field + " must be non-empty bounded printable text");
         }
         return trimmed;
+    }
+
+    private static String exactText(String value, String field, int maximum) {
+        String text = requiredText(value, field, maximum);
+        if (!value.equals(text)) throw invalid(field + " must not contain outer whitespace");
+        return text;
     }
 
     private static String opaqueId(String value, String field, int maximum) {

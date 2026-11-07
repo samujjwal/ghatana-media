@@ -1050,12 +1050,13 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).toHaveBeenCalledTimes(2);
   });
 
-  it("does not finalize or claim success when a partial canonical upload fails", async () => {
+  it("preserves UNKNOWN after a chunk transport rejection without a canonical acknowledgement", async () => {
     const client = fakeClient({
       uploadPart: vi.fn(async () => { throw new Error("transport interruption"); }),
     });
     await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
-      outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", uploadId: "upload-1",
+      outcome: "OUTCOME_UNKNOWN", uploadId: "upload-1",
+      reason: expect.stringContaining("chunk acknowledgement is missing"),
     });
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession).not.toHaveBeenCalled();
   });

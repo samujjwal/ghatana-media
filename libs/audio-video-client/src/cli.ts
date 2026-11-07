@@ -213,6 +213,7 @@ function writeError(code: string, message: string, extra: Record<string, unknown
 function safeCorrelationExtra(correlationId: unknown, token: string): Record<string, string> {
   if (typeof correlationId !== 'string' || correlationId.length < 1 || correlationId.length > 255
     || !/^[^\u0000-\u001f\u007f]+$/u.test(correlationId) || !correlationId.trim()
+    || correlationId !== correlationId.trim()
     || correlationId === 'not-reported') return {};
   const secrets = [token, token.trim()].filter(Boolean);
   if (secrets.some(secret => correlationId.includes(secret))) return {};

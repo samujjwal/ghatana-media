@@ -21,6 +21,28 @@ class TemporalVideoRestorationTest {
     private static final TimeBase TIME_BASE = new TimeBase(1, 30);
 
     @Test
+    void artifactBindingRejectsOuterWhitespaceInsteadOfChangingIdentityOrRightsReferences() {
+        assertThatThrownBy(() -> new ArtifactBinding(" tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("tenantId");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a ", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("principalId");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3", " " + SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("sha256");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video ", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("purposeRef");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of(" rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("rightsEvidenceRef");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3 "))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("policyDecisionRef");
+    }
+
+    @Test
     void boundedCallerListsUseIteratorAndDoNotConsumeOverLimitItem() {
         AtomicInteger rightsConsumed = new AtomicInteger();
         List<String> rights = new ArrayList<>();

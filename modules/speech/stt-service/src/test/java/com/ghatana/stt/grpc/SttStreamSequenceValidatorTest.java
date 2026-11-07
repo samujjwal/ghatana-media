@@ -160,6 +160,9 @@ class SttStreamSequenceValidatorTest {
                     assertThat(failure).hasMessageContaining("STT_STREAM_TIMESTAMP_LIMIT");
                 });
         assertThat(validator.lastSequence()).isZero();
+        // The rejected first candidate must not pin sequence mode, sample rate, or
+        // source PTS; a corrected first chunk can still establish the stream.
+        assertThat(validator.accept("session", 1, 8_000, 0, 2)).isEqualTo(1);
     }
 
     private static void assertInvalid(SttStreamSequenceValidator validator, long sequence, String message) {

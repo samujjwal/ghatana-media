@@ -22,13 +22,21 @@ globalThis.fetch = async (input, init = {}) => {
     })}\n`);
   }
 
-  const configuredJob = process.env.GHATANA_MEDIA_CLI_TEST_JOB;
-  if (!configuredJob) throw new Error('CLI test fixture job is missing.');
-  const job = JSON.parse(configuredJob);
   const json = (body, status) => new Response(JSON.stringify(body), {
     status,
     headers: { 'content-type': 'application/json' },
   });
+
+  if (mode === 'artifact-not-found') {
+    return json({
+      error: { code: 'ARTIFACT_NOT_FOUND', message: 'not visible', retryable: false },
+      meta: { correlationId: process.env.GHATANA_MEDIA_CLI_TEST_CORRELATION_ID },
+    }, 404);
+  }
+
+  const configuredJob = process.env.GHATANA_MEDIA_CLI_TEST_JOB;
+  if (!configuredJob) throw new Error('CLI test fixture job is missing.');
+  const job = JSON.parse(configuredJob);
 
   if (mode === 'timeout') {
     return await new Promise((_, reject) => {

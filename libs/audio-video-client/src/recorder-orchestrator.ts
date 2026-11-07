@@ -896,6 +896,7 @@ export async function publishFinalRender(
   const idempotencyKey = `media-render-v1-${identityDigest}`;
   let uploadId: string | undefined;
   let completionStarted = false;
+  let chunkDispatchAwaitingAck = false;
   try {
     if (signal?.aborted) {
       return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before canonical artifact creation" };
@@ -960,8 +961,10 @@ export async function publishFinalRender(
       // session object while handling the request, so never compare against
       // that same mutable reference after awaiting the chunk effect.
       const dispatchedSession = JSON.parse(JSON.stringify(session)) as CanonicalMediaUploadSessionObservation;
+      chunkDispatchAwaitingAck = true;
       const acknowledgedSession = await artifactClient.uploadPart(session, chunkIndex,
         new Blob([bytes.slice(offset, end)], { type: "application/octet-stream" }), { signal });
+      chunkDispatchAwaitingAck = false;
       if (!acknowledgedSession || acknowledgedSession.status !== "OPEN"
         || !sameUploadSessionIdentity(acknowledgedSession, dispatchedSession)
         || acknowledgedSession.bytesReceived !== end
@@ -992,7 +995,7 @@ export async function publishFinalRender(
     return { outcome: "PUBLISHED", artifact, sha256 };
   } catch (error) {
     if (completionStarted) return { outcome: "OUTCOME_UNKNOWN", reason: "canonical completion acknowledgement is missing; read upload/artifact state before replay", uploadId };
-    if (error instanceof MediaOperationAmbiguousError) return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement is missing; read upload state before replay", uploadId };
+    if (chunkDispatchAwaitingAck || error instanceof MediaOperationAmbiguousError) return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement is missing; read upload state before replay", uploadId };
     if (uploadId) return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "upload failed before canonical artifact completion; session is left for canonical recovery/expiry", uploadId };
     return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload creation outcome is unknown" };
   }

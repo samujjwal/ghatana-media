@@ -328,6 +328,28 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     });
   });
 
+  it('omits a whitespace-padded correlation identifier instead of changing its identity', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-correlation-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(command('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-not-found',
+        GHATANA_MEDIA_CLI_TEST_CORRELATION_ID: ' corr-not-found ',
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      const output = JSON.parse(result.stderr);
+      expect(output.code).toBe('ARTIFACT_NOT_FOUND');
+      expect(output).not.toHaveProperty('correlationId');
+      expect(result.stdout + result.stderr).not.toContain(token);
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(1);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('rejects missing/unknown arguments, missing token, and untrusted HTTP endpoints before dispatch', async () => {
     let requests = 0;
     await withServer((_request, response) => {
