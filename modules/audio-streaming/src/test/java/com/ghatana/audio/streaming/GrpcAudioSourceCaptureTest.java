@@ -232,6 +232,21 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void highestLegalFrameDoesNotDispatchEosOutsideCanonicalSequenceRange() {
+        FakePort port = new FakePort();
+        port.lastAck = AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER - 1L;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(
+                frame(10, AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER, "source@v7")), true));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
+        assertThat(port.eosCalls).isZero();
+    }
+
+    @Test
     void exactSourceVersionIsRequiredForEveryFrame() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(frame(10, 0, "source@v8")), false));

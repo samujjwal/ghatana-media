@@ -204,6 +204,10 @@ public final class GrpcAudioSourceCapture {
                     accepted == 0 ? "source batch made no contiguous progress" : "");
         }
         long eosMediaSequence = nextMedia + accepted;
+        if (eosMediaSequence > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
+            return new Result(Disposition.UNKNOWN, accepted, lastCursor,
+                    "canonical sequence is exhausted before EOS");
+        }
         Readback eosReadback = readback(request, expectedSourceCursor, eosMediaSequence);
         if (!admitted(eosReadback, request, expectedSourceCursor, eosMediaSequence)) {
             return blocked(eosReadback, accepted, lastCursor);

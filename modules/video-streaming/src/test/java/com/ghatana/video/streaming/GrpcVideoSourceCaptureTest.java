@@ -234,6 +234,21 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void highestLegalFrameDoesNotDispatchEosOutsideCanonicalSequenceRange() {
+        FakePort port = new FakePort();
+        port.lastAck = VideoStreamSession.MAX_FRAME_SEQUENCE - 1L;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
+                frame(10, VideoStreamSession.MAX_FRAME_SEQUENCE, "video@v3", 20)), true));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isEqualTo(1);
+        assertThat(port.offeredSequences).containsExactly(VideoStreamSession.MAX_FRAME_SEQUENCE);
+        assertThat(port.eosCalls).isZero();
+    }
+
+    @Test
     void exactSourceVersionMustMatchEveryFrame() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v4", 20)), false));
