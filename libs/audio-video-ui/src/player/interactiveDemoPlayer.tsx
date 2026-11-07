@@ -266,6 +266,24 @@ export function InteractiveDemoPlayer({
                   onClick={() => {
                     pauseForNavigation();
                     dispatch({ type: "choose-branch", branchId: branch.id });
+                    // A same-scene branch keeps the keyed video mounted. Reset
+                    // that element as well as reducer state before it can play
+                    // the old position under the newly selected branch.
+                    if (branch.targetSceneId === activeScene.id) {
+                      const video = mediaRef.current;
+                      const target = activeScene.startMs / 1_000;
+                      if (video && isCurrentVideo(video)) {
+                        setPositionedMedia(undefined);
+                        try {
+                          video.currentTime = target;
+                          if (Math.abs(video.currentTime - target) < 0.001 && mediaKey) {
+                            setPositionedMedia({ key: mediaKey, element: video });
+                          }
+                        } catch {
+                          if (isCurrentVideo(video)) failPlayback();
+                        }
+                      }
+                    }
                   }}
                 >
                   {branch.label}
