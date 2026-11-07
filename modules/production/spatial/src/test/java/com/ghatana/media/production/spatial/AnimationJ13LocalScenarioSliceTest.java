@@ -160,6 +160,30 @@ class AnimationJ13LocalScenarioSliceTest {
     }
 
     @Test
+    void glbExportRejectsUnconvertedPositionUnitInsteadOfTreatingItAsMetres() {
+        var metreFrame = GLB_FRAME;
+        var millimetreFrame = new SpatialRigEngine.CoordinateFrame(
+                metreFrame.frameRef(), metreFrame.frameVersionRef(), metreFrame.handedness(),
+                metreFrame.xAxis(), metreFrame.yAxis(), metreFrame.zAxis(),
+                "urn:media:spatial:unit:millimetre:v1", metreFrame.orientationUnitRef());
+        var baseRig = authoredRig();
+        var rig = new SpatialRigEngine.Rig(baseRig.id(), millimetreFrame,
+                baseRig.orientationRepresentation(), baseRig.sourceVersions(), baseRig.bones(),
+                baseRig.tracks(), baseRig.sourceProjectRevisionRef());
+        var checkedSources = new java.util.ArrayList<SpatialRigEngine.SourceVersionRef>();
+
+        assertThatThrownBy(() -> new SpatialRigEngine().exportGlb(rig, source -> {
+            checkedSources.add(source);
+            return SpatialRigEngine.RightsOutcome.ELIGIBLE;
+        }))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.COORDINATE_PROFILE_UNSUPPORTED));
+
+        assertThat(checkedSources).containsExactly(SOURCE);
+    }
+
+    @Test
     void glbPreflightRejectsJointLimitExceededAwayFromKeyframesAndSegmentMidpoint() {
         var limitedRoot = new SpatialRigEngine.Bone("root", null,
                 SpatialRigEngine.LocalTransform.identity(), new SpatialRigEngine.JointConstraint(
