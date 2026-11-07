@@ -92,6 +92,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             MediaAwsPostgresqlRuntimeState anchor = MediaAwsPostgresqlRuntimeState.acquire();
             try {
                 verifyRowPayloadIdentityMismatchFailsBeforePublish();
+                verifyRowPayloadTenantMismatchFailsBeforePublish();
                 verifyConcurrentClaimFencing();
                 verifyExpiredClaimRecovery();
                 verifyExpiredOwnerCannotAcknowledgeWithoutReplacement();
@@ -138,6 +139,53 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
         try (var connection = state.connection(); var delete = connection.prepareStatement(
                 "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
             delete.setString(1, rowEventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyRowPayloadTenantMismatchFailsBeforePublish() throws Exception {
+        String eventId = "media:test:outbox-row-tenant-mismatch";
+        insertEvent(eventId);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_outbox SET tenant_id=? WHERE event_id=?")) {
+            update.setString(1, "tenant-b");
+            update.setString(2, eventId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        AtomicInteger providerEffects = new AtomicInteger();
+        try {
+            assertThat(source.publishPending(publisher(event -> providerEffects.incrementAndGet()), 1).failed())
+                    .isEqualTo(1);
+            assertThat(providerEffects).hasValue(0);
+        } finally {
+            source.close();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT tenant_id,attempts,published_at FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getString("tenant_id")).isEqualTo("tenant-b");
+                assertThat(row.getInt("attempts")).isEqualTo(1);
+                assertThat(row.getObject("published_at")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
             assertThat(delete.executeUpdate()).isEqualTo(1);
         } finally {
             state.release();

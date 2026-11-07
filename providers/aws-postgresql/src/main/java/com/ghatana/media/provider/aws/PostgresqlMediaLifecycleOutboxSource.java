@@ -81,9 +81,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             attempted++;
             try {
                 MediaLifecycleEvent event = state.mapper().readValue(claim.payload(), MediaLifecycleEvent.class);
-                if (!claim.eventId().equals(event.eventId())) {
-                    throw new IllegalStateException("Media lifecycle outbox payload identity does not match its row");
-                }
+                validatePayloadMatchesClaim(claim, event);
                 publisher.publish(event);
                 if (acknowledge(claim)) published++;
                 else failed++;
@@ -147,10 +145,17 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             connection.setAutoCommit(false);
             try {
                 String payload;
+                String tenantId;
+                String aggregateType;
+                String aggregateId;
+                long aggregateVersion;
+                String eventType;
+                String classification;
                 long priorToken;
                 int attempts;
                 try (PreparedStatement query = connection.prepareStatement(
-                        "SELECT payload_json,claim_token,attempts FROM media_processing_lifecycle_outbox "
+                        "SELECT payload_json,tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,"
+                                + "classification,claim_token,attempts FROM media_processing_lifecycle_outbox "
                                 + "WHERE event_id=? AND published_at IS NULL AND dead_lettered_at IS NULL "
                                 + "AND next_attempt_at<=? AND (claim_owner IS NULL OR claim_expires_at IS NULL "
                                 + "OR claim_expires_at<=?) FOR UPDATE SKIP LOCKED")) {
@@ -163,6 +168,12 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                             return null;
                         }
                         payload = row.getString("payload_json");
+                        tenantId = row.getString("tenant_id");
+                        aggregateType = row.getString("aggregate_type");
+                        aggregateId = row.getString("aggregate_id");
+                        aggregateVersion = row.getLong("aggregate_version");
+                        eventType = row.getString("event_type");
+                        classification = row.getString("classification");
                         priorToken = row.getLong("claim_token");
                         attempts = row.getInt("attempts");
                     }
@@ -194,7 +205,8 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                     }
                 }
                 connection.commit();
-                return new Claim(eventId, payload, token, attempts);
+                return new Claim(eventId, payload, tenantId, aggregateType, aggregateId, aggregateVersion,
+                        eventType, classification, token, attempts);
             } catch (SQLException | RuntimeException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;
@@ -202,6 +214,19 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             }
         } catch (SQLException failure) {
             throw new IllegalStateException("Unable to open Media lifecycle claim transaction", failure);
+        }
+    }
+
+    /** The payload is authoritative for publication; denormalized row fields must agree before dispatch. */
+    private static void validatePayloadMatchesClaim(Claim claim, MediaLifecycleEvent event) {
+        if (!claim.eventId().equals(event.eventId())
+                || !claim.tenantId().equals(event.tenantId())
+                || !claim.aggregateType().equals(event.aggregateType())
+                || !claim.aggregateId().equals(event.aggregateId())
+                || claim.aggregateVersion() != event.aggregateVersion()
+                || !claim.eventType().equals(event.eventType())
+                || !claim.classification().equals(event.classification())) {
+            throw new IllegalStateException("Media lifecycle outbox payload identity does not match its row");
         }
     }
 
@@ -305,7 +330,9 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         try { connection.rollback(); } catch (SQLException failure) { original.addSuppressed(failure); }
     }
 
-    private record Claim(String eventId, String payload, long token, int attempts) { }
+    private record Claim(String eventId, String payload, String tenantId, String aggregateType,
+            String aggregateId, long aggregateVersion, String eventType, String classification,
+            long token, int attempts) { }
 
     @Override
     public void close() {
