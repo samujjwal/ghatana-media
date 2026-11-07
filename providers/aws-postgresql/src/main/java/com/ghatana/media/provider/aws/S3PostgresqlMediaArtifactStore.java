@@ -195,7 +195,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         require(uploadId, "uploadId");
         if (chunkIndex < 0) throw new IllegalArgumentException("chunkIndex must not be negative");
         if (bytes == null || bytes.length == 0) throw new IllegalArgumentException("chunk bytes are required");
-        String digest = sha256(bytes);
+        byte[] chunkBytes = snapshotChunk(bytes);
+        String digest = sha256(chunkBytes);
         String objectKey = chunkKey(tenantId, uploadId, chunkIndex);
         // S3 may persist the object and lose the response. Treat the write as potentially
         // durable from the moment it is dispatched so a failed acknowledgement still triggers
@@ -217,7 +218,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 }
                 ChunkRow existing = chunk(connection, tenantId, uploadId, chunkIndex);
                 if (existing != null) {
-                    if (existing.sizeBytes() != bytes.length || !existing.sha256().equals(digest)) {
+                    if (existing.sizeBytes() != chunkBytes.length || !existing.sha256().equals(digest)) {
                         throw new IllegalStateException("Upload chunk index already exists with different content");
                     }
                     connection.commit();
@@ -226,7 +227,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 if (chunkIndex != current.nextChunkIndex()) {
                     throw new IllegalArgumentException("Expected chunk index " + current.nextChunkIndex());
                 }
-                long total = Math.addExact(current.bytesReceived(), bytes.length);
+                long total = Math.addExact(current.bytesReceived(), chunkBytes.length);
                 if (total > current.expectedSizeBytes()) {
                     throw new IllegalArgumentException("Upload exceeds expected size");
                 }
@@ -235,11 +236,11 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 state.s3().putObject(PutObjectRequest.builder()
                                 .bucket(state.bucket())
                                 .key(objectKey)
-                                .contentLength((long) bytes.length)
+                                .contentLength((long) chunkBytes.length)
                                 .serverSideEncryption(ServerSideEncryption.AES256)
                                 .metadata(Map.of("sha256", digest))
                                 .build(),
-                        RequestBody.fromBytes(bytes));
+                        RequestBody.fromBytes(chunkBytes));
                 try (PreparedStatement insert = connection.prepareStatement(
                         "INSERT INTO media_upload_chunks "
                                 + "(tenant_id,upload_id,chunk_index,object_key,size_bytes,sha256,created_at) "
@@ -248,7 +249,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     insert.setString(2, uploadId);
                     insert.setInt(3, chunkIndex);
                     insert.setString(4, objectKey);
-                    insert.setLong(5, bytes.length);
+                    insert.setLong(5, chunkBytes.length);
                     insert.setString(6, digest);
                     insert.setLong(7, System.currentTimeMillis());
                     insert.executeUpdate();
@@ -271,7 +272,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 rollback(connection, failure);
                 if (objectWriteAttempted) {
                     Optional<UploadSession> reconciled = reconcileFailedChunkWrite(
-                            tenantId, uploadId, chunkIndex, objectKey, bytes.length, digest, failure);
+                            tenantId, uploadId, chunkIndex, objectKey, chunkBytes.length, digest, failure);
                     if (reconciled.isPresent()) return reconciled.orElseThrow();
                 }
                 if (failure instanceof RuntimeException runtime) throw runtime;
@@ -280,6 +281,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         } catch (SQLException failure) {
             throw databaseFailure("open Media upload transaction", failure);
         }
+    }
+
+    static byte[] snapshotChunk(byte[] bytes) {
+        return bytes.clone();
     }
 
     @Override
