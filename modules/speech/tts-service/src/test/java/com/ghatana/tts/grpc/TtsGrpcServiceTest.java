@@ -511,6 +511,54 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void fatalFinalAudioCallbackCancelsProviderAndRecordsUnknownBeforeRethrow() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        CountDownLatch fatalObserved = new CountDownLatch(1);
+        AtomicReference<Throwable> fatalFailure = new AtomicReference<>();
+        Thread.UncaughtExceptionHandler previousHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread, failure) -> {
+            fatalFailure.set(failure);
+            fatalObserved.countDown();
+        });
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { throw new AssertionError("fatal final delivery failure"); })
+                .when(observer).onNext(any());
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(sessionCancelled, completion);
+        });
+
+        try {
+            admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+            sinkRef.get().onAudioFormat(monoPcm16Format());
+            sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+            completionRef.get().complete(null);
+
+            assertThat(fatalObserved.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(fatalFailure.get()).isInstanceOf(AssertionError.class)
+                    .hasMessage("fatal final delivery failure");
+            assertThat(sessionCancelled).isTrue();
+            verify(observer, never()).onCompleted();
+            verify(observer, never()).onError(any());
+            Timer unknownResponse = registry.find("media.modality.boundary.duration")
+                    .tag("modality", "tts").tag("boundary", "response").tag("outcome", "unknown").timer();
+            assertThat(unknownResponse).isNotNull();
+            assertThat(unknownResponse.count()).isEqualTo(1);
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(previousHandler);
+        }
+    }
+
+    @Test
     void throwingErrorCallbackStillFinishesOriginalErrorSpan() {
         TraceHarness trace = new TraceHarness();
         TtsGrpcService failClosed = new TtsGrpcService(library, registry, () -> false, () -> false,

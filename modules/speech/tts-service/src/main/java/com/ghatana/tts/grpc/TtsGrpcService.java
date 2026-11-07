@@ -965,6 +965,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                             } else {
                                 recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
                             }
+                        } catch (Error fatalDeliveryFailure) {
+                            requestSessionCancellation.run();
+                            recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                            recordDuration.run();
+                            trace.finishUnknown();
+                            throw fatalDeliveryFailure;
                         } catch (RuntimeException finalDeliveryFailure) {
                             if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
                                 requestSessionCancellation.run();

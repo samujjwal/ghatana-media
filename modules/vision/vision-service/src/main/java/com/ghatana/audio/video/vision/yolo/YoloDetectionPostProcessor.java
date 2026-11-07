@@ -4,6 +4,7 @@ import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.ObjectAttributes;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +21,7 @@ final class YoloDetectionPostProcessor {
         if (raw == null) {
             throw new IllegalArgumentException("YOLO detections are required");
         }
-        if (raw.size() > YoloOutputParser.MAX_BOXES) {
-            throw new IllegalArgumentException("YOLO detection count exceeds the supported bound");
-        }
+        List<YoloOutputParser.Detection> boundedRaw = copyBoundedDetections(raw);
         if (classes == null || classes.isEmpty() || classes.size() > 1000) {
             throw new IllegalArgumentException("A bounded model class mapping is required");
         }
@@ -42,7 +41,7 @@ final class YoloDetectionPostProcessor {
             throw new IllegalArgumentException("Validated image orientation and model provenance are required");
         }
         List<DetectedObject> candidates = new ArrayList<>();
-        for (YoloOutputParser.Detection detection : raw) {
+        for (YoloOutputParser.Detection detection : boundedRaw) {
             validateDetection(detection);
             if (detection.classId() < 0 || detection.classId() >= classes.size()) {
                 throw new IllegalArgumentException("YOLO output class id is not present in the admitted class mapping");
@@ -74,6 +73,23 @@ final class YoloDetectionPostProcessor {
                     .build());
         }
         return suppress(candidates, nmsThreshold);
+    }
+
+    /** Snapshots by actual traversal so a caller cannot bypass the parser bound with a false size. */
+    private static List<YoloOutputParser.Detection> copyBoundedDetections(
+            List<YoloOutputParser.Detection> raw) {
+        if (raw.size() > YoloOutputParser.MAX_BOXES) {
+            throw new IllegalArgumentException("YOLO detection count exceeds the supported bound");
+        }
+        Iterator<YoloOutputParser.Detection> iterator = raw.iterator();
+        List<YoloOutputParser.Detection> snapshot = new ArrayList<>(raw.size());
+        while (snapshot.size() < YoloOutputParser.MAX_BOXES && iterator.hasNext()) {
+            snapshot.add(iterator.next());
+        }
+        if (iterator.hasNext()) {
+            throw new IllegalArgumentException("YOLO detection count exceeds the supported bound");
+        }
+        return snapshot;
     }
 
     private static void validateDetection(YoloOutputParser.Detection detection) {

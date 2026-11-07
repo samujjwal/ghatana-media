@@ -612,13 +612,17 @@ export async function captureWithAdmission(
     } else if (cameraMetadata !== undefined || sourcePresentationTime !== undefined || audioSampleTime !== undefined) {
       throw new TypeError("camera metadata is only valid for camera captures");
     }
-    return {
+    const normalizedFrame: CapturedFrame = {
       sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef, frameClockRef,
       bytes: Uint8Array.from(bytes), capturedAtEpochMillis,
       ...(safeCameraMetadata === undefined ? {} : { cameraMetadata: safeCameraMetadata }),
       ...(safeSourcePresentationTime === undefined ? {} : { sourcePresentationTime: safeSourcePresentationTime }),
       ...(safeAudioSampleTime === undefined ? {} : { audioSampleTime: safeAudioSampleTime }),
     };
+    // CAMERA provenance is an admitted binding across source, permission and
+    // clock domains. Freeze its envelope as well as its nested records so a
+    // consumer cannot relabel that binding after this boundary validated it.
+    return admittedRequest.kind === "CAMERA" ? Object.freeze(normalizedFrame) : normalizedFrame;
   } catch {
     // The adapter has already run. Even a malformed/mismatched response does
     // not prove that the source capture had no effect; collapse it to a

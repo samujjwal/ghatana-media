@@ -1,6 +1,16 @@
 package com.ghatana.audio.video.vision.scenetext;
 
 import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Cancellation;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Box;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Block;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Line;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Page;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ParsedDocument;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ParseRequest;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Provenance;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ProviderCatalog;
+import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ProviderEntry;
 import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Code;
 import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Decision;
 import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.FrameRequest;
@@ -255,6 +265,19 @@ class SceneTextRecognitionServiceTest {
         assertRejected(recognize(), Code.PAGE_SCOPE_UNSUPPORTED);
         parseJson = "{not json";
         assertRejected(recognize(), Code.RESPONSE_INVALID);
+    }
+
+    @Test
+    void consumerRevalidatesGeometryAndConfidenceFromItsClientPort() {
+        DocumentIntelligenceV1 clientWithOutOfCropLine = directClient(
+                new Box(0.9, 0.5, 0.2, 0.25), Optional.of(0.9));
+        DocumentIntelligenceV1 clientWithNonFiniteConfidence = directClient(
+                new Box(0.5, 0.5, 0.25, 0.25), Optional.of(Double.NaN));
+
+        assertRejected(serviceWithClient(clientWithOutOfCropLine)
+                .recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()), Code.RESPONSE_INVALID);
+        assertRejected(serviceWithClient(clientWithNonFiniteConfidence)
+                .recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()), Code.RESPONSE_INVALID);
     }
 
     @Test
@@ -522,6 +545,37 @@ class SceneTextRecognitionServiceTest {
                 DocumentIntelligenceHttpClient.EndpointPolicy.loopback("127.0.0.1"), 4);
         return new SceneTextRecognitionService(Optional.of(client), authority, policy,
                 Optional.of(trustedResolver()), Optional.of(reservation));
+    }
+
+    private static SceneTextRecognitionService serviceWithClient(DocumentIntelligenceV1 client) {
+        OperationIdentityReservation reservation = request -> ReservationDecision.reserved(
+                new DiOperationIdentity(request.candidateDiOperationId(), request.candidateGeneration()));
+        return new SceneTextRecognitionService(Optional.of(client), admitted(), POLICY,
+                Optional.of(trustedResolver()), Optional.of(reservation));
+    }
+
+    private static DocumentIntelligenceV1 directClient(Box lineRegion, Optional<Double> confidence) {
+        return new DocumentIntelligenceV1() {
+            @Override public ProviderCatalog providers(Cancellation cancellation) {
+                return new ProviderCatalog(DocumentIntelligenceV1.PROTOCOL_VERSION,
+                        DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION, List.of(
+                        new ProviderEntry(POLICY.providerRef(), POLICY.providerVersion(),
+                                Optional.of(POLICY.modelRef()), Optional.of(POLICY.modelVersion()),
+                                List.of("image/png"), List.of("en"), "ACCEPTED", true, true)));
+            }
+
+            @Override public ParsedDocument parse(ParseRequest request, Cancellation cancellation) {
+                Provenance provenance = new Provenance(POLICY.providerRef(), POLICY.providerVersion(),
+                        Optional.of(POLICY.modelRef()), Optional.of(POLICY.modelVersion()));
+                Line line = new Line("line-1", "EXIT", lineRegion, confidence, Optional.empty());
+                Block block = new Block("block-1", "text", new Box(0.5, 0.5, 0.25, 0.25), List.of(line));
+                return new ParsedDocument(DocumentIntelligenceV1.PROTOCOL_VERSION,
+                        request.operationId(), POLICY.providerRef(), provenance,
+                        List.of(new Page(1, List.of(block), 0)));
+            }
+
+            @Override public boolean cancel(String operationId, String operationGeneration) { return false; }
+        };
     }
 
     private static Policy policyWithTimeout(long timeoutMs) {

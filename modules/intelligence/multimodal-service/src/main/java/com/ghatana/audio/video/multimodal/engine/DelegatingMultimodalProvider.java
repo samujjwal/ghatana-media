@@ -14,6 +14,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.Monoton
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptIdentity;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptQuery;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
@@ -137,6 +138,32 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
     @Override public String processingRegion() { return "local"; }
     @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+
+    @Override
+    public Optional<ProviderAttemptIdentity> prepareAttemptIdentity(
+            ProcessingJobRequest request,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact artifact,
+            ProviderAttemptContext attempt) {
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(artifact, "artifact");
+        Objects.requireNonNull(attempt, "attempt");
+        if (request.jobType() != JobType.MULTIMODAL
+                || !request.tenantId().equals(attempt.tenantId())
+                || !request.requestId().equals(attempt.requestId())
+                || !request.tenantId().equals(artifact.tenantId())
+                || !request.principalId().equals(artifact.principalId())) {
+            return Optional.empty();
+        }
+        try {
+            if (!MultimodalOperationSpec.from(request).matchesRequest(request, artifact)) {
+                return Optional.empty();
+            }
+        } catch (RuntimeException malformedOrAbsentSpec) {
+            return Optional.empty();
+        }
+        String operationId = operationId(attempt);
+        return Optional.of(new ProviderAttemptIdentity(operationId, digest(operationId + ":attempt-receipt")));
+    }
 
     @Override
     public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
@@ -396,21 +423,28 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             ProcessingContext context,
             ProviderAttemptContext attempt,
             OperationOutcome outcome) {
-        String operationId = "mm:" + attempt.jobId() + ':' + attempt.attemptNumber();
+        String operationId = operationId(attempt);
+        String preparedReceipt = attempt.providerReceiptId();
         return switch (outcome.finality()) {
             case SUCCEEDED, FAILED -> {
                 String provenance = digest(operationId + ':' + outcome.result() + ':' + outcome.failureCode());
                 yield new ProviderSubmission(
                         outcome.finality(), operationId,
-                        digest(operationId + ':' + provenance),
+                        preparedReceipt.isBlank() ? digest(operationId + ':' + provenance) : preparedReceipt,
                         outcome.result(), provenance, Instant.now());
             }
             case NO_EFFECT_PROVEN -> new ProviderSubmission(
                     AttemptFinality.NO_EFFECT_PROVEN, operationId,
-                    digest(operationId + ":no-effect"),
+                    preparedReceipt.isBlank() ? digest(operationId + ":no-effect") : preparedReceipt,
                     Map.of(), digest(operationId), Instant.now());
-            case UNKNOWN -> ProviderSubmission.unknown();
+            case UNKNOWN -> preparedReceipt.isBlank() ? ProviderSubmission.unknown()
+                    : new ProviderSubmission(AttemptFinality.UNKNOWN, operationId, preparedReceipt,
+                            Map.of(), "", Instant.now());
         };
+    }
+
+    private static String operationId(ProviderAttemptContext attempt) {
+        return "mm:" + attempt.jobId() + ':' + attempt.attemptNumber();
     }
 
     private static String boundedCorrelation(String parent, String childKey) {

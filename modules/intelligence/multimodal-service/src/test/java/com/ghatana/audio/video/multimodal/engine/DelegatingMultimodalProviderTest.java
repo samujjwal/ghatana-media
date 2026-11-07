@@ -14,6 +14,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptIdentity;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptQuery;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +37,41 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DelegatingMultimodalProviderTest {
 
     private static final String SHA = "ab".repeat(32);
+
+    @Test
+    void preparedIdentityKeepsUnknownSubmissionAndReadbackBoundToTheSameAttempt() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            ProcessingJobRequest request = request();
+            ProviderAttemptIdentity identity = provider.prepareAttemptIdentity(request, artifact(), attempt())
+                    .orElseThrow();
+            assertThat(identity.providerOperationId()).isEqualTo("mm:job-1:1");
+            assertThat(identity.providerReceiptId()).matches("[0-9a-f]{64}");
+
+            ProviderAttemptContext preparedAttempt = new ProviderAttemptContext(
+                    "tenant-a", "job-1", "req-1", 1, 1, SHA,
+                    identity.providerOperationId(), identity.providerReceiptId());
+            var dispatcher = new FixtureDispatcher().with(JobStatus.OUTCOME_UNKNOWN, Map.of());
+            var submission = provider.processAttempt(context(dispatcher, request), preparedAttempt)
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(submission.providerOperationId()).isEqualTo(identity.providerOperationId());
+            assertThat(submission.providerReceiptId()).isEqualTo(identity.providerReceiptId());
+
+            var query = new ProviderAttemptQuery("tenant-a", "job-1", "req-1", 1, 1, SHA,
+                    provider.providerId(), identity.providerOperationId(), identity.providerReceiptId());
+            var observation = provider.reconcileAttempt(query).get(1, TimeUnit.SECONDS);
+            assertThat(observation.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(observation.providerReceiptId()).isEqualTo(identity.providerReceiptId());
+            assertThat(observation.result()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
 
     @Test
     void completedChildrenProduceSucceededSubmissionWithGroundedObservations() throws Exception {

@@ -309,6 +309,10 @@ public final class SttStreamingLatencyEnhancer {
                 totalBytes += chunk.length;
                 snapshot.add(Arrays.copyOf(chunk, chunk.length));
             }
+            if (chunkCount != snapshot.size()) {
+                throw new IllegalArgumentException(
+                        "STT_STREAM_BATCH_INVALID: chunk count must match the retained audio chunk count");
+            }
             audioChunks = java.util.List.copyOf(snapshot);
         }
 

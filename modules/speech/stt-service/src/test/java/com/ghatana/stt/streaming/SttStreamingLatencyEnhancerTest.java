@@ -114,11 +114,11 @@ class SttStreamingLatencyEnhancerTest {
     @DisplayName("AudioChunkBatch.meetsLatencySla returns true when avg <= 500ms")
     void audioChunkBatchLatencySla() { 
         SttStreamingLatencyEnhancer.AudioChunkBatch batch =
-                new SttStreamingLatencyEnhancer.AudioChunkBatch(List.of(), 0, 0L, 1, 300L); 
+                new SttStreamingLatencyEnhancer.AudioChunkBatch(List.of(), 0, 0L, 0, 300L);
         assertThat(batch.meetsLatencySla()).isTrue(); 
 
         SttStreamingLatencyEnhancer.AudioChunkBatch late =
-                new SttStreamingLatencyEnhancer.AudioChunkBatch(List.of(), 0, 0L, 1, 600L); 
+                new SttStreamingLatencyEnhancer.AudioChunkBatch(List.of(), 0, 0L, 0, 600L);
         assertThat(late.meetsLatencySla()).isFalse(); 
     }
 
@@ -178,6 +178,15 @@ class SttStreamingLatencyEnhancerTest {
                 List.of(new byte[SttStreamingLatencyEnhancer.MAX_ALLOWED_CHUNK_BYTES + 1]), 1, 0, 1, 0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("STT_STREAM_CHUNK_TOO_LARGE");
+    }
+
+    @Test
+    @DisplayName("Public batch constructor rejects chunk counts that disagree with retained chunks")
+    void publicBatchConstructorRequiresExactChunkCount() {
+        assertThatThrownBy(() -> new SttStreamingLatencyEnhancer.AudioChunkBatch(
+                List.of(new byte[] {1}, new byte[] {2}), 1, 0, 1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_BATCH_INVALID");
     }
 
     @Test

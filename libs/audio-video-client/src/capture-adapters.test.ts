@@ -187,6 +187,20 @@ describe("captureWithAdmission", () => {
     expect(Object.isFrozen(frame.sourcePresentationTime)).toBe(true);
   });
 
+  it("freezes the camera frame envelope so admitted source and PTS bindings cannot be relabeled", async () => {
+    const frame = await captureWithAdmission(
+      { check: () => "ADMITTED" }, adapterReturning(cameraFrame()), cameraRequest);
+
+    expect(Object.isFrozen(frame)).toBe(true);
+    expect(Reflect.set(frame as unknown as Record<string, unknown>, "sourceVersionRef", "camera@other:v1"))
+      .toBe(false);
+    expect(Reflect.set(frame as unknown as Record<string, unknown>, "sourcePresentationTime", {
+      disposition: "UNKNOWN", reason: "SOURCE_PTS_NOT_SUPPLIED",
+    })).toBe(false);
+    expect(frame.sourceVersionRef).toBe(cameraRequest.sourceVersionRef);
+    expect(frame.sourcePresentationTime).toMatchObject({ disposition: "KNOWN", presentationTicks: "9000" });
+  });
+
   it("returns sanitized UNKNOWN for malformed camera clock sets and mismatched source PTS", async () => {
     const duplicatedClockDomains = cameraMetadata();
     const mutableMappings = duplicatedClockDomains.clockMappings as unknown as Array<{

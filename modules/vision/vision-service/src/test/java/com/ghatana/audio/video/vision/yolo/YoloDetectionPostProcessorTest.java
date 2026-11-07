@@ -3,7 +3,10 @@ package com.ghatana.audio.video.vision.yolo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.AbstractList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class YoloDetectionPostProcessorTest {
@@ -179,6 +182,34 @@ class YoloDetectionPostProcessorTest {
         assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
                 oversized, CLASSES, transform, 0.5, 1, MODEL))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("count");
+    }
+
+    @Test void boundsActualDetectionIterationWhenCallerUnderreportsItsSize() {
+        var transform = LetterboxTransform.fit(100, 100, 100);
+        var one = new YoloOutputParser.Detection(0, 0.9, 10, 10, 20, 20);
+        List<YoloOutputParser.Detection> actual = java.util.Collections.nCopies(
+                YoloOutputParser.MAX_BOXES + 1, one);
+        AtomicInteger consumed = new AtomicInteger();
+        List<YoloOutputParser.Detection> underreported = new AbstractList<>() {
+            @Override public YoloOutputParser.Detection get(int index) { return actual.get(index); }
+            @Override public int size() { return 1; }
+            @Override public Iterator<YoloOutputParser.Detection> iterator() {
+                Iterator<YoloOutputParser.Detection> delegate = actual.iterator();
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public YoloOutputParser.Detection next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> YoloDetectionPostProcessor.process(
+                underreported, CLASSES, transform, 0.5, 1, MODEL))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("detection count");
+        assertThat(consumed).hasValue(YoloOutputParser.MAX_BOXES);
     }
 
     @Test void boundsWorstCaseNmsComparisonsForManyDisjointDetections() {

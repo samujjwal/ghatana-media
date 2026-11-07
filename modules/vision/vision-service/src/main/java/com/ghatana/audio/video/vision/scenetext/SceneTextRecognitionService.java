@@ -408,10 +408,27 @@ public final class SceneTextRecognitionService {
         List<Observation> observations = new ArrayList<>();
         int ordinal = 0;
         for (DocumentIntelligenceV1.Block block : parsed.pages().get(0).blocks()) {
+            if (block == null || !validBoundedText(block.blockId(), 256)
+                    || !validBoundedText(block.kind(), 256)
+                    || !validNormalizedBox(block.boundingRegion())) {
+                return Rejected.of(Code.RESPONSE_INVALID);
+            }
             for (DocumentIntelligenceV1.Line line : block.lines()) {
+                if (line == null || line.confidence() == null || line.boundingRegion() == null
+                        || !validNormalizedBox(line.boundingRegion())
+                        || line.text() == null || line.text().isEmpty() || line.text().length() > 1_000_000
+                        || !validBoundedText(line.lineId(), 256)
+                        || line.languageTag() == null
+                        || line.languageTag().map(tag -> tag.isEmpty() || tag.length() > 64).orElse(false)) {
+                    return Rejected.of(Code.RESPONSE_INVALID);
+                }
                 if (line.confidence().isEmpty()) return Rejected.of(Code.RESULT_CONFIDENCE_MISSING);
+                double confidence = line.confidence().get();
+                if (!Double.isFinite(confidence) || confidence < 0.0 || confidence > 1.0) {
+                    return Rejected.of(Code.RESPONSE_INVALID);
+                }
                 if (++ordinal > MAX_OBSERVATIONS) return Rejected.of(Code.RESPONSE_INVALID);
-                observations.add(new Observation(line.text(), line.confidence().get(), line.boundingRegion(),
+                observations.add(new Observation(line.text(), confidence, line.boundingRegion(),
                         toFrame(line.boundingRegion(), request), block.blockId(), line.lineId(), ordinal - 1, line.languageTag()));
             }
         }
@@ -426,6 +443,18 @@ public final class SceneTextRecognitionService {
         double frameHeight = request.frameHeight();
         return new Box((roi.x() + crop.x() * roi.width()) / frameWidth, (roi.y() + crop.y() * roi.height()) / frameHeight,
                 crop.width() * roi.width() / frameWidth, crop.height() * roi.height() / frameHeight);
+    }
+
+    private static boolean validNormalizedBox(Box box) {
+        return box != null && Double.isFinite(box.x()) && Double.isFinite(box.y())
+                && Double.isFinite(box.width()) && Double.isFinite(box.height())
+                && box.x() >= 0.0 && box.y() >= 0.0 && box.width() >= 0.0 && box.height() >= 0.0
+                && box.x() <= 1.0 && box.y() <= 1.0 && box.width() <= 1.0 && box.height() <= 1.0
+                && box.x() + box.width() <= 1.0 && box.y() + box.height() <= 1.0;
+    }
+
+    private static boolean validBoundedText(String value, int maximumLength) {
+        return value != null && !value.isEmpty() && value.length() <= maximumLength;
     }
 
     private static boolean valid(FrameRequest request) {
