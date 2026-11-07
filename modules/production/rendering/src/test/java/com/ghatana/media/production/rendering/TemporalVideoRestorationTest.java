@@ -417,6 +417,11 @@ class TemporalVideoRestorationTest {
     @Test
     void referenceMetricsRejectUnavailableOrInvalidValuesMasqueradingAsMeasurements() {
         Psnr unavailablePsnr = new Psnr(MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty());
+        assertThatThrownBy(() -> new Psnr(MetricStatus.MEASURED, java.util.OptionalDouble.of(-0.01)))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("finite and non-negative");
+        assertThat(new Psnr(MetricStatus.MEASURED, java.util.OptionalDouble.of(0.0)).finiteDb().orElseThrow())
+                .isEqualTo(0.0);
         assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.UNAVAILABLE, "reference", "v7", REF_SHA,
                 "RGB8_SAMPLE_PSNR_V1", unavailablePsnr, java.util.OptionalDouble.empty(),
                 java.util.Optional.of(MetricUnavailableReason.REFERENCE_UNAVAILABLE)))

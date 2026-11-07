@@ -381,8 +381,9 @@ public final class TemporalVideoRestoration {
         public Psnr {
             Objects.requireNonNull(status, "status");
             Objects.requireNonNull(finiteDb, "finiteDb");
-            if (status == MetricStatus.MEASURED && (finiteDb.isEmpty() || !Double.isFinite(finiteDb.getAsDouble()))) {
-                throw invalid("measured PSNR must be a finite value");
+            if (status == MetricStatus.MEASURED && (finiteDb.isEmpty() || !Double.isFinite(finiteDb.getAsDouble())
+                    || finiteDb.getAsDouble() < 0.0)) {
+                throw invalid("measured RGB8 PSNR must be finite and non-negative");
             }
             if (status != MetricStatus.MEASURED && finiteDb.isPresent()) {
                 throw invalid("PSNR dB is available only for a finite measured result");
