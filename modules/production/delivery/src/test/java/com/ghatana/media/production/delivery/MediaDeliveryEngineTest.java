@@ -119,6 +119,9 @@ class MediaDeliveryEngineTest {
     void exportRequestAndArtifactIdentityRejectSurroundingWhitespace() {
         byte[] content = bytes(16);
         String digest = MediaCreationContracts.sha256(content);
+        assertThatThrownBy(() -> new Artifact("tenant:1", "\u2003", "version:1", digest, content))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("artifactId must not be blank");
         assertThatThrownBy(() -> new Artifact("tenant:1", " artifact:1", "version:1", digest, content))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("artifactId must not contain surrounding whitespace");

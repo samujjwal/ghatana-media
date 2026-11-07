@@ -656,7 +656,7 @@ public final class MediaDeliveryEngine {
     static String requiredExact(String value, String field) {
         Objects.requireNonNull(value, field);
         String normalized = value.trim();
-        if (normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
+        if (value.isBlank() || normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
         if (!value.equals(normalized)) {
             throw new IllegalArgumentException(field + " must not contain surrounding whitespace");
         }
