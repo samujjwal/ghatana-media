@@ -197,13 +197,16 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         java.util.Objects.requireNonNull(expected, "expected");
         java.util.Objects.requireNonNull(leaseExpiresAt, "leaseExpiresAt");
         requireHash(tokenHash);
-        Instant now = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
         Instant persistedLeaseExpiry = persistedMillis(leaseExpiresAt, "leaseExpiresAt");
         try (Connection connection = state.connection()) {
             boolean originalAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
             try {
-                StreamRow currentRow = read(connection, expected.tenantId(), expected.sessionId(), false);
+                // Serialize renewal with frame/reconnect writes, then sample the owning store's
+                // clock. Sampling before the row lock would let a renewal waiting on another
+                // writer pass an already-expired lease using a stale application timestamp.
+                StreamRow currentRow = read(connection, expected.tenantId(), expected.sessionId(), true);
+                Instant now = currentDatabaseTime(connection);
                 if (currentRow == null || !currentRow.session().equals(expected)) {
                     throw new IllegalStateException("Media stream lease version or ownership changed");
                 }
@@ -213,25 +216,15 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                     throw new SecurityException("Invalid media stream connection token");
                 }
                 validateLeaseRenewal(currentRow.session(), sequenceStart, persistedLeaseExpiry, now);
-                try (PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE media_stream_sessions SET lease_expires_at=?,updated_at=?,version=version+1 "
-                                + "WHERE tenant_id=? AND session_id=? AND principal_id=? AND version=? "
-                                + "AND state IN ('CONNECTED','DEGRADED') AND last_sequence=? "
-                                + "AND in_flight_sequence IS NULL AND finality='NONE' "
-                                + "AND connection_token_hash=? AND lease_expires_at>?")) {
-                    statement.setLong(1, persistedLeaseExpiry.toEpochMilli());
-                    statement.setLong(2, now.toEpochMilli());
-                    statement.setString(3, expected.tenantId());
-                    statement.setString(4, expected.sessionId());
-                    statement.setString(5, expected.principalId());
-                    statement.setLong(6, expected.version());
-                    statement.setLong(7, expected.lastSequence());
-                    statement.setString(8, tokenHash);
-                    statement.setLong(9, now.toEpochMilli());
-                    if (statement.executeUpdate() != 1) {
-                        throw new IllegalStateException("Media stream lease version or ownership changed");
-                    }
-                }
+                StreamSession renewedSession = persistedPrecision(new StreamSession(
+                        expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
+                        expected.providerId(), expected.state(), expected.lastSequence(), expected.bufferedBytes(),
+                        expected.maximumBufferedBytes(), expected.reconnectCount(), persistedLeaseExpiry,
+                        expected.createdAt(), now, expected.closedAt(), expected.metadata(), expected.version() + 1,
+                        expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
+                        expected.inFlightSequence(), expected.inFlightAttemptId()));
+                update(connection, expected, renewedSession, null, null, true, now,
+                        "Expired Media stream lease cannot be renewed");
                 StreamRow renewed = read(connection, expected.tenantId(), expected.sessionId(), false);
                 if (renewed == null) {
                     throw new IllegalStateException("Media stream session disappeared during lease renewal");

@@ -52,6 +52,50 @@ class PostgresqlMediaStreamFrameLeaseExpiryTest {
         delayedFrameMutationIsRejectedAfterLeaseExpiry(true);
     }
 
+    @Test
+    void leaseRenewalBlockedOnRowLockUntilExpiryIsRejected() throws Exception {
+        String bucket = "media-stream-renewal-expiry-" + UUID.randomUUID().toString().replace("-", "");
+        createBucket(bucket);
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+             PostgresqlMediaStreamSessionStore streams = new PostgresqlMediaStreamSessionStore()) {
+            Instant createdAt = Instant.now();
+            Instant leaseExpiry = createdAt.plusSeconds(3);
+            String sessionId = "stream-renewal-expiry-" + UUID.randomUUID();
+            StreamSession opened = streams.create(new StreamSession(
+                    "tenant-renewal-expiry", sessionId, "principal-renewal-expiry", StreamKind.AUDIO,
+                    "provider-renewal-expiry", StreamState.OPEN, -1, 0, 1024, 0,
+                    leaseExpiry, createdAt, createdAt, null, Map.of(), 1), TOKEN_HASH);
+            StreamSession connected = streams.connect(opened, TOKEN_HASH, leaseExpiry);
+
+            try (var blocker = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
+                    POSTGRES.getUsername(), POSTGRES.getPassword())) {
+                blocker.setAutoCommit(false);
+                lockSessionRow(blocker, connected);
+                var executor = Executors.newSingleThreadExecutor();
+                boolean blockerReleased = false;
+                try {
+                    var renewal = executor.submit(() -> streams.renewLease(
+                            connected, TOKEN_HASH, 0, leaseExpiry.plusSeconds(30)));
+                    awaitRenewalBlockedOnRowLock();
+                    long remainingMillis = leaseExpiry.toEpochMilli() - Instant.now().toEpochMilli();
+                    if (remainingMillis > 0) Thread.sleep(remainingMillis + 150);
+                    blocker.commit();
+                    blockerReleased = true;
+
+                    assertThatThrownBy(() -> renewal.get(10, TimeUnit.SECONDS))
+                            .isInstanceOf(ExecutionException.class)
+                            .hasCauseInstanceOf(IllegalStateException.class)
+                            .hasRootCauseMessage("Expired Media stream lease cannot be renewed");
+                    assertThat(streams.find(connected.tenantId(), connected.sessionId())).contains(connected);
+                } finally {
+                    if (!blockerReleased) blocker.rollback();
+                    executor.shutdownNow();
+                    assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+                }
+            }
+        }
+    }
+
     private static void delayedFrameMutationIsRejectedAfterLeaseExpiry(boolean acknowledge) throws Exception {
         String bucket = "media-stream-frame-expiry-" + UUID.randomUUID().toString().replace("-", "");
         createBucket(bucket);
@@ -125,6 +169,27 @@ class PostgresqlMediaStreamFrameLeaseExpiryTest {
             Thread.sleep(20);
         }
         throw new AssertionError("Frame reservation did not block on the held session row lock");
+    }
+
+    private static void awaitRenewalBlockedOnRowLock() throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (System.nanoTime() < deadline) {
+            try (var observer = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
+                    POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var query = observer.prepareStatement("""
+                         SELECT count(*) FROM pg_stat_activity
+                         WHERE datname=current_database() AND state='active' AND wait_event_type='Lock'
+                           AND (query LIKE 'SELECT principal_id,stream_kind,provider_id,state,connection_token_hash,lease_expires_at,%'
+                             OR query LIKE 'UPDATE media_stream_sessions SET lease_expires_at,%'
+                             OR query LIKE 'UPDATE media_stream_sessions SET state=?,lease_expires_at,%')
+                         """);
+                 var rows = query.executeQuery()) {
+                rows.next();
+                if (rows.getLong(1) > 0) return;
+            }
+            Thread.sleep(20);
+        }
+        throw new AssertionError("Lease renewal did not block on the held session row lock");
     }
 
     private static void createBucket(String bucket) {
