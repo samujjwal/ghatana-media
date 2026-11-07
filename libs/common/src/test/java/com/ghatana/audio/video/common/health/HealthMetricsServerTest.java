@@ -71,6 +71,24 @@ class HealthMetricsServerTest {
     }
 
     @Test
+    void registryScrapeFailureReturnsGenericUnavailableWithoutDetails() throws Exception {
+        String marker = "tenant-private-registry-token";
+        HealthMetricsServer server = new HealthMetricsServer(
+                "test-service", () -> true, () -> { throw new IllegalStateException(marker); },
+                0, 1, 1, 1);
+        server.start();
+        try {
+            HttpResponse<String> response = get(server.getPort(), "/metrics");
+
+            assertThat(response.statusCode()).isEqualTo(503);
+            assertThat(response.body()).isEqualTo("{\"service\":\"test-service\",\"status\":\"METRICS_UNAVAILABLE\"}");
+            assertThat(response.body()).doesNotContain(marker);
+        } finally {
+            server.close();
+        }
+    }
+
+    @Test
     void repeatedStartDoesNotLoseTheLiveServerHandle() throws Exception {
         HealthMetricsServer server = new HealthMetricsServer(
                 "test-service", () -> true, () -> "", 0, 1, 1, 1);
