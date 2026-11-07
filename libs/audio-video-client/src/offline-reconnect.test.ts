@@ -204,6 +204,35 @@ describe("OfflineReconnectCoordinator", () => {
     expect(applyCount).toBe(0);
   });
 
+  it("keeps wrong-tenant authorization unknown across queue recreation, then recovers safely", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    const wrongTenant = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async () => ({ ...scope, tenantId: "tenant-other", disposition: "AUTHORIZED" }),
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(wrongTenant.status).toBe("RECONNECTED");
+    if (wrongTenant.status === "RECONNECTED") {
+      expect(wrongTenant.results[0]?.state).toBe("AUTHORIZATION_UNKNOWN");
+    }
+    expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+
+    const restartedQueue = await queue();
+    const recovered = await new OfflineReconnectCoordinator(restartedQueue, scope, operations({
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(recovered.status).toBe("RECONNECTED");
+    if (recovered.status === "RECONNECTED") {
+      expect(recovered.results[0]).toMatchObject({ state: "APPLIED", receipt: "receipt:idem-a" });
+    }
+    expect(applyCount).toBe(1);
+    expect((await restartedQueue.readEdits(scope))[0]?.state).toBe("APPLIED");
+  });
+
   it("detects version conflict and supports explicit rebase with a fresh idempotency key", async () => {
     const q = await queue();
     await q.enqueue(edit);

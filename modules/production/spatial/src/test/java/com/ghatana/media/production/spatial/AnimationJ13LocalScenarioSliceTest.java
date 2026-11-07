@@ -136,6 +136,30 @@ class AnimationJ13LocalScenarioSliceTest {
     }
 
     @Test
+    void unknownRightsForSecondExactSourceBlockMultiSourceGlbExport() {
+        var engine = new SpatialRigEngine();
+        var baseRig = authoredRig();
+        var secondSource = new SpatialRigEngine.SourceVersionRef(
+                "tenant-j13", "reference-source", "reference-source:v2");
+        var rig = new SpatialRigEngine.Rig(baseRig.id(), baseRig.coordinateFrame(),
+                baseRig.orientationRepresentation(), List.of(SOURCE, secondSource), baseRig.bones(),
+                baseRig.tracks(), baseRig.sourceProjectRevisionRef());
+        var checkedSources = new java.util.ArrayList<SpatialRigEngine.SourceVersionRef>();
+
+        assertThatThrownBy(() -> engine.exportGlb(rig, source -> {
+            checkedSources.add(source);
+            return source.equals(SOURCE)
+                    ? SpatialRigEngine.RightsOutcome.ELIGIBLE
+                    : SpatialRigEngine.RightsOutcome.UNKNOWN;
+        }))
+                .isInstanceOf(SpatialRigEngine.SourceRightsDeniedException.class)
+                .satisfies(failure -> assertThat(((SpatialRigEngine.SourceRightsDeniedException) failure).outcome())
+                        .isEqualTo(SpatialRigEngine.RightsOutcome.UNKNOWN));
+
+        assertThat(checkedSources).containsExactly(SOURCE, secondSource);
+    }
+
+    @Test
     void glbPreflightRejectsJointLimitExceededAwayFromKeyframesAndSegmentMidpoint() {
         var limitedRoot = new SpatialRigEngine.Bone("root", null,
                 SpatialRigEngine.LocalTransform.identity(), new SpatialRigEngine.JointConstraint(

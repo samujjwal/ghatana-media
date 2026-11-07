@@ -384,6 +384,24 @@ class MediaLauncherSttProcessIT {
             assertThat(replayed.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
             assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
             assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
+
+            // Reusing the durable request identity with a changed provider selection is a
+            // conflict, not a retry or a new chance to dispatch after the ambiguous outcome.
+            String changedReplayBody = jobBody.replace(
+                    MediaLauncherProcessFixtures.BLOCKING_PROVIDER_ID,
+                    MediaLauncherProcessFixtures.FALLBACK_PROVIDER_ID);
+            HttpResponse<String> changedReplay = sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/jobs", changedReplayBody, "application/json", null);
+            assertThat(changedReplay.statusCode()).as(changedReplay.body()).isEqualTo(409);
+
+            JsonNode stillUnknownAfterConflict = JSON.readTree(sendAuthenticated(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId, "", "application/json", null).body());
+            assertThat(stillUnknownAfterConflict.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(stillUnknownAfterConflict.path("failureCode").asText())
+                    .isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
             assertThat(Files.exists(fallbackMarker)).isFalse();
         } finally {
             try {

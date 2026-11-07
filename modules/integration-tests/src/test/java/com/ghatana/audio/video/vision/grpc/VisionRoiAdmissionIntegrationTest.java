@@ -125,6 +125,44 @@ class VisionRoiAdmissionIntegrationTest {
         assertThat(providerCalls).hasValue(0);
     }
 
+    @Test
+    @DisplayName("caller-asserted stale frame version cannot authorize ROI detector dispatch")
+    void unboundSourceFrameVersionDoesNotReachDetector() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        VisionDetector detector = new VisionDetector() {
+            @Override
+            public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                    byte[] imageData, DetectionOptions options) {
+                providerCalls.incrementAndGet();
+                return List.of();
+            }
+
+            @Override
+            public boolean isInitialized() {
+                return true;
+            }
+        };
+        VisionGrpcService service = new VisionGrpcService(detector, null);
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(png(4, 3)))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(1).setY(1).setWidth(2).setHeight(2)
+                        // A non-empty caller claim is not bound to an owner source/frame here.
+                        .setSourceFrameVersion("stale-source-frame-v6"))
+                .build();
+        CapturingObserver observer = new CapturingObserver();
+
+        withTenant("tenant-j05", () -> service.detectObjects(request, observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(failure.getStatus().getDescription()).contains("ROI detection is not admitted");
+        assertThat(observer.responses).isZero();
+        assertThat(observer.completed).isFalse();
+        assertThat(providerCalls).hasValue(0);
+    }
+
     private static void withTenant(String tenantId, Runnable action) {
         Context.current().withValue(JwtServerInterceptor.CTX_TENANT, tenantId).run(action);
     }

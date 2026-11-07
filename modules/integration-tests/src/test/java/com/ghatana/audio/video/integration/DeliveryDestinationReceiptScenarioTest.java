@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static com.ghatana.media.production.delivery.MediaDeliveryEngine.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Source-free J-22 protocol scenarios. The destination and authorization are fixture ports only;
@@ -38,6 +39,31 @@ class DeliveryDestinationReceiptScenarioTest {
                 .isNotEqualTo(Status.DESTINATION_CONFIRMED);
         assertThat(destination.sendCount).isEqualTo(1);
         assertThat(destination.reconcileCount).isEqualTo(1);
+    }
+
+    @Test
+    void revokedAuthorizationBeforeDispatchRecordsNoDestinationEffect() {
+        byte[] content = new byte[] { 0x12, 0x34, 0x56 };
+        ExportRequest request = request(content, "request-revoked-before-dispatch");
+        FixtureDestination destination = new FixtureDestination(false, false);
+        ClaimCapableFixtureStore operations = new ClaimCapableFixtureStore();
+        AuthorizationPort revokedAuthorization = new AuthorizationPort() {
+            @Override public TransferAuthorization authorize(ExportRequest export) {
+                return new TransferAuthorization("fixture-revoked-grant", export.tenantId(), export.principalId(),
+                        export.requestId(), export.artifact().artifactId(), export.artifact().versionRef(),
+                        export.artifact().digest(), export.destinationRef(), NOW.plusSeconds(60));
+            }
+            @Override public Boolean isCurrent(TransferAuthorization grant, Instant now) { return Boolean.FALSE; }
+        };
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(revokedAuthorization, destination, () -> NOW, operations);
+
+        assertThatThrownBy(() -> engine.export(request))
+                .isInstanceOfSatisfying(DeliveryException.class, error ->
+                        assertThat(error.code()).isEqualTo(DeliveryException.Code.AUTHORIZATION_DENIED));
+        assertThat(engine.find(request.tenantId(), request.requestId()).orElseThrow().status()).isEqualTo(Status.REVOKED);
+        assertThat(operations.find(request.tenantId(), request.requestId()).orElseThrow().status()).isEqualTo(Status.REVOKED);
+        assertThat(destination.sendCount).isZero();
+        assertThat(destination.reconcileCount).isZero();
     }
 
     @Test

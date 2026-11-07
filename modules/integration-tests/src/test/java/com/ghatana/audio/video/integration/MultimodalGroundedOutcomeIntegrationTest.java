@@ -1,10 +1,12 @@
 package com.ghatana.audio.video.integration;
 
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcService;
 import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
 import com.ghatana.audio.video.multimodal.grpc.proto.CrossModalRequest;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -25,6 +27,8 @@ import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Source-free J-06 journey guard: a bound cross-modal request cannot produce a
@@ -41,6 +45,8 @@ class MultimodalGroundedOutcomeIntegrationTest {
     private Server server;
     private ManagedChannel channel;
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub client;
+    private MultimodalGrpcService service;
+    private MediaProcessingRuntimePort runtimePort;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -49,7 +55,8 @@ class MultimodalGroundedOutcomeIntegrationTest {
         System.setProperty("AV_JWT_SECRET", JWT_SECRET);
         System.setProperty("AUTH_GATEWAY_URL", "");
 
-        MultimodalGrpcService service = new MultimodalGrpcService();
+        runtimePort = mock(MediaProcessingRuntimePort.class);
+        service = new MultimodalGrpcService(MediaProcessingMetrics.noop(), runtimePort);
         String name = InProcessServerBuilder.generateName();
         server = InProcessServerBuilder.forName(name)
                 .directExecutor()
@@ -70,6 +77,7 @@ class MultimodalGroundedOutcomeIntegrationTest {
     void tearDown() {
         if (channel != null) channel.shutdownNow();
         if (server != null) server.shutdownNow();
+        if (service != null) service.close();
         restoreProperty("AV_JWT_SECRET", previousSecret);
         restoreProperty("AUTH_GATEWAY_URL", previousAuthGatewayUrl);
     }
@@ -101,6 +109,38 @@ class MultimodalGroundedOutcomeIntegrationTest {
                     assertThat(rpcFailure.getStatus().getDescription())
                             .contains("Trusted artifact rights, purpose, and consent authority is not configured");
                 });
+        verifyNoInteractions(runtimePort);
+    }
+
+    @Test
+    void unknownSourceClockAndRightsCannotCompleteParentOrDispatchChildren() {
+        CrossModalRequest request = CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x15, 0x26}))
+                .setVideoData(ByteString.copyFrom(new byte[] {0x37, 0x48}))
+                // The public request has a window but no source clock/PTS binding, so its
+                // temporal coordinates remain unknown; caller-declared version is not authority.
+                .setAnalysisWindowMs(1_000)
+                .setOperationBinding(CanonicalOperationBinding.newBuilder()
+                        .setCapabilityRef("media.multimodal.analyze.cross-modal")
+                        .setOperationRef("media.operation.capability.media-multimodal-analyze-cross-modal")
+                        .setOperationVersion(1)
+                        .setRequestId("j06-unknown-clock-request")
+                        .setSourceArtifactId("j06-source-artifact")
+                        .setSourceVersionId("v1")
+                        .setPurpose("j06-unknown-clock-integration-test")
+                        .setCorrelationId("j06-unknown-clock-correlation")
+                        .build())
+                .build();
+
+        assertThatThrownBy(() -> client.analyzeCrossModal(request))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(failure -> {
+                    StatusRuntimeException rpcFailure = (StatusRuntimeException) failure;
+                    assertThat(rpcFailure.getStatus().getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                    assertThat(rpcFailure.getStatus().getDescription())
+                            .contains("Trusted artifact rights, purpose, and consent authority is not configured");
+                });
+        verifyNoInteractions(runtimePort);
     }
 
     private static String signedJwt() throws Exception {

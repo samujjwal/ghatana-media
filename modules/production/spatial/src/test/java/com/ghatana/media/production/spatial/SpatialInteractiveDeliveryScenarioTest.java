@@ -84,6 +84,17 @@ class SpatialInteractiveDeliveryScenarioTest {
         exposedBytes[0] = 0;
         assertThat(candidate.bytes()[0]).isEqualTo((byte) 'g');
         assertThat(candidate.sha256()).isEqualTo(candidateSha256(candidate.bytes()));
+
+        byte[] malformedEnvelope = candidate.bytes();
+        ByteBuffer.wrap(malformedEnvelope).order(ByteOrder.LITTLE_ENDIAN)
+                .putInt(8, malformedEnvelope.length - 4);
+        String recomputedDigest = candidateSha256(malformedEnvelope);
+        assertThatThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                candidate.rigId(), candidate.sourceProjectRevisionRef(), candidate.frameRef(),
+                candidate.frameVersionRef(), candidate.sourceVersions(), candidate.mimeType(),
+                candidate.timeEncoding(), candidate.lossDisposition(), recomputedDigest, malformedEnvelope))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("GLB header is invalid");
     }
 
     @Test

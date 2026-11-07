@@ -108,6 +108,36 @@ class TtsAuthorizedVoiceSynthesisScenarioTest {
         verifyNoInteractions(engine);
     }
 
+    @Test
+    void unqualifiedProfileReturnsUnavailableWithoutAudioOrModelLookup() throws Exception {
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + jwt(TENANT, PRINCIPAL));
+        TTSServiceGrpc.TTSServiceStub client = TTSServiceGrpc.newStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+        List<SynthesizeResponse> responses = new ArrayList<>();
+        List<Throwable> errors = new ArrayList<>();
+
+        client.synthesize(SynthesizeRequest.newBuilder()
+                        .setText("J-04 unqualified profile fixture input")
+                        .setProfileId("unqualified-fixture-profile")
+                        .setOptions(SynthesisOptions.newBuilder().setLanguage("en-US").build())
+                        .build(), new StreamObserver<>() {
+                    @Override public void onNext(SynthesizeResponse response) { responses.add(response); }
+                    @Override public void onError(Throwable error) { errors.add(error); }
+                    @Override public void onCompleted() { }
+                });
+
+        assertThat(responses).isEmpty();
+        assertThat(errors).singleElement().satisfies(error -> {
+            io.grpc.Status status = io.grpc.Status.fromThrowable(error);
+            assertThat(status.getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+            assertThat(status.getDescription()).contains("TTS_VOICE_AUTH_NOT_ADMITTED");
+        });
+        verify(library, never()).getTtsEngine();
+        verifyNoInteractions(engine);
+    }
+
     private static String jwt(String tenant, String principal) throws Exception {
         String header = Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(StandardCharsets.UTF_8));
