@@ -370,7 +370,9 @@ public final class TemporalVideoRestoration {
             double maximumAbsoluteSum = (double) changedSamples * maximumAbsoluteChange;
             double minimumMean = minimumAbsoluteSum / comparedSamples;
             double maximumMean = maximumAbsoluteSum / comparedSamples;
-            if (meanAbsoluteChange < minimumMean || meanAbsoluteChange > maximumAbsoluteChange
+            if (changedSamples == 0 && (maximumAbsoluteChange != 0 || meanAbsoluteChange != 0.0)
+                    || changedSamples > 0 && maximumAbsoluteChange == 0
+                    || meanAbsoluteChange < minimumMean || meanAbsoluteChange > maximumAbsoluteChange
                     || meanAbsoluteChange > maximumMean) {
                 throw invalid("source A/B delta fields are numerically inconsistent");
             }

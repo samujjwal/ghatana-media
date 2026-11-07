@@ -732,6 +732,10 @@ class TemporalVideoRestorationTest {
 
     @Test
     void sourceDeltaRejectsNumericallyInconsistentSummaryFields() {
+        assertThatThrownBy(() -> new SourceDelta(9, 0, 0.0, 1))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
+        assertThatThrownBy(() -> new SourceDelta(9, 1, 0.0, 0))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
         assertThatThrownBy(() -> new SourceDelta(9, 1, 0.0, 1))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
         assertThatThrownBy(() -> new SourceDelta(9, 3, 0.1, 1))
@@ -746,6 +750,7 @@ class TemporalVideoRestorationTest {
         assertThat(new SourceDelta(9, 3, 1.0 / 3.0, 1).meanAbsoluteChange()).isEqualTo(1.0 / 3.0);
         assertThat(new SourceDelta(9, 3, 5.0 / 9.0, 3).meanAbsoluteChange()).isEqualTo(5.0 / 9.0);
         assertThat(new SourceDelta(9, 1, 255.0 / 9.0, 255).maximumAbsoluteChange()).isEqualTo(255);
+        assertThat(new SourceDelta(9, 0, 0.0, 0).maximumAbsoluteChange()).isZero();
     }
 
     private static CandidateFrame candidateFrame(int index, long pts, Roi roi, byte[] pixels) {
