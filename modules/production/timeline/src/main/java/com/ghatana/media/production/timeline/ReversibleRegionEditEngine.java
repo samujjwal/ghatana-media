@@ -418,6 +418,10 @@ public final class ReversibleRegionEditEngine {
                     || !regionId.equals(evidence.regionId())) {
                 throw new IllegalArgumentException("revision must preserve exact source and region evidence identity");
             }
+            if (evidence.samples().isEmpty()) {
+                throw new IllegalArgumentException("revision must retain non-empty tracked-region evidence");
+            }
+            validateSamples(evidence.samples().get(0).sourcePts().timebase(), evidence);
         }
     }
 

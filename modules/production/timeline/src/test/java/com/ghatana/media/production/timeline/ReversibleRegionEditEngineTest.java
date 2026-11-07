@@ -177,6 +177,26 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void revisionRejectsMixedSourcePresentationTimebases() {
+        MediaTimebase otherTimebase = new MediaTimebase(30_000, 1);
+        ReversibleRegionEditEngine.TrackingEvidence mixedClockEvidence = evidence(List.of(
+                bboxSample(0, .1, .1, 0),
+                new ReversibleRegionEditEngine.TrackedSample(
+                        new MediaTimebase.Timestamp(otherTimebase, 1_000, ClockDomain.SOURCE),
+                        "source-normalized-frame-v1", "source-normalized-frame-v1",
+                        new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .1, .15, .12)),
+                        new ReversibleRegionEditEngine.BoxShape(new NormalizedBox(.1, .1, .15, .12)),
+                        ReversibleRegionEditEngine.AffineTransform.identity())));
+
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditRevision(
+                OWNER.tenantId(), OWNER.principalId(), "project-region", "r1", "r0", "plan-1",
+                SOURCE, DIGEST, "local-region-edit", "region-1", mixedClockEvidence,
+                state("snapshot", "edit", "value"), null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact source presentation clock");
+    }
+
+    @Test
     void undoRestoresByteExactPriorMetadataOnlyForMatchingTargetAndIsIdempotent() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.EditSnapshot before = new ReversibleRegionEditEngine.EditSnapshot(
