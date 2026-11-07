@@ -204,6 +204,26 @@ describe("OfflineReconnectCoordinator", () => {
     expect(applyCount).toBe(0);
   });
 
+  it("keeps wrong-project version readback unknown without authorizing or applying the edit", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let authorizationReads = 0;
+    let applyCount = 0;
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      readProjectVersion: async () => ({ ...scope, projectId: "project-other", disposition: "CURRENT", version: "revision-7" }),
+      reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(result.status).toBe("RECONNECTED");
+    if (result.status === "RECONNECTED") {
+      expect(result.results).toEqual([{ editId: edit.editId, state: "VERSION_UNKNOWN" }]);
+    }
+    expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
+    expect(authorizationReads).toBe(0);
+    expect(applyCount).toBe(0);
+  });
+
   it("keeps wrong-tenant authorization unknown across queue recreation, then recovers safely", async () => {
     const q = await queue();
     await q.enqueue(edit);
