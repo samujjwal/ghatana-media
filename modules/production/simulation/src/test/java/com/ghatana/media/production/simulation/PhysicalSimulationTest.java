@@ -121,6 +121,41 @@ class PhysicalSimulationTest {
     }
 
     @Test
+    void terminalObservationDoesNotSkipUnintegratedSubUlpRemainder() {
+        var model = new PhysicalSimulation.ConstantForce(
+                m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),
+                m(6, PhysicalSimulation.Unit.NEWTON, 0, PhysicalSimulation.Unit.NEWTON));
+        double maximumStep = Math.nextDown(2.0);
+        var policy = new PhysicalSimulation.SolverPolicy(q(2, PhysicalSimulation.Unit.SECOND),
+                q(maximumStep, PhysicalSimulation.Unit.SECOND), q(1e-5, PhysicalSimulation.Unit.SECOND),
+                q(1e-8, PhysicalSimulation.Unit.METER), q(1e-8, PhysicalSimulation.Unit.METER_PER_SECOND),
+                100, 100);
+
+        var result = PhysicalSimulation.simulate(model, origin(), policy);
+
+        assertThat(result.solverIterations()).isEqualTo(2);
+        assertThat(result.acceptedSteps()).isEqualTo(4);
+        assertThat(result.observations().get(1).timeSeconds()).isEqualTo(maximumStep);
+        assertThat(result.observations().getLast().timeSeconds()).isEqualTo(2.0);
+    }
+
+    @Test
+    void underIntegratedStepCannotRoundUpToTheRequestedHorizon() {
+        double duration = 1.0;
+        double current = Math.nextDown(duration);
+        double remaining = duration - current;
+        double underStep = Math.nextDown(remaining);
+
+        assertThat(underStep).isLessThan(remaining);
+        assertThat(current + underStep).isEqualTo(duration);
+        assertThatThrownBy(() -> PhysicalSimulation.advanceAcceptedTime(current, underStep, duration, false))
+                .isInstanceOf(PhysicalSimulation.SolverLimitException.class)
+                .hasMessageContaining("cannot resolve the remaining horizon");
+        assertThat(PhysicalSimulation.advanceAcceptedTime(current, remaining, duration, true))
+                .isEqualTo(duration);
+    }
+
+    @Test
     void publicResultRejectsCountersThatDisagreeWithAcceptedTrace() {
         var model = new PhysicalSimulation.ConstantForce(
                 m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),

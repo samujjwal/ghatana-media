@@ -369,8 +369,10 @@ public final class PhysicalSimulation {
             if (++iterations > policy.maxIterations()) {
                 throw new SolverLimitException("solver exhausted maxIterations before reaching requested duration");
             }
-            step = Math.min(step, Math.min(maxStep, duration - time));
-            if (step < minStep && duration - time > Math.ulp(duration) * 4) {
+            double remaining = duration - time;
+            step = Math.min(step, Math.min(maxStep, remaining));
+            boolean reachesHorizon = step == remaining;
+            if (step < minStep && !reachesHorizon) {
                 throw new SolverLimitException("required solver step fell below configured minStep");
             }
 
@@ -387,8 +389,7 @@ public final class PhysicalSimulation {
                     throw new SolverLimitException("solver exhausted maxAcceptedSteps before reaching requested duration");
                 }
                 state = twoHalf;
-                time += step;
-                if (duration - time <= Math.ulp(duration) * 4) time = duration;
+                time = advanceAcceptedTime(time, step, duration, reachesHorizon);
                 acceptedSteps += 2;
                 observations.add(observe(model, initial, state, time, mass, force, spring, equilibrium));
             }
@@ -399,6 +400,15 @@ public final class PhysicalSimulation {
         }
         return new Result(observations, acceptedSteps, iterations, lastErrorRatio, true,
                 "DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+    }
+
+    static double advanceAcceptedTime(double time, double step, double duration, boolean reachesHorizon) {
+        if (reachesHorizon) return duration;
+        double nextTime = time + step;
+        if (!(nextTime > time) || nextTime >= duration) {
+            throw new SolverLimitException("solver step cannot resolve the remaining horizon at current precision");
+        }
+        return nextTime;
     }
 
     private static State verlet(State state, double step, java.util.function.DoubleUnaryOperator acceleration) {
