@@ -75,9 +75,9 @@ test("Product Definition local invariant check covers all phase denominators", (
   });
 
   assert.match(output, /Media Product Definition local check passed/u);
-  assert.match(output, /462 historical PDP-0 capability leaves/u);
-  assert.match(output, /19 intents and 462 owner adjudications remain canonical/u);
-  assert.match(output, /AUD-SPEC-020 is checked as a separate campaign extension/u);
+  assert.match(output, /469 current PDP-0 capability definitions/u);
+  assert.match(output, /462 historical owner adjudications remain canonical/u);
+  assert.match(output, /AUD-SPEC-020 remains a separate campaign extension/u);
   assert.match(output, /31 PDP-2 components/u);
   assert.match(output, /47 PDP-3 screen contracts/u);
   assert.match(output, /28 baseline plus J-29\/J-30 extensions/u);
@@ -88,7 +88,7 @@ test("Product Definition local invariant check covers all phase denominators", (
   assert.match(output, /Tools Product Definition\/Experience validation and lifecycle currentness outputs are not bound in this checkout/u);
 });
 
-test("AUD-SPEC-020 channel crosswalk is complete, surface-bound, proposal-only, and preserves the 54 identity denominator", () => {
+test("AUD-SPEC-020 channel crosswalk is complete, surface-bound, proposal-only, and preserves the current 56 identity denominator", () => {
   const omittedApi = checkWithCampaignSourceMutation((source) => source.replace(
     /\n            - channelRef: media\.channel\.api\n[\s\S]*?(?=\n            - channelRef: media\.channel\.embedded)/u,
     "",
@@ -97,8 +97,8 @@ test("AUD-SPEC-020 channel crosswalk is complete, surface-bound, proposal-only, 
   assert.match(omittedApi.stderr, /AUD-SPEC-020 must resolve exactly eight proposed channels and three scoped N\/A channels/u);
 
   const unknownSurface = checkWithCampaignSourceMutation((source) => source.replace(
-    "physicalSurfaceRefs: [media.physical.libs-audio-video-ui]",
-    "physicalSurfaceRefs: [media.physical.new-rule-engine]",
+    /(physicalSurfaceRefs:\n[ \t]+)- media\.physical\.libs-audio-video-ui/u,
+    "$1- media.physical.new-rule-engine",
   ));
   assert.notEqual(unknownSurface.status, 0, "invented physical identity must fail");
   assert.match(unknownSurface.stderr, /AUD-SPEC-020 .*must crosswalk exactly to its current registered surface identities/u);
@@ -111,8 +111,8 @@ test("AUD-SPEC-020 channel crosswalk is complete, surface-bound, proposal-only, 
     },
     ".product-experience/surfaces/media-physical-topology.v1.json",
   );
-  assert.notEqual(newSurfaceDenominator.status, 0, "new physical identity must not silently change the 54-surface denominator");
-  assert.match(newSurfaceDenominator.stderr, /AUD-SPEC-020 surface crosswalk must preserve the exact 54-identity PDP-0 denominator/u);
+  assert.notEqual(newSurfaceDenominator.status, 0, "new physical identity must not silently change the 56-identity current denominator");
+  assert.match(newSurfaceDenominator.stderr, /AUD-SPEC-020 surface crosswalk must preserve the exact 56-identity current denominator \(28 physical, 7 composite, 21 logical\)/u);
 
   const promoted = checkWithCampaignSourceMutation((source) => source.replace(
     "disposition: PROPOSED_APPLICABLE",

@@ -27,33 +27,36 @@ channelDefinitionEvidence:
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity/resultSchema
     - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/unknownOutcome
   sourceGroundedInputs: P1 generation request binds requestId, text-or-video intent (including only source-declared text/locale/constraints), exact image artifactId/versionId, and required output width/height, rational frameRate, durationMilliseconds, and outputProfileRef. These controls are the defined request parameters; no unlisted control or condition is inferred.
-  sourceGroundedResult: Generation envelope carries outcome/observedAt/outputs/provenance/implementationState/qualificationState/runtimeAvailability; successful output is candidate-video-artifact-with-execution-provenance with jobId and optional attemptId/evidenceRef. The schema does not provide the candidate artifactId/versionId needed to bind a later assessment, and dispatch/receipt alone is not a completed generated version.
+  sourceGroundedResult: Generation envelope carries outcome/observedAt/outputs/provenance/implementationState/qualificationState/runtimeAvailability; successful output is candidate-video-artifact-with-execution-provenance with the exact generated jobId/artifactId/versionId tuple, distinct sourceLineage, and optional attemptId/evidenceRef. Geometry-continuity assessment accepts the exact candidate artifactId/versionId, but its successful observation output carries only that observation artifact's own artifactId/versionId; the result does not define a candidate subject tuple or same-result binding back to the submitted candidate. Dispatch/receipt alone is not a completed generated version.
   blockedSemantics:
     - Journey-selected references/conditions/controls are not each mapped to explicit request fields beyond the exact source image, authored intent text/constraints, and listed output parameters; unresolved or unsupported controls remain pending/UNKNOWN rather than silently substituted.
-    - Geometry-continuity assessment is a separate operation requiring an exact candidate video version, exact applicable reference/measurement context version, requested dimensions, and requestId. P1 does not expose a generated output version in the generation result or define a generation-to-assessment same-version join; that join therefore remains UNKNOWN/pending and no result can be claimed for it.
-    - Assessment results are source-bound to their submitted candidate version and retain declared quality-observation output/provenance; missing, stale, partial, or unavailable observations remain UNKNOWN/partial. Assessment is not proof that each generation condition was met.
+    - Geometry-continuity assessment is a separate operation requiring an exact candidate video version, exact applicable reference/measurement context version, requested dimensions, and requestId. P1 now exposes the generated output tuple, but does not bind the successful observation output to that exact submitted candidate tuple; the candidate-to-observation join therefore remains UNKNOWN/pending and no continuity result can be claimed.
+    - The assessment result schema identifies the immutable quality-observation artifact but has no explicit candidate subject or cross-field rule tying it to input1. Missing, stale, partial, mismatched, or unavailable candidate binding remains UNKNOWN. Assessment is not proof that each generation condition was met.
     - Identity continuity remains observational and is not identity proof. AI unavailability, unsupported controls, denial, or uncertain finality cannot imply a generated result or an authorized fallback.
     - Web remains UNBOUND and NOT_ADMITTED; no channel transport or runtime equivalence is asserted.
   unknownAndDenied: Preserve missing/partial/stale geometry, identity drift, unsupported controls, AI unavailability, denied requests and ambiguous finality as scoped UNKNOWN/abstention/denial; no retry or fallback is inferred.
 sourceGap:
   id: MDC30-C-10-candidate-version-to-continuity-result-join
-  status: PDP1_PREDECESSOR_CONTRACT_GAP; UNKNOWN_NOT_ADMITTED
+  status: PDP1_RESULT_BINDING_GAP; UNKNOWN_NOT_ADMITTED
   missingOwnerDefinition: >-
-    P0 requires every continuity observation to bind to the exact generated
-    candidate artifact/version. The P1 generation result currently identifies
-    a jobId but does not return candidate artifactId/versionId. The separate
-    output-preview lineage query resolves an exact artifact version but accepts
-    only that version as subject and does not bind it to the generation jobId.
-    No exact same-job candidate-version join is defined. Keep continuity
-    assessment UNKNOWN until an owner-defined result or observation provides
-    that join; do not infer a candidate version from dispatch, a job ID, a
-    preview locator, or source lineage alone.
+    P0 and PXD-197 require every continuity observation to bind to the exact
+    generated candidate artifact/version. P1 now returns the generated
+    candidate jobId/artifactId/versionId tuple and keeps sourceLineage distinct.
+    The geometry-continuity request accepts the exact candidate artifactId and
+    versionId, but its successful result and typed observation output identify
+    only the observation artifact; they define no candidate subject tuple or
+    result binding back to the submitted candidate. Keep continuity assessment
+    UNKNOWN until P1 defines that durable candidate-to-observation join; do not
+    infer it from dispatch, an observation artifact identity, optional
+    sourceRef, or provenance alone.
   sourceRefs:
     - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10/completion
-    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.candidate-video-artifact-with-execution-provenance
-    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/resultSchema
-    - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.output-preview-version-lineage.v1/bindingRules
-  boundary: No candidate continuity result or candidate-version identity is claimed until the exact generation-job/output-version join is source-defined; channel transport and runtime admission remain NOT_ADMITTED.
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.source-derived-candidate-video-with-lineage
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity/requestSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-video-video-assess-geometry-continuity/resultSchema
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.video-quality-observations-by-applicable-dimension
+  boundary: The generation result now exposes the exact candidate tuple, but no candidate continuity result is claimed until the observation is durably bound to that tuple; channel transport and runtime admission remain NOT_ADMITTED.
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; CHANNEL_TRANSPORT_UNBOUND; RUNTIME_NOT_ADMITTED
   sourceRefs:
