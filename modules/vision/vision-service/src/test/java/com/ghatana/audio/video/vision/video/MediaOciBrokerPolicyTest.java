@@ -219,6 +219,27 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
+    void stalledBrokerResponsePeerCannotPinTheSerializedSocketHandler() throws Exception {
+        Path socketPath = root.resolve("stalled-response.sock");
+        try (ServerSocketChannel server = ServerSocketChannel.open(StandardProtocolFamily.UNIX)) {
+            server.bind(UnixDomainSocketAddress.of(socketPath));
+            try (SocketChannel client = SocketChannel.open(StandardProtocolFamily.UNIX)) {
+                client.connect(UnixDomainSocketAddress.of(socketPath));
+                try (SocketChannel accepted = server.accept()) {
+                    accepted.configureBlocking(false);
+                    // Leave the client unread and exceed the tiny receive window. The production
+                    // handler uses the same nonblocking channel state after reading a request.
+                    assertThatThrownBy(() -> MediaOciBrokerDaemon.writeJsonFrame(
+                            accepted, "x".repeat(4 * 1024 * 1024), 4 * 1024 * 1024,
+                            Duration.ofMillis(50)))
+                            .isInstanceOf(java.io.IOException.class)
+                            .hasMessageContaining("write deadline");
+                }
+            }
+        }
+    }
+
+    @Test
     void brokerSocketRequiresOwnedSetgidParentAndExactPeerGroupMode() throws Exception {
         Path parent = Files.createDirectory(root.resolve("broker-socket"));
         long peerGid = gidOf(parent);

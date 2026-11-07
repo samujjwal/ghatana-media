@@ -73,6 +73,7 @@ public final class MediaOciBrokerDaemon {
     private static final int MAX_FFMPEG_REQUEST_BYTES = 64 * 1024;
     private static final int MAX_REQUEST_BYTES = 8 * 1024 * 1024;
     private static final Duration READ_DEADLINE = Duration.ofSeconds(10);
+    private static final Duration WRITE_DEADLINE = Duration.ofSeconds(10);
     private static final int OUTPUT_TAIL = 8192;
     private static final int MAX_CAPTURED_OUTPUT_CHARS = 1_000_000;
     private static final int PREFLIGHT_FAILURE_EXIT_CODE = 125;
@@ -1335,15 +1336,42 @@ public final class MediaOciBrokerDaemon {
                 MAX_WORKER_RESPONSE_BYTES);
     }
 
-    private static void writeJsonFrame(SocketChannel channel, String frame, int maximumBytes)
+    static void writeJsonFrame(SocketChannel channel, String frame, int maximumBytes)
+            throws IOException {
+        writeJsonFrame(channel, frame, maximumBytes, WRITE_DEADLINE);
+    }
+
+    static void writeJsonFrame(SocketChannel channel, String frame, int maximumBytes, Duration deadline)
             throws IOException {
         byte[] bytes = frame.getBytes(StandardCharsets.UTF_8);
         if (bytes.length > maximumBytes) throw new IOException("Broker response exceeds its manifest byte limit");
+        if (deadline == null || deadline.isNegative() || deadline.isZero()) {
+            throw new IOException("Broker response write deadline must be positive");
+        }
+        long timeoutNanos;
+        try {
+            timeoutNanos = deadline.toNanos();
+        } catch (ArithmeticException unrepresentable) {
+            throw new IOException("Broker response write deadline is outside the supported range", unrepresentable);
+        }
         ByteBuffer out = ByteBuffer.allocate(4 + bytes.length);
         out.putInt(bytes.length);
         out.put(bytes);
         out.flip();
-        while (out.hasRemaining()) channel.write(out);
+        long startedAt = System.nanoTime();
+        while (out.hasRemaining()) {
+            if (System.nanoTime() - startedAt >= timeoutNanos) {
+                throw new IOException("Broker response write deadline exceeded");
+            }
+            if (channel.write(out) == 0) {
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while writing broker response", interrupted);
+                }
+            }
+        }
     }
 
     /** Extracts a raw nested object value ({...}) with balanced braces. */
