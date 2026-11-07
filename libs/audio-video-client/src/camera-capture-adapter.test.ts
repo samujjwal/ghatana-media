@@ -258,6 +258,19 @@ describe("CameraCaptureAdapter", () => {
     expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
   });
 
+  it("rejects an oversized browser device buffer before codec work", async () => {
+    let encodeCalls = 0;
+    const h = browserHarness({
+      read: async () => new Uint8Array(64 * 1024 * 1024 + 1),
+      encode: async (bytes) => { encodeCalls++; return { bytes }; },
+    });
+    const session = await h.adapter.openSession(request);
+
+    await expectCode(session.nextFrame(), "FRAME_INVALID");
+    expect(encodeCalls).toBe(0);
+    expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });
+  });
+
   it("preserves DENIED and UNKNOWN host permission changes during a read", async () => {
     for (const [permission, code] of [["DENIED", "PERMISSION_DENIED"], ["UNKNOWN", "PERMISSION_UNKNOWN"]] as const) {
       let readStarted: (() => void) | undefined;

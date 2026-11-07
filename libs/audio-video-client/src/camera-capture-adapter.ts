@@ -240,8 +240,11 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
           }
           if (hostPermissionFailure) throw hostPermissionFailure;
           if (raw === null) return null;
-          if (!(raw instanceof Uint8Array) || raw.byteLength === 0) {
-            throw fail("FRAME_INVALID", "browser camera returned an empty frame");
+          if (!(raw instanceof Uint8Array) || raw.byteLength === 0 || raw.byteLength > MAX_CAPTURED_FRAME_BYTES) {
+            // Enforce the host frame ceiling before codec work can duplicate or
+            // expand an untrusted device buffer. The session applies its
+            // configured (possibly tighter) bound to the encoded result too.
+            throw fail("FRAME_INVALID", "browser camera frame is empty or exceeds its byte bound");
           }
           let encoded: CameraFrameRead;
           try {
