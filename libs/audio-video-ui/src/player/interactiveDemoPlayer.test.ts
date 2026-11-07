@@ -369,7 +369,7 @@ describe("interactive demo player", () => {
     expect(html).toContain('<button type="button"');
     expect(html).toContain('<input type="range"');
     expect(html).toContain("Simulated demonstration");
-    expect(html).not.toContain("tabindex=\"-1\"");
+    expect(html).toContain('tabindex="-1"');
     expect(html).toContain('<video aria-label="Media for Introduction"');
     expect(html).toContain('src="/assets/intro.mp4"');
     expect(html).not.toContain("<iframe");
@@ -408,6 +408,7 @@ describe("interactive demo player", () => {
     fireEvent.click(screen.getByRole("button", { name: "Explore left path; continue to Left path" }));
     expect(screen.getByRole("group", { name: "Left path" })).toBeTruthy();
     expect(screen.getByRole("slider", { name: "Seek within Left path" })).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByText("Left path"));
     expect(screen.getByRole("status").textContent).toContain("Showing Left path.");
     playMock.mockRestore();
   });

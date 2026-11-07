@@ -185,6 +185,36 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void cachedRefreshRejectsDurableRowReturnedForAnotherRequestId() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(16));
+        InMemoryDeliveryOperationStore backing = new InMemoryDeliveryOperationStore();
+        AtomicBoolean returnMismatchedRequest = new AtomicBoolean();
+        DeliveryOperationStore store = new DeliveryOperationStore() {
+            @Override public Optional<Operation> find(String tenantId, String requestId) {
+                Optional<Operation> stored = backing.find(tenantId, requestId);
+                if (!returnMismatchedRequest.get() || stored.isEmpty()) return stored;
+                Operation row = stored.get();
+                return Optional.of(new Operation(row.tenantId(), row.principalId(), "request:other",
+                        row.artifactId(), row.versionRef(), row.artifactDigest(), row.destinationRef(),
+                        row.requestFingerprint(), row.status(), row.acknowledgedBytes(), row.destinationReceiptRef()));
+            }
+            @Override public boolean insertIfAbsent(Operation operation) { return backing.insertIfAbsent(operation); }
+            @Override public boolean update(Operation operation) { return backing.update(operation); }
+        };
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, store);
+
+        assertThat(engine.export(request).status()).isEqualTo(Status.UNAVAILABLE);
+        returnMismatchedRequest.set(true);
+
+        assertThatThrownBy(() -> engine.find(request.tenantId(), request.requestId()))
+                .isInstanceOf(DeliveryException.class)
+                .extracting(error -> ((DeliveryException) error).code())
+                .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+        assertThat(f.destination.sendCount).isZero();
+    }
+
+    @Test
     void durableReadbackCannotClaimMoreBytesThanTheImmutableArtifactContains() {
         Fixture f = new Fixture();
         ExportRequest request = f.request(bytes(16));

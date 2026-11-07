@@ -568,6 +568,7 @@ public final class MediaDeliveryEngine {
         if (!stored.requestFingerprint().equals(entry.fingerprint)
                 || !stored.tenantId().equals(entry.request.tenantId())
                 || !stored.principalId().equals(entry.request.principalId())
+                || !stored.requestId().equals(entry.request.requestId())
                 || !stored.artifactId().equals(entry.request.artifact().artifactId())
                 || !stored.versionRef().equals(entry.request.artifact().versionRef())
                 || !stored.artifactDigest().equals(entry.request.artifact().digest())

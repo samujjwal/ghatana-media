@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createDemoPlayerState,
   demoCaptionAt,
@@ -42,11 +42,19 @@ export function InteractiveDemoPlayer({
   const [state, setState] = useState(verifiedState);
   const [positionedMedia, setPositionedMedia] = useState<PositionedMedia>();
   const mediaRef = useRef<HTMLVideoElement>(null);
+  const sceneLabelRef = useRef<HTMLParagraphElement>(null);
   const stopAtSceneBoundary = useRef(false);
   const viewState = verifiedState.status === "READY" && state.trustBinding === verifiedState.trustBinding
     ? state
     : verifiedState;
+  const previousSceneId = useRef(viewState.activeSceneId);
   const activeScene = manifest.scenes.find((scene) => scene.id === viewState.activeSceneId);
+  useEffect(() => {
+    if (previousSceneId.current !== viewState.activeSceneId) {
+      previousSceneId.current = viewState.activeSceneId;
+      if (viewState.status === "READY") sceneLabelRef.current?.focus();
+    }
+  }, [viewState.activeSceneId, viewState.status]);
   const mediaKey = activeScene && viewState.trustBinding
     ? `${viewState.trustBinding}:${activeScene.id}:${activeScene.asset.version}`
     : undefined;
@@ -114,7 +122,7 @@ export function InteractiveDemoPlayer({
     <section aria-label={label} className="media-interactive-demo-player" data-demo-status={viewState.status}>
       <p className="media-interactive-demo-player__source" aria-label={`Source: ${sourceLabel}`}>{sourceLabel}</p>
       <div role="group" className="media-interactive-demo-player__scene" aria-label={activeScene?.label ?? "Demonstration scene unavailable"}>
-        <p>{activeScene?.label ?? viewState.announcement}</p>
+        <p ref={sceneLabelRef} tabIndex={-1}>{activeScene?.label ?? viewState.announcement}</p>
         {activeScene && (
           <p
             lang={activeScene.captions.language}
