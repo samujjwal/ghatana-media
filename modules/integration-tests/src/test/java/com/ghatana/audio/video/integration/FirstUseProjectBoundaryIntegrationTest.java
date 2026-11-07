@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.integration;
 
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
+import static com.ghatana.media.runtime.MediaProjectTimelineContracts.Created;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.IdempotencyConflictException;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
@@ -15,6 +16,10 @@ import com.ghatana.media.production.timeline.ProjectTimelineEngine;
 import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddScene;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,6 +72,41 @@ class FirstUseProjectBoundaryIntegrationTest {
         assertThat(replay.initialRevision().graph().scenes()).isEmpty();
         assertThat(engine.project(CREATOR, first.project().projectId()).headRevisionId())
                 .isEqualTo(first.initialRevision().revisionId());
+    }
+
+    @Test
+    void concurrentExactCreateReplayReturnsOneProjectAndOneCreationReceipt() throws Exception {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-concurrent-create-id-" + ids.incrementAndGet());
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+
+        try (ExecutorService workers = Executors.newFixedThreadPool(2)) {
+            Future<Created> first = workers.submit(() -> {
+                ready.countDown();
+                start.await();
+                return engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-concurrent-create-request");
+            });
+            Future<Created> second = workers.submit(() -> {
+                ready.countDown();
+                start.await();
+                return engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-concurrent-create-request");
+            });
+
+            ready.await();
+            start.countDown();
+            var firstResult = first.get();
+            var secondResult = second.get();
+
+            assertThat(List.of(firstResult, secondResult).stream().filter(Created::createdNow))
+                    .hasSize(1);
+            assertThat(firstResult.project().projectId()).isEqualTo(secondResult.project().projectId());
+            assertThat(firstResult.initialRevision()).isEqualTo(secondResult.initialRevision());
+            assertThat(engine.project(CREATOR, firstResult.project().projectId()).headRevisionId())
+                    .isEqualTo(firstResult.initialRevision().revisionId());
+        }
     }
 
     @Test
