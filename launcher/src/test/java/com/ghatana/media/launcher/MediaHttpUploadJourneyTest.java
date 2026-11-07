@@ -73,6 +73,17 @@ class MediaHttpUploadJourneyTest {
             assertThat(firstAccepted.statusCode()).as(firstAccepted.body()).isEqualTo(200);
             assertThat(JSON.readTree(firstAccepted.body()).path("bytesReceived").asLong()).isEqualTo(first.length);
 
+            HttpResponse<String> foreignAppend = send(firstBase, "PUT",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/chunks/1", second,
+                    "different-principal", Set.of("media:artifact:write"), "application/octet-stream", null);
+            assertThat(foreignAppend.statusCode()).isEqualTo(404);
+            assertThat(foreignAppend.body()).doesNotContain(uploadId);
+            HttpResponse<String> afterForeignAppend = send(firstBase, "GET",
+                    "/api/v1/artifacts/uploads/" + uploadId, new byte[0], PRINCIPAL,
+                    Set.of("media:artifact:read"), null, null);
+            assertThat(JSON.readTree(afterForeignAppend.body()).path("bytesReceived").asLong()).isEqualTo(first.length);
+            assertThat(JSON.readTree(afterForeignAppend.body()).path("nextChunkIndex").asInt()).isEqualTo(1);
+
             HttpResponse<String> foreignRead = send(firstBase, "GET",
                     "/api/v1/artifacts/uploads/" + uploadId, "".getBytes(StandardCharsets.UTF_8),
                     "different-principal", Set.of("media:artifact:read"), null, null);
