@@ -561,12 +561,19 @@ public class MultimodalAnalysisEngine implements AutoCloseable {
         if (audio == null || audio.isError() || timestamp == null || !timestamp.isKnown()) return "";
         List<AudioResult.TimedSegment> segments = audio.getTimedSegments();
         if (segments == null || segments.isEmpty()) return "";
+        String matchedText = null;
         for (AudioResult.TimedSegment segment : segments) {
             if (TemporalAlignment.isWithinClockWindow(timestamp, segment.getStartTime(), segment.getEndTime())) {
-                return segment.getText();
+                if (matchedText != null && !matchedText.equals(segment.getText())) {
+                    // Inclusive segment boundaries can associate one frame with adjacent
+                    // transcript claims. Do not pick one arbitrarily when the source data
+                    // leaves that instant ambiguous.
+                    return "";
+                }
+                matchedText = segment.getText();
             }
         }
-        return "";
+        return matchedText == null ? "" : matchedText;
     }
 
     private String buildNarrative(AudioResult audio, VisualResult video,

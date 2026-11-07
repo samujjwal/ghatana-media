@@ -347,6 +347,29 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("Conflicting transcript claims at an inclusive segment boundary abstain")
+    void conflictingTranscriptBoundaryDoesNotSelectFirstClaim() {
+        AudioResult audio = AudioResult.builder().transcription("left right")
+                .timedSegments(List.of(
+                        new AudioResult.TimedSegment(0, 1_000, "left"),
+                        new AudioResult.TimedSegment(1_000, 2_000, "right")))
+                .build();
+        VisualResult video = VisualResult.builder().frameResults(List.of(
+                new FrameResult(1, 1_000, List.of())))
+                .build();
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gatewayWithDecodedAudio(audio, VisualResult.error("unused"), video),
+                AudioVideoRuntimeSettings.defaults())) {
+            VideoAudioResult result = runPromise(() -> Promise.of(
+                    engine.analyseVideoWithAudio(new byte[] {1}, true, true, 1)));
+
+            assertEquals("", result.getTemporalAlignments().getFirst().getSpeechText());
+            assertFalse(result.getTemporalAlignments().getFirst().hasSyncMeasurement());
+        }
+    }
+
+    @Test
     @DisplayName("Should keep unavailable synchronization unknown for positive and negative timestamp offsets")
     void shouldKeepUnmeasuredTimestampOffsetsUndetermined() {
         List<AudioResult.TimedSegment> segments = List.of(
