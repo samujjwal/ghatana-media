@@ -67,7 +67,8 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         AtomicBoolean replayAuthority = new AtomicBoolean(true);
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get());
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
+                        && mapsToEnvelopeActor(principal, identity));
         ToolHandler configuredProvider = (envelope, contract) -> {
             providerCalls.incrementAndGet();
             return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
@@ -77,8 +78,10 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         ToolHandler handlerWithoutAdmission = new SpeechToTextToolHandler(configuredProvider);
         ToolExecutionEnvelope original = envelope("tenant-agent", "agent-1");
         ToolContract contract = contract(original);
+        AuthenticatedPrincipal authorized = authenticatedHostPrincipal(original);
 
-        ToolExecutionResult notAdmitted = runPromise(() -> binder.execute(handlerWithoutAdmission, original, contract));
+        ToolExecutionResult notAdmitted = runPromise(() -> binder.execute(
+                handlerWithoutAdmission, original, contract, authorized));
         assertThat(notAdmitted.status()).isEqualTo(ToolExecutionStatus.FAILED);
         assertThat(notAdmitted.failure().kind()).isEqualTo(
                 com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
@@ -87,15 +90,13 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         assertThat(notAdmitted.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         assertThat(notAdmitted.output()).isNull();
 
-        AuthenticatedPrincipal authorized = new AuthenticatedPrincipal(
-                original.tenantId(), original.callerAgentId(), Instant.now());
         ToolExecutionResult replay = runPromise(() -> binder.execute(
                 handlerWithoutAdmission, original, contract, authorized));
         assertThat(replay).isSameAs(notAdmitted);
 
         ToolExecutionEnvelope wrongTenant = sameInvocation(original, "other-tenant", original.callerAgentId());
         assertThatThrownBy(() -> runPromise(() -> binder.execute(
-                handlerWithoutAdmission, wrongTenant, contract(wrongTenant))))
+                handlerWithoutAdmission, wrongTenant, contract(wrongTenant), authenticatedHostPrincipal(wrongTenant))))
                 .isInstanceOf(MediaToolExecutionBinder.InvocationIdentityConflictException.class);
 
         replayAuthority.set(false); // Host authorization was revoked after the recorded result.
@@ -120,7 +121,8 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         AtomicInteger providerCalls = new AtomicInteger();
         AtomicBoolean replayAuthority = new AtomicBoolean(true);
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get());
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
+                        && mapsToEnvelopeActor(principal, identity));
         ToolHandler configuredProvider = (envelope, contract) -> {
             providerCalls.incrementAndGet();
             return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
@@ -147,8 +149,10 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         for (HandlerCase tool : cases) {
             ToolExecutionEnvelope original = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
             ToolContract contract = contract(original);
+            AuthenticatedPrincipal authenticated = authenticatedHostPrincipal(original);
 
-            ToolExecutionResult notAdmitted = runPromise(() -> binder.execute(tool.handler(), original, contract));
+            ToolExecutionResult notAdmitted = runPromise(() -> binder.execute(
+                    tool.handler(), original, contract, authenticated));
             assertThat(notAdmitted.status()).as(tool.toolId()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(notAdmitted.failure().kind()).as(tool.toolId()).isEqualTo(
                     com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
@@ -157,15 +161,13 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
             assertThat(notAdmitted.failure().code()).as(tool.toolId()).isEqualTo(tool.unavailableCode());
             assertThat(notAdmitted.output()).as(tool.toolId()).isNull();
 
-            AuthenticatedPrincipal authenticated = new AuthenticatedPrincipal(
-                    original.tenantId(), original.callerAgentId(), Instant.now());
             ToolExecutionResult replay = runPromise(() -> binder.execute(
                     tool.handler(), original, contract, authenticated));
             assertThat(replay).as(tool.toolId()).isSameAs(notAdmitted);
 
             ToolExecutionEnvelope wrongTenant = sameInvocation(original, "tenant-other-j25", original.callerAgentId());
             assertThatThrownBy(() -> runPromise(() -> binder.execute(
-                    tool.handler(), wrongTenant, contract(wrongTenant))))
+                    tool.handler(), wrongTenant, contract(wrongTenant), authenticatedHostPrincipal(wrongTenant))))
                     .as(tool.toolId()).isInstanceOf(MediaToolExecutionBinder.InvocationIdentityConflictException.class);
         }
 
@@ -178,7 +180,8 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         AtomicBoolean replayAuthority = new AtomicBoolean(true);
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get());
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
+                        && mapsToEnvelopeActor(principal, identity));
         ToolHandler configuredProvider = (envelope, contract) -> {
             providerCalls.incrementAndGet();
             return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
@@ -205,10 +208,10 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         for (HandlerCase tool : cases) {
             ToolExecutionEnvelope envelope = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
             ToolContract contract = contract(envelope);
-            AuthenticatedPrincipal authenticated = new AuthenticatedPrincipal(
-                    envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+            AuthenticatedPrincipal authenticated = authenticatedHostPrincipal(envelope);
 
-            ToolExecutionResult denied = runPromise(() -> binder.execute(tool.handler(), envelope, contract));
+            ToolExecutionResult denied = runPromise(() -> binder.execute(
+                    tool.handler(), envelope, contract, authenticated));
             replayAuthority.set(false);
             assertThatThrownBy(() -> runPromise(() -> binder.execute(
                     tool.handler(), envelope, contract, authenticated)))
@@ -229,7 +232,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
     }
 
     @Test
-    void allFourUnadmittedToolsFailClosedWhenFreshReplayAuthorizationIsUnavailable() {
+    void allFourUnadmittedToolsDoNotClaimOrDispatchWhenHostAuthorizationIsUnavailable() {
         Ledger ledger = new Ledger();
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
@@ -262,15 +265,11 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         for (HandlerCase tool : cases) {
             ToolExecutionEnvelope envelope = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
             ToolContract contract = contract(envelope);
-            ToolExecutionResult original = runPromise(() -> binder.execute(tool.handler(), envelope, contract));
-            assertThat(original.failure().code()).as(tool.toolId()).isEqualTo(tool.unavailableCode());
-
-            AuthenticatedPrincipal freshPrincipal = new AuthenticatedPrincipal(
-                    envelope.tenantId(), envelope.callerAgentId(), Instant.now());
             assertThatThrownBy(() -> runPromise(() -> binder.execute(
-                    tool.handler(), envelope, contract, freshPrincipal)))
+                    tool.handler(), envelope, contract, authenticatedHostPrincipal(envelope))))
                     .as(tool.toolId())
                     .isInstanceOf(MediaToolExecutionBinder.InvocationReplayDeniedException.class);
+            assertThat(ledger.find(envelope.invocationId())).as(tool.toolId()).isEmpty();
         }
 
         assertThat(providerCalls).hasValue(0);
@@ -280,6 +279,17 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         return envelope(SpeechToTextToolHandler.TOOL_ID,
                 Map.of("audioSource", Map.of("mediaArtifactId", "source-v1"), "languageCode", "en-US"),
                 tenantId, callerAgentId);
+    }
+
+    /** Test-only host ingress identity; the separate authorizer still checks its exact actor mapping. */
+    private static AuthenticatedPrincipal authenticatedHostPrincipal(ToolExecutionEnvelope envelope) {
+        return new AuthenticatedPrincipal(envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+    }
+
+    private static boolean mapsToEnvelopeActor(AuthenticatedPrincipal principal,
+            MediaToolExecutionBinder.RequestIdentity identity) {
+        return principal.tenantId().equals(identity.tenantId())
+                && principal.principalId().equals(identity.callerAgentId());
     }
 
     private static ToolExecutionEnvelope envelope(
