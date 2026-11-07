@@ -1,4 +1,6 @@
+// @vitest-environment jsdom
 import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { EmptyState, FileUpload } from "../foundations";
@@ -20,6 +22,151 @@ const data: MediaDataPort = {
 const context = { locale: "en-US" };
 
 describe("Shared control reuse in Media screens", () => {
+  it("announces project dispatch outcomes and prevents duplicate dispatch while pending", async () => {
+    let resolveDispatch: ((value: { status: "denied"; reason: string }) => void) | undefined;
+    const invoke = vi.fn(() => new Promise<{ status: "denied"; reason: string }>((resolve) => { resolveDispatch = resolve; }));
+    const payload = { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "create-1" };
+    const subjectRefs = ["workspace:workspace-1", "project-create:create-1"];
+    render(React.createElement(FirstUseProjectScreen, {
+      data,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true, payload, subjectRefs }],
+      actionPort: { invoke },
+      context,
+      project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: "workspace-1", accessState: "resolved", projects: [], projectNameDraft: "Rough cut" },
+    }));
+
+    expect(screen.getByText("Confirm project creation: “Rough cut” in workspace “Studio”.")).toBeTruthy();
+    const createButton = screen.getByRole("button", { name: "Create project" });
+    fireEvent.click(createButton);
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke).toHaveBeenCalledWith("media.action.create-project", payload, { subjectRefs });
+    expect(screen.getByText(/Requesting project creation; completion remains unknown/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Waiting for project outcome…" }) as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Waiting for project outcome…" }));
+    expect(invoke).toHaveBeenCalledTimes(1);
+
+    resolveDispatch?.({ status: "denied", reason: "Workspace access was revoked." });
+    expect((await screen.findByText("Project creation was denied.")).getAttribute("data-state")).toBe("denied");
+  });
+
+  it("reports an uncertain project request when dispatch throws", async () => {
+    const invoke = vi.fn(async () => { throw new Error("Bearer secret-token from transport detail"); });
+    render(React.createElement(FirstUseProjectScreen, {
+      data,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "create-1" },
+        subjectRefs: ["workspace:workspace-1", "project-create:create-1"] }],
+      actionPort: { invoke },
+      context,
+      project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: "workspace-1", accessState: "resolved", projects: [], projectNameDraft: "Rough cut" },
+    }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Create project" }));
+    expect((await screen.findByText("Request outcome is unknown. Reconcile the exact project request before retrying.")).getAttribute("data-state")).toBe("unknown");
+    expect(screen.queryByText(/Bearer secret-token/)).toBeNull();
+    const button = screen.getByRole("button", { name: "Waiting for project outcome…" }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
+    expect(invoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps an acknowledged project request locked until owner reconciliation", async () => {
+    const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "request-1" }));
+    render(React.createElement(FirstUseProjectScreen, {
+      data,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "request-1" },
+        subjectRefs: ["workspace:workspace-1", "project-create:request-1"] }],
+      actionPort: { invoke },
+      context,
+      project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: "workspace-1", accessState: "resolved", projects: [], projectNameDraft: "Rough cut" },
+    }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Create project" }));
+    expect(await screen.findByText("The project request was acknowledged. Completion remains unobserved.")).toBeTruthy();
+    const button = screen.getByRole("button", { name: "Waiting for project outcome…" }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
+    expect(invoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a mismatched host request identity unknown and locked", async () => {
+    const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "different-request" }));
+    render(React.createElement(FirstUseProjectScreen, {
+      data,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "request-1" },
+        subjectRefs: ["workspace:workspace-1", "project-create:request-1"] }],
+      actionPort: { invoke },
+      context,
+      project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: "workspace-1", accessState: "resolved", projects: [], projectNameDraft: "Rough cut" },
+    }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Create project" }));
+    expect((await screen.findByText("Request outcome is unknown. Reconcile the exact project request before retrying.")).getAttribute("data-state")).toBe("unknown");
+    expect(screen.queryByText("different-request")).toBeNull();
+    expect((screen.getByRole("button", { name: "Waiting for project outcome…" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("keeps create disabled when the host has not supplied the exact owner request", () => {
+    const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "request-1" }));
+    render(React.createElement(FirstUseProjectScreen, {
+      data,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true }],
+      actionPort: { invoke },
+      context,
+      project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: "workspace-1", accessState: "resolved", projects: [], projectNameDraft: "Rough cut" },
+    }));
+
+    const button = screen.getByRole("button", { name: "Create project" }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
+    expect(invoke).not.toHaveBeenCalled();
+    expect(screen.getByText(/exact approved request and reconciliation references/)).toBeTruthy();
+  });
+
+  it("fails closed for a blank title, mismatched workspace, or missing reconciliation subject", () => {
+    const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "request-1" }));
+    const cases = [
+      {
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: " ", requestId: "request-1" },
+        selectedAuthorizedWorkspaceId: "workspace-1",
+        projectNameDraft: " ",
+        subjectRefs: ["workspace:workspace-1", "project-create:request-1"],
+      },
+      {
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "request-1" },
+        selectedAuthorizedWorkspaceId: "workspace-2",
+        projectNameDraft: "Rough cut",
+        subjectRefs: ["workspace:workspace-1", "project-create:request-1"],
+      },
+      {
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "request-1" },
+        selectedAuthorizedWorkspaceId: "workspace-1",
+        projectNameDraft: "Rough cut",
+        subjectRefs: [],
+      },
+    ];
+
+    for (const candidate of cases) {
+      const { unmount } = render(React.createElement(FirstUseProjectScreen, {
+        data,
+        actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+          payload: candidate.payload, subjectRefs: candidate.subjectRefs }],
+        actionPort: { invoke },
+        context,
+        project: { view: "find-projects", workspaceName: "Studio", selectedAuthorizedWorkspaceId: candidate.selectedAuthorizedWorkspaceId,
+          accessState: "resolved", projects: [], projectNameDraft: candidate.projectNameDraft },
+      }));
+
+      expect((screen.getByRole("button", { name: "Create project" }) as HTMLButtonElement).disabled).toBe(true);
+      fireEvent.click(screen.getByRole("button", { name: "Create project" }));
+      expect(invoke).not.toHaveBeenCalled();
+      unmount();
+    }
+  });
+
   it("keeps host-gated workflow steps as native buttons with current-step semantics", () => {
     const onStepSelect = vi.fn();
     const props = {

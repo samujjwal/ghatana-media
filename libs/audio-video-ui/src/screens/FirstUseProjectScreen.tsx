@@ -1,6 +1,9 @@
 import React from "react";
-import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import { MediaTaskScreen, type MediaScreenAction, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 import { EmptyState } from "../foundations";
+import { MediaActionFeedback, type MediaActionFeedbackValue } from "../components/MediaActionFeedback";
+import type { MediaActionDispatchResult } from "../ports";
 
 export type FirstUseProjectView =
   | "authenticate-and-select-context"
@@ -12,6 +15,8 @@ export type FirstUseProjectView =
 export interface FirstUseProjectProjection {
   readonly view: FirstUseProjectView;
   readonly workspaceName?: string;
+  /** Opaque workspace identity from the authenticated host's selected context. */
+  readonly selectedAuthorizedWorkspaceId?: string;
   readonly projectName?: string;
   readonly projectNameDraft?: string;
   readonly projects?: readonly { readonly id: string; readonly name: string; readonly updatedAt?: string }[];
@@ -25,8 +30,72 @@ export interface FirstUseProjectScreenProps extends Omit<MediaTaskScreenProps, "
   readonly onProjectNameDraftChange?: (name: string) => void;
 }
 
+interface CreateProjectRequest {
+  readonly selectedAuthorizedWorkspaceId: string;
+  readonly title: string;
+  readonly requestId: string;
+}
+
+function createProjectRequest(action: MediaScreenAction | undefined): CreateProjectRequest | undefined {
+  if (!action || typeof action !== "object" || !("payload" in action)) return undefined;
+  const payload = action.payload;
+  if (!payload || typeof payload !== "object") return undefined;
+  const keys = Object.keys(payload).sort();
+  if (keys.length !== 3 || keys[0] !== "requestId" || keys[1] !== "selectedAuthorizedWorkspaceId" || keys[2] !== "title") return undefined;
+  const { selectedAuthorizedWorkspaceId, title, requestId } = payload;
+  if (typeof selectedAuthorizedWorkspaceId !== "string" || selectedAuthorizedWorkspaceId.length > 128
+    || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(selectedAuthorizedWorkspaceId)) return undefined;
+  if (typeof title !== "string" || [...title].length > 200 || !/\S/.test(title)) return undefined;
+  if (typeof requestId !== "string" || requestId.length > 128
+    || !/^[A-Za-z0-9][A-Za-z0-9._~:-]*$/.test(requestId)) return undefined;
+  return { selectedAuthorizedWorkspaceId, title, requestId };
+}
+
+function safeCreateFeedback(result: MediaActionDispatchResult): MediaActionFeedbackValue {
+  switch (result.status) {
+    case "intent-accepted":
+      return { state: result.status, message: "The project request was accepted as an intent. Project creation is not confirmed." };
+    case "local-applied":
+      return { state: result.status, message: "The local action was applied. Project creation is not confirmed." };
+    case "request-started":
+      return { state: result.status, message: "The project request started. Completion remains unobserved." };
+    case "request-acknowledged":
+      return { state: result.status, message: "The project request was acknowledged. Completion remains unobserved." };
+    case "denied":
+      return { state: result.status, message: "Project creation was denied." };
+    case "unavailable":
+      return { state: result.status, message: "Project creation is unavailable." };
+    case "failed":
+      return { state: result.status, message: "The project request failed. Reconcile the same request before retrying." };
+  }
+}
+
 /** Candidate J-01 screen body. All identity, access, project and action facts come from the host. */
 export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actions = [], actionPort, ...flow }: FirstUseProjectScreenProps): React.ReactElement {
+  const [createPending, setCreatePending] = React.useState(false);
+  const [createFeedback, setCreateFeedback] = React.useState<MediaActionFeedbackValue | undefined>();
+  const actionPortRef = React.useRef(actionPort);
+  actionPortRef.current = actionPort;
+  const dispatchGuardRef = React.useRef<ReturnType<typeof createMediaActionDispatchGuard> | undefined>(undefined);
+  if (!dispatchGuardRef.current) {
+    dispatchGuardRef.current = createMediaActionDispatchGuard({
+      invoke: async (actionId, payload, context) => {
+        const result = await actionPortRef.current.invoke(actionId, payload, context);
+        if (actionId === "media.action.create-project"
+          && (result.status === "request-started" || result.status === "request-acknowledged")
+          && (typeof payload?.requestId !== "string" || result.requestId !== payload.requestId)) {
+          throw new Error("The host did not preserve the original project request identity.");
+        }
+        return result;
+      },
+    }, (actionId, pending) => {
+      if (actionId === "media.action.create-project") setCreatePending(pending);
+    });
+  }
+  const dispatchGuard = dispatchGuardRef.current;
+  React.useEffect(() => {
+    dispatchGuard.observeReconciliations(flow.data.actionReconciliations ?? []);
+  }, [dispatchGuard, flow.data.actionReconciliations]);
   const heading = {
     "authenticate-and-select-context": "Choose your workspace",
     "resume-work": "Your projects",
@@ -35,6 +104,16 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
     "create-media": "Start a media task",
   }[project.view];
   const createAction = actions.find((action) => action.id === "media.action.create-project");
+  const request = createProjectRequest(createAction);
+  const subjectRefs = createAction?.subjectRefs;
+  const createReady = project.accessState === "resolved"
+    && Boolean(project.workspaceName?.trim())
+    && Boolean(createAction?.enabled)
+    && !createAction?.payloadForSelection
+    && Boolean(request)
+    && request?.selectedAuthorizedWorkspaceId === project.selectedAuthorizedWorkspaceId
+    && request?.title === project.projectNameDraft
+    && Boolean(subjectRefs?.length && subjectRefs.every((ref) => ref.trim().length > 0));
   const flowActions = actions.filter((action) => action.id !== "media.action.create-project");
   return <MediaTaskScreen {...flow} actions={flowActions} actionPort={actionPort}>
     <section className="media-screen-body" aria-labelledby="first-use-project-title">
@@ -64,13 +143,23 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
         <h4 id="create-project-title">Create an empty project</h4>
         <label htmlFor="new-project-name">Project name</label>
         <input id="new-project-name" className="media-input" type="text" value={project.projectNameDraft ?? ""}
-          disabled={!onProjectNameDraftChange || !createAction?.enabled}
+          disabled={dispatchGuard.isInFlight("media.action.create-project") || !onProjectNameDraftChange || !createAction?.enabled}
           onChange={(event) => onProjectNameDraftChange?.(event.currentTarget.value)} />
-        <button type="button" className="media-action-button media-action-button--primary" disabled={!createAction?.enabled} onClick={() => {
-          const name = project.projectNameDraft;
-          void actionPort.invoke("media.action.create-project", name ? { name } : {});
-        }}>{createAction?.label ?? "Create project"}</button>
-        {createAction?.disabledReason && <p>{createAction.disabledReason}</p>}
+        {createReady && request && <p>Confirm project creation: “{request.title}” in workspace “{project.workspaceName}”.</p>}
+        <button type="button" className="media-action-button media-action-button--primary" disabled={dispatchGuard.isInFlight("media.action.create-project") || !createReady} onClick={() => {
+          if (!createReady || !createAction || !request || !subjectRefs || dispatchGuard.isInFlight("media.action.create-project")) return;
+          setCreateFeedback({ state: "pending", message: "Requesting project creation; completion remains unknown until exact owner reconciliation." });
+          void (async () => {
+            try {
+              const result = await dispatchGuard.actionPort.invoke(createAction.id, createAction.payload, { subjectRefs });
+              setCreateFeedback(safeCreateFeedback(result));
+            } catch {
+              setCreateFeedback({ state: "unknown", message: "Request outcome is unknown. Reconcile the exact project request before retrying." });
+            }
+          })();
+        }}>{createPending ? "Waiting for project outcome…" : createAction?.label ?? "Create project"}</button>
+        {createFeedback && <MediaActionFeedback value={createFeedback} />}
+        {!createReady && <p>Project creation is unavailable until the host confirms the authorized workspace and supplies the exact approved request and reconciliation references.</p>}
       </section>}
     </section>
   </MediaTaskScreen>;
