@@ -81,6 +81,28 @@ const CAPTURE_SOURCE_KINDS: ReadonlySet<string> = new Set([
 /** Bound the result of one capture before it can enter a recorder pipeline. */
 export const MAX_CAPTURED_FRAME_BYTES = 64 * 1024 * 1024;
 
+// Use the typed-array intrinsics at this untrusted provider boundary. A
+// Uint8Array subclass can override `byteLength` or its iterator; neither is
+// authoritative for the bytes that the device actually supplied.
+const typedArrayByteLengthGetter = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype), "byteLength",
+)?.get;
+
+function snapshotCapturedBytes(value: unknown): Uint8Array {
+  if (!(value instanceof Uint8Array) || typedArrayByteLengthGetter === undefined) {
+    throw new TypeError("captured frame bytes must be a Uint8Array");
+  }
+  const length = typedArrayByteLengthGetter.call(value) as number;
+  if (!Number.isSafeInteger(length) || length < 1 || length > MAX_CAPTURED_FRAME_BYTES) {
+    throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
+  }
+  const snapshot = new Uint8Array(length);
+  // TypedArray#set reads the source's indexed storage directly and does not
+  // dispatch through a provider-controlled Symbol.iterator implementation.
+  Uint8Array.prototype.set.call(snapshot, value);
+  return snapshot;
+}
+
 export interface CaptureRequest {
   readonly kind: CaptureSourceKind;
   readonly sourceIdentity: string;
@@ -586,10 +608,7 @@ export async function captureWithAdmission(
       sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef,
       frameClockRef, bytes, capturedAtEpochMillis, cameraMetadata, sourcePresentationTime, audioSampleTime,
     } = frame;
-    if (!(bytes instanceof Uint8Array)
-      || bytes.byteLength < 1 || bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
-      throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
-    }
+    const safeBytes = snapshotCapturedBytes(bytes);
     if (!Number.isSafeInteger(capturedAtEpochMillis) || capturedAtEpochMillis < 0) {
       throw new TypeError("captured frame timestamp must be a non-negative safe integer");
     }
@@ -620,7 +639,7 @@ export async function captureWithAdmission(
     }
     const normalizedFrame: CapturedFrame = {
       sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef, frameClockRef,
-      bytes: Uint8Array.from(bytes), capturedAtEpochMillis,
+      bytes: safeBytes, capturedAtEpochMillis,
       ...(safeCameraMetadata === undefined ? {} : { cameraMetadata: safeCameraMetadata }),
       ...(safeSourcePresentationTime === undefined ? {} : { sourcePresentationTime: safeSourcePresentationTime }),
       ...(safeAudioSampleTime === undefined ? {} : { audioSampleTime: safeAudioSampleTime }),
