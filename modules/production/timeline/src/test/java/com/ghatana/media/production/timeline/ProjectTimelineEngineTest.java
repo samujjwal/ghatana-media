@@ -51,6 +51,28 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void generatedIdsMustMatchOpaqueIdentityContractBeforeStoreCreate() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        AtomicInteger generated = new AtomicInteger();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store, () -> switch (generated.getAndIncrement()) {
+            case 0 -> "invalid id";
+            case 1 -> "project-valid";
+            case 2 -> "revision-valid";
+            default -> "timeline-valid";
+        });
+
+        assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-a", "Cut", "generated-id-retry"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("id supplier returned an invalid opaque id");
+
+        Created created = engine.createProject(OWNER, "workspace-a", "Cut", "generated-id-retry");
+        assertThat(created.createdNow()).isTrue();
+        assertThat(created.project().projectId()).isEqualTo("project-valid");
+        assertThat(created.initialRevision().revisionId()).isEqualTo("revision-valid");
+        assertThat(created.initialRevision().graph().timelineId()).isEqualTo("timeline-valid");
+    }
+
+    @Test
     void createRequestIdMatchesOwnerWireSchemaAtEngineAndStoreBoundaries() {
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
         AtomicInteger nextId = new AtomicInteger();

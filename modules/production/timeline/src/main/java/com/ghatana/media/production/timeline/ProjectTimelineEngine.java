@@ -230,7 +230,10 @@ public final class ProjectTimelineEngine {
 
     private String nextId() {
         String value = ids.get();
-        if (value == null || value.isBlank()) throw new IllegalStateException("id supplier returned a blank value");
-        return value;
+        try {
+            return requiredOpaqueId(value, "generatedId");
+        } catch (IllegalArgumentException invalidId) {
+            throw new IllegalStateException("id supplier returned an invalid opaque id", invalidId);
+        }
     }
 }
