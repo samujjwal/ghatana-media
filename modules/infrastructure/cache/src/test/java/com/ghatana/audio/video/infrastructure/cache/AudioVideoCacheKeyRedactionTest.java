@@ -295,6 +295,28 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void protectedScopeRejectsPaddedAuthorityAndVersionComponents() {
+        String[] dimensions = {"tenant", "principal", "rights", "purpose", "classification",
+                "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch"};
+        String[] names = {"tenantId", "authenticatedPrincipalId", "rightsScope", "purpose",
+                "classification", "artifactId", "artifactRevision", "transcriptRevision",
+                "sourceFingerprint", "policyEpoch"};
+
+        for (int index = 0; index < dimensions.length; index++) {
+            String[] candidate = dimensions.clone();
+            candidate[index] = " " + candidate[index];
+            int offendingIndex = index;
+            assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope(candidate[0], candidate[1],
+                    candidate[2], candidate[3], candidate[4], candidate[5], candidate[6],
+                    candidate[7], candidate[8], candidate[9]))
+                    .as("reject padded %s", names[offendingIndex])
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(names[offendingIndex])
+                    .hasMessageContaining("surrounding whitespace");
+        }
+    }
+
+    @Test
     void protectedScopeRejectsComponentsBeyondSharedCacheKeyLimit() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",

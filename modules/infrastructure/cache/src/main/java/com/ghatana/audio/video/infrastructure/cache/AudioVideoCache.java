@@ -61,6 +61,9 @@ public class AudioVideoCache<K, V> {
             if (value == null || value.isBlank()) {
                 throw new IllegalArgumentException(name + " must be non-blank");
             }
+            if (!value.equals(value.strip())) {
+                throw new IllegalArgumentException(name + " must not have surrounding whitespace");
+            }
             if (value.length() > CachePolicy.MAX_KEY_LENGTH) {
                 throw new IllegalArgumentException(name + " exceeds supported length of "
                         + CachePolicy.MAX_KEY_LENGTH);
