@@ -61,13 +61,26 @@ public class AudioVideoCache<K, V> {
             if (value == null || value.isBlank()) {
                 throw new IllegalArgumentException(name + " must be non-blank");
             }
-            if (!value.equals(value.strip())) {
+            if (hasSurroundingWhitespace(value)) {
                 throw new IllegalArgumentException(name + " must not have surrounding whitespace");
             }
             if (value.length() > CachePolicy.MAX_KEY_LENGTH) {
                 throw new IllegalArgumentException(name + " exceeds supported length of "
                         + CachePolicy.MAX_KEY_LENGTH);
             }
+        }
+
+        private static boolean hasSurroundingWhitespace(String value) {
+            int first = value.codePointAt(0);
+            int last = value.codePointBefore(value.length());
+            return isWhitespace(first) || isWhitespace(last);
+        }
+
+        private static boolean isWhitespace(int codePoint) {
+            // String.strip() uses Character.isWhitespace, which intentionally excludes
+            // nonbreaking spaces. Scope IDs must reject all Unicode space separators at
+            // their edges so policy providers cannot disagree on their canonical form.
+            return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
         }
     }
 

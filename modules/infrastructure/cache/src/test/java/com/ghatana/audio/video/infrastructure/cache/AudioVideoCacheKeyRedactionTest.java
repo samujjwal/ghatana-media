@@ -317,6 +317,29 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void protectedScopeRejectsNonbreakingSpaceAtEveryComponentBoundary() {
+        String[] dimensions = {"tenant", "principal", "rights", "purpose", "classification",
+                "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch"};
+        String nonbreakingSpace = "\u00a0";
+
+        for (int index = 0; index < dimensions.length; index++) {
+            for (boolean prefix : new boolean[] {true, false}) {
+                String[] candidate = dimensions.clone();
+                candidate[index] = prefix
+                        ? nonbreakingSpace + candidate[index]
+                        : candidate[index] + nonbreakingSpace;
+                int offendingIndex = index;
+                assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope(candidate[0], candidate[1],
+                        candidate[2], candidate[3], candidate[4], candidate[5], candidate[6],
+                        candidate[7], candidate[8], candidate[9]))
+                        .as("reject nonbreaking-space %s of %s", prefix ? "prefix" : "suffix", offendingIndex)
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("surrounding whitespace");
+            }
+        }
+    }
+
+    @Test
     void protectedScopeRejectsComponentsBeyondSharedCacheKeyLimit() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",
