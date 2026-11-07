@@ -93,21 +93,16 @@ class SimulationSemanticValidatorTest {
     }
 
     @Test
-    void abstainsWhenSolverStabilityOrOutputClassificationIsNotProven() {
+    void resultBoundaryRejectsUnstableOrMisclassifiedSolverOutputBeforeValidation() {
         var stable = result();
-        var unstable = new PhysicalSimulation.Result(stable.observations(), stable.acceptedSteps(),
-                stable.solverIterations(), 1.25, true, stable.evidenceClass());
-        assertThat(SimulationSemanticValidator.validate(binding(), unstable, CURRENT_INPUTS).disposition())
-                .isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
-
-        var mislabeled = new PhysicalSimulation.Result(stable.observations(), stable.acceptedSteps(),
-                stable.solverIterations(), stable.finalLocalErrorRatio(), true, "MEASURED_RESULT");
-        var mislabeledValidation = SimulationSemanticValidator.validate(binding(), mislabeled, CURRENT_INPUTS);
-        assertThat(mislabeledValidation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
-        assertThat(mislabeledValidation.findings()).anySatisfy(finding ->
-                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.MODEL_OUTPUT_LABEL_MISMATCH));
-        assertThat(mislabeledValidation.evidenceClass())
-                .isEqualTo("DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> new PhysicalSimulation.Result(
+                stable.observations(), stable.acceptedSteps(), stable.solverIterations(), 1.25,
+                true, stable.evidenceClass()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("error ratio");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> new PhysicalSimulation.Result(
+                stable.observations(), stable.acceptedSteps(), stable.solverIterations(),
+                stable.finalLocalErrorRatio(), true, "MEASURED_RESULT"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("simulation-only evidence class");
     }
 
     @Test
@@ -199,20 +194,16 @@ class SimulationSemanticValidatorTest {
     }
 
     @Test
-    void abstainsOnNonMonotonicOrOutOfHorizonObservationTrace() {
-        var valid = result();
-        var observations = new ArrayList<>(valid.observations());
-        var terminal = observations.getLast();
-        observations.set(observations.size() - 1, new PhysicalSimulation.Observation(
-                observations.get(observations.size() - 2).timeSeconds(), terminal.positionMeters(),
-                terminal.velocityMetersPerSecond(), terminal.accelerationMetersPerSecondSquared(),
-                terminal.totalEnergyJoules(), terminal.uncertainty()));
-        var malformed = new PhysicalSimulation.Result(observations, valid.acceptedSteps(),
-                valid.solverIterations(), valid.finalLocalErrorRatio(), valid.deterministic(), valid.evidenceClass());
+    void abstainsWhenCompletedTraceExceedsTheVersionedRunHorizon() {
+        var complete = binding();
+        var shortHorizon = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
+                complete.invariants(), q(1, PhysicalSimulation.Unit.SECOND));
 
-        var validation = SimulationSemanticValidator.validate(binding(), malformed, CURRENT_INPUTS);
+        var validation = SimulationSemanticValidator.validate(shortHorizon, result(), CURRENT_INPUTS);
 
         assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.HORIZON_MISMATCH));
         assertThat(validation.findings()).anySatisfy(finding ->
                 assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INVALID_OBSERVATION_TRACE));
     }

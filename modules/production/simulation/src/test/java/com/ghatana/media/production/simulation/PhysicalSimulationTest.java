@@ -138,6 +138,52 @@ class PhysicalSimulationTest {
     }
 
     @Test
+    void publicResultEnforcesDeterministicSimulationOnlyClassificationAndAcceptedErrorRatio() {
+        var model = new PhysicalSimulation.ConstantForce(
+                m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),
+                m(6, PhysicalSimulation.Unit.NEWTON, 0, PhysicalSimulation.Unit.NEWTON));
+        var valid = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
+
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(valid.observations(), valid.acceptedSteps(),
+                valid.solverIterations(), valid.finalLocalErrorRatio(), false, valid.evidenceClass()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("must be deterministic");
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(valid.observations(), valid.acceptedSteps(),
+                valid.solverIterations(), valid.finalLocalErrorRatio(), true, "MEASUREMENT_EVIDENCE"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("simulation-only evidence class");
+        for (double outOfRange : new double[] {-0.01, 1.01}) {
+            assertThatThrownBy(() -> new PhysicalSimulation.Result(valid.observations(), valid.acceptedSteps(),
+                    valid.solverIterations(), outOfRange, true, valid.evidenceClass()))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("between 0 and 1");
+        }
+    }
+
+    @Test
+    void publicResultRequiresTraceToStartAtZeroAndIncreaseStrictly() {
+        var model = new PhysicalSimulation.ConstantForce(
+                m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),
+                m(6, PhysicalSimulation.Unit.NEWTON, 0, PhysicalSimulation.Unit.NEWTON));
+        var valid = PhysicalSimulation.simulate(model, origin(), policy(0.25, 100, 1000));
+        var observations = valid.observations();
+
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(withTime(observations, 0, 0.01),
+                valid.acceptedSteps(), valid.solverIterations(), valid.finalLocalErrorRatio(), true, valid.evidenceClass()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("begin at time zero");
+        assertThatThrownBy(() -> new PhysicalSimulation.Result(withTime(observations, 2, observations.get(1).timeSeconds()),
+                valid.acceptedSteps(), valid.solverIterations(), valid.finalLocalErrorRatio(), true, valid.evidenceClass()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("strictly increasing");
+    }
+
+    private static List<PhysicalSimulation.Observation> withTime(
+            List<PhysicalSimulation.Observation> observations, int index, double time) {
+        var copy = new java.util.ArrayList<>(observations);
+        var original = copy.get(index);
+        copy.set(index, new PhysicalSimulation.Observation(time, original.positionMeters(),
+                original.velocityMetersPerSecond(), original.accelerationMetersPerSecondSquared(),
+                original.totalEnergyJoules(), original.uncertainty()));
+        return List.copyOf(copy);
+    }
+
+    @Test
     void publicResultBoundsActualTraceIterationBeforeCopying() {
         var model = new PhysicalSimulation.ConstantForce(
                 m(2, PhysicalSimulation.Unit.KILOGRAM, 0, PhysicalSimulation.Unit.KILOGRAM),

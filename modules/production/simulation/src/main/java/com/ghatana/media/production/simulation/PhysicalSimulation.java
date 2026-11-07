@@ -186,7 +186,24 @@ public final class PhysicalSimulation {
                 throw new IllegalArgumentException("solver counters do not match the accepted observation trace");
             }
             requireFinite(finalLocalErrorRatio, "final error ratio");
+            if (finalLocalErrorRatio < 0.0 || finalLocalErrorRatio > 1.0) {
+                throw new IllegalArgumentException("final error ratio must be between 0 and 1");
+            }
+            if (!deterministic) {
+                throw new IllegalArgumentException("simulation result must be deterministic");
+            }
             Objects.requireNonNull(evidenceClass, "evidenceClass");
+            if (!MediaSimulationContracts.SIMULATION_ONLY_EVIDENCE.equals(evidenceClass)) {
+                throw new IllegalArgumentException("simulation result must use the simulation-only evidence class");
+            }
+            if (observations.getFirst().timeSeconds() != 0.0) {
+                throw new IllegalArgumentException("observation trace must begin at time zero");
+            }
+            for (int index = 1; index < observations.size(); index++) {
+                if (!(observations.get(index).timeSeconds() > observations.get(index - 1).timeSeconds())) {
+                    throw new IllegalArgumentException("observation times must be strictly increasing");
+                }
+            }
         }
     }
 
