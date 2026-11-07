@@ -50,6 +50,12 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
                 "purpose:preserve-video", List.of("rights:video"), "policy:source:v3 "))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("policyDecisionRef");
+        assertThatThrownBy(() -> new ArtifactBinding("\u00a0", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("tenantId");
+        assertThatThrownBy(() -> new ArtifactBinding("\u2003tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("tenantId");
     }
 
     @Test

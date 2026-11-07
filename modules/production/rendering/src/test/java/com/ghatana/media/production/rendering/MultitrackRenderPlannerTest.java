@@ -535,6 +535,36 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanValidatesTransitionIdentityAndCoverageEvenWhenManifestDigestMatches() throws Exception {
+        var left = video("left", new MultitrackRenderPlanner.Time(0, 1),
+                List.of(new MultitrackRenderPlanner.Time(0, 1)));
+        var right = video("right", new MultitrackRenderPlanner.Time(2, 1),
+                List.of(new MultitrackRenderPlanner.Time(0, 1)));
+        var transition = new MultitrackRenderPlanner.Transition("fade", "left", "right",
+                MultitrackRenderPlanner.TransitionKind.CROSSFADE,
+                new MultitrackRenderPlanner.Time(2, 1), new MultitrackRenderPlanner.Time(1, 1));
+        var plan = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(left, right), List.of(), List.of(transition), 1_000)).plan();
+
+        assertForgedPlanRejected(plan, "transition=fade|left|right|CROSSFADE|2/1|1/1",
+                "transition=fade|left|right|CROSSFADE|1/1|1/1", "fit within both participating clip intervals");
+        assertForgedPlanRejected(plan, "transition=fade|left|right|CROSSFADE|2/1|1/1",
+                "transition=fade|left|right|DISSOLVE|2/1|1/1", "transition kind is unsupported");
+    }
+
+    private static void assertForgedPlanRejected(MultitrackRenderPlanner.Plan valid, String original,
+            String replacement, String expectedMessage) throws Exception {
+        String forgedManifest = valid.canonicalManifest().replace(original, replacement);
+        assertThat(forgedManifest).isNotEqualTo(valid.canonicalManifest());
+        String forgedDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes())).withMessageContaining(expectedMessage);
+    }
+
+    @Test
     void publicPlanRejectsInvalidBase64AndMalformedUtf8CaptionText() throws Exception {
         var start = new MultitrackRenderPlanner.Time(0, 1);
         var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(

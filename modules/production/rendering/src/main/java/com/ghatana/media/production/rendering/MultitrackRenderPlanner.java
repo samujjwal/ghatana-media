@@ -211,6 +211,7 @@ public final class MultitrackRenderPlanner {
                 throw invalid("plan frame map does not match the canonical manifest");
             }
             validateFrameMappings(canonicalManifest, frameMap, duration);
+            validateTransitionMappings(canonicalManifest);
             var nextFrameIndexes = new java.util.HashMap<String, Integer>();
             var previousSourcePts = new java.util.HashMap<String, Time>();
             for (MappedFrame frame : frameMap.stream()
@@ -348,7 +349,9 @@ public final class MultitrackRenderPlanner {
         return out.toString();
     }
 
-    private record ClipTimeMap(Time timelineStart, Time sourceStart, Time sourceEnd) { }
+    private record ClipTimeMap(Time timelineStart, Time sourceStart, Time sourceEnd) {
+        private Time timelineEnd() { return timelineStart.plus(sourceEnd.minus(sourceStart)); }
+    }
 
     /** A v1 manifest is closed: reject records the planner does not interpret. */
     private static void validateManifestRecordKinds(String manifest) {
@@ -409,6 +412,44 @@ public final class MultitrackRenderPlanner {
         }
         if (!mappedClipIds.equals(clipTimeMaps.keySet())) {
             throw invalid("canonical manifest clip ids must have exact frame-map coverage");
+        }
+    }
+
+    private static void validateTransitionMappings(String manifest) {
+        var clipTimeMaps = new java.util.HashMap<String, ClipTimeMap>();
+        for (String line : manifest.lines().filter(value -> value.startsWith("clip=")).toList()) {
+            String[] fields = line.substring("clip=".length()).split("\\|", -1);
+            if (fields.length != 8) throw invalid("canonical manifest clip row is malformed");
+            clipTimeMaps.put(fields[0], new ClipTimeMap(
+                    manifestTime(fields[5]), manifestTime(fields[6]), manifestTime(fields[7])));
+        }
+        var transitionIds = new java.util.HashSet<String>();
+        for (String line : manifest.lines().filter(value -> value.startsWith("transition=")).toList()) {
+            String[] fields = line.substring("transition=".length()).split("\\|", -1);
+            if (fields.length != 6) throw invalid("canonical manifest transition row is malformed");
+            String id = opaque(fields[0], "manifest transition id");
+            String leftId = opaque(fields[1], "manifest transition left clip id");
+            String rightId = opaque(fields[2], "manifest transition right clip id");
+            if (!transitionIds.add(id)) throw invalid("canonical manifest transition ids must be unique");
+            if (leftId.equals(rightId)) throw invalid("transition must reference two distinct graph clips");
+            try {
+                TransitionKind.valueOf(fields[3]);
+            } catch (IllegalArgumentException malformedKind) {
+                throw invalid("canonical manifest transition kind is unsupported");
+            }
+            Time start = manifestTime(fields[4]);
+            Time transitionDuration = manifestTime(fields[5]);
+            if (start.numerator() < 0 || transitionDuration.numerator() <= 0) {
+                throw invalid("transition interval must be positive");
+            }
+            ClipTimeMap left = clipTimeMaps.get(leftId);
+            ClipTimeMap right = clipTimeMaps.get(rightId);
+            if (left == null || right == null) throw invalid("transition must reference two distinct graph clips");
+            Time end = start.plus(transitionDuration);
+            if (start.compareTo(left.timelineStart()) < 0 || end.compareTo(left.timelineEnd()) > 0
+                    || start.compareTo(right.timelineStart()) < 0 || end.compareTo(right.timelineEnd()) > 0) {
+                throw invalid("transition must fit within both participating clip intervals");
+            }
         }
     }
 

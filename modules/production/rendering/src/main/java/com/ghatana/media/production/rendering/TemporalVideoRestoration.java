@@ -903,7 +903,8 @@ public final class TemporalVideoRestoration {
     private static String requiredText(String value, String field, int maximum) {
         Objects.requireNonNull(value, field);
         String trimmed = value.trim();
-        if (trimmed.isEmpty() || trimmed.length() > maximum || trimmed.chars().anyMatch(Character::isISOControl)) {
+        if (trimmed.isEmpty() || value.codePoints().allMatch(TemporalVideoRestoration::isUnicodeWhitespace)
+                || trimmed.length() > maximum || trimmed.chars().anyMatch(Character::isISOControl)) {
             throw invalid(field + " must be non-empty bounded printable text");
         }
         return trimmed;
@@ -911,8 +912,19 @@ public final class TemporalVideoRestoration {
 
     private static String exactText(String value, String field, int maximum) {
         String text = requiredText(value, field, maximum);
-        if (!value.equals(text)) throw invalid(field + " must not contain outer whitespace");
+        if (!value.equals(text) || hasOuterUnicodeWhitespace(value)) {
+            throw invalid(field + " must not contain outer whitespace");
+        }
         return text;
+    }
+
+    private static boolean hasOuterUnicodeWhitespace(String value) {
+        return isUnicodeWhitespace(value.codePointAt(0))
+                || isUnicodeWhitespace(value.codePointBefore(value.length()));
+    }
+
+    private static boolean isUnicodeWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
     private static String opaqueId(String value, String field, int maximum) {
