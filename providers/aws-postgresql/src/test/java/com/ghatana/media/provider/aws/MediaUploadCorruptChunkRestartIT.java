@@ -4,6 +4,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -32,6 +33,10 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 /** J-02 negative boundary: staged chunk corruption survives restart as a truthful finalization failure. */
 @Testcontainers(disabledWithoutDocker = true)
 class MediaUploadCorruptChunkRestartIT {
+    @Container
+    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:16-alpine"));
+
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
@@ -64,6 +69,33 @@ class MediaUploadCorruptChunkRestartIT {
         environment.put("MEDIA_UPLOAD_ACCESS", LOCALSTACK.getAccessKey());
         environment.put("MEDIA_UPLOAD_SECRET", LOCALSTACK.getSecretKey());
         return new Harness(jdbcUrl, bucket, MediaAwsPostgresqlRuntimeState.installForTesting(environment));
+    }
+
+    private static Harness postgresHarness() throws Exception {
+        String id = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-upload-corrupt-postgres-" + id;
+        try (S3Client client = s3()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        Map<String, String> environment = new HashMap<>();
+        environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
+        environment.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl());
+        environment.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
+        environment.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_UPLOAD_CORRUPT_DB_PASSWORD");
+        environment.put("MEDIA_UPLOAD_CORRUPT_DB_PASSWORD", POSTGRES.getPassword());
+        environment.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");
+        environment.put("MEDIA_POSTGRES_POOL_SIZE", "8");
+        environment.put("MEDIA_S3_BUCKET", bucket);
+        environment.put("MEDIA_S3_ENDPOINT", LOCALSTACK.getEndpointOverride(S3).toString());
+        environment.put("MEDIA_S3_REGION", LOCALSTACK.getRegion());
+        environment.put("MEDIA_S3_PATH_STYLE", "true");
+        environment.put("MEDIA_S3_REQUEST_CHECKSUM_CALCULATION", "WHEN_REQUIRED");
+        environment.put("MEDIA_S3_ACCESS_KEY_REFERENCE", "secret:env:MEDIA_UPLOAD_ACCESS");
+        environment.put("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:MEDIA_UPLOAD_SECRET");
+        environment.put("MEDIA_UPLOAD_ACCESS", LOCALSTACK.getAccessKey());
+        environment.put("MEDIA_UPLOAD_SECRET", LOCALSTACK.getSecretKey());
+        return new Harness(POSTGRES.getJdbcUrl(), bucket,
+                MediaAwsPostgresqlRuntimeState.installForTesting(environment));
     }
 
     private static S3Client s3() {
@@ -141,6 +173,64 @@ class MediaUploadCorruptChunkRestartIT {
                      var statement = connection.prepareStatement(
                              "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=? AND sha256=?")) {
                     statement.setString(1, "tenant-a");
+                    statement.setString(2, sha256(original));
+                    try (var rows = statement.executeQuery()) {
+                        assertThat(rows.next()).isTrue();
+                        assertThat(rows.getLong(1)).isZero();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void corruptStagedChunkAfterRestartFailsClosedWithPostgresqlState() throws Exception {
+        try (Harness h = postgresHarness();
+             S3PostgresqlMediaArtifactStore anchor = new S3PostgresqlMediaArtifactStore()) {
+            byte[] original = "RIFF-corrupt-postgres-restart".getBytes(StandardCharsets.UTF_8);
+            UploadRequest request = new UploadRequest("tenant-postgres", "principal-postgres", "clip.wav",
+                    "audio/wav", original.length, sha256(original), "RESTRICTED", Duration.ofDays(1), Map.of());
+            String idempotencyKey = "j02-corrupt-postgres-restart-" + UUID.randomUUID();
+            String uploadId;
+
+            try (S3PostgresqlMediaArtifactStore workerA = new S3PostgresqlMediaArtifactStore()) {
+                UploadSession begun = workerA.begin(request, idempotencyKey);
+                uploadId = begun.uploadId();
+                workerA.append(request.tenantId(), request.principalId(), uploadId, 0, original);
+            }
+
+            byte[] corrupted = original.clone();
+            corrupted[corrupted.length - 1] ^= 0x01;
+            try (S3Client client = s3()) {
+                client.putObject(PutObjectRequest.builder().bucket(h.bucket())
+                                .key(chunkKey(request.tenantId(), uploadId)).build(),
+                        software.amazon.awssdk.core.sync.RequestBody.fromBytes(corrupted));
+            }
+
+            try (S3PostgresqlMediaArtifactStore restartedWorker = new S3PostgresqlMediaArtifactStore()) {
+                UploadSession replayedBegin = restartedWorker.begin(request, idempotencyKey);
+                assertThat(replayedBegin.uploadId()).isEqualTo(uploadId);
+                assertThat(replayedBegin.status()).isEqualTo(UploadStatus.OPEN);
+                assertThat(replayedBegin.nextChunkIndex()).isEqualTo(1);
+                assertThat(replayedBegin.bytesReceived()).isEqualTo(original.length);
+                assertThatThrownBy(() -> restartedWorker.complete(
+                        request.tenantId(), request.principalId(), uploadId))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("Stored upload chunk failed integrity verification");
+                assertThatThrownBy(() -> restartedWorker.complete(
+                        request.tenantId(), request.principalId(), uploadId))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("Stored upload chunk failed integrity verification");
+
+                UploadSession afterFailure = restartedWorker.upload(request.tenantId(), uploadId).orElseThrow();
+                assertThat(afterFailure.status()).isEqualTo(UploadStatus.OPEN);
+                assertThat(afterFailure.nextChunkIndex()).isEqualTo(1);
+                assertThat(afterFailure.bytesReceived()).isEqualTo(original.length);
+                try (var connection = DriverManager.getConnection(
+                             h.jdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var statement = connection.prepareStatement(
+                             "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=? AND sha256=?")) {
+                    statement.setString(1, request.tenantId());
                     statement.setString(2, sha256(original));
                     try (var rows = statement.executeQuery()) {
                         assertThat(rows.next()).isTrue();
