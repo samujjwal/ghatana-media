@@ -157,8 +157,10 @@ public final class StoryboardPlanner {
     public record AuthoredBrief(String briefId, String semanticVersion, String purpose,
                                 String narrative, List<SourceVersion> exactReferences) {
         public AuthoredBrief {
-            briefId = required(briefId, "briefId");
-            semanticVersion = required(semanticVersion, "brief semanticVersion");
+            // A brief is the owner-defined SceneBrief value. Enforce its identity scalars at
+            // construction so callers cannot bypass the same boundary used for ScenePlan.
+            briefId = ownerOpaqueId(briefId, "briefId");
+            semanticVersion = ownerSemanticVersion(semanticVersion);
             purpose = required(purpose, "purpose");
             narrative = required(narrative, "narrative");
             exactReferences = canonicalSources(exactReferences);

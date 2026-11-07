@@ -352,6 +352,33 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void authoredBriefIdentityUsesOwnerSceneBriefOpaqueIdAndSemanticVersionScalars() {
+        String maximumId = "b" + "x".repeat(127);
+        String maximumVersion = "v" + "x".repeat(127);
+        StoryboardPlanner.AuthoredBrief maximum = new StoryboardPlanner.AuthoredBrief(
+                maximumId, maximumVersion, "personal-project", "An authored story", List.of());
+        assertThat(maximum.briefId()).isEqualTo(maximumId);
+        assertThat(maximum.semanticVersion()).isEqualTo(maximumVersion);
+
+        for (String invalidId : List.of("", " ", ":brief", "brief/1", "x".repeat(129), "brïef")) {
+            assertThatThrownBy(() -> new StoryboardPlanner.AuthoredBrief(
+                    invalidId, "v1", "personal-project", "An authored story", List.of()))
+                    .as("scene brief ID %s", invalidId)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("briefId")
+                    .hasMessageContaining("owner opaque-ID format");
+        }
+        for (String invalidVersion : List.of("", " ", ":v1", "bad_version", "v/1", "x".repeat(129))) {
+            assertThatThrownBy(() -> new StoryboardPlanner.AuthoredBrief(
+                    "brief-valid", invalidVersion, "personal-project", "An authored story", List.of()))
+                    .as("scene brief semantic version %s", invalidVersion)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("semanticVersion")
+                    .hasMessageContaining("owner version format");
+        }
+    }
+
+    @Test
     void projectRevisionIdentityIsBoundedAndValidatedBeforeRightsOrReviewAuthority() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
