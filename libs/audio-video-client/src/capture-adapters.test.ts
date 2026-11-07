@@ -114,12 +114,56 @@ describe("captureWithAdmission", () => {
     expect(eligibilityCalls).toBe(0);
   });
 
+  it("contains a throwing adapter getter as pre-dispatch unavailable", async () => {
+    let eligibilityCalls = 0;
+    const adapter = Object.defineProperty({}, "capture", {
+      get() { throw new Error("sensitive adapter binding detail"); },
+    }) as { capture(request: CaptureRequest): Promise<CapturedFrame> };
+
+    await expect(captureWithAdmission({
+      check: () => { eligibilityCalls++; return "ADMITTED"; },
+    }, adapter, request)).rejects.toBeInstanceOf(CaptureUnavailableError);
+
+    expect(eligibilityCalls).toBe(0);
+  });
+
   it("runs capture only through an admitted adapter and binds source+clock", async () => {
     const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 1_700_000_000_000 }, new Uint8Array([1, 2, 3])));
     const frame = await captureWithAdmission(
       { check: () => "ADMITTED" }, adapter, request);
     expect(frame.bytes).toEqual(new Uint8Array([1, 2, 3]));
     expect(adapter.calls()).toBe(1);
+  });
+
+  it("keeps the selected adapter method across the eligibility callback", async () => {
+    let originalCalls = 0;
+    let replacementCalls = 0;
+    const adapter: { capture(candidate: CaptureRequest): Promise<CapturedFrame> } = {
+      capture: async (candidate) => {
+        originalCalls++;
+        return capturedFrame({
+          sourceIdentity: candidate.sourceIdentity,
+          purposeRef: candidate.purposeRef,
+          exactRightsScope: candidate.exactRightsScope,
+          sourceVersionRef: candidate.sourceVersionRef,
+          frameClockRef: candidate.frameClockRef,
+        }, new Uint8Array([1]));
+      },
+    };
+
+    const frame = await captureWithAdmission({
+      check: () => {
+        adapter.capture = async () => {
+          replacementCalls++;
+          return capturedFrame({}, new Uint8Array([2]));
+        };
+        return "ADMITTED";
+      },
+    }, adapter, request);
+
+    expect(frame.bytes).toEqual(new Uint8Array([1]));
+    expect(originalCalls).toBe(1);
+    expect(replacementCalls).toBe(0);
   });
 
   it("marks an admitted adapter rejection unknown without exposing caller-controlled refs or provider text", async () => {

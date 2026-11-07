@@ -539,7 +539,13 @@ export async function captureWithAdmission(
   // A missing/malformed adapter is a composition failure, so no source
   // dispatch could have happened. Keep it distinct from a rejected adapter
   // promise, whose external effect may be unknown.
-  if (!adapter || typeof adapter.capture !== "function") {
+  let capture: ((request: CaptureRequest) => Promise<CapturedFrame>) | undefined;
+  try {
+    capture = adapter?.capture;
+  } catch {
+    throw new CaptureUnavailableError(request.kind);
+  }
+  if (typeof capture !== "function") {
     throw new CaptureUnavailableError(request.kind);
   }
   // Snapshot before crossing either callback boundary. A caller may retain
@@ -590,7 +596,10 @@ export async function captureWithAdmission(
   }
   let frame: CapturedFrame;
   try {
-    frame = await adapter.capture(admittedRequest);
+    // Keep the adapter method selected before the eligibility callback. A
+    // callback or concurrent registry mutation must not redirect this
+    // admitted request to a different capture implementation.
+    frame = await Reflect.apply(capture, adapter, [admittedRequest]);
   } catch (failure) {
     // The kind router reports a missing binding before invoking any source.
     // Preserve that pre-dispatch state instead of suggesting an ambiguous
