@@ -193,6 +193,9 @@ export function InteractiveDemoPlayer({
                 stopAtSceneBoundary.current = true;
                 dispatch({ type: "ended" });
                 try {
+                  // timeupdate is throttled by browsers; clamp the native
+                  // element so delayed events cannot expose the next scene.
+                  video.currentTime = activeScene.endMs / 1_000;
                   video.pause();
                 } catch {
                   if (isCurrentVideo(video)) failPlayback();

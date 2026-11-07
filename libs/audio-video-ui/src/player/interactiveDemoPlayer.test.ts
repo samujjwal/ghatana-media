@@ -447,8 +447,9 @@ describe("interactive demo player", () => {
     const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
     fireEvent.loadedMetadata(video);
     fireEvent.play(video);
-    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 1 });
+    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 1.25 });
     fireEvent.timeUpdate(video);
+    expect(video.currentTime).toBe(1);
     expect(screen.getByRole("status").textContent).toContain("Choose a path or replay.");
     expect(screen.getByRole("group", { name: "Introduction" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Explore left path; continue to Left path" })).toBeTruthy();
