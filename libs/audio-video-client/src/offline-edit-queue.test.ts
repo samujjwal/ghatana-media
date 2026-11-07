@@ -181,6 +181,62 @@ describe("OfflineEditQueue", () => {
     expect(store.records.size).toBe(1);
   });
 
+  it("rejects stored payload byte metadata that is inconsistent or exceeds the configured bound", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    const original = store.records.get(edit.editId)!;
+    let authorityReads = 0;
+    let applyCount = 0;
+    const adapter = {
+      reauthorize: async () => { authorityReads++; return { authorized: true }; },
+      readCurrentVersion: async () => { authorityReads++; return "v7"; },
+      apply: async () => { applyCount++; return { outcome: "APPLIED" as const, receipt: "receipt" }; },
+    };
+
+    store.records.set(edit.editId, { ...original, payloadBytes: original.payloadBytes + 1 });
+    await expect(queue.readEdits(scope))
+      .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
+    await expect(queue.replay(scope, adapter))
+      .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
+    expect(authorityReads).toBe(0);
+    expect(applyCount).toBe(0);
+
+    store.records.set(edit.editId, { ...original, payloadBytes: Number.MAX_SAFE_INTEGER });
+    await expect(queue.readEdits(scope))
+      .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
+    expect(authorityReads).toBe(0);
+    expect(applyCount).toBe(0);
+  });
+
+  it("rejects malformed AES-GCM nonce and oversized ciphertext before decrypt or replay", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    const original = store.records.get(edit.editId)!;
+    let authorityReads = 0;
+    let applyCount = 0;
+    const adapter = {
+      reauthorize: async () => { authorityReads++; return { authorized: true }; },
+      readCurrentVersion: async () => { authorityReads++; return "v7"; },
+      apply: async () => { applyCount++; return { outcome: "APPLIED" as const, receipt: "receipt" }; },
+    };
+    const malformedRows = [
+      { ...original, nonce: undefined as unknown as Uint8Array },
+      { ...original, ciphertext: new ArrayBuffer(16) as unknown as Uint8Array },
+      { ...original, nonce: new Uint8Array(11) },
+      { ...original, ciphertext: new Uint8Array(256 * 1024 + 17) },
+    ];
+
+    for (const malformed of malformedRows) {
+      store.records.set(edit.editId, malformed);
+      await expect(queue.readEdits(scope))
+        .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
+      await expect(queue.replay(scope, adapter))
+        .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
+    }
+    expect(authorityReads).toBe(0);
+    expect(applyCount).toBe(0);
+  });
+
   it("snapshots only faithful JSON trees and rejects lossy values before storage", async () => {
     const { queue, store } = await createQueue();
     const cycle: Record<string, unknown> = {};

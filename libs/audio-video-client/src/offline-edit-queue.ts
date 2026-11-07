@@ -68,7 +68,7 @@ export interface OfflineEditQueueOptions {
 }
 
 export class OfflineEditQueueError extends Error {
-  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE" | "STORE_RECORD_CHANGED") {
+  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE" | "STORE_RECORD_CHANGED" | "STORE_RECORD_INVALID") {
     super(`Offline edit queue failed: ${code}`);
     this.name = "OfflineEditQueueError";
   }
@@ -456,12 +456,26 @@ export class OfflineEditQueue {
   }
 
   private async decryptPayloadBytes(record: OfflineEditRecord): Promise<Uint8Array> {
+    if (!(record.nonce instanceof Uint8Array) || !(record.ciphertext instanceof Uint8Array)
+      || !Number.isSafeInteger(record.payloadBytes) || record.payloadBytes < 0
+      || record.payloadBytes > this.maximumPayloadBytes
+      // AES-GCM records are written with a 96-bit nonce and the default
+      // 128-bit authentication tag, so ciphertext is exactly plaintext + 16.
+      // Validate lengths before WebCrypto allocates/decrypts attacker-sized rows.
+      || record.nonce.byteLength !== 12
+      || record.ciphertext.byteLength !== record.payloadBytes + 16) {
+      throw new OfflineEditQueueError("STORE_RECORD_INVALID");
+    }
     const plaintext = await this.cryptoApi.subtle.decrypt(
       { name: "AES-GCM", iv: this.copyBufferSource(record.nonce), additionalData: this.aad(record) },
       this.options.encryptionKey,
       this.copyBufferSource(record.ciphertext),
     );
-    return new Uint8Array(plaintext);
+    const bytes = new Uint8Array(plaintext);
+    if (bytes.byteLength !== record.payloadBytes || bytes.byteLength > this.maximumPayloadBytes) {
+      throw new OfflineEditQueueError("STORE_RECORD_INVALID");
+    }
+    return bytes;
   }
 
   private async transition(record: OfflineEditRecord, state: OfflineEditState): Promise<OfflineEditRecord | undefined> {
