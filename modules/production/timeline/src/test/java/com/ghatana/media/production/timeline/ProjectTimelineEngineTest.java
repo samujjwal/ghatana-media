@@ -101,6 +101,37 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void projectTitlesPreserveUnicodeInputAndUseCodePointLengthAcrossEngineAndStore() {
+        String preserved = " " + "😀".repeat(198) + " ";
+        String maximum = "😀".repeat(200);
+        String tooLong = "😀".repeat(201);
+        assertThat(preserved.codePointCount(0, preserved.length())).isEqualTo(200);
+        assertThat(preserved.length()).isGreaterThan(200);
+        assertThat(maximum.codePointCount(0, maximum.length())).isEqualTo(200);
+
+        ProjectTimelineEngine engine = engine();
+        Created preservedProject = engine.createProject(OWNER, "workspace-a", preserved, "unicode-title-1");
+        assertThat(preservedProject.project().title()).isEqualTo(preserved);
+        assertThat(engine.createProject(OWNER, "workspace-a", maximum, "unicode-title-2")
+                .project().title()).isEqualTo(maximum);
+        assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-a", tooLong, "unicode-title-3"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("200 character project limit");
+
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        assertThat(store.create(OWNER, "workspace-a", preserved, "unicode-store-1",
+                "unicode-project-1", "unicode-revision-1", "unicode-timeline-1").project().title())
+                .isEqualTo(preserved);
+        assertThat(store.create(OWNER, "workspace-a", maximum, "unicode-store-2",
+                "unicode-project-2", "unicode-revision-2", "unicode-timeline-2").project().title())
+                .isEqualTo(maximum);
+        assertThatThrownBy(() -> store.create(OWNER, "workspace-a", tooLong, "unicode-store-3",
+                "unicode-project-3", "unicode-revision-3", "unicode-timeline-3"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("200 character project limit");
+    }
+
+    @Test
     void editRestoreDiffAndSourceRevocationUseExactImmutableVersions() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-2");

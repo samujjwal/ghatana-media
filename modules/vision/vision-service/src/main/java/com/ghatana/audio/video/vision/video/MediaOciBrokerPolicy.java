@@ -386,7 +386,9 @@ final class MediaOciBrokerPolicy {
      */
     static boolean sourceAllowed(Policy policy, String source, String sourceSha256)
             throws IOException {
-        if (source == null) return true;
+        // A digest is meaningful only when it is bound to a source file. Do not
+        // accept detached caller claims on source-free probes.
+        if (source == null) return sourceSha256 == null;
         if (sourceSha256 == null || !sourceSha256.matches("[0-9a-f]{64}")) return false;
         Path literal = Path.of(source);
         if (!pathHasNoSymlinkComponents(literal, policy.sourceRoot())) return false;

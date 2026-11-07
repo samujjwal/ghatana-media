@@ -178,8 +178,7 @@ public final class MediaProjectTimelineContracts {
             projectId = required(projectId, "projectId");
             workspaceId = required(workspaceId, "workspaceId");
             ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
-            title = required(title, "title");
-            if (title.isBlank()) throw new IllegalArgumentException("title must not be blank");
+            title = requiredProjectTitle(title);
             headRevisionId = required(headRevisionId, "headRevisionId");
         }
     }
@@ -260,6 +259,16 @@ public final class MediaProjectTimelineContracts {
             throw new IllegalArgumentException(name + " must not have surrounding whitespace");
         }
         return value;
+    }
+
+    /** Validates the source-defined Unicode display title without normalizing submitted text. */
+    public static String requiredProjectTitle(String title) {
+        Objects.requireNonNull(title, "title");
+        if (title.isBlank()) throw new IllegalArgumentException("title must not be blank");
+        if (title.codePointCount(0, title.length()) > 200) {
+            throw new IllegalArgumentException("title exceeds the 200 character project limit");
+        }
+        return title;
     }
 
     /** Validates the J-01 owner wire-schema replay identity before any store side effect. */

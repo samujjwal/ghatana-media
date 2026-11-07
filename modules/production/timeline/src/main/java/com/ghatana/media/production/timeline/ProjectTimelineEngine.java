@@ -31,8 +31,7 @@ public final class ProjectTimelineEngine {
         Objects.requireNonNull(actor, "actor");
         requireCreateProjectRequestId(requestId);
         if (workspaceId == null || workspaceId.isBlank()) throw new IllegalArgumentException("workspaceId must not be blank");
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("title must not be blank");
-        if (title.length() > 200) throw new IllegalArgumentException("title exceeds the 200 character project limit");
+        requiredProjectTitle(title);
         return store.create(actor, workspaceId, title, requestId, nextId(), nextId(), nextId());
     }
 

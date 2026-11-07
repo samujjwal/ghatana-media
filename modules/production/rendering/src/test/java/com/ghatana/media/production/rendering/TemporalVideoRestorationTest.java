@@ -551,8 +551,13 @@ class TemporalVideoRestorationTest {
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
         assertThatThrownBy(() -> new SourceDelta(9, 1, 2.0, 1))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
+        assertThatThrownBy(() -> new SourceDelta(9, 3, 1.0 / 3.0, 3))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
+        assertThatThrownBy(() -> new SourceDelta(9, 2, 1.0, 2))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");
 
         assertThat(new SourceDelta(9, 3, 1.0 / 3.0, 1).meanAbsoluteChange()).isEqualTo(1.0 / 3.0);
+        assertThat(new SourceDelta(9, 3, 5.0 / 9.0, 3).meanAbsoluteChange()).isEqualTo(5.0 / 9.0);
         assertThat(new SourceDelta(9, 1, 255.0 / 9.0, 255).maximumAbsoluteChange()).isEqualTo(255);
     }
 

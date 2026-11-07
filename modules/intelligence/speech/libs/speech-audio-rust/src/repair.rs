@@ -348,6 +348,13 @@ pub fn compare_audio(
             "source and repaired revisions must have identical PCM format and frame count".into(),
         ));
     }
+    if reference.is_some_and(|reference| {
+        std::ptr::eq(source, reference) || std::ptr::eq(repaired, reference)
+    }) {
+        return Err(SpeechAudioError::InvalidInput(
+            "independent reference must be a separate audio value".into(),
+        ));
+    }
     let source_rms = rms(&source.samples);
     let output_rms = rms(&repaired.samples);
     let source_near_clip_sample_count = source
@@ -668,14 +675,26 @@ mod tests {
 
     #[test]
     fn exact_reference_has_infinite_snr_and_unequal_reference_is_rejected() {
-        let signal = mono(vec![0.1, -0.2, 0.3]);
-        assert!(compare_audio(&signal, &signal, Some(&signal))
-            .unwrap()
-            .metrics
-            .snr_db_vs_reference
-            .unwrap()
-            .is_infinite());
-        assert!(compare_audio(&signal, &signal, Some(&mono(vec![0.1]))).is_err());
+        let source = mono(vec![0.1, -0.2, 0.3]);
+        let repaired = mono(vec![0.09, -0.18, 0.27]);
+        let separate_exact_reference = mono(vec![0.09, -0.18, 0.27]);
+        assert!(
+            compare_audio(&source, &repaired, Some(&separate_exact_reference))
+                .unwrap()
+                .metrics
+                .snr_db_vs_reference
+                .unwrap()
+                .is_infinite()
+        );
+        assert!(matches!(
+            compare_audio(&source, &repaired, Some(&source)),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            compare_audio(&source, &repaired, Some(&repaired)),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(compare_audio(&source, &repaired, Some(&mono(vec![0.1]))).is_err());
     }
 
     #[test]

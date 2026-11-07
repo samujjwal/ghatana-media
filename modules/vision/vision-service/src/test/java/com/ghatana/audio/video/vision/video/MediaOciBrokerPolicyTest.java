@@ -447,6 +447,8 @@ class MediaOciBrokerPolicyTest {
                 parentAlias.resolve("nested.bin").toString(), sha))
                 .as("parent-directory symlink must not alias an admitted source path").isFalse();
         assertThat(MediaOciBrokerPolicy.sourceAllowed(policy, null, null)).isTrue();
+        assertThat(MediaOciBrokerPolicy.sourceAllowed(policy, null, "a".repeat(64)))
+                .as("source-free probes cannot carry a detached source digest").isFalse();
     }
 
     @Test
