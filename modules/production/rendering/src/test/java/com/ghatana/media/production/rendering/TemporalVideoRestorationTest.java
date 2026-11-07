@@ -206,6 +206,63 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void nearUniformReferenceComparisonKeepsSmallLumaVarianceFinite() {
+        int width = 512;
+        int height = 512;
+        Roi roi = new Roi(0, 0, width, height);
+        byte[] sourcePixels = new byte[width * height * 3];
+        byte[] referencePixels = new byte[sourcePixels.length];
+        for (int pixel = 0; pixel < width * height; pixel++) {
+            byte value = (byte) ((pixel & 1) == 0 ? 127 : 128);
+            int offset = pixel * 3;
+            sourcePixels[offset] = value;
+            sourcePixels[offset + 1] = value;
+            sourcePixels[offset + 2] = value;
+            referencePixels[offset] = 127;
+            referencePixels[offset + 1] = 127;
+            referencePixels[offset + 2] = 127;
+        }
+        List<Frame> sourceFrames = List.of(
+                new Frame(0, 0, width, height, roi, sourcePixels),
+                new Frame(1, 1, width, height, roi, sourcePixels),
+                new Frame(2, 2, width, height, roi, sourcePixels));
+        List<Frame> referenceFrames = List.of(
+                new Frame(0, 0, width, height, roi, referencePixels),
+                new Frame(1, 1, width, height, roi, referencePixels),
+                new Frame(2, 2, width, height, roi, referencePixels));
+        DecodedFrameSequence source = new DecodedFrameSequence("source", "v3", SOURCE_SHA, TIME_BASE, sourceFrames);
+        DecodedFrameSequence reference = new DecodedFrameSequence("reference", "v7", REF_SHA, TIME_BASE, referenceFrames);
+
+        Candidate candidate = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.of(referenceRequest()), binding -> reference,
+                (binding, purpose) -> allowed("reference-decision-v2")).candidate().orElseThrow();
+
+        double ssim = candidate.referenceMetrics().globalLumaSsim().orElseThrow();
+        assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.MEASURED);
+        assertThat(ssim).isFinite().isGreaterThan(0.99).isLessThan(1.0);
+        assertThat(candidate.improvementClaimed()).isFalse();
+    }
+
+    @Test
+    void referenceComparisonRejectsDifferentRationalTimebase() {
+        DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+        Roi roi = new Roi(0, 0, 1, 1);
+        DecodedFrameSequence reference = new DecodedFrameSequence("reference", "v7", REF_SHA,
+                new TimeBase(1, 24), List.of(
+                        new Frame(0, 0, 1, 1, roi, new byte[] {10, 20, 30}),
+                        new Frame(1, 1, 1, 1, roi, new byte[] {10, 20, 30}),
+                        new Frame(2, 2, 1, 1, roi, new byte[] {10, 20, 30})));
+
+        assertThatThrownBy(() -> TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.of(referenceRequest()), binding -> reference,
+                (binding, purpose) -> allowed("reference-decision-v2")))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("align exactly");
+    }
+
+    @Test
     void unsharpMaskUsesDocumentedRgbRoundingAndAuthorizedReferenceMetrics() {
         Roi roi = new Roi(0, 0, 3, 1);
         TimeBase timeBase = new TimeBase(1, 30);

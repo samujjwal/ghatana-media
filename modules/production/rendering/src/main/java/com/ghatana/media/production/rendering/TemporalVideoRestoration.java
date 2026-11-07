@@ -774,12 +774,14 @@ public final class TemporalVideoRestoration {
                     }
                     double lumaA = luma(actual, offset);
                     double lumaB = luma(expected, offset);
-                    meanA += lumaA;
-                    meanB += lumaB;
-                    sumAA += lumaA * lumaA;
-                    sumBB += lumaB * lumaB;
-                    sumAB += lumaA * lumaB;
                     lumaCount++;
+                    double deltaA = lumaA - meanA;
+                    double deltaB = lumaB - meanB;
+                    meanA += deltaA / lumaCount;
+                    meanB += deltaB / lumaCount;
+                    sumAA += deltaA * (lumaA - meanA);
+                    sumBB += deltaB * (lumaB - meanB);
+                    sumAB += deltaA * (lumaB - meanB);
                 }
             }
         }
@@ -788,11 +790,11 @@ public final class TemporalVideoRestoration {
         boolean exact = squaredError == 0;
         OptionalDouble psnr = exact ? OptionalDouble.empty()
                 : OptionalDouble.of(10.0 * Math.log10((255.0 * 255.0) / mse));
-        double globalMeanA = meanA / lumaCount;
-        double globalMeanB = meanB / lumaCount;
-        double varianceA = Math.max(0.0, sumAA / lumaCount - globalMeanA * globalMeanA);
-        double varianceB = Math.max(0.0, sumBB / lumaCount - globalMeanB * globalMeanB);
-        double covariance = sumAB / lumaCount - globalMeanA * globalMeanB;
+        double globalMeanA = meanA;
+        double globalMeanB = meanB;
+        double varianceA = Math.max(0.0, sumAA / lumaCount);
+        double varianceB = Math.max(0.0, sumBB / lumaCount);
+        double covariance = sumAB / lumaCount;
         double c1 = Math.pow(0.01 * 255.0, 2);
         double c2 = Math.pow(0.03 * 255.0, 2);
         double ssim = ((2 * globalMeanA * globalMeanB + c1) * (2 * covariance + c2))
