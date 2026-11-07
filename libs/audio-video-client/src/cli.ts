@@ -48,8 +48,8 @@ function parseArguments(argv: readonly string[]): Arguments {
   }
   if (!values.has('--artifact')) throw new Error('Missing required option --artifact.');
   const artifact = values.get('--artifact')!;
-  if (!/^[\x21-\x7e]{1,255}$/u.test(artifact) || artifact === '.' || artifact === '..' || /[\\/]/u.test(artifact)) {
-    throw new Error('artifact must be a printable single path-segment identity of at most 255 characters.');
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u.test(artifact)) {
+    throw new Error('artifact ID must start with a letter or number and use only letters, numbers, dots, underscores, colons, or hyphens (maximum 128 characters).');
   }
   return parsed;
 }

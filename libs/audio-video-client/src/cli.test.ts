@@ -331,6 +331,34 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     });
   });
 
+  it('rejects artifact IDs outside the PDP-1 opaque-ID grammar before SDK or fetch dispatch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-artifact-id-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const base = ['artifact', 'inspect', '--endpoint', 'https://media.example.test',
+      '--tenant', 'tenant-a', '--principal', 'principal-a'];
+    try {
+      for (const artifactId of ['artifact?query', '-artifact', `a${'x'.repeat(128)}`]) {
+        const result = await invoke([
+          ...base, '--artifact', artifactId,
+        ], token, {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-not-found',
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+        }, fetchFixture);
+        expect(result.status).toBe(2);
+        expect(result.stdout).toBe('');
+        expect(JSON.parse(result.stderr)).toMatchObject({
+          schemaVersion: 'media.cli-error.v1',
+          commandId: 'media.cli.artifact.inspect',
+          code: 'INVALID_INVOCATION',
+        });
+        expect(result.stderr).not.toContain(token);
+      }
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each([
     ['upload', 'inspect', '--upload', 'u1'],
     ['upload', 'resume', '--upload', 'u1'],
