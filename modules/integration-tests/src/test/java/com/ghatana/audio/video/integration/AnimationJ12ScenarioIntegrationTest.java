@@ -220,6 +220,56 @@ class AnimationJ12ScenarioIntegrationTest {
         assertThat(renderDispatches).hasValue(0);
     }
 
+    @Test
+    void deniedExactSourceEligibilityPreservesDraftAndBlocksFixtureRenderDispatch() {
+        AtomicInteger generatedId = new AtomicInteger();
+        ProjectTimelineEngine timeline = new ProjectTimelineEngine(new InMemoryProjectTimelineStore(),
+                () -> "j12-denied-fixture-id-" + generatedId.incrementAndGet());
+        Actor actor = new Actor(TENANT, ACTOR);
+        var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 source", "j12-create-denied");
+        var source = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
+                "synthetic-source", "synthetic-source-v1");
+        var sourceIn = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
+        var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
+        var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
+        var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
+        var revision = timeline.edit(actor, created.project().projectId(), created.initialRevision().revisionId(), List.of(
+                new ProjectTimelineEngine.AddScene(
+                        new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
+                new ProjectTimelineEngine.AddTrack(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Track(
+                        "j12-track", "j12-scene",
+                        com.ghatana.media.runtime.MediaProjectTimelineContracts.TrackKind.OVERLAY, 0)),
+                new ProjectTimelineEngine.PutClip(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip(
+                        "j12-clip", "j12-scene", "j12-track", source, sourceIn, sourceOut,
+                        storyStart, storyDuration))));
+
+        AtomicInteger authorityReads = new AtomicInteger();
+        AtomicInteger renderDispatches = new AtomicInteger();
+        Runnable fixtureRenderDispatch = () -> {
+            timeline.requireCurrentSources(actor, created.project().projectId(), revision.revisionId(),
+                    (checkedActor, checkedSource) -> {
+                        assertThat(checkedActor).isEqualTo(actor);
+                        assertThat(checkedSource).isEqualTo(source);
+                        authorityReads.incrementAndGet();
+                        return com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.REVOKED;
+                    });
+            renderDispatches.incrementAndGet();
+            new AnimationRenderer().render(spec(), scene(), new AnimationRenderer.Profile(10, 1, 3));
+        };
+
+        assertThatThrownBy(fixtureRenderDispatch::run)
+                .isInstanceOf(com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibilityException.class)
+                .satisfies(error -> assertThat(
+                        ((com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibilityException) error)
+                                .observed())
+                        .isEqualTo(com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.REVOKED));
+        assertThat(authorityReads).hasValue(1);
+        assertThat(renderDispatches).hasValue(0);
+        assertThat(timeline.project(actor, created.project().projectId()).headRevisionId())
+                .isEqualTo(revision.revisionId());
+        // The fixture denial preserves the committed draft and makes no renderer or production claim.
+    }
+
     private static int decodeGifFrameCount(byte[] bytes) throws Exception {
         Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("gif");
         assertThat(readers.hasNext()).isTrue();
