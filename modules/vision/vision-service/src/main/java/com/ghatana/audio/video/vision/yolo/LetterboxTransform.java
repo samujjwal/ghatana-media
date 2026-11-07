@@ -44,6 +44,9 @@ public record LetterboxTransform(
 
     /** Returns a source-raster pixel xywh box, clipped to source bounds. */
     public Box toSourcePixels(Box model) {
+        if (model == null) {
+            throw new IllegalArgumentException("Model box is required for source-raster mapping");
+        }
         double sx = (double) resizedWidth / sourceWidth;
         double sy = (double) resizedHeight / sourceHeight;
         double x1 = clamp((model.x() - padLeft) / sx, 0, sourceWidth);

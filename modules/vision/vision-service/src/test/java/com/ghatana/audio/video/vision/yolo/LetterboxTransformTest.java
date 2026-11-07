@@ -45,6 +45,14 @@ class LetterboxTransformTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test void rejectsMissingModelBoxBeforeInverseMapping() {
+        LetterboxTransform transform = LetterboxTransform.fit(320, 240, 640);
+
+        assertThatThrownBy(() -> transform.toSourcePixels(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Model box is required");
+    }
+
     @Test void sourcePixelBoxesRoundTripThroughModelCanvasWithinOnePixel() {
         int[][] dimensions = {{1920, 1080}, {720, 1280}, {333, 777}, {1280, 1280}};
         for (int[] size : dimensions) {
