@@ -116,6 +116,25 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void exportRequestAndArtifactIdentityRejectSurroundingWhitespace() {
+        byte[] content = bytes(16);
+        String digest = MediaCreationContracts.sha256(content);
+        assertThatThrownBy(() -> new Artifact("tenant:1", " artifact:1", "version:1", digest, content))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("artifactId must not contain surrounding whitespace");
+
+        Artifact artifact = new Artifact("tenant:1", "artifact:1", "version:1", digest, content);
+        assertThatThrownBy(() -> new ExportRequest("tenant:1", "principal:1", " request:1", artifact,
+                "destination:1"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("requestId must not contain surrounding whitespace");
+        assertThatThrownBy(() -> new ExportRequest("tenant:1", "principal:1", "request:1", artifact,
+                " destination:1 "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationRef must not contain surrounding whitespace");
+    }
+
+    @Test
     void rejectsAcknowledgedOffsetsThatCannotBelongToTheirDeliveryState() {
         assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
                 "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",

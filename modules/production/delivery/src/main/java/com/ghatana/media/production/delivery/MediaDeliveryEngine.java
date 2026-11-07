@@ -649,10 +649,7 @@ public final class MediaDeliveryEngine {
                 acknowledged, Optional.ofNullable(receipt));
     }
     private static String required(String value, String field) {
-        Objects.requireNonNull(value, field);
-        String normalized = value.trim();
-        if (normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
-        return normalized;
+        return requiredExact(value, field);
     }
 
     /** External acknowledgment identities and receipts are compared exactly, never normalized into a match. */
