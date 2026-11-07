@@ -900,6 +900,55 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["video/mp4", "matroska,webm"],
+    ["video/quicktime", "matroska,webm"],
+    ["video/x-matroska", "mov,mp4,m4a,3gp,3g2,mj2"],
+    ["video/webm", "mov,mp4,m4a,3gp,3g2,mj2"],
+  ])("rejects disjoint container family %s / %s before upload", async (contentType, container) => {
+    const client = fakeClient();
+    const mislabeledMuxer = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      contentType,
+      probe: { ...verifiedContainer().probe, container },
+    }) };
+
+    await expect(publishFinalRender(request(), admitted, mislabeledMuxer, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["video/mp4", "mov,mp4,m4a,3gp,3g2,mj2"],
+    ["video/quicktime", "mov,mp4,m4a,3gp,3g2,mj2"],
+    ["video/webm", "matroska,webm"],
+    ["video/x-matroska", "matroska,webm"],
+  ])("accepts known FFmpeg family alias %s / %s", async (contentType, container) => {
+    const client = fakeClient();
+    const compatibleMuxer = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      contentType,
+      probe: { ...verifiedContainer().probe, container },
+    }) };
+
+    await expect(publishFinalRender(request(), admitted, compatibleMuxer, client))
+      .resolves.toMatchObject({ outcome: "PUBLISHED" });
+  });
+
+  it("rejects oversized container-family observations before upload", async () => {
+    const client = fakeClient();
+    const oversizedProbe = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      probe: { ...verifiedContainer().probe, container: `mov,${"x".repeat(512)}` },
+    }) };
+
+    await expect(publishFinalRender(request(), admitted, oversizedProbe, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("rejects oversized probe observation arrays before traversing host data", async () => {
     let indexedReads = 0;
     const oversizedTrackRefs = new Proxy(new Array<string>(100_000), {

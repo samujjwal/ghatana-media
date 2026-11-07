@@ -807,11 +807,35 @@ function copyExactHostArray<T>(value: unknown, expectedLength: number): T[] | un
   return copy;
 }
 
+/** Reject clearly disjoint ffprobe container families; format names are not exact MIME proof. */
+function containerFamilyCompatible(container: string, contentType: string): boolean {
+  if (container.length > 256) return false;
+  const formats = new Set(container.toLowerCase().split(",").map((format) => format.trim()).filter(Boolean));
+  const subtype = contentType.slice("video/".length).toLowerCase();
+  const families: Readonly<Record<string, readonly string[]>> = {
+    mp4: ["mov", "mp4"],
+    quicktime: ["mov", "mp4"],
+    webm: ["matroska", "webm"],
+    "x-matroska": ["matroska", "webm"],
+  };
+  const familyFormats = families[subtype];
+  if (!familyFormats) return false;
+  const knownFamilies: readonly (readonly string[])[] = [
+    ["mov", "mp4"],
+    ["matroska", "webm"],
+  ];
+  const observedFamilies = knownFamilies.filter((family) => family.some((format) => formats.has(format)));
+  return observedFamilies.length === 1
+    && observedFamilies[0]?.length === familyFormats.length
+    && observedFamilies[0]?.every((format) => familyFormats.includes(format)) === true;
+}
+
 /** Snapshot and compare probe observations without serializing host-owned values. */
 function probeMatchesRequest(
   probe: RenderedContainer["probe"],
   request: FinalRenderRequest,
   narrationRefs: readonly string[],
+  contentType: string,
 ): boolean {
   try {
     if (!probe || typeof probe !== "object") return false;
@@ -831,6 +855,7 @@ function probeMatchesRequest(
     const observedCreditRefs = copyExactHostArray<unknown>(creditRefsValue, request.creditRefs.length);
     if (!observedNarrationRefs || !observedCaptionTimings || !observedCreditRefs
       || typeof container !== "string" || container.trim().length === 0
+      || !containerFamilyCompatible(container, contentType)
       || !frameRate || !timeBase
       || frameRate.numerator !== request.frameRate.numerator
       || frameRate.denominator !== request.frameRate.denominator
@@ -949,7 +974,7 @@ export async function publishFinalRender(
   const narrationRefs = [...new Set(safeRequest.plan.sceneRuns.flatMap((run) => run.narration.map((cue) => cue.trackRef)))];
   let probeIsValid = false;
   try {
-    probeIsValid = probeMatchesRequest(rendered.probe, safeRequest, narrationRefs);
+    probeIsValid = probeMatchesRequest(rendered.probe, safeRequest, narrationRefs, rendered.contentType);
   } catch {
     // Includes revoked proxies encountered while obtaining the probe object.
   }
