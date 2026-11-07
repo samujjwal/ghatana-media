@@ -43,7 +43,7 @@ public final class MediaTranscriptContracts {
         public TranscriptSegmentTiming {
             java.util.Objects.requireNonNull(tag, "tag");
             declaredUnit = declaredUnit == null ? "" : declaredUnit.trim();
-            sourceClockId = sourceClockId == null ? "" : sourceClockId.trim();
+            sourceClockId = sourceClockId == null ? "" : sourceClockId;
             switch (tag) {
                 case NOT_SUPPLIED -> {
                     if (start != -1 || end != -1 || !declaredUnit.isEmpty()
@@ -69,6 +69,7 @@ public final class MediaTranscriptContracts {
                 case SOURCE_TICKS -> {
                     if (start < 0 || end <= start || sourceClockId.isBlank()
                             || sourceClockId.length() > 512
+                            || hasEdgeWhitespace(sourceClockId)
                             || sourceClockId.chars().anyMatch(Character::isISOControl)
                             || sourceTicksPerSecond < 1 || sourceDurationTicks < 0
                             || start > MAX_PDP_SAFE_INTEGER || end > MAX_PDP_SAFE_INTEGER
@@ -598,6 +599,17 @@ public final class MediaTranscriptContracts {
     private static String required(String value, String name) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
         return value.trim();
+    }
+
+    private static boolean hasEdgeWhitespace(String value) {
+        if (value.isEmpty()) return false;
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        return isWhitespace(first) || isWhitespace(last);
+    }
+
+    private static boolean isWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
     public static TranscriptCapabilityResult unavailableCapability(TranscriptDerivedCapability capability) {

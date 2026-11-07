@@ -1144,13 +1144,15 @@ public final class MediaRuntimeContracts {
         public record DeclaredSourceClock(
                 String clockId, long ticksPerSecond, long durationTicks, String mappingEvidenceRef) {
             public DeclaredSourceClock {
-                clockId = clockId == null ? "" : clockId.trim();
-                mappingEvidenceRef = mappingEvidenceRef == null ? "" : mappingEvidenceRef.trim();
+                clockId = clockId == null ? "" : clockId;
+                mappingEvidenceRef = mappingEvidenceRef == null ? "" : mappingEvidenceRef;
                 if (clockId.isBlank() || clockId.length() > 512
+                        || hasEdgeWhitespace(clockId)
                         || clockId.chars().anyMatch(Character::isISOControl)) {
                     throw new IllegalArgumentException("declared sourceClockId is malformed");
                 }
                 if (mappingEvidenceRef.isBlank() || mappingEvidenceRef.length() > 512
+                        || hasEdgeWhitespace(mappingEvidenceRef)
                         || mappingEvidenceRef.chars().anyMatch(Character::isISOControl)) {
                     throw new IllegalArgumentException(
                             "declared sourceClockMappingEvidenceRef is malformed");
@@ -1230,6 +1232,7 @@ public final class MediaRuntimeContracts {
                 throw new IllegalArgumentException("timed observation ticks are out of bounds");
             }
             if (sourceClockId == null || sourceClockId.isBlank() || sourceClockId.length() > 512
+                    || hasEdgeWhitespace(sourceClockId)
                     || sourceClockId.chars().anyMatch(Character::isISOControl)) {
                 throw new IllegalArgumentException("timed observation sourceClockId is malformed");
             }
@@ -1242,7 +1245,7 @@ public final class MediaRuntimeContracts {
             }
             entry.put("startTick", startTick);
             entry.put("endTick", endTick);
-            entry.put("sourceClockId", sourceClockId.trim());
+            entry.put("sourceClockId", sourceClockId);
             entry.put("ticksPerSecond", ticksPerSecond);
             return Map.copyOf(entry);
         }
@@ -1317,12 +1320,14 @@ public final class MediaRuntimeContracts {
                 String clockId,
                 long durationTicks) {
             public SourceClockBinding {
-                evidenceRef = required(evidenceRef, "sourceClock evidenceRef");
-                if (evidenceRef.length() > 512) {
-                    throw new IllegalArgumentException("sourceClock evidenceRef is too long");
+                if (evidenceRef == null || evidenceRef.isBlank()
+                        || evidenceRef.length() > 512 || hasEdgeWhitespace(evidenceRef)
+                        || evidenceRef.chars().anyMatch(Character::isISOControl)) {
+                    throw new IllegalArgumentException("sourceClock evidenceRef is malformed");
                 }
-                clockId = clockId == null ? "" : clockId.trim();
-                if (clockId.length() > 512 || clockId.chars().anyMatch(Character::isISOControl)) {
+                clockId = clockId == null ? "" : clockId;
+                if (clockId.length() > 512 || hasEdgeWhitespace(clockId)
+                        || clockId.chars().anyMatch(Character::isISOControl)) {
                     throw new IllegalArgumentException("sourceClock clockId is malformed");
                 }
                 if (ticksPerSecond < 1 || epochOffsetTicks < 0 || durationTicks < 0) {
@@ -2717,6 +2722,17 @@ public final class MediaRuntimeContracts {
     private static String required(String value, String field) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " is required");
         return value.trim();
+    }
+
+    private static boolean hasEdgeWhitespace(String value) {
+        if (value.isEmpty()) return false;
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        return isWhitespace(first) || isWhitespace(last);
+    }
+
+    private static boolean isWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
     private static String normalizedRequired(String value, String field) {
