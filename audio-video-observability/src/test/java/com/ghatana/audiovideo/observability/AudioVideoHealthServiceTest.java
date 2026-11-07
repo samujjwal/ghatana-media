@@ -135,6 +135,23 @@ class AudioVideoHealthServiceTest {
     }
 
     @Test
+    @DisplayName("Metrics collector failure does not suppress the health response")
+    void metricsFailureDoesNotBreakHealthCheck() {
+        healthService.registerCheck("ready", () -> true);
+        assertThat(healthService.markReady()).isTrue();
+        org.mockito.Mockito.doThrow(new IllegalStateException("collector unavailable"))
+                .when(metricsCollector).incrementCounter(anyString(), any(String[].class));
+        CapturingObserver observer = new CapturingObserver();
+
+        healthService.check(HealthCheckRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.responses).hasSize(1);
+        assertThat(observer.responses.get(0).getStatus())
+                .isEqualTo(HealthCheckResponse.ServingStatus.SERVING);
+        assertThat(observer.completed).isTrue();
+    }
+
+    @Test
     @DisplayName("Emits NOT_SERVING metric when no checks are registered")
     void shouldEmitNotServingMetricWithNoChecks() {
         CapturingObserver observer = new CapturingObserver();

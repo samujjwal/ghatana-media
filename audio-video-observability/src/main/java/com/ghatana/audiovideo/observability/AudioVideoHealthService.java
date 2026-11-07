@@ -193,8 +193,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             StreamObserver<HealthCheckResponse> responseObserver) {
 
         HealthCheckResponse.ServingStatus status = currentStatus();
-        metricsCollector.incrementCounter("av.health.check",
-                "service", metricServiceName, "status", status.name().toLowerCase());
+        recordHealthMetric(status);
 
         respond(responseObserver, status);
     }
@@ -233,8 +232,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         }
 
         HealthCheckResponse.ServingStatus status = currentStatus();
-        metricsCollector.incrementCounter("av.health.check",
-                "service", metricServiceName, "status", status.name().toLowerCase());
+        recordHealthMetric(status);
         try {
             subscription.sendInitial(status);
         } catch (RuntimeException observerFailure) {
@@ -336,12 +334,22 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         for (WatchSubscription subscriber : snapshot) {
             try {
                 if (subscriber.sendIfChanged(status)) {
-                    metricsCollector.incrementCounter("av.health.check",
-                            "service", metricServiceName, "status", status.name().toLowerCase());
+                    recordHealthMetric(status);
                 }
             } catch (RuntimeException observerFailure) {
                 removeWatchSubscriber(subscriber);
             }
+        }
+    }
+
+    /** Keep optional instrumentation failures from changing health RPC or Watch behavior. */
+    private void recordHealthMetric(HealthCheckResponse.ServingStatus status) {
+        try {
+            metricsCollector.incrementCounter("av.health.check",
+                    "service", metricServiceName, "status", status.name().toLowerCase());
+        } catch (RuntimeException metricsFailure) {
+            LOG.debug("Unable to record health metric for service={} (type={})",
+                    metricServiceName, metricsFailure.getClass().getSimpleName());
         }
     }
 
