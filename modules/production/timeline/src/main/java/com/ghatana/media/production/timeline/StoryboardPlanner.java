@@ -42,7 +42,7 @@ public final class StoryboardPlanner {
         String project = ownerOpaqueId(projectId, "projectId");
         String expectedRevision = required(expectedProjectRevisionId, "expectedProjectRevisionId");
         String planId = ownerOpaqueId(scenePlanId, "scenePlanId");
-        String version = required(semanticVersion, "semanticVersion");
+        String version = ownerSemanticVersion(semanticVersion);
         Objects.requireNonNull(brief, "brief");
         List<AuthoredScene> scenes = copyBoundedScenes(authoredScenes);
         if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard requires at least one authored scene");
@@ -240,7 +240,7 @@ public final class StoryboardPlanner {
             ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
             projectId = ownerOpaqueId(projectId, "projectId");
             scenePlanId = ownerOpaqueId(scenePlanId, "scenePlanId");
-            semanticVersion = required(semanticVersion, "semanticVersion");
+            semanticVersion = ownerSemanticVersion(semanticVersion);
             expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
             scenes = copyBoundedPlannedScenes(scenes).stream().sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
@@ -495,6 +495,15 @@ public final class StoryboardPlanner {
     private static String ownerOpaqueId(String value, String name) {
         if (value == null || value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*")) {
             throw new IllegalArgumentException(name + " must match the 1-128 character owner opaque-ID format");
+        }
+        return value;
+    }
+
+    /** PDP-1 semantic-version-or-owner-version-id scalar; validate before rights or append effects. */
+    private static String ownerSemanticVersion(String value) {
+        if (value == null || value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9.+:-]*")) {
+            throw new IllegalArgumentException(
+                    "semanticVersion must match the 1-128 character owner version format");
         }
         return value;
     }

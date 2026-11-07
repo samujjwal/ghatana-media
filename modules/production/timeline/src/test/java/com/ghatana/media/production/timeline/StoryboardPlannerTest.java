@@ -233,6 +233,13 @@ class StoryboardPlannerTest {
         int rightsCallsAfterValidIdentity = rights.calls();
         assertThat(rightsCallsAfterValidIdentity).isEqualTo(1);
 
+        String maximumVersion = "v" + "x".repeat(127);
+        StoryboardPlanner.ScenePlan maximumVersionPlan = planner.prepare(OWNER, "project", "head-version",
+                "plan-version", maximumVersion, brief(List.of()), scenes);
+        assertThat(maximumVersionPlan.semanticVersion()).isEqualTo(maximumVersion);
+        int rightsCallsAfterValidVersion = rights.calls();
+        assertThat(rightsCallsAfterValidVersion).isEqualTo(rightsCallsAfterValidIdentity);
+
         for (String invalid : List.of("", " ", ":starts-with-punctuation", "contains/slash", "x".repeat(129))) {
             assertThatThrownBy(() -> planner.prepare(OWNER, invalid, "head-identity", "plan", "v1", brief, scenes))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -241,7 +248,15 @@ class StoryboardPlannerTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("owner opaque-ID format");
         }
-        assertThat(rights.calls()).isEqualTo(rightsCallsAfterValidIdentity);
+        for (String invalidVersion : List.of("", " ", ":starts-with-punctuation", "has_underbar", "contains/slash",
+                "x".repeat(129))) {
+            assertThatThrownBy(() -> planner.prepare(OWNER, "project", "head-version", "plan", invalidVersion,
+                    brief(List.of(SOURCE_A)), scenes))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("semanticVersion")
+                    .hasMessageContaining("owner version format");
+        }
+        assertThat(rights.calls()).isEqualTo(rightsCallsAfterValidVersion);
 
         assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "bad/project", "plan",
                 "v1", "head-1", brief, plan.scenes(), plan.exactSources(),
@@ -255,6 +270,12 @@ class StoryboardPlannerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("scenePlanId")
                 .hasMessageContaining("owner opaque-ID format");
+        assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "project", "plan",
+                "bad_version", "head-1", brief, plan.scenes(), plan.exactSources(),
+                StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("semanticVersion")
+                .hasMessageContaining("owner version format");
     }
 
     @Test
