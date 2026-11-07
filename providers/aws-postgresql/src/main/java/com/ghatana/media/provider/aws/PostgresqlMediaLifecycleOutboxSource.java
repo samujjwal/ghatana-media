@@ -69,8 +69,8 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
 
     public BatchResult publishPending(MediaLifecycleEventPublisher publisher, int limit) {
         if (closed.get()) throw new IllegalStateException("Media outbox source is closed");
-        if (publisher == null || !publisher.ready()) return new BatchResult(0, 0, 0);
         if (limit < 1 || limit > 1_000) throw new IllegalArgumentException("limit must be between 1 and 1000");
+        if (publisher == null || !publisher.ready()) return new BatchResult(0, 0, 0);
         List<String> ids = eligibleIds(limit);
         int attempted = 0;
         int published = 0;

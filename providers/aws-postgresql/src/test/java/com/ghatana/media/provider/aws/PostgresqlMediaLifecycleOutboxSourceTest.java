@@ -96,6 +96,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 verifyConcurrentClaimFencing();
                 verifyExpiredClaimRecovery();
                 verifyExpiredOwnerCannotAcknowledgeWithoutReplacement();
+                verifyInvalidLimitRejectedBeforePublisherReadinessCheck();
                 verifyClaimTokenOverflowFailsClosed();
                 verifyClaimLeaseOverflowFailsClosed();
                 verifyAttemptCounterOverflowFailsBeforePublish();
@@ -105,6 +106,34 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             }
         } finally {
             readinessEndpoint.stop(0);
+        }
+    }
+
+    private static void verifyInvalidLimitRejectedBeforePublisherReadinessCheck() {
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        AtomicInteger readinessChecks = new AtomicInteger();
+        AtomicInteger publishCalls = new AtomicInteger();
+        MediaLifecycleEventPublisher unavailable = new MediaLifecycleEventPublisher() {
+            @Override public String publisherId() { return "unavailable-test-publisher"; }
+            @Override public boolean ready() {
+                readinessChecks.incrementAndGet();
+                return false;
+            }
+            @Override public boolean productionEligible() { return false; }
+            @Override public void publish(MediaLifecycleEvent event) { publishCalls.incrementAndGet(); }
+        };
+
+        try {
+            assertThatThrownBy(() -> source.publishPending(unavailable, 0))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("limit must be between 1 and 1000");
+            assertThatThrownBy(() -> source.publishPending(unavailable, 1_001))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("limit must be between 1 and 1000");
+            assertThat(readinessChecks).hasValue(0);
+            assertThat(publishCalls).hasValue(0);
+        } finally {
+            source.close();
         }
     }
 
