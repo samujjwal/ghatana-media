@@ -11,6 +11,8 @@ import java.util.Objects;
 /** Immutable A/B snapshot for source PCM and a repaired PCM revision. */
 public final class AudioRepairComparison {
     private static final int MAX_PCM_BYTES = 16 * 1024 * 1024;
+    private static final long MAX_PCM_SAMPLES = MAX_PCM_BYTES / 2L;
+    private static final long MAX_PCM_SAMPLE_MAGNITUDE = 1L << 31;
 
     private final AudioData source;
     private final AudioData repaired;
@@ -191,9 +193,11 @@ public final class AudioRepairComparison {
             if (!Double.isFinite(sourceRms) || sourceRms < 0.0
                     || !Double.isFinite(repairedRms) || repairedRms < 0.0
                     || !rmsChangeMatches(sourceRms, repairedRms, rmsChangeDb)
-                    || sourcePeak < 0 || repairedPeak < 0
-                    || sourceNearClipSampleCount < 0 || repairedNearClipSampleCount < 0
-                    || changedSampleCount < 0) {
+                    || sourcePeak < 0 || sourcePeak > MAX_PCM_SAMPLE_MAGNITUDE
+                    || repairedPeak < 0 || repairedPeak > MAX_PCM_SAMPLE_MAGNITUDE
+                    || sourceNearClipSampleCount < 0 || sourceNearClipSampleCount > MAX_PCM_SAMPLES
+                    || repairedNearClipSampleCount < 0 || repairedNearClipSampleCount > MAX_PCM_SAMPLES
+                    || changedSampleCount < 0 || changedSampleCount > MAX_PCM_SAMPLES) {
                 throw new IllegalArgumentException("audio comparison metrics must be non-negative and numerically defined");
             }
             if (hasIndependentReference == Double.isNaN(snrDbVsReference)) {

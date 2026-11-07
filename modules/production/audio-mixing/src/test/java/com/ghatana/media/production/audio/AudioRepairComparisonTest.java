@@ -116,6 +116,16 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void metricsRejectPeaksAndSampleCountsOutsideSupportedPcmBounds() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, (1L << 31) + 1, 0, 0, 0, 0, 0.0,
+                Double.NaN, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, (16L * 1024 * 1024) / 2 + 1, 0.0,
+                Double.NaN, false, null, null, null));
+    }
+
+    @Test
     void metricsRejectRmsChangeThatContradictsTheReportedRmsValues() {
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 1.0, 1.0, 1, 1, 0, 0, 0, Double.POSITIVE_INFINITY,
