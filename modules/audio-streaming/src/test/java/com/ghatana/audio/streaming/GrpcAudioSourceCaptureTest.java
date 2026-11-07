@@ -98,6 +98,20 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void staleSequenceWithCursorAtOrAfterAdmissionIsRejectedBeforeOffer() {
+        FakePort port = new FakePort();
+        port.lastAck = 0;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(
+                frame(11, 0, "source@v7"), frame(10, 1, "source@v7")), false));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
     void unknownAndDeniedInitialReadbackReturnNoFramesAndDoNotFetchSourceBatch() {
         for (var decision : List.of(GrpcAudioSourceCapture.Authorization.UNKNOWN,
                 GrpcAudioSourceCapture.Authorization.DENIED, GrpcAudioSourceCapture.Authorization.REVOKED)) {

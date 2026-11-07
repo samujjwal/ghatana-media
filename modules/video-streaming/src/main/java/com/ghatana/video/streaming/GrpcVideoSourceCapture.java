@@ -157,7 +157,16 @@ public final class GrpcVideoSourceCapture {
         VideoFrameTimebase.SourceTimestamp previousKnownPts = null;
         for (SourceFrame frame : ordered) {
             long expectedMediaSequence = nextMedia + accepted;
-            if (frame.mediaSequence() < expectedMediaSequence) continue;
+            if (frame.mediaSequence() < expectedMediaSequence) {
+                // Retransmitted acknowledged frames may be present, but they must remain
+                // before the currently admitted source cursor. Otherwise the batch's two
+                // ordering coordinates disagree and cannot be safely treated as stale.
+                if (frame.sourceCursor() >= admitted.sourceCursor()) {
+                    return new Result(Disposition.UNKNOWN, accepted, lastCursor,
+                            "stale source sequence is not before the admitted cursor");
+                }
+                continue;
+            }
             if (frame.mediaSequence() != expectedMediaSequence || frame.sourceCursor() != expectedSourceCursor) {
                 return new Result(Disposition.GAP, accepted, lastCursor, "source cursor or Media sequence gap");
             }

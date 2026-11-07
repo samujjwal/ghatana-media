@@ -97,6 +97,20 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void staleSequenceWithCursorAtOrAfterAdmissionIsRejectedBeforeOffer() {
+        FakePort port = new FakePort();
+        port.lastAck = 0;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
+                frame(11, 0, "video@v3", 20), frame(10, 1, "video@v3", 30)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
     void deniedReadbackDoesNotFetchOrOfferFrames() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(frame(10, 0, "video@v3", 20)), false));
