@@ -26,6 +26,14 @@ consumed as a library dependency — no standalone entrypoint.
   lib only).
 - Security helpers must not weaken tenant isolation, consent or rights
   checks in consuming services.
+- `ContextAwareBoundedExecutor.Submission.result()` routes direct
+  `CompletableFuture.cancel(mayInterruptIfRunning)` requests through the
+  submission cancellation fence. Started effect-capable work remains
+  `UNKNOWN_OUTCOME`; queued/no-effect cancellation keeps its typed outcome,
+  and the supplied interrupt flag is honored. Accepted cancel requests complete
+  with the classified operation result rather than a bare
+  `CancellationException`, so `isCancelled()` remains false and callers can
+  observe the cancellation finality classification.
 
 ## Dependencies and configuration
 

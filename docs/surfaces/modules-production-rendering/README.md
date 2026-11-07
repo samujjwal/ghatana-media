@@ -62,6 +62,9 @@ adapters own those decisions and exact-byte reads.
 - Restoration and optimization distinguish completed work from admission or
   availability failures. Rights are checked by injected authorities and are
   rechecked before disclosure; caller-asserted rights are not accepted.
+- Nonempty authority decision IDs are exact identities; the restoration and
+  quality-comparison records reject surrounding whitespace instead of
+  normalizing a potentially different rights-evidence reference.
 - Restoration sequences contain 3–64 RGB8 frames, bounded to 2048×2048 each,
   16 Mi pixels and 64 MiB aggregate RGB. Frame indexes are contiguous, PTS
   strictly increase, and timebase, dimensions, ROI, artifact/version binding,

@@ -26,3 +26,11 @@ the tested vectors only; representative lawful audio, independent references,
 perceptual tolerances, and host/resource qualification remain required for a
 real quality claim. No source file or external provider is modified by this
 comparison module.
+
+`PcmStemMixer` validates each stem and checks its typed local rights evidence
+against the exact source version before rendering; this is not an external
+rights authority or qualification. A stem with exactly zero gain contributes no
+samples; after validation it skips PCM sample conversion and accumulation while
+preserving the same output bytes. This local optimization does not establish
+lawful production audio, certified true-peak measurement, perceptual mastering
+quality, or durable project revision and delivery.

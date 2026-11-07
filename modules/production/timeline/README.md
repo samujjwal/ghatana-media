@@ -23,7 +23,9 @@ and overlap semantics are not fully bound to an accepted PDP-1 graph mapping.
 
 Source-rights currentness is checked through `SourceEligibilityPort` at the
 effect boundary for every exact source version. `REVOKED`, `UNKNOWN`, absent
-authority, and authority failures block the effect with a typed result. The
+authority, and authority failures block the effect with a typed result. A
+throwing authority adapter maps to `SourceEligibility.UNKNOWN` without
+retaining adapter details or a cause. The
 predicate overload remains for local compatibility. This module does not
 render, resolve artifact bytes, establish rights, or claim provider readiness. PDP-1
 defines project and timeline identities and immutable project revisions, but
@@ -71,4 +73,6 @@ and undo. It verifies normalized bounding-box transforms and only accepts
 byte-identical masks when no transform is applied. It does not run tracking,
 warp masks, edit pixels, or persist revisions itself. Its store port must
 provide scoped compare-and-set, idempotency, and append-only exact undo before
-any host exposes the draft operation.
+any host exposes the draft operation. Aggregate source and edited mask evidence
+is locally bounded to 64 MiB before rights inspection; PDP-1 leaves the final
+product limit unspecified, so this is a development safety ceiling only.
