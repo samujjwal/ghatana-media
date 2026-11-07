@@ -519,6 +519,49 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsCaptionBeyondDurationEvenWhenManifestDigestMatches() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(), 1_000)).plan();
+        String forgedManifest = valid.canonicalManifest().replace(
+                "frame=v|0|0/1|0/1\n", "frame=v|0|0/1|0/1\ncaption=cap|0/1|11/1|dGV4dA\n");
+        String forgedDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("caption interval must be positive and within plan duration");
+    }
+
+    @Test
+    void publicPlanRejectsInvalidBase64AndMalformedUtf8CaptionText() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(), 1_000)).plan();
+        for (var invalidText : List.of("%", "ww")) {
+            String forgedManifest = valid.canonicalManifest().replace(
+                    "frame=v|0|0/1|0/1\n", "frame=v|0|0/1|0/1\ncaption=cap|0/1|1/1|" + invalidText + "\n");
+            String forgedDigest = HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+            var failure = assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                    valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                    valid.declaredOutputBudgetBytes()));
+            failure.withMessageContaining(invalidText.equals("%") ? "must be base64url" : "must be valid UTF-8");
+        }
+
+        String padded = valid.canonicalManifest().replace(
+                "frame=v|0|0/1|0/1\n", "frame=v|0|0/1|0/1\ncaption=cap|0/1|1/1|dGV4dA==\n");
+        String paddedDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(padded.getBytes(StandardCharsets.UTF_8)));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), padded, paddedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("unpadded base64url");
+    }
+
+    @Test
     void rejectsAdvertisedOversizedGraphListBeforeTraversingIt() {
         var traversals = new int[1];
         List<MultitrackRenderPlanner.Clip> oversized = new AbstractList<>() {

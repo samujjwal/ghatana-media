@@ -1,6 +1,9 @@
 package com.ghatana.media.production.rendering;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -194,6 +197,7 @@ public final class MultitrackRenderPlanner {
                 throw invalid("plan fields do not match the canonical manifest header");
             }
             validateManifestRecordKinds(canonicalManifest);
+            validateCaptionMappings(canonicalManifest, duration);
             List<String> expectedFrameLines = frameMap.stream()
                     .sorted(java.util.Comparator.comparing(MappedFrame::clipId)
                             .thenComparingInt(MappedFrame::frameIndex))
@@ -405,6 +409,45 @@ public final class MultitrackRenderPlanner {
         }
         if (!mappedClipIds.equals(clipTimeMaps.keySet())) {
             throw invalid("canonical manifest clip ids must have exact frame-map coverage");
+        }
+    }
+
+    private static void validateCaptionMappings(String manifest, Time planDuration) {
+        for (String line : manifest.lines().filter(value -> value.startsWith("caption=")).toList()) {
+            String[] fields = line.substring("caption=".length()).split("\\|", -1);
+            if (fields.length != 4) throw invalid("canonical manifest caption row is malformed");
+            opaque(fields[0], "manifest caption id");
+            Time start = manifestTime(fields[1]);
+            Time end = manifestTime(fields[2]);
+            if (start.numerator() < 0 || end.compareTo(start) <= 0 || end.compareTo(planDuration) > 0) {
+                throw invalid("caption interval must be positive and within plan duration");
+            }
+            byte[] textBytes;
+            try {
+                textBytes = java.util.Base64.getUrlDecoder().decode(fields[3]);
+            } catch (IllegalArgumentException malformed) {
+                throw invalid("canonical manifest caption text must be base64url");
+            }
+            String canonicalEncoding = java.util.Base64.getUrlEncoder().withoutPadding()
+                    .encodeToString(textBytes);
+            if (!canonicalEncoding.equals(fields[3])) {
+                throw invalid("canonical manifest caption text must use unpadded base64url");
+            }
+            final String text;
+            try {
+                text = StandardCharsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(textBytes)).toString();
+            } catch (CharacterCodingException malformed) {
+                throw invalid("canonical manifest caption text must be valid UTF-8");
+            }
+            if (!java.util.Arrays.equals(textBytes, text.getBytes(StandardCharsets.UTF_8))) {
+                throw invalid("canonical manifest caption text must round-trip as UTF-8");
+            }
+            if (text.isBlank() || text.length() > 4_096 || text.indexOf('\0') >= 0) {
+                throw invalid("canonical manifest caption text must contain 1..4096 non-NUL characters");
+            }
         }
     }
 
