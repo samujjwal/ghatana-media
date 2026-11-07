@@ -962,7 +962,7 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
-  it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"roundedFraction":9007199254740991.1}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
+  it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"roundedFraction":9007199254740991.1}', '{"loneHigh":"\\ud800"}', '{"loneLow":"\\udc00"}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
     'rejects invalid, duplicate-key, non-finite, or over-deep JSON parameters before dispatch (%s)', async parameters => {
       const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
         '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
@@ -1010,6 +1010,28 @@ describe('ghatanamedia-api canonical job commands', () => {
         schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit', job: acknowledgedJob,
       });
     });
+  });
+
+  it('preserves a valid escaped Unicode surrogate pair in authenticated job parameters', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-unicode-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(jobCommand('https://media.example.test', 'submit', [
+        '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
+        '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-unicode', '--parameters', '{"label":"\\ud83d\\ude00"}',
+      ]), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout).job.requestId).toBe('request-1');
+      expect(await readFile(requestLogPath, 'utf8')).toContain('"method":"POST"');
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it('rejects parameters above the UTF-8 byte limit in a fresh CLI process before dispatch', async () => {

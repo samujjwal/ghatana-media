@@ -136,7 +136,22 @@ function parseStrictJsonObject(input: string): Record<string, unknown> {
       if (escaped) { escaped = false; continue; }
       if (character === '\\') { escaped = true; continue; }
       if (character === '"') {
-        try { return JSON.parse(input.slice(start, offset)) as string; }
+        try {
+          const parsed = JSON.parse(input.slice(start, offset)) as string;
+          // URL and JSON encoders replace unpaired UTF-16 surrogates with U+FFFD.
+          // Reject them here so a parameter value cannot change during dispatch.
+          for (let index = 0; index < parsed.length; index += 1) {
+            const unit = parsed.charCodeAt(index);
+            if (unit >= 0xd800 && unit <= 0xdbff) {
+              const next = parsed.charCodeAt(index + 1);
+              if (!(next >= 0xdc00 && next <= 0xdfff)) return fail();
+              index += 1;
+            } else if (unit >= 0xdc00 && unit <= 0xdfff) {
+              return fail();
+            }
+          }
+          return parsed;
+        }
         catch { return fail(); }
       }
       if (character.charCodeAt(0) < 0x20) return fail();
