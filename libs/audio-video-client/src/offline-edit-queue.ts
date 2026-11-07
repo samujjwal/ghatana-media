@@ -78,6 +78,109 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder("utf-8", { fatal: true });
 const DEFAULT_MAXIMUM_ENTRIES = 100;
 const DEFAULT_MAXIMUM_PAYLOAD_BYTES = 256 * 1024;
+const MAXIMUM_JSON_DEPTH = 100;
+const MAXIMUM_JSON_NODES = 100_000;
+
+/** Offline payloads must already be a bounded JSON data tree; serialization never coerces caller values. */
+function serializeJsonPayload(payload: unknown, maximumBytes: number): string {
+  let nodes = 0;
+  let serializedBytes = 0;
+  const ancestors = new WeakSet<object>();
+  const addBytes = (count: number): void => {
+    serializedBytes += count;
+    if (serializedBytes > maximumBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
+  };
+  const addJsonStringBytes = (value: string): void => {
+    addBytes(2); // quotes
+    for (let index = 0; index < value.length; index++) {
+      const code = value.charCodeAt(index);
+      if (code === 0x22 || code === 0x5c || code === 0x08 || code === 0x09
+        || code === 0x0a || code === 0x0c || code === 0x0d) {
+        addBytes(2);
+      } else if (code < 0x20) {
+        addBytes(6); // \\u00xx
+      } else if (code >= 0xd800 && code <= 0xdbff) {
+        const next = value.charCodeAt(index + 1);
+        if (next >= 0xdc00 && next <= 0xdfff) {
+          addBytes(4);
+          index++;
+        } else {
+          addBytes(6); // well-formed JSON.stringify escapes lone surrogates
+        }
+      } else if (code >= 0xdc00 && code <= 0xdfff) {
+        addBytes(6);
+      } else if (code <= 0x7f) {
+        addBytes(1);
+      } else if (code <= 0x7ff) {
+        addBytes(2);
+      } else {
+        addBytes(3);
+      }
+    }
+  };
+  const snapshot = (value: unknown, depth: number): unknown => {
+    if (++nodes > MAXIMUM_JSON_NODES || depth > MAXIMUM_JSON_DEPTH) throw new OfflineEditQueueError("INVALID_EDIT");
+    if (value === null) { addBytes(4); return value; }
+    if (typeof value === "string") { addJsonStringBytes(value); return value; }
+    if (typeof value === "boolean") { addBytes(value ? 4 : 5); return value; }
+    if (typeof value === "number") {
+      if (!Number.isFinite(value)) throw new OfflineEditQueueError("INVALID_EDIT");
+      addBytes(JSON.stringify(value).length);
+      return value;
+    }
+    if (typeof value !== "object") throw new OfflineEditQueueError("INVALID_EDIT");
+    if (ancestors.has(value)) throw new OfflineEditQueueError("INVALID_EDIT");
+    ancestors.add(value);
+    try {
+      if (Array.isArray(value)) {
+        const keys = Reflect.ownKeys(value);
+        if (keys.length > MAXIMUM_JSON_NODES + 1) throw new OfflineEditQueueError("INVALID_EDIT");
+        if (keys.some((key) => typeof key === "symbol"
+          || (key !== "length" && (!/^(0|[1-9][0-9]*)$/.test(key) || Number(key) >= value.length)))) {
+          throw new OfflineEditQueueError("INVALID_EDIT");
+        }
+        const result: unknown[] = [];
+        addBytes(2); // brackets
+        for (let index = 0; index < value.length; index++) {
+          const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+          if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) {
+            throw new OfflineEditQueueError("INVALID_EDIT");
+          }
+          if (index > 0) addBytes(1);
+          result.push(snapshot(descriptor.value, depth + 1));
+        }
+        return result;
+      }
+      const prototype = Object.getPrototypeOf(value);
+      if (prototype !== Object.prototype && prototype !== null) throw new OfflineEditQueueError("INVALID_EDIT");
+      const result: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+      addBytes(2); // braces
+      const keys = Reflect.ownKeys(value);
+      if (keys.length > MAXIMUM_JSON_NODES) throw new OfflineEditQueueError("INVALID_EDIT");
+      let propertyIndex = 0;
+      for (const key of keys) {
+        if (typeof key !== "string") throw new OfflineEditQueueError("INVALID_EDIT");
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) {
+          throw new OfflineEditQueueError("INVALID_EDIT");
+        }
+        if (propertyIndex++ > 0) addBytes(1);
+        addJsonStringBytes(key);
+        addBytes(1); // colon
+        Object.defineProperty(result, key, { value: snapshot(descriptor.value, depth + 1), enumerable: true });
+      }
+      return result;
+    } finally {
+      ancestors.delete(value);
+    }
+  };
+  try {
+    return JSON.stringify(snapshot(payload, 0));
+  } catch (error) {
+    if (error instanceof OfflineEditQueueError) throw error;
+    throw new OfflineEditQueueError("INVALID_EDIT");
+  }
+}
 
 function assertScope(scope: OfflineEditScope): void {
   if (!isValidAadIdentity(scope.tenantId) || !isValidAadIdentity(scope.projectId)) {
@@ -124,13 +227,7 @@ export class OfflineEditQueue {
 
   public async enqueue<T>(edit: OfflineEdit<T>): Promise<void> {
     assertEdit(edit);
-    let serialized: string;
-    try {
-      serialized = JSON.stringify(edit.payload);
-    } catch {
-      throw new OfflineEditQueueError("INVALID_EDIT");
-    }
-    if (serialized === undefined) throw new OfflineEditQueueError("INVALID_EDIT");
+    const serialized = serializeJsonPayload(edit.payload, this.maximumPayloadBytes);
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
     const records = await this.listScoped(edit);
@@ -169,11 +266,7 @@ export class OfflineEditQueue {
     }
     if ((await this.listScoped(edit)).some((record) => record.editId !== edit.editId
       && record.idempotencyKey === edit.idempotencyKey)) throw new OfflineEditQueueError("INVALID_EDIT");
-    let serialized: string | undefined;
-    try { serialized = JSON.stringify(edit.payload); } catch {
-      throw new OfflineEditQueueError("INVALID_EDIT");
-    }
-    if (serialized === undefined) throw new OfflineEditQueueError("INVALID_EDIT");
+    const serialized = serializeJsonPayload(edit.payload, this.maximumPayloadBytes);
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
     const replacement = await this.encrypt(edit, plaintext, "PENDING");

@@ -169,9 +169,70 @@ describe("OfflineEditQueue", () => {
     const store = new MemoryStore();
     const bounded = new OfflineEditQueue({ store, encryptionKey: key, maximumPayloadBytes: 8 });
     await expect(bounded.enqueue({ ...edit, payload: "123456" })).resolves.toBeUndefined();
+    expect(await bounded.readEdits(scope)).toMatchObject([{ edit: { payload: "123456" }, state: "PENDING" }]);
     await expect(bounded.enqueue({ ...edit, editId: "too-large", idempotencyKey: "too-large-key", payload: "1234567" }))
       .rejects.toMatchObject({ code: "PAYLOAD_TOO_LARGE" } satisfies Partial<OfflineEditQueueError>);
+    await expect(bounded.enqueue({ ...edit, editId: "large-string", idempotencyKey: "large-string-key",
+      payload: "x".repeat(1_000_000) }))
+      .rejects.toMatchObject({ code: "PAYLOAD_TOO_LARGE" } satisfies Partial<OfflineEditQueueError>);
+    await expect(bounded.enqueue({ ...edit, editId: "large-object", idempotencyKey: "large-object-key",
+      payload: { text: "x".repeat(1_000_000) } }))
+      .rejects.toMatchObject({ code: "PAYLOAD_TOO_LARGE" } satisfies Partial<OfflineEditQueueError>);
     expect(store.records.size).toBe(1);
+  });
+
+  it("snapshots only faithful JSON trees and rejects lossy values before storage", async () => {
+    const { queue, store } = await createQueue();
+    const cycle: Record<string, unknown> = {};
+    cycle.self = cycle;
+    const accessor = Object.defineProperty({}, "value", { enumerable: true, get: () => 1 });
+    const sparse = [1, , 3];
+    const hidden = Object.defineProperty({ visible: true }, "hidden", { value: 1 });
+    const invalidPayloads: unknown[] = [
+      NaN, Infinity, undefined, () => 1, 1n, cycle, sparse, accessor, hidden,
+      { value: undefined }, { [Symbol("extra")]: 1 }, new Date(0),
+      Object.assign(Object.create({ inherited: true }) as object, { value: 1 }),
+    ];
+
+    for (const payload of invalidPayloads) {
+      await expect(queue.enqueue({ ...edit, payload }))
+        .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    }
+    expect(store.records.size).toBe(0);
+
+    const specialKey = Object.defineProperty({}, "__proto__", { value: "data", enumerable: true });
+    const validPayload = Object.assign(Object.create(null) as Record<string, unknown>, {
+      nested: [null, true, "é", 0, specialKey],
+    });
+    await queue.enqueue({ ...edit, payload: validPayload });
+    expect(await queue.readEdits(scope)).toEqual([{ edit: { ...edit, payload: validPayload }, state: "PENDING" }]);
+    expect(store.records.size).toBe(1);
+  });
+
+  it("rejects an object with more own keys than the traversal bound before storage", async () => {
+    const { queue, store } = await createQueue();
+    const oversized: Record<string, number> = {};
+    for (let index = 0; index <= 100_000; index++) oversized[`key-${index}`] = 1;
+
+    await expect(queue.enqueue({ ...edit, payload: oversized }))
+      .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    expect(store.records.size).toBe(0);
+  });
+
+  it("rejects invalid conflict payloads without replacing the conflicted stored edit", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    await queue.replay(scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v8",
+      apply: async () => ({ outcome: "APPLIED", receipt: "unused" }),
+    });
+    const originalRecord = store.records.get(edit.editId);
+    await expect(queue.resolveConflict({ ...edit, idempotencyKey: "idem-rebased", expectedVersion: "v8",
+      payload: { score: Number.NaN } }))
+      .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    expect(store.records.get(edit.editId)).toBe(originalRecord);
+    expect((await queue.readEdits(scope))[0]?.state).toBe("CONFLICT");
   });
 
   it("rejects a store that returns another tenant or project in a scoped read", async () => {
