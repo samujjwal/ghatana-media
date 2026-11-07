@@ -623,6 +623,25 @@ describe("CameraCaptureAdapter", () => {
     expect(sourceReorderedTrack.stopCalls).toBe(1);
   });
 
+  it("preserves strictly increasing signed source PTS across the int64 minimum", async () => {
+    const track = frameTrack([
+      { bytes: new Uint8Array([1]), presentationTicks: "-9223372036854775808" },
+      { bytes: new Uint8Array([2]), presentationTicks: "-1" },
+      { bytes: new Uint8Array([3]), presentationTicks: "0" },
+    ]);
+    const h = harness({ tracks: [track] });
+    const session = await h.adapter.openSession(request);
+
+    const frames = [await session.nextFrame(), await session.nextFrame(), await session.nextFrame()];
+    expect(frames.map((frame) => frame.sourcePresentationTime)).toMatchObject([
+      { disposition: "KNOWN", presentationTicks: "-9223372036854775808" },
+      { disposition: "KNOWN", presentationTicks: "-1" },
+      { disposition: "KNOWN", presentationTicks: "0" },
+    ]);
+    await session.close();
+    expect(track.stopCalls).toBe(1);
+  });
+
   it("serializes concurrent frame reads so the session frame cap cannot be exceeded", async () => {
     const track = frameTrack([new Uint8Array([1]), new Uint8Array([2])]);
     const h = harness({ tracks: [track], maxFrames: 1 });

@@ -103,6 +103,17 @@ function cameraFrame(overrides: Partial<CapturedFrame> = {}): CapturedFrame {
 }
 
 describe("captureWithAdmission", () => {
+  it("reports a missing adapter unavailable before eligibility or source dispatch", async () => {
+    let eligibilityCalls = 0;
+
+    await expect(captureWithAdmission({
+      check: () => { eligibilityCalls++; return "ADMITTED"; },
+    }, null as unknown as { capture(request: CaptureRequest): Promise<CapturedFrame> }, request))
+      .rejects.toMatchObject({ name: "CaptureUnavailableError", kind: "MEDIA_FILE", eligibility: "UNAVAILABLE" });
+
+    expect(eligibilityCalls).toBe(0);
+  });
+
   it("runs capture only through an admitted adapter and binds source+clock", async () => {
     const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 1_700_000_000_000 }, new Uint8Array([1, 2, 3])));
     const frame = await captureWithAdmission(
@@ -216,6 +227,21 @@ describe("captureWithAdmission", () => {
     // Consumers may still process the detached payload.
     frame.bytes[0] = 9;
     expect(frame.bytes[0]).toBe(9);
+  });
+
+  it("preserves negative signed camera PTS when source clock identity matches", async () => {
+    const base = cameraFrame();
+    if (base.sourcePresentationTime?.disposition !== "KNOWN") throw new Error("fixture must include source PTS");
+    const frame = cameraFrame({ sourcePresentationTime: {
+      ...base.sourcePresentationTime,
+      presentationTicks: "-9223372036854775808",
+    } });
+
+    const captured = await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning(frame), cameraRequest);
+
+    expect(captured.sourcePresentationTime).toMatchObject({
+      disposition: "KNOWN", presentationTicks: "-9223372036854775808",
+    });
   });
 
   it("returns sanitized UNKNOWN for malformed camera clock sets and mismatched source PTS", async () => {

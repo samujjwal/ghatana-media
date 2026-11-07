@@ -386,8 +386,7 @@ function snapshotCameraPresentationTime(
     || value.sourceClockRef !== metadata.sourceClockRef
     || value.sourceStreamRef !== metadata.sourceStreamRef
     || value.sourceOriginRef !== metadata.sourceOriginRef
-    || !SignedInt64DecimalSchema.safeParse(value.presentationTicks).success
-    || BigInt(value.presentationTicks) < 0n) {
+    || !SignedInt64DecimalSchema.safeParse(value.presentationTicks).success) {
     throw new TypeError("known camera source time must match exact source clock metadata");
   }
   const timeBase = snapshotPositiveRational(value.timeBase);
@@ -536,6 +535,12 @@ export async function captureWithAdmission(
   }
   if (!CAPTURE_SOURCE_KINDS.has(request.kind)) {
     throw new TypeError("capture request kind is outside the supported source enum");
+  }
+  // A missing/malformed adapter is a composition failure, so no source
+  // dispatch could have happened. Keep it distinct from a rejected adapter
+  // promise, whose external effect may be unknown.
+  if (!adapter || typeof adapter.capture !== "function") {
+    throw new CaptureUnavailableError(request.kind);
   }
   // Snapshot before crossing either callback boundary. A caller may retain
   // and mutate its input while capture is pending, and callbacks must not be

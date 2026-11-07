@@ -977,9 +977,8 @@ export class CameraCaptureSession {
     if (metadata.sourceClockRef === null || metadata.sourceStreamRef === null || metadata.sourceOriginRef === null) {
       return { disposition: "UNKNOWN", reason: "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED" };
     }
-    if (!SignedInt64DecimalSchema.safeParse(frameRead.presentationTicks).success
-      || BigInt(frameRead.presentationTicks) < 0n) {
-      throw fail("PTS_INVALID", "camera source PTS must be a non-negative canonical int64 decimal");
+    if (!SignedInt64DecimalSchema.safeParse(frameRead.presentationTicks).success) {
+      throw fail("PTS_INVALID", "camera source PTS must be a canonical signed int64 decimal");
     }
     const pts = BigInt(frameRead.presentationTicks);
     const declaredDiscontinuity = frameRead.discontinuity;
