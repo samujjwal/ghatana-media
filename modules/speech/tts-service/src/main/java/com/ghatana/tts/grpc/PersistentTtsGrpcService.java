@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -252,6 +253,9 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         if (cause instanceof TimeoutException) {
             LOG.warn("TTS synthesis timed out");
             return Status.DEADLINE_EXCEEDED.withDescription("TTS synthesis timed out");
+        }
+        if (cause instanceof CancellationException) {
+            return Status.CANCELLED.withDescription("TTS synthesis was cancelled");
         }
         return Status.INTERNAL.withDescription("TTS synthesis failed");
     }

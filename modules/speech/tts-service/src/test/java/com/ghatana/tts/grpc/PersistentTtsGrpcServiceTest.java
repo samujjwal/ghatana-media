@@ -155,6 +155,21 @@ class PersistentTtsGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("synthesize maps provider cancellation to CANCELLED")
+    void synthesizeMapsCancellationToCancelled() {
+        when(persistentTtsService.synthesizeAndPersist(any(), any(), eq(TEXT), any(), anyFloat(), anyFloat(), isNull()))
+            .thenReturn(Promise.ofException(new java.util.concurrent.CancellationException("cancelled")));
+
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        withContext(TENANT_ID, USER_ID, () ->
+            synthesisService.synthesize(SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
+
+        assertThat(statusCode(observer)).isEqualTo(Status.CANCELLED.getCode());
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+            .isEqualTo("TTS synthesis was cancelled");
+    }
+
+    @Test
     @DisplayName("synthesize maps async RuntimeException to INTERNAL")
     void synthesizeMapsRuntimeExceptionToInternal() {
         when(persistentTtsService.synthesizeAndPersist(any(), any(), eq(TEXT), any(), anyFloat(), anyFloat(), isNull()))
