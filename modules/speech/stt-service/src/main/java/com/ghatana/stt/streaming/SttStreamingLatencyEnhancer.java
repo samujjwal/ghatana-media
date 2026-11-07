@@ -238,6 +238,11 @@ public final class SttStreamingLatencyEnhancer {
             batchesEmitted.incrementAndGet();
         } catch (Exception e) {
             LOG.error("Batch emitter failed failureType={}", e.getClass().getSimpleName());
+            // The emitter may have performed an external effect before throwing. Surface an
+            // explicit unknown outcome instead of reporting an ordinary successful flush or
+            // silently dropping the drained batch (which could invite unsafe blind retries).
+            throw new IllegalStateException(
+                    "STT_STREAM_EMIT_OUTCOME_UNKNOWN: batch delivery may have partially completed");
         } finally {
             // Count payloads retained by an active emitter as well as queued chunks,
             // so concurrent ingress cannot multiply the configured memory budget.

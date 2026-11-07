@@ -67,6 +67,27 @@ class SttStreamingLatencyEnhancerTest {
     }
 
     @Test
+    @DisplayName("Emitter failure reports unknown delivery outcome and releases retained bytes")
+    void emitterFailureIsNotReportedAsSuccessfulFlush() {
+        SttStreamingLatencyEnhancer failing = SttStreamingLatencyEnhancer.builder()
+                .maxBufferChunks(20)
+                .emitter(ignored -> { throw new IllegalStateException("provider response lost"); })
+                .build();
+
+        assertThat(failing.ingest(new byte[] {1, 2}, 1, 1_000)).isTrue();
+        assertThatThrownBy(failing::flush)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("STT_STREAM_EMIT_OUTCOME_UNKNOWN")
+                .hasNoCause();
+
+        // The batch was already handed to the emitter, so delivery cannot be asserted or
+        // retried blindly. Local memory accounting must still release the drained payload.
+        assertThat(failing.bufferSize()).isZero();
+        assertThat(failing.bufferedBytes()).isZero();
+        assertThat(failing.stats().batchesEmitted()).isZero();
+    }
+
+    @Test
     @DisplayName("Buffer is empty after flush")
     void bufferEmptyAfterFlush() { 
         enhancer.ingest(new byte[]{1}, 1, 1000L); 
@@ -269,7 +290,7 @@ class SttStreamingLatencyEnhancerTest {
     }
 
     @Test
-    @DisplayName("Emitter failures do not retain byte reservations or poison later input")
+    @DisplayName("Emitter failures surface unknown outcomes without retaining byte reservations")
     void emitterFailureReleasesReservation() {
         SttStreamingLatencyEnhancer bounded = SttStreamingLatencyEnhancer.builder()
                 .maxBufferChunks(4)
@@ -278,10 +299,16 @@ class SttStreamingLatencyEnhancerTest {
                 .emitter(ignored -> { throw new IllegalStateException("fixture failure"); })
                 .build();
 
-        assertThat(bounded.ingest(new byte[] {1, 2}, 1, 1000L)).isTrue();
+        assertThatThrownBy(() -> bounded.ingest(new byte[] {1, 2}, 1, 1000L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("STT_STREAM_EMIT_OUTCOME_UNKNOWN")
+                .hasNoCause();
         assertThat(bounded.bufferedBytes()).isZero();
         assertThat(bounded.stats().batchesEmitted()).isZero();
-        assertThat(bounded.ingest(new byte[] {3, 4}, 2, 1010L)).isTrue();
+        assertThatThrownBy(() -> bounded.ingest(new byte[] {3, 4}, 2, 1010L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("STT_STREAM_EMIT_OUTCOME_UNKNOWN")
+                .hasNoCause();
         assertThat(bounded.bufferedBytes()).isZero();
         assertThat(bounded.stats().chunksReceived()).isEqualTo(2);
         assertThat(bounded.stats().batchesEmitted()).isZero();
