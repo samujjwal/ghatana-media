@@ -714,9 +714,13 @@ function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRen
     throw new ScenarioError("INVALID_SCENARIO", "captions must contain at most 4096 timed cues");
   }
   const seenCaptionRefs = new Set<string>();
+  const plannedCaptionRefs = new Set(canonicalPlan.sceneRuns.flatMap((run) => run.captionRefs));
   const captions = request.captions.map((caption, index) => {
     const ref = requireText(caption.captionRef, `captions[${index}].captionRef`);
     if (seenCaptionRefs.has(ref)) throw new ScenarioError("INVALID_SCENARIO", `duplicate captionRef: ${ref}`);
+    if (!plannedCaptionRefs.has(ref)) {
+      throw new ScenarioError("INVALID_SCENARIO", `captions[${index}].captionRef is not declared by the scenario plan`);
+    }
     seenCaptionRefs.add(ref);
     if (!Number.isSafeInteger(caption.startTicks) || !Number.isSafeInteger(caption.endTicks)
       || caption.startTicks < 0 || caption.endTicks <= caption.startTicks

@@ -794,6 +794,22 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("rejects caption timing refs that are not declared by the scenario plan before any effect", async () => {
+    const client = fakeClient();
+    const admission = { admit: vi.fn(async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] })) };
+    const mux = { muxAndVerify: vi.fn(async () => verifiedContainer()) };
+
+    await expect(publishFinalRender({
+      ...request(),
+      captions: [{ captionRef: "captions/unbound@v1", startTicks: 90_000, endTicks: 180_000 }],
+    }, admission, mux, client)).rejects.toThrowError(/not declared by the scenario plan/u);
+
+    expect(admission.admit).not.toHaveBeenCalled();
+    expect(mux.muxAndVerify).not.toHaveBeenCalled();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("does not start authority, codec, or upload work for an already-aborted signal", async () => {
     const controller = new AbortController();
     controller.abort();
