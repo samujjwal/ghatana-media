@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.common.resilience;
 
+import io.grpc.Context;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
@@ -12,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -144,6 +146,55 @@ class RateLimitingServerInterceptorTest {
 
         verify(thirdCall).close(org.mockito.ArgumentMatchers.argThat(status ->
                 status.getCode() == Status.Code.RESOURCE_EXHAUSTED), any(Metadata.class));
+    }
+
+    @Test
+    @DisplayName("Should release the concurrency permit when the client cancels")
+    void shouldReleasePermitWhenClientCancels() {
+        RateLimitingServerInterceptor interceptor = new RateLimitingServerInterceptor(50.0, 10L, 1);
+        Metadata headers = new Metadata();
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<String, String> handler = mock(ServerCallHandler.class);
+        @SuppressWarnings("unchecked")
+        ServerCall.Listener<String> delegate = mock(ServerCall.Listener.class);
+        when(handler.startCall(any(), eq(headers))).thenReturn(delegate);
+        AtomicReference<ServerCall.Listener<String>> wrappedListener = new AtomicReference<>();
+
+        wrappedListener.set(interceptor.interceptCall(
+                createServerCall("audio.Video/Recognize"), headers, handler));
+        wrappedListener.get().onCancel();
+
+        ServerCall<String, String> nextCall = createServerCall("audio.Video/Recognize");
+        interceptor.interceptCall(nextCall, headers, handler);
+
+        verify(delegate).onCancel();
+        verify(handler, times(2)).startCall(any(), eq(headers));
+        verify(nextCall, never()).close(any(Status.class), any(Metadata.class));
+    }
+
+    @Test
+    @DisplayName("Should release the concurrency permit when the RPC context is cancelled")
+    void shouldReleasePermitWhenRpcContextIsCancelled() {
+        RateLimitingServerInterceptor interceptor = new RateLimitingServerInterceptor(50.0, 10L, 1);
+        Metadata headers = new Metadata();
+        @SuppressWarnings("unchecked")
+        ServerCallHandler<String, String> handler = mock(ServerCallHandler.class);
+        when(handler.startCall(any(), eq(headers))).thenReturn(new ServerCall.Listener<>() {});
+        Context.CancellableContext requestContext = Context.current().withCancellation();
+        Context previous = requestContext.attach();
+        try {
+            interceptor.interceptCall(createServerCall("audio.Video/Recognize"), headers, handler);
+        } finally {
+            requestContext.detach(previous);
+        }
+
+        requestContext.cancel(null);
+
+        ServerCall<String, String> nextCall = createServerCall("audio.Video/Recognize");
+        interceptor.interceptCall(nextCall, headers, handler);
+
+        verify(handler, times(2)).startCall(any(), eq(headers));
+        verify(nextCall, never()).close(any(Status.class), any(Metadata.class));
     }
 
     @SuppressWarnings("unchecked")

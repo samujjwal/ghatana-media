@@ -3,6 +3,7 @@ package com.ghatana.audio.video.common.resilience;
 import com.ghatana.security.ratelimit.DefaultRateLimiter;
 import com.ghatana.security.ratelimit.RateLimiter;
 import com.ghatana.security.ratelimit.RateLimiterConfig;
+import io.grpc.Context;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Token-bucket rate limiter implemented as a gRPC server interceptor.
@@ -89,9 +91,18 @@ public class RateLimitingServerInterceptor implements ServerInterceptor {
 
         // 3. Proceed, releasing the concurrency permit on close
         AtomicBoolean permitReleased = new AtomicBoolean();
+        Context requestContext = Context.current();
+        AtomicReference<Context.CancellationListener> contextListener = new AtomicReference<>();
         Runnable releasePermit = () -> {
-            if (permitReleased.compareAndSet(false, true)) concurrencySemaphore.release();
+            if (permitReleased.compareAndSet(false, true)) {
+                Context.CancellationListener listener = contextListener.get();
+                if (listener != null) requestContext.removeListener(listener);
+                concurrencySemaphore.release();
+            }
         };
+        Context.CancellationListener cancellationListener = ignored -> releasePermit.run();
+        contextListener.set(cancellationListener);
+        requestContext.addListener(cancellationListener, Runnable::run);
         ServerCall<ReqT, RespT> wrappedCall =
                 new io.grpc.ForwardingServerCall.SimpleForwardingServerCall<>(call) {
                     @Override
@@ -101,7 +112,17 @@ public class RateLimitingServerInterceptor implements ServerInterceptor {
                     }
                 };
         try {
-            return next.startCall(wrappedCall, headers);
+            ServerCall.Listener<ReqT> listener = next.startCall(wrappedCall, headers);
+            return new io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener<>(listener) {
+                @Override
+                public void onCancel() {
+                    try {
+                        super.onCancel();
+                    } finally {
+                        releasePermit.run();
+                    }
+                }
+            };
         } catch (RuntimeException | Error failure) {
             // A handler that fails before returning a listener will never close the wrapped
             // call, so release its admission slot here. The same guard also makes close
