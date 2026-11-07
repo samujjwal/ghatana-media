@@ -4,6 +4,7 @@ import com.ghatana.media.production.rendering.TemporalVideoRestoration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 import static com.ghatana.media.production.rendering.TemporalVideoRestoration.*;
@@ -98,6 +99,39 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(failedRead.candidate()).isEmpty();
         assertThat(decoderCalls).hasValue(1);
         assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
+
+    @Test
+    void sourceRightsAndDecoderReceiveTheExactTenantPrincipalAndRightsBinding() {
+        AtomicReference<ArtifactBinding> authorityBinding = new AtomicReference<>();
+        AtomicReference<String> authorizedOperation = new AtomicReference<>();
+        AtomicReference<ArtifactBinding> decoderBinding = new AtomicReference<>();
+        Result failedRead = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-exact-source-owner", SOURCE),
+                (binding, operation) -> {
+                    authorityBinding.set(binding);
+                    authorizedOperation.set(operation);
+                    return new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08");
+                },
+                binding -> {
+                    decoderBinding.set(binding);
+                    throw new IllegalStateException("source decoder unavailable");
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        assertThat(failedRead.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(failedRead.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
+        assertThat(failedRead.candidate()).isEmpty();
+        assertThat(authorityBinding.get()).isSameAs(SOURCE);
+        assertThat(authorityBinding.get().tenantId()).isEqualTo("tenant-j08");
+        assertThat(authorityBinding.get().principalId()).isEqualTo("editor-j08");
+        assertThat(authorityBinding.get().purposeRef()).isEqualTo("purpose:video-enhancement");
+        assertThat(authorityBinding.get().rightsEvidenceRefs()).containsExactly("rights-evidence:j08");
+        assertThat(authorizedOperation.get()).isEqualTo(OPERATION_ID);
+        assertThat(decoderBinding.get()).isSameAs(SOURCE);
         assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
     }
 }
