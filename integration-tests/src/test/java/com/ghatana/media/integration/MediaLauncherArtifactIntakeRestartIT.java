@@ -125,6 +125,39 @@ class MediaLauncherArtifactIntakeRestartIT {
             assertThat(progress.path("bytesReceived").asLong()).isEqualTo(first.length + second.length);
             assertThat(progress.path("nextChunkIndex").asInt()).isEqualTo(2);
 
+            // J-02 upload identity is scoped by the authenticated tenant/principal pair.
+            // Reusing the same client key from another principal must not disclose or
+            // resume the original session after the launcher has recreated its runtime.
+            String otherPrincipal = "media-upload-other-principal";
+            String otherToken = authenticatedJwt(otherPrincipal, TENANT, JWT_SECRET);
+            HttpResponse<String> foreignReadback = send(port, TENANT, otherToken, "GET",
+                    "/api/v1/artifacts/uploads/" + uploadId, "", "application/json", null);
+            assertThat(foreignReadback.statusCode()).as(foreignReadback.body()).isEqualTo(404);
+            String otherRequest = request.replace(PRINCIPAL, otherPrincipal);
+            HttpResponse<String> otherBegin = send(port, TENANT, otherToken, "POST", "/api/v1/artifacts/uploads",
+                    otherRequest, "application/json", "artifact-intake-restart-" + run);
+            assertThat(otherBegin.statusCode()).as(otherBegin.body()).isEqualTo(201);
+            String otherUploadId = JSON.readTree(otherBegin.body()).path("uploadId").asString();
+            assertThat(otherUploadId).isNotBlank().isNotEqualTo(uploadId);
+            HttpResponse<String> otherReadback = send(port, TENANT, otherToken, "GET",
+                    "/api/v1/artifacts/uploads/" + otherUploadId, "", "application/json", null);
+            assertThat(otherReadback.statusCode()).as(otherReadback.body()).isEqualTo(200);
+            assertThat(JSON.readTree(otherReadback.body()).path("principalId").asString())
+                    .isEqualTo(otherPrincipal);
+
+            String otherTenant = "tenant-upload-other-scope";
+            String otherTenantToken = authenticatedJwt(PRINCIPAL, otherTenant, JWT_SECRET);
+            HttpResponse<String> foreignTenantReadback = send(port, otherTenant, otherTenantToken, "GET",
+                    "/api/v1/artifacts/uploads/" + uploadId, "", "application/json", null);
+            assertThat(foreignTenantReadback.statusCode()).as(foreignTenantReadback.body()).isEqualTo(404);
+            String otherTenantRequest = request.replace(TENANT, otherTenant);
+            HttpResponse<String> otherTenantBegin = send(port, otherTenant, otherTenantToken, "POST",
+                    "/api/v1/artifacts/uploads", otherTenantRequest, "application/json",
+                    "artifact-intake-restart-" + run);
+            assertThat(otherTenantBegin.statusCode()).as(otherTenantBegin.body()).isEqualTo(201);
+            String otherTenantUploadId = JSON.readTree(otherTenantBegin.body()).path("uploadId").asString();
+            assertThat(otherTenantUploadId).isNotBlank().isNotEqualTo(uploadId);
+
             HttpResponse<String> exactReplay = sendBytes(port, TENANT, token, "PUT",
                     "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", first);
             assertThat(exactReplay.statusCode()).as(exactReplay.body()).isEqualTo(200);
