@@ -15,6 +15,9 @@ actual media transport before this can be described as hosted playback.
 
 - Deterministic branching: seek/replay/branch behavior and half-open caption
   cue selection are reproducible from authored scenario definitions.
+- Authored branch IDs are unique within each scene. Duplicate IDs fail bundle
+  validation before actions can select an ambiguous branch or render duplicate
+  control keys.
 - Simulation content is visibly declared — never presented as live
   product behavior. “Live output” is shown only when a trusted host
   attestation matches the exact manifest digest, readback evidence, source

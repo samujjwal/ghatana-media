@@ -56,6 +56,16 @@ the actual guards govern current execution.
 `MULTIMODAL_FAMILY_NOT_ADMITTED` (`FAILED_PRECONDITION`) for family
 operations; transport-security misconfiguration rejects startup.
 
+## Child-result snapshot integrity
+
+Before fusion, nested child-result values are detached into an immutable
+snapshot and bound to a digest. Mutating provider-owned nested maps/lists
+afterward cannot change the fused observations or their recorded digest.
+The focused `DelegatingMultimodalProviderTest` mutation regression and 15
+admission/restart selectors pass. This is local provider/fixture evidence;
+it does not qualify real licensed STT/Vision providers, source/rights
+grounding, or external runtime behavior. Those remain open.
+
 ## Tests and commands
 
 ```bash
