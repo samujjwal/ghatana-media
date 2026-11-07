@@ -63,6 +63,33 @@ class MediaSourceAuthorizationContractsTest {
         assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
                 "tenant-a", "principal-a", null))
                 .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", "principal-a ", Instant.now()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("principalId");
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "\u00a0tenant-a", "principal-a", Instant.now()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("tenantId");
+    }
+
+    @Test
+    void exactAuthorizationRequestFieldsRejectSurroundingWhitespace() {
+        var canonical = request();
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.Request(
+                "tenant-a\u00a0", canonical.principalId(), canonical.artifactId(), canonical.sourceVersion(),
+                canonical.sourceSha256(), canonical.operation(), canonical.purpose(), canonical.providerId(),
+                canonical.providerVersion(), canonical.processingBoundary(), canonical.processingRegion(),
+                canonical.providerRetention()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("tenantId");
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.Request(
+                canonical.tenantId(), canonical.principalId(), " artifact-a", canonical.sourceVersion(),
+                canonical.sourceSha256(), canonical.operation(), canonical.purpose(), canonical.providerId(),
+                canonical.providerVersion(), canonical.processingBoundary(), canonical.processingRegion(),
+                canonical.providerRetention()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("artifactId");
     }
 
     @Test

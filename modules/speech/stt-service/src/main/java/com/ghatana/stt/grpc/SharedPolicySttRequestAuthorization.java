@@ -247,7 +247,9 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
 
             private static String required(String value, String field) {
                 Objects.requireNonNull(value, field);
-                if (value.isBlank() || value.length() > 256 || value.chars().anyMatch(Character::isISOControl)) {
+                if (value.isEmpty() || value.codePoints().allMatch(SharedPolicySttRequestAuthorization::isUnicodeWhitespace)
+                        || hasOuterUnicodeWhitespace(value) || value.length() > 256
+                        || value.chars().anyMatch(Character::isISOControl)) {
                     throw new IllegalArgumentException(field + " must be bounded and nonblank");
                 }
                 return value;
@@ -286,5 +288,14 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
 
         /** Revalidates the exact same source facts after policy evaluation and before admission. */
         CompletionStage<Resolution> revalidate(Request request, SourceFacts expectedFacts);
+    }
+
+    private static boolean hasOuterUnicodeWhitespace(String value) {
+        return !value.isEmpty() && (isUnicodeWhitespace(value.codePointAt(0))
+                || isUnicodeWhitespace(value.codePointBefore(value.length())));
+    }
+
+    private static boolean isUnicodeWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 }

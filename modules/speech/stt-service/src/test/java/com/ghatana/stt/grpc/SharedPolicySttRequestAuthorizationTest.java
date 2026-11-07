@@ -31,6 +31,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -48,6 +49,20 @@ class SharedPolicySttRequestAuthorizationTest {
                     "fixture-canonical-artifact", "fixture-immutable-version", "fixture-purpose",
                     "fixture-rights-reference", "fixture-consent-reference",
                     Instant.now().plusSeconds(300), "fixture-revocation-scope");
+
+    @Test
+    void sourceFactsRejectWhitespacePaddedAndUnicodeSpaceOnlyAuthorityReferences() {
+        assertThatThrownBy(() -> new SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.SourceFacts(
+                "\u00a0", "fixture-version", "fixture-purpose", "fixture-rights", "fixture-consent",
+                Instant.now().plusSeconds(300), "fixture-revocation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("canonicalArtifactId");
+        assertThatThrownBy(() -> new SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.SourceFacts(
+                "fixture-artifact", "fixture-version", "fixture-purpose", "fixture-rights ",
+                "fixture-consent", Instant.now().plusSeconds(300), "fixture-revocation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("rightsReference");
+    }
 
     @Test
     void policyRequestUsesVerifiedIdentityAndServerResolvedFactsWithoutPolicyPin() {

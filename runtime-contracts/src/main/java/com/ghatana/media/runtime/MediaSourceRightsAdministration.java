@@ -198,18 +198,33 @@ public interface MediaSourceRightsAdministration extends AutoCloseable {
     }
 
     private static String required(String value, String field) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(field + " is required");
+        Objects.requireNonNull(value, field);
+        if (value.isEmpty() || isWhitespaceOnly(value) || hasOuterWhitespace(value)
+                || value.length() > 512 || value.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException(field + " must be bounded and have no surrounding whitespace");
         }
-        return value.trim();
+        return value;
     }
 
     private static String optional(String value, String field) {
         if (value == null) return "";
-        String normalized = value.trim();
-        if (normalized.length() > 512 || normalized.chars().anyMatch(Character::isISOControl)) {
+        if ((!value.isEmpty() && (isWhitespaceOnly(value) || hasOuterWhitespace(value))) || value.length() > 512
+                || value.chars().anyMatch(Character::isISOControl)) {
             throw new IllegalArgumentException(field + " is malformed");
         }
-        return normalized;
+        return value;
+    }
+
+    private static boolean isWhitespaceOnly(String value) {
+        return value.codePoints().allMatch(MediaSourceRightsAdministration::isUnicodeWhitespace);
+    }
+
+    private static boolean hasOuterWhitespace(String value) {
+        return !value.isEmpty() && (isUnicodeWhitespace(value.codePointAt(0))
+                || isUnicodeWhitespace(value.codePointBefore(value.length())));
+    }
+
+    private static boolean isUnicodeWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 }
