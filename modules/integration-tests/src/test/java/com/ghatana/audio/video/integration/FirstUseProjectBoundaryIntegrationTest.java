@@ -187,6 +187,26 @@ class FirstUseProjectBoundaryIntegrationTest {
     }
 
     @Test
+    void sameRequestIdWithDifferentTitleConflictsWithoutRebindingOrMutation() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-title-conflict-id-" + ids.incrementAndGet());
+        var created = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-title-bound-request");
+        String projectId = created.project().projectId();
+        String initialRevisionId = created.initialRevision().revisionId();
+
+        assertThatThrownBy(() -> engine.createProject(
+                CREATOR, WORKSPACE, "A different title", "j01-title-bound-request"))
+                .isInstanceOf(IdempotencyConflictException.class);
+
+        var observed = engine.project(CREATOR, projectId);
+        assertThat(observed.title()).isEqualTo("First cut");
+        assertThat(observed.headRevisionId()).isEqualTo(initialRevisionId);
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+    }
+
+    @Test
     void wrongTenantCannotEditProjectOrAdvanceItsRevisionHead() {
         AtomicInteger ids = new AtomicInteger();
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
