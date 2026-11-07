@@ -69,12 +69,12 @@ public final class PngFrameCodec {
         List<PngFrame> copiedFrames = copyBoundedFrames(frames);
         FrameMetadata first = copiedFrames.getFirst().metadata();
         long totalPixels = 0, totalEncodedBytes = 0;
-        long previousPts = -1;
+        long previousPts = 0;
         for (int index = 0; index < copiedFrames.size(); index++) {
             PngFrame frame = copiedFrames.get(index);
             FrameMetadata metadata = frame.metadata();
             checkDimensions(metadata.width(), metadata.height(), limits);
-            if (metadata.frameIndex() != index || metadata.presentationTicks() <= previousPts) {
+            if (metadata.frameIndex() != index || (index > 0 && metadata.presentationTicks() <= previousPts)) {
                 throw invalid("frame metadata indexes must be contiguous and PTS values strictly increasing");
             }
             if (metadata.width() != first.width() || metadata.height() != first.height()
@@ -163,11 +163,11 @@ public final class PngFrameCodec {
         List<CandidateFrame> candidates = copyBoundedCandidates(frames);
         CandidateFrame first = candidates.getFirst();
         long totalPixels = 0;
-        long previousPts = -1;
+        long previousPts = 0;
         for (int index = 0; index < candidates.size(); index++) {
             CandidateFrame candidate = candidates.get(index);
             checkDimensions(candidate.width(), candidate.height(), limits);
-            if (candidate.frameIndex() != index || candidate.presentationTicks() <= previousPts) {
+            if (candidate.frameIndex() != index || (index > 0 && candidate.presentationTicks() <= previousPts)) {
                 throw invalid("candidate frame indexes must be contiguous and PTS values strictly increasing");
             }
             if (candidate.width() != first.width() || candidate.height() != first.height()
@@ -381,8 +381,8 @@ public final class PngFrameCodec {
 
     public record FrameMetadata(int frameIndex, long presentationTicks, int width, int height, Roi roi) {
         public FrameMetadata {
-            if (frameIndex < 0 || frameIndex >= TemporalVideoRestoration.MAX_FRAMES || presentationTicks < 0) {
-                throw invalid("frame index or presentation timestamp is outside the frame bounds");
+            if (frameIndex < 0 || frameIndex >= TemporalVideoRestoration.MAX_FRAMES) {
+                throw invalid("frame index is outside the frame bounds");
             }
             Objects.requireNonNull(roi, "roi");
             if (width < 1 || width > TemporalVideoRestoration.MAX_FRAME_DIMENSION || height < 1
@@ -401,10 +401,10 @@ public final class PngFrameCodec {
             Objects.requireNonNull(timeBase, "timeBase");
             frames = copyBoundedDecodedFrames(frames);
             Frame first = Objects.requireNonNull(frames.getFirst(), "frames[]");
-            long pixels = 0, previousPts = -1;
+            long pixels = 0, previousPts = 0;
             for (int index = 0; index < frames.size(); index++) {
                 Frame frame = Objects.requireNonNull(frames.get(index), "frames[]");
-                if (frame.frameIndex() != index || frame.presentationTicks() <= previousPts) {
+                if (frame.frameIndex() != index || (index > 0 && frame.presentationTicks() <= previousPts)) {
                     throw invalid("decoded PNG frame indexes and PTS must be contiguous and increasing");
                 }
                 if (frame.width() != first.width() || frame.height() != first.height()
@@ -448,11 +448,11 @@ public final class PngFrameCodec {
             frames = copyBoundedFrames(Objects.requireNonNull(frames, "frames"));
             FrameMetadata first = frames.getFirst().metadata();
             long totalEncodedBytes = 0;
-            long previousPts = -1;
+            long previousPts = 0;
             for (int index = 0; index < frames.size(); index++) {
                 PngFrame frame = frames.get(index);
                 FrameMetadata metadata = frame.metadata();
-                if (metadata.frameIndex() != index || metadata.presentationTicks() <= previousPts) {
+                if (metadata.frameIndex() != index || (index > 0 && metadata.presentationTicks() <= previousPts)) {
                     throw invalid("encoded PNG frame indexes must be contiguous and PTS values strictly increasing");
                 }
                 if (metadata.width() != first.width() || metadata.height() != first.height()

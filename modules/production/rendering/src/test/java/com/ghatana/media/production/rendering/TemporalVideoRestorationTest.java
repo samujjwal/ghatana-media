@@ -107,6 +107,25 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void restorationPreservesStrictlyIncreasingSignedSourcePts() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        List<Frame> frames = List.of(
+                frame(0, Long.MIN_VALUE, new byte[] {10, 20, 30}, roi),
+                frame(1, -1, new byte[] {10, 20, 30}, roi),
+                frame(2, 0, new byte[] {10, 20, 30}, roi));
+        DecodedFrameSequence source = new DecodedFrameSequence("source", "v3", SOURCE_SHA, TIME_BASE, frames);
+
+        Candidate candidate = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.empty(), null, null).candidate().orElseThrow();
+
+        assertThat(source.frames()).extracting(Frame::presentationTicks)
+                .containsExactly(Long.MIN_VALUE, -1L, 0L);
+        assertThat(candidate.frames()).extracting(CandidateFrame::presentationTicks)
+                .containsExactly(Long.MIN_VALUE, -1L, 0L);
+    }
+
+    @Test
     void temporalMedianProducesAlignedCandidateAndExactReferenceMetricsWithoutClaimingImprovement() {
         byte[][] pixels = {
                 {(byte) 0, 0, 0, 21, 22, 23},
@@ -606,9 +625,8 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> new CandidateFrame(MAX_FRAMES, 0, 1, 1,
                 new Roi(0, 0, 1, 1), rgb, digest))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("frameIndex");
-        assertThatThrownBy(() -> new CandidateFrame(0, -1, 1, 1,
-                new Roi(0, 0, 1, 1), rgb, digest))
-                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("presentationTicks");
+        assertThat(new CandidateFrame(0, -1, 1, 1,
+                new Roi(0, 0, 1, 1), rgb, digest).presentationTicks()).isEqualTo(-1L);
         assertThatThrownBy(() -> new CandidateFrame(0, 0, MAX_FRAME_DIMENSION + 1, 1,
                 new Roi(0, 0, 1, 1), rgb, digest))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("dimensions");

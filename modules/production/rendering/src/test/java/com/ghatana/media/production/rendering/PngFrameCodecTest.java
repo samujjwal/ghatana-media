@@ -38,6 +38,27 @@ class PngFrameCodecTest {
     }
 
     @Test
+    void sequenceDecodePreservesSignedPtsAndStillRejectsDuplicateOrDecreasingPts() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        byte[] pixels = {1, 2, 3, 4, 5, 6};
+        List<PngFrameCodec.PngFrame> signedPts = List.of(
+                inputFrame(0, Long.MIN_VALUE, roi, pixels),
+                inputFrame(1, -1, roi, pixels),
+                inputFrame(2, 0, roi, pixels));
+
+        PngFrameCodec.DecodedPngFrameSequence decoded = PngFrameCodec.decodeSequence(TIME_BASE, signedPts);
+
+        assertThat(decoded.frames()).extracting(Frame::presentationTicks)
+                .containsExactly(Long.MIN_VALUE, -1L, 0L);
+        assertThatThrownBy(() -> PngFrameCodec.decodeSequence(TIME_BASE, List.of(
+                inputFrame(0, -2, roi, pixels), inputFrame(1, -2, roi, pixels), inputFrame(2, 0, roi, pixels))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("strictly increasing");
+        assertThatThrownBy(() -> PngFrameCodec.decodeSequence(TIME_BASE, List.of(
+                inputFrame(0, -1, roi, pixels), inputFrame(1, 0, roi, pixels), inputFrame(2, -2, roi, pixels))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("strictly increasing");
+    }
+
+    @Test
     void decodedSequenceRejectsDeclaredOversizeBeforeReadingFrames() {
         AtomicInteger reads = new AtomicInteger();
         List<Frame> hostile = new AbstractList<>() {

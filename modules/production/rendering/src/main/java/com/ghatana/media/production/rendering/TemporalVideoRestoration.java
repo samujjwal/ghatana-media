@@ -239,7 +239,6 @@ public final class TemporalVideoRestoration {
 
         public Frame {
             if (frameIndex < 0 || frameIndex >= MAX_FRAMES) throw invalid("frameIndex is outside the bounded sequence");
-            if (presentationTicks < 0) throw invalid("presentationTicks must be non-negative");
             if (width < 1 || width > MAX_FRAME_DIMENSION || height < 1 || height > MAX_FRAME_DIMENSION) {
                 throw invalid("frame dimensions exceed the RGB8 bounds");
             }
@@ -280,12 +279,14 @@ public final class TemporalVideoRestoration {
                     "temporal denoising requires between 3 and 64 frames");
             Frame first = frames.getFirst();
             long pixels = 0;
-            long previousPts = -1;
+            long previousPts = 0;
+            boolean hasPreviousPts = false;
             for (int index = 0; index < frames.size(); index++) {
                 Frame frame = Objects.requireNonNull(frames.get(index), "frames[]");
                 if (frame.frameIndex() != index) throw invalid("frame indexes must be contiguous and ordered from zero");
-                if (frame.presentationTicks() <= previousPts) throw invalid("frame PTS values must strictly increase");
+                if (hasPreviousPts && frame.presentationTicks() <= previousPts) throw invalid("frame PTS values must strictly increase");
                 previousPts = frame.presentationTicks();
+                hasPreviousPts = true;
                 if (frame.width() != first.width() || frame.height() != first.height() || !frame.roi().equals(first.roi())) {
                     throw invalid("frame dimensions and ROI must remain identical within a sequence");
                 }
@@ -303,7 +304,6 @@ public final class TemporalVideoRestoration {
             if (frameIndex < 0 || frameIndex >= MAX_FRAMES) {
                 throw invalid("candidate frameIndex is outside the bounded sequence");
             }
-            if (presentationTicks < 0) throw invalid("candidate presentationTicks must be non-negative");
             if (width < 1 || width > MAX_FRAME_DIMENSION || height < 1 || height > MAX_FRAME_DIMENSION) {
                 throw invalid("candidate frame dimensions exceed the RGB8 bounds");
             }
@@ -445,16 +445,18 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
             CandidateFrame first = Objects.requireNonNull(frames.getFirst(), "candidate.frames[]");
             long pixels = 0;
-            long previousPts = -1;
+            long previousPts = 0;
+            boolean hasPreviousPts = false;
             for (int index = 0; index < frames.size(); index++) {
                 CandidateFrame frame = Objects.requireNonNull(frames.get(index), "candidate.frames[]");
                 if (frame.frameIndex() != index) {
                     throw invalid("candidate frame indexes must be contiguous and ordered from zero");
                 }
-                if (frame.presentationTicks() <= previousPts) {
+                if (hasPreviousPts && frame.presentationTicks() <= previousPts) {
                     throw invalid("candidate PTS values must strictly increase");
                 }
                 previousPts = frame.presentationTicks();
+                hasPreviousPts = true;
                 if (frame.width() != first.width() || frame.height() != first.height()
                         || !frame.roi().equals(first.roi())) {
                     throw invalid("candidate dimensions and ROI must remain identical within a sequence");
