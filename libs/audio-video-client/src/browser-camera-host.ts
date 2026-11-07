@@ -107,13 +107,24 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
         stream.getTracks().forEach((item) => item.stop());
         throw new Error("browser did not bind the exact requested camera source revision");
       }
-      const video = documentApi.createElement("video");
-      const canvas = documentApi.createElement("canvas");
-      const context = canvas.getContext("2d", { willReadFrequently: false });
-      if (!context) { stream.getTracks().forEach((item) => item.stop()); throw new Error("camera frame canvas is unavailable"); }
-      video.muted = true;
-      video.playsInline = true;
-      video.srcObject = stream;
+      let video: HTMLVideoElement;
+      let canvas: HTMLCanvasElement;
+      let context: CanvasRenderingContext2D | null;
+      try {
+        // DOM setup can fail after getUserMedia has activated the camera. Keep
+        // the stream local until every required host object is ready, and
+        // release it on every setup error before the adapter can own a track.
+        video = documentApi.createElement("video");
+        canvas = documentApi.createElement("canvas");
+        context = canvas.getContext("2d", { willReadFrequently: false });
+        if (!context) throw new Error("camera frame canvas is unavailable");
+        video.muted = true;
+        video.playsInline = true;
+        video.srcObject = stream;
+      } catch (error) {
+        stream.getTracks().forEach((item) => item.stop());
+        throw error;
+      }
       let stopped = false;
       const stop = () => { if (stopped) return; stopped = true; video.pause(); video.srcObject = null; stream.getTracks().forEach((item) => item.stop()); };
       // A camera can be unplugged while the session is idle. Observe the

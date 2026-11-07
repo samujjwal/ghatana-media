@@ -8,7 +8,7 @@ const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device
 
 function setup(state: PermissionState = "granted", options: { available?: boolean; frame?: (done: (blob: Blob) => void) => void; deviceId?: string;
   maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean; pendingPlay?: boolean;
-  pendingPermissionSubscription?: boolean } = {}) {
+  pendingPermissionSubscription?: boolean; domSetupFailure?: boolean } = {}) {
   let permissionState = state;
   const listeners: Array<() => void> = [];
   let permissionQueries = 0;
@@ -50,7 +50,11 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
       return { get state() { return permissionState; }, addEventListener: (_: string, listener: () => void) => listeners.push(listener),
         removeEventListener: (_: string, listener: () => void) => { const i = listeners.indexOf(listener); if (i >= 0) listeners.splice(i, 1); } };
     } },
-    document: { createElement: (tag: string) => { creates++; return tag === "video" ? video : canvas; } },
+    document: { createElement: (tag: string) => {
+      creates++;
+      if (options.domSetupFailure && tag === "video") throw new Error("synthetic DOM setup failure");
+      return tag === "video" ? video : canvas;
+    } },
   };
   const port = createBrowserCameraMediaDevicePort({ sourceVersionRef: (id) => id === "device-A" ? "device-A@rev-4" : undefined,
     maxFrameBytes: options.maxFrameBytes, maxPixels: options.maxPixels, browser: browser as never, frameTimeoutMillis: 100 });
@@ -103,6 +107,13 @@ describe("concrete browser camera host", () => {
     const switched = setup("granted", { deviceId: "other-device" });
     await expectCode(switched.adapter.openSession(request), "DEVICE_UNAVAILABLE");
     expect(switched.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+  });
+
+  it("stops an opened camera stream when browser media element setup fails", async () => {
+    const h = setup("granted", { domSetupFailure: true });
+    await expectCode(h.adapter.openSession(request), "DEVICE_UNAVAILABLE");
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+    expect(h.details()).toEqual({ plays: 0, creates: 1 });
   });
 
   it("stops a stream that resolves after session cancellation without creating media elements or returning a frame", async () => {
