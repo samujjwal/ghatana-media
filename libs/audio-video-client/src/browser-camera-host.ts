@@ -37,6 +37,15 @@ function deviceIdOf(identity: string): string | undefined {
     ? identity.slice("camera:".length) : undefined;
 }
 
+function awaitHostStartup<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(new DOMException("aborted", "AbortError"));
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new DOMException("aborted", "AbortError"));
+    signal.addEventListener("abort", onAbort, { once: true });
+    operation.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
+  });
+}
+
 /** Builds a fail-closed browser port. Permission `prompt` is UNKNOWN; this adapter never prompts. */
 export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOptions): BrowserCameraMediaDevicePort {
   const media = options.browser?.mediaDevices ?? (typeof navigator === "undefined" ? undefined : navigator.mediaDevices);
@@ -107,7 +116,12 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
       video.srcObject = stream;
       let stopped = false;
       const stop = () => { if (stopped) return; stopped = true; video.pause(); video.srcObject = null; stream.getTracks().forEach((item) => item.stop()); };
-      try { await video.play(); } catch (error) { stop(); throw error; }
+      try {
+        // Browser playback startup may remain pending after the host permission
+        // changes. Do not leave an already opened camera stream alive while
+        // waiting for that promise to settle.
+        await awaitHostStartup(video.play(), signal);
+      } catch (error) { stop(); throw error; }
       const browserDevice: SizedBrowserCameraDevice = {
         sourceIdentity: request.sourceIdentity,
         sourceVersionRef: request.sourceVersionRef,

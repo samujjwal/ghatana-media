@@ -175,7 +175,6 @@ public final class PcmStemMixer {
         int expectedBytes = checkedPcmBytes(spec.frameCount());
         long aggregateBytes = 0;
         ArrayList<Stem> acceptedStems = new ArrayList<>(MAX_STEMS);
-        ArrayList<byte[]> sources = new ArrayList<>(MAX_STEMS);
         Instant now = clock.instant();
         int stemCount = 0;
         for (Stem stem : stems) {
@@ -193,7 +192,6 @@ public final class PcmStemMixer {
                 throw error(ErrorCode.RESOURCE_LIMIT, "aggregate PCM input exceeds the byte budget");
             }
             acceptedStems.add(stem);
-            sources.add(stem.pcmS16Le.clone());
         }
         if (acceptedStems.isEmpty()) {
             throw error(ErrorCode.RESOURCE_LIMIT, "stem count must be within 1..=" + MAX_STEMS);
@@ -202,7 +200,9 @@ public final class PcmStemMixer {
         double[] sums = new double[expectedBytes / 2];
         for (int stemIndex = 0; stemIndex < acceptedStems.size(); stemIndex++) {
             Stem stem = acceptedStems.get(stemIndex);
-            byte[] source = sources.get(stemIndex);
+            // Stem owns a constructor-cloned buffer and exposes only defensive
+            // copies, so the mixer can read this immutable storage directly.
+            byte[] source = stem.pcmS16Le;
             double gain = stem.gain();
             double leftPan = stem.pan() > 0 ? 1.0 - stem.pan() : 1.0;
             double rightPan = stem.pan() < 0 ? 1.0 + stem.pan() : 1.0;

@@ -686,10 +686,12 @@ public final class TemporalVideoRestoration {
         ArrayList<CandidateFrame> outputs = new ArrayList<>(inputs.size());
         for (int index = 0; index < inputs.size(); index++) {
             Frame center = inputs.get(index);
-            byte[] output = center.rgb();
-            byte[] centerBytes = center.rgb();
-            byte[] leftBytes = inputs.get(Math.max(0, index - 1)).rgb();
-            byte[] rightBytes = inputs.get(Math.min(inputs.size() - 1, index + 1)).rgb();
+            // Frames are immutable snapshots owned by this class. Read the private arrays
+            // directly and clone only the output buffer; the public rgb() accessor remains defensive.
+            byte[] centerBytes = center.rgb;
+            byte[] output = centerBytes.clone();
+            byte[] leftBytes = inputs.get(Math.max(0, index - 1)).rgb;
+            byte[] rightBytes = inputs.get(Math.min(inputs.size() - 1, index + 1)).rgb;
             Roi roi = center.roi();
             for (int y = roi.y(); y < roi.y() + roi.height(); y++) {
                 for (int x = roi.x(); x < roi.x() + roi.width(); x++) {

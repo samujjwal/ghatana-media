@@ -182,6 +182,15 @@ pub fn denoise_bounded(
             SpeechAudioError::ResourceLimit(format!("cannot reserve denoise output: {error}"))
         })?;
     let mut previous_gain = 1.0f64;
+    // The profile and channel layout are constant for this call, so compute
+    // their shared noise floor once instead of rescanning it for every block.
+    let noise_power = profile
+        .rms_by_channel
+        .iter()
+        .map(|rms| (*rms as f64) * (*rms as f64))
+        .sum::<f64>()
+        / channels as f64;
+    let noise_rms = noise_power.sqrt();
     for start in (0..frames).step_by(options.block_frames) {
         let end = (start + options.block_frames).min(frames);
         let block_frames = end - start;
@@ -193,13 +202,6 @@ pub fn denoise_bounded(
             }
         }
         block_rms = (block_rms / (block_frames * channels) as f64).sqrt();
-        let noise_power = profile
-            .rms_by_channel
-            .iter()
-            .map(|rms| (*rms as f64) * (*rms as f64))
-            .sum::<f64>()
-            / channels as f64;
-        let noise_rms = noise_power.sqrt();
         let threshold = noise_rms * options.threshold_multiple as f64;
         // Amplitude is scale-dependent: a fixed machine epsilon would disable
         // the gate for valid quiet recordings even when the profile is nonzero.

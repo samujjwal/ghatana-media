@@ -7,14 +7,16 @@ const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device
   exactRightsScope: "rights/device-A/v1", sourceVersionRef: "device-A@rev-4", secretsRef: "secrets/session", frameClockRef: "clock/host" };
 
 function setup(state: PermissionState = "granted", options: { available?: boolean; frame?: (done: (blob: Blob) => void) => void; deviceId?: string;
-  maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean } = {}) {
+  maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean; pendingPlay?: boolean } = {}) {
   let permissionState = state;
   const listeners: Array<() => void> = [];
-  let opens = 0; let stops = 0; let reads = 0; let plays = 0; let creates = 0; let finishOpen!: () => void; let revoke!: () => void;
+  let opens = 0; let stops = 0; let reads = 0; let plays = 0; let creates = 0;
+  let finishOpen!: () => void; let finishPlay!: () => void; let revoke!: () => void;
   const width = options.videoWidth ?? 2; const height = options.videoHeight ?? 2;
   const track = { readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }), stop: () => { stops++; } };
   const stream = { getVideoTracks: () => [track], getTracks: () => [track] };
-  const video = { muted: false, playsInline: false, videoWidth: width, videoHeight: height, srcObject: null as unknown, play: async () => { plays++; }, pause: () => undefined };
+  const video = { muted: false, playsInline: false, videoWidth: width, videoHeight: height, srcObject: null as unknown,
+    play: async () => { plays++; if (options.pendingPlay) await new Promise<void>((resolve) => { finishPlay = resolve; }); }, pause: () => undefined };
   let draws = 0;
   const context = { drawImage: () => { draws++; } };
   const canvas = { width: 0, height: 0, getContext: () => context, toBlob: (callback: (blob: Blob | null) => void) => {
@@ -47,7 +49,8 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   const clock: CameraFrameClockPort = { nowEpochMillis: () => now, beginEpoch: () => `epoch-${++epoch}`, readPtsNanos: () => BigInt(epoch) };
   const adapter = new CameraCaptureAdapter({ mediaDevices: port, consent, frameClock: clock, maxFrameBytes: 64, maxFrames: 4 });
   revoke = () => { permissionState = "denied"; listeners.forEach((listener) => listener()); };
-  return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke, resolveOpen: () => finishOpen() };
+  return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke,
+    permissionListenerCount: () => listeners.length, resolveOpen: () => finishOpen(), resolvePlay: () => finishPlay() };
 }
 
 async function expectCode(promise: Promise<unknown>, code: string) {
@@ -91,6 +94,21 @@ describe("concrete browser camera host", () => {
     await rejected;
     expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
     expect(h.details()).toEqual({ plays: 0, creates: 0 });
+  });
+
+  it("stops a stream when permission is revoked while browser playback startup is pending", async () => {
+    const h = setup("granted", { pendingPlay: true });
+    const opening = h.adapter.openSession(request);
+    const rejected = expectCode(opening, "PERMISSION_DENIED");
+    while (!h.details().plays) await new Promise((resolve) => setTimeout(resolve, 0));
+    // Wait until the browser permission listener is installed before revoking.
+    while (!h.permissionListenerCount()) await new Promise((resolve) => setTimeout(resolve, 0));
+    h.revoke();
+    await rejected;
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+    expect(h.details()).toEqual({ plays: 1, creates: 2 });
+    // The abandoned host play promise can settle later without reopening capture.
+    h.resolvePlay();
   });
 
   it("does not return bytes produced after permission revocation and tears down capture", async () => {
