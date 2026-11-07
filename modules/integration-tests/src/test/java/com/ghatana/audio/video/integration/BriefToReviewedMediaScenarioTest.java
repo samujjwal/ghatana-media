@@ -134,6 +134,31 @@ class BriefToReviewedMediaScenarioTest {
         assertThat(appendCalls).hasValue(0);
     }
 
+    @Test
+    void staleSourceVersionAfterDraftPreparationPreventsTheOwnerAppend() {
+        AtomicInteger rightsCalls = new AtomicInteger();
+        AtomicInteger appendCalls = new AtomicInteger();
+        StoryboardPlanner planner = new StoryboardPlanner((actor, source, purpose) ->
+                rightsCalls.incrementAndGet() == 1
+                        ? StoryboardPlanner.SourceDecision.ELIGIBLE
+                        : StoryboardPlanner.SourceDecision.STALE);
+        StoryboardPlanner.ScenePlan plan = planner.prepare(CREATOR, "project-j09", "project-r7",
+                "storyboard-j09-stale", "edition-v1",
+                new StoryboardPlanner.AuthoredBrief("brief-j09", "brief-v2", "campaign-draft",
+                        "A two-scene product story", List.of(SOURCE)),
+                List.of(scene("scene-opening", 0, 0, "Introduce the product")));
+
+        assertThatThrownBy(() -> planner.save(CREATOR, plan, null, "save-j09-stale",
+                (actor, candidate, expectedHead, expectedParent, requestId) -> {
+                    appendCalls.incrementAndGet();
+                    return new StoryboardPlanner.SavedPlan(candidate, "fixture-receipt");
+                }))
+                .isInstanceOf(StoryboardPlanner.StaleSourceVersionException.class);
+
+        assertThat(rightsCalls).hasValue(2);
+        assertThat(appendCalls).hasValue(0);
+    }
+
     private static StoryboardPlanner.AuthoredScene scene(String id, int order, long start, String intent) {
         return new StoryboardPlanner.AuthoredScene(id, order, intent, story(start), story(24),
                 List.of(new StoryboardPlanner.ShotInput("shot-" + id, 0, intent,
