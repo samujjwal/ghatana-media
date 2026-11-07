@@ -149,6 +149,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Verify committed claim hard-link exclusivity and restricted legacy record semantics.
 - **How:** Run focused tests on macOS and Linux, including independent processes, crash and unsupported filesystem; require exactly one claim; review read/complete/lock path.
 - **Test/exit:** All focused tests green, no existing fence overwrite and no terminal injection through record().
+- **Additional verification (2026-11-07):** Current FULL source-composite rerun of `FileInvocationLedgerTest` passes 24/24, including independent-process contention, exited-process fencing, unwritable-directory failure, legacy-record restrictions, and encrypted result binding. The task remains VERIFIED in its declared single-host scope; this does not admit the agent handlers or establish production authorization.
 - **Predecessors:** None; start independently
 
 **`media.dev.projection-pre-dispatch-fence-verification`** · VERIFIED (macOS focused suite green: real JVM halt at effect boundary → durable PENDING_RECONCILIATION, no duplicate dispatch, exact-readback reconcile, corrupt state fail-closed)
@@ -156,6 +157,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Verify committed pre-dispatch uncertainty durability and hydration correction.
 - **How:** Run focused tests, kill process at pre-store/after-store/before-final-persist points, verify corrupt read fails and readback must match exact record.
 - **Test/exit:** No duplicate sink call after ambiguous crash, no stale floor reset or cross-run state injection.
+- **Additional verification (2026-11-07):** Current FULL source-composite rerun of `FileRunLedgerProjectionStateTest` and `RunLedgerProjectionProcessCrashTest` passes 17 tests, including exclusive writer contention, durable uncertainty before the sink, crash-boundary no-redispatch, exact-readback reconciliation, and corrupt-state fail-closed. This does not admit a real Data Cloud projection effect or alter its optional downstream role.
 - **Predecessors:** None; start independently
 
 **`media.dev.invocation-store-security`** · VERIFIED (48 focused ledger/binder tests pass; encrypted single-host development boundary and fresh replay authorization)
