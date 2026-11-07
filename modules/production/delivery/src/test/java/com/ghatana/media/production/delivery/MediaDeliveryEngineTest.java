@@ -422,6 +422,34 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void lostFinalDestinationAcknowledgmentReconcilesAfterRestartWithoutResendingAcceptedArtifact() {
+        Fixture f = new Fixture();
+        f.destination.omitFinalReceipt = true;
+        ExportRequest request = f.request(bytes(CHUNK_BYTES + 7));
+
+        DeliveryResult beforeRestart = f.engine.export(request);
+        assertThat(beforeRestart.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(beforeRestart.acknowledgedBytes()).isEqualTo(request.artifact().size());
+        assertThat(beforeRestart.destinationReceiptRef()).isEmpty();
+        assertThat(f.operations.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryOperationStore.Operation::status,
+                        DeliveryOperationStore.Operation::acknowledgedBytes,
+                        DeliveryOperationStore.Operation::destinationReceiptRef)
+                .containsExactly(Status.OUTCOME_UNKNOWN, request.artifact().size(), null);
+        assertThat(f.destination.offsets).containsExactly(0, CHUNK_BYTES);
+
+        f.destination.omitFinalReceipt = false;
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, f.operations);
+        DeliveryResult reconciled = restarted.reconcileAndResume(request);
+
+        assertThat(reconciled.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(reconciled.acknowledgedBytes()).isEqualTo(request.artifact().size());
+        assertThat(reconciled.destinationReceiptRef()).contains("destination-receipt:1");
+        assertThat(f.destination.offsets).containsExactly(0, CHUNK_BYTES);
+        assertThat(f.destination.sendCount).isEqualTo(2);
+    }
+
+    @Test
     void chunkReceiptWithWrongDigestCannotAdvanceAcknowledgedOffset() {
         Fixture f = new Fixture();
         f.destination.wrongChunkDigest = true;
