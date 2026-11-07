@@ -251,6 +251,30 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void inspectMapsSanitizerFailureToGenericUnavailableWithoutLeakingDetails() {
+        ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-1", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("stored sensitive comment", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        ReviewStore store = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(record); }
+        };
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()),
+                value -> { throw new IllegalStateException("private sanitizer detail: " + value); },
+                Clock.fixed(NOW, ZoneOffset.UTC), () -> "record-unused");
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE))
+                .isInstanceOf(ReviewUnavailableException.class)
+                .hasMessage("review evidence is unavailable, expired, or not retained")
+                .hasNoCause()
+                .satisfies(failure -> assertThat(failure.getMessage()).doesNotContain("private sanitizer detail"));
+    }
+
+    @Test
     void publicSnapshotConstructorRejectsIncompleteOrMisboundRecordSets() {
         ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
                 "req-1", "media.operation.action.record-review-comment", REVIEWER,

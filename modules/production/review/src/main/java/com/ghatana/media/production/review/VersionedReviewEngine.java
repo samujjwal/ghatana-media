@@ -55,7 +55,7 @@ public final class VersionedReviewEngine {
             throw new StaleReviewException();
         }
 
-        String safeText = sanitizer.sanitize(request.payload().textForSanitization());
+        String safeText = sanitize(request.payload().textForSanitization());
         if (safeText == null || safeText.isBlank() || safeText.length() > (request.payload() instanceof Comment ? 10_000 : 4_000)) {
             throw new ReviewUnavailableException();
         }
@@ -179,7 +179,7 @@ public final class VersionedReviewEngine {
     }
 
     private ReviewRecord redacted(ReviewRecord record) {
-        String safe = sanitizer.sanitize(record.payload().textForSanitization());
+        String safe = sanitize(record.payload().textForSanitization());
         int maxLength = record.payload() instanceof Comment ? 10_000 : 4_000;
         if (safe == null || safe.isBlank() || safe.length() > maxLength) {
             throw new ReviewUnavailableException();
@@ -187,6 +187,16 @@ public final class VersionedReviewEngine {
         return new ReviewRecord(record.appendRecordId(), record.tenantId(), record.reviewCaseId(), record.reviewSubjectRef(),
                 record.requestId(), record.operationId(), record.actor(), record.payload().withSanitizedText(safe),
                 record.caseRevision(), record.createdAt(), record.authorityVersion());
+    }
+
+    private String sanitize(String value) {
+        try {
+            return sanitizer.sanitize(value);
+        } catch (RuntimeException sanitizerFailure) {
+            // Sanitizer implementations can include sensitive input or infrastructure details
+            // in exceptions. Keep both append and disclosure failures on the typed unavailable path.
+            throw new ReviewUnavailableException();
+        }
     }
 
     private static String fingerprint(ReviewCaseRef reviewCase, long expectedCaseRevision,
