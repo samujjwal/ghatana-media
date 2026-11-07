@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HexFormat;
 import java.util.List;
@@ -22,6 +23,22 @@ class HostOciVisionWorkerSupervisorTest {
     private static final String INVOCATION = "00000000-0000-0000-0000-000000000001";
 
     @TempDir Path temporaryDirectory;
+
+    @Test
+    void outputVolumeCleanupAttemptsEveryResourceAndRetainsSuppressedFailures() {
+        List<String> attempts = new ArrayList<>();
+        IOException workerFailure = new IOException("worker removal failed");
+        IOException keeperFailure = new IOException("keeper removal failed");
+
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.cleanupAll(
+                () -> { attempts.add("worker"); throw workerFailure; },
+                () -> { attempts.add("keeper"); throw keeperFailure; },
+                () -> attempts.add("volume")))
+                .isSameAs(workerFailure);
+
+        assertThat(attempts).containsExactly("worker", "keeper", "volume");
+        assertThat(workerFailure.getSuppressed()).containsExactly(keeperFailure);
+    }
 
     @Test
     void productionCompositionCanRequireTheBrokerAndDirectFallbackGuardIsFailClosed() throws Exception {
@@ -77,8 +94,18 @@ class HostOciVisionWorkerSupervisorTest {
                 "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
                 "--tmpfs", "/tmp:rw,nosuid,nodev,exec,size=128m,nr_inodes=4096", "--user=" + uid + ":" + gid,
                 "--mount", "type=bind,source=" + source + ",target=/source/input,readonly",
-                "--tmpfs", "/output:rw,nosuid,nodev,noexec,size=536870912,nr_inodes=4097",
+                "--mount", "type=volume,source=media-vision-output-" + INVOCATION
+                        + ",target=/output,volume-nocopy",
                 "--entrypoint=/usr/bin/ffmpeg");
+        assertThat(HostOciVisionWorkerSupervisor.outputVolumeOptions(536870912, uid, gid))
+                .isEqualTo("size=536870912,uid=" + uid + ",gid=" + gid
+                        + ",mode=0700,nr_inodes=4097,nosuid,nodev,noexec");
+        assertThat(HostOciVisionWorkerSupervisor.outputKeeperCreateCommand(plan))
+                .contains("--network=none", "--read-only", "--memory=67108864", "--memory-swap=67108864",
+                        "--pids-limit=4", "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
+                        "type=volume,source=media-vision-output-" + INVOCATION
+                                + ",target=/output,readonly,volume-nocopy")
+                .doesNotContain("--privileged", "--device", "--publish");
         assertThat(plan.createCommand()).contains("/source/input", "/output/frame_%04d.jpg")
                 .doesNotContain(source.toString(), output.toString(), "/var/run/docker.sock");
         assertThat(plan.createCommand()).doesNotContain("AWS_SECRET_ACCESS_KEY", "MEDIA_POSTGRES_PASSWORD", "DOCKER_HOST");
@@ -229,6 +256,42 @@ class HostOciVisionWorkerSupervisorTest {
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
                 Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
                 List.of("-i", "/tmp/input.mp4"))).isFalse();
+    }
+
+    @Test
+    void preflightRequiresTheInvocationScopedBoundedTmpfsVolumeAndRejectsPersistentOrWrongVolumes() {
+        String volume = "media-vision-output-" + INVOCATION;
+        String host = "{\"Memory\":1610612736,\"MemorySwap\":1610612736,\"NanoCpus\":2000000000,"
+                + "\"PidsLimit\":32,\"Ulimits\":[{\"Name\":\"nofile\",\"Soft\":64,\"Hard\":64},"
+                + "{\"Name\":\"fsize\",\"Soft\":536870912,\"Hard\":536870912}],"
+                + "\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Privileged\":false,"
+                + "\"CapDrop\":[\"ALL\"],\"CapAdd\":null,\"Devices\":[],\"DeviceRequests\":null,"
+                + "\"SecurityOpt\":[\"no-new-privileges:true\"],\"Tmpfs\":{\"/tmp\":\"rw,nosuid,nodev,exec,size=128m,nr_inodes=4096\"},"
+                + "\"PortBindings\":{},\"PublishAllPorts\":false,\"Mounts\":["
+                + "{\"Type\":\"bind\",\"Source\":\"/tmp/input.mp4\",\"Target\":\"/source/input\",\"ReadOnly\":true},"
+                + "{\"Type\":\"volume\",\"Source\":\"" + volume + "\",\"Target\":\"/output\","
+                + "\"VolumeOptions\":{\"NoCopy\":true}}]}";
+        String config = "{\"User\":\"501:20\",\"Entrypoint\":[\"/usr/bin/ffmpeg\"],"
+                + "\"Cmd\":[\"-i\",\"/source/input\"],\"Image\":\"" + IMAGE + "\","
+                + "\"Env\":[\"HOME=/tmp\",\"TMPDIR=/tmp\",\"PATH=/usr/bin:/bin\",\"LANG=C.UTF-8\",\"LC_ALL=C.UTF-8\"]}";
+        String mounts = "[{\"Type\":\"bind\",\"Destination\":\"/source/input\",\"ReadOnly\":true,"
+                + "\"Source\":\"/tmp/input.mp4\",\"RW\":false},{\"Type\":\"volume\",\"Name\":\""
+                + volume + "\",\"Destination\":\"/output\",\"RW\":true}]";
+        String inspection = host + "|" + config + "|" + mounts;
+
+        assertThat(HostOciVisionWorkerSupervisor.effectiveVolumeLimitsMatch(inspection,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
+                List.of("-i", "/source/input"), volume)).isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveVolumeLimitsMatch(inspection,
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
+                List.of("-i", "/source/input"), volume + "-other")).isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.effectiveVolumeLimitsMatch(
+                inspection.replace("\"Type\":\"volume\"", "\"Type\":\"bind\""),
+                true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
+                Path.of("/tmp/input.mp4"), Path.of("/tmp/output"), 536870912,
+                List.of("-i", "/source/input"), volume)).isFalse();
     }
 
     @Test

@@ -141,6 +141,16 @@ if [ "$mode" = "filesize" ]; then
   exit 89
 fi
 
+# A local-driver tmpfs volume must retain its pages under the worker memory
+# cgroup. Observe memory.current around the worker's own tmpfs writes.
+if [ "$mode" = "output-memory" ]; then
+  before=$(cat /sys/fs/cgroup/memory.current)
+  dd if=/dev/zero of="$output" bs=1M count=16 status=none
+  after=$(cat /sys/fs/cgroup/memory.current)
+  printf 'HOST_OCI_OUTPUT_TMPFS_MEMCG before=%s after=%s\n' "$before" "$after"
+  exit 0
+fi
+
 # Try to exceed this container's 32-PID hard cgroup limit. Nothing runs outside
 # the worker; the init process kills remaining sleepers when the script exits.
 if [ "$mode" = "pid-limit" ]; then

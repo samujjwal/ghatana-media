@@ -11,12 +11,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BoundedDockerOutputTransferTest {
     @TempDir Path temp;
+
+    @Test
+    void volumeTransferHelperIsPinnedReadOnlyAndResourceBounded() throws Exception {
+        List<String> command = BoundedDockerOutputTransfer.volumeTransferCommand(
+                "/usr/local/bin/docker", "media-vision-output-copy-" + "a".repeat(36),
+                "sha256:" + "b".repeat(64), "media-vision-output-" + "c".repeat(36), 501, 20);
+
+        assertThat(command).contains("--pull=never", "--platform=linux/arm64", "--network=none",
+                "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
+                "--memory=134217728", "--memory-swap=134217728", "--pids-limit=4", "--ulimit=nofile=64:64",
+                "--user=501:20", "type=volume,source=media-vision-output-" + "c".repeat(36)
+                        + ",target=/output,readonly,volume-nocopy", "--entrypoint=/bin/tar");
+        assertThat(command).doesNotContain("--privileged", "--device", "--publish")
+                .doesNotContain("type=volume,source=media-vision-output-" + "c".repeat(36) + ",target=/output,volume-nocopy");
+        assertThatThrownBy(() -> BoundedDockerOutputTransfer.volumeTransferCommand(
+                "docker", "bad-name", "sha256:" + "b".repeat(64),
+                "media-vision-output-" + "c".repeat(36), 501, 20))
+                .isInstanceOf(IOException.class);
+    }
 
     @Test
     void extractsValidFlatRegularFileWithoutBufferingOrChangingItsBytes() throws Exception {

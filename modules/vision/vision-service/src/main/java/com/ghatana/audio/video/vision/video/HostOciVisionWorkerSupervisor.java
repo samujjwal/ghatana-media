@@ -334,23 +334,18 @@ final class HostOciVisionWorkerSupervisor {
         LaunchPlan plan = plan(command, workspace, outputDirectory, image, docker,
                 null, null, UUID.randomUUID().toString(), outputFileLimit);
 
-        CommandResult created;
+        String containerId = null;
+        String keeperId = null;
         try {
-            created = runAuxiliary(plan.createCommand(), Duration.ofSeconds(15));
-        } catch (IOException failure) {
-            try { removeContainer(plan.dockerCli(), plan.containerName()); }
-            catch (IOException cleanup) { failure.addSuppressed(cleanup); }
-            throw failure;
-        }
-        String containerId = created.output().trim();
-        if (created.exitCode() != 0 || !CONTAINER_ID.matcher(containerId).matches()) {
-            IOException failure = new IOException(
-                    "Vision native media processing is unavailable: host OCI worker could not be created");
-            try { removeContainer(plan.dockerCli(), plan.containerName()); }
-            catch (IOException cleanup) { failure.addSuppressed(cleanup); }
-            throw failure;
-        }
-        try {
+            if (plan.outputVolumeName() != null) {
+                createOutputVolume(plan);
+                keeperId = createAndStartOutputKeeper(plan);
+            }
+            CommandResult created = runAuxiliary(plan.createCommand(), Duration.ofSeconds(15));
+            containerId = created.output().trim();
+            if (created.exitCode() != 0 || !CONTAINER_ID.matcher(containerId).matches()) {
+                throw new IOException("Vision native media processing is unavailable: host OCI worker could not be created");
+            }
             CommandResult inspection = runAuxiliary(List.of(
                     plan.dockerCli(), "inspect", "--format", "{{json .HostConfig}}|{{json .Config}}|{{json .Mounts}}", containerId),
                     Duration.ofSeconds(10));
@@ -359,15 +354,24 @@ final class HostOciVisionWorkerSupervisor {
                             outputDirectory != null, plan.uid() + ":" + plan.gid(),
                             "/usr/bin/" + Path.of(command.getFirst()).getFileName().toString().toLowerCase(Locale.ROOT),
                             plan.imageDigest(), plan.source(), plan.output(), plan.outputFileLimit(),
-                            workerArguments(plan.workerCommand()))
+                            workerArguments(plan.workerCommand()), plan.outputVolumeName())
                     : List.of("inspect");
             if (!mismatches.isEmpty()) {
                 throw new IOException("Vision native media processing is unavailable: OCI preflight mismatch "
                         + String.join(",", mismatches));
             }
-            return new Prepared(plan, containerId);
+            if (plan.outputVolumeName() != null && !outputVolumeMatches(plan)) {
+                throw new IOException("Vision native media processing is unavailable: OCI output volume preflight mismatch");
+            }
+            return new Prepared(plan, containerId, keeperId);
         } catch (IOException | RuntimeException failure) {
-            try { removeContainer(plan.dockerCli(), containerId); }
+            try { removeContainer(plan.dockerCli(), containerId == null ? plan.containerName() : containerId); }
+            catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+            if (plan.outputKeeperName() != null) {
+                try { removeContainer(plan.dockerCli(), keeperId == null ? plan.outputKeeperName() : keeperId); }
+                catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+            }
+            try { removeOutputVolume(plan); }
             catch (IOException cleanup) { failure.addSuppressed(cleanup); }
             throw failure;
         }
@@ -449,6 +453,8 @@ final class HostOciVisionWorkerSupervisor {
 
         List<String> workerCommand = rewriteCommand(command, source, output);
         String containerName = "media-vision-" + invocationId;
+        String outputVolumeName = output == null ? null : "media-vision-output-" + invocationId;
+        String outputKeeperName = output == null ? null : "media-vision-keeper-" + invocationId;
         List<String> create = new ArrayList<>();
         create.add(dockerCli);
         create.addAll(List.of("create", "--name", containerName, "--pull=never", "--platform=linux/arm64",
@@ -467,13 +473,15 @@ final class HostOciVisionWorkerSupervisor {
             create.addAll(List.of("--mount", "type=bind,source=" + source + ",target=/source/input,readonly"));
         }
         if (output != null) {
-            create.addAll(List.of("--tmpfs", outputTmpfsOptions(outputFileLimit)));
+            create.addAll(List.of("--mount", "type=volume,source=" + outputVolumeName
+                    + ",target=/output,volume-nocopy"));
         }
-        String executable = Path.of(command.getFirst()).getFileName().toString().toLowerCase(Locale.ROOT);
-        create.addAll(List.of("--entrypoint=/usr/bin/" + executable, image));
+        create.add("--entrypoint=/usr/bin/" + Path.of(command.getFirst()).getFileName().toString().toLowerCase(Locale.ROOT));
+        create.add(image);
         if (workerCommand.size() > 1) create.addAll(workerCommand.subList(1, workerCommand.size()));
 
-        return new LaunchPlan(dockerCli, containerName, List.copyOf(create), source, output, uid, gid,
+        return new LaunchPlan(dockerCli, containerName, outputVolumeName, outputKeeperName,
+                List.copyOf(create), source, output, uid, gid,
                 MEMORY_BYTES, CPU_NANOS, PID_LIMIT, image, outputFileLimit, List.copyOf(workerCommand));
     }
 
@@ -652,6 +660,23 @@ final class HostOciVisionWorkerSupervisor {
                 expectedOutputFileLimit, expectedCommand).isEmpty();
     }
 
+    static boolean effectiveVolumeLimitsMatch(
+            String inspection,
+            boolean hasSourceMount,
+            boolean hasOutputMount,
+            String expectedUser,
+            String expectedEntrypoint,
+            String expectedImage,
+            Path expectedSource,
+            Path expectedOutput,
+            long expectedOutputFileLimit,
+            List<String> expectedCommand,
+            String expectedOutputVolume) {
+        return effectiveLimitMismatches(inspection, hasSourceMount, hasOutputMount, expectedUser,
+                expectedEntrypoint, expectedImage, expectedSource, expectedOutput,
+                expectedOutputFileLimit, expectedCommand, expectedOutputVolume).isEmpty();
+    }
+
     private static List<String> effectiveLimitMismatches(
             String inspection,
             boolean hasSourceMount,
@@ -663,6 +688,23 @@ final class HostOciVisionWorkerSupervisor {
             Path expectedOutput,
             long expectedOutputFileLimit,
             List<String> expectedCommand) {
+        return effectiveLimitMismatches(inspection, hasSourceMount, hasOutputMount, expectedUser,
+                expectedEntrypoint, expectedImage, expectedSource, expectedOutput,
+                expectedOutputFileLimit, expectedCommand, null);
+    }
+
+    private static List<String> effectiveLimitMismatches(
+            String inspection,
+            boolean hasSourceMount,
+            boolean hasOutputMount,
+            String expectedUser,
+            String expectedEntrypoint,
+            String expectedImage,
+            Path expectedSource,
+            Path expectedOutput,
+            long expectedOutputFileLimit,
+            List<String> expectedCommand,
+            String expectedOutputVolume) {
         if (inspection == null) return List.of("inspect");
         String[] inspected = inspection.split("\\|", 3);
         if (inspected.length != 3) return List.of("inspect-format");
@@ -695,7 +737,7 @@ final class HostOciVisionWorkerSupervisor {
         requireMatch(mismatches, "security-opt", stringArrayEquals(host.get("SecurityOpt"), "no-new-privileges:true"));
         Map<String, Object> tmpfs = object(host.get("Tmpfs"));
         requireMatch(mismatches, "tmpfs-temp", "rw,nosuid,nodev,exec,size=128m,nr_inodes=4096".equals(string(tmpfs, "/tmp")));
-        requireMatch(mismatches, "tmpfs-output", hasOutputMount
+        requireMatch(mismatches, "tmpfs-output", hasOutputMount && expectedOutputVolume == null
                 ? outputTmpfsOptions(expectedOutputFileLimit).substring("/output:".length())
                         .equals(string(tmpfs, "/output"))
                 : !tmpfs.containsKey("/output"));
@@ -709,10 +751,15 @@ final class HostOciVisionWorkerSupervisor {
             requireMatch(mismatches, "command", stringArrayEquals(config.get("Cmd"), expectedCommand));
         }
         requireMatch(mismatches, "socket", !mounts.toString().contains("/var/run/docker.sock"));
-        int expectedMounts = hasSourceMount ? 1 : 0;
+        int expectedConfiguredMounts = (hasSourceMount ? 1 : 0)
+                + (hasOutputMount && expectedOutputVolume != null ? 1 : 0);
+        int expectedRuntimeMounts = (hasSourceMount ? 1 : 0)
+                + (expectedOutputVolume != null ? 1 : (runtimeMountExists(mounts, "/output") ? 1 : 0));
         boolean runtimeOutputListed = runtimeMountExists(mounts, "/output");
-        requireMatch(mismatches, "mount-count", mounts.size() == expectedMounts + (runtimeOutputListed ? 1 : 0)
-                && host.get("Mounts") instanceof List<?> configuredMounts && configuredMounts.size() == expectedMounts);
+        requireMatch(mismatches, "mount-count", mounts.size() == expectedRuntimeMounts
+                && (!hasOutputMount || expectedOutputVolume == null || runtimeOutputListed)
+                && host.get("Mounts") instanceof List<?> configuredMounts
+                && configuredMounts.size() == expectedConfiguredMounts);
         if (hasSourceMount) {
             requireMatch(mismatches, "source-readonly-config", configuredMountMatches(host.get("Mounts"),
                     "/source/input", expectedSource, true));
@@ -720,8 +767,10 @@ final class HostOciVisionWorkerSupervisor {
                     "/source/input", expectedSource, false));
         }
         if (hasOutputMount) {
-            requireMatch(mismatches, "output-bind-absent", !configuredMountExists(host.get("Mounts"), "/output")
-                    && runtimeOutputMountMatches(mounts));
+            requireMatch(mismatches, "output-volume", expectedOutputVolume == null
+                    ? !configuredMountExists(host.get("Mounts"), "/output") && runtimeOutputMountMatches(mounts)
+                    : configuredVolumeMountMatches(host.get("Mounts"), "/output", expectedOutputVolume)
+                            && runtimeVolumeMountMatches(mounts, "/output", expectedOutputVolume, true));
         }
         return List.copyOf(mismatches);
     }
@@ -729,6 +778,144 @@ final class HostOciVisionWorkerSupervisor {
     static String outputTmpfsOptions(long outputByteLimit) {
         long boundedBytes = Math.max(1L, Math.min(outputByteLimit, DEFAULT_OUTPUT_FILE_LIMIT));
         return "/output:rw,nosuid,nodev,noexec,size=" + boundedBytes + ",nr_inodes=" + OUTPUT_TMPFS_INODES;
+    }
+
+    static String outputVolumeOptions(long outputByteLimit, long uid, long gid) {
+        long boundedBytes = Math.max(1L, Math.min(outputByteLimit, DEFAULT_OUTPUT_FILE_LIMIT));
+        // The worker writes these tmpfs pages, so the kernel charges them to its memory cgroup.
+        // The invocation byte/inode ceilings plus the two process-admission slots cap aggregate
+        // output tmpfs use at 1 GiB; the keeper and transfer helper have independent small caps.
+        return "size=" + boundedBytes + ",uid=" + uid + ",gid=" + gid
+                + ",mode=0700,nr_inodes=" + OUTPUT_TMPFS_INODES + ",nosuid,nodev,noexec";
+    }
+
+    private static List<String> outputVolumeCreateCommand(LaunchPlan plan) {
+        return List.of(plan.dockerCli(), "volume", "create", "--driver", "local",
+                "--opt", "type=tmpfs", "--opt", "device=tmpfs",
+                "--opt", "o=" + outputVolumeOptions(plan.outputFileLimit(), plan.uid(), plan.gid()),
+                plan.outputVolumeName());
+    }
+
+    static List<String> outputKeeperCreateCommand(LaunchPlan plan) {
+        if (plan.outputVolumeName() == null || plan.outputKeeperName() == null) {
+            throw new IllegalArgumentException("An output volume is required for its keeper");
+        }
+        return List.of(plan.dockerCli(), "create", "--name", plan.outputKeeperName(),
+                "--pull=never", "--platform=linux/arm64", "--network=none", "--read-only",
+                "--memory=67108864", "--memory-swap=67108864", "--pids-limit=4",
+                "--ulimit=nofile=16:16", "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
+                "--mount", "type=volume,source=" + plan.outputVolumeName() + ",target=/output,readonly,volume-nocopy",
+                "--user=" + plan.uid() + ":" + plan.gid(), "--entrypoint=/bin/sleep",
+                plan.imageDigest(), "infinity");
+    }
+
+    private static String createAndStartOutputKeeper(LaunchPlan plan) throws IOException {
+        CommandResult created = runAuxiliary(outputKeeperCreateCommand(plan), Duration.ofSeconds(15));
+        String keeperId = created.output().trim();
+        if (created.exitCode() != 0 || !CONTAINER_ID.matcher(keeperId).matches()) {
+            throw new IOException("Vision native media processing is unavailable: bounded output-volume keeper could not be created");
+        }
+        try {
+            CommandResult inspection = runAuxiliary(List.of(plan.dockerCli(), "inspect", "--format",
+                    "{{json .HostConfig}}|{{json .Config}}|{{json .Mounts}}", keeperId), Duration.ofSeconds(10));
+            if (inspection.exitCode() != 0 || !outputKeeperMatches(inspection.output(), plan)) {
+                throw new IOException("Vision native media processing is unavailable: output-volume keeper preflight mismatch");
+            }
+            CommandResult started = runAuxiliary(List.of(plan.dockerCli(), "start", keeperId), Duration.ofSeconds(10));
+            if (started.exitCode() != 0) {
+                throw new IOException("Vision native media processing is unavailable: output-volume keeper could not start");
+            }
+            CommandResult state = runAuxiliary(List.of(plan.dockerCli(), "inspect", "--format",
+                    "{{.State.Running}}", keeperId), Duration.ofSeconds(10));
+            if (state.exitCode() != 0 || !"true".equals(state.output().trim())) {
+                throw new IOException("Vision native media processing is unavailable: output-volume keeper is not running");
+            }
+            return keeperId;
+        } catch (IOException | RuntimeException failure) {
+            try { removeContainer(plan.dockerCli(), keeperId); }
+            catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
+    }
+
+    private static boolean outputKeeperMatches(String inspection, LaunchPlan plan) {
+        if (inspection == null) return false;
+        String[] inspected = inspection.split("\\|", 3);
+        if (inspected.length != 3) return false;
+        try {
+            Map<String, Object> host = JsonObject.parse(inspected[0]);
+            Map<String, Object> config = JsonObject.parse(inspected[1]);
+            Object parsedMounts = JsonObject.parseValue(inspected[2]);
+            if (!(parsedMounts instanceof List<?> mounts)) return false;
+            Map<String, Object> configuredMount = object(listValue(host.get("Mounts"), 0));
+            return number(host, "Memory") == 67_108_864L
+                    && number(host, "MemorySwap") == 67_108_864L
+                    && number(host, "PidsLimit") == 4
+                    && "none".equals(string(host, "NetworkMode"))
+                    && Boolean.TRUE.equals(host.get("ReadonlyRootfs"))
+                    && Boolean.FALSE.equals(host.get("Privileged"))
+                    && stringArrayEquals(host.get("CapDrop"), "ALL")
+                    && host.containsKey("CapAdd") && host.get("CapAdd") == null
+                    && stringArrayEquals(host.get("SecurityOpt"), "no-new-privileges:true")
+                    && host.get("Mounts") instanceof List<?> configured && configured.size() == 1
+                    && "volume".equals(string(configuredMount, "Type"))
+                    && plan.outputVolumeName().equals(string(configuredMount, "Source"))
+                    && "/output".equals(string(configuredMount, "Target"))
+                    && Boolean.TRUE.equals(configuredMount.get("ReadOnly"))
+                    && Boolean.TRUE.equals(object(configuredMount.get("VolumeOptions")).get("NoCopy"))
+                    && (plan.uid() + ":" + plan.gid()).equals(string(config, "User"))
+                    && stringArrayEquals(config.get("Entrypoint"), "/bin/sleep")
+                    && stringArrayEquals(config.get("Cmd"), List.of("infinity"))
+                    && plan.imageDigest().equals(string(config, "Image"))
+                    && mounts.size() == 1
+                    && runtimeVolumeMountMatches(mounts, "/output", plan.outputVolumeName(), false);
+        } catch (RuntimeException malformed) {
+            return false;
+        }
+    }
+
+    private static Object listValue(Object value, int index) {
+        return value instanceof List<?> list && list.size() > index ? list.get(index) : null;
+    }
+
+    private static void createOutputVolume(LaunchPlan plan) throws IOException {
+        try {
+            CommandResult created = runAuxiliary(outputVolumeCreateCommand(plan), Duration.ofSeconds(15));
+            if (created.exitCode() != 0 || !plan.outputVolumeName().equals(created.output().trim())) {
+                throw new IOException("Vision native media processing is unavailable: bounded output volume could not be created");
+            }
+            if (!outputVolumeMatches(plan)) {
+                throw new IOException("Vision native media processing is unavailable: bounded output volume options differ");
+            }
+        } catch (IOException | RuntimeException failure) {
+            try { removeOutputVolume(plan); }
+            catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
+    }
+
+    private static boolean outputVolumeMatches(LaunchPlan plan) throws IOException {
+        CommandResult inspected = runAuxiliary(List.of(plan.dockerCli(), "volume", "inspect", "--format",
+                "{{.Driver}}|{{.Name}}|{{json .Options}}", plan.outputVolumeName()), Duration.ofSeconds(10));
+        if (inspected.exitCode() != 0) return false;
+        String[] fields = inspected.output().trim().split("\\|", 3);
+        if (fields.length != 3 || !"local".equals(fields[0]) || !plan.outputVolumeName().equals(fields[1])) {
+            return false;
+        }
+        Map<String, Object> options;
+        try { options = JsonObject.parse(fields[2]); }
+        catch (RuntimeException malformed) { return false; }
+        return "tmpfs".equals(string(options, "type"))
+                && "tmpfs".equals(string(options, "device"))
+                && outputVolumeOptions(plan.outputFileLimit(), plan.uid(), plan.gid())
+                        .equals(string(options, "o"));
+    }
+
+    private static void removeOutputVolume(LaunchPlan plan) throws IOException {
+        if (plan.outputVolumeName() == null) return;
+        CommandResult removed = runAuxiliary(List.of(plan.dockerCli(), "volume", "rm", plan.outputVolumeName()),
+                Duration.ofSeconds(10));
+        if (removed.exitCode() != 0) throw new IOException("Trusted host OCI output-volume cleanup failed");
     }
 
     private static boolean configuredMountExists(Object mounts, String destination) {
@@ -748,6 +935,25 @@ final class HostOciVisionWorkerSupervisor {
         return output.isEmpty() || (output.size() == 1
                 && "tmpfs".equals(string(output.getFirst(), "Type"))
                 && Boolean.TRUE.equals(output.getFirst().get("RW")));
+    }
+
+    private static boolean configuredVolumeMountMatches(Object mounts, String destination, String volumeName) {
+        if (!(mounts instanceof List<?> list)) return false;
+        List<Map<String, Object>> found = list.stream().map(HostOciVisionWorkerSupervisor::object)
+                .filter(mount -> destination.equals(string(mount, "Target"))).toList();
+        return found.size() == 1 && "volume".equals(string(found.getFirst(), "Type"))
+                && volumeName.equals(string(found.getFirst(), "Source"))
+                && !Boolean.TRUE.equals(found.getFirst().get("ReadOnly"))
+                && Boolean.TRUE.equals(object(found.getFirst().get("VolumeOptions")).get("NoCopy"));
+    }
+
+    private static boolean runtimeVolumeMountMatches(List<?> mounts, String destination, String volumeName,
+            boolean writable) {
+        List<Map<String, Object>> found = mounts.stream().map(HostOciVisionWorkerSupervisor::object)
+                .filter(mount -> destination.equals(string(mount, "Destination"))).toList();
+        return found.size() == 1 && "volume".equals(string(found.getFirst(), "Type"))
+                && volumeName.equals(string(found.getFirst(), "Name"))
+                && Boolean.valueOf(writable).equals(found.getFirst().get("RW"));
     }
 
     private static void requireMatch(List<String> mismatches, String name, boolean matches) {
@@ -1014,9 +1220,29 @@ final class HostOciVisionWorkerSupervisor {
         if (result.exitCode() != 0) throw new IOException("Trusted host OCI worker cleanup failed");
     }
 
+    @FunctionalInterface
+    interface CleanupAction {
+        void run() throws IOException;
+    }
+
+    /** Attempt every per-invocation cleanup even if an earlier Docker removal fails. */
+    static void cleanupAll(CleanupAction... actions) throws IOException {
+        IOException failure = null;
+        for (CleanupAction action : actions) {
+            try {
+                action.run();
+            } catch (IOException cleanupFailure) {
+                if (failure == null) failure = cleanupFailure;
+                else failure.addSuppressed(cleanupFailure);
+            }
+        }
+        if (failure != null) throw failure;
+    }
+
     private record CommandResult(int exitCode, String output) { }
 
-    record LaunchPlan(String dockerCli, String containerName, List<String> createCommand,
+    record LaunchPlan(String dockerCli, String containerName, String outputVolumeName, String outputKeeperName,
+            List<String> createCommand,
             Path source, Path output, long uid, long gid, long memoryBytes,
             long cpuNanos, int pidLimit, String imageDigest, long outputFileLimit,
             List<String> workerCommand) { }
@@ -1024,11 +1250,13 @@ final class HostOciVisionWorkerSupervisor {
     static final class Prepared implements AutoCloseable {
         private final LaunchPlan plan;
         private final String containerId;
+        private final String outputKeeperId;
         private boolean closed;
 
-        private Prepared(LaunchPlan plan, String containerId) {
+        private Prepared(LaunchPlan plan, String containerId, String outputKeeperId) {
             this.plan = plan;
             this.containerId = containerId;
+            this.outputKeeperId = outputKeeperId;
         }
 
         List<String> command() { return List.of(plan.dockerCli(), "start", "--attach", containerId); }
@@ -1053,8 +1281,23 @@ final class HostOciVisionWorkerSupervisor {
                     throw new IOException("Vision worker output directory changed before bounded result transfer");
                 }
             }
-            BoundedDockerOutputTransfer.copyFromContainer(plan.dockerCli(), containerId,
-                    output, plan.outputFileLimit(), Duration.ofSeconds(30));
+            BoundedDockerOutputTransfer.copyFromVolume(plan.dockerCli(), plan.imageDigest(),
+                    plan.outputVolumeName(), plan.uid(), plan.gid(), output,
+                    plan.outputFileLimit(), Duration.ofSeconds(30));
+        }
+
+        /** Remove an unexceeded partial result from a failed codec invocation. */
+        void discardOutput() throws IOException {
+            if (plan.output() == null) return;
+            Path output = canonicalPrivateDirectory(plan.output(), "Vision worker output directory");
+            try (var entries = Files.list(output)) {
+                for (Path entry : entries.toList()) {
+                    if (Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS) && !Files.isSymbolicLink(entry)) {
+                        throw new IOException("Vision worker output contained an unexpected directory");
+                    }
+                    Files.delete(entry);
+                }
+            }
         }
 
         void killAll() {
@@ -1064,7 +1307,10 @@ final class HostOciVisionWorkerSupervisor {
 
         @Override public void close() throws IOException {
             if (closed) return;
-            removeContainer(plan.dockerCli(), containerId);
+            cleanupAll(
+                    () -> removeContainer(plan.dockerCli(), containerId),
+                    () -> { if (outputKeeperId != null) removeContainer(plan.dockerCli(), outputKeeperId); },
+                    () -> removeOutputVolume(plan));
             closed = true;
         }
     }

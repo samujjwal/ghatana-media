@@ -120,6 +120,26 @@ class HostOciVisionWorkerDockerIntegrationTest {
     }
 
     @Test
+    void tmpfsVolumePagesAreChargedToTheWorkerMemoryCgroupAndRemainBounded() throws Exception {
+        try (Fixture fixture = fixture("output-memory")) {
+            VideoFrameExtractor.ProcessResult result = VideoFrameExtractor.runProcess(
+                    List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),
+                            fixture.output().resolve("frame.jpg").toString()),
+                    Duration.ofSeconds(20), 4096, fixture.output(), 32L * 1024 * 1024);
+
+            assertThat(result.exitCode()).as(result.output()).isZero();
+            java.util.regex.Matcher usage = java.util.regex.Pattern.compile(
+                    "HOST_OCI_OUTPUT_TMPFS_MEMCG before=(\\d+) after=(\\d+)").matcher(result.output());
+            assertThat(usage.find()).as(result.output()).isTrue();
+            long before = Long.parseLong(usage.group(1));
+            long after = Long.parseLong(usage.group(2));
+            assertThat(after - before).as("tmpfs output pages must count against this worker's memory cgroup")
+                    .isGreaterThan(15L * 1024 * 1024);
+            assertThat(Files.size(fixture.output().resolve("frame.jpg"))).isEqualTo(16L * 1024 * 1024);
+        }
+    }
+
+    @Test
     void actualCgroupOomKillsOnlyTheWorkerAndCannotPublishOutput() throws Exception {
         try (Fixture fixture = fixture("oom")) {
             List<String> codec = List.of("ffmpeg", "-nostdin", "-i", fixture.source().toString(),

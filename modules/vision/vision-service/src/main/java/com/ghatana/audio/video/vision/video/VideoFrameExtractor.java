@@ -1194,14 +1194,16 @@ public class VideoFrameExtractor {
                     output = captured.toString(StandardCharsets.UTF_8);
                 }
                 boolean diagnosticsExceeded = diagnosticExceeded.get();
-                // `/output` is a per-invocation OCI tmpfs with byte and inode ceilings. Copy
-                // successful results into the existing private host staging directory only
-                // after the worker exits; the final walk still validates the copied result.
-                if (finished && process.exitValue() == 0 && monitoredOutput != null && workerOci != null) {
+                // The read-only keeper holds this bounded tmpfs volume mounted after the
+                // worker exits so the strict transfer helper can read its files.
+                if (finished && monitoredOutput != null && workerOci != null) {
                     workerOci.copyOutput();
                 }
                 if (finished && monitoredOutput != null && outputBudgetExceeded(monitoredOutput, maxOutputBytes)) {
                     outputExceeded = true;
+                }
+                if (finished && process.exitValue() != 0 && !outputExceeded && workerOci != null) {
+                    workerOci.discardOutput();
                 }
                 return new ProcessResult(finished ? process.exitValue() : -1,
                         !finished && !outputExceeded && !diagnosticsExceeded, output, outputExceeded, diagnosticsExceeded);

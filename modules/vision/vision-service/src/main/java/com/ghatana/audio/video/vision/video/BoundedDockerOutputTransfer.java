@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Streams Docker's copy archive through a strict byte-, entry-, path-, and type-bounded extractor. */
+/** Streams OCI output archives through a strict byte-, entry-, path-, and type-bounded extractor. */
 final class BoundedDockerOutputTransfer {
     private static final int TAR_BLOCK = 512;
 
@@ -25,7 +25,51 @@ final class BoundedDockerOutputTransfer {
     static void copyFromContainer(String dockerCli, String containerId, Path outputDirectory,
             long maximumBytes, Duration timeout) throws IOException {
         if (dockerCli == null || dockerCli.isBlank() || containerId == null
-                || !containerId.matches("[a-f0-9]{64}") || outputDirectory == null
+                || !containerId.matches("[a-f0-9]{64}")) {
+            throw new IOException("Vision output transfer bounds or identity are invalid");
+        }
+        copyFromCommand(dockerCli, List.of(dockerCli, "cp", containerId + ":/output/.", "-"),
+                null, outputDirectory, maximumBytes, timeout);
+    }
+
+    /**
+     * Streams a stopped worker's persistent tmpfs volume through a restricted helper. Docker
+     * does not include a container's tmpfs contents in `docker cp` after that container stops.
+     */
+    static void copyFromVolume(String dockerCli, String imageDigest, String volumeName,
+            long uid, long gid, Path outputDirectory, long maximumBytes, Duration timeout) throws IOException {
+        if (imageDigest == null || !imageDigest.matches("(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}")
+                || volumeName == null || !volumeName.matches("media-vision-output-[a-f0-9-]{36}")
+                || uid <= 0 || uid > Integer.MAX_VALUE || gid < 0 || gid > Integer.MAX_VALUE) {
+            throw new IOException("Vision output volume identity is invalid");
+        }
+        String helperName = "media-vision-output-copy-" + java.util.UUID.randomUUID();
+        List<String> command = volumeTransferCommand(dockerCli, helperName, imageDigest, volumeName, uid, gid);
+        copyFromCommand(dockerCli, command, helperName, outputDirectory, maximumBytes, timeout);
+    }
+
+    static List<String> volumeTransferCommand(String dockerCli, String helperName, String imageDigest,
+            String volumeName, long uid, long gid) throws IOException {
+        if (dockerCli == null || dockerCli.isBlank() || helperName == null
+                || !helperName.matches("media-vision-output-copy-[a-f0-9-]{36}")
+                || imageDigest == null || !imageDigest.matches("(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}")
+                || volumeName == null || !volumeName.matches("media-vision-output-[a-f0-9-]{36}")
+                || uid <= 0 || uid > Integer.MAX_VALUE || gid < 0 || gid > Integer.MAX_VALUE) {
+            throw new IOException("Vision output volume identity is invalid");
+        }
+        return List.of(dockerCli, "run", "--name", helperName,
+                "--pull=never", "--platform=linux/arm64", "--network=none", "--read-only",
+                "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
+                "--memory=134217728", "--memory-swap=134217728", "--pids-limit=4",
+                "--ulimit=nofile=64:64", "--tmpfs", "/tmp:rw,nosuid,nodev,exec,size=16m,nr_inodes=256",
+                "--user=" + uid + ":" + gid,
+                "--mount", "type=volume,source=" + volumeName + ",target=/output,readonly,volume-nocopy",
+                "--entrypoint=/bin/tar", imageDigest, "--format=ustar", "-C", "/output", "-cf", "-", ".");
+    }
+
+    private static void copyFromCommand(String dockerCli, List<String> command, String cleanupName,
+            Path outputDirectory, long maximumBytes, Duration timeout) throws IOException {
+        if (dockerCli == null || dockerCli.isBlank() || outputDirectory == null
                 || maximumBytes <= 0 || maximumBytes > MediaOciBrokerPolicy.MAX_VISION_OUTPUT_BYTES
                 || timeout == null || timeout.isNegative() || timeout.isZero()) {
             throw new IOException("Vision output transfer bounds or identity are invalid");
@@ -40,8 +84,7 @@ final class BoundedDockerOutputTransfer {
                 throw new IOException("Vision output transfer directory must be empty");
             }
         }
-        Process process = new ProcessBuilder(dockerCli, "cp", containerId + ":/output/.", "-")
-                .redirectErrorStream(false).start();
+        Process process = new ProcessBuilder(command).redirectErrorStream(false).start();
         AtomicBoolean timedOut = new AtomicBoolean();
         Thread watchdog = new Thread(() -> {
             try {
@@ -66,6 +109,7 @@ final class BoundedDockerOutputTransfer {
                     ? new IOException("Vision output archive transfer timed out", failure)
                     : failure instanceof IOException io ? io : new IOException("Vision output archive is invalid", failure);
             cleanupCreated(transferred, reported);
+            cleanupHelper(dockerCli, cleanupName, reported);
             throw reported;
         } finally {
             try { process.getInputStream().close(); } catch (IOException ignored) { }
@@ -83,13 +127,35 @@ final class BoundedDockerOutputTransfer {
             terminate(process);
             IOException failure = new IOException("Vision output archive transfer was interrupted", interrupted);
             cleanupCreated(transferred, failure);
+            cleanupHelper(dockerCli, cleanupName, failure);
             throw failure;
         }
         if (timedOut.get() || process.exitValue() != 0) {
             IOException failure = new IOException(timedOut.get()
                     ? "Vision output archive transfer timed out" : "Vision output archive transfer failed");
             cleanupCreated(transferred, failure);
+            cleanupHelper(dockerCli, cleanupName, failure);
             throw failure;
+        }
+        cleanupHelper(dockerCli, cleanupName, null);
+    }
+
+    private static void cleanupHelper(String dockerCli, String helperName, IOException primary) throws IOException {
+        if (helperName == null) return;
+        try {
+            Process cleanup = new ProcessBuilder(dockerCli, "rm", "--force", helperName)
+                    .redirectErrorStream(true).start();
+            if (!cleanup.waitFor(10, TimeUnit.SECONDS)) {
+                cleanup.destroyForcibly();
+                throw new IOException("Vision output transfer helper cleanup timed out");
+            }
+            if (cleanup.exitValue() != 0) throw new IOException("Vision output transfer helper cleanup failed");
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            IOException failure = new IOException("Vision output transfer helper cleanup was interrupted", interrupted);
+            if (primary != null) primary.addSuppressed(failure); else throw failure;
+        } catch (IOException failure) {
+            if (primary != null) primary.addSuppressed(failure); else throw failure;
         }
     }
 
