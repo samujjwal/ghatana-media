@@ -797,6 +797,77 @@ function snapshotUploadSession(
   return freezeRenderValue(JSON.parse(JSON.stringify(session)) as CanonicalMediaUploadSessionObservation);
 }
 
+/** Copy an adapter-owned array using one observed length and an explicit bound. */
+function copyExactHostArray<T>(value: unknown, expectedLength: number): T[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const length: unknown = value.length;
+  if (!Number.isSafeInteger(length) || length !== expectedLength) return undefined;
+  const copy: T[] = [];
+  for (let index = 0; index < expectedLength; index += 1) copy.push(value[index] as T);
+  return copy;
+}
+
+/** Snapshot and compare probe observations without serializing host-owned values. */
+function probeMatchesRequest(
+  probe: RenderedContainer["probe"],
+  request: FinalRenderRequest,
+  narrationRefs: readonly string[],
+): boolean {
+  try {
+    if (!probe || typeof probe !== "object") return false;
+    const container = probe.container;
+    const frameRate = probe.frameRate;
+    const variableFrameRate = probe.variableFrameRate;
+    const timeBase = probe.timeBase;
+    const durationTicks = probe.durationTicks;
+    const decodedFrameCount = probe.decodedFrameCount;
+    const audioTrackCount = probe.audioTrackCount;
+    const captionTrackCount = probe.captionTrackCount;
+    const narrationRefsValue = probe.narrationTrackRefs;
+    const captionTimingsValue = probe.captionTimings;
+    const creditRefsValue = probe.creditRefsIncluded;
+    const observedNarrationRefs = copyExactHostArray<unknown>(narrationRefsValue, narrationRefs.length);
+    const observedCaptionTimings = copyExactHostArray<unknown>(captionTimingsValue, request.captions.length);
+    const observedCreditRefs = copyExactHostArray<unknown>(creditRefsValue, request.creditRefs.length);
+    if (!observedNarrationRefs || !observedCaptionTimings || !observedCreditRefs
+      || typeof container !== "string" || container.trim().length === 0
+      || !frameRate || !timeBase
+      || frameRate.numerator !== request.frameRate.numerator
+      || frameRate.denominator !== request.frameRate.denominator
+      || variableFrameRate !== request.variableFrameRate
+      || timeBase.numerator !== request.timeBase.numerator
+      || timeBase.denominator !== request.timeBase.denominator
+      || durationTicks !== request.durationTicks
+      || !Number.isSafeInteger(decodedFrameCount) || decodedFrameCount < 1
+      || !Number.isSafeInteger(audioTrackCount) || audioTrackCount < 0
+      || (narrationRefs.length > 0 && audioTrackCount < 1)
+      || !Number.isSafeInteger(captionTrackCount) || captionTrackCount < 0
+      || (request.captions.length > 0 && captionTrackCount < 1)) return false;
+    for (let index = 0; index < narrationRefs.length; index += 1) {
+      if (observedNarrationRefs[index] !== narrationRefs[index]) return false;
+    }
+    for (let index = 0; index < request.captions.length; index += 1) {
+      const observed = observedCaptionTimings[index];
+      const expected = request.captions[index];
+      if (!observed || typeof observed !== "object" || !expected) return false;
+      const item = observed as Record<string, unknown>;
+      const captionRef = item.captionRef;
+      const startTicks = item.startTicks;
+      const endTicks = item.endTicks;
+      if (captionRef !== expected.captionRef || startTicks !== expected.startTicks
+        || endTicks !== expected.endTicks) return false;
+    }
+    for (let index = 0; index < request.creditRefs.length; index += 1) {
+      if (observedCreditRefs[index] !== request.creditRefs[index]) return false;
+    }
+    return true;
+  } catch {
+    // Proxies/getters supplied by an unavailable or hostile host adapter are
+    // invalid observations, not an exception that escapes the typed boundary.
+    return false;
+  }
+}
+
 /**
  * Publishes only bytes returned by the admitted mux+decoder/probe host port.
  * The canonical upload's declared idempotency key is stable for the same
@@ -875,32 +946,14 @@ export async function publishFinalRender(
   if (bytes.byteLength !== sourceByteLength) {
     return { outcome: "NOT_ADMITTED", reason: "muxer output changed size while being snapshotted" };
   }
-  const probe = rendered.probe;
   const narrationRefs = [...new Set(safeRequest.plan.sceneRuns.flatMap((run) => run.narration.map((cue) => cue.trackRef)))];
-  if (!probe || !probe.frameRate || !probe.timeBase || !Array.isArray(probe.captionTimings)
-    || typeof probe.container !== "string" || probe.container.trim().length === 0
-    || !Number.isSafeInteger(probe.decodedFrameCount) || probe.decodedFrameCount < 1
-    || !Number.isSafeInteger(probe.audioTrackCount) || probe.audioTrackCount < 0
-    || !Array.isArray(probe.narrationTrackRefs)
-    || !Number.isSafeInteger(probe.captionTrackCount) || probe.captionTrackCount < 0
-    || !Array.isArray(probe.creditRefsIncluded)
-    // Reject length mismatches before serializing host-owned arrays. The
-    // request-side collections are bounded, but the probe adapter is not
-    // trusted to return equally bounded observations.
-    || probe.narrationTrackRefs.length !== narrationRefs.length
-    || probe.captionTimings.length !== safeRequest.captions.length
-    || probe.creditRefsIncluded.length !== safeRequest.creditRefs.length
-    || probe.frameRate.numerator !== safeRequest.frameRate.numerator
-    || probe.frameRate.denominator !== safeRequest.frameRate.denominator
-    || probe.variableFrameRate !== safeRequest.variableFrameRate
-    || probe.timeBase.numerator !== safeRequest.timeBase.numerator
-    || probe.timeBase.denominator !== safeRequest.timeBase.denominator
-    || probe.durationTicks !== safeRequest.durationTicks
-    || (narrationRefs.length > 0 && probe.audioTrackCount < 1)
-    || JSON.stringify(probe.narrationTrackRefs) !== JSON.stringify(narrationRefs)
-    || (safeRequest.captions.length > 0 && probe.captionTrackCount < 1)
-    || JSON.stringify(probe.captionTimings) !== JSON.stringify(safeRequest.captions)
-    || JSON.stringify(probe.creditRefsIncluded) !== JSON.stringify(safeRequest.creditRefs)) {
+  let probeIsValid = false;
+  try {
+    probeIsValid = probeMatchesRequest(rendered.probe, safeRequest, narrationRefs);
+  } catch {
+    // Includes revoked proxies encountered while obtaining the probe object.
+  }
+  if (!probeIsValid) {
     return { outcome: "NOT_ADMITTED", reason: "decoder/probe or mux observations do not prove requested frame timing, narration, caption track/timing, or credit inclusion" };
   }
 

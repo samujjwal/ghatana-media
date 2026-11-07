@@ -904,7 +904,7 @@ describe("publishFinalRender", () => {
     let indexedReads = 0;
     const oversizedTrackRefs = new Proxy(new Array<string>(100_000), {
       get(target, property, receiver) {
-        if (typeof property === "string" && /^\\d+$/u.test(property)) indexedReads += 1;
+        if (typeof property === "string" && /^\d+$/u.test(property)) indexedReads += 1;
         return Reflect.get(target, property, receiver);
       },
     });
@@ -919,6 +919,33 @@ describe("publishFinalRender", () => {
     expect(indexedReads).toBe(0);
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
       .not.toHaveBeenCalled();
+  });
+
+  it("reads changing host array lengths once and traverses only the request-bound entries", async () => {
+    let lengthReads = 0;
+    let indexedReads = 0;
+    const changingLengthTrackRefs = new Proxy(["narration/intro@v1"], {
+      get(target, property, receiver) {
+        if (property === "length") {
+          lengthReads += 1;
+          return lengthReads === 1 ? 1 : 100_000;
+        }
+        if (typeof property === "string" && /^\d+$/u.test(property)) indexedReads += 1;
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    const badMuxer = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      probe: { ...verifiedContainer().probe, narrationTrackRefs: changingLengthTrackRefs },
+    }) };
+    const client = fakeClient();
+
+    await expect(publishFinalRender(request(), admitted, badMuxer, client))
+      .resolves.toMatchObject({ outcome: "PUBLISHED" });
+    expect(lengthReads).toBe(1);
+    expect(indexedReads).toBe(1);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .toHaveBeenCalledTimes(1);
   });
 
   it("rejects an oversized host buffer before copying it", async () => {
