@@ -83,15 +83,14 @@ public final class StructuredLogger {
      */
     public static void withContext(
             String correlationId, String service, String operation, Runnable block) {
+        Context previousContext = captureContext();
         MDC.put(MDC_CORRELATION_ID, correlationId);
         MDC.put(MDC_SERVICE, service);
         MDC.put(MDC_OPERATION, operation);
         try {
             block.run();
         } finally {
-            MDC.remove(MDC_CORRELATION_ID);
-            MDC.remove(MDC_SERVICE);
-            MDC.remove(MDC_OPERATION);
+            restoreContext(previousContext);
         }
     }
 
@@ -107,17 +106,37 @@ public final class StructuredLogger {
      */
     public static <T> T withContext(
             String correlationId, String service, String operation, Supplier<T> block) {
+        Context previousContext = captureContext();
         MDC.put(MDC_CORRELATION_ID, correlationId);
         MDC.put(MDC_SERVICE, service);
         MDC.put(MDC_OPERATION, operation);
         try {
             return block.get();
         } finally {
-            MDC.remove(MDC_CORRELATION_ID);
-            MDC.remove(MDC_SERVICE);
-            MDC.remove(MDC_OPERATION);
+            restoreContext(previousContext);
         }
     }
+
+    private static Context captureContext() {
+        return new Context(
+                MDC.get(MDC_CORRELATION_ID), MDC.get(MDC_SERVICE), MDC.get(MDC_OPERATION));
+    }
+
+    private static void restoreContext(Context context) {
+        restoreValue(MDC_CORRELATION_ID, context.correlationId());
+        restoreValue(MDC_SERVICE, context.service());
+        restoreValue(MDC_OPERATION, context.operation());
+    }
+
+    private static void restoreValue(String key, String value) {
+        if (value == null) {
+            MDC.remove(key);
+        } else {
+            MDC.put(key, value);
+        }
+    }
+
+    private record Context(String correlationId, String service, String operation) {}
 
     /**
      * Emits an INFO-level "STARTED" event.

@@ -1,9 +1,15 @@
 package com.ghatana.audio.video.common.platform;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -37,6 +43,11 @@ public final class AuthGatewayClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthGatewayClient.class);
     private static volatile AuthGatewayClient INSTANCE;
+    private static final int MAX_VALIDATION_RESPONSE_BYTES = 16 * 1024;
+    private static final JsonFactory JSON_FACTORY = JsonFactory.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .build();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper(JSON_FACTORY);
 
     /**
      * Result of a token validation call to the auth-gateway.
@@ -120,15 +131,20 @@ public final class AuthGatewayClient {
                     .GET()
                     .build();
 
-            HttpResponse<String> response = http.send(request,
-                    HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 200) {
-                LOG.debug("AuthGateway rejected token: HTTP {}", response.statusCode());
-                return ValidationResult.INVALID;
+            HttpResponse<InputStream> response = http.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
+            try (InputStream body = response.body()) {
+                if (response.statusCode() != 200) {
+                    LOG.debug("AuthGateway rejected token: HTTP {}", response.statusCode());
+                    return ValidationResult.INVALID;
+                }
+                byte[] responseBytes = body.readNBytes(MAX_VALIDATION_RESPONSE_BYTES + 1);
+                if (responseBytes.length > MAX_VALIDATION_RESPONSE_BYTES) {
+                    LOG.debug("AuthGateway validation response exceeded its byte limit");
+                    return ValidationResult.INVALID;
+                }
+                return parseValidationResponse(responseBytes);
             }
-
-            return parseValidationResponse(response.body());
 
         } catch (IOException | InterruptedException e) {
             if (e instanceof InterruptedException) {
@@ -140,41 +156,48 @@ public final class AuthGatewayClient {
     }
 
     // -------------------------------------------------------------------------
-    // Minimal JSON parser — avoids adding a JSON library dependency
+    // Strictly parse the bounded response using the module's existing Jackson dependency.
     // -------------------------------------------------------------------------
 
     /**
      * Parses a minimal {@code {valid, userId, email, tenantId}} JSON payload.
      * Expected format: {@code {"valid":true,"userId":"u1","email":"a@b.com","tenantId":"t1"}}
      */
-    private static ValidationResult parseValidationResponse(String json) {
-        if (json == null || json.isBlank()) return ValidationResult.INVALID;
-
-        boolean valid  = extractBool(json, "valid");
-        String userId  = extractString(json, "userId");
-        String email   = extractString(json, "email");
-        String tenantId = extractString(json, "tenantId");
-
-        return valid && tenantId != null ? new ValidationResult(true, userId, email, tenantId) : ValidationResult.INVALID;
+    static ValidationResult parseValidationResponse(byte[] json) {
+        if (json == null || json.length == 0 || json.length > MAX_VALIDATION_RESPONSE_BYTES) {
+            return ValidationResult.INVALID;
+        }
+        try (JsonParser parser = JSON_FACTORY.createParser(json)) {
+            JsonNode root = JSON_MAPPER.readTree(parser);
+            if (root == null || !root.isObject() || parser.nextToken() != null) {
+                return ValidationResult.INVALID;
+            }
+            JsonNode validNode = root.get("valid");
+            JsonNode tenantNode = root.get("tenantId");
+            if (validNode == null || !validNode.isBoolean() || !validNode.booleanValue()
+                    || tenantNode == null || !tenantNode.isTextual()) {
+                return ValidationResult.INVALID;
+            }
+            String userId = textField(root.get("userId"));
+            String email = textField(root.get("email"));
+            String tenantId = tenantNode.textValue();
+            return !isUsableSubject(userId) || tenantId.isBlank()
+                    ? ValidationResult.INVALID
+                    : new ValidationResult(true, userId, email, tenantId);
+        } catch (RuntimeException malformed) {
+            return ValidationResult.INVALID;
+        }
     }
 
-    private static boolean extractBool(String json, String key) {
-        String pattern = "\"" + key + "\"";
-        int idx = json.indexOf(pattern);
-        if (idx < 0) return false;
-        String rest = json.substring(idx + pattern.length()).stripLeading();
-        if (!rest.startsWith(":")) return false;
-        rest = rest.substring(1).stripLeading();
-        return rest.startsWith("true");
+    private static boolean isUsableSubject(String subject) {
+        if (subject == null || subject.isBlank()) {
+            return false;
+        }
+        String normalized = subject.trim();
+        return !normalized.equalsIgnoreCase("platform") && !normalized.equalsIgnoreCase("unknown");
     }
 
-    private static String extractString(String json, String key) {
-        String pattern = "\"" + key + "\":\"";
-        int start = json.indexOf(pattern);
-        if (start < 0) return null;
-        start += pattern.length();
-        int end = json.indexOf('"', start);
-        if (end < 0) return null;
-        return json.substring(start, end);
+    private static String textField(JsonNode value) {
+        return value != null && value.isTextual() ? value.textValue() : null;
     }
 }

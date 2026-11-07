@@ -86,6 +86,29 @@ class StructuredLoggerTest {
         assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isNull(); 
     }
 
+    @Test
+    @DisplayName("nested withContext(Runnable) restores outer MDC after inner failure")
+    void withContext_runnable_restoresOuterContextAfterNestedException() {
+        StructuredLogger.withContext("outer-id", "outer-service", "outer-operation", () -> {
+            try {
+                StructuredLogger.withContext("inner-id", "inner-service", "inner-operation", () -> {
+                    assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isEqualTo("inner-id");
+                    throw new RuntimeException("simulated inner failure");
+                });
+            } catch (RuntimeException ignored) {
+                // The inner scope must restore the outer context before the exception is handled.
+            }
+
+            assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isEqualTo("outer-id");
+            assertThat(MDC.get(StructuredLogger.MDC_SERVICE)).isEqualTo("outer-service");
+            assertThat(MDC.get(StructuredLogger.MDC_OPERATION)).isEqualTo("outer-operation");
+        });
+
+        assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isNull();
+        assertThat(MDC.get(StructuredLogger.MDC_SERVICE)).isNull();
+        assertThat(MDC.get(StructuredLogger.MDC_OPERATION)).isNull();
+    }
+
     // ─── withContext(Supplier) ──────────────────────────────────────────────── 
 
     @Test
@@ -102,6 +125,27 @@ class StructuredLoggerTest {
         StructuredLogger.withContext("abc", "svc", "op", () -> "result"); 
 
         assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isNull(); 
+    }
+
+    @Test
+    @DisplayName("nested withContext(Supplier) restores outer MDC after return")
+    void withContext_supplier_restoresOuterContextAfterNestedReturn() {
+        StructuredLogger.withContext("outer-id", "outer-service", "outer-operation", () -> {
+            String result = StructuredLogger.withContext(
+                    "inner-id", "inner-service", "inner-operation", () -> {
+                        assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isEqualTo("inner-id");
+                        return "inner-result";
+                    });
+
+            assertThat(result).isEqualTo("inner-result");
+            assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isEqualTo("outer-id");
+            assertThat(MDC.get(StructuredLogger.MDC_SERVICE)).isEqualTo("outer-service");
+            assertThat(MDC.get(StructuredLogger.MDC_OPERATION)).isEqualTo("outer-operation");
+        });
+
+        assertThat(MDC.get(StructuredLogger.MDC_CORRELATION_ID)).isNull();
+        assertThat(MDC.get(StructuredLogger.MDC_SERVICE)).isNull();
+        assertThat(MDC.get(StructuredLogger.MDC_OPERATION)).isNull();
     }
 
     // ─── log methods — smoke tests (no assertion on log output, just verify no NPE) ── 
