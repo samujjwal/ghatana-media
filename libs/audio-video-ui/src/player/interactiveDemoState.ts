@@ -579,6 +579,14 @@ export function replayDemoBranchPath(
   verificationPort: DemoHostVerificationPort | undefined,
   branches: readonly DemoBranchVisit[],
 ): DemoPlayerState {
+  const initial = createDemoPlayerState(manifest, verificationPort);
+  if (initial.status !== "READY") return initial;
+  if (!Array.isArray(branches)) return unavailableFrom(initial, "INVALID_BUNDLE");
+  // The route bound includes its initial scene, so a replay can carry at most
+  // MAX_BRANCH_VISITS - 1 branch choices. Check before mapping untrusted input.
+  if (branches.length >= MAX_BRANCH_VISITS) {
+    return unavailableFrom(initial, "PLAYBACK_LIMIT_REACHED");
+  }
   const actions = branches.map((branch) => ({ type: "choose-branch", branchId: branch.choiceId } as const));
   return replayDemoActions(manifest, verificationPort, actions);
 }

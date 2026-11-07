@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createDemoPlayerState,
+  replayDemoBranchPath,
   replayDemoActions,
   reduceDemoPlayerState,
 } from "../libs/audio-video-ui/src/player/interactiveDemoState.ts";
@@ -218,4 +219,46 @@ test("replay rejects action streams above the recorded-action bound before proce
   assert.equal(replayed.failure, "PLAYBACK_LIMIT_REACHED");
   assert.equal(replayed.playing, false);
   assert.deepEqual(replayed.history, []);
+});
+
+test("branch-path replay enforces the route bound before copying caller input", () => {
+  const loopManifest = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => scene.id === "intro"
+      ? { ...scene, branches: [{ id: "loop", label: "Repeat", targetSceneId: "intro" }] }
+      : scene),
+  };
+  const loopVerifier = {
+    attest: () => ({
+      manifestId: loopManifest.id,
+      revision: loopManifest.revision,
+      sha256: loopManifest.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: loopManifest.sourceTruth,
+      originPermissions: loopManifest.originPermissions,
+    }),
+  };
+  const allowedPath = Array.from({ length: 255 }, () => ({
+    fromSceneId: "intro",
+    choiceId: "loop",
+    toSceneId: "intro",
+  }));
+  const allowed = replayDemoBranchPath(loopManifest, loopVerifier, allowedPath);
+  assert.equal(allowed.status, "READY");
+  assert.equal(allowed.route.length, 256);
+  assert.equal(allowed.branches.length, 255);
+
+  const oversizedPath = [...allowedPath, {
+    fromSceneId: "intro",
+    choiceId: "loop",
+    toSceneId: "intro",
+  }];
+  Object.defineProperty(oversizedPath, "map", {
+    value: () => { throw new Error("oversized path must be rejected before mapping"); },
+  });
+  const rejected = replayDemoBranchPath(loopManifest, loopVerifier, oversizedPath);
+  assert.equal(rejected.status, "UNAVAILABLE");
+  assert.equal(rejected.failure, "PLAYBACK_LIMIT_REACHED");
+  assert.deepEqual(rejected.history, []);
+  assert.deepEqual(rejected.route, ["intro"]);
 });
