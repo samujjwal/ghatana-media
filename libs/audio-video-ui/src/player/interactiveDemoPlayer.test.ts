@@ -584,4 +584,22 @@ describe("interactive demo player", () => {
     expect(html).not.toContain("<button");
     expect(html).not.toContain('type="range"');
   });
+
+  it("does not forward ambient credentials to an explicitly permitted cross-origin asset", () => {
+    const cdnManifest: InteractiveDemoManifest = {
+      ...BASE,
+      originPermissions: [{ origin: "https://cdn.example.test", capabilities: ["read-asset"] }],
+      scenes: BASE.scenes.map((scene, index) => index === 0
+        ? { ...scene, asset: { ...scene.asset, url: "https://cdn.example.test/intro.mp4" } }
+        : scene),
+    };
+    render(React.createElement(InteractiveDemoPlayer, {
+      manifest: cdnManifest,
+      verificationPort: testAuthority(cdnManifest),
+    }));
+
+    const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    expect(video.src).toBe("https://cdn.example.test/intro.mp4");
+    expect(video.crossOrigin).toBe("anonymous");
+  });
 });

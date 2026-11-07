@@ -140,6 +140,10 @@ export function InteractiveDemoPlayer({
             aria-label={`Media for ${activeScene.label}`}
             className="media-interactive-demo-player__media"
             src={activeScene.asset.url}
+            // A manifest permission authorizes reading an asset, not forwarding
+            // ambient host credentials to its origin. Anonymous CORS keeps the
+            // browser request scoped to the declared public/readable resource.
+            crossOrigin="anonymous"
             preload="metadata"
             playsInline
             onLoadedMetadata={(event) => {
