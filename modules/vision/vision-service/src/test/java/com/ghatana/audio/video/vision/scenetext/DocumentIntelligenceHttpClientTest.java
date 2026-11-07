@@ -138,6 +138,26 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     @Test
+    void successfulParseMustEchoTheRequestedOperationAndProvider() {
+        parseStatus = 200;
+        String validShape = "{\"protocolVersion\":\"document-intelligence.v1\",\"operationId\":\"operation-1\","
+                + "\"providerRef\":\"di.ocr.en\",\"providerProvenance\":{\"providerRef\":\"di.ocr.en\","
+                + "\"providerVersion\":\"2.4.1\"},\"pages\":[]}";
+
+        // Frozen v1 correlates a successful parse by the operation and provider identities;
+        // a response from another operation/provider must never become a Media observation.
+        parseBody = validShape.replace("operation-1", "different-operation");
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+
+        parseBody = validShape.replace("di.ocr.en", "di.ocr.other");
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+    }
+
+    @Test
     void hostOutsideAllowlistIsRefusedAtConstruction() {
         assertThatThrownBy(() -> new DocumentIntelligenceHttpClient(
                 URI.create("http://127.0.0.1:1"), HttpClient.newHttpClient(), Duration.ofSeconds(1), 1024,
