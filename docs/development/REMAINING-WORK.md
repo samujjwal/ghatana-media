@@ -149,7 +149,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Verify committed claim hard-link exclusivity and restricted legacy record semantics.
 - **How:** Run focused tests on macOS and Linux, including independent processes, crash and unsupported filesystem; require exactly one claim; review read/complete/lock path.
 - **Test/exit:** All focused tests green, no existing fence overwrite and no terminal injection through record().
-- **Additional verification (2026-11-07):** Current FULL source-composite rerun of `FileInvocationLedgerTest` passes 24/24, including independent-process contention, exited-process fencing, unwritable-directory failure, legacy-record restrictions, and encrypted result binding. The task remains VERIFIED in its declared single-host scope; this does not admit the agent handlers or establish production authorization.
+- **Additional verification (2026-11-07):** Current FULL source-composite rerun of `FileInvocationLedgerTest` passes 24/24, including independent-process contention, exited-process fencing, unwritable-directory failure, legacy-record restrictions, and encrypted result binding. `MediaToolExecutionBinderTest` also passes 26/26, covering exclusive invocation dispatch claims, lost claim acknowledgment and ambiguous dispatch no-redispatch. These are local claim/fence checks only; the agent handlers remain NOT_ADMITTED pending canonical mappings, owner rights and durable output receipts.
 - **Predecessors:** None; start independently
 
 **`media.dev.projection-pre-dispatch-fence-verification`** · VERIFIED (macOS focused suite green: real JVM halt at effect boundary → durable PENDING_RECONCILIATION, no duplicate dispatch, exact-readback reconcile, corrupt state fail-closed)
@@ -173,7 +173,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Make optional ledger projection fail closed for concurrent writers on shared storage.
 - **How:** Explicitly enforce single process/host ownership or use a transactional DB CAS and destination readback; never call file rename distributed compare-and-set.
 - **Test/exit:** Two independent projector instances cannot both dispatch a stale/duplicate update; no Data Cloud dependency on Media.
-- **Progress:** `MediaObservationPublicationCoordinatorTest` passes 24/24 on the current source, covering exclusive claims, mismatched-claim rejection, live source/rights rechecks, lost-receipt no-redispatch and no outbox mutation on denied/unavailable disclosure. This is focused pre-dispatch safety evidence only; Data Cloud remains optional and no real projection effect is enabled.
+- **Progress:** `MediaObservationPublicationCoordinatorTest` passes 24/24 on the current source, covering exclusive claims, mismatched-claim rejection, live source/rights rechecks, lost-receipt no-redispatch and no outbox mutation on denied/unavailable disclosure. The 2026-11-07 FULL source-composite rerun confirms these gates; this remains fixture safety evidence only. Data Cloud stays optional and no real projection effect is enabled.
 - **Predecessors:** `media.dev.projection-pre-dispatch-fence-verification`
 
 **`media.dev.service-observability`** · OPEN
