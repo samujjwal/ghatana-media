@@ -170,6 +170,55 @@ class MediaStreamLeaseRenewalTest {
         }
     }
 
+    @Test
+    void concurrentFrameReservationsFromSameVersionAllowOnlyOneCompareAndSet() throws Exception {
+        var fixture = connectedFixture(-1, Instant.now().minus(Duration.ofMinutes(5)));
+        int contenderCount = 2;
+        var ready = new CountDownLatch(contenderCount);
+        var start = new CountDownLatch(1);
+        var successes = new AtomicInteger();
+        var conflicts = new AtomicInteger();
+        ExecutorService executor = Executors.newFixedThreadPool(contenderCount);
+        try {
+            Future<?> first = executor.submit(() -> reserveFrame(
+                    fixture, ready, start, successes, conflicts, "frame-attempt-a"));
+            Future<?> second = executor.submit(() -> reserveFrame(
+                    fixture, ready, start, successes, conflicts, "frame-attempt-b"));
+
+            assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+            first.get(5, TimeUnit.SECONDS);
+            second.get(5, TimeUnit.SECONDS);
+
+            assertThat(successes).hasValue(1);
+            assertThat(conflicts).hasValue(1);
+            StreamSession persisted = fixture.store().find("tenant-a", "stream-a").orElseThrow();
+            assertThat(persisted.version()).isEqualTo(fixture.session().version() + 1);
+            assertThat(persisted.lastSequence()).isEqualTo(-1);
+            assertThat(persisted.inFlightSequence()).isZero();
+            assertThat(persisted.inFlightAttemptId()).isIn("frame-attempt-a", "frame-attempt-b");
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void exhaustedAndNegativeFrameReservationsFailWithoutMutation() {
+        var exhausted = connectedFixture(Long.MAX_VALUE, Instant.now().minus(Duration.ofMinutes(5)));
+        assertThatThrownBy(() -> exhausted.store().beginFrame(
+                exhausted.session(), Long.MIN_VALUE, "rollover-attempt"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not contiguous");
+        assertThat(exhausted.store().find("tenant-a", "stream-a")).contains(exhausted.session());
+
+        var ordinary = connectedFixture(-1, Instant.now().minus(Duration.ofMinutes(5)));
+        assertThatThrownBy(() -> ordinary.store().beginFrame(ordinary.session(), -1, "negative-attempt"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not contiguous");
+        assertThat(ordinary.store().find("tenant-a", "stream-a")).contains(ordinary.session());
+    }
+
     private static void compete(
             Fixture fixture,
             CountDownLatch ready,
@@ -181,6 +230,26 @@ class MediaStreamLeaseRenewalTest {
         try {
             if (!start.await(5, TimeUnit.SECONDS)) throw new AssertionError("contenders did not start");
             fixture.store().renewLease(fixture.session(), TOKEN_HASH, fixture.session().lastSequence() + 1, expiry);
+            successes.incrementAndGet();
+        } catch (IllegalStateException expectedStaleVersion) {
+            conflicts.incrementAndGet();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError("contender interrupted", interrupted);
+        }
+    }
+
+    private static void reserveFrame(
+            Fixture fixture,
+            CountDownLatch ready,
+            CountDownLatch start,
+            AtomicInteger successes,
+            AtomicInteger conflicts,
+            String attemptId) {
+        ready.countDown();
+        try {
+            if (!start.await(5, TimeUnit.SECONDS)) throw new AssertionError("contenders did not start");
+            fixture.store().beginFrame(fixture.session(), 0, attemptId);
             successes.incrementAndGet();
         } catch (IllegalStateException expectedStaleVersion) {
             conflicts.incrementAndGet();

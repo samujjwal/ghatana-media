@@ -1170,7 +1170,8 @@ public final class LocalMediaRuntimeSupport {
             if (expected.inFlightSequence() != null) {
                 throw new IllegalStateException("Media stream already has an unresolved provider attempt");
             }
-            if (sequence != expected.lastSequence() + 1) {
+            if (expected.lastSequence() == Long.MAX_VALUE || sequence < 0
+                    || sequence != expected.lastSequence() + 1) {
                 throw new IllegalArgumentException("Media stream frame sequence is not contiguous");
             }
             String boundedAttemptId = requireAttemptId(attemptId);
@@ -1192,7 +1193,10 @@ public final class LocalMediaRuntimeSupport {
             if (expected.leaseExpiresAt() == null || !expected.leaseExpiresAt().isAfter(Instant.now())) {
                 throw new IllegalStateException("Media stream lease is absent or expired");
             }
-            if (sequence != expected.lastSequence() + 1) throw new IllegalArgumentException("Stream frame sequence is not contiguous");
+            if (expected.lastSequence() == Long.MAX_VALUE || sequence < 0
+                    || sequence != expected.lastSequence() + 1) {
+                throw new IllegalArgumentException("Stream frame sequence is not contiguous");
+            }
             if (!java.util.Objects.equals(expected.inFlightSequence(), sequence)
                     || expected.inFlightAttemptId().isBlank()) {
                 throw new IllegalStateException("Media stream frame has no durable provider reservation");
