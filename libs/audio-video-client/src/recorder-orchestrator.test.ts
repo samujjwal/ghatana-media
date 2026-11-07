@@ -1115,6 +1115,27 @@ describe("publishFinalRender", () => {
       .not.toHaveBeenCalled();
   });
 
+  it("preserves UNKNOWN when cancellation interrupts a dispatched chunk without its canonical acknowledgement", async () => {
+    const controller = new AbortController();
+    const client = fakeClient({
+      uploadPart: vi.fn(async () => {
+        controller.abort();
+        throw new MediaOperationAmbiguousError(
+          "/api/v1/artifacts/uploads/upload-1/chunks/0",
+          new Error("request cancelled after dispatch"),
+        );
+      }),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client, controller.signal)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("chunk acknowledgement is missing"),
+    });
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("does not complete when the chunk receipt fails to confirm exact session progress", async () => {
     const client = fakeClient({
       uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>) =>
