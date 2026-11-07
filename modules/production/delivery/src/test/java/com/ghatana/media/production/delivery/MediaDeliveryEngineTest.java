@@ -179,6 +179,39 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void durableConfirmedReadbackMustCoverTheEntireImmutableArtifact() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(16));
+        f.operations.overrideFind(new DeliveryOperationStore.Operation(
+                request.tenantId(), request.principalId(), request.requestId(), request.artifact().artifactId(),
+                request.artifact().versionRef(), request.artifact().digest(), request.destinationRef(),
+                "persisted-fingerprint", Status.DESTINATION_CONFIRMED, request.artifact().size() - 1,
+                "destination-receipt:partial"));
+        MediaDeliveryEngine restarted = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, f.operations);
+
+        assertThatThrownBy(() -> restarted.export(request))
+                .isInstanceOf(DeliveryException.class)
+                .extracting(error -> ((DeliveryException) error).code())
+                .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+        assertThat(f.destination.sendCount).isZero();
+
+        Fixture cached = new Fixture();
+        ExportRequest cachedRequest = cached.request(bytes(16));
+        assertThat(cached.engine.export(cachedRequest).status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        cached.operations.overrideFind(new DeliveryOperationStore.Operation(
+                cachedRequest.tenantId(), cachedRequest.principalId(), cachedRequest.requestId(),
+                cachedRequest.artifact().artifactId(), cachedRequest.artifact().versionRef(),
+                cachedRequest.artifact().digest(), cachedRequest.destinationRef(), "persisted-fingerprint",
+                Status.DESTINATION_CONFIRMED, cachedRequest.artifact().size() - 1, "destination-receipt:partial"));
+        assertThatThrownBy(() -> cached.engine.export(cachedRequest))
+                .isInstanceOf(DeliveryException.class)
+                .extracting(error -> ((DeliveryException) error).code())
+                .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+        assertThat(cached.destination.sendCount).isEqualTo(1);
+    }
+
+    @Test
     void requiresExactDestinationReceiptAndChecksumForConfirmation() {
         Fixture f = new Fixture();
         f.destination.badFinalChecksum = true;

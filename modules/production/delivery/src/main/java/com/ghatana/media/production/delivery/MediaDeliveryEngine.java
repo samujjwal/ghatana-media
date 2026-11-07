@@ -522,7 +522,7 @@ public final class MediaDeliveryEngine {
         Optional<DeliveryOperationStore.Operation> stored = operations.find(request.tenantId(), request.requestId());
         if (stored.isEmpty()) return null;
         DeliveryOperationStore.Operation operation = stored.get();
-        if (!matchesScope(operation, request) || operation.acknowledgedBytes() > request.artifact().size()) {
+        if (!matchesScope(operation, request) || !matchesArtifactProgress(operation, request)) {
             throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
                     "request id is already bound to different export content or impossible delivery progress");
         }
@@ -543,6 +543,13 @@ public final class MediaDeliveryEngine {
                 && operation.destinationRef().equals(request.destinationRef());
     }
 
+    private static boolean matchesArtifactProgress(DeliveryOperationStore.Operation operation, ExportRequest request) {
+        int artifactSize = request.artifact().size();
+        return operation.acknowledgedBytes() <= artifactSize
+                && (operation.status() != Status.DESTINATION_CONFIRMED
+                || operation.acknowledgedBytes() == artifactSize);
+    }
+
     private DeliveryResult refreshEntry(Entry entry) {
         DeliveryOperationStore.Operation stored = operations.find(
                 entry.request.tenantId(), entry.request.requestId()).orElseThrow(
@@ -554,7 +561,7 @@ public final class MediaDeliveryEngine {
                 || !stored.versionRef().equals(entry.request.artifact().versionRef())
                 || !stored.artifactDigest().equals(entry.request.artifact().digest())
                 || !stored.destinationRef().equals(entry.request.destinationRef())
-                || stored.acknowledgedBytes() > entry.request.artifact().size()) {
+                || !matchesArtifactProgress(stored, entry.request)) {
             throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
                     "delivery operation readback differs from exact immutable request scope or artifact progress bounds");
         }
