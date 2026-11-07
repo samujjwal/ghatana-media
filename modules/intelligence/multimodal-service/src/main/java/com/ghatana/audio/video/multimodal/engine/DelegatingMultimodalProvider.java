@@ -350,7 +350,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                     result.complete(OperationOutcome.unknown());
                     return;
                 }
-                current.add(readback.orElseThrow());
+                current.add(snapshotChildResult(readback.orElseThrow()));
             }
             OperationOutcome terminal = evaluate(spec, current);
             if (terminal != null) {
@@ -479,6 +479,52 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
 
     private static boolean hasCanonicalRequestFingerprint(ProcessingJob job) {
         return job.requestFingerprint().matches("sha256:[0-9a-f]{64}");
+    }
+
+    /**
+     * ProcessingJob defensively copies only the outer result map. Snapshot nested JSON
+     * values before fusion so the observation digest and the returned payload remain
+     * bound to the same durable readback even when a store reuses mutable value objects.
+     */
+    private static ProcessingJob snapshotChildResult(ProcessingJob child) {
+        return new ProcessingJob(child.jobId(), child.requestId(), child.tenantId(), child.principalId(),
+                child.artifactId(), child.jobType(), child.providerId(), child.status(), child.createdAt(),
+                child.startedAt(), child.completedAt(), immutableJsonMap(child.result()), child.failureCode(),
+                child.version(), child.expectedArtifactVersion(), child.requestFingerprint());
+    }
+
+    private static Map<String, Object> immutableJsonMap(Map<String, Object> source) {
+        Map<String, Object> copy = new LinkedHashMap<>();
+        source.forEach((key, value) -> copy.put(key, immutableJsonValue(value)));
+        return java.util.Collections.unmodifiableMap(copy);
+    }
+
+    private static Object immutableJsonValue(Object value) {
+        if (value == null || value instanceof String || value instanceof Boolean || value instanceof Number) {
+            return value;
+        }
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> copy = new LinkedHashMap<>();
+            map.forEach((key, item) -> {
+                if (!(key instanceof String stringKey)) {
+                    throw new IllegalArgumentException("child result map keys must be strings");
+                }
+                copy.put(stringKey, immutableJsonValue(item));
+            });
+            return java.util.Collections.unmodifiableMap(copy);
+        }
+        if (value instanceof List<?> list) {
+            return list.stream().map(DelegatingMultimodalProvider::immutableJsonValue).toList();
+        }
+        if (value.getClass().isArray()) {
+            int length = java.lang.reflect.Array.getLength(value);
+            List<Object> copy = new ArrayList<>(length);
+            for (int index = 0; index < length; index++) {
+                copy.add(immutableJsonValue(java.lang.reflect.Array.get(value, index)));
+            }
+            return java.util.Collections.unmodifiableList(copy);
+        }
+        throw new IllegalArgumentException("child result contains a non-JSON value");
     }
 
     private static final class ChildBindingMismatchException extends RuntimeException {

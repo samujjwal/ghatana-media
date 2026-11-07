@@ -95,6 +95,42 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void fusedChildObservationIsDetachedFromMutableDurableResultValues() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var nested = new java.util.ArrayList<Object>();
+            nested.add(new java.util.LinkedHashMap<>(Map.of("label", "before")));
+            var childResult = new java.util.LinkedHashMap<String, Object>();
+            childResult.put("detections", nested);
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, childResult)
+                    .with(JobType.VISION, JobStatus.COMPLETED, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> fused = (Map<String, Object>) submission.result();
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> observations = (List<Map<String, Object>>) fused.get("observations");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> childObservations = (Map<String, Object>) observations.get(0).get("observations");
+            String digest = (String) observations.get(0).get("childResultDigest");
+
+            nested.clear();
+            nested.add(Map.of("label", "after"));
+
+            List<?> detections = (List<?>) childObservations.get("detections");
+            assertThat(detections).as("fused result is a stable snapshot").hasSize(1);
+            assertThat(detections.get(0)).isEqualTo(Map.of("label", "before"));
+            assertThat(observations.get(0).get("childResultDigest")).isEqualTo(digest);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void failedChildProducesFailedNotPartialSuccess() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
