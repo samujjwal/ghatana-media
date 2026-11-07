@@ -132,6 +132,52 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void sourceRevisionChangeCannotReusePriorProtectedCacheEntry() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var oldScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        var currentScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v5", "transcript-v10",
+                "sha256-source-10", "policy-epoch-12");
+        String oldKey = cache.buildScopedKey(oldScope, "transcript-a");
+        String currentKey = cache.buildScopedKey(currentScope, "transcript-a");
+        when(port.get(currentKey)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(currentKey), eq("current transcript"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+
+        String value = await(cache.getOrLoadScopedWithAuthority(currentScope, "transcript-a",
+                checked -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked)),
+                ignored -> AsyncOperation.success("current transcript")));
+
+        assertThat(oldKey).isNotEqualTo(currentKey);
+        assertThat(value).isEqualTo("current transcript");
+        verify(port).get(currentKey);
+        verify(port, org.mockito.Mockito.never()).get(oldKey);
+        verify(port).put(eq(currentKey), eq("current transcript"), any(Duration.class));
+    }
+
+    @Test
+    void changedTenantOrRightsScopeCannotReusePriorProtectedCacheEntry() {
+        var cache = new AudioVideoCache<String, String>(cachePort, "protected-transcripts");
+        var original = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        var otherTenant = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        var revokedRights = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-revoked",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-13");
+
+        assertThat(cache.buildScopedKey(original, "transcript-a"))
+                .isNotEqualTo(cache.buildScopedKey(otherTenant, "transcript-a"));
+        assertThat(cache.buildScopedKey(original, "transcript-a"))
+                .isNotEqualTo(cache.buildScopedKey(revokedRights, "transcript-a"));
+    }
+
+    @Test
     void genericRawOperationsCannotReadOrWriteProtectedOrLegacyScopedKeys() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");

@@ -661,8 +661,8 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
     }
 
     @Test
-    @DisplayName("Image and video confidence scores are not collapsed into one visual score")
-    void mergedVisualResultLeavesAggregateConfidenceUnknown() {
+    @DisplayName("Successful image and video outputs remain unavailable without child provenance")
+    void successfulVisualChildrenAreNotMergedWithoutSourceProvenance() {
         DetectionResult imageDetection = new DetectionResult("image-object", 0.82, 1, 2, 3, 4);
         DetectionResult videoDetection = new DetectionResult("video-object", 0.47, 5, 6, 7, 8);
         VisualResult image = VisualResult.builder().confidence(0.82)
@@ -676,10 +676,32 @@ class MultimodalAnalysisEngineTest extends EventloopTestBase {
             MultimodalResult result = engine.analyse(MultimodalRequest.builder()
                     .imageData(new byte[] {1}).videoData(new byte[] {2}).build());
 
-            assertNull(result.getVisualResult().getConfidence());
-            assertEquals(2, result.getVisualResult().getDetections().size());
-            assertEquals(0.82, result.getVisualResult().getDetections().get(0).getConfidence());
-            assertEquals(0.47, result.getVisualResult().getDetections().get(1).getConfidence());
+            assertTrue(result.getVisualResult().isError());
+            assertEquals("Visual analysis unavailable", result.getVisualResult().getError());
+            assertEquals("", result.getVisualResult().getSceneDescription());
+            assertTrue(result.getVisualResult().getDetections().isEmpty());
+            assertEquals("ABSTAIN: SOURCE_REFERENCES_INCOMPLETE", result.getCombinedAnalysis());
+            assertEquals(MultimodalResult.Outcome.PARTIAL, result.getOutcome());
+        }
+    }
+
+    @Test
+    @DisplayName("Equal image and video scene text does not establish source linkage")
+    void equalVisualDescriptionsDoNotImplySharedSourceProvenance() {
+        VisualResult image = VisualResult.builder().sceneDescription("A red car is parked")
+                .detections(List.of(new DetectionResult("car", 0.8, 1, 2, 3, 4))).build();
+        VisualResult video = VisualResult.builder().sceneDescription("A red car is parked")
+                .detections(List.of(new DetectionResult("car", 0.7, 5, 6, 7, 8))).build();
+        MultimodalMediaGateway gateway = new FakeMediaGateway(AudioResult.error("unused"), image, video);
+
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(
+                gateway, AudioVideoRuntimeSettings.defaults())) {
+            MultimodalResult result = engine.analyse(MultimodalRequest.builder()
+                    .imageData(new byte[] {1}).videoData(new byte[] {2}).build());
+
+            assertTrue(result.getVisualResult().isError());
+            assertTrue(result.getVisualResult().getDetections().isEmpty());
+            assertEquals(MultimodalResult.Outcome.PARTIAL, result.getOutcome());
         }
     }
 

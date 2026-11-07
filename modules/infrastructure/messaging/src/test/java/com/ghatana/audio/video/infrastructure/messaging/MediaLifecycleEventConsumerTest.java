@@ -109,6 +109,43 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void envelopeCorrelationAndAggregateReferencesMustMatchPayloadBeforeProjection() {
+        var store = new MemoryProjection();
+        var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
+        var event = event("media.job.accepted", 1);
+
+        var wrongCorrelation = new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
+                event.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
+                event.eventType().wireName(), MediaPublicLifecycleEvent.SCHEMA_VERSION,
+                "media-runtime", "tenant-private", "correlation-other", MediaPublicLifecycleEvent.SCHEMA_URI,
+                event.aggregateRef(), event.eventRef(), Map.of(), "application/json");
+        var wrongAggregate = new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
+                event.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
+                event.eventType().wireName(), MediaPublicLifecycleEvent.SCHEMA_VERSION,
+                "media-runtime", "tenant-private", event.correlationRef(), MediaPublicLifecycleEvent.SCHEMA_URI,
+                "aggregate-other", event.eventRef(), Map.of(), "application/json");
+        var missingCorrelation = new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
+                event.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
+                event.eventType().wireName(), MediaPublicLifecycleEvent.SCHEMA_VERSION,
+                "media-runtime", "tenant-private", null, MediaPublicLifecycleEvent.SCHEMA_URI,
+                event.aggregateRef(), event.eventRef(), Map.of(), "application/json");
+        var missingAggregate = new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
+                event.occurredAt().toEpochMilli(), MediaLifecycleEventConsumer.TOPIC,
+                event.eventType().wireName(), MediaPublicLifecycleEvent.SCHEMA_VERSION,
+                "media-runtime", "tenant-private", event.correlationRef(), MediaPublicLifecycleEvent.SCHEMA_URI,
+                null, event.eventRef(), Map.of(), "application/json");
+
+        for (var invalidEnvelope : java.util.List.of(
+                wrongCorrelation, wrongAggregate, missingCorrelation, missingAggregate)) {
+            assertThatThrownBy(() -> consumer.consume("consumer-a", invalidEnvelope))
+                    .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                    .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                    .isEqualTo(MediaLifecycleEventConsumer.Failure.INVALID_ABI);
+        }
+        assertThat(store.applied).isEmpty();
+    }
+
+    @Test
     void concurrentConsumersMaterializeOneEventWhenProjectionStoreDeduplicatesAtomically() throws Exception {
         var store = new MemoryProjection();
         var consumer = consumer(true, store, LogicalJobStatus.RUNNING);

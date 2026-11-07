@@ -31,6 +31,56 @@ class DocumentIntelligenceV1BoundsTest {
     }
 
     @Test
+    void pageRejectsMoreThanSceneTextObservationBoundOfBlocksBeforeCopy() {
+        assertThatThrownBy(() -> new DocumentIntelligenceV1.Page(
+                1, Collections.nCopies(DocumentIntelligenceV1.MAX_BLOCKS_PER_PAGE + 1, null), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("blocks");
+    }
+
+    @Test
+    void pageRejectsUnderreportedBlockListWithoutConsumingItemPastLimit() {
+        AtomicInteger consumed = new AtomicInteger();
+        var hostile = new AbstractList<DocumentIntelligenceV1.Block>() {
+            @Override
+            public DocumentIntelligenceV1.Block get(int index) {
+                throw new AssertionError("bounded copy must use the iterator");
+            }
+
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public Iterator<DocumentIntelligenceV1.Block> iterator() {
+                return new Iterator<>() {
+                    private int remaining = DocumentIntelligenceV1.MAX_BLOCKS_PER_PAGE + 1;
+
+                    @Override
+                    public boolean hasNext() {
+                        return remaining > 0;
+                    }
+
+                    @Override
+                    public DocumentIntelligenceV1.Block next() {
+                        if (!hasNext()) throw new NoSuchElementException();
+                        remaining--;
+                        consumed.incrementAndGet();
+                        return null;
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new DocumentIntelligenceV1.Page(1, hostile, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("blocks");
+        org.assertj.core.api.Assertions.assertThat(consumed)
+                .hasValue(DocumentIntelligenceV1.MAX_BLOCKS_PER_PAGE);
+    }
+
+    @Test
     void providerCatalogRejectsMoreThanPublishedProviderLimitBeforeCopy() {
         assertThatThrownBy(() -> new DocumentIntelligenceV1.ProviderCatalog(
                 DocumentIntelligenceV1.PROTOCOL_VERSION, null,

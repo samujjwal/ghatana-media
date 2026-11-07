@@ -149,6 +149,7 @@ function browserHarness(options: {
   bindStarted?: () => void;
   bindGate?: Promise<void>;
   rejectCodecClose?: boolean;
+  rejectPermissionSubscribe?: boolean;
 } = {}) {
   let permission = options.permission ?? "GRANTED";
   const permissionListeners: Array<(state: typeof permission) => void> = [];
@@ -158,6 +159,7 @@ function browserHarness(options: {
   const mediaDevices = new BrowserCameraMediaDevicePort({
     async check() { return permission; },
     subscribe(_candidate, listener) {
+      if (options.rejectPermissionSubscribe) throw new Error("private host permission bridge detail");
       permissionListeners.push(listener);
       return () => {
         const index = permissionListeners.indexOf(listener);
@@ -215,6 +217,12 @@ describe("CameraCaptureAdapter", () => {
     const session = await granted.adapter.openSession(request);
     expect(granted.counts().deviceOpens).toBe(1);
     await session.close();
+  });
+
+  it("fails closed when live host permission monitoring cannot be installed", async () => {
+    const h = browserHarness({ rejectPermissionSubscribe: true });
+    await expectCode(h.adapter.openSession(request), "PERMISSION_MISSING");
+    expect(h.counts()).toEqual({ deviceOpens: 0, deviceStops: 0, codecCloses: 0 });
   });
 
   it("revokes a pending browser read without returning encoded bytes", async () => {

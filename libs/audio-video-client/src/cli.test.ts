@@ -15,6 +15,12 @@ const artifact = {
   contentType: 'audio/wav', sizeBytes: 42, sha256: 'a'.repeat(64), objectReference: 'opaque://stored/object',
   classification: 'INTERNAL', createdAt: timestamp, expiresAt: '2026-11-08T12:00:00.000Z', metadata: { purpose: 'inspect' },
 };
+const job = {
+  jobId: 'job-1', requestId: 'request-1', tenantId: 'tenant-a', principalId: 'principal-a',
+  artifactId: 'artifact-a', jobType: 'SPEECH_TO_TEXT', providerId: null, status: 'ACCEPTED',
+  createdAt: timestamp, startedAt: null, completedAt: null, result: {}, failureCode: null,
+  version: 2, expectedArtifactVersion: `sha256:${'e'.repeat(64)}`, requestFingerprint: `sha256:${'f'.repeat(64)}`,
+};
 const servers: Server[] = [];
 
 async function withServer(
@@ -274,6 +280,38 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     });
   });
 
+  it('describes a forbidden job status read as a missing job observation', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-error-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(
+        jobCommand('https://media.example.test', 'status', ['--job', 'job-1']), token,
+        {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'forbidden',
+          GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+          GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        }, fetchFixture,
+      );
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status',
+        code: 'MEDIA_REQUEST_FAILED',
+        message: 'Media did not return the requested job observation; success is not inferred.',
+        statusCode: 403,
+      });
+      expect(result.stderr).not.toContain(token);
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toEqual([{
+        path: '/api/v1/jobs/job-1', method: 'GET', tenant: 'tenant-a', principal: 'principal-a',
+        requestId: expect.any(String), idempotencyKey: null, authenticated: true, bearerMatches: true,
+      }]);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('omits a correlation identifier that contains the bearer credential', async () => {
     await withServer((_request, response) => {
       response.writeHead(404, { 'content-type': 'application/json' }).end(JSON.stringify({
@@ -368,13 +406,6 @@ describe('ghatanamedia-api artifact inspect executable', () => {
 });
 
 describe('ghatanamedia-api canonical job commands', () => {
-  const job = {
-    jobId: 'job-1', requestId: 'request-1', tenantId: 'tenant-a', principalId: 'principal-a',
-    artifactId: 'artifact-a', jobType: 'SPEECH_TO_TEXT', providerId: null, status: 'ACCEPTED',
-    createdAt: timestamp, startedAt: null, completedAt: null, result: {}, failureCode: null,
-    version: 2, expectedArtifactVersion: `sha256:${'e'.repeat(64)}`, requestFingerprint: `sha256:${'f'.repeat(64)}`,
-  };
-
   it('exercises the packaged CLI over a socket-free child-process transport', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-fetch-'));
     const statePath = join(directory, 'idempotency-state.json');

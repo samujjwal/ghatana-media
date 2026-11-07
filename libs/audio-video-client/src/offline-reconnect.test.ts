@@ -358,6 +358,46 @@ describe("OfflineReconnectCoordinator", () => {
     expect((await restartedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
   });
 
+  it("keeps a committed pre-dispatch fence after its CAS acknowledgment is lost", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    let failedAfterCommit = false;
+    const ambiguousFenceStore: OfflineEditStore = {
+      list: (query) => store.list(query),
+      insert: (record, maximumEntries) => store.insert(record, maximumEntries),
+      put: (record) => store.put(record),
+      remove: (query, editId) => store.remove(query, editId),
+      compareAndSet: async (expected, replacement) => {
+        const committed = await store.compareAndSet(expected, replacement);
+        if (committed && replacement.state === "OUTCOME_UNKNOWN" && !failedAfterCommit) {
+          failedAfterCommit = true;
+          throw new Error("store acknowledgment lost after durable fence commit");
+        }
+        return committed;
+      },
+    };
+    const fencedQueue = await queue(ambiguousFenceStore);
+    const first = await new OfflineReconnectCoordinator(fencedQueue, scope, operations({
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(first.status).toBe("RECONNECTED");
+    if (first.status === "RECONNECTED") {
+      expect(first.results).toEqual([{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }]);
+    }
+    expect(applyCount).toBe(0);
+    expect((await fencedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+
+    const restartedQueue = await queue();
+    const afterRestart = await new OfflineReconnectCoordinator(restartedQueue, scope, operations({
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(afterRestart).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
+    expect(applyCount).toBe(0);
+    expect((await restartedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+  });
+
   it("treats an applied response without a receipt as unknown and preserves the no-replay fence", async () => {
     const q = await queue();
     await q.enqueue(edit);

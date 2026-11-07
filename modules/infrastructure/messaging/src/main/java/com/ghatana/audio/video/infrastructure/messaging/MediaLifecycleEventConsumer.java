@@ -48,6 +48,8 @@ public final class MediaLifecycleEventConsumer {
         }
         if (!envelope.id().equals(event.eventRef()) || !event.eventRef().equals(envelope.idempotencyKey())
                 || !envelope.eventType().equals(event.eventType().wireName())
+                || !Objects.equals(envelope.correlationId(), event.correlationRef())
+                || !Objects.equals(envelope.partitionKey(), event.aggregateRef())
                 || !redactor.redact("tenant", envelope.tenantId()).equals(event.tenantRef())) {
             throw new LifecycleEventException(Failure.INVALID_ABI, "Lifecycle envelope and payload identities do not match");
         }

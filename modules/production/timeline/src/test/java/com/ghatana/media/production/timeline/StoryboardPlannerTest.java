@@ -449,6 +449,94 @@ class StoryboardPlannerTest {
                 .isNotNull();
     }
 
+    @Test
+    void authoredAndPlannedShotListsAreBoundedByActualTraversal() {
+        List<StoryboardPlanner.ShotInput> actual = java.util.stream.IntStream.range(0,
+                StoryboardPlanner.MAX_SHOTS_PER_SCENE + 1)
+                .mapToObj(index -> shot("bounded-shot-" + index, index, 0, List.of())).toList();
+        AtomicInteger consumed = new AtomicInteger();
+        List<StoryboardPlanner.ShotInput> underreported = new java.util.AbstractList<>() {
+            @Override public StoryboardPlanner.ShotInput get(int index) { return actual.get(index); }
+            @Override public int size() { return 1; }
+            @Override public java.util.Iterator<StoryboardPlanner.ShotInput> iterator() {
+                java.util.Iterator<StoryboardPlanner.ShotInput> delegate = actual.iterator();
+                return new java.util.Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public StoryboardPlanner.ShotInput next() {
+                        consumed.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new StoryboardPlanner.AuthoredScene(
+                "scene-shot-bound", 0, "scene intent", story(0), story(20), underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("1024 shot-per-scene safety limit");
+        assertThat(consumed).hasValue(StoryboardPlanner.MAX_SHOTS_PER_SCENE);
+
+        AtomicInteger plannedIterations = new AtomicInteger();
+        List<StoryboardPlanner.PlannedShot> declaredOversize = new java.util.AbstractList<>() {
+            @Override public StoryboardPlanner.PlannedShot get(int index) {
+                throw new AssertionError("declared oversize list must be rejected before traversal");
+            }
+            @Override public int size() { return StoryboardPlanner.MAX_SHOTS_PER_SCENE + 1; }
+            @Override public java.util.Iterator<StoryboardPlanner.PlannedShot> iterator() {
+                plannedIterations.incrementAndGet();
+                return List.<StoryboardPlanner.PlannedShot>of().iterator();
+            }
+        };
+        assertThatThrownBy(() -> new StoryboardPlanner.PlannedScene(
+                "planned-scene-shot-bound", 0, "scene intent", story(0), story(20), declaredOversize))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("1024 shot-per-scene safety limit");
+        assertThat(plannedIterations).hasValue(0);
+    }
+
+    @Test
+    void authoredAndDirectPlansRejectMoreThanTheTotalShotSafetyLimitBeforeRightsOrPersistence() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        List<StoryboardPlanner.AuthoredScene> authored = authoredScenesWithShotCount(
+                StoryboardPlanner.MAX_TOTAL_SHOTS + 1);
+
+        assertThatThrownBy(() -> planner.prepare(OWNER, "project-shot-total", "head-shot-total",
+                "plan-shot-total", "v1", brief(List.of()), authored))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("10000 total-shot safety limit");
+        assertThat(rights.calls()).isZero();
+
+        List<StoryboardPlanner.PlannedScene> planned = authored.stream().map(scene ->
+                new StoryboardPlanner.PlannedScene(scene.sceneId(), scene.order(), scene.intent(),
+                        scene.storyStart(), scene.storyDuration(), scene.shots().stream().map(shot ->
+                        new StoryboardPlanner.PlannedShot(shot.shotId(), shot.order(), shot.intent(),
+                                shot.storyStart(), shot.storyDuration(), shot.exactSources())).toList())).toList();
+        List<StoryboardPlanner.PlannedScene> withUnvisitedSentinel = new java.util.ArrayList<>(planned);
+        withUnvisitedSentinel.add(plannedScene(999));
+        AtomicInteger consumedScenes = new AtomicInteger();
+        List<StoryboardPlanner.PlannedScene> underreported = new java.util.AbstractList<>() {
+            @Override public StoryboardPlanner.PlannedScene get(int index) {
+                throw new AssertionError("bounded plan copy must use the iterator");
+            }
+            @Override public int size() { return 1; }
+            @Override public java.util.Iterator<StoryboardPlanner.PlannedScene> iterator() {
+                java.util.Iterator<StoryboardPlanner.PlannedScene> delegate = withUnvisitedSentinel.iterator();
+                return new java.util.Iterator<>() {
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+                    @Override public StoryboardPlanner.PlannedScene next() {
+                        consumedScenes.incrementAndGet();
+                        return delegate.next();
+                    }
+                };
+            }
+        };
+        assertThatThrownBy(() -> directPlan(underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("10000 total-shot safety limit");
+        assertThat(consumedScenes).hasValue(planned.size());
+    }
+
     private static StoryboardPlanner.AuthoredBrief brief(List<SourceVersion> refs) {
         return new StoryboardPlanner.AuthoredBrief("brief-1", "b1", "personal-project", "An authored story", refs);
     }
@@ -467,6 +555,24 @@ class StoryboardPlannerTest {
     private static StoryboardPlanner.AuthoredScene scene(String id, int order, long startSeconds,
                                                           List<StoryboardPlanner.ShotInput> shots) {
         return new StoryboardPlanner.AuthoredScene(id, order, "scene intent", story(startSeconds), story(20), shots);
+    }
+
+    private static List<StoryboardPlanner.AuthoredScene> authoredScenesWithShotCount(int count) {
+        java.util.ArrayList<StoryboardPlanner.AuthoredScene> scenes = new java.util.ArrayList<>();
+        int remaining = count;
+        int sceneIndex = 0;
+        while (remaining > 0) {
+            int sceneShots = Math.min(remaining, StoryboardPlanner.MAX_SHOTS_PER_SCENE);
+            int currentSceneIndex = sceneIndex;
+            List<StoryboardPlanner.ShotInput> shots = java.util.stream.IntStream.range(0, sceneShots)
+                    .mapToObj(index -> shot("total-shot-" + currentSceneIndex + "-" + index,
+                            index, 0, List.of()))
+                    .toList();
+            scenes.add(scene("total-scene-" + sceneIndex, sceneIndex, 0, shots));
+            remaining -= sceneShots;
+            sceneIndex++;
+        }
+        return List.copyOf(scenes);
     }
 
     private static StoryboardPlanner.ShotInput shot(String id, int order, long startSeconds, List<SourceVersion> refs) {

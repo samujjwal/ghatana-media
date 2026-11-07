@@ -109,4 +109,39 @@ class VersionSpecificReviewScenarioTest {
         assertThat(currentVersion).hasValue(V2.reference());
         assertThat(store.read(REVIEWER, CASE)).isEmpty();
     }
+
+    @Test
+    void unknownAtWriteBoundaryDoesNotCreateOrRetryDecisionRecord() {
+        AtomicInteger authorityChecks = new AtomicInteger();
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> {
+                    int check = authorityChecks.incrementAndGet();
+                    return new AuthorizationDecision(
+                            check == 1 ? AuthorizationStatus.ALLOW : AuthorizationStatus.UNKNOWN,
+                            actor.tenantId(),
+                            actor.principalId(),
+                            reviewCase.reviewCaseId(),
+                            reviewCase.exactTargetRef(),
+                            reviewCase.scopeRef(),
+                            "fixture-authority-v1",
+                            NOW.plusSeconds(60),
+                            V1.reference(),
+                            RetentionStatus.ACTIVE);
+                },
+                value -> value,
+                Clock.fixed(NOW, ZoneOffset.UTC),
+                () -> "record-j21-unknown-write");
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, new AppendRequest(CASE, 0, "fixture-authority-v1",
+                "request-j21-unknown-write",
+                new Confirmation("media.operation.action.record-version-review-decision", V1.reference(), true),
+                new DecisionRecord(Decision.ACCEPT, "Review exact source revision 1"))))
+                .isInstanceOf(ReviewUnavailableException.class);
+
+        // This is an authorization uncertainty before storage, not proof of HUMAN_REVIEW_APPROVAL
+        // or a substitute for reconciliation of an actually ambiguous remote write.
+        assertThat(authorityChecks).hasValue(2);
+        assertThat(store.read(REVIEWER, CASE)).isEmpty();
+    }
 }

@@ -166,17 +166,24 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
     const abortHost = () => hostController.abort();
     signal.addEventListener("abort", abortHost, { once: true });
     try {
-      unsubscribe = this.permission.subscribe(request, (disposition) => {
-        if (disposition !== "GRANTED") {
-          hostPermissionFailure = disposition === "UNKNOWN"
-            ? fail("PERMISSION_UNKNOWN", "browser camera permission became unknown")
-            : disposition === "DENIED"
-              ? fail("PERMISSION_DENIED", "browser camera permission was denied")
-              : fail("CONSENT_REVOKED", "browser camera permission was revoked");
-          hostController.abort();
-          void stopOpenedTrack?.().catch(() => undefined);
-        }
-      });
+      try {
+        unsubscribe = this.permission.subscribe(request, (disposition) => {
+          if (disposition !== "GRANTED") {
+            hostPermissionFailure = disposition === "UNKNOWN"
+              ? fail("PERMISSION_UNKNOWN", "browser camera permission became unknown")
+              : disposition === "DENIED"
+                ? fail("PERMISSION_DENIED", "browser camera permission was denied")
+                : fail("CONSENT_REVOKED", "browser camera permission was revoked");
+            hostController.abort();
+            void stopOpenedTrack?.().catch(() => undefined);
+          }
+        });
+      } catch {
+        // Without a live permission-state subscription we cannot safely keep a
+        // camera open after the initial check. Sanitize host details and fail
+        // before opening the device or binding an encoder.
+        throw fail("PERMISSION_MISSING", "browser camera permission monitoring is unavailable");
+      }
       await assertHostPermission();
       device = await this.devices.openExact(request, hostController.signal);
       if (hostPermissionFailure) throw hostPermissionFailure;

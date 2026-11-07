@@ -21,6 +21,9 @@ import java.util.Set;
 public final class StoryboardPlanner {
     /** Matches the owner-defined save-storyboard-revision sceneRefs maximum. */
     static final int MAX_SCENES = 256;
+    /** Local safety ceilings; PDP-1 does not currently define a shot-count maximum. */
+    static final int MAX_SHOTS_PER_SCENE = 1_024;
+    static final int MAX_TOTAL_SHOTS = 10_000;
 
     private static final Comparator<SourceVersion> SOURCES = Comparator.comparing(SourceVersion::artifactId)
             .thenComparing(SourceVersion::artifactVersionId);
@@ -43,6 +46,13 @@ public final class StoryboardPlanner {
         Objects.requireNonNull(brief, "brief");
         List<AuthoredScene> scenes = copyBoundedScenes(authoredScenes);
         if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard requires at least one authored scene");
+        int totalShots = 0;
+        for (AuthoredScene scene : scenes) {
+            totalShots += scene.shots().size();
+            if (totalShots > MAX_TOTAL_SHOTS) {
+                throw new IllegalArgumentException("storyboard exceeds the 10000 total-shot safety limit");
+            }
+        }
         validateBrief(brief);
         validateUniqueScenes(scenes);
         validateUniqueShots(scenes);
@@ -159,7 +169,7 @@ public final class StoryboardPlanner {
             if (order < 0) throw new IllegalArgumentException("scene order must be non-negative");
             intent = required(intent, "scene intent");
             validateStoryInterval(storyStart, storyDuration, "scene");
-            shots = List.copyOf(shots == null ? List.of() : shots);
+            shots = copyBoundedShots(shots);
             if (shots.isEmpty()) throw new IllegalArgumentException("each scene requires at least one authored shot");
             Set<String> ids = new HashSet<>();
             Set<Integer> orders = new HashSet<>();
@@ -194,7 +204,7 @@ public final class StoryboardPlanner {
             if (authoredOrder < 0) throw new IllegalArgumentException("scene order must be non-negative");
             intent = required(intent, "scene intent");
             validateStoryInterval(storyStart, storyDuration, "scene");
-            shots = List.copyOf(shots).stream().sorted(Comparator.comparingInt(PlannedShot::authoredOrder)
+            shots = copyBoundedPlannedShots(shots).stream().sorted(Comparator.comparingInt(PlannedShot::authoredOrder)
                     .thenComparing(PlannedShot::shotId)).toList();
             if (shots.isEmpty()) throw new IllegalArgumentException("each scene requires at least one planned shot");
             Set<String> ids = new HashSet<>();
@@ -239,7 +249,12 @@ public final class StoryboardPlanner {
             Set<String> sceneIds = new HashSet<>();
             Set<Integer> sceneOrders = new HashSet<>();
             Set<String> shotIds = new HashSet<>();
+            int totalShots = 0;
             for (PlannedScene scene : scenes) {
+                totalShots += scene.shots().size();
+                if (totalShots > MAX_TOTAL_SHOTS) {
+                    throw new IllegalArgumentException("storyboard exceeds the 10000 total-shot safety limit");
+                }
                 if (!sceneIds.add(scene.sceneId())) throw new IllegalArgumentException("duplicate planned scene identity");
                 if (!sceneOrders.add(scene.authoredOrder())) throw new IllegalArgumentException("duplicate planned scene order");
                 for (PlannedShot shot : scene.shots()) {
@@ -407,6 +422,42 @@ public final class StoryboardPlanner {
         return List.copyOf(snapshot);
     }
 
+    /** Local structural guard; the authored PDP does not yet declare a shot-per-scene maximum. */
+    private static List<ShotInput> copyBoundedShots(List<ShotInput> shots) {
+        if (shots == null) return List.of();
+        int declaredSize = shots.size();
+        if (declaredSize > MAX_SHOTS_PER_SCENE) {
+            throw new IllegalArgumentException("scene exceeds the 1024 shot-per-scene safety limit");
+        }
+        List<ShotInput> snapshot = new ArrayList<>(Math.max(0, declaredSize));
+        Iterator<ShotInput> iterator = shots.iterator();
+        while (snapshot.size() < MAX_SHOTS_PER_SCENE && iterator.hasNext()) {
+            snapshot.add(Objects.requireNonNull(iterator.next(), "shot"));
+        }
+        if (iterator.hasNext()) {
+            throw new IllegalArgumentException("scene exceeds the 1024 shot-per-scene safety limit");
+        }
+        return List.copyOf(snapshot);
+    }
+
+    /** Public planned-scene construction cannot bypass the per-scene safety ceiling. */
+    private static List<PlannedShot> copyBoundedPlannedShots(List<PlannedShot> shots) {
+        Objects.requireNonNull(shots, "shots");
+        int declaredSize = shots.size();
+        if (declaredSize > MAX_SHOTS_PER_SCENE) {
+            throw new IllegalArgumentException("planned scene exceeds the 1024 shot-per-scene safety limit");
+        }
+        List<PlannedShot> snapshot = new ArrayList<>(Math.max(0, declaredSize));
+        Iterator<PlannedShot> iterator = shots.iterator();
+        while (snapshot.size() < MAX_SHOTS_PER_SCENE && iterator.hasNext()) {
+            snapshot.add(Objects.requireNonNull(iterator.next(), "planned shot"));
+        }
+        if (iterator.hasNext()) {
+            throw new IllegalArgumentException("planned scene exceeds the 1024 shot-per-scene safety limit");
+        }
+        return List.copyOf(snapshot);
+    }
+
     /** Snapshot the public plan boundary too; callers may construct ScenePlan without prepare(). */
     private static List<PlannedScene> copyBoundedPlannedScenes(List<PlannedScene> scenes) {
         Objects.requireNonNull(scenes, "scenes");
@@ -416,11 +467,17 @@ public final class StoryboardPlanner {
         }
         Iterator<PlannedScene> iterator = scenes.iterator();
         List<PlannedScene> snapshot = new ArrayList<>(Math.min(declaredSize, MAX_SCENES));
+        int totalShots = 0;
         while (iterator.hasNext()) {
             if (snapshot.size() == MAX_SCENES) {
                 throw new IllegalArgumentException("storyboard exceeds the 256 scene-reference limit");
             }
-            snapshot.add(Objects.requireNonNull(iterator.next(), "scene"));
+            PlannedScene scene = Objects.requireNonNull(iterator.next(), "scene");
+            totalShots += scene.shots().size();
+            if (totalShots > MAX_TOTAL_SHOTS) {
+                throw new IllegalArgumentException("storyboard exceeds the 10000 total-shot safety limit");
+            }
+            snapshot.add(scene);
         }
         return List.copyOf(snapshot);
     }

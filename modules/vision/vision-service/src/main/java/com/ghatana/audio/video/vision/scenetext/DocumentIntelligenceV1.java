@@ -26,6 +26,8 @@ public interface DocumentIntelligenceV1 {
     String WORKER_CAPABILITY_VERSION = "document-intelligence-worker.v1";
     int MAX_PROVIDERS = 256;
     int MAX_PAGES = 500;
+    /** Keep block traversal bounded by the scene-text consumer's observation ceiling. */
+    int MAX_BLOCKS_PER_PAGE = 5_000;
     int MAX_LINES_PER_BLOCK = 2_000;
 
     /** {@code GET /v1/providers}. */
@@ -84,7 +86,7 @@ public interface DocumentIntelligenceV1 {
 
     record Page(int pageNumber, List<Block> blocks, int tableCount) {
         public Page {
-            blocks = List.copyOf(blocks);
+            blocks = boundedCopy(blocks, MAX_BLOCKS_PER_PAGE, "blocks");
         }
     }
 

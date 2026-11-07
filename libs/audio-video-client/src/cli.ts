@@ -364,7 +364,12 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
           statusCode: 404, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       } else {
-        writeError('MEDIA_REQUEST_FAILED', 'Media did not return an artifact observation; success is not inferred.', {
+        const message = args.command === 'job submit'
+          ? 'Media did not return an authoritative job acknowledgement; success is not inferred.'
+          : args.command.startsWith('job ')
+            ? 'Media did not return the requested job observation; success is not inferred.'
+            : 'Media did not return an artifact observation; success is not inferred.';
+        writeError('MEDIA_REQUEST_FAILED', message, {
           statusCode: error.statusCode, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       }
