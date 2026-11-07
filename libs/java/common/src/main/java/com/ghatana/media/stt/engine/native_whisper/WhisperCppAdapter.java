@@ -234,7 +234,7 @@ public final class WhisperCppAdapter implements SttEngine {
 
     @Override
     public void loadModel(String modelId) {
-        LOG.info("Model switching not yet implemented for: " + modelId);
+        ConfiguredModelId.require(modelId, config.modelId());
     }
 
     @Override

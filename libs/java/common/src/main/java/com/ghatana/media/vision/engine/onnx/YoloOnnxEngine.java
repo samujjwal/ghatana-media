@@ -180,8 +180,7 @@ public final class YoloOnnxEngine implements VisionEngine {
 
     @Override
     public void loadModel(String modelId) {
-        LOG.info("Model switching requested: " + modelId);
-        // Would reload session with new model
+        ConfiguredModelId.require(modelId, config.modelId());
     }
 
     @Override

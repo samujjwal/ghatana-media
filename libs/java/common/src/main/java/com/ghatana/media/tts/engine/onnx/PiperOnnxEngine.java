@@ -191,8 +191,7 @@ public final class PiperOnnxEngine implements TtsEngine {
 
     @Override
     public VoiceInfo loadVoice(String voiceId) {
-        // In a real implementation, this would load different ONNX models
-        activeVoiceId.set(voiceId);
+        ConfiguredVoiceId.require(voiceId, config.defaultVoiceId());
         return new VoiceInfo(voiceId, voiceId, voiceId, Locale.ENGLISH, VoiceInfo.Gender.NEUTRAL, config.sampleRate(), false, 0L, 1.0f);
     }
 

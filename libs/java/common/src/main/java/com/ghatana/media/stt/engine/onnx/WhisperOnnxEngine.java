@@ -382,8 +382,7 @@ public final class WhisperOnnxEngine implements SttEngine {
 
     @Override
     public void loadModel(String modelId) {
-        // Model hot-swapping would be implemented here
-        LOG.info("Model switching not yet implemented for: " + modelId);
+        ConfiguredModelId.require(modelId, config.modelId());
     }
 
     @Override
