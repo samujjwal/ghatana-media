@@ -198,6 +198,24 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportRejectsComparisonRowsSwappedAcrossMultipleAttempts() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision firstCandidate = revision("candidate", "v1", "b", 25);
+        Revision secondCandidate = revision("candidate", "v2", "d", 28);
+        Report report = run(source, List.of(firstCandidate, secondCandidate), null,
+                allowed("src"), null, 2, BUDGET).report().orElseThrow();
+        List<CandidateComparison> comparisons = report.comparisons();
+
+        assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
+                report.budget(), report.attemptsUsed(), report.source(), report.sourceRightsDecisionId(),
+                report.retainedRevisions(), report.reference(), report.referenceRightsDecisionId(),
+                report.referenceUnavailableReason(), List.of(comparisons.get(1), comparisons.get(0)),
+                report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("comparison candidates must match retained revisions in attempt order");
+    }
+
+    @Test
     void reportRejectsChangedIdentityWithStaleDigestAndBlockedStatus() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v1", "b", 25);
