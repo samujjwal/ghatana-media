@@ -107,6 +107,14 @@ class AnimationJ12ScenarioIntegrationTest {
         assertThat(preview.frames().get(1).storyTicksNumerator()).isEqualTo("512");
         assertThat(preview.frames().get(1).storyTicksDenominator()).isEqualTo("5");
 
+        var repeatedPreview = renderer.render(spec, scene, profile);
+        assertThat(repeatedPreview.frames()).hasSize(preview.frames().size());
+        for (int index = 0; index < preview.frames().size(); index++) {
+            assertThat(repeatedPreview.frames().get(index).png())
+                    .as("repeatable PNG frame %d", index)
+                    .containsExactly(preview.frames().get(index).png());
+        }
+
         var export = renderer.renderAnimated(spec, scene, profile, AnimationRenderer.AnimatedFormat.GIF);
         assertThat(export.status()).isEqualTo(AnimationRenderer.ExportStatus.ENCODED);
         var encoded = export.encoded().orElseThrow();
@@ -122,6 +130,10 @@ class AnimationJ12ScenarioIntegrationTest {
         assertThat(encoded.sha256()).matches("[a-f0-9]{64}");
         assertThat(encoded.sha256()).isNotEqualTo(binding.sourceDigest()); // Fixture source and output have distinct digests.
         assertThat(decodeGifFrameCount(encoded.bytes())).isEqualTo(3);
+        var repeatedExport = renderer.renderAnimated(spec, scene, profile, AnimationRenderer.AnimatedFormat.GIF);
+        assertThat(repeatedExport.status()).isEqualTo(AnimationRenderer.ExportStatus.ENCODED);
+        assertThat(repeatedExport.encoded().orElseThrow().bytes()).containsExactly(encoded.bytes());
+        assertThat(repeatedExport.encoded().orElseThrow().sha256()).isEqualTo(encoded.sha256());
 
         // J-12's local draft step explicitly produces no job or committed result.
         // Local preview/export bytes do not make the authenticated journey succeed.
