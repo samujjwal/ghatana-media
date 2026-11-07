@@ -40,7 +40,7 @@ public final class StoryboardPlanner {
                              List<AuthoredScene> authoredScenes) {
         Objects.requireNonNull(actor, "actor");
         String project = ownerOpaqueId(projectId, "projectId");
-        String expectedRevision = required(expectedProjectRevisionId, "expectedProjectRevisionId");
+        String expectedRevision = ownerOpaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
         String planId = ownerOpaqueId(scenePlanId, "scenePlanId");
         String version = ownerSemanticVersion(semanticVersion);
         Objects.requireNonNull(brief, "brief");
@@ -101,7 +101,7 @@ public final class StoryboardPlanner {
         if (saved.state() != EditionState.PERSISTED_DRAFT) {
             throw new ScenePlanAuthorityProtocolException("only a persisted draft can be reviewed");
         }
-        if (!plan.expectedProjectRevisionId().equals(required(expectedProjectRevisionId,
+        if (!plan.expectedProjectRevisionId().equals(ownerOpaqueId(expectedProjectRevisionId,
                 "expectedProjectRevisionId"))) {
             throw new ScenePlanConflictException("project revision does not match the saved draft");
         }
@@ -241,7 +241,7 @@ public final class StoryboardPlanner {
             projectId = ownerOpaqueId(projectId, "projectId");
             scenePlanId = ownerOpaqueId(scenePlanId, "scenePlanId");
             semanticVersion = ownerSemanticVersion(semanticVersion);
-            expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
+            expectedProjectRevisionId = ownerOpaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
             scenes = copyBoundedPlannedScenes(scenes).stream().sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
                     .thenComparing(PlannedScene::sceneId)).toList();

@@ -307,6 +307,46 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void projectRevisionIdentityIsBoundedAndValidatedBeforeRightsOrReviewAuthority() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        List<StoryboardPlanner.AuthoredScene> scenes = List.of(scene("scene", 0, 0,
+                List.of(shot("shot", 0, 0, List.of(SOURCE_A)))));
+        int initialRightsCalls = rights.calls();
+
+        for (String invalidRevision : List.of("", " ", ":starts-with-punctuation", "contains/slash", "x".repeat(129))) {
+            assertThatThrownBy(() -> planner.prepare(OWNER, "project", invalidRevision, "plan", "v1",
+                    brief(List.of()), scenes))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("expectedProjectRevisionId")
+                    .hasMessageContaining("owner opaque-ID format");
+        }
+        assertThat(rights.calls()).isEqualTo(initialRightsCalls);
+
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project", "head-valid", "plan", "v1",
+                brief(List.of()), scenes);
+        assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "project", "plan",
+                "v1", "head/invalid", brief(List.of()), plan.scenes(), plan.exactSources(),
+                StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("expectedProjectRevisionId")
+                .hasMessageContaining("owner opaque-ID format");
+
+        StoryboardPlanner.SavedPlan saved = new StoryboardPlanner.SavedPlan(plan, "owner-receipt");
+        AtomicInteger reviewCalls = new AtomicInteger();
+        StoryboardPlanner.ScenePlanReviewAuthority reviewAuthority = (reviewer, exact, revision, request) -> {
+            reviewCalls.incrementAndGet();
+            return new StoryboardPlanner.ReviewedPlan(exact, reviewer, revision, "review-receipt",
+                    StoryboardPlanner.EditionState.REVIEWED);
+        };
+        assertThatThrownBy(() -> planner.review(OWNER, saved, "head/invalid", "review-invalid", reviewAuthority))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("expectedProjectRevisionId")
+                .hasMessageContaining("owner opaque-ID format");
+        assertThat(reviewCalls).hasValue(0);
+    }
+
+    @Test
     void ownerSceneReferenceLimitIsEnforcedBeforeRightsOrAuthorityEffects() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
