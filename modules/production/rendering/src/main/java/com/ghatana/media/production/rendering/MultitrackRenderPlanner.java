@@ -91,8 +91,8 @@ public final class MultitrackRenderPlanner {
             Objects.requireNonNull(timelineStart, "timelineStart");
             Objects.requireNonNull(sourceStart, "sourceStart");
             Objects.requireNonNull(sourceEnd, "sourceEnd");
-            if (timelineStart.numerator() < 0 || sourceStart.numerator() < 0 || sourceEnd.compareTo(sourceStart) <= 0) {
-                throw invalid("clip times must be non-negative and sourceEnd must follow sourceStart");
+            if (timelineStart.numerator() < 0 || sourceEnd.compareTo(sourceStart) <= 0) {
+                throw invalid("timeline start must be non-negative and sourceEnd must follow sourceStart");
             }
             sourceFramePts = boundedCopy(sourceFramePts, MAX_FRAMES_PER_CLIP, "sourceFramePts",
                     "each clip must retain between 1 and " + MAX_FRAMES_PER_CLIP + " source PTS values");
@@ -169,8 +169,8 @@ public final class MultitrackRenderPlanner {
             if (frameIndex < 0) throw invalid("mapped frame index must be non-negative");
             Objects.requireNonNull(sourcePts, "mapped frame sourcePts");
             Objects.requireNonNull(timelinePts, "mapped frame timelinePts");
-            if (sourcePts.numerator() < 0 || timelinePts.numerator() < 0) {
-                throw invalid("mapped frame PTS values must be non-negative");
+            if (timelinePts.numerator() < 0) {
+                throw invalid("mapped frame timeline PTS must be non-negative");
             }
         }
     }
@@ -393,8 +393,7 @@ public final class MultitrackRenderPlanner {
             Time timelineStart = manifestTime(fields[5]);
             Time sourceStart = manifestTime(fields[6]);
             Time sourceEnd = manifestTime(fields[7]);
-            if (timelineStart.numerator() < 0 || sourceStart.numerator() < 0
-                    || sourceEnd.compareTo(sourceStart) <= 0) {
+            if (timelineStart.numerator() < 0 || sourceEnd.compareTo(sourceStart) <= 0) {
                 throw invalid("canonical manifest clip interval is invalid");
             }
             Time clipEnd = timelineStart.plus(sourceEnd.minus(sourceStart));

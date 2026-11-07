@@ -287,6 +287,33 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void preservesSignedSourcePtsAcrossCanonicalPlanReadback() {
+        var sourceOrigin = new MultitrackRenderPlanner.Time(Long.MIN_VALUE, 1);
+        var sourcePts = List.of(sourceOrigin,
+                new MultitrackRenderPlanner.Time(Long.MIN_VALUE + 1, 1),
+                new MultitrackRenderPlanner.Time(Long.MIN_VALUE + 2, 1));
+        var clip = new MultitrackRenderPlanner.Clip("signed-source", MultitrackRenderPlanner.Modality.VIDEO,
+                "artifact-signed-source", "v1", SHA, new MultitrackRenderPlanner.Time(0, 1),
+                sourceOrigin, new MultitrackRenderPlanner.Time(Long.MIN_VALUE + 3, 1), sourcePts);
+
+        var planned = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(clip), List.of(), List.of(), 10_000)).plan();
+        var readBack = new MultitrackRenderPlanner.Plan(planned.capabilityId(), planned.canonicalManifest(),
+                planned.manifestSha256(), planned.duration(), planned.frameMap(), planned.declaredOutputBudgetBytes());
+
+        assertThat(readBack.frameMap()).extracting(MultitrackRenderPlanner.MappedFrame::sourcePts)
+                .containsExactlyElementsOf(sourcePts);
+        assertThat(readBack.frameMap()).extracting(MultitrackRenderPlanner.MappedFrame::timelinePts)
+                .containsExactly(new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(1, 1),
+                        new MultitrackRenderPlanner.Time(2, 1));
+        assertThat(readBack.canonicalManifest()).contains(
+                "clip=signed-source|VIDEO|artifact-signed-source|v1|" + SHA + "|0/1|-9223372036854775808/1|-9223372036854775805/1\n",
+                "frame=signed-source|0|-9223372036854775808/1|0/1\n",
+                "frame=signed-source|1|-9223372036854775807/1|1/1\n",
+                "frame=signed-source|2|-9223372036854775806/1|2/1\n");
+    }
+
+    @Test
     void rejectsNonMonotonicOrOutOfClipVfrTimestamps() {
         assertThatIllegalArgumentException().isThrownBy(() -> video("v", new MultitrackRenderPlanner.Time(0, 1),
                 List.of(new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(1, 2),
@@ -412,7 +439,7 @@ class MultitrackRenderPlannerTest {
                 "clip", -1, new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(0, 1)))
                 .withMessageContaining("frame index");
         assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.MappedFrame(
-                "clip", 0, new MultitrackRenderPlanner.Time(-1, 1), new MultitrackRenderPlanner.Time(0, 1)))
+                "clip", 0, new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(-1, 1)))
                 .withMessageContaining("non-negative");
 
         var start = new MultitrackRenderPlanner.Time(0, 1);
