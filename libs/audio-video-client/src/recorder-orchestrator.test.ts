@@ -1144,13 +1144,13 @@ describe("publishFinalRender", () => {
     expect(uploadedBytes).toEqual([1, 2, 3]);
   });
 
-  it("uploads verified bytes through the canonical API with lineage and stable request binding", async () => {
+  it("uses one duplicate fence for equivalent rational FPS and time-base inputs", async () => {
     const client = fakeClient();
     const firstRequest = request();
     const secondRequest = {
       ...request(),
-      frameRate: { denominator: 1, numerator: 30 },
-      timeBase: { denominator: 90_000, numerator: 1 },
+      frameRate: { denominator: 2, numerator: 60 },
+      timeBase: { denominator: 180_000, numerator: 2 },
     };
     const first = await publishFinalRender(firstRequest, admitted, muxer, client);
     const second = await publishFinalRender(secondRequest, admitted, muxer, client);

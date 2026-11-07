@@ -640,6 +640,25 @@ function sameRenderJson(actual: unknown, expected: unknown): boolean {
       && sameRenderJson(actualRecord[key], expectedRecord[key]));
 }
 
+function normalizeRenderRational(value: RenderRational, field: string): RenderRational {
+  if (!value || !Number.isSafeInteger(value.numerator) || value.numerator < 1
+    || !Number.isSafeInteger(value.denominator) || value.denominator < 1) {
+    throw new ScenarioError("INVALID_SCENARIO", `${field} must be a positive rational`);
+  }
+  let numerator = value.numerator;
+  let denominator = value.denominator;
+  let a = numerator;
+  let b = denominator;
+  while (b !== 0) {
+    const remainder = a % b;
+    a = b;
+    b = remainder;
+  }
+  numerator /= a;
+  denominator /= a;
+  return { numerator, denominator };
+}
+
 function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRenderRequest {
   requireText(request.renderId, "renderId");
   if (!request.plan || request.plan.dryRunOnly !== true) {
@@ -698,12 +717,8 @@ function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRen
     throw new ScenarioError("INVALID_SCENARIO", "render plan identity or scene lineage does not match its materialized inputs");
   }
 
-  for (const [field, value] of [["frameRate", request.frameRate], ["timeBase", request.timeBase]] as const) {
-    if (!value || !Number.isSafeInteger(value.numerator) || value.numerator < 1
-      || !Number.isSafeInteger(value.denominator) || value.denominator < 1) {
-      throw new ScenarioError("INVALID_SCENARIO", `${field} must be a positive rational`);
-    }
-  }
+  const frameRate = normalizeRenderRational(request.frameRate, "frameRate");
+  const timeBase = normalizeRenderRational(request.timeBase, "timeBase");
   if (!Number.isSafeInteger(request.durationTicks) || request.durationTicks < 1) {
     throw new ScenarioError("INVALID_SCENARIO", "durationTicks must be a positive safe integer");
   }
@@ -746,9 +761,9 @@ function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRen
   const snapshot: FinalRenderRequest = {
     renderId: request.renderId,
     plan: canonicalPlan,
-    frameRate: { numerator: request.frameRate.numerator, denominator: request.frameRate.denominator },
+    frameRate,
     variableFrameRate: request.variableFrameRate,
-    timeBase: { numerator: request.timeBase.numerator, denominator: request.timeBase.denominator },
+    timeBase,
     durationTicks: request.durationTicks,
     captions,
     creditRefs,

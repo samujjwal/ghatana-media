@@ -82,3 +82,8 @@ resource bounds, defensive copying, comparison metrics and source restoration.
 `J17MusicEffectsLocalScenarioTest` is explicitly a transient synthetic fixture;
 it does not prove lawful source quality, perceptual acceptance, durable
 timeline A/B, or actor/capability authorization.
+
+`PcmStemMixerTest` also pins center, midpoint, and hard-left/right pan behavior
+and checks that a single-channel stem does not crossfeed into the other stereo
+channel (15/15 tests). These synthetic samples verify DSP mechanics only;
+lawful production stems and perceptual/mastering qualification remain open.

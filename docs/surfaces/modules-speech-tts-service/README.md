@@ -61,4 +61,8 @@ diagnostics are not exposed.
 ```
 
 Coverage: per-RPC disposition matrix, encoding rejection, response-shape
-validation, fail-closed profile/consent paths.
+validation, fail-closed profile/consent paths. `J30ProviderCatalogUnavailableTest`
+also verifies that an engine-reported voice can appear in the informational
+inventory while synthesis remains `UNAVAILABLE/NOT_ADMITTED` with zero voice
+load or synthesis calls. This is a synthetic service-boundary test, not voice
+rights, model, or quality qualification.

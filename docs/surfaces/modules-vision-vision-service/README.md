@@ -31,12 +31,12 @@ Multimodal and authorized gRPC clients.
 
 ## Public operations
 
-10 gRPC methods per `vision_service.proto` (image/video inference,
-tracking, readiness); authenticated host broker path supports a
-source-only FFmpeg probe over one 0440 sentinel file (`file` protocol
-whitelist, null muxer to stdout); requests with writable output remain
-rejected until a bounded output-transfer protocol exists. Frame
-extraction and audio demux through the broker remain unavailable.
+11 gRPC methods per `vision_service.proto` (image/video inference,
+tracking, readiness, plus the proposal-only OCR descriptor route).
+Authenticated host broker requests support source-only FFmpeg probes and
+policy-allowlisted source-backed frame/audio operations with optional
+bounded output transfer. These are broker capabilities; trusted source
+binding and detector admission remain separate requirements.
 
 ## States and invariants
 
@@ -88,6 +88,21 @@ failure fails closed.
 `bash scripts/qualification/run-wave2-vision-oci-checks.sh broker` is
 external-broker-only (never builds an image or starts a daemon);
 requires preprovisioned `GHATANA_MEDIA_VISION_OCI_BROKER_TEST_*`
-prerequisites — it exercises source validation/staging and writable-
-output rejection, not media decoding qualification. Real mAP/quality/
+prerequisites — it exercises authenticated source staging and bounded
+output transfer, not production-host qualification. Real mAP/quality/
 resource measurements need exact qualified model/input/environment.
+
+## Local OCI qualification evidence (2026-11-07)
+
+- `bash scripts/qualification/run-wave2-vision-oci-checks.sh stub`: 9/9
+  Docker integration tests passed on Docker Desktop 29.1.3 ARM64. The
+  fixture image was `sha256:43358b4ba4988fd27c9d176eb4ad21ce5d1d25bab562d03ed009716069879786`.
+- The pinned FFmpeg 8.1.2 ARM64 real-codec image
+  (`sha256:6d3d8a5cd41ebd8d6c2e44a696a9a26b0a6ac43716dbe0bd3434eeec7cb908d7`)
+  passed `HostOciVisionRealCodecIntegrationTest` 3/3 for generated-BMP
+  decode, malformed-input rejection, and output-budget overflow.
+- This evidence covers local Docker Desktop fixtures and LGPL codec
+  execution only. It does not qualify a Linux-native production host,
+  external broker, detector license/quality, bbox/mAP, tracking, or trusted
+  source-frame/version/PTS resolution. Vision remains `PROVIDER_NOT_ADMITTED`
+  and the implementation task remains OPEN.

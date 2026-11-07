@@ -84,7 +84,7 @@ class ReversibleTrackedRegionRecoveryIntegrationTest {
         assertThat(undone.restoresRevisionId()).isEqualTo(edit.revisionId());
         assertThat(undone.snapshot().bytes()).containsExactly((byte) 0, (byte) 0xff, (byte) 3, (byte) 0);
         assertThat(undone.snapshot().metadata()).containsExactlyInAnyOrderEntriesOf(
-                Map.of("mask", "original", "selection", "ROI-A", "framePts", "108000"));
+                Map.of("region", "original", "selection", "ROI-A", "framePts", "108000"));
         assertThat(ports.store.head(EDITOR, PROJECT_ID)).isEqualTo(undone);
     }
 
@@ -127,13 +127,13 @@ class ReversibleTrackedRegionRecoveryIntegrationTest {
     private static ReversibleRegionEditEngine.EditSnapshot originalState() {
         return new ReversibleRegionEditEngine.EditSnapshot(
                 new byte[] {0, (byte) 0xff, 3, 0},
-                Map.of("mask", "original", "selection", "ROI-A", "framePts", "108000"));
+                Map.of("region", "original", "selection", "ROI-A", "framePts", "108000"));
     }
 
     private static ReversibleRegionEditEngine.EditSnapshot editedState() {
         return new ReversibleRegionEditEngine.EditSnapshot(
                 new byte[] {9, 8, 7, 6, 5},
-                Map.of("mask", "edited", "selection", "ROI-B", "framePts", "108000"));
+                Map.of("region", "edited", "selection", "ROI-B", "framePts", "108000"));
     }
 
     private static void assertUnchanged(ReversibleRegionEditEngine.EditRevision before,
@@ -169,7 +169,7 @@ class ReversibleTrackedRegionRecoveryIntegrationTest {
                 ReversibleRegionEditEngine.TrackingEvidence evidence) {
             return engine.prepare(EDITOR, new ReversibleRegionEditEngine.EditRequest(
                     PROJECT_ID, "j11-plan", "r0", EXACT_SOURCE, SOURCE_SHA256, PURPOSE, REGION_ID,
-                    SOURCE_PTS_TIMEBASE, evidence, ReversibleRegionEditEngine.EditIntent.ADJUST_MASK_BOUNDARY));
+                    SOURCE_PTS_TIMEBASE, evidence, ReversibleRegionEditEngine.EditIntent.MOVE_OR_RESIZE_REGION));
         }
     }
 

@@ -59,3 +59,14 @@ than inferring behavior.
 Focused selectors can target individual suites (e.g.
 `--tests '*MediaOpenApiContractConsumptionTest'`). Suites requiring
 unavailable providers fail closed rather than fabricating results.
+
+## Current journey slices (2026-11-07)
+
+- J-12 `AnimationJ12ScenarioIntegrationTest` checks stale timeline revision
+  rejection, no renderer dispatch, and preservation of the newer source
+  version. This is an in-memory scenario fixture; it does not prove an
+  authenticated durable project/job journey.
+- J-14 `ScientificSimulationCurrentnessIntegrationTest` checks deterministic
+  SI dynamics from gram/millinewton inputs and rejects invalid mass and
+  inconsistent solver-step bounds without a partial trace. Results remain
+  simulation-only, not measurement evidence.

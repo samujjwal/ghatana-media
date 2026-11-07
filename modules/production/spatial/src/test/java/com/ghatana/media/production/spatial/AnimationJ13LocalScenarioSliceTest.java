@@ -161,6 +161,81 @@ class AnimationJ13LocalScenarioSliceTest {
         assertThat(rotations[7]).isCloseTo((float) Math.sqrt(0.5), org.assertj.core.data.Offset.offset(1e-6f));
     }
 
+    @Test
+    void sourceBoundPoseMatchesObservableGlbHierarchyAndAnimationOutput() throws Exception {
+        var engine = new SpatialRigEngine();
+        var rig = authoredRig();
+        var checkedSources = new java.util.ArrayList<SpatialRigEngine.SourceVersionRef>();
+        SpatialRigEngine.SourceRightsPort authority = source -> {
+            checkedSources.add(source);
+            return SpatialRigEngine.RightsOutcome.ELIGIBLE;
+        };
+
+        var pose = engine.evaluateWithAuthority(rig, SpatialRigEngine.RationalTime.of(1, 1), authority);
+        var artifact = engine.exportGlb(rig, authority);
+        ByteBuffer glb = ByteBuffer.wrap(artifact.bytes()).order(ByteOrder.LITTLE_ENDIAN);
+        assertThat(glb.getInt()).isEqualTo(0x46546c67);
+        assertThat(glb.getInt()).isEqualTo(2);
+        assertThat(glb.getInt()).isEqualTo(artifact.bytes().length);
+        int jsonLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x4e4f534a);
+        byte[] jsonBytes = new byte[jsonLength];
+        glb.get(jsonBytes);
+        JsonNode document = new ObjectMapper().readTree(jsonBytes);
+        int binaryLength = glb.getInt();
+        assertThat(glb.getInt()).isEqualTo(0x004e4942);
+        byte[] binary = new byte[binaryLength];
+        glb.get(binary);
+
+        JsonNode nodes = document.path("nodes");
+        int rootIndex = -1;
+        int handIndex = -1;
+        for (int index = 0; index < nodes.size(); index++) {
+            if ("root".equals(nodes.get(index).path("name").asString())) rootIndex = index;
+            if ("hand".equals(nodes.get(index).path("name").asString())) handIndex = index;
+        }
+        assertThat(rootIndex).isGreaterThanOrEqualTo(0);
+        assertThat(handIndex).isGreaterThanOrEqualTo(0);
+        assertThat(nodes.get(rootIndex).path("children").get(0).asInt()).isEqualTo(handIndex);
+
+        JsonNode channels = document.path("animations").get(0).path("channels");
+        JsonNode samplers = document.path("animations").get(0).path("samplers");
+        JsonNode translationChannel = null;
+        JsonNode rotationChannel = null;
+        for (JsonNode channel : channels) {
+            JsonNode target = channel.path("target");
+            if (target.path("node").asInt() == rootIndex
+                    && "translation".equals(target.path("path").asString())) translationChannel = channel;
+            if (target.path("node").asInt() == rootIndex
+                    && "rotation".equals(target.path("path").asString())) rotationChannel = channel;
+        }
+        assertThat(translationChannel).isNotNull();
+        assertThat(rotationChannel).isNotNull();
+        float[] translations = decodeAccessor(document,
+                samplers.get(translationChannel.path("sampler").asInt()).path("output").asInt(), binary, 3);
+        float[] rotations = decodeAccessor(document,
+                samplers.get(rotationChannel.path("sampler").asInt()).path("output").asInt(), binary, 4);
+
+        // At t=1 the engine composes root's +X translation and 90-degree Z rotation
+        // with hand's local +Y offset. The GLB preserves that hierarchy and the
+        // authored root keyframe that produces the same world-space hand pose.
+        var hand = pose.bones().get("hand");
+        assertThat(hand.position().x()).isCloseTo(1.0, org.assertj.core.data.Offset.offset(1e-12));
+        assertThat(hand.position().y()).isCloseTo(0.0, org.assertj.core.data.Offset.offset(1e-12));
+        assertThat(translations).containsExactly(0f, 0f, 0f, 2f, 0f, 0f);
+        assertThat(rotations).hasSize(8);
+        assertThat(rotations[4]).isEqualTo(0f);
+        assertThat(rotations[5]).isEqualTo(0f);
+        assertThat(rotations[6]).isCloseTo((float) Math.sqrt(0.5), org.assertj.core.data.Offset.offset(1e-6f));
+        assertThat(rotations[7]).isCloseTo((float) Math.sqrt(0.5), org.assertj.core.data.Offset.offset(1e-6f));
+        assertThat(checkedSources).containsExactly(SOURCE, SOURCE);
+        assertThat(artifact.sourceVersions()).containsExactly(SOURCE);
+        assertThat(artifact.sourceProjectRevisionRef()).isEqualTo(pose.sourceProjectRevisionRef());
+        assertThat(artifact.frameVersionRef()).isEqualTo(pose.frameVersionRef());
+        assertThat(artifact.sha256()).isEqualTo(java.util.HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(artifact.bytes())));
+    }
+
     private static float[] decodeAccessor(JsonNode document, int accessorIndex, byte[] binary, int components) {
         JsonNode accessor = document.path("accessors").get(accessorIndex);
         JsonNode view = document.path("bufferViews").get(accessor.path("bufferView").asInt());

@@ -53,6 +53,38 @@ class ScientificSimulationCurrentnessIntegrationTest {
                 q(2, PhysicalSimulation.Unit.SECOND));
     }
 
+    private static MediaSimulationContracts.RunRequest contractRequest(
+            double mass, MediaSimulationContracts.Unit massUnit,
+            double force, MediaSimulationContracts.Unit forceUnit,
+            MediaSimulationContracts.SolverPolicy policy) {
+        var massMeasurement = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(mass, massUnit),
+                new MediaSimulationContracts.Quantity(0, massUnit));
+        var forceMeasurement = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(force, forceUnit),
+                new MediaSimulationContracts.Quantity(0, forceUnit));
+        var initial = new MediaSimulationContracts.InitialState(
+                new MediaSimulationContracts.Measurement(
+                        new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER),
+                        new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER)),
+                new MediaSimulationContracts.Measurement(
+                        new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER_PER_SECOND),
+                        new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER_PER_SECOND)));
+        return new MediaSimulationContracts.RunRequest(
+                new MediaSimulationContracts.ConstantForce(massMeasurement, forceMeasurement), initial, policy);
+    }
+
+    private static MediaSimulationContracts.SolverPolicy contractPolicy(
+            double duration, double maximumStep, double minimumStep, int maxAcceptedSteps, int maxIterations) {
+        return new MediaSimulationContracts.SolverPolicy(
+                new MediaSimulationContracts.Quantity(duration, MediaSimulationContracts.Unit.SECOND),
+                new MediaSimulationContracts.Quantity(maximumStep, MediaSimulationContracts.Unit.SECOND),
+                new MediaSimulationContracts.Quantity(minimumStep, MediaSimulationContracts.Unit.SECOND),
+                new MediaSimulationContracts.Quantity(1e-8, MediaSimulationContracts.Unit.METER),
+                new MediaSimulationContracts.Quantity(1e-8, MediaSimulationContracts.Unit.METER_PER_SECOND),
+                maxAcceptedSteps, maxIterations);
+    }
+
     @Test
     void unknownExactModelCurrentnessCannotProduceValidScientificPass() {
         var result = deterministicFixture();
@@ -139,5 +171,57 @@ class ScientificSimulationCurrentnessIntegrationTest {
         assertThat(outcome.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.ABSTAINED);
         assertThat(outcome.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.SOLVER_LIMIT_REACHED);
         assertThat(outcome.trace()).isNull();
+    }
+
+    @Test
+    void sourceFreeOutcomeExposesUnitCorrectDeterministicDynamicsAndInstrumentValues() {
+        // Test-authored constant-force case: m=2 kg, F=6 N, x0=v0=0, t=2 s.
+        // The closed-form terminal values are x=6 m, v=6 m/s, a=3 m/s^2.
+        var request = contractRequest(2000, MediaSimulationContracts.Unit.GRAM,
+                6000, MediaSimulationContracts.Unit.MILLINEWTON,
+                contractPolicy(2, 0.25, 1e-5, 100, 1000));
+
+        var first = PhysicalSimulation.run(request);
+        var repeated = PhysicalSimulation.run(request);
+
+        assertThat(first).isEqualTo(repeated);
+        assertThat(first.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.COMPLETED);
+        assertThat(first.failureCode()).isNull();
+        assertThat(first.trace().deterministic()).isTrue();
+        assertThat(first.trace().solverId()).isEqualTo(MediaSimulationContracts.VELOCITY_VERLET_SOLVER_V1);
+        assertThat(first.trace().evidenceClass()).isEqualTo(SIMULATION_ONLY);
+        assertThat(first.trace().observations()).hasSizeGreaterThan(2);
+        assertThat(first.trace().observations().getFirst().time().si(MediaSimulationContracts.Dimension.TIME)).isEqualTo(0);
+        var terminal = first.trace().observations().getLast();
+        assertThat(terminal.time().si(MediaSimulationContracts.Dimension.TIME)).isEqualTo(2.0);
+        assertThat(terminal.position().si(MediaSimulationContracts.Dimension.LENGTH)).isCloseTo(6.0,
+                org.assertj.core.data.Offset.offset(1e-10));
+        assertThat(terminal.velocity().si(MediaSimulationContracts.Dimension.VELOCITY)).isCloseTo(6.0,
+                org.assertj.core.data.Offset.offset(1e-10));
+        assertThat(terminal.acceleration().si(MediaSimulationContracts.Dimension.ACCELERATION)).isEqualTo(3.0);
+        assertThat(terminal.totalEnergy().si(MediaSimulationContracts.Dimension.ENERGY)).isCloseTo(0.0,
+                org.assertj.core.data.Offset.offset(1e-10));
+        assertThat(terminal.uncertainty().status())
+                .isEqualTo(MediaSimulationContracts.UncertaintyStatus.PROPAGATED_INDEPENDENT_GAUSSIAN);
+        assertThat(terminal.uncertainty().positionStandardUncertainty()
+                .si(MediaSimulationContracts.Dimension.LENGTH)).isEqualTo(0.0);
+        assertThat(terminal.uncertainty().velocityStandardUncertainty()
+                .si(MediaSimulationContracts.Dimension.VELOCITY)).isEqualTo(0.0);
+    }
+
+    @Test
+    void invalidPhysicalConstraintAndInconsistentStepBoundsReturnNoNumericOutcome() {
+        var invalidMass = PhysicalSimulation.run(contractRequest(-1, MediaSimulationContracts.Unit.KILOGRAM,
+                6, MediaSimulationContracts.Unit.NEWTON, contractPolicy(2, 0.25, 1e-5, 100, 1000)));
+        assertThat(invalidMass.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.INVALID_INPUT);
+        assertThat(invalidMass.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.INVALID_SIMULATION_INPUT);
+        assertThat(invalidMass.trace()).isNull();
+
+        var inconsistentPolicy = contractPolicy(2, 0.1, 0.2, 100, 1000);
+        var invalidBounds = PhysicalSimulation.run(contractRequest(2, MediaSimulationContracts.Unit.KILOGRAM,
+                6, MediaSimulationContracts.Unit.NEWTON, inconsistentPolicy));
+        assertThat(invalidBounds.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.INVALID_INPUT);
+        assertThat(invalidBounds.failureCode()).isEqualTo(MediaSimulationContracts.FailureCode.INVALID_SIMULATION_INPUT);
+        assertThat(invalidBounds.trace()).isNull();
     }
 }

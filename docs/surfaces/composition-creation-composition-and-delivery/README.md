@@ -27,6 +27,11 @@ media, reviewed approvals, versioned exports with destination ACKs.
   line/particle subset to deterministic PNG frames. Opaque envelope references
   are not resolved into scene objects, and this local renderer does not provide
   video codec output, 3D, audio, or rights-aware asset loading.
+- 3D animation: `SpatialRigEngine` produces a bounded local GLB candidate. The
+  J-13 scenario slice verifies that source-bound pose output matches the
+  encoded node hierarchy and translation/quaternion accessors, with exact
+  source/revision/frame metadata and digest. This does not establish viewer
+  fidelity, canonical job persistence, restart, or delivery.
 - Versioned export/delivery: artifact store + job finality via
   `providers/aws-postgresql`.
 - Delivery operation scope preserves the exact tenant, principal, request,

@@ -51,6 +51,22 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void applies_linear_pan_without_crossfeeding_stereo_channels() {
+        byte[] source = pcm(new short[] {1_000, 2_000, -1_000, -2_000});
+
+        assertThat(samples(mix(List.of(synthetic("pan-center-v1", source, 2, 1.0f, 0.0f)), 2, 0.98f)
+                .pcmS16Le())).containsExactly(1_000, 2_000, -1_000, -2_000);
+        assertThat(samples(mix(List.of(synthetic("pan-right-half-v1", source, 2, 1.0f, 0.5f)), 2, 0.98f)
+                .pcmS16Le())).containsExactly(500, 2_000, -500, -2_000);
+        assertThat(samples(mix(List.of(synthetic("pan-left-half-v1", source, 2, 1.0f, -0.5f)), 2, 0.98f)
+                .pcmS16Le())).containsExactly(1_000, 1_000, -1_000, -1_000);
+        assertThat(samples(mix(List.of(synthetic("pan-right-hard-v1", source, 2, 1.0f, 1.0f)), 2, 0.98f)
+                .pcmS16Le())).containsExactly(0, 2_000, 0, -2_000);
+        assertThat(samples(mix(List.of(synthetic("pan-left-hard-v1", source, 2, 1.0f, -1.0f)), 2, 0.98f)
+                .pcmS16Le())).containsExactly(1_000, 0, -1_000, 0);
+    }
+
+    @Test
     void applies_true_peak_ceiling_without_clipping_and_is_deterministic() {
         short[] loud = new short[400];
         for (int index = 0; index < loud.length; index++) loud[index] = (short) (index % 2 == 0 ? 30_000 : -30_000);

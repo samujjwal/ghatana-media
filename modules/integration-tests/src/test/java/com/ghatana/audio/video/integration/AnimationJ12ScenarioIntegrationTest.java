@@ -11,6 +11,7 @@ import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clock;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RationalTime;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -268,6 +269,63 @@ class AnimationJ12ScenarioIntegrationTest {
         assertThat(timeline.project(actor, created.project().projectId()).headRevisionId())
                 .isEqualTo(revision.revisionId());
         // The fixture denial preserves the committed draft and makes no renderer or production claim.
+    }
+
+    @Test
+    void staleSourceRevisionCannotAdvanceDraftOrReachFixtureRenderer() {
+        AtomicInteger generatedId = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine timeline = new ProjectTimelineEngine(store,
+                () -> "j12-stale-fixture-id-" + generatedId.incrementAndGet());
+        Actor actor = new Actor(TENANT, ACTOR);
+        var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 source", "j12-create-stale");
+        var sourceV1 = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
+                "synthetic-source", "synthetic-source-v1");
+        var sourceV2 = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
+                "synthetic-source", "synthetic-source-v2");
+        var sourceIn = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
+        var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
+        var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
+        var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
+        var initialDraft = timeline.edit(actor, created.project().projectId(),
+                created.initialRevision().revisionId(), List.of(
+                        new ProjectTimelineEngine.AddScene(
+                                new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
+                        new ProjectTimelineEngine.AddTrack(
+                                new com.ghatana.media.runtime.MediaProjectTimelineContracts.Track("j12-track", "j12-scene",
+                                        com.ghatana.media.runtime.MediaProjectTimelineContracts.TrackKind.OVERLAY, 0)),
+                        new ProjectTimelineEngine.PutClip(
+                                new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip("j12-clip", "j12-scene",
+                                        "j12-track", sourceV1, sourceIn, sourceOut, storyStart, storyDuration))));
+
+        // A later local draft revision selects the new immutable source version.
+        // This uses the process-local test store and does not claim a durable commit.
+        var currentDraft = timeline.edit(actor, created.project().projectId(), initialDraft.revisionId(), List.of(
+                new ProjectTimelineEngine.PutClip(
+                        new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip("j12-clip", "j12-scene",
+                                "j12-track", sourceV2, sourceIn, sourceOut, storyStart, storyDuration))));
+
+        AtomicInteger renderDispatches = new AtomicInteger();
+        Runnable staleDraftRender = () -> {
+            // Replaying a render with the old head must fail before any renderer
+            // effect, even though its old source bytes are still in the fixture.
+            timeline.edit(actor, created.project().projectId(), initialDraft.revisionId(), List.of(
+                    new ProjectTimelineEngine.PutClip(
+                            new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip("j12-clip", "j12-scene",
+                                    "j12-track", sourceV1, sourceIn, sourceOut, storyStart, storyDuration))));
+            renderDispatches.incrementAndGet();
+            new AnimationRenderer().render(spec(), scene(), new AnimationRenderer.Profile(10, 1, 3));
+        };
+
+        assertThatThrownBy(staleDraftRender::run)
+                .isInstanceOf(RevisionConflictException.class)
+                .satisfies(error -> assertThat(((RevisionConflictException) error).currentHeadRevisionId())
+                        .isEqualTo(currentDraft.revisionId()));
+        assertThat(renderDispatches).hasValue(0);
+        assertThat(timeline.project(actor, created.project().projectId()).headRevisionId())
+                .isEqualTo(currentDraft.revisionId());
+        assertThat(store.revision(actor, created.project().projectId(), currentDraft.revisionId())
+                .graph().clips().getFirst().source()).isEqualTo(sourceV2);
     }
 
     private static int decodeGifFrameCount(byte[] bytes) throws Exception {
