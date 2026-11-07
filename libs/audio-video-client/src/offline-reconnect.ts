@@ -76,10 +76,18 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       readCurrentVersion: async (scope) => {
         if (!sameScope(scope, this.scope)) return { disposition: "UNKNOWN" };
         const read = await this.operations!.readProjectVersion(scope);
-        if (!sameScope(read, this.scope) || read.disposition !== "CURRENT" || !read.version?.trim()) {
+        if (!read || typeof read !== "object") return { disposition: "UNKNOWN" };
+        // Snapshot host adapter readback once. Accessors must not be able to
+        // validate one project/version and return another for replay.
+        const tenantId = read.tenantId;
+        const projectId = read.projectId;
+        const disposition = read.disposition;
+        const version = read.version;
+        if (tenantId !== this.scope.tenantId || projectId !== this.scope.projectId
+          || disposition !== "CURRENT" || typeof version !== "string" || !version.trim()) {
           return { disposition: "UNKNOWN" };
         }
-        return { disposition: "CURRENT", version: read.version };
+        return { disposition: "CURRENT", version };
       },
       apply: async (edit) => {
         if (!sameScope(edit, this.scope)) return { outcome: "OUTCOME_UNKNOWN" };

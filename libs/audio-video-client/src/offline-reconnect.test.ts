@@ -328,6 +328,38 @@ describe("OfflineReconnectCoordinator", () => {
     expect(applyCount).toBe(0);
   });
 
+  it("uses one exact version snapshot from host readback accessors", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let versionReads = 0;
+    let authorizationReads = 0;
+    let applyCount = 0;
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      readProjectVersion: async () => ({
+        ...scope,
+        disposition: "CURRENT" as const,
+        get version() {
+          versionReads++;
+          return versionReads === 1 ? "revision-8" : edit.expectedVersion;
+        },
+      }),
+      reauthorize: async () => {
+        authorizationReads++;
+        return { ...scope, disposition: "AUTHORIZED" };
+      },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(result.status).toBe("RECONNECTED");
+    if (result.status === "RECONNECTED") {
+      expect(result.results).toEqual([{ editId: edit.editId, state: "CONFLICT" }]);
+    }
+    expect(versionReads).toBe(1);
+    expect(authorizationReads).toBe(0);
+    expect(applyCount).toBe(0);
+    expect((await q.readEdits(scope))[0]?.state).toBe("CONFLICT");
+  });
+
   it("keeps wrong-tenant authorization unknown across queue recreation, then recovers safely", async () => {
     const q = await queue();
     await q.enqueue(edit);
