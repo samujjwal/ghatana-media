@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Map;
@@ -124,6 +125,27 @@ class MediaPublicLifecycleEventTest {
         assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(valid))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("supported integer range");
+    }
+
+    @Test
+    void payloadParserAcceptsSchemaIntegerDecimalNotationWithoutRounding() {
+        var payload = new java.util.LinkedHashMap<>(MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload());
+        payload.put("aggregateVersion", 3.0d);
+        assertThat(MediaPublicLifecycleEvent.fromPayload(payload).aggregateVersion()).isEqualTo(3L);
+
+        payload.put("aggregateVersion", new BigDecimal("3.000"));
+        assertThat(MediaPublicLifecycleEvent.fromPayload(payload).aggregateVersion()).isEqualTo(3L);
+
+        payload.put("aggregateVersion", 3.5d);
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must be an integer");
+
+        payload.put("aggregateVersion", 9_007_199_254_740_992d);
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("decoded exactly");
     }
 
     @Test

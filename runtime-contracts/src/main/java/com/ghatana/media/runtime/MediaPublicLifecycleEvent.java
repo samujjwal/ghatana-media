@@ -1,5 +1,6 @@
 package com.ghatana.media.runtime;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -37,6 +38,7 @@ public record MediaPublicLifecycleEvent(
     private static final Set<String> CLASSIFICATIONS = Set.of("PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED");
     private static final java.util.regex.Pattern REDACTED_ID =
             java.util.regex.Pattern.compile("^r1_[0-9a-f]{64}$");
+    private static final double MAX_SAFE_JSON_DOUBLE_INTEGER = 9_007_199_254_740_991d;
 
     public enum AppendFinality { NON_FINAL_APPEND }
 
@@ -109,16 +111,7 @@ public record MediaPublicLifecycleEvent(
         }
         try {
             Object version = map.get("aggregateVersion");
-            if (!(version instanceof Integer || version instanceof Long || version instanceof BigInteger)) {
-                throw new IllegalArgumentException("aggregateVersion must be an integer");
-            }
-            long aggregateVersion;
-            try {
-                aggregateVersion = version instanceof BigInteger integer
-                        ? integer.longValueExact() : ((Number) version).longValue();
-            } catch (ArithmeticException overflow) {
-                throw new IllegalArgumentException("aggregateVersion exceeds the supported integer range", overflow);
-            }
+            long aggregateVersion = parseAggregateVersion(version);
             if (aggregateVersion < 1) throw new IllegalArgumentException("aggregateVersion must be positive");
             Object terminal = map.get("terminalReadbackRequired");
             if (!(terminal instanceof Boolean)) throw new IllegalArgumentException("terminalReadbackRequired must be boolean");
@@ -151,6 +144,37 @@ public record MediaPublicLifecycleEvent(
             if (failure instanceof IllegalArgumentException argument) throw argument;
             throw new IllegalArgumentException("Lifecycle payload does not match public v1 ABI", failure);
         }
+    }
+
+    private static long parseAggregateVersion(Object version) {
+        if (version instanceof Integer || version instanceof Long) return ((Number) version).longValue();
+        if (version instanceof BigInteger integer) {
+            try {
+                return integer.longValueExact();
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("aggregateVersion exceeds the supported integer range", overflow);
+            }
+        }
+        if (version instanceof BigDecimal decimal) {
+            if (decimal.stripTrailingZeros().scale() > 0) {
+                throw new IllegalArgumentException("aggregateVersion must be an integer");
+            }
+            try {
+                return decimal.longValueExact();
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("aggregateVersion exceeds the supported integer range", overflow);
+            }
+        }
+        if (version instanceof Double floating) {
+            if (!Double.isFinite(floating) || floating != Math.rint(floating)) {
+                throw new IllegalArgumentException("aggregateVersion must be an integer");
+            }
+            if (Math.abs(floating) > MAX_SAFE_JSON_DOUBLE_INTEGER) {
+                throw new IllegalArgumentException("aggregateVersion cannot be decoded exactly");
+            }
+            return floating.longValue();
+        }
+        throw new IllegalArgumentException("aggregateVersion must be an integer");
     }
 
     private static String string(Map<?, ?> map, String field) {
