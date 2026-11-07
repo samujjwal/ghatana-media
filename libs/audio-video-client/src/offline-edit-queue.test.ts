@@ -573,13 +573,24 @@ describe("OfflineEditQueue", () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);
     let applyCount = 0;
+    let authorizationReads = 0;
     const unknownVersion = await queue.replay(scope, {
-      reauthorize: async () => ({ authorized: true }),
+      reauthorize: async () => { authorizationReads++; return { authorized: true }; },
       readCurrentVersion: async () => ({ disposition: "CURRENT", version: "   " }),
       apply: async () => { applyCount++; return { outcome: "APPLIED", receipt: "receipt" }; },
     });
     expect(unknownVersion[0]?.state).toBe("VERSION_UNKNOWN");
     expect(store.records.get(edit.editId)?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+
+    const paddedVersion = await queue.replay(scope, {
+      reauthorize: async () => { authorizationReads++; return { authorized: true }; },
+      readCurrentVersion: async () => " revision-7 ",
+      apply: async () => { applyCount++; return { outcome: "APPLIED", receipt: "receipt" }; },
+    });
+    expect(paddedVersion[0]?.state).toBe("VERSION_UNKNOWN");
+    expect(store.records.get(edit.editId)?.state).toBe("PENDING");
+    expect(authorizationReads).toBe(0);
     expect(applyCount).toBe(0);
 
     const malformedAck = await queue.replay(scope, {

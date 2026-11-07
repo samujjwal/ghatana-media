@@ -336,7 +336,10 @@ export class OfflineEditQueue {
         continue;
       }
       const currentVersion = typeof versionRead === "string" ? versionRead : versionRead.version;
-      if (typeof currentVersion !== "string" || !currentVersion.trim()) {
+      // A version read is an identity observation, not user-facing text. Do
+      // not normalize malformed values into either a match or a stale-version
+      // conflict; preserve the edit as retryable until an exact readback exists.
+      if (typeof currentVersion !== "string" || !isValidAadIdentity(currentVersion)) {
         results.push({ editId: record.editId, state: "VERSION_UNKNOWN" });
         continue;
       }
