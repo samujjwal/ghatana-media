@@ -662,7 +662,10 @@ public final class MediaHttpHandler implements HttpHandler {
                 if (requestId != null || pair.length != 2) {
                     throw new IllegalArgumentException("requestId must be supplied once");
                 }
-                requestId = decode(pair[1]);
+                // URLDecoder implements form-url-encoded semantics, where a raw plus
+                // becomes a space. This is an opaque identity in a URI query, so keep
+                // literal '+' distinct and only decode percent escapes.
+                requestId = URLDecoder.decode(pair[1].replace("+", "%2B"), StandardCharsets.UTF_8);
                 if (requestId.isBlank() || requestId.codePointCount(0, requestId.length()) > 255) {
                     throw new IllegalArgumentException("requestId must contain between 1 and 255 characters");
                 }

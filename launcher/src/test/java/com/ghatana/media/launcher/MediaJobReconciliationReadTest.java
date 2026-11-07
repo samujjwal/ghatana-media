@@ -59,6 +59,10 @@ class MediaJobReconciliationReadTest {
                 "job%2F1", "request-encoded", "tenant-a", "principal-a", "artifact-1", JobType.VISION,
                 "provider-1", JobStatus.OUTCOME_UNKNOWN, Instant.EPOCH, Instant.EPOCH, Instant.EPOCH,
                 Map.of("providerOutcome", "UNKNOWN"), "PROCESSING_OUTCOME_UNKNOWN", 3));
+        jobs.create(new ProcessingJob(
+                "job-plus", "request+exact", "tenant-a", "principal-a", "artifact-1", JobType.VISION,
+                "provider-1", JobStatus.OUTCOME_UNKNOWN, Instant.EPOCH, Instant.EPOCH, Instant.EPOCH,
+                Map.of("providerOutcome", "UNKNOWN"), "PROCESSING_OUTCOME_UNKNOWN", 3));
         var runtime = new MediaRuntime(
                 new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
                         Duration.ofSeconds(2), 2, "", "", true, false, root),
@@ -81,6 +85,17 @@ class MediaJobReconciliationReadTest {
                     handler, "/api/v1/jobs/job%252F1?requestId=request-encoded");
             assertThat(encodedIdentifier.status()).isEqualTo(200);
             assertThat(encodedIdentifier.body()).contains("request-encoded");
+
+            // In a URI query a raw '+' is part of the exact request ID, not a space
+            // as it would be under application/x-www-form-urlencoded decoding.
+            ExchangeResult plusRequestId = request(handler, "/api/v1/jobs/job-plus?requestId=request+exact");
+            assertThat(plusRequestId.status()).isEqualTo(200);
+            assertThat(plusRequestId.body()).contains("request+exact");
+
+            ExchangeResult encodedPlusRequestId = request(
+                    handler, "/api/v1/jobs/job-plus?requestId=request%2Bexact");
+            assertThat(encodedPlusRequestId.status()).isEqualTo(200);
+            assertThat(encodedPlusRequestId.body()).contains("request+exact");
 
             ExchangeResult untrustedHeaders = request(
                     handler, "/api/v1/jobs/job-1?requestId=request-1", null, false);
