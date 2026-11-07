@@ -160,14 +160,73 @@ public final class MultitrackRenderPlanner {
         }
     }
 
-    public record MappedFrame(String clipId, int frameIndex, Time sourcePts, Time timelinePts) { }
+    public record MappedFrame(String clipId, int frameIndex, Time sourcePts, Time timelinePts) {
+        public MappedFrame {
+            clipId = opaque(clipId, "mapped frame clip id");
+            if (frameIndex < 0) throw invalid("mapped frame index must be non-negative");
+            Objects.requireNonNull(sourcePts, "mapped frame sourcePts");
+            Objects.requireNonNull(timelinePts, "mapped frame timelinePts");
+            if (sourcePts.numerator() < 0 || timelinePts.numerator() < 0) {
+                throw invalid("mapped frame PTS values must be non-negative");
+            }
+        }
+    }
     public record Plan(String capabilityId, String canonicalManifest, String manifestSha256,
             Time duration, List<MappedFrame> frameMap, long declaredOutputBudgetBytes) {
         public Plan {
             frameMap = boundedCopy(frameMap, MAX_FRAMES_PER_PLAN, "frameMap",
                     "plan frame map exceeds limit");
+            if (frameMap.isEmpty()) throw invalid("plan frame map must contain at least one mapped frame");
             if (declaredOutputBudgetBytes <= 0 || declaredOutputBudgetBytes > MAX_DECLARED_OUTPUT_BYTES) {
                 throw invalid("declared output budget must be within 1.." + MAX_DECLARED_OUTPUT_BYTES + " bytes");
+            }
+            capabilityId = opaque(capabilityId, "plan capability id");
+            if (!CAPABILITY_ID.equals(capabilityId)) throw invalid("plan capability id is not the multitrack renderer");
+            Objects.requireNonNull(duration, "plan duration");
+            if (duration.numerator() <= 0
+                    || duration.compareTo(new Time(MAX_GRAPH_DURATION_NANOS, 1_000_000_000L)) > 0) {
+                throw invalid("plan duration must be within the positive 24-hour graph bound");
+            }
+            canonicalManifest = Objects.requireNonNull(canonicalManifest, "canonicalManifest");
+            String expectedHeader = "multitrack-render-manifest-v1\nduration=" + duration
+                    + "\noutput-budget-bytes=" + declaredOutputBudgetBytes + "\n";
+            if (!canonicalManifest.startsWith(expectedHeader)) {
+                throw invalid("plan fields do not match the canonical manifest header");
+            }
+            List<String> expectedFrameLines = frameMap.stream()
+                    .sorted(java.util.Comparator.comparing(MappedFrame::clipId)
+                            .thenComparingInt(MappedFrame::frameIndex))
+                    .map(frame -> "frame=" + frame.clipId() + "|" + frame.frameIndex() + "|"
+                            + frame.sourcePts() + "|" + frame.timelinePts())
+                    .toList();
+            List<String> manifestFrameLines = canonicalManifest.lines()
+                    .filter(line -> line.startsWith("frame="))
+                    .toList();
+            if (!expectedFrameLines.equals(manifestFrameLines)) {
+                throw invalid("plan frame map does not match the canonical manifest");
+            }
+            var nextFrameIndexes = new java.util.HashMap<String, Integer>();
+            var previousSourcePts = new java.util.HashMap<String, Time>();
+            for (MappedFrame frame : frameMap.stream()
+                    .sorted(java.util.Comparator.comparing(MappedFrame::clipId)
+                            .thenComparingInt(MappedFrame::frameIndex))
+                    .toList()) {
+                if (frame.frameIndex() >= MAX_FRAMES_PER_CLIP) {
+                    throw invalid("mapped frame index exceeds the per-clip bound");
+                }
+                int expectedIndex = nextFrameIndexes.getOrDefault(frame.clipId(), 0);
+                if (frame.frameIndex() != expectedIndex) {
+                    throw invalid("plan frame indexes must be contiguous per clip");
+                }
+                Time previousPts = previousSourcePts.put(frame.clipId(), frame.sourcePts());
+                if (previousPts != null && frame.sourcePts().compareTo(previousPts) <= 0) {
+                    throw invalid("plan source frame PTS must be strictly increasing per clip");
+                }
+                nextFrameIndexes.put(frame.clipId(), expectedIndex + 1);
+            }
+            manifestSha256 = digest(manifestSha256, "manifest sha256");
+            if (!sha256(canonicalManifest.getBytes(StandardCharsets.UTF_8)).equals(manifestSha256)) {
+                throw invalid("plan manifest SHA-256 does not match its canonical manifest");
             }
         }
     }

@@ -10,6 +10,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
@@ -70,5 +71,42 @@ class VersionSpecificReviewScenarioTest {
                 new DecisionRecord(Decision.ACCEPT, "Attempt to reuse on source revision 2"))))
                 .isInstanceOf(StaleReviewException.class);
         assertThat(store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
+    void sourceRevisionChangingAtWriteBoundaryPreventsDecisionRecordCreation() {
+        AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
+        AtomicInteger authorityChecks = new AtomicInteger();
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> {
+                    String version = authorityChecks.incrementAndGet() == 1
+                            ? V1.reference() : V2.reference();
+                    currentVersion.set(version);
+                    return new AuthorizationDecision(
+                            AuthorizationStatus.ALLOW,
+                            actor.tenantId(),
+                            actor.principalId(),
+                            reviewCase.reviewCaseId(),
+                            reviewCase.exactTargetRef(),
+                            reviewCase.scopeRef(),
+                            "fixture-authority-v1",
+                            NOW.plusSeconds(60),
+                            version,
+                            RetentionStatus.ACTIVE);
+                },
+                value -> value,
+                Clock.fixed(NOW, ZoneOffset.UTC),
+                () -> "record-j21-stale-write");
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, new AppendRequest(CASE, 0, "fixture-authority-v1",
+                "request-j21-stale-write",
+                new Confirmation("media.operation.action.record-version-review-decision", V1.reference(), true),
+                new DecisionRecord(Decision.ACCEPT, "Review exact source revision 1"))))
+                .isInstanceOf(StaleReviewException.class);
+
+        assertThat(authorityChecks).hasValue(2);
+        assertThat(currentVersion).hasValue(V2.reference());
+        assertThat(store.read(REVIEWER, CASE)).isEmpty();
     }
 }

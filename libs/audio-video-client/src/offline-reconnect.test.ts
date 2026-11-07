@@ -187,6 +187,23 @@ describe("OfflineReconnectCoordinator", () => {
     if (recovered.status === "RECONNECTED") expect(recovered.results[0]?.state).toBe("APPLIED");
   });
 
+  it("keeps wrong-project authorization readback unknown without applying or revoking the edit", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    const wrongProject = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async () => ({ ...scope, projectId: "project-other", disposition: "AUTHORIZED" }),
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(wrongProject.status).toBe("RECONNECTED");
+    if (wrongProject.status === "RECONNECTED") {
+      expect(wrongProject.results[0]?.state).toBe("AUTHORIZATION_UNKNOWN");
+    }
+    expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+  });
+
   it("detects version conflict and supports explicit rebase with a fresh idempotency key", async () => {
     const q = await queue();
     await q.enqueue(edit);

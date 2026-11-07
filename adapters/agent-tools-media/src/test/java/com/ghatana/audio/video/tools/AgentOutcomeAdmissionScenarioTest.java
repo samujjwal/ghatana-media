@@ -228,6 +228,54 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         assertThat(providerCalls).hasValue(0);
     }
 
+    @Test
+    void allFourUnadmittedToolsFailClosedWhenFreshReplayAuthorizationIsUnavailable() {
+        Ledger ledger = new Ledger();
+        AtomicInteger providerCalls = new AtomicInteger();
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> {
+                    throw new IllegalStateException("host replay authorization unavailable");
+                });
+        ToolHandler configuredProvider = (envelope, contract) -> {
+            providerCalls.incrementAndGet();
+            return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
+                    envelope.invocationId(), Map.of("fixtureOutput", "must-not-be-produced"), Map.of(),
+                    envelope.invocationId(), Instant.now(), java.time.Duration.ZERO));
+        };
+        var cases = java.util.List.of(
+                new HandlerCase(SpeechToTextToolHandler.TOOL_ID, "STT_NOT_ADMITTED",
+                        Map.of("audioSource", Map.of("mediaArtifactId", "source-stt-auth-unavailable"), "languageCode", "en-US"),
+                        new SpeechToTextToolHandler(configuredProvider)),
+                new HandlerCase(TextToSpeechToolHandler.TOOL_ID, "TTS_NOT_ADMITTED",
+                        Map.of("text", "fixture speech", "voiceId", "en-US-default", "storeAsArtifact", true),
+                        new TextToSpeechToolHandler(configuredProvider)),
+                new HandlerCase(VisionAnalysisToolHandler.TOOL_ID, "VISION_NOT_ADMITTED",
+                        Map.of("mediaSource", Map.of("mediaArtifactId", "source-vision-auth-unavailable"),
+                                "analysisTypes", java.util.List.of("OBJECT_DETECTION")),
+                        new VisionAnalysisToolHandler(configuredProvider)),
+                new HandlerCase(MultimodalInferenceToolHandler.TOOL_ID, "MULTIMODAL_NOT_ADMITTED",
+                        Map.of("mediaArtifactId", "source-multimodal-auth-unavailable", "inferenceMode", "SUMMARY",
+                                "samplingRateMs", 1_000, "enableTranscription", true,
+                                "enableVisionAnalysis", true, "languageCode", "en-US"),
+                        new MultimodalInferenceToolHandler(configuredProvider)));
+
+        for (HandlerCase tool : cases) {
+            ToolExecutionEnvelope envelope = envelope(tool.toolId(), tool.input(), "tenant-j25", "agent-j25");
+            ToolContract contract = contract(envelope);
+            ToolExecutionResult original = runPromise(() -> binder.execute(tool.handler(), envelope, contract));
+            assertThat(original.failure().code()).as(tool.toolId()).isEqualTo(tool.unavailableCode());
+
+            AuthenticatedPrincipal freshPrincipal = new AuthenticatedPrincipal(
+                    envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+            assertThatThrownBy(() -> runPromise(() -> binder.execute(
+                    tool.handler(), envelope, contract, freshPrincipal)))
+                    .as(tool.toolId())
+                    .isInstanceOf(MediaToolExecutionBinder.InvocationReplayDeniedException.class);
+        }
+
+        assertThat(providerCalls).hasValue(0);
+    }
+
     private static ToolExecutionEnvelope envelope(String tenantId, String callerAgentId) {
         return envelope(SpeechToTextToolHandler.TOOL_ID,
                 Map.of("audioSource", Map.of("mediaArtifactId", "source-v1"), "languageCode", "en-US"),

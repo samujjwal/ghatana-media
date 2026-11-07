@@ -212,6 +212,72 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanFieldsMustMatchItsCanonicalManifestAndDigest() {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start, new MultitrackRenderPlanner.Time(1, 1)))),
+                List.of(), List.of(), 1_000);
+        var plan = MultitrackRenderPlanner.plan(graph).plan();
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                plan.capabilityId(), plan.canonicalManifest(), "0".repeat(64), plan.duration(),
+                plan.frameMap(), plan.declaredOutputBudgetBytes()))
+                .withMessageContaining("SHA-256");
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                plan.capabilityId(), plan.canonicalManifest(), plan.manifestSha256(),
+                new MultitrackRenderPlanner.Time(9, 1), plan.frameMap(), plan.declaredOutputBudgetBytes()))
+                .withMessageContaining("manifest header");
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                plan.capabilityId(), plan.canonicalManifest(), plan.manifestSha256(), plan.duration(),
+                List.of(new MultitrackRenderPlanner.MappedFrame("v", 0,
+                        new MultitrackRenderPlanner.Time(1, 1), new MultitrackRenderPlanner.Time(1, 1))),
+                plan.declaredOutputBudgetBytes()))
+                .withMessageContaining("frame map does not match");
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                "media.dev.other-renderer", plan.canonicalManifest(), plan.manifestSha256(), plan.duration(),
+                plan.frameMap(), plan.declaredOutputBudgetBytes()))
+                .withMessageContaining("capability id");
+    }
+
+    @Test
+    void mappedFramesRejectInvalidIndexesAndPlansRejectNonMonotonicSourceTimes() throws Exception {
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.MappedFrame(
+                "clip", -1, new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(0, 1)))
+                .withMessageContaining("frame index");
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.MappedFrame(
+                "clip", 0, new MultitrackRenderPlanner.Time(-1, 1), new MultitrackRenderPlanner.Time(0, 1)))
+                .withMessageContaining("non-negative");
+
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var end = new MultitrackRenderPlanner.Time(1, 1);
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start, end))), List.of(), List.of(), 1_000);
+        var plan = MultitrackRenderPlanner.plan(graph).plan();
+        var duplicateIndex = List.of(
+                plan.frameMap().get(0),
+                new MultitrackRenderPlanner.MappedFrame("v", 0, end, end));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                plan.capabilityId(), plan.canonicalManifest(), plan.manifestSha256(), plan.duration(),
+                duplicateIndex, plan.declaredOutputBudgetBytes()))
+                .withMessageContaining("frame map does not match");
+
+        var nonMonotonicMap = List.of(
+                new MultitrackRenderPlanner.MappedFrame("v", 0, new MultitrackRenderPlanner.Time(2, 1), start),
+                new MultitrackRenderPlanner.MappedFrame("v", 1, end, end));
+        String manifest = "multitrack-render-manifest-v1\n"
+                + "duration=10/1\n"
+                + "output-budget-bytes=1000\n"
+                + "frame=v|0|2/1|0/1\n"
+                + "frame=v|1|1/1|1/1\n";
+        String manifestDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(manifest.getBytes(StandardCharsets.UTF_8)));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                MultitrackRenderPlanner.CAPABILITY_ID, manifest, manifestDigest,
+                new MultitrackRenderPlanner.Time(10, 1), nonMonotonicMap, 1_000))
+                .withMessageContaining("strictly increasing");
+    }
+
+    @Test
     void rejectsAdvertisedOversizedGraphListBeforeTraversingIt() {
         var traversals = new int[1];
         List<MultitrackRenderPlanner.Clip> oversized = new AbstractList<>() {
