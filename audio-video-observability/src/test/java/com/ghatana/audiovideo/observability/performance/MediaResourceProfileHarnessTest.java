@@ -121,6 +121,19 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void fatalFixtureOperationIsCountedAsOneTerminalFailure() throws Exception {
+        MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
+                1, 1, Duration.ofSeconds(2), index -> {
+                    throw new AssertionError("fixture fatal error");
+                });
+
+        assertThat(report.outcome()).isEqualTo(MediaResourceProfileHarness.Outcome.FAILED);
+        assertThat(report.completedOperations()).isEqualTo(1);
+        assertThat(report.failedOperations()).isEqualTo(1);
+        assertThat(report.incompleteOperations()).isZero();
+    }
+
+    @Test
     void concurrentMixedOutcomesAccountForEveryRequestedOperationExactlyOnce() throws Exception {
         MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
                 16, 32, Duration.ofSeconds(2), index -> {
@@ -299,8 +312,9 @@ class MediaResourceProfileHarnessTest {
 
         assertThat(report.outcome()).isEqualTo(MediaResourceProfileHarness.Outcome.ABORTED);
         assertThat(report.workerPoolTerminated()).isTrue();
-        assertThat(report.completedOperations() + report.incompleteOperations())
-                .isLessThanOrEqualTo(report.requestedOperations());
+        assertThat(report.completedOperations()).isZero();
+        assertThat(report.failedOperations()).isZero();
+        assertThat(report.incompleteOperations()).isEqualTo(1);
         assertThat(report.toTsv()).contains("ABORTED");
     }
 }

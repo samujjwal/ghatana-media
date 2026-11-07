@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -253,6 +254,7 @@ public final class MediaResourceProfileHarness {
         var processRssSamples = new ConcurrentLinkedQueue<Long>();
         var failures = new AtomicInteger();
         var completed = new AtomicInteger();
+        var cancellationRequested = new AtomicBoolean();
         var workerFactory = daemonFactory("media-profile-worker-");
         var workers = new ThreadPoolExecutor(concurrency, concurrency, 0, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(operations), workerFactory, new ThreadPoolExecutor.AbortPolicy());
@@ -276,15 +278,25 @@ public final class MediaResourceProfileHarness {
             futures.add(workers.submit(() -> {
                 try {
                     operation.run(operationIndex);
+                    completed.incrementAndGet();
                 } catch (InterruptedException interrupted) {
                     Thread.currentThread().interrupt();
-                    failures.incrementAndGet();
+                    // Harness-requested cancellation means the operation did not finish. Keep
+                    // it in the incomplete count instead of labeling it as a completed failure.
+                    if (!cancellationRequested.get()) {
+                        failures.incrementAndGet();
+                        completed.incrementAndGet();
+                    }
                 } catch (Exception failure) {
                     failures.incrementAndGet();
+                    completed.incrementAndGet();
+                } catch (Error failure) {
+                    failures.incrementAndGet();
+                    completed.incrementAndGet();
+                    throw failure;
                 } finally {
                     // Include bounded-queue wait in observed request latency.
                     latencies.add(System.nanoTime() - submittedAt);
-                    completed.incrementAndGet();
                 }
             }));
         }
@@ -304,8 +316,9 @@ public final class MediaResourceProfileHarness {
                     } catch (TimeoutException timeout) {
                         aborted = true;
                         break;
-                    } catch (java.util.concurrent.ExecutionException unexpected) {
-                        failures.incrementAndGet();
+                    } catch (java.util.concurrent.ExecutionException alreadyCounted) {
+                        // The worker records fatal Errors before rethrowing them so operation
+                        // accounting remains terminal; the Future only transports that Error.
                     }
                 }
             } catch (InterruptedException interrupted) {
@@ -314,6 +327,7 @@ public final class MediaResourceProfileHarness {
                 throw interrupted;
             } finally {
                 if (aborted) {
+                    cancellationRequested.set(true);
                     futures.forEach(future -> future.cancel(true));
                     workers.shutdownNow();
                 } else {
