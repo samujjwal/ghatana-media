@@ -1,17 +1,20 @@
 # Surface: `libs-audio-video-client`
 
 Typed TypeScript client for Ghatana Media: canonical artifact/job/stream SDK,
-headless CLI, deterministic scenario recorder planning, and the capture
-adapter SPI. Package: `@audio-video/client` (`libs/audio-video-client`).
+read-only host-configured CLI, deterministic scenario recorder planning, and
+the capture adapter SPI. Package: `@audio-video/client`
+(`libs/audio-video-client`).
 
 ## Responsibility
 
 - Expose the admitted HTTP operations (artifact upload sessions, artifact
   reads, job submit/list/get/cancel, stream open/get/connect/frame/close)
   through `MediaOperationClient` and `MediaCanonicalClient`.
-- Provide the `ghatanamedia-api` CLI for artifact and job reads/commands. Capture
-  and recorder commands keep their CLI identities but return typed
-  `NOT_ADMITTED` until canonical runtime contracts exist.
+- Provide the `ghatanamedia-api` CLI for the single production-registry command,
+  `artifact inspect`. Job, capture, and recorder command identities are not
+  admitted in the production CLI and fail as `INVALID_INVOCATION` before auth
+  or network dispatch; the separately maintained Explorer CLI remains
+  fixture-only.
 - Keep the legacy `AudioVideoClient` and `MediaOperationClient` method ABI for
   consumers while methods without an admitted Media route fail before HTTP
   dispatch. Canonical job/stream and artifact operations use the v1 routes.
@@ -136,8 +139,9 @@ device qualification or integration with canonical stream sessions or writers.
   `unavailableCaptureAdapter` (reports `UNAVAILABLE`).
 - CLI bearer token is read only from `GHATANA_MEDIA_BEARER_TOKEN`; remote
   endpoints require HTTPS (plain HTTP only for loopback); redirects rejected
-  so credentials are not forwarded. Capture and recorder CLI commands are
-  explicitly unavailable until their canonical execution ports are admitted.
+  so credentials are not forwarded. The production CLI currently registers
+  only `artifact inspect`; other command identities fail before network
+  dispatch. The fixture CLI remains a separate simulation surface.
 
 ## Errors
 
