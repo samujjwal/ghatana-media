@@ -32,6 +32,7 @@ export interface ArtifactIntakeScreenProps extends Omit<MediaTaskScreenProps, "c
 
 /** Candidate J-02 screen body. Upload and verification outcomes are observations supplied by the host. */
 export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, ...flow }: ArtifactIntakeScreenProps): React.ReactElement {
+  const [selectedFileCount, setSelectedFileCount] = React.useState<number | undefined>();
   const heading = {
     "browse-media": "Media library",
     "import-media": "Import media",
@@ -50,8 +51,17 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, ...flow }:
       {intake.view === "import-media" && <div>
         <FileUpload id="media-source-files" label="Choose source media" multiple dragAndDrop={false} showPreview={false}
           helperText="Only server-acknowledged transfer and recorded integrity results are shown as confirmed."
-          onChange={(event) => onSourceFilesSelected?.(Array.from(event.currentTarget.files ?? []))}
+          onChange={(event) => {
+            const files = Array.from(event.currentTarget.files ?? []);
+            setSelectedFileCount(files.length);
+            onSourceFilesSelected?.(files);
+          }}
           />
+        {selectedFileCount !== undefined && <p role="status" aria-live="polite" aria-atomic="true">
+          {selectedFileCount === 0
+            ? "No source files are selected locally."
+            : `${selectedFileCount} source ${selectedFileCount === 1 ? "file is" : "files are"} selected locally.`}
+        </p>}
         {intake.sourceName && <p>Selected source: <strong>{intake.sourceName}</strong></p>}
         {intake.uploadId && <p>Upload ID: <code>{intake.uploadId}</code></p>}
         {intake.acknowledgedTransfer && <p>Server-acknowledged transfer: {intake.acknowledgedTransfer}</p>}
