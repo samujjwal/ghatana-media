@@ -99,6 +99,30 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void failedDestinationCloseCanBeRetriedForCleanupWithoutExposingDigest() {
+        var state = new OutputStream() {
+            private int closeAttempts;
+            @Override public void write(int value) { }
+            @Override public void close() throws IOException {
+                if (++closeAttempts == 1) throw new IOException("transient close failure");
+            }
+        };
+        var output = new BoundedRenderOutput(state, 8);
+
+        assertThatThrownBy(output::close).isInstanceOf(IOException.class).hasMessage("transient close failure");
+        assertThatThrownBy(() -> output.write(1)).isInstanceOf(IOException.class)
+                .hasMessage("render output has failed");
+        assertThat(output.completedSha256()).isNull();
+
+        try {
+            output.close();
+        } catch (IOException e) {
+            throw new AssertionError("second cleanup close should succeed", e);
+        }
+        assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
     void retainsVariableFrameTimestampsAndBuildsStableExactManifestDigest() {
         var graph = new MultitrackRenderPlanner.Graph(
                 List.of(new MultitrackRenderPlanner.Clip("video-1", MultitrackRenderPlanner.Modality.VIDEO,

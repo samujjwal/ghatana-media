@@ -235,6 +235,24 @@ public final class ReviewContracts {
             records = List.copyOf(records);
             Objects.requireNonNull(currentness, "currentness");
             Objects.requireNonNull(observedAt, "observedAt");
+            if (caseRevision != records.size()) {
+                throw new IllegalArgumentException("snapshot revision must equal its complete record count");
+            }
+            java.util.Set<String> appendRecordIds = new java.util.HashSet<>();
+            for (int index = 0; index < records.size(); index++) {
+                RecordObservation observation = records.get(index);
+                ReviewRecord record = observation.record();
+                if (!record.tenantId().equals(reviewCase.tenantId())
+                        || !record.actor().tenantId().equals(reviewCase.tenantId())
+                        || !record.reviewCaseId().equals(reviewCase.reviewCaseId())
+                        || !record.reviewSubjectRef().equals(reviewCase.reviewSubjectRef())
+                        || !record.operationId().equals(record.payload().operationId())
+                        || record.caseRevision() != index + 1L
+                        || !appendRecordIds.add(record.appendRecordId())
+                        || observation.currentness() != currentness) {
+                    throw new IllegalArgumentException("snapshot records must be complete, unique and bound to the exact review case");
+                }
+            }
         }
     }
 

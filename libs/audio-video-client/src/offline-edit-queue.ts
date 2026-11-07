@@ -211,7 +211,7 @@ export class OfflineEditQueue {
     const results: { editId: string; state: OfflineEditReplayState; receipt?: R }[] = [];
     for (const record of records) {
       if (record.state !== "PENDING") continue; // unknown, revoked, conflicts are never auto-replayed.
-      const edit = await this.decrypt<T>(record);
+      const edit = freezeEdit(await this.decrypt<T>(record));
       let versionRead: Awaited<ReturnType<typeof adapter.readCurrentVersion>>;
       try {
         versionRead = await adapter.readCurrentVersion(scope);
@@ -434,4 +434,15 @@ function validReceipt<R>(receipt: R | undefined): receipt is R {
 
 function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
   return left.byteLength === right.byteLength && left.every((value, index) => value === right[index]);
+}
+
+/** Keep injected adapters from changing the decrypted, persisted edit between checks and dispatch. */
+function freezeEdit<T>(edit: OfflineEdit<T>): OfflineEdit<T> {
+  const freezeValue = (value: unknown): void => {
+    if (value === null || typeof value !== "object" || Object.isFrozen(value)) return;
+    for (const child of Object.values(value)) freezeValue(child);
+    Object.freeze(value);
+  };
+  freezeValue(edit.payload);
+  return Object.freeze(edit);
 }

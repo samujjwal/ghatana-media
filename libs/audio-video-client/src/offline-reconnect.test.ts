@@ -139,6 +139,30 @@ describe("OfflineReconnectCoordinator", () => {
     expect((await q.readEdits(scope))[0]?.state).toBe("REVOKED");
   });
 
+  it("keeps the decrypted edit immutable across authorization checks and effect dispatch", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async (queued) => {
+        const mutable = queued as unknown as { expectedVersion: string; payload: { position: number } };
+        try { mutable.expectedVersion = "revision-other"; } catch { /* readonly contract enforced at runtime */ }
+        try { mutable.payload.position = 999; } catch { /* readonly payload enforced at runtime */ }
+        return { ...scope, disposition: "AUTHORIZED" };
+      },
+      applyEdit: async (queued) => {
+        applyCount++;
+        expect(queued.expectedVersion).toBe("revision-7");
+        expect(queued.payload.position).toBe(4);
+        return operations().applyEdit(queued);
+      },
+    })).reconnect(true);
+
+    expect(result.status).toBe("RECONNECTED");
+    if (result.status === "RECONNECTED") expect(result.results[0]?.state).toBe("APPLIED");
+    expect(applyCount).toBe(1);
+  });
+
   it("keeps authorization and version uncertainty distinct and prevents dispatch", async () => {
     const q = await queue();
     await q.enqueue(edit);

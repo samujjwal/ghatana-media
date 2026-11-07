@@ -87,9 +87,9 @@ final class BoundedRenderOutput extends OutputStream {
     @Override
     public void close() throws IOException {
         if (closed) return;
-        closed = true;
         try {
             destination.close();
+            closed = true;
             if (!failed) completedSha256 = HexFormat.of().formatHex(digest.digest());
         } catch (IOException | RuntimeException | Error failure) {
             failed = true;

@@ -231,6 +231,31 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void publicSnapshotConstructorRejectsIncompleteOrMisboundRecordSets() {
+        ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-1", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("safe", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        RecordObservation observation = new RecordObservation(record, Currentness.CURRENT);
+
+        assertThatThrownBy(() -> new ReviewSnapshot(CASE, 0, List.of(observation), Currentness.CURRENT, NOW))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("snapshot revision must equal its complete record count");
+
+        ReviewRecord otherVersionRecord = new ReviewRecord("record-2", REVIEWER.tenantId(), CASE.reviewCaseId(), V2,
+                "req-2", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("safe", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        assertThatThrownBy(() -> new ReviewSnapshot(CASE, 1,
+                List.of(new RecordObservation(otherVersionRecord, Currentness.CURRENT)), Currentness.CURRENT, NOW))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("snapshot records must be complete, unique and bound to the exact review case");
+
+        assertThatThrownBy(() -> new ReviewSnapshot(CASE, 1,
+                List.of(new RecordObservation(record, Currentness.STALE)), Currentness.CURRENT, NOW))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("snapshot records must be complete, unique and bound to the exact review case");
+    }
+
+    @Test
     void appendReceiptMustNameTheExactRequestedRevisionAndPayload() {
         ReviewStore hostileStore = new ReviewStore() {
             @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
