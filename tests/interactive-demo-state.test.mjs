@@ -101,6 +101,35 @@ test("media failure is typed and does not expose provider or browser error detai
   assert.equal(failed.announcement.includes("DOMException"), false);
 });
 
+test("manifest rejects duplicate branch IDs that make a local choice ambiguous", () => {
+  const ambiguous = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => scene.id === "intro"
+      ? {
+          ...scene,
+          branches: [
+            scene.branches[0],
+            { id: "next", label: "Alternate label", targetSceneId: "intro" },
+          ],
+        }
+      : scene),
+  };
+  const state = createDemoPlayerState(ambiguous, {
+    attest: () => ({
+      manifestId: ambiguous.id,
+      revision: ambiguous.revision,
+      sha256: ambiguous.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: ambiguous.sourceTruth,
+      originPermissions: ambiguous.originPermissions,
+    }),
+  });
+
+  assert.equal(state.status, "UNAVAILABLE");
+  assert.equal(state.failure, "INVALID_BUNDLE");
+  assert.equal(state.route.length, 0);
+});
+
 test("replay reproduces play and progress state, status, and history", () => {
   const actions = [
     { type: "play" },

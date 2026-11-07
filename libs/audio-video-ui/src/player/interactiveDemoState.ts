@@ -359,12 +359,14 @@ function validateManifest(
         cue.startMs < scene.startMs || cue.endMs > scene.endMs || cue.endMs <= cue.startMs
       ) return "INVALID_BUNDLE";
     }
+    const branchIds = new Set<string>();
     for (const branch of scene.branches) {
       if (
         !branch || typeof branch.id !== "string" || typeof branch.label !== "string" ||
         typeof branch.targetSceneId !== "string" || !branch.id || !branch.label ||
-        !sceneIds.has(branch.targetSceneId)
+        !sceneIds.has(branch.targetSceneId) || branchIds.has(branch.id)
       ) return "INVALID_BUNDLE";
+      branchIds.add(branch.id);
     }
   }
   return undefined;
