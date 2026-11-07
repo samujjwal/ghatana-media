@@ -204,6 +204,9 @@ public final class PcmStemMixer {
             // copies, so the mixer can read this immutable storage directly.
             byte[] source = stem.pcmS16Le;
             double gain = stem.gain();
+            // A zero-gain stem has no contribution to the sum. It was already
+            // fully validated above, so skip conversion and accumulation of its samples.
+            if (gain == 0.0) continue;
             double leftPan = stem.pan() > 0 ? 1.0 - stem.pan() : 1.0;
             double rightPan = stem.pan() < 0 ? 1.0 + stem.pan() : 1.0;
             for (int frame = 0; frame < spec.frameCount(); frame++) {

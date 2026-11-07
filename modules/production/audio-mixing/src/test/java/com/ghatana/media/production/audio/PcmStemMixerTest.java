@@ -125,6 +125,26 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void zero_gain_stem_has_no_pcm_effect_but_still_requires_rights_validation() {
+        Stem audible = synthetic("audible-v1", pcm(new short[] {12_000, -9_000, 4_000, 6_000}),
+                2, 0.75f, 0.0f);
+        Stem muted = synthetic("muted-v1", pcm(new short[] {30_000, 30_000, -30_000, -30_000}),
+                2, 0.0f, -1.0f);
+
+        MixResult withoutMutedStem = mix(List.of(audible), 2, 0.98f);
+        MixResult withMutedStem = mix(List.of(audible, muted), 2, 0.98f);
+
+        assertThat(withMutedStem.pcmS16Le()).containsExactly(withoutMutedStem.pcmS16Le());
+        assertThat(withMutedStem.wavSha256()).isEqualTo(withoutMutedStem.wavSha256());
+        assertThat(withMutedStem.appliedMasterGain()).isEqualTo(withoutMutedStem.appliedMasterGain());
+
+        Stem unlicensedMuted = new Stem("unlicensed-muted-v1", RATE, 2, 16,
+                pcm(new short[] {30_000, 30_000, -30_000, -30_000}), 0.0f, 0.0f,
+                new AssetProvenance("unlicensed-muted-v1", null));
+        expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(audible, unlicensedMuted), 2, 0.98f));
+    }
+
+    @Test
     void renders_decodable_wav_with_matching_pcm_checksum() throws Exception {
         short[] source = new short[] {1200, -1700, 4000, 3200, -500, 900};
         MixResult result = mix(List.of(synthetic("generated-foley-tone-v1", pcm(source), 3, 0.5f, 0)), 3, 0.95f);
