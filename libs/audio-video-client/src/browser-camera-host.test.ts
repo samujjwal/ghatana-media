@@ -126,6 +126,18 @@ describe("concrete browser camera host", () => {
     expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
   });
 
+  it("fails device startup when the camera is unplugged while playback is pending", async () => {
+    const h = setup("granted", { pendingPlay: true });
+    const opening = h.adapter.openSession(request);
+    const rejected = expectCode(opening, "DEVICE_UNAVAILABLE");
+    while (!h.details().plays) await new Promise((resolve) => setTimeout(resolve, 0));
+    h.unplug();
+    h.resolvePlay();
+    await rejected;
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+    expect(h.details()).toEqual({ plays: 1, creates: 2 });
+  });
+
   it("rechecks host permission after device startup while the permission listener is still installing", async () => {
     const h = setup("granted", { pendingOpen: true, pendingPermissionSubscription: true });
     const opening = h.adapter.openSession(request);

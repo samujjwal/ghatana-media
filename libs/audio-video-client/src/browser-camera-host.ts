@@ -130,6 +130,12 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
         // changes. Do not leave an already opened camera stream alive while
         // waiting for that promise to settle.
         await awaitHostStartup(video.play(), signal);
+        // The track may end while play() is pending (for example, if the
+        // camera is unplugged). Do not expose a device whose stream has
+        // already been torn down by the ended handler.
+        if (stopped || track.readyState !== "live") {
+          throw new Error("requested browser camera became unavailable during startup");
+        }
       } catch (error) { stopWithListenerCleanup(); throw error; }
       const browserDevice: SizedBrowserCameraDevice = {
         sourceIdentity: request.sourceIdentity,
