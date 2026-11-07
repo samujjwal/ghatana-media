@@ -190,7 +190,7 @@ public final class AudioRepairComparison {
         public Metrics {
             if (!Double.isFinite(sourceRms) || sourceRms < 0.0
                     || !Double.isFinite(repairedRms) || repairedRms < 0.0
-                    || Double.isNaN(rmsChangeDb)
+                    || !rmsChangeMatches(sourceRms, repairedRms, rmsChangeDb)
                     || sourcePeak < 0 || repairedPeak < 0
                     || sourceNearClipSampleCount < 0 || repairedNearClipSampleCount < 0
                     || changedSampleCount < 0) {
@@ -215,6 +215,15 @@ public final class AudioRepairComparison {
 
         private static boolean validCorrelation(double value) {
             return Double.isFinite(value) && value >= -1.0 && value <= 1.0;
+        }
+
+        private static boolean rmsChangeMatches(double sourceRms, double repairedRms, double changeDb) {
+            if (sourceRms == 0.0) {
+                return repairedRms == 0.0 ? changeDb == 0.0 : changeDb == Double.POSITIVE_INFINITY;
+            }
+            if (repairedRms == 0.0) return changeDb == Double.NEGATIVE_INFINITY;
+            return Double.isFinite(changeDb)
+                    && changeDb == 20.0 * Math.log10(repairedRms / sourceRms);
         }
     }
 }

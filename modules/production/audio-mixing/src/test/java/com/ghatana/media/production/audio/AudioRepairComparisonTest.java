@@ -116,6 +116,19 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void metricsRejectRmsChangeThatContradictsTheReportedRmsValues() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                1.0, 1.0, 1, 1, 0, 0, 0, Double.POSITIVE_INFINITY,
+                Double.NaN, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 1.0, 1, 1, 0, 0, 0, 0.0,
+                Double.NaN, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                1.0, 0.0, 1, 0, 0, 0, 0, 0.0,
+                Double.NaN, false, null, null, null));
+    }
+
+    @Test
     void silenceHasTransparentMetricsAndNoInventedStereoPhaseMeasurement() {
         AudioData silence = pcm(0, 0, 0, 0);
 

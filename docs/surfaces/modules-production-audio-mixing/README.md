@@ -11,6 +11,9 @@ in `modules/production/audio-mixing`.
 - `AudioRepairComparison` compares immutable PCM source and repaired revisions,
   supports restoring the exact source branch, and reports sample-level metrics
   (with SNR only when an independent reference is supplied).
+- `BoundedPcmDeclipper` creates a local PCM candidate by linearly interpolating
+  bounded interior clipped runs, returning typed errors for unsupported or
+  underdetermined inputs.
 - This is an in-memory DSP surface. It does not persist timeline revisions,
   create a durable A/B branch, generate music/Foley, establish actor authority,
   or qualify rights. Asset inputs require typed, current, exact-version
@@ -40,6 +43,12 @@ in `modules/production/audio-mixing`.
 - `AudioRepairComparison` accepts non-empty 16 MiB maximum PCM with exact frame
   duration and 16/24/32-bit signed samples. SNR is `NaN` without an independent
   reference; stereo correlation is only a zero-lag phase/polarity proxy.
+- `BoundedPcmDeclipper` uses little-endian signed PCM, a caller threshold, a
+  16 MiB payload cap, and a maximum 4096-frame run. Since the source capability
+  does not select reconstruction semantics or parameters, short interior runs
+  are conservatively replaced by straight-line interpolation; runs touching an
+  edge or exceeding the caller's tighter limit fail with `UNREPAIRABLE_RUN`.
+  This estimates missing signal and does not claim recovery or quality.
 - Deterministic synthetic DSP tests do not establish lawful-corpus or
   perceptual-quality qualification. Durable timeline A/B persistence and
   recovery are also open; no such integration is implemented by this module.
@@ -57,7 +66,8 @@ in `modules/production/audio-mixing`.
 `RIGHTS_MISSING`, `RIGHTS_STALE`, `RIGHTS_DENIED`, `FORMAT_MISMATCH`,
 `RESOURCE_LIMIT`, or `ENCODE_FAILED`. `AudioRepairComparison` rejects invalid,
 unsupported, mismatched, malformed, or oversized PCM with
-`IllegalArgumentException`.
+`IllegalArgumentException`. The declipper exposes `INVALID_INPUT`,
+`UNSUPPORTED_FORMAT`, `RESOURCE_LIMIT`, and `UNREPAIRABLE_RUN`.
 
 ## Tests and commands
 
@@ -65,7 +75,8 @@ unsupported, mismatched, malformed, or oversized PCM with
 ./gradlew :services:media:modules:production:audio-mixing:test
 ```
 
-Tests cover deterministic stereo mix, gain/pan and peak limiting, WAV
+Tests cover deterministic stereo mix, gain/pan and peak limiting, bounded PCM
+declip interpolation and rejection cases, WAV
 decodability, silence, rights-evidence denial/staleness, malformed formats,
 resource bounds, defensive copying, comparison metrics and source restoration.
 `J17MusicEffectsLocalScenarioTest` is explicitly a transient synthetic fixture;
