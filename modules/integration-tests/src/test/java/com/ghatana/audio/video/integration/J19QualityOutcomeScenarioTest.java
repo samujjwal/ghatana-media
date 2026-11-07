@@ -49,6 +49,29 @@ class J19QualityOutcomeScenarioTest {
     }
 
     @Test
+    void unknownSourceRightsHoldBeforeCandidateDispatch() {
+        Revision source = revision("source", "v1", "a", 40);
+        AtomicInteger candidateCalls = new AtomicInteger();
+        CandidatePort candidate = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return true; }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget budget) {
+                candidateCalls.incrementAndGet();
+                return OptimizationAttempt.available(revision("candidate", "v2", "b", 25));
+            }
+        };
+
+        Run held = optimize(OPERATION, source, (id, purpose) -> new AuthorityDecision(AuthorityStatus.UNAVAILABLE,
+                "fixture-source-rights-unknown"), candidate, 1, BOUNDS, Optional.empty(), null, null);
+
+        assertThat(held.status()).isEqualTo(RunStatus.UNAVAILABLE);
+        assertThat(held.reason()).contains(BlockReason.SOURCE_AUTHORITY_UNAVAILABLE);
+        assertThat(held.report()).isEmpty();
+        assertThat(held.retainedRevisions()).isEmpty();
+        assertThat(held.attemptsUsed()).isZero();
+        assertThat(candidateCalls).hasValue(0);
+    }
+
+    @Test
     void ambiguousSecondAttemptRetainsOnlyExactRevisionsAndPreservesSourceUndoPath() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v2", "b", 25);
