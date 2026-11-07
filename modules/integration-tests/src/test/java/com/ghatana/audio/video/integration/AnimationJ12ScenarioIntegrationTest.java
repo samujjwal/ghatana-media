@@ -3,11 +3,14 @@ package com.ghatana.audio.video.integration;
 import com.ghatana.media.production.animation.AnimationRenderer;
 import com.ghatana.media.production.timeline.NotAdmittedProjectTimelineStore;
 import com.ghatana.media.production.timeline.ProjectTimelineEngine;
+import com.ghatana.media.production.timeline.InMemoryProjectTimelineStore;
 import com.ghatana.media.production.AnimationSpecCompiler.AnimationSpec;
 import com.ghatana.media.production.AnimationSpecCompiler.PositiveRational;
 import com.ghatana.media.production.AnimationSpecCompiler.StoryTime;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clock;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.RationalTime;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -19,6 +22,7 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -167,6 +171,53 @@ class AnimationJ12ScenarioIntegrationTest {
         // J-12 has no admitted runtime job/cancellation/UNKNOWN/restart API or
         // exact source scenario seed. Those paths remain unexecuted and cannot
         // be converted into synthetic success by this source-free scenario.
+    }
+
+    @Test
+    void unknownExactSourceEligibilityBlocksFixtureRenderDispatch() {
+        AtomicInteger generatedId = new AtomicInteger();
+        ProjectTimelineEngine timeline = new ProjectTimelineEngine(new InMemoryProjectTimelineStore(),
+                () -> "j12-fixture-id-" + generatedId.incrementAndGet());
+        Actor actor = new Actor(TENANT, ACTOR);
+        var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 source", "j12-create-unknown");
+        var source = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
+                "synthetic-source", "synthetic-source-v1");
+        var sourceIn = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
+        var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
+        var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
+        var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
+        var revision = timeline.edit(actor, created.project().projectId(), created.initialRevision().revisionId(), List.of(
+                new ProjectTimelineEngine.AddScene(
+                        new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
+                new ProjectTimelineEngine.AddTrack(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Track(
+                        "j12-track", "j12-scene",
+                        com.ghatana.media.runtime.MediaProjectTimelineContracts.TrackKind.OVERLAY, 0)),
+                new ProjectTimelineEngine.PutClip(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip(
+                        "j12-clip", "j12-scene", "j12-track", source, sourceIn, sourceOut,
+                        storyStart, storyDuration))));
+
+        AtomicInteger authorityReads = new AtomicInteger();
+        AtomicInteger renderDispatches = new AtomicInteger();
+        Runnable fixtureRenderDispatch = () -> {
+            timeline.requireCurrentSources(actor, created.project().projectId(), revision.revisionId(),
+                    (checkedActor, checkedSource) -> {
+                        assertThat(checkedActor).isEqualTo(actor);
+                        assertThat(checkedSource).isEqualTo(source);
+                        authorityReads.incrementAndGet();
+                        return com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.UNKNOWN;
+                    });
+            renderDispatches.incrementAndGet();
+            new AnimationRenderer().render(spec(), scene(), new AnimationRenderer.Profile(10, 1, 3));
+        };
+
+        assertThatThrownBy(fixtureRenderDispatch::run)
+                .isInstanceOf(com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibilityException.class)
+                .satisfies(error -> assertThat(
+                        ((com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibilityException) error)
+                                .observed())
+                        .isEqualTo(com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.UNKNOWN));
+        assertThat(authorityReads).hasValue(1);
+        assertThat(renderDispatches).hasValue(0);
     }
 
     private static int decodeGifFrameCount(byte[] bytes) throws Exception {
