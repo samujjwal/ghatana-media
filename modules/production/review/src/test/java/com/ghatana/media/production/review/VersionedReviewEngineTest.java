@@ -39,6 +39,32 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void authorityVersionUsesTheSameBoundedOpaqueContractOnReadbackAndPersistence() {
+        String maximumAuthorityVersion = "a".repeat(256);
+        assertThat(new AuthorizationDecision(AuthorizationStatus.ALLOW, REVIEWER.tenantId(),
+                REVIEWER.principalId(), CASE.reviewCaseId(), CASE.exactTargetRef(), CASE.scopeRef(),
+                maximumAuthorityVersion, NOW.plusSeconds(60), V1.reference(), RetentionStatus.ACTIVE)
+                .authorityVersion()).isEqualTo(maximumAuthorityVersion);
+
+        assertThatThrownBy(() -> new AuthorizationDecision(AuthorizationStatus.ALLOW, REVIEWER.tenantId(),
+                REVIEWER.principalId(), CASE.reviewCaseId(), CASE.exactTargetRef(), CASE.scopeRef(),
+                "a".repeat(257), NOW.plusSeconds(60), V1.reference(), RetentionStatus.ACTIVE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("authorityVersion");
+        assertThatThrownBy(() -> new AuthorizationDecision(AuthorizationStatus.ALLOW, REVIEWER.tenantId(),
+                REVIEWER.principalId(), CASE.reviewCaseId(), CASE.exactTargetRef(), CASE.scopeRef(),
+                " authority-v1", NOW.plusSeconds(60), V1.reference(), RetentionStatus.ACTIVE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("authorityVersion");
+
+        assertThatThrownBy(() -> new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "request-1", new Comment("comment", CommentDisposition.OPEN, null).operationId(), REVIEWER,
+                new Comment("comment", CommentDisposition.OPEN, null), 1, NOW, "a".repeat(257)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("authorityVersion");
+    }
+
+    @Test
     void appendsExactVersionDecisionWithoutCreatingApprovalAndRedactsText() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
         AppendReceipt receipt = fixture.engine.append(REVIEWER, fixture.request(0, "req-1", new DecisionRecord(Decision.ACCEPT, "secret:customer@example.test looks good")));

@@ -169,7 +169,10 @@ public final class ReviewContracts {
             reviewCaseId = opaque(reviewCaseId, "reviewCaseId");
             exactTargetRef = required(exactTargetRef, "exactTargetRef");
             scopeRef = required(scopeRef, "scopeRef");
-            authorityVersion = required(authorityVersion, "authorityVersion");
+            // The request's expectedAuthorityVersion is an opaque identifier, and
+            // durable review rows store this value in VARCHAR(256). Keep the
+            // authority readback on that same exact bounded identifier contract.
+            authorityVersion = opaque(authorityVersion, "authorityVersion");
             Objects.requireNonNull(validUntil, "validUntil");
             Objects.requireNonNull(retentionStatus, "retentionStatus");
         }
@@ -207,7 +210,9 @@ public final class ReviewContracts {
             Objects.requireNonNull(payload, "payload");
             if (caseRevision < 1) throw new IllegalArgumentException("caseRevision must be positive");
             Objects.requireNonNull(createdAt, "createdAt");
-            authorityVersion = required(authorityVersion, "authorityVersion");
+            // Keep durable/readback evidence within the same opaque identifier
+            // bound as the authority version persisted by the PostgreSQL store.
+            authorityVersion = opaque(authorityVersion, "authorityVersion");
         }
     }
 
