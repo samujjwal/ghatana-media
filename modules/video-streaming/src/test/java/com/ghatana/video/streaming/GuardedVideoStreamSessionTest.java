@@ -165,6 +165,84 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("delivery verdict requires the exact retained delivered frame")
+    void deliveryVerdictRequiresExactRetainedFrame() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame delivered = frame(0, true);
+        assertThat(session.submitFrame("worker-a", 1L, delivered))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        VideoStreamSession.DecodedFrame held = frame(2, false);
+
+        assertThat(session.submitFrame("worker-a", 1L, held))
+                .isEqualTo(FrameVerdict.HELD);
+
+        int ackBeforeRejectedVerdicts = session.nextAck("worker-a", 1L);
+        int pendingBeforeRejectedVerdicts = session.pendingCount();
+        assertThatThrownBy(() -> session.verdictOfDelivered("worker-a", 1L, held))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+
+        assertThat(session.verdictOfDelivered("worker-a", 1L, delivered))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        for (VideoStreamSession.DecodedFrame altered : new VideoStreamSession.DecodedFrame[]{
+                new VideoStreamSession.DecodedFrame(0, true, 1L, new byte[]{0x2}),
+                new VideoStreamSession.DecodedFrame(0, false, 0L, new byte[]{0x2}),
+                new VideoStreamSession.DecodedFrame(0, true, 0L, new byte[]{0x3})}) {
+            assertThatThrownBy(() -> session.verdictOfDelivered("worker-a", 1L, altered))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("not delivered");
+        }
+
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(ackBeforeRejectedVerdicts);
+        assertThat(session.pendingCount()).isEqualTo(pendingBeforeRejectedVerdicts);
+    }
+
+    @Test
+    @DisplayName("resume at a different owner ACK clears old delivered-frame verdict history")
+    void resumeWithDifferentAckClearsDeliveredVerdictHistory() {
+        SessionIdentity durable = identity("t1");
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                durable, consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame previouslyDelivered = frame(0, true);
+        assertThat(session.submitFrame("worker-a", 1L, previouslyDelivered))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        session.egress("worker-a", 1L, previouslyDelivered, ignored -> { });
+        session.detach("worker-a", 1L);
+
+        session.resume("worker-a", 1L, durable, 5, -1, Long.MIN_VALUE);
+
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(5);
+        assertThatThrownBy(() -> session.verdictOfDelivered(
+                "worker-a", 1L, previouslyDelivered))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("outside retained history");
+    }
+
+    @Test
+    @DisplayName("same-ACK resume preserves the verdict observed at frame delivery")
+    void sameAckResumePreservesHistoricalDeliveryVerdict() {
+        SessionIdentity durable = identity("t1");
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                durable, consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame keyframe = frame(0, true);
+        VideoStreamSession.DecodedFrame dependent = frame(1, false);
+        assertThat(session.submitFrame("worker-a", 1L, keyframe))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.submitFrame("worker-a", 1L, dependent))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        session.egress("worker-a", 1L, keyframe, ignored -> { });
+        session.egress("worker-a", 1L, dependent, ignored -> { });
+        session.detach("worker-a", 1L);
+
+        // Same durable ACK, but the resume observation lacks the earlier GOP anchor.
+        session.resume("worker-a", 1L, durable, 1, -1, Long.MIN_VALUE);
+
+        assertThat(session.verdictOfDelivered("worker-a", 1L, dependent))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+    }
+
+    @Test
     @DisplayName("revoked consent forbids egress even when frames were admitted earlier")
     void revokedConsentBlocksEgress() {
         AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);

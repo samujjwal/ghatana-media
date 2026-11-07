@@ -42,6 +42,7 @@ import java.util.Objects;
 public final class GuardedVideoStreamSession {
 
     private static final int MAX_EGRESS_CANDIDATES = 256;
+    private static final int MAX_DELIVERED_FRAME_DIGESTS = 256;
 
     /** The consent decision for one guarded egress transition. */
     public enum ConsentDecision { ADMITTED, DENIED, NOT_ADMITTED, EXPIRED }
@@ -141,6 +142,11 @@ public final class GuardedVideoStreamSession {
     private boolean cancelled;
     /** Bounded digests bind provider egress to exact frames delivered in this process. */
     private final LinkedHashMap<Integer, byte[]> egressCandidates = new LinkedHashMap<>();
+    /** Recent exact frame identities eligible for a truthful delivery verdict. */
+    private final LinkedHashMap<Integer, DeliveredFrameObservation> deliveredFrames = new LinkedHashMap<>();
+
+    private record DeliveredFrameObservation(byte[] digest, FrameVerdict verdict) {
+    }
 
     private GuardedVideoStreamSession(
             VideoFrameReconciler.SessionIdentity identity,
@@ -210,11 +216,14 @@ public final class GuardedVideoStreamSession {
         if (disposition == VideoFrameReconciler.Disposition.DELIVERED) {
             // A contiguous frame is not automatically a success — without its
             // GOP keyframe it is an undecodable gap.
-            if (reconciler.deliveryOf(snapshot).decodable()) {
+            FrameVerdict verdict = reconciler.deliveryOf(snapshot).decodable()
+                    ? FrameVerdict.DELIVERED_DECODABLE
+                    : FrameVerdict.DELIVERED_UNDECODABLE;
+            rememberDeliveredFrame(snapshot, verdict);
+            if (verdict == FrameVerdict.DELIVERED_DECODABLE) {
                 rememberEgressCandidate(snapshot);
-                return FrameVerdict.DELIVERED_DECODABLE;
             }
-            return FrameVerdict.DELIVERED_UNDECODABLE;
+            return verdict;
         }
         return switch (disposition) {
             case HELD -> FrameVerdict.HELD;
@@ -242,7 +251,11 @@ public final class GuardedVideoStreamSession {
         VideoStreamSession.DecodedFrame frame = reconciler.takeDelivered();
         if (frame != null) {
             frame = snapshotFrame(frame);
-            if (reconciler.deliveryOf(frame).decodable()) {
+            FrameVerdict verdict = reconciler.deliveryOf(frame).decodable()
+                    ? FrameVerdict.DELIVERED_DECODABLE
+                    : FrameVerdict.DELIVERED_UNDECODABLE;
+            rememberDeliveredFrame(frame, verdict);
+            if (verdict == FrameVerdict.DELIVERED_DECODABLE) {
                 rememberEgressCandidate(frame);
             }
         }
@@ -256,9 +269,13 @@ public final class GuardedVideoStreamSession {
     public FrameVerdict verdictOfDelivered(
             String workerId, long presentedToken, VideoStreamSession.DecodedFrame frame) {
         requireLease(workerId, presentedToken, "delivery verdict");
-        return reconciler.deliveryOf(frame).decodable()
-                ? FrameVerdict.DELIVERED_DECODABLE
-                : FrameVerdict.DELIVERED_UNDECODABLE;
+        Objects.requireNonNull(frame, "frame");
+        DeliveredFrameObservation delivered = deliveredFrames.get(frame.sequenceNumber());
+        if (delivered == null || !Arrays.equals(delivered.digest(), frameDigest(frame))) {
+            throw new IllegalArgumentException(
+                    "video frame was not delivered by this session or is outside retained history");
+        }
+        return delivered.verdict();
     }
 
     /**
@@ -321,10 +338,14 @@ public final class GuardedVideoStreamSession {
             throw new IllegalArgumentException(
                     "resume ACK must match the in-memory ACK while delivered frames await egress");
         }
+        boolean sameInMemoryAck = lastAckedSequence == reconciler.nextAck();
         requireLiveConsent("resume");
         reconciler = VideoFrameReconciler.resume(
                 identity, durableIdentity,
                 lastAckedSequence, lastKeyFrameSequence, lastDeliveredPts);
+        if (!sameInMemoryAck) {
+            deliveredFrames.clear();
+        }
         detached = false;
     }
 
@@ -340,6 +361,7 @@ public final class GuardedVideoStreamSession {
         requireLeaseIdentity(workerId, presentedToken, "cancel");
         reconciler.discardPending();
         egressCandidates.clear();
+        deliveredFrames.clear();
         cancelled = true;
     }
 
@@ -409,6 +431,15 @@ public final class GuardedVideoStreamSession {
 
     private void rememberEgressCandidate(VideoStreamSession.DecodedFrame frame) {
         egressCandidates.put(frame.sequenceNumber(), frameDigest(frame));
+    }
+
+    private void rememberDeliveredFrame(VideoStreamSession.DecodedFrame frame, FrameVerdict verdict) {
+        deliveredFrames.put(frame.sequenceNumber(), new DeliveredFrameObservation(frameDigest(frame), verdict));
+        while (deliveredFrames.size() > MAX_DELIVERED_FRAME_DIGESTS) {
+            var iterator = deliveredFrames.entrySet().iterator();
+            iterator.next();
+            iterator.remove();
+        }
     }
 
     private static byte[] frameDigest(VideoStreamSession.DecodedFrame frame) {
