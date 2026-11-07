@@ -825,6 +825,13 @@ function snapshotUploadSession(
   return freezeRenderValue(JSON.parse(JSON.stringify(session)) as CanonicalMediaUploadSessionObservation);
 }
 
+/** Keep the validated final receipt stable after returning it to the caller. */
+function snapshotArtifactObservation(
+  artifact: CanonicalMediaArtifactObservation,
+): CanonicalMediaArtifactObservation {
+  return freezeRenderValue(JSON.parse(JSON.stringify(artifact)) as CanonicalMediaArtifactObservation);
+}
+
 /** Copy an adapter-owned array using one observed length and an explicit bound. */
 function copyExactHostArray<T>(value: unknown, expectedLength: number): T[] | undefined {
   if (!Array.isArray(value)) return undefined;
@@ -1131,7 +1138,7 @@ export async function publishFinalRender(
       return { outcome: "PARTIAL_UPLOAD_NOT_FINALIZED", reason: "render publication was cancelled before canonical completion", uploadId };
     }
     completionStarted = true;
-    const artifact = await artifactClient.completeUploadSession(session, signal);
+    const artifact = snapshotArtifactObservation(await artifactClient.completeUploadSession(session, signal));
     if (artifact.tenantId !== session.tenantId || artifact.principalId !== session.principalId
       || artifact.sha256 !== sha256 || artifact.sizeBytes !== bytes.byteLength
       || artifact.fileName !== safeRequest.fileName || artifact.contentType !== contentType) {

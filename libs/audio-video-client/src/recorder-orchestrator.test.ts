@@ -1423,6 +1423,72 @@ describe("publishFinalRender", () => {
     });
   });
 
+  it("returns a detached frozen artifact receipt after validating completion", async () => {
+    let clientOwnedReceipt: Record<string, unknown> | undefined;
+    const client = fakeClient({
+      completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => {
+        clientOwnedReceipt = {
+          tenantId: session.tenantId,
+          principalId: session.principalId,
+          artifactId: "artifact-1",
+          fileName: session.fileName,
+          contentType: session.contentType,
+          sizeBytes: session.expectedSizeBytes,
+          sha256: session.expectedSha256,
+          objectReference: "objects/demo",
+          classification: session.classification,
+          createdAt: "2026-11-05T00:00:00Z",
+          expiresAt: "2026-12-05T00:00:00Z",
+          metadata: JSON.parse(JSON.stringify(session.metadata)) as Record<string, unknown>,
+        };
+        return clientOwnedReceipt;
+      }),
+    });
+
+    const result = await publishFinalRender(request(), admitted, muxer, client);
+    expect(result.outcome).toBe("PUBLISHED");
+    if (result.outcome !== "PUBLISHED" || !clientOwnedReceipt) throw new Error("expected published receipt");
+    const verifiedSha256 = clientOwnedReceipt.sha256;
+    clientOwnedReceipt.artifactId = "artifact-rebound";
+    clientOwnedReceipt.sha256 = "f".repeat(64);
+    (clientOwnedReceipt.metadata as Record<string, unknown>).operation = "tampered";
+
+    expect(result.artifact.artifactId).toBe("artifact-1");
+    expect(result.artifact.sha256).toBe(verifiedSha256);
+    expect(result.artifact.metadata).toMatchObject({ operation: "media.recorder.final-render.v1" });
+    expect(Object.isFrozen(result.artifact)).toBe(true);
+    expect(Object.isFrozen(result.artifact.metadata)).toBe(true);
+  });
+
+  it("keeps completion finality unknown when the receipt cannot be safely snapshotted", async () => {
+    const client = fakeClient({
+      completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => {
+        const metadata: Record<string, unknown> = {};
+        metadata.self = metadata;
+        return {
+          tenantId: session.tenantId,
+          principalId: session.principalId,
+          artifactId: "artifact-1",
+          fileName: session.fileName,
+          contentType: session.contentType,
+          sizeBytes: session.expectedSizeBytes,
+          sha256: session.expectedSha256,
+          objectReference: "objects/demo",
+          classification: session.classification,
+          createdAt: "2026-11-05T00:00:00Z",
+          expiresAt: "2026-12-05T00:00:00Z",
+          metadata,
+        };
+      }),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("completion acknowledgement is missing"),
+    });
+  });
+
   it("does not publish when the completed artifact receipt changes upload scope", async () => {
     const client = fakeClient({
       completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => ({
