@@ -141,6 +141,26 @@ class PostgresqlReviewStoreTest {
     }
 
     @Test
+    void exactDurableReplayDoesNotInvokeAppendRecordIdSupplier() throws Exception {
+        try (Fixture fixture = openFixture(); PostgresqlReviewStore store = new PostgresqlReviewStore(List.of(CASE))) {
+            Comment payload = new Comment("same payload", CommentDisposition.OPEN, null);
+            Instant createdAt = Instant.parse("2026-11-06T10:04:00Z");
+            StoreAppendResult original = store.appendWithReplayAndLazyId(ACTOR, CASE, 0,
+                    "lazy-id-replay", "a".repeat(64), () -> "persisted-record", "authority-v1", payload, createdAt);
+            assertThat(original.idempotentReplay()).isFalse();
+
+            StoreAppendResult replay = store.appendWithReplayAndLazyId(ACTOR, CASE, 0,
+                    "lazy-id-replay", "a".repeat(64),
+                    () -> { throw new IllegalStateException("append ID source unavailable"); },
+                    "authority-v1", payload, createdAt.plusSeconds(30));
+
+            assertThat(replay.idempotentReplay()).isTrue();
+            assertThat(replay.record()).isEqualTo(original.record());
+            assertThat(store.read(ACTOR, CASE)).containsExactly(original.record());
+        }
+    }
+
+    @Test
     void concurrentExactReplayReturnsStoredIdentityAndMarksOnlyReplay() throws Exception {
         try (Fixture fixture = openFixture(); PostgresqlReviewStore store = new PostgresqlReviewStore(List.of(CASE))) {
             var ready = new CountDownLatch(2);

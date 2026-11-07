@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /** Durable append-only review records for exact externally issued case references. */
 public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
@@ -67,7 +68,16 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
     @Override public StoreAppendResult appendWithReplay(Actor actor, ReviewCaseRef ref, long expectedRevision,
                                          String requestId, String fingerprint, String appendRecordId,
                                          String authorityVersion, Payload payload, Instant createdAt) {
+        return appendWithReplayAndLazyId(actor, ref, expectedRevision, requestId, fingerprint,
+                () -> appendRecordId, authorityVersion, payload, createdAt);
+    }
+
+    @Override public StoreAppendResult appendWithReplayAndLazyId(Actor actor, ReviewCaseRef ref,
+                                         long expectedRevision, String requestId, String fingerprint,
+                                         Supplier<String> appendRecordId, String authorityVersion,
+                                         Payload payload, Instant createdAt) {
         ensureOpen(); Objects.requireNonNull(actor); Objects.requireNonNull(ref); Objects.requireNonNull(payload);
+        Objects.requireNonNull(appendRecordId);
         Objects.requireNonNull(createdAt);
         if (!actor.tenantId().equals(ref.tenantId())) throw new ReviewCaseMismatchException();
         if (expectedRevision < 0 || fingerprint == null || !fingerprint.matches("[0-9a-f]{64}"))
@@ -89,9 +99,10 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
                     update.setString(3, ref.reviewCaseId()); update.setLong(4, expectedRevision);
                     if (update.executeUpdate() != 1) throw new ReviewConflictException(expectedRevision, revision(c, ref));
                 }
+                String allocatedId = Objects.requireNonNull(appendRecordId.get(), "appendRecordId");
                 insertRecord(c, actor, ref, expectedRevision + 1, requestId, fingerprint,
-                        appendRecordId, authorityVersion, payload, createdAt);
-                ReviewRecord result = new ReviewRecord(appendRecordId, actor.tenantId(), ref.reviewCaseId(),
+                        allocatedId, authorityVersion, payload, createdAt);
+                ReviewRecord result = new ReviewRecord(allocatedId, actor.tenantId(), ref.reviewCaseId(),
                         ref.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
                         expectedRevision + 1, createdAt, authorityVersion);
                 c.commit(); return new StoreAppendResult(result, false);

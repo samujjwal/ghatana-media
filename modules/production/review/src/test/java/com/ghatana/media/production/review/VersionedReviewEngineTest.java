@@ -490,10 +490,9 @@ class VersionedReviewEngineTest {
     @Test
     void requestReplayReturnsSameRecordAndPayloadReuseConflicts() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
-        AppendReceipt original = fixture.engine.append(REVIEWER,
-                fixture.request(0, "req-1", new Comment("safe", CommentDisposition.OPEN, null)));
-        AppendReceipt replay = fixture.engine.append(REVIEWER,
-                fixture.request(0, "req-1", new Comment("safe", CommentDisposition.OPEN, null)));
+        AppendRequest request = fixture.request(0, "req-1", new Comment("safe", CommentDisposition.OPEN, null));
+        AppendReceipt original = fixture.engine.append(REVIEWER, request);
+        AppendReceipt replay = fixture.engine.append(REVIEWER, request);
         assertThat(replay.appendRecordId()).isEqualTo(original.appendRecordId());
         assertThat(replay.caseRevision()).isEqualTo(original.caseRevision());
         assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
@@ -501,6 +500,24 @@ class VersionedReviewEngineTest {
         assertThatThrownBy(() -> fixture.engine.append(REVIEWER,
                 fixture.request(0, "req-1", new Comment("different", CommentDisposition.OPEN, null))))
                 .isInstanceOf(ReviewIdempotencyConflictException.class);
+    }
+
+    @Test
+    void idempotentReplayDoesNotRequireAllocatingAnotherAppendRecordId() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        AppendRequest request = fixture.request(0, "req-id-source-down", new Comment("safe", CommentDisposition.OPEN, null));
+        AppendReceipt original = fixture.engine.append(REVIEWER, request);
+        VersionedReviewEngine retryEngine = new VersionedReviewEngine(fixture.store,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()),
+                value -> value, Clock.fixed(NOW, ZoneOffset.UTC),
+                () -> { throw new IllegalStateException("append ID source unavailable"); });
+
+        AppendReceipt replay = retryEngine.append(REVIEWER, request);
+
+        assertThat(replay.appendRecordId()).isEqualTo(original.appendRecordId());
+        assertThat(replay.caseRevision()).isEqualTo(original.caseRevision());
+        assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
     }
 
     @Test

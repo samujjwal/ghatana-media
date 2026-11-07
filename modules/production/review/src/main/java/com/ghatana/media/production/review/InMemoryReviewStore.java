@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /** Single-process development/test store. It is not a canonical or multi-host review writer. */
 public final class InMemoryReviewStore implements ReviewStore {
@@ -36,8 +37,18 @@ public final class InMemoryReviewStore implements ReviewStore {
                                             long expectedCaseRevision, String requestId, String fingerprint,
                                             String appendRecordId, String authorityVersion, Payload payload,
                                             java.time.Instant createdAt) {
+        return appendWithReplayAndLazyId(actor, reviewCase, expectedCaseRevision, requestId, fingerprint,
+                () -> appendRecordId, authorityVersion, payload, createdAt);
+    }
+
+    @Override
+    public synchronized StoreAppendResult appendWithReplayAndLazyId(Actor actor, ReviewCaseRef reviewCase,
+                                            long expectedCaseRevision, String requestId, String fingerprint,
+                                            Supplier<String> appendRecordId, String authorityVersion, Payload payload,
+                                            java.time.Instant createdAt) {
         Objects.requireNonNull(actor, "actor");
         Objects.requireNonNull(reviewCase, "reviewCase");
+        Objects.requireNonNull(appendRecordId, "appendRecordId");
         if (!actor.tenantId().equals(reviewCase.tenantId())) throw new ReviewCaseMismatchException();
         CaseState state = cases.get(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));
         if (state == null || !state.ref.equals(reviewCase)) throw new ReviewCaseMismatchException();
@@ -51,12 +62,13 @@ public final class InMemoryReviewStore implements ReviewStore {
         if (state.records.size() != expectedCaseRevision) {
             throw new ReviewConflictException(expectedCaseRevision, state.records.size());
         }
-        if (state.records.stream().anyMatch(record -> record.appendRecordId().equals(appendRecordId))) {
+        String allocatedId = Objects.requireNonNull(appendRecordId.get(), "appendRecordId");
+        if (state.records.stream().anyMatch(record -> record.appendRecordId().equals(allocatedId))) {
             // V033 makes appendRecordId unique within the exact tenant/case scope. Keep this
             // development store fail-closed instead of accepting evidence PostgreSQL rejects.
             throw new ReviewUnavailableException();
         }
-        ReviewRecord record = new ReviewRecord(appendRecordId, actor.tenantId(), reviewCase.reviewCaseId(),
+        ReviewRecord record = new ReviewRecord(allocatedId, actor.tenantId(), reviewCase.reviewCaseId(),
                 reviewCase.reviewSubjectRef(), requestId, payload.operationId(), actor, payload,
                 state.records.size() + 1L, createdAt, authorityVersion);
         state.records.add(record);

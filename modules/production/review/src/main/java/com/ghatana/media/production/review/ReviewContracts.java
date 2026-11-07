@@ -3,6 +3,7 @@ package com.ghatana.media.production.review;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /** Exact-version review record types. A recorded decision is not an owner approval or publication grant. */
 public final class ReviewContracts {
@@ -270,6 +271,18 @@ public final class ReviewContracts {
                                                    String authorityVersion, Payload payload, Instant createdAt) {
             return new StoreAppendResult(append(actor, reviewCase, expectedCaseRevision, requestId, fingerprint,
                     appendRecordId, authorityVersion, payload, createdAt), false);
+        }
+        /**
+         * Allows a store to resolve a prior idempotent result before allocating a new record ID.
+         * Durable implementations should override this method so retries do not depend on the
+         * availability of the ID source after the original append committed.
+         */
+        default StoreAppendResult appendWithReplayAndLazyId(Actor actor, ReviewCaseRef reviewCase,
+                                                   long expectedCaseRevision, String requestId, String fingerprint,
+                                                   Supplier<String> appendRecordId, String authorityVersion,
+                                                   Payload payload, Instant createdAt) {
+            return appendWithReplay(actor, reviewCase, expectedCaseRevision, requestId, fingerprint,
+                    appendRecordId.get(), authorityVersion, payload, createdAt);
         }
         List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase);
     }

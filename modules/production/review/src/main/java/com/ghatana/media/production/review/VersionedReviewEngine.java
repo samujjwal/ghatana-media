@@ -72,14 +72,16 @@ public final class VersionedReviewEngine {
                 request.expectedAuthorityVersion(), safePayload);
         Instant now = clock.instant();
         if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
-        String appendRecordId = nextId();
+        String[] allocatedAppendRecordId = new String[1];
         StoreAppendResult appendResult;
         try {
-            appendResult = store.appendWithReplay(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
-                    fingerprint, appendRecordId, effectAuthority.authorityVersion(), safePayload, now);
+            appendResult = store.appendWithReplayAndLazyId(actor, reviewCase, request.expectedCaseRevision(), request.requestId(),
+                    fingerprint, () -> allocatedAppendRecordId[0] = nextId(),
+                    effectAuthority.authorityVersion(), safePayload, now);
         } catch (ReviewDeniedException | ReviewConflictException | ReviewRevisionExhaustedException
                  | ReviewAuthorityConflictException | ReviewIdempotencyConflictException
-                 | ReviewCaseMismatchException | StaleReviewException | ReviewUnavailableException known) {
+                 | ReviewCaseMismatchException | StaleReviewException | ReviewUnavailableException
+                 | InvalidAppendRecordIdentityException known) {
             throw known;
         } catch (RuntimeException uncertainStoreFailure) {
             // An adapter can fail after its transaction committed. Keep the request outcome
@@ -88,7 +90,8 @@ public final class VersionedReviewEngine {
         }
         if (appendResult == null) throw new ReviewUnavailableException();
         ReviewRecord record = appendResult.record();
-        requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision, appendRecordId,
+        requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision,
+                allocatedAppendRecordId[0],
                 safePayload, effectAuthority, record, appendResult.idempotentReplay());
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
                 record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);
@@ -293,8 +296,14 @@ public final class VersionedReviewEngine {
     private String nextId() {
         String id = ids.get();
         if (id == null || !id.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,255}")) {
-            throw new IllegalStateException("id supplier returned an invalid append record identity");
+            throw new InvalidAppendRecordIdentityException();
         }
         return id;
+    }
+
+    private static final class InvalidAppendRecordIdentityException extends IllegalStateException {
+        private InvalidAppendRecordIdentityException() {
+            super("id supplier returned an invalid append record identity");
+        }
     }
 }
