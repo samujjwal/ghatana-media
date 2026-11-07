@@ -260,7 +260,8 @@ public final class SpatialRigEngine {
             bones = java.util.Collections.unmodifiableMap(new TreeMap<>(bones));
             sourceProjectRevisionRef = sourceProjectRevisionRef == null ? null
                     : required(sourceProjectRevisionRef, "sourceProjectRevisionRef");
-            sourceVersions = List.copyOf(sourceVersions);
+            sourceVersions = copyBounded(Objects.requireNonNull(sourceVersions, "sourceVersions"),
+                    MAX_SOURCE_VERSIONS, "pose source-version count exceeds ceiling", "sourceVersions[]");
         }
     }
     public record ProjectedPoint(double xPixels, double yPixels, double depth) { }

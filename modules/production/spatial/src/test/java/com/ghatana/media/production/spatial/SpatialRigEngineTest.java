@@ -175,6 +175,21 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void poseResultCapsSourceVersionsWhileConsumingActualEntries() {
+        List<SpatialRigEngine.SourceVersionRef> sources = java.util.stream.IntStream
+                .range(0, SpatialRigEngine.MAX_SOURCE_VERSIONS + 1)
+                .mapToObj(index -> new SpatialRigEngine.SourceVersionRef("tenant", "artifact-" + index, "v1"))
+                .toList();
+        AtomicInteger consumed = new AtomicInteger();
+
+        assertThatThrownBy(() -> new SpatialRigEngine.PoseResult("rig", "frame", "frame:v1",
+                SpatialRigEngine.RationalTime.of(0, 1), Map.of(), "POSE_ONLY", false,
+                null, underreported(sources, consumed)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("pose source-version count");
+        assertThat(consumed).hasValue(SpatialRigEngine.MAX_SOURCE_VERSIONS);
+    }
+
+    @Test
     void cameraProjectionUsesAnExactFrameAndExplicitCameraConvention() {
         var frame = canonicalFrame();
         var camera = new SpatialRigEngine.PerspectiveCamera(frame, SpatialRigEngine.Vec3.ZERO,
