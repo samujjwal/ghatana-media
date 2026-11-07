@@ -102,6 +102,36 @@ describe("OfflineEditQueue", () => {
     expect(store.records.size).toBe(1);
   });
 
+  it("rejects padded and NUL-delimited AAD identity fields before storing an edit", async () => {
+    const { queue, store } = await createQueue();
+    const invalidEdits = [
+      { ...edit, tenantId: "tenant-1\u0000tenant-2" },
+      { ...edit, projectId: " project-1 " },
+      { ...edit, editId: "edit-1\u0000alias" },
+      { ...edit, editId: " edit-1 " },
+      { ...edit, idempotencyKey: "idem-1\u0000alias" },
+      { ...edit, idempotencyKey: " idem-1 " },
+      { ...edit, expectedVersion: "v7\u0000v8" },
+      { ...edit, expectedVersion: " v7 " },
+    ];
+
+    for (const invalid of invalidEdits) {
+      await expect(queue.enqueue(invalid))
+        .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    }
+    expect(store.records.size).toBe(0);
+  });
+
+  it("rejects a stored AAD identity containing the field separator before decryption", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    const record = store.records.get(edit.editId)!;
+    store.records.set(edit.editId, { ...record, idempotencyKey: "idem-1\u0000alias" });
+
+    await expect(queue.readEdits(scope))
+      .rejects.toMatchObject({ code: "STORE_SCOPE_MISMATCH" } satisfies Partial<OfflineEditQueueError>);
+  });
+
   it("rejects a changed payload when concurrent inserts race on one identity", async () => {
     const { queue, store } = await createQueue();
     const candidates = [

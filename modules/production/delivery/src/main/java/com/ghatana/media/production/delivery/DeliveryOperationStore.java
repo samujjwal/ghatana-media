@@ -24,7 +24,7 @@ public interface DeliveryOperationStore {
             java.util.Objects.requireNonNull(status, "status");
             MediaDeliveryEngine.validateProgress(status, acknowledgedBytes);
             if (destinationReceiptRef != null) {
-                destinationReceiptRef = required(destinationReceiptRef, "destinationReceiptRef");
+                destinationReceiptRef = MediaDeliveryEngine.requiredExact(destinationReceiptRef, "destinationReceiptRef");
             }
             if ((status == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED) != (destinationReceiptRef != null)) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");

@@ -80,14 +80,22 @@ const DEFAULT_MAXIMUM_ENTRIES = 100;
 const DEFAULT_MAXIMUM_PAYLOAD_BYTES = 256 * 1024;
 
 function assertScope(scope: OfflineEditScope): void {
-  if (!scope.tenantId.trim() || !scope.projectId.trim()) throw new OfflineEditQueueError("INVALID_EDIT");
+  if (!isValidAadIdentity(scope.tenantId) || !isValidAadIdentity(scope.projectId)) {
+    throw new OfflineEditQueueError("INVALID_EDIT");
+  }
 }
 
 function assertEdit(edit: OfflineEdit): void {
   assertScope(edit);
-  if (!edit.editId.trim() || !edit.idempotencyKey.trim() || !edit.expectedVersion.trim()) {
+  if (!isValidAadIdentity(edit.editId) || !isValidAadIdentity(edit.idempotencyKey)
+    || !isValidAadIdentity(edit.expectedVersion)) {
     throw new OfflineEditQueueError("INVALID_EDIT");
   }
+}
+
+/** NUL is the AAD field separator; reject it inside every field to keep tuples unambiguous. */
+function isValidAadIdentity(value: string): boolean {
+  return typeof value === "string" && value.length > 0 && value === value.trim() && !value.includes("\u0000");
 }
 
 export class OfflineEditQueue {
@@ -379,6 +387,11 @@ export class OfflineEditQueue {
   private async listScoped(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
     const records = await this.options.store.list(scope);
     if (records.some((record) => record.tenantId !== scope.tenantId || record.projectId !== scope.projectId)) {
+      throw new OfflineEditQueueError("STORE_SCOPE_MISMATCH");
+    }
+    if (records.some((record) => !isValidAadIdentity(record.tenantId) || !isValidAadIdentity(record.projectId)
+      || !isValidAadIdentity(record.editId) || !isValidAadIdentity(record.idempotencyKey)
+      || !isValidAadIdentity(record.expectedVersion))) {
       throw new OfflineEditQueueError("STORE_SCOPE_MISMATCH");
     }
     return records;

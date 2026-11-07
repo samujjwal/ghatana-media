@@ -60,6 +60,34 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void destinationAcknowledgmentIdentityAndReceiptAreNeverTrimmedIntoAnExactMatch() {
+        String digest = "sha256:" + "0".repeat(64);
+        assertThatThrownBy(() -> new ChunkReceipt("chunk-receipt:1", " tenant:1", "principal:1",
+                "request:1", "artifact:1", "version:1", "destination:1", digest,
+                0, digest, 16, 16))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("tenantId must not contain surrounding whitespace");
+
+        assertThatThrownBy(() -> new DestinationReceipt("receipt:1", "tenant:1", "principal:1",
+                "request:1", "artifact:1", "version:1", digest, "destination:1", 16,
+                " " + digest + " "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("checksum must not contain surrounding whitespace");
+
+        assertThatThrownBy(() -> new DeliveryResult("tenant:1", "principal:1", "request:1", "artifact:1",
+                "version:1", digest, "destination:1", Status.DESTINATION_CONFIRMED, 16,
+                Optional.of(" receipt:1 ")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationReceiptRef must not contain surrounding whitespace");
+
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation("tenant:1", "principal:1", "request:1",
+                "artifact:1", "version:1", digest, "destination:1", "sha256:" + "1".repeat(64),
+                Status.DESTINATION_CONFIRMED, 16, " receipt:1 "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationReceiptRef must not contain surrounding whitespace");
+    }
+
+    @Test
     void rejectsAcknowledgedOffsetsThatCannotBelongToTheirDeliveryState() {
         assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
                 "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
@@ -272,6 +300,20 @@ class MediaDeliveryEngineTest {
         DeliveryResult result = f.engine.export(f.request(bytes(16)));
         assertThat(result.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
         assertThat(result.destinationReceiptRef()).isEmpty();
+    }
+
+    @Test
+    void paddedDestinationChecksumCannotBeTrimmedIntoConfirmation() {
+        Fixture f = new Fixture();
+        f.destination.paddedFinalChecksum = true;
+        ExportRequest request = f.request(bytes(16));
+
+        DeliveryResult result = f.engine.export(request);
+
+        assertThat(result.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(result.acknowledgedBytes()).isEqualTo(request.artifact().size());
+        assertThat(result.destinationReceiptRef()).isEmpty();
+        assertThat(f.destination.sendCount).isEqualTo(1);
     }
 
     @Test
@@ -830,6 +872,7 @@ class MediaDeliveryEngineTest {
         boolean loseFirstAckAfterAccept;
         boolean omitFinalReceipt;
         boolean badFinalChecksum;
+        boolean paddedFinalChecksum;
         boolean badFinalDestination;
         boolean badChunkDestination;
         boolean badFinalPrincipal;
@@ -874,7 +917,9 @@ class MediaDeliveryEngineTest {
                     badFinalPrincipal ? "principal:other" : r.principalId(), r.requestId(),
                     r.artifact().artifactId(), r.artifact().versionRef(), r.artifact().digest(),
                     badFinalDestination ? "destination:wrong" : r.destinationRef(),
-                    r.artifact().bytes().length, badFinalChecksum ? "sha256:" + "0".repeat(64) : r.artifact().digest());
+                    r.artifact().bytes().length,
+                    paddedFinalChecksum ? " " + r.artifact().digest() + " "
+                            : badFinalChecksum ? "sha256:" + "0".repeat(64) : r.artifact().digest());
             return new FencedReconciliation(acceptedOffset,
                     Optional.of(new FencedDestinationReceipt(receipt,
                             claim.fence() + (wrongFinalReceiptFence ? 1 : 0))),

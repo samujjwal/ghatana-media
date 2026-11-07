@@ -198,6 +198,39 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void candidateComparisonCannotClaimImprovementWithoutPinnedMetrics() {
+        RevisionId candidate = new RevisionId("tenant", "principal", "candidate", "v1", "a".repeat(64));
+        Heuristics heuristics = new Heuristics(0, 0);
+        Metric unavailablePsnr = new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.UNAVAILABLE,
+                java.util.OptionalDouble.empty());
+        Metric unavailableSsim = new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.UNAVAILABLE,
+                java.util.OptionalDouble.empty());
+        Metric measuredPsnr = new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED,
+                java.util.OptionalDouble.of(30));
+        Metric measuredSsim = new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
+                java.util.OptionalDouble.of(0.9));
+
+        assertThatThrownBy(() -> new CandidateComparison(candidate, unavailablePsnr, unavailableSsim,
+                heuristics, QualityDisposition.IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("disposition must match measured metric availability");
+        assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr, measuredSsim,
+                heuristics, QualityDisposition.UNAVAILABLE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("disposition must match measured metric availability");
+        assertThatThrownBy(() -> new CandidateComparison(candidate,
+                new Metric("UNQUALIFIED_METRIC", MetricStatus.MEASURED, java.util.OptionalDouble.of(99)),
+                measuredSsim, heuristics, QualityDisposition.IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("pinned RGB8 PSNR and global SSIM algorithms");
+        assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr,
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.EXACT_MATCH,
+                        java.util.OptionalDouble.empty()), heuristics, QualityDisposition.NOT_IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("global SSIM is reported as a measured value");
+    }
+
+    @Test
     void framePixelsRemainIsolatedFromCallerMutation() {
         byte[] callerPixels = {10, 20, 30};
         RgbFrame frame = new RgbFrame(0, 1, 1, 0, callerPixels);

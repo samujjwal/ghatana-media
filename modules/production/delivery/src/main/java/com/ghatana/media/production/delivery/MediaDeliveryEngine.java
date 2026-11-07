@@ -83,15 +83,15 @@ public final class MediaDeliveryEngine {
                                String artifactId, String versionRef, String destinationRef,
                                String artifactDigest, int offset, String chunkDigest, int acceptedBytes, int nextOffset) {
         public ChunkReceipt {
-            receiptRef = required(receiptRef, "receiptRef");
-            tenantId = required(tenantId, "tenantId");
-            principalId = required(principalId, "principalId");
-            requestId = required(requestId, "requestId");
-            artifactId = required(artifactId, "artifactId");
-            versionRef = required(versionRef, "versionRef");
-            destinationRef = required(destinationRef, "destinationRef");
-            artifactDigest = required(artifactDigest, "artifactDigest");
-            chunkDigest = required(chunkDigest, "chunkDigest");
+            receiptRef = requiredExact(receiptRef, "receiptRef");
+            tenantId = requiredExact(tenantId, "tenantId");
+            principalId = requiredExact(principalId, "principalId");
+            requestId = requiredExact(requestId, "requestId");
+            artifactId = requiredExact(artifactId, "artifactId");
+            versionRef = requiredExact(versionRef, "versionRef");
+            destinationRef = requiredExact(destinationRef, "destinationRef");
+            artifactDigest = requiredExact(artifactDigest, "artifactDigest");
+            chunkDigest = requiredExact(chunkDigest, "chunkDigest");
         }
     }
 
@@ -99,15 +99,15 @@ public final class MediaDeliveryEngine {
                                     String versionRef, String artifactDigest, String destinationRef,
                                     long acceptedBytes, String checksum) {
         public DestinationReceipt {
-            receiptRef = required(receiptRef, "receiptRef");
-            tenantId = required(tenantId, "tenantId");
-            principalId = required(principalId, "principalId");
-            requestId = required(requestId, "requestId");
-            artifactId = required(artifactId, "artifactId");
-            versionRef = required(versionRef, "versionRef");
-            artifactDigest = required(artifactDigest, "artifactDigest");
-            destinationRef = required(destinationRef, "destinationRef");
-            checksum = required(checksum, "checksum");
+            receiptRef = requiredExact(receiptRef, "receiptRef");
+            tenantId = requiredExact(tenantId, "tenantId");
+            principalId = requiredExact(principalId, "principalId");
+            requestId = requiredExact(requestId, "requestId");
+            artifactId = requiredExact(artifactId, "artifactId");
+            versionRef = requiredExact(versionRef, "versionRef");
+            artifactDigest = requiredExact(artifactDigest, "artifactDigest");
+            destinationRef = requiredExact(destinationRef, "destinationRef");
+            checksum = requiredExact(checksum, "checksum");
         }
     }
 
@@ -174,7 +174,7 @@ public final class MediaDeliveryEngine {
         public DeliveryResult {
             Objects.requireNonNull(status, "status");
             destinationReceiptRef = destinationReceiptRef == null ? Optional.empty() : destinationReceiptRef;
-            destinationReceiptRef = destinationReceiptRef.map(receipt -> required(receipt, "destinationReceiptRef"));
+            destinationReceiptRef = destinationReceiptRef.map(receipt -> requiredExact(receipt, "destinationReceiptRef"));
             if ((status == Status.DESTINATION_CONFIRMED) != destinationReceiptRef.isPresent()) {
                 throw new IllegalArgumentException("only confirmed delivery carries a destination receipt");
             }
@@ -651,5 +651,16 @@ public final class MediaDeliveryEngine {
         String normalized = value.trim();
         if (normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
         return normalized;
+    }
+
+    /** External acknowledgment identities and receipts are compared exactly, never normalized into a match. */
+    static String requiredExact(String value, String field) {
+        Objects.requireNonNull(value, field);
+        String normalized = value.trim();
+        if (normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
+        if (!value.equals(normalized)) {
+            throw new IllegalArgumentException(field + " must not contain surrounding whitespace");
+        }
+        return value;
     }
 }

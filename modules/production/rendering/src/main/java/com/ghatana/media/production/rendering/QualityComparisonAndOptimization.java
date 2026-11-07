@@ -177,6 +177,18 @@ public final class QualityComparisonAndOptimization {
             Objects.requireNonNull(candidate, "candidate"); Objects.requireNonNull(psnr, "psnr");
             Objects.requireNonNull(ssim, "ssim"); Objects.requireNonNull(heuristics, "heuristics");
             Objects.requireNonNull(disposition, "disposition");
+            if (!PSNR_ID.equals(psnr.algorithm()) || !SSIM_ID.equals(ssim.algorithm())) {
+                throw invalid("candidate comparison must use the pinned RGB8 PSNR and global SSIM algorithms");
+            }
+            if (ssim.status() == MetricStatus.EXACT_MATCH) {
+                throw invalid("global SSIM is reported as a measured value, including exact frame matches");
+            }
+            boolean psnrUnavailable = psnr.status() == MetricStatus.UNAVAILABLE;
+            boolean ssimUnavailable = ssim.status() == MetricStatus.UNAVAILABLE;
+            if (psnrUnavailable != ssimUnavailable
+                    || (disposition == QualityDisposition.UNAVAILABLE) != psnrUnavailable) {
+                throw invalid("candidate disposition must match measured metric availability");
+            }
         }
     }
 

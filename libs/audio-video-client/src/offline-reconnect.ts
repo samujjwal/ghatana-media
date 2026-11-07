@@ -105,5 +105,11 @@ function sameScope(value: OfflineEditScope, expected: OfflineEditScope): boolean
 }
 
 function assertScope(scope: OfflineEditScope): void {
-  if (!scope.tenantId.trim() || !scope.projectId.trim()) throw new TypeError("Reconnect scope requires exact tenant and project identities.");
+  if (!isExactIdentity(scope.tenantId) || !isExactIdentity(scope.projectId)) {
+    throw new TypeError("Reconnect scope requires exact tenant and project identities.");
+  }
+}
+
+function isExactIdentity(value: string): boolean {
+  return typeof value === "string" && value.length > 0 && value === value.trim() && !value.includes("\u0000");
 }
