@@ -36,9 +36,9 @@ public final class StoryboardPlanner {
                              String scenePlanId, String semanticVersion, AuthoredBrief brief,
                              List<AuthoredScene> authoredScenes) {
         Objects.requireNonNull(actor, "actor");
-        String project = required(projectId, "projectId");
+        String project = ownerOpaqueId(projectId, "projectId");
         String expectedRevision = required(expectedProjectRevisionId, "expectedProjectRevisionId");
-        String planId = required(scenePlanId, "scenePlanId");
+        String planId = ownerOpaqueId(scenePlanId, "scenePlanId");
         String version = required(semanticVersion, "semanticVersion");
         Objects.requireNonNull(brief, "brief");
         List<AuthoredScene> scenes = copyBoundedScenes(authoredScenes);
@@ -228,8 +228,8 @@ public final class StoryboardPlanner {
         public ScenePlan {
             tenantId = required(tenantId, "tenantId");
             ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
-            projectId = required(projectId, "projectId");
-            scenePlanId = required(scenePlanId, "scenePlanId");
+            projectId = ownerOpaqueId(projectId, "projectId");
+            scenePlanId = ownerOpaqueId(scenePlanId, "scenePlanId");
             semanticVersion = required(semanticVersion, "semanticVersion");
             expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
@@ -430,6 +430,14 @@ public final class StoryboardPlanner {
         if (value == null || value.length() > 128
                 || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
             throw new IllegalArgumentException("requestId must match the 1-128 character owner-action format");
+        }
+        return value;
+    }
+
+    /** PDP-1's ScenePlan identity tuple uses owner-defined opaque IDs for projectId and scenePlanId. */
+    private static String ownerOpaqueId(String value, String name) {
+        if (value == null || value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*")) {
+            throw new IllegalArgumentException(name + " must match the 1-128 character owner opaque-ID format");
         }
         return value;
     }

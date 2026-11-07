@@ -90,6 +90,34 @@ describe("OfflineEditQueue", () => {
       .rejects.toMatchObject({ code: "QUEUE_FULL" } satisfies Partial<OfflineEditQueueError>);
   });
 
+  it("rejects a reused edit identity when its payload changes", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+
+    await expect(queue.enqueue({ ...edit, payload: { ...edit.payload, position: 99 } }))
+      .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    await expect(queue.enqueue({ ...edit, editId: "edit-other" }))
+      .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    expect(await queue.readEdits(scope)).toEqual([{ edit, state: "PENDING" }]);
+    expect(store.records.size).toBe(1);
+  });
+
+  it("rejects a changed payload when concurrent inserts race on one identity", async () => {
+    const { queue, store } = await createQueue();
+    const candidates = [
+      edit,
+      { ...edit, payload: { ...edit.payload, position: 99 } },
+    ];
+
+    const outcomes = await Promise.allSettled(candidates.map((candidate) => queue.enqueue(candidate)));
+    expect(outcomes.filter((outcome) => outcome.status === "fulfilled")).toHaveLength(1);
+    expect(outcomes.filter((outcome) => outcome.status === "rejected")).toMatchObject([
+      { reason: { code: "INVALID_EDIT" } },
+    ]);
+    expect(store.records.size).toBe(1);
+    expect(await queue.readEdits(scope)).toHaveLength(1);
+  });
+
   it("enforces entry bounds atomically per tenant/project, including concurrent enqueue", async () => {
     const { queue, store } = await createQueue();
     const candidates = [1, 2, 3].map((n) => ({ ...edit, editId: `parallel-${n}`, idempotencyKey: `parallel-key-${n}` }));

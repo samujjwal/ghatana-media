@@ -33,6 +33,16 @@ function job(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   };
 }
 
+function artifact(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    tenantId: "tenant-1", principalId: "principal-1", artifactId: "art-1",
+    fileName: "clip.mp4", contentType: "video/mp4", sizeBytes: 128,
+    sha256: "a".repeat(64), objectReference: "opaque-store-ref",
+    classification: "INTERNAL", createdAt: timestamp, expiresAt: "2026-11-30T12:00:00.000Z",
+    metadata: { source: "user-upload" }, ...overrides,
+  };
+}
+
 function session(overrides: Record<string, unknown> = {}): CanonicalStreamSession {
   return {
     tenantId: "tenant-1", sessionId: "sess-1", principalId: "principal-1",
@@ -413,6 +423,30 @@ describe("MediaCanonicalClient job operations", () => {
     });
     await expect(client.getJob("job-1")).resolves.toMatchObject({ jobId: "job-1" });
     expect(new Headers(calls[0]!.init.headers).get("X-API-Key")).toBe("configured-api-key");
+  });
+});
+
+describe("MediaCanonicalClient artifact inspection", () => {
+  it("reads exact scoped artifact metadata through the canonical route without exposing bytes", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(artifact()));
+    const client = clientWith(fetchImpl);
+    const observed = await client.getArtifact("art-1");
+    expect(observed).toMatchObject({ artifactId: "art-1", sha256: "a".repeat(64), objectReference: "opaque-store-ref" });
+    expect(calls[0]?.url).toBe("https://media.example.test/api/v1/artifacts/art-1");
+    expect(calls[0]?.init.method).toBe("GET");
+    expect(calls[0]?.init.body).toBeUndefined();
+  });
+
+  it("rejects a response outside tenant/principal scope or with another artifact identity", async () => {
+    for (const body of [artifact({ tenantId: "tenant-other" }), artifact({ principalId: "principal-other" }), artifact({ artifactId: "art-other" })]) {
+      const { fetchImpl } = recordedFetch(() => jsonResponse(body));
+      await expect(clientWith(fetchImpl).getArtifact("art-1")).rejects.toThrow(/scope|identity/u);
+    }
+  });
+
+  it("validates opaque reference metadata bounds and digest shape", async () => {
+    const { fetchImpl } = recordedFetch(() => jsonResponse(artifact({ sha256: "short" })));
+    await expect(clientWith(fetchImpl).getArtifact("art-1")).rejects.toThrow(/sha256/u);
   });
 });
 

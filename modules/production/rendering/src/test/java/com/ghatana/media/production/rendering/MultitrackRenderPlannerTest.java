@@ -322,6 +322,22 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsUnknownManifestRecordsEvenWhenDigestMatches() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(), 1_000)).plan();
+        String forgedManifest = valid.canonicalManifest().replace("frame=v|0|0/1|0/1\n",
+                "ignored=uninterpreted\nframe=v|0|0/1|0/1\n");
+        String forgedDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("unsupported record");
+    }
+
+    @Test
     void rejectsAdvertisedOversizedGraphListBeforeTraversingIt() {
         var traversals = new int[1];
         List<MultitrackRenderPlanner.Clip> oversized = new AbstractList<>() {

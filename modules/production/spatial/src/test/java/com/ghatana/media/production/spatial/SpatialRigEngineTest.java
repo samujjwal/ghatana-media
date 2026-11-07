@@ -351,6 +351,25 @@ class SpatialRigEngineTest {
         assertThatIllegalArgumentException().isThrownBy(() -> copyArtifact(artifact, List.of(source, source), artifact.bytes()));
     }
 
+    @Test
+    void publicGlbArtifactRejectsMalformedUtf8InJsonChunkEvenWhenDigestMatches() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-utf8", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)), Map.of(),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        byte[] malformed = artifact.bytes();
+        // GLB header (12) + JSON chunk header (8): corrupt the first UTF-8 JSON byte.
+        malformed[20] = (byte) 0xff;
+        String matchingDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(malformed));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                matchingDigest, malformed))
+                .withMessageContaining("valid UTF-8");
+    }
+
     private static SpatialRigEngine.GlbArtifact copyArtifact(SpatialRigEngine.GlbArtifact source,
             List<SpatialRigEngine.SourceVersionRef> sourceVersions, byte[] bytes) {
         return new SpatialRigEngine.GlbArtifact(source.rigId(), source.sourceProjectRevisionRef(),

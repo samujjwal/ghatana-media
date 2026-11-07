@@ -169,7 +169,7 @@ public final class MediaToolExecutionBinder {
         Optional<String> durableJobState(String tenantId, String invocationId);
     }
 
-    /** Host-owned decision that maps a freshly authenticated principal to the recorded actor. */
+    /** Host-owned decision that maps a freshly authenticated principal to the envelope actor. */
     @FunctionalInterface
     public interface InvocationReplayAuthorizer {
         boolean mayReplay(AuthenticatedPrincipal authenticated, RequestIdentity recordedIdentity);
@@ -245,8 +245,23 @@ public final class MediaToolExecutionBinder {
         if (authenticated != null && !authenticated.tenantId().equals(envelope.tenantId())) {
             return Promise.ofException(new InvocationReplayDeniedException());
         }
+        // Envelope actor/tenant fields are caller-controlled consistency data.
+        // Require the host-authenticated identity before even creating a claim:
+        // otherwise a first invocation could cross the delegate effect boundary
+        // without the authority that is already required for replay.
+        if (authenticated == null) {
+            return Promise.ofException(new InvocationReplayDeniedException());
+        }
 
         RequestIdentity identity = RequestIdentity.from(envelope);
+        final boolean authorized;
+        try {
+            authorized = replayAuthorizer.mayReplay(authenticated, identity);
+        } catch (RuntimeException unavailable) {
+            return Promise.ofException(new InvocationReplayDeniedException());
+        }
+        if (!authorized) return Promise.ofException(new InvocationReplayDeniedException());
+
         LogicalAction fence = new LogicalAction(envelope.invocationId(), identity,
                 LogicalOutcome.OUTCOME_UNKNOWN, null);
         final ClaimResult claim;

@@ -193,6 +193,7 @@ public final class MultitrackRenderPlanner {
             if (!canonicalManifest.startsWith(expectedHeader)) {
                 throw invalid("plan fields do not match the canonical manifest header");
             }
+            validateManifestRecordKinds(canonicalManifest);
             List<String> expectedFrameLines = frameMap.stream()
                     .sorted(java.util.Comparator.comparing(MappedFrame::clipId)
                             .thenComparingInt(MappedFrame::frameIndex))
@@ -329,6 +330,25 @@ public final class MultitrackRenderPlanner {
     }
 
     private record ClipTimeMap(Time timelineStart, Time sourceStart, Time sourceEnd) { }
+
+    /** A v1 manifest is closed: reject records the planner does not interpret. */
+    private static void validateManifestRecordKinds(String manifest) {
+        String[] lines = manifest.split("\\n", -1);
+        if (lines.length < 4 || !lines[0].equals("multitrack-render-manifest-v1")
+                || !lines[1].startsWith("duration=") || !lines[2].startsWith("output-budget-bytes=")) {
+            throw invalid("canonical manifest header is malformed");
+        }
+        for (int i = 3; i < lines.length - 1; i++) {
+            String line = lines[i];
+            if (!(line.startsWith("clip=") || line.startsWith("frame=")
+                    || line.startsWith("caption=") || line.startsWith("transition="))) {
+                throw invalid("canonical manifest contains an unsupported record");
+            }
+        }
+        if (!lines[lines.length - 1].isEmpty()) {
+            throw invalid("canonical manifest must end with a newline");
+        }
+    }
 
     private static void validateFrameMappings(String manifest, List<MappedFrame> frames) {
         var clipTimeMaps = new java.util.HashMap<String, ClipTimeMap>();

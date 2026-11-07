@@ -218,6 +218,46 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void scenePlanIdentityUsesOwnerOpaqueIdsBeforeRightsAndAtPublicConstructionBoundary() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        StoryboardPlanner.AuthoredBrief brief = brief(List.of(SOURCE_A));
+        List<StoryboardPlanner.AuthoredScene> scenes = List.of(scene("scene", 0, 0,
+                List.of(shot("shot", 0, 0, List.of()))));
+
+        String maximumOpaqueId = "a" + "x".repeat(127);
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, maximumOpaqueId, "head-identity",
+                maximumOpaqueId, "v1", brief, scenes);
+        assertThat(plan.projectId()).isEqualTo(maximumOpaqueId);
+        assertThat(plan.scenePlanId()).isEqualTo(maximumOpaqueId);
+        int rightsCallsAfterValidIdentity = rights.calls();
+        assertThat(rightsCallsAfterValidIdentity).isEqualTo(1);
+
+        for (String invalid : List.of("", " ", ":starts-with-punctuation", "contains/slash", "x".repeat(129))) {
+            assertThatThrownBy(() -> planner.prepare(OWNER, invalid, "head-identity", "plan", "v1", brief, scenes))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("owner opaque-ID format");
+            assertThatThrownBy(() -> planner.prepare(OWNER, "project", "head-identity", invalid, "v1", brief, scenes))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("owner opaque-ID format");
+        }
+        assertThat(rights.calls()).isEqualTo(rightsCallsAfterValidIdentity);
+
+        assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "bad/project", "plan",
+                "v1", "head-1", brief, plan.scenes(), plan.exactSources(),
+                StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("projectId")
+                .hasMessageContaining("owner opaque-ID format");
+        assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "project", "bad/plan",
+                "v1", "head-1", brief, plan.scenes(), plan.exactSources(),
+                StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("scenePlanId")
+                .hasMessageContaining("owner opaque-ID format");
+    }
+
+    @Test
     void ownerSceneReferenceLimitIsEnforcedBeforeRightsOrAuthorityEffects() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);

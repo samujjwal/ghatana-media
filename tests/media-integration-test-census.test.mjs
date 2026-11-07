@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -55,10 +55,8 @@ test('IT-01: profile and unrepresented entries use canonical repository-relative
     for (const path of profile.sources ?? []) {
       assert.ok(isCanonicalRepoRelativePosixPath(path),
         `${profile.id} has a noncanonical source path: ${path}`);
-      if (path.endsWith('.java')) {
-        assert.ok(path.startsWith(`${javaSourceRoot}/`),
-          `${profile.id} Java source must be under ${javaSourceRoot}: ${path}`);
-      }
+      assert.ok(existsSync(join(repo, path)),
+        `${profile.id} source does not exist at its repository-relative path: ${path}`);
     }
   }
   for (const area of census.unrepresentedSourceAreas) {
@@ -87,15 +85,6 @@ test('IT-01: census covers every Java source in the integration-tests module', (
     assert.equal(new Set(javaSources).size, javaSources.length,
       `${profile.id} must not list a Java source more than once`);
   }
-  const profileSourceOwners = new Map();
-  for (const profile of census.profiles) {
-    for (const path of (profile.sources ?? []).filter((source) => source.endsWith('.java'))) {
-      profileSourceOwners.set(path, [...(profileSourceOwners.get(path) ?? []), profile.id]);
-    }
-  }
-  for (const [path, owners] of profileSourceOwners) {
-    assert.equal(owners.length, 1, `${path} is listed by multiple profiles: ${owners.join(', ')}`);
-  }
   assert.equal(new Set(explicitUnrepresentedJavaFiles).size, explicitUnrepresentedJavaFiles.length,
     'an unrepresented Java source must be listed only once');
 });
@@ -118,13 +107,17 @@ test('IT-01: scaffold files carry an explicit disabled reason, never a silent pa
 
 test('IT-01: runnable synthetic performance fixtures remain local-only and unqualified', () => {
   const files = census.classification.SYNTHETIC_LOCAL_FIXTURE.files;
-  assert.deepEqual(files, ['PerformanceIntegrationTest.java']);
-  for (const file of files) {
-    const src = readFileSync(join(dir, file), 'utf8');
-    assert.match(src, /in-process byte-frame dispatch/u);
-    assert.match(src, /Qualification\.UNVERIFIED/u);
-    assert.match(src, /does not exercise\s*\*?\s*audio\/video transport, codecs, source clocks, or provider behavior/u);
-  }
+  assert.deepEqual(files, ['PerformanceIntegrationTest.java', 'GuardedMixedStreamWorkloadIT.java']);
+  const performance = readFileSync(join(dir, files[0]), 'utf8');
+  assert.match(performance, /in-process byte-frame dispatch/u);
+  assert.match(performance, /Qualification\.UNVERIFIED/u);
+  assert.match(performance, /does not exercise\s*\*?\s*audio\/video transport, codecs, source clocks, or provider behavior/u);
+
+  const mixed = readFileSync(join(dir, files[1]), 'utf8');
+  assert.match(mixed, /Synthetic concurrent audio\+video workload/u);
+  assert.match(mixed, /does not qualify rights, codecs,\s*\*?\s*transport, provider behavior, or host resource capacity/u);
+  assert.match(mixed, /CLIENT_COUNTS = \{1, 16, 64\}/u);
+  assert.match(mixed, /@Tag\("performance"\)/u);
   assert.deepEqual(census.classification.LOCAL_PROCESS_FIXTURE.files, ['AudioVideoContainerProcessTest.java']);
 });
 

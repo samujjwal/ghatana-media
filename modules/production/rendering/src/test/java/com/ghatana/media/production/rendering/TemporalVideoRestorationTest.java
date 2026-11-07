@@ -404,6 +404,37 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void sourceRevisionCannotBeReusedAsItsOwnQualityReference() {
+        DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+        ArtifactBinding sameRevision = new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:quality-evaluation", List.of("rights:source:v3"), "policy:quality:v3");
+        AtomicInteger referenceChecks = new AtomicInteger();
+        AtomicInteger referenceReads = new AtomicInteger();
+
+        Candidate candidate = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> source,
+                Optional.of(new ReferenceRequest("reference-read-self", sameRevision)),
+                binding -> {
+                    referenceReads.incrementAndGet();
+                    return source;
+                },
+                (binding, purpose) -> {
+                    referenceChecks.incrementAndGet();
+                    return allowed("reference-decision-v3");
+                }).candidate().orElseThrow();
+
+        assertThat(referenceChecks).hasValue(0);
+        assertThat(referenceReads).hasValue(0);
+        assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+        assertThat(candidate.referenceMetrics().unavailableReason())
+                .contains(MetricUnavailableReason.REFERENCE_NOT_ADMITTED);
+        assertThat(candidate.referenceMetrics().psnr().finiteDb()).isEmpty();
+        assertThat(candidate.referenceMetrics().globalLumaSsim()).isEmpty();
+        assertThat(candidate.improvementClaimed()).isFalse();
+    }
+
+    @Test
     void missingReferencePortsAreReportedUnavailableWithoutAQualityClaim() {
         DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
         Candidate candidate = TemporalVideoRestoration.restore(request(), (binding, operation) -> allowed("source-decision-v3"),

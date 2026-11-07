@@ -548,7 +548,11 @@ public final class TemporalVideoRestoration {
             metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_AUTHORITY_UNAVAILABLE);
         } else if (referenceRequest.isPresent()) {
             referenceBinding = referenceRequest.orElseThrow().reference();
-            if (!referenceBinding.tenantId().equals(sourceBinding.tenantId())
+            if (sameImmutableRevision(referenceBinding, sourceBinding)) {
+                // A source compared with itself can produce perfect scores, but
+                // that is not evidence about restoration quality.
+                metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_NOT_ADMITTED);
+            } else if (!referenceBinding.tenantId().equals(sourceBinding.tenantId())
                     || !referenceBinding.principalId().equals(sourceBinding.principalId())) {
                 metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_NOT_ADMITTED);
             } else {
@@ -841,6 +845,12 @@ public final class TemporalVideoRestoration {
                 || !sequence.artifactSha256().equals(expected.sha256())) {
             throw invalid("frame source did not return the exact requested source artifact version");
         }
+    }
+
+    private static boolean sameImmutableRevision(ArtifactBinding left, ArtifactBinding right) {
+        return left.tenantId().equals(right.tenantId())
+                && left.artifactId().equals(right.artifactId())
+                && left.versionId().equals(right.versionId());
     }
 
     private static String candidateDigest(TimeBase timeBase, List<CandidateFrame> frames, FilterParameters filter) {

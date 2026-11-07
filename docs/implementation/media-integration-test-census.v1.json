@@ -1014,6 +1014,22 @@
       "evidenceLimit": "J-29 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j29-runtime-unknown-prefix",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:integration-tests:test",
+      "selectors": [
+        "com.ghatana.media.launcher.MediaRuntimeUnknownStreamPrefixScenarioIT.ambiguousFrameAfterAcknowledgedPrefixDoesNotAdvanceCursorOrRepeatProviderEffect"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/launcher/MediaRuntimeUnknownStreamPrefixScenarioIT.java"
+      ],
+      "resources": ["JUnit Jupiter", "local MediaRuntime", "temporary file-backed artifact store", "test-owned streaming provider"],
+      "prerequisites": ["JDK/Gradle runtime; no Docker or external service is required"],
+      "assets": "Generated frame bytes and local temporary storage only.",
+      "safety": "The test-owned provider simulates a lost response after dispatch; retry is rejected while the acknowledged prefix remains unchanged.",
+      "evidenceLimit": "J-29 in-process UNKNOWN-prefix selector only; it does not prove authenticated transport, durable canonical restart, source-clock provenance, real provider behavior, or journey completion."
+    },
+    {
       "id": "journey-outcome-j30-unavailable-readiness",
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
@@ -1048,6 +1064,32 @@
       "assets": "Synthetic offline edit-store data only.",
       "safety": "Synthetic host-key and authority/apply results; no real host authority or apply effect is exercised.",
       "evidenceLimit": "J-23 browser offline/reconnect selector only; synthetic host-key and authority/apply results do not complete the journey or prove a real reconnect/apply effect."
+    },
+    {
+      "id": "journey-outcome-j23-wrong-project-readback-negative",
+      "tier": "LOCAL_FIXTURE",
+      "commandKind": "PNPM",
+      "commandArguments": [
+        "pnpm",
+        "--filter",
+        "@audio-video/client",
+        "exec",
+        "vitest",
+        "run",
+        "src/offline-reconnect.test.ts",
+        "-t",
+        "keeps wrong-project authorization readback unknown without applying or revoking the edit|keeps wrong-project version readback unknown without authorizing or applying the edit"
+      ],
+      "selectors": [
+        "keeps wrong-project authorization readback unknown without applying or revoking the edit",
+        "keeps wrong-project version readback unknown without authorizing or applying the edit"
+      ],
+      "sources": ["libs/audio-video-client/src/offline-reconnect.test.ts"],
+      "resources": ["PNPM workspace package", "Vitest", "offline reconnect authorization/version fixtures"],
+      "prerequisites": ["PNPM workspace dependencies"],
+      "assets": "Synthetic tenant/project/version values and test-owned authority callbacks only.",
+      "safety": "Wrong-project authorization or version readback stays UNKNOWN; neither case authorizes edit application or revokes the pending edit.",
+      "evidenceLimit": "J-23 wrong-project readback negative selectors only. They do not prove a canonical project-edit route, production authority, durable effect/readback, or journey completion."
     },
     {
       "id": "journey-outcome-j24-cli-command-boundary-fixture",

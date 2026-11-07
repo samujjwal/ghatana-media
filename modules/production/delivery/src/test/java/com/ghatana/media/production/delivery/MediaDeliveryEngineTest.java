@@ -161,6 +161,30 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void uncachedFindRejectsDurableRowOutsideRequestedTenantAndRequestScope() {
+        Fixture f = new Fixture();
+        DeliveryOperationStore.Operation foreign = new DeliveryOperationStore.Operation(
+                "tenant:other", "principal:other", "request:other", "artifact:other", "version:other",
+                "digest:other", "destination:other", "fingerprint:other", Status.DESTINATION_CONFIRMED,
+                16, "destination-receipt:other");
+        DeliveryOperationStore mismatchedStore = new DeliveryOperationStore() {
+            @Override public Optional<Operation> find(String tenantId, String requestId) {
+                return Optional.of(foreign);
+            }
+            @Override public boolean insertIfAbsent(Operation operation) { return false; }
+            @Override public boolean update(Operation operation) { return false; }
+        };
+        MediaDeliveryEngine engine = new MediaDeliveryEngine(
+                f.authorization, f.destination, () -> NOW, mismatchedStore);
+
+        assertThatThrownBy(() -> engine.find("tenant:1", "request:1"))
+                .isInstanceOf(DeliveryException.class)
+                .extracting(error -> ((DeliveryException) error).code())
+                .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+        assertThat(f.destination.sendCount).isZero();
+    }
+
+    @Test
     void durableReadbackCannotClaimMoreBytesThanTheImmutableArtifactContains() {
         Fixture f = new Fixture();
         ExportRequest request = f.request(bytes(16));

@@ -173,6 +173,28 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void inspectRejectsSanitizerOutputOutsideTheCommentDisclosureBound() {
+        ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
+                "req-1", "media.operation.action.record-review-comment", REVIEWER,
+                new Comment("stored comment", CommentDisposition.OPEN, null), 1, NOW, "authority-v1");
+        ReviewStore store = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) { return List.of(record); }
+        };
+        String unboundedText = "oversized-disclosure-";
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()),
+                value -> unboundedText.repeat(500), Clock.fixed(NOW, ZoneOffset.UTC), () -> "record-unused");
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE))
+                .isInstanceOf(ReviewUnavailableException.class)
+                .satisfies(failure -> assertThat(failure.getMessage()).doesNotContain(unboundedText));
+    }
+
+    @Test
     void appendReceiptMustNameTheExactRequestedRevisionAndPayload() {
         ReviewStore hostileStore = new ReviewStore() {
             @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,

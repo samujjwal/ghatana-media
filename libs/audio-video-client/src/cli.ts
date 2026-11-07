@@ -254,6 +254,12 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
     writeError('MISSING_AUTH_TOKEN', 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.', {}, 2, args.command);
     return;
   }
+  // Fetch forbids control characters in HTTP header values. Catch malformed
+  // local configuration here so it cannot be mistaken for a remote outage.
+  if (/[\u0000-\u001f\u007f]/u.test(bearerToken)) {
+    writeError('INVALID_CONFIGURATION', 'GHATANA_MEDIA_BEARER_TOKEN contains characters that cannot be sent in an HTTP header.', {}, 2, args.command);
+    return;
+  }
   let requestTimeoutMs: number;
   try { requestTimeoutMs = parseRequestTimeout(process.env.GHATANA_MEDIA_REQUEST_TIMEOUT_MS); }
   catch (error) {

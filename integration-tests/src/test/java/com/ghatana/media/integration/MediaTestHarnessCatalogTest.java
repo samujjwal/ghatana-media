@@ -72,8 +72,10 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
                         "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29",
                         "journey-outcome-j27-process-restart-unknown",
+                        "journey-outcome-j29-runtime-unknown-prefix",
                         "journey-outcome-j30-unavailable-readiness",
                         "journey-outcome-j23-browser-offline-reconnect-fixture",
+                        "journey-outcome-j23-wrong-project-readback-negative",
                         "journey-outcome-j24-cli-command-boundary-fixture");
 
         for (MediaTestHarness.TestProfile profile : profiles) {
@@ -170,6 +172,16 @@ class MediaTestHarnessCatalogTest {
                 .contains("hostHeldKey", "authorizationReads", "applyCount");
         assertThat(Files.readString(root.resolve("libs/audio-video-client/package.json")))
                 .contains("\"test:browser:offline-store\": \"pnpm build && node scripts/test-indexeddb-offline-edit-store-browser.mjs\"");
+        var j23WrongProject = profiles.get("journey-outcome-j23-wrong-project-readback-negative");
+        assertThat(j23WrongProject.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "exec",
+                "vitest", "run", "src/offline-reconnect.test.ts", "-t",
+                "keeps wrong-project authorization readback unknown without applying or revoking the edit"
+                        + "|keeps wrong-project version readback unknown without authorizing or applying the edit");
+        assertThat(j23WrongProject.selectors()).containsExactly(
+                "keeps wrong-project authorization readback unknown without applying or revoking the edit",
+                "keeps wrong-project version readback unknown without authorizing or applying the edit");
+        assertThat(j23WrongProject.sources()).contains("libs/audio-video-client/src/offline-reconnect.test.ts");
+        assertThat(j23WrongProject.evidenceLimit()).contains("do not prove a canonical project-edit route");
         var j24 = profiles.get("journey-outcome-j24-cli-command-boundary-fixture");
         assertThat(j24.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run",
                 "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary"
@@ -206,6 +218,13 @@ class MediaTestHarnessCatalogTest {
                 "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/"
                         + "GuardedCrossModalityStreamStateMachineTest.java")))
                 .contains("void revokedConsentBlocksReconnectAndResumeAcrossModalities(");
+        var j29UnknownPrefix = profiles.get("journey-outcome-j29-runtime-unknown-prefix");
+        assertThat(j29UnknownPrefix.gradleTestTask()).isEqualTo(":services:media:integration-tests:test");
+        assertThat(j29UnknownPrefix.selectors()).containsExactly(
+                "com.ghatana.media.launcher.MediaRuntimeUnknownStreamPrefixScenarioIT"
+                        + ".ambiguousFrameAfterAcknowledgedPrefixDoesNotAdvanceCursorOrRepeatProviderEffect");
+        assertThat(j29UnknownPrefix.evidenceLimit()).contains(
+                "does not prove authenticated transport", "journey completion");
         var j19Ambiguous = profiles.get("journey-outcome-j19-ambiguous-candidate");
         assertThat(j19Ambiguous.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
         assertThat(j19Ambiguous.gradleTestTask()).isEqualTo(":services:media:modules:integration-tests:test");

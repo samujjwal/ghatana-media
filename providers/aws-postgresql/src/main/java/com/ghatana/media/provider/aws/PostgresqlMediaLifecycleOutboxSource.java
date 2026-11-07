@@ -161,6 +161,13 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                         attempts = row.getInt("attempts");
                     }
                 }
+                // The acknowledgement path increments this persisted INTEGER only after
+                // broker acceptance. Refuse to publish a row whose count cannot be
+                // advanced, otherwise the broker effect could succeed while the durable
+                // acknowledgement rolls back on integer overflow.
+                if (attempts == Integer.MAX_VALUE) {
+                    throw new ArithmeticException("Media lifecycle outbox attempt counter exhausted");
+                }
                 // claim_token is the durable fencing generation. Never allow signed BIGINT
                 // overflow to wrap it negative and potentially make an old generation current.
                 long token = Math.addExact(priorToken, 1L);

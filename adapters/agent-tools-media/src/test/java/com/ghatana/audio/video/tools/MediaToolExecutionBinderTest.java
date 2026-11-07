@@ -132,6 +132,13 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         return binder.execute(delegate, envelope, contractFor(envelope), principal);
     }
 
+    private static Promise<ToolExecutionResult> authenticatedExecute(MediaToolExecutionBinder binder,
+            com.ghatana.toolruntime.ToolHandler delegate, ToolExecutionEnvelope envelope) {
+        AuthenticatedPrincipal principal = new AuthenticatedPrincipal(
+                envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+        return binder.execute(delegate, envelope, contractFor(envelope), principal);
+    }
+
     @Test
     void sameInvocationIdReturnsOneLogicalAction() {
         InMemoryLedger ledger = new InMemoryLedger();
@@ -145,7 +152,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     e.invocationId(), Instant.now(), Duration.ZERO));
         };
 
-        ToolExecutionResult first = runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope)));
+        ToolExecutionResult first = runPromise(() -> authenticatedExecute(binder, delegate, envelope));
         assertThat(first.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
 
         // Replay returns the recorded result — no second dispatch.
@@ -166,7 +173,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     Map.of("transcript", "actor-private"), Map.of(), e.invocationId(), Instant.now(), Duration.ZERO));
         };
 
-        runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope)));
+        runPromise(() -> authenticatedExecute(binder, delegate, envelope));
         assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
                 .isInstanceOf(InvocationReplayDeniedException.class)
                 .hasMessageNotContaining("actor-private");
@@ -188,6 +195,29 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
     }
 
     @Test
+    void firstDispatchRequiresAuthenticatedActorMappingBeforeDurableClaim() {
+        InMemoryLedger ledger = new InMemoryLedger();
+        var binder = binder(ledger, Map.of());
+        AtomicInteger dispatches = new AtomicInteger();
+        ToolExecutionEnvelope envelope = envelope("av.speech-to-text");
+        var delegate = (com.ghatana.toolruntime.ToolHandler) (e, c) -> {
+            dispatches.incrementAndGet();
+            return Promise.of(ToolExecutionResult.succeeded(e.invocationId(), Map.of(), Map.of(),
+                    e.invocationId(), Instant.now(), Duration.ZERO));
+        };
+
+        AuthenticatedPrincipal otherActorInSameTenant = new AuthenticatedPrincipal(
+                envelope.tenantId(), "different-principal", Instant.now());
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(
+                delegate, envelope, contractFor(envelope), otherActorInSameTenant)))
+                .isInstanceOf(InvocationReplayDeniedException.class);
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+                .isInstanceOf(InvocationReplayDeniedException.class);
+        assertThat(ledger.claimAttempts()).isZero();
+        assertThat(dispatches.get()).isZero();
+    }
+
+    @Test
     void sameInvocationIdCannotReplayResultAcrossTenantOrCallerAgent() {
         InMemoryLedger ledger = new InMemoryLedger();
         var binder = binder(ledger, Map.of());
@@ -200,13 +230,13 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     e.invocationId(), Instant.now(), Duration.ZERO));
         };
 
-        runPromise(() -> binder.execute(delegate, original, contractFor(original)));
+        runPromise(() -> authenticatedExecute(binder, delegate, original));
 
         ToolExecutionEnvelope otherTenant = sameInvocationAs(original, "tenant-other", "caller-agent");
         ToolExecutionEnvelope otherAgent = sameInvocationAs(original, original.tenantId(), "caller-other");
         for (ToolExecutionEnvelope foreign : java.util.List.of(otherTenant, otherAgent)) {
             assertThatThrownBy(() -> runPromise(() ->
-                    binder.execute(delegate, foreign, contractFor(foreign))))
+                    authenticatedExecute(binder, delegate, foreign)))
                     .isInstanceOf(InvocationIdentityConflictException.class)
                     .hasMessageNotContaining("tenant-private-result");
         }
@@ -221,7 +251,8 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         var binder = new MediaToolExecutionBinder(ledger, (tenant, invocation) -> {
             readbacks.incrementAndGet();
             return Optional.of("RUNNING");
-        });
+        }, (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
+                && authenticated.principalId().equals(identity.callerAgentId()));
         ToolExecutionEnvelope original = envelope("av.vision-analysis");
         var delegate = (com.ghatana.toolruntime.ToolHandler) (e, c) -> {
             dispatches.incrementAndGet();
@@ -229,12 +260,12 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         };
 
         assertThatThrownBy(() -> runPromise(() ->
-                binder.execute(delegate, original, contractFor(original))))
+                authenticatedExecute(binder, delegate, original)))
                 .isInstanceOf(OutcomeUnknownException.class);
         int readbacksForOriginal = readbacks.get();
         ToolExecutionEnvelope foreign = sameInvocationAs(original, "tenant-other", "caller-agent");
         assertThatThrownBy(() -> runPromise(() ->
-                binder.execute(delegate, foreign, contractFor(foreign))))
+                authenticatedExecute(binder, delegate, foreign)))
                 .isInstanceOf(InvocationIdentityConflictException.class);
 
         assertThat(dispatches.get()).isEqualTo(1);
@@ -252,7 +283,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
             return Promise.ofException(new IllegalStateException("transport dropped after dispatch"));
         };
 
-        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, envelope)))
                 .isInstanceOf(OutcomeUnknownException.class);
         assertThat(ledger.find(envelope.invocationId())).hasValueSatisfying(action ->
                 assertThat(action.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
@@ -277,7 +308,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     e.invocationId(), Map.of("transcript", "safe"), Map.of(),
                     e.invocationId(), Instant.now(), Duration.ZERO));
         };
-        runPromise(() -> binder.execute(delegate, original, contractFor(original)));
+        runPromise(() -> authenticatedExecute(binder, delegate, original));
 
         ToolExecutionEnvelope changed = withInput(original, Map.of("different", "request"));
         var changedVariants = java.util.List.of(
@@ -293,7 +324,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                 variant(original, "av.vision-analysis", original.toolVersion(), original.callerAgentId(),
                         original.callerReleaseId(), original.actionClass(), original.requestSchemaVersion(), original.input()));
         for (ToolExecutionEnvelope variant : changedVariants) {
-            assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, variant, contractFor(variant))))
+            assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, variant)))
                     .isInstanceOf(InvocationIdentityConflictException.class);
         }
         assertThat(dispatches.get()).isEqualTo(1);
@@ -314,7 +345,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
             return Promise.of(ToolExecutionResult.succeeded(e.invocationId(), Map.of("ok", true), Map.of(),
                     e.invocationId(), Instant.now(), Duration.ZERO));
         };
-        ToolExecutionResult first = runPromise(() -> binder.execute(delegate, original, contractFor(original)));
+        ToolExecutionResult first = runPromise(() -> authenticatedExecute(binder, delegate, original));
         assertThat(ledger.find(original.invocationId()).orElseThrow().toString())
                 .doesNotContain("sensitive-input-marker");
 
@@ -328,7 +359,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         ToolExecutionEnvelope differentNumberType = withInput(original, Map.of(
                 "secret", "sensitive-input-marker", "count", 1L));
         assertThatThrownBy(() -> runPromise(() ->
-                binder.execute(delegate, differentNumberType, contractFor(differentNumberType))))
+                authenticatedExecute(binder, delegate, differentNumberType)))
                 .isInstanceOf(InvocationIdentityConflictException.class);
         assertThat(dispatches.get()).isEqualTo(1);
     }
@@ -347,27 +378,27 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         ToolExecutionEnvelope base = envelope("av.speech-to-text");
         String unpairedSurrogate = String.valueOf((char) 0xD800);
         ToolExecutionEnvelope malformed = withInput(base, Map.of("text", unpairedSurrogate));
-        runPromise(() -> binder.execute(delegate, malformed, contractFor(malformed)));
+        runPromise(() -> authenticatedExecute(binder, delegate, malformed));
 
         // UTF-8 String.getBytes replaces an unpaired surrogate with '?'; the
         // canonical fingerprint must keep the two Java strings distinct.
         ToolExecutionEnvelope replacement = withInput(base, Map.of("text", "?"));
-        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, replacement, contractFor(replacement))))
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, replacement)))
                 .isInstanceOf(InvocationIdentityConflictException.class);
 
         ToolExecutionEnvelope keyBase = envelope("av.speech-to-text");
         Map<String, Object> malformedKeyInput = new LinkedHashMap<>();
         malformedKeyInput.put(unpairedSurrogate, "value");
         ToolExecutionEnvelope malformedKey = withInput(keyBase, malformedKeyInput);
-        runPromise(() -> binder.execute(delegate, malformedKey, contractFor(malformedKey)));
+        runPromise(() -> authenticatedExecute(binder, delegate, malformedKey));
         ToolExecutionEnvelope replacementKey = withInput(keyBase, Map.of("?", "value"));
         assertThatThrownBy(() -> runPromise(() ->
-                binder.execute(delegate, replacementKey, contractFor(replacementKey))))
+                authenticatedExecute(binder, delegate, replacementKey)))
                 .isInstanceOf(InvocationIdentityConflictException.class);
 
         ToolExecutionEnvelope supplementary = withInput(envelope("av.speech-to-text"),
                 Map.of("text", new String(Character.toChars(0x1F9EA))));
-        assertThat(runPromise(() -> binder.execute(delegate, supplementary, contractFor(supplementary))).status())
+        assertThat(runPromise(() -> authenticatedExecute(binder, delegate, supplementary)).status())
                 .isEqualTo(ToolExecutionStatus.SUCCESS);
         assertThat(dispatches.get()).isEqualTo(3);
     }
@@ -389,7 +420,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
             return provider;
         };
 
-        Promise<ToolExecutionResult> first = binder.execute(delegate, envelope, contractFor(envelope));
+        Promise<ToolExecutionResult> first = authenticatedExecute(binder, delegate, envelope);
         assertThatThrownBy(() -> runPromise(() -> authenticatedReplay(binder, delegate, envelope)))
                 .isInstanceOf(OutcomeUnknownException.class);
         assertThat(dispatches.get()).isEqualTo(1);
@@ -477,7 +508,9 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         };
 
         assertThatThrownBy(() -> runPromise(() -> new MediaToolExecutionBinder(legacy,
-                (tenant, invocation) -> Optional.empty()).execute(delegate, envelope, contractFor(envelope))))
+                (tenant, invocation) -> Optional.empty(), (authenticated, identity) -> true)
+                .execute(delegate, envelope, contractFor(envelope), new AuthenticatedPrincipal(
+                        envelope.tenantId(), envelope.callerAgentId(), Instant.now()))))
                 .isInstanceOf(InvocationClaimUnavailableException.class);
         assertThat(dispatches.get()).isZero();
     }
@@ -537,8 +570,8 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
             return Promise.of(legacyFailure);
         };
 
-        assertThatThrownBy(() -> runPromise(() -> binder(ledger, Map.of()).execute(
-                delegate, envelope, contractFor(envelope))))
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder(ledger, Map.of()),
+                delegate, envelope)))
                 .isInstanceOf(InvocationIdentityConflictException.class);
         assertThat(dispatches.get()).isZero();
     }
@@ -564,9 +597,10 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
             return Promise.of(foreignResult);
         };
 
-        assertThatThrownBy(() -> runPromise(() -> new MediaToolExecutionBinder(malformed,
-                (tenant, invocation) -> Optional.empty()).execute(
-                        delegate, requested, contractFor(requested))))
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(new MediaToolExecutionBinder(malformed,
+                (tenant, invocation) -> Optional.empty(), (authenticated, identity) ->
+                        authenticated.tenantId().equals(identity.tenantId())
+                                && authenticated.principalId().equals(identity.callerAgentId())), delegate, requested)))
                 .isInstanceOf(InvocationClaimUnavailableException.class);
         assertThat(dispatches.get()).isZero();
     }
@@ -610,7 +644,9 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                 random.toolId(), random.toolVersion(), random.callerAgentId(), random.callerReleaseId(),
                 random.tenantId(), random.actionClass(), random.requestSchemaVersion(), random.input(), random.requestedAt());
         var binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.of("private-state-marker"));
+                (tenant, invocation) -> Optional.of("private-state-marker"),
+                (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
+                        && authenticated.principalId().equals(identity.callerAgentId()));
         var delegate = (com.ghatana.toolruntime.ToolHandler) (e, c) ->
                 Promise.ofException(new IllegalStateException("ambiguous"));
 
@@ -632,7 +668,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     e.invocationId(), Instant.now(), Duration.ZERO));
         };
 
-        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, envelope)))
                 .isInstanceOf(OutcomeUnknownException.class);
         ToolExecutionResult replay = runPromise(() -> authenticatedReplay(binder, delegate, envelope));
         assertThat(replay.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
@@ -651,7 +687,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     e.invocationId(), Instant.now(), Duration.ZERO));
         };
 
-        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, envelope)))
                 .isInstanceOf(InvocationClaimUnavailableException.class);
         assertThatThrownBy(() -> runPromise(() -> authenticatedReplay(binder, delegate, envelope)))
                 .isInstanceOf(OutcomeUnknownException.class);
@@ -679,10 +715,10 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
             });
 
             if (status == ToolExecutionStatus.TIMEOUT) {
-                assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+                assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, envelope)))
                         .isInstanceOf(OutcomeUnknownException.class);
             } else {
-                ToolExecutionResult first = runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope)));
+                ToolExecutionResult first = runPromise(() -> authenticatedExecute(binder, delegate, envelope));
                 assertThat(first.status()).isEqualTo(status);
             }
             assertThat(ledger.find(envelope.invocationId())).hasValueSatisfying(action ->
@@ -700,7 +736,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         var delegate = (com.ghatana.toolruntime.ToolHandler) (e, c) ->
                 Promise.ofException(new IllegalStateException("ambiguous"));
 
-        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))));
+        assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(binder, delegate, envelope)));
         assertThatThrownBy(() -> runPromise(() -> authenticatedReplay(binder, delegate, envelope)))
                 .isInstanceOf(OutcomeUnknownException.class)
                 .satisfies(thrown -> assertThat(((OutcomeUnknownException) thrown).durableJobState())
@@ -747,7 +783,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                     Instant.now(), Duration.ZERO));
         };
 
-        ToolExecutionResult first = runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope)));
+        ToolExecutionResult first = runPromise(() -> authenticatedExecute(binder, delegate, envelope));
         assertThat(first.status()).isNotEqualTo(ToolExecutionStatus.SUCCESS);
         ToolExecutionResult replay = runPromise(() -> authenticatedReplay(binder, delegate, envelope));
         assertThat(replay).isSameAs(first);

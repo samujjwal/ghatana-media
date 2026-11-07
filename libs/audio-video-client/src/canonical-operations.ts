@@ -28,6 +28,23 @@ export type CanonicalJobStatus =
 
 export type CanonicalStreamKind = "AUDIO" | "VIDEO" | "MULTIMODAL";
 
+/** Exact runtime artifact projection from GET /api/v1/artifacts/{artifactId}. */
+export interface CanonicalMediaArtifact {
+  readonly tenantId: string;
+  readonly principalId: string;
+  readonly artifactId: string;
+  readonly fileName: string;
+  readonly contentType: string;
+  readonly sizeBytes: number;
+  readonly sha256: string;
+  /** Opaque storage reference; never a public URL or byte-read credential. */
+  readonly objectReference: string;
+  readonly classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "RESTRICTED";
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly metadata: Readonly<Record<string, unknown>>;
+}
+
 /** Public client alias of the single runtime stream-state type. */
 export type CanonicalStreamState = MediaRuntimeStreamState;
 
@@ -114,6 +131,7 @@ const JOB_STATUSES = new Set(["ACCEPTED", "RUNNING", "OUTCOME_UNKNOWN", "COMPLET
 const STREAM_KINDS = new Set(["AUDIO", "VIDEO", "MULTIMODAL"]);
 const STREAM_STATES = new Set(["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"]);
 const FINALITIES = new Set(["NONE", "FINAL_ACKNOWLEDGED", "UNKNOWN"]);
+const ARTIFACT_CLASSIFICATIONS = new Set(["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]);
 
 /** Only explicit no-effect client statuses and idempotency conflicts are definitive. */
 function isDefinitiveClientRejection(failure: unknown): failure is MediaClientError {
@@ -150,6 +168,36 @@ function nullableText(value: Record<string, unknown>, key: string, dto: string):
     throw new TypeError(`${dto} ${key} must be a string or null.`);
   }
   return field;
+}
+
+function parseCanonicalMediaArtifact(input: unknown): CanonicalMediaArtifact {
+  const value = asRecord(input, "Canonical Media artifact");
+  const classification = requiredText(value, "classification", "Canonical Media artifact");
+  if (!ARTIFACT_CLASSIFICATIONS.has(classification)) {
+    throw new TypeError("Canonical Media artifact classification is outside the runtime enum.");
+  }
+  const sizeBytes = value.sizeBytes;
+  if (typeof sizeBytes !== "number" || !Number.isSafeInteger(sizeBytes) || sizeBytes < 1 || sizeBytes > 1_099_511_627_776) {
+    throw new TypeError("Canonical Media artifact sizeBytes must be a positive bounded integer.");
+  }
+  const metadata = requiredObject(value, "metadata", "Canonical Media artifact");
+  if (Object.keys(metadata).length > 64) throw new TypeError("Canonical Media artifact metadata exceeds the runtime bound.");
+  const sha256 = requiredText(value, "sha256", "Canonical Media artifact");
+  if (!/^[0-9a-fA-F]{64}$/u.test(sha256)) throw new TypeError("Canonical Media artifact sha256 must be a full digest.");
+  return {
+    tenantId: requiredText(value, "tenantId", "Canonical Media artifact"),
+    principalId: requiredText(value, "principalId", "Canonical Media artifact"),
+    artifactId: requiredText(value, "artifactId", "Canonical Media artifact"),
+    fileName: requiredText(value, "fileName", "Canonical Media artifact"),
+    contentType: requiredText(value, "contentType", "Canonical Media artifact"),
+    sizeBytes,
+    sha256,
+    objectReference: requiredText(value, "objectReference", "Canonical Media artifact"),
+    classification: classification as CanonicalMediaArtifact["classification"],
+    createdAt: requiredDateTime(value.createdAt, "createdAt"),
+    expiresAt: requiredDateTime(value.expiresAt, "expiresAt"),
+    metadata,
+  };
 }
 
 function requiredDateTime(value: unknown, label: string): string {
@@ -364,6 +412,13 @@ export class MediaCanonicalClient {
     return job;
   }
 
+  private assertArtifactScope(artifact: CanonicalMediaArtifact, principalId: string): CanonicalMediaArtifact {
+    if (artifact.tenantId !== this.tenantId || artifact.principalId !== principalId) {
+      throw new TypeError("Canonical Media artifact response is outside the caller's tenant and principal scope.");
+    }
+    return artifact;
+  }
+
   private assertSessionScope(session: CanonicalStreamSession, principalId: string): CanonicalStreamSession {
     if (session.tenantId !== this.tenantId || session.principalId !== principalId) {
       throw new TypeError("Canonical Media stream session is outside the caller's tenant and principal scope.");
@@ -433,6 +488,21 @@ export class MediaCanonicalClient {
       throw new TypeError("Canonical Media job response identity does not match the request.");
     }
     return job;
+  }
+
+  /** GET /api/v1/artifacts/{artifactId} — scoped metadata read only. */
+  public async getArtifact(artifactId: string, signal?: AbortSignal): Promise<CanonicalMediaArtifact> {
+    const principalId = this.requirePrincipalId("artifact reads");
+    const requested = safePathSegment("artifactId", artifactId);
+    const artifact = await this.transport.request(
+      "GET", canonicalMediaHttpRoutes.getArtifact.replace("{artifactId}", encodeURIComponent(requested)), undefined,
+      { parse: parseCanonicalMediaArtifact }, signal,
+    );
+    this.assertArtifactScope(artifact, principalId);
+    if (artifact.artifactId !== requested) {
+      throw new TypeError("Canonical Media artifact response identity does not match the request.");
+    }
+    return artifact;
   }
 
   /**

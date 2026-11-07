@@ -160,7 +160,10 @@ public final class VersionedReviewEngine {
 
     private ReviewRecord redacted(ReviewRecord record) {
         String safe = sanitizer.sanitize(record.payload().textForSanitization());
-        if (safe == null || safe.isBlank()) throw new ReviewUnavailableException();
+        int maxLength = record.payload() instanceof Comment ? 10_000 : 4_000;
+        if (safe == null || safe.isBlank() || safe.length() > maxLength) {
+            throw new ReviewUnavailableException();
+        }
         return new ReviewRecord(record.appendRecordId(), record.tenantId(), record.reviewCaseId(), record.reviewSubjectRef(),
                 record.requestId(), record.operationId(), record.actor(), record.payload().withSanitizedText(safe),
                 record.caseRevision(), record.createdAt(), record.authorityVersion());

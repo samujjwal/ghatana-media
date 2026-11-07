@@ -116,17 +116,6 @@ export class OfflineEditQueue {
 
   public async enqueue<T>(edit: OfflineEdit<T>): Promise<void> {
     assertEdit(edit);
-    const records = await this.listScoped(edit);
-    const existing = records.find((record) => record.editId === edit.editId
-      || record.idempotencyKey === edit.idempotencyKey);
-    if (existing) {
-      if (existing.editId !== edit.editId || existing.idempotencyKey !== edit.idempotencyKey
-        || existing.expectedVersion !== edit.expectedVersion) {
-        throw new OfflineEditQueueError("INVALID_EDIT");
-      }
-      return; // exact duplicate is suppressed, including terminal/unknown entries.
-    }
-    if (records.length >= this.maximumEntries) throw new OfflineEditQueueError("QUEUE_FULL");
     let serialized: string;
     try {
       serialized = JSON.stringify(edit.payload);
@@ -136,6 +125,18 @@ export class OfflineEditQueue {
     if (serialized === undefined) throw new OfflineEditQueueError("INVALID_EDIT");
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
+    const records = await this.listScoped(edit);
+    const existing = records.find((record) => record.editId === edit.editId
+      || record.idempotencyKey === edit.idempotencyKey);
+    if (existing) {
+      if (existing.editId !== edit.editId || existing.idempotencyKey !== edit.idempotencyKey
+        || existing.expectedVersion !== edit.expectedVersion
+        || !equalBytes(await this.decryptPayloadBytes(existing), plaintext)) {
+        throw new OfflineEditQueueError("INVALID_EDIT");
+      }
+      return; // exact duplicate is suppressed, including terminal/unknown entries.
+    }
+    if (records.length >= this.maximumEntries) throw new OfflineEditQueueError("QUEUE_FULL");
     const record = await this.encrypt(edit, plaintext, "PENDING");
     if (!await this.options.store.insert(record, this.maximumEntries)) {
       const afterInsertRace = await this.listScoped(edit);
@@ -143,7 +144,8 @@ export class OfflineEditQueue {
         || item.idempotencyKey === edit.idempotencyKey);
       if (!raced && afterInsertRace.length >= this.maximumEntries) throw new OfflineEditQueueError("QUEUE_FULL");
       if (!raced || raced.editId !== edit.editId || raced.idempotencyKey !== edit.idempotencyKey
-        || raced.expectedVersion !== edit.expectedVersion) throw new OfflineEditQueueError("INVALID_EDIT");
+        || raced.expectedVersion !== edit.expectedVersion
+        || !equalBytes(await this.decryptPayloadBytes(raced), plaintext)) throw new OfflineEditQueueError("INVALID_EDIT");
     }
   }
 
@@ -338,11 +340,7 @@ export class OfflineEditQueue {
   }
 
   private async decrypt<T>(record: OfflineEditRecord): Promise<OfflineEdit<T>> {
-    const plaintext = await this.cryptoApi.subtle.decrypt(
-      { name: "AES-GCM", iv: this.copyBufferSource(record.nonce), additionalData: this.aad(record) },
-      this.options.encryptionKey,
-      this.copyBufferSource(record.ciphertext),
-    );
+    const plaintext = await this.decryptPayloadBytes(record);
     // Keep the storage envelope private to the queue. In particular, replay
     // adapters should receive the edit contract only, never IndexedDB fields
     // such as ciphertext, nonce, state or byte-accounting metadata.
@@ -354,6 +352,15 @@ export class OfflineEditQueue {
       expectedVersion: record.expectedVersion,
       payload: JSON.parse(decoder.decode(plaintext)) as T,
     };
+  }
+
+  private async decryptPayloadBytes(record: OfflineEditRecord): Promise<Uint8Array> {
+    const plaintext = await this.cryptoApi.subtle.decrypt(
+      { name: "AES-GCM", iv: this.copyBufferSource(record.nonce), additionalData: this.aad(record) },
+      this.options.encryptionKey,
+      this.copyBufferSource(record.ciphertext),
+    );
+    return new Uint8Array(plaintext);
   }
 
   private async transition(record: OfflineEditRecord, state: OfflineEditState): Promise<OfflineEditRecord | undefined> {
@@ -410,4 +417,8 @@ export class OfflineEditQueue {
 function validReceipt<R>(receipt: R | undefined): receipt is R {
   if (receipt === undefined || receipt === null) return false;
   return typeof receipt !== "string" || receipt.trim().length > 0;
+}
+
+function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
+  return left.byteLength === right.byteLength && left.every((value, index) => value === right[index]);
 }

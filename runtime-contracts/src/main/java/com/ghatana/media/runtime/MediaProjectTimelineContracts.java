@@ -64,22 +64,22 @@ public final class MediaProjectTimelineContracts {
     /** An exact immutable artifact version; a digest is never used as version identity. */
     public record SourceVersion(String artifactId, String artifactVersionId) {
         public SourceVersion {
-            artifactId = required(artifactId, "artifactId");
-            artifactVersionId = required(artifactVersionId, "artifactVersionId");
+            artifactId = requiredOpaqueId(artifactId, "artifactId");
+            artifactVersionId = requiredOpaqueVersionId(artifactVersionId, "artifactVersionId");
         }
     }
 
     public record Scene(String sceneId, int order) {
         public Scene {
-            sceneId = required(sceneId, "sceneId");
+            sceneId = requiredOpaqueId(sceneId, "sceneId");
             if (order < 0) throw new IllegalArgumentException("scene order must be non-negative");
         }
     }
 
     public record Track(String trackId, String sceneId, TrackKind kind, int order) {
         public Track {
-            trackId = required(trackId, "trackId");
-            sceneId = required(sceneId, "sceneId");
+            trackId = requiredOpaqueId(trackId, "trackId");
+            sceneId = requiredOpaqueId(sceneId, "sceneId");
             Objects.requireNonNull(kind, "kind");
             if (order < 0) throw new IllegalArgumentException("track order must be non-negative");
         }
@@ -95,9 +95,9 @@ public final class MediaProjectTimelineContracts {
             RationalTime storyStart,
             RationalTime storyDuration) {
         public Clip {
-            clipId = required(clipId, "clipId");
-            sceneId = required(sceneId, "sceneId");
-            trackId = required(trackId, "trackId");
+            clipId = requiredOpaqueId(clipId, "clipId");
+            sceneId = requiredOpaqueId(sceneId, "sceneId");
+            trackId = requiredOpaqueId(trackId, "trackId");
             Objects.requireNonNull(source, "source");
             Objects.requireNonNull(sourceIn, "sourceIn");
             Objects.requireNonNull(sourceOut, "sourceOut");
@@ -123,7 +123,7 @@ public final class MediaProjectTimelineContracts {
     /** Complete immutable graph snapshot. A caller cannot smuggle detached nodes into a revision. */
     public record Graph(String timelineId, List<Scene> scenes, List<Track> tracks, List<Clip> clips) {
         public Graph {
-            timelineId = required(timelineId, "timelineId");
+            timelineId = requiredOpaqueId(timelineId, "timelineId");
             scenes = List.copyOf(scenes == null ? List.of() : scenes);
             tracks = List.copyOf(tracks == null ? List.of() : tracks);
             clips = List.copyOf(clips == null ? List.of() : clips);
@@ -166,30 +166,30 @@ public final class MediaProjectTimelineContracts {
 
     public record Actor(String tenantId, String principalId) {
         public Actor {
-            tenantId = required(tenantId, "tenantId");
-            principalId = required(principalId, "principalId");
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            principalId = requiredOpaqueId(principalId, "principalId");
         }
     }
 
     public record Project(String tenantId, String projectId, String workspaceId, String ownerPrincipalId,
                           String title, String headRevisionId) {
         public Project {
-            tenantId = required(tenantId, "tenantId");
-            projectId = required(projectId, "projectId");
-            workspaceId = required(workspaceId, "workspaceId");
-            ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            projectId = requiredOpaqueId(projectId, "projectId");
+            workspaceId = requiredOpaqueId(workspaceId, "workspaceId");
+            ownerPrincipalId = requiredOpaqueId(ownerPrincipalId, "ownerPrincipalId");
             title = requiredProjectTitle(title);
-            headRevisionId = required(headRevisionId, "headRevisionId");
+            headRevisionId = requiredOpaqueId(headRevisionId, "headRevisionId");
         }
     }
 
     public record Revision(String tenantId, String projectId, String revisionId, String parentRevisionId,
                            Graph graph) {
         public Revision {
-            tenantId = required(tenantId, "tenantId");
-            projectId = required(projectId, "projectId");
-            revisionId = required(revisionId, "revisionId");
-            parentRevisionId = parentRevisionId == null ? null : required(parentRevisionId, "parentRevisionId");
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            projectId = requiredOpaqueId(projectId, "projectId");
+            revisionId = requiredOpaqueId(revisionId, "revisionId");
+            parentRevisionId = parentRevisionId == null ? null : requiredOpaqueId(parentRevisionId, "parentRevisionId");
             Objects.requireNonNull(graph, "graph");
         }
     }
@@ -257,6 +257,22 @@ public final class MediaProjectTimelineContracts {
         if (value.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         if (!value.equals(value.strip())) {
             throw new IllegalArgumentException(name + " must not have surrounding whitespace");
+        }
+        return value;
+    }
+
+    /** Validates PDP-1's opaque-id scalar before a development adapter accepts an identity. */
+    public static String requiredOpaqueId(String value, String name) {
+        if (value == null || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException(name + " must be a 1-128 character opaque id");
+        }
+        return value;
+    }
+
+    /** Validates PDP-1's opaque-version-id scalar; version identity is distinct from a digest. */
+    public static String requiredOpaqueVersionId(String value, String name) {
+        if (value == null || !value.matches("[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}")) {
+            throw new IllegalArgumentException(name + " must be a 1-128 character opaque version id");
         }
         return value;
     }

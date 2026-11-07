@@ -23,6 +23,28 @@ class MediaProjectTimelineContractsTest {
     }
 
     @Test
+    void typedIdentitiesEnforcePdpOpaqueIdAndVersionIdScalars() {
+        String maxId = "A" + "a".repeat(127);
+        assertThat(new Actor(maxId, "principal:1").tenantId()).isEqualTo(maxId);
+        assertThat(new SourceVersion("artifact_1", "version+1").artifactVersionId()).isEqualTo("version+1");
+
+        for (String invalid : List.of("", "_first", "has space", "é", "a".repeat(129))) {
+            assertThatThrownBy(() -> new Actor(invalid, "principal"))
+                    .as("tenant opaque id %s", invalid)
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> new Graph(invalid, List.of(), List.of(), List.of()))
+                    .as("timeline opaque id %s", invalid)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+        assertThatThrownBy(() -> new SourceVersion("artifact", "_version"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactVersionId");
+        assertThatThrownBy(() -> new SourceVersion("artifact", "v".repeat(129)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactVersionId");
+        assertThatThrownBy(() -> new SourceVersion("artifact/1", "version"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactId");
+    }
+
+    @Test
     void rationalTimesNormalizeAndCompareExactlyAtLongDurations() {
         RationalTime ntsc = new RationalTime(30_000L * 60L * 60L * 24L, 30_000, 1_001, Clock.STORY);
         RationalTime sameInstant = new RationalTime(24L * 60L * 60L * 24L, 24, 1, Clock.STORY);

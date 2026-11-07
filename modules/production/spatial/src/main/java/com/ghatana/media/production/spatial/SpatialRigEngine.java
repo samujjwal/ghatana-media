@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.CharacterCodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -676,6 +678,15 @@ public final class SpatialRigEngine {
             if (chunkIndex == 0) {
                 if (chunkType != 0x4e4f534a || chunkLength == 0) {
                     throw new IllegalArgumentException("GLB first chunk must contain JSON");
+                }
+                ByteBuffer jsonChunk = input.slice(input.position(), chunkLength);
+                try {
+                    java.nio.charset.StandardCharsets.UTF_8.newDecoder()
+                            .onMalformedInput(CodingErrorAction.REPORT)
+                            .onUnmappableCharacter(CodingErrorAction.REPORT)
+                            .decode(jsonChunk);
+                } catch (CharacterCodingException invalidUtf8) {
+                    throw new IllegalArgumentException("GLB JSON chunk must be valid UTF-8", invalidUtf8);
                 }
             } else if (chunkType == 0x4e4f534a) {
                 throw new IllegalArgumentException("GLB must contain exactly one leading JSON chunk");

@@ -375,8 +375,19 @@ public final class MediaDeliveryEngine {
     }
 
     public synchronized Optional<DeliveryResult> find(String tenantId, String requestId) {
-        Entry entry = entries.get(new OperationKey(required(tenantId, "tenantId"), required(requestId, "requestId")));
-        if (entry == null) return operations.find(tenantId, requestId).map(MediaDeliveryEngine::result);
+        String exactTenantId = required(tenantId, "tenantId");
+        String exactRequestId = required(requestId, "requestId");
+        Entry entry = entries.get(new OperationKey(exactTenantId, exactRequestId));
+        if (entry == null) {
+            Optional<DeliveryOperationStore.Operation> stored = operations.find(exactTenantId, exactRequestId);
+            if (stored.isEmpty()) return Optional.empty();
+            DeliveryOperationStore.Operation operation = stored.get();
+            if (!operation.tenantId().equals(exactTenantId) || !operation.requestId().equals(exactRequestId)) {
+                throw new DeliveryException(DeliveryException.Code.IDEMPOTENCY_CONFLICT,
+                        "delivery operation readback differs from requested tenant and request scope");
+            }
+            return Optional.of(result(operation));
+        }
         return Optional.of(refreshEntry(entry));
     }
 

@@ -489,6 +489,35 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
+  it('rejects bearer values with HTTP control characters as local configuration before dispatch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-bearer-control-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const malformedToken = `${token}\nsecond-line`;
+    try {
+      const result = await invoke(
+        jobCommand('https://media.example.test', 'status', ['--job', 'job-1']),
+        malformedToken,
+        {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+          GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+        },
+        fetchFixture,
+      );
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status',
+        code: 'INVALID_CONFIGURATION',
+        message: 'GHATANA_MEDIA_BEARER_TOKEN contains characters that cannot be sent in an HTTP header.',
+      });
+      expect(result.stderr).not.toContain(malformedToken);
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('submits with canonical request identity and preserves ACCEPTED without claiming completion', async () => {
     let requests = 0;
     await withServer((request, response) => {

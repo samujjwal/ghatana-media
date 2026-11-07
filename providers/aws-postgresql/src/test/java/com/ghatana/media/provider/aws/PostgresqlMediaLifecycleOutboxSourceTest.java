@@ -78,6 +78,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 verifyExpiredClaimRecovery();
                 verifyClaimTokenOverflowFailsClosed();
                 verifyClaimLeaseOverflowFailsClosed();
+                verifyAttemptCounterOverflowFailsBeforePublish();
                 verifyRetryDelayAndDeadLetter();
             } finally {
                 anchor.release();
@@ -266,6 +267,57 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             query.setString(1, eventId);
             try (var row = query.executeQuery()) {
                 assertThat(row.next()).isTrue();
+                assertThat(row.getLong("claim_token")).isZero();
+                assertThat(row.getString("claim_owner")).isNull();
+                assertThat(row.getObject("claim_expires_at")).isNull();
+                assertThat(row.getObject("published_at")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyAttemptCounterOverflowFailsBeforePublish() throws Exception {
+        String eventId = "media:test:outbox-attempt-counter-overflow";
+        insertEvent(eventId);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_outbox SET attempts=? WHERE event_id=?")) {
+            update.setInt(1, Integer.MAX_VALUE);
+            update.setString(2, eventId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        AtomicInteger providerEffects = new AtomicInteger();
+        try {
+            assertThatThrownBy(() -> source.publishPending(
+                    publisher(event -> providerEffects.incrementAndGet()), 1))
+                    .isInstanceOf(ArithmeticException.class);
+            assertThat(providerEffects).hasValue(0);
+        } finally {
+            source.close();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT attempts,claim_token,claim_owner,claim_expires_at,published_at "
+                        + "FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getInt("attempts")).isEqualTo(Integer.MAX_VALUE);
                 assertThat(row.getLong("claim_token")).isZero();
                 assertThat(row.getString("claim_owner")).isNull();
                 assertThat(row.getObject("claim_expires_at")).isNull();

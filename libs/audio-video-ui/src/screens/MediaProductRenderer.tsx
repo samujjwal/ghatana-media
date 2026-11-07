@@ -1,5 +1,6 @@
 import React from "react";
 import { ArtifactIntakeScreen, type ArtifactIntakeScreenProps } from "./ArtifactIntakeScreen";
+import { ArtifactInspectionScreen, type ArtifactInspectionScreenProps } from "./ArtifactInspectionScreen";
 import { FirstUseProjectScreen, type FirstUseProjectScreenProps } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen, type JobRecoveryScreenProps } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen, type TranscriptCaptionScreenProps } from "./TranscriptCaptionScreen";
@@ -15,6 +16,7 @@ import { MEDIA_SCREEN_COMPONENTS, type MediaContractScreenId } from "./MediaCont
 export const MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS = {
   "first-use-project": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
   "artifact-intake": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
+  "artifact-inspection": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
   "job-recovery": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
   "transcript-caption": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
   "contract-screen": { renderer: "DEFINITION_ONLY_PREVIEW", productRoute: "NOT_ADMITTED" },
@@ -55,6 +57,7 @@ export const MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS: Readonly<Record<Medi
 export type MediaProductRendererProps =
   | ({ readonly kind: "first-use-project" } & FirstUseProjectScreenProps)
   | ({ readonly kind: "artifact-intake" } & ArtifactIntakeScreenProps)
+  | ({ readonly kind: "artifact-inspection" } & ArtifactInspectionScreenProps)
   | ({ readonly kind: "job-recovery" } & JobRecoveryScreenProps)
   | ({ readonly kind: "transcript-caption" } & TranscriptCaptionScreenProps)
   | ({ readonly kind: "contract-screen" } & MediaContractScreenProps);
@@ -68,6 +71,10 @@ export function MediaProductRenderer(props: MediaProductRendererProps): React.Re
     case "artifact-intake": {
       const { kind: _kind, ...screenProps } = props;
       return <ArtifactIntakeScreen {...screenProps} />;
+    }
+    case "artifact-inspection": {
+      const { kind: _kind, ...screenProps } = props;
+      return <ArtifactInspectionScreen {...screenProps} />;
     }
     case "job-recovery": {
       const { kind: _kind, ...screenProps } = props;

@@ -5,6 +5,7 @@ import { MediaTaskScreen } from "./MediaTaskScreen";
 import { MediaTaskFlow } from "../components/MediaTaskFlow";
 import { MediaActionFeedback, mediaActionFeedbackForResult } from "../components/MediaActionFeedback";
 import { ArtifactIntakeScreen } from "./ArtifactIntakeScreen";
+import { ArtifactInspectionScreen } from "./ArtifactInspectionScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
@@ -103,6 +104,13 @@ describe("MediaProductRenderer", () => {
       component: ArtifactIntakeScreen,
       projectionKey: "intake",
       projection: { view: "inspect-media", artifacts: [{ id: "artifact-7", name: "source.mov", version: "v3" }] },
+    },
+    {
+      name: "artifact inspection",
+      props: { kind: "artifact-inspection", ...common, artifactId: "artifact-7" } satisfies MediaProductRendererProps,
+      component: ArtifactInspectionScreen,
+      projectionKey: "artifactId",
+      projection: "artifact-7",
     },
     {
       name: "job recovery",
