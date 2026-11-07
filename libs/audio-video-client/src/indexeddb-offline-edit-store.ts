@@ -204,7 +204,8 @@ function fromStored(record: StoredRecord): OfflineEditRecord {
   return { tenantId: record.tenantId, projectId: record.projectId, editId: record.editId,
     idempotencyKey: record.idempotencyKey, expectedVersion: record.expectedVersion,
     nonce: new Uint8Array(record.nonce.slice(0)), ciphertext: new Uint8Array(record.ciphertext.slice(0)),
-    payloadBytes: record.payloadBytes, state: record.state };
+    payloadBytes: record.payloadBytes, state: record.state,
+    ...(record.envelopeVersion === 2 ? { envelopeVersion: 2 as const } : {}) };
 }
 
 function copyBuffer(bytes: Uint8Array): ArrayBuffer {
@@ -220,6 +221,7 @@ function sameScopeAndEdit(a: OfflineEditRecord, b: OfflineEditRecord): boolean {
 function sameRecord(a: OfflineEditRecord, b: OfflineEditRecord): boolean {
   return sameScopeAndEdit(a, b) && a.idempotencyKey === b.idempotencyKey
     && a.expectedVersion === b.expectedVersion && a.payloadBytes === b.payloadBytes && a.state === b.state
+    && a.envelopeVersion === b.envelopeVersion
     && equalBytes(a.nonce, b.nonce) && equalBytes(a.ciphertext, b.ciphertext);
 }
 

@@ -27,6 +27,8 @@ export interface OfflineEditRecord extends OfflineEditScope {
   readonly ciphertext: Uint8Array;
   readonly payloadBytes: number;
   readonly state: OfflineEditState;
+  /** Absent on legacy v1 rows; new authenticated envelopes use v2. */
+  readonly envelopeVersion?: 2;
 }
 
 /** Implementations must store only the supplied ciphertext for edit payloads. */
@@ -260,7 +262,8 @@ export class OfflineEditQueue {
     const compareAndSet = this.options.store.compareAndSet;
     if (!compareAndSet) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
     const previous = (await this.listScoped(edit)).find((record) => record.editId === edit.editId);
-    if (previous?.state !== "CONFLICT" || previous.idempotencyKey === edit.idempotencyKey
+    if (previous?.envelopeVersion !== 2 || previous.state !== "CONFLICT"
+      || previous.idempotencyKey === edit.idempotencyKey
       || previous.expectedVersion === edit.expectedVersion) {
       throw new Error("Conflict resolution requires a conflicted edit, new version and new idempotency key.");
     }
@@ -277,7 +280,7 @@ export class OfflineEditQueue {
 
   public async hasDirtyEdits(scope: OfflineEditScope): Promise<boolean> {
     assertScope(scope);
-    return (await this.listScoped(scope)).some((record) => record.state !== "APPLIED");
+    return (await this.listScoped(scope)).some((record) => record.envelopeVersion !== 2 || record.state !== "APPLIED");
   }
 
   /** Restore exact queued edits after restart for a scoped local editor. */
@@ -287,7 +290,8 @@ export class OfflineEditQueue {
   }[]> {
     assertScope(scope);
     const records = await this.listScoped(scope);
-    return Promise.all(records.map(async (record) => ({ edit: await this.decrypt<T>(record), state: record.state })));
+    return Promise.all(records.map(async (record) => ({ edit: await this.decrypt<T>(record),
+      state: record.envelopeVersion === 2 ? record.state : "OUTCOME_UNKNOWN" as const })));
   }
 
   public async replay<T, R>(scope: OfflineEditScope, adapter: OfflineEditReplayAdapter<T, R>): Promise<readonly {
@@ -303,6 +307,14 @@ export class OfflineEditQueue {
     }
     const results: { editId: string; state: OfflineEditReplayState; receipt?: R }[] = [];
     for (const record of records) {
+      if (record.envelopeVersion !== 2) {
+        // Legacy v1 authenticated edit identity but not replay state. Fence and
+        // upgrade before any authorization/version reads or external effects.
+        const migrated = await this.transition(record, "OUTCOME_UNKNOWN");
+        results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+        if (!migrated) continue;
+        continue;
+      }
       if (record.state !== "PENDING") continue; // unknown, revoked, conflicts are never auto-replayed.
       const edit = freezeEdit(await this.decrypt<T>(record));
       let versionRead: Awaited<ReturnType<typeof adapter.readCurrentVersion>>;
@@ -436,6 +448,10 @@ export class OfflineEditQueue {
     if (!confirmedNotApplied) throw new Error("OUTCOME_UNKNOWN requires authoritative no-effect reconciliation.");
     if (!this.options.store.removeIfMatches) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
     const record = (await this.listScoped(scope)).find((candidate) => candidate.editId === editId);
+    if (record && record.envelopeVersion !== 2) {
+      await this.transition(record, "OUTCOME_UNKNOWN");
+      throw new Error("Legacy edit fenced; reconcile its outcome again before discard.");
+    }
     if (record?.state !== "OUTCOME_UNKNOWN") throw new Error("The edit is not awaiting unknown-outcome reconciliation.");
     if (!await this.options.store.removeIfMatches(record)) throw new OfflineEditQueueError("STORE_RECORD_CHANGED");
   }
@@ -457,6 +473,7 @@ export class OfflineEditQueue {
 
   private async decryptPayloadBytes(record: OfflineEditRecord): Promise<Uint8Array> {
     if (!(record.nonce instanceof Uint8Array) || !(record.ciphertext instanceof Uint8Array)
+      || !isOfflineEditState(record.state)
       || !Number.isSafeInteger(record.payloadBytes) || record.payloadBytes < 0
       || record.payloadBytes > this.maximumPayloadBytes
       // AES-GCM records are written with a 96-bit nonce and the default
@@ -466,11 +483,16 @@ export class OfflineEditQueue {
       || record.ciphertext.byteLength !== record.payloadBytes + 16) {
       throw new OfflineEditQueueError("STORE_RECORD_INVALID");
     }
-    const plaintext = await this.cryptoApi.subtle.decrypt(
-      { name: "AES-GCM", iv: this.copyBufferSource(record.nonce), additionalData: this.aad(record) },
-      this.options.encryptionKey,
-      this.copyBufferSource(record.ciphertext),
-    );
+    let plaintext: ArrayBuffer;
+    try {
+      plaintext = await this.cryptoApi.subtle.decrypt(
+        { name: "AES-GCM", iv: this.copyBufferSource(record.nonce), additionalData: this.aad(record) },
+        this.options.encryptionKey,
+        this.copyBufferSource(record.ciphertext),
+      );
+    } catch {
+      throw new OfflineEditQueueError("STORE_RECORD_INVALID");
+    }
     const bytes = new Uint8Array(plaintext);
     if (bytes.byteLength !== record.payloadBytes || bytes.byteLength > this.maximumPayloadBytes) {
       throw new OfflineEditQueueError("STORE_RECORD_INVALID");
@@ -479,8 +501,13 @@ export class OfflineEditQueue {
   }
 
   private async transition(record: OfflineEditRecord, state: OfflineEditState): Promise<OfflineEditRecord | undefined> {
-    const replacement = { ...record, state };
+    // Replay state controls whether an external effect may be dispatched, so
+    // authenticate it with the payload. Re-encrypt on every state transition
+    // with a fresh nonce before attempting the store CAS.
+    let replacement: OfflineEditRecord;
     try {
+      const plaintext = await this.decryptPayloadBytes(record);
+      replacement = await this.encrypt({ ...record, payload: undefined }, plaintext, state);
       return this.options.store.compareAndSet && await this.options.store.compareAndSet(record, replacement)
         ? replacement : undefined;
     } catch {
@@ -498,7 +525,9 @@ export class OfflineEditQueue {
     }
     if (records.some((record) => !isValidAadIdentity(record.tenantId) || !isValidAadIdentity(record.projectId)
       || !isValidAadIdentity(record.editId) || !isValidAadIdentity(record.idempotencyKey)
-      || !isValidAadIdentity(record.expectedVersion))) {
+      || !isValidAadIdentity(record.expectedVersion)
+      || (record.envelopeVersion !== undefined && record.envelopeVersion !== 2)
+      || !isOfflineEditState(record.state))) {
       throw new OfflineEditQueueError("STORE_SCOPE_MISMATCH");
     }
     return records;
@@ -508,23 +537,25 @@ export class OfflineEditQueue {
     const nonce = new Uint8Array(12);
     this.cryptoApi.getRandomValues(nonce);
     const ciphertext = new Uint8Array(await this.cryptoApi.subtle.encrypt(
-      { name: "AES-GCM", iv: this.copyBufferSource(nonce), additionalData: this.aad(edit) },
+      { name: "AES-GCM", iv: this.copyBufferSource(nonce), additionalData: this.aad({ ...edit, state, envelopeVersion: 2 }) },
       this.options.encryptionKey,
       this.copyBufferSource(plaintext),
     ));
     return { tenantId: edit.tenantId, projectId: edit.projectId, editId: edit.editId,
       idempotencyKey: edit.idempotencyKey, expectedVersion: edit.expectedVersion, nonce, ciphertext,
-      payloadBytes: plaintext.byteLength, state };
+      payloadBytes: plaintext.byteLength, state, envelopeVersion: 2 };
   }
 
   private aad(scope: OfflineEditScope & {
     readonly editId?: string;
     readonly expectedVersion?: string;
     readonly idempotencyKey?: string;
+    readonly state?: OfflineEditState;
+    readonly envelopeVersion?: 2;
   }): ArrayBuffer {
-    return this.copyBufferSource(encoder.encode(
-      `${scope.tenantId}\u0000${scope.projectId}\u0000${scope.editId ?? ""}\u0000${scope.expectedVersion ?? ""}\u0000${scope.idempotencyKey ?? ""}`,
-    ));
+    const base = `${scope.tenantId}\u0000${scope.projectId}\u0000${scope.editId ?? ""}\u0000${scope.expectedVersion ?? ""}\u0000${scope.idempotencyKey ?? ""}`;
+    return this.copyBufferSource(encoder.encode(scope.envelopeVersion === 2
+      ? `${base}\u0000${scope.state ?? ""}` : base));
   }
 
   private copyBufferSource(bytes: Uint8Array): ArrayBuffer {
@@ -532,6 +563,11 @@ export class OfflineEditQueue {
     copy.set(bytes);
     return copy.buffer;
   }
+}
+
+function isOfflineEditState(value: unknown): value is OfflineEditState {
+  return value === "PENDING" || value === "APPLIED" || value === "CONFLICT"
+    || value === "REVOKED" || value === "OUTCOME_UNKNOWN";
 }
 
 function validReceipt<R>(receipt: R | undefined): receipt is R {

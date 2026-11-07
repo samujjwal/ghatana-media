@@ -34,6 +34,7 @@ class MemoryStore implements OfflineEditStore {
     if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
       || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
       || current.expectedVersion !== expected.expectedVersion || current.state !== expected.state
+      || current.envelopeVersion !== expected.envelopeVersion
       || replacement.tenantId !== expected.tenantId || replacement.projectId !== expected.projectId
       || replacement.editId !== expected.editId
       || [...this.records.values()].some((item) => item.tenantId === replacement.tenantId

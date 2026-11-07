@@ -44,6 +44,7 @@ class MemoryStore implements OfflineEditStore {
     if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
       || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
       || current.expectedVersion !== expected.expectedVersion || current.state !== expected.state
+      || current.envelopeVersion !== expected.envelopeVersion
       || !sameBytes(current.nonce, expected.nonce) || !sameBytes(current.ciphertext, expected.ciphertext)
       || replacement.tenantId !== expected.tenantId || replacement.projectId !== expected.projectId
       || replacement.editId !== expected.editId
@@ -58,7 +59,8 @@ class MemoryStore implements OfflineEditStore {
     if (!current || current.tenantId !== expected.tenantId || current.projectId !== expected.projectId
       || current.editId !== expected.editId || current.idempotencyKey !== expected.idempotencyKey
       || current.expectedVersion !== expected.expectedVersion || current.payloadBytes !== expected.payloadBytes
-      || current.state !== expected.state || !sameBytes(current.nonce, expected.nonce)
+      || current.state !== expected.state || current.envelopeVersion !== expected.envelopeVersion
+      || !sameBytes(current.nonce, expected.nonce)
       || !sameBytes(current.ciphertext, expected.ciphertext)) return false;
     this.records.delete(expected.editId);
     return true;
@@ -70,9 +72,9 @@ function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
-async function createQueue(store = new MemoryStore()): Promise<{ queue: OfflineEditQueue; store: MemoryStore }> {
+async function createQueue(store = new MemoryStore()): Promise<{ queue: OfflineEditQueue; store: MemoryStore; key: CryptoKey }> {
   const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
-  return { queue: new OfflineEditQueue({ store, encryptionKey: key, maximumEntries: 2 }), store };
+  return { queue: new OfflineEditQueue({ store, encryptionKey: key, maximumEntries: 2 }), store, key };
 }
 
 describe("OfflineEditQueue", () => {
@@ -366,6 +368,74 @@ describe("OfflineEditQueue", () => {
     await queue.discardUnknown(scope, edit.editId, true);
     expect(store.records.has(edit.editId)).toBe(false);
     expect(await queue.hasDirtyEdits(scope)).toBe(false);
+  });
+
+  it("authenticates replay state so a persisted unknown fence cannot be downgraded to pending", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    const first = await queue.replay(scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => ({ outcome: "OUTCOME_UNKNOWN" }),
+    });
+    expect(first[0]?.state).toBe("OUTCOME_UNKNOWN");
+    const fenced = store.records.get(edit.editId)!;
+    expect(fenced.state).toBe("OUTCOME_UNKNOWN");
+
+    // Simulate storage tampering that tries to make an unknown effect replayable.
+    store.records.set(edit.editId, { ...fenced, state: "PENDING" });
+    let adapterCalls = 0;
+    await expect(queue.replay(scope, {
+      reauthorize: async () => { adapterCalls++; return { authorized: true }; },
+      readCurrentVersion: async () => { adapterCalls++; return "v7"; },
+      apply: async () => { adapterCalls++; return { outcome: "APPLIED", receipt: "r" }; },
+    })).rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
+    expect(adapterCalls).toBe(0);
+  });
+
+  it("migrates legacy v1 rows to an authenticated unknown fence before replay adapter reads", async () => {
+    const { queue, store, key } = await createQueue();
+    await queue.enqueue(edit);
+    const v2 = store.records.get(edit.editId)!;
+    const baseAad = new TextEncoder().encode(
+      `${edit.tenantId}\u0000${edit.projectId}\u0000${edit.editId}\u0000${edit.expectedVersion}\u0000${edit.idempotencyKey}`,
+    );
+    const v2Aad = new TextEncoder().encode(`${new TextDecoder().decode(baseAad)}\u0000${v2.state}`);
+    const plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: v2.nonce.buffer as ArrayBuffer,
+      additionalData: v2Aad }, key, v2.ciphertext.buffer as ArrayBuffer);
+    const nonce = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = new Uint8Array(await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: nonce.buffer as ArrayBuffer, additionalData: baseAad }, key, plaintext,
+    ));
+    const { envelopeVersion: _version, ...legacy } = v2;
+    store.records.set(edit.editId, { ...legacy, nonce, ciphertext });
+
+    expect((await queue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+    expect(await queue.hasDirtyEdits(scope)).toBe(true);
+    let adapterCalls = 0;
+    store.failNextCas = true;
+    const results = await queue.replay(scope, {
+      reauthorize: async () => { adapterCalls++; return { authorized: true }; },
+      readCurrentVersion: async () => { adapterCalls++; return "v7"; },
+      apply: async () => { adapterCalls++; return { outcome: "APPLIED", receipt: "r" }; },
+    });
+    expect(results).toEqual([{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }]);
+    expect(adapterCalls).toBe(0);
+    expect(store.records.get(edit.editId)?.envelopeVersion).toBeUndefined();
+    const migratedResults = await queue.replay(scope, {
+      reauthorize: async () => { adapterCalls++; return { authorized: true }; },
+      readCurrentVersion: async () => { adapterCalls++; return "v7"; },
+      apply: async () => { adapterCalls++; return { outcome: "APPLIED", receipt: "r" }; },
+    });
+    expect(migratedResults).toEqual([{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }]);
+    expect(adapterCalls).toBe(0);
+    expect(store.records.get(edit.editId)).toMatchObject({ state: "OUTCOME_UNKNOWN", envelopeVersion: 2 });
+
+    // A legacy state cannot authorize cleanup either; the first attempt only
+    // migrates and fences the row, requiring a later reconciliation.
+    store.records.set(edit.editId, { ...legacy, nonce, ciphertext, state: "OUTCOME_UNKNOWN" });
+    await expect(queue.discardUnknown(scope, edit.editId, true)).rejects.toThrow("Legacy edit fenced");
+    expect(store.records.get(edit.editId)).toMatchObject({ state: "OUTCOME_UNKNOWN", envelopeVersion: 2 });
   });
 
   it("does not delete a replacement row when unknown-outcome cleanup races with another context", async () => {

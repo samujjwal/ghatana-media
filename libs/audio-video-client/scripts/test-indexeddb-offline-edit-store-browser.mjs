@@ -38,9 +38,12 @@ try {
   const original = {
     tenantId: "tenant-exact", projectId: "project-exact", editId: "edit-1",
     idempotencyKey: "idem-1", expectedVersion: "v7", nonce: new Uint8Array([1, 2, 3]),
-    ciphertext: new Uint8Array([0, 255, 17, 128, 42]), payloadBytes: 37, state: "CONFLICT",
+    ciphertext: new Uint8Array([0, 255, 17, 128, 42]), payloadBytes: 37, state: "CONFLICT", envelopeVersion: 2,
   };
   assert.equal(await first.evaluate(async (record) => window.offlineStore.insert(record, 8), original), true);
+  assert.equal(await first.evaluate(async (record) => window.offlineStore.compareAndSet(
+    { ...record, envelopeVersion: undefined }, { ...record, state: "PENDING", envelopeVersion: undefined }), original), false,
+  "CAS identity includes the authenticated envelope version");
   assert.deepEqual(await second.evaluate(async () => window.offlineStore.list({ tenantId: "tenant-exact", projectId: "project-exact" })), [original]);
   assert.deepEqual(await second.evaluate(async () => window.offlineStore.list({ tenantId: "tenant-exact", projectId: "another-project" })), []);
   assert.deepEqual(await second.evaluate(async () => window.offlineStore.list({ tenantId: "another-tenant", projectId: "project-exact" })), []);
@@ -72,6 +75,7 @@ try {
   assert.deepEqual(afterReload, [winner]);
   assert.deepEqual([...afterReload[0].nonce], [...winner.nonce]);
   assert.deepEqual([...afterReload[0].ciphertext], [...winner.ciphertext]);
+  assert.equal(afterReload[0].envelopeVersion, 2, "IndexedDB preserves the authenticated envelope version across reopen");
   assert.deepEqual(await first.evaluate(async () => window.offlineStore.list({ tenantId: "tenant-exact", projectId: "another-project" })), []);
 
   await first.evaluate(() => window.offlineStore.close());
@@ -137,6 +141,7 @@ try {
   assert.deepEqual(offline, { status: "OFFLINE", dirty: true });
   const encryptedRow = await appFrame.evaluate(async () => (await window.__workflowStore.list(window.__workflowScope))[0]);
   assert.equal(encryptedRow.state, "PENDING");
+  assert.equal(encryptedRow.envelopeVersion, 2);
   assert.ok(encryptedRow.ciphertext.length > encryptedRow.payloadBytes, "ciphertext includes AES-GCM authentication overhead");
   assert.equal(new TextDecoder().decode(encryptedRow.ciphertext).includes("private-payload-j23"), false);
   assert.equal(Object.hasOwn(encryptedRow, "key"), false, "the edit store must not contain the host key");
@@ -162,6 +167,7 @@ try {
   const reloadedEncryptedRow = await reloadedApp.evaluate(async () => (await window.__workflowStore.list(window.__workflowScope))[0]);
   assert.deepEqual([...reloadedEncryptedRow.nonce], [...encryptedRow.nonce]);
   assert.deepEqual([...reloadedEncryptedRow.ciphertext], [...encryptedRow.ciphertext]);
+  assert.equal(reloadedEncryptedRow.envelopeVersion, 2, "queue reopen retains v2 AAD selection");
 
   const fixture = { authorizationReads: 0, versionReads: 0, applyCount: 0 };
   const conflict = await reloadedApp.evaluate(async (counts) => {
