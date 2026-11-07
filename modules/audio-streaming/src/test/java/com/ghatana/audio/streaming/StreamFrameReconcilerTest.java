@@ -13,7 +13,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class StreamFrameReconcilerTest {
 
     private static SessionIdentity identity(String tenant) {
-        return new SessionIdentity("stream-1", tenant, "principal-1", "purpose-1", 1);
+        return identity(tenant, 1);
+    }
+
+    private static SessionIdentity identity(String tenant, long revision) {
+        return new SessionIdentity("stream-1", tenant, "principal-1", "purpose-1", revision);
     }
 
     private static AudioStreamSession.DecodedFrame frame(int seq) {
@@ -28,6 +32,30 @@ class StreamFrameReconcilerTest {
         assertThat(rec.offer(frame(1))).isEqualTo(Disposition.DELIVERED);
         assertThat(rec.nextAck()).isEqualTo(1);
         assertThat(rec.nextExpected()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("session identity rejects blank, padded, and nonpositive-version scope")
+    void sessionIdentityRejectsMalformedScopeAndRevision() {
+        for (int blankField = 0; blankField < 4; blankField++) {
+            String streamId = blankField == 0 ? " " : "stream-1";
+            String tenantId = blankField == 1 ? " " : "tenant-1";
+            String principalId = blankField == 2 ? " " : "principal-1";
+            String purposeRef = blankField == 3 ? " " : "purpose-1";
+
+            assertThatThrownBy(() -> new SessionIdentity(streamId, tenantId, principalId, purposeRef, 1))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("must not be blank");
+        }
+        assertThatThrownBy(() -> new SessionIdentity(" stream-1", "tenant-1", "principal-1", "purpose-1", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> identity("tenant-1", 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sessionRevision must be positive");
+        assertThatThrownBy(() -> identity("tenant-1", -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sessionRevision must be positive");
     }
 
     @Test
@@ -113,18 +141,16 @@ class StreamFrameReconcilerTest {
     @Test
     @DisplayName("cross-tenant and noncanonical-generation resumes are denied")
     void resumeDeniedCrossTenantOrNoncanonicalRevision() {
-        SessionIdentity durable = identity("t1");
+        SessionIdentity durable = identity("t1", 2);
         assertThatThrownBy(() -> StreamFrameReconciler.resume(
                 identity("t2"), durable, 10))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("cross-tenant");
-        SessionIdentity stale = new SessionIdentity(
-                "stream-1", "t1", "principal-1", "purpose-1", 0);
+        SessionIdentity stale = identity("t1", 1);
         assertThatThrownBy(() -> StreamFrameReconciler.resume(stale, durable, 10))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("does not match");
-        SessionIdentity future = new SessionIdentity(
-                "stream-1", "t1", "principal-1", "purpose-1", 2);
+        SessionIdentity future = identity("t1", 3);
         assertThatThrownBy(() -> StreamFrameReconciler.resume(future, durable, 10))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("does not match");

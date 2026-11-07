@@ -184,6 +184,28 @@ class MediaTestHarnessCatalogTest {
                 ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
                 "modules/integration-tests/src/test/java/com/ghatana/audio/video/vision/grpc/VisionRoiAdmissionIntegrationTest.java");
         assertThat(j30.evidenceLimit()).contains("does not establish a composite eligibility catalog");
+        var j29 = profiles.get("journey-outcome-j29");
+        String j29Selector = "com.ghatana.audio.video.integration.GuardedCrossModalityStreamStateMachineTest"
+                + ".revokedConsentBlocksReconnectAndResumeAcrossModalities";
+        String journeyCatalogPath = ".product-experience/pdp-0-product-truth/journey-catalog.yaml";
+        String j29JourneyCatalog = Files.readString(root.resolve(journeyCatalogPath));
+        int j29Start = j29JourneyCatalog.indexOf("- id: J-29");
+        int j30Start = j29JourneyCatalog.indexOf("- id: J-30");
+        assertThat(j29.sources()).contains(journeyCatalogPath,
+                "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/"
+                        + "GuardedCrossModalityStreamStateMachineTest.java");
+        assertThat(j29.selectors()).contains(j29Selector);
+        assertThat(j29Start).isGreaterThanOrEqualTo(0);
+        assertThat(j30Start).isGreaterThan(j29Start);
+        String j29Declaration = j29JourneyCatalog.substring(j29Start, j30Start).replaceAll("\\s+", " ");
+        assertThat(j29Declaration)
+                .contains("title: Live session loss, consent change, and bounded recovery",
+                        "no new frame crosses the boundary after revocation or fencing",
+                        "Fence new frames; use prior consent only for permitted termination");
+        assertThat(Files.readString(root.resolve(
+                "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/"
+                        + "GuardedCrossModalityStreamStateMachineTest.java")))
+                .contains("void revokedConsentBlocksReconnectAndResumeAcrossModalities(");
         var j19Ambiguous = profiles.get("journey-outcome-j19-ambiguous-candidate");
         assertThat(j19Ambiguous.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
         assertThat(j19Ambiguous.gradleTestTask()).isEqualTo(":services:media:modules:integration-tests:test");

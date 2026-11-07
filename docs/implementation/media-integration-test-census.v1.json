@@ -999,6 +999,7 @@
         "com.ghatana.audio.video.integration.GuardedCrossModalityStreamStateMachineTest.liveConsentNotAdmittedDoesNotAdvanceAckOrReachProvider"
       ],
       "sources": [
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/GuardedCrossModalityStreamStateMachineTest.java"
       ],
       "resources": [

@@ -46,6 +46,17 @@ class MediaDeliveryEngineTest {
                 "destination:1", Status.DESTINATION_CONFIRMED, 16, Optional.of("  ")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("destinationReceiptRef must not be blank");
+
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", "sha256:request", Status.DESTINATION_CONFIRMED, 16, "\u0000"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationReceiptRef must not be blank");
+        assertThatThrownBy(() -> new DeliveryResult(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", Status.DESTINATION_CONFIRMED, 16, Optional.of("\u0000")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationReceiptRef must not be blank");
     }
 
     @Test

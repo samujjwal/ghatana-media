@@ -628,7 +628,8 @@ public final class MediaDeliveryEngine {
     }
     private static String required(String value, String field) {
         Objects.requireNonNull(value, field);
-        if (value.isBlank()) throw new IllegalArgumentException(field + " must not be blank");
-        return value.trim();
+        String normalized = value.trim();
+        if (normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
+        return normalized;
     }
 }

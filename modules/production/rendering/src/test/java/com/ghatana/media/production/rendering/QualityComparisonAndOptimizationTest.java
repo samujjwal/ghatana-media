@@ -139,6 +139,28 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void completedRunRequiresMatchingCompletedReport() {
+        assertThatThrownBy(() -> new Run(RunStatus.COMPLETED, Optional.empty(), Optional.empty(), List.of(), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("completed run requires a report");
+
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Report completedReport = run(source, List.of(candidate), null, allowed("src"), null, 1, BUDGET)
+                .report().orElseThrow();
+        assertThatThrownBy(() -> new Run(RunStatus.UNAVAILABLE, Optional.empty(), Optional.of(completedReport),
+                List.of(source), 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("blocked run requires a reason");
+
+        Revision otherSource = revision("other-source", "v1", "c", 40);
+        assertThatThrownBy(() -> new Run(RunStatus.COMPLETED, Optional.empty(), Optional.of(completedReport),
+                List.of(otherSource, candidate), 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("retained revisions must match its report");
+    }
+
+    @Test
     void exactCandidateReferenceMatchBeatsFiniteSourcePsnr() {
         Revision source = revision("source", "v1", "a", 40);
         Revision exact = revision("candidate", "v1", "b", 20);

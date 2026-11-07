@@ -203,6 +203,38 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void currentAuthorityForAnotherScopeCannotAuthorizeLookupOrDisclosure() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var requested = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-a",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        var foreign = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-b", "rights-b",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12");
+        String requestedKey = cache.buildScopedKey(requested, "transcript-a");
+        String foreignKey = cache.buildScopedKey(foreign, "transcript-a");
+        when(port.invalidateAsync(requestedKey)).thenReturn(AsyncOperation.success(null));
+        AtomicInteger loaderCalls = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(requested, "transcript-a",
+                ignored -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(foreign)),
+                ignored -> {
+                    loaderCalls.incrementAndGet();
+                    return AsyncOperation.success("foreign protected payload");
+                })))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority is denied or unknown");
+
+        assertThat(loaderCalls).hasValue(0);
+        verify(port, org.mockito.Mockito.never()).get(requestedKey);
+        verify(port, org.mockito.Mockito.never()).get(foreignKey);
+        verify(port, org.mockito.Mockito.never()).put(any(), any(), any());
+        verify(port).invalidateAsync(requestedKey);
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(foreignKey);
+    }
+
+    @Test
     void scopedSourceLoadIsNotReturnedWhenAuthorityBecomesUnavailableBeforeDisclosure() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");

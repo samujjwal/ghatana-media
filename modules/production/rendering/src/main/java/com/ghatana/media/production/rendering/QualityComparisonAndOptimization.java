@@ -213,6 +213,20 @@ public final class QualityComparisonAndOptimization {
             if (attemptsUsed < 0 || attemptsUsed > MAX_ATTEMPTS) throw invalid("attempt count is outside bounds");
             retainedRevisions = copyBounded(retainedRevisions, attemptsUsed + 1,
                     "run retained revisions exceed the attempt bound", "retainedRevisions[]");
+            if (status == RunStatus.COMPLETED) {
+                if (reason.isPresent() || report.isEmpty()) {
+                    throw invalid("completed run requires a report and no block reason");
+                }
+                Report completed = report.orElseThrow();
+                if (completed.status() != RunStatus.COMPLETED || completed.attemptsUsed() != attemptsUsed) {
+                    throw invalid("completed run must match its report status and attempt count");
+                }
+                if (!completed.retainedRevisions().equals(retainedRevisions.stream().map(Revision::id).toList())) {
+                    throw invalid("completed run retained revisions must match its report");
+                }
+            } else if (report.isPresent() || reason.isEmpty()) {
+                throw invalid("blocked run requires a reason and cannot carry a completed report");
+            }
         }
         static Run blocked(RunStatus status, BlockReason reason) {
             return new Run(status, Optional.of(reason), Optional.empty(), List.of(), 0);

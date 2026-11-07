@@ -185,6 +185,41 @@ class PostgresqlMediaOutboxPublicationSourceTest {
     }
 
     @Test
+    void attemptSequenceOverflowRollsBackClaimWithoutCreatingDeliveryAttempt() throws Exception {
+        Fixture fixture = new Fixture("media_outbox_attempt_overflow");
+        try (fixture; PostgresqlMediaOutboxPublicationSource source = new PostgresqlMediaOutboxPublicationSource()) {
+            UUID eventId = fixture.append("tenant-overflow", "subject-overflow", "MEDIA_TEST_EVENT", "{}", 1_000L);
+            try (Connection connection = h2(fixture.jdbcUrl).getConnection();
+                 PreparedStatement update = connection.prepareStatement(
+                         "UPDATE media_lifecycle_outbox SET publication_attempts=? WHERE event_id=?")) {
+                update.setInt(1, Integer.MAX_VALUE);
+                update.setString(2, eventId.toString());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            assertThatThrownBy(() -> AsyncOperations.toFuture(source.claimBatch(
+                    "publisher-overflow", 1, fixture.now, Duration.ofSeconds(30))).join())
+                    .hasRootCauseInstanceOf(ArithmeticException.class);
+
+            assertThat(fixture.attempts(eventId)).isEmpty();
+            try (Connection connection = h2(fixture.jdbcUrl).getConnection();
+                 PreparedStatement query = connection.prepareStatement(
+                         "SELECT publication_attempts,published_at,claim_owner,claim_token,claim_expires_at "
+                                 + "FROM media_lifecycle_outbox WHERE event_id=?")) {
+                query.setString(1, eventId.toString());
+                try (ResultSet row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getInt("publication_attempts")).isEqualTo(Integer.MAX_VALUE);
+                    assertThat(row.getObject("published_at")).isNull();
+                    assertThat(row.getString("claim_owner")).isNull();
+                    assertThat(row.getObject("claim_token")).isNull();
+                    assertThat(row.getObject("claim_expires_at")).isNull();
+                }
+            }
+        }
+    }
+
+    @Test
     void returnedLeaseExpiryMatchesMillisecondPersistedEventAndPublisherDeadlines() throws Exception {
         Fixture fixture = new Fixture("media_outbox_fractional_lease");
         try (fixture; PostgresqlMediaOutboxPublicationSource source = new PostgresqlMediaOutboxPublicationSource()) {
