@@ -353,6 +353,17 @@ class AnimationJ13LocalScenarioSliceTest {
                 .hasMessageContaining("rig hierarchy contains a cycle");
     }
 
+    @Test
+    void skeletonMappingWithMissingParentIsRejectedBeforePoseOrExportCanBeConstructed() {
+        var hand = bone("hand", "missing-parent", SpatialRigEngine.LocalTransform.identity());
+
+        assertThatThrownBy(() -> new SpatialRigEngine.Rig("j13-missing-parent-rig", GLB_FRAME,
+                "UNIT_QUATERNION_XYZW", List.of(SOURCE), List.of(hand), Map.of(),
+                "project:j13:revision-10"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("bone parent does not exist");
+    }
+
     private static SpatialRigEngine.Rig authoredRig() {
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity());
         var hand = bone("hand", "root", new SpatialRigEngine.LocalTransform(

@@ -161,4 +161,27 @@ class ValidatedSimulationPassIntegrationTest {
                 .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
         assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
     }
+
+    @Test
+    void abstainsBeforeReferenceChecksWhenNoProtectedSemanticInvariantIsDeclared() {
+        var complete = binding();
+        var noProtectedProperties = new SimulationSemanticValidator.RunBinding(complete.runIdentity(),
+                complete.inputs(), List.of(), complete.expectedDuration());
+        var referenceChecks = new java.util.concurrent.atomic.AtomicInteger();
+
+        var validation = SimulationSemanticValidator.validate(noProtectedProperties, deterministicPass(), input -> {
+            referenceChecks.incrementAndGet();
+            return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+        });
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).singleElement().satisfies(finding -> {
+            assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.MISSING_DECLARED_INVARIANT);
+            assertThat(finding.subject()).isEqualTo("invariants");
+        });
+        assertThat(referenceChecks).hasValue(0);
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+    }
 }
