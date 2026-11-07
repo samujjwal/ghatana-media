@@ -104,4 +104,21 @@ class ValidatedSimulationPassIntegrationTest {
             assertThat(finding.subject()).isEqualTo("model.constant-force");
         });
     }
+
+    @Test
+    void abstainsWhenDeclaredRunHorizonDiffersFromTheSolverTrace() {
+        var complete = binding();
+        var wrongHorizon = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
+                complete.invariants(), q(1.5, PhysicalSimulation.Unit.SECOND));
+
+        var validation = SimulationSemanticValidator.validate(wrongHorizon, deterministicPass(),
+                input -> SimulationSemanticValidator.ReferenceStatus.CURRENT);
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.HORIZON_MISMATCH));
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+    }
 }
