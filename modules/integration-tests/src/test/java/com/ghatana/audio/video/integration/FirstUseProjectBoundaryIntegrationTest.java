@@ -207,6 +207,27 @@ class FirstUseProjectBoundaryIntegrationTest {
     }
 
     @Test
+    void createRequestIdentityIsScopedToTenantAndPrincipal() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-principal-scope-id-" + ids.incrementAndGet());
+        Actor otherPrincipal = new Actor(CREATOR.tenantId(), "creator-j01-b");
+
+        var first = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-principal-scoped-request");
+        var second = engine.createProject(otherPrincipal, WORKSPACE, "First cut", "j01-principal-scoped-request");
+
+        assertThat(first.createdNow()).isTrue();
+        assertThat(second.createdNow()).isTrue();
+        assertThat(second.project().projectId()).isNotEqualTo(first.project().projectId());
+        assertThat(second.initialRevision().revisionId()).isNotEqualTo(first.initialRevision().revisionId());
+        assertThat(engine.project(CREATOR, first.project().projectId())).isEqualTo(first.project());
+        assertThat(engine.project(otherPrincipal, second.project().projectId())).isEqualTo(second.project());
+        assertThatThrownBy(() -> engine.project(otherPrincipal, first.project().projectId()))
+                .isInstanceOf(ProjectAccessDeniedException.class);
+    }
+
+    @Test
     void wrongTenantCannotEditProjectOrAdvanceItsRevisionHead() {
         AtomicInteger ids = new AtomicInteger();
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
