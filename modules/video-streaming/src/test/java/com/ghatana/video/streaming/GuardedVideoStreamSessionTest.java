@@ -107,6 +107,25 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("blank or padded worker identifiers cannot acquire the lease fence")
+    void claimRejectsNoncanonicalWorkerIdentifiers() {
+        assertThatThrownBy(() -> GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), " "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("workerId");
+
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        for (String invalid : new String[]{"", "   ", " worker-b", "worker-b "}) {
+            assertThatThrownBy(() -> session.claim(invalid, 2L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("workerId");
+        }
+        assertThat(session.leaseHolder()).isEqualTo("worker-a");
+        assertThat(session.claimToken()).isEqualTo(1L);
+    }
+
+    @Test
     @DisplayName("a missing GOP keyframe yields an undecodable gap, never a false success")
     void missingKeyframeIsGapNotSuccess() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(

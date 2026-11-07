@@ -165,7 +165,7 @@ public final class GuardedVideoStreamSession {
             String workerId) {
         Objects.requireNonNull(identity, "identity");
         Objects.requireNonNull(consent, "consent");
-        Objects.requireNonNull(workerId, "workerId");
+        workerId = requireWorkerId(workerId);
         return new GuardedVideoStreamSession(
                 identity, consent, VideoFrameReconciler.open(identity), workerId, 1L);
     }
@@ -177,7 +177,7 @@ public final class GuardedVideoStreamSession {
      */
     public void claim(String workerId, long newClaimToken) {
         requireNotCancelled("claim");
-        Objects.requireNonNull(workerId, "workerId");
+        workerId = requireWorkerId(workerId);
         if (newClaimToken <= claimToken) {
             throw new StaleLeaseException("claim", newClaimToken, claimToken);
         }
@@ -388,6 +388,14 @@ public final class GuardedVideoStreamSession {
         if (cancelled) {
             throw new IllegalStateException("video stream " + transition + " is forbidden after cancellation");
         }
+    }
+
+    private static String requireWorkerId(String workerId) {
+        Objects.requireNonNull(workerId, "workerId");
+        if (workerId.isBlank() || !workerId.equals(workerId.strip())) {
+            throw new IllegalArgumentException("workerId must be nonblank and unpadded");
+        }
+        return workerId;
     }
 
     private void requireLiveConsent(String transition) {
