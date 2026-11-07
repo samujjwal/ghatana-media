@@ -11,6 +11,7 @@ import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.*;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.*;
+import com.ghatana.media.tts.phoneme.PiperPhonemizeProcessConverter;
 import com.ghatana.media.tts.phoneme.TextToPhonemeConverter;
 import io.activej.promise.Promise;
 
@@ -294,9 +295,9 @@ public final class PiperOnnxEngine implements TtsEngine {
     }
 
     /**
-     * True only when the selected non-heuristic phonemizer can encode a fixed probe using this
-     * voice's exact sidecar map. This is a runtime compatibility check, not voice quality or
-     * rights qualification.
+     * True only when the digest-pinned Piper process phonemizer can encode a fixed probe using
+     * this voice's exact sidecar map. The heuristic and unpinned JNI adapters do not qualify.
+     * This is a runtime compatibility check, not voice quality or rights qualification.
      */
     public boolean hasProductionCompatiblePhonemizer() {
         return productionPhonemizerCompatible;
@@ -749,7 +750,11 @@ public final class PiperOnnxEngine implements TtsEngine {
 
     static boolean supportsProductionVoicePhonemizer(
             TextToPhonemeConverter converter, Map<String, List<Long>> map, Locale locale) {
-        if (converter == null || map == null || locale == null || converter.qualityTier() < 10) return false;
+        // A high quality tier alone does not establish Piper's exact phoneme contract.
+        // Production Piper currently admits only the process adapter whose binary and
+        // adjacent runtime/data trees are digest-pinned at construction.
+        if (!(converter instanceof PiperPhonemizeProcessConverter)
+                || map == null || locale == null) return false;
         try {
             String probe = converter.convert("The quick brown fox jumps over the lazy dog.", locale);
             return probe != null && !probe.isBlank() && encodePhonemes(probe, map).length > 0;

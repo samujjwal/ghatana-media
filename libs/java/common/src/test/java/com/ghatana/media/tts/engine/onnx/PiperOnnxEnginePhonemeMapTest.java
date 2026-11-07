@@ -88,7 +88,7 @@ class PiperOnnxEnginePhonemeMapTest {
                 "^", java.util.List.of(1L), "$", java.util.List.of(2L), "_", java.util.List.of(3L),
                 "a", java.util.List.of(4L), "b", java.util.List.of(5L));
         assertThat(PiperOnnxEngine.supportsProductionVoicePhonemizer(
-                mapped, compatibleMap, Locale.ENGLISH)).isTrue();
+                mapped, compatibleMap, Locale.ENGLISH)).isFalse();
     }
 
     @Test

@@ -28,6 +28,8 @@ class PiperPhonemizeProcessConverterTest {
         TextToPhonemeConverter converter = converterWithScript(
                 "printf '%s\\n' '{\"phonemes\":[\"h\",\"i\"]}'");
 
+        assertThat(converter).isInstanceOf(PiperPhonemizeProcessConverter.class);
+        assertThat(converter.qualityTier()).isEqualTo(10);
         assertThat(converter.convert("hi")).isEqualTo("hi");
     }
 

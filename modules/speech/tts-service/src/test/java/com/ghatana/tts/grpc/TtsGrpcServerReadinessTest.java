@@ -4,6 +4,7 @@ import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.media.tts.engine.onnx.PiperOnnxEngine;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.stub.StreamObserver;
@@ -77,6 +78,25 @@ class TtsGrpcServerReadinessTest {
             assertThat(service.isProviderReady()).isTrue();
             assertThat(service.isProviderReady()).isFalse();
             verify(engine, never()).close();
+        } finally {
+            service.close();
+        }
+    }
+
+    @Test
+    void piperReadinessStaysUnavailableWhenProductionPhonemizerIsNotCompatible() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        PiperOnnxEngine engine = mock(PiperOnnxEngine.class);
+        when(library.getTtsEngine()).thenReturn(engine);
+        when(engine.getStatus()).thenReturn(
+                new EngineStatus(EngineStatus.State.READY, "model", "v1", 1L, null));
+        when(engine.hasProductionCompatiblePhonemizer()).thenReturn(false);
+
+        ProductionTtsGrpcService service = new ProductionTtsGrpcService(
+                library, new SimpleMeterRegistry(), localFixtureAdmissionDecision(),
+                "fixture-voice", "en-US", readyFixtureAuthorization());
+        try {
+            assertThat(service.isProviderReady()).isFalse();
         } finally {
             service.close();
         }
