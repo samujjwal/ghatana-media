@@ -213,6 +213,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Predecessors:** `media.dev.canonical-job-reconciliation`
 
 #### interfaces
+- **Coordinator progress (2026-11-07):** Metrics failure increment: `HealthMetricsServerTest` now asserts a throwing registry yields generic HTTP 503 without exception detail; FULL source-composite `HealthMetricsServerTest` passes 6/6. Local endpoint error handling only; deployed scrape/alert delivery, restart and measured 1/16/64 resource qualification remain open.
 
 **`media.dev.http-operation-parity`** · OPEN
 - **Where:** `launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java`, `contracts/openapi/media.yaml`, `config/route-manifest.json`
@@ -390,6 +391,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-07):** `AuthGatewayClient.parseValidationResponse` now rejects malformed or oversized responses, duplicate keys, trailing JSON, missing/blank tenant IDs, and absent, nontext, blank, `platform`, or `unknown` principal IDs before returning `valid=true`. Focused `AuthGatewayClientTest` and `JwtServerInterceptorTest` pass; fixture parsing and interceptor tests do not establish production gateway trust or provider admission. Broader service auth parity, native leak audit, and provider/host qualification remain open.
 - **Additional progress (2026-11-07):** `StructuredLogger.withContext` now restores the prior values of its three MDC keys after nested calls, including when an inner `Runnable` throws, while preserving cleanup after the outermost scope. Nested `Runnable`/`Supplier` regressions pass in `StructuredLoggerTest` 15/15. This is local logging-context lifecycle evidence; broader auth parity, native leak audit and provider/host qualification remain open.
 - **Predecessors:** `media.dev.domain-contract-parity`
+- **Coordinator progress (2026-11-07):** Configured-model selector consolidation: the Whisper ONNX, native Whisper and YOLO ONNX package-local validators delegate to a shared Media helper while preserving their existing classes/call sites. Shared and three consumer selectors pass 4/4; FULL source-composite test run passed. No model was loaded; native leak audit, broader service auth parity and provider/host qualification remain open.
 
 **`media.dev.stt-model-and-quality`** · OPEN
 - **Where:** `modules/speech/stt-service`, `libs/java/common/src/main/java/com/ghatana/media/stt`, `config/qualification/common-voice-v27-asr-alternative.v1.json`
@@ -868,6 +870,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-07):** 2026-11-07 undo-lineage increment: EditRevision now requires a non-null restoresRevisionId to match its immediate parentRevisionId, matching the exact-current-revision child-append undo contract. ReversibleRegionEditEngineTest passes 19/19 under FULL source composite. Local revision invariant only; canonical durable CAS, real tracking/render output and exact VFR mapping remain open.
 
 - **Predecessors:** `media.dev.project-timeline-engine`, `media.dev.vision-model-and-geometry`
+- **Coordinator progress (2026-11-07):** Coordinator audit: `ReversibleRegionEditEngineTest` passes 19/19 and `ReversibleTrackedRegionRecoveryIntegrationTest` passes 2/2. Existing local coverage includes signed PTS, transform bounds, rights refresh, stale CAS, undo lineage and exact snapshot metadata; no new code was source-justified. Exact VFR frame mapping, trusted Vision tracking/pixel effects, canonical durable project CAS and restart remain open.
 
 **`media.dev.dubbing-and-translation`** · OPEN
 - **Where:** `modules/production/dubbing`, `modules/speech/stt-service`, `modules/speech/tts-service`
