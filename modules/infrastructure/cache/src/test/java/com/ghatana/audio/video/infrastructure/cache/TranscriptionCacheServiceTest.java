@@ -99,7 +99,8 @@ class TranscriptionCacheServiceTest {
         var scope = scopedScope("tenant-a", "principal-a", "policy-epoch-current");
         var stale = new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
                 scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
-                scope.artifactRevision(), scope.transcriptRevision(), scope.sourceFingerprint(), "policy-epoch-old");
+                scope.artifactRevision(), scope.transcriptRevision(), scope.sourceFingerprint(), "policy-epoch-old",
+                scope.modelLicenseRef());
         String key = scopedKey(scope, id);
         DistributedCacheService port = mock(DistributedCacheService.class);
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
@@ -1117,7 +1118,7 @@ class TranscriptionCacheServiceTest {
             String tenant, String principal, String policyEpoch) {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, "rights-current", "transcription",
                 "confidential", "artifact-7", "artifact-revision-4", "transcript-revision-9",
-                "source-sha256-1", policyEpoch);
+                "source-sha256-1", policyEpoch, "model-license-v1");
     }
 
     /** Test-only exact-scope decision; this does not establish a production authority provider. */

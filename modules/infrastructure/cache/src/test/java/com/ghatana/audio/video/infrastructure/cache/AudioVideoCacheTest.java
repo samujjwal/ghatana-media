@@ -112,7 +112,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of("protected payload")));
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
@@ -137,10 +137,10 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var oldScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         var currentScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v5", "transcript-v10",
-                "sha256-source-10", "policy-epoch-12");
+                "sha256-source-10", "policy-epoch-12", "model-license-v1");
         String oldKey = cache.buildScopedKey(oldScope, "transcript-a");
         String currentKey = cache.buildScopedKey(currentScope, "transcript-a");
         when(port.get(currentKey)).thenReturn(AsyncOperation.success(Optional.empty()));
@@ -163,13 +163,13 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(cachePort, "protected-transcripts");
         var original = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         var otherTenant = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         var revokedRights = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-revoked",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-13");
+                "sha256-source-9", "policy-epoch-13", "model-license-v1");
 
         assertThat(cache.buildScopedKey(original, "transcript-a"))
                 .isNotEqualTo(cache.buildScopedKey(otherTenant, "transcript-a"));
@@ -178,12 +178,26 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void changedModelLicenseCannotReusePriorProtectedCacheEntry() {
+        var cache = new AudioVideoCache<String, String>(cachePort, "protected-derived-assets");
+        var licensed = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "render", "CONFIDENTIAL", "artifact-a", "artifact-v4", "derived-v2",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+        var changedLicense = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "render", "CONFIDENTIAL", "artifact-a", "artifact-v4", "derived-v2",
+                "sha256-source-9", "policy-epoch-12", "model-license-v2");
+
+        assertThat(cache.buildScopedKey(licensed, "render-result"))
+                .isNotEqualTo(cache.buildScopedKey(changedLicense, "render-result"));
+    }
+
+    @Test
     void genericRawOperationsCannotReadOrWriteProtectedOrLegacyScopedKeys() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         String protectedKey = cache.buildScopedKey(scope, "transcript-a");
         String legacySharedKey = "av2-" + "0".repeat(64);
         String rawKey = cache.buildKey("tenant-a", "unprotected-fixture");
@@ -234,7 +248,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-revoked");
+                "sha256-source-9", "policy-epoch-revoked", "model-license-v1");
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
 
@@ -254,10 +268,10 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var requested = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-a",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         var foreign = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-b", "rights-b",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         String requestedKey = cache.buildScopedKey(requested, "transcript-a");
         String foreignKey = cache.buildScopedKey(foreign, "transcript-a");
         when(port.invalidateAsync(requestedKey)).thenReturn(AsyncOperation.success(null));
@@ -286,7 +300,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
         when(port.put(eq(key), eq("protected payload"), any(Duration.class)))
@@ -314,7 +328,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
 

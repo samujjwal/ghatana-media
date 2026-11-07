@@ -43,7 +43,8 @@ public class AudioVideoCache<K, V> {
             String artifactRevision,
             String transcriptRevision,
             String sourceFingerprint,
-            String policyEpoch) {
+            String policyEpoch,
+            String modelLicenseRef) {
         public CacheKeyScope {
             requireScopeValue(tenantId, "tenantId");
             requireScopeValue(authenticatedPrincipalId, "authenticatedPrincipalId");
@@ -55,6 +56,7 @@ public class AudioVideoCache<K, V> {
             requireScopeValue(transcriptRevision, "transcriptRevision");
             requireScopeValue(sourceFingerprint, "sourceFingerprint");
             requireScopeValue(policyEpoch, "policyEpoch");
+            requireScopeValue(modelLicenseRef, "modelLicenseRef");
         }
 
         private static void requireScopeValue(String value, String name) {
@@ -821,6 +823,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.transcriptRevision());
             updateFramedUtf16(digest, scope.sourceFingerprint());
             updateFramedUtf16(digest, scope.policyEpoch());
+            updateFramedUtf16(digest, scope.modelLicenseRef());
             StringBuilder key = new StringBuilder("av2p-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
@@ -856,6 +859,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.transcriptRevision());
             updateFramedUtf16(digest, scope.sourceFingerprint());
             updateFramedUtf16(digest, scope.policyEpoch());
+            updateFramedUtf16(digest, scope.modelLicenseRef());
             updateFramedUtf16(digest, objectIdentity);
             StringBuilder key = new StringBuilder("av2p-");
             for (byte value : digest.digest()) {

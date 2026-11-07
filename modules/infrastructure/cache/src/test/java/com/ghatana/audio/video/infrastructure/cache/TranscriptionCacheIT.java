@@ -361,7 +361,7 @@ class TranscriptionCacheIT {
             String tenant, String principal, String policyEpoch) {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, "rights-current", "transcription",
                 "confidential", "artifact-restart", "artifact-revision-3", "transcript-revision-14",
-                "source-sha256-restart", policyEpoch);
+                "source-sha256-restart", policyEpoch, "model-license-v1");
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

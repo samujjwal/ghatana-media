@@ -146,7 +146,8 @@ class AudioVideoCacheKeyRedactionTest {
                 scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
                         "artifact-1", "artifact-rev-1", "transcript-rev-2"),
                 scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
-                        "artifact-1", "artifact-rev-1", "transcript-rev-1", "policy-epoch-2"));
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1", "policy-epoch-2"),
+                withModelLicense(baseline, "model-license-v2"));
 
         String fingerprint = "audio-sha256:" + "a".repeat(64);
         AudioVideoCache.CacheKeyScope baseScope = withFingerprint(baseline, fingerprint);
@@ -289,18 +290,18 @@ class AudioVideoCacheKeyRedactionTest {
     @Test
     void protectedScopeRequiresAllDimensions() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
-                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", "fingerprint", " "))
+                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch", " "))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("policyEpoch");
+                .hasMessageContaining("modelLicenseRef");
     }
 
     @Test
     void protectedScopeRejectsPaddedAuthorityAndVersionComponents() {
         String[] dimensions = {"tenant", "principal", "rights", "purpose", "classification",
-                "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch"};
+                "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch", "model-license"};
         String[] names = {"tenantId", "authenticatedPrincipalId", "rightsScope", "purpose",
                 "classification", "artifactId", "artifactRevision", "transcriptRevision",
-                "sourceFingerprint", "policyEpoch"};
+                "sourceFingerprint", "policyEpoch", "modelLicenseRef"};
 
         for (int index = 0; index < dimensions.length; index++) {
             String[] candidate = dimensions.clone();
@@ -308,7 +309,7 @@ class AudioVideoCacheKeyRedactionTest {
             int offendingIndex = index;
             assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope(candidate[0], candidate[1],
                     candidate[2], candidate[3], candidate[4], candidate[5], candidate[6],
-                    candidate[7], candidate[8], candidate[9]))
+                    candidate[7], candidate[8], candidate[9], candidate[10]))
                     .as("reject padded %s", names[offendingIndex])
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(names[offendingIndex])
@@ -319,7 +320,7 @@ class AudioVideoCacheKeyRedactionTest {
     @Test
     void protectedScopeRejectsNonbreakingSpaceAtEveryComponentBoundary() {
         String[] dimensions = {"tenant", "principal", "rights", "purpose", "classification",
-                "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch"};
+                "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch", "model-license"};
         String nonbreakingSpace = "\u00a0";
 
         for (int index = 0; index < dimensions.length; index++) {
@@ -331,7 +332,7 @@ class AudioVideoCacheKeyRedactionTest {
                 int offendingIndex = index;
                 assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope(candidate[0], candidate[1],
                         candidate[2], candidate[3], candidate[4], candidate[5], candidate[6],
-                        candidate[7], candidate[8], candidate[9]))
+                        candidate[7], candidate[8], candidate[9], candidate[10]))
                         .as("reject nonbreaking-space %s of %s", prefix ? "prefix" : "suffix", offendingIndex)
                         .isInstanceOf(IllegalArgumentException.class)
                         .hasMessageContaining("surrounding whitespace");
@@ -343,7 +344,7 @@ class AudioVideoCacheKeyRedactionTest {
     void protectedScopeRejectsComponentsBeyondSharedCacheKeyLimit() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",
-                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1), "policy-1"))
+                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1), "policy-1", "license-1"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sourceFingerprint")
                 .hasMessageContaining(Integer.toString(CachePolicy.MAX_KEY_LENGTH));
@@ -385,14 +386,24 @@ class AudioVideoCacheKeyRedactionTest {
             String tenant, String principal, String rights, String purpose, String classification,
             String artifact, String artifactRevision, String transcriptRevision, String policyEpoch) {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, rights, purpose, classification,
-                artifact, artifactRevision, transcriptRevision, "fingerprint-placeholder", policyEpoch);
+                artifact, artifactRevision, transcriptRevision, "fingerprint-placeholder", policyEpoch,
+                "model-license-v1");
     }
 
     private static AudioVideoCache.CacheKeyScope withFingerprint(
             AudioVideoCache.CacheKeyScope scope, String fingerprint) {
         return new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
                 scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
-                scope.artifactRevision(), scope.transcriptRevision(), fingerprint, scope.policyEpoch());
+                scope.artifactRevision(), scope.transcriptRevision(), fingerprint, scope.policyEpoch(),
+                scope.modelLicenseRef());
+    }
+
+    private static AudioVideoCache.CacheKeyScope withModelLicense(
+            AudioVideoCache.CacheKeyScope scope, String modelLicenseRef) {
+        return new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
+                scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
+                scope.artifactRevision(), scope.transcriptRevision(), scope.sourceFingerprint(),
+                scope.policyEpoch(), modelLicenseRef);
     }
 
     @Test
