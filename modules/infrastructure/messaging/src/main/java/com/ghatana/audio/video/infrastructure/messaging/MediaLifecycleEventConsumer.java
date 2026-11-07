@@ -38,7 +38,7 @@ public final class MediaLifecycleEventConsumer {
     }
 
     public Observation consume(String consumerPrincipal, EventEnvelope<?> envelope) {
-        String principal = required(consumerPrincipal, "consumerPrincipal");
+        String principal = requiredPrincipal(consumerPrincipal);
         Objects.requireNonNull(envelope, "envelope");
         if (!TOPIC.equals(envelope.topic()) || !SCHEMA_URI.equals(envelope.schemaUri())
                 || !MediaPublicLifecycleEvent.SCHEMA_VERSION.equals(envelope.eventTypeVersion())
@@ -90,7 +90,7 @@ public final class MediaLifecycleEventConsumer {
     /** Separate authorized readback; a terminal-shaped event alone never returns terminal truth. */
     public TerminalReadbackResult readTerminalJob(
             String consumerPrincipal, String tenantId, String jobRef) {
-        String principal = required(consumerPrincipal, "consumerPrincipal");
+        String principal = requiredPrincipal(consumerPrincipal);
         String tenant = required(tenantId, "tenantId");
         String reference = required(jobRef, "jobRef");
         String redactedReference = redactor.redact("aggregate", reference);
@@ -124,6 +124,14 @@ public final class MediaLifecycleEventConsumer {
     private static String required(String value, String name) {
         if (value == null || value.isBlank() || value.length() > 512) {
             throw new IllegalArgumentException(name + " is required and bounded");
+        }
+        return value.trim();
+    }
+
+    /** Missing caller identity is a typed authorization failure and must fail before any port call. */
+    private static String requiredPrincipal(String value) {
+        if (value == null || value.isBlank() || value.length() > 512) {
+            throw new LifecycleEventException(Failure.FORBIDDEN, "Lifecycle consumer identity is invalid");
         }
         return value.trim();
     }

@@ -91,6 +91,36 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void invalidConsumerIdentityIsTypedAndHasNoAuthorizationProjectionOrReadbackEffect() {
+        int[] calls = {0};
+        var consumer = new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) {
+                calls[0]++;
+                return true;
+            }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) {
+                calls[0]++;
+                return true;
+            }
+        }, new MemoryProjection(), (principal, tenant, jobRef) -> {
+            calls[0]++;
+            return Optional.empty();
+        });
+
+        for (String invalidPrincipal : java.util.List.of("", "consumer-a".repeat(100))) {
+            assertThatThrownBy(() -> consumer.consume(invalidPrincipal, envelope(event("media.job.accepted", 1))))
+                    .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                    .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                    .isEqualTo(MediaLifecycleEventConsumer.Failure.FORBIDDEN);
+            assertThatThrownBy(() -> consumer.readTerminalJob(invalidPrincipal, "tenant-private", "job-private"))
+                    .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                    .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                    .isEqualTo(MediaLifecycleEventConsumer.Failure.FORBIDDEN);
+        }
+        assertThat(calls[0]).isZero();
+    }
+
+    @Test
     void identicalEventAliasIsDeduplicatedWithinTenantButDoesNotCrossTenantBoundary() {
         var store = new MemoryProjection();
         var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
