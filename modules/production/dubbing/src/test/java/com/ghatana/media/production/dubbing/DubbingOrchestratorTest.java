@@ -310,6 +310,34 @@ class DubbingOrchestratorTest {
     }
 
     @Test
+    void providerLocaleEchoMustMatchCanonicalRequestExactly() {
+        Fixture f = new Fixture();
+        TranslationPort mismatchedLocale = new TranslationPort() {
+            @Override public Capability capability(String sourceLocale, String targetLocale) {
+                return f.translationCapability;
+            }
+            @Override public TranslationResult translate(TranslationRequest request) {
+                f.translationCalls.incrementAndGet();
+                return new TranslationResult(request.tenantId(), request.requestId(), request.sourceVersion(),
+                        request.transcriptVersionId(), request.sourceLocale().toLowerCase(), request.targetLocale(),
+                        request.sourceClockId(), request.ticksPerSecond(), request.sourceDurationTicks(),
+                        List.of(new TranslatedSegment("seg-1", "hola", 100, 300)));
+            }
+        };
+
+        DubbingResult result = new DubbingOrchestrator(f.rights, mismatchedLocale, f.synthesis(), f.alignment())
+                .dub(f.request());
+
+        assertThat(result.status()).isEqualTo(ResultStatus.OUTCOME_UNKNOWN);
+        assertThat(result.reason()).contains(Reason.INVALID_PROVIDER_RESULT);
+        assertThat(result.translationDispatched()).isTrue();
+        assertThat(result.synthesisDispatchCount()).isZero();
+        assertThat(result.segments()).isEmpty();
+        assertThat(f.synthesisCalls).hasValue(0);
+        assertThat(f.alignmentCalls).hasValue(0);
+    }
+
+    @Test
     void missingLanguageProviderAndAlignmentControlReturnTypedUnavailableBeforeLaterEffects() {
         Fixture noLanguage = new Fixture();
         noLanguage.translationCapability = Capability.unavailable(CapabilityReason.LANGUAGE_UNAVAILABLE);

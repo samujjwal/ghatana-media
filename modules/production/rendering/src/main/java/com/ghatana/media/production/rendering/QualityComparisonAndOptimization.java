@@ -183,6 +183,13 @@ public final class QualityComparisonAndOptimization {
             if (ssim.status() == MetricStatus.EXACT_MATCH) {
                 throw invalid("global SSIM is reported as a measured value, including exact frame matches");
             }
+            if (psnr.status() == MetricStatus.MEASURED && psnr.value().orElseThrow() < 0) {
+                throw invalid("RGB8 sample PSNR cannot be negative");
+            }
+            if (ssim.status() == MetricStatus.MEASURED
+                    && (ssim.value().orElseThrow() < -1.0 || ssim.value().orElseThrow() > 1.0)) {
+                throw invalid("global SSIM must be within its bounded range");
+            }
             boolean psnrUnavailable = psnr.status() == MetricStatus.UNAVAILABLE;
             boolean ssimUnavailable = ssim.status() == MetricStatus.UNAVAILABLE;
             if (psnrUnavailable != ssimUnavailable

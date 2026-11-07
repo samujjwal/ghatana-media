@@ -95,7 +95,15 @@ public final class VersionedReviewEngine {
         Objects.requireNonNull(actor, "actor");
         Objects.requireNonNull(reviewCase, "reviewCase");
         authorize(actor, reviewCase, INSPECT_OPERATION);
-        List<ReviewRecord> stored = store.read(actor, reviewCase);
+        List<ReviewRecord> stored;
+        try {
+            stored = store.read(actor, reviewCase);
+        } catch (ReviewCaseMismatchException | ReviewUnavailableException known) {
+            throw known;
+        } catch (RuntimeException uncertainReadFailure) {
+            // Do not expose adapter or database details through a review-content query.
+            throw new ReviewUnavailableException();
+        }
         if (stored == null) throw new ReviewUnavailableException();
         List<ReviewRecord> ordered = stored.stream().map(record -> {
             requireExactReadback(actor, reviewCase, record);

@@ -228,6 +228,22 @@ class QualityComparisonAndOptimizationTest {
                         java.util.OptionalDouble.empty()), heuristics, QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("global SSIM is reported as a measured value");
+        assertThatThrownBy(() -> new CandidateComparison(candidate,
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED,
+                        java.util.OptionalDouble.of(-0.01)), measuredSsim, heuristics,
+                QualityDisposition.NOT_IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("PSNR cannot be negative");
+        assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr,
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
+                        java.util.OptionalDouble.of(1.0001)), heuristics, QualityDisposition.NOT_IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("SSIM must be within its bounded range");
+        assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr,
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
+                        java.util.OptionalDouble.of(-1.0001)), heuristics, QualityDisposition.NOT_IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("SSIM must be within its bounded range");
     }
 
     @Test

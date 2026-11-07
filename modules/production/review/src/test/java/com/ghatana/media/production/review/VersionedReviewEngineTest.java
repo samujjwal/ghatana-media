@@ -209,6 +209,26 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void inspectMapsAdapterReadFailureToGenericUnavailableOutcome() {
+        ReviewStore failingStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) { throw new AssertionError("not an append test"); }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                throw new IllegalStateException("private database endpoint and credential detail");
+            }
+        };
+        VersionedReviewEngine engine = engine(failingStore,
+                (actor, reviewCase, operation, now) -> authorization(actor, reviewCase,
+                        actor.tenantId(), actor.principalId(), V1.reference()));
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE))
+                .isInstanceOf(ReviewUnavailableException.class)
+                .hasMessage("review evidence is unavailable, expired, or not retained")
+                .hasNoCause();
+    }
+
+    @Test
     void inspectRejectsSanitizerOutputOutsideTheCommentDisclosureBound() {
         ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
                 "req-1", "media.operation.action.record-review-comment", REVIEWER,
