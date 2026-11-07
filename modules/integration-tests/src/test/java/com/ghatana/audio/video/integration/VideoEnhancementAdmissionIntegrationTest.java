@@ -163,4 +163,39 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(SOURCE).isSameAs(originalBinding);
         assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
     }
+
+    @Test
+    void sourceAuthorityBecomingUnknownAfterDecodeHoldsCandidateWithoutDispatchableOutput() {
+        AtomicInteger authorityChecks = new AtomicInteger();
+        AtomicInteger decoderCalls = new AtomicInteger();
+        ArtifactBinding originalBinding = SOURCE;
+        DecodedFrameSequence decoded = new DecodedFrameSequence(
+                SOURCE.artifactId(), SOURCE.versionId(), SOURCE.sha256(), new TimeBase(1, 30), List.of(
+                        new Frame(0, 0, 1, 1, new Roi(0, 0, 1, 1), new byte[] {1, 2, 3}),
+                        new Frame(1, 1, 1, 1, new Roi(0, 0, 1, 1), new byte[] {4, 5, 6}),
+                        new Frame(2, 2, 1, 1, new Roi(0, 0, 1, 1), new byte[] {7, 8, 9})));
+
+        Result held = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-authority-unknown-before-handoff", SOURCE),
+                (binding, operation) -> authorityChecks.incrementAndGet() == 1
+                        ? new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08")
+                        : new AuthorityDecision(AuthorityStatus.UNAVAILABLE, ""),
+                binding -> {
+                    decoderCalls.incrementAndGet();
+                    return decoded;
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        // J-08 step 02 keeps unknown outcomes unresolved and forbids blind retry;
+        // no candidate escapes after the final current-authority fence fails.
+        assertThat(held.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(held.reason()).contains(Reason.SOURCE_REVOKED_OR_UNKNOWN);
+        assertThat(held.candidate()).isEmpty();
+        assertThat(authorityChecks).hasValue(2);
+        assertThat(decoderCalls).hasValue(1);
+        assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
 }
