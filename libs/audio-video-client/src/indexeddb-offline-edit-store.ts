@@ -44,7 +44,11 @@ export class IndexedDbOfflineEditStore implements OfflineEditStore {
     const factory = options.indexedDB ?? globalThis.indexedDB;
     if (!factory) throw new Error("IndexedDB is unavailable in this host.");
     this.factory = factory;
-    this.databaseName = options.databaseName?.trim() || "ghatana-media-offline-edits-v1";
+    const configuredName = options.databaseName;
+    if (configuredName !== undefined && configuredName !== configuredName.trim()) {
+      throw new TypeError("databaseName must be canonical; whitespace normalization is not allowed.");
+    }
+    this.databaseName = configuredName || "ghatana-media-offline-edits-v1";
   }
 
   public async list(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {

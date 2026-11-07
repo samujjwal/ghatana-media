@@ -19,6 +19,17 @@ function failingFactory(mode: "blocked" | "error"): { factory: IDBFactory; open:
 }
 
 describe("IndexedDbOfflineEditStore open lifecycle", () => {
+  it.each([" app-a", "app-a ", "\u00a0app-a", "app-a\u00a0", " \t "])(
+    "rejects a padded application database name instead of aliasing another scope: %j",
+    (databaseName) => {
+      const stub = failingFactory("error");
+
+      expect(() => new IndexedDbOfflineEditStore({ indexedDB: stub.factory, databaseName }))
+        .toThrow("databaseName must be canonical; whitespace normalization is not allowed.");
+      expect(stub.open).not.toHaveBeenCalled();
+    },
+  );
+
   it.each([
     ["blocked", "OPEN_BLOCKED"],
     ["error", "OPEN_FAILED"],
