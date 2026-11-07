@@ -65,6 +65,9 @@ resolution; HTTP provider clients call configured provider endpoints.
   the claim before any publisher effect. Lifecycle outbox claim leases that
   truncate below that precision are rejected before publication, preventing
   an immediately expired claim from admitting concurrent duplicate publish.
+- Before lifecycle event publication, the decoded payload `eventId` must
+  exactly match the claimed outbox row `event_id`; mismatch records the normal
+  failed-attempt path and leaves the event unpublished.
 - Tenant isolation is enforced at the store boundary
   (`MediaPostgresqlS3TenantIsolationTest`).
 - Delivery operation readback preserves stored scope values exactly; corrupted

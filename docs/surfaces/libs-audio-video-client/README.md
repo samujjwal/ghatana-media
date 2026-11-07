@@ -85,6 +85,9 @@ package; nothing simulates those capture sources.
 When a browser host supplies a `MediaStreamTrack`, its `ended` event releases
 an idle stream immediately; event listeners are removed on teardown and when
 startup fails. A subsequent frame read reports typed `DEVICE_UNAVAILABLE`.
+If the track ends while `video.play()` is still starting, startup rechecks the
+track state after playback resolves and rejects as `DEVICE_UNAVAILABLE`
+instead of returning an already stopped device.
 This is browser-host resource handling only: it does not establish physical
 device qualification or integration with canonical stream sessions or writers.
 
@@ -115,6 +118,12 @@ device qualification or integration with canonical stream sessions or writers.
   counts the exact serialized UTF-8 bytes before stringification and rejects
   oversized or unsupported values; it does not coerce arbitrary JavaScript
   values into JSON.
+- Persisted encrypted envelopes are checked before WebCrypto: plaintext length
+  metadata must be safe and within the configured cap, AES-GCM nonce length is
+  12 bytes, and ciphertext length must equal plaintext length plus the 16-byte
+  authentication tag. Decrypted byte length is checked again before JSON
+  parsing; malformed records return `STORE_RECORD_INVALID` before rights or
+  apply callbacks.
 - Unsupported legacy processing methods keep their public signatures but
   return a typed `NOT_ADMITTED` outcome without a network request. The canonical
   SDK remains the only client surface bound to the runtime route manifest.

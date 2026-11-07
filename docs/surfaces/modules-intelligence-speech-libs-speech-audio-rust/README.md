@@ -14,6 +14,9 @@ streaming provider interface.
   `load_audio_buffer`, `load_audio_buffer_bounded`.
 - Local transforms: `Resampler::{new, with_options, resample}`,
   `slice_audio_buffer`, `mix_audio`.
+- Audio comparison rejects empty source/repaired revisions with
+  `SpeechAudioError::InvalidInput`; it does not emit success-shaped zero
+  metrics for an empty comparison.
 - File output and visualization: `write_wav`, `extract_waveform`.
 
 ## Public operations
