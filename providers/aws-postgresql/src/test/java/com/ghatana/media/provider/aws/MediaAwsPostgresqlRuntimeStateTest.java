@@ -397,6 +397,13 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             "tenant-a", "stream-a", "principal-a", StreamKind.VIDEO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
                             now.plusSeconds(120), now, now, null, Map.of("correlationId", "corr-a"), 1);
+                    StreamSession unleased = new StreamSession(
+                            "tenant-a", "stream-unleased", "principal-a", StreamKind.VIDEO,
+                            "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
+                            null, now, now, null, Map.of(), 1);
+                    assertThatThrownBy(() -> streams.create(unleased, tokenHash))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("require a connection lease");
                     StreamSession forgedFinal = new StreamSession(
                             "tenant-a", "stream-forged-final", "principal-a", StreamKind.VIDEO,
                             "http-media-streaming", StreamState.DRAINING, -1, 0, 1024, 0,

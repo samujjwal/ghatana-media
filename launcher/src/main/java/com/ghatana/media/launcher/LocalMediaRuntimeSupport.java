@@ -1046,6 +1046,9 @@ public final class LocalMediaRuntimeSupport {
             if (session.finality() != StreamFinality.NONE || session.inFlightSequence() != null) {
                 throw new IllegalArgumentException("New Media stream sessions cannot contain provider outcome state");
             }
+            if (session.leaseExpiresAt() == null) {
+                throw new IllegalArgumentException("New Media stream sessions require a connection lease");
+            }
             session = new StreamSession(session.tenantId(), session.sessionId(), session.principalId(),
                     session.streamKind(), session.providerId(), session.state(), session.lastSequence(),
                     session.bufferedBytes(), session.maximumBufferedBytes(), session.reconnectCount(),

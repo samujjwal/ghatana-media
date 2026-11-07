@@ -51,6 +51,9 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         if (session.finality() != StreamFinality.NONE || session.inFlightSequence() != null) {
             throw new IllegalArgumentException("New Media stream sessions cannot contain provider outcome state");
         }
+        if (session.leaseExpiresAt() == null) {
+            throw new IllegalArgumentException("New Media stream sessions require a connection lease");
+        }
         StreamSession persistable = persistedPrecision(new StreamSession(
                 session.tenantId(), session.sessionId(), session.principalId(), session.streamKind(),
                 session.providerId(), session.state(), session.lastSequence(), session.bufferedBytes(),
@@ -546,8 +549,11 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             statement.setString(15, expected.tenantId());
             statement.setString(16, expected.sessionId());
             statement.setLong(17, expected.version());
-            if (extraBinder != null) extraBinder.bind(new OffsetPreparedStatement(statement, 17));
-            if (bindApplicationClock) statement.setLong(19, applicationClockFallback.toEpochMilli());
+            OffsetPreparedStatement extras = new OffsetPreparedStatement(statement, 17);
+            if (extraBinder != null) extraBinder.bind(extras);
+            if (bindApplicationClock) {
+                statement.setLong(extras.nextIndex(), applicationClockFallback.toEpochMilli());
+            }
             if (statement.executeUpdate() != 1) {
                 throw new IllegalStateException(noRowsMessage);
             }
@@ -698,15 +704,23 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
     private static final class OffsetPreparedStatement {
         private final PreparedStatement statement;
         private final int offset;
+        private int highestRelativeIndex;
         private OffsetPreparedStatement(PreparedStatement statement, int offset) {
             this.statement = statement;
             this.offset = offset;
         }
         void setString(int relativeIndex, String value) throws SQLException {
+            remember(relativeIndex);
             statement.setString(offset + relativeIndex, value);
         }
         void setLong(int relativeIndex, long value) throws SQLException {
+            remember(relativeIndex);
             statement.setLong(offset + relativeIndex, value);
+        }
+        int nextIndex() { return offset + highestRelativeIndex + 1; }
+        private void remember(int relativeIndex) {
+            if (relativeIndex < 1) throw new IllegalArgumentException("SQL parameter index must be positive");
+            highestRelativeIndex = Math.max(highestRelativeIndex, relativeIndex);
         }
     }
 

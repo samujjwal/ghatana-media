@@ -100,6 +100,20 @@ class MediaRuntimeStreamTimeoutTest {
     }
 
     @Test
+    void localStoreRejectsNewSessionWithoutConnectionLease() {
+        Instant now = Instant.now();
+        StreamSession unleased = new StreamSession(
+                "tenant-a", "stream-unleased", "principal-a", StreamKind.AUDIO,
+                "provider-a", StreamState.OPEN, -1, 0, 128, 0,
+                null, now, now, null, java.util.Map.of(), 1);
+
+        assertThatThrownBy(() -> new LocalMediaRuntimeSupport.StreamStore()
+                .create(unleased, "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("require a connection lease");
+    }
+
+    @Test
     void timeoutCancelsProviderWorkPersistsUnknownAndBlocksSequenceReplay() throws Exception {
         var root = Files.createTempDirectory("media-stream-timeout-");
         var provider = new BlockingStreamingProvider();
