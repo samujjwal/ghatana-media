@@ -11,6 +11,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 /**
  * Submits blocking child work to a caller-owned finite executor with gRPC context propagation.
@@ -36,9 +37,12 @@ public final class ContextAwareBoundedExecutor {
         AtomicBoolean started = new AtomicBoolean();
         AtomicBoolean terminal = new AtomicBoolean();
         AtomicReference<Future<?>> task = new AtomicReference<>();
-        CompletableFuture<T> result = new CompletableFuture<>();
+        SubmissionResult<T> result = new SubmissionResult<>();
         Submission<T> submission = new Submission<>(context, result, started, terminal, task, executor,
                 effectMayCommit);
+        // Keep cancellation on the exposed future on the same path as Submission.cancel().
+        // A raw CompletableFuture.cancel() would hide UNKNOWN_OUTCOME and leave worker work running.
+        result.onCancel(submission::cancelFromResult);
         Runnable work = context.wrap(() -> {
             if (!submission.beginDispatch()) return;
             try {
@@ -116,6 +120,27 @@ public final class ContextAwareBoundedExecutor {
         return context.getDeadline() != null && context.getDeadline().isExpired();
     }
 
+    /**
+     * Outcome-bearing CompletableFuture whose cancel request preserves the submission's
+     * no-effect/unknown-outcome classification. Accepted requests complete with that
+     * classified result instead of a bare CancellationException, so isCancelled() remains
+     * false and callers can observe the operation outcome.
+     */
+    private static final class SubmissionResult<T> extends CompletableFuture<T> {
+        private volatile Function<Boolean, Boolean> cancellation;
+
+        private void onCancel(Function<Boolean, Boolean> cancellation) {
+            this.cancellation = cancellation;
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            Function<Boolean, Boolean> action = cancellation;
+            if (action == null) return super.cancel(mayInterruptIfRunning);
+            return action.apply(mayInterruptIfRunning);
+        }
+    }
+
     public static final class Submission<T> {
         private final Context context;
         private final CompletableFuture<T> result;
@@ -158,17 +183,25 @@ public final class ContextAwareBoundedExecutor {
         }
 
         public void cancel() {
+            cancel(true);
+        }
+
+        private boolean cancelFromResult(boolean mayInterruptIfRunning) {
+            return cancel(mayInterruptIfRunning);
+        }
+
+        private boolean cancel(boolean mayInterruptIfRunning) {
             Future<?> running;
             boolean wasStarted;
             synchronized (dispatchGate) {
-                if (!terminal.compareAndSet(false, true)) return;
+                if (!terminal.compareAndSet(false, true)) return false;
                 running = task.get();
                 wasStarted = started.get();
                 result.completeExceptionally(wasStarted && effectMayCommit ? unknownOutcome()
                         : knownNoEffectCancellation(context));
             }
             if (running != null) {
-                running.cancel(true);
+                running.cancel(mayInterruptIfRunning);
                 // A cancelled FutureTask can otherwise occupy a bounded queue behind a
                 // noncooperative worker until that worker returns. Remove only queued work;
                 // started work keeps its worker slot until its callable actually exits.
@@ -177,6 +210,7 @@ public final class ContextAwareBoundedExecutor {
                     threadPool.remove(queuedTask);
                 }
             }
+            return true;
         }
 
         private void removeCancelledQueuedTask(Runnable queuedTask) {

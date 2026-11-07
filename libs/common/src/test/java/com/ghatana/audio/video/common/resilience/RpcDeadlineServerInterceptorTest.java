@@ -587,6 +587,84 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
+    void cancellingObservationFutureUsesSubmissionPathAndPreservesUnknownOutcome() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch interrupted = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        try {
+            var submission = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                started.countDown();
+                while (release.getCount() != 0) {
+                    try {
+                        release.await(20, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException ignored) {
+                        interrupted.countDown();
+                        // Model a provider that notices interruption but may still commit.
+                    }
+                }
+                return "late completion";
+            });
+
+            assertThat(started.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(submission.result().cancel(true)).isTrue();
+            assertStatus(submission, Status.Code.UNKNOWN);
+            assertThat(interrupted.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(submission.result().isCancelled()).isFalse();
+            assertThat(submission.result().cancel(true)).isFalse();
+        } finally {
+            release.countDown();
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    void observationCancellationReturnsFalseWhenNormalCompletionAlreadyWon() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        try {
+            var submission = new ContextAwareBoundedExecutor(pool).submit(() -> "completed");
+            assertThat(submission.result().get(1, TimeUnit.SECONDS)).isEqualTo("completed");
+            assertThat(submission.result().cancel(true)).isFalse();
+            assertThat(submission.result().getNow("missing")).isEqualTo("completed");
+        } finally {
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    void observationCancelFalsePreservesUnknownOutcomeWithoutInterruptingRunningWork() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch interrupted = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        try {
+            var submission = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                started.countDown();
+                while (release.getCount() != 0) {
+                    try {
+                        release.await(20, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException ignored) {
+                        interrupted.countDown();
+                    }
+                }
+                return "late completion";
+            });
+
+            assertThat(started.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(submission.result().cancel(false)).isTrue();
+            assertStatus(submission, Status.Code.UNKNOWN);
+            assertThat(interrupted.getCount()).isEqualTo(1);
+            assertThat(submission.result().cancel(false)).isFalse();
+        } finally {
+            release.countDown();
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
     void deadlineCancellationOfKnownNoEffectWorkReturnsDeadlineExceeded() throws Exception {
         ThreadPoolExecutor pool = pool(1, 1);
         CountDownLatch started = new CountDownLatch(1);
