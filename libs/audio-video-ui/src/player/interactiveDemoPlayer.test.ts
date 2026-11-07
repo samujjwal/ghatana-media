@@ -518,8 +518,33 @@ describe("interactive demo player", () => {
     expect(video.currentTime).toBe(0);
     expect((screen.getByRole("slider", { name: "Seek within Introduction" }) as HTMLInputElement).value)
       .toBe("0");
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.seeked(video);
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
     pauseMock.mockRestore();
+  });
+
+  it("keeps readiness when a same-scene branch starts at the already confirmed scene position", () => {
+    const loopManifest: InteractiveDemoManifest = {
+      ...BASE,
+      scenes: BASE.scenes.map((scene) => scene.id === "intro"
+        ? { ...scene, branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }
+        : scene),
+    };
+    render(React.createElement(InteractiveDemoPlayer, {
+      manifest: loopManifest,
+      verificationPort: testAuthority(loopManifest),
+    }));
+
+    const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    fireEvent.loadedMetadata(video);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Repeat introduction; continue to Introduction" }));
+
+    expect(video.currentTime).toBe(0);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
   it("withholds keyboard-operable actions when policy denies a cross-origin asset", () => {

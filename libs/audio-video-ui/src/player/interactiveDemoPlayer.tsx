@@ -273,12 +273,10 @@ export function InteractiveDemoPlayer({
                       const video = mediaRef.current;
                       const target = activeScene.startMs / 1_000;
                       if (video && isCurrentVideo(video)) {
-                        setPositionedMedia(undefined);
+                        const alreadyAtConfirmedStart = !video.seeking && Math.abs(video.currentTime - target) < 0.001;
+                        if (!alreadyAtConfirmedStart) setPositionedMedia(undefined);
                         try {
-                          video.currentTime = target;
-                          if (Math.abs(video.currentTime - target) < 0.001 && mediaKey) {
-                            setPositionedMedia({ key: mediaKey, element: video });
-                          }
+                          if (!alreadyAtConfirmedStart) video.currentTime = target;
                         } catch {
                           if (isCurrentVideo(video)) failPlayback();
                         }
