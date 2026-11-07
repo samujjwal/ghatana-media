@@ -233,16 +233,20 @@ function isValidPermissionList(value: unknown): value is readonly DemoOriginPerm
   });
 }
 
+function isExactEvidenceRef(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0 && value === value.trim();
+}
+
 function validLiveEvidence(sourceTruth: DemoSourceTruth): boolean {
   return sourceTruth.kind !== "live" ||
-    (typeof sourceTruth.outputRef === "string" && Boolean(sourceTruth.outputRef.trim()) &&
-      typeof sourceTruth.outputVersion === "string" && Boolean(sourceTruth.outputVersion.trim()) &&
-      typeof sourceTruth.readbackEvidenceRef === "string" && Boolean(sourceTruth.readbackEvidenceRef.trim()));
+    (isExactEvidenceRef(sourceTruth.outputRef) &&
+      isExactEvidenceRef(sourceTruth.outputVersion) &&
+      isExactEvidenceRef(sourceTruth.readbackEvidenceRef));
 }
 
 function validCurationEvidence(sourceTruth: DemoSourceTruth): boolean {
   return sourceTruth.kind !== "curated" ||
-    (typeof sourceTruth.curationRef === "string" && Boolean(sourceTruth.curationRef.trim()));
+    isExactEvidenceRef(sourceTruth.curationRef);
 }
 
 export function demoSourceTruthLabel(sourceTruth: DemoSourceTruth): string {
@@ -289,7 +293,7 @@ function validateManifest(
   ) return "INVALID_BUNDLE";
   if (
     typeof manifest.integrity.sha256 !== "string" || !/^([a-f0-9]{64})$/i.test(manifest.integrity.sha256) ||
-    typeof manifest.integrity.verificationRef !== "string" || !manifest.integrity.verificationRef.trim() ||
+    !isExactEvidenceRef(manifest.integrity.verificationRef) ||
     attestation.sha256.toLowerCase() !== manifest.integrity.sha256.toLowerCase()
   ) return "TRUST_ATTESTATION_MISMATCH";
   if (

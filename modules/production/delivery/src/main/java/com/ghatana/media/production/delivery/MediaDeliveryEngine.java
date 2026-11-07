@@ -557,6 +557,8 @@ public final class MediaDeliveryEngine {
     private static boolean matchesArtifactProgress(DeliveryOperationStore.Operation operation, ExportRequest request) {
         int artifactSize = request.artifact().size();
         return operation.acknowledgedBytes() <= artifactSize
+                && (operation.acknowledgedBytes() == artifactSize
+                || operation.acknowledgedBytes() % CHUNK_BYTES == 0)
                 && (operation.status() != Status.DESTINATION_CONFIRMED
                 || operation.acknowledgedBytes() == artifactSize);
     }

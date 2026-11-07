@@ -261,6 +261,26 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void durableReadbackRejectsAcknowledgementInsideAChunkBeforeReconciliation() {
+        for (Status status : List.of(Status.SENT, Status.OUTCOME_UNKNOWN)) {
+            Fixture f = new Fixture();
+            ExportRequest request = f.request(bytes(CHUNK_BYTES + 8));
+            f.operations.overrideFind(new DeliveryOperationStore.Operation(
+                    request.tenantId(), request.principalId(), request.requestId(), request.artifact().artifactId(),
+                    request.artifact().versionRef(), request.artifact().digest(), request.destinationRef(),
+                    "persisted-fingerprint", status, 3, null));
+            MediaDeliveryEngine restarted = new MediaDeliveryEngine(
+                    f.authorization, f.destination, () -> NOW, f.operations);
+
+            assertThatThrownBy(() -> restarted.reconcileAndResume(request))
+                    .isInstanceOf(DeliveryException.class)
+                    .extracting(error -> ((DeliveryException) error).code())
+                    .isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT);
+            assertThat(f.destination.sendCount).isZero();
+        }
+    }
+
+    @Test
     void durableConfirmedReadbackMustCoverTheEntireImmutableArtifact() {
         Fixture f = new Fixture();
         ExportRequest request = f.request(bytes(16));

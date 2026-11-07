@@ -326,6 +326,32 @@ describe("interactive demo player", () => {
     })).failure).toBe("LIVE_OUTPUT_EVIDENCE_MISSING");
   });
 
+  it("does not treat whitespace-padded source evidence references as exact", () => {
+    const paddedCurated = { kind: "curated" as const, curationRef: " curation:demo-v2 " };
+    expect(demoSourceTruthLabel(paddedCurated)).toBe("Curated demonstration unverified");
+    const curatedManifest = { ...BASE, sourceTruth: paddedCurated };
+    expect(createDemoPlayerState(curatedManifest, testAuthority(curatedManifest)).failure)
+      .toBe("CURATED_EVIDENCE_MISSING");
+
+    const paddedLive = {
+      kind: "live" as const,
+      outputRef: " output:42",
+      outputVersion: "v7",
+      readbackEvidenceRef: "owner-readback:42:v7",
+    };
+    expect(demoSourceTruthLabel(paddedLive)).toBe("Live output unverified");
+    const liveManifest = { ...BASE, sourceTruth: paddedLive };
+    expect(createDemoPlayerState(liveManifest, testAuthority(liveManifest)).failure)
+      .toBe("LIVE_OUTPUT_EVIDENCE_MISSING");
+
+    const paddedVerifier = {
+      ...BASE,
+      integrity: { ...BASE.integrity, verificationRef: " bundle-verifier:demo-rev-4 " },
+    };
+    expect(createDemoPlayerState(paddedVerifier, testAuthority(paddedVerifier)).failure)
+      .toBe("TRUST_ATTESTATION_MISMATCH");
+  });
+
   it("shows curated and live source labels only when the host fake attests the exact source evidence", () => {
     const curated: InteractiveDemoManifest = {
       ...BASE,
