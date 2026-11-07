@@ -30,9 +30,20 @@ record CanonicalOperationPlan(
         String capabilityRef,
         List<CanonicalChildSelection> children,
         MultimodalOperationSpec.SourceClockBinding sourceClock) {
+    private static final int MAX_CHILDREN = MultimodalOperationSpec.MAX_CHILDREN;
+
     CanonicalOperationPlan {
         capabilityRef = java.util.Objects.requireNonNull(capabilityRef, "capabilityRef");
-        children = List.copyOf(java.util.Objects.requireNonNull(children, "children"));
+        java.util.Objects.requireNonNull(children, "children");
+        List<CanonicalChildSelection> bounded = new java.util.ArrayList<>(Math.min(children.size(), MAX_CHILDREN));
+        java.util.Iterator<CanonicalChildSelection> iterator = children.iterator();
+        while (iterator.hasNext()) {
+            if (bounded.size() == MAX_CHILDREN) {
+                throw new IllegalArgumentException("multimodal operation children exceed their bound of " + MAX_CHILDREN);
+            }
+            bounded.add(iterator.next());
+        }
+        children = List.copyOf(bounded);
     }
 }
 
