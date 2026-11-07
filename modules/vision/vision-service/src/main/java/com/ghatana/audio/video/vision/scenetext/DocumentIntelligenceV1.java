@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.vision.scenetext;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +24,9 @@ public interface DocumentIntelligenceV1 {
 
     String PROTOCOL_VERSION = "document-intelligence.v1";
     String WORKER_CAPABILITY_VERSION = "document-intelligence-worker.v1";
+    int MAX_PROVIDERS = 256;
+    int MAX_PAGES = 500;
+    int MAX_LINES_PER_BLOCK = 2_000;
 
     /** {@code GET /v1/providers}. */
     ProviderCatalog providers(Cancellation cancellation) throws DocumentIntelligenceException;
@@ -34,7 +39,7 @@ public interface DocumentIntelligenceV1 {
 
     record ProviderCatalog(String protocolVersion, String workerCapabilityVersion, List<ProviderEntry> providers) {
         public ProviderCatalog {
-            providers = List.copyOf(providers);
+            providers = boundedCopy(providers, MAX_PROVIDERS, "providers");
         }
     }
 
@@ -73,7 +78,7 @@ public interface DocumentIntelligenceV1 {
 
     record Block(String blockId, String kind, Box boundingRegion, List<Line> lines) {
         public Block {
-            lines = List.copyOf(lines);
+            lines = boundedCopy(lines, MAX_LINES_PER_BLOCK, "lines");
         }
     }
 
@@ -86,8 +91,25 @@ public interface DocumentIntelligenceV1 {
     record ParsedDocument(String protocolVersion, String operationId, String providerRef, Provenance providerProvenance,
                           List<Page> pages) {
         public ParsedDocument {
-            pages = List.copyOf(pages);
+            pages = boundedCopy(pages, MAX_PAGES, "pages");
         }
+    }
+
+    private static <T> List<T> boundedCopy(List<T> values, int maximum, String name) {
+        Objects.requireNonNull(values, name);
+        int declaredSize = values.size();
+        if (declaredSize < 0 || declaredSize > maximum) {
+            throw new IllegalArgumentException(name + " exceeds the document-intelligence.v1 limit of " + maximum);
+        }
+        List<T> copy = new ArrayList<>(declaredSize);
+        Iterator<T> iterator = values.iterator();
+        while (copy.size() < maximum && iterator.hasNext()) {
+            copy.add(iterator.next());
+        }
+        if (iterator.hasNext()) {
+            throw new IllegalArgumentException(name + " exceeds the document-intelligence.v1 limit of " + maximum);
+        }
+        return List.copyOf(copy);
     }
 
     /** Cooperative cancellation; listeners fire once, immediately if already cancelled. */
