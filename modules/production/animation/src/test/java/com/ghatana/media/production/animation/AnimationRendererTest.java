@@ -97,6 +97,18 @@ class AnimationRendererTest {
     }
 
     @Test
+    void publicTransformRejectsNonFiniteAndOutOfRangeValues() {
+        assertThatThrownBy(() -> new AnimationRenderer.Transform(Double.NaN, 0, 1, 1, 0, 1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("finite");
+        assertThatThrownBy(() -> new AnimationRenderer.Transform(0, 0, 65, 1, 0, 1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("scale");
+        assertThatThrownBy(() -> new AnimationRenderer.Transform(0, 0, 1, 1, 0, 1.01))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opacity");
+        assertThat(new AnimationRenderer.Transform(8_192, -8_192, 64, 0, 36_000, 0).x())
+                .isEqualTo(8_192);
+    }
+
+    @Test
     void rejectsMalformedCurvesDimensionsAndExcessiveRasterWorkBeforeRendering() {
         assertThatThrownBy(() -> new AnimationRenderer.Keyframe(0, Double.NaN, 0,
                 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR))

@@ -600,6 +600,21 @@ public final class AnimationRenderer {
     public record Transform(double x, double y, double scaleX, double scaleY,
             double rotationDegrees, double opacity) {
         private static final Transform IDENTITY = new Transform(0, 0, 1, 1, 0, 1);
+
+        public Transform {
+            requireCoordinate(x, "transform.x");
+            requireCoordinate(y, "transform.y");
+            if (!Double.isFinite(scaleX) || scaleX < 0.0 || scaleX > MAX_SCALE
+                    || !Double.isFinite(scaleY) || scaleY < 0.0 || scaleY > MAX_SCALE) {
+                throw new IllegalArgumentException("transform scale must be finite and within [0, 64]");
+            }
+            if (!Double.isFinite(rotationDegrees) || Math.abs(rotationDegrees) > MAX_ROTATION_DEGREES) {
+                throw new IllegalArgumentException("transform.rotationDegrees is outside the bounded range");
+            }
+            if (!Double.isFinite(opacity) || opacity < 0.0 || opacity > 1.0) {
+                throw new IllegalArgumentException("transform.opacity must be within [0, 1]");
+            }
+        }
     }
 
     private static java.util.Map<String, BufferedImage> resolveAssets(Scene scene) {
