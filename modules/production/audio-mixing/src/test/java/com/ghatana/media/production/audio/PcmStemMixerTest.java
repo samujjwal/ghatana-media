@@ -188,11 +188,13 @@ class PcmStemMixerTest {
 
         Stem notANumber = synthetic("gain-nan-v1", source, 2, Float.NaN, 0.0f);
         Stem infinite = synthetic("gain-infinite-v1", source, 2, Float.POSITIVE_INFINITY, 0.0f);
+        Stem negativeInfinite = synthetic("gain-negative-infinite-v1", source, 2, Float.NEGATIVE_INFINITY, 0.0f);
         Stem negative = synthetic("gain-negative-v1", source, 2, -0.01f, 0.0f);
         Stem aboveMaximum = synthetic("gain-above-maximum-v1", source, 2, 4.01f, 0.0f);
 
         expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(notANumber), 2, 0.98f));
         expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(infinite), 2, 0.98f));
+        expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(negativeInfinite), 2, 0.98f));
         expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(negative), 2, 0.98f));
         expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(aboveMaximum), 2, 0.98f));
     }
