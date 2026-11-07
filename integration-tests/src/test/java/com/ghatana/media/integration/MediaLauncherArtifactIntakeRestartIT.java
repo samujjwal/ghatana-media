@@ -167,6 +167,25 @@ class MediaLauncherArtifactIntakeRestartIT {
                 assertThat(sha256(stored)).isEqualTo(expectedDigest);
             }
 
+            // Completion has no caller request key. Recovery is bound to this same upload ID
+            // and must return its original artifact identity after a process restart.
+            stopLauncher(launcher);
+            launcher = null;
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+            HttpResponse<String> completionReplay = send(port, TENANT, token, "POST",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/complete", "", "application/json", null);
+            assertThat(completionReplay.statusCode()).as(completionReplay.body()).isEqualTo(201);
+            JsonNode replayedArtifact = JSON.readTree(completionReplay.body());
+            assertThat(replayedArtifact.path("artifactId").asString()).isEqualTo(artifactId);
+            assertThat(replayedArtifact.path("objectReference").asString()).isEqualTo(objectReference);
+            assertThat(replayedArtifact.path("sha256").asString()).isEqualTo(expectedDigest);
+
+            HttpResponse<String> replayReadback = send(port, TENANT, token, "GET",
+                    "/api/v1/artifacts/" + artifactId, "", "application/json", null);
+            assertThat(replayReadback.statusCode()).as(replayReadback.body()).isEqualTo(200);
+            assertThat(JSON.readTree(replayReadback.body()).path("artifactId").asString()).isEqualTo(artifactId);
+
             // A syntactically valid WAV with a deliberately false expected digest must never
             // produce an artifact receipt. The upload ID remains the reconciliation identity;
             // this test does not retry completion under a new identity after the terminal reject.

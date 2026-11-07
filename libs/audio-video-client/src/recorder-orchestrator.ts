@@ -851,11 +851,22 @@ export async function publishFinalRender(
     return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before artifact upload began" };
   }
   // Detach from caller/adapter-owned memory before any further await.
-  const bytes = rendered?.bytes instanceof Uint8Array ? rendered.bytes.slice() : undefined;
-  if (!rendered || !bytes || bytes.byteLength < 1
-    || bytes.byteLength > MAX_RENDER_BYTES || typeof rendered.contentType !== "string"
+  if (!rendered || !(rendered.bytes instanceof Uint8Array)
+    || typeof rendered.contentType !== "string"
     || !/^video\/[a-z0-9.+-]+$/u.test(rendered.contentType)) {
     return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
+  }
+  // Check the host-owned buffer length before copying it. A broken or hostile
+  // adapter must not be able to force an unbounded allocation past our output
+  // ceiling merely by returning an oversized typed array.
+  const sourceByteLength = rendered.bytes.byteLength;
+  if (!Number.isSafeInteger(sourceByteLength) || sourceByteLength < 1
+    || sourceByteLength > MAX_RENDER_BYTES) {
+    return { outcome: "NOT_ADMITTED", reason: "muxer did not return a bounded verified video container" };
+  }
+  const bytes = rendered.bytes.slice();
+  if (bytes.byteLength !== sourceByteLength) {
+    return { outcome: "NOT_ADMITTED", reason: "muxer output changed size while being snapshotted" };
   }
   const probe = rendered.probe;
   const narrationRefs = [...new Set(safeRequest.plan.sceneRuns.flatMap((run) => run.narration.map((cue) => cue.trackRef)))];

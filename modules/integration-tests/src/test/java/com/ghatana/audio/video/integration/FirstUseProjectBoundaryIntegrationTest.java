@@ -167,4 +167,24 @@ class FirstUseProjectBoundaryIntegrationTest {
                 .isInstanceOf(ProjectNotFoundException.class);
         assertThat(ids).hasValue(3);
     }
+
+    @Test
+    void sameTenantWrongPrincipalCannotEditProjectOrAllocateRevision() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-principal-edit-id-" + ids.incrementAndGet());
+        var created = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-principal-edit-request");
+        String projectId = created.project().projectId();
+        String initialRevisionId = created.initialRevision().revisionId();
+        Actor otherPrincipal = new Actor(CREATOR.tenantId(), "another-principal");
+
+        assertThatThrownBy(() -> engine.edit(otherPrincipal, projectId, initialRevisionId,
+                List.of(new AddScene(new Scene("scene-j01-forbidden-principal", 0)))))
+                .isInstanceOf(ProjectAccessDeniedException.class);
+
+        assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+        assertThat(ids).hasValue(3);
+    }
 }

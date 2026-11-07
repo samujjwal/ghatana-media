@@ -300,6 +300,45 @@ class MediaAuthorizedSttTranscriptRestartIT {
         }
     }
 
+    /** J-03 unknown-write recovery reconciles the same immutable correction request. */
+    @Test
+    void captionRegistrationRetryReconcilesSameRequestWithoutCreatingAnotherVersion() throws Exception {
+        try (AutoCloseable installed = TestAwsStateInstall.install(environment());
+             var captions = new com.ghatana.media.provider.aws.PostgresqlMediaCaptionStore()) {
+            String requestId = "j03-caption-reconcile-" + java.util.UUID.randomUUID();
+            var request = new RegistrationRequest(
+                    requestId, "fixture-reconcile-artifact", "fixture-reconcile-source-v1",
+                    ParentVersionKind.TRANSCRIPT_VERSION, "fixture-reconcile-transcript-v1",
+                    "fixture-reconcile-clock", 1_000, 10_000, LanguageDisposition.DECLARED_BY_USER,
+                    java.util.Optional.of("en"), List.of(CaptionSegment.of(
+                            "fixture-reconcile-segment", "reviewer correction", 100, 900,
+                            SegmentOrigin.USER_EDITED)),
+                    java.util.Optional.of("explicit correction for exact transcript version"));
+            var authority = (com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority)
+                    check -> com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority.Decision.ADMITTED;
+            var parent = (com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup)
+                    (kind, parentId, artifactId, sourceVersion) -> java.util.Optional.of(
+                            new com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup.ParentFacts(
+                                    "fixture-reconcile-clock", 1_000, 10_000));
+
+            // Model a lost response: the first write committed, so recovery repeats its exact identity.
+            var committed = captions.register("tenant-a", "principal-a", request, authority, parent);
+            var reconciled = captions.register("tenant-a", "principal-a", request, authority, parent);
+
+            assertThat(committed).isInstanceOf(Registered.class);
+            assertThat(reconciled).isEqualTo(committed);
+            var receipt = (Registered) committed;
+            assertThat(captions.versions("tenant-a", "principal-a",
+                    request.sourceArtifactId(), request.sourceArtifactVersionId())).containsExactly(receipt);
+            assertThat(captions.version("tenant-a", "principal-a", receipt.captionVersionId()))
+                    .get().satisfies(snapshot -> {
+                        assertThat(snapshot.parentVersionKind()).isEqualTo(ParentVersionKind.TRANSCRIPT_VERSION);
+                        assertThat(snapshot.parentVersionId()).isEqualTo(request.parentVersionId());
+                        assertThat(snapshot.captionSegments()).containsExactlyElementsOf(request.captionSegments());
+                    });
+        }
+    }
+
     /** A stale clock tuple for the exact transcript parent must not create a caption version. */
     @Test
     void staleExactTranscriptParentClockRejectsCaptionWithoutWriting() throws Exception {

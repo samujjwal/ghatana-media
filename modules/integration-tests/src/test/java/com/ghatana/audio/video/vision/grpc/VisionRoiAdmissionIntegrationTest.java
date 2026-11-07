@@ -120,6 +120,20 @@ class VisionRoiAdmissionIntegrationTest {
         assertThat(((StatusRuntimeException) missingVersionObserver.error).getStatus().getCode())
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
 
+        DetectRequest undecodableRaster = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {0x01, 0x02, 0x03}))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(0).setY(0).setWidth(1).setHeight(1)
+                        .setSourceFrameVersion("source-frame-v7"))
+                .build();
+        CapturingObserver undecodableRasterObserver = new CapturingObserver();
+        withTenant("tenant-j05", () -> service.detectObjects(undecodableRaster, undecodableRasterObserver));
+        assertThat(undecodableRasterObserver.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) undecodableRasterObserver.error).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(undecodableRasterObserver.responses).isZero();
+        assertThat(undecodableRasterObserver.completed).isFalse();
+
         DetectRequest validButUnadmitted = DetectRequest.newBuilder()
                 .setImageData(ByteString.copyFrom(image))
                 .setSourceRasterRoi(SourceRasterRoi.newBuilder()

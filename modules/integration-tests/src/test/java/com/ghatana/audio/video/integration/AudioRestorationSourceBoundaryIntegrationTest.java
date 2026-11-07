@@ -75,18 +75,26 @@ class AudioRestorationSourceBoundaryIntegrationTest {
     @DisplayName("mutating returned snapshots cannot alter the preserved source revision")
     void returnedComparisonSnapshotsCannotMutateSourceOrUndoRevision() {
         AudioData source = pcm(1_200, -800, 0, 2_400);
+        AudioData repaired = pcm(1_000, -700, 0, 2_300);
         byte[] exactSource = source.data();
-        AudioRepairComparison comparison = AudioRepairComparison.compare(source, pcm(1_000, -700, 0, 2_300));
+        byte[] exactRepaired = repaired.data();
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired);
+        String repairedDigest = comparison.repairedSha256();
 
         byte[] returnedSourceBytes = comparison.source().data();
+        byte[] returnedRepairedBytes = comparison.repaired().data();
         byte[] returnedUndoBytes = comparison.undo().data();
         returnedSourceBytes[0] ^= (byte) 0xff;
+        returnedRepairedBytes[0] ^= (byte) 0xff;
         returnedUndoBytes[1] ^= (byte) 0xff;
 
         assertThat(source.data()).containsExactly(exactSource);
+        assertThat(repaired.data()).containsExactly(exactRepaired);
         assertThat(comparison.source().data()).containsExactly(exactSource);
+        assertThat(comparison.repaired().data()).containsExactly(exactRepaired);
         assertThat(comparison.undo().data()).containsExactly(exactSource);
         assertThat(comparison.sourceSha256()).isEqualTo(AudioRepairComparison.compare(source, source).sourceSha256());
+        assertThat(comparison.repairedSha256()).isEqualTo(repairedDigest);
     }
 
     private static AudioData pcm(int... samples) {

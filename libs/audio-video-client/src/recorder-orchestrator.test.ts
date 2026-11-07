@@ -900,6 +900,31 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("rejects an oversized host buffer before copying it", async () => {
+    let copyCalled = false;
+    const target = new Uint8Array([1]);
+    const oversized = new Proxy(target, {
+      get(buffer, property) {
+        if (property === "byteLength") return Number.MAX_SAFE_INTEGER;
+        if (property === "slice") {
+          return () => {
+            copyCalled = true;
+            return buffer.slice();
+          };
+        }
+        return Reflect.get(buffer, property, buffer);
+      },
+    });
+    const client = fakeClient();
+    const hostMuxer = { muxAndVerify: async () => verifiedContainer(oversized) };
+
+    await expect(publishFinalRender(request(), admitted, hostMuxer, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect(copyCalled).toBe(false);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("rejects a forged scenario identity or lineage before authority or upload calls", async () => {
     const client = fakeClient();
     const admission = { admit: vi.fn(async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] })) };

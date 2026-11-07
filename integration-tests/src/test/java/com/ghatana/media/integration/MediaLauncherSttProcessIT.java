@@ -403,6 +403,30 @@ class MediaLauncherSttProcessIT {
             assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
             assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
             assertThat(Files.exists(fallbackMarker)).isFalse();
+
+            // An ambiguous outcome remains unknown across another process boundary even
+            // after cancellation was requested. Restarting must not interpret cancellation
+            // as provider no-effect evidence or reopen dispatch for the same request.
+            launcher.destroyForcibly();
+            assertThat(launcher.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            launcher = startLauncher(environmentClasspath, env, log);
+            awaitReady(launcher, port);
+            HttpResponse<String> afterSecondRestart = sendAuthenticated(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId, "", "application/json", null);
+            assertThat(afterSecondRestart.statusCode()).as(afterSecondRestart.body()).isEqualTo(200);
+            JsonNode stillUnknownAfterSecondRestart = JSON.readTree(afterSecondRestart.body());
+            assertThat(stillUnknownAfterSecondRestart.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(stillUnknownAfterSecondRestart.path("failureCode").asText())
+                    .isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+            HttpResponse<String> replayAfterSecondRestart = sendAuthenticated(port, TENANT, token, "POST",
+                    "/api/v1/jobs", jobBody, "application/json", null);
+            assertThat(replayAfterSecondRestart.statusCode()).as(replayAfterSecondRestart.body()).isEqualTo(202);
+            assertThat(JSON.readTree(replayAfterSecondRestart.body()).path("jobId").asText()).isEqualTo(jobId);
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
+            assertThat(Files.exists(fallbackMarker)).isFalse();
         } finally {
             try {
                 if (launcher != null && launcher.isAlive()) launcher.destroyForcibly().waitFor(15, TimeUnit.SECONDS);

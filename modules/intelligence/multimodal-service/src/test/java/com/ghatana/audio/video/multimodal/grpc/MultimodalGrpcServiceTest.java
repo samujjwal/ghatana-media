@@ -893,6 +893,41 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("analyzeCrossModal: negative analysis window is rejected before rights lookup")
+    void analyzeCrossModal_negativeAnalysisWindowReturnsInvalidArgumentBeforeAuthorization() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService bounded = new MultimodalGrpcService(
+                mockEngine, mockAdapter, MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    return SourceAuthorization.Decision.ADMITTED;
+                });
+        CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>();
+        CrossModalRequest request = CrossModalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setVideoData(ByteString.copyFrom(new byte[] {2}))
+                .setAnalysisWindowMs(-1)
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.analyze.cross-modal",
+                        "media.operation.capability.media-multimodal-analyze-cross-modal",
+                        "negative-window boundary"))
+                .build();
+
+        try {
+            withContext(TENANT_ID, () -> bounded.analyzeCrossModal(request, observer));
+
+            assertThat(observer.hasError()).isTrue();
+            assertThat(observer.getValue()).isNull();
+            StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+            assertThat(failure.getStatus().getCode()).isEqualTo(Status.INVALID_ARGUMENT.getCode());
+            assertThat(failure.getStatus().getDescription()).contains("analysis_window_ms must be nonnegative");
+            assertThat(authorizationCalls).hasValue(0);
+            verifyNoInteractions(mockEngine, mockAdapter);
+        } finally {
+            bounded.close();
+        }
+    }
+
+    @Test
     @DisplayName("analyzeCrossModal: modality-only authorization cannot admit a family result")
     void analyzeCrossModal_familyTransportNotAdmittedBeforeProviderDispatch() {
         CapturingObserver<CrossModalResponse> observer = new CapturingObserver<>();

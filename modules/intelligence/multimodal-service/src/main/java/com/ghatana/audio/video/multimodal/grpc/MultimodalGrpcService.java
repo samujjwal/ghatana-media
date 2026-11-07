@@ -710,6 +710,12 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                     .asRuntimeException());
             return;
         }
+        if (request.getAnalysisWindowMs() < 0) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("analysis_window_ms must be nonnegative")
+                    .asRuntimeException());
+            return;
+        }
         if (!canonicalSelection(request.getOperationBinding(), CAP_CROSS_MODAL, OP_CROSS_MODAL)) {
             responseObserver.onError(multimodalFamilyNotAdmitted());
             return;
