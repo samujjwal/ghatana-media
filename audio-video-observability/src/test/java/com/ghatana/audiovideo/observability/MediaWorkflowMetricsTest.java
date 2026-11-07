@@ -2,6 +2,8 @@ package com.ghatana.audiovideo.observability;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Meter;
@@ -17,6 +19,21 @@ import java.util.concurrent.TimeUnit;
 import java.time.Instant;
 
 class MediaWorkflowMetricsTest {
+    @Test
+    void eventCounterFailureDoesNotEscapeIntoWorkflowOutcomePath() {
+        var registry = new EventCounterFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+            registry.failEventIncrement = true;
+
+            org.assertj.core.api.Assertions.assertThatCode(
+                    () -> metrics.record(MediaWorkflowMetrics.Event.UNKNOWN))
+                    .doesNotThrowAnyException();
+        } finally {
+            registry.close();
+        }
+    }
+
     @Test
     void captureMetricRegistryFailureDoesNotEscapeIntoFrameOutcomePath() {
         var registry = new CaptureCounterFailureRegistry();
@@ -61,6 +78,22 @@ class MediaWorkflowMetricsTest {
                 throw new IllegalStateException("fixture registry failure");
             }
             return super.newCounter(id);
+        }
+    }
+
+    private static final class EventCounterFailureRegistry extends SimpleMeterRegistry {
+        private boolean failEventIncrement;
+
+        @Override
+        protected Counter newCounter(Meter.Id id) {
+            Counter counter = super.newCounter(id);
+            if (!"media.workflow.events".equals(id.getName())) return counter;
+            Counter instrumented = spy(counter);
+            doAnswer(invocation -> {
+                if (failEventIncrement) throw new IllegalStateException("fixture counter failure");
+                return invocation.callRealMethod();
+            }).when(instrumented).increment();
+            return instrumented;
         }
     }
 

@@ -397,7 +397,12 @@ public final class MediaWorkflowMetrics {
     }
 
     public void record(Event event) {
-        if (event != null) eventCounters.get(event).increment();
+        if (event == null) return;
+        try {
+            eventCounters.get(event).increment();
+        } catch (RuntimeException ignored) {
+            // Aggregate event instrumentation must not replace the workflow result it observes.
+        }
     }
 
     /** Count one canonical stream-frame outcome using only fixed-cardinality labels. */
