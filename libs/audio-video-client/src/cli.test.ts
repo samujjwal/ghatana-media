@@ -921,6 +921,44 @@ describe('ghatanamedia-api canonical job commands', () => {
     },
   );
 
+  it('rejects integers that JavaScript would round before dispatching job parameters', async () => {
+    const parameters = '{"version":9007199254740992}';
+    const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
+      '--request-id', 'request-unsafe-integer', '--correlation-id', 'corr-unsafe-integer', '--artifact', 'artifact-a',
+      '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-unsafe-integer', '--parameters', parameters,
+    ]));
+
+    expect(result.status).toBe(2);
+    expect(result.stdout).toBe('');
+    expect(JSON.parse(result.stderr)).toMatchObject({
+      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'INVALID_INVOCATION',
+    });
+  });
+
+  it('preserves the largest safe JSON integer in authenticated job parameters', async () => {
+    const acknowledgedJob = { ...job, requestId: 'request-safe-integer' };
+    await withServer((request, response) => {
+      let body = '';
+      request.setEncoding('utf8').on('data', chunk => { body += chunk; });
+      request.on('end', () => {
+        expect(JSON.parse(body).parameters.version).toBe(Number.MAX_SAFE_INTEGER);
+        response.writeHead(202, { 'content-type': 'application/json' }).end(JSON.stringify(acknowledgedJob));
+      });
+    }, async endpoint => {
+      const result = await invoke(jobCommand(endpoint, 'submit', [
+        '--request-id', 'request-safe-integer', '--correlation-id', 'corr-safe-integer', '--artifact', 'artifact-a',
+        '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-safe-integer',
+        '--parameters', '{"version":9007199254740991}',
+      ]));
+
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit', job: acknowledgedJob,
+      });
+    });
+  });
+
   it('rejects parameters above the UTF-8 byte limit in a fresh CLI process before dispatch', async () => {
     // U+00E9 is two UTF-8 bytes. This remains small enough for a portable argv
     // entry while proving the limit is measured in bytes rather than JS chars.

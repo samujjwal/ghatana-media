@@ -189,7 +189,9 @@ function parseStrictJsonObject(input: string): Record<string, unknown> {
     if (numeric) {
       offset += numeric[0].length;
       const number = Number(numeric[0]);
-      if (!Number.isFinite(number)) return fail();
+      // JSON permits integers that JavaScript cannot represent exactly. Letting
+      // one through would silently change the submitted operation parameters.
+      if (!Number.isFinite(number) || (Number.isInteger(number) && !Number.isSafeInteger(number))) return fail();
       return number;
     }
     return fail();
