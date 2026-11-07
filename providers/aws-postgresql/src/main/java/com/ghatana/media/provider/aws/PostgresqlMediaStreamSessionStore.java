@@ -136,7 +136,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 }
                 // The row lock serializes this sample after any competing writer. The SQL
                 // UPDATE also applies PostgreSQL's wall clock after the lock is acquired.
-                Instant now = clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+                Instant now = currentDatabaseTime(connection);
                 if (!leaseExpiresAt.isAfter(now)) {
                     throw new IllegalArgumentException("Media stream lease must expire in the future");
                 }
@@ -173,6 +173,18 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         } catch (SQLException failure) {
             throw databaseFailure("connect Media stream session", failure);
         }
+    }
+
+    private Instant currentDatabaseTime(Connection connection) throws SQLException {
+        if (connection.getMetaData().getDatabaseProductName().toLowerCase(java.util.Locale.ROOT)
+                .contains("postgresql")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT clock_timestamp()");
+                 ResultSet result = statement.executeQuery()) {
+                if (!result.next()) throw new SQLException("PostgreSQL clock query returned no row");
+                return result.getTimestamp(1).toInstant().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+            }
+        }
+        return clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
     }
 
     @Override
@@ -315,7 +327,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.createdAt(), Instant.now(), expected.closedAt(), expected.metadata(),
                 expected.version() + 1, expected.sequenceTokenHash(), expected.acknowledgementRevision(),
                 expected.finality(), sequence, boundedAttemptId));
-        update(expected, updated, null, null);
+        updateWithLeaseFence(expected, updated);
         return updated;
     }
 
@@ -348,7 +360,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.closedAt(), expected.metadata(), expected.version() + 1,
                 expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
                 null, ""));
-        update(expected, updated, null, null);
+        updateWithLeaseFence(expected, updated);
         return updated;
     }
 
@@ -450,6 +462,37 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                     databaseClockLeaseFence, applicationClockFallback);
         } catch (SQLException failure) {
             throw databaseFailure("prepare Media stream session update", failure);
+        }
+    }
+
+    /** Locks and revalidates the session lease before reserving or acknowledging a frame. */
+    private void updateWithLeaseFence(StreamSession expected, StreamSession updated) {
+        try (Connection connection = state.connection()) {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                StreamRow row = read(connection, expected.tenantId(), expected.sessionId(), true);
+                Instant now = currentDatabaseTime(connection);
+                if (row == null || !row.session().equals(expected)) {
+                    throw new IllegalStateException("Media stream session version or ownership changed");
+                }
+                if (row.session().leaseExpiresAt() == null || !row.session().leaseExpiresAt().isAfter(now)) {
+                    throw new IllegalStateException("Media stream connection lease is absent or expired");
+                }
+                update(connection, expected, updated, null, null, true, now);
+                connection.commit();
+            } catch (SQLException | RuntimeException failure) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+                throw failure;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("fence Media stream frame update", failure);
         }
     }
 
