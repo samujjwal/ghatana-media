@@ -339,6 +339,57 @@ class MediaAuthorizedSttTranscriptRestartIT {
         }
     }
 
+    /** Current registration authority is rechecked before replaying a prior request receipt. */
+    @Test
+    void captionRegistrationRetryAfterAuthorityRevocationDoesNotExposeReceiptOrDuplicateVersion()
+            throws Exception {
+        try (AutoCloseable installed = TestAwsStateInstall.install(environment());
+             var captions = new com.ghatana.media.provider.aws.PostgresqlMediaCaptionStore()) {
+            String requestId = "j03-caption-revoked-retry-" + java.util.UUID.randomUUID();
+            var request = new RegistrationRequest(
+                    requestId, "fixture-revoked-artifact", "fixture-revoked-source-v1",
+                    ParentVersionKind.TRANSCRIPT_VERSION, "fixture-revoked-transcript-v1",
+                    "fixture-revoked-clock", 1_000, 10_000, LanguageDisposition.DECLARED_BY_USER,
+                    java.util.Optional.of("en"), List.of(CaptionSegment.of(
+                            "fixture-revoked-segment", "reviewer correction", 100, 900,
+                            SegmentOrigin.USER_EDITED)),
+                    java.util.Optional.of("explicit correction for exact transcript version"));
+            var authorityChecks = new java.util.concurrent.atomic.AtomicInteger();
+            var authority = (com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority)
+                    check -> authorityChecks.getAndIncrement() == 0
+                            ? com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority.Decision.ADMITTED
+                            : com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority.Decision.DENIED;
+            var parent = (com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup)
+                    (kind, parentId, artifactId, sourceVersion) -> java.util.Optional.of(
+                            new com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup.ParentFacts(
+                                    "fixture-revoked-clock", 1_000, 10_000));
+
+            var original = captions.register("tenant-a", "principal-a", request, authority, parent);
+            var retryAfterRevocation = captions.register("tenant-a", "principal-a", request, authority, parent);
+
+            assertThat(original).isInstanceOf(Registered.class);
+            assertThat(retryAfterRevocation)
+                    .isInstanceOf(com.ghatana.media.runtime.MediaCaptionContracts.Rejected.class)
+                    .satisfies(result -> {
+                        var rejected = (com.ghatana.media.runtime.MediaCaptionContracts.Rejected) result;
+                        assertThat(rejected.requestId()).isEqualTo(requestId);
+                        assertThat(rejected.error()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCaptionContracts.RegistrationError
+                                        .VERSION_REGISTRATION_NOT_ALLOWED);
+                        assertThat(rejected.retryable()).isFalse();
+                    });
+            assertThat(authorityChecks).hasValue(2);
+            assertThat(captions.versions("tenant-a", "principal-a",
+                    request.sourceArtifactId(), request.sourceArtifactVersionId()))
+                    .containsExactly((Registered) original);
+            assertThat(captions.version("tenant-a", "principal-a", ((Registered) original).captionVersionId()))
+                    .get().satisfies(snapshot -> {
+                        assertThat(snapshot.parentVersionKind()).isEqualTo(ParentVersionKind.TRANSCRIPT_VERSION);
+                        assertThat(snapshot.parentVersionId()).isEqualTo(request.parentVersionId());
+                    });
+        }
+    }
+
     /** A stale clock tuple for the exact transcript parent must not create a caption version. */
     @Test
     void staleExactTranscriptParentClockRejectsCaptionWithoutWriting() throws Exception {

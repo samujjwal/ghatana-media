@@ -359,6 +359,26 @@ class MediaLauncherSttProcessIT {
             assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
             assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
 
+            // An UNKNOWN result without an intervening reconciliation must remain
+            // UNKNOWN across another process boundary; startup is not provider truth
+            // and must not turn the existing attempt into a redispatch opportunity.
+            launcher.destroyForcibly();
+            assertThat(launcher.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            launcher = startLauncher(environmentClasspath, env, log);
+            awaitReady(launcher, port);
+            HttpResponse<String> unknownAfterRestart = sendAuthenticated(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId, "", "application/json", null);
+            assertThat(unknownAfterRestart.statusCode()).as(unknownAfterRestart.body()).isEqualTo(200);
+            JsonNode stillUnknownWithoutReconciliation = JSON.readTree(unknownAfterRestart.body());
+            assertThat(stillUnknownWithoutReconciliation.path("jobId").asText()).isEqualTo(jobId);
+            assertThat(stillUnknownWithoutReconciliation.path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(stillUnknownWithoutReconciliation.path("failureCode").asText())
+                    .isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(attemptCount(TENANT, jobId)).isEqualTo(1);
+            assertThat(attemptState(TENANT, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(Files.readAllLines(dispatchMarker)).containsExactly(requestId + ",1");
+            assertThat(Files.exists(fallbackMarker)).isFalse();
+
             // Cancellation is terminally idempotent here: it cannot turn an ambiguous
             // provider outcome into CANCELLED or create a second dispatch attempt.
             HttpResponse<String> cancelUnknown = sendAuthenticated(port, TENANT, token, "POST",
