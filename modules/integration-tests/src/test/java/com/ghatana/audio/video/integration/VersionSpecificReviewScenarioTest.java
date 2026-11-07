@@ -74,6 +74,51 @@ class VersionSpecificReviewScenarioTest {
     }
 
     @Test
+    void timeAndRegionCommentRemainsBoundToPriorRevisionAfterMaterialChanges() {
+        AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(
+                        AuthorizationStatus.ALLOW,
+                        actor.tenantId(),
+                        actor.principalId(),
+                        reviewCase.reviewCaseId(),
+                        reviewCase.exactTargetRef(),
+                        reviewCase.scopeRef(),
+                        "fixture-authority-v1",
+                        NOW.plusSeconds(60),
+                        currentVersion.get(),
+                        RetentionStatus.ACTIVE),
+                value -> value,
+                Clock.fixed(NOW, ZoneOffset.UTC),
+                () -> "comment-j21-v1");
+        Annotation annotation = new Annotation(
+                new TimeRange(new RationalTime(10, 30, 1, ClockDomain.SOURCE_PRESENTATION),
+                        new RationalTime(20, 30, 1, ClockDomain.SOURCE_PRESENTATION)),
+                new NormalizedRoi(0.1, 0.2, 0.4, 0.3));
+
+        AppendReceipt receipt = engine.append(REVIEWER, new AppendRequest(CASE, 0, "fixture-authority-v1",
+                "request-j21-comment-v1",
+                new Confirmation("media.operation.action.record-review-comment", V1.reference(), true),
+                new Comment("Inspect this frame region", CommentDisposition.OPEN, annotation)));
+
+        assertThat(receipt.reviewSubjectRef()).isEqualTo(V1);
+        assertThat(receipt.establishesApproval()).isFalse();
+        assertThat(receipt.currentness()).isEqualTo(Currentness.CURRENT);
+
+        currentVersion.set(V2.reference());
+        ReviewSnapshot changed = engine.inspect(REVIEWER, CASE);
+        assertThat(changed.currentness()).isEqualTo(Currentness.STALE);
+        assertThat(changed.records()).singleElement().satisfies(observation -> {
+            assertThat(observation.currentness()).isEqualTo(Currentness.STALE);
+            assertThat(observation.record().reviewSubjectRef()).isEqualTo(V1);
+            Comment comment = (Comment) observation.record().payload();
+            assertThat(comment.text()).isEqualTo("Inspect this frame region");
+            assertThat(comment.annotation()).isEqualTo(annotation);
+        });
+    }
+
+    @Test
     void sourceRevisionChangingAtWriteBoundaryPreventsDecisionRecordCreation() {
         AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
         AtomicInteger authorityChecks = new AtomicInteger();
