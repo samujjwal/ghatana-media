@@ -900,6 +900,27 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("rejects oversized probe observation arrays before traversing host data", async () => {
+    let indexedReads = 0;
+    const oversizedTrackRefs = new Proxy(new Array<string>(100_000), {
+      get(target, property, receiver) {
+        if (typeof property === "string" && /^\\d+$/u.test(property)) indexedReads += 1;
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    const badMuxer = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      probe: { ...verifiedContainer().probe, narrationTrackRefs: oversizedTrackRefs },
+    }) };
+    const client = fakeClient();
+
+    await expect(publishFinalRender(request(), admitted, badMuxer, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect(indexedReads).toBe(0);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("rejects an oversized host buffer before copying it", async () => {
     let copyCalled = false;
     const target = new Uint8Array([1]);

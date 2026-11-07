@@ -884,6 +884,12 @@ export async function publishFinalRender(
     || !Array.isArray(probe.narrationTrackRefs)
     || !Number.isSafeInteger(probe.captionTrackCount) || probe.captionTrackCount < 0
     || !Array.isArray(probe.creditRefsIncluded)
+    // Reject length mismatches before serializing host-owned arrays. The
+    // request-side collections are bounded, but the probe adapter is not
+    // trusted to return equally bounded observations.
+    || probe.narrationTrackRefs.length !== narrationRefs.length
+    || probe.captionTimings.length !== safeRequest.captions.length
+    || probe.creditRefsIncluded.length !== safeRequest.creditRefs.length
     || probe.frameRate.numerator !== safeRequest.frameRate.numerator
     || probe.frameRate.denominator !== safeRequest.frameRate.denominator
     || probe.variableFrameRate !== safeRequest.variableFrameRate
