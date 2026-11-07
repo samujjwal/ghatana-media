@@ -345,6 +345,11 @@ pub fn compare_audio(
 ) -> Result<AudioComparison> {
     validate_buffer(source, RepairLimits::DEFAULT)?;
     validate_buffer(repaired, RepairLimits::DEFAULT)?;
+    if source.samples.is_empty() {
+        return Err(SpeechAudioError::InvalidInput(
+            "source and repaired revisions must not be empty".into(),
+        ));
+    }
     if source.config != repaired.config || source.samples.len() != repaired.samples.len() {
         return Err(SpeechAudioError::InvalidInput(
             "source and repaired revisions must have identical PCM format and frame count".into(),
@@ -673,6 +678,15 @@ mod tests {
         .validate()
         .is_err());
         assert!(compare_audio(&mono(vec![0.0]), &mono(vec![0.0, 0.0]), None).is_err());
+    }
+
+    #[test]
+    fn comparison_rejects_empty_revisions_instead_of_returning_zero_metrics() {
+        let empty = mono(Vec::new());
+        assert!(matches!(
+            compare_audio(&empty, &empty, None),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
     }
 
     #[test]
