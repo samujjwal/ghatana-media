@@ -75,6 +75,7 @@
     "vitest": "catalog:"
   },
   "dependencies": {
+    "@audio-video/client": "workspace:*",
     "@ghatana/design-system": "0.1.0-SNAPSHOT",
     "@ghatana/theme": "0.1.0-SNAPSHOT",
     "@ghatana/tokens": "0.1.0-SNAPSHOT"

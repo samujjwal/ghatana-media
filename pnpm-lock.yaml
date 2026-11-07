@@ -1241,6 +1241,9 @@ importers:
 
   libs/audio-video-ui:
     dependencies:
+      '@audio-video/client':
+        specifier: workspace:*
+        version: link:../audio-video-client
       '@ghatana/design-system':
         specifier: 0.1.0-SNAPSHOT
         version: link:../../../ghatana-shared/platform/typescript/design-system
