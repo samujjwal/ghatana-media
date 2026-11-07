@@ -25,13 +25,18 @@ class ProjectTimelineEngineTest {
         assertThat(replay.createdNow()).isFalse();
         assertThat(replay.project().projectId()).isEqualTo(first.project().projectId());
         assertThat(replay.initialRevision().revisionId()).isEqualTo(first.initialRevision().revisionId());
-        engine.edit(OWNER, first.project().projectId(), first.initialRevision().revisionId(),
+        Revision edited = engine.edit(OWNER, first.project().projectId(), first.initialRevision().revisionId(),
                 List.of(new ProjectTimelineEngine.AddScene(new Scene("later-scene", 0))));
         Created lateReplay = engine.createProject(OWNER, "workspace-a", "Cut", "create-1");
         assertThat(lateReplay.initialRevision().revisionId()).isEqualTo(first.initialRevision().revisionId());
         assertThat(lateReplay.project().headRevisionId()).isEqualTo(first.initialRevision().revisionId());
         assertThatThrownBy(() -> engine.createProject(OWNER, "workspace-b", "Cut", "create-1"))
                 .isInstanceOf(IdempotencyConflictException.class);
+
+        Created replayAfterConflict = engine.createProject(OWNER, "workspace-a", "Cut", "create-1");
+        assertThat(replayAfterConflict).isEqualTo(lateReplay);
+        assertThat(engine.project(OWNER, first.project().projectId()).headRevisionId())
+                .isEqualTo(edited.revisionId());
     }
 
     @Test

@@ -49,6 +49,34 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void authoredAndPreparedPlanReferenceCollectionsAreImmutableSnapshots() {
+        List<SourceVersion> briefReferences = new java.util.ArrayList<>(List.of(SOURCE_B));
+        List<SourceVersion> shotReferences = new java.util.ArrayList<>(List.of(SOURCE_A));
+        List<StoryboardPlanner.ShotInput> shotInputs = new java.util.ArrayList<>(List.of(
+                shot("snapshot-shot", 0, 0, shotReferences)));
+        List<StoryboardPlanner.AuthoredScene> authoredScenes = new java.util.ArrayList<>(List.of(
+                scene("snapshot-scene", 0, 0, shotInputs)));
+        StoryboardPlanner.AuthoredBrief brief = brief(briefReferences);
+
+        StoryboardPlanner.ScenePlan plan = new StoryboardPlanner(new CountingRights()).prepare(OWNER,
+                "project-snapshot", "head-snapshot", "plan-snapshot", "v1", brief, authoredScenes);
+
+        briefReferences.clear();
+        shotReferences.clear();
+        shotInputs.clear();
+        authoredScenes.clear();
+
+        assertThat(brief.exactReferences()).containsExactly(SOURCE_B);
+        assertThat(plan.scenes()).hasSize(1);
+        assertThat(plan.scenes().getFirst().shots()).hasSize(1);
+        assertThat(plan.exactSources()).containsExactly(SOURCE_A, SOURCE_B);
+        assertThatThrownBy(() -> plan.scenes().clear()).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> plan.scenes().getFirst().shots().clear())
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> plan.exactSources().clear()).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
     void reviewIsASeparateImmutableReceiptForTheExactSavedEditionAndRechecksRights() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
