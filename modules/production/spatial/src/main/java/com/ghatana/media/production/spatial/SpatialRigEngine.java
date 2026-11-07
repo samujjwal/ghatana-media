@@ -266,7 +266,13 @@ public final class SpatialRigEngine {
                     MAX_SOURCE_VERSIONS, "pose source-version count exceeds ceiling", "sourceVersions[]");
         }
     }
-    public record ProjectedPoint(double xPixels, double yPixels, double depth) { }
+    public record ProjectedPoint(double xPixels, double yPixels, double depth) {
+        public ProjectedPoint {
+            if (!Double.isFinite(xPixels) || !Double.isFinite(yPixels) || !Double.isFinite(depth)) {
+                throw new IllegalArgumentException("projected point coordinates and depth must be finite");
+            }
+        }
+    }
     /** Decodable GLB 2.0 skeleton/animation candidate, bound to one source project revision. */
     public record GlbArtifact(String rigId, String sourceProjectRevisionRef, String frameRef,
             String frameVersionRef, List<SourceVersionRef> sourceVersions, String mimeType,

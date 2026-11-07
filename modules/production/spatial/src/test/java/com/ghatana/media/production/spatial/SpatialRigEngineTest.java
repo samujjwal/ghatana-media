@@ -224,6 +224,17 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void cameraProjectionRejectsNonFinitePixelCoordinatesFromTinyClipDepth() {
+        var frame = canonicalFrame();
+        var camera = new SpatialRigEngine.PerspectiveCamera(frame, SpatialRigEngine.Vec3.ZERO,
+                SpatialRigEngine.Quaternion.IDENTITY, Math.PI / 2, Double.MIN_VALUE, 1, 640, 480);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> engine.project(
+                new SpatialRigEngine.Vec3(1, 0, -Double.MIN_VALUE), frame, camera))
+                .withMessageContaining("projected point coordinates and depth must be finite");
+    }
+
+    @Test
     void exportsDecodableRevisionAndRightsBoundGlbWithRationalTimingAndSpatialMetadata() throws Exception {
         var frame = glbFrame();
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI);
