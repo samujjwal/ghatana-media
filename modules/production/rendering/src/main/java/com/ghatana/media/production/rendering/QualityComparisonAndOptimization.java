@@ -196,6 +196,10 @@ public final class QualityComparisonAndOptimization {
                     && (ssim.value().orElseThrow() < -1.0 || ssim.value().orElseThrow() > 1.0)) {
                 throw invalid("global SSIM must be within its bounded range");
             }
+            if (psnr.status() == MetricStatus.EXACT_MATCH
+                    && (ssim.status() != MetricStatus.MEASURED || ssim.value().orElseThrow() != 1.0)) {
+                throw invalid("exact RGB8 PSNR match requires global SSIM of exactly 1.0");
+            }
             boolean psnrUnavailable = psnr.status() == MetricStatus.UNAVAILABLE;
             boolean ssimUnavailable = ssim.status() == MetricStatus.UNAVAILABLE;
             if (psnrUnavailable != ssimUnavailable

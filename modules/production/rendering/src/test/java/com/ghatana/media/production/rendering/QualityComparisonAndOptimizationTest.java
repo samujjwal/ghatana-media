@@ -385,6 +385,12 @@ class QualityComparisonAndOptimizationTest {
                         java.util.OptionalDouble.of(-1.0001)), heuristics, QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("SSIM must be within its bounded range");
+        assertThatThrownBy(() -> new CandidateComparison(candidate,
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.EXACT_MATCH, java.util.OptionalDouble.empty()),
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
+                        java.util.OptionalDouble.of(0.9999)), heuristics, QualityDisposition.NOT_IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact RGB8 PSNR match requires global SSIM of exactly 1.0");
     }
 
     @Test
