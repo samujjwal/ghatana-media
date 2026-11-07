@@ -517,6 +517,27 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void replayReturnsOriginalReceiptObservationTime() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        AppendRequest request = fixture.request(0, "req-receipt-time", new Comment("safe", CommentDisposition.OPEN, null));
+        AppendReceipt original = fixture.engine.append(REVIEWER, request);
+        Clock laterClock = Clock.fixed(NOW.plusSeconds(15), ZoneOffset.UTC);
+        VersionedReviewEngine retryEngine = new VersionedReviewEngine(fixture.store,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(AuthorizationStatus.ALLOW,
+                        actor.tenantId(), actor.principalId(), reviewCase.reviewCaseId(), reviewCase.exactTargetRef(),
+                        reviewCase.scopeRef(), "authority-v1", NOW.plusSeconds(60), V1.reference(), RetentionStatus.ACTIVE),
+                value -> value, laterClock, () -> "unused-replay-id");
+
+        AppendReceipt replay = retryEngine.append(REVIEWER, request);
+
+        assertThat(replay.appendRecordId()).isEqualTo(original.appendRecordId());
+        assertThat(replay.caseRevision()).isEqualTo(original.caseRevision());
+        assertThat(replay.observedAt()).isEqualTo(original.observedAt());
+        assertThat(replay.observedAt()).isEqualTo(NOW);
+        assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
     void idempotentReplayDoesNotRequireAllocatingAnotherAppendRecordId() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
         AppendRequest request = fixture.request(0, "req-id-source-down", new Comment("safe", CommentDisposition.OPEN, null));

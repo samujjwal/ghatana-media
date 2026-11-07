@@ -94,7 +94,7 @@ public final class VersionedReviewEngine {
                 allocatedAppendRecordId[0],
                 safePayload, effectAuthority, record, appendResult.idempotentReplay());
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
-                record.appendRecordId(), record.caseRevision(), effectCurrentness, false, now);
+                record.appendRecordId(), record.caseRevision(), effectCurrentness, false, record.createdAt());
     }
 
     public ReviewSnapshot inspect(Actor actor, ReviewCaseRef reviewCase) {
