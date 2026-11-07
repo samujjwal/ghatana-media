@@ -271,6 +271,14 @@ public final class MediaProjectTimelineContracts {
         return title;
     }
 
+    /** Validates J-01's selected workspace identifier against the owner wire schema. */
+    public static String requireSelectedWorkspaceId(String workspaceId) {
+        if (workspaceId == null || !workspaceId.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException("workspaceId must be a 1-128 character opaque id");
+        }
+        return workspaceId;
+    }
+
     /** Validates the J-01 owner wire-schema replay identity before any store side effect. */
     public static String requireCreateProjectRequestId(String requestId) {
         if (requestId == null || !requestId.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}")) {

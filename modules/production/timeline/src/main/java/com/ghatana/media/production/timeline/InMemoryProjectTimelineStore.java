@@ -16,7 +16,7 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
                                        String projectId, String initialRevisionId, String timelineId) {
         Objects.requireNonNull(actor, "actor");
         requireCreateProjectRequestId(requestId);
-        if (workspaceId == null || workspaceId.isBlank()) throw new IllegalArgumentException("workspaceId must not be blank");
+        requireSelectedWorkspaceId(workspaceId);
         requiredProjectTitle(title);
         RequestKey requestKey = new RequestKey(actor.tenantId(), actor.principalId(), required(requestId, "requestId"));
         CreateReceipt prior = requests.get(requestKey);

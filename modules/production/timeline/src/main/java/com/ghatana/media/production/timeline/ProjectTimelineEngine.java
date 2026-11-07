@@ -30,7 +30,7 @@ public final class ProjectTimelineEngine {
     public Created createProject(Actor actor, String workspaceId, String title, String requestId) {
         Objects.requireNonNull(actor, "actor");
         requireCreateProjectRequestId(requestId);
-        if (workspaceId == null || workspaceId.isBlank()) throw new IllegalArgumentException("workspaceId must not be blank");
+        requireSelectedWorkspaceId(workspaceId);
         requiredProjectTitle(title);
         return store.create(actor, workspaceId, title, requestId, nextId(), nextId(), nextId());
     }

@@ -102,6 +102,11 @@ class FirstUseProjectBoundaryIntegrationTest {
 
         assertThatThrownBy(() -> engine.createProject(CREATOR, WORKSPACE, "  ", REQUEST))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> engine.createProject(CREATOR, "workspace with spaces", "First cut", REQUEST))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> engine.createProject(CREATOR, "w".repeat(129), "First cut", REQUEST))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(ids).hasValue(0);
         var created = engine.createProject(CREATOR, WORKSPACE, "First cut", REQUEST);
         String head = created.initialRevision().revisionId();
 
