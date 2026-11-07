@@ -341,6 +341,18 @@ class AnimationJ13LocalScenarioSliceTest {
                         .isEqualTo(SpatialRigEngine.ExportBlocker.MOTION_CONSTRAINT_INVALID));
     }
 
+    @Test
+    void cyclicSkeletonMappingIsRejectedBeforePoseOrExportCanBeConstructed() {
+        var root = bone("root", "hand", SpatialRigEngine.LocalTransform.identity());
+        var hand = bone("hand", "root", SpatialRigEngine.LocalTransform.identity());
+
+        assertThatThrownBy(() -> new SpatialRigEngine.Rig("j13-cyclic-rig", GLB_FRAME,
+                "UNIT_QUATERNION_XYZW", List.of(SOURCE), List.of(root, hand), Map.of(),
+                "project:j13:revision-9"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("rig hierarchy contains a cycle");
+    }
+
     private static SpatialRigEngine.Rig authoredRig() {
         var root = bone("root", null, SpatialRigEngine.LocalTransform.identity());
         var hand = bone("hand", "root", new SpatialRigEngine.LocalTransform(
