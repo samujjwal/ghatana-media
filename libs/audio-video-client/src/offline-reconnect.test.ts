@@ -190,6 +190,38 @@ describe("OfflineReconnectCoordinator", () => {
     if (versionRecovered.status === "RECONNECTED") expect(versionRecovered.results[0]?.state).toBe("APPLIED");
   });
 
+  it("recovers from transient version and authorization read failures without losing the pending edit", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+
+    const versionFailure = await new OfflineReconnectCoordinator(q, scope, operations({
+      readProjectVersion: async () => { throw new Error("temporary version read failure"); },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(versionFailure).toMatchObject({ status: "RECONNECTED", dirty: true,
+      results: [{ editId: edit.editId, state: "VERSION_UNKNOWN" }] });
+    expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+
+    const authorizationFailure = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async () => { throw new Error("temporary authorization read failure"); },
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(authorizationFailure).toMatchObject({ status: "RECONNECTED", dirty: true,
+      results: [{ editId: edit.editId, state: "AUTHORIZATION_UNKNOWN" }] });
+    expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
+    expect(applyCount).toBe(0);
+
+    const recovered = await new OfflineReconnectCoordinator(q, scope, operations({
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+    expect(recovered).toMatchObject({ status: "RECONNECTED", dirty: false,
+      results: [{ editId: edit.editId, state: "APPLIED", receipt: "receipt:idem-a" }] });
+    expect(applyCount).toBe(1);
+    expect((await q.readEdits(scope))[0]?.state).toBe("APPLIED");
+  });
+
   it("keeps malformed authorization readback unknown instead of recording a false revocation", async () => {
     const q = await queue();
     await q.enqueue(edit);

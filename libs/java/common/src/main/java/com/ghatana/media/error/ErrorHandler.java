@@ -56,7 +56,19 @@ public final class ErrorHandler {
      * @return true if the error might succeed on retry
      */
     public static boolean isRetryable(Throwable throwable) {
+        return isRetryable(throwable, new java.util.IdentityHashMap<>());
+    }
+
+    private static boolean isRetryable(
+            Throwable throwable, java.util.IdentityHashMap<Throwable, Boolean> visited) {
         if (throwable == null) {
+            return false;
+        }
+
+        // Throwable causes are mutable and may form cycles when independently
+        // wrapped failures are linked after construction. Stop at a repeated
+        // identity instead of overflowing while classifying/logging the error.
+        if (visited.put(throwable, Boolean.TRUE) != null) {
             return false;
         }
 
@@ -97,8 +109,8 @@ public final class ErrorHandler {
 
         // Caused by retryable
         Throwable cause = throwable.getCause();
-        if (cause != null && !cause.equals(throwable)) {
-            return isRetryable(cause);
+        if (cause != null) {
+            return isRetryable(cause, visited);
         }
 
         return false;

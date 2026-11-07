@@ -104,7 +104,27 @@ public final class MediaResourceProfileHarness {
 
     public record Environment(String javaVersion, String javaVendor, String runtimeName,
                               String operatingSystem, String operatingSystemVersion, String architecture,
-                              int availableProcessors, String modelProfile, String corpusProfile) {}
+                              int availableProcessors, String modelProfile, String corpusProfile) {
+        public Environment {
+            requireProfileValue(javaVersion, "javaVersion");
+            requireProfileValue(javaVendor, "javaVendor");
+            requireProfileValue(runtimeName, "runtimeName");
+            requireProfileValue(operatingSystem, "operatingSystem");
+            requireProfileValue(operatingSystemVersion, "operatingSystemVersion");
+            requireProfileValue(architecture, "architecture");
+            requireProfileValue(modelProfile, "modelProfile");
+            requireProfileValue(corpusProfile, "corpusProfile");
+            if (availableProcessors < 1) {
+                throw new IllegalArgumentException("availableProcessors must be positive");
+            }
+        }
+
+        private static void requireProfileValue(String value, String name) {
+            if (value == null || value.isBlank()) {
+                throw new IllegalArgumentException(name + " must be explicit");
+            }
+        }
+    }
 
     public record Report(
             int concurrency,

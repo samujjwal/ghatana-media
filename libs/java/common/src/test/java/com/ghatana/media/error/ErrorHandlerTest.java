@@ -244,4 +244,15 @@ class ErrorHandlerTest {
                 new ConnectException("Level 3")));
         assertTrue(ErrorHandler.isRetryable(deep)); 
     }
+
+    @Test
+    @DisplayName("Should classify cyclic cause chains without recursion overflow")
+    void cyclicCauseChainDoesNotOverflow() {
+        RuntimeException first = new RuntimeException("wrapper one");
+        RuntimeException second = new RuntimeException("wrapper two");
+        first.initCause(second);
+        second.initCause(first);
+
+        assertFalse(ErrorHandler.isRetryable(first));
+    }
 }

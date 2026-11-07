@@ -154,6 +154,22 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void environmentRequiresExplicitHostAndProfileInputs() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 1, " ", "corpus"));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 1, "model", null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 0, "model", "corpus"));
+
+        var notConfigured = new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 1,
+                "NOT_CONFIGURED", "NOT_CONFIGURED");
+        assertThat(notConfigured.modelProfile()).isEqualTo("NOT_CONFIGURED");
+        assertThat(notConfigured.corpusProfile()).isEqualTo("NOT_CONFIGURED");
+    }
+
+    @Test
     void reportsRuntimeIdentityAndKeepsUnconfiguredProviderProfileExplicit() throws Exception {
         MediaResourceProfileHarness.Report report = MediaResourceProfileHarness.measure(
                 1, 1, Duration.ofSeconds(1), index -> { });
