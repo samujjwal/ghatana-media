@@ -12,6 +12,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
@@ -428,24 +429,49 @@ class MediaRuntimeActiveTest {
             assertThatThrownBy(() -> runtime.completeUpload("tenant-a", "principal-a", upload.uploadId()))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("checksum");
+            assertThat(runtime.upload("tenant-a", "principal-a", upload.uploadId()).orElseThrow().status())
+                    .isEqualTo(UploadStatus.ABORTED);
 
-            var registration = runtime.openStream(new StreamSessionRequest(
-                    "tenant-a", "principal-a", "correlation-stream", StreamKind.VIDEO,
-                    "local-stream-diagnostic", 4, Duration.ofSeconds(30), Map.of()));
-            assertThatThrownBy(() -> runtime.connectStream(
-                    "tenant-b", registration.session().sessionId(), registration.connectionToken()))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("not found");
-            assertThatThrownBy(() -> runtime.connectStream(
-                    "tenant-a", registration.session().sessionId(), "invalid-token"))
-                    .isInstanceOf(SecurityException.class)
-                    .hasMessageContaining("token");
-            runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
-            assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
-                    "tenant-a", registration.session().sessionId(), registration.connectionToken(),
-                    0, "12345".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("buffer limit");
+            runtime.close();
+            MediaRuntime restarted = MediaRuntime.compose(localEnvironment(root));
+            try {
+                assertThat(restarted.upload("tenant-a", "principal-a", upload.uploadId()).orElseThrow().status())
+                        .isEqualTo(UploadStatus.ABORTED);
+                assertThatThrownBy(() -> restarted.appendChunk(
+                        "tenant-a", "principal-a", upload.uploadId(), 1, bytes))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("not open");
+                assertThatThrownBy(() -> restarted.completeUpload(
+                        "tenant-a", "principal-a", upload.uploadId()))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("not open");
+            } finally {
+                restarted.close();
+            }
+
+            MediaRuntime streamRuntime = MediaRuntime.compose(localEnvironment(root));
+            try {
+                var registration = streamRuntime.openStream(new StreamSessionRequest(
+                        "tenant-a", "principal-a", "correlation-stream", StreamKind.VIDEO,
+                        "local-stream-diagnostic", 4, Duration.ofSeconds(30), Map.of()));
+                assertThatThrownBy(() -> streamRuntime.connectStream(
+                        "tenant-b", registration.session().sessionId(), registration.connectionToken()))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("not found");
+                assertThatThrownBy(() -> streamRuntime.connectStream(
+                        "tenant-a", registration.session().sessionId(), "invalid-token"))
+                        .isInstanceOf(SecurityException.class)
+                        .hasMessageContaining("token");
+                streamRuntime.connectStream("tenant-a", registration.session().sessionId(),
+                        registration.connectionToken());
+                assertThatThrownBy(() -> streamRuntime.acceptFrame(new StreamFrame(
+                        "tenant-a", registration.session().sessionId(), registration.connectionToken(),
+                        0, "12345".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("buffer limit");
+            } finally {
+                streamRuntime.close();
+            }
         } finally {
             runtime.close();
         }

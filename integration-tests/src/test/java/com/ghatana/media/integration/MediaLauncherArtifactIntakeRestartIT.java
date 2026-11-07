@@ -241,6 +241,22 @@ class MediaLauncherArtifactIntakeRestartIT {
                     "/api/v1/artifacts/uploads/" + rejectedUploadId + "/complete", "", "application/json", null);
             assertThat(rejectedCompletion.statusCode()).as(rejectedCompletion.body()).isEqualTo(409);
             assertThat(rejectedCompletion.body()).contains("MEDIA_STATE_CONFLICT");
+
+            // A checksum-rejected upload remains terminal across process recreation:
+            // the same identity cannot accept more parts or be finalized into a receipt.
+            stopLauncher(launcher);
+            launcher = null;
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+            HttpResponse<String> rejectedAppend = sendBytes(port, TENANT, token, "PUT",
+                    "/api/v1/artifacts/uploads/" + rejectedUploadId + "/chunks/1",
+                    new byte[] { 1, 2, 3 });
+            assertThat(rejectedAppend.statusCode()).as(rejectedAppend.body()).isEqualTo(409);
+            HttpResponse<String> rejectedCompletionReplay = send(port, TENANT, token, "POST",
+                    "/api/v1/artifacts/uploads/" + rejectedUploadId + "/complete", "", "application/json", null);
+            assertThat(rejectedCompletionReplay.statusCode()).as(rejectedCompletionReplay.body()).isEqualTo(409);
+            assertThat(rejectedCompletionReplay.body()).contains("MEDIA_STATE_CONFLICT");
+
             String absentArtifactId = UUID.randomUUID().toString();
             HttpResponse<String> absentArtifact = send(port, TENANT, token, "GET",
                     "/api/v1/artifacts/" + absentArtifactId, "", "application/json", null);

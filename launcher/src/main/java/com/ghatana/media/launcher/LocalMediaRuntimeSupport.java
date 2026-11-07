@@ -191,9 +191,11 @@ public final class LocalMediaRuntimeSupport {
             String key = key(tenantId, uploadId);
             synchronized (key.intern()) {
                 UploadSession current = uploads.get(key);
-                if (current == null || !current.principalId().equals(principalId)
-                        || current.status() != UploadStatus.OPEN) {
+                if (current == null || !current.principalId().equals(principalId)) {
                     throw new IllegalArgumentException("Open upload session not found");
+                }
+                if (current.status() != UploadStatus.OPEN) {
+                    throw new IllegalStateException("Upload session is not open");
                 }
                 if (!current.expiresAt().isAfter(Instant.now())) {
                     UploadSession expired = copy(current, current.bytesReceived(), current.nextChunkIndex(), UploadStatus.EXPIRED);
@@ -297,7 +299,9 @@ public final class LocalMediaRuntimeSupport {
                     if (pending == null) throw new IllegalStateException("Finalizing upload is missing its persisted manifest");
                     return new UploadCompletionResult(finishLocalFinalization(key, pending), false);
                 }
-                if (current.status() != UploadStatus.OPEN) throw new IllegalArgumentException("Open upload session not found");
+                if (current.status() != UploadStatus.OPEN) {
+                    throw new IllegalStateException("Upload session is not open");
+                }
                 if (!current.expiresAt().isAfter(Instant.now())) {
                     UploadSession expired = copy(current, current.bytesReceived(), current.nextChunkIndex(),
                             UploadStatus.EXPIRED);
@@ -314,6 +318,17 @@ public final class LocalMediaRuntimeSupport {
                 validateUploadFile(upload);
                 String digest = sha256(upload);
                 if (!digest.equals(current.expectedSha256())) {
+                    UploadSession aborted = copy(current, current.bytesReceived(), current.nextChunkIndex(),
+                            UploadStatus.ABORTED);
+                    LocalUploadManifest abortedManifest = withSession(manifests.get(key), aborted);
+                    try {
+                        saveManifest(abortedManifest);
+                    } catch (RuntimeException failure) {
+                        failedClosed.set(true);
+                        throw failure;
+                    }
+                    manifests.put(key, abortedManifest);
+                    uploads.put(key, aborted);
                     throw new IllegalStateException("Upload checksum does not match expected SHA-256");
                 }
                 long createdAt = Instant.now().toEpochMilli();

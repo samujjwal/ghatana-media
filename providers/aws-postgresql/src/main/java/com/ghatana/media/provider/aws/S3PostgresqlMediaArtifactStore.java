@@ -207,9 +207,11 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             connection.setAutoCommit(false);
             try {
                 UploadRow current = lockUpload(connection, tenantId, uploadId);
-                if (current == null || !current.principalId().equals(principalId)
-                        || current.status() != UploadStatus.OPEN) {
+                if (current == null || !current.principalId().equals(principalId)) {
                     throw new IllegalArgumentException("Open upload session not found");
+                }
+                if (current.status() != UploadStatus.OPEN) {
+                    throw new IllegalStateException("Upload session is not open");
                 }
                 if (current.expiresAt() <= System.currentTimeMillis()) {
                     markStatus(connection, tenantId, uploadId, UploadStatus.EXPIRED);
