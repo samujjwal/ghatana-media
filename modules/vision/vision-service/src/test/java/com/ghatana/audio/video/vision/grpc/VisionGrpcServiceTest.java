@@ -349,6 +349,36 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    void detectObjects_providerTimeoutMapsToDeadlineExceeded() {
+        fakeDetector.setThrowOnDetect(new java.util.concurrent.CompletionException(
+                new java.util.concurrent.TimeoutException("private provider timeout detail")));
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[]{0x42})).build(), observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.DEADLINE_EXCEEDED.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Vision provider deadline exceeded");
+    }
+
+    @Test
+    void detectObjects_providerCancellationMapsToCancelled() {
+        fakeDetector.setThrowOnDetect(new java.util.concurrent.CancellationException(
+                "private provider cancellation detail"));
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[]{0x42})).build(), observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.CANCELLED.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Vision provider operation was cancelled");
+    }
+
+    @Test
     @DisplayName("detectObjects: unsupported EXIF orientation maps to UNIMPLEMENTED")
     void detectObjects_unsupportedExif_returnsUnimplemented() {
         fakeDetector.setThrowOnDetect(new com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException(

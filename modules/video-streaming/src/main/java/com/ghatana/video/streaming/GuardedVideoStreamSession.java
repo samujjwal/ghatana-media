@@ -204,7 +204,7 @@ public final class GuardedVideoStreamSession {
         requireLease(workerId, presentedToken, "frame submit");
         requireAttached("frame submit");
         requireResolvedProviderOutcomes();
-        requireLiveConsent("frame submit");
+        requireLiveConsentOrDiscard("frame submit");
         VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         // Do not advance the ACK cursor when a decodable frame could not be
         // retained for its later provider-egress check. Duplicates remain
@@ -247,7 +247,7 @@ public final class GuardedVideoStreamSession {
         requireLease(workerId, presentedToken, "frame delivery");
         requireAttached("frame delivery");
         requireResolvedProviderOutcomes();
-        requireLiveConsent("frame delivery");
+        requireLiveConsentOrDiscard("frame delivery");
         VideoStreamSession.DecodedFrame pending = reconciler.peekDelivered();
         if (pending != null && reconciler.deliveryOf(pending).decodable()
                 && egressCandidates.size() >= MAX_EGRESS_CANDIDATES) {
@@ -300,7 +300,7 @@ public final class GuardedVideoStreamSession {
         requireLease(workerId, presentedToken, "provider egress");
         requireAttached("provider egress");
         requireResolvedProviderOutcomes();
-        requireLiveConsent("provider egress");
+        requireLiveConsentOrDiscard("provider egress");
         VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         byte[] admittedDigest = egressCandidates.get(snapshot.sequenceNumber());
         if (admittedDigest == null || !Arrays.equals(admittedDigest, frameDigest(snapshot))) {
@@ -353,7 +353,7 @@ public final class GuardedVideoStreamSession {
                     "resume ACK must match the in-memory ACK while delivered frames await egress");
         }
         boolean sameInMemoryAck = lastAckedSequence == reconciler.nextAck();
-        requireLiveConsent("resume");
+        requireLiveConsentOrDiscard("resume");
         reconciler = VideoFrameReconciler.resume(
                 identity, durableIdentity,
                 lastAckedSequence, lastKeyFrameSequence, lastDeliveredPts);
@@ -448,6 +448,22 @@ public final class GuardedVideoStreamSession {
                 identity.purposeRef(), claimToken));
         if (decision != ConsentDecision.ADMITTED) {
             throw new ConsentDeniedException(transition, decision);
+        }
+    }
+
+    /**
+     * Revocation blocks the requested frame/reconnect/egress transition and
+     * drops retained frame payloads at that enforcement point. The session
+     * remains available for its separately guarded close/cancel path.
+     */
+    private void requireLiveConsentOrDiscard(String transition) {
+        try {
+            requireLiveConsent(transition);
+        } catch (ConsentDeniedException denied) {
+            reconciler.discardPending();
+            egressCandidates.clear();
+            deliveredFrames.clear();
+            throw denied;
         }
     }
 

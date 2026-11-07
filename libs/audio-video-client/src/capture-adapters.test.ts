@@ -628,6 +628,26 @@ describe("routedCaptureAdapter", () => {
     expect(eligibilityCalls).toBe(1);
   });
 
+  it("keeps a post-dispatch gRPC rejection unknown even if it uses the not-wired error class", async () => {
+    let captures = 0;
+    const grpcAdapter: CaptureSourceAdapter = {
+      kind: "GRPC_API",
+      capture: async () => {
+        captures++;
+        throw new CaptureAdapterNotWiredError("GRPC_API");
+      },
+    };
+
+    await expect(captureWithAdmission({ check: () => "ADMITTED" },
+      routedCaptureAdapter({ GRPC_API: grpcAdapter }), { ...request, kind: "GRPC_API" }))
+      .rejects.toMatchObject({
+        name: "CaptureOutcomeUnknownError",
+        kind: "GRPC_API",
+        reason: "ADAPTER_REJECTED",
+      });
+    expect(captures).toBe(1);
+  });
+
   it("does not invoke the gRPC adapter when trusted eligibility denies capture", async () => {
     let captures = 0;
     const grpcAdapter: CaptureSourceAdapter = {

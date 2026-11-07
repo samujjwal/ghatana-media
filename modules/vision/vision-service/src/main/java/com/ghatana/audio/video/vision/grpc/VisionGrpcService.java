@@ -393,9 +393,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
             emitVisionAudit(tenantId, userId, "vision.detect", "ERROR",
                 Map.of("errorCode", "INTERNAL_ERROR", "imageSizeBytes", String.valueOf(dataSize)));
             
-            recordResponseFailure(responseObserver, io.grpc.Status.INTERNAL
-                .withDescription("Internal detection error")
-                .asRuntimeException());
+            recordResponseFailure(responseObserver, providerFailureStatus(e, "Internal detection error")
+                    .asRuntimeException());
         }
         }
     }
@@ -561,9 +560,20 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
             LOG.error("Unexpected error during object detection ({})", cause.getClass().getSimpleName());
             emitVisionAudit(tenantId, userId, "vision.detect", "ERROR",
                     Map.of("errorCode", "INTERNAL_ERROR", "imageSizeBytes", String.valueOf(imageSizeBytes)));
-            recordResponseFailure(traced.observer, io.grpc.Status.INTERNAL
-                    .withDescription("Internal detection error").asRuntimeException());
+            recordResponseFailure(traced.observer,
+                    providerFailureStatus(cause, "Internal detection error").asRuntimeException());
         }
+    }
+
+    /** Keeps JDK provider timeout and cancellation signals in their corresponding gRPC classes. */
+    private static io.grpc.Status providerFailureStatus(Throwable failure, String fallbackDescription) {
+        if (failure instanceof java.util.concurrent.TimeoutException) {
+            return io.grpc.Status.DEADLINE_EXCEEDED.withDescription("Vision provider deadline exceeded");
+        }
+        if (failure instanceof java.util.concurrent.CancellationException) {
+            return io.grpc.Status.CANCELLED.withDescription("Vision provider operation was cancelled");
+        }
+        return io.grpc.Status.INTERNAL.withDescription(fallbackDescription);
     }
 
     /** Measures response mapping and observer delivery, keeping ambiguous transport failures UNKNOWN. */

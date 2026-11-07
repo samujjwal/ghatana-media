@@ -289,8 +289,8 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
-    @DisplayName("revoked consent prevents draining an already-held frame")
-    void revokedConsentPreservesHeldFrameDuringDrain() {
+    @DisplayName("revoked consent prevents draining and purges retained frame payloads")
+    void revokedConsentPurgesHeldAndUndispatchedFramesDuringDrain() {
         AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
                 identity("t1"), context -> live.get(), "worker-a");
@@ -305,8 +305,16 @@ class GuardedVideoStreamSessionTest {
         assertThatThrownBy(() -> session.takeDelivered("worker-a", 1L))
                 .isInstanceOf(ConsentDeniedException.class)
                 .hasMessageContaining("frame delivery");
-        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.pendingCount()).isZero();
         assertThat(session.nextAck("worker-a", 1L)).isEqualTo(1);
+
+        live.set(ConsentDecision.ADMITTED);
+        AtomicInteger egressEffects = new AtomicInteger();
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, frame(0, true),
+                f -> egressEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(egressEffects.get()).isZero();
     }
 
     @Test
@@ -538,8 +546,8 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
-    @DisplayName("denied resume preserves detached state and candidates; resumed egress rechecks consent")
-    void deniedResumePreservesStateAndEgressRechecksConsent() {
+    @DisplayName("denied resume preserves detached state but purges candidates")
+    void deniedResumePurgesCandidatesWithoutClosingSession() {
         SessionIdentity durable = identity("t1");
         AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
@@ -558,17 +566,12 @@ class GuardedVideoStreamSessionTest {
         live.set(ConsentDecision.ADMITTED);
         session.resume("worker-a", 1L, durable, 0, 0, 0L);
         assertThat(session.detached()).isFalse();
-        live.set(ConsentDecision.EXPIRED);
         AtomicInteger effects = new AtomicInteger();
         assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
                 f -> effects.incrementAndGet()))
-                .isInstanceOf(ConsentDeniedException.class)
-                .hasMessageContaining("provider egress");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
         assertThat(effects.get()).isZero();
-
-        live.set(ConsentDecision.ADMITTED);
-        session.egress("worker-a", 1L, admitted, f -> effects.incrementAndGet());
-        assertThat(effects.get()).isEqualTo(1);
     }
 
     @Test
