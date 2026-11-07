@@ -365,6 +365,39 @@ class MediaRuntimeRestartReconciliationTest {
         }
     }
 
+    @Test
+    void startupRecoveryLeavesPersistedTerminalJobsAndTheirFinalityUntouched() throws Exception {
+        var root = Files.createTempDirectory("media-terminal-recovery-boundary-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        var completed = new ProcessingJob(
+                "job-completed", "request-completed", "tenant-a", "principal-a", "artifact-a",
+                JobType.VISION, "remote", JobStatus.COMPLETED, java.time.Instant.now(),
+                java.time.Instant.now(), java.time.Instant.now(), Map.of("result", "stored"), "", 4);
+        var failed = new ProcessingJob(
+                "job-failed", "request-failed", "tenant-a", "principal-a", "artifact-b",
+                JobType.VISION, "remote", JobStatus.FAILED, java.time.Instant.now(),
+                java.time.Instant.now(), java.time.Instant.now(), Map.of(), "PROVIDER_FAILED", 3);
+        var cancelled = new ProcessingJob(
+                "job-cancelled", "request-cancelled", "tenant-a", "principal-a", "artifact-c",
+                JobType.VISION, "remote", JobStatus.CANCELLED, java.time.Instant.now(),
+                java.time.Instant.now(), java.time.Instant.now(), Map.of(), "", 2);
+        jobs.create(completed);
+        jobs.create(failed);
+        jobs.create(cancelled);
+
+        var runtime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), jobs,
+                new LocalMediaRuntimeSupport.StreamStore(), pendingProvider(
+                        new CompletableFuture<>(), new AtomicInteger()));
+        try {
+            assertThat(jobs.find("tenant-a", completed.jobId())).contains(completed);
+            assertThat(jobs.find("tenant-a", failed.jobId())).contains(failed);
+            assertThat(jobs.find("tenant-a", cancelled.jobId())).contains(cancelled);
+            assertThat(jobs.recoverable(10)).isEmpty();
+        } finally {
+            runtime.close();
+        }
+    }
+
     private static MediaRuntime runtime(
             java.nio.file.Path root,
             LocalMediaRuntimeSupport.FileArtifactStore artifacts,
