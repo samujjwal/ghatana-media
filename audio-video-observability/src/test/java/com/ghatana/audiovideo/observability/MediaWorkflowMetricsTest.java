@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
+import io.micrometer.core.instrument.distribution.pause.PauseDetector;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
@@ -59,6 +61,36 @@ class MediaWorkflowMetricsTest {
                 throw new IllegalStateException("fixture registry failure");
             }
             return super.newCounter(id);
+        }
+    }
+
+    private static final class ModalityTimerFailureRegistry extends SimpleMeterRegistry {
+        private boolean failModalityTimer;
+
+        @Override
+        protected Timer newTimer(Meter.Id id, DistributionStatisticConfig distributionStatisticConfig,
+                PauseDetector pauseDetector) {
+            if (failModalityTimer && "media.modality.boundary.duration".equals(id.getName())) {
+                throw new IllegalStateException("fixture registry failure");
+            }
+            return super.newTimer(id, distributionStatisticConfig, pauseDetector);
+        }
+    }
+
+    @Test
+    void modalityTimerRegistryFailureDoesNotEscapeIntoRpcOutcomePath() {
+        var registry = new ModalityTimerFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+            var sample = metrics.startModalityTimer(
+                    MediaWorkflowMetrics.Modality.STT, MediaWorkflowMetrics.Boundary.PROVIDER);
+            registry.failModalityTimer = true;
+
+            org.assertj.core.api.Assertions.assertThatCode(() ->
+                    metrics.stopModalityTimer(sample, MediaWorkflowMetrics.Outcome.SUCCESS))
+                    .doesNotThrowAnyException();
+        } finally {
+            registry.close();
         }
     }
 

@@ -373,9 +373,13 @@ public final class MediaWorkflowMetrics {
     /** Stop a modality timing sample once with the outcome known at the end of the boundary. */
     public void stopModalityTimer(ModalityTimingSample sample, Outcome outcome) {
         if (sample == null || outcome == null || !sample.stopped.compareAndSet(false, true)) return;
-        ModalityMetricKey key = new ModalityMetricKey(sample.modality, sample.boundary, outcome);
-        Timer timer = modalityTimers.computeIfAbsent(key, this::newModalityTimer);
-        sample.sample.stop(timer);
+        try {
+            ModalityMetricKey key = new ModalityMetricKey(sample.modality, sample.boundary, outcome);
+            Timer timer = modalityTimers.computeIfAbsent(key, this::newModalityTimer);
+            sample.sample.stop(timer);
+        } catch (RuntimeException ignored) {
+            // Instrumentation must not replace the RPC/provider outcome it observes.
+        }
     }
 
     private Timer newModalityTimer(ModalityMetricKey key) {
