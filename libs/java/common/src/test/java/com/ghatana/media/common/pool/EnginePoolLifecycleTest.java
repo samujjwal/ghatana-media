@@ -64,6 +64,39 @@ class EnginePoolLifecycleTest {
     }
 
     @Test
+    void fatalBorrowHealthCheckDestroysTheUnborrowedHandleBeforePropagating() {
+        Engine engine = new Engine();
+        var pool = new EnginePool<>(() -> engine, ignored -> {
+            throw new LinkageError("health provider unavailable");
+        }, resource -> { resource.closes.incrementAndGet(); return null; }, config().minSize(1));
+
+        assertThatThrownBy(pool::borrow).isInstanceOf(LinkageError.class)
+                .hasMessage("health provider unavailable");
+        assertThat(engine.closes).hasValue(1);
+        assertThat(pool.getStats().inUse).isZero();
+        assertThat(pool.getStats().totalDestroyed).isEqualTo(1);
+        pool.close();
+    }
+
+    @Test
+    void fatalReturnHealthCheckDestroysTheReturnedHandleBeforePropagating() throws Exception {
+        Engine engine = new Engine();
+        var checks = new AtomicInteger();
+        var pool = new EnginePool<>(() -> engine, ignored -> {
+            if (checks.incrementAndGet() > 1) throw new LinkageError("health provider unavailable");
+            return true;
+        }, resource -> { resource.closes.incrementAndGet(); return null; }, config().minSize(1));
+        Engine borrowed = pool.borrow();
+
+        assertThatThrownBy(() -> pool.returnEngine(borrowed)).isInstanceOf(LinkageError.class)
+                .hasMessage("health provider unavailable");
+        assertThat(engine.closes).hasValue(1);
+        assertThat(pool.getStats().inUse).isZero();
+        assertThat(pool.getStats().totalDestroyed).isEqualTo(1);
+        pool.close();
+    }
+
+    @Test
     void waitingBorrowObservesCloseWithoutWaitingForFullTimeout() throws Exception {
         var pool = new EnginePool<>(Engine::new, engine -> true,
                 engine -> { engine.closes.incrementAndGet(); return null; }, config().maxSize(1));

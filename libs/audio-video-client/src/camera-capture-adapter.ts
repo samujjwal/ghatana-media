@@ -795,6 +795,10 @@ export class CameraCaptureSession {
     try {
       await this.checkPermission(request, controller.signal);
       this.unsubscribe = this.options.consent.subscribe(request, (disposition) => {
+        // Unsubscription cannot retract a notification already queued by an
+        // authority. Ignore callbacks from a prior source generation so a
+        // delayed old-device revocation cannot abort/stop the replacement.
+        if (this.controller !== controller || this.closed) return;
         if (disposition !== "GRANTED") {
           this.revoked = true;
           this.permissionFailure = disposition === "DENIED"

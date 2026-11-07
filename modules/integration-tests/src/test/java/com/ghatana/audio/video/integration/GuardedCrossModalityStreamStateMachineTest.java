@@ -205,4 +205,64 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThat(video.nextAck("worker-live", 1L)).isZero();
         assertThat(providerEffects).hasValue(0);
     }
+
+    @Test
+    @DisplayName("unknown provider frame outcome holds bounded recovery without replay")
+    void unknownProviderOutcomeHoldsRecoveryAndPreventsFrameReplay() {
+        StreamFrameReconciler.SessionIdentity audioIdentity =
+                new StreamFrameReconciler.SessionIdentity(
+                        "unknown-audio", TENANT, PRINCIPAL, PURPOSE, 1L);
+        VideoFrameReconciler.SessionIdentity videoIdentity =
+                new VideoFrameReconciler.SessionIdentity(
+                        "unknown-video", TENANT, PRINCIPAL, PURPOSE, 1L);
+        GuardedAudioStreamSession audio = GuardedAudioStreamSession.connect(
+                audioIdentity, context -> StreamConsentGate.Decision.ADMITTED);
+        GuardedVideoStreamSession video = GuardedVideoStreamSession.open(
+                videoIdentity, context -> GuardedVideoStreamSession.ConsentDecision.ADMITTED,
+                "worker-a");
+        AudioStreamSession.DecodedFrame audioFrame =
+                new AudioStreamSession.DecodedFrame(0, 0L, new byte[]{0x31});
+        VideoStreamSession.DecodedFrame videoFrame =
+                new VideoStreamSession.DecodedFrame(0, true, 0L, new byte[]{0x41});
+        AtomicInteger providerEffects = new AtomicInteger();
+
+        assertThat(audio.submitFrame(audioFrame))
+                .isEqualTo(StreamFrameReconciler.Disposition.DELIVERED);
+        assertThat(video.submitFrame("worker-a", 1L, videoFrame))
+                .isEqualTo(GuardedVideoStreamSession.FrameVerdict.DELIVERED_DECODABLE);
+        assertThatThrownBy(() -> audio.dispatchToProvider(audioFrame, frame -> {
+            providerEffects.incrementAndGet();
+            throw new IllegalStateException("fixture transport failure");
+        }))
+                .isInstanceOf(GuardedAudioStreamSession.ProviderOutcomeUnknownException.class);
+        assertThatThrownBy(() -> video.egress("worker-a", 1L, videoFrame, frame -> {
+            providerEffects.incrementAndGet();
+            throw new IllegalStateException("fixture transport failure");
+        }))
+                .isInstanceOf(GuardedVideoStreamSession.ProviderOutcomeUnknownException.class);
+
+        // Reconnect/lease recovery has no authoritative durable query in these
+        // in-memory helpers. An ambiguous sink result must therefore hold work.
+        audio.detach();
+        assertThatThrownBy(() -> audio.reconnect(1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThatThrownBy(() -> video.claim("worker-b", 2L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThatThrownBy(() -> video.egress("worker-a", 1L, videoFrame,
+                frame -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+
+        assertThat(providerEffects).hasValue(2);
+        assertThat(audio.attachment()).isEqualTo(GuardedAudioStreamSession.Attachment.DETACHED);
+        assertThat(audio.generation()).isZero();
+        assertThat(audio.nextAck()).isZero();
+        assertThat(audio.pendingCount()).isZero();
+        assertThat(video.claimToken()).isEqualTo(1L);
+        assertThat(video.leaseHolder()).isEqualTo("worker-a");
+        assertThat(video.nextAck("worker-a", 1L)).isZero();
+        assertThat(video.pendingCount()).isZero();
+    }
 }

@@ -140,6 +140,8 @@ public final class GuardedVideoStreamSession {
     private long claimToken;
     private boolean detached;
     private boolean cancelled;
+    /** Set when a sink may have produced an external effect without a known result. */
+    private boolean providerOutcomeUnknown;
     /** Bounded digests bind provider egress to exact frames delivered in this process. */
     private final LinkedHashMap<Integer, byte[]> egressCandidates = new LinkedHashMap<>();
     /** Recent exact frame identities eligible for a truthful delivery verdict. */
@@ -183,6 +185,7 @@ public final class GuardedVideoStreamSession {
      */
     public void claim(String workerId, long newClaimToken) {
         requireNotCancelled("claim");
+        requireResolvedProviderOutcomes();
         workerId = requireWorkerId(workerId);
         if (newClaimToken <= claimToken) {
             throw new StaleLeaseException("claim", newClaimToken, claimToken);
@@ -200,6 +203,7 @@ public final class GuardedVideoStreamSession {
             String workerId, long presentedToken, VideoStreamSession.DecodedFrame frame) {
         requireLease(workerId, presentedToken, "frame submit");
         requireAttached("frame submit");
+        requireResolvedProviderOutcomes();
         requireLiveConsent("frame submit");
         VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         // Do not advance the ACK cursor when a decodable frame could not be
@@ -242,6 +246,7 @@ public final class GuardedVideoStreamSession {
             String workerId, long presentedToken) {
         requireLease(workerId, presentedToken, "frame delivery");
         requireAttached("frame delivery");
+        requireResolvedProviderOutcomes();
         requireLiveConsent("frame delivery");
         VideoStreamSession.DecodedFrame pending = reconciler.peekDelivered();
         if (pending != null && reconciler.deliveryOf(pending).decodable()
@@ -294,6 +299,7 @@ public final class GuardedVideoStreamSession {
         Objects.requireNonNull(sink, "sink");
         requireLease(workerId, presentedToken, "provider egress");
         requireAttached("provider egress");
+        requireResolvedProviderOutcomes();
         requireLiveConsent("provider egress");
         VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         byte[] admittedDigest = egressCandidates.get(snapshot.sequenceNumber());
@@ -304,8 +310,14 @@ public final class GuardedVideoStreamSession {
         egressCandidates.remove(snapshot.sequenceNumber());
         try {
             sink.accept(snapshot);
+        } catch (Error fatal) {
+            // Fatal native/transport errors can still follow an external effect.
+            // Fence future local actions but preserve the original fatal signal.
+            providerOutcomeUnknown = true;
+            throw fatal;
         } catch (RuntimeException ignored) {
             // Provider exception text and type may contain sensitive details.
+            providerOutcomeUnknown = true;
             throw new ProviderOutcomeUnknownException(snapshot.sequenceNumber());
         }
     }
@@ -313,6 +325,7 @@ public final class GuardedVideoStreamSession {
     /** Client transport detach — the session stays resumable under its lease. */
     public void detach(String workerId, long presentedToken) {
         requireLease(workerId, presentedToken, "detach");
+        requireResolvedProviderOutcomes();
         detached = true;
     }
 
@@ -331,6 +344,7 @@ public final class GuardedVideoStreamSession {
             VideoFrameReconciler.SessionIdentity durableIdentity,
             int lastAckedSequence, int lastKeyFrameSequence, long lastDeliveredPts) {
         requireLease(workerId, presentedToken, "resume");
+        requireResolvedProviderOutcomes();
         if (!detached) {
             throw new IllegalStateException("only a detached session can resume");
         }
@@ -363,6 +377,14 @@ public final class GuardedVideoStreamSession {
         egressCandidates.clear();
         deliveredFrames.clear();
         cancelled = true;
+    }
+
+    /** Local recovery cannot establish provider finality; an ambiguous sink effect fences the session. */
+    private void requireResolvedProviderOutcomes() {
+        if (providerOutcomeUnknown) {
+            throw new IllegalStateException(
+                    "video stream has an unknown provider frame outcome and requires owner reconciliation");
+        }
     }
 
     /** The sequence the next ACK acknowledges — only under the current claim. */

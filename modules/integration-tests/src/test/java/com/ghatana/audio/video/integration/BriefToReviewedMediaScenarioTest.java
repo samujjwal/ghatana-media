@@ -91,6 +91,24 @@ class BriefToReviewedMediaScenarioTest {
     }
 
     @Test
+    void unknownSourceRightsAuthorityHoldsDraftPreparationWithoutRetry() {
+        AtomicInteger rightsCalls = new AtomicInteger();
+        StoryboardPlanner planner = new StoryboardPlanner((actor, source, purpose) -> {
+            rightsCalls.incrementAndGet();
+            return StoryboardPlanner.SourceDecision.UNKNOWN;
+        });
+
+        assertThatThrownBy(() -> planner.prepare(CREATOR, "project-j09", "project-r7", "storyboard-j09",
+                "edition-unknown-rights", new StoryboardPlanner.AuthoredBrief("brief-j09", "brief-v2",
+                        "campaign-draft", "A two-scene product story", List.of(SOURCE)),
+                List.of(scene("scene-opening", 0, 0, "Introduce the product"))))
+                .isInstanceOf(StoryboardPlanner.SourceAuthorityUnavailableException.class);
+
+        // UNKNOWN is a hold with no effect; the source-free fixture does not retry or synthesize a draft.
+        assertThat(rightsCalls).hasValue(1);
+    }
+
+    @Test
     void shotOutsideItsSceneIsRejectedBeforeSourceRightsAreInspected() {
         AtomicInteger rightsCalls = new AtomicInteger();
         StoryboardPlanner planner = new StoryboardPlanner((actor, source, purpose) -> {

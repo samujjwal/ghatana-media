@@ -120,6 +120,25 @@ class AudioVideoTracingServiceSpanAttributeTest {
         }
 
         @Test
+        @DisplayName("treats blank correlation context as absent")
+        void shouldMarkBlankCorrelationContextAbsent() {
+            SpanBuilder builder = mock(SpanBuilder.class);
+            Span span = mock(Span.class);
+            when(tracer.spanBuilder("audiovideo.stt.transcribe")).thenReturn(builder);
+            when(builder.setSpanKind(SpanKind.INTERNAL)).thenReturn(builder);
+            when(builder.setAttribute(org.mockito.ArgumentMatchers.anyString(),
+                    org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(builder);
+            when(builder.setAttribute(org.mockito.ArgumentMatchers.anyString(),
+                    org.mockito.ArgumentMatchers.anyString())).thenReturn(builder);
+            when(builder.startSpan()).thenReturn(span);
+            MDC.put("correlationId", " \t ");
+
+            tracingService.startTranscriptionSpan("txn-blank-correlation", "tenant-a", "en");
+
+            verify(builder).setAttribute(eq("correlation.present"), eq(false));
+        }
+
+        @Test
         @DisplayName("does not put transcription ID in MDC")
         void shouldNotSetTranscriptionIdInMdc() {
             Span span = tracingService.startTranscriptionSpan("txn-001", "tenant-en", "en");

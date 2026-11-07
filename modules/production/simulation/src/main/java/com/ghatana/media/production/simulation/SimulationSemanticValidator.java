@@ -14,6 +14,7 @@ import java.util.Set;
 public final class SimulationSemanticValidator {
     private static final String SIMULATION_EVIDENCE = "DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE";
     private static final String SHA256 = "^[a-fA-F0-9]{64}$";
+    private static final String OPAQUE_RUN_ID = "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$";
 
     private SimulationSemanticValidator() {}
 
@@ -46,13 +47,16 @@ public final class SimulationSemanticValidator {
     public record VersionedInput(InputRole role, String identity, String version, String sha256) {
         public VersionedInput {
             Objects.requireNonNull(role, "role");
-            identity = identity == null ? "" : identity.trim();
-            version = version == null ? "" : version.trim();
-            sha256 = sha256 == null ? "" : sha256.trim();
+            // These are exact owner-issued reference fields. Normalizing whitespace
+            // here could turn a malformed reference into a different valid input.
+            identity = identity == null ? "" : identity;
+            version = version == null ? "" : version;
+            sha256 = sha256 == null ? "" : sha256;
         }
 
         private boolean complete() {
-            return !identity.isBlank() && !version.isBlank() && sha256.matches(SHA256);
+            return !identity.isBlank() && !hasOuterUnicodeWhitespace(identity)
+                    && !version.isBlank() && !hasOuterUnicodeWhitespace(version) && sha256.matches(SHA256);
         }
     }
 
@@ -77,7 +81,9 @@ public final class SimulationSemanticValidator {
             List<DeclaredInvariant> invariants,
             PhysicalSimulation.Quantity expectedDuration) {
         public RunBinding {
-            runIdentity = runIdentity == null ? "" : runIdentity.trim();
+            // A run identity is an opaque owner-issued identifier. Do not silently
+            // canonicalize it into another run when validating pass provenance.
+            runIdentity = runIdentity == null ? "" : runIdentity;
             inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
             invariants = List.copyOf(Objects.requireNonNull(invariants, "invariants"));
             Objects.requireNonNull(expectedDuration, "expectedDuration");
@@ -121,8 +127,9 @@ public final class SimulationSemanticValidator {
         Objects.requireNonNull(binding, "binding");
         Objects.requireNonNull(result, "result");
         List<Finding> findings = new ArrayList<>();
-        if (binding.runIdentity().isBlank()) {
-            findings.add(new Finding(Reason.INCOMPLETE_INPUT_REFERENCES, "runIdentity", "pass identity is absent"));
+        if (!binding.runIdentity().matches(OPAQUE_RUN_ID)) {
+            findings.add(new Finding(Reason.INCOMPLETE_INPUT_REFERENCES, "runIdentity",
+                    "exact pass identity must be a canonical 1-128 character opaque ID"));
         }
         EnumMap<InputRole, VersionedInput> byRole = new EnumMap<>(InputRole.class);
         Set<InputRole> duplicates = new HashSet<>();
@@ -298,5 +305,14 @@ public final class SimulationSemanticValidator {
 
     private static Validation validation(Disposition disposition, List<Finding> findings) {
         return new Validation(disposition, findings, ResultKind.DETERMINISTIC_SIMULATION_ONLY, SIMULATION_EVIDENCE);
+    }
+
+    private static boolean hasOuterUnicodeWhitespace(String value) {
+        return isUnicodeWhitespace(value.codePointAt(0))
+                || isUnicodeWhitespace(value.codePointBefore(value.length()));
+    }
+
+    private static boolean isUnicodeWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 }

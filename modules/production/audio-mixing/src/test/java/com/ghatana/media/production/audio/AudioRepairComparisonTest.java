@@ -35,6 +35,22 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void retainsImmutableAudioValuesWhenCallerBuffersAreChanged() {
+        byte[] sourceBytes = {1, 0, 2, 0};
+        byte[] repairedBytes = {3, 0, 4, 0};
+        AudioData source = new AudioData(sourceBytes, 8_000, 1, 16);
+        AudioData repaired = new AudioData(repairedBytes, 8_000, 1, 16);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired);
+        sourceBytes[0] = 99;
+        repairedBytes[0] = 99;
+
+        assertThat(comparison.source().data()).containsExactly(1, 0, 2, 0);
+        assertThat(comparison.repaired().data()).containsExactly(3, 0, 4, 0);
+        assertThat(comparison.undo().data()).containsExactly(1, 0, 2, 0);
+    }
+
+    @Test
     void reportsSaturatedSamplesAndStereoPhaseRelationshipWithoutClaimingQuality() {
         AudioData clipped = stereo(32767, 32767, -32768, -32768, 12000, 12000);
         AudioData phaseInvertedCandidate = stereo(30000, -30000, -28000, 28000, 10000, -10000);
@@ -135,6 +151,19 @@ class AudioRepairComparisonTest {
                 Double.NaN, false, null, null, null));
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 1.0, 0.0, 1, 0, 0, 0, 0, 0.0,
+                Double.NaN, false, null, null, null));
+    }
+
+    @Test
+    void metricsRejectRmsAndPeakValuesThatCannotDescribeTheSamePcm() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                2.0, 1.0, 1, 1, 0, 0, 0, 20.0 * Math.log10(0.5),
+                Double.NaN, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 1.0, 1, 1, 0, 0, 0, Double.POSITIVE_INFINITY,
+                Double.NaN, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                1.0, 0.0, 1, 1, 0, 0, 0, Double.NEGATIVE_INFINITY,
                 Double.NaN, false, null, null, null));
     }
 

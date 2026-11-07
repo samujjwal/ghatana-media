@@ -74,6 +74,10 @@ rows vs local-helper-only vs `NOT_ADMITTED` vs delegated rows.
 
 Unqualified transport profiles resolve unavailable; in-process overflow
 rejects as backpressure; ambiguous provider outcomes remain `UNKNOWN`.
+After an egress sink may have acted without a known result, the local video
+session fences further frame delivery, provider egress, detach, claim and
+resume until owner reconciliation; this helper fence does not resolve
+provider finality or persist a recovery receipt.
 
 ## Tests and commands
 

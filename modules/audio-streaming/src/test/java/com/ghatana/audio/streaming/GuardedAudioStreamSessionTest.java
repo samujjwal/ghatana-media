@@ -290,6 +290,52 @@ class GuardedAudioStreamSessionTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already dispatched");
         assertThat(providerAttempts).hasValue(1);
+
+        // The local ACK only records delivery into this helper. An ambiguous
+        // external effect must fence all further frame work until owner
+        // reconciliation supplies truth; this helper has no such resolver.
+        assertThat(session.nextAck()).isZero();
+        assertThatThrownBy(() -> session.submitFrame(frame(1)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThat(session.nextAck()).isZero();
+        assertThat(session.nextExpected()).isEqualTo(1);
+        session.detach();
+        assertThatThrownBy(() -> session.reconnect(1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThat(session.attachment()).isEqualTo(Attachment.DETACHED);
+        assertThat(session.generation()).isZero();
+        assertThat(providerAttempts).hasValue(1);
+    }
+
+    @Test
+    @DisplayName("fatal provider failure also fences the session without masking the fatal signal")
+    void fatalProviderFailureAlsoFencesSession() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        AudioStreamSession.DecodedFrame source = frame(0);
+        AtomicInteger providerAttempts = new AtomicInteger();
+        LinkageError fatal = new LinkageError("native transport unavailable");
+        assertThat(session.submitFrame(source)).isEqualTo(Disposition.DELIVERED);
+
+        assertThatThrownBy(() -> session.dispatchToProvider(source, ignored -> {
+            providerAttempts.incrementAndGet();
+            throw fatal;
+        })).isSameAs(fatal);
+        assertThat(providerAttempts).hasValue(1);
+        assertThat(session.nextAck()).isZero();
+
+        assertThatThrownBy(() -> session.submitFrame(frame(1)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        session.detach();
+        assertThatThrownBy(() -> session.reconnect(1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThat(session.attachment()).isEqualTo(Attachment.DETACHED);
+        assertThat(session.generation()).isZero();
+        assertThat(providerAttempts).hasValue(1);
     }
 
     @Test

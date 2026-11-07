@@ -253,6 +253,17 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void candidateMustHaveDistinctExactImmutableRevisionIdentityFromSource() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidateWithSameIdentity = revision(source.id(), 25);
+
+        assertThatThrownBy(() -> runOptimization(source, port(List.of(candidateWithSameIdentity)), 1, BUDGET,
+                null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("distinct exact immutable revision");
+    }
+
+    @Test
     void candidateComparisonCannotClaimImprovementWithoutPinnedMetrics() {
         RevisionId candidate = new RevisionId("tenant", "principal", "candidate", "v1", "a".repeat(64));
         Heuristics heuristics = new Heuristics(0, 0);
@@ -443,10 +454,14 @@ class QualityComparisonAndOptimizationTest {
         RevisionId secondId = new RevisionId("tenant", "principal|owner", "artifact", "v1", "a".repeat(64));
         Revision firstSource = revision(firstId, 40);
         Revision secondSource = revision(secondId, 40);
+        Revision firstCandidate = revision(new RevisionId(firstId.tenantId(), firstId.principalId(),
+                "candidate", "v1", "b".repeat(64)), 40);
+        Revision secondCandidate = revision(new RevisionId(secondId.tenantId(), secondId.principalId(),
+                "candidate", "v1", "b".repeat(64)), 40);
 
-        String firstDigest = run(firstSource, List.of(firstSource), null, allowed("src"), null, 1, BUDGET)
+        String firstDigest = run(firstSource, List.of(firstCandidate), null, allowed("src"), null, 1, BUDGET)
                 .report().orElseThrow().reportSha256();
-        String secondDigest = run(secondSource, List.of(secondSource), null, allowed("src"), null, 1, BUDGET)
+        String secondDigest = run(secondSource, List.of(secondCandidate), null, allowed("src"), null, 1, BUDGET)
                 .report().orElseThrow().reportSha256();
 
         assertThat(firstDigest).isNotEqualTo(secondDigest);
@@ -646,6 +661,42 @@ class QualityComparisonAndOptimizationTest {
             assertThat(result.retainedRevisions()).containsExactly(source);
             assertThat(result.attemptsUsed()).isZero();
             assertThat(dispatches).hasValue(0);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        } finally {
+            Thread.interrupted();
+            if (wasInterrupted) Thread.currentThread().interrupt();
+        }
+    }
+
+    @Test
+    void cancellationRaisedByCandidateKeepsKnownRevisionButPreventsCompletedReport() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v2", "b", 25);
+        Revision reference = revision("reference", "v1", "c", 20);
+        AtomicInteger referenceReads = new AtomicInteger();
+        CandidatePort port = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return true; }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input,
+                    int attempt, Budget budget) {
+                Thread.currentThread().interrupt();
+                return OptimizationAttempt.available(candidate);
+            }
+        };
+        boolean wasInterrupted = Thread.currentThread().isInterrupted();
+        try {
+            Run result = optimize(OPERATION, source, (id, purpose) -> allowed("src"), port, 1, BUDGET,
+                    Optional.of(new ReferenceRequest(reference.id(), "quality-reference")),
+                    (id, purpose) -> allowed("ref"), id -> {
+                        referenceReads.incrementAndGet();
+                        return reference;
+                    });
+
+            assertThat(result.status()).isEqualTo(RunStatus.CANCELLED);
+            assertThat(result.reason()).contains(BlockReason.CANCELLED);
+            assertThat(result.report()).isEmpty();
+            assertThat(result.retainedRevisions()).containsExactly(source, candidate);
+            assertThat(result.attemptsUsed()).isEqualTo(1);
+            assertThat(referenceReads).hasValue(0);
             assertThat(Thread.currentThread().isInterrupted()).isTrue();
         } finally {
             Thread.interrupted();

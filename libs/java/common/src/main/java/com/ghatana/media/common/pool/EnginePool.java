@@ -215,7 +215,7 @@ public class EnginePool<T> implements AutoCloseable {
         }
 
         // Health check
-        if (!isHealthy(pooled.engine)) {
+        if (!checkHealthOrDestroyOnFatal(pooled.engine)) {
             // Replace unhealthy engine
             destroyEngine(pooled.engine);
             T replacement = createEngineIfCapacity();
@@ -285,7 +285,7 @@ public class EnginePool<T> implements AutoCloseable {
         }
         // Health checks and destruction may block or call external code. A
         // returning engine is neither available nor borrowed while checked.
-        boolean healthy = !closed && isHealthy(engine);
+        boolean healthy = !closed && checkHealthOrDestroyOnFatal(engine);
         boolean destroy;
         synchronized (lifecycleLock) {
             destroy = closed || !healthy;
@@ -567,6 +567,24 @@ public class EnginePool<T> implements AutoCloseable {
         } catch (Exception e) {
             failedHealthChecks.incrementAndGet();
             return false;
+        }
+    }
+
+    /**
+     * A fatal health-check failure must not strand a pool-owned handle outside
+     * both the borrow and available sets. Preserve the fatal signal, but make
+     * the normal destruction path account for (or retain for retry) the handle.
+     */
+    private boolean checkHealthOrDestroyOnFatal(T engine) {
+        try {
+            return isHealthy(engine);
+        } catch (Error fatal) {
+            try {
+                destroyEngine(engine);
+            } catch (Error cleanupFailure) {
+                if (cleanupFailure != fatal) fatal.addSuppressed(cleanupFailure);
+            }
+            throw fatal;
         }
     }
 

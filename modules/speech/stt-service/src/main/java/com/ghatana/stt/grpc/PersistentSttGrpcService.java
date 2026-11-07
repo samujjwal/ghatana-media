@@ -280,6 +280,9 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             LOG.warn("STT transcribe timed out failureType={}", failureType(e));
             return io.grpc.Status.DEADLINE_EXCEEDED.withDescription("Transcription timed out");
         }
+        if (e instanceof java.util.concurrent.CancellationException) {
+            return io.grpc.Status.CANCELLED.withDescription("Transcription was cancelled");
+        }
         if (e instanceof com.ghatana.media.common.InferenceError ie && !ie.isRetryable()) {
             LOG.error("STT transcribe non-retryable inference failure failureType={}", failureType(e));
             return io.grpc.Status.INTERNAL.withDescription("Inference failed");

@@ -132,6 +132,31 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void authorityRevokedDuringSourceLoadPreventsProtectedCacheWrite() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        AtomicInteger checks = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
+                checked -> AsyncOperation.success(checks.incrementAndGet() == 1
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
+                ignored -> AsyncOperation.success("protected source value"))))
+                .hasRootCauseInstanceOf(SecurityException.class);
+
+        assertThat(checks.get()).isGreaterThanOrEqualTo(2);
+        verify(port).get(key);
+        verify(port, org.mockito.Mockito.never()).put(eq(key), any(), any(Duration.class));
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
     void sourceRevisionChangeCannotReusePriorProtectedCacheEntry() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
@@ -303,8 +328,6 @@ class AudioVideoCacheTest {
                 "sha256-source-9", "policy-epoch-12", "model-license-v1");
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
-        when(port.put(eq(key), eq("protected payload"), any(Duration.class)))
-                .thenReturn(AsyncOperation.success(null));
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
         AtomicInteger checks = new AtomicInteger();
 
@@ -317,8 +340,8 @@ class AudioVideoCacheTest {
                 .hasRootCauseInstanceOf(SecurityException.class)
                 .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
 
-        assertThat(checks).hasValue(2);
-        verify(port).put(eq(key), eq("protected payload"), any(Duration.class));
+        assertThat(checks.get()).isGreaterThanOrEqualTo(2);
+        verify(port, org.mockito.Mockito.never()).put(eq(key), eq("protected payload"), any(Duration.class));
         verify(port).invalidateAsync(key);
     }
 

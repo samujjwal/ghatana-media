@@ -13,7 +13,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Source-free J-08 scenario boundary checks. These verify fail-closed status
- * handling; they do not exercise a real decoder, encoder, provider, or quality reference.
+ * handling; they do not exercise a real decoder, encoder, provider, or quality reference,
+ * and they do not prove restoration quality or any external effect.
  */
 class VideoEnhancementAdmissionIntegrationTest {
     private static final ArtifactBinding SOURCE = new ArtifactBinding(
@@ -98,6 +99,29 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(failedRead.outcome()).isEqualTo(Outcome.UNAVAILABLE);
         assertThat(failedRead.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
         assertThat(failedRead.candidate()).isEmpty();
+        assertThat(decoderCalls).hasValue(1);
+        assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
+
+    @Test
+    void decoderReturningNoFrameSequenceIsUnavailableWithoutCandidateOrSourceMutation() {
+        ArtifactBinding originalBinding = SOURCE;
+        AtomicInteger decoderCalls = new AtomicInteger();
+        Result missingSequence = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-decoder-empty-result", SOURCE),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
+                binding -> {
+                    decoderCalls.incrementAndGet();
+                    return null;
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        assertThat(missingSequence.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(missingSequence.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
+        assertThat(missingSequence.candidate()).isEmpty();
         assertThat(decoderCalls).hasValue(1);
         assertThat(SOURCE).isSameAs(originalBinding);
         assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));

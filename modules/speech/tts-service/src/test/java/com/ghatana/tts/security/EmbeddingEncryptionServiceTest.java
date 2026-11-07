@@ -169,6 +169,16 @@ class EmbeddingEncryptionServiceTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("finite");
         }
+
+        @Test
+        @DisplayName("rejects authenticated empty plaintext as an embedding")
+        void decrypt_authenticatedEmptyEmbedding_throws() {
+            String ciphertext = service.encryptBytes(new byte[0], key);
+
+            assertThatThrownBy(() -> service.decryptEmbedding(ciphertext, key))
+                    .isInstanceOf(EmbeddingEncryptionException.class)
+                    .hasMessageContaining("must not be empty");
+        }
     }
 
     @Nested

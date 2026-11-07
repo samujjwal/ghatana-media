@@ -445,6 +445,7 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
             CandidateFrame first = Objects.requireNonNull(frames.getFirst(), "candidate.frames[]");
             long pixels = 0;
+            long roiSamples = 0;
             long previousPts = 0;
             boolean hasPreviousPts = false;
             for (int index = 0; index < frames.size(); index++) {
@@ -462,9 +463,14 @@ public final class TemporalVideoRestoration {
                     throw invalid("candidate dimensions and ROI must remain identical within a sequence");
                 }
                 pixels = Math.addExact(pixels, (long) frame.width() * frame.height());
+                roiSamples = Math.addExact(roiSamples,
+                        Math.multiplyExact(Math.multiplyExact((long) frame.roi().width(), frame.roi().height()), 3L));
             }
             if (pixels > MAX_TOTAL_PIXELS || pixels * 3 > MAX_TOTAL_RGB_BYTES) {
                 throw invalid("candidate exceeds the aggregate pixel or RGB byte budget");
+            }
+            if (sourceDelta.comparedSamples() != roiSamples) {
+                throw invalid("source A/B delta sample count must cover exactly the candidate ROI RGB samples");
             }
             String expectedCandidateSha256 = candidateDigest(timeBase, frames, lineage.profileId(),
                     lineage.parameterVersion(), lineage.parameterSha256());

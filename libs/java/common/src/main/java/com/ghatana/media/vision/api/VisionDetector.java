@@ -179,6 +179,19 @@ public interface VisionDetector {
         private final double height;
 
         public BoundingBox(double x, double y, double width, double height) {
+            if (!Double.isFinite(x) || !Double.isFinite(y)
+                    || !Double.isFinite(width) || !Double.isFinite(height)) {
+                throw new IllegalArgumentException("Bounding box coordinates and dimensions must be finite");
+            }
+            if (width < 0 || height < 0) {
+                throw new IllegalArgumentException("Bounding box dimensions must be non-negative");
+            }
+            if (!Double.isFinite(x + width) || !Double.isFinite(y + height)) {
+                throw new IllegalArgumentException("Bounding box extents must be finite");
+            }
+            if (!Double.isFinite(width * height)) {
+                throw new IllegalArgumentException("Bounding box area must be finite");
+            }
             this.x = x;
             this.y = y;
             this.width = width;
@@ -209,8 +222,18 @@ public interface VisionDetector {
 
         public double iou(BoundingBox other) {
             double intersection = intersectionArea(other);
-            double union = getArea() + other.getArea() - intersection;
-            return union > 0 ? intersection / union : 0;
+            double firstArea = getArea();
+            double secondArea = other.getArea();
+            double scale = Math.max(firstArea, secondArea);
+            if (scale == 0) {
+                return 0;
+            }
+
+            // Normalize before summing so two large, finite areas cannot overflow
+            // the union calculation and incorrectly produce an IoU of zero.
+            double normalizedIntersection = intersection / scale;
+            double normalizedUnion = firstArea / scale + secondArea / scale - normalizedIntersection;
+            return normalizedUnion > 0 ? normalizedIntersection / normalizedUnion : 0;
         }
 
         public static Builder builder() {

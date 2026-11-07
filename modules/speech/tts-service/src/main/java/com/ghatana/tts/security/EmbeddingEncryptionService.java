@@ -146,6 +146,9 @@ public final class EmbeddingEncryptionService {
             throw new IllegalArgumentException("ciphertext must not be blank");
         }
         byte[] plaintext = decryptBytes(ciphertext, key);
+        if (plaintext.length == 0) {
+            throw new EmbeddingEncryptionException("Decrypted embedding must not be empty", null);
+        }
         float[] embedding = bytesToFloats(plaintext);
         validateFiniteEmbedding(embedding);
         return embedding;

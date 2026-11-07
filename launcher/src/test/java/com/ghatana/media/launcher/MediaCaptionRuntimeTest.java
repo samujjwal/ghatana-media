@@ -181,6 +181,52 @@ class MediaCaptionRuntimeTest {
     }
 
     @Test
+    void transcriptParentClockRequiresAdmittedImmutableRevision() {
+        String sourceVersion = "sha256:" + "a".repeat(64);
+        var draft = new TranscriptDraft("tenant-1", "principal-1", "transcript-1", "artifact-1",
+                sourceVersion, "a".repeat(64), "job-1", "profile-1", "provider-1", "model-1", "en",
+                "SOURCE_TICKS", "hello", "consent-1", "rights-1", "policy-1", "purpose-1", "captions",
+                List.of(new TranscriptSegment("s1", "hello", "RECOGNIZED",
+                        TranscriptSegmentTiming.sourceTicks(10, 900, "clock.v1", 90_000, 9_000_000))));
+        for (String status : List.of("CANDIDATE", "NOT_ADMITTED", "UNKNOWN", "FUTURE_STATUS")) {
+            MediaTranscriptStore transcripts = new MediaTranscriptStore() {
+                @Override public TranscriptRevision append(TranscriptDraft ignored) {
+                    throw new UnsupportedOperationException();
+                }
+                @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
+                @Override public Optional<TranscriptRevision> revisionByVersionRef(String t, String p, String ref) {
+                    return Optional.of(new TranscriptRevision(draft, 1, 0, status));
+                }
+                @Override public boolean productionEligible() { return true; }
+                @Override public boolean ready() { return true; }
+                @Override public void close() { }
+            };
+            var lookup = new MediaCaptionParentClockLookup("tenant-1", "principal-1", transcripts,
+                    new FakeCaptionStore());
+
+            assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
+                    "artifact-1", sourceVersion)).as(status).isEmpty();
+        }
+
+        MediaTranscriptStore admitted = new MediaTranscriptStore() {
+            @Override public TranscriptRevision append(TranscriptDraft ignored) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
+            @Override public Optional<TranscriptRevision> revisionByVersionRef(String t, String p, String ref) {
+                return Optional.of(new TranscriptRevision(draft, 1, 0, "ADMITTED"));
+            }
+            @Override public boolean productionEligible() { return true; }
+            @Override public boolean ready() { return true; }
+            @Override public void close() { }
+        };
+        var lookup = new MediaCaptionParentClockLookup("tenant-1", "principal-1", admitted,
+                new FakeCaptionStore());
+        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
+                "artifact-1", sourceVersion)).isPresent();
+    }
+
+    @Test
     void correctionCannotRegisterAgainstExactTranscriptVersionWithMixedSourceClocks() {
         String sourceVersion = "sha256:" + "a".repeat(64);
         MediaTranscriptStore transcripts = new MediaTranscriptStore() {

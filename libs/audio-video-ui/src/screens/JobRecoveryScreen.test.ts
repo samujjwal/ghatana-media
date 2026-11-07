@@ -59,6 +59,26 @@ describe("JobRecoveryScreen canonical read", () => {
     expect(await screen.findByText("Canonical job reports OUTCOME_UNKNOWN. Reconcile the same job before retrying.")).toBeTruthy();
   });
 
+  it("fails closed when a canonical response has the wrong identity, status, or version", async () => {
+    const malformedSnapshots: readonly unknown[] = [
+      { jobId: "another-job", status: "COMPLETED", version: 2 },
+      { jobId: "job-canonical-17", status: "CANCEL_REQUESTED", version: 2 },
+      { jobId: "job-canonical-17", status: "COMPLETED", version: 0 },
+      { jobId: "job-canonical-17", status: "COMPLETED", version: Number.MAX_SAFE_INTEGER + 1 },
+    ];
+
+    for (const snapshot of malformedSnapshots) {
+      const canonicalJobReadClient: CanonicalJobReadClient = {
+        getJob: vi.fn(async () => snapshot as Awaited<ReturnType<CanonicalJobReadClient["getJob"]>>),
+      };
+      const { unmount } = render(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient }));
+      fireEvent.click(screen.getByRole("button", { name: "Refresh canonical status" }));
+      expect(await screen.findByText("Canonical job status is unknown. Reconcile the same job before taking another action.")).toBeTruthy();
+      expect(screen.queryByText(/Terminal status observed/u)).toBeNull();
+      unmount();
+    }
+  });
+
   it("does not retain a previous job's canonical read when the selected identity changes", async () => {
     const canonicalJobReadClient: CanonicalJobReadClient = {
       getJob: vi.fn(async (jobId) => ({ jobId, status: "FAILED" as const, version: 3 })),

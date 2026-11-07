@@ -187,6 +187,67 @@ class MediaRuntimeJobTimeoutTest {
     }
 
     @Test
+    void providerReportedUnknownFinalityStaysUnknownWithoutFallbackOrResult() throws Exception {
+        var root = Files.createTempDirectory("media-job-provider-unknown-finality-");
+        var provider = new UnknownFinalityProvider();
+        var fallback = new CountingFallbackProvider();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(
+                        true,
+                        "local",
+                        8093,
+                        1_024,
+                        64,
+                        1_024,
+                        Duration.ofSeconds(3),
+                        1,
+                        "",
+                        "",
+                        true,
+                        false,
+                        root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                durableUnknownFinalityStore(new LocalMediaRuntimeSupport.JobStore()),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(provider, fallback),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+
+        try {
+            byte[] content = "media-job-provider-unknown-finality".getBytes(StandardCharsets.UTF_8);
+            var upload = runtime.beginUpload(new UploadRequest(
+                    "tenant-a", "principal-a", "clip.bin", "application/octet-stream", content.length,
+                    sha256(content), "CONFIDENTIAL", Duration.ofHours(1), Map.of()),
+                    "job-provider-unknown-upload");
+            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, content);
+            var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
+
+            var accepted = runtime.submit(new ProcessingJobRequest(
+                    "request-provider-unknown", "tenant-a", "principal-a", "correlation-provider-unknown",
+                    artifact.artifactId(), JobType.VISION, provider.providerId(), Map.of()));
+
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(3);
+            var terminal = accepted;
+            while (terminal.status() == JobStatus.ACCEPTED || terminal.status() == JobStatus.RUNNING) {
+                assertThat(System.nanoTime()).isLessThan(deadline);
+                Thread.sleep(10);
+                terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
+            }
+
+            assertThat(provider.attemptCalls()).hasValue(1);
+            assertThat(terminal.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(terminal.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(terminal.result())
+                    .containsEntry("providerOutcome", "UNKNOWN")
+                    .containsEntry("reconciliation", "exact provider receipt unavailable")
+                    .doesNotContainKey("caption");
+            assertThat(fallback.calls()).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void synchronousProviderReturnAfterDeadlineCannotCompleteJobSuccessfully() throws Exception {
         var root = Files.createTempDirectory("media-job-late-synchronous-provider-");
         var provider = new BudgetExpirySuccessProvider();
@@ -392,6 +453,49 @@ class MediaRuntimeJobTimeoutTest {
                 });
     }
 
+    private static MediaJobStore durableUnknownFinalityStore(LocalMediaRuntimeSupport.JobStore delegate) {
+        AtomicReference<ProcessingAttempt> attempt = new AtomicReference<>();
+        return (MediaJobStore) Proxy.newProxyInstance(
+                MediaJobStore.class.getClassLoader(), new Class<?>[] {MediaJobStore.class},
+                (proxy, method, args) -> {
+                    try {
+                        switch (method.getName()) {
+                            case "durable" -> { return true; }
+                            case "startAttempt" -> {
+                                ProcessingJob accepted = (ProcessingJob) args[0];
+                                ProcessingJob running = (ProcessingJob) args[1];
+                                JobLease lease = (JobLease) args[2];
+                                ProcessingJob stored = delegate.update(lease, accepted, running);
+                                ProcessingAttempt started = new ProcessingAttempt(
+                                        accepted.tenantId(), accepted.jobId(), accepted.requestId(),
+                                        (Integer) args[3], lease.fencingToken(), (String) args[4],
+                                        running.providerId(), "", "", AttemptFinality.UNKNOWN,
+                                        "", "", java.time.Instant.now());
+                                attempt.set(started);
+                                return new com.ghatana.media.runtime.MediaRuntimeContracts.AttemptStart(stored, started);
+                            }
+                            case "recordProviderReceipt" -> {
+                                ProcessingAttempt current = (ProcessingAttempt) args[0];
+                                ProcessingAttempt recorded = new ProcessingAttempt(
+                                        current.tenantId(), current.jobId(), current.requestId(),
+                                        current.attemptNumber(), current.fencingToken(), current.requestFingerprint(),
+                                        current.providerId(), (String) args[2], (String) args[3],
+                                        AttemptFinality.UNKNOWN, "", "", java.time.Instant.now());
+                                attempt.set(recorded);
+                                return recorded;
+                            }
+                            case "findProcessingAttempt" -> { return java.util.Optional.ofNullable(attempt.get()); }
+                            case "markOutcomeUnknown" -> {
+                                return delegate.update((ProcessingJob) args[0], (ProcessingJob) args[2]);
+                            }
+                            default -> { return method.invoke(delegate, args); }
+                        }
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
+    }
+
     private static MediaJobStore deadlineAwareFinalizationStore(
             LocalMediaRuntimeSupport.JobStore delegate,
             CountDownLatch finalizationEntered,
@@ -571,6 +675,41 @@ class MediaRuntimeJobTimeoutTest {
         AtomicReference<ProcessingContext.MonotonicDeadline> deadline() { return deadline; }
         boolean completedBeforeDeadline() { return completedBeforeDeadline.get(); }
         AtomicInteger processCalls() { return processCalls; }
+    }
+
+    private static final class UnknownFinalityProvider implements MediaProcessingProvider {
+        private final AtomicInteger attemptCalls = new AtomicInteger();
+
+        @Override public String providerId() { return "unknown-finality-provider"; }
+        @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 1; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+
+        @Override
+        public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+            throw new AssertionError("durable runtime must use typed provider finality");
+        }
+
+        @Override
+        public java.util.Optional<com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptIdentity>
+                prepareAttemptIdentity(ProcessingJobRequest request, MediaArtifact artifact,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
+            return java.util.Optional.of(new com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptIdentity(
+                    "operation-unknown", "receipt-unknown"));
+        }
+
+        @Override
+        public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission> processAttempt(
+                ProcessingContext context, com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
+            attemptCalls.incrementAndGet();
+            return CompletableFuture.completedFuture(
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission.unknown());
+        }
+
+        AtomicInteger attemptCalls() { return attemptCalls; }
     }
 
     private static final class CountingFallbackProvider implements MediaProcessingProvider {

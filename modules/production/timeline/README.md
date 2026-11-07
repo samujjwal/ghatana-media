@@ -54,8 +54,9 @@ an exact owner receipt; a review receipt is separate and does not imply approval
 no model generation or renderer readiness claim. Its ports are integration seams, not durable authority
 implementations. Hosts without the admitted authority can bind
 `NotAdmittedStoryboardAuthority`, which returns a typed zero-effect result for save or
-review. No persistent storyboard adapter, reviewer authority, or renderer is currently
-admitted.
+review. Source-reference collections snapshot actual iterator traversal under a local 4,096-reference
+ceiling; PDP-1 defines no per-list maximum, so this is an implementation resource bound rather than a
+product limit. No persistent storyboard adapter, reviewer authority, or renderer is currently admitted.
 
 ## Local conditioned-scene and tracked-region candidates
 

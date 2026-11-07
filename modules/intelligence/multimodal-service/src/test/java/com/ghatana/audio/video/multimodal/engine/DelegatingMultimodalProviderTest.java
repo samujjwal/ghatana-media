@@ -131,6 +131,31 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void mutableNumberInChildResultCannotEscapeAsAStableSnapshot() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var mutableNumber = new java.util.concurrent.atomic.AtomicInteger(1);
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("count", mutableNumber))
+                    .with(JobType.VISION, JobStatus.COMPLETED, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            mutableNumber.set(2);
+
+            // A mutable Number is outside the runtime's JSON value contract. The
+            // provider must abstain instead of retaining a value that can change
+            // after the child observation digest was derived.
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void failedChildProducesFailedNotPartialSuccess() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {

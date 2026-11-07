@@ -78,6 +78,14 @@ class SpatialInteractiveDeliveryScenarioTest {
                 .isEqualTo("3");
         assertThat(metadata.has("destinationRef")).isFalse();
         assertThat(metadata.has("consumerReceiptRef")).isFalse();
+        // J-28 completion requires a source/target-bound conversion report. This
+        // bounded GLB candidate has no target profile, transform plan, field
+        // dispositions, or integrity evidence, so it must not look like that report.
+        assertThat(List.of("sourceArtifactRef", "sourceArtifactVersionRef", "targetFormatProfileRef",
+                "targetFormatProfileVersionRef", "sourceGeometryPlanRef", "coordinateTransformRef",
+                "unitTransformRef", "axisTransformRef", "handednessDisposition", "originDisposition",
+                "fieldDispositionRecords", "unsupportedFieldDisposition", "integrityEvidenceRef"))
+                .allSatisfy(field -> assertThat(metadata.has(field)).as("J-28 report field %s", field).isFalse());
 
         // Caller mutation of an exposed payload must not mutate the immutable candidate.
         byte[] exposedBytes = candidate.bytes();

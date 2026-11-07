@@ -209,6 +209,9 @@ public class VideoFrameExtractor {
         }
 
         public ExtractedFrame(Path path, SourceMediaTimestamp sourceTimestamp, int frameNumber) {
+            if (frameNumber < 0) {
+                throw new IllegalArgumentException("Extracted frame number must be non-negative");
+            }
             this.path = path;
             this.sourceTimestamp = java.util.Objects.requireNonNull(sourceTimestamp, "sourceTimestamp");
             this.frameNumber = frameNumber;

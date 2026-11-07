@@ -38,6 +38,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
 @DisplayName("PersistentSttGrpcService")
@@ -57,6 +58,15 @@ class PersistentSttGrpcServiceTest {
         service = new PersistentSttGrpcService(persistentSttService,
                 request -> SttRequestAuthorization.Decision.ADMITTED); // Test-only authority fixture.
         MDC.clear();
+    }
+
+    @Test
+    @DisplayName("asynchronous cancellation maps to gRPC CANCELLED")
+    void asynchronousCancellationMapsToCancelled() {
+        Status status = service.toGrpcStatus(new CancellationException("cancelled"));
+
+        assertThat(status.getCode()).isEqualTo(Status.Code.CANCELLED);
+        assertThat(status.getDescription()).isEqualTo("Transcription was cancelled");
     }
 
     @Test

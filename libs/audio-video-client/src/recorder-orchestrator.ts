@@ -613,6 +613,10 @@ const UINT8_ARRAY_BYTE_LENGTH_GETTER = Object.getOwnPropertyDescriptor(
   Object.getPrototypeOf(Uint8Array.prototype),
   "byteLength",
 )?.get;
+const UINT8_ARRAY_BUFFER_GETTER = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype),
+  "buffer",
+)?.get;
 const UINT8_ARRAY_SET = Uint8Array.prototype.set;
 const RENDER_UPLOAD_CHUNK_BYTES = 4 * 1024 * 1024;
 const MAX_RENDER_AUTHORITY_REFS_PER_CHECK = 64;
@@ -835,9 +839,13 @@ function copyExactHostArray<T>(value: unknown, expectedLength: number): T[] | un
 function copyBoundedHostBytes(value: unknown): Uint8Array | undefined {
   try {
     if (!(value instanceof Uint8Array)) return undefined;
-    if (!UINT8_ARRAY_BYTE_LENGTH_GETTER) return undefined;
+    if (!UINT8_ARRAY_BYTE_LENGTH_GETTER || !UINT8_ARRAY_BUFFER_GETTER) return undefined;
     const length = Reflect.apply(UINT8_ARRAY_BYTE_LENGTH_GETTER, value, []) as number;
     if (!Number.isSafeInteger(length) || length < 1 || length > MAX_RENDER_BYTES) return undefined;
+    const buffer = Reflect.apply(UINT8_ARRAY_BUFFER_GETTER, value, []) as ArrayBufferLike;
+    // A SharedArrayBuffer can change while the host snapshot is copied, making
+    // the verified probe observations apply to different bytes than uploaded.
+    if (typeof SharedArrayBuffer !== "undefined" && buffer instanceof SharedArrayBuffer) return undefined;
     const copy = new Uint8Array(length);
     // Use captured intrinsics so adapter-owned properties cannot run and the
     // bounded copy stays on the engine's native typed-array path.

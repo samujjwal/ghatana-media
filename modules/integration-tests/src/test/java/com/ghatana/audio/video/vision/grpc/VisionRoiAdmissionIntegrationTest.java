@@ -152,6 +152,42 @@ class VisionRoiAdmissionIntegrationTest {
     }
 
     @Test
+    @DisplayName("zero-area source ROI is rejected before detector dispatch")
+    void zeroAreaSourceRoiIsRejectedBeforeProviderEffects() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        VisionDetector detector = new VisionDetector() {
+            @Override
+            public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
+                    byte[] imageData, DetectionOptions options) {
+                providerCalls.incrementAndGet();
+                return List.of();
+            }
+
+            @Override
+            public boolean isInitialized() {
+                return true;
+            }
+        };
+        VisionGrpcService service = new VisionGrpcService(detector, null);
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(png(4, 3)))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(1).setY(1).setWidth(0).setHeight(1)
+                        .setSourceFrameVersion("source-frame-v7"))
+                .build();
+        CapturingObserver observer = new CapturingObserver();
+
+        withTenant("tenant-j05", () -> service.detectObjects(request, observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(observer.responses).isZero();
+        assertThat(observer.completed).isFalse();
+        assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     @DisplayName("caller-asserted stale frame version cannot authorize ROI detector dispatch")
     void unboundSourceFrameVersionDoesNotReachDetector() {
         AtomicInteger providerCalls = new AtomicInteger();

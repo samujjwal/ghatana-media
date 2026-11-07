@@ -105,6 +105,21 @@ class MediaHttpUploadJourneyTest {
             assertThat(JSON.readTree(resumed.body()).path("bytesReceived").asLong()).isEqualTo(first.length);
             assertThat(JSON.readTree(resumed.body()).path("nextChunkIndex").asInt()).isEqualTo(1);
 
+            // J-02 permission-revoked path: the same principal can still inspect the
+            // stable session, but a token without write authority cannot add a part.
+            HttpResponse<String> revokedAppend = send(restartedBase, "PUT",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/chunks/1", second,
+                    PRINCIPAL, Set.of("media:artifact:read"), "application/octet-stream", null);
+            assertThat(revokedAppend.statusCode()).as(revokedAppend.body()).isEqualTo(403);
+            HttpResponse<String> afterRevokedAppend = send(restartedBase, "GET",
+                    "/api/v1/artifacts/uploads/" + uploadId, new byte[0], PRINCIPAL,
+                    Set.of("media:artifact:read"), null, null);
+            assertThat(afterRevokedAppend.statusCode()).isEqualTo(200);
+            assertThat(JSON.readTree(afterRevokedAppend.body()).path("bytesReceived").asLong())
+                    .isEqualTo(first.length);
+            assertThat(JSON.readTree(afterRevokedAppend.body()).path("nextChunkIndex").asInt())
+                    .isEqualTo(1);
+
             HttpResponse<String> exactReplay = send(restartedBase, "PUT",
                     "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", first,
                     PRINCIPAL, Set.of("media:artifact:write"), "application/octet-stream", null);

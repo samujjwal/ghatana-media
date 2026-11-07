@@ -339,10 +339,16 @@ public final class QualityComparisonAndOptimization {
                 return Run.blockedKeeping(RunStatus.UNAVAILABLE, BlockReason.CANDIDATE_UNAVAILABLE, retained, attemptsMade);
             }
             if (result == null || !result.available()) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return Run.blockedKeeping(RunStatus.CANCELLED, BlockReason.CANCELLED, retained, attemptsMade);
+                }
                 return Run.blockedKeeping(RunStatus.UNAVAILABLE, BlockReason.CANDIDATE_UNAVAILABLE, retained, attemptsMade);
             }
             Revision candidate = result.candidate();
             if (!sameTenant(source.id(), candidate.id())) throw invalid("candidate tenant/principal must match exact source owner");
+            if (source.id().equals(candidate.id())) {
+                throw invalid("candidate must be a distinct exact immutable revision from source");
+            }
             if (!aligned(source, candidate)) throw invalid("candidate must preserve source frame alignment");
             validateBudget(candidate, budget);
             pixels = Math.addExact(pixels, pixelCount(candidate));
@@ -350,11 +356,19 @@ public final class QualityComparisonAndOptimization {
             if (pixels > budget.maxPixels() || bytes > budget.maxBytes()) throw invalid("attempts exceed aggregate pixel/byte budget");
             retained.add(candidate);
             candidates.add(candidate);
+            // A candidate returned while cancellation was raised is a known result:
+            // retain it for recovery, but stop before another attempt or a completed report.
+            if (Thread.currentThread().isInterrupted()) {
+                return Run.blockedKeeping(RunStatus.CANCELLED, BlockReason.CANCELLED, retained, attemptsMade);
+            }
         }
         AuthorityDecision finalSourceDecision = checkRights(sourceRights, source.id(), operationId);
         if (!sameAllowedDecision(sourceDecision, finalSourceDecision)) {
             return Run.blockedAttempts(finalSourceDecision != null && finalSourceDecision.status() == AuthorityStatus.DENIED
                     ? RunStatus.NOT_ADMITTED : RunStatus.UNAVAILABLE, BlockReason.SOURCE_REVOKED, attemptsMade);
+        }
+        if (Thread.currentThread().isInterrupted()) {
+            return Run.blockedKeeping(RunStatus.CANCELLED, BlockReason.CANCELLED, retained, attemptsMade);
         }
 
         ReferenceLoad reference = loadReference(referenceRequest, referenceRights, referenceReader, source, budget,
@@ -376,6 +390,9 @@ public final class QualityComparisonAndOptimization {
         if (!sameAllowedDecision(sourceDecision, finalSourceDecision)) {
             return Run.blockedAttempts(finalSourceDecision != null && finalSourceDecision.status() == AuthorityStatus.DENIED
                     ? RunStatus.NOT_ADMITTED : RunStatus.UNAVAILABLE, BlockReason.SOURCE_REVOKED, attemptsMade);
+        }
+        if (Thread.currentThread().isInterrupted()) {
+            return Run.blockedKeeping(RunStatus.CANCELLED, BlockReason.CANCELLED, retained, attemptsMade);
         }
         Report report = report(operationId, budget, attemptsMade, source, sourceDecision.decisionId(),
                 retained, reference, comparisons);

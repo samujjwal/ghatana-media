@@ -499,6 +499,24 @@ describe("CameraCaptureAdapter", () => {
     expect(newTrack.stopCalls).toBe(1);
   });
 
+  it("ignores a queued permission notification from the previous device after switch", async () => {
+    const oldTrack = frameTrack([new Uint8Array([1])]);
+    const newTrack = frameTrack([new Uint8Array([2])]);
+    const h = harness({ tracks: [oldTrack, newTrack] });
+    const session = await h.adapter.openSession(request);
+    await session.switchDevice({ ...request, sourceIdentity: "camera:device-2",
+      exactRightsScope: "rights/camera-device-2/v1", sourceVersionRef: "camera-device-2@v1" });
+
+    // Simulate an authority callback queued before unsubscribe completed.
+    h.subscriptions[0]!.listener("REVOKED");
+
+    expect((await session.nextFrame()).bytes).toEqual(new Uint8Array([2]));
+    expect(oldTrack.stopCalls).toBe(1);
+    expect(newTrack.stopCalls).toBe(0);
+    await session.close();
+    expect(newTrack.stopCalls).toBe(1);
+  });
+
   it("does not open a replacement camera when the session closes during switch cleanup", async () => {
     let markStopStarted: (() => void) | undefined;
     let finishStop: (() => void) | undefined;

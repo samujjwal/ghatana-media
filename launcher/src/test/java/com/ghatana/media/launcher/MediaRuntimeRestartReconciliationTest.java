@@ -211,6 +211,64 @@ class MediaRuntimeRestartReconciliationTest {
     }
 
     @Test
+    void speechRestartReceiptMismatchRemainsUnknownAcrossReopenWithoutDispatch() throws Exception {
+        var root = Files.createTempDirectory("media-stt-restart-receipt-mismatch-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        ProcessingJob running = runningSpeechJob();
+        jobs.create(running, running.requestFingerprint(), new com.ghatana.media.runtime.MediaRuntimeContracts
+                .SttSubmissionSnapshot(com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.VERSION,
+                        null, null, "", "", "", "", "", null));
+        ProcessingAttempt attempt = speechAttempt(running);
+        AtomicInteger queries = new AtomicInteger();
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicReference<ProviderAttemptQuery> querySeen = new AtomicReference<>();
+        assertThatThrownBy(() -> new ProviderAttemptObservation(
+                attempt.query(), AttemptFinality.SUCCEEDED, "different-provider-receipt",
+                Map.of("transcript", "must not be exposed"), "f".repeat(64), java.time.Instant.now()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("receipt does not match exact query");
+        MediaProcessingProvider provider = speechProvider(dispatches, query -> {
+            queries.incrementAndGet();
+            querySeen.set(query);
+            return CompletableFuture.failedFuture(
+                    new IllegalArgumentException("provider receipt did not match exact attempt query"));
+        });
+        var exactStore = attemptStore(jobs, attempt);
+
+        MediaRuntime first = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            ProcessingJob recovered = jobs.find(running.tenantId(), running.jobId()).orElseThrow();
+            assertThat(querySeen.get()).isEqualTo(attempt.query());
+            assertThat(queries).hasValue(1);
+            assertThat(dispatches).hasValue(0);
+            assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(recovered.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(recovered.result()).doesNotContainKey("providerStatus")
+                    .doesNotContainKey("providerReceiptDigest")
+                    .doesNotContainKey("transcript");
+        } finally {
+            first.close();
+        }
+
+        MediaRuntime reopened = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            ProcessingJob readBack = reopened.job(
+                    running.tenantId(), running.principalId(), running.jobId()).orElseThrow();
+            assertThat(readBack.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(readBack.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(readBack.result()).doesNotContainKey("providerStatus")
+                    .doesNotContainKey("providerReceiptDigest")
+                    .doesNotContainKey("transcript");
+            assertThat(queries).hasValue(1);
+            assertThat(dispatches).hasValue(0);
+        } finally {
+            reopened.close();
+        }
+    }
+
+    @Test
     void duplicateSubmissionReturnsExistingJobWithoutDispatchingProviderTwice() throws Exception {
         var root = Files.createTempDirectory("media-duplicate-submission-");
         var artifacts = new LocalMediaRuntimeSupport.FileArtifactStore(root);

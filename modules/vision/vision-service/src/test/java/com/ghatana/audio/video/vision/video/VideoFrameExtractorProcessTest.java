@@ -24,6 +24,14 @@ class VideoFrameExtractorProcessTest {
     @TempDir Path tempDir;
 
     @Test
+    void extractedFrameRejectsNegativeIdentityAtConstruction() {
+        assertThatThrownBy(() -> new VideoFrameExtractor.ExtractedFrame(
+                tempDir.resolve("negative.png"), SourceMediaTimestamp.fromPts("0", "1/1"), -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("frame number must be non-negative");
+    }
+
+    @Test
     @ResourceLock(Resources.SYSTEM_PROPERTIES)
     void overCapacityMetadataCallFailsBeforeCreatingWorkspaceOrSnapshot() throws Exception {
         Path input = tempDir.resolve("admission.mp4");

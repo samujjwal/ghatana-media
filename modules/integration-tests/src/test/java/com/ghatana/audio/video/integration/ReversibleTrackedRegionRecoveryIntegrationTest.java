@@ -78,6 +78,28 @@ class ReversibleTrackedRegionRecoveryIntegrationTest {
                 .isInstanceOf(RevisionConflictException.class);
         assertUnchanged(edit, ports.store.head(EDITOR, PROJECT_ID));
 
+        // Undo must re-check rights for the exact source version retained by the target revision.
+        // A previously eligible edit does not make recovery permissible after revocation or when
+        // the current source binding can no longer be established.
+        ports.rights = ReversibleRegionEditEngine.RightsDecision.REVOKED;
+        assertThatThrownBy(() -> ports.engine.undo(
+                EDITOR, PROJECT_ID, edit.revisionId(), edit.revisionId(), "j11-revoked-undo"))
+                .isInstanceOf(ReversibleRegionEditEngine.RegionRightsDeniedException.class);
+        assertUnchanged(edit, ports.store.head(EDITOR, PROJECT_ID));
+
+        ports.rights = ReversibleRegionEditEngine.RightsDecision.STALE;
+        assertThatThrownBy(() -> ports.engine.undo(
+                EDITOR, PROJECT_ID, edit.revisionId(), edit.revisionId(), "j11-stale-source-undo"))
+                .isInstanceOf(ReversibleRegionEditEngine.StaleSourceRevisionException.class);
+        assertUnchanged(edit, ports.store.head(EDITOR, PROJECT_ID));
+
+        ports.rights = ReversibleRegionEditEngine.RightsDecision.UNKNOWN;
+        assertThatThrownBy(() -> ports.engine.undo(
+                EDITOR, PROJECT_ID, edit.revisionId(), edit.revisionId(), "j11-unknown-rights-undo"))
+                .isInstanceOf(ReversibleRegionEditEngine.RightsAuthorityUnavailableException.class);
+        assertUnchanged(edit, ports.store.head(EDITOR, PROJECT_ID));
+
+        ports.rights = ReversibleRegionEditEngine.RightsDecision.ELIGIBLE;
         ReversibleRegionEditEngine.EditRevision undone = ports.engine.undo(
                 EDITOR, PROJECT_ID, edit.revisionId(), edit.revisionId(), "j11-undo");
         assertThat(undone.revisionId()).isNotEqualTo("r0");

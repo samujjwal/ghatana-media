@@ -456,6 +456,9 @@ public final class ReversibleRegionEditEngine {
             Objects.requireNonNull(evidence, "evidence");
             Objects.requireNonNull(snapshot, "snapshot");
             restoresRevisionId = restoresRevisionId == null ? null : required(restoresRevisionId, "restoresRevisionId");
+            if (restoresRevisionId != null && !restoresRevisionId.equals(parentRevisionId)) {
+                throw new IllegalArgumentException("undo revision must restore its exact immediate parent revision");
+            }
             if (!source.equals(evidence.source()) || !sourceSha256.equals(evidence.sourceSha256())
                     || !regionId.equals(evidence.regionId())) {
                 throw new IllegalArgumentException("revision must preserve exact source and region evidence identity");

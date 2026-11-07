@@ -1038,6 +1038,20 @@ describe("publishFinalRender", () => {
       .not.toHaveBeenCalled();
   });
 
+  it("rejects shared host bytes before upload so verified bytes cannot change during snapshotting", async () => {
+    const sharedBytes = new Uint8Array(new SharedArrayBuffer(3));
+    sharedBytes.set([1, 2, 3]);
+    const client = fakeClient();
+    const hostMuxer = {
+      muxAndVerify: async () => verifiedContainer(sharedBytes as unknown as Uint8Array<ArrayBuffer>),
+    };
+
+    await expect(publishFinalRender(request(), admitted, hostMuxer, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
   it("snapshots host bytes and content type without invoking mutable adapter methods", async () => {
     let sliceCalled = false;
     let byteLengthReads = 0;

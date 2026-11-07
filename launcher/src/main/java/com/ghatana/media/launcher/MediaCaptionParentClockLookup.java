@@ -59,7 +59,12 @@ final class MediaCaptionParentClockLookup implements ParentClockLookup {
             return Optional.empty();
         }
         if (versioned.isEmpty()) return Optional.empty();
-        var draft = versioned.get().draft();
+        TranscriptRevision revision = versioned.get();
+        // A durable candidate is not an admitted transcript parent. In particular, do not
+        // turn NOT_ADMITTED/UNKNOWN (or any future non-admitted state) into caption eligibility
+        // merely because its immutable version and timing are readable.
+        if (!"ADMITTED".equals(revision.admissionStatus())) return Optional.empty();
+        var draft = revision.draft();
         if (!tenantId.equals(draft.tenantId()) || !principalId.equals(draft.principalId())
                 || !sourceArtifactId.equals(draft.sourceArtifactId())
                 || !sourceArtifactVersionId.equals(draft.sourceVersion())) {

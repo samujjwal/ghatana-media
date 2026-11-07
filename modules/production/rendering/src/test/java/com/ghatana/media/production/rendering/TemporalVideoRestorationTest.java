@@ -716,6 +716,21 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void candidateSourceDeltaMustCoverExactlyTheFrameRoiRgbSamples() {
+        Candidate valid = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.empty(), null, null).candidate().orElseThrow();
+
+        assertThat(valid.sourceDelta().comparedSamples()).isEqualTo(9);
+        assertThatThrownBy(() -> new Candidate(valid.frames(), valid.timeBase(), valid.lineage(),
+                new SourceDelta(8, 1, 0.125, 1), valid.referenceMetrics(), valid.clippedSamples(),
+                valid.clippedMagnitude(), true, true, true, false))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("exactly the candidate ROI RGB samples");
+    }
+
+    @Test
     void sourceDeltaRejectsNumericallyInconsistentSummaryFields() {
         assertThatThrownBy(() -> new SourceDelta(9, 1, 0.0, 1))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("numerically inconsistent");

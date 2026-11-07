@@ -501,8 +501,23 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     }
 
     private static Object immutableJsonValue(Object value) {
-        if (value == null || value instanceof String || value instanceof Boolean || value instanceof Number) {
+        if (value == null || value instanceof String || value instanceof Boolean) {
             return value;
+        }
+        if (value instanceof Number number) {
+            // Match the runtime JSON contract's closed numeric set. `Number` also
+            // includes mutable values such as AtomicInteger and LongAdder; retaining
+            // those would make a supposedly detached child snapshot change after its
+            // digest and fused result had been computed.
+            if (!(number instanceof Byte || number instanceof Short || number instanceof Integer
+                    || number instanceof Long || number instanceof java.math.BigInteger
+                    || number instanceof java.math.BigDecimal || number instanceof Double
+                    || number instanceof Float)
+                    || (number instanceof Double doubleValue && !Double.isFinite(doubleValue))
+                    || (number instanceof Float floatValue && !Float.isFinite(floatValue))) {
+                throw new IllegalArgumentException("child result contains an unsupported JSON number");
+            }
+            return number;
         }
         if (value instanceof Map<?, ?> map) {
             Map<String, Object> copy = new LinkedHashMap<>();

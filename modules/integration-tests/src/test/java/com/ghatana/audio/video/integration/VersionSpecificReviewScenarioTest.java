@@ -10,6 +10,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -188,5 +192,63 @@ class VersionSpecificReviewScenarioTest {
         // or a substitute for reconciliation of an actually ambiguous remote write.
         assertThat(authorityChecks).hasValue(2);
         assertThat(store.read(REVIEWER, CASE)).isEmpty();
+    }
+
+    @Test
+    void simultaneousJ21DecisionAppendsAtSameCaseRevisionHaveOneWinner() throws Exception {
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        AtomicInteger recordIds = new AtomicInteger();
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(
+                        AuthorizationStatus.ALLOW,
+                        actor.tenantId(),
+                        actor.principalId(),
+                        reviewCase.reviewCaseId(),
+                        reviewCase.exactTargetRef(),
+                        reviewCase.scopeRef(),
+                        "fixture-authority-v1",
+                        NOW.plusSeconds(60),
+                        V1.reference(),
+                        RetentionStatus.ACTIVE),
+                value -> value,
+                Clock.fixed(NOW, ZoneOffset.UTC),
+                () -> "record-j21-cas-" + recordIds.incrementAndGet());
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+
+        try {
+            Future<Boolean> first = pool.submit(() -> appendAtSameRevision(engine, ready, start,
+                    "request-j21-cas-a", "Decision from concurrent reviewer A"));
+            Future<Boolean> second = pool.submit(() -> appendAtSameRevision(engine, ready, start,
+                    "request-j21-cas-b", "Decision from concurrent reviewer B"));
+            ready.await();
+            start.countDown();
+
+            assertThat(first.get() ^ second.get()).isTrue();
+            List<ReviewRecord> records = store.read(REVIEWER, CASE);
+            assertThat(records).hasSize(1);
+            assertThat(records.getFirst().reviewSubjectRef()).isEqualTo(V1);
+            assertThat(engine.inspect(REVIEWER, CASE).records()).singleElement()
+                    .satisfies(observation -> assertThat(observation.record().reviewSubjectRef()).isEqualTo(V1));
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    private static boolean appendAtSameRevision(VersionedReviewEngine engine, CountDownLatch ready,
+                                                CountDownLatch start, String requestId, String reason)
+            throws Exception {
+        ready.countDown();
+        start.await();
+        try {
+            engine.append(REVIEWER, new AppendRequest(CASE, 0, "fixture-authority-v1", requestId,
+                    new Confirmation("media.operation.action.record-version-review-decision",
+                            V1.reference(), true),
+                    new DecisionRecord(Decision.ACCEPT, reason)));
+            return true;
+        } catch (ReviewConflictException expected) {
+            return false;
+        }
     }
 }

@@ -494,6 +494,28 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsMultipleFramePtsForNonVideoClipEvenWithRehashedManifest() throws Exception {
+        var first = new MultitrackRenderPlanner.Time(0, 1);
+        var second = new MultitrackRenderPlanner.Time(1, 1);
+        var frames = List.of(
+                new MultitrackRenderPlanner.MappedFrame("audio", 0, first, first),
+                new MultitrackRenderPlanner.MappedFrame("audio", 1, second, second));
+        String manifest = "multitrack-render-manifest-v1\n"
+                + "duration=2/1\n"
+                + "output-budget-bytes=1000\n"
+                + "clip=audio|AUDIO|artifact-audio|v1|" + SHA + "|0/1|0/1|2/1\n"
+                + "frame=audio|0|0/1|0/1\n"
+                + "frame=audio|1|1/1|1/1\n";
+        String digest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(manifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                MultitrackRenderPlanner.CAPABILITY_ID, manifest, digest,
+                new MultitrackRenderPlanner.Time(2, 1), frames, 1_000))
+                .withMessageContaining("only video clips may carry multiple frame PTS values");
+    }
+
+    @Test
     void publicPlanDurationMustCoverTheLatestClipEndEvenWithRecomputedDigest() throws Exception {
         var timelineStart = new MultitrackRenderPlanner.Time(2, 1);
         var clip = new MultitrackRenderPlanner.Clip("v", MultitrackRenderPlanner.Modality.VIDEO,
@@ -578,6 +600,22 @@ class MultitrackRenderPlannerTest {
                 valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
                 valid.declaredOutputBudgetBytes()))
                 .withMessageContaining("caption interval must be positive and within plan duration");
+    }
+
+    @Test
+    void publicPlanRejectsDuplicateCaptionIdsEvenWhenManifestDigestMatches() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(), 1_000)).plan();
+        String forgedManifest = valid.canonicalManifest().replace("frame=v|0|0/1|0/1\n",
+                "frame=v|0|0/1|0/1\ncaption=cap|0/1|1/2|YQ\ncaption=cap|1/2|1/1|Yg\n");
+        String forgedDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("caption ids must be unique");
     }
 
     @Test

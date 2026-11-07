@@ -331,7 +331,21 @@ public class AudioVideoCache<K, V> {
 
     /** Runs a cache operation after the caller has established protected-scope authority. */
     private AsyncOperation<V> getOrLoadInternal(K key, Function<K, AsyncOperation<V>> loader) {
+        return getOrLoadInternal(key, loader, ignored -> AsyncOperation.success(true));
+    }
+
+    /**
+     * Load through the normal cache path, but require an additional asynchronous
+     * gate immediately before persisting a source value. Protected callers use
+     * this to ensure authority remains current across a potentially slow source
+     * load; the outer disclosure check still runs after this operation settles.
+     */
+    private AsyncOperation<V> getOrLoadInternal(
+            K key,
+            Function<K, AsyncOperation<V>> loader,
+            Function<V, AsyncOperation<Boolean>> beforeCacheWrite) {
         Objects.requireNonNull(loader, "loader cannot be null");
+        Objects.requireNonNull(beforeCacheWrite, "beforeCacheWrite cannot be null");
 
         CompletableFuture<V> existing = inFlightLoads.get(key);
         if (existing != null) return AsyncOperation.from(existing);
@@ -400,7 +414,8 @@ public class AudioVideoCache<K, V> {
                         completeFrom(loadWithoutCache(key, loader), operationFuture);
                     }
                 } else {
-                    completeFrom(loadAndCache(key, loader, candidate, capturedEpoch), operationFuture);
+                    completeFrom(loadAndCache(
+                            key, loader, candidate, capturedEpoch, beforeCacheWrite), operationFuture);
                 }
             });
             if (!operationFuture.isDone()) {
@@ -617,7 +632,8 @@ public class AudioVideoCache<K, V> {
 
     private AsyncOperation<V> loadAndCache(
             K key, Function<K, AsyncOperation<V>> loader,
-            CompletableFuture<V> callerResult, EpochSnapshot capturedEpoch) {
+            CompletableFuture<V> callerResult, EpochSnapshot capturedEpoch,
+            Function<V, AsyncOperation<Boolean>> beforeCacheWrite) {
         CompletableFuture<V> result = new CompletableFuture<>();
         loadWithoutCache(key, loader).whenComplete((value, loadError) -> {
             if (loadError != null) {
@@ -631,38 +647,63 @@ public class AudioVideoCache<K, V> {
                 callerResult.complete(value);
                 result.complete(value);
             } else {
-                Object marker = reservePendingCacheWrite(key, capturedEpoch);
-                if (marker == null) {
+                final AsyncOperation<Boolean> writeAllowed;
+                try {
+                    writeAllowed = Objects.requireNonNull(beforeCacheWrite.apply(value),
+                            "beforeCacheWrite returned null operation");
+                } catch (RuntimeException gateFailure) {
+                    // Cache persistence is optional. A failed gate must never
+                    // prevent the source value from flowing to the later,
+                    // authoritative disclosure check.
                     callerResult.complete(value);
                     result.complete(value);
                     return;
                 }
-                try {
-                    AsyncOperation<Void> cacheWrite = cachePort.put(key, value, DEFAULT_TTL);
-                    cacheWrite.whenComplete((ignored, putError) -> {
-                        settlePendingCacheWrite(key, marker, putError == null);
-                        if (putError != null) LOG.warn(
-                                "Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
-                                namespaceReference(), keyReference(key), failureType(putError));
+                writeAllowed.whenComplete((allowed, gateError) -> {
+                    if (gateError != null || !Boolean.TRUE.equals(allowed)) {
+                        callerResult.complete(value);
                         result.complete(value);
-                    });
-                    if (!result.isDone()) {
-                        CompletableFuture.delayedExecutor(
-                                cacheOperationTimeoutNanos, TimeUnit.NANOSECONDS)
-                                .execute(() -> result.complete(value));
+                        return;
                     }
-                    // Dispatch and completion observation precede caller callbacks. The marker
-                    // stays until the port reports the actual write outcome, even after timeout.
-                    callerResult.complete(value);
-                } catch (RuntimeException cacheFailure) {
-                    LOG.warn("Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
-                            namespaceReference(), keyReference(key), failureType(cacheFailure));
-                    result.complete(value);
-                    callerResult.complete(value);
-                }
+                    writeLoadedValue(key, value, callerResult, result, capturedEpoch);
+                });
             }
         });
         return AsyncOperation.from(result);
+    }
+
+    private void writeLoadedValue(
+            K key, V value, CompletableFuture<V> callerResult,
+            CompletableFuture<V> result, EpochSnapshot capturedEpoch) {
+        Object marker = reservePendingCacheWrite(key, capturedEpoch);
+        if (marker == null) {
+            callerResult.complete(value);
+            result.complete(value);
+            return;
+        }
+        try {
+            AsyncOperation<Void> cacheWrite = cachePort.put(key, value, DEFAULT_TTL);
+            cacheWrite.whenComplete((ignored, putError) -> {
+                settlePendingCacheWrite(key, marker, putError == null);
+                if (putError != null) LOG.warn(
+                        "Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
+                        namespaceReference(), keyReference(key), failureType(putError));
+                result.complete(value);
+            });
+            if (!result.isDone()) {
+                CompletableFuture.delayedExecutor(
+                        cacheOperationTimeoutNanos, TimeUnit.NANOSECONDS)
+                        .execute(() -> result.complete(value));
+            }
+            // Dispatch and completion observation precede caller callbacks. The marker
+            // stays until the port reports the actual write outcome, even after timeout.
+            callerResult.complete(value);
+        } catch (RuntimeException cacheFailure) {
+            LOG.warn("Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
+                    namespaceReference(), keyReference(key), failureType(cacheFailure));
+            result.complete(value);
+            callerResult.complete(value);
+        }
     }
 
     private static <T> void completeFrom(AsyncOperation<T> operation, CompletableFuture<T> target) {
@@ -940,7 +981,8 @@ public class AudioVideoCache<K, V> {
                 return AsyncOperation.failure(new SecurityException(
                         "Current cache authority is denied or unknown"));
             }
-            return getOrLoadInternal(asCacheKey(key), ignored -> loader.apply(key))
+            return getOrLoadInternal(asCacheKey(key), ignored -> loader.apply(key),
+                    ignored -> checkScopedAuthority(scope, authority))
                     .flatMap(value -> checkScopedAuthority(scope, authority)
                             .whenComplete((current, failure) -> {
                                 if (failure != null || !Boolean.TRUE.equals(current)) {

@@ -408,6 +408,9 @@ class GuardedVideoStreamSessionTest {
         }
         assertThat(session.submitFrame("worker-a", 1L, admitted))
                 .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        VideoStreamSession.DecodedFrame later = frame(8, false);
+        assertThat(session.submitFrame("worker-a", 1L, later))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
         AtomicInteger attempts = new AtomicInteger();
 
         assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted, f -> {
@@ -424,9 +427,43 @@ class GuardedVideoStreamSessionTest {
                 });
         assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
                 f -> attempts.incrementAndGet()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("already egressed");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, later, f -> attempts.incrementAndGet()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThatThrownBy(() -> session.detach("worker-a", 1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThatThrownBy(() -> session.resume("worker-a", 1L, identity("t1"), 8, 0, 264L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThatThrownBy(() -> session.claim("worker-b", 2L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
         assertThat(attempts.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("fatal sink error fences session while preserving the original error")
+    void fatalSinkErrorFencesSessionAndIsRethrown() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame admitted = frame(0, true);
+        assertThat(session.submitFrame("worker-a", 1L, admitted)).isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        AssertionError fatal = new AssertionError("private transport detail");
+
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted, ignored -> { throw fatal; }))
+                .isSameAs(fatal);
+        AtomicInteger attempts = new AtomicInteger();
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted, ignored -> attempts.incrementAndGet()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome")
+                .hasMessageNotContaining("private transport detail");
+        assertThatThrownBy(() -> session.submitFrame("worker-a", 1L, frame(1, false)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown provider frame outcome");
+        assertThat(attempts).hasValue(0);
     }
 
     @Test

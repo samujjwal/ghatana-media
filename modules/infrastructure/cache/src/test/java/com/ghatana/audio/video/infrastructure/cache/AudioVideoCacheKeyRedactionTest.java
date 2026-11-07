@@ -242,7 +242,9 @@ class AudioVideoCacheKeyRedactionTest {
             loaderCalls.incrementAndGet();
             return AsyncOperation.success("current-policy-value");
         }))).isEqualTo("current-policy-value");
-        assertThat(authorityCalls).hasValue(3);
+        // One rejected old-policy check, then current-scope checks before lookup,
+        // before cache write, and before disclosure.
+        assertThat(authorityCalls).hasValue(4);
         assertThat(loaderCalls).hasValue(1);
         verify(port, org.mockito.Mockito.times(1)).get(cache.buildScopedKey(newScope));
         verify(port, never()).get(cache.buildScopedKey(oldScope));

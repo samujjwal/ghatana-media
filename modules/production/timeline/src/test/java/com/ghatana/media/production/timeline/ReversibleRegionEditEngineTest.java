@@ -229,6 +229,16 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void undoRevisionCannotClaimRestorationOfANonParentRevision() {
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditRevision(
+                OWNER.tenantId(), OWNER.principalId(), "project-region", "r2", "r1", "plan-undo",
+                SOURCE, DIGEST, "local-region-edit", "region-1", evidence(List.of(bboxSample(0, .1, .1, 0))),
+                state("restored", "edit", "parent"), "r0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("undo revision must restore its exact immediate parent revision");
+    }
+
+    @Test
     void revisionRejectsMixedSourcePresentationTimebases() {
         MediaTimebase otherTimebase = new MediaTimebase(30_000, 1);
         ReversibleRegionEditEngine.TrackingEvidence mixedClockEvidence = evidence(List.of(

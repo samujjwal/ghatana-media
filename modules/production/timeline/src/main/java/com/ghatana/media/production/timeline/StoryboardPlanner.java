@@ -24,6 +24,8 @@ public final class StoryboardPlanner {
     /** Local safety ceilings; PDP-1 does not currently define a shot-count maximum. */
     static final int MAX_SHOTS_PER_SCENE = 1_024;
     static final int MAX_TOTAL_SHOTS = 10_000;
+    /** Local safety ceiling; PDP source contracts do not define a per-list reference maximum. */
+    static final int MAX_SOURCES_PER_COLLECTION = 4_096;
 
     private static final Comparator<SourceVersion> SOURCES = Comparator.comparing(SourceVersion::artifactId)
             .thenComparing(SourceVersion::artifactVersionId);
@@ -386,8 +388,15 @@ public final class StoryboardPlanner {
 
     private static List<SourceVersion> canonicalSources(List<SourceVersion> sources) {
         if (sources == null) return List.of();
-        return sources.stream().map(s -> Objects.requireNonNull(s, "source reference")).distinct()
-                .sorted(SOURCES).toList();
+        Iterator<SourceVersion> iterator = sources.iterator();
+        List<SourceVersion> snapshot = new ArrayList<>();
+        while (iterator.hasNext()) {
+            if (snapshot.size() == MAX_SOURCES_PER_COLLECTION) {
+                throw new IllegalArgumentException("source references exceed the 4096-item safety limit");
+            }
+            snapshot.add(Objects.requireNonNull(iterator.next(), "source reference"));
+        }
+        return snapshot.stream().distinct().sorted(SOURCES).toList();
     }
 
     private static void validateStoryInterval(RationalTime start, RationalTime duration, String subject) {

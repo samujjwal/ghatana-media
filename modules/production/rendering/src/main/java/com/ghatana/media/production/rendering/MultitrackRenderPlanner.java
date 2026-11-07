@@ -349,7 +349,7 @@ public final class MultitrackRenderPlanner {
         return out.toString();
     }
 
-    private record ClipTimeMap(Time timelineStart, Time sourceStart, Time sourceEnd) {
+    private record ClipTimeMap(Modality modality, Time timelineStart, Time sourceStart, Time sourceEnd) {
         private Time timelineEnd() { return timelineStart.plus(sourceEnd.minus(sourceStart)); }
     }
 
@@ -379,8 +379,9 @@ public final class MultitrackRenderPlanner {
             String[] fields = line.substring("clip=".length()).split("\\|", -1);
             if (fields.length != 8) throw invalid("canonical manifest clip row is malformed");
             String clipId = opaque(fields[0], "manifest clip id");
+            final Modality modality;
             try {
-                Modality.valueOf(fields[1]);
+                modality = Modality.valueOf(fields[1]);
             } catch (IllegalArgumentException malformedModality) {
                 throw invalid("canonical manifest clip modality is unsupported");
             }
@@ -398,7 +399,8 @@ public final class MultitrackRenderPlanner {
             }
             Time clipEnd = timelineStart.plus(sourceEnd.minus(sourceStart));
             if (graphEnd == null || clipEnd.compareTo(graphEnd) > 0) graphEnd = clipEnd;
-            if (clipTimeMaps.putIfAbsent(clipId, new ClipTimeMap(timelineStart, sourceStart, sourceEnd)) != null) {
+            if (clipTimeMaps.putIfAbsent(clipId,
+                    new ClipTimeMap(modality, timelineStart, sourceStart, sourceEnd)) != null) {
                 throw invalid("canonical manifest clip ids must be unique");
             }
         }
@@ -407,10 +409,15 @@ public final class MultitrackRenderPlanner {
             throw invalid("plan duration must equal the latest canonical clip end");
         }
         var mappedClipIds = new java.util.HashSet<String>();
+        var frameCounts = new java.util.HashMap<String, Integer>();
         for (MappedFrame frame : frames) {
             ClipTimeMap clip = clipTimeMaps.get(frame.clipId());
             if (clip == null) throw invalid("mapped frame has no canonical manifest clip");
             mappedClipIds.add(frame.clipId());
+            int frameCount = frameCounts.merge(frame.clipId(), 1, Integer::sum);
+            if (clip.modality() != Modality.VIDEO && frameCount > 1) {
+                throw invalid("only video clips may carry multiple frame PTS values");
+            }
             if (frame.sourcePts().compareTo(clip.sourceStart()) < 0
                     || frame.sourcePts().compareTo(clip.sourceEnd()) >= 0) {
                 throw invalid("mapped frame source PTS is outside its canonical clip interval");
@@ -430,7 +437,13 @@ public final class MultitrackRenderPlanner {
         for (String line : manifest.lines().filter(value -> value.startsWith("clip=")).toList()) {
             String[] fields = line.substring("clip=".length()).split("\\|", -1);
             if (fields.length != 8) throw invalid("canonical manifest clip row is malformed");
-            clipTimeMaps.put(fields[0], new ClipTimeMap(
+            final Modality modality;
+            try {
+                modality = Modality.valueOf(fields[1]);
+            } catch (IllegalArgumentException malformedModality) {
+                throw invalid("canonical manifest clip modality is unsupported");
+            }
+            clipTimeMaps.put(fields[0], new ClipTimeMap(modality,
                     manifestTime(fields[5]), manifestTime(fields[6]), manifestTime(fields[7])));
         }
         var transitionIds = new java.util.HashSet<String>();
@@ -464,10 +477,12 @@ public final class MultitrackRenderPlanner {
     }
 
     private static void validateCaptionMappings(String manifest, Time planDuration) {
+        var captionIds = new java.util.HashSet<String>();
         for (String line : manifest.lines().filter(value -> value.startsWith("caption=")).toList()) {
             String[] fields = line.substring("caption=".length()).split("\\|", -1);
             if (fields.length != 4) throw invalid("canonical manifest caption row is malformed");
-            opaque(fields[0], "manifest caption id");
+            String captionId = opaque(fields[0], "manifest caption id");
+            if (!captionIds.add(captionId)) throw invalid("caption ids must be unique");
             Time start = manifestTime(fields[1]);
             Time end = manifestTime(fields[2]);
             if (start.numerator() < 0 || end.compareTo(start) <= 0 || end.compareTo(planDuration) > 0) {

@@ -3243,6 +3243,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL",
                         "nested multimodal child operations are not admitted");
             }
+            if (!matchesDeclaredMultimodalChildRequest(parent, childRequest)) {
+                throw new MediaCapabilityNotAdmittedException(
+                        MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL",
+                        "child job does not match a declared multimodal operation child");
+            }
             return submit(childRequest, authenticated);
         }
 
@@ -3283,6 +3288,56 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ensureOpen();
             return jobStore.findMultimodalOperationSnapshot(parent.tenantId(), jobId);
         }
+    }
+
+    /**
+     * Allows the dispatcher to create only the exact child requests persisted on its parent.
+     * This protects the canonical submission path even if a configured multimodal provider
+     * attempts to dispatch a different artifact, capability, version, or parameter set.
+     */
+    static boolean matchesDeclaredMultimodalChildRequest(
+            ProcessingJobRequest parent, ProcessingJobRequest childRequest) {
+        if (parent == null || childRequest == null
+                || parent.jobType() != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL) {
+            return false;
+        }
+        final com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec spec;
+        try {
+            spec = com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec.from(parent);
+        } catch (RuntimeException malformed) {
+            return false;
+        }
+        if (spec == null) return false;
+        for (var declared : spec.children()) {
+            String expectedRequestId;
+            try {
+                expectedRequestId = com.ghatana.media.runtime.MediaRuntimeContracts
+                        .MultimodalOperationSpec.childRequestId(parent.requestId(), declared.childKey());
+            } catch (IllegalArgumentException malformedIdentity) {
+                return false;
+            }
+            String parentCorrelation = parent.correlationId();
+            String combinedCorrelation = (parentCorrelation == null || parentCorrelation.isBlank()
+                    ? "mm" : parentCorrelation) + ":" + declared.childKey();
+            String expectedCorrelation = combinedCorrelation.length() > 512
+                    ? combinedCorrelation.substring(0, 512) : combinedCorrelation;
+            if (childRequest.requestId().equals(expectedRequestId)
+                    && childRequest.tenantId().equals(parent.tenantId())
+                    && childRequest.principalId().equals(parent.principalId())
+                    && childRequest.correlationId().equals(expectedCorrelation)
+                    && childRequest.artifactId().equals(declared.artifactId())
+                    && childRequest.requestedArtifactVersion()
+                            .map(com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion::value)
+                            .orElse("")
+                            .equals(declared.artifactVersion())
+                    && childRequest.jobType() == declared.jobType()
+                    && childRequest.providerHint().equals(declared.providerHint())
+                    && childRequest.parameters().equals(declared.parameters())
+                    && childRequest.governanceContext().equals(parent.governanceContext())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private CompletableFuture<ProcessingOutcome> fallbackOrFail(
@@ -3446,6 +3501,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
             boolean allCompleted = children.stream()
                     .allMatch(child -> child.status() == JobStatus.COMPLETED);
+            boolean anyCancelled = children.stream()
+                    .anyMatch(child -> child.status() == JobStatus.CANCELLED);
             boolean anyFailed = children.stream().anyMatch(child ->
                     child.status() == JobStatus.FAILED || child.status() == JobStatus.CANCELLED);
             boolean anyUnknown = children.stream()
@@ -3458,6 +3515,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             // path after restart. Leave the parent for generic OUTCOME_UNKNOWN recovery;
             // only durable terminal child outcomes can establish parent finality here.
             if (!allTerminal) return false;
+            // A child cancellation is not proof that its dispatched provider had no
+            // effect. Restart cannot safely turn a failed sibling plus a cancelled
+            // child into parent NO_EFFECT_PROVEN; preserve the generic UNKNOWN result.
+            if (anyCancelled) return false;
             if (!allCompleted && (anyUnknown || !anyFailed)) return false;
             ProcessingJob terminal;
             if (allCompleted) {

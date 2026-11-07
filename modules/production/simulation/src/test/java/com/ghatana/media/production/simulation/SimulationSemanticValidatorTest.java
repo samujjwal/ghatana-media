@@ -76,6 +76,104 @@ class SimulationSemanticValidatorTest {
     }
 
     @Test
+    void abstainsInsteadOfNormalizingPaddedExactInputReferences() {
+        var complete = binding();
+        var paddedInputs = new ArrayList<>(complete.inputs());
+        var model = paddedInputs.getFirst();
+        paddedInputs.set(0, new SimulationSemanticValidator.VersionedInput(model.role(),
+                " " + model.identity(), model.version(), model.sha256()));
+        var padded = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), paddedInputs,
+                complete.invariants(), complete.expectedDuration());
+        var verifierCalls = new java.util.concurrent.atomic.AtomicInteger();
+
+        var validation = SimulationSemanticValidator.validate(padded, result(), input -> {
+            verifierCalls.incrementAndGet();
+            return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+        });
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INVALID_INPUT_REFERENCE);
+            assertThat(finding.subject()).isEqualTo(model.role().name());
+        });
+        assertThat(verifierCalls).hasValue(0);
+        assertThat(padded.inputs().getFirst().identity()).isEqualTo(" " + model.identity());
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo("DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+    }
+
+    @Test
+    void abstainsInsteadOfNormalizingPaddedRunIdentity() {
+        var complete = binding();
+        var padded = new SimulationSemanticValidator.RunBinding(" " + complete.runIdentity(), complete.inputs(),
+                complete.invariants(), complete.expectedDuration());
+        var verifierCalls = new java.util.concurrent.atomic.AtomicInteger();
+
+        var validation = SimulationSemanticValidator.validate(padded, result(), input -> {
+            verifierCalls.incrementAndGet();
+            return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+        });
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INCOMPLETE_INPUT_REFERENCES);
+            assertThat(finding.subject()).isEqualTo("runIdentity");
+        });
+        assertThat(verifierCalls).hasValue(0);
+        assertThat(padded.runIdentity()).isEqualTo(" " + complete.runIdentity());
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo("DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+    }
+
+    @Test
+    void abstainsOnRunIdentityOutsideOwnerOpaqueIdContractBeforeReferenceChecks() {
+        var complete = binding();
+        for (String invalidRunId : List.of("run id", "x".repeat(129), "\u00a0" + complete.runIdentity())) {
+            var invalidBinding = new SimulationSemanticValidator.RunBinding(invalidRunId, complete.inputs(),
+                    complete.invariants(), complete.expectedDuration());
+            var verifierCalls = new java.util.concurrent.atomic.AtomicInteger();
+
+            var validation = SimulationSemanticValidator.validate(invalidBinding, result(), input -> {
+                verifierCalls.incrementAndGet();
+                return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+            });
+
+            assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+            assertThat(validation.findings()).anySatisfy(finding -> {
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INCOMPLETE_INPUT_REFERENCES);
+                assertThat(finding.subject()).isEqualTo("runIdentity");
+            });
+            assertThat(verifierCalls).hasValue(0);
+        }
+    }
+
+    @Test
+    void abstainsOnUnicodeWhitespaceAroundExactVersionedInputReference() {
+        var complete = binding();
+        var paddedInputs = new ArrayList<>(complete.inputs());
+        var original = paddedInputs.getFirst();
+        paddedInputs.set(0, new SimulationSemanticValidator.VersionedInput(original.role(), original.identity(),
+                "\u00a0" + original.version(), original.sha256()));
+        var padded = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), paddedInputs,
+                complete.invariants(), complete.expectedDuration());
+        var verifierCalls = new java.util.concurrent.atomic.AtomicInteger();
+
+        var validation = SimulationSemanticValidator.validate(padded, result(), input -> {
+            verifierCalls.incrementAndGet();
+            return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+        });
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INVALID_INPUT_REFERENCE);
+            assertThat(finding.subject()).isEqualTo(original.role().name());
+        });
+        assertThat(verifierCalls).hasValue(0);
+    }
+
+    @Test
     void doesNotTreatRenderedPresentationAsPhysicalModelEvidence() {
         var complete = binding();
         var visualOnly = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), List.of(

@@ -148,7 +148,10 @@ export function InteractiveDemoPlayer({
               const target = activeScene.startMs / 1_000;
               try {
                 video.currentTime = target;
-                if (Math.abs(video.currentTime - target) < 0.001 && mediaKey && isCurrentVideo(video)) {
+                // Some browsers expose the requested currentTime while the
+                // seek is still in flight. Do not enable playback until the
+                // native element confirms that it has finished positioning.
+                if (!video.seeking && Math.abs(video.currentTime - target) < 0.001 && mediaKey && isCurrentVideo(video)) {
                   setPositionedMedia({ key: mediaKey, element: video });
                 }
               } catch {

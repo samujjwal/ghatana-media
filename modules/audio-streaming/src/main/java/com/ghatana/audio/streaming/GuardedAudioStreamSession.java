@@ -101,6 +101,8 @@ public final class GuardedAudioStreamSession {
     private final LinkedHashSet<Integer> staleProviderCandidateSequences = new LinkedHashSet<>();
     private Attachment attachment;
     private long generation;
+    /** A provider may have accepted an effect whose outcome this helper cannot reconcile. */
+    private boolean providerOutcomeUnknown;
 
     private GuardedAudioStreamSession(
             StreamFrameReconciler.SessionIdentity identity,
@@ -142,6 +144,7 @@ public final class GuardedAudioStreamSession {
             discardUndispatchedFrames();
             throw denied;
         }
+        requireResolvedProviderOutcomes();
         AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         if (snapshot.sequenceNumber() >= 0
                 && snapshot.sequenceNumber() < Integer.MAX_VALUE
@@ -169,6 +172,7 @@ public final class GuardedAudioStreamSession {
             discardUndispatchedFrames();
             throw denied;
         }
+        requireResolvedProviderOutcomes();
         AudioStreamSession.DecodedFrame pending = reconciler.peekDelivered();
         if (pending != null && providerCandidates.size() >= MAX_PROVIDER_CANDIDATES) {
             throw new ProviderDispatchCapacityException();
@@ -217,11 +221,19 @@ public final class GuardedAudioStreamSession {
             throw new IllegalArgumentException(
                     "audio frame provider retry belongs to a stale session generation");
         }
+        requireResolvedProviderOutcomes();
         providerCandidates.remove(snapshot.sequenceNumber());
         try {
             sink.accept(snapshot);
+        } catch (Error fatal) {
+            // Fatal transport/native failures can also occur after an external
+            // effect began. Keep the session fenced while preserving the fatal
+            // signal for the caller.
+            providerOutcomeUnknown = true;
+            throw fatal;
         } catch (RuntimeException ignored) {
             // Sink exception text and type can contain sensitive provider details.
+            providerOutcomeUnknown = true;
             throw new ProviderOutcomeUnknownException(snapshot.sequenceNumber());
         }
     }
@@ -250,6 +262,7 @@ public final class GuardedAudioStreamSession {
             throw new IllegalArgumentException(
                     "stale session generation on reconnect: " + reconnectGeneration);
         }
+        requireResolvedProviderOutcomes();
         try {
             requireConsent(consent, identity, reconnectGeneration, "reconnect");
         } catch (ConsentDeniedException denied) {
@@ -315,6 +328,14 @@ public final class GuardedAudioStreamSession {
         if (attachment != Attachment.ATTACHED) {
             throw new IllegalStateException(
                     "stream " + transition + " requires an attached session: " + attachment);
+        }
+    }
+
+    /** Local recovery is unavailable; never proceed as though an ambiguous provider effect resolved. */
+    private void requireResolvedProviderOutcomes() {
+        if (providerOutcomeUnknown) {
+            throw new IllegalStateException(
+                    "audio stream has an unknown provider frame outcome and requires owner reconciliation");
         }
     }
 

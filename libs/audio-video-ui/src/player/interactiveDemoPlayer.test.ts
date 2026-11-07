@@ -493,6 +493,24 @@ describe("interactive demo player", () => {
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it("waits for the browser seek to finish before enabling playback", () => {
+    render(React.createElement(InteractiveDemoPlayer, {
+      manifest: BASE,
+      verificationPort: testAuthority(BASE),
+    }));
+
+    const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
+    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0 });
+    Object.defineProperty(video, "seeking", { configurable: true, get: () => true });
+    fireEvent.loadedMetadata(video);
+
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
+
+    Object.defineProperty(video, "seeking", { configurable: true, get: () => false });
+    fireEvent.seeked(video);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it("rewinds the mounted video when an authored branch loops to its current scene", () => {
     const loopManifest: InteractiveDemoManifest = {
       ...BASE,

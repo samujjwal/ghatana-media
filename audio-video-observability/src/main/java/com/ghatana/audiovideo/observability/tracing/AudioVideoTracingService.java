@@ -53,7 +53,7 @@ public class AudioVideoTracingService {
                 .setAttribute("method.name", safeMethod(methodName))
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
 
         return span;
@@ -68,7 +68,7 @@ public class AudioVideoTracingService {
                 .setAttribute("vision.rpc.method", safeVisionUnaryMethod(methodName))
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
     }
 
@@ -83,7 +83,7 @@ public class AudioVideoTracingService {
                 .setAttribute("process.present", processId != null && !processId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
 
         return span;
@@ -100,7 +100,7 @@ public class AudioVideoTracingService {
                 .setAttribute("process.present", processId != null && !processId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
 
         return span;
@@ -115,7 +115,7 @@ public class AudioVideoTracingService {
                 .setAttribute("operation.present", operationId != null && !operationId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
     }
 
@@ -130,7 +130,7 @@ public class AudioVideoTracingService {
                 .setAttribute("synthesis.present", synthesisId != null && !synthesisId.isBlank())
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
 
         return span;
@@ -228,7 +228,7 @@ public class AudioVideoTracingService {
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("stt.language", safeLanguage(language))
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
 
         return span;
@@ -277,7 +277,7 @@ public class AudioVideoTracingService {
                 .setAttribute("tenant.present", tenantId != null && !tenantId.isBlank())
                 .setAttribute("media.contract.version", CONTRACT_VERSION)
                 .setAttribute("vision.confidence_threshold_band", confidenceBand(confidenceThreshold))
-                .setAttribute("correlation.present", correlationId != null)
+                .setAttribute("correlation.present", correlationId != null && !correlationId.isBlank())
                 .startSpan();
 
         return span;

@@ -77,6 +77,29 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void sourceReferenceSnapshotStopsAtLocalSafetyLimitEvenWhenListUnderreportsSize() {
+        AtomicInteger consumed = new AtomicInteger();
+        List<SourceVersion> underreported = new java.util.AbstractList<>() {
+            @Override public SourceVersion get(int index) { throw new AssertionError("must use bounded iterator"); }
+            @Override public int size() { return 1; }
+            @Override public java.util.Iterator<SourceVersion> iterator() {
+                return new java.util.Iterator<>() {
+                    @Override public boolean hasNext() { return true; }
+                    @Override public SourceVersion next() {
+                        return new SourceVersion("artifact-" + consumed.getAndIncrement(), "version-1");
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new StoryboardPlanner.AuthoredBrief(
+                "brief-bounded-sources", "b1", "personal-project", "An authored story", underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("4096-item safety limit");
+        assertThat(consumed).hasValue(StoryboardPlanner.MAX_SOURCES_PER_COLLECTION);
+    }
+
+    @Test
     void reviewIsASeparateImmutableReceiptForTheExactSavedEditionAndRechecksRights() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);

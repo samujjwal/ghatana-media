@@ -192,6 +192,58 @@ class J16TranslatedDubbedVideoCapabilityScenarioTest {
         assertThat(result.segments()).isEmpty();
     }
 
+    @Test
+    void alignmentBoundToDifferentSourceClockIsUnknownAndPreservesRequestedClockBinding() {
+        Request request = request();
+        TranslationPort translation = new TranslationPort() {
+            @Override public Capability capability(String sourceLocale, String targetLocale) { return Capability.available(); }
+            @Override public TranslationResult translate(TranslationRequest input) {
+                return new TranslationResult(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.sourceLocale(), input.targetLocale(), input.sourceClockId(),
+                        input.ticksPerSecond(), input.sourceDurationTicks(), input.segments().stream()
+                        .map(segment -> new TranslatedSegment(segment.segmentId(), "synthetic translated text",
+                                segment.startTick(), segment.endTick())).toList());
+            }
+        };
+        SynthesisPort synthesis = new SynthesisPort() {
+            @Override public Capability capability(String targetLocale, VoiceIdentity voice) { return Capability.available(); }
+            @Override public SynthesizedAudio synthesize(SynthesisRequest input) {
+                byte[] audio = {1};
+                return new SynthesizedAudio(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.targetLocale(), input.voice(), input.sourceClockId(),
+                        input.ticksPerSecond(), input.sourceDurationTicks(), input.sourceStartTick(),
+                        input.sourceEndTick(), input.segmentId(), audio,
+                        com.ghatana.media.runtime.MediaCreationContracts.sha256(audio));
+            }
+        };
+        AlignmentPort alignment = new AlignmentPort() {
+            @Override public Capability capability(String targetLocale) { return Capability.available(); }
+            @Override public AlignmentResult align(AlignmentRequest input) {
+                List<AlignedSegment> segments = input.sourceSegments().stream().map(source -> {
+                    SynthesizedAudio audio = input.synthesizedAudio().stream()
+                            .filter(candidate -> candidate.segmentId().equals(source.segmentId())).findFirst().orElseThrow();
+                    return new AlignedSegment(source.segmentId(), audio.digest(), source.startTick(), source.endTick());
+                }).toList();
+                return new AlignmentResult(input.tenantId(), input.requestId(), input.sourceVersion(),
+                        input.transcriptVersionId(), input.targetLocale(), "different-source-clock",
+                        input.ticksPerSecond(), input.sourceDurationTicks(), segments);
+            }
+        };
+
+        DubbingResult result = new DubbingOrchestrator(new FixtureRights(), translation, synthesis, alignment).dub(request);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.OUTCOME_UNKNOWN);
+        assertThat(result.reason()).contains(Reason.INVALID_PROVIDER_RESULT);
+        assertThat(result.translationDispatched()).isTrue();
+        assertThat(result.synthesisDispatchCount()).isEqualTo(request.transcript().segments().size());
+        assertThat(result.sourceVersion()).isEqualTo(request.sourceVersion());
+        assertThat(result.transcriptVersionId()).isEqualTo(request.transcript().transcriptVersionId());
+        assertThat(result.sourceClockId()).isEqualTo(request.transcript().sourceClockId());
+        assertThat(result.ticksPerSecond()).isEqualTo(request.transcript().ticksPerSecond());
+        assertThat(result.sourceDurationTicks()).isEqualTo(request.transcript().sourceDurationTicks());
+        assertThat(result.segments()).isEmpty();
+    }
+
     private static Request request() {
         SourceVersion source = new SourceVersion("fixture-source-video", "fixture-source-v7");
         TranscriptRevision transcript = new TranscriptRevision("fixture-transcript-v3", source, "en-US",

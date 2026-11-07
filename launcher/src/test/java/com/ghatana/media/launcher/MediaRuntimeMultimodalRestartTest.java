@@ -14,6 +14,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
+import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +36,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** M5: restart recovery of a crashed multimodal parent from durable spec + child states. */
 class MediaRuntimeMultimodalRestartTest {
+
+    @Test
+    void launcherDispatchBindingAcceptsOnlyThePersistedChildRequest() {
+        String parentDigest = "a".repeat(64);
+        String childDigest = "b".repeat(64);
+        String parentVersion = "sha256:" + parentDigest;
+        String childVersion = "sha256:" + childDigest;
+        var declared = new MultimodalOperationSpec.ChildOperationSpec(
+                "stt", JobType.SPEECH_TO_TEXT, "child-artifact", childVersion,
+                childDigest, "", sttParameters());
+        var operation = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                "parent-artifact", parentVersion, parentDigest, List.of(declared), null, Map.of());
+        var parent = new ProcessingJobRequest("req-mm", "tenant-a", "principal-a", "corr-mm",
+                "parent-artifact", parentVersion, JobType.MULTIMODAL, "",
+                Map.of(MultimodalOperationSpec.PARAMETERS_KEY, operation.toParametersValue()),
+                new MediaGovernanceContext("consent-a", "mm-observe",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification.CONFIDENTIAL,
+                        "us", Set.of("us"), true, "short-lived-media", false, false, "",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity.NONE,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk.ASSISTIVE));
+        var child = new ProcessingJobRequest("req-mm:stt", "tenant-a", "principal-a", "corr-mm:stt",
+                "child-artifact", childVersion, JobType.SPEECH_TO_TEXT, "", sttParameters(),
+                parent.governanceContext());
+
+        assertThat(MediaRuntime.matchesDeclaredMultimodalChildRequest(parent, child)).isTrue();
+        assertThat(MediaRuntime.matchesDeclaredMultimodalChildRequest(parent,
+                new ProcessingJobRequest("req-mm:other", "tenant-a", "principal-a", "corr-mm:other",
+                        "child-artifact", childVersion, JobType.SPEECH_TO_TEXT, "", sttParameters(),
+                        parent.governanceContext()))).isFalse();
+        assertThat(MediaRuntime.matchesDeclaredMultimodalChildRequest(parent,
+                new ProcessingJobRequest("req-mm:stt", "tenant-a", "principal-a", "corr-mm:stt",
+                        "different-artifact", childVersion, JobType.SPEECH_TO_TEXT, "", sttParameters(),
+                        parent.governanceContext()))).isFalse();
+        assertThat(MediaRuntime.matchesDeclaredMultimodalChildRequest(parent,
+                new ProcessingJobRequest("req-mm:stt", "tenant-a", "principal-a", "other-correlation",
+                        "child-artifact", childVersion, JobType.SPEECH_TO_TEXT, "", sttParameters(),
+                        parent.governanceContext()))).isFalse();
+    }
 
     @Test
     void restartSpecMustRemainBoundToThePersistedParentSource() {
@@ -206,6 +246,39 @@ class MediaRuntimeMultimodalRestartTest {
         }
     }
 
+    @Test
+    void crashedParentWithFailedAndCancelledChildrenDoesNotClaimNoEffect() throws Exception {
+        var root = Files.createTempDirectory("media-mm-restart-cancelled-child-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var submitted = new CountDownLatch(1);
+        var providers = List.of(
+                blockingMmProvider(submitted, Map.of()), failedSttProvider(), cancellableBlockingVisionProvider());
+        var runtime1 = runtime(root, jobStore, providers);
+        var source = artifact(runtime1);
+        var sttArtifact = artifact(runtime1);
+        var visionArtifact = artifact(runtime1);
+        runtime1.submit(mmRequest(source, specWithVision(source, sttArtifact, visionArtifact)),
+                authenticatedPrincipal());
+        assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
+        awaitStatus(jobStore, "req-mm:stt", JobStatus.FAILED);
+        awaitStatus(jobStore, "req-mm:vision", JobStatus.RUNNING);
+        var vision = jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow();
+        assertThat(runtime1.cancel("tenant-a", "principal-a", vision.jobId()).status())
+                .isEqualTo(JobStatus.CANCELLED);
+        runtime1.close();
+
+        var runtime2 = runtime(root, jobStore, providers);
+        try {
+            var parent = jobStore.findByRequest("tenant-a", "req-mm").orElseThrow();
+            assertThat(parent.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(parent.result()).containsEntry("providerOutcome", "UNKNOWN");
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow().status())
+                    .isEqualTo(JobStatus.CANCELLED);
+        } finally {
+            runtime2.close();
+        }
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaRuntime runtime(
@@ -252,7 +325,7 @@ class MediaRuntimeMultimodalRestartTest {
                             MultimodalOperationSpec.childRequestId(
                                     context.request().requestId(), child.childKey()),
                             context.request().tenantId(), context.request().principalId(),
-                            context.request().correlationId(), child.artifactId(),
+                            childCorrelation(context.request().correlationId(), child.childKey()), child.artifactId(),
                             child.artifactVersion(), child.jobType(), child.providerHint(),
                             child.parameters(), context.request().governanceContext()));
                 }
@@ -260,6 +333,11 @@ class MediaRuntimeMultimodalRestartTest {
                 return new CompletableFuture<>(); // never completes — simulates crash mid-dispatch
             }
         };
+    }
+
+    private static String childCorrelation(String parent, String childKey) {
+        String combined = (parent == null || parent.isBlank() ? "mm" : parent) + ":" + childKey;
+        return combined.length() > 512 ? combined.substring(0, 512) : combined;
     }
 
     private static MediaProcessingProvider sttProvider(Map<String, Object> result) {
@@ -358,6 +436,30 @@ class MediaRuntimeMultimodalRestartTest {
             @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
                 return new CompletableFuture<>();
+            }
+        };
+    }
+
+    private static MediaProcessingProvider cancellableBlockingVisionProvider() {
+        var provider = blockingVisionProvider();
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return provider.providerId(); }
+            @Override public String providerVersion() { return provider.providerVersion(); }
+            @Override public Set<JobType> capabilities() { return provider.capabilities(); }
+            @Override public boolean ready() { return provider.ready(); }
+            @Override public boolean productionEligible() { return provider.productionEligible(); }
+            @Override public int priority() { return provider.priority(); }
+            @Override public ProcessingBoundary processingBoundary() { return provider.processingBoundary(); }
+            @Override public String processingRegion() { return provider.processingRegion(); }
+            @Override public ProviderDataRetention providerDataRetention() {
+                return provider.providerDataRetention();
+            }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return provider.process(context);
+            }
+            @Override public CancellationOutcome cancel(
+                    String tenantId, String principalId, String correlationId, String jobId) {
+                return CancellationOutcome.CONFIRMED;
             }
         };
     }

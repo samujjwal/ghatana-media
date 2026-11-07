@@ -21,8 +21,11 @@ public final class AudioRepairComparison {
     private final Metrics metrics;
 
     private AudioRepairComparison(AudioData source, AudioData repaired, AudioData reference) {
-        this.source = copy(source);
-        this.repaired = copy(repaired);
+        // AudioData copies its input array and exposes only defensive copies,
+        // so retaining these immutable values avoids duplicating up to 32 MiB
+        // of source/repaired PCM for every comparison.
+        this.source = source;
+        this.repaired = repaired;
         this.sourceSha256 = sha256(this.source.data());
         this.repairedSha256 = sha256(this.repaired.data());
         this.metrics = measure(this.source, this.repaired, reference);
@@ -192,6 +195,8 @@ public final class AudioRepairComparison {
         public Metrics {
             if (!Double.isFinite(sourceRms) || sourceRms < 0.0
                     || !Double.isFinite(repairedRms) || repairedRms < 0.0
+                    || !rmsFitsPeak(sourceRms, sourcePeak)
+                    || !rmsFitsPeak(repairedRms, repairedPeak)
                     || !rmsChangeMatches(sourceRms, repairedRms, rmsChangeDb)
                     || sourcePeak < 0 || sourcePeak > MAX_PCM_SAMPLE_MAGNITUDE
                     || repairedPeak < 0 || repairedPeak > MAX_PCM_SAMPLE_MAGNITUDE
@@ -219,6 +224,14 @@ public final class AudioRepairComparison {
 
         private static boolean validCorrelation(double value) {
             return Double.isFinite(value) && value >= -1.0 && value <= 1.0;
+        }
+
+        private static boolean rmsFitsPeak(double rms, long peak) {
+            // RMS cannot exceed the largest absolute sample, and either value
+            // is zero exactly when every sample is zero. Allow one ULP for
+            // floating-point accumulation in the computed RMS.
+            return (rms == 0.0) == (peak == 0)
+                    && rms <= Math.nextUp((double) peak);
         }
 
         private static boolean rmsChangeMatches(double sourceRms, double repairedRms, double changeDb) {
