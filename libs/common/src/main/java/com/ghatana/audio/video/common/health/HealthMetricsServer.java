@@ -105,7 +105,10 @@ public class HealthMetricsServer implements AutoCloseable {
         this.admission = new Semaphore(maxInFlight);
     }
 
-    public void start() throws IOException {
+    public synchronized void start() throws IOException {
+        if (running.get()) {
+            throw new IllegalStateException("Health/metrics HTTP server is already running");
+        }
         try {
             httpServer = HttpServer.create(new InetSocketAddress(port), 0);
             executor = new ThreadPoolExecutor(workerCount, workerCount, 0L, TimeUnit.MILLISECONDS,
@@ -131,7 +134,7 @@ public class HealthMetricsServer implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         if (httpServer != null && running.compareAndSet(true, false)) {
             httpServer.stop(1);
             if (executor != null) executor.shutdownNow();

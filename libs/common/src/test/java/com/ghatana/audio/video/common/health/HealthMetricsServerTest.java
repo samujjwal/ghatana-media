@@ -71,6 +71,25 @@ class HealthMetricsServerTest {
     }
 
     @Test
+    void repeatedStartDoesNotLoseTheLiveServerHandle() throws Exception {
+        HealthMetricsServer server = new HealthMetricsServer(
+                "test-service", () -> true, () -> "", 0, 1, 1, 1);
+        server.start();
+        int originalPort = server.getPort();
+        try {
+            org.assertj.core.api.Assertions.assertThatThrownBy(server::start)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Health/metrics HTTP server is already running");
+
+            HttpResponse<String> response = get(originalPort, "/health");
+            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.body()).isEqualTo("{\"service\":\"test-service\",\"status\":\"UP\"}");
+        } finally {
+            server.close();
+        }
+    }
+
+    @Test
     void healthAndMetricsRejectContextPrefixPaths() throws Exception {
         HealthMetricsServer server = new HealthMetricsServer(
                 "test-service", () -> true, () -> "", 0, 1, 1, 1);

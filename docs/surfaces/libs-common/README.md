@@ -64,6 +64,12 @@ library does not define product error taxonomies.
 ./gradlew :services:media:libs:common:test
 ```
 
+`HealthMetricsServerTest` covers repeated-start rejection: a second `start()`
+fails before replacing the active server handle, and the original `/health`
+endpoint remains available (5/5 tests). This is local lifecycle evidence;
+deployed health/metrics availability and service restart qualification remain
+separate.
+
 ## Relationship to `libs-java-common`
 
 `libs/common` hosts the older `audio.video.common` package family;
