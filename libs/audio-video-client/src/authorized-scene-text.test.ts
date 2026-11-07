@@ -133,6 +133,38 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     expect(Object.isFrozen(output[0]!.boundingRegion)).toBe(true);
   });
 
+  it('snapshots the caller-owned access scope before asynchronous digest verification', async () => {
+    const access = { ...await admission() };
+    const source = authorized();
+    const di = diClient();
+    let resolveDigest!: (digest: ArrayBuffer) => void;
+    const digestResult = new Promise<ArrayBuffer>(resolve => { resolveDigest = resolve; });
+    const originalDigest = crypto.subtle.digest.bind(crypto.subtle);
+    const digest = vi.spyOn(crypto.subtle, 'digest').mockImplementation(() => digestResult);
+
+    try {
+      const result = recognizeAuthorizedMediaSceneText(source, di, policy, 'op-1', frame, access);
+      expect(digest).toHaveBeenCalledTimes(1);
+      Reflect.set(access, 'tenantId', 'tenant-forged');
+      Reflect.set(access, 'principalId', 'principal-forged');
+      Reflect.set(access, 'purposeRef', 'purpose-forged');
+      Reflect.set(access, 'originalFrameSha256', 'b'.repeat(64));
+      Reflect.set(access, 'croppedFrameSha256', 'c'.repeat(64));
+      resolveDigest(await originalDigest('SHA-256', new Uint8Array(frame.bytes).buffer));
+
+      const observations = await result;
+      expect(source.verifyCurrentSource).toHaveBeenCalledWith({
+        tenantId: 'tenant-1', principalId: 'principal-1', purposeRef: 'caption',
+        sourceArtifactId: 'artifact-1', sourceVersion: 'v3', frameId: 'frame-7',
+        originalFrameSha256: originalSha,
+      });
+      expect(observations[0]).toMatchObject({ tenantId: 'tenant-1', originalFrameSha256: originalSha });
+      expect(di.parse).toHaveBeenCalledTimes(1);
+    } finally {
+      digest.mockRestore();
+    }
+  });
+
   it('prevents any DI call on revoked consent', async () => {
     const di = diClient();
     const denied = {
@@ -143,6 +175,71 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
       .rejects.toMatchObject({ code: 'SOURCE_DENIED' });
     expect(di.providers).not.toHaveBeenCalled();
     expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('rechecks source authority after provider negotiation and before DI parse dispatch', async () => {
+    const di = diClient();
+    const verifyCurrentSource = vi.fn()
+      .mockResolvedValueOnce({
+        status: 'ADMITTED' as const, sourceVersion: 'v3',
+        originalFrameSha256: originalSha, decisionRef: 'decision-1',
+      })
+      .mockResolvedValueOnce({ status: 'DENIED' as const });
+
+    await expect(recognizeAuthorizedMediaSceneText(
+      { verifyCurrentSource }, di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({ code: 'SOURCE_DENIED' });
+    expect(verifyCurrentSource).toHaveBeenCalledTimes(2);
+    expect(di.providers).toHaveBeenCalledTimes(1);
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('does not dispatch DI if cancellation arrives during the pre-dispatch authority read', async () => {
+    const di = diClient();
+    const admitted = {
+      status: 'ADMITTED' as const, sourceVersion: 'v3',
+      originalFrameSha256: originalSha, decisionRef: 'decision-1',
+    };
+    let markSecondReadStarted!: () => void;
+    const secondReadStarted = new Promise<void>(resolve => { markSecondReadStarted = resolve; });
+    let resolveSecondDecision!: (decision: typeof admitted) => void;
+    const secondDecision = new Promise<typeof admitted>(resolve => { resolveSecondDecision = resolve; });
+    const verifyCurrentSource = vi.fn(async () => {
+      if (verifyCurrentSource.mock.calls.length === 1) return admitted;
+      markSecondReadStarted();
+      return secondDecision;
+    });
+    const controller = new AbortController();
+    const pending = recognizeAuthorizedMediaSceneText(
+      { verifyCurrentSource }, di, policy, 'op-1', frame, await admission(), controller.signal);
+
+    await secondReadStarted;
+    controller.abort();
+    resolveSecondDecision(admitted);
+
+    await expect(pending).rejects.toMatchObject({ code: 'SOURCE_UNAVAILABLE' });
+    expect(verifyCurrentSource).toHaveBeenCalledTimes(2);
+    expect(di.providers).toHaveBeenCalledTimes(1);
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('does not disclose DI text when source authority is revoked while recognition is running', async () => {
+    const di = diClient();
+    const admitted = {
+      status: 'ADMITTED' as const, sourceVersion: 'v3',
+      originalFrameSha256: originalSha, decisionRef: 'decision-1',
+    };
+    const verifyCurrentSource = vi.fn()
+      .mockResolvedValueOnce(admitted)
+      .mockResolvedValueOnce(admitted)
+      .mockResolvedValueOnce({ status: 'DENIED' as const });
+    const result = recognizeAuthorizedMediaSceneText(
+      { verifyCurrentSource }, di, policy, 'op-1', frame, await admission());
+
+    await expect(result).rejects.toMatchObject({ code: 'SOURCE_DENIED' });
+    await expect(result).rejects.not.toThrow('EXIT');
+    expect(verifyCurrentSource).toHaveBeenCalledTimes(3);
+    expect(di.parse).toHaveBeenCalledTimes(1);
   });
 
   it('preserves source NOT_ADMITTED separately from an explicit denial', async () => {

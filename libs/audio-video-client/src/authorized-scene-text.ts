@@ -68,6 +68,34 @@ function reject(code: MediaSceneTextAdmissionCode): never {
 function validText(value: unknown): value is string {
   return typeof value === 'string' && TEXT.test(value);
 }
+type AdmittedSceneTextDecision = Extract<MediaSceneTextDecision, { readonly status: 'ADMITTED' }>;
+
+async function currentSourceDecision(
+  sourceAuthority: MediaSceneTextSourceAuthority,
+  frame: SceneTextSourceFrame,
+  access: Readonly<MediaSceneTextAccess>,
+): Promise<AdmittedSceneTextDecision> {
+  let current: MediaSceneTextDecision;
+  try {
+    current = await sourceAuthority.verifyCurrentSource(Object.freeze({
+      tenantId:access.tenantId,principalId:access.principalId,purposeRef:access.purposeRef,
+      sourceArtifactId:frame.sourceArtifactId,sourceVersion:frame.sourceVersion,
+      frameId:frame.frameId,originalFrameSha256:access.originalFrameSha256,
+    }));
+  } catch {
+    // A failed authority lookup cannot be treated as a denial or as permission.
+    reject('SOURCE_UNAVAILABLE');
+  }
+  if (!current) reject('SOURCE_UNAVAILABLE');
+  if (current.status === 'DENIED') reject('SOURCE_DENIED');
+  if (current.status === 'NOT_ADMITTED') reject('SOURCE_NOT_ADMITTED');
+  if (current.status !== 'ADMITTED') reject('SOURCE_UNAVAILABLE');
+  if (current.sourceVersion !== frame.sourceVersion) reject('SOURCE_VERSION_MISMATCH');
+  if (current.originalFrameSha256 !== access.originalFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
+  if (!validText(current.decisionRef)) reject('SOURCE_DENIED');
+  return current;
+}
+
 function validObservation(row: SceneTextObservation, frame: SceneTextSourceFrame): boolean {
   if (row === null || typeof row !== 'object' || row.sourceArtifactId !== frame.sourceArtifactId
     || row.sourceVersion !== frame.sourceVersion || row.frameId !== frame.frameId
@@ -95,14 +123,25 @@ export async function recognizeAuthorizedMediaSceneText(
     || !diClient || typeof diClient.providers !== 'function'
     || typeof diClient.parse !== 'function' || !diPolicy
     || !validText(operationId) || !frame || !access
-    || ![frame.sourceArtifactId,frame.sourceVersion,frame.frameId,
-      access.tenantId,access.principalId,access.purposeRef].every(validText)
+    || typeof access !== 'object') reject('INVALID_SOURCE');
+
+  // The access object is caller-owned. Snapshot its identity and digest scope
+  // before the asynchronous digest or authority lookup can observe mutations.
+  const admittedAccess = Object.freeze({
+    tenantId: access.tenantId,
+    principalId: access.principalId,
+    purposeRef: access.purposeRef,
+    originalFrameSha256: access.originalFrameSha256,
+    croppedFrameSha256: access.croppedFrameSha256,
+  });
+  if (![frame.sourceArtifactId,frame.sourceVersion,frame.frameId,
+      admittedAccess.tenantId,admittedAccess.principalId,admittedAccess.purposeRef].every(validText)
     || !MIME.test(frame.mediaType)
     || !(frame.bytes instanceof Uint8Array)
     || frame.bytes.byteLength === 0 || frame.bytes.byteLength > MAX_FRAME_BYTES
     || !Number.isSafeInteger(frame.timestampUs) || frame.timestampUs < 0
-    || !HASH.test(access.originalFrameSha256)
-    || !HASH.test(access.croppedFrameSha256)) reject('INVALID_SOURCE');
+    || !HASH.test(admittedAccess.originalFrameSha256)
+    || !HASH.test(admittedAccess.croppedFrameSha256)) reject('INVALID_SOURCE');
 
   // Snapshot externally mutable bytes and metadata before any await.
   const copied = Uint8Array.from(frame.bytes);
@@ -115,34 +154,37 @@ export async function recognizeAuthorizedMediaSceneText(
   if (signal?.aborted) reject('SOURCE_UNAVAILABLE');
   const digest = await globalThis.crypto.subtle.digest('SHA-256', copied.buffer);
   const hash = Array.from(new Uint8Array(digest), b=>b.toString(16).padStart(2,'0')).join('');
-  if (hash !== access.croppedFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
+  if (hash !== admittedAccess.croppedFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
 
-  let current: MediaSceneTextDecision;
-  try {
-    current = await sourceAuthority.verifyCurrentSource(Object.freeze({
-      tenantId:access.tenantId,principalId:access.principalId,purposeRef:access.purposeRef,
-      sourceArtifactId:frozenFrame.sourceArtifactId,sourceVersion:frozenFrame.sourceVersion,
-      frameId:frozenFrame.frameId,originalFrameSha256:access.originalFrameSha256,
-    }));
-  } catch {
-    // A failed authority lookup cannot be treated as a denial or as permission.
-    reject('SOURCE_UNAVAILABLE');
-  }
-  if (!current) reject('SOURCE_UNAVAILABLE');
-  if (current.status === 'DENIED') reject('SOURCE_DENIED');
-  if (current.status === 'NOT_ADMITTED') reject('SOURCE_NOT_ADMITTED');
-  if (current.status !== 'ADMITTED' || signal?.aborted) reject('SOURCE_UNAVAILABLE');
-  if (current.sourceVersion !== frozenFrame.sourceVersion) reject('SOURCE_VERSION_MISMATCH');
-  if (current.originalFrameSha256 !== access.originalFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
-  if (!validText(current.decisionRef)) reject('SOURCE_DENIED');
+  let current = await currentSourceDecision(sourceAuthority, frozenFrame, admittedAccess);
+  if (signal?.aborted) reject('SOURCE_UNAVAILABLE');
 
   // DI's provider registry owns OCR engine selection. There is no alternate
-  // Media-level recognizer callback or parallel Media OCR execution path.
-  const di = new DocumentIntelligenceSceneTextAdapter(diClient, diPolicy);
+  // Media-level recognizer callback or parallel Media OCR execution path. The
+  // authority guard is placed at the client's parse boundary, after provider
+  // negotiation, so revocation during catalog lookup prevents content egress.
+  let preDispatchFailure: MediaSceneTextAdmissionError | undefined;
+  const guardedClient: DocumentIntelligenceV1Client = {
+    get lastProtocolVersion() { return diClient.lastProtocolVersion; },
+    get lastWorkerCapabilityVersion() { return diClient.lastWorkerCapabilityVersion; },
+    providers: (providerSignal) => diClient.providers(providerSignal),
+    parse: async (input) => {
+      try {
+        current = await currentSourceDecision(sourceAuthority, frozenFrame, admittedAccess);
+        if (signal?.aborted || input.signal?.aborted) reject('SOURCE_UNAVAILABLE');
+      } catch (error) {
+        if (error instanceof MediaSceneTextAdmissionError) preDispatchFailure = error;
+        throw error;
+      }
+      return diClient.parse(input);
+    },
+  };
+  const di = new DocumentIntelligenceSceneTextAdapter(guardedClient, diPolicy);
   let results: readonly SceneTextObservation[];
   try {
     results = await di.recognizeFrame(operationId, frozenFrame, signal);
   } catch (error) {
+    if (preDispatchFailure) throw preDispatchFailure;
     if (error instanceof SceneTextAdapterError) {
       switch (error.code) {
         case 'PROVIDER_NOT_ADMITTED':
@@ -182,12 +224,16 @@ export async function recognizeAuthorizedMediaSceneText(
       || !results.every(row=>validObservation(row, frozenFrame))) {
     reject('RECOGNIZER_RESULT_INVALID');
   }
+  // A source may be revoked while DI is running. Discard its text rather than
+  // disclosing observations after current authority has changed.
+  current = await currentSourceDecision(sourceAuthority, frozenFrame, admittedAccess);
+  if (signal?.aborted) reject('RECOGNIZER_OUTCOME_UNKNOWN');
   // Detach the nested geometry too: the DI client owns its response objects
   // and may reuse or mutate them after this promise resolves.
   return Object.freeze(results.map(row=>Object.freeze({
     ...row,
     boundingRegion:Object.freeze({ ...row.boundingRegion }),
-    tenantId:access.tenantId,rightsDecisionRef:current.decisionRef,
-    originalFrameSha256:access.originalFrameSha256,
+    tenantId:admittedAccess.tenantId,rightsDecisionRef:current.decisionRef,
+    originalFrameSha256:admittedAccess.originalFrameSha256,
   })));
 }
