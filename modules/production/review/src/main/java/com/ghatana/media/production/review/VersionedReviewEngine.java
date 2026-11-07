@@ -131,7 +131,9 @@ public final class VersionedReviewEngine {
         List<RecordObservation> observations = redactedRecords.stream()
                 .map(record -> new RecordObservation(record,
                         disclosureAuthority.currentnessFor(record.reviewSubjectRef()))).toList();
-        return new ReviewSnapshot(reviewCase, observations.size(), observations, currentness, clock.instant());
+        Instant observedAt = clock.instant();
+        if (!disclosureAuthority.validUntil().isAfter(observedAt)) throw new ReviewUnavailableException();
+        return new ReviewSnapshot(reviewCase, observations.size(), observations, currentness, observedAt);
     }
 
     private static void requireExactAppendReceipt(Actor actor, ReviewCaseRef reviewCase, AppendRequest request,

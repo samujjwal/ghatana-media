@@ -269,6 +269,25 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void inspectDoesNotReturnSnapshotAtAuthorityExpiryBoundary() {
+        Clock advancingClock = new Clock() {
+            private final AtomicInteger seconds = new AtomicInteger();
+            @Override public java.time.ZoneId getZone() { return ZoneOffset.UTC; }
+            @Override public Clock withZone(java.time.ZoneId zone) { return this; }
+            @Override public Instant instant() { return NOW.plusSeconds(seconds.getAndIncrement()); }
+        };
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(AuthorizationStatus.ALLOW,
+                        actor.tenantId(), actor.principalId(), reviewCase.reviewCaseId(), reviewCase.exactTargetRef(),
+                        reviewCase.scopeRef(), "authority-v1", NOW.plusSeconds(2), V1.reference(), RetentionStatus.ACTIVE),
+                value -> value, advancingClock, () -> "unused");
+
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE))
+                .isInstanceOf(ReviewUnavailableException.class);
+    }
+
+    @Test
     void authorizationAdapterFailureIsUnavailableWithoutLeakingDetailsOrTouchingStore() {
         AtomicInteger appendCalls = new AtomicInteger();
         AtomicInteger readCalls = new AtomicInteger();

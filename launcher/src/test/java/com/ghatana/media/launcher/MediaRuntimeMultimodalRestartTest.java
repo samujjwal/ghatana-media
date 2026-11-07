@@ -141,6 +141,22 @@ class MediaRuntimeMultimodalRestartTest {
                         now, now, now, Map.of("text", "fixture"), "", 2,
                         "sha256:" + "c".repeat(64), "malformed-fingerprint")))
                 .isFalse();
+
+        var providerBoundSpec = new MultimodalOperationSpec.ChildOperationSpec(
+                "stt", JobType.SPEECH_TO_TEXT, "stt-artifact",
+                "sha256:" + "c".repeat(64), "c".repeat(64), "stt-provider", Map.of());
+        var providerBoundChild = new ProcessingJob("child", requestId, "tenant-a", "principal-a",
+                "stt-artifact", JobType.SPEECH_TO_TEXT, "stt-provider", JobStatus.COMPLETED,
+                now, now, now, Map.of("text", "fixture"), "", 2,
+                "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64));
+        assertThat(MediaRuntime.matchesMultimodalChildBinding(
+                parent, requestId, providerBoundSpec, providerBoundChild)).isTrue();
+        assertThat(MediaRuntime.matchesMultimodalChildBinding(parent, requestId, providerBoundSpec,
+                new ProcessingJob("child", requestId, "tenant-a", "principal-a",
+                        "stt-artifact", JobType.SPEECH_TO_TEXT, "other-stt-provider", JobStatus.COMPLETED,
+                        now, now, now, Map.of("text", "rebound"), "", 2,
+                        "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64))))
+                .isFalse();
     }
 
     @Test

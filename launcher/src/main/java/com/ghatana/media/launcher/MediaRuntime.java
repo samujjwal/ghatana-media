@@ -3589,6 +3589,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 && actual.artifactId().equals(child.artifactId())
                 && actual.expectedArtifactVersion().equals(child.artifactVersion())
                 && actual.jobType() == child.jobType()
+                && (child.providerHint().isBlank()
+                        || actual.providerId().equals(child.providerHint()))
                 && actual.requestFingerprint().matches("sha256:[0-9a-f]{64}");
     }
 

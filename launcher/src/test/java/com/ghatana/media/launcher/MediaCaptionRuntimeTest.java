@@ -39,7 +39,12 @@ class MediaCaptionRuntimeTest {
 
     private static SourceRecord record(String version, String principal, boolean revoked, boolean expired,
                                        java.util.Set<String> operations) {
-        return new SourceRecord("tenant-1", "artifact-1", version, "a".repeat(64), principal, principal,
+        return record("tenant-1", "artifact-1", version, principal, revoked, expired, operations);
+    }
+
+    private static SourceRecord record(String tenantId, String artifactId, String version, String principal,
+                                       boolean revoked, boolean expired, java.util.Set<String> operations) {
+        return new SourceRecord(tenantId, artifactId, version, "a".repeat(64), principal, principal,
                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
                 "", operations, Set.of("captions"), Set.of("local"),
@@ -102,6 +107,16 @@ class MediaCaptionRuntimeTest {
                 rights(List.of(record("sha256:" + "b".repeat(64), "principal-1", false, false,
                         Set.of("caption_version_write")))), CLOCK);
         assertThat(staleVersion.check(check)).isEqualTo(RegistrationAuthority.Decision.DENIED);
+
+        var wrongTenant = new MediaCaptionRegistrationAuthority(rights(List.of(record(
+                "tenant-other", "artifact-1", "sha256:" + "a".repeat(64), "principal-1", false, false,
+                Set.of("caption_version_write")))), CLOCK);
+        assertThat(wrongTenant.check(check)).isEqualTo(RegistrationAuthority.Decision.DENIED);
+
+        var wrongArtifact = new MediaCaptionRegistrationAuthority(rights(List.of(record(
+                "tenant-1", "artifact-other", "sha256:" + "a".repeat(64), "principal-1", false, false,
+                Set.of("caption_version_write")))), CLOCK);
+        assertThat(wrongArtifact.check(check)).isEqualTo(RegistrationAuthority.Decision.DENIED);
 
         var unavailable = new MediaCaptionRegistrationAuthority(new MediaSourceRightsAdministration() {
             @Override public String administrationId() { return "down"; }

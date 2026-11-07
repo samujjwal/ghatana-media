@@ -45,7 +45,9 @@ final class MediaCaptionRegistrationAuthority implements RegistrationAuthority {
         List<MediaSourceRightsAdministration.SourceRecord> matching = new ArrayList<>();
         Instant now = clock.instant();
         for (MediaSourceRightsAdministration.SourceRecord record : records) {
-            if (check.sourceArtifactVersionId().equals(record.sourceVersion())
+            if (check.tenantId().equals(record.tenantId())
+                    && check.sourceArtifactId().equals(record.artifactId())
+                    && check.sourceArtifactVersionId().equals(record.sourceVersion())
                     && !record.revoked() && !record.expiredAt(now)) {
                 matching.add(record);
             }
