@@ -26,6 +26,8 @@ public final class StoryboardPlanner {
     static final int MAX_TOTAL_SHOTS = 10_000;
     /** Local safety ceiling; PDP source contracts do not define a per-list reference maximum. */
     static final int MAX_SOURCES_PER_COLLECTION = 4_096;
+    /** Local aggregate safety ceiling; PDP source contracts do not define a plan-wide source maximum. */
+    static final int MAX_TOTAL_SOURCE_REFERENCES = 16_384;
 
     private static final Comparator<SourceVersion> SOURCES = Comparator.comparing(SourceVersion::artifactId)
             .thenComparing(SourceVersion::artifactVersionId);
@@ -382,8 +384,24 @@ public final class StoryboardPlanner {
     }
 
     private static List<SourceVersion> collectSources(AuthoredBrief brief, List<PlannedScene> scenes) {
-        return canonicalSources(java.util.stream.Stream.concat(brief.exactReferences().stream(),
-                scenes.stream().flatMap(s -> s.shots().stream()).flatMap(s -> s.exactSources().stream())).toList());
+        List<SourceVersion> references = new ArrayList<>();
+        appendBoundedSources(references, brief.exactReferences());
+        for (PlannedScene scene : scenes) {
+            for (PlannedShot shot : scene.shots()) {
+                appendBoundedSources(references, shot.exactSources());
+            }
+        }
+        return canonicalSources(references);
+    }
+
+    private static void appendBoundedSources(List<SourceVersion> aggregate, List<SourceVersion> references) {
+        for (SourceVersion reference : references) {
+            if (aggregate.size() == MAX_TOTAL_SOURCE_REFERENCES) {
+                throw new IllegalArgumentException(
+                        "storyboard exceeds the 16384 total source-reference safety limit");
+            }
+            aggregate.add(reference);
+        }
     }
 
     private static List<SourceVersion> canonicalSources(List<SourceVersion> sources) {

@@ -100,6 +100,28 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void planWideSourceReferenceLimitRejectsAmplificationBeforeRightsInspection() {
+        CountingRights rights = new CountingRights();
+        StoryboardPlanner planner = new StoryboardPlanner(rights);
+        List<StoryboardPlanner.ShotInput> shots = java.util.stream.IntStream.range(0, 5)
+                .mapToObj(shotIndex -> shot("aggregate-source-shot-" + shotIndex, shotIndex, shotIndex,
+                        java.util.stream.IntStream.range(0, StoryboardPlanner.MAX_SOURCES_PER_COLLECTION)
+                                .mapToObj(sourceIndex -> new SourceVersion(
+                                        "aggregate-source-" + (shotIndex * StoryboardPlanner.MAX_SOURCES_PER_COLLECTION
+                                                + sourceIndex),
+                                        "version-1"))
+                                .toList()))
+                .toList();
+        StoryboardPlanner.AuthoredScene scene = scene("aggregate-source-scene", 0, 0, shots);
+
+        assertThatThrownBy(() -> planner.prepare(OWNER, "project-source-bound", "head-source-bound",
+                "plan-source-bound", "v1", brief(List.of()), List.of(scene)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("16384 total source-reference safety limit");
+        assertThat(rights.calls()).isZero();
+    }
+
+    @Test
     void reviewIsASeparateImmutableReceiptForTheExactSavedEditionAndRechecksRights() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
