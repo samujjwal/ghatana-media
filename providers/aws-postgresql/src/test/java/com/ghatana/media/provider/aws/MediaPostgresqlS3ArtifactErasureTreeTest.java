@@ -178,6 +178,16 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
             assertThat(store.copyContent(tenant, principal, source.artifactId(), source.version(),
                     postErasureRead, source.sizeBytes())).isEmpty();
             assertThat(postErasureRead.size()).as("erased content is never copied to the caller").isZero();
+            // Reconstructing the store exercises durable readback after the metadata/object
+            // deletion. This is a primary-store fixture check; it does not establish that every
+            // copy class has been inventoried or that an external erasure authority approved purge.
+            try (S3PostgresqlMediaArtifactStore restartedStore = new S3PostgresqlMediaArtifactStore()) {
+                ByteArrayOutputStream restartedRead = new ByteArrayOutputStream();
+                assertThat(restartedStore.copyContent(tenant, principal, source.artifactId(), source.version(),
+                        restartedRead, source.sizeBytes())).isEmpty();
+                assertThat(restartedRead.size())
+                        .as("reconstructed store cannot disclose erased primary-store content").isZero();
+            }
             assertArtifactPresent(tenant, aliasId);
             assertObjectExists(admin, bucket, aliasedSourceKey);
 
