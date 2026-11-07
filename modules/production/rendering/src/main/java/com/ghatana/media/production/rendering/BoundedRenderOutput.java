@@ -49,7 +49,7 @@ final class BoundedRenderOutput extends OutputStream {
     }
 
     @Override
-    public void write(int value) throws IOException {
+    public synchronized void write(int value) throws IOException {
         ensureWritable(1);
         try {
             destination.write(value);
@@ -62,7 +62,7 @@ final class BoundedRenderOutput extends OutputStream {
     }
 
     @Override
-    public void write(byte[] bytes, int offset, int length) throws IOException {
+    public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
         Objects.checkFromIndexSize(offset, length, bytes.length);
         ensureWritable(length);
         try {
@@ -96,7 +96,7 @@ final class BoundedRenderOutput extends OutputStream {
     }
 
     @Override
-    public void flush() throws IOException {
+    public synchronized void flush() throws IOException {
         ensureWritable(0);
         try {
             destination.flush();
@@ -107,7 +107,7 @@ final class BoundedRenderOutput extends OutputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if (closed) return;
         boolean cancelled = false;
         RuntimeException cancellationRuntimeFailure = null;
@@ -138,8 +138,8 @@ final class BoundedRenderOutput extends OutputStream {
         if (cancelledAtClose) throw new IOException("render output cancellation requested");
     }
 
-    long bytesWritten() { return bytesWritten; }
+    synchronized long bytesWritten() { return bytesWritten; }
 
     /** Digest is available only after a clean close; partial output has no completion digest. */
-    String completedSha256() { return completedSha256; }
+    synchronized String completedSha256() { return completedSha256; }
 }

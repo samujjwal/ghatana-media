@@ -12,7 +12,11 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class MultitrackRenderPlannerTest {
@@ -46,6 +50,64 @@ class MultitrackRenderPlannerTest {
         assertThat(output.bytesWritten()).isEqualTo(3);
         output.close();
         assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
+    void concurrentWritesCannotRacePastTheOutputByteBudget() throws Exception {
+        var firstDestinationWrite = new CountDownLatch(1);
+        var secondDestinationWrite = new CountDownLatch(1);
+        var destinationCalls = new AtomicInteger();
+        var emittedBytes = new AtomicInteger();
+        OutputStream destination = new OutputStream() {
+            @Override public void write(int value) { emittedBytes.incrementAndGet(); }
+
+            @Override public void write(byte[] bytes, int offset, int length) {
+                if (destinationCalls.incrementAndGet() == 1) {
+                    firstDestinationWrite.countDown();
+                    try {
+                        secondDestinationWrite.await(250, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        throw new AssertionError(interrupted);
+                    }
+                } else {
+                    secondDestinationWrite.countDown();
+                }
+                emittedBytes.addAndGet(length);
+            }
+        };
+        var output = new BoundedRenderOutput(destination, 5);
+        var firstFailure = new AtomicReference<Throwable>();
+        var secondFailure = new AtomicReference<Throwable>();
+        var secondStarted = new CountDownLatch(1);
+        var firstWriter = new Thread(() -> writeCapture(output, firstFailure));
+        var secondWriter = new Thread(() -> {
+            secondStarted.countDown();
+            writeCapture(output, secondFailure);
+        });
+
+        firstWriter.start();
+        assertThat(firstDestinationWrite.await(1, TimeUnit.SECONDS)).isTrue();
+        secondWriter.start();
+        assertThat(secondStarted.await(1, TimeUnit.SECONDS)).isTrue();
+        firstWriter.join(2_000);
+        secondWriter.join(2_000);
+
+        assertThat(firstWriter.isAlive()).isFalse();
+        assertThat(secondWriter.isAlive()).isFalse();
+        assertThat(firstFailure.get()).isNull();
+        assertThat(secondFailure.get()).isInstanceOf(IOException.class)
+                .hasMessage("render output byte budget exceeded");
+        assertThat(emittedBytes.get()).isEqualTo(4);
+        assertThat(output.bytesWritten()).isEqualTo(4);
+    }
+
+    private static void writeCapture(BoundedRenderOutput output, AtomicReference<Throwable> failure) {
+        try {
+            output.write("four".getBytes(StandardCharsets.UTF_8));
+        } catch (Throwable thrown) {
+            failure.set(thrown);
+        }
     }
 
     @Test
