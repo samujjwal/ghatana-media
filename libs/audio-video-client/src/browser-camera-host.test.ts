@@ -7,9 +7,15 @@ const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device
   exactRightsScope: "rights/device-A/v1", sourceVersionRef: "device-A@rev-4", secretsRef: "secrets/session", frameClockRef: "clock/host" };
 
 function setup(state: PermissionState = "granted", options: { available?: boolean; frame?: (done: (blob: Blob) => void) => void; deviceId?: string;
-  maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean; pendingPlay?: boolean } = {}) {
+  maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean; pendingPlay?: boolean;
+  pendingPermissionSubscription?: boolean } = {}) {
   let permissionState = state;
   const listeners: Array<() => void> = [];
+  let permissionQueries = 0;
+  let signalDeviceOpenStarted!: () => void;
+  const deviceOpenStarted = new Promise<void>((resolve) => { signalDeviceOpenStarted = resolve; });
+  let finishPermissionSubscription!: (status: { state: PermissionState; addEventListener: (_: string, listener: () => void) => void;
+    removeEventListener: (_: string, listener: () => void) => void }) => void;
   let opens = 0; let stops = 0; let reads = 0; let plays = 0; let creates = 0;
   let finishOpen!: () => void; let finishPlay!: () => void; let revoke!: () => void;
   const width = options.videoWidth ?? 2; const height = options.videoHeight ?? 2;
@@ -27,12 +33,19 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   const browser = options.available === false ? {} : {
     mediaDevices: { getUserMedia: async (constraints: MediaStreamConstraints) => {
       opens++;
+      signalDeviceOpenStarted();
       expect(constraints.video).toEqual({ deviceId: { exact: "device-A" } });
       if (options.pendingOpen) await new Promise<void>((resolve) => { finishOpen = resolve; });
       return stream;
     } },
-    permissions: { query: async () => ({ get state() { return permissionState; }, addEventListener: (_: string, listener: () => void) => listeners.push(listener),
-      removeEventListener: (_: string, listener: () => void) => { const i = listeners.indexOf(listener); if (i >= 0) listeners.splice(i, 1); } }) },
+    permissions: { query: async () => {
+      permissionQueries++;
+      if (options.pendingPermissionSubscription && permissionQueries === 2) {
+        return await new Promise((resolve) => { finishPermissionSubscription = resolve; });
+      }
+      return { get state() { return permissionState; }, addEventListener: (_: string, listener: () => void) => listeners.push(listener),
+        removeEventListener: (_: string, listener: () => void) => { const i = listeners.indexOf(listener); if (i >= 0) listeners.splice(i, 1); } };
+    } },
     document: { createElement: (tag: string) => { creates++; return tag === "video" ? video : canvas; } },
   };
   const port = createBrowserCameraMediaDevicePort({ sourceVersionRef: (id) => id === "device-A" ? "device-A@rev-4" : undefined,
@@ -49,8 +62,11 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   const clock: CameraFrameClockPort = { nowEpochMillis: () => now, beginEpoch: () => `epoch-${++epoch}`, readPtsNanos: () => BigInt(epoch) };
   const adapter = new CameraCaptureAdapter({ mediaDevices: port, consent, frameClock: clock, maxFrameBytes: 64, maxFrames: 4 });
   revoke = () => { permissionState = "denied"; listeners.forEach((listener) => listener()); };
-  return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke,
-    permissionListenerCount: () => listeners.length, resolveOpen: () => finishOpen(), resolvePlay: () => finishPlay() };
+  return { adapter, counts: () => ({ opens, stops, reads, draws }), details: () => ({ plays, creates }), revoke, deviceOpenStarted,
+    permissionListenerCount: () => listeners.length, resolveOpen: () => finishOpen(), resolvePlay: () => finishPlay(),
+    resolvePermissionSubscription: () => finishPermissionSubscription({ get state() { return permissionState; },
+      addEventListener: (_: string, listener: () => void) => listeners.push(listener),
+      removeEventListener: (_: string, listener: () => void) => { const i = listeners.indexOf(listener); if (i >= 0) listeners.splice(i, 1); } }) };
 }
 
 async function expectCode(promise: Promise<unknown>, code: string) {
@@ -88,12 +104,24 @@ describe("concrete browser camera host", () => {
     const h = setup("granted", { pendingOpen: true });
     const opening = h.adapter.openSession(request);
     const rejected = expectCode(opening, "SESSION_CLOSED");
-    while (!h.counts().opens) await new Promise((resolve) => setTimeout(resolve, 0));
+    await h.deviceOpenStarted;
     await h.adapter.close();
     h.resolveOpen();
     await rejected;
     expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
     expect(h.details()).toEqual({ plays: 0, creates: 0 });
+  });
+
+  it("rechecks host permission after device startup while the permission listener is still installing", async () => {
+    const h = setup("granted", { pendingOpen: true, pendingPermissionSubscription: true });
+    const opening = h.adapter.openSession(request);
+    const rejected = expectCode(opening, "PERMISSION_DENIED");
+    await h.deviceOpenStarted;
+    h.revoke();
+    h.resolvePermissionSubscription();
+    h.resolveOpen();
+    await rejected;
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
   });
 
   it("stops a stream when permission is revoked while browser playback startup is pending", async () => {

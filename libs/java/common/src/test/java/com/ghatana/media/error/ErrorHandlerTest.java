@@ -26,6 +26,18 @@ class ErrorHandlerTest {
     }
 
     @Test
+    @DisplayName("Cancellation is terminal even when its message or cause looks transient")
+    void cancellationIsNeverRetryable() {
+        java.util.concurrent.CancellationException jdkCancellation =
+                new java.util.concurrent.CancellationException("request timed out");
+        jdkCancellation.initCause(new SocketTimeoutException("connection timed out"));
+
+        assertFalse(ErrorHandler.isRetryable(jdkCancellation));
+        assertFalse(ErrorHandler.isRetryable(new CancellationException(
+                "service temporarily unavailable", new SocketTimeoutException("connection timed out"))));
+    }
+
+    @Test
     @DisplayName("Should classify connect exceptions as retryable")
     void testConnectRetryable() { 
         assertTrue(ErrorHandler.isRetryable(new ConnectException("Connection refused")));

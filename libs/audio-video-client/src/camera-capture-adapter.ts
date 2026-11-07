@@ -192,6 +192,10 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
         throw fail("SOURCE_METADATA_UNAVAILABLE", "browser selected a different camera source revision");
       }
       if (hostController.signal.aborted) throw fail("CONSENT_REVOKED", "browser camera permission changed during device open");
+      // Permissions API subscription setup is asynchronous in browsers. Recheck
+      // after device startup so a permission change during that gap cannot reach
+      // the encoder before the change listener is installed.
+      await assertHostPermission();
       codec = await this.codecs.bind(request, device, hostController.signal);
       // Some host codec ports cannot cancel bind immediately; a permission
       // event during that await still prevents the track from escaping.

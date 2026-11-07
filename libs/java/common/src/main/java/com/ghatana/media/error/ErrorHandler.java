@@ -60,6 +60,14 @@ public final class ErrorHandler {
             return false;
         }
 
+        // Cancellation is a terminal lifecycle signal. Do this before BaseException
+        // classification, message heuristics, and cause traversal so a timeout-like
+        // cancellation can never be reclassified as work that should be retried.
+        if (throwable instanceof java.util.concurrent.CancellationException
+                || throwable instanceof CancellationException) {
+            return false;
+        }
+
         // BaseException has explicit retryable flag
         if (throwable instanceof BaseException) {
             return ((BaseException) throwable).isRetryable();
