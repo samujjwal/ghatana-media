@@ -143,6 +143,26 @@ describe("VoiceProductionWorkflow", () => {
     expect(html).toContain("Current capability readiness is unknown");
   });
 
+  it.each([
+    [undefined, "Host capability observation for process: UNKNOWN."],
+    ["UNKNOWN", "Host capability observation for process: UNKNOWN."],
+    ["NOT_ADMITTED", "Host capability observation for process: NOT_ADMITTED."],
+    ["DENIED", "Host capability observation for process: DENIED."],
+  ] as const)("announces current host readiness without implying authority (%s)", (state, message) => {
+    const html = renderToStaticMarkup(
+      <VoiceProductionWorkflow
+        projectName="Voice campaign"
+        currentStep="process"
+        consent={{ rightsAttested: false }}
+        capabilities={state ? { process: state } : {}}
+      />,
+    );
+
+    expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
+    expect(html).toContain(message);
+    expect(html).toContain("does not verify current voice rights or consent");
+  });
+
   it("labels user attestation as an input rather than proof of current voice authority", () => {
     const html = renderToStaticMarkup(
       <VoiceProductionWorkflow

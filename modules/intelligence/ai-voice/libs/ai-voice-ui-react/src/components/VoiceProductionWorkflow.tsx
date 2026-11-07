@@ -149,6 +149,15 @@ function unavailableReason(
   return "This capability is unavailable in the active deployment.";
 }
 
+function capabilityAnnouncement(
+  step: MediaTaskStepId,
+  capability: VoiceCapabilityState | undefined,
+): string {
+  const observation = capability ?? "UNKNOWN";
+  const reason = unavailableReason(capability);
+  return `Host capability observation for ${step}: ${observation}.${reason ? ` ${reason}` : ""} This does not verify current voice rights or consent.`;
+}
+
 function formatDuration(seconds: number | undefined): string {
   if (seconds === undefined || !Number.isFinite(seconds)) return "Not reported";
   const minutes = Math.floor(seconds / 60);
@@ -190,6 +199,10 @@ export function VoiceProductionWorkflow({
   const approved = completed.has("approve") || completed.has("export");
   const userAttestationRecorded =
     consent.rightsAttested && Boolean(consent.consentReference?.trim());
+  const currentCapabilityAnnouncement = capabilityAnnouncement(
+    currentStep,
+    capabilities[currentStep],
+  );
 
   const steps: readonly MediaTaskStep[] = STEP_DEFINITIONS.map((definition) => {
     const capabilityReason = unavailableReason(capabilities[definition.id]);
@@ -493,6 +506,12 @@ export function VoiceProductionWorkflow({
       className={className}
       summary={
         <dl className="space-y-2">
+          <div>
+            <dt className="text-xs" style={{ color: colors.contentSecondary }}>Current step readiness</dt>
+            <dd role="status" aria-live="polite" aria-atomic="true">
+              {currentCapabilityAnnouncement}
+            </dd>
+          </div>
           <div>
             <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source</dt>
             <dd>{source?.fileName ?? "Not selected"}</dd>
