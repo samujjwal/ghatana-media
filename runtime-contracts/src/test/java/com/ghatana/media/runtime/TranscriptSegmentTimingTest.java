@@ -26,6 +26,8 @@ class TranscriptSegmentTimingTest {
     void sourceTicksRequireTheExactQualifiedTupleWithinDuration() {
         var timing = TranscriptSegmentTiming.sourceTicks(0, 48_000, "src-clock", 48_000, 96_000);
         assertThat(timing.tag()).isEqualTo(SegmentTimingTag.SOURCE_TICKS);
+        assertThat(timing.sourceClockId()).isEqualTo("src-clock");
+        assertThat(timing.toParametersValue()).containsEntry("sourceClockId", "src-clock");
 
         assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(0, 0, "src-clock", 48_000, 96_000))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -33,6 +35,14 @@ class TranscriptSegmentTimingTest {
                 .as("segment end beyond declared source duration fails closed")
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(0, 48_000, " ", 48_000, 96_000))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(
+                0, 48_000, " src-clock", 48_000, 96_000))
+                .as("ASCII edge whitespace is rejected instead of normalized")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(
+                0, 48_000, "src-clock\u2003", 48_000, 96_000))
+                .as("Unicode edge whitespace is rejected instead of normalized")
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(0, 1, "clock", 1, 0))
                 .as("zero duration cannot contain a positive-length source span")

@@ -186,6 +186,7 @@ class MultimodalOperationSpecTest {
                 "src", "sha256:" + SHA_A, SHA_A, List.of(child("stt")), binding, Map.of());
         var decoded = MultimodalOperationSpec.fromParameterValue(spec.toParametersValue());
         assertThat(decoded.sourceClock()).isEqualTo(binding);
+        assertThat(binding.clockId()).isEqualTo("clock-1");
         // Bindings without identity/duration stay verifiable-undetermined, not invented.
         var unscoped = new MultimodalOperationSpec.SourceClockBinding("ev", 1_000, 0);
         assertThat(unscoped.clockId()).isEmpty();
@@ -194,6 +195,19 @@ class MultimodalOperationSpecTest {
                 "ev", 0, 0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
                 "ev", 1_000, 0, "clk\u0007x", 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
+                " ev", 1_000, 0, "clock-1", 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
+                "ev", 1_000, 0, "clock-1 ", 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
+                "\u2003ev", 1_000, 0, "clock-1", 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MultimodalOperationSpec.SourceClockBinding(
+                "ev", 1_000, 0, "\u00a0clock-1", 0)).isInstanceOf(IllegalArgumentException.class);
+        var paddedEvidence = Map.<String, Object>of(
+                "evidenceRef", " ev", "ticksPerSecond", 1_000,
+                "epochOffsetTicks", 0, "clockId", "clock-1");
+        assertThatThrownBy(() -> MultimodalOperationSpec.SourceClockBinding.fromParameterValue(paddedEvidence))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -311,6 +325,16 @@ class MultimodalOperationSpecTest {
                 "sourceClockMappingEvidenceRef", "mapping-evidence",
                 "sourceClockTicksPerSecond", 48_000.5,
                 "sourceDurationTicks", 96_000))).isEmpty(); // non-integral rate
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of(
+                "sourceClockId", " src-clock",
+                "sourceClockMappingEvidenceRef", "mapping-evidence",
+                "sourceClockTicksPerSecond", 48_000,
+                "sourceDurationTicks", 96_000))).isEmpty(); // clock identity edge whitespace
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of(
+                "sourceClockId", "src-clock",
+                "sourceClockMappingEvidenceRef", "mapping-evidence\u2003",
+                "sourceClockTicksPerSecond", 48_000,
+                "sourceDurationTicks", 96_000))).isEmpty(); // mapping ref edge whitespace
     }
 
     @Test
@@ -353,6 +377,10 @@ class MultimodalOperationSpecTest {
                 "x", -1, 10, "src-clock", 48_000)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
                 "x", 0, 10, " ", 48_000)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
+                "x", 0, 10, " src-clock", 48_000)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
+                "x", 0, 10, "src-clock\u00a0", 48_000)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
                 "x", 0, 10, "src-clock", 0)).isInstanceOf(IllegalArgumentException.class);
     }
