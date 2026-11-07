@@ -414,6 +414,57 @@ describe('ghatanamedia-api artifact inspect executable', () => {
 });
 
 describe('ghatanamedia-api production command boundary', () => {
+  it('keeps the registered artifact read truthful across source-free process boundaries', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-source-free-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const testArtifact = { ...artifact, metadata: { purpose: 'source-free' } };
+    const environment = (mode: string) => ({
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: mode,
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+      GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(testArtifact),
+      GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+    });
+    try {
+      const success = await invoke(command('https://media.example.test'), token, environment('artifact-success'), fetchFixture);
+      expect(success.status).toBe(0);
+      expect(success.stderr).toBe('');
+      expect(JSON.parse(success.stdout)).toEqual({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.artifact.inspect', artifact: testArtifact,
+      });
+      expect(success.stdout).not.toContain(token);
+
+      const forbidden = await invoke(command('https://media.example.test'), token, environment('artifact-forbidden'), fetchFixture);
+      expect(forbidden.status).toBe(1);
+      expect(forbidden.stdout).toBe('');
+      expect(JSON.parse(forbidden.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'MEDIA_REQUEST_FAILED', statusCode: 403,
+      });
+      expect(forbidden.stderr).not.toContain(token);
+
+      const timeout = await invoke(command('https://media.example.test'), token, environment('artifact-timeout'), fetchFixture);
+      expect(timeout.status).toBe(1);
+      expect(timeout.stdout).toBe('');
+      expect(JSON.parse(timeout.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'OBSERVATION_UNAVAILABLE',
+        message: 'No observation was received. Check the configured endpoint and retry this read.',
+      });
+      expect(timeout.stderr).not.toContain(token);
+
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(3);
+      expect(requests).toMatchObject([
+        { method: 'GET', path: '/api/v1/artifacts/artifact-a', tenant: 'tenant-a', principal: 'principal-a', authenticated: true, bearerMatches: true },
+        { method: 'GET', path: '/api/v1/artifacts/artifact-a', tenant: 'tenant-a', principal: 'principal-a', authenticated: true, bearerMatches: true },
+        { method: 'GET', path: '/api/v1/artifacts/artifact-a', tenant: 'tenant-a', principal: 'principal-a', authenticated: true, bearerMatches: true },
+      ]);
+      expect(JSON.stringify(requests)).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('classifies malformed successful JSON as an invalid Media response without exposing its body', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-malformed-json-'));
     const requestLogPath = join(directory, 'requests.jsonl');

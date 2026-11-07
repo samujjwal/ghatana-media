@@ -41,6 +41,18 @@ globalThis.fetch = async (input, init = {}) => {
     }, 404);
   }
 
+  if (mode === 'artifact-success') {
+    const configuredArtifact = process.env.GHATANA_MEDIA_CLI_TEST_ARTIFACT;
+    if (!configuredArtifact) throw new Error('CLI test fixture artifact is missing.');
+    return json(JSON.parse(configuredArtifact), 200);
+  }
+  if (mode === 'artifact-forbidden') {
+    return json({ error: { code: 'FORBIDDEN', message: tokenFromEnvironment() } }, 403);
+  }
+  if (mode === 'artifact-timeout') {
+    throw new Error('socket-free fixture transport timeout');
+  }
+
   const configuredJob = process.env.GHATANA_MEDIA_CLI_TEST_JOB;
   if (!configuredJob) throw new Error('CLI test fixture job is missing.');
   const job = JSON.parse(configuredJob);
@@ -77,3 +89,7 @@ globalThis.fetch = async (input, init = {}) => {
   }
   throw new Error('Unknown CLI test fetch mode.');
 };
+
+function tokenFromEnvironment() {
+  return process.env.GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER ?? 'fixture-secret';
+}
