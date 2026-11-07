@@ -163,6 +163,37 @@ class SttStreamingLatencyEnhancerTest {
     }
 
     @Test
+    @DisplayName("Public batch constructor enforces the existing chunk and byte bounds")
+    void publicBatchConstructorEnforcesResourceBounds() {
+        List<byte[]> hostileChunks = new java.util.AbstractList<>() {
+            @Override public byte[] get(int index) { throw new AssertionError("must reject from declared size"); }
+            @Override public int size() { return SttStreamingLatencyEnhancer.MAX_ALLOWED_BUFFER_CHUNKS + 1; }
+        };
+        assertThatThrownBy(() -> new SttStreamingLatencyEnhancer.AudioChunkBatch(
+                hostileChunks, 1, 0, hostileChunks.size(), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_BATCH_TOO_LARGE");
+
+        assertThatThrownBy(() -> new SttStreamingLatencyEnhancer.AudioChunkBatch(
+                List.of(new byte[SttStreamingLatencyEnhancer.MAX_ALLOWED_CHUNK_BYTES + 1]), 1, 0, 1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("STT_STREAM_CHUNK_TOO_LARGE");
+    }
+
+    @Test
+    @DisplayName("Public batch constructor snapshots input and output byte arrays")
+    void publicBatchConstructorOwnsChunkBytes() {
+        byte[] callerBytes = {1, 2};
+        SttStreamingLatencyEnhancer.AudioChunkBatch batch =
+                new SttStreamingLatencyEnhancer.AudioChunkBatch(List.of(callerBytes), 1, 0, 1, 0);
+        callerBytes[0] = 9;
+        byte[] returnedBytes = batch.audioChunks().get(0);
+        returnedBytes[1] = 8;
+
+        assertThat(batch.audioChunks()).containsExactly(new byte[] {1, 2});
+    }
+
+    @Test
     @DisplayName("Rejects repeated or gapped sequence and backward timestamps without consuming the next accepted chunk")
     void ingestRequiresContiguousSequenceAndNondecreasingTimestamp() {
         List<SttStreamingLatencyEnhancer.AudioChunkBatch> orderedBatches = new ArrayList<>();

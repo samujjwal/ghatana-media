@@ -287,8 +287,38 @@ public final class SttStreamingLatencyEnhancer {
             int chunkCount,
             long avgLatencyMs
     ) {
+        public AudioChunkBatch {
+            Objects.requireNonNull(audioChunks, "audioChunks must not be null");
+            if (audioChunks.size() > MAX_ALLOWED_BUFFER_CHUNKS) {
+                throw new IllegalArgumentException("STT_STREAM_BATCH_TOO_LARGE: too many audio chunks");
+            }
+            java.util.ArrayList<byte[]> snapshot = new java.util.ArrayList<>(audioChunks.size());
+            long totalBytes = 0;
+            java.util.Iterator<byte[]> iterator = audioChunks.iterator();
+            while (iterator.hasNext()) {
+                if (snapshot.size() == MAX_ALLOWED_BUFFER_CHUNKS) {
+                    throw new IllegalArgumentException("STT_STREAM_BATCH_TOO_LARGE: too many audio chunks");
+                }
+                byte[] chunk = Objects.requireNonNull(iterator.next(), "audioChunks must not contain null");
+                if (chunk.length > MAX_ALLOWED_CHUNK_BYTES) {
+                    throw new IllegalArgumentException("STT_STREAM_CHUNK_TOO_LARGE: audio chunk exceeds the limit");
+                }
+                if (totalBytes > MAX_ALLOWED_BUFFER_BYTES - chunk.length) {
+                    throw new IllegalArgumentException("STT_STREAM_BATCH_TOO_LARGE: audio bytes exceed the limit");
+                }
+                totalBytes += chunk.length;
+                snapshot.add(Arrays.copyOf(chunk, chunk.length));
+            }
+            audioChunks = java.util.List.copyOf(snapshot);
+        }
+
         /** Returns {@code true} if average latency is within the 500ms SLA. */
         public boolean meetsLatencySla() { return avgLatencyMs <= 500; }
+
+        @Override
+        public java.util.List<byte[]> audioChunks() {
+            return audioChunks.stream().map(chunk -> Arrays.copyOf(chunk, chunk.length)).toList();
+        }
     }
 
     /**
