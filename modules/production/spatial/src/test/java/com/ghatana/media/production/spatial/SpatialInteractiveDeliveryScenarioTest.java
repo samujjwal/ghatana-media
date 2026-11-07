@@ -163,6 +163,31 @@ class SpatialInteractiveDeliveryScenarioTest {
         assertThat(checked).containsExactly(firstSource, secondSource);
     }
 
+    @Test
+    void unsupportedCoordinateProfileBlocksSpatialExport() {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-j28", "scene-j28", "scene-version-6");
+        var unsupportedFrame = new SpatialRigEngine.CoordinateFrame(
+                "urn:media:frame:j28-foot-units", "frame-version-1",
+                SpatialRigEngine.Handedness.RIGHT_HANDED,
+                SpatialRigEngine.AxisDirection.POS_X,
+                SpatialRigEngine.AxisDirection.POS_Y,
+                SpatialRigEngine.AxisDirection.POS_Z,
+                "urn:media:unit:foot",
+                SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
+        var root = new SpatialRigEngine.Bone("camera-root", null,
+                SpatialRigEngine.LocalTransform.identity(),
+                new SpatialRigEngine.JointConstraint(SpatialRigEngine.JointKind.BALL, Math.PI));
+        var rig = new SpatialRigEngine.Rig("j28-spatial-scene", unsupportedFrame, "UNIT_QUATERNION_XYZW",
+                List.of(source), List.of(root), Map.of(), "project:revision:j28-9");
+
+        assertThatThrownBy(() -> new SpatialRigEngine().exportGlb(rig,
+                ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE))
+                .isInstanceOf(SpatialRigEngine.SpatialExportBlockedException.class)
+                .satisfies(failure -> assertThat(
+                        ((SpatialRigEngine.SpatialExportBlockedException) failure).blocker())
+                        .isEqualTo(SpatialRigEngine.ExportBlocker.COORDINATE_PROFILE_UNSUPPORTED));
+    }
+
     private static String candidateSha256(byte[] bytes) throws Exception {
         return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
     }
