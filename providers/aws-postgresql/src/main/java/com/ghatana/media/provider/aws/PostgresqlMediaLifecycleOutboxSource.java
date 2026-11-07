@@ -81,6 +81,9 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             attempted++;
             try {
                 MediaLifecycleEvent event = state.mapper().readValue(claim.payload(), MediaLifecycleEvent.class);
+                if (!claim.eventId().equals(event.eventId())) {
+                    throw new IllegalStateException("Media lifecycle outbox payload identity does not match its row");
+                }
                 publisher.publish(event);
                 if (acknowledge(claim)) published++;
                 else failed++;
