@@ -935,6 +935,33 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
+  it('rejects credential-shaped parameter keys before authenticated dispatch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-credential-key-name-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const result = await invoke(jobCommand('https://media.example.test', 'submit', [
+      '--request-id', 'request-credential-key-name', '--correlation-id', 'corr-credential-key-name', '--artifact', 'artifact-a',
+      '--job-type', 'SPEECH_TO_TEXT', '--idempotency-key', 'key-credential-key-name',
+      '--parameters', JSON.stringify({ provider: { API_Key: 'provider-secret-value' } }),
+    ]), token, {
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ jobId: 'fixture-job' }),
+      GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+    }, fetchFixture);
+
+    try {
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code: 'INVALID_INVOCATION',
+      });
+      expect(result.stderr).not.toContain('provider-secret-value');
+      expect(result.stderr).not.toContain(token);
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"roundedFraction":9007199254740991.1}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
     'rejects invalid, duplicate-key, non-finite, or over-deep JSON parameters before dispatch (%s)', async parameters => {
       const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
