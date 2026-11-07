@@ -46,6 +46,16 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
     }
 
     @Test
+    void retryDeadlineRejectsEpochMillisOverflow() {
+        assertThat(PostgresqlMediaLifecycleOutboxSource.retryAtMillis(1_000L, 50L))
+                .isEqualTo(1_050L);
+        assertThatThrownBy(() -> PostgresqlMediaLifecycleOutboxSource.retryAtMillis(Long.MAX_VALUE - 10, 11))
+                .isInstanceOf(ArithmeticException.class);
+        assertThatThrownBy(() -> PostgresqlMediaLifecycleOutboxSource.retryAtMillis(1_000L, 0L))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void fencesConcurrentAndExpiredClaimsAndBoundsRetries() throws Exception {
         HttpServer readinessEndpoint = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         readinessEndpoint.createContext("/", exchange -> {

@@ -224,7 +224,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         boolean dead = nextAttempt >= maxAttempts;
         String errorType = failure.getClass().getSimpleName();
         if (errorType.length() > 255) errorType = errorType.substring(0, 255);
-        long nextAt = dead ? 0 : now + retryDelayMillis(claim.attempts());
+        long nextAt = dead ? 0 : retryAtMillis(now, retryDelayMillis(claim.attempts()));
         try (Connection connection = state.connection();
              PreparedStatement retry = connection.prepareStatement(
                      "UPDATE media_processing_lifecycle_outbox SET attempts=?,last_error=?,next_attempt_at=?,"
@@ -249,6 +249,12 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     private long retryDelayMillis(int attemptsSoFar) {
         return cappedJitteredRetryDelayMillis(
                 attemptsSoFar, retryBase.toMillis(), retryMax.toMillis(), jitterSample.getAsDouble());
+    }
+
+    /** Reject a retry deadline that cannot be represented by the persisted epoch-millis column. */
+    static long retryAtMillis(long nowEpochMillis, long delayMillis) {
+        if (delayMillis < 1) throw new IllegalArgumentException("retry delay must be positive");
+        return Math.addExact(nowEpochMillis, delayMillis);
     }
 
     static long cappedJitteredRetryDelayMillis(
