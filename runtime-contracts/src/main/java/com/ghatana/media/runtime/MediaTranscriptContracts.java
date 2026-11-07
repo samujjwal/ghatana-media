@@ -42,7 +42,7 @@ public final class MediaTranscriptContracts {
             String sourceClockId, long sourceTicksPerSecond, long sourceDurationTicks) {
         public TranscriptSegmentTiming {
             java.util.Objects.requireNonNull(tag, "tag");
-            declaredUnit = declaredUnit == null ? "" : declaredUnit.trim();
+            declaredUnit = declaredUnit == null ? "" : declaredUnit;
             sourceClockId = sourceClockId == null ? "" : sourceClockId;
             switch (tag) {
                 case NOT_SUPPLIED -> {

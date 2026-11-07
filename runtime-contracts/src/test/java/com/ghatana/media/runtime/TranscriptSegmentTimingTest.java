@@ -58,8 +58,18 @@ class TranscriptSegmentTimingTest {
         var timing = TranscriptSegmentTiming.providerTimeUnqualified(120, 340, "provider-ms");
         assertThat(timing.tag()).isEqualTo(SegmentTimingTag.PROVIDER_TIME_UNQUALIFIED);
         assertThat(timing.sourceClockId()).isEmpty();
+        assertThat(TranscriptSegmentTiming.providerTimeUnqualified(120, 340, " provider-ms ")
+                        .declaredUnit())
+                .isEqualTo(" provider-ms ");
+        assertThat(TranscriptSegmentTiming.providerTimeUnqualified(120, 340, "\u2003provider-ms\u00a0")
+                        .declaredUnit())
+                .isEqualTo("\u2003provider-ms\u00a0");
 
         assertThatThrownBy(() -> TranscriptSegmentTiming.providerTimeUnqualified(0, 340, " "))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TranscriptSegmentTiming.providerTimeUnqualified(0, 340, "provider\u0007ms"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TranscriptSegmentTiming.providerTimeUnqualified(0, 340, "u".repeat(65)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> TranscriptSegmentTiming.providerTimeUnqualified(400, 340, "ms"))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -131,11 +141,14 @@ class TranscriptSegmentTimingTest {
     @Test
     void segmentParameterValueRoundTripsExactly() {
         var ticks = segment("s1", TranscriptSegmentTiming.sourceTicks(0, 48_000, "c", 48_000, 96_000));
-        var unqualified = segment("s2", TranscriptSegmentTiming.providerTimeUnqualified(3, 9, "ms"));
+        var unqualified = segment("s2", TranscriptSegmentTiming.providerTimeUnqualified(3, 9, " ms "));
+        var unicodeUnit = segment("s4", TranscriptSegmentTiming.providerTimeUnqualified(
+                9, 12, "\u2003provider-ms\u00a0"));
         var supplied = segment("s3", TranscriptSegmentTiming.notSupplied());
-        var value = MediaTranscriptContracts.segmentsToParametersValue(List.of(ticks, unqualified, supplied));
+        var value = MediaTranscriptContracts.segmentsToParametersValue(
+                List.of(ticks, unqualified, unicodeUnit, supplied));
         var parsed = MediaTranscriptContracts.segmentsFromParameterValue(value);
-        assertThat(parsed).containsExactly(ticks, unqualified, supplied);
+        assertThat(parsed).containsExactly(ticks, unqualified, unicodeUnit, supplied);
     }
 
     @Test
