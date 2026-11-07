@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.util.HexFormat;
 import java.util.Set;
 
@@ -40,7 +41,38 @@ class PiperPhonemizeProcessConverterTest {
 
         assertThatThrownBy(() -> converter.convert("hi"))
                 .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
-                .hasMessageContaining("exceeded its output budget");
+                .hasMessageContaining("exceeded its stdout budget");
+    }
+
+    @Test
+    void boundsStderrWithoutSpoolingUntrustedProcessOutputToDisk() throws Exception {
+        TextToPhonemeConverter converter = converterWithScript("head -c 16385 /dev/zero >&2");
+
+        assertThatThrownBy(() -> converter.convert("hi"))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("exceeded its stderr budget");
+    }
+
+    @Test
+    void totalDeadlineKillsLongRunningWorkerAndItsChild() throws Exception {
+        Path childPid = tempDir.resolve("phonemizer-child.pid");
+        Fixture fixture = fixture("sleep 30 & echo $! > '" + shellQuotePath(childPid) + "'; wait");
+        Pins pins = pins(fixture);
+        TextToPhonemeConverter converter = PiperPhonemizeProcessConverter.tryCreate(
+                        fixture.executable, pins.binary, pins.library, pins.data)
+                .orElseThrow(() -> new IOException("test phonemizer fixture was not accepted"));
+
+        assertThatThrownBy(() -> converter.convert("hi"))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("exceeded its time budget");
+
+        long pid = Long.parseLong(Files.readString(childPid).trim());
+        long cleanupDeadline = System.nanoTime() + Duration.ofSeconds(2).toNanos();
+        while (ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false)
+                && System.nanoTime() < cleanupDeadline) {
+            Thread.sleep(20);
+        }
+        assertThat(ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false)).isFalse();
     }
 
     @Test
@@ -136,6 +168,10 @@ class PiperPhonemizeProcessConverterTest {
                 MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(fixture.executable)));
         return new Pins(binary, PiperPhonemizeProcessConverter.digestTree(fixture.library),
                 PiperPhonemizeProcessConverter.digestTree(fixture.data));
+    }
+
+    private static String shellQuotePath(Path path) {
+        return path.toString().replace("'", "'\"'\"'");
     }
 
     private record Fixture(Path executable, Path library, Path data) { }

@@ -1,6 +1,5 @@
 package com.ghatana.media.tts.phoneme;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -36,7 +35,8 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     public static final String ESPEAK_DATA_SHA_ENV = "GHATANA_MEDIA_ESPEAK_DATA_SHA256";
 
     private static final int MAX_TEXT_CHARS = 4_096;
-    private static final int MAX_OUTPUT_BYTES = 64 * 1024;
+    private static final int MAX_STDOUT_BYTES = 64 * 1024;
+    private static final int MAX_STDERR_BYTES = 16 * 1024;
     private static final int MAX_TREE_ENTRIES = 100_000;
     private static final long MAX_TREE_BYTES = 1024L * 1024 * 1024;
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
@@ -107,12 +107,10 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
         }
         List<String> command = new ArrayList<>(List.of(
                 binary.toString(), "-l", language, "--espeak_data", espeakData.toString()));
+        long deadline = System.nanoTime() + TIMEOUT.toNanos();
         Process process;
-        Path errorLog = null;
         try {
-            errorLog = Files.createTempFile("phonemize-", ".log");
-            ProcessBuilder builder = new ProcessBuilder(command)
-                    .redirectError(errorLog.toFile());
+            ProcessBuilder builder = new ProcessBuilder(command);
             // The vendored binary loads its bundled dylibs from ../lib.
             String libraryPathKey = libraryPathEnvironmentKey(System.getProperty("os.name", ""));
             builder.environment().merge(libraryPathKey, libraryDir.toString(),
@@ -120,17 +118,15 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
                             ? bundled : bundled + libraryPathSeparator() + existing);
             process = builder.start();
         } catch (IOException failure) {
-            if (errorLog != null) {
-                try { Files.deleteIfExists(errorLog); } catch (IOException ignored) { }
-            }
             throw new PhonemeConversionException("Phonemize process could not start", failure);
         }
-        // One total deadline covers stdin write, stdout drain and exit: a blocked
-        // pipe can never outlive the budget. stderr goes to a private temp file
-        // that is always deleted.
-        long deadline = System.nanoTime() + TIMEOUT.toNanos();
-        java.io.ByteArrayOutputStream stdout = new java.io.ByteArrayOutputStream(MAX_OUTPUT_BYTES);
-        AtomicBoolean outputExceeded = new AtomicBoolean();
+        // One total deadline covers stdin write, both output drains and exit. Both
+        // output pipes are drained concurrently into bounded memory; diagnostics
+        // are never spooled to an unbounded temporary file.
+        java.io.ByteArrayOutputStream stdout = new java.io.ByteArrayOutputStream(MAX_STDOUT_BYTES);
+        java.io.ByteArrayOutputStream stderr = new java.io.ByteArrayOutputStream(MAX_STDERR_BYTES);
+        AtomicBoolean stdoutExceeded = new AtomicBoolean();
+        AtomicBoolean stderrExceeded = new AtomicBoolean();
         Thread writer = new Thread(() -> {
             try (OutputStream stdin = process.getOutputStream()) {
                 stdin.write(text.getBytes(StandardCharsets.UTF_8));
@@ -138,61 +134,91 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
             } catch (IOException ignored) { }
         }, "media-phonemize-stdin");
         writer.setDaemon(true);
-        Thread drain = new Thread(() -> {
+        Thread drain = drainStream(process, process.getInputStream(), stdout,
+                MAX_STDOUT_BYTES, stdoutExceeded, "media-phonemize-stdout");
+        Thread drainError = drainStream(process, process.getErrorStream(), stderr,
+                MAX_STDERR_BYTES, stderrExceeded, "media-phonemize-stderr");
+        drain.setDaemon(true);
+        drainError.setDaemon(true);
+        try {
+            writer.start();
+            drain.start();
+            drainError.start();
+            long remaining = deadline - System.nanoTime();
+            boolean finished = remaining > 0 && process.waitFor(remaining, TimeUnit.NANOSECONDS);
+            if (!finished) {
+                killTree(process);
+                throw new PhonemeConversionException("Phonemize process exceeded its time budget");
+            }
+            joinBeforeDeadline(writer, process, deadline, "stdin writer");
+            joinBeforeDeadline(drain, process, deadline, "stdout drain");
+            joinBeforeDeadline(drainError, process, deadline, "stderr drain");
+            if (stdoutExceeded.get()) {
+                throw new PhonemeConversionException("Phonemize process exceeded its stdout budget");
+            }
+            if (stderrExceeded.get()) {
+                throw new PhonemeConversionException("Phonemize process exceeded its stderr budget");
+            }
+            if (process.exitValue() != 0) {
+                String err = stderr.toString(StandardCharsets.UTF_8);
+                throw new PhonemeConversionException(
+                        "Phonemize process failed: " + err.substring(0, Math.min(err.length(), 256)));
+            }
+            return extractPhonemes(stdout.toString(StandardCharsets.UTF_8));
+        } catch (InterruptedException interrupted) {
+            killTree(process);
+            Thread.currentThread().interrupt();
+            throw new PhonemeConversionException("Phonemize process interrupted", interrupted);
+        }
+    }
+
+    private static void joinBeforeDeadline(Thread thread, Process process, long deadline, String worker) {
+        while (thread.isAlive()) {
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
+                killTree(process);
+                throw new PhonemeConversionException(
+                        "Phonemize " + worker + " exceeded its time budget");
+            }
+            long millis = TimeUnit.NANOSECONDS.toMillis(remaining);
+            int nanos = (int) (remaining - TimeUnit.MILLISECONDS.toNanos(millis));
             try {
-                var in = process.getInputStream();
+                thread.join(millis, nanos);
+            } catch (InterruptedException interrupted) {
+                killTree(process);
+                Thread.currentThread().interrupt();
+                throw new PhonemeConversionException("Phonemize process interrupted", interrupted);
+            }
+        }
+    }
+
+    private static Thread drainStream(
+            Process process,
+            java.io.InputStream input,
+            java.io.ByteArrayOutputStream output,
+            int maximumBytes,
+            AtomicBoolean exceeded,
+            String threadName) {
+        return new Thread(() -> {
+            try (var in = input) {
                 byte[] buffer = new byte[8192];
                 int read;
                 while ((read = in.read(buffer)) >= 0) {
-                    boolean exceeded = false;
-                    synchronized (stdout) {
-                        int remaining = MAX_OUTPUT_BYTES - stdout.size();
+                    boolean overLimit;
+                    synchronized (output) {
+                        int remaining = maximumBytes - output.size();
                         int accepted = Math.min(read, remaining);
-                        stdout.write(buffer, 0, accepted);
-                        exceeded = accepted < read;
+                        output.write(buffer, 0, accepted);
+                        overLimit = accepted < read;
                     }
-                    if (exceeded) {
-                        outputExceeded.set(true);
+                    if (overLimit) {
+                        exceeded.set(true);
                         terminateTree(process);
                         break;
                     }
                 }
             } catch (IOException ignored) { }
-        }, "media-phonemize-drain");
-        drain.setDaemon(true);
-        try {
-            writer.start();
-            drain.start();
-            boolean finished = process.waitFor(
-                    Math.max(1L, TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime())),
-                    TimeUnit.MILLISECONDS);
-            if (!finished) {
-                killTree(process);
-                throw new PhonemeConversionException("Phonemize process exceeded its time budget");
-            }
-            writer.join(2_000);
-            drain.join(2_000);
-            if (outputExceeded.get()) {
-                throw new PhonemeConversionException("Phonemize process exceeded its output budget");
-            }
-            if (process.exitValue() != 0) {
-                String err = Files.exists(errorLog) ? Files.readString(errorLog) : "";
-                throw new PhonemeConversionException(
-                        "Phonemize process failed: " + err.substring(0, Math.min(err.length(), 256)));
-            }
-            return extractPhonemes(stdout.toString(StandardCharsets.UTF_8));
-        } catch (IOException failure) {
-            killTree(process);
-            throw new PhonemeConversionException("Phonemize process I/O failed", failure);
-        } catch (InterruptedException interrupted) {
-            killTree(process);
-            Thread.currentThread().interrupt();
-            throw new PhonemeConversionException("Phonemize process interrupted", interrupted);
-        } finally {
-            if (errorLog != null) {
-                try { Files.deleteIfExists(errorLog); } catch (IOException ignored) { }
-            }
-        }
+        }, threadName);
     }
 
     /** This configured Piper bundle invokes the en-US phonemizer only. */
@@ -245,7 +271,7 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     }
 
     static String libraryPathSeparator() {
-        return File.pathSeparator;
+        return java.io.File.pathSeparator;
     }
 
     /**
