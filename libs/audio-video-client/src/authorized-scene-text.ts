@@ -182,8 +182,12 @@ export async function recognizeAuthorizedMediaSceneText(
       || !results.every(row=>validObservation(row, frozenFrame))) {
     reject('RECOGNIZER_RESULT_INVALID');
   }
+  // Detach the nested geometry too: the DI client owns its response objects
+  // and may reuse or mutate them after this promise resolves.
   return Object.freeze(results.map(row=>Object.freeze({
-    ...row,tenantId:access.tenantId,rightsDecisionRef:current.decisionRef,
+    ...row,
+    boundingRegion:Object.freeze({ ...row.boundingRegion }),
+    tenantId:access.tenantId,rightsDecisionRef:current.decisionRef,
     originalFrameSha256:access.originalFrameSha256,
   })));
 }

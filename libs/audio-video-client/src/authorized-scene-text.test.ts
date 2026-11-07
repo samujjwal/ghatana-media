@@ -122,6 +122,17 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     }));
   });
 
+  it('detaches returned geometry from mutable DI response objects', async () => {
+    const response = structuredClone(parsed);
+    const sourceRegion = response.pages[0]!.blocks[0]!.lines[0]!.boundingRegion!;
+    const output = await recognizeAuthorizedMediaSceneText(
+      authorized(), diClient(response), policy, 'op-1', frame, await admission());
+
+    Reflect.set(sourceRegion, 'x', 0.95);
+    expect(output[0]!.boundingRegion.x).toBe(0.1);
+    expect(Object.isFrozen(output[0]!.boundingRegion)).toBe(true);
+  });
+
   it('prevents any DI call on revoked consent', async () => {
     const di = diClient();
     const denied = {

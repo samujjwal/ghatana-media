@@ -261,6 +261,13 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
     writeError('INVALID_CONFIGURATION', 'GHATANA_MEDIA_BEARER_TOKEN contains characters that cannot be sent in an HTTP header.', {}, 2, args.command);
     return;
   }
+  // RFC 6750 bearer credentials allow visible token characters followed only
+  // by optional trailing '=' padding. Reject malformed local credentials
+  // before fetch can send them or a remote service can misclassify the error.
+  if (!/^[A-Za-z0-9._~+/-]+=*$/u.test(bearerToken)) {
+    writeError('INVALID_CONFIGURATION', 'GHATANA_MEDIA_BEARER_TOKEN is not a valid bearer credential.', {}, 2, args.command);
+    return;
+  }
   let requestTimeoutMs: number;
   try { requestTimeoutMs = parseRequestTimeout(process.env.GHATANA_MEDIA_REQUEST_TIMEOUT_MS); }
   catch (error) {
