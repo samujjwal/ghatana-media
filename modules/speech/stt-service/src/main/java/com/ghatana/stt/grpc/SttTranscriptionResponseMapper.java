@@ -58,6 +58,8 @@ final class SttTranscriptionResponseMapper {
         // These collections are optional provider metadata; absent values remain absent on the wire.
         List<Alternative> alternatives = result.alternatives() == null ? List.of() : result.alternatives();
         List<WordTiming> words = result.words() == null ? List.of() : result.words();
+        // Keep the cheap declared-size rejection, while the mapping loops below also
+        // enforce the same ceiling against collections whose size underreports.
         if (alternatives.size() > MAX_ALTERNATIVES) {
             throw invalid("alternative count exceeds the " + MAX_ALTERNATIVES + " item limit");
         }
@@ -85,7 +87,14 @@ final class SttTranscriptionResponseMapper {
             }
         }
 
-        for (Alternative alternative : alternatives) {
+        int alternativeCount = 0;
+        java.util.Iterator<Alternative> alternativeIterator = alternatives.iterator();
+        while (alternativeIterator.hasNext()) {
+            if (alternativeCount == MAX_ALTERNATIVES) {
+                throw invalid("alternative count exceeds the " + MAX_ALTERNATIVES + " item limit");
+            }
+            Alternative alternative = alternativeIterator.next();
+            alternativeCount++;
             if (alternative == null || alternative.text() == null || alternative.text().isBlank()) {
                 throw invalid("alternative text is required");
             }
@@ -103,7 +112,14 @@ final class SttTranscriptionResponseMapper {
         double previousStart = -1.0d;
         double previousEnd = 0.0d;
         long previousEndMs = -1;
-        for (WordTiming timing : words) {
+        int wordCount = 0;
+        java.util.Iterator<WordTiming> wordIterator = words.iterator();
+        while (wordIterator.hasNext()) {
+            if (wordCount == MAX_WORD_TIMINGS) {
+                throw invalid("word timing count exceeds the " + MAX_WORD_TIMINGS + " item limit");
+            }
+            WordTiming timing = wordIterator.next();
+            wordCount++;
             if (timing == null || timing.word() == null || timing.word().isBlank()) {
                 throw invalid("word timing text is required");
             }

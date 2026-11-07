@@ -10,7 +10,9 @@ import com.ghatana.stt.core.grpc.proto.TimestampTimebase;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.IntFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -213,6 +215,47 @@ class SttTranscriptionResponseMapperTest {
                 Duration.ofSeconds(1), "alternative confidence");
         assertInvalid(result(0.5, List.of(), alternativesOverLimit()), Duration.ofSeconds(1), "alternative count");
         assertInvalid(result(0.5, wordsOverLimit(), List.of()), Duration.ofSeconds(1), "word timing count");
+    }
+
+    @Test
+    void capsObservedProviderMetadataIterationEvenWhenListSizeUnderreports() {
+        java.util.concurrent.atomic.AtomicInteger alternativesRead = new java.util.concurrent.atomic.AtomicInteger();
+        List<Alternative> hostileAlternatives = underreportedIterator(
+                SttTranscriptionResponseMapper.MAX_ALTERNATIVES + 1,
+                index -> new Alternative("alt-" + index, 0.5), alternativesRead);
+        assertThatThrownBy(() -> SttTranscriptionResponseMapper.toProto(
+                result(0.5, List.of(), hostileAlternatives), Duration.ofSeconds(3)))
+                .isInstanceOfSatisfying(SttTranscriptionResponseMapper.InvalidResultException.class,
+                        failure -> assertThat(failure).hasMessageContaining("alternative count"));
+        assertThat(alternativesRead).hasValue(SttTranscriptionResponseMapper.MAX_ALTERNATIVES);
+
+        java.util.concurrent.atomic.AtomicInteger wordsRead = new java.util.concurrent.atomic.AtomicInteger();
+        List<WordTiming> hostileWords = underreportedIterator(SttTranscriptionResponseMapper.MAX_WORD_TIMINGS + 1,
+                index -> new WordTiming("word-" + index, index * 0.001, (index + 1) * 0.001, 0.5), wordsRead);
+        assertThatThrownBy(() -> SttTranscriptionResponseMapper.toProto(
+                result(0.5, hostileWords, List.of()), Duration.ofSeconds(3)))
+                .isInstanceOfSatisfying(SttTranscriptionResponseMapper.InvalidResultException.class,
+                        failure -> assertThat(failure).hasMessageContaining("word timing count"));
+        assertThat(wordsRead).hasValue(SttTranscriptionResponseMapper.MAX_WORD_TIMINGS);
+    }
+
+    private static <T> List<T> underreportedIterator(
+            int actualSize, IntFunction<T> value, java.util.concurrent.atomic.AtomicInteger reads) {
+        return new java.util.AbstractList<>() {
+            @Override public T get(int index) { throw new UnsupportedOperationException(); }
+            @Override public int size() { return 0; }
+            @Override public Iterator<T> iterator() {
+                return new Iterator<>() {
+                    private int index;
+                    @Override public boolean hasNext() { return index < actualSize; }
+                    @Override public T next() {
+                        int current = index++;
+                        reads.incrementAndGet();
+                        return value.apply(current);
+                    }
+                };
+            }
+        };
     }
 
     @Test
