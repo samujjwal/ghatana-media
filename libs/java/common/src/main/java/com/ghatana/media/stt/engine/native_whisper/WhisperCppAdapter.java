@@ -53,6 +53,7 @@ public final class WhisperCppAdapter implements SttEngine {
     private final AtomicLong requestCount = new AtomicLong(0);
     private final AtomicLong errorCount = new AtomicLong(0);
     private final AtomicReference<EngineStatus.State> state;
+    private final NativeModelLifecycle modelLifecycle = new NativeModelLifecycle();
 
     /**
      * Load the native whisper library.
@@ -127,56 +128,58 @@ public final class WhisperCppAdapter implements SttEngine {
 
     @Override
     public TranscriptionResult transcribe(AudioData audio, TranscriptionOptions options) {
-        ensureReady();
-        validateAudio(audio);
+        try (NativeModelLifecycle.Lease ignored = modelLifecycle.acquire()) {
+            ensureReady();
+            validateAudio(audio);
 
-        long startTime = System.currentTimeMillis();
-        requestCount.incrementAndGet();
+            long startTime = System.currentTimeMillis();
+            requestCount.incrementAndGet();
 
-        try {
-            concurrencyLimiter.acquire();
             try {
-                // Convert audio to float samples
-                float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample());
+                concurrencyLimiter.acquire();
+                try {
+                    // Convert audio to float samples
+                    float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample());
 
-                // Resample if needed
-                if (audio.sampleRate() != SAMPLE_RATE) {
-                    samples = resample(samples, audio.sampleRate(), SAMPLE_RATE);
+                    // Resample if needed
+                    if (audio.sampleRate() != SAMPLE_RATE) {
+                        samples = resample(samples, audio.sampleRate(), SAMPLE_RATE);
+                    }
+
+                    // Truncate/pad to max length
+                    if (samples.length > N_SAMPLES) {
+                        samples = Arrays.copyOf(samples, N_SAMPLES);
+                    }
+
+                    // Run native inference
+                    String text = whisper_full(modelPtr, samples, options.language().toLanguageTag());
+
+                    long latency = System.currentTimeMillis() - startTime;
+
+                    List<WordTiming> words = options.enableTimestamps()
+                        ? extractWordTimings(modelPtr)
+                        : List.of();
+
+                    return TranscriptionResult.withoutConfidence(
+                        text,
+                        words,
+                        List.of(),
+                        java.time.Duration.ofMillis(latency),
+                        options.language().toLanguageTag(),
+                        config.modelId()
+                    );
+
+                } finally {
+                    concurrencyLimiter.release();
                 }
-
-                // Truncate/pad to max length
-                if (samples.length > N_SAMPLES) {
-                    samples = Arrays.copyOf(samples, N_SAMPLES);
-                }
-
-                // Run native inference
-                String text = whisper_full(modelPtr, samples, options.language().toLanguageTag());
-
-                long latency = System.currentTimeMillis() - startTime;
-
-                List<WordTiming> words = options.enableTimestamps()
-                    ? extractWordTimings(modelPtr)
-                    : List.of();
-
-                return TranscriptionResult.withoutConfidence(
-                    text,
-                    words,
-                    List.of(),
-                    java.time.Duration.ofMillis(latency),
-                    options.language().toLanguageTag(),
-                    config.modelId()
-                );
-
-            } finally {
-                concurrencyLimiter.release();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                errorCount.incrementAndGet();
+                throw new InferenceError("Transcription interrupted", e, true);
+            } catch (Exception e) {
+                errorCount.incrementAndGet();
+                throw new InferenceError("Transcription failed", e, false);
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            errorCount.incrementAndGet();
-            throw new InferenceError("Transcription interrupted", e, true);
-        } catch (Exception e) {
-            errorCount.incrementAndGet();
-            throw new InferenceError("Transcription failed", e, false);
         }
     }
 
@@ -244,26 +247,30 @@ public final class WhisperCppAdapter implements SttEngine {
 
     @Override
     public void warmup() {
-        LOG.info("Warming up Whisper engine...");
-        try {
-            float[] dummy = new float[SAMPLE_RATE]; // 1 second
-            whisper_full(modelPtr, dummy, "en");
-            LOG.info("Warmup complete");
-        } catch (Exception e) {
-            LOG.warning("Warmup failed: " + e.getMessage());
+        try (NativeModelLifecycle.Lease ignored = modelLifecycle.acquire()) {
+            ensureReady();
+            LOG.info("Warming up Whisper engine...");
+            try {
+                float[] dummy = new float[SAMPLE_RATE]; // 1 second
+                whisper_full(modelPtr, dummy, "en");
+                LOG.info("Warmup complete");
+            } catch (Exception e) {
+                LOG.warning("Warmup failed: " + e.getMessage());
+            }
         }
     }
 
     @Override
     public void close() {
         LOG.info("Closing Whisper.cpp adapter...");
-        state.set(EngineStatus.State.CLOSED);
-
-        if (modelPtr != 0) {
-            whisper_free(modelPtr);
+        try {
+            modelLifecycle.close(() -> {
+                state.set(EngineStatus.State.CLOSED);
+                if (modelPtr != 0) whisper_free(modelPtr);
+            });
+        } finally {
+            executor.shutdown();
         }
-
-        executor.shutdown();
     }
 
     @Override
