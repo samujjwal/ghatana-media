@@ -1201,6 +1201,65 @@ describe("publishFinalRender", () => {
       .not.toHaveBeenCalled();
   });
 
+  it("keeps the validated upload identity when the client mutates its returned session during re-admission", async () => {
+    let clientOwnedSession: ReturnType<typeof uploadSession> | undefined;
+    let admissionChecks = 0;
+    const admission = { admit: vi.fn(async () => {
+      admissionChecks += 1;
+      if (admissionChecks === 3 && clientOwnedSession) {
+        clientOwnedSession.tenantId = "tenant-attacker";
+        clientOwnedSession.principalId = "principal-attacker";
+        clientOwnedSession.bytesReceived = 3;
+      }
+      return { status: "ADMITTED" as const, decisionRefs: [`rights-decision/${admissionChecks}`] };
+    }) };
+    const client = fakeClient({
+      createUploadSession: vi.fn(async (input: {
+        readonly fileName: string;
+        readonly contentType: string;
+        readonly expectedSizeBytes: number;
+        readonly expectedSha256: string;
+        readonly classification: string;
+        readonly metadata?: Readonly<Record<string, unknown>>;
+      }) => {
+        clientOwnedSession = uploadSession({
+          fileName: input.fileName,
+          contentType: input.contentType,
+          expectedSizeBytes: input.expectedSizeBytes,
+          expectedSha256: input.expectedSha256,
+          classification: input.classification,
+          metadata: input.metadata ?? {},
+        });
+        return clientOwnedSession;
+      }),
+      completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => ({
+        tenantId: session.tenantId,
+        principalId: session.principalId,
+        artifactId: "artifact-1",
+        fileName: session.fileName,
+        contentType: session.contentType,
+        sizeBytes: session.expectedSizeBytes,
+        sha256: session.expectedSha256,
+        objectReference: "objects/demo",
+        classification: session.classification,
+        createdAt: "2026-11-05T00:00:00Z",
+        expiresAt: "2026-12-05T00:00:00Z",
+        metadata: session.metadata,
+      })),
+    });
+    const uploadPart = (client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart;
+
+    await expect(publishFinalRender(request(), admission, muxer, client)).resolves.toMatchObject({ outcome: "PUBLISHED" });
+
+    expect(uploadPart).toHaveBeenCalledOnce();
+    expect(uploadPart.mock.calls[0]?.[0]).toMatchObject({
+      tenantId: "tenant-1",
+      principalId: "principal-1",
+      bytesReceived: 0,
+      nextChunkIndex: 0,
+    });
+  });
+
   it("does not publish when the completed artifact receipt changes upload scope", async () => {
     const client = fakeClient({
       completeUploadSession: vi.fn(async (session: ReturnType<typeof uploadSession>) => ({

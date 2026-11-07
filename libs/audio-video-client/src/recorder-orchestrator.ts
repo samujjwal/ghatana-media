@@ -790,6 +790,13 @@ function sameUploadSessionIdentity(
     && sameRenderJson(actual.metadata, expected.metadata);
 }
 
+/** Keep adapter-owned session objects from changing across later awaits. */
+function snapshotUploadSession(
+  session: CanonicalMediaUploadSessionObservation,
+): CanonicalMediaUploadSessionObservation {
+  return freezeRenderValue(JSON.parse(JSON.stringify(session)) as CanonicalMediaUploadSessionObservation);
+}
+
 /**
  * Publishes only bytes returned by the admitted mux+decoder/probe host port.
  * The canonical upload's declared idempotency key is stable for the same
@@ -921,7 +928,7 @@ export async function publishFinalRender(
       captions: safeRequest.captions,
       creditRefs: safeRequest.creditRefs,
     });
-    let session = await artifactClient.createUploadSession({
+    const createdSession = await artifactClient.createUploadSession({
       fileName: safeRequest.fileName,
       contentType: rendered.contentType,
       expectedSizeBytes: bytes.byteLength,
@@ -931,6 +938,9 @@ export async function publishFinalRender(
       metadata: uploadMetadata,
       idempotencyKey,
     }, signal);
+    // The client owns its returned object. Detach immediately so a later
+    // awaited admission check cannot rewrite the identity we validated.
+    let session = snapshotUploadSession(createdSession);
     uploadId = session.uploadId;
     if (session.status !== "OPEN") {
       return { outcome: "OUTCOME_UNKNOWN", reason: "idempotent upload session is not open; read canonical state before replay", uploadId };
@@ -971,7 +981,9 @@ export async function publishFinalRender(
         || acknowledgedSession.nextChunkIndex !== chunkIndex + 1) {
         return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement does not confirm the exact upload session progress", uploadId };
       }
-      session = acknowledgedSession;
+      // Keep the validated receipt detached from the adapter before the next
+      // admission check or completion call can yield control.
+      session = snapshotUploadSession(acknowledgedSession);
       offset = end;
       chunkIndex += 1;
     }
