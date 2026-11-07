@@ -191,6 +191,22 @@ class MediaDeliveryEngineTest {
                 "destination:1", Status.DESTINATION_CONFIRMED, 0, Optional.of("receipt:1")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("inconsistent with delivery status");
+
+        int overArtifactLimit = MAX_ARTIFACT_BYTES + 1;
+        assertThat(new DeliveryResult(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", Status.OUTCOME_UNKNOWN, MAX_ARTIFACT_BYTES, Optional.empty())
+                .acknowledgedBytes()).isEqualTo(MAX_ARTIFACT_BYTES);
+        assertThatThrownBy(() -> new DeliveryResult(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", Status.OUTCOME_UNKNOWN, overArtifactLimit, Optional.empty()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("acknowledgedBytes exceeds the maximum artifact size");
+        assertThatThrownBy(() -> new DeliveryOperationStore.Operation(
+                "tenant:1", "principal:1", "request:1", "artifact:1", "version:1", "sha256:artifact",
+                "destination:1", "sha256:request", Status.OUTCOME_UNKNOWN, overArtifactLimit, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("acknowledgedBytes exceeds the maximum artifact size");
     }
 
     @Test

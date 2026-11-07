@@ -637,6 +637,9 @@ public final class MediaDeliveryEngine {
     private static OperationKey key(ExportRequest r) { return new OperationKey(r.tenantId(), r.requestId()); }
     static void validateProgress(Status status, int acknowledgedBytes) {
         if (acknowledgedBytes < 0) throw new IllegalArgumentException("acknowledgedBytes must not be negative");
+        if (acknowledgedBytes > MAX_ARTIFACT_BYTES) {
+            throw new IllegalArgumentException("acknowledgedBytes exceeds the maximum artifact size");
+        }
         boolean requiresZero = status == Status.QUEUED || status == Status.REVOKED || status == Status.UNAVAILABLE;
         boolean requiresPositive = status == Status.SENT || status == Status.DESTINATION_CONFIRMED;
         if ((requiresZero && acknowledgedBytes != 0) || (requiresPositive && acknowledgedBytes == 0)) {
