@@ -315,6 +315,23 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void aggregateTrackedMaskBytesAreBoundedBeforeRightsInspection() {
+        byte[] maximumMaskBytes = new byte[4_096 * 4_096];
+        ReversibleRegionEditEngine.MaskShape maximumMask = new ReversibleRegionEditEngine.MaskShape(
+                4_096, 4_096, maximumMaskBytes);
+        List<ReversibleRegionEditEngine.TrackedSample> samples = List.of(
+                maskSample(0, maximumMask), maskSample(1, maximumMask), maskSample(2, maximumMask));
+        RegionEditFixture fixture = new RegionEditFixture();
+
+        assertThatThrownBy(() -> fixture.engine.prepare(OWNER, new ReversibleRegionEditEngine.EditRequest(
+                "project-region", "plan-large-mask-evidence", "r0", SOURCE, DIGEST, "local-region-edit", "region-1",
+                PTS, evidence(samples), ReversibleRegionEditEngine.EditIntent.ADJUST_MASK_BOUNDARY)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("tracked mask evidence exceeds the 64 MiB local byte bound");
+        assertThat(fixture.rightsCalls).isZero();
+    }
+
+    @Test
     void reportedCollectionSizesCannotBypassTrackedSampleOrMetadataBounds() {
         AtomicInteger visitedSamples = new AtomicInteger();
         ReversibleRegionEditEngine.TrackedSample sample = bboxSample(0, .1, .1, 0);
@@ -409,6 +426,12 @@ class ReversibleRegionEditEngineTest {
                 dx == 0 ? "source-normalized-frame-v1" : "edited-normalized-frame-v1",
                 new ReversibleRegionEditEngine.BoxShape(source), new ReversibleRegionEditEngine.BoxShape(edited),
                 new ReversibleRegionEditEngine.AffineTransform(1, 0, 0, 1, dx, 0));
+    }
+
+    private static ReversibleRegionEditEngine.TrackedSample maskSample(
+            long pts, ReversibleRegionEditEngine.MaskShape mask) {
+        return new ReversibleRegionEditEngine.TrackedSample(sourcePts(pts), "source-mask-grid-v1",
+                "source-mask-grid-v1", mask, mask, ReversibleRegionEditEngine.AffineTransform.identity());
     }
 
     private static MediaTimebase.Timestamp sourcePts(long ticks) {

@@ -28,6 +28,8 @@ import java.util.TreeMap;
  */
 public final class ReversibleRegionEditEngine {
     private static final int MAX_SNAPSHOT_BYTES = 64 * 1024 * 1024;
+    // PDP leaves aggregate mask sizing open; keep one evidence payload within the existing snapshot byte budget.
+    private static final long MAX_TRACKING_MASK_BYTES = MAX_SNAPSHOT_BYTES;
     private static final int MAX_TRACKED_SAMPLES = 10_000;
     private static final int MAX_SNAPSHOT_METADATA_ENTRIES = 256;
     private static final int MAX_SNAPSHOT_METADATA_KEY_CHARS = 256;
@@ -124,6 +126,7 @@ public final class ReversibleRegionEditEngine {
             throw new IllegalArgumentException("tracked samples exceed the 10000-frame local bound");
         }
         long previous = -1;
+        long trackedMaskBytes = 0;
         for (TrackedSample sample : evidence.samples()) {
             MediaTimebase.Timestamp pts = sample.sourcePts();
             if (pts.domain() != MediaTimebase.ClockDomain.SOURCE || !pts.timebase().equals(timebase)) {
@@ -131,8 +134,19 @@ public final class ReversibleRegionEditEngine {
             }
             if (pts.ticks() <= previous) throw new IllegalArgumentException("source presentation timestamps must strictly increase");
             previous = pts.ticks();
+            trackedMaskBytes = addMaskBytes(trackedMaskBytes, sample.sourceShape());
+            trackedMaskBytes = addMaskBytes(trackedMaskBytes, sample.editedShape());
             validateMapping(sample);
         }
+    }
+
+    private static long addMaskBytes(long currentBytes, RegionShape shape) {
+        if (!(shape instanceof MaskShape mask)) return currentBytes;
+        long total = Math.addExact(currentBytes, (long) mask.width() * mask.height());
+        if (total > MAX_TRACKING_MASK_BYTES) {
+            throw new IllegalArgumentException("tracked mask evidence exceeds the 64 MiB local byte bound");
+        }
+        return total;
     }
 
     /**
