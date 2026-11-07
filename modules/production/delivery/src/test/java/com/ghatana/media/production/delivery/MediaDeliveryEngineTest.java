@@ -820,6 +820,23 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void inMemoryClaimAcquisitionDoesNotNormalizeOwnerIdentity() {
+        InMemoryDeliveryOperationStore store = new InMemoryDeliveryOperationStore(() -> NOW);
+        DeliveryOperationStore.Operation operation = new DeliveryOperationStore.Operation(
+                "tenant", "principal", "request", "artifact", "version", "a".repeat(64), "destination",
+                "b".repeat(64), Status.QUEUED, 0, null);
+        assertThat(store.insertIfAbsent(operation)).isTrue();
+
+        assertThatThrownBy(() -> store.acquireDispatchClaim(operation, " worker-a ", Duration.ofSeconds(10)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("ownerId is invalid");
+        DeliveryOperationStore.DispatchClaim claim = store.acquireDispatchClaim(
+                operation, "worker-a", Duration.ofSeconds(10)).orElseThrow();
+        assertThat(claim.ownerId()).isEqualTo("worker-a");
+        assertThat(claim.fence()).isEqualTo(1);
+    }
+
+    @Test
     void legacyUnfencedDestinationIsNeverCalled() {
         Fixture f = new Fixture();
         AtomicBoolean called = new AtomicBoolean();

@@ -42,8 +42,9 @@ public final class InMemoryDeliveryOperationStore implements DeliveryOperationSt
     @Override public synchronized Optional<DispatchClaim> acquireDispatchClaim(
             Operation operation, String ownerId, Duration lease) {
         Duration checked = DeliveryOperationStore.checkedLease(lease);
-        ownerId = ownerId == null ? "" : ownerId.trim();
-        if (ownerId.isEmpty() || ownerId.length() > 255) throw new IllegalArgumentException("ownerId is invalid");
+        if (ownerId == null || ownerId.isBlank() || !ownerId.equals(ownerId.strip()) || ownerId.length() > 255) {
+            throw new IllegalArgumentException("ownerId is invalid");
+        }
         OperationKey key = key(operation.tenantId(), operation.requestId());
         Operation stored = operations.get(key);
         if (!operation.equals(stored)) return Optional.empty();
