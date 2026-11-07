@@ -21,6 +21,16 @@ class TemporalVideoRestorationTest {
     private static final TimeBase TIME_BASE = new TimeBase(1, 30);
 
     @Test
+    void authorityDecisionIdentityRejectsWhitespaceInsteadOfNormalizingRightsEvidence() {
+        assertThatThrownBy(() -> new AuthorityDecision(AuthorityStatus.ALLOWED, " decision-v1 "))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("exact");
+        assertThatThrownBy(() -> new AuthorityDecision(AuthorityStatus.DENIED, " denied-decision "))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("exact");
+        assertThat(new AuthorityDecision(AuthorityStatus.ALLOWED, "decision-v1").decisionId())
+                .isEqualTo("decision-v1");
+    }
+
+    @Test
     void artifactBindingRejectsOuterWhitespaceInsteadOfChangingIdentityOrRightsReferences() {
         assertThatThrownBy(() -> new ArtifactBinding(" tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
                 "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))

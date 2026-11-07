@@ -19,6 +19,16 @@ class QualityComparisonAndOptimizationTest {
     private static final Budget BUDGET = new Budget(100, 300, 4);
 
     @Test
+    void authorityDecisionIdentityRejectsWhitespaceInsteadOfNormalizingRightsEvidence() {
+        assertThatThrownBy(() -> new AuthorityDecision(AuthorityStatus.ALLOWED, " decision-v1 "))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
+        assertThatThrownBy(() -> new AuthorityDecision(AuthorityStatus.DENIED, " denied-decision "))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
+        assertThat(new AuthorityDecision(AuthorityStatus.ALLOWED, "decision-v1").decisionId())
+                .isEqualTo("decision-v1");
+    }
+
+    @Test
     void authorizedAlignedReferenceProducesGoldenPsnrSsimAndImprovementDisposition() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v1", "b", 25);

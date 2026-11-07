@@ -121,7 +121,10 @@ public final class QualityComparisonAndOptimization {
     public record AuthorityDecision(AuthorityStatus status, String decisionId) {
         public AuthorityDecision {
             Objects.requireNonNull(status, "status");
-            decisionId = decisionId == null ? "" : decisionId.trim();
+            decisionId = decisionId == null ? "" : decisionId;
+            if (!decisionId.isEmpty() && !decisionId.equals(decisionId.strip())) {
+                throw invalid("authority decision id must be exact and have no surrounding whitespace");
+            }
             if (status == AuthorityStatus.ALLOWED && decisionId.isBlank()) throw invalid("allowed authority needs decision id");
         }
     }
