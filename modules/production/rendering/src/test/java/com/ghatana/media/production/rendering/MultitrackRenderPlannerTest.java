@@ -76,6 +76,55 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void cancellationBeforeCloseCleansDestinationButDoesNotExposeCompletedDigest() throws Exception {
+        var emitted = new ByteArrayOutputStream();
+        var closed = new AtomicBoolean();
+        var cancelled = new AtomicBoolean();
+        OutputStream destination = new OutputStream() {
+            @Override public void write(int value) { emitted.write(value); }
+            @Override public void write(byte[] bytes, int offset, int length) {
+                emitted.write(bytes, offset, length);
+            }
+            @Override public void close() { closed.set(true); }
+        };
+        var output = new BoundedRenderOutput(destination, 16, cancelled::get);
+        output.write("complete-bytes".getBytes(StandardCharsets.UTF_8));
+        cancelled.set(true);
+
+        assertThatThrownBy(output::close).isInstanceOf(IOException.class)
+                .hasMessage("render output cancellation requested");
+        assertThat(closed).isTrue();
+        assertThat(emitted.toString(StandardCharsets.UTF_8)).isEqualTo("complete-bytes");
+        assertThat(output.completedSha256()).isNull();
+        assertThatThrownBy(() -> output.write(1)).isInstanceOf(IOException.class)
+                .hasMessage("render output is closed");
+    }
+
+    @Test
+    void cancellationSupplierFailureStillAttemptsDestinationCleanupAndSuppressesCloseFailure() {
+        var closeAttempted = new AtomicBoolean();
+        var supplierFailure = new IllegalStateException("cancellation supplier failed");
+        OutputStream destination = new OutputStream() {
+            @Override public void write(int value) { }
+            @Override public void close() throws IOException {
+                closeAttempted.set(true);
+                throw new IOException("destination close failed");
+            }
+        };
+        var output = new BoundedRenderOutput(destination, 16, () -> { throw supplierFailure; });
+
+        assertThatThrownBy(output::close).isSameAs(supplierFailure);
+        assertThat(closeAttempted).isTrue();
+        assertThat(supplierFailure.getSuppressed()).singleElement().satisfies(closeFailure -> {
+            assertThat(closeFailure).isInstanceOf(IOException.class)
+                    .hasMessage("destination close failed");
+        });
+        assertThat(output.completedSha256()).isNull();
+        assertThatThrownBy(() -> output.write(1)).isInstanceOf(IOException.class)
+                .hasMessage("render output has failed");
+    }
+
+    @Test
     void failedDelegateWriteInvalidatesPartialOutputAndClosesDestinationForCleanup() {
         var state = new FailingDestination();
         var output = new BoundedRenderOutput(state, 8);

@@ -109,14 +109,33 @@ final class BoundedRenderOutput extends OutputStream {
     @Override
     public void close() throws IOException {
         if (closed) return;
+        boolean cancelled = false;
+        RuntimeException cancellationRuntimeFailure = null;
+        Error cancellationErrorFailure = null;
+        try {
+            cancelled = cancellationRequested.getAsBoolean();
+        } catch (RuntimeException failure) {
+            failed = true;
+            cancellationRuntimeFailure = failure;
+        } catch (Error failure) {
+            failed = true;
+            cancellationErrorFailure = failure;
+        }
+        boolean cancelledAtClose = cancelled && !failed;
+        if (cancelled) failed = true;
         try {
             destination.close();
             closed = true;
             if (!failed) completedSha256 = HexFormat.of().formatHex(digest.digest());
         } catch (IOException | RuntimeException | Error failure) {
             failed = true;
-            throw failure;
+            if (cancellationRuntimeFailure != null) cancellationRuntimeFailure.addSuppressed(failure);
+            else if (cancellationErrorFailure != null) cancellationErrorFailure.addSuppressed(failure);
+            else throw failure;
         }
+        if (cancellationRuntimeFailure != null) throw cancellationRuntimeFailure;
+        if (cancellationErrorFailure != null) throw cancellationErrorFailure;
+        if (cancelledAtClose) throw new IOException("render output cancellation requested");
     }
 
     long bytesWritten() { return bytesWritten; }
