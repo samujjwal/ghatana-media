@@ -48,6 +48,35 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void sourceOrCandidateCannotBeReusedAsItsOwnQualityReference() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        for (Revision aliasedReference : List.of(source, candidate)) {
+            AtomicInteger rightsChecks = new AtomicInteger();
+            AtomicInteger referenceReads = new AtomicInteger();
+            Run run = optimize(OPERATION, source, (id, purpose) -> allowed("src"), port(List.of(candidate)), 1,
+                    BUDGET, Optional.of(new ReferenceRequest(aliasedReference.id(), "quality-reference")),
+                    (id, purpose) -> {
+                        rightsChecks.incrementAndGet();
+                        return allowed("ref");
+                    }, id -> {
+                        referenceReads.incrementAndGet();
+                        return aliasedReference;
+                    });
+
+            Report report = run.report().orElseThrow();
+            CandidateComparison comparison = report.comparisons().getFirst();
+            assertThat(report.reference()).isEmpty();
+            assertThat(report.referenceUnavailableReason()).contains(UnavailableReason.REFERENCE_UNAVAILABLE);
+            assertThat(comparison.psnr().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+            assertThat(comparison.ssim().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+            assertThat(comparison.disposition()).isEqualTo(QualityDisposition.UNAVAILABLE);
+            assertThat(rightsChecks).hasValue(0);
+            assertThat(referenceReads).hasValue(0);
+        }
+    }
+
+    @Test
     void j19LocalScenarioReportsBoundedReversibleComparisonAndFailsClosedOnUnknownAuthority() {
         // These synthetic RGB8 samples exercise the local contract only. They are not
         // decoded media, independently authored quality evidence, or production output.

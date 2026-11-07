@@ -455,6 +455,12 @@ class TemporalVideoRestorationTest {
                 "RGB8_SAMPLE_PSNR_V1", new Psnr(MetricStatus.EXACT_REFERENCE_MATCH,
                         java.util.OptionalDouble.empty()), java.util.OptionalDouble.of(0.9), java.util.Optional.empty()))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("infinite PSNR omission");
+
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.MEASURED, "reference", "v7", REF_SHA,
+                "PERCEPTUAL_NEURAL_V9", new Psnr(MetricStatus.MEASURED,
+                        java.util.OptionalDouble.of(20.0)), java.util.OptionalDouble.of(0.7), java.util.Optional.empty()))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("supported algorithm");
     }
 
     @Test

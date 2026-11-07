@@ -587,6 +587,25 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsCaptionRowsBeyondTheGraphBoundEvenWhenDigestMatches() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(), 1_000)).plan();
+        var oversizedManifest = new StringBuilder(valid.canonicalManifest());
+        for (int index = 0; index <= MultitrackRenderPlanner.MAX_CAPTIONS; index++) {
+            oversizedManifest.append("caption=cap-").append(index).append("|0/1|1/2|dGV4dA\n");
+        }
+        String forgedManifest = oversizedManifest.toString();
+        String forgedDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("canonical manifest caption count exceeds limit");
+    }
+
+    @Test
     void publicPlanRejectsCaptionBeyondDurationEvenWhenManifestDigestMatches() throws Exception {
         var start = new MultitrackRenderPlanner.Time(0, 1);
         var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(

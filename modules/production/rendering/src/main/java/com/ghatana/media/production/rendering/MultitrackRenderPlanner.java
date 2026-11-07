@@ -360,10 +360,21 @@ public final class MultitrackRenderPlanner {
                 || !lines[1].startsWith("duration=") || !lines[2].startsWith("output-budget-bytes=")) {
             throw invalid("canonical manifest header is malformed");
         }
+        int clips = 0;
+        int frames = 0;
+        int captions = 0;
+        int transitions = 0;
         for (int i = 3; i < lines.length - 1; i++) {
             String line = lines[i];
-            if (!(line.startsWith("clip=") || line.startsWith("frame=")
-                    || line.startsWith("caption=") || line.startsWith("transition="))) {
+            if (line.startsWith("clip=")) {
+                if (++clips > MAX_CLIPS) throw invalid("canonical manifest clip count exceeds limit");
+            } else if (line.startsWith("frame=")) {
+                if (++frames > MAX_FRAMES_PER_PLAN) throw invalid("canonical manifest frame count exceeds limit");
+            } else if (line.startsWith("caption=")) {
+                if (++captions > MAX_CAPTIONS) throw invalid("canonical manifest caption count exceeds limit");
+            } else if (line.startsWith("transition=")) {
+                if (++transitions > MAX_TRANSITIONS) throw invalid("canonical manifest transition count exceeds limit");
+            } else {
                 throw invalid("canonical manifest contains an unsupported record");
             }
         }

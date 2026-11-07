@@ -386,8 +386,8 @@ public final class QualityComparisonAndOptimization {
             return Run.blockedKeeping(RunStatus.CANCELLED, BlockReason.CANCELLED, retained, attemptsMade);
         }
 
-        ReferenceLoad reference = loadReference(referenceRequest, referenceRights, referenceReader, source, budget,
-                pixels, bytes);
+        ReferenceLoad reference = loadReference(referenceRequest, referenceRights, referenceReader, source, candidates,
+                budget, pixels, bytes);
         ArrayList<CandidateComparison> comparisons = new ArrayList<>();
         for (Revision candidate : candidates) {
             comparisons.add(compare(source, candidate, reference.revision()));
@@ -433,9 +433,16 @@ public final class QualityComparisonAndOptimization {
     }
 
     private static ReferenceLoad loadReference(Optional<ReferenceRequest> request, RightsAuthority authority,
-            ReferenceReader reader, Revision source, Budget budget, long pixels, long bytes) {
+            ReferenceReader reader, Revision source, List<Revision> candidates, Budget budget, long pixels, long bytes) {
         if (request.isEmpty()) return ReferenceLoad.unavailable(UnavailableReason.NO_REFERENCE);
         ReferenceRequest ref = request.get();
+        // A source or candidate revision cannot serve as its own independent
+        // quality reference: doing so can make a candidate appear improved by
+        // construction (exact PSNR/SSIM against the same immutable revision).
+        if (ref.revision().equals(source.id())
+                || candidates.stream().anyMatch(candidate -> ref.revision().equals(candidate.id()))) {
+            return ReferenceLoad.unavailable(UnavailableReason.REFERENCE_UNAVAILABLE);
+        }
         if (authority == null) return ReferenceLoad.unavailable(UnavailableReason.REFERENCE_AUTHORITY_UNAVAILABLE);
         AuthorityDecision decision = checkRights(authority, ref.revision(), ref.purpose());
         if (decision == null || decision.status() != AuthorityStatus.ALLOWED) {

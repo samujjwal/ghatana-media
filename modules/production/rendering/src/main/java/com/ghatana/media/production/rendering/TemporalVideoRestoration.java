@@ -27,6 +27,7 @@ public final class TemporalVideoRestoration {
     private static final String SHA256 = "^[a-fA-F0-9]{64}$";
     private static final String SSIM_ALGORITHM = "GLOBAL_SRGB_LUMA_SSIM_V1";
     private static final String PSNR_ALGORITHM = "RGB8_SAMPLE_PSNR_V1";
+    private static final String REFERENCE_METRICS_ALGORITHM = SSIM_ALGORITHM + "+" + PSNR_ALGORITHM;
 
     private TemporalVideoRestoration() {}
 
@@ -414,7 +415,7 @@ public final class TemporalVideoRestoration {
                 }
             } else {
                 if (unavailableReason.isPresent() || referenceArtifactId.isBlank() || referenceVersionId.isBlank()
-                        || !referenceSha256.matches(SHA256) || algorithm.isBlank()
+                        || !referenceSha256.matches(SHA256)
                         || globalLumaSsim.isEmpty() || !Double.isFinite(globalLumaSsim.getAsDouble())
                         || globalLumaSsim.getAsDouble() < -1.0 || globalLumaSsim.getAsDouble() > 1.0
                         || psnr.status() != status) {
@@ -423,6 +424,9 @@ public final class TemporalVideoRestoration {
                 if (status == MetricStatus.EXACT_REFERENCE_MATCH
                         && (psnr.finiteDb().isPresent() || globalLumaSsim.getAsDouble() != 1.0)) {
                     throw invalid("exact reference matches use infinite PSNR omission and SSIM 1.0");
+                }
+                if (!REFERENCE_METRICS_ALGORITHM.equals(algorithm)) {
+                    throw invalid("available reference metrics require the supported algorithm");
                 }
             }
         }
@@ -813,7 +817,7 @@ public final class TemporalVideoRestoration {
         if (!Double.isFinite(ssim)) throw invalid("reference SSIM calculation was not finite");
         return new ReferenceMetrics(exact ? MetricStatus.EXACT_REFERENCE_MATCH : MetricStatus.MEASURED,
                 referenceBinding.artifactId(), referenceBinding.versionId(), referenceBinding.sha256(),
-                SSIM_ALGORITHM + "+" + PSNR_ALGORITHM,
+                REFERENCE_METRICS_ALGORITHM,
                 new Psnr(exact ? MetricStatus.EXACT_REFERENCE_MATCH : MetricStatus.MEASURED, psnr),
                 OptionalDouble.of(Math.max(-1.0, Math.min(1.0, ssim))), Optional.empty());
     }
