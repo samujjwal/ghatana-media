@@ -1194,6 +1194,25 @@ describe("publishFinalRender", () => {
     expect(uploadedBytes).toEqual([1, 2, 3]);
   });
 
+  it("uploads the hashed byte snapshot even if the mux buffer slice method is replaced", async () => {
+    let uploadedBytes: number[] = [];
+    const client = fakeClient({
+      uploadPart: vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) => {
+        uploadedBytes = [...new Uint8Array(await blob.arrayBuffer())];
+        return uploadSession({ ...session, bytesReceived: blob.size, nextChunkIndex: 1 });
+      }),
+    });
+    const replacedSlice = vi.spyOn(Uint8Array.prototype, "slice")
+      .mockImplementation(() => new Uint8Array([9, 9, 9]));
+    try {
+      await expect(publishFinalRender(request(), admitted, muxer, client))
+        .resolves.toMatchObject({ outcome: "PUBLISHED" });
+    } finally {
+      replacedSlice.mockRestore();
+    }
+    expect(uploadedBytes).toEqual([1, 2, 3]);
+  });
+
   it("uses one duplicate fence for equivalent rational FPS and time-base inputs", async () => {
     const client = fakeClient();
     const firstRequest = request();

@@ -1116,8 +1116,13 @@ export async function publishFinalRender(
       // that same mutable reference after awaiting the chunk effect.
       const dispatchedSession = JSON.parse(JSON.stringify(session)) as CanonicalMediaUploadSessionObservation;
       chunkDispatchAwaitingAck = true;
+      // Copy directly from the exact private byte snapshot that was hashed
+      // above. Do not dispatch through replaceable slice/subarray methods or
+      // typed-array species hooks that could produce different bytes.
+      const chunk = new Uint8Array(end - offset);
+      for (let index = offset; index < end; index += 1) chunk[index - offset] = bytes[index]!;
       const acknowledgedSession = await artifactClient.uploadPart(session, chunkIndex,
-        new Blob([bytes.slice(offset, end)], { type: "application/octet-stream" }), { signal });
+        new Blob([chunk], { type: "application/octet-stream" }), { signal });
       chunkDispatchAwaitingAck = false;
       if (!acknowledgedSession || acknowledgedSession.status !== "OPEN"
         || !sameUploadSessionIdentity(acknowledgedSession, dispatchedSession)
