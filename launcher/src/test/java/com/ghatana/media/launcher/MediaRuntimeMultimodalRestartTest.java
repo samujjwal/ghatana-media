@@ -95,6 +95,12 @@ class MediaRuntimeMultimodalRestartTest {
                         now, now, now, Map.of("text", "fixture"), "", 2,
                         "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64))))
                 .isFalse();
+        assertThat(MediaRuntime.matchesMultimodalChildBinding(parent, requestId, childSpec,
+                new ProcessingJob("child", requestId, "tenant-a", "principal-a",
+                        "stt-artifact", JobType.SPEECH_TO_TEXT, "stt", JobStatus.COMPLETED,
+                        now, now, now, Map.of("text", "fixture"), "", 2,
+                        "sha256:" + "c".repeat(64), "malformed-fingerprint")))
+                .isFalse();
     }
 
     @Test
