@@ -204,11 +204,14 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
              PreparedStatement ack = connection.prepareStatement(
                      "UPDATE media_processing_lifecycle_outbox SET published_at=?,attempts=attempts+1,last_error=NULL,"
                              + "claim_owner=NULL,claim_expires_at=NULL,next_attempt_at=0 "
-                             + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=?")) {
-            ack.setLong(1, System.currentTimeMillis());
+                             + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=? "
+                             + "AND claim_expires_at>?")) {
+            long now = System.currentTimeMillis();
+            ack.setLong(1, now);
             ack.setString(2, claim.eventId());
             ack.setString(3, claimOwner);
             ack.setLong(4, claim.token());
+            ack.setLong(5, now);
             return ack.executeUpdate() == 1;
         } catch (SQLException failure) {
             throw new IllegalStateException("Unable to acknowledge Media lifecycle event", failure);
@@ -226,7 +229,8 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
              PreparedStatement retry = connection.prepareStatement(
                      "UPDATE media_processing_lifecycle_outbox SET attempts=?,last_error=?,next_attempt_at=?,"
                              + "dead_lettered_at=?,dead_letter_reason=?,claim_owner=NULL,claim_expires_at=NULL "
-                             + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=?")) {
+                             + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=? "
+                             + "AND claim_expires_at>?")) {
             retry.setInt(1, nextAttempt);
             retry.setString(2, errorType);
             retry.setLong(3, nextAt);
@@ -235,6 +239,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             retry.setString(6, claim.eventId());
             retry.setString(7, claimOwner);
             retry.setLong(8, claim.token());
+            retry.setLong(9, now);
             retry.executeUpdate(); // zero rows means this worker's claim expired and was replaced.
         } catch (SQLException storeFailure) {
             throw new IllegalStateException("Unable to persist Media lifecycle retry", storeFailure);

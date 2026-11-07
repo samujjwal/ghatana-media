@@ -72,6 +72,9 @@ public final class VideoFrameTimebase {
                     throw new IllegalArgumentException(
                             "known source timestamps require ticks, a positive rational timebase, and clock identity");
                 }
+                if (!clockId.equals(clockId.strip())) {
+                    throw new IllegalArgumentException("source clock identity must not have surrounding whitespace");
+                }
             } else if (ticks != null || timebaseNumerator != null || timebaseDenominator != null
                     || clockId != null || unknownReason == null || unknownReason.isBlank()) {
                 throw new IllegalArgumentException("unknown source timestamps must not contain fabricated clock values");

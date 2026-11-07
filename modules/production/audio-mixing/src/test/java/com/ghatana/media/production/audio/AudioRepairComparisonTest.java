@@ -82,6 +82,15 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void rejectsSubBytePcmDepthBeforeFrameLengthArithmetic() {
+        AudioData malformed = new AudioData(new byte[] {1}, 8_000, 1, 7,
+                Duration.ofNanos(125_000), AudioFormat.PCM);
+
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                AudioRepairComparison.compare(malformed, malformed));
+    }
+
+    @Test
     void rejectsReferenceAliasedToEitherComparedRevision() {
         AudioData source = pcm(10, 20);
         AudioData repaired = pcm(9, 19);

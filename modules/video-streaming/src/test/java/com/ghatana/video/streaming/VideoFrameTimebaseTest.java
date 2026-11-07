@@ -109,6 +109,9 @@ class VideoFrameTimebaseTest {
         assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.known(12, 1, 90_000, " "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("clock identity");
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.known(12, 1, 90_000, " source-clock-A "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
         assertThatThrownBy(() -> new VideoFrameTimebase.PresentationMapping(
                 VideoFrameTimebase.Status.KNOWN,
                 VideoFrameTimebase.SourceTimestamp.known(1, 1, 90_000, "output-clock"),

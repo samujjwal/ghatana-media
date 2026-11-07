@@ -201,6 +201,23 @@ describe("captureWithAdmission", () => {
     expect(frame.sourcePresentationTime).toMatchObject({ disposition: "KNOWN", presentationTicks: "9000" });
   });
 
+  it("freezes admitted gRPC source-version and clock bindings after validation", async () => {
+    const grpcRequest: CaptureRequest = { ...request, kind: "GRPC_API" };
+    const frame = await captureWithAdmission({ check: () => "ADMITTED" },
+      adapterReturning(capturedFrame()), grpcRequest);
+
+    expect(Object.isFrozen(frame)).toBe(true);
+    expect(Reflect.set(frame as unknown as Record<string, unknown>, "sourceVersionRef", "stream@attacker"))
+      .toBe(false);
+    expect(Reflect.set(frame as unknown as Record<string, unknown>, "frameClockRef", "clock:attacker"))
+      .toBe(false);
+    expect(frame.sourceVersionRef).toBe(grpcRequest.sourceVersionRef);
+    expect(frame.frameClockRef).toBe(grpcRequest.frameClockRef);
+    // Consumers may still process the detached payload.
+    frame.bytes[0] = 9;
+    expect(frame.bytes[0]).toBe(9);
+  });
+
   it("returns sanitized UNKNOWN for malformed camera clock sets and mismatched source PTS", async () => {
     const duplicatedClockDomains = cameraMetadata();
     const mutableMappings = duplicatedClockDomains.clockMappings as unknown as Array<{

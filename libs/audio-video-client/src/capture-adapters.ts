@@ -619,10 +619,13 @@ export async function captureWithAdmission(
       ...(safeSourcePresentationTime === undefined ? {} : { sourcePresentationTime: safeSourcePresentationTime }),
       ...(safeAudioSampleTime === undefined ? {} : { audioSampleTime: safeAudioSampleTime }),
     };
-    // CAMERA provenance is an admitted binding across source, permission and
-    // clock domains. Freeze its envelope as well as its nested records so a
-    // consumer cannot relabel that binding after this boundary validated it.
-    return admittedRequest.kind === "CAMERA" ? Object.freeze(normalizedFrame) : normalizedFrame;
+    // CAMERA and gRPC provenance are admitted bindings across source/version
+    // and clock domains. Freeze their envelopes so consumers cannot relabel
+    // those validated bindings after this boundary. Keep the byte buffer
+    // detached but writable for existing downstream processing.
+    return admittedRequest.kind === "CAMERA" || admittedRequest.kind === "GRPC_API"
+      ? Object.freeze(normalizedFrame)
+      : normalizedFrame;
   } catch {
     // The adapter has already run. Even a malformed/mismatched response does
     // not prove that the source capture had no effect; collapse it to a

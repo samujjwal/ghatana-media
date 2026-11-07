@@ -76,6 +76,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             try {
                 verifyConcurrentClaimFencing();
                 verifyExpiredClaimRecovery();
+                verifyExpiredOwnerCannotAcknowledgeWithoutReplacement();
                 verifyClaimTokenOverflowFailsClosed();
                 verifyClaimLeaseOverflowFailsClosed();
                 verifyAttemptCounterOverflowFailsBeforePublish();
@@ -159,6 +160,56 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             update.setLong(1, System.currentTimeMillis() - 1);
             update.setString(2, eventId);
             assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+
+    }
+
+    private static void verifyExpiredOwnerCannotAcknowledgeWithoutReplacement() throws Exception {
+        String eventId = "media:test:outbox-expired-owner-ack";
+        insertEvent(eventId);
+        CountDownLatch publishing = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        var owner = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        ExecutorService worker = Executors.newSingleThreadExecutor();
+        try {
+            Future<PostgresqlMediaLifecycleOutboxSource.BatchResult> batch = worker.submit(
+                    () -> owner.publishPending(publisher(event -> {
+                        publishing.countDown();
+                        if (!release.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("publisher timed out");
+                    }), 1));
+            assertThat(publishing.await(5, TimeUnit.SECONDS)).isTrue();
+            expireClaim(eventId);
+            release.countDown();
+            assertThat(batch.get(5, TimeUnit.SECONDS).published()).isZero();
+        } finally {
+            release.countDown();
+            worker.shutdownNow();
+            owner.close();
+        }
+
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT attempts,claim_owner,claim_expires_at,published_at FROM media_processing_lifecycle_outbox "
+                        + "WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getInt("attempts")).isZero();
+                assertThat(row.getString("claim_owner")).isNotNull();
+                assertThat(row.getLong("claim_expires_at")).isLessThan(System.currentTimeMillis());
+                assertThat(row.getObject("published_at")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
         } finally {
             state.release();
         }
