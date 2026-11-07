@@ -21,6 +21,9 @@ public class FrameResult {
     }
 
     public FrameResult(int frameNumber, MediaClockTimestamp timestamp, List<DetectionResult> detections) {
+        if (frameNumber < 0) {
+            throw new IllegalArgumentException("Frame index must be non-negative");
+        }
         this.frameNumber = frameNumber;
         this.timestamp = java.util.Objects.requireNonNull(timestamp, "timestamp");
         this.detections = List.copyOf(java.util.Objects.requireNonNull(detections, "detections"));

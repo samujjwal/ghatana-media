@@ -57,6 +57,9 @@ public class TemporalAlignment {
                              long syncOffsetMs, double syncConfidence,
                              SyncStatus syncStatus) {
         this.timestamp = java.util.Objects.requireNonNull(timestamp, "timestamp");
+        if (frameNumber < 0) {
+            throw new IllegalArgumentException("Frame index must be non-negative");
+        }
         this.detections = List.copyOf(java.util.Objects.requireNonNull(detections, "detections"));
         if (syncStatus == null) {
             throw new IllegalArgumentException("syncStatus is required");

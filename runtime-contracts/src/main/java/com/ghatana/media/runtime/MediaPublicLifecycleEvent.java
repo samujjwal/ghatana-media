@@ -113,13 +113,29 @@ public record MediaPublicLifecycleEvent(
             }
             Object terminal = map.get("terminalReadbackRequired");
             if (!(terminal instanceof Boolean)) throw new IllegalArgumentException("terminalReadbackRequired must be boolean");
+            String eventRef = wireRedactedId(map, "eventRef");
+            String tenantRef = wireRedactedId(map, "tenantRef");
+            String principalRef = wireRedactedId(map, "principalRef");
+            String correlationRef = wireRedactedId(map, "correlationRef");
+            String causationRef = string(map, "causationRef");
+            if (!causationRef.isEmpty() && !REDACTED_ID.matcher(causationRef).matches()) {
+                throw new IllegalArgumentException("causationRef must be empty or use the public r1 redacted-ID format");
+            }
+            String aggregateType = string(map, "aggregateType");
+            if (!AGGREGATE_TYPES.contains(aggregateType)) {
+                throw new IllegalArgumentException("aggregateType is not part of the public lifecycle ABI");
+            }
+            String aggregateRef = wireRedactedId(map, "aggregateRef");
+            String classification = string(map, "classification");
+            if (!CLASSIFICATIONS.contains(classification)) {
+                throw new IllegalArgumentException("classification is not part of the public lifecycle ABI");
+            }
             return new MediaPublicLifecycleEvent(
-                    string(map, "schemaVersion"), string(map, "eventRef"),
+                    string(map, "schemaVersion"), eventRef,
                     MediaLifecycleEventType.fromWireName(string(map, "eventType")),
-                    string(map, "tenantRef"), string(map, "principalRef"),
-                    string(map, "correlationRef"), string(map, "causationRef"),
-                    string(map, "aggregateType"), string(map, "aggregateRef"),
-                    ((Number) version).longValue(), string(map, "classification"),
+                    tenantRef, principalRef, correlationRef, causationRef,
+                    aggregateType, aggregateRef,
+                    ((Number) version).longValue(), classification,
                     Instant.parse(string(map, "occurredAt")),
                     AppendFinality.valueOf(string(map, "appendFinality")), (Boolean) terminal);
         } catch (RuntimeException failure) {
@@ -132,6 +148,14 @@ public record MediaPublicLifecycleEvent(
         Object value = map.get(field);
         if (!(value instanceof String text)) throw new IllegalArgumentException(field + " must be a string");
         return text;
+    }
+
+    private static String wireRedactedId(Map<?, ?> map, String field) {
+        String value = string(map, field);
+        if (!REDACTED_ID.matcher(value).matches()) {
+            throw new IllegalArgumentException(field + " must use the public r1 redacted-ID format");
+        }
+        return value;
     }
 
     private static String redacted(MediaLifecycleIdentifierRedactor redactor, String kind, String raw) {

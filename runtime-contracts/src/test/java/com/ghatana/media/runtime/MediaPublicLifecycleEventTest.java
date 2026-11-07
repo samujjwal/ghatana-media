@@ -83,6 +83,36 @@ class MediaPublicLifecycleEventTest {
     }
 
     @Test
+    void payloadParserRejectsValuesThatThePinnedSchemaDoesNotAcceptExactly() {
+        Map<String, Object> valid = MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload();
+
+        var spacedIdentifier = new java.util.LinkedHashMap<>(valid);
+        spacedIdentifier.put("eventRef", " " + valid.get("eventRef") + " ");
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(spacedIdentifier))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("eventRef");
+
+        var spacedCausation = new java.util.LinkedHashMap<>(valid);
+        spacedCausation.put("causationRef", " ");
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(spacedCausation))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("causationRef");
+
+        var normalizedAggregate = new java.util.LinkedHashMap<>(valid);
+        normalizedAggregate.put("aggregateType", " JOB ");
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(normalizedAggregate))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("aggregateType");
+
+        var normalizedClassification = new java.util.LinkedHashMap<>(valid);
+        normalizedClassification.put("classification", " confidential ");
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(normalizedClassification))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("classification");
+    }
+
+    @Test
     void publicSchemaPinsVersionEventNamesRedactedIdentifiersAndNonfinalAppendAbi() throws Exception {
         try (InputStream input = getClass().getResourceAsStream("/contracts/media-public-lifecycle-event-v1.schema.json")) {
             assertThat(input).isNotNull();

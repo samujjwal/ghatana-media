@@ -58,12 +58,18 @@ public final class VideoFrameReconciler {
             tenantId = requiredIdentity(tenantId, "tenantId");
             principalId = requiredIdentity(principalId, "principalId");
             purposeRef = requiredIdentity(purposeRef, "purposeRef");
+            if (sessionRevision < 1) {
+                throw new IllegalArgumentException("sessionRevision must be positive");
+            }
         }
 
         private static String requiredIdentity(String value, String field) {
             Objects.requireNonNull(value, field);
             if (value.isBlank()) {
                 throw new IllegalArgumentException(field + " must not be blank");
+            }
+            if (!value.equals(value.strip())) {
+                throw new IllegalArgumentException(field + " must not have surrounding whitespace");
             }
             return value;
         }

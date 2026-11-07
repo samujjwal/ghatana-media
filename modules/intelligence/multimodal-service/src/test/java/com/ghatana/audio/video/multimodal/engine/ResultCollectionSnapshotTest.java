@@ -9,6 +9,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ResultCollectionSnapshotTest {
     @Test
+    void frameGroundingRejectsNegativeFrameIndices() {
+        assertThatThrownBy(() -> new FrameResult(-1, 10L, List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("non-negative");
+        assertThatThrownBy(() -> new TemporalAlignment(10L, -1, "hello", List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("non-negative");
+    }
+
+    @Test
     void audioResultSnapshotsSegmentsAndPreservesUnavailableNull() {
         AudioResult.TimedSegment segment = new AudioResult.TimedSegment(0, 10, "hello");
         AudioResult.TimedSegment later = new AudioResult.TimedSegment(10, 20, "world");

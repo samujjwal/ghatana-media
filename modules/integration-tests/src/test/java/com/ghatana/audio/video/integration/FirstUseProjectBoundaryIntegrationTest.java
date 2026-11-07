@@ -70,6 +70,30 @@ class FirstUseProjectBoundaryIntegrationTest {
     }
 
     @Test
+    void firstEditPreservesExactEmptyInitialRevisionReadback() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-revision-id-" + ids.incrementAndGet());
+        var created = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-revision-readback-request");
+        var initial = created.initialRevision();
+
+        var successor = engine.edit(CREATOR, created.project().projectId(), initial.revisionId(),
+                List.of(new AddScene(new Scene("scene-j01-first-edit", 0))));
+
+        assertThat(successor.revisionId()).isNotEqualTo(initial.revisionId());
+        assertThat(successor.parentRevisionId()).isEqualTo(initial.revisionId());
+        assertThat(engine.project(CREATOR, created.project().projectId()).headRevisionId())
+                .isEqualTo(successor.revisionId());
+        assertThat(store.revision(CREATOR, created.project().projectId(), initial.revisionId()))
+                .isEqualTo(initial);
+        assertThat(store.revision(CREATOR, created.project().projectId(), initial.revisionId()).graph().scenes())
+                .isEmpty();
+        assertThat(store.revision(CREATOR, created.project().projectId(), successor.revisionId()).graph().scenes())
+                .containsExactly(new Scene("scene-j01-first-edit", 0));
+    }
+
+    @Test
     void invalidCreateAndSameTenantWrongPrincipalDoNotExposeOrMutateProject() {
         AtomicInteger ids = new AtomicInteger();
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();

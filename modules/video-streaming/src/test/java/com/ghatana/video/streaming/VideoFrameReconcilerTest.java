@@ -37,6 +37,33 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("session identity rejects padded scope and nonpositive revision")
+    void sessionIdentityRejectsNoncanonicalScopeAndRevision() {
+        assertThatThrownBy(() -> new SessionIdentity(
+                " vstream-1", "t1", "principal-1", "purpose-1", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> new SessionIdentity(
+                "vstream-1", " t1", "principal-1", "purpose-1", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> new SessionIdentity(
+                "vstream-1", "t1", "principal-1 ", "purpose-1", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> new SessionIdentity(
+                "vstream-1", "t1", "principal-1", " purpose-1", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+        for (long revision : new long[]{0, -1}) {
+            assertThatThrownBy(() -> new SessionIdentity(
+                    "vstream-1", "t1", "principal-1", "purpose-1", revision))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("sessionRevision must be positive");
+        }
+    }
+
+    @Test
     @DisplayName("a keyframe anchors its GOP and dependent frames are decodable")
     void keyframeAnchorsDecodability() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
@@ -272,10 +299,13 @@ class VideoFrameReconcilerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence is outside");
 
-        assertThatThrownBy(() -> VideoFrameReconciler.resume(
-                durable, durable, lastDeliverable, lastDeliverable, 0L))
+        VideoFrameReconciler exhausted = VideoFrameReconciler.resume(
+                durable, durable, lastDeliverable, lastDeliverable, 0L);
+        assertThat(exhausted.nextAck()).isEqualTo(lastDeliverable);
+        assertThat(exhausted.nextExpected()).isEqualTo(Integer.MAX_VALUE);
+        assertThatThrownBy(() -> exhausted.offer(frame(Integer.MAX_VALUE, false, 2L)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("last ACK");
+                .hasMessageContaining("sequence is outside");
         assertThatThrownBy(() -> VideoFrameReconciler.resume(
                 durable, durable, Integer.MAX_VALUE, -1, 0L))
                 .isInstanceOf(IllegalArgumentException.class)
