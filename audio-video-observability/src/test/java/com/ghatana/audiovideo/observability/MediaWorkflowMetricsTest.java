@@ -226,7 +226,11 @@ class MediaWorkflowMetricsTest {
                 "ASIA1234567890EXAMPLE",
                 "ya29.a0AfH6SMB-example-token",
                 "glpat-test-only",
-                "xoxb-test-only");
+                "xoxb-test-only",
+                "github_pat_11AA22BB33CC44DD_example-token",
+                "ghu_0123456789abcdefghijklmnop",
+                "ghs_0123456789abcdefghijklmnop",
+                "ghr_0123456789abcdefghijklmnop");
 
         for (String credential : credentials) {
             assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderProfileObservation(
