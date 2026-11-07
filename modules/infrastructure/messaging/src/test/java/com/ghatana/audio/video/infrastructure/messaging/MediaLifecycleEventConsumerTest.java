@@ -109,6 +109,43 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void eventIdentityReusedWithDifferentPayloadIsRejectedBeforeProjection() {
+        var store = new MemoryProjection();
+        var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
+        var original = event("media.job.accepted", 1);
+        var alteredPayload = new MediaPublicLifecycleEvent(original.schemaVersion(), original.eventRef(),
+                original.eventType(), original.tenantRef(), original.principalRef(), original.correlationRef(),
+                original.causationRef(), original.aggregateType(), original.aggregateRef(),
+                original.aggregateVersion(), "INTERNAL", original.occurredAt(), original.appendFinality(),
+                original.terminalReadbackRequired());
+
+        assertThat(consumer.consume("consumer-a", envelope(original)).disposition())
+                .isEqualTo(MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED);
+        assertThatThrownBy(() -> consumer.consume("consumer-a", envelope(alteredPayload)))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.CONFLICTING_REPLAY);
+        assertThat(store.applied).hasSize(1);
+    }
+
+    @Test
+    void legacyProjectionStoreRemainsSourceCompatibleButFailsClosedWithoutFingerprintSupport() {
+        int[] legacyEffects = {0};
+        MediaLifecycleEventConsumer.ProjectionStore legacyStore = (tenant, type, ref, version, eventRef) -> {
+            legacyEffects[0]++;
+            return MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED;
+        };
+        var consumer = new MediaLifecycleEventConsumer(REDACTOR, allowAll(), legacyStore,
+                (principal, tenant, jobRef) -> Optional.empty());
+
+        assertThatThrownBy(() -> consumer.consume("consumer-a", envelope(event("media.job.accepted", 1))))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.UNAVAILABLE);
+        assertThat(legacyEffects[0]).isZero();
+    }
+
+    @Test
     void envelopeCorrelationAndAggregateReferencesMustMatchPayloadBeforeProjection() {
         var store = new MemoryProjection();
         var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
@@ -242,8 +279,21 @@ class MediaLifecycleEventConsumerTest {
                 .isEqualTo(MediaLifecycleEventConsumer.Failure.UNAVAILABLE);
         assertThat(store.applied).isEmpty();
 
-        var uncertainStore = new MediaLifecycleEventConsumer(REDACTOR, allowAll(),
-                (tenant, type, ref, version, eventRef) -> { throw new IllegalStateException("commit response lost"); },
+        MediaLifecycleEventConsumer.ProjectionStore failingFingerprintAwareStore =
+                new MediaLifecycleEventConsumer.ProjectionStore() {
+                    @Override
+                    public MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String type,
+                            String ref, long version, String eventRef) {
+                        throw new AssertionError("consumer must use fingerprint-aware overload");
+                    }
+
+                    @Override
+                    public MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String type,
+                            String ref, long version, String eventRef, String payloadFingerprint) {
+                        throw new IllegalStateException("commit response lost");
+                    }
+                };
+        var uncertainStore = new MediaLifecycleEventConsumer(REDACTOR, allowAll(), failingFingerprintAwareStore,
                 (principal, tenant, jobRef) -> Optional.empty());
         assertThatThrownBy(() -> uncertainStore.consume("consumer-a", envelope(event("media.job.accepted", 1))))
                 .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
@@ -256,14 +306,24 @@ class MediaLifecycleEventConsumerTest {
         var committed = new MemoryProjection();
         boolean[] loseFirstResponse = {true};
         MediaLifecycleEventConsumer.ProjectionStore commitThenLoseResponse =
-                (tenant, aggregateType, aggregateRef, aggregateVersion, eventRef) -> {
-                    var disposition = committed.apply(
-                            tenant, aggregateType, aggregateRef, aggregateVersion, eventRef);
-                    if (loseFirstResponse[0]) {
-                        loseFirstResponse[0] = false;
-                        throw new IllegalStateException("projection commit response lost");
+                new MediaLifecycleEventConsumer.ProjectionStore() {
+                    @Override
+                    public MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String type,
+                            String ref, long version, String eventRef) {
+                        throw new AssertionError("consumer must use fingerprint-aware overload");
                     }
-                    return disposition;
+
+                    @Override
+                    public MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String aggregateType,
+                            String aggregateRef, long aggregateVersion, String eventRef, String payloadFingerprint) {
+                        var disposition = committed.apply(
+                                tenant, aggregateType, aggregateRef, aggregateVersion, eventRef, payloadFingerprint);
+                        if (loseFirstResponse[0]) {
+                            loseFirstResponse[0] = false;
+                            throw new IllegalStateException("projection commit response lost");
+                        }
+                        return disposition;
+                    }
                 };
         var consumer = new MediaLifecycleEventConsumer(REDACTOR, allowAll(), commitThenLoseResponse,
                 (principal, tenant, jobRef) -> Optional.empty());
@@ -346,16 +406,28 @@ class MediaLifecycleEventConsumerTest {
     private static final class MemoryProjection implements MediaLifecycleEventConsumer.ProjectionStore {
         private final Set<String> applied = new HashSet<>();
         private final Map<String, Long> versions = new java.util.HashMap<>();
+        private final Map<String, String> payloadFingerprints = new java.util.HashMap<>();
 
         @Override
         public synchronized MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String aggregateType,
                 String aggregateRef, long aggregateVersion, String eventRef) {
+            throw new MediaLifecycleEventConsumer.FingerprintAwareReplayUnsupportedException();
+        }
+
+        @Override
+        public synchronized MediaLifecycleEventConsumer.ProjectionDisposition apply(String tenant, String aggregateType,
+                String aggregateRef, long aggregateVersion, String eventRef, String payloadFingerprint) {
             String key = tenant + "/" + aggregateType + "/" + aggregateRef;
             String eventKey = tenant + "/" + eventRef;
-            if (applied.contains(eventKey)) return MediaLifecycleEventConsumer.ProjectionDisposition.DUPLICATE;
+            if (applied.contains(eventKey)) {
+                return payloadFingerprints.get(eventKey).equals(payloadFingerprint)
+                        ? MediaLifecycleEventConsumer.ProjectionDisposition.DUPLICATE
+                        : MediaLifecycleEventConsumer.ProjectionDisposition.CONFLICTING_REPLAY;
+            }
             long previous = versions.getOrDefault(key, 0L);
             if (aggregateVersion <= previous) return MediaLifecycleEventConsumer.ProjectionDisposition.OUT_OF_ORDER;
             applied.add(eventKey);
+            payloadFingerprints.put(eventKey, payloadFingerprint);
             versions.put(key, aggregateVersion);
             return MediaLifecycleEventConsumer.ProjectionDisposition.APPLIED;
         }

@@ -7,6 +7,11 @@ import com.ghatana.messaging.EventEnvelope;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.TreeMap;
 
 /**
  * Validates the public lifecycle ABI and applies authorized, version-aware observations.
@@ -64,12 +69,19 @@ public final class MediaLifecycleEventConsumer {
         try {
             disposition = Objects.requireNonNull(projectionStore.apply(
                     envelope.tenantId(), event.aggregateType(), event.aggregateRef(),
-                    event.aggregateVersion(), event.eventRef()), "projection disposition");
+                    event.aggregateVersion(), event.eventRef(), payloadFingerprint(event)), "projection disposition");
+        } catch (FingerprintAwareReplayUnsupportedException unsupported) {
+            throw new LifecycleEventException(Failure.UNAVAILABLE,
+                    "Lifecycle projection store does not support fingerprint-aware replay");
         } catch (RuntimeException uncertainApply) {
             // The store may have committed before its response was lost. It must deduplicate eventRef
             // atomically so a caller can safely redeliver and learn APPLIED or DUPLICATE.
             throw new LifecycleEventException(Failure.CONSUMPTION_UNKNOWN,
                     "Lifecycle projection outcome requires idempotent replay/readback");
+        }
+        if (disposition == ProjectionDisposition.CONFLICTING_REPLAY) {
+            throw new LifecycleEventException(Failure.CONFLICTING_REPLAY,
+                    "Lifecycle event identity was replayed with different content");
         }
         return new Observation(disposition, MediaPublicLifecycleEvent.AppendFinality.NON_FINAL_APPEND,
                 event.terminalReadbackRequired(), event.aggregateVersion());
@@ -116,16 +128,60 @@ public final class MediaLifecycleEventConsumer {
         return value.trim();
     }
 
+    /** Stable digest of every admitted ABI field, independent of input map iteration order. */
+    private static String payloadFingerprint(MediaPublicLifecycleEvent event) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            new TreeMap<>(event.toPayload()).forEach((key, value) -> {
+                updateLengthPrefixed(digest, key);
+                updateLengthPrefixed(digest, value.getClass().getName());
+                updateLengthPrefixed(digest, value.toString());
+            });
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+    }
+
+    private static void updateLengthPrefixed(MessageDigest digest, String value) {
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        digest.update((byte) (bytes.length >>> 24));
+        digest.update((byte) (bytes.length >>> 16));
+        digest.update((byte) (bytes.length >>> 8));
+        digest.update((byte) bytes.length);
+        digest.update(bytes);
+    }
+
     public interface Authorization {
         boolean mayObserve(String consumerPrincipal, String tenantId, String redactedEventPrincipal);
         boolean mayReadTerminalJob(String consumerPrincipal, String tenantId, String redactedJobRef);
     }
 
-    /** Must atomically deduplicate eventRef and reject lower aggregate versions across restarts. */
+    /**
+     * Must atomically deduplicate eventRef plus payloadFingerprint and reject lower aggregate
+     * versions across restarts. Reuse of an eventRef with a different fingerprint returns
+     * CONFLICTING_REPLAY without changing the projection.
+     */
     @FunctionalInterface
     public interface ProjectionStore {
+        /** Legacy source-compatible operation. New consumer calls require the fingerprint-aware overload. */
         ProjectionDisposition apply(String tenantId, String aggregateType, String aggregateRef,
                 long aggregateVersion, String eventRef);
+
+        /**
+         * Fingerprint-aware replay operation. Legacy stores remain source compatible but fail closed
+         * until they persist and compare the fingerprint atomically with the event identity.
+         */
+        default ProjectionDisposition apply(String tenantId, String aggregateType, String aggregateRef,
+                long aggregateVersion, String eventRef, String payloadFingerprint) {
+            throw new FingerprintAwareReplayUnsupportedException();
+        }
+    }
+
+    public static final class FingerprintAwareReplayUnsupportedException extends RuntimeException {
+        public FingerprintAwareReplayUnsupportedException() {
+            super("Fingerprint-aware lifecycle replay is unsupported");
+        }
     }
 
     @FunctionalInterface
@@ -133,9 +189,9 @@ public final class MediaLifecycleEventConsumer {
         Optional<TerminalJobSnapshot> read(String consumerPrincipal, String tenantId, String redactedJobRef);
     }
 
-    public enum ProjectionDisposition { APPLIED, DUPLICATE, OUT_OF_ORDER }
+    public enum ProjectionDisposition { APPLIED, DUPLICATE, OUT_OF_ORDER, CONFLICTING_REPLAY }
     public enum TerminalReadbackDisposition { TERMINAL_READBACK_CONFIRMED, NOT_TERMINAL, UNAVAILABLE }
-    public enum Failure { INVALID_ABI, FORBIDDEN, UNAVAILABLE, CONSUMPTION_UNKNOWN }
+    public enum Failure { INVALID_ABI, FORBIDDEN, UNAVAILABLE, CONSUMPTION_UNKNOWN, CONFLICTING_REPLAY }
     public record Observation(ProjectionDisposition disposition,
             MediaPublicLifecycleEvent.AppendFinality appendFinality,
             boolean terminalReadbackRequired, long aggregateVersion) { }
