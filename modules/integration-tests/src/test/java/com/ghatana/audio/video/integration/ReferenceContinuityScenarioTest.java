@@ -42,6 +42,20 @@ class ReferenceContinuityScenarioTest {
     }
 
     @Test
+    void unknownReferenceAuthorityBlocksPreparationBeforeAnyGenerationPortCanRun() {
+        RecordingAuthority authority = new RecordingAuthority();
+        authority.unknownSource = REFERENCE_VERSION;
+        AtomicInteger providerCalls = new AtomicInteger();
+        ReferenceGuidedScenePlanner planner = planner(authority, providerCalls);
+
+        assertThatThrownBy(() -> planner.prepare(ACTOR, request(continuity("blue"))))
+                .isInstanceOf(ReferenceGuidedScenePlanner.SourceAuthorityUnavailableException.class);
+
+        assertThat(authority.inspected).extracting(source -> source.source()).contains(REFERENCE_VERSION);
+        assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     void sourceVersionBecomingStaleAfterPreparationBlocksDispatch() {
         RecordingAuthority authority = new RecordingAuthority();
         AtomicInteger providerCalls = new AtomicInteger();
@@ -176,6 +190,7 @@ class ReferenceContinuityScenarioTest {
     private static final class RecordingAuthority implements ReferenceGuidedScenePlanner.CurrentSourceAuthority {
         private final List<ReferenceGuidedScenePlanner.BoundSource> inspected = new ArrayList<>();
         private SourceVersion deniedSource;
+        private SourceVersion unknownSource;
         private SourceVersion staleSource;
 
         @Override
@@ -185,6 +200,7 @@ class ReferenceContinuityScenarioTest {
             assertThat(purpose).isEqualTo(PURPOSE);
             inspected.add(source);
             if (source.source().equals(staleSource)) return ReferenceGuidedScenePlanner.Decision.STALE;
+            if (source.source().equals(unknownSource)) return ReferenceGuidedScenePlanner.Decision.UNKNOWN;
             return source.source().equals(deniedSource)
                     ? ReferenceGuidedScenePlanner.Decision.DENIED
                     : ReferenceGuidedScenePlanner.Decision.ELIGIBLE;
