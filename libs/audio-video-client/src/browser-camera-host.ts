@@ -216,7 +216,30 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
           });
           if (stopped || signal.aborted || frameSignal.aborted || track.readyState !== "live") return null;
           if (blob.size === 0 || blob.size > maxFrameBytes) throw new Error("browser camera frame exceeded the configured byte bound");
-          return new Uint8Array(await blob.arrayBuffer());
+          // Blob conversion is host work too. Bound it independently so a
+          // stalled browser implementation cannot hold a live camera session
+          // after canvas encoding has already completed.
+          const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+            let settled = false;
+            const timer = setTimeout(() => {
+              if (settled) return;
+              settled = true;
+              reject(new Error("camera frame byte conversion timed out"));
+            }, timeoutMillis);
+            Promise.resolve().then(() => blob.arrayBuffer()).then((result) => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timer);
+              resolve(result);
+            }, () => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timer);
+              reject(new Error("camera frame byte conversion failed"));
+            });
+          });
+          if (stopped || signal.aborted || frameSignal.aborted || track.readyState !== "live") return null;
+          return new Uint8Array(buffer);
         },
         stop: stopWithListenerCleanup,
       };

@@ -8,6 +8,7 @@ const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device
 
 function setup(state: PermissionState = "granted", options: { available?: boolean; frame?: (done: (blob: Blob) => void) => void; deviceId?: string;
   maxFrameBytes?: number; maxPixels?: number; videoWidth?: number; videoHeight?: number; pendingOpen?: boolean; pendingPlay?: boolean;
+  pendingArrayBuffer?: boolean;
   pendingPermissionSubscription?: boolean; domSetupFailure?: boolean; pauseFailure?: boolean;
   listenerRemovalFailure?: boolean; trackStopFailure?: boolean; secondTrack?: boolean;
   consentUnsubscribeFailure?: boolean; sourceVersionThrowsOnSecond?: boolean; getTracksFailure?: boolean } = {}) {
@@ -44,7 +45,12 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   const canvas = { width: 0, height: 0, getContext: () => context, toBlob: (callback: (blob: Blob | null) => void) => {
     reads++;
     options.frame?.((blob) => callback(blob));
-    if (!options.frame) callback(new Blob([new Uint8Array([1, 2, 3])], { type: "image/jpeg" }));
+    if (!options.frame) {
+      const blob = new Blob([new Uint8Array([1, 2, 3])], { type: "image/jpeg" });
+      callback(options.pendingArrayBuffer
+        ? { size: blob.size, arrayBuffer: () => new Promise<ArrayBuffer>(() => undefined) } as Blob
+        : blob);
+    }
   } };
   const browser = options.available === false ? {} : {
     mediaDevices: { getUserMedia: async (constraints: MediaStreamConstraints) => {
@@ -139,6 +145,13 @@ describe("concrete browser camera host", () => {
     const switched = setup("granted", { deviceId: "other-device" });
     await expectCode(switched.adapter.openSession(request), "DEVICE_UNAVAILABLE");
     expect(switched.counts()).toEqual({ opens: 1, stops: 1, reads: 0, draws: 0 });
+  });
+
+  it("bounds a stalled browser Blob byte conversion and releases the camera", async () => {
+    const h = setup("granted", { pendingArrayBuffer: true });
+    const session = await h.adapter.openSession(request);
+    await expectCode(session.nextFrame(), "DEVICE_UNAVAILABLE");
+    expect(h.counts()).toEqual({ opens: 1, stops: 1, reads: 1, draws: 1 });
   });
 
   it("stops an opened camera stream when browser media element setup fails", async () => {
