@@ -28,6 +28,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class PostgresqlMediaLifecycleOutboxSourceTest {
 
     @Test
+    void claimLeaseMustRemainPositiveAfterMillisecondPersistenceConversion() {
+        assertThatThrownBy(() -> source(3, Duration.ofNanos(999_999), Duration.ofMillis(50), Duration.ofMillis(200)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("claimLease must be at least one millisecond");
+    }
+
+    @Test
     void retryDelayUsesCappedFullJitterWithinPositiveBounds() {
         assertThat(PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
                 0, 250, 500, 0.0)).isEqualTo(1);

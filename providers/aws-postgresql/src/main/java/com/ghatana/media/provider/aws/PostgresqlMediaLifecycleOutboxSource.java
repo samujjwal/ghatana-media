@@ -55,6 +55,9 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         if (maxAttempts < 1 || maxAttempts > 100) throw new IllegalArgumentException("maxAttempts must be 1..100");
         this.maxAttempts = maxAttempts;
         this.claimLease = positive(claimLease, "claimLease");
+        if (this.claimLease.toMillis() < 1) {
+            throw new IllegalArgumentException("claimLease must be at least one millisecond");
+        }
         this.retryBase = positive(retryBase, "retryBase");
         this.retryMax = positive(retryMax, "retryMax");
         if (retryMax.compareTo(retryBase) < 0) throw new IllegalArgumentException("retryMax must be >= retryBase");
