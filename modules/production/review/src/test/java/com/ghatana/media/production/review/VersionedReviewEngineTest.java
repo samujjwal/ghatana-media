@@ -229,6 +229,43 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void authorizationAdapterFailureIsUnavailableWithoutLeakingDetailsOrTouchingStore() {
+        AtomicInteger appendCalls = new AtomicInteger();
+        AtomicInteger readCalls = new AtomicInteger();
+        ReviewStore countingStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                appendCalls.incrementAndGet();
+                throw new AssertionError("authorization must precede append");
+            }
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                readCalls.incrementAndGet();
+                throw new AssertionError("authorization must precede disclosure");
+            }
+        };
+        VersionedReviewEngine engine = new VersionedReviewEngine(countingStore,
+                (actor, reviewCase, operation, now) -> {
+                    throw new IllegalStateException("private policy endpoint for " + actor.principalId());
+                }, value -> value, Clock.fixed(NOW, ZoneOffset.UTC), () -> "record-unused");
+        AppendRequest request = new AppendRequest(CASE, 0, "authority-v1", "req-auth-unavailable",
+                new Confirmation("media.operation.action.record-review-comment", CASE.exactTargetRef(), true),
+                new Comment("safe", CommentDisposition.OPEN, null));
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, request))
+                .isInstanceOf(ReviewUnavailableException.class)
+                .hasMessage("review evidence is unavailable, expired, or not retained")
+                .hasNoCause()
+                .satisfies(failure -> assertThat(failure.getMessage()).doesNotContain("private policy endpoint"));
+        assertThatThrownBy(() -> engine.inspect(REVIEWER, CASE))
+                .isInstanceOf(ReviewUnavailableException.class)
+                .hasMessage("review evidence is unavailable, expired, or not retained")
+                .hasNoCause();
+        assertThat(appendCalls).hasValue(0);
+        assertThat(readCalls).hasValue(0);
+    }
+
+    @Test
     void inspectRejectsSanitizerOutputOutsideTheCommentDisclosureBound() {
         ReviewRecord record = new ReviewRecord("record-1", REVIEWER.tenantId(), CASE.reviewCaseId(), V1,
                 "req-1", "media.operation.action.record-review-comment", REVIEWER,

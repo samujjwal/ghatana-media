@@ -161,7 +161,20 @@ public final class VersionedReviewEngine {
     private AuthorizationDecision authorize(Actor actor, ReviewCaseRef reviewCase, String operation) {
         if (!actor.tenantId().equals(reviewCase.tenantId())) throw new ReviewDeniedException();
         Instant now = clock.instant();
-        AuthorizationDecision decision = authorization.evaluate(actor, reviewCase, operation, now);
+        AuthorizationDecision decision;
+        try {
+            decision = authorization.evaluate(actor, reviewCase, operation, now);
+        } catch (ReviewDeniedException | ReviewUnavailableException | ReviewConflictException
+                 | ReviewRevisionExhaustedException | ReviewAuthorityConflictException
+                 | ReviewIdempotencyConflictException | ReviewCaseMismatchException
+                 | StaleReviewException known) {
+            throw known;
+        } catch (RuntimeException authorizationFailure) {
+            // Authorization adapters may include principal, policy, or service details in
+            // exception messages. Keep failures fail-closed and prevent those details from
+            // escaping through either append or inspect.
+            throw new ReviewUnavailableException();
+        }
         if (decision == null || decision.status() == AuthorizationStatus.UNKNOWN) throw new ReviewUnavailableException();
         if (decision.status() != AuthorizationStatus.ALLOW
                 || !decision.tenantId().equals(actor.tenantId())
