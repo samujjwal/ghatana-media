@@ -135,6 +135,37 @@ class MediaDeliveryEngineTest {
                 " destination:1 "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("destinationRef must not contain surrounding whitespace");
+        assertThatThrownBy(() -> new Artifact("tenant:1", "\u00a0artifact:1", "version:1", digest, content))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("artifactId must not contain surrounding whitespace");
+        assertThatThrownBy(() -> new ExportRequest("tenant:1", "principal:1", "request:1", artifact,
+                "destination:1\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationRef must not contain surrounding whitespace");
+    }
+
+    @Test
+    void exportIdentityFieldsRespectPdpOpaqueIdAndVersionedReferenceBounds() {
+        String digest = MediaCreationContracts.sha256(bytes(16));
+        String tooLongId = "i".repeat(129);
+        String tooLongReference = "r".repeat(385);
+
+        assertThatThrownBy(() -> new Artifact("tenant:1", tooLongId, "version:1", digest, bytes(16)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("artifactId exceeds the maximum length of 128");
+        assertThatThrownBy(() -> new Artifact("tenant:1", "artifact:1", tooLongReference, digest, bytes(16)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("versionRef exceeds the maximum length of 384");
+
+        Artifact artifact = new Artifact("tenant:1", "artifact:1", "version:1", digest, bytes(16));
+        assertThatThrownBy(() -> new ExportRequest("tenant:1", "principal:1", tooLongId,
+                artifact, "destination:1"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("requestId exceeds the maximum length of 128");
+        assertThatThrownBy(() -> new ExportRequest("tenant:1", "principal:1", "request:1",
+                artifact, tooLongReference))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationRef exceeds the maximum length of 384");
     }
 
     @Test

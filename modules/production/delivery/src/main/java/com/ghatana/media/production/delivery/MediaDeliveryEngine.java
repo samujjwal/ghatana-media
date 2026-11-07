@@ -655,11 +655,29 @@ public final class MediaDeliveryEngine {
     /** External acknowledgment identities and receipts are compared exactly, never normalized into a match. */
     static String requiredExact(String value, String field) {
         Objects.requireNonNull(value, field);
-        String normalized = value.trim();
-        if (value.isBlank() || normalized.isEmpty()) throw new IllegalArgumentException(field + " must not be blank");
-        if (!value.equals(normalized)) {
+        String trimmed = value.trim();
+        if (value.isBlank() || trimmed.isEmpty()) {
+            throw new IllegalArgumentException(field + " must not be blank");
+        }
+        if (hasBoundaryWhitespace(value) || !value.equals(trimmed)) {
             throw new IllegalArgumentException(field + " must not contain surrounding whitespace");
         }
+        int maxLength = switch (field) {
+            case "tenantId", "principalId", "requestId", "artifactId", "tokenId", "ownerId" -> 128;
+            case "versionRef", "destinationRef" -> 384;
+            default -> 512;
+        };
+        if (value.length() > maxLength) {
+            throw new IllegalArgumentException(field + " exceeds the maximum length of " + maxLength);
+        }
         return value;
+    }
+
+    private static boolean hasBoundaryWhitespace(String value) {
+        if (value.isEmpty()) return true;
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        return Character.isWhitespace(first) || Character.isSpaceChar(first)
+                || Character.isWhitespace(last) || Character.isSpaceChar(last);
     }
 }
