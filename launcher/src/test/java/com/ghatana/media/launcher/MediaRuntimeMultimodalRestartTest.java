@@ -37,6 +37,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MediaRuntimeMultimodalRestartTest {
 
     @Test
+    void restartSpecMustRemainBoundToThePersistedParentSource() {
+        Instant now = Instant.now();
+        String sourceDigest = "a".repeat(64);
+        String sourceVersion = "sha256:" + sourceDigest;
+        var parent = new ProcessingJob("parent", "parent-request", "tenant-a", "principal-a",
+                "source", JobType.MULTIMODAL, "mm", JobStatus.OUTCOME_UNKNOWN,
+                now, now, null, Map.of(), "", 1, sourceVersion,
+                "sha256:" + "b".repeat(64));
+        var child = new MultimodalOperationSpec.ChildOperationSpec(
+                "stt", JobType.SPEECH_TO_TEXT, "stt-artifact",
+                "sha256:" + "c".repeat(64), "c".repeat(64), "", Map.of());
+        var matching = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                "source", sourceVersion, sourceDigest, List.of(child), null, Map.of());
+        var wrongArtifact = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                "other-source", sourceVersion, sourceDigest, List.of(child), null, Map.of());
+        String otherDigest = "d".repeat(64);
+        var wrongVersion = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION, "cap", "op", 1,
+                "source", "sha256:" + otherDigest, otherDigest, List.of(child), null, Map.of());
+
+        assertThat(MediaRuntime.matchesMultimodalParentSourceBinding(parent, matching)).isTrue();
+        assertThat(MediaRuntime.matchesMultimodalParentSourceBinding(parent, wrongArtifact)).isFalse();
+        assertThat(MediaRuntime.matchesMultimodalParentSourceBinding(parent, wrongVersion)).isFalse();
+        assertThat(MediaRuntime.matchesMultimodalParentSourceBinding(null, matching)).isFalse();
+    }
+
+    @Test
     void terminalChildReadbackMustMatchPersistedTenantAndSourceBinding() {
         Instant now = Instant.now();
         var parent = new ProcessingJob("parent", "parent-request", "tenant-a", "principal-a",

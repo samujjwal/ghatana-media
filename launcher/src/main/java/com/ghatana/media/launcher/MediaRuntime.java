@@ -3433,6 +3433,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             var snapshot = jobStore.findMultimodalOperationSnapshot(job.tenantId(), job.jobId());
             if (snapshot.isEmpty()) return false;
             var spec = snapshot.orElseThrow().operationSpec();
+            if (!matchesMultimodalParentSourceBinding(job, spec)) return false;
             List<ProcessingJob> children = new java.util.ArrayList<>();
             for (var child : spec.children()) {
                 String childRequestId = com.ghatana.media.runtime.MediaRuntimeContracts
@@ -3503,6 +3504,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     job.tenantId(), job.jobId(), failure.getClass().getSimpleName());
             return false;
         }
+    }
+
+    /** The durable operation snapshot must still identify the source bound to its parent row. */
+    static boolean matchesMultimodalParentSourceBinding(
+            ProcessingJob parent,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec spec) {
+        return parent != null && spec != null
+                && parent.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL
+                && parent.artifactId().equals(spec.sourceArtifactId())
+                && parent.expectedArtifactVersion().equals(spec.sourceVersion());
     }
 
     /** A terminal child is usable only when its durable identity still matches the parent spec. */
