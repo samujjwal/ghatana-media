@@ -240,13 +240,17 @@ function canonicalizeJsonValue(value: unknown): unknown {
 }
 
 async function run(argv: readonly string[], token: string | undefined): Promise<void> {
+  // Environment values often come from secret stores or files that append a
+  // newline. Bearer credentials are opaque, but surrounding whitespace is not
+  // part of the credential and must not be sent as part of the header.
+  const bearerToken = token?.trim();
   let args: Arguments;
   try { args = parseArguments(argv); }
   catch (error) {
     writeError('INVALID_INVOCATION', `${error instanceof Error ? error.message : 'Invalid invocation'} ${USAGE}`, {}, 2, `${argv[0] ?? ''} ${argv[1] ?? ''}`);
     return;
   }
-  if (!token?.trim()) {
+  if (!bearerToken) {
     writeError('MISSING_AUTH_TOKEN', 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.', {}, 2, args.command);
     return;
   }
@@ -275,7 +279,7 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
         tenantId: args.tenant,
         requestTimeoutMs,
         defaultHeaders: { 'X-Principal-Id': args.principal },
-        getAccessToken: () => token,
+        getAccessToken: () => bearerToken,
         fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),
       });
       let job;
@@ -289,7 +293,7 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
           writeError('INVALID_INVOCATION', error instanceof Error ? error.message : '--parameters is invalid.', {}, 2, args.command);
           return;
         }
-        if (containsCredential(parameters, token)) {
+        if (containsCredential(parameters, bearerToken)) {
           writeError('INVALID_INVOCATION', '--parameters must not contain bearer credential material.', {}, 2, args.command);
           return;
         }
@@ -299,7 +303,7 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
           idempotencyKey: args.values['--idempotency-key']!, parameters: parameters as Record<string, unknown>,
         });
       }
-      if (containsCredential(job, token)) {
+      if (containsCredential(job, bearerToken)) {
         writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.', {}, 1, args.command);
         return;
       }
@@ -327,11 +331,11 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       tenantId: args.tenant,
       requestTimeoutMs,
       defaultHeaders: { 'X-Principal-Id': args.principal },
-      getAccessToken: () => token,
+      getAccessToken: () => bearerToken,
       fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),
     });
     const artifact = await client.getArtifact(args.values['--artifact']!);
-    if (containsCredential(artifact, token)) {
+    if (containsCredential(artifact, bearerToken)) {
       writeError('INVALID_MEDIA_RESPONSE', 'Media returned an artifact response containing credential material.', {}, 1, args.command);
       return;
     }
@@ -351,11 +355,11 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
     if (error instanceof MediaClientError) {
       if (error.statusCode === 404 && error.detail.code === 'ARTIFACT_NOT_FOUND') {
         writeError('ARTIFACT_NOT_FOUND', 'Artifact was not visible in the requested tenant and principal scope.', {
-          statusCode: 404, ...safeCorrelationExtra(error.detail.correlationId, token),
+          statusCode: 404, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       } else {
         writeError('MEDIA_REQUEST_FAILED', 'Media did not return an artifact observation; success is not inferred.', {
-          statusCode: error.statusCode, ...safeCorrelationExtra(error.detail.correlationId, token),
+          statusCode: error.statusCode, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       }
       return;

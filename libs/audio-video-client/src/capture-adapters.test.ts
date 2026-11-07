@@ -464,9 +464,44 @@ describe("routedCaptureAdapter", () => {
     const routed = routedCaptureAdapter({ MEDIA_FILE: kindAdapter("MEDIA_FILE", [1]) });
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, routed,
       { ...request, kind: "CAMERA" }))
-      .rejects.toMatchObject({ reason: "ADAPTER_REJECTED" });
+      .rejects.toMatchObject({ name: "CaptureUnavailableError", eligibility: "UNAVAILABLE" });
     await expect(routed.capture({ ...request, kind: "CAMERA" }))
       .rejects.toBeInstanceOf(CaptureAdapterNotWiredError);
+  });
+
+  it("keeps an admitted but unwired gRPC source unavailable before dispatch", async () => {
+    let eligibilityCalls = 0;
+    const routed = routedCaptureAdapter({});
+
+    await expect(captureWithAdmission({
+      check: (candidate) => {
+        eligibilityCalls++;
+        expect(candidate.kind).toBe("GRPC_API");
+        return "ADMITTED";
+      },
+    }, routed, { ...request, kind: "GRPC_API" }))
+      .rejects.toMatchObject({
+        name: "CaptureUnavailableError",
+        kind: "GRPC_API",
+        eligibility: "UNAVAILABLE",
+      });
+    expect(eligibilityCalls).toBe(1);
+  });
+
+  it("does not invoke the gRPC adapter when trusted eligibility denies capture", async () => {
+    let captures = 0;
+    const grpcAdapter: CaptureSourceAdapter = {
+      kind: "GRPC_API",
+      capture: async () => {
+        captures++;
+        throw new Error("must not dispatch");
+      },
+    };
+
+    await expect(captureWithAdmission({ check: () => "NOT_ADMITTED" },
+      routedCaptureAdapter({ GRPC_API: grpcAdapter }), { ...request, kind: "GRPC_API" }))
+      .rejects.toMatchObject({ name: "CaptureNotAdmittedError", eligibility: "NOT_ADMITTED" });
+    expect(captures).toBe(0);
   });
 
   it("rejects mislabeled wiring and invalid kinds at composition", () => {

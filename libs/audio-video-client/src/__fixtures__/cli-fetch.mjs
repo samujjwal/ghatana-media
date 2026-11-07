@@ -18,6 +18,7 @@ globalThis.fetch = async (input, init = {}) => {
       requestId: headers.get('x-request-id'),
       idempotencyKey: headers.get('idempotency-key'),
       authenticated: /^Bearer .+$/u.test(headers.get('authorization') ?? ''),
+      bearerMatches: headers.get('authorization') === `Bearer ${process.env.GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER ?? ''}`,
     })}\n`);
   }
 

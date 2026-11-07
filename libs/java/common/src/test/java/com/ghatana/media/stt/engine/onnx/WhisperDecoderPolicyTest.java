@@ -1,8 +1,10 @@
 package com.ghatana.media.stt.engine.onnx;
 
+import com.ghatana.media.common.InferenceError;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class WhisperDecoderPolicyTest {
     @Test
@@ -52,6 +54,16 @@ class WhisperDecoderPolicyTest {
         assertThat(WhisperOnnxEngine.shouldSuppressAsNoSpeech(0.60d, -2.0d)).isFalse();
         assertThat(WhisperOnnxEngine.shouldSuppressAsNoSpeech(0.9d, -1.0d)).isFalse();
         assertThat(WhisperOnnxEngine.shouldSuppressAsNoSpeech(Double.NaN, -2.0d)).isFalse();
+    }
+
+    @Test
+    void tokenLimitWithoutEndOfTextIsTypedNonRetryableFailure() {
+        assertThatThrownBy(() -> { throw WhisperOnnxEngine.incompleteTranscriptAtTokenLimit(); })
+                .isInstanceOfSatisfying(InferenceError.class, failure -> {
+                    assertThat(failure.isRetryable()).isFalse();
+                    assertThat(failure.getCategory()).isEqualTo(InferenceError.ErrorCategory.INFERENCE);
+                })
+                .hasMessageContaining("bounded token limit without end-of-text");
     }
 
     private static float[] scores() {

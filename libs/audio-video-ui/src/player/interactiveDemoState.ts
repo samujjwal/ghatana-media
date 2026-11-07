@@ -133,6 +133,7 @@ export interface DemoPlayerState {
 export type DemoPlayerAction =
   | { readonly type: "play" }
   | { readonly type: "pause" }
+  | { readonly type: "progress"; readonly positionMs: number }
   | { readonly type: "seek"; readonly positionMs: number }
   | { readonly type: "choose-branch"; readonly branchId: string }
   | { readonly type: "finish" };
@@ -430,7 +431,7 @@ export function reduceDemoPlayerState(
 ): DemoPlayerState {
   if (state.status !== "READY") return state;
   if (!action || typeof action !== "object" ||
-    !["play", "pause", "seek", "choose-branch", "finish"].includes((action as { type?: string }).type ?? "")) {
+    !["play", "pause", "progress", "seek", "choose-branch", "finish"].includes((action as { type?: string }).type ?? "")) {
     return state;
   }
   const verification = requestAttestation(manifest, verificationPort);
@@ -450,6 +451,18 @@ export function reduceDemoPlayerState(
       return appendHistory(state, action, { playing: true, announcement: `Playing ${scene.label}.` });
     case "pause":
       return appendHistory(state, action, { playing: false, announcement: `Paused ${scene.label}.` });
+    case "progress": {
+      if (
+        !state.playing || !Number.isFinite(action.positionMs) || !Number.isInteger(action.positionMs) ||
+        action.positionMs < state.positionMs || action.positionMs < scene.startMs || action.positionMs > scene.endMs
+      ) return state;
+      const atEnd = action.positionMs === scene.endMs;
+      return appendHistory(state, action, {
+        positionMs: action.positionMs,
+        playing: atEnd ? false : state.playing,
+        announcement: atEnd ? `Finished ${scene.label}. Choose a path or replay.` : `Playing ${scene.label}.`,
+      });
+    }
     case "seek": {
       if (!Number.isFinite(action.positionMs) || action.positionMs < 0) {
         return state;

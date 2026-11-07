@@ -457,6 +457,38 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
+  it('trims secret-store whitespace from the bearer environment value before authenticated dispatch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-bearer-trim-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(
+        jobCommand('https://media.example.test', 'status', ['--job', 'job-1']),
+        `\n${token}  \n`,
+        {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+          GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+          GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        },
+        fetchFixture,
+      );
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.status',
+      });
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toEqual([{
+        path: '/api/v1/jobs/job-1', method: 'GET', tenant: 'tenant-a', principal: 'principal-a',
+        requestId: expect.any(String), idempotencyKey: null, authenticated: true, bearerMatches: true,
+      }]);
+      expect((await readFile(requestLogPath, 'utf8'))).not.toContain(token);
+      expect(result.stdout + result.stderr).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('submits with canonical request identity and preserves ACCEPTED without claiming completion', async () => {
     let requests = 0;
     await withServer((request, response) => {

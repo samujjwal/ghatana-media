@@ -1218,9 +1218,7 @@ public final class WhisperOnnxEngine implements SttEngine {
                     // Reaching the token ceiling without an EOT is not a complete
                     // transcription. Preserve failure instead of persisting a
                     // truncated, apparently successful provider result.
-                    throw new InferenceError(
-                            "Whisper reference decoder reached the bounded token limit without end-of-text",
-                            null, false);
+                    throw incompleteTranscriptAtTokenLimit();
                 } finally {
                     if (priorDecoderResult != null) priorDecoderResult.close();
                     if (firstDecoderResult != null && firstDecoderResult != priorDecoderResult) {
@@ -1238,6 +1236,13 @@ public final class WhisperOnnxEngine implements SttEngine {
             if (name.equals(entry.getKey()) && entry.getValue() instanceof OnnxTensor tensor) return tensor;
         }
         throw new IllegalArgumentException("Whisper ONNX graph omitted required tensor: " + name);
+    }
+
+    /** Typed failure used when token-limited decoding did not produce Whisper's end-of-text token. */
+    static InferenceError incompleteTranscriptAtTokenLimit() {
+        return new InferenceError(
+                "Whisper reference decoder reached the bounded token limit without end-of-text",
+                null, false);
     }
 
     private String finishDecodedTranscript(long[] generated, int generatedCount,

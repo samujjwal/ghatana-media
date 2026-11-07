@@ -558,7 +558,13 @@ export async function captureWithAdmission(
   let frame: CapturedFrame;
   try {
     frame = await adapter.capture(admittedRequest);
-  } catch {
+  } catch (failure) {
+    // The kind router reports a missing binding before invoking any source.
+    // Preserve that pre-dispatch state instead of suggesting an ambiguous
+    // source effect occurred.
+    if (failure instanceof CaptureAdapterNotWiredError) {
+      throw new CaptureUnavailableError(admittedRequest.kind);
+    }
     // A rejected transport/promise does not prove that the source did not
     // capture. Do not invite an automatic retry or expose a provider error
     // that may contain request data or credentials.

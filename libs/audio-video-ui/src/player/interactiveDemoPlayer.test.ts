@@ -252,6 +252,24 @@ describe("interactive demo player", () => {
     expect(afterRight.history).toHaveLength(3);
   });
 
+  it("advances only playing state by integer positions and pauses at scene end", () => {
+    const authority = testAuthority(BASE);
+    const initial = createDemoPlayerState(BASE, authority);
+    expect(reduceDemoPlayerState(BASE, initial, { type: "progress", positionMs: 100 }, authority)).toEqual(initial);
+
+    const playing = reduceDemoPlayerState(BASE, initial, { type: "play" }, authority);
+    const advanced = reduceDemoPlayerState(BASE, playing, { type: "progress", positionMs: 500 }, authority);
+    expect(advanced).toMatchObject({ playing: true, positionMs: 500, activeSceneId: "intro" });
+
+    const atEnd = reduceDemoPlayerState(BASE, advanced, { type: "progress", positionMs: 1_000 }, authority);
+    expect(atEnd).toMatchObject({ playing: false, positionMs: 1_000, activeSceneId: "intro", route: ["intro"] });
+    expect(atEnd.branches).toEqual([]);
+
+    for (const positionMs of [499, 500.5, 1_001, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(reduceDemoPlayerState(BASE, advanced, { type: "progress", positionMs }, authority)).toBe(advanced);
+    }
+  });
+
   it("selects captions deterministically with half-open cue boundaries", () => {
     const scene = BASE.scenes[0];
     expect(demoCaptionAt(scene, -1)).toBe("");
