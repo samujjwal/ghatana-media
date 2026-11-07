@@ -359,6 +359,28 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     }
   });
 
+  it('rejects an endpoint over the shared 8,192-character normalized URL ceiling before fetch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-endpoint-size-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const oversizedEndpoint = `https://media.example.test/${'a'.repeat(8_200)}`;
+    try {
+      const result = await invoke(command(oversizedEndpoint), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_ENDPOINT',
+      });
+      expect(result.stderr).not.toContain(token);
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each([
     ['upload', 'inspect', '--upload', 'u1'],
     ['upload', 'resume', '--upload', 'u1'],

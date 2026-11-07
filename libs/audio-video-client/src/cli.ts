@@ -11,6 +11,7 @@ const COMMAND_IDS: Readonly<Record<string, string>> = {
 const USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
+const MAX_ENDPOINT_URL_CHARS = 8_192;
 
 interface Arguments {
   command: string;
@@ -58,6 +59,9 @@ function validateEndpoint(input: string): string {
   let endpoint: URL;
   try { endpoint = new URL(input); }
   catch { throw new Error('Endpoint must be an absolute HTTPS URL (HTTP is allowed only for loopback testing).'); }
+  if (endpoint.href.length > MAX_ENDPOINT_URL_CHARS) {
+    throw new Error(`Endpoint URL must not exceed ${MAX_ENDPOINT_URL_CHARS} characters.`);
+  }
   const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
   const loopbackHttp = endpoint.protocol === 'http:' && localHosts.has(endpoint.hostname.toLowerCase());
   if ((endpoint.protocol !== 'https:' && !loopbackHttp)
