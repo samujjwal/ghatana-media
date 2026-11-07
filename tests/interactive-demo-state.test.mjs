@@ -163,6 +163,36 @@ test("manifest rejects duplicate caption cue IDs within a scene before playback"
   assert.equal(state.playing, false);
 });
 
+test("manifest rejects ambiguous or sparse origin permission entries", () => {
+  const malformedPermissions = [
+    [
+      { origin: "https://cdn.example.test", capabilities: ["read-asset"] },
+      { origin: "https://cdn.example.test", capabilities: ["read-caption"] },
+    ],
+    [{ origin: "https://cdn.example.test", capabilities: ["read-asset", "read-asset"] }],
+    Array(1),
+    [{ origin: "https://cdn.example.test", capabilities: Array(1) }],
+  ];
+
+  for (const originPermissions of malformedPermissions) {
+    const candidate = { ...manifest, originPermissions };
+    const state = createDemoPlayerState(candidate, {
+      attest: () => ({
+        manifestId: candidate.id,
+        revision: candidate.revision,
+        sha256: candidate.integrity.sha256,
+        actualEmbeddingOrigin: hostOrigin,
+        sourceTruth: candidate.sourceTruth,
+        originPermissions,
+      }),
+    });
+
+    assert.equal(state.status, "UNAVAILABLE");
+    assert.equal(state.failure, "INVALID_BUNDLE");
+    assert.equal(state.route.length, 0);
+  }
+});
+
 test("replay reproduces play and progress state, status, and history", () => {
   const actions = [
     { type: "play" },

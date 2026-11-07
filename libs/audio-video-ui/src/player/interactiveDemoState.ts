@@ -223,14 +223,27 @@ function trustBinding(manifest: InteractiveDemoManifest, attestation: DemoHostAt
 }
 
 function isValidPermissionList(value: unknown): value is readonly DemoOriginPermission[] {
-  return Array.isArray(value) && value.every((permission: unknown) => {
+  if (!Array.isArray(value)) return false;
+  const seenOrigins = new Set<string>();
+  for (const permission of value as readonly unknown[]) {
     if (!permission || typeof permission !== "object") return false;
     const candidate = permission as DemoOriginPermission;
-    return typeof candidate.origin === "string" && exactOrigin(candidate.origin) === candidate.origin &&
-      Array.isArray(candidate.capabilities) && candidate.capabilities.every(
-        (capability: unknown) => capability === "read-asset" || capability === "read-caption",
-      );
-  });
+    if (
+      typeof candidate.origin !== "string" || exactOrigin(candidate.origin) !== candidate.origin ||
+      seenOrigins.has(candidate.origin) || !Array.isArray(candidate.capabilities)
+    ) return false;
+    seenOrigins.add(candidate.origin);
+
+    const seenCapabilities = new Set<unknown>();
+    for (const capability of candidate.capabilities as readonly unknown[]) {
+      if (
+        (capability !== "read-asset" && capability !== "read-caption") ||
+        seenCapabilities.has(capability)
+      ) return false;
+      seenCapabilities.add(capability);
+    }
+  }
+  return true;
 }
 
 function isExactEvidenceRef(value: unknown): value is string {
