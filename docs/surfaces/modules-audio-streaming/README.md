@@ -56,6 +56,9 @@ the Media launcher; `modules/integration-tests` also depends on it.
   deliver a contiguous prefix, and stopped on gaps or backpressure. Unknown,
   denied, revoked, stale-version, and lost-ACK outcomes do not produce an
   accepted frame; lost ACK is never replayed automatically.
+- If the highest canonical frame sequence is accepted and that batch also
+  declares EOS, capture returns `UNKNOWN` before readback or dispatch of an
+  out-of-range EOS sequence.
 
 ## Dependencies and configuration
 

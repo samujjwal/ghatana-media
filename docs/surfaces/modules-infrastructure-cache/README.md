@@ -46,6 +46,13 @@ retention eligibility, source version or transcript revision.
 
 ## States and invariants
 
+- `CacheKeyScope` requires non-blank, bounded values for tenant, authenticated
+  principal, rights scope, purpose, classification, artifact ID, artifact
+  revision, transcript revision, source fingerprint, and policy epoch. These
+  ten protected key components reject surrounding whitespace instead of
+  trimming it into an alias. This is key-scope canonicalization only; owner-
+  backed authorization and rights-invalidation wiring remain separately
+  required, and this rule does not qualify runtime cache behavior.
 - **No unscoped transcript persistence**: the legacy tenant/entity-only APIs
   lack authenticated principal, rights/purpose/classification, immutable
   artifact/transcript revisions and authoritative source fingerprint, so their

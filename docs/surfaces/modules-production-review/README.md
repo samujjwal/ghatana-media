@@ -22,6 +22,9 @@ The payloads are comments (with disposition and optional rational time/normalize
 - The `(tenant, principal, requestId)` idempotency key returns the original record for an identical fingerprint and rejects reuse with a different payload/fingerprint.
 - Store append and its case revision/idempotency/record writes are one PostgreSQL transaction. Readback requires the record revisions to be contiguous and match the stored case revision.
 - Authorization must bind the actor, tenant, case, exact target, scope, authority version, validity window, active retention, and current material version. Unknown authority/currentness/retention fails closed.
+- Unexpected authorization-adapter runtime failures become a generic
+  `ReviewUnavailableException` without preserving provider/principal details;
+  append and inspect stop before touching the review store.
 - Text is sanitized before persistence and again on read disclosure. Time ranges use one declared clock and strictly increasing rational times; ROI coordinates are finite, positive, and contained in the normalized unit square.
 - The project/material revision check and review append do **not** share an atomic CAS boundary. A material edit can race after the final authority check and before or during the review append. The implementation therefore cannot prove an edit-versus-approval winner; it does not claim to produce approval.
 

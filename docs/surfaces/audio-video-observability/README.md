@@ -46,6 +46,10 @@ Media business RPC, provider, job store or generic telemetry engine.
   vocabularies and never carry secrets or raw provider diagnostics.
 - Absent series stay unknown/NaN — never fabricated zeroes; stale
   measurements and hostile labels are rejected.
+- `ProviderProfileObservation` rejects recognizable credential-shaped
+  identities, including GitHub PAT and app-token prefixes, before the value
+  can enter registry tags. This is label redaction at the metrics boundary;
+  it does not qualify deployed scrape or alert delivery.
 - Quality metric names are a closed vocabulary; model revisions and
   locales are validated metric identities, not free text.
 

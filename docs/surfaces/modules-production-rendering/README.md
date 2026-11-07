@@ -55,6 +55,10 @@ adapters own those decisions and exact-byte reads.
 - Planner outcomes are `PLAN_READY`, `NOT_ADMITTED`, or `UNAVAILABLE`; plan
   readiness is not rendered-media completion. No job state machine is owned
   here.
+- Planner execution converts runtime failures while observing host codec
+  admission or availability into typed `UNAVAILABLE`; it does not dispatch a
+  render. Execution remains unavailable until an executable codec pipeline is
+  implemented and admitted.
 - Restoration and optimization distinguish completed work from admission or
   availability failures. Rights are checked by injected authorities and are
   rechecked before disclosure; caller-asserted rights are not accepted.

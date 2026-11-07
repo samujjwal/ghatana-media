@@ -29,6 +29,11 @@ media, reviewed approvals, versioned exports with destination ACKs.
   video codec output, 3D, audio, or rights-aware asset loading.
 - Versioned export/delivery: artifact store + job finality via
   `providers/aws-postgresql`.
+- Delivery operation scope preserves the exact tenant, principal, request,
+  artifact, version, digest, destination, fingerprint, and dispatch-owner
+  values. Blank or surrounding-whitespace values are invalid rather than
+  normalized, so delivery identity remains exact across persistence and
+  reconciliation.
 
 ## Failure / rollback
 

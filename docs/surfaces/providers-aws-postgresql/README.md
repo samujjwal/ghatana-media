@@ -58,9 +58,15 @@ resolution; HTTP provider clients call configured provider endpoints.
   process-crash recovery are covered by dedicated tests.
 - Durable job and outbox lease deadlines use epoch-millisecond precision;
   returned lease values match the persisted deadline, and overflow rejects
-  the claim before any publisher effect.
+  the claim before any publisher effect. Lifecycle outbox claim leases that
+  truncate below that precision are rejected before publication, preventing
+  an immediately expired claim from admitting concurrent duplicate publish.
 - Tenant isolation is enforced at the store boundary
   (`MediaPostgresqlS3TenantIsolationTest`).
+- Delivery operation readback preserves stored scope values exactly; corrupted
+  padded identity or digest values are rejected instead of trimmed into a
+  different operation. Dispatch-owner IDs with surrounding whitespace are
+  rejected as well.
 - `PostgresqlMediaSourceAuthorizationAuthority` binds source rights to the
   authenticated tenant/principal, immutable digest, operation, purpose,
   region, provider version/boundary and retention. Human/third-party sources

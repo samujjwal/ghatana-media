@@ -82,6 +82,12 @@ revocation stops tracks and discards an in-flight frame. `BROWSER`, `DESKTOP`,
 `MOBILE`, `TERMINAL`, and `GRPC_API` still have no wired adapter in this
 package; nothing simulates those capture sources.
 
+When a browser host supplies a `MediaStreamTrack`, its `ended` event releases
+an idle stream immediately; event listeners are removed on teardown and when
+startup fails. A subsequent frame read reports typed `DEVICE_UNAVAILABLE`.
+This is browser-host resource handling only: it does not establish physical
+device qualification or integration with canonical stream sessions or writers.
+
 ## States and invariants
 
 - Upload/job mutations carry stable request identity; lost acknowledgements
@@ -92,6 +98,10 @@ package; nothing simulates those capture sources.
   `planIdentity`/lineage; `changedSceneLineages` reports carried/replanned/
   removed scenes.
 - `dryRunOnly: true` on `OrchestrationResult` — planning performs no effects.
+- `publishFinalRender` detaches and deep-freezes canonical upload-session
+  observations before later awaited admission checks, so adapter-retained
+  objects cannot rewrite validated scope or chunk progress. This does not
+  qualify a muxer/decoder or establish playable output.
 - Offline edits persist AES-GCM ciphertext only; the key is host supplied and
   non-extractable. Reconnect returns `UNAVAILABLE` until the host supplies
   canonical project version-read and CAS apply operations. With those ports,
@@ -100,6 +110,11 @@ package; nothing simulates those capture sources.
   and post-dispatch unknown outcomes are terminal; pre-dispatch authorization or
   version-read uncertainty leaves the edit `PENDING` for a fresh explicit
   reconnect. Unknown apply outcomes are never blindly retried.
+- Offline edit payloads must be faithful, bounded JSON data trees (plain objects
+  and dense arrays with finite numbers and no accessors or cycles). Validation
+  counts the exact serialized UTF-8 bytes before stringification and rejects
+  oversized or unsupported values; it does not coerce arbitrary JavaScript
+  values into JSON.
 - Unsupported legacy processing methods keep their public signatures but
   return a typed `NOT_ADMITTED` outcome without a network request. The canonical
   SDK remains the only client surface bound to the runtime route manifest.
