@@ -1,5 +1,6 @@
 package com.ghatana.media.runtime;
 
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -108,9 +109,17 @@ public record MediaPublicLifecycleEvent(
         }
         try {
             Object version = map.get("aggregateVersion");
-            if (!(version instanceof Integer || version instanceof Long)) {
+            if (!(version instanceof Integer || version instanceof Long || version instanceof BigInteger)) {
                 throw new IllegalArgumentException("aggregateVersion must be an integer");
             }
+            long aggregateVersion;
+            try {
+                aggregateVersion = version instanceof BigInteger integer
+                        ? integer.longValueExact() : ((Number) version).longValue();
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("aggregateVersion exceeds the supported integer range", overflow);
+            }
+            if (aggregateVersion < 1) throw new IllegalArgumentException("aggregateVersion must be positive");
             Object terminal = map.get("terminalReadbackRequired");
             if (!(terminal instanceof Boolean)) throw new IllegalArgumentException("terminalReadbackRequired must be boolean");
             String eventRef = wireRedactedId(map, "eventRef");
@@ -135,7 +144,7 @@ public record MediaPublicLifecycleEvent(
                     MediaLifecycleEventType.fromWireName(string(map, "eventType")),
                     tenantRef, principalRef, correlationRef, causationRef,
                     aggregateType, aggregateRef,
-                    ((Number) version).longValue(), classification,
+                    aggregateVersion, classification,
                     Instant.parse(string(map, "occurredAt")),
                     AppendFinality.valueOf(string(map, "appendFinality")), (Boolean) terminal);
         } catch (RuntimeException failure) {

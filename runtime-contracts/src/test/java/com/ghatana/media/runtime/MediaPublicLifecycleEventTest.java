@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Map;
 
@@ -110,6 +111,19 @@ class MediaPublicLifecycleEventTest {
         assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(normalizedClassification))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("classification");
+    }
+
+    @Test
+    void payloadParserAcceptsRepresentableBigIntegerAggregateVersionsAndRejectsOverflow() {
+        var valid = new java.util.LinkedHashMap<>(MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload());
+        valid.put("aggregateVersion", BigInteger.valueOf(Long.MAX_VALUE));
+        assertThat(MediaPublicLifecycleEvent.fromPayload(valid).aggregateVersion()).isEqualTo(Long.MAX_VALUE);
+
+        valid.put("aggregateVersion", BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE));
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(valid))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("supported integer range");
     }
 
     @Test
