@@ -20,7 +20,7 @@ public record MediaClockTimestamp(
         Objects.requireNonNull(status, "status");
         if (status == Status.KNOWN) {
             if (ticks == null || timeBaseNumerator == null || timeBaseDenominator == null
-                    || domain == null || clockId == null || clockId.isBlank()
+                    || domain == null || !isExactClockId(clockId)
                     || timeBaseNumerator <= 0 || timeBaseDenominator <= 0) {
                 throw new IllegalArgumentException("Known timestamps require ticks, rational timebase and clock identity");
             }
@@ -54,8 +54,8 @@ public record MediaClockTimestamp(
         if (samplesPerSecond <= 0) {
             throw new IllegalArgumentException("Audio sample rate must be positive");
         }
-        if (sourceClockId == null || sourceClockId.isBlank()) {
-            throw new IllegalArgumentException("Audio source clock identity must not be blank");
+        if (!isExactClockId(sourceClockId)) {
+            throw new IllegalArgumentException("Audio source clock identity must be nonblank and exact");
         }
         return new MediaClockTimestamp(Status.KNOWN, sampleIndex, 1L, samplesPerSecond,
                 ClockDomain.SOURCE, sourceClockId, null);
@@ -70,8 +70,8 @@ public record MediaClockTimestamp(
     public static MediaClockTimestamp fromSource(SourceMediaTimestamp source, String sourceClockId) {
         Objects.requireNonNull(source, "source");
         if (!source.isKnown()) return unknown(source.reason());
-        if (sourceClockId == null || sourceClockId.isBlank()) {
-            throw new IllegalArgumentException("Source clock identity must not be blank");
+        if (!isExactClockId(sourceClockId)) {
+            throw new IllegalArgumentException("Source clock identity must be nonblank and exact");
         }
         return new MediaClockTimestamp(Status.KNOWN, source.pts(), source.timeBaseNumerator(),
                 source.timeBaseDenominator(), ClockDomain.SOURCE, sourceClockId, null);
@@ -121,4 +121,15 @@ public record MediaClockTimestamp(
 
     public enum Status { KNOWN, UNKNOWN }
     public enum ClockDomain { SOURCE, MEDIA, SIMULATION, WALL }
+
+    private static boolean isExactClockId(String clockId) {
+        if (clockId == null || clockId.isEmpty()) return false;
+        int first = clockId.codePointAt(0);
+        int last = clockId.codePointBefore(clockId.length());
+        return !isBoundaryWhitespace(first) && !isBoundaryWhitespace(last);
+    }
+
+    private static boolean isBoundaryWhitespace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
+    }
 }

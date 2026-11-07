@@ -129,6 +129,23 @@ class MediaClockMappingTest {
     }
 
     @Test
+    void rejectsClockIdentityWithSurroundingWhitespaceAcrossTimestampFactories() {
+        assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 48_000, " audio-a"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaClockTimestamp.fromSource(
+                SourceMediaTimestamp.fromPts("1", "1/90000"), "video-a "))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaClockTimestamp(MediaClockTimestamp.Status.KNOWN,
+                1L, 1L, 1_000L, MediaClockTimestamp.ClockDomain.SOURCE, " video-a", null))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaClockTimestamp.audioSamples(1, 48_000, "\u00a0audio-a"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaClockTimestamp.fromSource(
+                SourceMediaTimestamp.fromPts("1", "1/90000"), "video-a\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void acceptsEquivalentVariableTimebasesAndAppliesBoundedOffset() {
         MediaClockTimestamp first = MediaClockTimestamp.fromSource(SourceMediaTimestamp.fromPts("25", "1/25"), "video-a");
         MediaClockTimestamp second = MediaClockTimestamp.fromSource(SourceMediaTimestamp.fromPts("2000", "1/2000"), "video-a");
