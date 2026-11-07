@@ -306,7 +306,8 @@ class ProjectTimelineEngineTest {
         Revision edited = engine.edit(OWNER, created.project().projectId(), created.initialRevision().revisionId(),
                 List.of(new ProjectTimelineEngine.AddScene(new Scene("scene", 0))));
 
-        for (String invalidHead : java.util.Arrays.asList(null, "", "  ")) {
+        for (String invalidHead : java.util.Arrays.asList(
+                null, "", "  ", ":bad", "with space", "é", "x".repeat(129))) {
             assertThatThrownBy(() -> engine.edit(OWNER, created.project().projectId(), invalidHead,
                     List.of(new ProjectTimelineEngine.AddScene(new Scene("other-scene", 1)))))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -316,6 +317,14 @@ class ProjectTimelineEngineTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("expectedHeadRevisionId");
         }
+
+        assertThatThrownBy(() -> engine.edit(OWNER, "missing-project", ":bad",
+                List.of(new ProjectTimelineEngine.AddScene(new Scene("unreached-scene", 0)))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("expectedHeadRevisionId");
+        assertThatThrownBy(() -> engine.restore(OWNER, "missing-project", ":bad", "missing-revision"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("expectedHeadRevisionId");
 
         assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId()).isEqualTo(edited.revisionId());
     }

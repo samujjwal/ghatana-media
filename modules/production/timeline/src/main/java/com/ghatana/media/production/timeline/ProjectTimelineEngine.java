@@ -223,8 +223,10 @@ public final class ProjectTimelineEngine {
     }
 
     private static void requireExpectedHead(String expectedHeadRevisionId) {
-        if (expectedHeadRevisionId == null || expectedHeadRevisionId.isBlank()) {
-            throw new IllegalArgumentException("expectedHeadRevisionId must not be blank");
+        try {
+            requiredOpaqueId(expectedHeadRevisionId, "expectedHeadRevisionId");
+        } catch (IllegalArgumentException invalid) {
+            throw new IllegalArgumentException("expectedHeadRevisionId must be a valid opaque revision id", invalid);
         }
     }
 
