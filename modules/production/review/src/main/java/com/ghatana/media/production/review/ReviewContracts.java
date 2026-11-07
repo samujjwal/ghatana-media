@@ -33,7 +33,9 @@ public final class ReviewContracts {
             versionId = opaque(versionId, "versionId");
         }
 
-        public String reference() { return kind.name().toLowerCase() + ":" + objectId + "@" + versionId; }
+        public String reference() {
+            return kind.name().toLowerCase(java.util.Locale.ROOT) + ":" + objectId + "@" + versionId;
+        }
     }
 
     /** Owner-issued review-case correlation. This module does not create or mint case authority. */

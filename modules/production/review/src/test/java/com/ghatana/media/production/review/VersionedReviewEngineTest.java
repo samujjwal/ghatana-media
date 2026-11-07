@@ -8,6 +8,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,6 +24,19 @@ class VersionedReviewEngineTest {
     private static final ExactVersionRef V1 = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, "artifact-1", "v1");
     private static final ExactVersionRef V2 = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, "artifact-1", "v2");
     private static final ReviewCaseRef CASE = new ReviewCaseRef("tenant-a", "owner-case-1", V1.reference(), V1, "scope-visual-review");
+
+    @Test
+    void exactVersionReferenceIsIndependentOfDefaultLocale() {
+        Locale originalLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            ExactVersionRef ref = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, "artifact-1", "v1");
+
+            assertThat(ref.reference()).isEqualTo("artifact_version:artifact-1@v1");
+        } finally {
+            Locale.setDefault(originalLocale);
+        }
+    }
 
     @Test
     void appendsExactVersionDecisionWithoutCreatingApprovalAndRedactsText() {
