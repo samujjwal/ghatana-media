@@ -69,6 +69,52 @@ public class CrossModalFusionEngine {
         return values == null ? null : values.clone();
     }
 
+    /**
+     * Describes where the displayed heuristic score came from. This deliberately records only
+     * the scores supplied to this fusion call; it does not claim the scores are calibrated or
+     * retain provider/model identity that the feature inputs do not carry.
+     */
+    public record ConfidenceProvenance(ScoreAggregation aggregation, Map<String, Double> inputScores) {
+        public ConfidenceProvenance {
+            Objects.requireNonNull(aggregation, "aggregation must not be null");
+            Objects.requireNonNull(inputScores, "inputScores must not be null");
+            inputScores = Map.copyOf(inputScores);
+            if (aggregation == ScoreAggregation.UNKNOWN && !inputScores.isEmpty()) {
+                throw new IllegalArgumentException("Unknown confidence provenance cannot include input scores");
+            }
+            if (aggregation == ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED
+                    && (inputScores.isEmpty() || inputScores.size() > 2)) {
+                throw new IllegalArgumentException("Known confidence provenance requires one or two input scores");
+            }
+            if (inputScores.size() == 2
+                    && !(inputScores.containsKey("visual")
+                    && (inputScores.containsKey("audio") || inputScores.containsKey("text")))) {
+                throw new IllegalArgumentException("Two-score provenance must pair visual with audio or text");
+            }
+            for (Map.Entry<String, Double> entry : inputScores.entrySet()) {
+                Double score = entry.getValue();
+                if (!Set.of("audio", "visual", "text").contains(entry.getKey()) || score == null
+                        || !Double.isFinite(score) || score < 0.0 || score > 1.0) {
+                    throw new IllegalArgumentException("Input confidence scores must be named finite values in [0, 1]");
+                }
+            }
+        }
+
+        public static ConfidenceProvenance unknown() {
+            return new ConfidenceProvenance(ScoreAggregation.UNKNOWN, Map.of());
+        }
+
+        private double derivedScore() {
+            return inputScores.values().stream().mapToDouble(Double::doubleValue).sum() / 2.0;
+        }
+    }
+
+    public enum ScoreAggregation {
+        UNKNOWN,
+        /** Two modality slots are averaged; a missing modality contributes zero. */
+        TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED
+    }
+
     /** Fused multimodal representation. */
     public record FusionResult(
             double[] fusedEmbeddings,
@@ -76,14 +122,34 @@ public class CrossModalFusionEngine {
             double fusionConfidence,
             Map<String, Double> modalityWeights,
             Duration processingTime,
-            boolean hadMissingModality
+            boolean hadMissingModality,
+            ConfidenceProvenance confidenceProvenance
     ) {
+        /** Compatibility constructor for callers that construct results without score ancestry. */
+        public FusionResult(double[] fusedEmbeddings, double fusionConfidence,
+                            Map<String, Double> modalityWeights, Duration processingTime,
+                            boolean hadMissingModality) {
+            this(fusedEmbeddings, fusionConfidence, modalityWeights, processingTime,
+                    hadMissingModality, ConfidenceProvenance.unknown());
+        }
+
         public FusionResult {
             Objects.requireNonNull(fusedEmbeddings, "fusedEmbeddings must not be null");
             Objects.requireNonNull(modalityWeights, "modalityWeights must not be null");
             Objects.requireNonNull(processingTime, "processingTime must not be null");
+            Objects.requireNonNull(confidenceProvenance, "confidenceProvenance must not be null");
             if (!Double.isFinite(fusionConfidence) || fusionConfidence < 0.0 || fusionConfidence > 1.0) {
                 throw new IllegalArgumentException("Fusion confidence must be finite and in [0, 1]");
+            }
+            if (confidenceProvenance.aggregation()
+                    == ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED
+                    && Math.abs(confidenceProvenance.derivedScore() - fusionConfidence) > 1.0e-12) {
+                throw new IllegalArgumentException("Fusion confidence must match its recorded input-score provenance");
+            }
+            if (confidenceProvenance.aggregation()
+                    == ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED
+                    && hadMissingModality != (confidenceProvenance.inputScores().size() == 1)) {
+                throw new IllegalArgumentException("Missing-modality flag must match recorded confidence inputs");
             }
             for (double component : fusedEmbeddings) {
                 if (!Double.isFinite(component)) {
@@ -217,7 +283,12 @@ public class CrossModalFusionEngine {
         Duration elapsed = Duration.ofNanos(System.nanoTime() - startNs);
         double fusionConf = ((missingAudio ? 0.0 : audio.confidence())
                 + (missingVisual ? 0.0 : visual.confidence())) / 2.0;
-        return new FusionResult(fused, fusionConf, weights, elapsed, missingAudio || missingVisual);
+        Map<String, Double> inputScores = new LinkedHashMap<>();
+        if (!missingAudio) inputScores.put("audio", audio.confidence());
+        if (!missingVisual) inputScores.put("visual", visual.confidence());
+        return new FusionResult(fused, fusionConf, weights, elapsed, missingAudio || missingVisual,
+                new ConfidenceProvenance(ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED,
+                        inputScores));
     }
 
     /**
@@ -326,7 +397,12 @@ public class CrossModalFusionEngine {
         Duration elapsed = Duration.ofNanos(System.nanoTime() - startNs);
         double fusionConf = ((missingText ? 0.0 : text.confidence())
                 + (missingVisual ? 0.0 : visual.confidence())) / 2.0;
-        return new FusionResult(fused, fusionConf, weights, elapsed, missingText || missingVisual);
+        Map<String, Double> inputScores = new LinkedHashMap<>();
+        if (!missingText) inputScores.put("text", text.confidence());
+        if (!missingVisual) inputScores.put("visual", visual.confidence());
+        return new FusionResult(fused, fusionConf, weights, elapsed, missingText || missingVisual,
+                new ConfidenceProvenance(ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED,
+                        inputScores));
     }
 
     /** @return the model ID this engine was initialized with */

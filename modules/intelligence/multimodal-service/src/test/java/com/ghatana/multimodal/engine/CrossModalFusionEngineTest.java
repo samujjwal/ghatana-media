@@ -117,6 +117,37 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("fusion score retains its input-score derivation without claiming calibration")
+    void fusionScoreRetainsUncalibratedInputProvenance() {
+        FusionResult result = engine.fuseAudioVisual(makeAudio(DIM, 0.8), makeVisual(DIM, 0.2));
+
+        assertThat(result.confidenceProvenance().aggregation())
+                .isEqualTo(ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED);
+        assertThat(result.confidenceProvenance().inputScores())
+                .containsExactlyInAnyOrderEntriesOf(java.util.Map.of("audio", 0.8, "visual", 0.2));
+        assertThat(result.fusionConfidence()).isEqualTo(0.5);
+        assertThat(result.confidenceDisposition()).isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+
+        FusionResult singleModality = engine.fuseAudioVisual(
+                new AudioFeatures(new double[0], 0.0), makeVisual(DIM, 0.8));
+        assertThat(singleModality.confidenceProvenance().inputScores())
+                .containsExactly(java.util.Map.entry("visual", 0.8));
+        assertThat(singleModality.fusionConfidence()).isEqualTo(0.4);
+
+        FusionResult textImage = engine.fuseTextImage(makeText(DIM, "fixture", 0.6), makeVisual(DIM, 0.4));
+        assertThat(textImage.confidenceProvenance().inputScores())
+                .containsExactlyInAnyOrderEntriesOf(java.util.Map.of("text", 0.6, "visual", 0.4));
+        assertThat(textImage.fusionConfidence()).isEqualTo(0.5);
+
+        assertThatThrownBy(() -> new FusionResult(new double[] {0.0}, 0.9,
+                java.util.Map.of("audio", 0.5, "visual", 0.5), java.time.Duration.ZERO, false,
+                new ConfidenceProvenance(ScoreAggregation.TWO_SLOT_ARITHMETIC_MEAN_UNCALIBRATED,
+                        java.util.Map.of("audio", 0.5, "visual", 0.5))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("recorded input-score provenance");
+    }
+
+    @Test
     @DisplayName("fuseAudioVisual returns non-null result for valid inputs")
     void audioVisualFusionReturnsResult() { 
         AudioFeatures audio = makeAudio(DIM, 0.8); 
