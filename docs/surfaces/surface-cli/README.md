@@ -18,6 +18,9 @@ success paths.
   privileged path.
 - Unknown/reconciling states are reported as such; the CLI never
   upgrades `NOT_ADMITTED`/`OUTCOME_UNKNOWN` to success.
+- Job `--parameters` use strict JSON parsing; integer values that JavaScript
+  cannot represent exactly are rejected before authenticated dispatch, so
+  operation parameters are never silently rounded.
 
 ## Dependencies
 
