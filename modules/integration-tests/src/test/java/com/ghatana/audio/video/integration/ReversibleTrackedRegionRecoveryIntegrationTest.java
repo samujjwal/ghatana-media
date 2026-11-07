@@ -73,6 +73,11 @@ class ReversibleTrackedRegionRecoveryIntegrationTest {
                 .isInstanceOf(RevisionConflictException.class);
         assertThat(ports.store.head(EDITOR, PROJECT_ID)).isEqualTo(edit);
 
+        assertThatThrownBy(() -> ports.engine.undo(
+                EDITOR, PROJECT_ID, edit.revisionId(), "r0", "j11-stale-undo"))
+                .isInstanceOf(RevisionConflictException.class);
+        assertUnchanged(edit, ports.store.head(EDITOR, PROJECT_ID));
+
         ReversibleRegionEditEngine.EditRevision undone = ports.engine.undo(
                 EDITOR, PROJECT_ID, edit.revisionId(), edit.revisionId(), "j11-undo");
         assertThat(undone.revisionId()).isNotEqualTo("r0");

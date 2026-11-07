@@ -949,6 +949,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
 - **Progress:** Added `ReversibleTrackedRegionRecoveryIntegrationTest` (commit `b8cbea83`); focused Gradle selector passes 2/2. Its deterministic in-memory ports bind exact tenant/source digest, frame PTS/timebase and region; revoked/unknown rights leave head and snapshot unchanged, stale revision CAS conflicts, and undo restores exact bytes/metadata. New foreign-principal and foreign-tenant read/append attempts are rejected with the head and snapshot unchanged. The test does not prove tracking, mask-pixel transformation, durable canonical CAS or journey completion; those remain open.
+- **Additional progress (2026-11-06):** `ReversibleTrackedRegionRecoveryIntegrationTest` now rejects undo with a stale expected revision and verifies the edited head and snapshot remain unchanged before exact-revision undo succeeds. Focused J-11 selector passes 2/2. In-memory fixture only; canonical durable CAS, real tracking/mask transformation, rendered output and restart remain open.
 - **Predecessors:** `media.dev.tracked-region-reversible-edits`
 
 **`media.dev.outcome-two-dimensional-animation`** · OPEN
