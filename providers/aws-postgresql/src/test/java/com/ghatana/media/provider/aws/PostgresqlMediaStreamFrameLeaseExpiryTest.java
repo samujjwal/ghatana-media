@@ -96,6 +96,42 @@ class PostgresqlMediaStreamFrameLeaseExpiryTest {
         }
     }
 
+    @Test
+    void rejectsRolloverAndNegativeSequenceReservationsWithoutMutation() throws Exception {
+        String bucket = "ms-seq-exhaustion-" + UUID.randomUUID().toString().replace("-", "");
+        createBucket(bucket);
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+             PostgresqlMediaStreamSessionStore streams = new PostgresqlMediaStreamSessionStore()) {
+            Instant createdAt = Instant.now();
+            Instant leaseExpiresAt = createdAt.plusSeconds(60);
+            String sessionId = "stream-sequence-exhaustion-" + UUID.randomUUID();
+            StreamSession opened = streams.create(new StreamSession(
+                    "tenant-sequence-exhaustion", sessionId, "principal-sequence-exhaustion", StreamKind.AUDIO,
+                    "provider-sequence-exhaustion", StreamState.OPEN, Long.MAX_VALUE, 0, 1024, 0,
+                    leaseExpiresAt, createdAt, createdAt, null, Map.of(), 1), TOKEN_HASH);
+            StreamSession connected = streams.connect(opened, TOKEN_HASH, leaseExpiresAt);
+
+            assertThatThrownBy(() -> streams.beginFrame(connected, Long.MIN_VALUE, "rollover-attempt"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("sequence is not contiguous");
+
+            assertThat(streams.find(connected.tenantId(), connected.sessionId())).contains(connected);
+
+            String negativeSessionId = "stream-negative-sequence-" + UUID.randomUUID();
+            StreamSession ordinary = streams.create(new StreamSession(
+                    "tenant-negative-sequence", negativeSessionId, "principal-negative-sequence", StreamKind.AUDIO,
+                    "provider-negative-sequence", StreamState.OPEN, 0, 0, 1024, 0,
+                    leaseExpiresAt, createdAt, createdAt, null, Map.of(), 1), TOKEN_HASH);
+            StreamSession connectedOrdinary = streams.connect(ordinary, TOKEN_HASH, leaseExpiresAt);
+
+            assertThatThrownBy(() -> streams.beginFrame(connectedOrdinary, -1, "negative-attempt"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("sequence is not contiguous");
+            assertThat(streams.find(connectedOrdinary.tenantId(), connectedOrdinary.sessionId()))
+                    .contains(connectedOrdinary);
+        }
+    }
+
     private static void delayedFrameMutationIsRejectedAfterLeaseExpiry(boolean acknowledge) throws Exception {
         String bucket = "media-stream-frame-expiry-" + UUID.randomUUID().toString().replace("-", "");
         createBucket(bucket);

@@ -312,7 +312,8 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         if (expected.inFlightSequence() != null) {
             throw new IllegalStateException("Media stream already has an unresolved provider attempt");
         }
-        if (sequence != expected.lastSequence() + 1) {
+        if (expected.lastSequence() == Long.MAX_VALUE || sequence < 0
+                || sequence != expected.lastSequence() + 1) {
             throw new IllegalArgumentException("Media stream frame sequence is not contiguous");
         }
         String boundedAttemptId = requireAttemptId(attemptId);
