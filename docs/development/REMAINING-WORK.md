@@ -517,11 +517,12 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Device/web-emulator E2E for denied permission, background, reconnect and real frame payload.
 - **Predecessors:** `media.dev.capture-http-and-file-regression`
 
-**`media.dev.terminal-source-capture`** · VERIFIED (TerminalCaptureAdapter: explicit-session-only, ANSI normalize, secret redact, bounded, detach-once — 12 tests green, suite 393)
+**`media.dev.terminal-source-capture`** · VERIFIED (TerminalCaptureAdapter: explicit-session-only, ANSI normalize, secret redact, bounded, detach-once — 13 focused tests green, client typecheck passes)
 - **Where:** `libs/audio-video-client/src/capture-adapters.ts`
 - **What:** Implement bounded terminal transcript/viewport recording.
 - **How:** Capture only explicit session/PTY, redact secrets, normalize ANSI/terminal geometry, preserve timing and close on detach.
 - **Test/exit:** TTY resize, escape injection, secret redaction, cancellation, no off-session capture.
+- **Additional verification (2026-11-07):** A host `read()` that remains pending now races the existing `maxSessionMillis` deadline and fails through the exactly-once detach path; the hanging-read regression confirms the explicit session is detached once. `TerminalCaptureAdapter` tests pass 13/13 and `pnpm --filter @audio-video/client typecheck` passes. Conservative assumption: the existing session-duration limit includes pending host-read time; timeout is local fail-closed cleanup and adds no ambient TTY or shell access.
 - **Predecessors:** `media.dev.capture-http-and-file-regression`
 
 **`media.dev.grpc-source-capture`** · OPEN

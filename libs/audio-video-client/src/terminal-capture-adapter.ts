@@ -71,6 +71,29 @@ function isTerminalSession(value: unknown): value is TerminalSession {
     && typeof v.detach === "function";
 }
 
+/** Bound even a host read that remains pending past the session deadline. */
+async function readBeforeDeadline(
+  session: TerminalSession,
+  deadline: number,
+): Promise<Uint8Array | null> {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) throw failure("terminal session exceeded its bounded duration");
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      session.read(),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(failure("terminal session exceeded its bounded duration")),
+          remaining,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+  }
+}
+
 /**
  * Strip ANSI escape sequences (CSI, OSC, charset and single-char controls)
  * and normalize CR/LF variants to "\n". Returns printable transcript text.
@@ -160,7 +183,7 @@ export class TerminalCaptureAdapter implements CaptureSourceAdapter {
         if (Date.now() >= deadline) {
           throw failure("terminal session exceeded its bounded duration");
         }
-        const raw = await session.read();
+        const raw = await readBeforeDeadline(session, deadline);
         if (raw === null) break;
         const t = Date.now() - startedAt;
         const { cols, rows } = session.geometry();

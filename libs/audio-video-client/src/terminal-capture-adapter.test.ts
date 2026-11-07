@@ -149,6 +149,18 @@ describe("TerminalCaptureAdapter", () => {
     expect(session.detachCalls).toBe(1);
   });
 
+  it("bounds a host read that never settles and detaches the explicit session", async () => {
+    const session: FakeSession = {
+      detachCalls: 0,
+      read: () => new Promise(() => undefined),
+      geometry: () => ({ cols: 80, rows: 24 }),
+      detach() { this.detachCalls += 1; return Promise.resolve(); },
+    };
+    const adapter = new TerminalCaptureAdapter({ resolveSession: () => session, maxSessionMillis: 20 });
+    await expect(adapter.capture(request)).rejects.toBeInstanceOf(TerminalCaptureError);
+    expect(session.detachCalls).toBe(1);
+  });
+
   it("external detach unblocks an in-flight capture and closes once", async () => {
     let detached = false;
     const session: FakeSession = {

@@ -995,7 +995,7 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts — host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean",
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts — host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean; 2026-11-07: a host `read()` that remains pending now races the existing `maxSessionMillis` deadline and fails through exactly-once detach. TerminalCaptureAdapter focused Vitest passes 13/13 and `pnpm --filter @audio-video/client typecheck` passes. Conservative assumption: the existing session-duration limit includes pending host-read time; this adds no ambient TTY/shell access or new source/session authority.",
       "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
       "integrationPrerequisites": [
         "media.dev.capture-http-and-file-regression"
