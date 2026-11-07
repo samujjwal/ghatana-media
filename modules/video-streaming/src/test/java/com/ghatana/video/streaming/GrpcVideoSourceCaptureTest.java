@@ -18,6 +18,18 @@ class GrpcVideoSourceCaptureTest {
             "tenant-1", "stream-1", "principal-1", "purpose-1", "video@v3");
 
     @Test
+    void requestRejectsUnicodeEdgeSpaceAroundExactSourceVersion() {
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Request(
+                "tenant-1", "stream-1", "principal-1", "purpose-1", "\u00a0video@v3"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sourceVersion must be present and canonical");
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Request(
+                "tenant-1", "stream-1", "principal-1", "purpose-1", "video@v3\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sourceVersion must be present and canonical");
+    }
+
+    @Test
     void batchFrameCapUsesActualIteratorEntriesBeforeCopying() {
         GrpcVideoSourceCapture.SourceFrame repeated = frame(10, 0, "video@v3", 20);
         List<GrpcVideoSourceCapture.SourceFrame> actualFrames = new ArrayList<>(

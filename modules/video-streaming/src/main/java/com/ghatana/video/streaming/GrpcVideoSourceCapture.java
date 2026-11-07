@@ -324,10 +324,20 @@ public final class GrpcVideoSourceCapture {
     }
 
     private static String required(String value, String name) {
-        if (value == null || value.isBlank() || !value.equals(value.trim())) {
+        if (value == null || value.isBlank() || !value.equals(value.trim()) || hasEdgeSpace(value)) {
             throw new IllegalArgumentException(name + " must be present and canonical");
         }
         return value;
+    }
+
+    private static boolean hasEdgeSpace(String value) {
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        return isSpace(first) || isSpace(last);
+    }
+
+    private static boolean isSpace(int codePoint) {
+        return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
     /** Result does not claim source provenance was durably recorded by the current session port. */

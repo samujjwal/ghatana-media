@@ -17,6 +17,18 @@ class GrpcAudioSourceCaptureTest {
             "tenant-1", "stream-1", "principal-1", "purpose-1", "source@v7");
 
     @Test
+    void requestRejectsUnicodeEdgeSpaceAroundExactSourceVersion() {
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Request(
+                "tenant-1", "stream-1", "principal-1", "purpose-1", "\u00a0source@v7"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sourceVersion must be present and canonical");
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Request(
+                "tenant-1", "stream-1", "principal-1", "purpose-1", "source@v7\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sourceVersion must be present and canonical");
+    }
+
+    @Test
     void batchRejectsUnderreportedFrameListBeforeTraversingPastItsBound() {
         GrpcAudioSourceCapture.SourceFrame sourceFrame = frame(10, 0, "source@v7");
         List<GrpcAudioSourceCapture.SourceFrame> actualFrames = new ArrayList<>(
