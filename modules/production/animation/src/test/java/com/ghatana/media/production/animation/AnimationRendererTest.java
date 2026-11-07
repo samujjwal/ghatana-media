@@ -97,6 +97,18 @@ class AnimationRendererTest {
     }
 
     @Test
+    void publicSamplerBoundsActualKeyframeIteration() {
+        var key = new AnimationRenderer.Keyframe(0, 7, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR);
+        assertThatThrownBy(() -> AnimationRenderer.sample(
+                underreportedList(0, AnimationRenderer.MAX_KEYFRAMES_PER_SHAPE + 1, key), 0))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("keys");
+        assertThatThrownBy(() -> AnimationRenderer.sample(
+                declaredOversizedList(AnimationRenderer.MAX_KEYFRAMES_PER_SHAPE + 1), 0))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("keys");
+        assertThat(AnimationRenderer.sample(List.of(key), 0).x()).isEqualTo(7);
+    }
+
+    @Test
     void publicTransformRejectsNonFiniteAndOutOfRangeValues() {
         assertThatThrownBy(() -> new AnimationRenderer.Transform(Double.NaN, 0, 1, 1, 0, 1))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("finite");

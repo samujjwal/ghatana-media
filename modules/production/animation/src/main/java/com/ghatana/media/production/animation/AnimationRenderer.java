@@ -582,9 +582,7 @@ public final class AnimationRenderer {
         if (frameIndex < 0 || frameIndex >= MAX_FRAMES) {
             throw new IllegalArgumentException("frameIndex is outside the renderer ceiling");
         }
-        if (keys.size() > MAX_KEYFRAMES_PER_SHAPE) {
-            throw new IllegalArgumentException("keys exceed the renderer ceiling");
-        }
+        keys = copyBounded(keys, MAX_KEYFRAMES_PER_SHAPE, "keys");
         int previousFrame = -1;
         for (Keyframe key : keys) {
             Objects.requireNonNull(key, "keys[]");
