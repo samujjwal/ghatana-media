@@ -130,6 +130,10 @@ class MultitrackRenderPlannerTest {
                         new MultitrackRenderPlanner.Time(1, 2))));
         assertThatIllegalArgumentException().isThrownBy(() -> video("v", new MultitrackRenderPlanner.Time(0, 1),
                 List.of(new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(11, 1))));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Clip(
+                "trimmed", MultitrackRenderPlanner.Modality.VIDEO, "artifact-trimmed", "v1", SHA,
+                new MultitrackRenderPlanner.Time(0, 1), new MultitrackRenderPlanner.Time(5, 1),
+                new MultitrackRenderPlanner.Time(10, 1), List.of(new MultitrackRenderPlanner.Time(4, 1))));
     }
 
     @Test
