@@ -399,11 +399,16 @@ public final class MediaWorkflowMetrics {
     /** Count one canonical stream-frame outcome using only fixed-cardinality labels. */
     public void recordCaptureFrame(CaptureKind kind, Outcome outcome) {
         if (kind == null || outcome == null) return;
-        registry.counter("media.capture.frames",
-                "kind", kind.label,
-                "outcome", outcome.label,
-                "service", safeService,
-                "contract_version", CONTRACT_VERSION).increment();
+        try {
+            registry.counter("media.capture.frames",
+                    "kind", kind.label,
+                    "outcome", outcome.label,
+                    "service", safeService,
+                    "contract_version", CONTRACT_VERSION).increment();
+        } catch (RuntimeException ignored) {
+            // Metrics are observational. A broken registry must not turn a durable frame ACK
+            // into an apparent capture failure after the canonical cursor has already advanced.
+        }
     }
 
     /**

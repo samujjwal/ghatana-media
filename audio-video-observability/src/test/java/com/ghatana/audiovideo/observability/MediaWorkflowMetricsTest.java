@@ -3,6 +3,8 @@ package com.ghatana.audiovideo.observability;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
@@ -13,6 +15,21 @@ import java.util.concurrent.TimeUnit;
 import java.time.Instant;
 
 class MediaWorkflowMetricsTest {
+    @Test
+    void captureMetricRegistryFailureDoesNotEscapeIntoFrameOutcomePath() {
+        var registry = new CaptureCounterFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+            registry.failCaptureCounter = true;
+
+            org.assertj.core.api.Assertions.assertThatCode(() -> metrics.recordCaptureFrame(
+                    MediaWorkflowMetrics.CaptureKind.AUDIO, MediaWorkflowMetrics.Outcome.SUCCESS))
+                    .doesNotThrowAnyException();
+        } finally {
+            registry.close();
+        }
+    }
+
     @Test
     void captureFrameCountersUseFixedLabelsAndKeepUnknownDistinct() {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
@@ -30,6 +47,18 @@ class MediaWorkflowMetricsTest {
             assertThat(scrape).doesNotContain("session_id", "source_id", "tenant_id", "provider_id");
         } finally {
             registry.close();
+        }
+    }
+
+    private static final class CaptureCounterFailureRegistry extends SimpleMeterRegistry {
+        private boolean failCaptureCounter;
+
+        @Override
+        protected Counter newCounter(Meter.Id id) {
+            if (failCaptureCounter && "media.capture.frames".equals(id.getName())) {
+                throw new IllegalStateException("fixture registry failure");
+            }
+            return super.newCounter(id);
         }
     }
 
