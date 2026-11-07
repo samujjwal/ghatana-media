@@ -188,10 +188,24 @@ function parseStrictJsonObject(input: string): Record<string, unknown> {
     const numeric = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/u.exec(input.slice(offset));
     if (numeric) {
       offset += numeric[0].length;
-      const number = Number(numeric[0]);
+      const numberToken = numeric[0];
+      const number = Number(numberToken);
       // JSON permits integers that JavaScript cannot represent exactly. Letting
       // one through would silently change the submitted operation parameters.
       if (!Number.isFinite(number) || (Number.isInteger(number) && !Number.isSafeInteger(number))) return fail();
+      // A fractional decimal near the safe-integer boundary can round *down* to
+      // a safe integer (for example 9007199254740991.1 -> 9007199254740991).
+      // Do not let that turn a non-integer request value into an integer.
+      if (Number.isInteger(number) && numberToken.includes('.')) {
+        const [mantissa, exponentText = '0'] = numberToken.split(/[eE]/u);
+        const fraction = mantissa!.split('.')[1] ?? '';
+        const exponent = Number(exponentText);
+        const digits = mantissa!.replace(/[-.]/gu, '');
+        const trailingZeroes = digits.length - digits.replace(/0+$/u, '').length;
+        const placesToShift = fraction.length - exponent;
+        if (digits.replace(/0/gu, '').length > 0
+          && (!Number.isSafeInteger(placesToShift) || (placesToShift > 0 && trailingZeroes < placesToShift))) return fail();
+      }
       return number;
     }
     return fail();

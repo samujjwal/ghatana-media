@@ -935,7 +935,7 @@ describe('ghatanamedia-api canonical job commands', () => {
     }
   });
 
-  it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
+  it.each(['[]', 'null', '{"duplicate":1,"duplicate":2}', '{"overflow":1e400}', '{"roundedFraction":9007199254740991.1}', '{"broken":', `${'{"a":'.repeat(34)}0${'}'.repeat(34)}`])(
     'rejects invalid, duplicate-key, non-finite, or over-deep JSON parameters before dispatch (%s)', async parameters => {
       const result = await invoke(jobCommand('http://127.0.0.1:1', 'submit', [
         '--request-id', 'request-1', '--correlation-id', 'corr-1', '--artifact', 'artifact-a',
