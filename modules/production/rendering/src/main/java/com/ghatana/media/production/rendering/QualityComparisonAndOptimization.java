@@ -221,11 +221,22 @@ public final class QualityComparisonAndOptimization {
             sourceRightsDecisionId = sourceRightsDecisionId == null ? "" : sourceRightsDecisionId;
             retainedRevisions = copyBounded(retainedRevisions, attemptsUsed + 1,
                     "report retained revisions exceed the attempt bound", "retainedRevisions[]");
+            if (retainedRevisions.size() != attemptsUsed + 1 || !retainedRevisions.getFirst().equals(source)) {
+                throw invalid("report retained revisions must start with source and contain every attempt");
+            }
             Objects.requireNonNull(reference, "reference");
             referenceRightsDecisionId = referenceRightsDecisionId == null ? "" : referenceRightsDecisionId;
             Objects.requireNonNull(referenceUnavailableReason, "referenceUnavailableReason");
             comparisons = copyBounded(comparisons, attemptsUsed,
                     "report comparisons exceed the attempt bound", "comparisons[]");
+            if (comparisons.size() != attemptsUsed) {
+                throw invalid("report comparisons must contain exactly one result per attempt");
+            }
+            for (int i = 0; i < comparisons.size(); i++) {
+                if (!comparisons.get(i).candidate().equals(retainedRevisions.get(i + 1))) {
+                    throw invalid("report comparison candidates must match retained revisions in attempt order");
+                }
+            }
             reportSha256 = digest(reportSha256, "report sha256");
             String expectedSha256 = sha256(canonicalReport(operationId, budget, attemptsUsed, source,
                     sourceRightsDecisionId, retainedRevisions, reference, referenceRightsDecisionId,

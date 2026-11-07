@@ -379,6 +379,17 @@ public final class MultitrackRenderPlanner {
             String[] fields = line.substring("clip=".length()).split("\\|", -1);
             if (fields.length != 8) throw invalid("canonical manifest clip row is malformed");
             String clipId = opaque(fields[0], "manifest clip id");
+            try {
+                Modality.valueOf(fields[1]);
+            } catch (IllegalArgumentException malformedModality) {
+                throw invalid("canonical manifest clip modality is unsupported");
+            }
+            opaque(fields[2], "manifest source artifact id");
+            opaque(fields[3], "manifest source version");
+            String sourceSha256 = digest(fields[4], "manifest source sha256");
+            if (!sourceSha256.equals(fields[4])) {
+                throw invalid("canonical manifest source sha256 must be lowercase hex");
+            }
             Time timelineStart = manifestTime(fields[5]);
             Time sourceStart = manifestTime(fields[6]);
             Time sourceEnd = manifestTime(fields[7]);

@@ -503,6 +503,25 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsForgedClipSourceMetadataEvenWhenManifestDigestMatches() throws Exception {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start), new MultitrackRenderPlanner.Time(1, 1))),
+                List.of(), List.of(), 1_000)).plan();
+        String clipRow = "clip=v|VIDEO|artifact-v|v1|" + SHA + "|0/1|0/1|1/1";
+
+        assertForgedPlanRejected(valid, clipRow,
+                "clip=v|UNKNOWN|artifact-v|v1|" + SHA + "|0/1|0/1|1/1",
+                "clip modality is unsupported");
+        assertForgedPlanRejected(valid, clipRow,
+                "clip=v|VIDEO|artifact-v|v1|not-a-sha256|0/1|0/1|1/1",
+                "manifest source sha256");
+        assertForgedPlanRejected(valid, clipRow,
+                "clip=v|VIDEO|!artifact-v|v1|" + SHA + "|0/1|0/1|1/1",
+                "manifest source artifact id");
+    }
+
+    @Test
     void publicPlanRejectsUnknownManifestRecordsEvenWhenDigestMatches() throws Exception {
         var start = new MultitrackRenderPlanner.Time(0, 1);
         var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(

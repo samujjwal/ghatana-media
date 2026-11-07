@@ -171,6 +171,33 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportRequiresComparisonRowsToMatchRetainedCandidatesInAttemptOrder() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Report report = run(source, List.of(candidate), null, allowed("src"), null, 1, BUDGET)
+                .report().orElseThrow();
+        CandidateComparison comparison = report.comparisons().getFirst();
+        CandidateComparison mismatched = new CandidateComparison(
+                revision("other-candidate", "v1", "c", 20).id(), comparison.psnr(), comparison.ssim(),
+                comparison.heuristics(), comparison.disposition());
+
+        assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
+                report.budget(), report.attemptsUsed(), report.source(), report.sourceRightsDecisionId(),
+                report.retainedRevisions(), report.reference(), report.referenceRightsDecisionId(),
+                report.referenceUnavailableReason(), List.of(mismatched), report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("comparison candidates must match retained revisions in attempt order");
+
+        assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
+                report.budget(), report.attemptsUsed(), revision("other-source", "v1", "d", 40).id(),
+                report.sourceRightsDecisionId(), report.retainedRevisions(), report.reference(),
+                report.referenceRightsDecisionId(), report.referenceUnavailableReason(), report.comparisons(),
+                report.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("retained revisions must start with source");
+    }
+
+    @Test
     void reportRejectsChangedIdentityWithStaleDigestAndBlockedStatus() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v1", "b", 25);
