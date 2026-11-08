@@ -273,7 +273,11 @@ class MediaLauncherEndToEndIT {
                 .header("Idempotency-Key", idempotencyKey)
                 .POST(HttpRequest.BodyPublishers.ofString(body)));
         assertThat(begin.statusCode()).as("begin upload body: %s", begin.body()).isEqualTo(201);
-        String uploadId = MAPPER.readTree(begin.body()).get("uploadId").asText();
+        JsonNode session = MAPPER.readTree(begin.body());
+        // The HTTP boundary exposes the canonical runtime enum. Do not translate
+        // this to the non-equivalent legacy client upload-state vocabulary.
+        assertThat(session.path("status").asText()).isEqualTo("OPEN");
+        String uploadId = session.get("uploadId").asText();
 
         HttpRequest.Builder chunk = HttpRequest.newBuilder(URI.create(
                         base() + "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0"))
