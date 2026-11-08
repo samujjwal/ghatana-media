@@ -28,7 +28,9 @@ class FirstUseCreateRequestIdentityBoundaryTest {
         var engine = new ProjectTimelineEngine(store, () -> "j01-request-id-" + ids.incrementAndGet());
         var actor = new Actor("tenant-j01-request-id", "creator-j01-request-id");
 
-        for (String invalidRequestId : new String[] {null, "", " ", "contains space", "clé", "r".repeat(129)}) {
+        for (String invalidRequestId : new String[] {
+            null, "", " ", "contains space", "contains/slash", "clé", "r".repeat(129)
+        }) {
             assertThatThrownBy(() -> engine.createProject(actor, "workspace-j01", "First cut", invalidRequestId))
                     .as("requestId %s is outside the owner wire schema", invalidRequestId)
                     .isInstanceOf(IllegalArgumentException.class);
