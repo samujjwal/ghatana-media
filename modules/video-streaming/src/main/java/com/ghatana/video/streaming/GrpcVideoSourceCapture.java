@@ -23,6 +23,8 @@ public final class GrpcVideoSourceCapture {
 
     public static final int MAX_BATCH_FRAMES = 128;
     public static final long MAX_BATCH_BYTES = VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES;
+    private static final int MAX_OPAQUE_ID_LENGTH = 128;
+    private static final int MAX_VERSION_REF_LENGTH = 384;
 
     public enum Authorization { AUTHORIZED, DENIED, REVOKED, UNKNOWN }
     public enum Disposition {
@@ -33,11 +35,11 @@ public final class GrpcVideoSourceCapture {
     public record Request(
             String tenantId, String streamId, String principalId, String purposeRef, String sourceVersion) {
         public Request {
-            tenantId = required(tenantId, "tenantId");
-            streamId = required(streamId, "streamId");
-            principalId = required(principalId, "principalId");
-            purposeRef = required(purposeRef, "purposeRef");
-            sourceVersion = required(sourceVersion, "sourceVersion");
+            tenantId = opaqueId(tenantId, "tenantId");
+            streamId = opaqueId(streamId, "streamId");
+            principalId = opaqueId(principalId, "principalId");
+            purposeRef = versionRef(purposeRef, "purposeRef");
+            sourceVersion = versionRef(sourceVersion, "sourceVersion");
         }
     }
 
@@ -50,7 +52,7 @@ public final class GrpcVideoSourceCapture {
                 throw new IllegalArgumentException("source and Media cursors must be nonnegative");
             }
             if (authorization == Authorization.AUTHORIZED) {
-                sourceVersion = required(sourceVersion, "sourceVersion");
+                sourceVersion = versionRef(sourceVersion, "sourceVersion");
             } else if (sourceVersion != null) {
                 throw new IllegalArgumentException("non-authorized readback cannot disclose a source version");
             }
@@ -67,7 +69,7 @@ public final class GrpcVideoSourceCapture {
             VideoFrameTimebase.SourceTimestamp presentationPts,
             byte[] payload) {
         public SourceFrame {
-            sourceVersion = required(sourceVersion, "sourceVersion");
+            sourceVersion = versionRef(sourceVersion, "sourceVersion");
             if (sourceCursor < 0 || mediaSequence < 0 || mediaSequence > VideoStreamSession.MAX_FRAME_SEQUENCE) {
                 throw new IllegalArgumentException("source frame cursor is outside the supported range");
             }
@@ -345,6 +347,38 @@ public final class GrpcVideoSourceCapture {
             throw new IllegalArgumentException(name + " must be present and canonical");
         }
         return value;
+    }
+
+    private static String opaqueId(String value, String name) {
+        String canonical = required(value, name);
+        if (canonical.length() > MAX_OPAQUE_ID_LENGTH || !isOpaqueId(canonical)) {
+            throw new IllegalArgumentException(name + " must be an opaque ASCII identifier of at most 128 characters");
+        }
+        return canonical;
+    }
+
+    private static boolean isOpaqueId(String value) {
+        if (value.isEmpty() || !isAsciiAlphaNumeric(value.charAt(0))) return false;
+        for (int i = 1; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!isAsciiAlphaNumeric(c) && c != '.' && c != '_' && c != ':' && c != '-') return false;
+        }
+        return true;
+    }
+
+    private static boolean isAsciiAlphaNumeric(char c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
+    }
+
+    private static String versionRef(String value, String name) {
+        String canonical = required(value, name);
+        int codePoints = canonical.codePointCount(0, canonical.length());
+        boolean hasNonWhitespace = canonical.codePoints().anyMatch(codePoint ->
+                !Character.isWhitespace(codePoint) && !Character.isSpaceChar(codePoint));
+        if (codePoints > MAX_VERSION_REF_LENGTH || !hasNonWhitespace) {
+            throw new IllegalArgumentException(name + " must not exceed 384 characters");
+        }
+        return canonical;
     }
 
     private static boolean hasEdgeSpace(String value) {

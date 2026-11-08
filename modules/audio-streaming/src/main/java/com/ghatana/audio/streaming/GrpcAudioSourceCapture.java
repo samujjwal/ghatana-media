@@ -32,11 +32,11 @@ public final class GrpcAudioSourceCapture {
     public record Request(
             String tenantId, String streamId, String principalId, String purposeRef, String sourceVersion) {
         public Request {
-            tenantId = required(tenantId, "tenantId");
-            streamId = required(streamId, "streamId");
-            principalId = required(principalId, "principalId");
-            purposeRef = required(purposeRef, "purposeRef");
-            sourceVersion = required(sourceVersion, "sourceVersion");
+            tenantId = opaqueId(tenantId, "tenantId");
+            streamId = opaqueId(streamId, "streamId");
+            principalId = opaqueId(principalId, "principalId");
+            purposeRef = versionRef(purposeRef, "purposeRef");
+            sourceVersion = versionRef(sourceVersion, "sourceVersion");
         }
     }
 
@@ -49,7 +49,7 @@ public final class GrpcAudioSourceCapture {
                 throw new IllegalArgumentException("source and Media cursors must be nonnegative");
             }
             if (authorization == Authorization.AUTHORIZED) {
-                sourceVersion = required(sourceVersion, "sourceVersion");
+                sourceVersion = versionRef(sourceVersion, "sourceVersion");
             } else if (sourceVersion != null) {
                 throw new IllegalArgumentException("non-authorized readback cannot disclose a source version");
             }
@@ -60,7 +60,7 @@ public final class GrpcAudioSourceCapture {
     public record SourceFrame(
             String sourceVersion, long sourceCursor, int mediaSequence, long transportTimestampMillis, byte[] payload) {
         public SourceFrame {
-            sourceVersion = required(sourceVersion, "sourceVersion");
+            sourceVersion = versionRef(sourceVersion, "sourceVersion");
             if (sourceCursor < 0 || mediaSequence < 0
                     || mediaSequence > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
                 throw new IllegalArgumentException("source frame cursor is outside the supported range");
@@ -319,6 +319,25 @@ public final class GrpcAudioSourceCapture {
     private static String required(String value, String name) {
         if (value == null || value.isBlank() || !value.equals(value.trim()) || hasEdgeSpace(value)) {
             throw new IllegalArgumentException(name + " must be present and canonical");
+        }
+        return value;
+    }
+
+    private static String opaqueId(String value, String name) {
+        value = required(value, name);
+        if (value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*")) {
+            throw new IllegalArgumentException(name + " must be an opaque ID of 1 to 128 ASCII characters");
+        }
+        return value;
+    }
+
+    private static String versionRef(String value, String name) {
+        value = required(value, name);
+        int codePoints = value.codePointCount(0, value.length());
+        boolean hasNonWhitespace = value.codePoints().anyMatch(codePoint ->
+                !Character.isWhitespace(codePoint) && !Character.isSpaceChar(codePoint));
+        if (codePoints > 384 || !hasNonWhitespace) {
+            throw new IllegalArgumentException(name + " must be a version reference of 1 to 384 characters");
         }
         return value;
     }

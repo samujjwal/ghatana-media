@@ -29,6 +29,41 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void requestRejectsNonOpaqueOrOverlengthIdsAndOverlengthVersionRefs() {
+        String overlengthId = "a".repeat(129);
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Request(
+                overlengthId, "stream-1", "principal-1", "purpose-1", "source@v7"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tenantId");
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Request(
+                "tenant-1", "bad/id", "principal-1", "purpose-1", "source@v7"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("streamId");
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Request(
+                "tenant-1", "stream-1", "bad id", "purpose-1", "source@v7"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("principalId");
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Request(
+                "tenant-1", "stream-1", "principal-1", "purpose-1", "v".repeat(385)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sourceVersion");
+    }
+
+    @Test
+    void trustedReadbackAndSourceFrameRejectOverlengthSourceVersion() {
+        String overlengthVersion = "v".repeat(385);
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Readback(
+                GrpcAudioSourceCapture.Authorization.AUTHORIZED, overlengthVersion, 0, 0))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sourceVersion");
+        assertThatThrownBy(() -> frame(0, 0, overlengthVersion))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sourceVersion");
+    }
+
+    @Test
+    void versionReferenceLengthUsesUnicodeCodePoints() {
+        String maxCodePoints = "\uD83D\uDE00".repeat(384);
+        assertThat(new GrpcAudioSourceCapture.Request(
+                "tenant-1", "stream-1", "principal-1", maxCodePoints, maxCodePoints))
+                .isNotNull();
+    }
+
+    @Test
     void batchRejectsUnderreportedFrameListBeforeTraversingPastItsBound() {
         GrpcAudioSourceCapture.SourceFrame sourceFrame = frame(10, 0, "source@v7");
         List<GrpcAudioSourceCapture.SourceFrame> actualFrames = new ArrayList<>(
