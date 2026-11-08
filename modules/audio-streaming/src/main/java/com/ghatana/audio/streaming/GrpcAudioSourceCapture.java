@@ -128,6 +128,15 @@ public final class GrpcAudioSourceCapture {
         Readback admitted = readback(request, -1, nextMedia);
         if (!admitted(admitted, request, -1, nextMedia)) return blocked(admitted);
 
+        // The source readback may take time. Reconfirm that the same canonical
+        // session generation and ACK cursor still authorize this capture before
+        // fetching source bytes; offers are checked again individually below.
+        Optional<CanonicalStreamFramePort.Binding> beforeRead = binding(request);
+        if (beforeRead.isEmpty() || !sameGeneration(binding, beforeRead.get())
+                || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()) {
+            return new Result(Disposition.UNKNOWN, 0, -1, "canonical cursor changed before source read");
+        }
+
         Batch batch;
         try {
             batch = source.readBatch(request, admitted, MAX_BATCH_FRAMES, MAX_BATCH_BYTES);

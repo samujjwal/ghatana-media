@@ -220,6 +220,34 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void changedCanonicalGenerationBeforeSourceReadDoesNotFetchSourceFrames() {
+        FakePort port = new FakePort();
+        port.changeGenerationOnBindingCall = 2;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                List.of(frame(10, 0, "source@v7")), false));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void changedCanonicalCursorBeforeSourceReadDoesNotFetchSourceFrames() {
+        FakePort port = new FakePort();
+        port.changeAckOnBindingCall = 2;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                List.of(frame(10, 0, "source@v7")), false));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
     void nullCanonicalOfferFeedbackIsOutcomeUnknownAndNotRetried() {
         FakePort port = new FakePort();
         port.nullOfferFeedback = true;
@@ -349,6 +377,9 @@ class GrpcAudioSourceCaptureTest {
         private long lastAck = -1;
         private int offerCalls;
         private int eosCalls;
+        private int bindingCalls;
+        private int changeGenerationOnBindingCall = -1;
+        private int changeAckOnBindingCall = -1;
         private boolean backpressured;
         private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
@@ -356,8 +387,11 @@ class GrpcAudioSourceCaptureTest {
         private Result eosResult;
 
         @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
-            return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", 1, 1, lastAck,
-                    Instant.now().plusSeconds(30)));
+            bindingCalls++;
+            long generation = bindingCalls == changeGenerationOnBindingCall ? 2 : 1;
+            long acknowledgedSequence = bindingCalls == changeAckOnBindingCall ? 0 : lastAck;
+            return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", generation, 1,
+                    acknowledgedSequence, Instant.now().plusSeconds(30)));
         }
 
         @Override public Result offer(Binding expected, AudioStreamSession.DecodedFrame frame) {

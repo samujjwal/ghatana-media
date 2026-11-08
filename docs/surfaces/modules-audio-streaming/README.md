@@ -24,8 +24,11 @@ the Media launcher; `modules/integration-tests` also depends on it.
 - `GrpcAudioSourceCapture` is a bounded source adapter that rechecks trusted
   authorization readback for exact source version/cursor before each frame
   and EOS, then delegates frame/EOS writes to `CanonicalStreamFramePort`.
-  It has no concrete authenticated gRPC transport binding. Canonical ACK
-  persists Media sequence acceptance only, not source cursor/version.
+  After its initial authorization readback it also rechecks the same canonical
+  session generation and ACK cursor before fetching the source batch; a changed
+  binding returns `UNKNOWN` without reading source bytes. It has no concrete
+  authenticated gRPC transport binding. Canonical ACK persists Media sequence
+  acceptance only, not source cursor/version.
 
 ## Public operations
 
@@ -59,6 +62,9 @@ the Media launcher; `modules/integration-tests` also depends on it.
 - If the highest canonical frame sequence is accepted and that batch also
   declares EOS, capture returns `UNKNOWN` before readback or dispatch of an
   out-of-range EOS sequence.
+- If the canonical session generation or ACK cursor changes while initial
+  source authorization is being resolved, capture returns `UNKNOWN` before
+  reading the source batch.
 
 ## Dependencies and configuration
 
