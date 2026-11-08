@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +48,60 @@ class AnimationJ12ScenarioIntegrationTest {
     private static final String PROJECT = "project-j12-fixture";
     private static final String ACTOR = "creator-j12-fixture";
     private static final String SESSION = "session-j12-fixture";
+
+    /** Test-owned local observation states; these are not Media job states. */
+    private enum FixtureRenderState { NOT_STARTED, CANCELLED, OUTCOME_UNKNOWN }
+
+    /** Shared only by recreated in-memory test sessions; no durable runtime is implied. */
+    private static final class FixtureRenderObservation {
+        private FixtureRenderState state = FixtureRenderState.NOT_STARTED;
+        private int localRenderInvocations;
+        private byte[] observedResult;
+    }
+
+    /**
+     * Models the unseeded J-12 render boundary without adding a runtime API:
+     * cancellation before invocation, and a lost local observation after
+     * deterministic fixture rendering. A recreated session can inspect the
+     * same in-memory observation but cannot replay it.
+     */
+    private static final class FixtureRenderSession {
+        private final FixtureRenderObservation observation;
+
+        private FixtureRenderSession(FixtureRenderObservation observation) {
+            this.observation = observation;
+        }
+
+        private void cancelBeforeRender() {
+            if (observation.state == FixtureRenderState.NOT_STARTED) {
+                observation.state = FixtureRenderState.CANCELLED;
+            }
+        }
+
+        private void renderWithLostObservation() {
+            if (observation.state != FixtureRenderState.NOT_STARTED) {
+                return;
+            }
+            observation.localRenderInvocations++;
+            new AnimationRenderer().render(spec(), scene(), new AnimationRenderer.Profile(10, 1, 3));
+            // The fixture simulates losing the observation after local work;
+            // no result is recorded as terminal or made available to callers.
+            observation.state = FixtureRenderState.OUTCOME_UNKNOWN;
+        }
+
+        private FixtureRenderState state() {
+            return observation.state;
+        }
+
+        private int localRenderInvocations() {
+            return observation.localRenderInvocations;
+        }
+
+        private Optional<byte[]> observedResult() {
+            return Optional.ofNullable(observation.observedResult)
+                    .map(bytes -> bytes.clone());
+        }
+    }
 
     private record FixtureBinding(String tenantId, String workspaceId, String projectId,
             String actorId, String sessionId, String sourceDigest, String jobId, String rightsScope) { }
@@ -338,6 +393,46 @@ class AnimationJ12ScenarioIntegrationTest {
                 .isEqualTo(currentDraft.revisionId());
         assertThat(store.revision(actor, created.project().projectId(), currentDraft.revisionId())
                 .graph().clips().getFirst().source()).isEqualTo(sourceV2);
+    }
+
+    @Test
+    void cancellationAndAmbiguousLocalRenderStayNonTerminalAcrossFixtureSessionRecreation() {
+        AnimationRenderer renderer = new AnimationRenderer();
+        AnimationRenderer.Profile profile = new AnimationRenderer.Profile(10, 1, 3);
+        var previewBefore = renderer.render(spec(), scene(), profile);
+
+        FixtureRenderObservation cancelledObservation = new FixtureRenderObservation();
+        FixtureRenderSession cancelledSession = new FixtureRenderSession(cancelledObservation);
+        cancelledSession.cancelBeforeRender();
+        FixtureRenderSession recreatedCancelledSession = new FixtureRenderSession(cancelledObservation);
+        recreatedCancelledSession.renderWithLostObservation();
+
+        assertThat(recreatedCancelledSession.state()).isEqualTo(FixtureRenderState.CANCELLED);
+        assertThat(recreatedCancelledSession.localRenderInvocations()).isZero();
+        assertThat(recreatedCancelledSession.observedResult()).isEmpty();
+
+        FixtureRenderObservation ambiguousObservation = new FixtureRenderObservation();
+        FixtureRenderSession firstSession = new FixtureRenderSession(ambiguousObservation);
+        firstSession.renderWithLostObservation();
+        assertThat(firstSession.state()).isEqualTo(FixtureRenderState.OUTCOME_UNKNOWN);
+        assertThat(firstSession.localRenderInvocations()).isEqualTo(1);
+        assertThat(firstSession.observedResult()).isEmpty();
+
+        // A new in-memory session sees the unresolved observation and does not
+        // invoke the local renderer again or expose a terminal result.
+        FixtureRenderSession recreatedSession = new FixtureRenderSession(ambiguousObservation);
+        recreatedSession.renderWithLostObservation();
+        assertThat(recreatedSession.state()).isEqualTo(FixtureRenderState.OUTCOME_UNKNOWN);
+        assertThat(recreatedSession.localRenderInvocations()).isEqualTo(1);
+        assertThat(recreatedSession.observedResult()).isEmpty();
+
+        var previewAfter = renderer.render(spec(), scene(), profile);
+        assertThat(previewAfter.frames()).hasSize(previewBefore.frames().size());
+        for (int index = 0; index < previewBefore.frames().size(); index++) {
+            assertThat(previewAfter.frames().get(index).png())
+                    .as("fixture preview remains deterministic after cancellation/ambiguity, frame %d", index)
+                    .containsExactly(previewBefore.frames().get(index).png());
+        }
     }
 
     private static int decodeGifFrameCount(byte[] bytes) throws Exception {
