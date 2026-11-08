@@ -597,15 +597,22 @@ public final class TemporalVideoRestoration {
                 } else if (referenceDecision != null && referenceDecision.status() == AuthorityStatus.UNAVAILABLE) {
                     metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_AUTHORITY_UNAVAILABLE);
                 } else if (referenceDecision != null && referenceDecision.status() == AuthorityStatus.ALLOWED) {
+                    DecodedFrameSequence reference = null;
                     try {
-                        DecodedFrameSequence reference = Objects.requireNonNull(
+                        reference = Objects.requireNonNull(
                                 referenceSource.readExact(referenceBinding), "reference frame sequence");
-                        verifySequenceBinding(reference, referenceBinding);
-                        metrics = compare(restored, original, reference, referenceBinding);
-                    } catch (InvalidRestorationInputException invalidReference) {
-                        throw invalidReference;
                     } catch (RuntimeException referenceUnavailable) {
                         metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_UNAVAILABLE);
+                    }
+                    if (reference != null && !hasExactSequenceBinding(reference, referenceBinding)) {
+                        // The requested reference is optional quality evidence. If the host
+                        // cannot prove that its decoded frames belong to that exact revision,
+                        // keep the source-derived candidate but abstain from comparison.
+                        metrics = ReferenceMetrics.unavailable(MetricUnavailableReason.REFERENCE_UNAVAILABLE);
+                    } else if (reference != null) {
+                        // Alignment and metric-contract failures are invalid restoration input,
+                        // not unavailable evidence, and must retain their explicit error path.
+                        metrics = compare(restored, original, reference, referenceBinding);
                     }
                 }
             }
@@ -876,11 +883,15 @@ public final class TemporalVideoRestoration {
     }
 
     private static void verifySequenceBinding(DecodedFrameSequence sequence, ArtifactBinding expected) {
-        if (!sequence.artifactId().equals(expected.artifactId())
-                || !sequence.versionId().equals(expected.versionId())
-                || !sequence.artifactSha256().equals(expected.sha256())) {
+        if (!hasExactSequenceBinding(sequence, expected)) {
             throw invalid("frame source did not return the exact requested source artifact version");
         }
+    }
+
+    private static boolean hasExactSequenceBinding(DecodedFrameSequence sequence, ArtifactBinding expected) {
+        return sequence.artifactId().equals(expected.artifactId())
+                && sequence.versionId().equals(expected.versionId())
+                && sequence.artifactSha256().equals(expected.sha256());
     }
 
     private static boolean sameImmutableRevision(ArtifactBinding left, ArtifactBinding right) {

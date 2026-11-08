@@ -638,6 +638,31 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void referenceRevisionMismatchAbstainsFromMetricsAndKeepsCompletedCandidateUnclaimed() {
+        DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+        DecodedFrameSequence wrongReference = sequence(REF_SHA, stableFrames(),
+                new Roi(0, 0, 1, 1), "different-reference", "v8");
+
+        Result result = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> source,
+                Optional.of(referenceRequest()), binding -> wrongReference,
+                (binding, purpose) -> allowed("reference-decision-v2"));
+
+        assertThat(result.outcome()).isEqualTo(Outcome.COMPLETED);
+        Candidate candidate = result.candidate().orElseThrow();
+        assertThat(candidate.lineage().sourceArtifactId()).isEqualTo("source");
+        assertThat(candidate.lineage().sourceVersionId()).isEqualTo("v3");
+        assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+        assertThat(candidate.referenceMetrics().unavailableReason())
+                .contains(MetricUnavailableReason.REFERENCE_UNAVAILABLE);
+        assertThat(candidate.referenceMetrics().referenceArtifactId()).isEmpty();
+        assertThat(candidate.referenceMetrics().psnr().finiteDb()).isEmpty();
+        assertThat(candidate.referenceMetrics().globalLumaSsim()).isEmpty();
+        assertThat(candidate.improvementClaimed()).isFalse();
+    }
+
+    @Test
     void sourceReaderMustReturnExactRequestedVersionAndDigest() {
         DecodedFrameSequence wrong = sequence(REF_SHA, stableFrames(), new Roi(0, 0, 1, 1), "source", "v3");
         assertThatThrownBy(() -> TemporalVideoRestoration.restore(request(), (binding, operation) -> allowed("source-decision-v3"),
