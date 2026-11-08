@@ -66,12 +66,19 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       reauthorize: async (edit) => {
         if (!sameScope(edit, this.scope)) return { authorized: false, disposition: "UNKNOWN" };
         const read = await this.operations!.reauthorize(edit);
-        if (!read || typeof read !== "object" || !sameScope(read, this.scope)
-          || (read.disposition !== "AUTHORIZED" && read.disposition !== "REVOKED"
-            && read.disposition !== "UNKNOWN")) {
+        if (!read || typeof read !== "object") {
           return { authorized: false, disposition: "UNKNOWN" };
         }
-        return { authorized: read.disposition === "AUTHORIZED", disposition: read.disposition };
+        // Snapshot authorization readback once. Accessors must not be able to
+        // validate a revocation and then return AUTHORIZED for dispatch.
+        const tenantId = read.tenantId;
+        const projectId = read.projectId;
+        const disposition = read.disposition;
+        if (tenantId !== this.scope.tenantId || projectId !== this.scope.projectId
+          || (disposition !== "AUTHORIZED" && disposition !== "REVOKED" && disposition !== "UNKNOWN")) {
+          return { authorized: false, disposition: "UNKNOWN" };
+        }
+        return { authorized: disposition === "AUTHORIZED", disposition };
       },
       readCurrentVersion: async (scope) => {
         if (!sameScope(scope, this.scope)) return { disposition: "UNKNOWN" };

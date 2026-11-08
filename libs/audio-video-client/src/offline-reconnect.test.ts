@@ -291,6 +291,29 @@ describe("OfflineReconnectCoordinator", () => {
     if (recovered.status === "RECONNECTED") expect(recovered.results[0]?.state).toBe("APPLIED");
   });
 
+  it("uses one authorization disposition snapshot when the adapter returns an accessor", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let dispositionReads = 0;
+    let applyCount = 0;
+    const revoked = await new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async () => ({
+        ...scope,
+        get disposition() {
+          dispositionReads++;
+          return dispositionReads === 1 ? "REVOKED" : "AUTHORIZED";
+        },
+      }),
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true);
+
+    expect(revoked).toMatchObject({ status: "RECONNECTED", dirty: true,
+      results: [{ editId: edit.editId, state: "REVOKED" }] });
+    expect(dispositionReads).toBe(1);
+    expect(applyCount).toBe(0);
+    expect((await q.readEdits(scope))[0]?.state).toBe("REVOKED");
+  });
+
   it("keeps wrong-project authorization readback unknown without applying or revoking the edit", async () => {
     const q = await queue();
     await q.enqueue(edit);
