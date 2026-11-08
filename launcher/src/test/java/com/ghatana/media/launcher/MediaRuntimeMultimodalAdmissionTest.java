@@ -71,13 +71,16 @@ class MediaRuntimeMultimodalAdmissionTest {
     }
 
     @Test
-    void admittedMultimodalJobFansOutChildrenThroughCanonicalJobs() throws Exception {
+    void admittedMultimodalJobFusesDurableCanonicalChildResults() throws Exception {
         var root = Files.createTempDirectory("media-mm-admit-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();
         var authority = allowAllAuthority();
+        var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
         var stt = sttProvider();
-        var mm = mmProvider(new AtomicInteger());
-        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt), authority);
+        // The real composition provider is eligible only when both child modalities
+        // are bound, even though this operation declares an STT child only.
+        var vision = visionProvider(Map.of());
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt, vision), authority);
         try {
             var source = artifact(runtime, "tenant-a", "principal-a");
             var child = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
@@ -93,6 +96,15 @@ class MediaRuntimeMultimodalAdmissionTest {
             // The child ran as its own canonical job with deterministic request identity.
             var childJob = jobStore.findByRequest("tenant-a", "req-mm:stt").orElseThrow();
             assertThat(childJob.jobType()).isEqualTo(JobType.SPEECH_TO_TEXT);
+            assertThat(childJob.status()).isEqualTo(JobStatus.COMPLETED);
+            assertThat(childJob.result()).containsEntry("text", "grounded transcript");
+            var observations = (List<?>) terminal.result().get("observations");
+            assertThat(observations).hasSize(1);
+            var observation = (Map<?, ?>) observations.get(0);
+            assertThat(observation.get("childStatus")).isEqualTo(JobStatus.COMPLETED.name());
+            assertThat(observation.get("childJobType")).isEqualTo(JobType.SPEECH_TO_TEXT.name());
+            assertThat(((Map<?, ?>) observation.get("observations")).get("text"))
+                    .isEqualTo("grounded transcript");
             // The durable operation snapshot is reconstructible from the job store alone.
             var snapshot = jobStore.findMultimodalOperationSnapshot("tenant-a", accepted.jobId());
             assertThat(snapshot).isPresent();
@@ -454,9 +466,9 @@ class MediaRuntimeMultimodalAdmissionTest {
     }
 
     /**
-     * Test MM provider: submits each declared child through the canonical dispatcher and
-     * fuses their durable results into the parent observation list — mirroring the
-     * production delegating provider's contract.
+     * Synthetic admission fixture: submits declared children and reports their immediate
+     * snapshots. Successful fusion coverage uses DelegatingMultimodalProvider so parent
+     * completion is based on terminal child readback.
      */
     private static MediaProcessingProvider mmProvider(AtomicInteger calls) {
         return new MediaProcessingProvider() {
@@ -479,7 +491,7 @@ class MediaRuntimeMultimodalAdmissionTest {
                             MultimodalOperationSpec.childRequestId(
                                     context.request().requestId(), child.childKey()),
                             context.request().tenantId(), context.request().principalId(),
-                            context.request().correlationId(), child.artifactId(),
+                            context.request().correlationId() + ":" + child.childKey(), child.artifactId(),
                             child.artifactVersion(), child.jobType(), child.providerHint(),
                             child.parameters(), context.request().governanceContext());
                     var childJob = dispatcher.submitChild(childRequest);
