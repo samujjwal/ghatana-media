@@ -496,6 +496,7 @@ public final class WhisperOnnxEngine implements SttEngine {
         if (audio.data() == null || audio.data().length == 0) {
             throw new ValidationError("Audio data cannot be empty");
         }
+        validatePcmFormat(audio);
         if (audio.sampleRate() != SAMPLE_RATE) {
             throw new ValidationError("Audio must be 16kHz, got: " + audio.sampleRate());
         }
@@ -513,6 +514,12 @@ public final class WhisperOnnxEngine implements SttEngine {
         if (samples > maximumSamples) {
             throw new ValidationError("Audio exceeds configured maximum duration of "
                     + config.maxAudioLengthSeconds() + " seconds");
+        }
+    }
+
+    static void validatePcmFormat(AudioData audio) {
+        if (audio.format() != AudioFormat.PCM) {
+            throw new ValidationError("Whisper ONNX requires raw PCM audio");
         }
     }
 

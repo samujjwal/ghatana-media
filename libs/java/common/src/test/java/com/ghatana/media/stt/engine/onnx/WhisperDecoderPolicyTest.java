@@ -1,12 +1,27 @@
 package com.ghatana.media.stt.engine.onnx;
 
+import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.InferenceError;
+import com.ghatana.media.common.ValidationError;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class WhisperDecoderPolicyTest {
+    @Test
+    void rejectsContainerLabeledBytesAtRawPcmDecoderBoundary() {
+        AudioData mislabeled = new AudioData(new byte[]{0, 0}, 16_000, 1, 16,
+                java.time.Duration.ofNanos(62_500), AudioFormat.WAV);
+
+        assertThatThrownBy(() -> WhisperOnnxEngine.validatePcmFormat(mislabeled))
+                .isInstanceOf(ValidationError.class)
+                .hasMessageContaining("raw PCM");
+        WhisperOnnxEngine.validatePcmFormat(new AudioData(new byte[]{0, 0}, 16_000, 1, 16,
+                java.time.Duration.ofNanos(62_500), AudioFormat.PCM));
+    }
+
     @Test
     void firstGeneratedTokenSuppressesBlankEndOfTextAndControlTokens() {
         float[] scores = scores();

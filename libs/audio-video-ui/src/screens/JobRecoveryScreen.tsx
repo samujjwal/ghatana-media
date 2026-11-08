@@ -1,5 +1,6 @@
 import React from "react";
 import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 
 export type CanonicalJobStatus = "ACCEPTED" | "RUNNING" | "OUTCOME_UNKNOWN" | "COMPLETED" | "FAILED" | "CANCELLED";
 
@@ -39,6 +40,17 @@ export interface JobRecoveryScreenProps extends Omit<MediaTaskScreenProps, "chil
 
 /** Candidate J-20 body. It preserves job identity and reports observed facts; safe actions come from the host. */
 export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobRecoveryScreenProps): React.ReactElement {
+  const [, refreshDispatchState] = React.useState(0);
+  const dispatchGuard = React.useMemo(
+    () => createMediaActionDispatchGuard(flow.actionPort, () => refreshDispatchState((version) => version + 1)),
+    [flow.actionPort],
+  );
+  React.useEffect(() => {
+    dispatchGuard.observeReconciliations(flow.data.actionReconciliations ?? []);
+  }, [dispatchGuard, flow.data.actionReconciliations]);
+  const guardedActions = flow.actions?.map((action) => dispatchGuard.isInFlight(action.id)
+    ? { ...action, enabled: false, disabledReason: "This request has not been reconciled by the owner; check the same job before retrying." }
+    : action);
   const initialReadState: CanonicalJobReadState = canonicalJobReadClient ? { state: "READY" } : { state: "NOT_ADMITTED" };
   const [readStateRecord, setReadStateRecord] = React.useState({ jobId: job.jobId, reader: canonicalJobReadClient, value: initialReadState });
   const activeRead = React.useRef<AbortController | undefined>(undefined);
@@ -94,7 +106,7 @@ export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobR
             : `Canonical job status observed: ${readState.status} (version ${readState.version}).`;
     }
   })();
-  return <MediaTaskScreen {...flow}>
+  return <MediaTaskScreen {...flow} actions={guardedActions} actionPort={dispatchGuard.actionPort}>
     <section className="media-screen-body" aria-labelledby="job-recovery-title">
       <header>
         <h3 id="job-recovery-title">Job status and recovery</h3>

@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { JobRecoveryScreen, type CanonicalJobReadClient } from "./JobRecoveryScreen";
 import type { MediaActionPort, MediaContextPort, MediaDataPort } from "../ports";
+import { canonicalMediaActionRequest } from "../ports";
 
 const baseProps = {
   data: {
@@ -22,6 +23,39 @@ const baseProps = {
 };
 
 describe("JobRecoveryScreen canonical read", () => {
+  it("keeps an acknowledged host action locked until the same request has fresh owner reconciliation", async () => {
+    const actionId = "media.action.retry-job";
+    const subjectRefs = ["job:job-canonical-17"];
+    const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "request-17" }));
+    const props = {
+      ...baseProps,
+      actions: [{ id: actionId, label: "Retry job", enabled: true, subjectRefs }],
+      actionPort: { invoke },
+    };
+    const { rerender } = render(React.createElement(JobRecoveryScreen, props));
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry job" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Retry job" }).hasAttribute("disabled")).toBe(true));
+    expect(screen.getByText("Request acknowledged (request-17). Completion remains unobserved.")).toBeTruthy();
+    expect(invoke).toHaveBeenCalledTimes(1);
+
+    const reconciliation = {
+      actionId,
+      requestId: "request-17",
+      requestCanonical: canonicalMediaActionRequest(actionId, undefined, { subjectRefs }),
+      subjectRefs,
+      reconciliationRevision: "owner-revision-2",
+      disposition: "retry-authorized" as const,
+    };
+    rerender(React.createElement(JobRecoveryScreen, {
+      ...props,
+      data: { ...props.data, actionReconciliations: [reconciliation] },
+    }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Retry job" }).hasAttribute("disabled")).toBe(false));
+    fireEvent.click(screen.getByRole("button", { name: "Retry job" }));
+    await waitFor(() => expect(invoke).toHaveBeenCalledTimes(2));
+  });
+
   it("shows loading and terminal status only after the injected canonical reader returns", async () => {
     let resolveRead: ((value: { jobId: string; status: "COMPLETED"; version: number }) => void) | undefined;
     const canonicalJobReadClient: CanonicalJobReadClient = {
