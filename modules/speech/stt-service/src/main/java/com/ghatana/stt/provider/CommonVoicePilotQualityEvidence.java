@@ -4,6 +4,7 @@ import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -48,7 +49,8 @@ public final class CommonVoicePilotQualityEvidence
             "ne-NP", "cmu61478v00j9o107alzuue1z");
     private static final double RATE_TOLERANCE = 1e-9;
     private static final ObjectMapper MAPPER = new ObjectMapper(JsonFactory.builder()
-            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build());
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build())
+            .rebuild().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();
 
     public record LocaleMeasurement(String locale, int clipCount, long wordErrors,
             long referenceWords, double wer, long charErrors,

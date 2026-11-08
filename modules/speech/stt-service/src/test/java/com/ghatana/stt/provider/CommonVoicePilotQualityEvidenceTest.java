@@ -277,6 +277,13 @@ class CommonVoicePilotQualityEvidenceTest {
                 "\"clipCount\":24,\"clipCount\":24"));
     }
 
+    @Test
+    void rejectsTrailingJsonValuesAndContentOutsideThePinnedEnvelope() throws Exception {
+        String valid = validEnvelope();
+        assertInvalid(valid + " {} ");
+        assertInvalid(valid + " trailing");
+    }
+
     private static void assertInvalid(String json) throws Exception {
         assertThatThrownBy(() -> parse(json)).isInstanceOf(IllegalArgumentException.class);
     }
