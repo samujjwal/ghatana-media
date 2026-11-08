@@ -224,6 +224,7 @@ test("hold and restore receipts require exact current scoped authority and deny 
 test("erasure outcome classifier requires exact current read receipt, coverage, released holds, and every restore replay", () => {
   const expected = {
     tenantRef: "tenant:tenant-a", objectRef: "media.domain.artifact", artifactVersionRef: "artifact-version:v7",
+    erasureRequestRef: "erasure-request:31",
     readAuthorityRef: "media.storage.inventory-reader.v1", readVersionRef: "inventory-revision:17",
     decisionBoundaryRef: "erasure-decision:31", now: "2026-10-09T12:01:00Z",
   };
@@ -297,6 +298,8 @@ test("erasure outcome classifier requires exact current read receipt, coverage, 
     "ERASURE_OUTCOME_UNKNOWN", "a hold assessment for another subject cannot establish current release");
   assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: undefined }).disposition,
     "ERASURE_OUTCOME_UNKNOWN", "omitted tombstone record cannot be replaced by a nonblank reference");
+  assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: { ...tombstoneRecord, erasureRequestRef: "erasure-request:other" } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "a tombstone for another erasure request cannot establish this request's finality");
   assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: { ...tombstoneRecord, durableStoreRevision: "" } }).disposition,
     "ERASURE_OUTCOME_UNKNOWN", "tombstone without durable revision is rejected");
   assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: { ...tombstoneRecord, copyRefs: [] } }).disposition,

@@ -729,6 +729,29 @@ class VisionGrpcServiceTest {
         assertThat(fakeDetector.calls).isZero();
     }
 
+    @Test
+    void processVideo_providerTimeoutMapsToDeadlineExceededAndRedactsDetails() {
+        String privateDetail = "private vision provider timeout detail";
+        fakeDetector.setThrowOnDetect(new java.util.concurrent.CompletionException(
+                new java.util.concurrent.TimeoutException(privateDetail)));
+        CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
+        java.util.concurrent.atomic.AtomicReference<StreamObserver<VideoFrameRequest>> requestStream =
+                new java.util.concurrent.atomic.AtomicReference<>();
+
+        withContext(TENANT_ID, () -> requestStream.set(service.processVideo(observer)));
+        withContext(TENANT_ID, () -> requestStream.get().onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[] {0x42}))
+                .build()));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.DEADLINE_EXCEEDED.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Vision provider deadline exceeded");
+        assertThat(failure.getStatus().getDescription()).doesNotContain(privateDetail);
+        assertThat(observer.getValue()).isNull();
+        assertThat(fakeDetector.calls).isEqualTo(1);
+    }
+
     // -------------------------------------------------------------------------
     // loadModel (AV-003.1) 
     // -------------------------------------------------------------------------

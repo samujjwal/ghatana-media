@@ -102,8 +102,9 @@ export function classifyErasureOutcome(input) {
   if (!holdAssessmentIsValid(holdAssessment) || !sameSubject(holdAssessment, expected)) return unknown("hold assessment is malformed or does not match the expected subject");
   if (!tombstoneRecordIsValid(tombstoneRecord) || !sameSubject(tombstoneRecord, expected)
     || !exact(tombstoneRecord.tombstoneRef, input.tombstoneRef)
+    || !exact(tombstoneRecord.erasureRequestRef, expected.erasureRequestRef)
     || !sameStringSet(tombstoneRecord.copyRefs, inventory.copyEntries.map(({ copyRef }) => copyRef))) {
-    return unknown("exact tombstone record, durable revision, or affected copy set is missing or mismatched");
+    return unknown("exact request-bound tombstone record, durable revision, or affected copy set is missing or mismatched");
   }
   if (!restorePathInventoryIsValid(restorePathInventory) || !sameSubject(restorePathInventory, expected)) return unknown("restore-path inventory is missing or does not match the expected subject");
   if (!Array.isArray(restorePaths) || !Array.isArray(restoreReplays) || !restorePaths.every(restorePathIsValid)) return unknown("restore-path evidence is malformed");

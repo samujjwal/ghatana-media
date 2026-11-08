@@ -404,6 +404,42 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactRejectsPrecisionLossMetadataThatDisagreesWithEmbeddedAnimation() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-loss-profile", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)),
+                Map.of("root", List.of(
+                        key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), SpatialRigEngine.Quaternion.IDENTITY))),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        String json = readGlbJson(artifact.bytes());
+
+        String contradictoryDisposition = json.replace("\"lossDisposition\":\"FLOAT32_APPROXIMATION\"",
+                "\"lossDisposition\":\"EXACT\"");
+        byte[] wrongDisposition = replaceGlbJson(artifact.bytes(), contradictoryDisposition);
+        String wrongDispositionDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(wrongDisposition));
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                wrongDispositionDigest, wrongDisposition))
+                .withMessageContaining("export profile disagrees");
+
+        String omittedLossField = json.replace("\"float32LossFields\":[\"animation.inputTimeSeconds\","
+                        + "\"animation.outputTranslation\",\"animation.outputRotation\"]",
+                "\"float32LossFields\":[]");
+        byte[] incompleteLossManifest = replaceGlbJson(artifact.bytes(), omittedLossField);
+        String incompleteLossDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(incompleteLossManifest));
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                incompleteLossDigest, incompleteLossManifest))
+                .withMessageContaining("precision-loss fields");
+    }
+
+    @Test
     void publicGlbArtifactRejectsMalformedUtf8InJsonChunkEvenWhenDigestMatches() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-utf8", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),

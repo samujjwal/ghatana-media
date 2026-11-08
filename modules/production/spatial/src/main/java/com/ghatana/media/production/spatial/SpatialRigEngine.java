@@ -301,7 +301,8 @@ public final class SpatialRigEngine {
             if (bytes.length > MAX_GLB_BYTES) throw new IllegalArgumentException("GLB artifact exceeds byte ceiling");
             bytes = bytes.clone();
             validateGlbContainer(bytes);
-            validateGlbLineage(rigId, sourceProjectRevisionRef, frameRef, frameVersionRef, sourceVersions, bytes);
+            validateGlbLineage(rigId, sourceProjectRevisionRef, frameRef, frameVersionRef,
+                    sourceVersions, timeEncoding, lossDisposition, bytes);
             sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches("^[a-f0-9]{64}$") || !SpatialRigEngine.sha256(bytes).equals(sha256)) {
                 throw new IllegalArgumentException("GLB artifact SHA-256 does not match its bytes");
@@ -713,18 +714,41 @@ public final class SpatialRigEngine {
 
     /** Keeps the public artifact identity bound to the source manifest embedded in its GLB JSON. */
     private static void validateGlbLineage(String rigId, String revisionRef, String frameRef,
-            String frameVersionRef, List<SourceVersionRef> sourceVersions, byte[] bytes) {
+            String frameVersionRef, List<SourceVersionRef> sourceVersions, String timeEncoding,
+            String lossDisposition, byte[] bytes) {
         ByteBuffer input = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         input.position(12);
         int jsonLength = input.getInt();
         input.getInt(); // Leading JSON chunk type was checked by validateGlbContainer.
         byte[] jsonBytes = new byte[jsonLength];
         input.get(jsonBytes);
-        final JsonNode metadata;
+        final JsonNode document;
         try {
-            metadata = GLB_JSON_MAPPER.readTree(jsonBytes).path("extras").path("mediaSpatial");
+            document = GLB_JSON_MAPPER.readTree(jsonBytes);
         } catch (RuntimeException malformedJson) {
             throw new IllegalArgumentException("GLB spatial lineage manifest is invalid", malformedJson);
+        }
+        if (document == null || !document.isObject()) {
+            throw new IllegalArgumentException("GLB spatial lineage manifest is invalid");
+        }
+        JsonNode metadata = document.path("extras").path("mediaSpatial");
+        if (!"2.0".equals(document.path("asset").path("version").asString())
+                || !timeEncoding.equals(metadata.path("timeEncoding").asString())
+                || !lossDisposition.equals(metadata.path("lossDisposition").asString())) {
+            throw new IllegalArgumentException("GLB spatial export profile disagrees with artifact metadata");
+        }
+        boolean hasAnimation = document.path("animations").isArray()
+                && document.path("animations").size() > 0;
+        JsonNode lossFields = metadata.path("float32LossFields");
+        List<String> expectedLossFields = hasAnimation ? GLB_FLOAT32_LOSS_FIELDS : List.of();
+        if (!lossFields.isArray() || lossFields.size() != expectedLossFields.size()) {
+            throw new IllegalArgumentException("GLB spatial precision-loss fields do not match its animation data");
+        }
+        for (int index = 0; index < expectedLossFields.size(); index++) {
+            if (!lossFields.get(index).isString()
+                    || !expectedLossFields.get(index).equals(lossFields.get(index).asString())) {
+                throw new IllegalArgumentException("GLB spatial precision-loss fields do not match its animation data");
+            }
         }
         if (!rigId.equals(metadata.path("rigId").asString())
                 || !revisionRef.equals(metadata.path("sourceProjectRevisionRef").asString())
