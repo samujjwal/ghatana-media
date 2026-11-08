@@ -234,6 +234,23 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void graphDiffIdentityListsAreDeterministicAndIndependentOfDisplayOrder() {
+        Graph before = Graph.empty("timeline-diff-order");
+        Graph after = new Graph("timeline-diff-order", List.of(
+                new Scene("z-scene", 0), new Scene("a-scene", 1)), List.of(), List.of());
+
+        ProjectTimelineEngine.GraphDiff diff = ProjectTimelineEngine.diff(before, after);
+
+        // Graph presentation follows scene order; diff output follows stable identity order.
+        assertThat(after.scenes()).extracting(Scene::sceneId).containsExactly("z-scene", "a-scene");
+        assertThat(diff.addedScenes()).containsExactly("a-scene", "z-scene");
+        assertThat(ProjectTimelineEngine.diff(before,
+                new Graph("timeline-diff-order", List.of(new Scene("a-scene", 1), new Scene("z-scene", 0)),
+                        List.of(), List.of())))
+                .isEqualTo(diff);
+    }
+
+    @Test
     void diffTreatsEquivalentRationalTickBasesAsTheSameClipValue() {
         Scene scene = new Scene("scene-1", 0);
         Track track = new Track("track-1", scene.sceneId(), TrackKind.VIDEO, 0);
