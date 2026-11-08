@@ -380,6 +380,18 @@ test("replay rejects action streams above the recorded-action bound before proce
   assert.deepEqual(replayed.history, []);
 });
 
+test("replay rejects sparse action streams before processing any present prefix", () => {
+  const actions = [{ type: "play" }, , { type: "progress", positionMs: 500 }];
+  const replayed = replayDemoActions(manifest, verifier, actions);
+
+  assert.equal(replayed.status, "UNAVAILABLE");
+  assert.equal(replayed.failure, "INVALID_BUNDLE");
+  assert.equal(replayed.playing, false);
+  assert.equal(replayed.positionMs, 0);
+  assert.deepEqual(replayed.route, ["intro"]);
+  assert.deepEqual(replayed.history, []);
+});
+
 test("branch-path replay enforces the route bound before copying caller input", () => {
   const loopManifest = {
     ...manifest,

@@ -586,8 +586,12 @@ export function replayDemoActions(
   // state history under the same finite bound, and reject oversized streams
   // before replaying a prefix that could look like a successful partial run.
   if (initial.status !== "READY") return initial;
+  if (!Array.isArray(actions)) return unavailableFrom(initial, "INVALID_BUNDLE");
   if (actions.length > MAX_RECORDED_ACTIONS) {
     return unavailableFrom(initial, "PLAYBACK_LIMIT_REACHED");
+  }
+  for (let index = 0; index < actions.length; index += 1) {
+    if (!Object.hasOwn(actions, index)) return unavailableFrom(initial, "INVALID_BUNDLE");
   }
   return actions.reduce(
     (state, action) => reduceDemoPlayerState(manifest, state, action, verificationPort),

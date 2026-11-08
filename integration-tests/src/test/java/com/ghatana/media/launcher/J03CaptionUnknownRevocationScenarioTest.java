@@ -53,10 +53,12 @@ class J03CaptionUnknownRevocationScenarioTest {
         RegistrationRequest request = request("j03-caption-req-1");
 
         RegistrationResult first = runtime.register(TENANT, PRINCIPAL, request);
+        String expectedFingerprint = MediaCaptionContracts.fingerprint(TENANT, PRINCIPAL, request);
 
         assertThat(first).isInstanceOf(Rejected.class);
         assertThat(((Rejected) first).error()).isEqualTo(MediaCaptionContracts.RegistrationError.UNKNOWN_OUTCOME);
         assertThat(((Rejected) first).requestId()).isEqualTo(request.requestId());
+        assertThat(((Rejected) first).requestFingerprint()).isEqualTo(expectedFingerprint);
         assertThat(captions.lastAuthority).isEqualTo(new RegistrationAuthority.AuthorityCheck(
                 TENANT, PRINCIPAL, ARTIFACT, SOURCE_VERSION, ParentVersionKind.TRANSCRIPT_VERSION,
                 TRANSCRIPT_VERSION));
@@ -71,6 +73,9 @@ class J03CaptionUnknownRevocationScenarioTest {
         assertThat(retry).isInstanceOf(Rejected.class);
         assertThat(((Rejected) retry).error()).isEqualTo(MediaCaptionContracts.RegistrationError.ACCESS_DENIED);
         assertThat(((Rejected) retry).requestId()).isEqualTo(request.requestId());
+        assertThat(((Rejected) retry).requestFingerprint()).isEqualTo(expectedFingerprint);
+        assertThat(((Rejected) retry).requestFingerprint())
+                .isEqualTo(((Rejected) first).requestFingerprint());
         assertThat(writeCalls).hasValue(2);
         assertThat(authorizedUnknowns).hasValue(1);
         assertThat(captions.lastAuthority.sourceArtifactVersionId()).isEqualTo(SOURCE_VERSION);
