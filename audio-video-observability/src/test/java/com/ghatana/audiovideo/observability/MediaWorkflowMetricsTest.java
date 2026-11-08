@@ -728,6 +728,35 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void qualityRefreshRejectsOversizedInputAfterOnlyOneRowBeyondTheCap() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-11-03T12:00:00Z");
+        var sample = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "wer", 0.25, now, "reference_only");
+        java.util.concurrent.atomic.AtomicInteger consumed = new java.util.concurrent.atomic.AtomicInteger();
+        java.util.List<MediaWorkflowMetrics.ProviderQualitySeriesSample> oversizedInput =
+                new java.util.AbstractList<>() {
+                    @Override
+                    public int size() {
+                        return 100_000;
+                    }
+
+                    @Override
+                    public MediaWorkflowMetrics.ProviderQualitySeriesSample get(int index) {
+                        consumed.incrementAndGet();
+                        return sample;
+                    }
+                };
+
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now, oversizedInput)).isFalse();
+
+        assertThat(consumed).hasValue(33);
+        assertThat(registry.find("media.provider.quality.measured_value").meters()).isEmpty();
+    }
+
+    @Test
     void qualityRefreshRejectsConflictingEqualTimeAndFutureMeasurements() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");

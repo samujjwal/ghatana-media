@@ -575,13 +575,24 @@ public final class MediaWorkflowMetrics {
         } catch (IllegalArgumentException invalidIdentity) {
             return false;
         }
-        // Take one defensive snapshot before validation and publication. Callers may supply a
-        // mutable collection; iterating it once to validate and again to publish could otherwise
-        // validate one set of labels and register another (or partially publish on mutation).
+        // Take one bounded defensive snapshot before validation and publication. Callers may
+        // supply a mutable collection; iterating it once to validate and again to publish could
+        // otherwise validate one set of labels and register another (or partially publish on
+        // mutation). Stop after the first excess row so a rejected refresh cannot force an
+        // unbounded copy before the per-model row limit is applied.
         java.util.List<ProviderQualitySeriesSample> rows;
         try {
-            rows = samples == null ? java.util.List.of()
-                    : java.util.Arrays.asList(samples.toArray(ProviderQualitySeriesSample[]::new));
+            if (samples == null) {
+                rows = java.util.List.of();
+            } else {
+                java.util.ArrayList<ProviderQualitySeriesSample> snapshot =
+                        new java.util.ArrayList<>(MAX_QUALITY_SAMPLES_PER_MODEL);
+                java.util.Iterator<ProviderQualitySeriesSample> iterator = samples.iterator();
+                while (snapshot.size() <= MAX_QUALITY_SAMPLES_PER_MODEL && iterator.hasNext()) {
+                    snapshot.add(iterator.next());
+                }
+                rows = snapshot;
+            }
         } catch (RuntimeException unstableInput) {
             registry.counter("media.provider.quality.series.rejected",
                     "service", safeService, "contract_version", CONTRACT_VERSION).increment();
