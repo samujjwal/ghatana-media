@@ -43,15 +43,24 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     private static final int QUALITY_TIER = 10;
 
     private final Path binary;
+    private final Path bundle;
     private final Path libraryDir;
     private final Path espeakData;
+    private final String binarySha256;
+    private final String librarySha256;
+    private final String espeakDataSha256;
     private final String language;
 
     private PiperPhonemizeProcessConverter(
-            Path binary, Path libraryDir, Path espeakData, String language) {
+            Path binary, Path bundle, Path libraryDir, Path espeakData,
+            String binarySha256, String librarySha256, String espeakDataSha256, String language) {
         this.binary = binary;
+        this.bundle = bundle;
         this.libraryDir = libraryDir;
         this.espeakData = espeakData;
+        this.binarySha256 = binarySha256;
+        this.librarySha256 = librarySha256;
+        this.espeakDataSha256 = espeakDataSha256;
         this.language = language;
     }
 
@@ -92,7 +101,8 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
                 return Optional.empty();
             }
             return Optional.of(new PiperPhonemizeProcessConverter(
-                    binary, libraryDir.toRealPath(), dataDir.toRealPath(), "en-us"));
+                    binary, bundle, libraryDir.toRealPath(), dataDir.toRealPath(),
+                    binaryPin, libraryPin, dataPin, "en-us"));
         } catch (IOException | RuntimeException failure) {
             return Optional.empty();
         }
@@ -105,11 +115,13 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
         if (text.length() > MAX_TEXT_CHARS) {
             throw new PhonemeConversionException("Phonemize input exceeds bounded length");
         }
+        long deadline = System.nanoTime() + TIMEOUT.toNanos();
+        revalidatePinnedAssets(deadline);
         List<String> command = new ArrayList<>(List.of(
                 binary.toString(), "-l", language, "--espeak_data", espeakData.toString()));
-        long deadline = System.nanoTime() + TIMEOUT.toNanos();
         Process process;
         try {
+            ensureWithinDeadline(deadline);
             ProcessBuilder builder = new ProcessBuilder(command);
             // The vendored binary loads its bundled dylibs from ../lib.
             String libraryPathKey = libraryPathEnvironmentKey(System.getProperty("os.name", ""));
@@ -117,6 +129,9 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
                     (existing, bundled) -> existing.isBlank()
                             ? bundled : bundled + libraryPathSeparator() + existing);
             process = builder.start();
+            ensureWithinDeadlineAfterStart(process, deadline);
+        } catch (PhonemeConversionException failure) {
+            throw failure;
         } catch (IOException failure) {
             throw new PhonemeConversionException("Phonemize process could not start", failure);
         }
@@ -169,6 +184,45 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
             killTree(process);
             Thread.currentThread().interrupt();
             throw new PhonemeConversionException("Phonemize process interrupted", interrupted);
+        }
+    }
+
+    /** Recheck the construction-time pins immediately before each process launch. */
+    void revalidatePinnedAssets(long deadlineNanos) {
+        try {
+            ensureWithinDeadline(deadlineNanos);
+            if (!Files.isRegularFile(binary, LinkOption.NOFOLLOW_LINKS)
+                    || !Files.isExecutable(binary)
+                    || !isContainedNonSymlinkDirectory(bundle, libraryDir)
+                    || !isContainedNonSymlinkDirectory(bundle, espeakData)
+                    || !digestMatches(binary, binarySha256, deadlineNanos)
+                    || !digestTree(libraryDir, deadlineNanos).equals(librarySha256)
+                    || !digestTree(espeakData, deadlineNanos).equals(espeakDataSha256)) {
+                throw new PhonemeConversionException("Pinned phonemizer assets changed after initialization");
+            }
+            ensureWithinDeadline(deadlineNanos);
+        } catch (IOException | RuntimeException failure) {
+            if (failure instanceof PhonemeConversionException conversionFailure) throw conversionFailure;
+            throw new PhonemeConversionException(
+                    "Pinned phonemizer assets could not be revalidated", failure);
+        }
+    }
+
+    private static void ensureWithinDeadline(long deadlineNanos) {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new PhonemeConversionException("Phonemize operation interrupted");
+        }
+        if (System.nanoTime() >= deadlineNanos) {
+            throw new PhonemeConversionException("Phonemize process exceeded its time budget");
+        }
+    }
+
+    static void ensureWithinDeadlineAfterStart(Process process, long deadlineNanos) {
+        try {
+            ensureWithinDeadline(deadlineNanos);
+        } catch (PhonemeConversionException failure) {
+            killTree(process);
+            throw failure;
         }
     }
 
@@ -234,13 +288,27 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
 
     /** The binary digest must match its configured pin exactly. */
     private static boolean digestMatches(Path binary, String expectedSha256) throws IOException {
+        return digestMatches(binary, expectedSha256, null);
+    }
+
+    static boolean digestMatches(Path binary, String expectedSha256, long deadlineNanos) throws IOException {
+        return digestMatches(binary, expectedSha256, Long.valueOf(deadlineNanos));
+    }
+
+    private static boolean digestMatches(Path binary, String expectedSha256, Long deadlineNanos) throws IOException {
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
             try (var in = Files.newInputStream(binary)) {
                 byte[] buffer = new byte[64 * 1024];
                 int read;
-                while ((read = in.read(buffer)) >= 0) digest.update(buffer, 0, read);
+                while (true) {
+                    checkDeadline(deadlineNanos);
+                    read = in.read(buffer);
+                    if (read < 0) break;
+                    digest.update(buffer, 0, read);
+                }
             }
+            checkDeadline(deadlineNanos);
             return java.security.MessageDigest.isEqual(
                     java.util.HexFormat.of().formatHex(digest.digest()).getBytes(StandardCharsets.UTF_8),
                     expectedSha256.trim().toLowerCase(java.util.Locale.ROOT)
@@ -248,6 +316,10 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException(impossible);
         }
+    }
+
+    private static void checkDeadline(Long deadlineNanos) {
+        if (deadlineNanos != null) ensureWithinDeadline(deadlineNanos);
     }
 
     private static boolean isContainedNonSymlinkDirectory(Path bundle, Path candidate) throws IOException {
@@ -281,28 +353,50 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
      * files an eight-byte big-endian size followed by the raw file bytes. Symlinks,
      * special files, and a non-directory root are rejected. Trees are bounded to
      * 100,000 entries and 1 GiB total file bytes. Empty trees have the SHA-256 of
-     * the empty stream. Pins are lowercase or uppercase 64-digit hex. Verification
-     * happens once when the converter is constructed; callers must keep the pinned
-     * bundle immutable for the converter lifetime. The OS loader can still race a
-     * later asset replacement after construction (TOCTOU).
+     * the empty stream. Pins are lowercase or uppercase 64-digit hex. Trees are
+     * checked at construction and again immediately before each process launch.
+     * Revalidation and process work share the 15-second conversion deadline with
+     * cooperative checks. A single blocking filesystem operation or
+     * {@code ProcessBuilder.start()} cannot be interrupted until it returns.
+     * Rehashing is bounded but can add I/O cost for large bundles; the OS loader
+     * can still race a later asset replacement after revalidation (TOCTOU).
      */
     static String digestTree(Path root) throws IOException {
+        return digestTree(root, null);
+    }
+
+    static String digestTree(Path root, long deadlineNanos) throws IOException {
+        return digestTree(root, Long.valueOf(deadlineNanos));
+    }
+
+    private static String digestTree(Path root, Long deadlineNanos) throws IOException {
+        checkDeadline(deadlineNanos);
         if (!Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)) {
             throw new IOException("Pinned asset tree root is not a directory");
         }
         Path normalizedRoot = root.toAbsolutePath().normalize();
         List<Path> entries;
         try (var walk = Files.walk(normalizedRoot)) {
-            entries = new ArrayList<>(walk.filter(path -> !path.equals(normalizedRoot))
-                    .limit(MAX_TREE_ENTRIES + 1L).toList());
+            entries = new ArrayList<>();
+            var iterator = walk.iterator();
+            while (iterator.hasNext()) {
+                checkDeadline(deadlineNanos);
+                Path path = iterator.next();
+                if (!path.equals(normalizedRoot)) {
+                    entries.add(path);
+                    if (entries.size() > MAX_TREE_ENTRIES) {
+                        throw new IOException("Pinned asset tree has too many entries");
+                    }
+                }
+            }
         }
-        if (entries.size() > MAX_TREE_ENTRIES) throw new IOException("Pinned asset tree has too many entries");
         entries.sort(java.util.Comparator.comparing(path ->
                 normalizedRoot.relativize(path).toString().replace(path.getFileSystem().getSeparator(), "/")));
         try {
             var digest = java.security.MessageDigest.getInstance("SHA-256");
             long totalBytes = 0;
             for (Path entry : entries) {
+                checkDeadline(deadlineNanos);
                 BasicFileAttributes attributes = Files.readAttributes(
                         entry, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
                 byte type;
@@ -324,7 +418,10 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
                         byte[] buffer = new byte[64 * 1024];
                         int read;
                         long fileBytesRead = 0;
-                        while ((read = input.read(buffer)) >= 0) {
+                        while (true) {
+                            checkDeadline(deadlineNanos);
+                            read = input.read(buffer);
+                            if (read < 0) break;
                             fileBytesRead += read;
                             if (fileBytesRead > attributes.size()) {
                                 throw new IOException("Pinned asset changed while being hashed");
@@ -337,6 +434,7 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
                     }
                 }
             }
+            checkDeadline(deadlineNanos);
             return java.util.HexFormat.of().formatHex(digest.digest());
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException(impossible);
@@ -351,7 +449,14 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     /** Kills the worker and any descendants it spawned so nothing outlives the budget. */
     private static void killTree(Process process) {
         terminateTree(process);
-        try { process.waitFor(2, TimeUnit.SECONDS); } catch (InterruptedException ignored) { }
+        boolean interrupted = Thread.currentThread().isInterrupted();
+        try {
+            process.waitFor(2, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            interrupted = true;
+        } finally {
+            if (interrupted) Thread.currentThread().interrupt();
+        }
     }
 
     private static void terminateTree(Process process) {

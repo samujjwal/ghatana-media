@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -131,6 +132,137 @@ class PiperPhonemizeProcessConverterTest {
     }
 
     @Test
+    void rejectsBinaryMutationAfterConverterConstructionBeforeLaunching() throws Exception {
+        Path launched = tempDir.resolve("binary-launched");
+        Fixture fixture = fixture("printf launched > '" + shellQuotePath(launched)
+                + "'; printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        TextToPhonemeConverter converter = converter(fixture);
+        Files.writeString(fixture.executable,
+                "#!/bin/sh\nprintf launched > '" + shellQuotePath(launched) + "'\n");
+
+        assertThatThrownBy(() -> converter.convert("hi"))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("Pinned phonemizer assets changed");
+        assertThat(launched).doesNotExist();
+    }
+
+    @Test
+    void rejectsBundledTreeMutationAfterConverterConstructionBeforeLaunching() throws Exception {
+        Path launched = tempDir.resolve("tree-launched");
+        Fixture fixture = fixture("printf launched > '" + shellQuotePath(launched)
+                + "'; printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        TextToPhonemeConverter converter = converter(fixture);
+        Files.writeString(fixture.library.resolve("libfixture.dylib"), "changed after construction");
+
+        assertThatThrownBy(() -> converter.convert("hi"))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("Pinned phonemizer assets changed");
+        assertThat(launched).doesNotExist();
+    }
+
+    @Test
+    void rejectsEspeakDataMutationAfterConverterConstructionBeforeLaunching() throws Exception {
+        Path launched = tempDir.resolve("espeak-data-launched");
+        Fixture fixture = fixture("printf launched > '" + shellQuotePath(launched)
+                + "'; printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        TextToPhonemeConverter converter = converter(fixture);
+        Files.writeString(fixture.data.resolve("en-us/dict"), "changed after construction");
+
+        assertThatThrownBy(() -> converter.convert("hi"))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("Pinned phonemizer assets changed");
+        assertThat(launched).doesNotExist();
+    }
+
+    @Test
+    void expiredDeadlineStopsAssetRevalidationAndDigestHelpers() throws Exception {
+        Path launched = tempDir.resolve("expired-deadline-launched");
+        Fixture fixture = fixture("printf launched > '" + shellQuotePath(launched)
+                + "'; printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        TextToPhonemeConverter converter = converter(fixture);
+        long expiredDeadline = System.nanoTime() - 1;
+
+        assertThatThrownBy(() -> ((PiperPhonemizeProcessConverter) converter)
+                .revalidatePinnedAssets(expiredDeadline))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("exceeded its time budget");
+        assertThatThrownBy(() -> PiperPhonemizeProcessConverter.digestTree(
+                fixture.library, expiredDeadline))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("exceeded its time budget");
+        assertThatThrownBy(() -> PiperPhonemizeProcessConverter.digestMatches(
+                fixture.executable, pins(fixture).binary, expiredDeadline))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("exceeded its time budget");
+        assertThat(launched).doesNotExist();
+    }
+
+    @Test
+    void interruptedAssetRevalidationFailsTypedAndPreservesInterruptStatus() throws Exception {
+        Fixture fixture = fixture("printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        TextToPhonemeConverter converter = converter(fixture);
+        Thread.currentThread().interrupt();
+        try {
+            assertThatThrownBy(() -> ((PiperPhonemizeProcessConverter) converter)
+                    .revalidatePinnedAssets(System.nanoTime() + Duration.ofSeconds(1).toNanos()))
+                    .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                    .hasMessageContaining("Phonemize operation interrupted");
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void interruptedPostStartCheckPreservesInterruptAndKillsWorkerTree() throws Exception {
+        Path workerPidFile = tempDir.resolve("post-start-worker.pid");
+        Path childPidFile = tempDir.resolve("post-start-child.pid");
+        Fixture fixture = fixture("echo $$ > '" + shellQuotePath(workerPidFile)
+                + "'; sleep 30 & echo $! > '" + shellQuotePath(childPidFile) + "'; wait");
+        Process process = new ProcessBuilder(fixture.executable.toString()).start();
+        Thread conversionThread = null;
+        try {
+            awaitFile(workerPidFile);
+            long childPid = Long.parseLong(awaitFile(childPidFile));
+            AtomicReference<Throwable> failure = new AtomicReference<>();
+            AtomicReference<Boolean> interruptPreserved = new AtomicReference<>(false);
+            conversionThread = new Thread(() -> {
+                Thread.currentThread().interrupt();
+                try {
+                    PiperPhonemizeProcessConverter.ensureWithinDeadlineAfterStart(
+                            process, System.nanoTime() + Duration.ofSeconds(5).toNanos());
+                } catch (Throwable thrown) {
+                    failure.set(thrown);
+                } finally {
+                    interruptPreserved.set(Thread.currentThread().isInterrupted());
+                    Thread.interrupted();
+                }
+            }, "test-phonemize-conversion");
+            conversionThread.start();
+            conversionThread.join(3_000);
+
+            assertThat(conversionThread.isAlive()).isFalse();
+            assertThat(failure.get())
+                    .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                    .hasMessageContaining("Phonemize operation interrupted");
+            assertThat(interruptPreserved.get()).isTrue();
+            assertThat(process.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            long cleanupDeadline = System.nanoTime() + Duration.ofSeconds(2).toNanos();
+            while (ProcessHandle.of(childPid).map(ProcessHandle::isAlive).orElse(false)
+                    && System.nanoTime() < cleanupDeadline) {
+                Thread.sleep(20);
+            }
+            assertThat(ProcessHandle.of(childPid).map(ProcessHandle::isAlive).orElse(false)).isFalse();
+        } finally {
+            if (conversionThread != null && conversionThread.isAlive()) {
+                conversionThread.interrupt();
+                conversionThread.join(1_000);
+            }
+            process.destroyForcibly();
+        }
+    }
+
+    @Test
     void selectsNativeLoaderVariableAndPathSeparatorForEachOsFamily() {
         assertThat(PiperPhonemizeProcessConverter.libraryPathEnvironmentKey("Linux")).isEqualTo("LD_LIBRARY_PATH");
         assertThat(PiperPhonemizeProcessConverter.libraryPathEnvironmentKey("Mac OS X")).isEqualTo("DYLD_LIBRARY_PATH");
@@ -140,6 +272,10 @@ class PiperPhonemizeProcessConverterTest {
 
     private TextToPhonemeConverter converterWithScript(String body) throws Exception {
         Fixture fixture = fixture(body);
+        return converter(fixture);
+    }
+
+    private TextToPhonemeConverter converter(Fixture fixture) throws Exception {
         Pins pins = pins(fixture);
         return PiperPhonemizeProcessConverter.tryCreate(
                         fixture.executable, pins.binary, pins.library, pins.data)
@@ -172,6 +308,12 @@ class PiperPhonemizeProcessConverterTest {
 
     private static String shellQuotePath(Path path) {
         return path.toString().replace("'", "'\"'\"'");
+    }
+
+    private static String awaitFile(Path path) throws Exception {
+        long deadline = System.nanoTime() + Duration.ofSeconds(3).toNanos();
+        while (!Files.exists(path) && System.nanoTime() < deadline) Thread.sleep(10);
+        return Files.readString(path).trim();
     }
 
     private record Fixture(Path executable, Path library, Path data) { }
