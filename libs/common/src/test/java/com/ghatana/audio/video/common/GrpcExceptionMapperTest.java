@@ -110,6 +110,36 @@ class GrpcExceptionMapperTest {
         }
 
         @Test
+        @DisplayName("JDK and platform cancellation map to CANCELLED")
+        void cancellation_cancelled() {
+            StatusRuntimeException jdk = GrpcExceptionMapper.toStatusException(
+                    new java.util.concurrent.CancellationException("request cancelled"), OP, LOG);
+            StatusRuntimeException platform = GrpcExceptionMapper.toStatusException(
+                    new com.ghatana.core.exception.CancellationException("platform cancelled"), OP, LOG);
+
+            assertThat(jdk.getStatus().getCode()).isEqualTo(Status.Code.CANCELLED);
+            assertThat(platform.getStatus().getCode()).isEqualTo(Status.Code.CANCELLED);
+            assertThat(jdk.getStatus().getDescription()).doesNotContain("request cancelled");
+            assertThat(platform.getStatus().getDescription()).doesNotContain("platform cancelled");
+        }
+
+        @Test
+        @DisplayName("Interrupted operation maps to CANCELLED and preserves interrupt")
+        void interrupted_cancelledAndInterruptRestored() {
+            Thread.interrupted(); // isolate this assertion from a pre-existing interrupt
+            try {
+                StatusRuntimeException ex = GrpcExceptionMapper.toStatusException(
+                        new InterruptedException("worker interrupted"), OP, LOG);
+
+                assertThat(ex.getStatus().getCode()).isEqualTo(Status.Code.CANCELLED);
+                assertThat(ex.getStatus().getDescription()).doesNotContain("worker interrupted");
+                assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            } finally {
+                Thread.interrupted();
+            }
+        }
+
+        @Test
         @DisplayName("null throwable maps to INTERNAL without NPE")
         void nullThrowable_internal() { 
             // Verify the mapper handles null gracefully (via toStatus) 

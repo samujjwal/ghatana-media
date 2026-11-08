@@ -25,6 +25,7 @@ import org.slf4j.Logger;
  *   <tr><td>{@link InferenceError} (retryable)</td><td>UNAVAILABLE</td></tr>
  *   <tr><td>{@link InferenceError} (non-retryable)</td><td>INTERNAL</td></tr>
  *   <tr><td>{@link ResourceExhaustedError}</td><td>RESOURCE_EXHAUSTED</td></tr>
+ *   <tr><td>Cancellation or interruption</td><td>CANCELLED</td></tr>
  *   <tr><td>{@link IllegalArgumentException}</td><td>INVALID_ARGUMENT</td></tr>
  *   <tr><td>{@link IllegalStateException}</td><td>FAILED_PRECONDITION</td></tr>
  *   <tr><td>Everything else</td><td>INTERNAL</td></tr>
@@ -75,6 +76,18 @@ public final class GrpcExceptionMapper {
      * @return gRPC {@link Status}
      */
     public static Status toStatus(Throwable throwable, String operation, Logger log) {
+        if (throwable instanceof InterruptedException) {
+            // InterruptedException clears the thread flag when thrown. Preserve it while
+            // translating the terminal cancellation signal to the transport boundary.
+            Thread.currentThread().interrupt();
+            log.debug("[{}] Operation interrupted", operation);
+            return Status.CANCELLED.withDescription("Operation cancelled");
+        }
+        if (throwable instanceof java.util.concurrent.CancellationException
+                || throwable instanceof com.ghatana.core.exception.CancellationException) {
+            log.debug("[{}] Operation cancelled", operation);
+            return Status.CANCELLED.withDescription("Operation cancelled");
+        }
         if (throwable instanceof ValidationError e) {
             log.debug("[{}] Validation error: {}", operation, e.getMessage());
             return Status.INVALID_ARGUMENT.withDescription(e.getMessage());
