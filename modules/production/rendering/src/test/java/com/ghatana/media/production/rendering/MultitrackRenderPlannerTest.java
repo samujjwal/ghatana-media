@@ -340,6 +340,17 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void rejectsUppercaseSourceDigestInsteadOfNormalizingItsIdentity() {
+        var zero = new MultitrackRenderPlanner.Time(0, 1);
+        var end = new MultitrackRenderPlanner.Time(1, 1);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Clip(
+                "clip", MultitrackRenderPlanner.Modality.VIDEO, "artifact", "v1", SHA.toUpperCase(),
+                zero, zero, end, List.of(zero)))
+                .withMessageContaining("source sha256");
+    }
+
+    @Test
     void rejectsCaptionOutsideGraphAndTransitionWithoutSharedCoverage() {
         var clip = video("v", new MultitrackRenderPlanner.Time(0, 1), List.of(new MultitrackRenderPlanner.Time(0, 1)));
         var outsideCaption = new MultitrackRenderPlanner.Graph(List.of(clip),

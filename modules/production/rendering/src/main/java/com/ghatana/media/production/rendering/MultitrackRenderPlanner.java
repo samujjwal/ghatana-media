@@ -612,7 +612,7 @@ public final class MultitrackRenderPlanner {
     }
 
     private static String digest(String value, String name) {
-        String result = opaque(value, name).toLowerCase(java.util.Locale.ROOT);
+        String result = opaque(value, name);
         if (!result.matches("[a-f0-9]{64}")) throw invalid(name + " must be a SHA-256 hex digest");
         return result;
     }
