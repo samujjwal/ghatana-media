@@ -2,7 +2,9 @@ package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaProjectTimelineContracts;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Created;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Graph;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.IdempotencyConflictException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
@@ -124,6 +126,50 @@ class PostgresqlProjectTimelineStoreTest {
             assertThatThrownBy(() -> fixture.store.create(actor, "workspace-a", "Changed", "request-1",
                     "project-2", "revision-2", "timeline-2"))
                     .isInstanceOf(MediaProjectTimelineContracts.IdempotencyConflictException.class);
+        }
+    }
+
+    @Test
+    void concurrentCreateWithSameKeyAndDifferentTitleConflictsWithoutOrphanProject() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor actor = new Actor("tenant-create-race", "principal-create-race");
+            String requestId = "request-create-race";
+            var ready = new CountDownLatch(2);
+            var start = new CountDownLatch(1);
+            try (var pool = Executors.newFixedThreadPool(2)) {
+                var first = pool.submit(() -> raceCreate(fixture.store, actor, "First title", "project-race-first",
+                        "revision-race-first", requestId, ready, start));
+                var second = pool.submit(() -> raceCreate(fixture.store, actor, "Different title",
+                        "project-race-second", "revision-race-second", requestId, ready, start));
+                assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+
+                List<CreateAttempt> outcomes = List.of(first.get(20, TimeUnit.SECONDS), second.get(20, TimeUnit.SECONDS));
+                assertThat(outcomes.stream().filter(CreateAttempt::conflict)).hasSize(1);
+                assertThat(outcomes.stream().filter(attempt -> attempt.created() != null)).hasSize(1);
+
+                Created winner = outcomes.stream().map(CreateAttempt::created).filter(java.util.Objects::nonNull)
+                        .findFirst().orElseThrow();
+                assertThat(winner.createdNow()).isTrue();
+                assertThat(fixture.store.project(actor, winner.project().projectId())).isEqualTo(winner.project());
+                assertThat(fixture.store.revision(actor, winner.project().projectId(),
+                        winner.initialRevision().revisionId())).isEqualTo(winner.initialRevision());
+                assertThat(winner.project().headRevisionId()).isEqualTo(winner.initialRevision().revisionId());
+
+                String loserProjectId = winner.project().projectId().equals("project-race-first")
+                        ? "project-race-second" : "project-race-first";
+                String loserRevisionId = winner.initialRevision().revisionId().equals("revision-race-first")
+                        ? "revision-race-second" : "revision-race-first";
+                assertThatThrownBy(() -> fixture.store.project(actor, loserProjectId))
+                        .isInstanceOf(ProjectNotFoundException.class);
+                assertThatThrownBy(() -> fixture.store.revision(actor, loserProjectId, loserRevisionId))
+                        .isInstanceOf(ProjectNotFoundException.class);
+                String conflictingTitle = winner.project().title().equals("First title")
+                        ? "Different title" : "First title";
+                assertThatThrownBy(() -> fixture.store.create(actor, "workspace-a", conflictingTitle, requestId,
+                        "project-race-retry", "revision-race-retry", "timeline-race-retry"))
+                        .isInstanceOf(IdempotencyConflictException.class);
+            }
         }
     }
 
@@ -296,6 +342,21 @@ class PostgresqlProjectTimelineStoreTest {
         try { store.commit(actor, "project-1", "revision-1", revision, Graph.empty("timeline-1")); return true; }
         catch (RevisionConflictException expected) { return false; }
     }
+
+    private static CreateAttempt raceCreate(PostgresqlProjectTimelineStore store, Actor actor, String title,
+                                            String projectId, String revisionId, String requestId,
+                                            CountDownLatch ready, CountDownLatch start) throws Exception {
+        ready.countDown();
+        if (!start.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("start latch timed out");
+        try {
+            return new CreateAttempt(store.create(actor, "workspace-a", title, requestId,
+                    projectId, revisionId, "timeline-" + projectId), false);
+        } catch (IdempotencyConflictException expected) {
+            return new CreateAttempt(null, true);
+        }
+    }
+
+    private record CreateAttempt(Created created, boolean conflict) { }
 
     private static Fixture openFixture() throws Exception {
         String bucket = "media-timeline-" + UUID.randomUUID().toString().replace("-", "");
