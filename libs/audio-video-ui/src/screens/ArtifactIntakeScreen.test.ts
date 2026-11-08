@@ -245,9 +245,13 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
     await waitFor(() => expect(capability.client.uploadPart).toHaveBeenCalledTimes(1));
     expect(screen.getByText("Server-acknowledged transfer: 0 of 3 bytes.")).toBeTruthy();
+    expect(screen.getByRole("progressbar", { name: "Server-acknowledged upload progress" }))
+      .toHaveProperty("value", 0);
     fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["xyz"], "replacement.wav")] } });
     expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
     acknowledge(uploadSession({ bytesReceived: 3, nextChunkIndex: 1 }));
     await screen.findByText(/Upload completion acknowledged/);
+    expect(screen.getByRole("progressbar", { name: "Server-acknowledged upload progress" }))
+      .toHaveProperty("value", 3);
   });
 });

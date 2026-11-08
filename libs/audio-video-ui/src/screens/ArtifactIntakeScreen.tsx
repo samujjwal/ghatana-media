@@ -219,7 +219,10 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, uploadCapa
           Upload selected source
         </button> : <p role="status">Upload is not admitted by the current host.</p>}
         {transfer && <p role="status" aria-live="polite" aria-atomic="true">{transfer.message}</p>}
-        {selectedFile && (transfer?.state === "uploading" || transfer?.state === "complete") && <p>Server-acknowledged transfer: {acknowledgedBytes} of {selectedFile.size} bytes.</p>}
+        {selectedFile && (transfer?.state === "uploading" || transfer?.state === "complete") && <>
+          <p>Server-acknowledged transfer: {acknowledgedBytes} of {selectedFile.size} bytes.</p>
+          <progress aria-label="Server-acknowledged upload progress" max={selectedFile.size} value={acknowledgedBytes} />
+        </>}
         {uploadId && <p>Upload ID: <code>{uploadId}</code></p>}
         {requestKey && <p>Upload request identity: <code>{requestKey}</code></p>}
         {transfer?.state === "unknown" && uploadId && <button type="button" disabled={inspection?.state === "loading"} onClick={() => { void inspectUnknownUpload(); }}>
