@@ -486,6 +486,26 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void availableReferenceMetricsRequireExactOpaqueArtifactAndVersionIds() {
+        Psnr measured = new Psnr(MetricStatus.MEASURED, java.util.OptionalDouble.of(20.0));
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.MEASURED, " reference", "v7", REF_SHA,
+                "GLOBAL_SRGB_LUMA_SSIM_V1+RGB8_SAMPLE_PSNR_V1", measured,
+                java.util.OptionalDouble.of(0.7), Optional.empty()))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("referenceArtifactId must not contain outer whitespace");
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.MEASURED, "reference", "v7\u00a0", REF_SHA,
+                "GLOBAL_SRGB_LUMA_SSIM_V1+RGB8_SAMPLE_PSNR_V1", measured,
+                java.util.OptionalDouble.of(0.7), Optional.empty()))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("referenceVersionId must not contain outer whitespace");
+        assertThatThrownBy(() -> new ReferenceMetrics(MetricStatus.MEASURED, "reference/id", "v7", REF_SHA,
+                "GLOBAL_SRGB_LUMA_SSIM_V1+RGB8_SAMPLE_PSNR_V1", measured,
+                java.util.OptionalDouble.of(0.7), Optional.empty()))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("referenceArtifactId must be an exact opaque identifier");
+    }
+
+    @Test
     void candidateRejectsReferenceMetricsBoundToItsOwnSourceRevision() {
         Candidate valid = TemporalVideoRestoration.restore(request(),
                 (binding, operation) -> allowed("source-decision-v3"),

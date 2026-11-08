@@ -421,6 +421,8 @@ public final class TemporalVideoRestoration {
                     throw invalid("unavailable reference metrics must not expose measurements or reference identity");
                 }
             } else {
+                referenceArtifactId = exactOpaqueId(referenceArtifactId, "referenceArtifactId", 128);
+                referenceVersionId = exactOpaqueId(referenceVersionId, "referenceVersionId", 128);
                 if (unavailableReason.isPresent() || referenceArtifactId.isBlank() || referenceVersionId.isBlank()
                         || !referenceSha256.matches(SHA256)
                         || globalLumaSsim.isEmpty() || !Double.isFinite(globalLumaSsim.getAsDouble())
@@ -972,6 +974,12 @@ public final class TemporalVideoRestoration {
     private static String opaqueId(String value, String field, int maximum) {
         String text = requiredText(value, field, maximum);
         if (!text.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")) throw invalid(field + " must be an opaque identifier");
+        return text;
+    }
+
+    private static String exactOpaqueId(String value, String field, int maximum) {
+        String text = exactText(value, field, maximum);
+        if (!text.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")) throw invalid(field + " must be an exact opaque identifier");
         return text;
     }
 
