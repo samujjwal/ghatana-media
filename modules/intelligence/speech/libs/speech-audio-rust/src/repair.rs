@@ -343,16 +343,27 @@ pub struct AudioQualityMetrics {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+/// An owned source/repaired comparison snapshot.
+///
+/// Revisions and their metrics are exposed through shared borrows so callers
+/// cannot mutate the values retained for checksum, comparison, or undo.
+/// Private fields intentionally supersede the former public-field
+/// source-compatibility note: this crate has no published consumer evidence,
+/// and immutable comparison/undo integrity takes precedence for this API.
+///
+/// ```compile_fail
+/// use speech_audio_rust::{AudioBuffer, AudioComparison};
+/// fn replace_source(comparison: &mut AudioComparison, replacement: AudioBuffer) {
+///     comparison.source = replacement;
+/// }
+/// ```
 pub struct AudioComparison {
     /// Owned source copy, retained independently from the caller's input.
-    /// Kept public for source compatibility; treat comparison values as snapshots.
-    pub source: AudioBuffer,
+    source: AudioBuffer,
     /// Owned repaired branch used when metrics were calculated.
-    /// Kept public for source compatibility; treat comparison values as snapshots.
-    pub repaired: AudioBuffer,
+    repaired: AudioBuffer,
     /// Metrics calculated from the source and repaired buffers at construction.
-    /// Kept public for source compatibility; mutating either buffer does not recompute them.
-    pub metrics: AudioQualityMetrics,
+    metrics: AudioQualityMetrics,
 }
 
 impl AudioComparison {
