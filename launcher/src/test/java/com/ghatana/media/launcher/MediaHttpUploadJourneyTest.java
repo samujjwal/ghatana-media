@@ -167,6 +167,46 @@ class MediaHttpUploadJourneyTest {
         }
     }
 
+    @Test
+    void duplicateIdempotencyKeyHeadersAreRejectedBeforeUploadCreation() throws Exception {
+        Path root = Files.createTempDirectory("media-http-upload-duplicate-key-");
+        MediaRuntime runtime = runtime(root);
+        HttpServer server = null;
+        try {
+            server = server(runtime);
+            byte[] content = "valid-upload".getBytes(StandardCharsets.UTF_8);
+            UploadRequest request = new UploadRequest(TENANT, PRINCIPAL, "source.wav", "audio/wav",
+                    content.length, sha256(content), "INTERNAL", Duration.ofMinutes(10), Map.of());
+            HttpRequest duplicateKeyRequest = HttpRequest.newBuilder(
+                            URI.create(base(server) + "/api/v1/artifacts/uploads"))
+                    .header("Authorization", "Bearer " + signedJwt(PRINCIPAL, PERMISSIONS))
+                    .header("X-Tenant-Id", TENANT)
+                    .header("Content-Type", "application/json")
+                    .header("Idempotency-Key", "upload-key-first")
+                    .header("Idempotency-Key", "upload-key-second")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(JSON.writeValueAsBytes(request)))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(
+                    duplicateKeyRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+            assertThat(response.statusCode()).as(response.body()).isEqualTo(400);
+            try (var uploadFiles = Files.list(root.resolve("uploads"))) {
+                assertThat(uploadFiles.count()).isZero();
+            }
+
+            HttpResponse<String> singleKey = send(base(server), "POST", "/api/v1/artifacts/uploads",
+                    JSON.writeValueAsBytes(request), PRINCIPAL, PERMISSIONS, "application/json", "upload-key-first");
+            assertThat(singleKey.statusCode()).as(singleKey.body()).isEqualTo(201);
+        } finally {
+            if (server != null) server.stop(0);
+            runtime.close();
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
+
     private static MediaRuntime runtime(Path root) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(true, "test", 8093, 1_024, 128, 1_024,

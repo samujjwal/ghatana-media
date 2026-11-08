@@ -683,8 +683,11 @@ public final class MediaHttpHandler implements HttpHandler {
     private static String requiredHeader(HttpExchange exchange, String name) {
         if ("X-Tenant-Id".equalsIgnoreCase(name)) return authenticatedPrincipal(exchange).tenantId();
         if ("X-Principal-Id".equalsIgnoreCase(name)) return authenticatedPrincipal(exchange).principalId();
-        String value = exchange.getRequestHeaders().getFirst(name);
-        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " header is required");
+        List<String> values = exchange.getRequestHeaders().get(name);
+        if (values == null || values.size() != 1 || values.get(0).isBlank()) {
+            throw new IllegalArgumentException(name + " header must be supplied exactly once");
+        }
+        String value = values.get(0);
         return value.trim();
     }
 
