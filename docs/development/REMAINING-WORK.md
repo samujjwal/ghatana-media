@@ -956,6 +956,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Coordinator progress (2026-11-07):** `MultitrackRenderPlanner.Plan` now rejects digest-valid clip rows that depart from canonical clip-ID order or follow other record kinds; the rehashed-manifest regression and full planner selector pass 37/37. Manifest integrity only; codec admission, playable output, and owner-bound project/timeline mapping remain open.
 - **Predecessors:** `media.dev.project-timeline-engine`, `media.dev.animation-2d-renderer`, `media.dev.foley-stems-mix-master`
 - **Coordinator progress (2026-11-07):** Manifest-bound increment: `MultitrackRenderPlanner.Plan` enforces existing graph limits when parsing canonical manifests; a digest-valid manifest with 20,001 captions rejects. FULL source-composite `MultitrackRenderPlannerTest` passes 36/36. Planner only; codec, playable output, canonical project binding, rights and readback remain open.
+- **Additional progress (2026-11-07):** Rehashed public manifests now require canonical record group order: clips, frames, captions, then transitions. A rehashed caption-before-frame manifest is rejected; FULL source-composite `MultitrackRenderPlannerTest` passes 38/38. Planner integrity only; codec admission, playable output, rights, project mapping and durable readback remain open.
 
 **`media.dev.quality-comparison-and-optimization`** · OPEN
 - **Where:** `modules/production/rendering`, `audio-video-observability`, `libs/audio-video-ui`
@@ -1016,6 +1017,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Predecessors:** `media.dev.project-timeline-engine`, `media.dev.rights-and-policy`
 - **Additional progress (2026-11-07):** 2026-11-07 disclosure-authority expiry increment: VersionedReviewEngine.inspect now rejects a snapshot unless the freshly rechecked authority remains valid strictly after the snapshot observedAt. The advancing-clock regression passes; forced FULL source-composite VersionedReviewEngineTest passes 36/36 with no skips. Read disclosure only; owner-issued reviewer authority, canonical project-head CAS, runtime/UI wiring and genuine human approval remain open; approval stays NOT_ADMITTED.
 - **Coordinator progress (2026-11-07):** Disclosure-authority expiry increment: `inspect` rejects a snapshot unless authority remains valid strictly after `observedAt`; advancing-clock regression passes and FULL source-composite `VersionedReviewEngineTest` passes 36/36. Owner-issued authority, canonical project-head CAS, runtime/UI and genuine approval remain open; approval stays `NOT_ADMITTED`.
+- **Coordinator verification (2026-11-07):** The focused FULL source-composite `VersionedReviewEngineTest` passes 37/37, including the existing default-locale independence and authority-expiry cases. No source change was needed; owner-issued reviewer authority, canonical project-head CAS, runtime/UI wiring and genuine human approval remain open, with approval `NOT_ADMITTED`.
 
 **`media.dev.delivery-export-destination-ack`** · OPEN
 - **Where:** `modules/production/delivery`, `launcher`, `providers/aws-postgresql`
@@ -1051,6 +1053,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-07):** all 42 `MediaDeliveryEngineTest` cases passed in the module test task. No destination effect or authentic receipt was produced.
 - **Predecessors:** `media.dev.multitrack-composition-render`, `media.dev.versioned-review-and-approval`
 - **Coordinator progress (2026-11-07):** Dispatch-claim owner identity now uses the exact validator and the PostgreSQL store’s 255-character cap. Boundary coverage accepts 255 characters and rejects 256; `MediaDeliveryEngineTest` passes 42/42. This does not establish a signed transfer authority, real destination effect/receipt, or production PostgreSQL wiring.
+- **Additional progress (2026-11-07):** The public `DeliveryResult` now validates tenant, principal, request, artifact, immutable version, digest and destination fields with the same exact-scope validator as persisted operation records. A confirmed-result regression accepts a valid tuple and rejects a padded destination reference; the delivery module suite passes 45 tests. No destination effect was performed; signed authorization, authentic receipt/reconciliation, production store wiring and stale-fence enforcement remain open.
 
 **`media.dev.offline-reconnect`** · OPEN
 - **Where:** `modules/production/delivery`, `libs/audio-video-client`, `libs/audio-video-ui`
@@ -1075,6 +1078,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-07):** the focused offline/reconnect, scope, queue and IndexedDB suites pass 61/61 and client typecheck passes. No new code change: local queue bounds, encrypted v1/v2 compatibility, identity/CAS, pre-dispatch UNKNOWN, rights refresh and revoked/conflict no-replay are already covered. Production key custody, canonical project CAS, owner rights authority and durable effect readback remain open.
 - **Coordinator progress (2026-11-07):** Version readback scope, disposition, and version are now snapshotted once before validation/replay; a changing accessor returns `CONFLICT` with zero authorization and apply calls. `offline-reconnect.test.ts` passes 24/24 and client typecheck passes. Memory fixture only; canonical project CAS/effect integration, production key custody, owner rights authority and durable readback remain open.
 - **Predecessors:** `media.dev.sdk-canonical-migration`, `media.dev.project-timeline-engine`
+- **Coordinator re-audit (2026-11-07):** Focused offline queue, reconnect, scope and IndexedDB suites pass 62/62; client typecheck passes. No code change was justified: legacy v1 rows remain `OUTCOME_UNKNOWN` until confirmed CAS migration to v2, and existing tests cover failed migration CAS, tampered-state rejection and no blind replay. Production key custody, owner rights, canonical project CAS/effect integration and durable readback remain open.
 
 **`media.dev.spatial-and-interactive-export`** · OPEN
 - **Where:** `modules/production/spatial`, `modules/production/rendering`, `libs/audio-video-ui`
