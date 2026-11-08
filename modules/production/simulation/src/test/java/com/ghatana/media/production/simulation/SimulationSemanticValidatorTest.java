@@ -237,6 +237,32 @@ class SimulationSemanticValidatorTest {
                 firstBinding, first, binding(), result(), CURRENT_INPUTS).disposition())
                 .isEqualTo(SimulationSemanticValidator.Disposition.VALID);
 
+        var replayRun = new SimulationSemanticValidator.RunBinding("run-18", firstBinding.inputs(),
+                firstBinding.invariants(), firstBinding.expectedDuration());
+        assertThat(SimulationSemanticValidator.validateRepeatability(
+                firstBinding, first, replayRun, result(), CURRENT_INPUTS).disposition())
+                .isEqualTo(SimulationSemanticValidator.Disposition.VALID);
+
+        for (String invalidReplayRunId : List.of("run id", "x".repeat(129), "\u00a0run-18")) {
+            var invalidReplay = new SimulationSemanticValidator.RunBinding(invalidReplayRunId,
+                    firstBinding.inputs(), firstBinding.invariants(), firstBinding.expectedDuration());
+            var verifierCalls = new java.util.concurrent.atomic.AtomicInteger();
+            var invalidReplayValidation = SimulationSemanticValidator.validateRepeatability(
+                    firstBinding, first, invalidReplay, result(), input -> {
+                        verifierCalls.incrementAndGet();
+                        return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+                    });
+
+            assertThat(invalidReplayValidation.disposition())
+                    .isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+            assertThat(invalidReplayValidation.findings()).anySatisfy(finding -> {
+                assertThat(finding.reason())
+                        .isEqualTo(SimulationSemanticValidator.Reason.INCOMPLETE_INPUT_REFERENCES);
+                assertThat(finding.subject()).isEqualTo("runIdentity");
+            });
+            assertThat(verifierCalls).hasValue(0);
+        }
+
         var changedBinding = new SimulationSemanticValidator.RunBinding("run-17", firstBinding.inputs(),
                 firstBinding.invariants(), q(1, PhysicalSimulation.Unit.SECOND));
         assertThat(SimulationSemanticValidator.validateRepeatability(

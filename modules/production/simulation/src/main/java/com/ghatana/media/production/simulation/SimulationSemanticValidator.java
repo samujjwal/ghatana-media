@@ -276,7 +276,14 @@ public final class SimulationSemanticValidator {
         Objects.requireNonNull(first, "first");
         Objects.requireNonNull(replayBinding, "replayBinding");
         Objects.requireNonNull(replay, "replay");
-        if (!firstBinding.equals(replayBinding)) {
+        if (!replayBinding.runIdentity().matches(OPAQUE_RUN_ID)) {
+            return validation(Disposition.ABSTAIN, List.of(new Finding(Reason.INCOMPLETE_INPUT_REFERENCES,
+                    "runIdentity", "exact replay identity must be a canonical 1-128 character opaque ID")));
+        }
+        // A replay is a distinct run and therefore has its own run identity. The
+        // pass semantics must still match exactly: versioned inputs, invariants,
+        // and requested horizon.
+        if (!samePassSemantics(firstBinding, replayBinding)) {
             return validation(Disposition.ABSTAIN, List.of(new Finding(Reason.REPLAY_INPUTS_DIFFER,
                     "runBinding", "replay does not use the exact same versioned inputs and invariants")));
         }
@@ -285,6 +292,12 @@ public final class SimulationSemanticValidator {
                     "observations", "same versioned pass inputs produced different solver output")));
         }
         return validate(firstBinding, first, referenceVerifier);
+    }
+
+    private static boolean samePassSemantics(RunBinding first, RunBinding replay) {
+        return first.inputs().equals(replay.inputs())
+                && first.invariants().equals(replay.invariants())
+                && first.expectedDuration().equals(replay.expectedDuration());
     }
 
     private static PhysicalSimulation.Dimension dimension(Observable observable) {
