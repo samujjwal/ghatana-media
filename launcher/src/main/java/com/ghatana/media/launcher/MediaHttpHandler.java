@@ -20,6 +20,8 @@ import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -60,7 +62,11 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaRuntime runtime;
     private final MediaConsentAdministration consentAdministration;
     private final MediaCaptionRuntime captions;
-    private final ObjectMapper mapper = JsonMapper.builder().addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
+    private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .build())
+            .addModules(tools.jackson.databind.cfg.MapperBuilder.findModules())
+            .build();
 
     public MediaHttpHandler(MediaRuntime runtime) {
         this(runtime, null, null);

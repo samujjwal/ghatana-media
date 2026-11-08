@@ -382,6 +382,11 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
                                 .withDescription("Transcription was cancelled").asRuntimeException());
                     } catch (Exception e) {
                         if (observerCancelled.get() || isCancelled(responseObserver)) return;
+                        if (hasCause(e, java.util.concurrent.TimeoutException.class)) {
+                            tracedObserver.onError(io.grpc.Status.DEADLINE_EXCEEDED
+                                    .withDescription("Transcription timed out").asRuntimeException());
+                            return;
+                        }
                         LOG.error("STT transcription failed failureType={}", failureType(e));
                         tracedObserver.onError(io.grpc.Status.INTERNAL
                                 .withDescription("Internal error").asRuntimeException());
@@ -947,7 +952,21 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
 
     private static String failureType(Throwable error) {
         Throwable cause = error;
-        while (cause.getCause() != null && cause.getCause() != cause) cause = cause.getCause();
+        java.util.Set<Throwable> visited = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        visited.add(cause);
+        while (true) {
+            Throwable next = cause.getCause();
+            if (next == null || !visited.add(next)) break;
+            cause = next;
+        }
         return cause.getClass().getSimpleName();
+    }
+
+    private static boolean hasCause(Throwable error, Class<? extends Throwable> expectedType) {
+        java.util.Set<Throwable> visited = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (Throwable cause = error; cause != null && visited.add(cause); cause = cause.getCause()) {
+            if (expectedType.isInstance(cause)) return true;
+        }
+        return false;
     }
 }

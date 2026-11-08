@@ -207,6 +207,38 @@ class MediaHttpUploadJourneyTest {
         }
     }
 
+    @Test
+    void duplicateJsonPropertiesAreRejectedBeforeUploadCreation() throws Exception {
+        Path root = Files.createTempDirectory("media-http-upload-duplicate-json-");
+        MediaRuntime runtime = runtime(root);
+        HttpServer server = null;
+        try {
+            server = server(runtime);
+            String body = "{\"tenantId\":\"other-tenant\",\"tenantId\":\"" + TENANT
+                    + "\",\"principalId\":\"" + PRINCIPAL
+                    + "\",\"fileName\":\"source.wav\",\"contentType\":\"audio/wav\","
+                    + "\"expectedSizeBytes\":1,\"expectedSha256\":\""
+                    + sha256("x".getBytes(StandardCharsets.UTF_8))
+                    + "\",\"classification\":\"INTERNAL\",\"retention\":\"PT10M\",\"metadata\":{}}";
+
+            HttpResponse<String> response = send(base(server), "POST", "/api/v1/artifacts/uploads",
+                    body.getBytes(StandardCharsets.UTF_8), PRINCIPAL, PERMISSIONS, "application/json",
+                    "duplicate-json-key");
+
+            assertThat(response.statusCode()).as(response.body()).isEqualTo(400);
+            assertThat(response.body()).contains("INVALID_REQUEST");
+            try (var uploadFiles = Files.list(root.resolve("uploads"))) {
+                assertThat(uploadFiles.count()).isZero();
+            }
+        } finally {
+            if (server != null) server.stop(0);
+            runtime.close();
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
+
     private static MediaRuntime runtime(Path root) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(true, "test", 8093, 1_024, 128, 1_024,

@@ -149,6 +149,24 @@ class MediaPublicLifecycleEventTest {
     }
 
     @Test
+    void payloadParserAcceptsOnlyExactlyRepresentableFloatAggregateVersions() {
+        var payload = new java.util.LinkedHashMap<>(MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload());
+        payload.put("aggregateVersion", 3.0f);
+        assertThat(MediaPublicLifecycleEvent.fromPayload(payload).aggregateVersion()).isEqualTo(3L);
+
+        payload.put("aggregateVersion", 3.5f);
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must be an integer");
+
+        payload.put("aggregateVersion", 16_777_216f);
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("decoded exactly");
+    }
+
+    @Test
     void publicSchemaPinsVersionEventNamesRedactedIdentifiersAndNonfinalAppendAbi() throws Exception {
         try (InputStream input = getClass().getResourceAsStream("/contracts/media-public-lifecycle-event-v1.schema.json")) {
             assertThat(input).isNotNull();

@@ -62,6 +62,9 @@ no standalone entrypoint — consumers wire them through
   runtime event names. Stable HMAC aliases are purpose-separated; raw event,
   tenant, principal, correlation, causation and aggregate IDs are not placed
   in its payload. The alias key must be supplied and protected by the host.
+- The public lifecycle parser accepts exact integral numeric representations
+  for `aggregateVersion`, including bounded `Float` values, and rejects
+  fractional or ambiguous values without rounding.
 - Every event append is `NON_FINAL_APPEND`, including terminal-shaped job
   events. Consumers must separately perform authorized terminal job readback;
   event publication/consumption is not provider-effect, job-finality, or

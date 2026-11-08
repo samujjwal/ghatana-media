@@ -519,6 +519,48 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("transcribe: provider timeout → DEADLINE_EXCEEDED gRPC error")
+    void transcribe_timeout_returnsDeadlineExceeded() {
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class)))
+                .thenThrow(new IllegalStateException("provider wrapper",
+                        new java.util.concurrent.TimeoutException("provider timeout details")));
+
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
+                .setSampleRate(16_000)
+                .build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.DEADLINE_EXCEEDED.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Transcription timed out");
+        assertThat(failure.getStatus().getDescription()).doesNotContain("provider timeout details");
+    }
+
+    @Test
+    @DisplayName("transcribe: cyclic provider cause chain remains sanitized and bounded")
+    void transcribe_cyclicCauseChain_returnsSanitizedInternalError() {
+        RuntimeException outer = new RuntimeException("private outer detail");
+        RuntimeException inner = new RuntimeException("private inner detail");
+        outer.initCause(inner);
+        inner.initCause(outer);
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenThrow(outer);
+
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        service.transcribe(TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
+                .setSampleRate(16_000)
+                .build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.INTERNAL.getCode());
+        assertThat(failure.getStatus().getDescription()).isEqualTo("Internal error");
+        assertThat(failure.getStatus().getDescription()).doesNotContain("private");
+    }
+
+    @Test
     @DisplayName("transcribe: omitted sample rate is rejected without provider dispatch")
     void transcribe_omittedSampleRate_returnsInvalidArgument() {
         TranscribeRequest request = TranscribeRequest.newBuilder() 

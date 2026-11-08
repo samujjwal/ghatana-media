@@ -78,6 +78,8 @@ and stable terminal reads — **no second writer**.
 
 `MediaErrorCode` typed taxonomy over HTTP; admission denials are explicit
 (`NOT_ADMITTED`-class), never silent fallbacks.
+Inbound JSON uses strict duplicate-member detection, so ambiguous fields such
+as repeated tenant identity are rejected before upload persistence.
 
 ## Tests and commands
 

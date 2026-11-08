@@ -50,6 +50,8 @@ provider; no live provider or model-quality qualification is claimed.
 
 Provider-mode/profile/digest failures reject before bind; RPC-level
 rejections are typed (`FAILED_PRECONDITION`-class), not silent.
+Wrapped provider `TimeoutException` values map to sanitized gRPC
+`DEADLINE_EXCEEDED`; provider exception details are not returned to callers.
 
 ## Tests and commands
 

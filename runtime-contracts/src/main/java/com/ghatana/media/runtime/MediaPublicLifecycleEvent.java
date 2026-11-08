@@ -39,6 +39,7 @@ public record MediaPublicLifecycleEvent(
     private static final java.util.regex.Pattern REDACTED_ID =
             java.util.regex.Pattern.compile("^r1_[0-9a-f]{64}$");
     private static final double MAX_SAFE_JSON_DOUBLE_INTEGER = 9_007_199_254_740_991d;
+    private static final float MAX_SAFE_JSON_FLOAT_INTEGER = 16_777_215f;
 
     public enum AppendFinality { NON_FINAL_APPEND }
 
@@ -170,6 +171,15 @@ public record MediaPublicLifecycleEvent(
                 throw new IllegalArgumentException("aggregateVersion must be an integer");
             }
             if (Math.abs(floating) > MAX_SAFE_JSON_DOUBLE_INTEGER) {
+                throw new IllegalArgumentException("aggregateVersion cannot be decoded exactly");
+            }
+            return floating.longValue();
+        }
+        if (version instanceof Float floating) {
+            if (!Float.isFinite(floating) || floating != Math.rint(floating)) {
+                throw new IllegalArgumentException("aggregateVersion must be an integer");
+            }
+            if (Math.abs(floating) > MAX_SAFE_JSON_FLOAT_INTEGER) {
                 throw new IllegalArgumentException("aggregateVersion cannot be decoded exactly");
             }
             return floating.longValue();
