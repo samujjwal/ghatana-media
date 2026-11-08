@@ -791,6 +791,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **How:** Distinguish simulation physics from visual animation, fail or ABSTAIN when model/units/constraints unavailable; version all pass inputs.
 - **Test/exit:** Unstable solver, incompatible units, incomplete references, repeatability and no fabricated measurement.
 - **Additional progress (2026-11-07):** 2026-11-07 exact-reference increment: SimulationSemanticValidator now enforces the PDP-1 1–128 character opaque runId grammar and rejects ASCII/Unicode edge whitespace on exact identity/version references without normalizing them. Invalid inputs ABSTAIN before owner reference verification. The focused FULL source-composite SimulationSemanticValidatorTest passes 15/15. Deterministic simulation evidence only; J-15 source refs, hosted rights/job binding and measurement qualification remain open.
+- **Coordinator progress (2026-11-07):** Repeatability comparison now treats `runIdentity` as the distinct identity of each run and compares exact versioned inputs, declared invariants and horizon. A replay ID outside the existing opaque-ID grammar abstains before owner-reference reads. `SimulationSemanticValidatorTest` and the simulation module pass (29 tests); this remains deterministic simulation evidence, not scientific validation or measurement.
 
 - **Predecessors:** `media.dev.scientific-simulation-engine`
 
@@ -1114,6 +1115,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-07):** 2026-11-07 safe-clock increment: manifest scene/caption times, seek/progress positions, and caption lookup now require nonnegative safe-integer milliseconds, matching the range control and reducer clock. Fractional and unsafe integer regressions are covered; `pnpm test:interactive-demo-player-state` passes 13/13 and `git diff --check` passes. `pnpm --filter @audio-video/ui check` stops before typecheck because `tsc` and package `node_modules` are absent. React/browser behavior, live-output fidelity, and host qualification remain open; task remains OPEN.
 - **Predecessors:** `media.dev.web-host`, `media.dev.explorer-fidelity`
 - **Coordinator progress (2026-11-07):** Cross-origin credential increment: explicitly permitted external video assets use anonymous CORS so read permission does not forward ambient host credentials. State suite passes 13/13 and diff checks pass; focused React UI test/typecheck could not run because `vitest/config`, `tsc` and UI dependencies are missing. Browser, live output and host qualification remain open.
+- **Coordinator progress (2026-11-07):** Same-scene replay clears mounted-video readiness only when a rewind is needed and waits for `seeked` before re-enabling Play; a video already confirmed at its start keeps readiness without relying on a possibly absent event. The player-state suite passes 13/13. A React regression is added but remains unrun because `vitest/config`/UI dependencies are missing; browser, live-output and host qualification remain open.
 
 **`media.dev.production-studio-host`** · OPEN
 - **Where:** `libs/audio-video-ui`, `launcher`
