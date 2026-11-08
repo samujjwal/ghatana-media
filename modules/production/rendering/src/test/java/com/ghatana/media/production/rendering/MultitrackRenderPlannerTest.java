@@ -287,6 +287,29 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void planFrameMapUsesCanonicalManifestClipAndFrameOrder() {
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var end = new MultitrackRenderPlanner.Time(1, 1);
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("z-clip", start, List.of(start, end)),
+                        video("a-clip", start, List.of(start, end))),
+                List.of(), List.of(), 1_000);
+
+        var plan = MultitrackRenderPlanner.plan(graph).plan();
+        var readBack = new MultitrackRenderPlanner.Plan(plan.capabilityId(), plan.canonicalManifest(),
+                plan.manifestSha256(), plan.duration(), List.of(
+                        plan.frameMap().get(2), plan.frameMap().get(3),
+                        plan.frameMap().get(0), plan.frameMap().get(1)),
+                plan.declaredOutputBudgetBytes());
+
+        assertThat(plan.frameMap()).extracting(MultitrackRenderPlanner.MappedFrame::clipId)
+                .containsExactly("a-clip", "a-clip", "z-clip", "z-clip");
+        assertThat(plan.frameMap()).extracting(MultitrackRenderPlanner.MappedFrame::frameIndex)
+                .containsExactly(0, 1, 0, 1);
+        assertThat(readBack.frameMap()).containsExactlyElementsOf(plan.frameMap());
+    }
+
+    @Test
     void preservesSignedSourcePtsAcrossCanonicalPlanReadback() {
         var sourceOrigin = new MultitrackRenderPlanner.Time(Long.MIN_VALUE, 1);
         var sourcePts = List.of(sourceOrigin,

@@ -363,6 +363,47 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactRejectsLineageThatDisagreesWithEmbeddedManifest() {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var otherSource = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-other", "version-1");
+        var rig = new SpatialRigEngine.Rig("rig-lineage", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)), Map.of(),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifactWithLineage(artifact,
+                "project:edit:revision-9", artifact.frameRef(), artifact.frameVersionRef(), List.of(source)))
+                .withMessageContaining("lineage");
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifactWithLineage(artifact,
+                artifact.sourceProjectRevisionRef(), "frame-other", artifact.frameVersionRef(), List.of(source)))
+                .withMessageContaining("lineage");
+        assertThatIllegalArgumentException().isThrownBy(() -> copyArtifactWithLineage(artifact,
+                artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(), List.of(otherSource)))
+                .withMessageContaining("source versions");
+    }
+
+    @Test
+    void publicGlbArtifactRejectsDuplicateLineageJsonKeys() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-duplicate", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)), Map.of(),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        String json = readGlbJson(artifact.bytes());
+        String duplicate = json.replace("\"rigId\":\"rig-duplicate\"",
+                "\"rigId\":\"rig-other\",\"rigId\":\"rig-duplicate\"");
+        assertThat(duplicate).isNotEqualTo(json);
+        byte[] ambiguous = replaceGlbJson(artifact.bytes(), duplicate);
+        String matchingDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(ambiguous));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                matchingDigest, ambiguous))
+                .withMessageContaining("manifest is invalid");
+    }
+
+    @Test
     void publicGlbArtifactRejectsMalformedUtf8InJsonChunkEvenWhenDigestMatches() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-utf8", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
@@ -381,11 +422,47 @@ class SpatialRigEngineTest {
                 .withMessageContaining("valid UTF-8");
     }
 
+    private static String readGlbJson(byte[] glb) {
+        ByteBuffer input = ByteBuffer.wrap(glb).order(ByteOrder.LITTLE_ENDIAN);
+        input.position(12);
+        int jsonLength = input.getInt();
+        assertThat(input.getInt()).isEqualTo(0x4e4f534a);
+        byte[] jsonBytes = new byte[jsonLength];
+        input.get(jsonBytes);
+        return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(jsonBytes)).toString().stripTrailing();
+    }
+
+    private static byte[] replaceGlbJson(byte[] glb, String json) {
+        ByteBuffer input = ByteBuffer.wrap(glb).order(ByteOrder.LITTLE_ENDIAN);
+        input.position(12);
+        int oldJsonLength = input.getInt();
+        int jsonType = input.getInt();
+        int oldJsonEnd = 20 + oldJsonLength;
+        byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+        int paddedJsonLength = (jsonBytes.length + 3) & ~3;
+        int trailingLength = glb.length - oldJsonEnd;
+        int totalLength = 20 + paddedJsonLength + trailingLength;
+        ByteBuffer output = ByteBuffer.allocate(totalLength).order(ByteOrder.LITTLE_ENDIAN);
+        output.putInt(0x46546c67).putInt(2).putInt(totalLength);
+        output.putInt(paddedJsonLength).putInt(jsonType).put(jsonBytes);
+        while (output.position() % 4 != 0) output.put((byte) 0x20);
+        output.put(glb, oldJsonEnd, trailingLength);
+        return output.array();
+    }
+
     private static SpatialRigEngine.GlbArtifact copyArtifact(SpatialRigEngine.GlbArtifact source,
             List<SpatialRigEngine.SourceVersionRef> sourceVersions, byte[] bytes) {
         return new SpatialRigEngine.GlbArtifact(source.rigId(), source.sourceProjectRevisionRef(),
                 source.frameRef(), source.frameVersionRef(), sourceVersions, source.mimeType(),
                 source.timeEncoding(), source.lossDisposition(), source.sha256(), bytes);
+    }
+
+    private static SpatialRigEngine.GlbArtifact copyArtifactWithLineage(SpatialRigEngine.GlbArtifact source,
+            String revisionRef, String frameRef, String frameVersionRef,
+            List<SpatialRigEngine.SourceVersionRef> sourceVersions) {
+        return new SpatialRigEngine.GlbArtifact(source.rigId(), revisionRef, frameRef, frameVersionRef,
+                sourceVersions, source.mimeType(), source.timeEncoding(), source.lossDisposition(),
+                source.sha256(), source.bytes());
     }
 
     @Test

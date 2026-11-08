@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.jackson.databind)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
-    testImplementation(libs.jackson.databind)
 }
 
 tasks.test { useJUnitPlatform() }

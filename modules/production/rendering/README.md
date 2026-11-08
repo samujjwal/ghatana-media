@@ -69,6 +69,15 @@ not general real-image/video quality.
   references are validated; external currentness and access authority remain
   injected host responsibilities.
 
+## Multitrack composition plan
+
+`MultitrackRenderPlanner` validates a bounded local composition graph and emits
+a canonical manifest with exact rational time mappings. Its public plan frame
+map follows canonical clip-ID and per-clip frame-index order, including when a
+caller reconstructs a plan from a rehashed manifest. This is planning metadata:
+the module does not encode or mux a playable output, bind a canonical project
+revision, or establish rights, codec admission, or durable readback.
+
 ## Tests
 
 ```bash

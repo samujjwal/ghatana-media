@@ -268,7 +268,7 @@ public final class StoryboardPlanner {
                 }
             }
             List<SourceVersion> expectedSources = collectSources(brief, scenes);
-            if (!expectedSources.equals(canonicalSources(exactSources))) {
+            if (!expectedSources.equals(canonicalSources(exactSources, MAX_TOTAL_SOURCE_REFERENCES))) {
                 throw new IllegalArgumentException("plan source set must preserve every exact brief and shot reference");
             }
             exactSources = expectedSources;
@@ -393,7 +393,7 @@ public final class StoryboardPlanner {
                 appendBoundedSources(references, shot.exactSources());
             }
         }
-        return canonicalSources(references);
+        return canonicalSources(references, MAX_TOTAL_SOURCE_REFERENCES);
     }
 
     private static void appendBoundedSources(List<SourceVersion> aggregate, List<SourceVersion> references) {
@@ -407,12 +407,17 @@ public final class StoryboardPlanner {
     }
 
     private static List<SourceVersion> canonicalSources(List<SourceVersion> sources) {
+        return canonicalSources(sources, MAX_SOURCES_PER_COLLECTION);
+    }
+
+    /** Canonicalize a plan-wide set using its separate aggregate safety ceiling. */
+    private static List<SourceVersion> canonicalSources(List<SourceVersion> sources, int maximum) {
         if (sources == null) return List.of();
         Iterator<SourceVersion> iterator = sources.iterator();
         List<SourceVersion> snapshot = new ArrayList<>();
         while (iterator.hasNext()) {
-            if (snapshot.size() == MAX_SOURCES_PER_COLLECTION) {
-                throw new IllegalArgumentException("source references exceed the 4096-item safety limit");
+            if (snapshot.size() == maximum) {
+                throw new IllegalArgumentException("source references exceed the " + maximum + "-item safety limit");
             }
             snapshot.add(Objects.requireNonNull(iterator.next(), "source reference"));
         }

@@ -7,9 +7,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -333,6 +335,13 @@ public final class ReferenceGuidedScenePlanner {
     private static List<BoundSource> canonicalSources(List<BoundSource> values, int maximum) {
         if (values == null) return List.of();
         List<BoundSource> bounded = boundedCopy(values, maximum, "source count", "source");
+        Map<SourceVersion, String> digestByVersion = new HashMap<>();
+        for (BoundSource source : bounded) {
+            String priorDigest = digestByVersion.putIfAbsent(source.source(), source.sha256());
+            if (priorDigest != null && !priorDigest.equals(source.sha256())) {
+                throw new IllegalArgumentException("conflicting SHA-256 values for one immutable source version");
+            }
+        }
         return bounded.stream().distinct()
                 .sorted(Comparator.comparing((BoundSource s) -> s.source().artifactId())
                         .thenComparing(s -> s.source().artifactVersionId()).thenComparing(BoundSource::role)

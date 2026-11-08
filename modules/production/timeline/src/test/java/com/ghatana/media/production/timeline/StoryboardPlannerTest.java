@@ -122,6 +122,27 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void publicPlanBoundaryAllowsAggregateSourcesAcrossMultipleBoundedCollections() {
+        List<SourceVersion> briefSources = sourceRange("brief", 3_000);
+        List<SourceVersion> shotSources = sourceRange("shot", 3_000);
+        StoryboardPlanner.AuthoredBrief brief = new StoryboardPlanner.AuthoredBrief(
+                "brief-aggregate", "b1", "personal-project", "An authored story", briefSources);
+        StoryboardPlanner.PlannedShot shot = new StoryboardPlanner.PlannedShot(
+                "shot-aggregate", 0, "shot intent", story(0), story(1), shotSources);
+        StoryboardPlanner.PlannedScene scene = new StoryboardPlanner.PlannedScene(
+                "scene-aggregate", 0, "scene intent", story(0), story(2), List.of(shot));
+        List<SourceVersion> aggregateSources = new java.util.ArrayList<>(briefSources);
+        aggregateSources.addAll(shotSources);
+
+        StoryboardPlanner.ScenePlan plan = new StoryboardPlanner.ScenePlan("tenant-a", "principal-a",
+                "project-aggregate", "plan-aggregate", "v1", "head-aggregate", brief, List.of(scene),
+                aggregateSources, StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE);
+
+        assertThat(plan.exactSources()).hasSize(6_000);
+        assertThat(plan.exactSources()).containsAll(briefSources).containsAll(shotSources);
+    }
+
+    @Test
     void reviewIsASeparateImmutableReceiptForTheExactSavedEditionAndRechecksRights() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
@@ -723,6 +744,12 @@ class StoryboardPlannerTest {
 
     private static StoryboardPlanner.AuthoredBrief brief(List<SourceVersion> refs) {
         return new StoryboardPlanner.AuthoredBrief("brief-1", "b1", "personal-project", "An authored story", refs);
+    }
+
+    private static List<SourceVersion> sourceRange(String prefix, int count) {
+        return java.util.stream.IntStream.range(0, count)
+                .mapToObj(index -> new SourceVersion(prefix + "-source-" + index, "version-1"))
+                .toList();
     }
 
     private static StoryboardPlanner.ScenePlan directPlan(List<StoryboardPlanner.PlannedScene> scenes) {

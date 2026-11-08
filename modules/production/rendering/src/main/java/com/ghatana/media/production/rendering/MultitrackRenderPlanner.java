@@ -179,6 +179,10 @@ public final class MultitrackRenderPlanner {
         public Plan {
             frameMap = boundedCopy(frameMap, MAX_FRAMES_PER_PLAN, "frameMap",
                     "plan frame map exceeds limit");
+            frameMap = frameMap.stream()
+                    .sorted(java.util.Comparator.comparing(MappedFrame::clipId)
+                            .thenComparingInt(MappedFrame::frameIndex))
+                    .toList();
             if (frameMap.isEmpty()) throw invalid("plan frame map must contain at least one mapped frame");
             if (declaredOutputBudgetBytes <= 0 || declaredOutputBudgetBytes > MAX_DECLARED_OUTPUT_BYTES) {
                 throw invalid("declared output budget must be within 1.." + MAX_DECLARED_OUTPUT_BYTES + " bytes");

@@ -13,6 +13,11 @@ The local graph binds every clip to an exact artifact version and keeps source
 presentation time separate from story time. Rational tick rates are reduced,
 comparisons and additions use integer arithmetic, and clip end times that cannot
 be represented exactly within the bounded rational contract are rejected.
+Project creation validates the PDP-1 required title before storage: nonblank,
+with a maximum of 200 Unicode code points. Invalid titles are rejected before
+the PostgreSQL store creates either a project or an idempotency receipt. This
+input check does not resolve the project-revision-to-graph mapping or establish
+production writer admission.
 Graph snapshots are immutable and
 canonicalized by declared scene, track, and story-time order. Edits produce a
 new revision with a parent pointer; the CAS head check prevents stale writes.

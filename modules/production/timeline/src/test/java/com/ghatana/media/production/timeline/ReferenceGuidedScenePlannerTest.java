@@ -234,6 +234,23 @@ class ReferenceGuidedScenePlannerTest {
     }
 
     @Test
+    void oneImmutableSourceVersionCannotCarryConflictingDigestsAcrossRoles() {
+        Authority authority = new Authority();
+        var planner = planner(authority, unavailableProvider());
+        var conflictingPrompt = new ReferenceGuidedScenePlanner.Prompt("A quiet harbor at dawn",
+                source("authored-prompt", IMAGE_VERSION, D2));
+        var request = new ReferenceGuidedScenePlanner.Request("project-1", "scene-1", "head-12",
+                "source-conditioned-scene", 42, conflictingPrompt,
+                List.of(source("reference-image", IMAGE_VERSION, D3)),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue"))));
+
+        assertThatThrownBy(() -> planner.prepare(ACTOR, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("conflicting SHA-256");
+        assertThat(authority.observed).isEmpty();
+    }
+
+    @Test
     void oversizedCandidateInputsAreRejectedBeforeAuthorityInspection() {
         Authority authority = new Authority();
         var planner = planner(authority, unavailableProvider());

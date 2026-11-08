@@ -19,6 +19,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Predicate;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /** Bounded immutable skeleton evaluation and explicitly declared coordinate re-expression. */
 public final class SpatialRigEngine {
@@ -33,6 +37,8 @@ public final class SpatialRigEngine {
     public static final String GLB_QUATERNION_UNIT_REF = "urn:media:spatial:orientation:unit-quaternion-xyzw:v1";
     private static final List<String> GLB_FLOAT32_LOSS_FIELDS = List.of(
             "animation.inputTimeSeconds", "animation.outputTranslation", "animation.outputRotation");
+    private static final ObjectMapper GLB_JSON_MAPPER = new ObjectMapper(JsonFactory.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build());
     private static final double EPSILON = 1e-10;
 
     public enum Handedness { RIGHT_HANDED, LEFT_HANDED }
@@ -295,6 +301,7 @@ public final class SpatialRigEngine {
             if (bytes.length > MAX_GLB_BYTES) throw new IllegalArgumentException("GLB artifact exceeds byte ceiling");
             bytes = bytes.clone();
             validateGlbContainer(bytes);
+            validateGlbLineage(rigId, sourceProjectRevisionRef, frameRef, frameVersionRef, sourceVersions, bytes);
             sha256 = Objects.requireNonNull(sha256, "sha256").toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches("^[a-f0-9]{64}$") || !SpatialRigEngine.sha256(bytes).equals(sha256)) {
                 throw new IllegalArgumentException("GLB artifact SHA-256 does not match its bytes");
@@ -701,6 +708,45 @@ public final class SpatialRigEngine {
             }
             input.position((int) chunkEnd);
             chunkIndex++;
+        }
+    }
+
+    /** Keeps the public artifact identity bound to the source manifest embedded in its GLB JSON. */
+    private static void validateGlbLineage(String rigId, String revisionRef, String frameRef,
+            String frameVersionRef, List<SourceVersionRef> sourceVersions, byte[] bytes) {
+        ByteBuffer input = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        input.position(12);
+        int jsonLength = input.getInt();
+        input.getInt(); // Leading JSON chunk type was checked by validateGlbContainer.
+        byte[] jsonBytes = new byte[jsonLength];
+        input.get(jsonBytes);
+        final JsonNode metadata;
+        try {
+            metadata = GLB_JSON_MAPPER.readTree(jsonBytes).path("extras").path("mediaSpatial");
+        } catch (RuntimeException malformedJson) {
+            throw new IllegalArgumentException("GLB spatial lineage manifest is invalid", malformedJson);
+        }
+        if (!rigId.equals(metadata.path("rigId").asString())
+                || !revisionRef.equals(metadata.path("sourceProjectRevisionRef").asString())
+                || !frameRef.equals(metadata.path("frameRef").asString())
+                || !frameVersionRef.equals(metadata.path("frameVersionRef").asString())) {
+            throw new IllegalArgumentException("GLB spatial lineage does not match artifact identity");
+        }
+        JsonNode embeddedSources = metadata.path("sourceVersions");
+        if (!embeddedSources.isArray() || embeddedSources.size() != sourceVersions.size()) {
+            throw new IllegalArgumentException("GLB spatial source versions do not match artifact lineage");
+        }
+        HashSet<SourceVersionRef> embedded = new HashSet<>();
+        for (JsonNode source : embeddedSources) {
+            if (!source.isObject() || !source.path("tenantId").isString()
+                    || !source.path("artifactId").isString() || !source.path("versionId").isString()) {
+                throw new IllegalArgumentException("GLB spatial source-version manifest is malformed");
+            }
+            embedded.add(new SourceVersionRef(source.path("tenantId").asString(),
+                    source.path("artifactId").asString(), source.path("versionId").asString()));
+        }
+        if (embedded.size() != embeddedSources.size() || !embedded.equals(new HashSet<>(sourceVersions))) {
+            throw new IllegalArgumentException("GLB spatial source versions do not match artifact lineage");
         }
     }
 
