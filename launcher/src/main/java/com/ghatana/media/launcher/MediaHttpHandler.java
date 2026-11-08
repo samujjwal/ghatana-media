@@ -576,6 +576,9 @@ public final class MediaHttpHandler implements HttpHandler {
             }
         }
         if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " query parameter is required");
+        if (value.codePointCount(0, value.length()) > 256) {
+            throw new IllegalArgumentException(name + " query parameter exceeds 256 characters");
+        }
         return value;
     }
 

@@ -56,16 +56,22 @@ class MediaHttpCaptionVersionReadTest {
                     "/api/v1/caption-versions?sourceArtifactId=source+one&sourceArtifactVersionId=version+one");
             ExchangeResult escapedPlus = request(handler,
                     "/api/v1/caption-versions?sourceArtifactId=source%2Bone&sourceArtifactVersionId=version%2Bone");
+            String maximumSourceId = "s".repeat(256);
+            String maximumVersionId = "v".repeat(256);
+            ExchangeResult maximumLength = request(handler,
+                    "/api/v1/caption-versions?sourceArtifactId=" + maximumSourceId
+                            + "&sourceArtifactVersionId=" + maximumVersionId);
 
             assertThat(rawPlus.status()).as(rawPlus.body()).isEqualTo(200);
             assertThat(escapedPlus.status()).as(escapedPlus.body()).isEqualTo(200);
+            assertThat(maximumLength.status()).as(maximumLength.body()).isEqualTo(200);
             org.mockito.ArgumentCaptor<String> artifactIds = org.mockito.ArgumentCaptor.forClass(String.class);
             org.mockito.ArgumentCaptor<String> versionIds = org.mockito.ArgumentCaptor.forClass(String.class);
-            org.mockito.Mockito.verify(captionStore, org.mockito.Mockito.times(2))
+            org.mockito.Mockito.verify(captionStore, org.mockito.Mockito.times(3))
                     .versions(org.mockito.ArgumentMatchers.eq("tenant-a"),
                             org.mockito.ArgumentMatchers.eq("principal-a"), artifactIds.capture(), versionIds.capture());
-            assertThat(artifactIds.getAllValues()).containsExactly("source+one", "source+one");
-            assertThat(versionIds.getAllValues()).containsExactly("version+one", "version+one");
+            assertThat(artifactIds.getAllValues()).containsExactly("source+one", "source+one", maximumSourceId);
+            assertThat(versionIds.getAllValues()).containsExactly("version+one", "version+one", maximumVersionId);
         } finally {
             captions.close();
             runtime.close();
@@ -101,6 +107,45 @@ class MediaHttpCaptionVersionReadTest {
                             + "&sourceArtifactVersionId=version-a");
 
             assertThat(result.status()).as(result.body()).isEqualTo(400);
+            org.mockito.Mockito.verify(captionStore, org.mockito.Mockito.never())
+                    .versions(anyString(), anyString(), anyString(), anyString());
+        } finally {
+            captions.close();
+            runtime.close();
+            try (var paths = Files.walk(root)) {
+                for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
+    @Test
+    void captionVersionReadRejectsSourceIdentityLongerThanOpenApiMaximumBeforeStoreAccess() throws Exception {
+        var root = Files.createTempDirectory("media-caption-version-read-too-long-");
+        MediaRuntime runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "test", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaCaptionStore captionStore = mock(MediaCaptionStore.class);
+        when(captionStore.ready()).thenReturn(true);
+        MediaSourceRightsAdministration rights = mock(MediaSourceRightsAdministration.class);
+        when(rights.ready()).thenReturn(true);
+        MediaCaptionRuntime captions = new MediaCaptionRuntime(captionStore, rights, null, CLOCK);
+
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, null, captions);
+            String oversizedId = "a".repeat(257);
+            ExchangeResult result = request(handler,
+                    "/api/v1/caption-versions?sourceArtifactId=" + oversizedId
+                            + "&sourceArtifactVersionId=version-a");
+
+            assertThat(result.status()).as(result.body()).isEqualTo(400);
+            assertThat(result.body()).contains("INVALID_REQUEST");
             org.mockito.Mockito.verify(captionStore, org.mockito.Mockito.never())
                     .versions(anyString(), anyString(), anyString(), anyString());
         } finally {
