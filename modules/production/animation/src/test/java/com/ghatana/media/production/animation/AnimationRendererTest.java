@@ -97,6 +97,20 @@ class AnimationRendererTest {
     }
 
     @Test
+    void samplesEaseOutAndEaseInOutAtTheirDefinedGoldenCurvePoints() {
+        var easeOut = List.of(
+                new AnimationRenderer.Keyframe(0, 0, 0, 1, 1, 0, 1, AnimationRenderer.Easing.EASE_OUT),
+                new AnimationRenderer.Keyframe(8, 8, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR));
+        var easeInOut = List.of(
+                new AnimationRenderer.Keyframe(0, 0, 0, 1, 1, 0, 1, AnimationRenderer.Easing.EASE_IN_OUT),
+                new AnimationRenderer.Keyframe(8, 8, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR));
+
+        assertThat(AnimationRenderer.sample(easeOut, 2).x()).isEqualTo(3.5);
+        assertThat(AnimationRenderer.sample(easeInOut, 2).x()).isEqualTo(1.0);
+        assertThat(AnimationRenderer.sample(easeInOut, 6).x()).isEqualTo(7.0);
+    }
+
+    @Test
     void publicSamplerBoundsActualKeyframeIteration() {
         var key = new AnimationRenderer.Keyframe(0, 7, 0, 1, 1, 0, 1, AnimationRenderer.Easing.LINEAR);
         assertThatThrownBy(() -> AnimationRenderer.sample(
