@@ -709,17 +709,25 @@ public final class AnimationRenderer {
         BufferedImage image = assetsById.get(shape.assetId());
         if (image == null) throw new IllegalArgumentException("unresolved raster asset: " + shape.assetId());
         AffineTransform old = graphics.getTransform();
+        java.awt.Shape oldClip = graphics.getClip();
         java.awt.Composite oldComposite = graphics.getComposite();
         Object oldInterpolation = graphics.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
         try {
-            graphics.translate(shape.x() + value.x(), shape.y() + value.y());
-            graphics.rotate(Math.toRadians(value.rotationDegrees()), shape.width() / 2.0, shape.height() / 2.0);
+            double centerX = shape.x() + shape.width() / 2.0;
+            double centerY = shape.y() + shape.height() / 2.0;
+            graphics.translate(centerX + value.x(), centerY + value.y());
+            graphics.rotate(Math.toRadians(value.rotationDegrees()));
             graphics.scale(value.scaleX(), value.scaleY());
+            graphics.translate(-shape.width() / 2.0, -shape.height() / 2.0);
+            graphics.clip(new Rectangle2D.Double(0, 0, shape.width(), shape.height()));
             graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) value.opacity()));
-            graphics.drawImage(image, 0, 0, (int) Math.ceil(shape.width()), (int) Math.ceil(shape.height()), null);
+            AffineTransform assetScale = AffineTransform.getScaleInstance(
+                    shape.width() / image.getWidth(), shape.height() / image.getHeight());
+            graphics.drawImage(image, assetScale, null);
         } finally {
             graphics.setTransform(old);
+            graphics.setClip(oldClip);
             graphics.setComposite(oldComposite);
             if (oldInterpolation != null) graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterpolation);
         }

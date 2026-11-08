@@ -338,6 +338,65 @@ class AnimationRendererTest {
     }
 
     @Test
+    void rasterAndVectorShapesApplyTheSameCenterBasedKeyframeTransform() throws Exception {
+        var keyframes = List.of(new AnimationRenderer.Keyframe(0, 0, 0, 2, 1, 0, 1,
+                AnimationRenderer.Easing.LINEAR));
+        var vector = new AnimationRenderer.Shape("vector", AnimationRenderer.Primitive.RECTANGLE,
+                2, 1, 2, 2, 0, 0xffff0000, keyframes);
+        var asset = new AnimationRenderer.RasterAsset("red", 2, 2, new int[] {
+                0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000
+        });
+        var raster = new AnimationRenderer.Shape("raster", AnimationRenderer.Primitive.RASTER_ASSET,
+                2, 1, 2, 2, 0, 0xffffffff, keyframes, "red");
+        var profile = new AnimationRenderer.Profile(10, 1, 1);
+        var renderer = new AnimationRenderer();
+        var vectorImage = ImageIO.read(new ByteArrayInputStream(renderer.render(spec(),
+                new AnimationRenderer.Scene(8, 4, 0xff000000, List.of(vector)), profile)
+                .frames().get(0).png()));
+        var rasterImage = ImageIO.read(new ByteArrayInputStream(renderer.render(spec(),
+                new AnimationRenderer.Scene(8, 4, 0xff000000, List.of(raster), List.of(), List.of(asset)), profile)
+                .frames().get(0).png()));
+
+        for (int y = 0; y < vectorImage.getHeight(); y++) {
+            for (int x = 0; x < vectorImage.getWidth(); x++) {
+                assertThat(rasterImage.getRGB(x, y))
+                        .as("raster/vector pixel at (%s,%s)", x, y)
+                        .isEqualTo(vectorImage.getRGB(x, y));
+            }
+        }
+        assertThat(rasterImage.getRGB(1, 1)).isEqualTo(0xffff0000);
+        assertThat(rasterImage.getRGB(5, 1)).isEqualTo(0xff000000);
+    }
+
+    @Test
+    void rasterAssetsPreserveFractionalPixelGeometryLikeVectorShapes() throws Exception {
+        var vector = new AnimationRenderer.Shape("vector-fractional", AnimationRenderer.Primitive.RECTANGLE,
+                2.25, 1.25, 2.25, 1.75, 0, 0xffff0000, List.of());
+        var asset = new AnimationRenderer.RasterAsset("fractional-red", 2, 2, new int[] {
+                0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000
+        });
+        var raster = new AnimationRenderer.Shape("raster-fractional", AnimationRenderer.Primitive.RASTER_ASSET,
+                2.25, 1.25, 2.25, 1.75, 0, 0xffffffff, List.of(), "fractional-red");
+        var profile = new AnimationRenderer.Profile(10, 1, 1);
+        var renderer = new AnimationRenderer();
+        var vectorImage = ImageIO.read(new ByteArrayInputStream(renderer.render(spec(),
+                new AnimationRenderer.Scene(8, 4, 0xff000000, List.of(vector)), profile)
+                .frames().get(0).png()));
+        var rasterImage = ImageIO.read(new ByteArrayInputStream(renderer.render(spec(),
+                new AnimationRenderer.Scene(8, 4, 0xff000000, List.of(raster), List.of(), List.of(asset)), profile)
+                .frames().get(0).png()));
+
+        for (int y = 0; y < vectorImage.getHeight(); y++) {
+            for (int x = 0; x < vectorImage.getWidth(); x++) {
+                assertThat(rasterImage.getRGB(x, y))
+                        .as("fractional raster/vector pixel at (%s,%s)", x, y)
+                        .isEqualTo(vectorImage.getRGB(x, y));
+            }
+        }
+        assertThat(rasterImage.getRGB(5, 1)).isEqualTo(0xff000000);
+    }
+
+    @Test
     void rejectsStoryClockOverflowInsteadOfWrappingFrameTimestamps() {
         var boundarySpec = new AnimationSpec("media.declarative.value.animation-spec.v1",
                 "scene/a@v1", "animation/a@v1", "operators/vector@v1", "assets/a@v1",
