@@ -466,6 +466,36 @@ describe("OfflineEditQueue", () => {
     expect(await queue.hasDirtyEdits(scope)).toBe(false);
   });
 
+  it("changedPayloadAfterUnknownDispatchPreservesTheOriginalFenceAcrossRecreation", async () => {
+    const { queue, store, key } = await createQueue();
+    await queue.enqueue(edit);
+    let applyCalls = 0;
+    const lostAcknowledgment = {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => {
+        applyCalls++;
+        throw new Error("connection lost after dispatch");
+      },
+    };
+
+    expect((await replayAfterExplicitReview(queue, scope, lostAcknowledgment))[0]?.state).toBe("OUTCOME_UNKNOWN");
+    await expect(queue.enqueue({ ...edit, payload: { ...edit.payload, position: 99 } }))
+      .rejects.toMatchObject({ code: "INVALID_EDIT" } satisfies Partial<OfflineEditQueueError>);
+    expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
+
+    const recreatedQueue = new OfflineEditQueue({ store, encryptionKey: key });
+    const afterRecreation = await replayAfterExplicitReview(recreatedQueue, scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => { applyCalls++; return { outcome: "APPLIED" as const, receipt: "unsafe-replay" }; },
+    });
+
+    expect(afterRecreation).toEqual([]);
+    expect(applyCalls).toBe(1);
+    expect((await recreatedQueue.readEdits(scope))[0]).toMatchObject({ edit, state: "OUTCOME_UNKNOWN" });
+  });
+
   it("authenticates replay state so a persisted unknown fence cannot be downgraded to pending", async () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);
