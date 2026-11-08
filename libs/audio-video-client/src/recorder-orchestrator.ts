@@ -1135,15 +1135,24 @@ export async function publishFinalRender(
       const acknowledgedSession = await artifactClient.uploadPart(session, chunkIndex,
         new Blob([chunk], { type: "application/octet-stream" }), { signal });
       chunkDispatchAwaitingAck = false;
-      if (!acknowledgedSession || acknowledgedSession.status !== "OPEN"
-        || !sameUploadSessionIdentity(acknowledgedSession, dispatchedSession)
-        || acknowledgedSession.bytesReceived !== end
-        || acknowledgedSession.nextChunkIndex !== chunkIndex + 1) {
+      let acknowledgedSnapshot: CanonicalMediaUploadSessionObservation;
+      try {
+        // Validate and retain the same detached observation. Reading the
+        // adapter-owned ACK once for validation and again for snapshotting
+        // could accept one identity, then carry a different one into completion.
+        acknowledgedSnapshot = snapshotUploadSession(acknowledgedSession);
+      } catch {
+        return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement could not be snapshotted; read upload state before replay", uploadId };
+      }
+      if (acknowledgedSnapshot.status !== "OPEN"
+        || !sameUploadSessionIdentity(acknowledgedSnapshot, dispatchedSession)
+        || acknowledgedSnapshot.bytesReceived !== end
+        || acknowledgedSnapshot.nextChunkIndex !== chunkIndex + 1) {
         return { outcome: "OUTCOME_UNKNOWN", reason: "canonical chunk acknowledgement does not confirm the exact upload session progress", uploadId };
       }
       // Keep the validated receipt detached from the adapter before the next
       // admission check or completion call can yield control.
-      session = snapshotUploadSession(acknowledgedSession);
+      session = acknowledgedSnapshot;
       offset = end;
       chunkIndex += 1;
     }

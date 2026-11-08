@@ -151,7 +151,7 @@ try {
       edit: {
         tenantId: queued.tenantId, projectId: queued.projectId, editId: queued.editId,
         idempotencyKey: queued.idempotencyKey, expectedVersion: queued.expectedVersion,
-        payload: queued.payload, state: queued.state,
+        payload: queued.payload,
       }, state,
     })));
   await appFrame.evaluate(() => window.__workflowStore.close());
@@ -162,7 +162,7 @@ try {
   await initializeWorkflow(reloadedApp);
   assert.equal(await reloadedApp.evaluate(() => window.parent.__hostHeldKey.extractable), false);
   assert.deepEqual(await readEditProjection(reloadedApp), [
-    { edit: { ...edit, state: "PENDING" }, state: "PENDING" },
+    { edit, state: "PENDING" },
   ]);
   const reloadedEncryptedRow = await reloadedApp.evaluate(async () => (await window.__workflowStore.list(window.__workflowScope))[0]);
   assert.deepEqual([...reloadedEncryptedRow.nonce], [...encryptedRow.nonce]);
@@ -170,6 +170,17 @@ try {
   assert.equal(reloadedEncryptedRow.envelopeVersion, 2, "queue reopen retains v2 AAD selection");
 
   const fixture = { authorizationReads: 0, versionReads: 0, applyCount: 0 };
+  const reviewRequired = await reloadedApp.evaluate(async (counts) => {
+    const result = await window.__workflowCoordinator({
+      reauthorize: async () => { counts.authorizationReads++; throw new Error("review must happen before authorization"); },
+      readProjectVersion: async () => { counts.versionReads++; throw new Error("review must happen before version lookup"); },
+      applyEdit: async () => { counts.applyCount++; throw new Error("review must happen before dispatch"); },
+    }).reconnect(true);
+    return { result, counts };
+  }, fixture);
+  assert.deepEqual(reviewRequired.result, { status: "REVIEW_REQUIRED", dirty: true });
+  assert.deepEqual(reviewRequired.counts, { authorizationReads: 0, versionReads: 0, applyCount: 0 });
+
   const conflict = await reloadedApp.evaluate(async (counts) => {
     window.__workflowFixture = counts;
     const result = await window.__workflowCoordinator({
@@ -182,13 +193,13 @@ try {
         return { ...scope, disposition: "CURRENT", version: "revision-8" };
       },
       applyEdit: async () => { counts.applyCount++; throw new Error("stale version must not apply"); },
-    }).reconnect(true);
+    }).reconnect(true, { reviewedQueue: await window.__workflowQueue.readEdits(window.__workflowScope) });
     return { result, counts };
   }, fixture);
   assert.deepEqual(conflict.result, { status: "RECONNECTED", dirty: true, results: [{ editId: edit.editId, state: "CONFLICT" }] });
   assert.deepEqual(conflict.counts, { authorizationReads: 0, versionReads: 1, applyCount: 0 });
   assert.deepEqual(await readEditProjection(reloadedApp), [
-    { edit: { ...edit, state: "CONFLICT" }, state: "CONFLICT" },
+    { edit, state: "CONFLICT" },
   ]);
 
   const rebasedEdit = {
@@ -210,7 +221,7 @@ try {
         counts.applyCount++;
         return { ...queued, outcome: "APPLIED", receipt: "fixture-receipt-j23" };
       },
-    }).reconnect(true);
+    }).reconnect(true, { reviewedQueue: await window.__workflowQueue.readEdits(window.__workflowScope) });
     return { result, counts };
   }, conflict.counts);
   assert.deepEqual(applied.result, {
@@ -235,11 +246,11 @@ try {
   assert.deepEqual(duplicateReconnect.result, { status: "RECONNECTED", dirty: false, results: [] });
   assert.deepEqual(duplicateReconnect.counts, { authorizationReads: 2, versionReads: 2, applyCount: 1 });
   assert.deepEqual(await readEditProjection(reloadedApp), [
-    { edit: { ...rebasedEdit, state: "APPLIED" }, state: "APPLIED" },
+    { edit: rebasedEdit, state: "APPLIED" },
   ]);
   await reloadedApp.evaluate(() => window.__workflowStore.close());
   await workflowContext.close();
-  console.log("PASS: real IndexedDB and AES-GCM queue survive app-frame reload with a host-held non-extractable key; stale version conflicts before authorization and without dispatch; explicit fresh-key rebase performs fresh authorization and reconnects to fixture APPLIED once.");
+  console.log("PASS: real IndexedDB and AES-GCM queue survive app-frame reload with a host-held non-extractable key; reconnect requires explicit draft review before version checks; stale versions conflict without dispatch; explicit fresh-key rebase applies once.");
 } finally {
   await browser?.close();
 }

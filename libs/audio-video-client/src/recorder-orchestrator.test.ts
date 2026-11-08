@@ -1398,6 +1398,33 @@ describe("publishFinalRender", () => {
       .not.toHaveBeenCalled();
   });
 
+  it("validates the detached chunk ACK snapshot before using it for completion", async () => {
+    let tenantReads = 0;
+    const uploadPart = vi.fn(async (session: ReturnType<typeof uploadSession>, _index: number, blob: Blob) => {
+      const acknowledged = uploadSession({
+        ...session,
+        bytesReceived: session.bytesReceived + blob.size,
+        nextChunkIndex: session.nextChunkIndex + 1,
+      });
+      Object.defineProperty(acknowledged, "tenantId", {
+        enumerable: true,
+        get: () => {
+          tenantReads += 1;
+          return tenantReads === 1 ? "tenant-1" : "tenant-attacker";
+        },
+      });
+      return acknowledged;
+    });
+    const client = fakeClient({ uploadPart });
+
+    const result = await publishFinalRender(request(), admitted, muxer, client);
+
+    expect(result).toMatchObject({ outcome: "PUBLISHED", artifact: { tenantId: "tenant-1" } });
+    expect(tenantReads).toBe(1);
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> })
+      .completeUploadSession.mock.calls[0]?.[0]).toMatchObject({ tenantId: "tenant-1" });
+  });
+
   it("keeps the validated upload identity when the client mutates its returned session during re-admission", async () => {
     let clientOwnedSession: ReturnType<typeof uploadSession> | undefined;
     let admissionChecks = 0;

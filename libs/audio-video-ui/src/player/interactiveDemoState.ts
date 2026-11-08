@@ -491,6 +491,9 @@ export function reduceDemoPlayerState(
 
   switch (action.type) {
     case "play":
+      // Scene completion requires an explicit branch choice or replay. A
+      // native media element at its authored end cannot meaningfully resume.
+      if (state.positionMs >= scene.endMs) return state;
       return appendHistory(state, action, { playing: true, announcement: `Playing ${scene.label}.` });
     case "pause":
       return appendHistory(state, action, { playing: false, announcement: `Paused ${scene.label}.` });

@@ -405,6 +405,34 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     }
   });
 
+  it('rejects original literal and encoded endpoint path traversal before URL normalization and fetch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-endpoint-traversal-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      for (const endpoint of [
+        'https://media.example.test/safe/../admin',
+        'https://media.example.test/safe/%2e%2e/admin',
+        'https://media.example.test/safe/%2e%2e%2fadmin',
+      ]) {
+        const result = await invoke(command(endpoint), token, {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+          GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(artifact),
+          GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+        }, fetchFixture);
+        expect(result.status).toBe(2);
+        expect(result.stdout).toBe('');
+        expect(JSON.parse(result.stderr)).toMatchObject({
+          schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect', code: 'INVALID_ENDPOINT',
+        });
+        expect(result.stdout + result.stderr).not.toContain(token);
+      }
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each([
     { command: 'upload inspect', args: ['upload', 'inspect', '--upload', 'u1'] },
     { command: 'upload resume', args: ['upload', 'resume', '--upload', 'u1'] },

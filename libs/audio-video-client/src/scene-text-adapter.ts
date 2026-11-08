@@ -10,6 +10,12 @@
 export const DOCUMENT_INTELLIGENCE_PROTOCOL_V1 = "document-intelligence.v1" as const;
 export const DOCUMENT_INTELLIGENCE_WORKER_V1 = "document-intelligence-worker.v1" as const;
 
+// Keep the TS consumer aligned with the existing Media Java scene-text and
+// frozen-v1 DTO ceilings. These bound work before observations are materialized.
+const MAX_SCENE_TEXT_OBSERVATIONS = 5_000;
+const MAX_DI_BLOCKS_PER_PAGE = 5_000;
+const MAX_DI_LINES_PER_BLOCK = 2_000;
+
 export interface SceneTextWireIdentity {
   readonly providerRef: string;
   readonly providerVersion: string;
@@ -202,6 +208,19 @@ function validPage(page: SceneTextWirePage): boolean {
         && (line.languageTag === undefined || validWireId(line.languageTag))));
 }
 
+function exceedsResultBounds(page: SceneTextWirePage): boolean {
+  if (page === null || typeof page !== "object" || !Array.isArray(page.blocks)) return false;
+  if (page.blocks.length > MAX_DI_BLOCKS_PER_PAGE) return true;
+  let observations = 0;
+  for (const block of page.blocks) {
+    if (block === null || typeof block !== "object" || !Array.isArray(block.lines)) continue;
+    if (block.lines.length > MAX_DI_LINES_PER_BLOCK) return true;
+    observations += block.lines.length;
+    if (observations > MAX_SCENE_TEXT_OBSERVATIONS) return true;
+  }
+  return false;
+}
+
 export class DocumentIntelligenceSceneTextAdapter {
   private readonly policy: SceneTextAdapterPolicy;
 
@@ -325,11 +344,15 @@ export class DocumentIntelligenceSceneTextAdapter {
       || parsed.providerProvenance?.providerVersion !== this.policy.providerVersion) {
       throw new SceneTextAdapterError("RESPONSE_IDENTITY_MISMATCH");
     }
-    if (!Array.isArray(parsed.pages) || parsed.pages.length !== 1
-      || !validPage(parsed.pages[0]) || parsed.pages[0].pageNumber !== 1) {
+    if (!Array.isArray(parsed.pages) || parsed.pages.length !== 1) {
       throw new SceneTextAdapterError("PAGE_SCOPE_UNSUPPORTED");
     }
-    if (parsed.pages[0].tables.length > 0) {
+    const page = parsed.pages[0];
+    if (exceedsResultBounds(page)) throw new SceneTextAdapterError("RESULT_SHAPE_UNSUPPORTED");
+    if (!validPage(page) || page.pageNumber !== 1) {
+      throw new SceneTextAdapterError("PAGE_SCOPE_UNSUPPORTED");
+    }
+    if (page.tables.length > 0) {
       throw new SceneTextAdapterError("RESULT_SHAPE_UNSUPPORTED");
     }
     const provenance = parsed.providerProvenance;
@@ -342,7 +365,7 @@ export class DocumentIntelligenceSceneTextAdapter {
 
     const observations: SceneTextObservation[] = [];
     let wireOrdinal = 0;
-    for (const block of parsed.pages[0].blocks) {
+    for (const block of page.blocks) {
       for (const line of block.lines) {
         if (!isValidRegion(line.boundingRegion)) throw new SceneTextAdapterError("RESULT_GEOMETRY_INVALID");
         if (line.confidence === undefined || !Number.isFinite(line.confidence)
@@ -357,7 +380,7 @@ export class DocumentIntelligenceSceneTextAdapter {
           protocolVersion: DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
           workerCapabilityVersion: DOCUMENT_INTELLIGENCE_WORKER_V1,
           provider: { ...provenance, modelRef: provenance.modelRef, modelVersion: provenance.modelVersion },
-          pageNumber: parsed.pages[0].pageNumber,
+          pageNumber: page.pageNumber,
           wireOrdinal: wireOrdinal++,
           blockId: block.blockId,
           lineId: line.lineId,

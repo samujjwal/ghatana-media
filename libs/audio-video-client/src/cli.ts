@@ -68,6 +68,17 @@ function validateEndpoint(input: string): string {
     || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
     throw new Error('Endpoint must use HTTPS, contain no credentials or query, and use HTTP only on loopback.');
   }
+  // URL parsing resolves literal and percent-encoded dot segments. Inspect the
+  // caller's original path as well, so a traversal is rejected instead of
+  // silently changing which base path receives the authenticated request.
+  const rawPath = input.match(/^[A-Za-z][A-Za-z0-9+.-]*:\/\/[^/?#]*(\/[^?#]*)?/u)?.[1] ?? '';
+  let decodedRawPath: string;
+  try { decodedRawPath = decodeURIComponent(rawPath); }
+  catch { throw new Error('Endpoint path is invalid.'); }
+  if (/[\\\u0000-\u001f\u007f]/u.test(decodedRawPath)
+    || decodedRawPath.split('/').some(segment => segment === '.' || segment === '..')) {
+    throw new Error('Endpoint path is invalid.');
+  }
   let decodedPath: string;
   try { decodedPath = decodeURIComponent(endpoint.pathname); }
   catch { throw new Error('Endpoint path is invalid.'); }

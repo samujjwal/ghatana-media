@@ -93,6 +93,7 @@ export type { IndexedDbOfflineEditStoreErrorCode, IndexedDbOfflineEditStoreOptio
 export { OfflineReconnectCoordinator } from './offline-reconnect.js';
 export type {
   OfflineReconnectOperations,
+  OfflineReconnectOptions,
   OfflineReconnectResult,
   ScopedAuthorizationRead,
   ScopedEditApplyResult,

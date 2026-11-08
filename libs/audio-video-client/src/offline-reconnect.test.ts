@@ -72,8 +72,64 @@ describe("OfflineReconnectCoordinator", () => {
     await q.enqueue(edit);
     const coordinator = new OfflineReconnectCoordinator(q, scope);
     await expect(coordinator.reconnect(false)).resolves.toEqual({ status: "OFFLINE", dirty: true });
-    await expect(coordinator.reconnect(true)).resolves.toEqual({ status: "UNAVAILABLE",
+    await expect(coordinator.reconnect(true, { reviewedQueue: await q.readEdits(scope) })).resolves.toEqual({ status: "UNAVAILABLE",
       reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty: true });
+  });
+
+  it("requires an explicit host review action before an online reconnect can submit a draft", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let versionReads = 0;
+    let authorizationReads = 0;
+    let applyCalls = 0;
+    const coordinator = new OfflineReconnectCoordinator(q, scope, operations({
+      readProjectVersion: async () => { versionReads++; return { ...scope, disposition: "CURRENT", version: edit.expectedVersion }; },
+      reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      applyEdit: async () => { applyCalls++; return { ...scope, editId: edit.editId,
+        idempotencyKey: edit.idempotencyKey, expectedVersion: edit.expectedVersion,
+        outcome: "APPLIED", receipt: "fixture-receipt" }; },
+    }));
+
+    await expect(coordinator.reconnect(true)).resolves.toEqual({ status: "REVIEW_REQUIRED", dirty: true });
+    expect(await q.readEdits(scope)).toMatchObject([{ edit, state: "PENDING" }]);
+    expect({ versionReads, authorizationReads, applyCalls }).toEqual({ versionReads: 0, authorizationReads: 0, applyCalls: 0 });
+
+    const submitted = await coordinator.reconnect(true, { reviewedQueue: await q.readEdits(scope) });
+    expect(submitted).toMatchObject({ status: "RECONNECTED", dirty: false,
+      results: [{ editId: edit.editId, state: "APPLIED" }] });
+    expect(applyCalls).toBe(1);
+  });
+
+  it("requires another review when a draft is added after the host read the queue", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    const reviewedQueue = await q.readEdits<typeof edit.payload>(scope);
+    const addedAfterReview = { ...edit, editId: "edit-added", idempotencyKey: "idem-added" };
+    await q.enqueue(addedAfterReview);
+    let versionReads = 0;
+    let authorizationReads = 0;
+    let applyCalls = 0;
+    const coordinator = new OfflineReconnectCoordinator(q, scope, operations({
+      readProjectVersion: async () => {
+        versionReads++;
+        return { ...scope, disposition: "CURRENT", version: edit.expectedVersion };
+      },
+      reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      applyEdit: async (queued) => {
+        applyCalls++;
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "fixture-receipt" };
+      },
+    }));
+
+    await expect(coordinator.reconnect(true, { reviewedQueue })).resolves.toEqual({
+      status: "REVIEW_REQUIRED", dirty: true,
+    });
+    expect({ versionReads, authorizationReads, applyCalls }).toEqual({ versionReads: 0, authorizationReads: 0, applyCalls: 0 });
+    expect(await q.readEdits(scope)).toMatchObject([
+      { edit, state: "PENDING" },
+      { edit: addedAfterReview, state: "PENDING" },
+    ]);
   });
 
   it("keeps the constructor-time tenant and project scope when the caller mutates its input", async () => {
@@ -99,7 +155,7 @@ describe("OfflineReconnectCoordinator", () => {
 
     mutableScope.tenantId = "tenant-other";
     mutableScope.projectId = "project-other";
-    const result = await coordinator.reconnect(true);
+    const result = await coordinator.reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result).toMatchObject({ status: "RECONNECTED", dirty: false,
       results: [{ editId: edit.editId, state: "APPLIED" }] });
@@ -138,7 +194,7 @@ describe("OfflineReconnectCoordinator", () => {
       reauthorize: async () => { authorityReads++; return { ...scope, disposition: "AUTHORIZED" }; },
       readProjectVersion: async () => { authorityReads++; return { ...scope, disposition: "CURRENT", version: "revision-7" }; },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result).toEqual({ status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: true,
       results: [{ editId: edit.editId, state: "STORE_CAS_UNAVAILABLE" }] });
@@ -155,14 +211,14 @@ describe("OfflineReconnectCoordinator", () => {
       reauthorize: async () => ({ ...scope, disposition: "REVOKED" }),
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
     });
-    const result = await new OfflineReconnectCoordinator(q, scope, adapter).reconnect(true);
+    const result = await new OfflineReconnectCoordinator(q, scope, adapter).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(result.status).toBe("RECONNECTED");
     if (result.status === "RECONNECTED") expect(result.results[0]?.state).toBe("REVOKED");
     expect(applyCount).toBe(0);
     expect((await q.readEdits(scope))[0]?.state).toBe("REVOKED");
     const afterRestart = await new OfflineReconnectCoordinator(await queue(), scope, operations({
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(afterRestart.status).toBe("RECONNECTED");
     if (afterRestart.status === "RECONNECTED") expect(afterRestart.results).toEqual([]);
     expect(applyCount).toBe(0);
@@ -180,7 +236,7 @@ describe("OfflineReconnectCoordinator", () => {
       },
       reauthorize: async () => ({ ...scope, disposition: revokedDuringVersionRead ? "REVOKED" : "AUTHORIZED" }),
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(result.status).toBe("RECONNECTED");
     if (result.status === "RECONNECTED") expect(result.results[0]?.state).toBe("REVOKED");
     expect(applyCount).toBe(0);
@@ -204,7 +260,7 @@ describe("OfflineReconnectCoordinator", () => {
         expect(queued.payload.position).toBe(4);
         return operations().applyEdit(queued);
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result.status).toBe("RECONNECTED");
     if (result.status === "RECONNECTED") expect(result.results[0]?.state).toBe("APPLIED");
@@ -216,11 +272,11 @@ describe("OfflineReconnectCoordinator", () => {
     await q.enqueue(edit);
     const authUnknown = await new OfflineReconnectCoordinator(q, scope, operations({
       reauthorize: async () => ({ ...scope, disposition: "UNKNOWN" }),
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(authUnknown.status).toBe("RECONNECTED");
     if (authUnknown.status === "RECONNECTED") expect(authUnknown.results[0]?.state).toBe("AUTHORIZATION_UNKNOWN");
     expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
-    const authRecovered = await new OfflineReconnectCoordinator(q, scope, operations()).reconnect(true);
+    const authRecovered = await new OfflineReconnectCoordinator(q, scope, operations()).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(authRecovered.status).toBe("RECONNECTED");
     if (authRecovered.status === "RECONNECTED") expect(authRecovered.results[0]?.state).toBe("APPLIED");
 
@@ -229,11 +285,11 @@ describe("OfflineReconnectCoordinator", () => {
     await versionQueue.enqueue(edit);
     const versionUnknown = await new OfflineReconnectCoordinator(versionQueue, scope, operations({
       readProjectVersion: async () => ({ ...scope, disposition: "UNKNOWN" }),
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await versionQueue.readEdits(scope) });
     expect(versionUnknown.status).toBe("RECONNECTED");
     if (versionUnknown.status === "RECONNECTED") expect(versionUnknown.results[0]?.state).toBe("VERSION_UNKNOWN");
     expect((await versionQueue.readEdits(scope))[0]?.state).toBe("PENDING");
-    const versionRecovered = await new OfflineReconnectCoordinator(versionQueue, scope, operations()).reconnect(true);
+    const versionRecovered = await new OfflineReconnectCoordinator(versionQueue, scope, operations()).reconnect(true, { reviewedQueue: await versionQueue.readEdits(scope) });
     expect(versionRecovered.status).toBe("RECONNECTED");
     if (versionRecovered.status === "RECONNECTED") expect(versionRecovered.results[0]?.state).toBe("APPLIED");
   });
@@ -246,7 +302,7 @@ describe("OfflineReconnectCoordinator", () => {
     const versionFailure = await new OfflineReconnectCoordinator(q, scope, operations({
       readProjectVersion: async () => { throw new Error("temporary version read failure"); },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(versionFailure).toMatchObject({ status: "RECONNECTED", dirty: true,
       results: [{ editId: edit.editId, state: "VERSION_UNKNOWN" }] });
     expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
@@ -255,7 +311,7 @@ describe("OfflineReconnectCoordinator", () => {
     const authorizationFailure = await new OfflineReconnectCoordinator(q, scope, operations({
       reauthorize: async () => { throw new Error("temporary authorization read failure"); },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(authorizationFailure).toMatchObject({ status: "RECONNECTED", dirty: true,
       results: [{ editId: edit.editId, state: "AUTHORIZATION_UNKNOWN" }] });
     expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
@@ -263,7 +319,7 @@ describe("OfflineReconnectCoordinator", () => {
 
     const recovered = await new OfflineReconnectCoordinator(q, scope, operations({
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(recovered).toMatchObject({ status: "RECONNECTED", dirty: false,
       results: [{ editId: edit.editId, state: "APPLIED", receipt: "receipt:idem-a" }] });
     expect(applyCount).toBe(1);
@@ -277,7 +333,7 @@ describe("OfflineReconnectCoordinator", () => {
     const malformed = await new OfflineReconnectCoordinator(q, scope, operations({
       reauthorize: async () => ({ ...scope, disposition: "ALLOW" } as never),
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(malformed.status).toBe("RECONNECTED");
     if (malformed.status === "RECONNECTED") {
@@ -286,7 +342,7 @@ describe("OfflineReconnectCoordinator", () => {
     expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
     expect(applyCount).toBe(0);
 
-    const recovered = await new OfflineReconnectCoordinator(q, scope, operations()).reconnect(true);
+    const recovered = await new OfflineReconnectCoordinator(q, scope, operations()).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(recovered.status).toBe("RECONNECTED");
     if (recovered.status === "RECONNECTED") expect(recovered.results[0]?.state).toBe("APPLIED");
   });
@@ -305,7 +361,7 @@ describe("OfflineReconnectCoordinator", () => {
         },
       }),
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(revoked).toMatchObject({ status: "RECONNECTED", dirty: true,
       results: [{ editId: edit.editId, state: "REVOKED" }] });
@@ -321,7 +377,7 @@ describe("OfflineReconnectCoordinator", () => {
     const wrongProject = await new OfflineReconnectCoordinator(q, scope, operations({
       reauthorize: async () => ({ ...scope, projectId: "project-other", disposition: "AUTHORIZED" }),
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(wrongProject.status).toBe("RECONNECTED");
     if (wrongProject.status === "RECONNECTED") {
@@ -340,7 +396,7 @@ describe("OfflineReconnectCoordinator", () => {
       readProjectVersion: async () => ({ ...scope, projectId: "project-other", disposition: "CURRENT", version: "revision-7" }),
       reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result.status).toBe("RECONNECTED");
     if (result.status === "RECONNECTED") {
@@ -371,7 +427,7 @@ describe("OfflineReconnectCoordinator", () => {
         return { ...scope, disposition: "AUTHORIZED" };
       },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result.status).toBe("RECONNECTED");
     if (result.status === "RECONNECTED") {
@@ -390,7 +446,7 @@ describe("OfflineReconnectCoordinator", () => {
     const wrongTenant = await new OfflineReconnectCoordinator(q, scope, operations({
       reauthorize: async () => ({ ...scope, tenantId: "tenant-other", disposition: "AUTHORIZED" }),
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(wrongTenant.status).toBe("RECONNECTED");
     if (wrongTenant.status === "RECONNECTED") {
@@ -402,7 +458,7 @@ describe("OfflineReconnectCoordinator", () => {
     const restartedQueue = await queue();
     const recovered = await new OfflineReconnectCoordinator(restartedQueue, scope, operations({
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await restartedQueue.readEdits(scope) });
 
     expect(recovered.status).toBe("RECONNECTED");
     if (recovered.status === "RECONNECTED") {
@@ -417,7 +473,7 @@ describe("OfflineReconnectCoordinator", () => {
     await q.enqueue(edit);
     const conflict = await new OfflineReconnectCoordinator(q, scope, operations({
       readProjectVersion: async () => ({ ...scope, disposition: "CURRENT", version: "revision-8" }),
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(conflict.status).toBe("RECONNECTED");
     if (conflict.status === "RECONNECTED") expect(conflict.results[0]?.state).toBe("CONFLICT");
 
@@ -425,7 +481,7 @@ describe("OfflineReconnectCoordinator", () => {
       payload: { ...edit.payload, position: 8 } });
     const applied = await new OfflineReconnectCoordinator(q, scope, operations({
       readProjectVersion: async () => ({ ...scope, disposition: "CURRENT", version: "revision-8" }),
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(applied.status).toBe("RECONNECTED");
     if (applied.status === "RECONNECTED") expect(applied.results[0]).toMatchObject({ state: "APPLIED", receipt: "receipt:idem-rebased" });
   });
@@ -450,7 +506,7 @@ describe("OfflineReconnectCoordinator", () => {
     const conflict = await new OfflineReconnectCoordinator(offlineQueue, scope, operations({
       readProjectVersion: async () => { versionReads++; return { ...scope, disposition: "CURRENT", version: "revision-8" }; },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await offlineQueue.readEdits(scope) });
     expect(conflict.status).toBe("RECONNECTED");
     if (conflict.status === "RECONNECTED") expect(conflict.results).toEqual([{ editId: edit.editId, state: "CONFLICT" }]);
     expect(await offlineQueue.readEdits(scope)).toMatchObject([{ edit, state: "CONFLICT" }]);
@@ -474,7 +530,7 @@ describe("OfflineReconnectCoordinator", () => {
         return { ...scope, disposition: "CURRENT", version: "revision-8" };
       },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await offlineQueue.readEdits(scope) });
     expect(revoked.status).toBe("RECONNECTED");
     if (revoked.status === "RECONNECTED") expect(revoked.results).toEqual([{ editId: edit.editId, state: "REVOKED" }]);
     expect(reconnectVersionReads).toBe(1);
@@ -490,7 +546,7 @@ describe("OfflineReconnectCoordinator", () => {
       reauthorize: async () => { reconnectAuthorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
       readProjectVersion: async () => { reconnectVersionReads++; return { ...scope, disposition: "CURRENT", version: "revision-8" }; },
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await recreatedQueue.readEdits(scope) });
     expect(afterQueueRecreation).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
     expect(reconnectAuthorizationReads).toBe(1);
     expect(reconnectVersionReads).toBe(1);
@@ -503,14 +559,14 @@ describe("OfflineReconnectCoordinator", () => {
     await q.enqueue(edit);
     let applyCount = 0;
     const lostAck = operations({ applyEdit: async () => { applyCount++; throw new Error("connection lost after dispatch"); } });
-    const first = await new OfflineReconnectCoordinator(q, scope, lostAck).reconnect(true);
+    const first = await new OfflineReconnectCoordinator(q, scope, lostAck).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(first.status).toBe("RECONNECTED");
     if (first.status === "RECONNECTED") expect(first.results[0]?.state).toBe("OUTCOME_UNKNOWN");
 
     const restartedQueue = await queue(); // same encrypted store/key; new coordinator simulates process restart.
     const resumed = await new OfflineReconnectCoordinator(restartedQueue, scope, operations({
       applyEdit: async (queued) => { applyCount++; return operations().applyEdit(queued); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await restartedQueue.readEdits(scope) });
     expect(resumed.status).toBe("RECONNECTED");
     if (resumed.status === "RECONNECTED") expect(resumed.results).toEqual([]);
     expect(applyCount).toBe(1);
@@ -539,7 +595,7 @@ describe("OfflineReconnectCoordinator", () => {
     const fencedQueue = await queue(ambiguousFenceStore);
     const first = await new OfflineReconnectCoordinator(fencedQueue, scope, operations({
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await fencedQueue.readEdits(scope) });
 
     expect(first.status).toBe("RECONNECTED");
     if (first.status === "RECONNECTED") {
@@ -551,7 +607,7 @@ describe("OfflineReconnectCoordinator", () => {
     const restartedQueue = await queue();
     const afterRestart = await new OfflineReconnectCoordinator(restartedQueue, scope, operations({
       applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await restartedQueue.readEdits(scope) });
     expect(afterRestart).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
     expect(applyCount).toBe(0);
     expect((await restartedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
@@ -567,7 +623,7 @@ describe("OfflineReconnectCoordinator", () => {
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
           expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "  " };
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(first.status).toBe("RECONNECTED");
     if (first.status === "RECONNECTED") expect(first.results[0]?.state).toBe("OUTCOME_UNKNOWN");
@@ -579,7 +635,7 @@ describe("OfflineReconnectCoordinator", () => {
         applyCount++;
         return operations().applyEdit(queued);
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await recreatedQueue.readEdits(scope) });
 
     expect(afterRecreation).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
     expect(applyCount).toBe(1);
@@ -598,7 +654,7 @@ describe("OfflineReconnectCoordinator", () => {
       },
     });
 
-    const first = await new OfflineReconnectCoordinator(q, scope, malformedReceipt).reconnect(true);
+    const first = await new OfflineReconnectCoordinator(q, scope, malformedReceipt).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(first.status).toBe("RECONNECTED");
     if (first.status === "RECONNECTED") expect(first.results[0]?.state).toBe("OUTCOME_UNKNOWN");
     expect((await q.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
@@ -609,7 +665,7 @@ describe("OfflineReconnectCoordinator", () => {
         applyCount++;
         return operations().applyEdit(queued);
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await recreatedQueue.readEdits(scope) });
 
     expect(afterRecreation).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
     expect(applyCount).toBe(1);
@@ -631,7 +687,7 @@ describe("OfflineReconnectCoordinator", () => {
       },
     });
 
-    const result = await new OfflineReconnectCoordinator(q, scope, changingReceipt).reconnect(true);
+    const result = await new OfflineReconnectCoordinator(q, scope, changingReceipt).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(receiptReads).toBe(1);
     expect(result).toMatchObject({ status: "RECONNECTED", dirty: false,
@@ -649,7 +705,7 @@ describe("OfflineReconnectCoordinator", () => {
         observedKey = queued.idempotencyKey;
         return operations().applyEdit(queued);
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await restartedQueue.readEdits(scope) });
     expect(observedKey).toBe(edit.idempotencyKey);
     expect(resumed.status).toBe("RECONNECTED");
     if (resumed.status === "RECONNECTED") expect(resumed.results[0]?.state).toBe("APPLIED");
@@ -666,7 +722,7 @@ describe("OfflineReconnectCoordinator", () => {
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
           expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(applyCount).toBe(1);
     expect(result.status).toBe("RECONNECTED");
 
@@ -674,7 +730,7 @@ describe("OfflineReconnectCoordinator", () => {
     const mismatch = await new OfflineReconnectCoordinator(q, scope, operations({
       applyEdit: async (queued) => ({ tenantId: "tenant-other", projectId: scope.projectId, editId: queued.editId,
         idempotencyKey: queued.idempotencyKey, expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "wrong" }),
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(mismatch.status).toBe("RECONNECTED");
     if (mismatch.status === "RECONNECTED") expect(mismatch.results.find((item) => item.editId === "edit-b")?.state).toBe("OUTCOME_UNKNOWN");
   });
@@ -691,7 +747,7 @@ describe("OfflineReconnectCoordinator", () => {
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
           expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
       },
-    })).reconnect(true);
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result.status).toBe("RECONNECTED");
     expect(observed).toHaveLength(3); // two authorization reads and one apply

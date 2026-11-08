@@ -31,6 +31,12 @@ export interface OfflineEditRecord extends OfflineEditScope {
   readonly envelopeVersion?: 2;
 }
 
+/** Exact queue readback presented by the host before it asks to replay drafts. */
+export interface OfflineEditReviewEntry<T = unknown> {
+  readonly edit: OfflineEdit<T>;
+  readonly state: OfflineEditState;
+}
+
 /** Implementations must store only the supplied ciphertext for edit payloads. */
 export interface OfflineEditStore {
   list(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]>;
@@ -70,7 +76,7 @@ export interface OfflineEditQueueOptions {
 }
 
 export class OfflineEditQueueError extends Error {
-  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE" | "STORE_RECORD_CHANGED" | "STORE_RECORD_INVALID") {
+  public constructor(public readonly code: "CRYPTO_UNAVAILABLE" | "QUEUE_FULL" | "PAYLOAD_TOO_LARGE" | "INVALID_EDIT" | "STORE_SCOPE_MISMATCH" | "STORE_CAS_UNAVAILABLE" | "STORE_RECORD_CHANGED" | "STORE_RECORD_INVALID" | "REVIEW_REQUIRED") {
     super(`Offline edit queue failed: ${code}`);
     this.name = "OfflineEditQueueError";
   }
@@ -284,23 +290,22 @@ export class OfflineEditQueue {
   }
 
   /** Restore exact queued edits after restart for a scoped local editor. */
-  public async readEdits<T = unknown>(scope: OfflineEditScope): Promise<readonly {
-    readonly edit: OfflineEdit<T>;
-    readonly state: OfflineEditState;
-  }[]> {
+  public async readEdits<T = unknown>(scope: OfflineEditScope): Promise<readonly OfflineEditReviewEntry<T>[]> {
     assertScope(scope);
     const records = await this.listScoped(scope);
-    return Promise.all(records.map(async (record) => ({ edit: await this.decrypt<T>(record),
+    return Promise.all(records.map(async (record) => ({ edit: freezeEdit(await this.decrypt<T>(record)),
       state: record.envelopeVersion === 2 ? record.state : "OUTCOME_UNKNOWN" as const })));
   }
 
-  public async replay<T, R>(scope: OfflineEditScope, adapter: OfflineEditReplayAdapter<T, R>): Promise<readonly {
+  public async replay<T, R>(scope: OfflineEditScope, adapter: OfflineEditReplayAdapter<T, R>,
+      reviewedQueue?: readonly OfflineEditReviewEntry<T>[]): Promise<readonly {
     readonly editId: string;
     readonly state: OfflineEditReplayState;
     readonly receipt?: R;
   }[]> {
     assertScope(scope);
     const records = await this.listScoped(scope);
+    await this.assertReviewedQueue(records, reviewedQueue);
     if (!this.canReplaySafely) {
       return records.filter((record) => record.state === "PENDING")
         .map((record) => ({ editId: record.editId, state: "STORE_CAS_UNAVAILABLE" as const }));
@@ -445,6 +450,60 @@ export class OfflineEditQueue {
     return results;
   }
 
+  /** Fail closed if the queue changed after the host presented its exact readback for review. */
+  private async assertReviewedQueue<T>(records: readonly OfflineEditRecord[],
+      reviewedQueue?: readonly OfflineEditReviewEntry<T>[]): Promise<void> {
+    const hasDirtyRecords = records.some((record) => record.envelopeVersion !== 2 || record.state !== "APPLIED");
+    if (reviewedQueue === undefined) {
+      if (hasDirtyRecords) throw new OfflineEditQueueError("REVIEW_REQUIRED");
+      return;
+    }
+    if (!Array.isArray(reviewedQueue) || reviewedQueue.length > this.maximumEntries
+      || reviewedQueue.length !== records.length) {
+      throw new OfflineEditQueueError("REVIEW_REQUIRED");
+    }
+    const reviewedById = new Map<string, OfflineEditReviewEntry<T>>();
+    try {
+      for (let index = 0; index < reviewedQueue.length; index++) {
+        const descriptor = Object.getOwnPropertyDescriptor(reviewedQueue, String(index));
+        if (!descriptor || !("value" in descriptor)) throw new OfflineEditQueueError("REVIEW_REQUIRED");
+        const entry = descriptor.value as OfflineEditReviewEntry<T>;
+        const edit = reviewDataProperty<OfflineEdit<T>>(entry, "edit");
+        const editId = reviewDataProperty<string>(edit, "editId");
+        reviewDataProperty<string>(edit, "tenantId");
+        reviewDataProperty<string>(edit, "projectId");
+        reviewDataProperty<string>(edit, "idempotencyKey");
+        reviewDataProperty<string>(edit, "expectedVersion");
+        const state = reviewDataProperty<OfflineEditState>(entry, "state");
+        if (!editId || reviewedById.has(editId)) throw new OfflineEditQueueError("REVIEW_REQUIRED");
+        reviewedById.set(editId, { edit, state });
+      }
+    } catch {
+      throw new OfflineEditQueueError("REVIEW_REQUIRED");
+    }
+    for (const record of records) {
+      const reviewed = reviewedById.get(record.editId);
+      const expectedState = record.envelopeVersion === 2 ? record.state : "OUTCOME_UNKNOWN";
+      if (!reviewed || reviewed.state !== expectedState
+        || reviewDataProperty<string>(reviewed.edit, "tenantId") !== record.tenantId
+        || reviewDataProperty<string>(reviewed.edit, "projectId") !== record.projectId
+        || reviewDataProperty<string>(reviewed.edit, "idempotencyKey") !== record.idempotencyKey
+        || reviewDataProperty<string>(reviewed.edit, "expectedVersion") !== record.expectedVersion) {
+        throw new OfflineEditQueueError("REVIEW_REQUIRED");
+      }
+      let reviewedPayload: Uint8Array;
+      try {
+        const payload = reviewDataProperty<unknown>(reviewed.edit, "payload");
+        reviewedPayload = encoder.encode(serializeJsonPayload(payload, this.maximumPayloadBytes));
+      } catch {
+        throw new OfflineEditQueueError("REVIEW_REQUIRED");
+      }
+      if (!equalBytes(await this.decryptPayloadBytes(record), reviewedPayload)) {
+        throw new OfflineEditQueueError("REVIEW_REQUIRED");
+      }
+    }
+  }
+
   /** Remove only after an authoritative reconciliation proves no effect occurred. */
   public async discardUnknown(scope: OfflineEditScope, editId: string, confirmedNotApplied: boolean): Promise<void> {
     assertScope(scope);
@@ -580,6 +639,19 @@ function validReceipt<R>(receipt: R | undefined): receipt is R {
 
 function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
   return left.byteLength === right.byteLength && left.every((value, index) => value === right[index]);
+}
+
+function reviewDataProperty<T>(value: unknown, name: string): T {
+  if (!value || typeof value !== "object") throw new TypeError("Review snapshot must contain plain data objects.");
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new TypeError("Review snapshot must contain plain data objects.");
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(value, name);
+  if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) {
+    throw new TypeError("Review snapshot must contain own data properties.");
+  }
+  return descriptor.value as T;
 }
 
 /** Keep injected adapters from changing the decrypted, persisted edit between checks and dispatch. */

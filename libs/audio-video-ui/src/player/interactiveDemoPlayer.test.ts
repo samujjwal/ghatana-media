@@ -265,6 +265,7 @@ describe("interactive demo player", () => {
     const atEnd = reduceDemoPlayerState(BASE, advanced, { type: "progress", positionMs: 1_000 }, authority);
     expect(atEnd).toMatchObject({ playing: false, positionMs: 1_000, activeSceneId: "intro", route: ["intro"] });
     expect(atEnd.branches).toEqual([]);
+    expect(reduceDemoPlayerState(BASE, atEnd, { type: "play" }, authority)).toBe(atEnd);
 
     for (const positionMs of [499, 500.5, 1_001, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(reduceDemoPlayerState(BASE, advanced, { type: "progress", positionMs }, authority)).toBe(advanced);
@@ -452,6 +453,7 @@ describe("interactive demo player", () => {
     fireEvent.timeUpdate(video);
     expect(video.currentTime).toBe(1);
     expect(screen.getByRole("status").textContent).toContain("Choose a path or replay.");
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole("group", { name: "Introduction" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Explore left path; continue to Left path" })).toBeTruthy();
 

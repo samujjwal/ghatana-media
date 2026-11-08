@@ -60,6 +60,11 @@ test("progress advances playing state and pauses at scene end without branching"
   assert.equal(ended.activeSceneId, "intro");
   assert.deepEqual(ended.route, ["intro"]);
   assert.deepEqual(ended.branches, []);
+
+  const playAtEnd = reduceDemoPlayerState(manifest, ended, { type: "play" }, verifier);
+  assert.equal(playAtEnd, ended);
+  assert.equal(playAtEnd.playing, false);
+  assert.equal(playAtEnd.announcement, "Finished Introduction. Choose a path or replay.");
 });
 
 test("progress rejects paused, fractional, backward, and out-of-scene positions", () => {

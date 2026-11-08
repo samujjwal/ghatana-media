@@ -103,6 +103,56 @@ describe('DocumentIntelligenceSceneTextAdapter', () => {
     }));
   });
 
+  it('accepts the existing 5,000-observation Media result ceiling', async () => {
+    const base = document().pages[0].blocks[0].lines[0];
+    const makeBlock = (blockId: string, count: number) => ({
+      blockId,
+      lines: Array.from({ length: count }, (_, index) => ({ ...base, lineId: `${blockId}-${index}` })),
+    });
+    const result = document({ pages: [{ pageNumber: 1, tables: [], blocks: [
+      makeBlock('b-1', 2_000), makeBlock('b-2', 2_000), makeBlock('b-3', 1_000),
+    ] }] });
+
+    const observations = await new DocumentIntelligenceSceneTextAdapter(client({ result }), policy)
+      .recognizeFrame('op-scene-text', frame);
+
+    expect(observations).toHaveLength(5_000);
+  });
+
+  it('rejects a DI result over the existing 5,000-observation ceiling', async () => {
+    const base = document().pages[0].blocks[0].lines[0];
+    const makeBlock = (blockId: string, count: number) => ({
+      blockId,
+      lines: Array.from({ length: count }, (_, index) => ({ ...base, lineId: `${blockId}-${index}` })),
+    });
+    const result = document({ pages: [{ pageNumber: 1, tables: [], blocks: [
+      makeBlock('b-1', 2_000), makeBlock('b-2', 2_000), makeBlock('b-3', 1_001),
+    ] }] });
+
+    await expectCode(new DocumentIntelligenceSceneTextAdapter(client({ result }), policy),
+      'RESULT_SHAPE_UNSUPPORTED');
+  });
+
+  it('rejects a block over the frozen DI v1 line ceiling', async () => {
+    const base = document().pages[0].blocks[0].lines[0];
+    const result = document({ pages: [{ pageNumber: 1, tables: [], blocks: [{
+      blockId: 'b-1',
+      lines: Array.from({ length: 2_001 }, (_, index) => ({ ...base, lineId: `line-${index}` })),
+    }] }] });
+
+    await expectCode(new DocumentIntelligenceSceneTextAdapter(client({ result }), policy),
+      'RESULT_SHAPE_UNSUPPORTED');
+  });
+
+  it('rejects a page over the frozen DI v1 block ceiling', async () => {
+    const result = document({ pages: [{ pageNumber: 1, tables: [], blocks: Array.from(
+      { length: 5_001 }, (_, index) => ({ blockId: `b-${index}`, lines: [] }),
+    ) }] });
+
+    await expectCode(new DocumentIntelligenceSceneTextAdapter(client({ result }), policy),
+      'RESULT_SHAPE_UNSUPPORTED');
+  });
+
   it('rejects source identity gaps and unsupported source media before provider calls', async () => {
     const di = client();
     const adapter = new DocumentIntelligenceSceneTextAdapter(di, policy);

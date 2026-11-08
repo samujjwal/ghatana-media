@@ -1,8 +1,10 @@
 import {
+  OfflineEditQueueError,
   OfflineEditQueue,
   type OfflineEdit,
   type OfflineEditReplayAdapter,
   type OfflineEditReplayState,
+  type OfflineEditReviewEntry,
   type OfflineEditScope,
 } from "./offline-edit-queue.js";
 
@@ -23,6 +25,11 @@ export interface ScopedEditApplyResult extends OfflineEditScope {
   readonly receipt?: string;
 }
 
+/** The host returns the exact queue readback it presented for review. */
+export interface OfflineReconnectOptions<T = unknown> {
+  readonly reviewedQueue?: readonly OfflineEditReviewEntry<T>[];
+}
+
 /** Host-owned canonical operation ports. The client package defines no project route. */
 export interface OfflineReconnectOperations<T = unknown> {
   reauthorize(edit: OfflineEdit<T>): Promise<ScopedAuthorizationRead>;
@@ -32,6 +39,7 @@ export interface OfflineReconnectOperations<T = unknown> {
 
 export type OfflineReconnectResult<R = unknown> =
   | { readonly status: "UNAVAILABLE"; readonly reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE"; readonly dirty: boolean }
+  | { readonly status: "REVIEW_REQUIRED"; readonly dirty: true }
   | { readonly status: "UNAVAILABLE"; readonly reason: "OFFLINE_STORE_CAS_UNAVAILABLE"; readonly dirty: boolean; readonly results: readonly {
       readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R;
     }[] }
@@ -56,11 +64,18 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
     this.scope = snapshot;
   }
 
-  public async reconnect(online: boolean): Promise<OfflineReconnectResult<R>> {
+  public async reconnect(online: boolean, options: OfflineReconnectOptions<T> = {}): Promise<OfflineReconnectResult<R>> {
     const dirty = await this.queue.hasDirtyEdits(this.scope);
     if (!online) return { status: "OFFLINE", dirty };
     if (!this.operations) {
       return { status: "UNAVAILABLE", reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty };
+    }
+    // A reconnect is not consent to submit a consequential edit. The host
+    // presents readEdits() separately from the remote revision, then returns
+    // that exact snapshot. The queue checks it against the records used for
+    // replay, so a draft added during review cannot be submitted unseen.
+    if (dirty && options.reviewedQueue === undefined) {
+      return { status: "REVIEW_REQUIRED", dirty: true };
     }
     const adapter: OfflineEditReplayAdapter<T, R> = {
       reauthorize: async (edit) => {
@@ -125,7 +140,15 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
         return { outcome: "OUTCOME_UNKNOWN" };
       },
     };
-    const results = await this.queue.replay<T, R>(this.scope, adapter);
+    let results: readonly { readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R }[];
+    try {
+      results = await this.queue.replay<T, R>(this.scope, adapter, options.reviewedQueue);
+    } catch (error) {
+      if (error instanceof OfflineEditQueueError && error.code === "REVIEW_REQUIRED") {
+        return { status: "REVIEW_REQUIRED", dirty: true };
+      }
+      throw error;
+    }
     const stillDirty = await this.queue.hasDirtyEdits(this.scope);
     if (results.some((result) => result.state === "STORE_CAS_UNAVAILABLE")) {
       return { status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: stillDirty, results };

@@ -228,7 +228,7 @@ export function InteractiveDemoPlayer({
       {activeScene && viewState.status === "READY" && (
         <>
           <div role="group" aria-label="Playback controls">
-            <button type="button" onClick={playMedia} aria-label={`Play ${activeScene.label}`} disabled={!mediaReady || viewState.playing}>Play</button>
+            <button type="button" onClick={playMedia} aria-label={`Play ${activeScene.label}`} disabled={!mediaReady || viewState.playing || viewState.positionMs >= activeScene.endMs}>Play</button>
             <button type="button" onClick={pauseMedia} aria-label={`Pause ${activeScene.label}`} disabled={!viewState.playing}>Pause</button>
             <button type="button" onClick={() => {
               pauseForNavigation();
