@@ -211,6 +211,28 @@ class PostgresqlMediaCaptionStoreTest {
     }
 
     @Test
+    void snapshotReadbackRejectsOptionalPresenceBitWithoutItsValue() throws Exception {
+        try (Fixture f = openFixture()) {
+            Registered registered = (Registered) f.store().register(
+                    "tenant-1", "principal-1", request("req-presence-tamper"), ADMITTED, PARENT);
+            try (PreparedStatement update = f.state().connection().prepareStatement("""
+                    UPDATE media_caption_registrations SET purpose_present=TRUE
+                    WHERE tenant_id=? AND principal_id=? AND caption_version_id=?
+                    """)) {
+                update.setString(1, "tenant-1");
+                update.setString(2, "principal-1");
+                update.setString(3, registered.captionVersionId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            assertThatThrownBy(() -> f.store().version(
+                    "tenant-1", "principal-1", registered.captionVersionId()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("inconsistent purpose presence");
+        }
+    }
+
+    @Test
     void fingerprintIsDeterministicAndPresenceSensitive() {
         RegistrationRequest base = request("req-1");
         String a = MediaCaptionContracts.fingerprint("t", "p", base);

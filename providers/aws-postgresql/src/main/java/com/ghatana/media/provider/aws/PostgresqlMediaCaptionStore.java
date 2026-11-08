@@ -204,9 +204,9 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
                         ParentVersionKind.valueOf(row.getString(6)), row.getString(7),
                         row.getString(8), row.getLong(9), row.getLong(10),
                         MediaCaptionContracts.LanguageDisposition.valueOf(row.getString(11)),
-                        row.getBoolean(12) ? Optional.ofNullable(row.getString(13)) : Optional.empty(),
+                        optionalStoredValue(row, 12, 13, "language tag"),
                         MediaCaptionContracts.parseSegmentsJson(row.getString(16)),
-                        row.getBoolean(14) ? Optional.ofNullable(row.getString(15)) : Optional.empty(),
+                        optionalStoredValue(row, 14, 15, "purpose"),
                         row.getLong(17));
                 var request = new RegistrationRequest(snapshot.requestId(), snapshot.sourceArtifactId(),
                         snapshot.sourceArtifactVersionId(), snapshot.parentVersionKind(), snapshot.parentVersionId(),
@@ -254,6 +254,16 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
         s.setBoolean(17, r.purpose().isPresent()); s.setString(18, r.purpose().orElse(null));
         s.setString(19, MediaCaptionContracts.segmentsJson(r.captionSegments()));
         s.setLong(20, now);
+    }
+
+    private static Optional<String> optionalStoredValue(ResultSet row, int presenceColumn, int valueColumn,
+                                                        String field) throws SQLException {
+        boolean present = row.getBoolean(presenceColumn);
+        String value = row.getString(valueColumn);
+        if (present != (value != null)) {
+            throw new IllegalStateException("caption version readback has inconsistent " + field + " presence");
+        }
+        return present ? Optional.of(value) : Optional.empty();
     }
 
     @Override
