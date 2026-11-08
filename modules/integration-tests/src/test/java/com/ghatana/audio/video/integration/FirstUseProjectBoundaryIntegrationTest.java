@@ -207,6 +207,32 @@ class FirstUseProjectBoundaryIntegrationTest {
     }
 
     @Test
+    void blankTitleReplayIsRejectedBeforeAllocatingOrChangingTheBoundProject() {
+        AtomicInteger ids = new AtomicInteger();
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(
+                store, () -> "j01-blank-title-replay-id-" + ids.incrementAndGet());
+        var created = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-blank-title-bound-request");
+        String projectId = created.project().projectId();
+        String initialRevisionId = created.initialRevision().revisionId();
+        int allocatedIdsAfterCreate = ids.get();
+
+        assertThatThrownBy(() -> engine.createProject(
+                CREATOR, WORKSPACE, "  ", "j01-blank-title-bound-request"))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(ids).hasValue(allocatedIdsAfterCreate);
+        assertThat(engine.project(CREATOR, projectId).title()).isEqualTo("First cut");
+        assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+        var exactReplay = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-blank-title-bound-request");
+        assertThat(exactReplay.createdNow()).isFalse();
+        assertThat(exactReplay.project()).isEqualTo(created.project());
+        assertThat(exactReplay.initialRevision()).isEqualTo(created.initialRevision());
+        assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
+    }
+
+    @Test
     void createRequestIdentityIsScopedToTenantAndPrincipal() {
         AtomicInteger ids = new AtomicInteger();
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
