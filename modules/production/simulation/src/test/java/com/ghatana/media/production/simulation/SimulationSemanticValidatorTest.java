@@ -1,9 +1,13 @@
 package com.ghatana.media.production.simulation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class SimulationSemanticValidatorTest {
@@ -59,6 +63,31 @@ class SimulationSemanticValidatorTest {
         assertThat(validation.findings()).isEmpty();
         assertThat(validation.resultKind()).isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
         assertThat(validation.evidenceClass()).isEqualTo("DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+    }
+
+    @Test
+    void runBindingBoundsInputReferenceSnapshotToTheDeclaredRoleSet() {
+        var input = binding().inputs().getFirst();
+        AtomicInteger consumed = new AtomicInteger();
+        List<SimulationSemanticValidator.VersionedInput> underreportedInfiniteInputs = new AbstractList<>() {
+            @Override public SimulationSemanticValidator.VersionedInput get(int index) { return input; }
+            @Override public int size() { return 0; }
+            @Override public Iterator<SimulationSemanticValidator.VersionedInput> iterator() {
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return true; }
+                    @Override public SimulationSemanticValidator.VersionedInput next() {
+                        consumed.incrementAndGet();
+                        return input;
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> new SimulationSemanticValidator.RunBinding(
+                "run-bounded-inputs", underreportedInfiniteInputs, List.of(), q(2, PhysicalSimulation.Unit.SECOND)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("declared role count");
+        assertThat(consumed).hasValue(SimulationSemanticValidator.InputRole.values().length);
     }
 
     @Test

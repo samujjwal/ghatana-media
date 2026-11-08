@@ -3,6 +3,7 @@ package com.ghatana.media.production.simulation;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -15,6 +16,8 @@ public final class SimulationSemanticValidator {
     private static final String SIMULATION_EVIDENCE = "DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE";
     private static final String SHA256 = "^[a-fA-F0-9]{64}$";
     private static final String OPAQUE_RUN_ID = "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$";
+    /** One input reference per declared role; duplicate roles are rejected by validation. */
+    private static final int MAX_VERSIONED_INPUTS = InputRole.values().length;
 
     private SimulationSemanticValidator() {}
 
@@ -84,10 +87,31 @@ public final class SimulationSemanticValidator {
             // A run identity is an opaque owner-issued identifier. Do not silently
             // canonicalize it into another run when validating pass provenance.
             runIdentity = runIdentity == null ? "" : runIdentity;
-            inputs = List.copyOf(Objects.requireNonNull(inputs, "inputs"));
+            inputs = boundedInputSnapshot(inputs);
             invariants = List.copyOf(Objects.requireNonNull(invariants, "invariants"));
             Objects.requireNonNull(expectedDuration, "expectedDuration");
         }
+    }
+
+    /** Snapshot the finite owner-defined role set before retaining caller-controlled input references. */
+    private static List<VersionedInput> boundedInputSnapshot(List<VersionedInput> source) {
+        Objects.requireNonNull(source, "inputs");
+        int declaredSize = source.size();
+        if (declaredSize < 0 || declaredSize > MAX_VERSIONED_INPUTS) {
+            throw new IllegalArgumentException("simulation input references exceed the declared role count");
+        }
+        ArrayList<VersionedInput> copy = new ArrayList<>(declaredSize);
+        Iterator<VersionedInput> iterator = Objects.requireNonNull(source.iterator(), "input iterator");
+        while (iterator.hasNext()) {
+            if (copy.size() == MAX_VERSIONED_INPUTS) {
+                throw new IllegalArgumentException("simulation input references exceed the declared role count");
+            }
+            copy.add(Objects.requireNonNull(iterator.next(), "input"));
+        }
+        if (copy.size() != declaredSize) {
+            throw new IllegalArgumentException("simulation input reference size does not match its iterator");
+        }
+        return List.copyOf(copy);
     }
 
     /** Resolves each exact reference against its owning source of version/currentness. */

@@ -846,7 +846,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Rig/joint constraints, reference poses, coordinate roundtrip, source rights, decodable spatial output.
 - **Predecessors:** `media.dev.project-timeline-engine`
 
-**`media.dev.scientific-simulation-engine`** · VERIFIED (full simulation module 22 tests pass; strict Result invariants; simulation-only evidence)
+**`media.dev.scientific-simulation-engine`** · VERIFIED (full simulation module 31 tests pass; strict Result invariants; simulation-only evidence)
 - **Where:** `modules/production/simulation`, `runtime-contracts`
 - **What:** Implement typed domain simulation with real solver, observables and uncertainty.
 - **How:** Reuse numerical engine where possible; enforce SI units, integration scheme, step tolerance, bounded iterations and instrument views.
@@ -854,15 +854,17 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Progress:** Added an overflow regression: finite inputs whose propagated uncertainty becomes non-finite return `INVALID_INPUT` with no partial trace; `PhysicalSimulationTest` passes 8/8. Solver output remains deterministic simulation evidence, not measurement evidence.
 - **Additional progress (2026-11-06):** The full simulation module passes 22 tests, including strict `Result` invariants. Evidence is limited to deterministic simulation behavior; it is not measurement evidence.
 - **Additional progress (2026-11-07):** 2026-11-07 solver-horizon increment: an under-integrated positive step can no longer be rounded up to the requested terminal time; the solver abstains when exact coverage is unavailable. The full small simulation module passes 25 tests with no failures or skips. This is deterministic solver behavior, not scientific validation or measurement; instrument mapping and independent oracle evidence remain open.
+- **Additional progress (2026-11-08):** FULL source-composite simulation module rerun passes 31/31 across solver, unit-boundary and semantic-validator tests. `RunBinding` now bounds input-reference snapshots to the finite declared role set and rejects underreported iterators before consuming an excess item. This is local resource-bound evidence only; simulation output remains unqualified as a real-world measurement.
 - **Predecessors:** `media.dev.project-timeline-engine`
 
-**`media.dev.simulation-semantic-validation`** · VERIFIED (10 verifier tests and 8 solver tests pass; exact source currentness, unit-safe invariants, repeatability and simulation-only evidence are enforced)
+**`media.dev.simulation-semantic-validation`** · VERIFIED (FULL source-composite simulation module 31 tests pass; exact source currentness, unit-safe invariants, repeatability and simulation-only evidence are enforced)
 - **Where:** `modules/production/simulation`, `libs/media-experience-simulation`
 - **What:** Validate each procedural/simulation pass against declared semantic invariants.
 - **How:** Distinguish simulation physics from visual animation, fail or ABSTAIN when model/units/constraints unavailable; version all pass inputs.
 - **Test/exit:** Unstable solver, incompatible units, incomplete references, repeatability and no fabricated measurement.
 - **Additional progress (2026-11-07):** 2026-11-07 exact-reference increment: SimulationSemanticValidator now enforces the PDP-1 1–128 character opaque runId grammar and rejects ASCII/Unicode edge whitespace on exact identity/version references without normalizing them. Invalid inputs ABSTAIN before owner reference verification. The focused FULL source-composite SimulationSemanticValidatorTest passes 15/15. Deterministic simulation evidence only; J-15 source refs, hosted rights/job binding and measurement qualification remain open.
 - **Coordinator progress (2026-11-07):** Repeatability comparison now treats `runIdentity` as the distinct identity of each run and compares exact versioned inputs, declared invariants and horizon. A replay ID outside the existing opaque-ID grammar abstains before owner-reference reads. `SimulationSemanticValidatorTest` and the simulation module pass (29 tests); this remains deterministic simulation evidence, not scientific validation or measurement.
+- **Additional progress (2026-11-08):** `SimulationSemanticValidator.RunBinding` bounds its immutable input-reference snapshot to the five existing `InputRole` values. An underreported infinite iterator is rejected after exactly five consumed entries. Forced FULL source-composite module selector passes 31/31; the focused validator class has 16 cases. This is input-bound protection only and does not establish model calibration, independent measured references, or runtime authority.
 
 - **Predecessors:** `media.dev.scientific-simulation-engine`
 
