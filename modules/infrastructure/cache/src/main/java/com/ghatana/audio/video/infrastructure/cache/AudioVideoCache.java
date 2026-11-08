@@ -331,7 +331,8 @@ public class AudioVideoCache<K, V> {
 
     /** Runs a cache operation after the caller has established protected-scope authority. */
     private AsyncOperation<V> getOrLoadInternal(K key, Function<K, AsyncOperation<V>> loader) {
-        return getOrLoadInternal(key, loader, ignored -> AsyncOperation.success(true));
+        return getOrLoadInternal(key, loader, ignored -> AsyncOperation.success(true),
+                ignored -> AsyncOperation.success(true));
     }
 
     /**
@@ -343,9 +344,11 @@ public class AudioVideoCache<K, V> {
     private AsyncOperation<V> getOrLoadInternal(
             K key,
             Function<K, AsyncOperation<V>> loader,
-            Function<V, AsyncOperation<Boolean>> beforeCacheWrite) {
+            Function<V, AsyncOperation<Boolean>> beforeCacheWrite,
+            Function<V, AsyncOperation<Boolean>> afterCacheWrite) {
         Objects.requireNonNull(loader, "loader cannot be null");
         Objects.requireNonNull(beforeCacheWrite, "beforeCacheWrite cannot be null");
+        Objects.requireNonNull(afterCacheWrite, "afterCacheWrite cannot be null");
 
         CompletableFuture<V> existing = inFlightLoads.get(key);
         if (existing != null) return AsyncOperation.from(existing);
@@ -415,7 +418,7 @@ public class AudioVideoCache<K, V> {
                     }
                 } else {
                     completeFrom(loadAndCache(
-                            key, loader, candidate, capturedEpoch, beforeCacheWrite), operationFuture);
+                            key, loader, candidate, capturedEpoch, beforeCacheWrite, afterCacheWrite), operationFuture);
                 }
             });
             if (!operationFuture.isDone()) {
@@ -633,7 +636,8 @@ public class AudioVideoCache<K, V> {
     private AsyncOperation<V> loadAndCache(
             K key, Function<K, AsyncOperation<V>> loader,
             CompletableFuture<V> callerResult, EpochSnapshot capturedEpoch,
-            Function<V, AsyncOperation<Boolean>> beforeCacheWrite) {
+            Function<V, AsyncOperation<Boolean>> beforeCacheWrite,
+            Function<V, AsyncOperation<Boolean>> afterCacheWrite) {
         CompletableFuture<V> result = new CompletableFuture<>();
         loadWithoutCache(key, loader).whenComplete((value, loadError) -> {
             if (loadError != null) {
@@ -665,7 +669,7 @@ public class AudioVideoCache<K, V> {
                         result.complete(value);
                         return;
                     }
-                    writeLoadedValue(key, value, callerResult, result, capturedEpoch);
+                    writeLoadedValue(key, value, callerResult, result, capturedEpoch, afterCacheWrite);
                 });
             }
         });
@@ -674,7 +678,8 @@ public class AudioVideoCache<K, V> {
 
     private void writeLoadedValue(
             K key, V value, CompletableFuture<V> callerResult,
-            CompletableFuture<V> result, EpochSnapshot capturedEpoch) {
+            CompletableFuture<V> result, EpochSnapshot capturedEpoch,
+            Function<V, AsyncOperation<Boolean>> afterCacheWrite) {
         Object marker = reservePendingCacheWrite(key, capturedEpoch);
         if (marker == null) {
             callerResult.complete(value);
@@ -688,7 +693,25 @@ public class AudioVideoCache<K, V> {
                 if (putError != null) LOG.warn(
                         "Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
                         namespaceReference(), keyReference(key), failureType(putError));
-                result.complete(value);
+                if (putError != null) {
+                    result.complete(value);
+                    return;
+                }
+                final AsyncOperation<Boolean> authorityAfterWrite;
+                try {
+                    authorityAfterWrite = Objects.requireNonNull(afterCacheWrite.apply(value),
+                            "afterCacheWrite returned null operation");
+                } catch (RuntimeException unavailable) {
+                    invalidateAfterAuthorityChange(key);
+                    result.complete(value);
+                    return;
+                }
+                authorityAfterWrite.whenComplete((allowed, checkError) -> {
+                    if (checkError != null || !Boolean.TRUE.equals(allowed)) {
+                        invalidateAfterAuthorityChange(key);
+                    }
+                    result.complete(value);
+                });
             });
             if (!result.isDone()) {
                 CompletableFuture.delayedExecutor(
@@ -704,6 +727,14 @@ public class AudioVideoCache<K, V> {
             result.complete(value);
             callerResult.complete(value);
         }
+    }
+
+    private void invalidateAfterAuthorityChange(K key) {
+        invalidateInternal(key).whenComplete((ignored, failure) -> {
+            if (failure != null) LOG.debug(
+                    "Cache entry invalidation after authority change failed: namespaceRef={}, keyRef={}, causeType={}",
+                    namespaceReference(), keyReference(key), failureType(failure));
+        });
     }
 
     private static <T> void completeFrom(AsyncOperation<T> operation, CompletableFuture<T> target) {
@@ -982,6 +1013,7 @@ public class AudioVideoCache<K, V> {
                         "Current cache authority is denied or unknown"));
             }
             return getOrLoadInternal(asCacheKey(key), ignored -> loader.apply(key),
+                    ignored -> checkScopedAuthority(scope, authority),
                     ignored -> checkScopedAuthority(scope, authority))
                     .flatMap(value -> checkScopedAuthority(scope, authority)
                             .whenComplete((current, failure) -> {

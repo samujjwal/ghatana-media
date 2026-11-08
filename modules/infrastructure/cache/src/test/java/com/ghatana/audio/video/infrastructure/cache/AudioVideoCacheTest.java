@@ -157,6 +157,39 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void authorityRevokedWhileProtectedCacheWriteIsPendingInvalidatesAfterWriteSettles() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), eq("protected source value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.from(pendingWrite));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        AtomicInteger checks = new AtomicInteger();
+
+        String value = await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a", checked ->
+                AsyncOperation.success(checks.incrementAndGet() <= 3
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
+                ignored -> AsyncOperation.success("protected source value")));
+
+        assertThat(value).isEqualTo("protected source value");
+        assertThat(pendingWrite).isNotCompleted();
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(key);
+
+        // The caller's checks passed before the Redis write settled. A revocation
+        // observed at write completion must retire the now-persisted scoped value.
+        pendingWrite.complete(null);
+
+        assertThat(checks).hasValue(4);
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
     void sourceRevisionChangeCannotReusePriorProtectedCacheEntry() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
