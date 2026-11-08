@@ -61,6 +61,24 @@ class DeliveryDestinationReceiptScenarioTest {
     }
 
     @Test
+    void changedArtifactUnderSameRequestIdIsRejectedWithoutRepeatingDestinationEffect() {
+        ExportRequest original = request(new byte[] { 0x12, 0x34, 0x56 }, "request-changed-content");
+        FixtureDestination destination = new FixtureDestination(false, false, true);
+        MediaDeliveryEngine engine = engine(original, destination);
+
+        DeliveryResult first = engine.export(original);
+        ExportRequest changed = request(new byte[] { 0x12, 0x34, 0x57 }, original.requestId());
+
+        assertThat(first.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThatThrownBy(() -> engine.export(changed))
+                .isInstanceOfSatisfying(DeliveryException.class, error ->
+                        assertThat(error.code()).isEqualTo(DeliveryException.Code.IDEMPOTENCY_CONFLICT));
+        assertThat(engine.find(original.tenantId(), original.requestId()).orElseThrow()).isEqualTo(first);
+        assertThat(destination.sendCount).isEqualTo(1);
+        assertThat(destination.reconcileCount).isEqualTo(1);
+    }
+
+    @Test
     void shortFinalReceiptRemainsUnknownAndReplayDoesNotResend() {
         byte[] content = new byte[] { 0x12, 0x34, 0x56 };
         ExportRequest request = request(content, "request-short-final-receipt");
