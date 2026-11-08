@@ -76,6 +76,22 @@ describe("OfflineReconnectCoordinator", () => {
       reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty: true });
   });
 
+  it("does not send queued private edits to remote operations while still offline", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let remoteCalls = 0;
+    const coordinator = new OfflineReconnectCoordinator(q, scope, operations({
+      reauthorize: async (...args) => { remoteCalls++; return operations().reauthorize(...args); },
+      readProjectVersion: async (...args) => { remoteCalls++; return operations().readProjectVersion(...args); },
+      applyEdit: async (...args) => { remoteCalls++; return operations().applyEdit(...args); },
+    }));
+
+    await expect(coordinator.reconnect(false, { reviewedQueue: await q.readEdits(scope) }))
+      .resolves.toEqual({ status: "OFFLINE", dirty: true });
+    expect(remoteCalls).toBe(0);
+    expect(await q.readEdits(scope)).toMatchObject([{ edit, state: "PENDING" }]);
+  });
+
   it("requires an explicit host review action before an online reconnect can submit a draft", async () => {
     const q = await queue();
     await q.enqueue(edit);
