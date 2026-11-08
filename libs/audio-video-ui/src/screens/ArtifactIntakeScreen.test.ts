@@ -90,7 +90,7 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
 
   it.each([
     ["empty", new File([], "empty.wav")],
-    ["over-sdk-limit", Object.defineProperty(new File([new Uint8Array(1)], "large.wav"), "size", { value: 1_073_741_825 })],
+    ["above-pdp-limit", Object.defineProperty(new File([new Uint8Array(1)], "large.wav"), "size", { value: 2_147_483_649 })],
   ])("rejects %s input at the screen boundary without dispatch", async (_label, file) => {
     const capability = admittedCapability();
     render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
@@ -98,6 +98,24 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
     await screen.findByText(/outside the authenticated SDK upload size limits/);
     expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("lets the PDP-1 size ceiling reach the authenticated route", async () => {
+    const maxBytes = 2_147_483_648;
+    const createUploadSession = vi.fn(async () => { throw Object.assign(new Error("fixture denial"), { statusCode: 403 }); });
+    const capability = {
+      ...admittedCapability({ createUploadSession }),
+      hashFile: vi.fn(async () => "a".repeat(64)),
+    };
+    const file = new File([new Uint8Array(1)], "large.wav", { type: "audio/wav" });
+    Object.defineProperty(file, "size", { value: maxBytes });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+
+    await screen.findByText(/Upload was denied by the current authenticated route/u);
+    expect(capability.hashFile).toHaveBeenCalledWith(file, expect.any(AbortSignal));
+    expect(createUploadSession).toHaveBeenCalledWith(expect.objectContaining({ expectedSizeBytes: maxBytes }), expect.any(AbortSignal));
   });
 
   it("returns HASHING_UNAVAILABLE for large files before allocating or dispatching", async () => {
@@ -253,5 +271,24 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     await screen.findByText(/Upload completion acknowledged/);
     expect(screen.getByRole("progressbar", { name: "Server-acknowledged upload progress" }))
       .toHaveProperty("value", 3);
+  });
+
+  it("stops before the next chunk when the host withdraws upload admission", async () => {
+    let acknowledgeFirstChunk!: (session: ArtifactUploadSession) => void;
+    const capability = admittedCapability({
+      uploadPart: vi.fn(() => new Promise<ArtifactUploadSession>((resolve) => { acknowledgeFirstChunk = resolve; })),
+    });
+    const view = render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    const file = new File([new Uint8Array(5 * 1024 * 1024 + 1)], "large-source.wav", { type: "audio/wav" });
+    fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await waitFor(() => expect(capability.client.uploadPart).toHaveBeenCalledTimes(1));
+
+    view.rerender(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: undefined }));
+    acknowledgeFirstChunk(uploadSession({ bytesReceived: 5 * 1024 * 1024, nextChunkIndex: 1 }));
+
+    await screen.findByText(/Upload stopped because the current host no longer admits the route/);
+    expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
   });
 });

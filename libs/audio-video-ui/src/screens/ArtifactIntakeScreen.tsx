@@ -57,8 +57,9 @@ type UploadInspection =
   | { readonly state: "failed" };
 const UPLOAD_CHUNK_BYTES = 5 * 1024 * 1024;
 // WebCrypto has no incremental digest API. This is only the fallback's one-shot
-// allocation bound; the canonical SDK retains its 1 GiB request limit.
+// allocation bound; PDP-1 declares a separate 2 GiB operation request limit.
 const MAX_ONE_SHOT_HASH_BYTES = 64 * 1024 * 1024;
+const MAX_UPLOAD_SIZE_BYTES = 2_147_483_648;
 
 /** Candidate J-02 screen body. Host-injected uploads use the authenticated SDK and report only receipts. */
 export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, uploadCapability, ...flow }: ArtifactIntakeScreenProps): React.ReactElement {
@@ -71,13 +72,19 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, uploadCapa
   const [inspection, setInspection] = React.useState<UploadInspection | undefined>();
   const [locked, setLocked] = React.useState(false);
   const controller = React.useRef<AbortController | undefined>();
+  const uploadCapabilityRef = React.useRef(uploadCapability);
+  React.useLayoutEffect(() => { uploadCapabilityRef.current = uploadCapability; }, [uploadCapability]);
   React.useEffect(() => () => controller.current?.abort(), []);
 
   const startUpload = async (): Promise<void> => {
     if (!uploadCapability || uploadCapability.runtimeAdmission !== "ADMITTED" || !selectedFile || locked) return;
+    const hasCurrentAdmission = (): boolean => {
+      const current = uploadCapabilityRef.current;
+      return current === uploadCapability && current?.runtimeAdmission === "ADMITTED";
+    };
     const hashFile = uploadCapability.hashFile;
     const subtleCrypto = globalThis.crypto?.subtle;
-    if (selectedFile.size < 1 || selectedFile.size > 1_073_741_824) {
+    if (selectedFile.size < 1 || selectedFile.size > MAX_UPLOAD_SIZE_BYTES) {
       setTransfer({ state: "denied", message: "This source is outside the authenticated SDK upload size limits." });
       return;
     }
@@ -113,6 +120,9 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, uploadCapa
       }
       // The runtime normalizes internal digests, but the canonical wire form is lowercase.
       const sha256 = computedSha256.toLowerCase();
+      if (!hasCurrentAdmission()) {
+        throw Object.assign(new Error("The host upload capability was withdrawn."), { hostAdmissionWithdrawn: true });
+      }
       const idempotencyKey = globalThis.crypto.randomUUID();
       setRequestKey(idempotencyKey);
       phase = "begin";
@@ -134,18 +144,27 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, uploadCapa
       }
       phase = "chunks";
       for (let offset = 0; offset < selectedFile.size; offset += UPLOAD_CHUNK_BYTES) {
+        if (!hasCurrentAdmission()) {
+          throw Object.assign(new Error("The host upload capability was withdrawn."), { hostAdmissionWithdrawn: true });
+        }
         const part = selectedFile.slice(offset, Math.min(offset + UPLOAD_CHUNK_BYTES, selectedFile.size));
         session = await uploadCapability.client.uploadPart(session, session.nextChunkIndex, part, { signal: abortController.signal });
         setAcknowledgedBytes(session.bytesReceived);
+      }
+      if (!hasCurrentAdmission()) {
+        throw Object.assign(new Error("The host upload capability was withdrawn."), { hostAdmissionWithdrawn: true });
       }
       phase = "complete";
       const artifact = await uploadCapability.client.completeUploadSession(session, abortController.signal);
       setTransfer({ state: "complete", message: `Upload completion acknowledged for artifact ${artifact.artifactId}. Availability, rights, consent, and downstream use are not established.` });
     } catch (error) {
       const status = error && typeof error === "object" && "statusCode" in error ? (error as { statusCode?: unknown }).statusCode : undefined;
+      const hostAdmissionWithdrawn = error && typeof error === "object" && "hostAdmissionWithdrawn" in error;
       if (phase === "hashing") {
         setTransfer({ state: "unavailable", code: "HASHING_UNAVAILABLE", message: "Source hashing failed before upload began. No upload request was sent." });
         setLocked(false);
+      } else if (hostAdmissionWithdrawn) {
+        setTransfer({ state: "denied", message: "Upload stopped because the current host no longer admits the route. No further request was sent." });
       } else if (status === 400 || status === 401 || status === 403) {
         setTransfer({ state: "denied", message: "Upload was denied by the current authenticated route. No retry was attempted." });
       } else {
