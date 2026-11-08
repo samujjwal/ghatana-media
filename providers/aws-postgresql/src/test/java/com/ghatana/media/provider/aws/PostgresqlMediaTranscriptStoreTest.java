@@ -703,6 +703,35 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void exactTranscriptVersionReadbackRejectsContentThatDriftsFromSuccessfulAttempt() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "8".repeat(64);
+            String fingerprint = "a".repeat(64);
+            String versionRef = "urn:media:transcript-version:tamper-check";
+            seed(state, "tenant-tamper", "principal-a", "source-tamper", "job-tamper",
+                    "consent-tamper", digest, false);
+            seedSuccessfulAttempt(state, "tenant-tamper", "principal-a", "source-tamper", "job-tamper",
+                    digest, fingerprint, 1, 29, versionRef, "provider words", "op-tamper", "receipt-tamper");
+            TranscriptDraft candidate = draft("tenant-tamper", "principal-a", "transcript-tamper",
+                    "source-tamper", "job-tamper", "consent-tamper", digest, "provider words");
+            store.appendFromSuccessfulAttempt(candidate, 0, 1, 29, fingerprint, versionRef);
+            assertThat(store.revisionByVersionRef("tenant-tamper", "principal-a", versionRef)).isPresent();
+
+            // A stale or externally altered revision row must not retain the exact provider-version identity.
+            try (Connection connection = state.connection(); PreparedStatement update = connection.prepareStatement(
+                    "UPDATE media_transcript_revisions SET transcript_text=? WHERE tenant_id=? AND transcript_id=? AND revision=1")) {
+                update.setString(1, "altered after provider commit");
+                update.setString(2, "tenant-tamper");
+                update.setString(3, "transcript-tamper");
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+            assertThat(store.revisionByVersionRef("tenant-tamper", "principal-a", versionRef)).isEmpty();
+        }
+    }
+
+    @Test
     void requestSnapshotMustMatchGlossaryObservationAndLegacyUnknownFailsClosed() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store(); var state = fixture.state();

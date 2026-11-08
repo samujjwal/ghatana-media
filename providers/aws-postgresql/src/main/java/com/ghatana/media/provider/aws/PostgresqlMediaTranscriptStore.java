@@ -818,7 +818,8 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         requireNonBlank(transcriptVersionRef, "transcriptVersionRef");
         List<TranscriptRevision> matches = new ArrayList<>();
         try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement("""
-                SELECT r.* FROM media_transcript_revisions r
+                SELECT r.*,a.result_json AS attempt_result_json,a.result_digest AS attempt_result_digest
+                  FROM media_transcript_revisions r
                 JOIN media_transcript_attempt_bindings b
                   ON b.tenant_id=r.tenant_id AND b.transcript_id=r.transcript_id
                  AND b.transcript_revision=r.revision
@@ -838,12 +839,41 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             query.setString(2, principalId);
             query.setString(3, transcriptVersionRef);
             try (ResultSet rows = query.executeQuery()) {
-                while (rows.next()) matches.add(read(rows));
+                while (rows.next()) {
+                    TranscriptRevision revision = read(rows);
+                    if (!matchesAttemptProjection(revision, rows.getString("attempt_result_json"),
+                            rows.getString("attempt_result_digest"), transcriptVersionRef)) {
+                        return java.util.Optional.empty();
+                    }
+                    matches.add(revision);
+                }
             }
         } catch (SQLException failure) {
             throw dbFailure("read transcript revision by version reference", failure);
         }
         return matches.size() == 1 ? java.util.Optional.of(matches.getFirst()) : java.util.Optional.empty();
+    }
+
+    /** Exact-version readback also verifies that durable transcript content still matches its attempt result. */
+    private boolean matchesAttemptProjection(TranscriptRevision revision, String resultJson,
+            String resultDigest, String transcriptVersionRef) {
+        if (resultJson == null || resultDigest == null || !resultDigest.matches("[0-9a-f]{64}")
+                || !resultDigest.equals(sha256(resultJson))) return false;
+        try {
+            JsonNode root = state.mapper().readTree(resultJson);
+            JsonNode observations = root == null ? null : root.get("semanticObservations");
+            if (!validSemanticObservations(observations)) return false;
+            JsonNode response = observations == null ? null : observations.get("transcriptResponse");
+            String fingerprint = text(observations, "requestFingerprint");
+            return response != null && validTranscriptResponse(response, revision.draft().segments())
+                    && fingerprint != null && fingerprint.matches("[0-9a-f]{64}")
+                    && fingerprint.equals(text(response, "requestFingerprint"))
+                    && transcriptVersionRef.equals(text(response, "transcriptVersionRef"))
+                    && revision.draft().sourceVersion().equals(text(response, "sourceArtifactVersionRef"))
+                    && revision.draft().text().equals(text(response, "transcriptText"));
+        } catch (tools.jackson.core.JacksonException malformed) {
+            return false;
+        }
     }
 
     private TranscriptRevision resolveConcurrentAppend(
