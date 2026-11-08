@@ -592,6 +592,28 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsReorderedCaptionAndTransitionRowsEvenWhenRehashed() throws Exception {
+        var zero = new MultitrackRenderPlanner.Time(0, 1);
+        var one = new MultitrackRenderPlanner.Time(1, 1);
+        var two = new MultitrackRenderPlanner.Time(2, 1);
+        var left = video("left", zero, List.of(zero), two);
+        var right = video("right", zero, List.of(zero), two);
+        var graph = new MultitrackRenderPlanner.Graph(List.of(left, right),
+                List.of(new MultitrackRenderPlanner.Caption("caption-z", one, two, "z"),
+                        new MultitrackRenderPlanner.Caption("caption-a", zero, one, "a")),
+                List.of(new MultitrackRenderPlanner.Transition("transition-z", "left", "right",
+                                MultitrackRenderPlanner.TransitionKind.CROSSFADE, one, one),
+                        new MultitrackRenderPlanner.Transition("transition-a", "left", "right",
+                                MultitrackRenderPlanner.TransitionKind.WIPE, zero, one)),
+                1_000);
+        var valid = MultitrackRenderPlanner.plan(graph).plan();
+
+        assertCanonicalRowsRejectReordering(valid, "caption=", "canonical manifest caption rows must be sorted by id");
+        assertCanonicalRowsRejectReordering(valid, "transition=",
+                "canonical manifest transition rows must be sorted by id");
+    }
+
+    @Test
     void publicPlanRejectsForgedClipSourceMetadataEvenWhenManifestDigestMatches() throws Exception {
         var start = new MultitrackRenderPlanner.Time(0, 1);
         var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
@@ -704,6 +726,22 @@ class MultitrackRenderPlannerTest {
 
         assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
                 valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes())).withMessageContaining(expectedMessage);
+    }
+
+    private static void assertCanonicalRowsRejectReordering(MultitrackRenderPlanner.Plan valid,
+            String recordPrefix, String expectedMessage) throws Exception {
+        var rows = valid.canonicalManifest().lines().filter(line -> line.startsWith(recordPrefix)).toList();
+        assertThat(rows).hasSize(2);
+        String original = rows.get(0) + "\n" + rows.get(1) + "\n";
+        String reorderedRows = rows.get(1) + "\n" + rows.get(0) + "\n";
+        String reorderedManifest = valid.canonicalManifest().replace(original, reorderedRows);
+        assertThat(reorderedManifest).isNotEqualTo(valid.canonicalManifest());
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(reorderedManifest.getBytes(StandardCharsets.UTF_8)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), reorderedManifest, digest, valid.duration(), valid.frameMap(),
                 valid.declaredOutputBudgetBytes())).withMessageContaining(expectedMessage);
     }
 

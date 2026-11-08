@@ -478,6 +478,7 @@ public final class MultitrackRenderPlanner {
                     manifestTime(fields[5]), manifestTime(fields[6]), manifestTime(fields[7])));
         }
         var transitionIds = new java.util.HashSet<String>();
+        String previousTransitionId = null;
         for (String line : manifest.lines().filter(value -> value.startsWith("transition=")).toList()) {
             String[] fields = line.substring("transition=".length()).split("\\|", -1);
             if (fields.length != 6) throw invalid("canonical manifest transition row is malformed");
@@ -485,6 +486,10 @@ public final class MultitrackRenderPlanner {
             String leftId = opaque(fields[1], "manifest transition left clip id");
             String rightId = opaque(fields[2], "manifest transition right clip id");
             if (!transitionIds.add(id)) throw invalid("canonical manifest transition ids must be unique");
+            if (previousTransitionId != null && previousTransitionId.compareTo(id) >= 0) {
+                throw invalid("canonical manifest transition rows must be sorted by id");
+            }
+            previousTransitionId = id;
             if (leftId.equals(rightId)) throw invalid("transition must reference two distinct graph clips");
             try {
                 TransitionKind.valueOf(fields[3]);
@@ -509,11 +514,16 @@ public final class MultitrackRenderPlanner {
 
     private static void validateCaptionMappings(String manifest, Time planDuration) {
         var captionIds = new java.util.HashSet<String>();
+        String previousCaptionId = null;
         for (String line : manifest.lines().filter(value -> value.startsWith("caption=")).toList()) {
             String[] fields = line.substring("caption=".length()).split("\\|", -1);
             if (fields.length != 4) throw invalid("canonical manifest caption row is malformed");
             String captionId = opaque(fields[0], "manifest caption id");
             if (!captionIds.add(captionId)) throw invalid("caption ids must be unique");
+            if (previousCaptionId != null && previousCaptionId.compareTo(captionId) >= 0) {
+                throw invalid("canonical manifest caption rows must be sorted by id");
+            }
+            previousCaptionId = captionId;
             Time start = manifestTime(fields[1]);
             Time end = manifestTime(fields[2]);
             if (start.numerator() < 0 || end.compareTo(start) <= 0 || end.compareTo(planDuration) > 0) {
