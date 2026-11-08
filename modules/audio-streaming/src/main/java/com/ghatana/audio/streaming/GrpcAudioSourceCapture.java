@@ -356,7 +356,10 @@ public final class GrpcAudioSourceCapture {
     public record Result(Disposition disposition, int acknowledgedFrames, long lastSourceCursor, String reason) {
         public Result {
             Objects.requireNonNull(disposition, "disposition");
-            if (acknowledgedFrames < 0 || lastSourceCursor < -1) throw new IllegalArgumentException("invalid capture result");
+            if (acknowledgedFrames < 0 || acknowledgedFrames > MAX_BATCH_FRAMES || lastSourceCursor < -1
+                    || (acknowledgedFrames == 0) != (lastSourceCursor == -1)) {
+                throw new IllegalArgumentException("invalid capture result");
+            }
             reason = reason == null ? "" : reason;
         }
     }

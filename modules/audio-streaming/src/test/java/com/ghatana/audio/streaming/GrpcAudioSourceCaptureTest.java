@@ -64,6 +64,20 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void resultRejectsAcknowledgementCountsOutsideOneBatchAndCursorMismatch() {
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Result(
+                GrpcAudioSourceCapture.Disposition.ACCEPTED,
+                GrpcAudioSourceCapture.MAX_BATCH_FRAMES + 1, 0, ""))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("invalid capture result");
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Result(
+                GrpcAudioSourceCapture.Disposition.UNKNOWN, 0, 10, ""))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("invalid capture result");
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Result(
+                GrpcAudioSourceCapture.Disposition.UNKNOWN, 1, -1, ""))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("invalid capture result");
+    }
+
+    @Test
     void batchRejectsUnderreportedFrameListBeforeTraversingPastItsBound() {
         GrpcAudioSourceCapture.SourceFrame sourceFrame = frame(10, 0, "source@v7");
         List<GrpcAudioSourceCapture.SourceFrame> actualFrames = new ArrayList<>(

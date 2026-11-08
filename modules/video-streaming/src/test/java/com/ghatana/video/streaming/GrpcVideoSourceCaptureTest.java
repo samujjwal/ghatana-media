@@ -60,6 +60,20 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void resultRejectsAcknowledgementCountsOutsideOneBatchAndCursorMismatch() {
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Result(
+                GrpcVideoSourceCapture.Disposition.ACCEPTED,
+                GrpcVideoSourceCapture.MAX_BATCH_FRAMES + 1, 0, ""))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("invalid capture result");
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Result(
+                GrpcVideoSourceCapture.Disposition.UNKNOWN, 0, 10, ""))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("invalid capture result");
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Result(
+                GrpcVideoSourceCapture.Disposition.UNKNOWN, 1, -1, ""))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("invalid capture result");
+    }
+
+    @Test
     void versionReferenceLengthUsesUnicodeCodePoints() {
         String maxCodePoints = "\uD83D\uDE00".repeat(384);
         assertThat(new GrpcVideoSourceCapture.Request(
