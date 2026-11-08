@@ -101,7 +101,9 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
                 var artifact = uploadFixture(firstRuntime, tenant, principal, runId);
                 var accepted = firstRuntime.submit(new ProcessingJobRequest(
                         "request-" + runId, tenant, principal, "correlation-" + runId,
-                        artifact.artifactId(), JobType.VISION, "", Map.of(), governance()));
+                        artifact.artifactId(), artifact.version().value(), JobType.VISION,
+                        "", Map.of(), governance()),
+                        authenticated(tenant, principal));
                 ProcessingJob unknown = awaitTerminal(firstRuntime, tenant, principal, accepted.jobId());
 
                 assertThat(unknown.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
@@ -130,13 +132,92 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
         }
     }
 
+    @org.junit.jupiter.api.Test
+    void dispatchedProviderOutageStaysUnknownWithoutFallbackAcrossRuntimeReconstruction() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-provider-outage-" + runId;
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        Map<String, String> environment = Map.ofEntries(
+                Map.entry("MEDIA_RUNTIME_ENVIRONMENT", "test"),
+                Map.entry("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl()),
+                Map.entry("MEDIA_POSTGRES_USER", POSTGRES.getUsername()),
+                Map.entry("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_OUTAGE_DB_PASSWORD"),
+                Map.entry("MEDIA_OUTAGE_DB_PASSWORD", POSTGRES.getPassword()),
+                Map.entry("MEDIA_POSTGRES_POOL_SIZE", "8"),
+                Map.entry("MEDIA_S3_BUCKET", bucket),
+                Map.entry("MEDIA_S3_ENDPOINT", LOCALSTACK.getEndpointOverride(S3).toString()),
+                Map.entry("MEDIA_S3_REGION", LOCALSTACK.getRegion()),
+                Map.entry("MEDIA_S3_PATH_STYLE", "true"),
+                Map.entry("MEDIA_S3_REQUEST_CHECKSUM_CALCULATION", "WHEN_REQUIRED"),
+                Map.entry("MEDIA_S3_ACCESS_KEY_REFERENCE", "secret:env:MEDIA_OUTAGE_S3_ACCESS"),
+                Map.entry("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:MEDIA_OUTAGE_S3_SECRET"),
+                Map.entry("MEDIA_OUTAGE_S3_ACCESS", LOCALSTACK.getAccessKey()),
+                Map.entry("MEDIA_OUTAGE_S3_SECRET", LOCALSTACK.getSecretKey()));
+        AtomicInteger providerDispatches = new AtomicInteger();
+        AtomicInteger fallbackCalls = new AtomicInteger();
+        var providers = List.of(outageProvider(providerDispatches), fallbackProvider(fallbackCalls));
+        var installed = TestAwsStateInstall.install(environment);
+        var root = Files.createTempDirectory("media-provider-outage-finality-");
+        try (PostgresqlMediaJobStore stateKeeper = new PostgresqlMediaJobStore()) {
+            assertThat(stateKeeper.ready()).isTrue();
+            String tenant = "tenant-" + runId;
+            String principal = "principal-" + runId;
+            String requestId = "outage-request-" + runId;
+            String artifactId;
+            String artifactVersion;
+            String jobId;
+            try (MediaRuntime runtime = runtime(root, providers)) {
+                var artifact = uploadFixture(runtime, tenant, principal, runId);
+                artifactId = artifact.artifactId();
+                artifactVersion = "sha256:" + artifact.sha256();
+                var accepted = runtime.submit(new ProcessingJobRequest(
+                        requestId, tenant, principal, "outage-correlation-" + runId,
+                        artifactId, artifactVersion, JobType.VISION,
+                        "fixture-provider-transport-outage", Map.of(), governance()),
+                        authenticated(tenant, principal));
+                jobId = accepted.jobId();
+                ProcessingJob unknown = awaitTerminal(runtime, tenant, principal, jobId);
+
+                assertThat(unknown.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(unknown.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+                assertThat(unknown.result()).containsEntry("providerOutcome", "UNKNOWN")
+                        .doesNotContainKey("fallback").doesNotContainKey("result");
+                assertThat(unknown.artifactId()).isEqualTo(artifactId);
+                assertThat(unknown.expectedArtifactVersion()).isEqualTo(artifactVersion);
+                assertThat(providerDispatches).hasValue(1);
+                assertThat(fallbackCalls).hasValue(0);
+                assertThat(postgresAttemptState(tenant, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+                assertThat(unknownOutboxRows(tenant, jobId)).isGreaterThanOrEqualTo(1);
+            }
+
+            try (MediaRuntime restarted = runtime(root, providers)) {
+                ProcessingJob recovered = restarted.job(tenant, principal,
+                        readJobId(tenant, requestId)).orElseThrow();
+                assertThat(recovered.jobId()).isEqualTo(jobId);
+                assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(recovered.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+                assertThat(recovered.artifactId()).isEqualTo(artifactId);
+                assertThat(recovered.expectedArtifactVersion()).isEqualTo(artifactVersion);
+                assertThat(postgresAttemptState(tenant, jobId)).isEqualTo("OUTCOME_UNKNOWN");
+                assertThat(unknownOutboxRows(tenant, jobId)).isGreaterThanOrEqualTo(1);
+                assertThat(providerDispatches).hasValue(1);
+                assertThat(fallbackCalls).hasValue(0);
+            }
+        } finally {
+            installed.close();
+        }
+    }
+
     private static MediaRuntime runtime(java.nio.file.Path root, List<MediaProcessingProvider> providers) {
         var config = new MediaRuntimeConfig(true, "test", 8_093, 1_024, 1_024, 1_048_576,
                 Duration.ofSeconds(10), 4, "", "", false, false, root);
         return new MediaRuntime(config, new LocalMediaRuntimeSupport.FileArtifactStore(root),
                 new PostgresqlMediaJobStore(), new LocalMediaRuntimeSupport.StreamStore(), consentAuthority(),
                 MediaSemanticRedactionRuntime.disabled(config.jobTimeout()), MediaLifecyclePublisher.disabled(),
-                providers, List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of());
+                providers, List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of(),
+                sourceAuthorizationAuthority(), null, java.time.Clock.systemUTC());
     }
 
     private static com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact uploadFixture(
@@ -173,6 +254,26 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
         };
     }
 
+    private static MediaProcessingProvider outageProvider(AtomicInteger dispatches) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "fixture-provider-transport-outage"; }
+            @Override public String providerVersion() { return "test-v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 1; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.EXTERNAL; }
+            @Override public String processingRegion() { return "us"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public boolean fallbackEligible(Throwable failure) { return true; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                dispatches.incrementAndGet();
+                // The simulated transport breaks after handoff; no provider finality is returned.
+                return CompletableFuture.failedFuture(new java.io.IOException("fixture connection reset"));
+            }
+        };
+    }
+
     private static MediaProcessingProvider fallbackProvider(AtomicInteger calls) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return "must-not-run-fallback"; }
@@ -199,6 +300,53 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
                 return new ConsentDecision(true, "test-consent", governance.consentId(), now,
                         now.plusSeconds(300), Set.of(governance.purpose()), Set.of("us"), true, false,
                         Set.of(ProviderDataRetention.NONE));
+            }
+        };
+    }
+
+    private static com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated(
+            String tenant, String principal) {
+        return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                tenant, principal, Instant.now());
+    }
+
+    private static com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authority
+            sourceAuthorizationAuthority() {
+        return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "fixture-source-authorization"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision resolve(
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Request request,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                if (!authenticated.tenantId().equals(request.tenantId())
+                        || !authenticated.principalId().equals(request.principalId())) {
+                    return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                            com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.DENIED, null);
+                }
+                Instant now = Instant.now();
+                var evidence = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Evidence(
+                        authorityId(), "fixture-decision-" + request.artifactId(),
+                        request.tenantId(), request.principalId(), "fixture-owner", request.artifactId(),
+                        request.sourceVersion(), request.sourceSha256(), request.operation(), request.purpose(),
+                        request.providerId(), request.providerVersion(), request.processingBoundary(),
+                        request.processingRegion(), request.providerRetention(),
+                        Set.of(request.operation().toLowerCase(java.util.Locale.ROOT)),
+                        Set.of(request.processingRegion()), Set.of(request.providerRetention()),
+                        "fixture-rights", "fixture-policy", "fixture-policy-v1",
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts
+                                .HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                        "", "fixture-source-clock", 0, now.minusSeconds(1), now.plusSeconds(300));
+                return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, evidence);
+            }
+            @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision revalidate(
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Request request,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
             }
         };
     }
