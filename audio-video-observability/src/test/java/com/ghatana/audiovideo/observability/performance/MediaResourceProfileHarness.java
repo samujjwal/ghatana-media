@@ -571,7 +571,9 @@ public final class MediaResourceProfileHarness {
             if (fields.length != 2) throw new NumberFormatException();
             long quota = Long.parseLong(fields[0]);
             long period = Long.parseLong(fields[1]);
-            if (quota < 0 || period <= 0) throw new NumberFormatException();
+            // cgroup v2 cpu.max accepts a positive quota or "max"; a zero quota is
+            // not a valid measured CPU capacity and must not become a successful 0-core report.
+            if (quota <= 0 || period <= 0) throw new NumberFormatException();
             return Reading.measured((double) quota / period, "cores");
         } catch (NumberFormatException invalid) {
             return Reading.notMeasured("cores", "The cgroup CPU limit is invalid.");

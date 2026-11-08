@@ -278,6 +278,9 @@ class MediaResourceProfileHarnessTest {
         assertThat(MediaResourceProfileHarness.parseCpuLimit("400000 100000").value()).isEqualTo(4.0);
         assertThat(MediaResourceProfileHarness.parseCpuLimit("max 100000").state())
                 .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(MediaResourceProfileHarness.parseCpuLimit("0 100000").state())
+                .isEqualTo(MediaResourceProfileHarness.State.NOT_MEASURED);
+        assertThat(MediaResourceProfileHarness.parseCpuLimit("0 100000").reason()).isNotBlank();
 
         assertThat(MediaResourceProfileHarness.parseProcessLimit("256").value()).isEqualTo(256.0);
         assertThat(MediaResourceProfileHarness.parseProcessLimit("max").state())
