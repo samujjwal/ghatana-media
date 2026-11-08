@@ -126,6 +126,13 @@ final class BoundedRenderOutput extends OutputStream {
         try {
             destination.close();
             closed = true;
+            // Closing a buffered destination may take time. Recheck before
+            // publishing completion so a cancellation observed during close
+            // cannot leave a successful digest for the partial result.
+            if (!failed && cancellationRequested.getAsBoolean()) {
+                failed = true;
+                throw new IOException("render output cancellation requested");
+            }
             if (!failed) completedSha256 = HexFormat.of().formatHex(digest.digest());
         } catch (IOException | RuntimeException | Error failure) {
             failed = true;

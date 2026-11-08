@@ -163,6 +163,49 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void cancellationDuringDestinationCloseWithholdsCompletionDigest() throws Exception {
+        var closeStarted = new CountDownLatch(1);
+        var allowCloseToReturn = new CountDownLatch(1);
+        var cancelled = new AtomicBoolean();
+        var closeFailure = new AtomicReference<Throwable>();
+        OutputStream destination = new OutputStream() {
+            @Override public void write(int value) { }
+            @Override public void close() throws IOException {
+                closeStarted.countDown();
+                try {
+                    if (!allowCloseToReturn.await(2, TimeUnit.SECONDS)) {
+                        throw new IOException("destination close timed out");
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("destination close interrupted", interrupted);
+                }
+            }
+        };
+        var output = new BoundedRenderOutput(destination, 16, cancelled::get);
+        output.write("render-bytes".getBytes(StandardCharsets.UTF_8));
+        var closer = new Thread(() -> {
+            try {
+                output.close();
+            } catch (Throwable failure) {
+                closeFailure.set(failure);
+            }
+        });
+
+        closer.start();
+        assertThat(closeStarted.await(1, TimeUnit.SECONDS)).isTrue();
+        cancelled.set(true);
+        allowCloseToReturn.countDown();
+        closer.join(2_000);
+
+        assertThat(closer.isAlive()).isFalse();
+        assertThat(closeFailure.get()).isInstanceOf(IOException.class)
+                .hasMessage("render output cancellation requested");
+        assertThat(output.completedSha256()).isNull();
+        assertThat(output.bytesWritten()).isEqualTo("render-bytes".length());
+    }
+
+    @Test
     void cancellationSupplierFailureStillAttemptsDestinationCleanupAndSuppressesCloseFailure() {
         var closeAttempted = new AtomicBoolean();
         var supplierFailure = new IllegalStateException("cancellation supplier failed");
