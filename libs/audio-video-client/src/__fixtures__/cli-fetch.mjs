@@ -52,6 +52,12 @@ globalThis.fetch = async (input, init = {}) => {
   if (mode === 'artifact-timeout') {
     throw new Error('socket-free fixture transport timeout');
   }
+  if (mode === 'job-not-found') {
+    return json({
+      error: { code: 'JOB_NOT_FOUND', message: 'private backend detail', retryable: false },
+      meta: { correlationId: 'corr-job-404' },
+    }, 404);
+  }
 
   const configuredJob = process.env.GHATANA_MEDIA_CLI_TEST_JOB;
   if (!configuredJob) throw new Error('CLI test fixture job is missing.');
