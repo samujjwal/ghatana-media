@@ -6,6 +6,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobLease;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
@@ -40,10 +41,61 @@ public final class MediaRuntimePostgresqlMultimodalRestartWorker {
         String parentRequestId = args[5];
         switch (mode) {
             case "seed" -> seedAndWait(marker, tenantId, parentJobId, childJobId, parentRequestId);
+            case "seed-pre-receipt" -> seedCutAndWait(
+                    marker, tenantId, parentJobId, childJobId, parentRequestId, false);
+            case "seed-post-receipt" -> seedCutAndWait(
+                    marker, tenantId, parentJobId, childJobId, parentRequestId, true);
             case "recover" -> recoverWithEmptyProviderRegistry(
                     marker, tenantId, parentJobId, childJobId, parentRequestId);
+            case "recover-pre-receipt" -> recoverCutWithEmptyProviderRegistry(
+                    marker, tenantId, parentJobId, childJobId, parentRequestId, false);
+            case "recover-post-receipt" -> recoverCutWithEmptyProviderRegistry(
+                    marker, tenantId, parentJobId, childJobId, parentRequestId, true);
+            case "parent-cas" -> rejectStaleParentAcknowledgement(
+                    marker, tenantId, parentJobId, parentRequestId);
             default -> throw new IllegalArgumentException("unsupported worker mode: " + mode);
         }
+    }
+
+    private static void rejectStaleParentAcknowledgement(
+            Path marker, String tenantId, String parentJobId, String parentRequestId) throws Exception {
+        Instant createdAt = Instant.ofEpochMilli(System.currentTimeMillis());
+        ProcessingJob acceptedParent = new ProcessingJob(parentJobId, parentRequestId, tenantId,
+                "principal-mm-runtime", "artifact-mm-source", JobType.MULTIMODAL,
+                "provider-mm-fixture", JobStatus.ACCEPTED, createdAt, null, null, Map.of(), "", 1,
+                "sha256:" + SOURCE_SHA, JOB_FINGERPRINT);
+        MultimodalOperationSnapshot snapshot = new MultimodalOperationSnapshot(
+                MultimodalOperationSnapshot.AUTHORIZED_VERSION, spec().toParametersValue(),
+                "fixture-rights", "fixture-policy", "fixture-policy-v1", "fixture-consent",
+                "fixture-clock-evidence", 0L);
+
+        try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            ProcessingJob staleParent = store.create(acceptedParent, JOB_FINGERPRINT, null, snapshot);
+            ProcessingJob persistedAcknowledgement = new ProcessingJob(
+                    staleParent.jobId(), staleParent.requestId(), staleParent.tenantId(), staleParent.principalId(),
+                    staleParent.artifactId(), staleParent.jobType(), staleParent.providerId(), staleParent.status(),
+                    staleParent.createdAt(), staleParent.startedAt(), staleParent.completedAt(),
+                    Map.of("checkpoint", "first-acknowledgement"), staleParent.failureCode(),
+                    staleParent.version() + 1, staleParent.expectedArtifactVersion(), staleParent.requestFingerprint());
+            store.update(staleParent, persistedAcknowledgement);
+
+            ProcessingJob competingAcknowledgement = new ProcessingJob(
+                    staleParent.jobId(), staleParent.requestId(), staleParent.tenantId(), staleParent.principalId(),
+                    staleParent.artifactId(), staleParent.jobType(), staleParent.providerId(), staleParent.status(),
+                    staleParent.createdAt(), staleParent.startedAt(), staleParent.completedAt(),
+                    Map.of("checkpoint", "stale-competing-acknowledgement"), staleParent.failureCode(),
+                    staleParent.version() + 1, staleParent.expectedArtifactVersion(), staleParent.requestFingerprint());
+            try {
+                store.update(staleParent, competingAcknowledgement);
+                throw new AssertionError("stale parent acknowledgement unexpectedly replaced persisted state");
+            } catch (MediaJobStoreConflictException expected) {
+                ProcessingJob observed = store.find(tenantId, parentJobId).orElseThrow();
+                if (!"first-acknowledgement".equals(observed.result().get("checkpoint"))) {
+                    throw new AssertionError("stale parent write changed the persisted acknowledgement");
+                }
+            }
+        }
+        write(marker, "STALE_PARENT_WRITE_REJECTED");
     }
 
     private static void seedAndWait(
@@ -96,6 +148,97 @@ public final class MediaRuntimePostgresqlMultimodalRestartWorker {
         write(marker, "CHILD_UNKNOWN_COMMITTED");
         // Parent test kills this process after the durable child state transaction.
         while (true) Thread.sleep(60_000);
+    }
+
+    /** Seeds only synthetic PostgreSQL state, then exposes a process-kill point around receipt persistence. */
+    private static void seedCutAndWait(
+            Path marker, String tenantId, String parentJobId, String childJobId, String parentRequestId,
+            boolean persistReceipt) throws Exception {
+        Instant createdAt = Instant.ofEpochMilli(System.currentTimeMillis());
+        ProcessingJob parent = new ProcessingJob(parentJobId, parentRequestId, tenantId,
+                "principal-mm-runtime", "artifact-mm-source", JobType.MULTIMODAL,
+                "provider-mm-fixture", JobStatus.ACCEPTED, createdAt, null, null, Map.of(), "", 1,
+                "sha256:" + SOURCE_SHA, JOB_FINGERPRINT);
+        String childRequestId = MultimodalOperationSpec.childRequestId(parentRequestId, "vision");
+        ProcessingJob child = new ProcessingJob(childJobId, childRequestId, tenantId,
+                parent.principalId(), "artifact-mm-vision", JobType.VISION,
+                "provider-mm-child-fixture", JobStatus.ACCEPTED, createdAt, null, null, Map.of(), "", 1,
+                "sha256:" + CHILD_SHA, CHILD_FINGERPRINT);
+        MultimodalOperationSnapshot snapshot = new MultimodalOperationSnapshot(
+                MultimodalOperationSnapshot.AUTHORIZED_VERSION, spec().toParametersValue(),
+                "fixture-rights", "fixture-policy", "fixture-policy-v1", "fixture-consent",
+                "fixture-clock-evidence", 0L);
+
+        try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            store.create(parent, JOB_FINGERPRINT, null, snapshot);
+            JobLease parentLease = store.claim(parent, "mm-parent-cut-fixture", Instant.now().plusSeconds(2));
+            store.startAttempt(parent, running(parent), parentLease, 1, JOB_FINGERPRINT);
+
+            store.create(child, CHILD_FINGERPRINT);
+            JobLease childLease = store.claim(child, "mm-child-cut-fixture", Instant.now().plusSeconds(120));
+            var childStart = store.startAttempt(child, running(child), childLease, 1, CHILD_FINGERPRINT);
+            if (persistReceipt) {
+                store.recordProviderReceipt(childStart.attempt(), childLease,
+                        "fixture-operation-" + childJobId, "fixture-receipt-" + childJobId);
+            }
+            ProcessingAttempt durableAttempt = store.findProcessingAttempt(tenantId, childJobId, 1).orElseThrow();
+            boolean operationIdPresent = !durableAttempt.providerOperationId().isBlank();
+            boolean receiptIdPresent = !durableAttempt.providerReceiptId().isBlank();
+            if (operationIdPresent != persistReceipt || receiptIdPresent != persistReceipt) {
+                throw new AssertionError("synthetic cut did not read back the expected PostgreSQL receipt state");
+            }
+            write(marker, persistReceipt ? "CHILD_POST_RECEIPT" : "CHILD_PRE_RECEIPT");
+        }
+        // Parent test kills this JVM at the durable pre-finality cut; no provider is invoked.
+        while (true) Thread.sleep(60_000);
+    }
+
+    private static void recoverCutWithEmptyProviderRegistry(
+            Path marker, String tenantId, String parentJobId, String childJobId, String parentRequestId,
+            boolean receiptExpected) throws Exception {
+        Path root = marker.getParent().resolve("media-runtime-root-" + childJobId);
+        Files.createDirectories(root);
+        PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
+        MediaRuntime runtime = null;
+        try {
+            long deadline = System.nanoTime() + Duration.ofSeconds(30).toNanos();
+            while (System.nanoTime() < deadline && store.recoverableAfter(100, null).stream()
+                    .noneMatch(job -> job.jobId().equals(parentJobId))) {
+                Thread.sleep(25);
+            }
+            if (store.recoverableAfter(100, null).stream().noneMatch(job -> job.jobId().equals(parentJobId))) {
+                throw new AssertionError("synthetic MM parent lease did not expire for recovery");
+            }
+            // An empty registry prevents any provider effect; startup can only reconcile persisted state.
+            runtime = new MediaRuntime(
+                    new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                            Duration.ofSeconds(30), 8, "", "", false, false, root),
+                    new LocalMediaRuntimeSupport.FileArtifactStore(root), store,
+                    new LocalMediaRuntimeSupport.StreamStore(), null, List.of(), List.of());
+            ProcessingJob parent = runtime.job(tenantId, "principal-mm-runtime", parentJobId).orElseThrow();
+            ProcessingJob child = store.find(tenantId, childJobId).orElseThrow();
+            ProcessingAttempt attempt = store.findProcessingAttempt(tenantId, childJobId, 1).orElseThrow();
+            if (parent.status() != JobStatus.OUTCOME_UNKNOWN
+                    || !"UNKNOWN".equals(parent.result().get("providerOutcome"))) {
+                throw new AssertionError("pre-finality child cut must recover parent as honest UNKNOWN");
+            }
+            if (child.status() != JobStatus.RUNNING
+                    || !child.requestId().equals(MultimodalOperationSpec.childRequestId(parentRequestId, "vision"))
+                    || !child.requestFingerprint().equals(CHILD_FINGERPRINT)) {
+                throw new AssertionError("recovery changed the persisted running child or its request binding");
+            }
+            boolean operationIdPresent = !attempt.providerOperationId().isBlank();
+            boolean receiptIdPresent = !attempt.providerReceiptId().isBlank();
+            if (attempt.finality() != AttemptFinality.UNKNOWN
+                    || operationIdPresent != receiptExpected || receiptIdPresent != receiptExpected
+                    || store.findProcessingAttempt(tenantId, childJobId, 2).isPresent()) {
+                throw new AssertionError("receipt checkpoint changed, finalized, or redispatched after restart");
+            }
+            write(marker, "CHILD_CUT_OUTCOME_UNKNOWN");
+        } finally {
+            if (runtime != null) runtime.close();
+            else store.close();
+        }
     }
 
     private static void recoverWithEmptyProviderRegistry(

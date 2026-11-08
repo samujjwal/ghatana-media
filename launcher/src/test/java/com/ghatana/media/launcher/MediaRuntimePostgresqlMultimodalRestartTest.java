@@ -73,6 +73,66 @@ class MediaRuntimePostgresqlMultimodalRestartTest {
         }
     }
 
+    @Test
+    void restartedRuntimeKeepsSyntheticPreReceiptAndPostReceiptCutsUnknownWithoutRedispatch(@TempDir Path tempDir)
+            throws Exception {
+        for (String checkpoint : new String[] {"pre-receipt", "post-receipt"}) {
+            String runId = UUID.randomUUID().toString().replace("-", "");
+            String bucket = "media-mm-cut-" + runId;
+            createBucket(bucket);
+            Identity identity = new Identity("tenant-mm-cut-" + runId,
+                    "job-mm-cut-" + runId, "job-mm-cut-child-" + runId,
+                    "request-mm-cut-" + runId);
+            Map<String, String> environment = environment(bucket);
+            Path seedMarker = tempDir.resolve(checkpoint + "-seed-" + runId + ".marker");
+            Path seedLog = tempDir.resolve(checkpoint + "-seed-" + runId + ".log");
+
+            Process seed = startWorker(environment, "seed-" + checkpoint, seedMarker, identity, seedLog);
+            try {
+                awaitMarker(seed, seedMarker, "CHILD_" + checkpoint.toUpperCase().replace('-', '_'), seedLog);
+                seed.destroyForcibly();
+                assertThat(seed.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            } finally {
+                if (seed.isAlive()) seed.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+            }
+
+            Path recoveryMarker = tempDir.resolve(checkpoint + "-recovery-" + runId + ".marker");
+            Path recoveryLog = tempDir.resolve(checkpoint + "-recovery-" + runId + ".log");
+            Process recovery = startWorker(environment, "recover-" + checkpoint,
+                    recoveryMarker, identity, recoveryLog);
+            try {
+                awaitMarker(recovery, recoveryMarker, "CHILD_CUT_OUTCOME_UNKNOWN", recoveryLog);
+                assertThat(recovery.waitFor(15, TimeUnit.SECONDS)).isTrue();
+                assertThat(recovery.exitValue()).isZero();
+            } finally {
+                if (recovery.isAlive()) recovery.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+            }
+        }
+    }
+
+    @Test
+    void staleParentAcknowledgementCannotOverwritePersistedCompareAndSet(@TempDir Path tempDir)
+            throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-mm-parent-cas-" + runId;
+        createBucket(bucket);
+        Identity identity = new Identity("tenant-mm-parent-cas-" + runId,
+                "job-mm-parent-cas-" + runId, "job-mm-parent-cas-child-" + runId,
+                "request-mm-parent-cas-" + runId);
+        Path marker = tempDir.resolve("parent-cas.marker");
+        Path log = tempDir.resolve("parent-cas-worker.log");
+
+        Process worker = startWorker(environment(bucket),
+                "parent-cas", marker, identity, log);
+        try {
+            awaitMarker(worker, marker, "STALE_PARENT_WRITE_REJECTED", log);
+            assertThat(worker.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            assertThat(worker.exitValue()).isZero();
+        } finally {
+            if (worker.isAlive()) worker.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+    }
+
     private static Process startWorker(
             Map<String, String> environment, String mode, Path marker, Identity identity, Path log)
             throws Exception {
