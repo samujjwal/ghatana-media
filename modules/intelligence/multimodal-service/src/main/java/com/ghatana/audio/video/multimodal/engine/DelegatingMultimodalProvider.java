@@ -184,16 +184,16 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     }
 
     /**
-     * The operation accepts cancellation: the runtime flips the attempt's shared
-     * {@link Cancellation} and future on {@link CancellationOutcome#CONFIRMED}, and the
-     * in-flight poll propagates the cancel to its durable children best-effort through
-     * the attempt-bound dispatcher. Each child's own durable record stays the authority
-     * for child finality — this outcome covers the parent operation's effects only.
+     * The operation can request cancellation, but cannot synchronously prove that every
+     * durable child effect has stopped. The runtime signals the attempt cancellation token
+     * only after persisting the parent request; the in-flight poll then requests child
+     * cancellation through its attempt-bound dispatcher. Each child's durable record stays
+     * the authority for child finality, so the parent remains pending/unknown meanwhile.
      */
     @Override
     public CancellationOutcome cancel(
             String tenantId, String principalId, String correlationId, String jobId) {
-        return CancellationOutcome.CONFIRMED;
+        return CancellationOutcome.REQUESTED_UNCONFIRMED;
     }
 
     @Override

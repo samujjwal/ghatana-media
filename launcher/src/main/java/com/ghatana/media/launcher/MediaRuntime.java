@@ -1583,6 +1583,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         tenantId, jobId, current.providerId(), providerOutcome);
             } else {
                 stored = jobStore.update(current, cancellationRequested(current, providerOutcome));
+                // Persist the parent cancellation request before waking a provider that
+                // can propagate it to durable child operations. REQUESTED_UNCONFIRMED
+                // never cancels the parent future: child readback still determines
+                // whether the parent may become terminal.
+                if (providerOutcome == CancellationOutcome.REQUESTED_UNCONFIRMED && control != null) {
+                    control.cancellation().cancel();
+                }
                 lifecycleEvent = "media.job.cancel_requested";
                 audit.info("MEDIA_JOB_CANCEL_REQUESTED tenantId={} jobId={} provider={} cancellationOutcome={} status={}",
                         tenantId, jobId, current.providerId(), providerOutcome, stored.status());
@@ -2730,13 +2737,17 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     jobStore.release(lease);
                     return;
                 }
-                terminal = transition(value, JobStatus.OUTCOME_UNKNOWN,
-                        Map.of(
-                                "failureType", cause == null
-                                        ? "Cancellation"
-                                        : cause.getClass().getSimpleName(),
-                                "cancellationOutcome", "UNCONFIRMED",
-                                "providerOutcome", "UNKNOWN"),
+                ProcessingJob cancellationBase = cancellation.cancelled()
+                        ? jobStore.find(value.tenantId(), value.jobId()).orElse(value)
+                        : value;
+                Map<String, Object> cancellationResult = new LinkedHashMap<>(cancellationBase.result());
+                cancellationResult.put("failureType", cause == null
+                        ? "Cancellation"
+                        : cause.getClass().getSimpleName());
+                cancellationResult.putIfAbsent("cancellationOutcome", "UNCONFIRMED");
+                cancellationResult.put("providerOutcome", "UNKNOWN");
+                terminal = transition(cancellationBase, JobStatus.OUTCOME_UNKNOWN,
+                        cancellationResult,
                         "PROCESSING_CANCELLED_UNCONFIRMED");
             } else if (preDispatchNoEffect) {
                 Map<String, Object> denial = new LinkedHashMap<>();
@@ -2889,13 +2900,30 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         }
                     }
                 } else if (dispatchAttempt != null) {
-                    ProcessingJob unknown = terminal.status() == JobStatus.OUTCOME_UNKNOWN ? terminal
-                            : transition(value, JobStatus.OUTCOME_UNKNOWN,
-                                    Map.of("providerOutcome", "UNKNOWN"), "PROCESSING_OUTCOME_UNKNOWN");
-                    jobStore.markOutcomeUnknown(value, dispatchAttempt, unknown,
-                            Map.of("providerOutcome", "UNKNOWN", "attemptNumber", dispatchAttempt.attemptNumber()),
-                            lifecycleEvent(value, unknown, request, dispatchArtifact));
-                    terminal = unknown;
+                    ProcessingJob latestJob = cancellation.cancelled()
+                            ? jobStore.find(value.tenantId(), value.jobId()).orElse(value)
+                            : value;
+                    if (latestJob.status() == JobStatus.OUTCOME_UNKNOWN
+                            || latestJob.status() == JobStatus.COMPLETED
+                            || latestJob.status() == JobStatus.FAILED
+                            || latestJob.status() == JobStatus.CANCELLED) {
+                        // A concurrent cancellation or owner finality already advanced
+                        // the job. Never rewrite that newer durable state from this
+                        // provider callback.
+                        terminal = latestJob;
+                    } else {
+                        Map<String, Object> unknownResult = new LinkedHashMap<>(latestJob.result());
+                        unknownResult.put("providerOutcome", "UNKNOWN");
+                        ProcessingJob unknown = terminal.status() == JobStatus.OUTCOME_UNKNOWN
+                                && latestJob == value ? terminal
+                                : transition(latestJob, JobStatus.OUTCOME_UNKNOWN, unknownResult,
+                                        "PROCESSING_OUTCOME_UNKNOWN");
+                        jobStore.markOutcomeUnknown(latestJob, dispatchAttempt, unknown,
+                                Map.of("providerOutcome", "UNKNOWN",
+                                        "attemptNumber", dispatchAttempt.attemptNumber()),
+                                lifecycleEvent(latestJob, unknown, request, dispatchArtifact));
+                        terminal = unknown;
+                    }
                 } else {
                     if (terminal.status() == JobStatus.COMPLETED
                             && successFinalizationFenceLost(cancellation, jobBudget)) {

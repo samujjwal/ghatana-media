@@ -245,7 +245,7 @@ class MediaRuntimeMultimodalAdmissionTest {
     }
 
     @Test
-    void parentCancellationPropagatesToInflightChildrenThroughCanonicalJobs() throws Exception {
+    void parentCancellationRequestsChildStopAndKeepsParentUnknownUntilChildFinality() throws Exception {
         var root = Files.createTempDirectory("media-mm-cancel-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();
         var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
@@ -260,13 +260,52 @@ class MediaRuntimeMultimodalAdmissionTest {
                             sttParameters())));
             var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             var childJob = awaitJob(jobStore, "req-mm:stt");
-            var cancelled = runtime.cancel("tenant-a", "principal-a", accepted.jobId());
-            assertThat(cancelled.status()).isEqualTo(JobStatus.CANCELLED);
+            var cancellationRequested = runtime.cancel("tenant-a", "principal-a", accepted.jobId());
+            assertThat(cancellationRequested.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(cancellationRequested.result())
+                    .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
+            awaitTerminal(jobStore, accepted.jobId());
             awaitTerminal(jobStore, childJob.jobId());
             var childAfter = jobStore.find("tenant-a", childJob.jobId()).orElseThrow();
             assertThat(childAfter.status()).isEqualTo(JobStatus.CANCELLED);
-            assertThat(jobStore.find("tenant-a", accepted.jobId()).orElseThrow().status())
-                    .isEqualTo(JobStatus.CANCELLED);
+            var parentAfter = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
+            assertThat(parentAfter.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(parentAfter.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED")
+                    .containsEntry("providerOutcome", "UNKNOWN");
+            assertThat(parentAfter.result()).doesNotContainKey("observations");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void parentCancellationKeepsUnknownWhenChildStopIsUnconfirmed() throws Exception {
+        var root = Files.createTempDirectory("media-mm-cancel-unconfirmed-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
+        var stt = pendingSttProvider(
+                com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome.REQUESTED_UNCONFIRMED);
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt), allowAllAuthority());
+        try {
+            var source = artifact(runtime, "tenant-a", "principal-a");
+            var child = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var spec = spec(source, List.of(
+                    new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
+                            child.artifactId(), child.version().value(), child.sha256(), "",
+                            sttParameters())));
+            var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
+            var childBefore = awaitJob(jobStore, "req-mm:stt");
+            runtime.cancel("tenant-a", "principal-a", accepted.jobId());
+            awaitTerminal(jobStore, accepted.jobId());
+
+            var parentAfter = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
+            var childAfter = jobStore.find("tenant-a", childBefore.jobId()).orElseThrow();
+            assertThat(parentAfter.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(parentAfter.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED")
+                    .containsEntry("providerOutcome", "UNKNOWN")
+                    .doesNotContainKey("observations");
+            assertThat(childAfter.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(childAfter.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
         } finally {
             runtime.close();
         }
@@ -565,6 +604,12 @@ class MediaRuntimeMultimodalAdmissionTest {
      * provider-confirmed so the canonical child cancel path is exercised end to end.
      */
     private static MediaProcessingProvider pendingCancellableSttProvider() {
+        return pendingSttProvider(
+                com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome.CONFIRMED);
+    }
+
+    private static MediaProcessingProvider pendingSttProvider(
+            com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome cancelOutcome) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return "test-stt-pending"; }
             @Override public String providerVersion() { return "v1"; }
@@ -593,7 +638,7 @@ class MediaRuntimeMultimodalAdmissionTest {
             }
             @Override public com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome cancel(
                     String tenantId, String principalId, String correlationId, String jobId) {
-                return com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome.CONFIRMED;
+                return cancelOutcome;
             }
         };
     }
