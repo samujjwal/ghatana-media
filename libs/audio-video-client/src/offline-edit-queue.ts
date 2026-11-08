@@ -390,7 +390,16 @@ export class OfflineEditQueue {
       // effect dispatch. A revoke observed during preflight cannot be replayed.
       let authorization: Awaited<ReturnType<typeof adapter.reauthorize>>;
       try {
-        authorization = await adapter.reauthorize(edit);
+        const read = await adapter.reauthorize(edit);
+        if (!read || typeof read !== "object") {
+          results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+          continue;
+        }
+        // Snapshot adapter fields once. A changing accessor must not validate
+        // one authorization observation and then authorize dispatch with another.
+        const authorized = read.authorized;
+        const disposition = read.disposition;
+        authorization = { authorized, disposition };
       } catch {
         results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
         continue;
@@ -426,7 +435,16 @@ export class OfflineEditQueue {
       // operation must still enforce its own atomic authorization policy.
       let dispatchAuthorization: Awaited<ReturnType<typeof adapter.reauthorize>>;
       try {
-        dispatchAuthorization = await adapter.reauthorize(edit);
+        const read = await adapter.reauthorize(edit);
+        if (!read || typeof read !== "object") {
+          const reset = await this.transition(dispatchIntent, "PENDING");
+          results.push({ editId: record.editId, state: reset ? "AUTHORIZATION_UNKNOWN" : "OUTCOME_UNKNOWN" });
+          continue;
+        }
+        // Apply the same single-observation rule after the durable dispatch fence.
+        const authorized = read.authorized;
+        const disposition = read.disposition;
+        dispatchAuthorization = { authorized, disposition };
       } catch {
         const reset = await this.transition(dispatchIntent, "PENDING");
         results.push({ editId: record.editId, state: reset ? "AUTHORIZATION_UNKNOWN" : "OUTCOME_UNKNOWN" });

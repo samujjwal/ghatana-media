@@ -843,6 +843,43 @@ describe("OfflineEditQueue", () => {
     expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
   });
 
+  it("snapshots authorization fields once before evaluating replay", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    const authorizationReads: Array<{ authorized: number; disposition: number }> = [];
+    const result = await replayAfterExplicitReview(queue, scope, {
+      reauthorize: async () => {
+        let authorizedReads = 0;
+        let dispositionReads = 0;
+        authorizationReads.push({ authorized: 0, disposition: 0 });
+        const index = authorizationReads.length - 1;
+        return {
+          get authorized(): boolean {
+            authorizedReads++;
+            authorizationReads[index]!.authorized = authorizedReads;
+            // Expose a changing adapter readback if the queue accesses this
+            // property repeatedly while validating the same observation.
+            return authorizedReads === 1 || authorizedReads >= 4;
+          },
+          get disposition(): "AUTHORIZED" {
+            dispositionReads++;
+            authorizationReads[index]!.disposition = dispositionReads;
+            return "AUTHORIZED";
+          },
+        };
+      },
+      readCurrentVersion: async () => "v7",
+      apply: async () => ({ outcome: "APPLIED", receipt: "receipt" }),
+    });
+
+    expect(result).toEqual([{ editId: edit.editId, state: "APPLIED", receipt: "receipt" }]);
+    expect(authorizationReads).toEqual([
+      { authorized: 1, disposition: 1 },
+      { authorized: 1, disposition: 1 },
+    ]);
+    expect(store.records.get(edit.editId)?.state).toBe("APPLIED");
+  });
+
   it("allows a failed local persistence attempt to be retried without losing the edit", async () => {
     const { queue, store } = await createQueue();
     store.failNextPut = true;
