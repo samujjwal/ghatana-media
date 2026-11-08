@@ -1,5 +1,7 @@
 package com.ghatana.media.production.timeline;
 
+import static com.ghatana.media.runtime.MediaProjectTimelineContracts.requiredOpaqueId;
+
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion;
 import java.nio.charset.StandardCharsets;
@@ -177,9 +179,9 @@ public final class ReferenceGuidedScenePlanner {
                          long seedInput, Prompt prompt, List<BoundSource> references, Template template,
                          ContinuitySnapshot continuity) {
         public Request {
-            projectId = boundedRequired(projectId, "projectId", MAX_IDENTIFIER_CHARS);
-            sceneId = boundedRequired(sceneId, "sceneId", MAX_IDENTIFIER_CHARS);
-            expectedProjectRevisionId = boundedRequired(expectedProjectRevisionId, "expectedProjectRevisionId", MAX_IDENTIFIER_CHARS);
+            projectId = opaqueId(projectId, "projectId");
+            sceneId = opaqueId(sceneId, "sceneId");
+            expectedProjectRevisionId = opaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
             purpose = boundedRequired(purpose, "purpose", MAX_IDENTIFIER_CHARS);
             Objects.requireNonNull(prompt, "prompt");
             references = canonicalSources(references);
@@ -230,9 +232,9 @@ public final class ReferenceGuidedScenePlanner {
                           String deterministicSeed, Preparation preparation) {
             this.tenantId = required(tenantId, "tenantId");
             this.ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
-            this.projectId = required(projectId, "projectId");
-            this.sceneId = required(sceneId, "sceneId");
-            this.expectedProjectRevisionId = required(expectedProjectRevisionId, "expectedProjectRevisionId");
+            this.projectId = opaqueId(projectId, "projectId");
+            this.sceneId = opaqueId(sceneId, "sceneId");
+            this.expectedProjectRevisionId = opaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
             this.purpose = required(purpose, "purpose");
             this.templateId = required(templateId, "templateId");
             this.templateVersion = required(templateVersion, "templateVersion");
@@ -396,5 +398,9 @@ public final class ReferenceGuidedScenePlanner {
             throw new IllegalArgumentException(name + " exceeds local candidate bound of " + maximumChars + " characters");
         }
         return checked;
+    }
+
+    private static String opaqueId(String value, String name) {
+        return requiredOpaqueId(boundedRequired(value, name, MAX_IDENTIFIER_CHARS), name);
     }
 }

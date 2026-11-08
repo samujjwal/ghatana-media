@@ -26,6 +26,24 @@ class ReferenceGuidedScenePlannerTest {
     private static final String D4 = "4444444444444444444444444444444444444444444444444444444444444444";
 
     @Test
+    void requestRequiresOpaqueProjectSceneAndRevisionIdentities() {
+        var valid = request(List.of(source("reference-image", IMAGE_VERSION, D2)),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue"))));
+
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.Request(" project-1", valid.sceneId(),
+                valid.expectedProjectRevisionId(), valid.purpose(), valid.seedInput(), valid.prompt(), valid.references(),
+                valid.template(), valid.continuity()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("projectId");
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.Request(valid.projectId(), "scene/1",
+                valid.expectedProjectRevisionId(), valid.purpose(), valid.seedInput(), valid.prompt(), valid.references(),
+                valid.template(), valid.continuity()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sceneId");
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.Request(valid.projectId(), valid.sceneId(), "r".repeat(129),
+                valid.purpose(), valid.seedInput(), valid.prompt(), valid.references(), valid.template(), valid.continuity()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("expectedProjectRevisionId");
+    }
+
+    @Test
     void unauthorizedExactReferenceIsRejectedAndRightsPortReceivesVersionDigestAndPurpose() {
         Authority authority = new Authority();
         ReferenceGuidedScenePlanner planner = planner(authority, unavailableProvider());
