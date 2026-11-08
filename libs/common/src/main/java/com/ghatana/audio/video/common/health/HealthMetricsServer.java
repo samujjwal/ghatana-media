@@ -186,8 +186,32 @@ public class HealthMetricsServer implements AutoCloseable {
     }
 
     private String publicStatusBody(String status) {
-        String safeServiceName = serviceName.replace("\\", "\\\\").replace("\"", "\\\"");
+        String safeServiceName = escapeJsonString(serviceName);
         return "{\"service\":\"%s\",\"status\":\"%s\"}".formatted(safeServiceName, status);
+    }
+
+    private static String escapeJsonString(String value) {
+        StringBuilder escaped = new StringBuilder(value.length());
+        for (int index = 0; index < value.length(); index++) {
+            char character = value.charAt(index);
+            switch (character) {
+                case '"' -> escaped.append("\\\"");
+                case '\\' -> escaped.append("\\\\");
+                case '\b' -> escaped.append("\\b");
+                case '\f' -> escaped.append("\\f");
+                case '\n' -> escaped.append("\\n");
+                case '\r' -> escaped.append("\\r");
+                case '\t' -> escaped.append("\\t");
+                default -> {
+                    if (character < 0x20) {
+                        escaped.append("\\u%04x".formatted((int) character));
+                    } else {
+                        escaped.append(character);
+                    }
+                }
+            }
+        }
+        return escaped.toString();
     }
 
     private void handleMetrics(HttpExchange ex) throws IOException {

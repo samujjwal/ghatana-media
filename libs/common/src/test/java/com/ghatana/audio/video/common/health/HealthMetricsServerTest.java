@@ -71,6 +71,24 @@ class HealthMetricsServerTest {
     }
 
     @Test
+    void healthStatusEscapesEveryJsonControlCharacterInConfiguredServiceName() throws Exception {
+        String serviceName = "media\n" + (char) 1 + "\\\"runtime";
+        HealthMetricsServer server = new HealthMetricsServer(
+                serviceName, () -> true, () -> "", 0, 1, 1, 1);
+        server.start();
+        try {
+            HttpResponse<String> response = get(server.getPort(), "/health");
+
+            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.body()).isEqualTo(
+                    "{\"service\":\"media\\n\\u0001\\\\\\\"runtime\",\"status\":\"UP\"}");
+            assertThat(response.body()).doesNotContain("\n", Character.toString((char) 1));
+        } finally {
+            server.close();
+        }
+    }
+
+    @Test
     void registryScrapeFailureReturnsGenericUnavailableWithoutDetails() throws Exception {
         String marker = "tenant-private-registry-token";
         HealthMetricsServer server = new HealthMetricsServer(
