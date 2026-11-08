@@ -26,6 +26,8 @@ product host.
   reader. It requests the exact tenant/principal/source-version scope, checks
   every returned row and duplicate identity, discards stale responses, and
   suppresses projected choices while the canonical read is loading or fails.
+  A reader/projection scope mismatch is reported as `UNKNOWN`, even if a prior
+  read for the reader's old scope was observed.
   This is a read adapter only; it does not admit caption writes, comparison
   actions, transcript generation, or a deployed product route.
 - Foundations/hooks/styles consumed by product hosts and sibling UI
@@ -81,5 +83,6 @@ Vitest suites colocated with components/screens
 The source-scope binding helper also has a dependency-free Node selector:
 `node --experimental-strip-types --test src/screens/captionVersionReadBinding.test.mjs`.
 The React component selector could not be run in this checkout because the UI
-package has no linked Vitest/React dependencies; only the helper and TSX
-transformation are verified here.
+package has no linked Vitest/React dependencies. The latest mismatch-state
+regression is added but unexecuted; the pure helper remains independently
+verified.
