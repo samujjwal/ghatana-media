@@ -481,7 +481,10 @@ export class CaptureAdapterNotWiredError extends TypeError {
 // Only errors created by the router before any adapter call can establish that
 // dispatch did not occur. Adapter code can construct the public error class,
 // so instanceof alone is not authoritative for capture finality.
-const preDispatchNotWiredErrors = new WeakSet<CaptureAdapterNotWiredError>();
+// A router-created error proves that dispatch did not occur only for the
+// exact request object the router rejected. Retaining identity alone would
+// let a later adapter replay an old genuine router error after it had run.
+const preDispatchNotWiredErrors = new WeakMap<CaptureAdapterNotWiredError, CaptureRequest>();
 
 /**
  * Routes one admitted capture request to the adapter wired for its source
@@ -518,7 +521,7 @@ export function routedCaptureAdapter(
       const capture = routes[kind as CaptureSourceKind];
       if (capture === undefined) {
         const failure = new CaptureAdapterNotWiredError(kind);
-        preDispatchNotWiredErrors.add(failure);
+        preDispatchNotWiredErrors.set(failure, request);
         return Promise.reject(failure);
       }
       return capture(request);
@@ -611,7 +614,8 @@ export async function captureWithAdmission(
     // The kind router reports a missing binding before invoking any source.
     // Preserve that pre-dispatch state instead of suggesting an ambiguous
     // source effect occurred.
-    if (failure instanceof CaptureAdapterNotWiredError && preDispatchNotWiredErrors.has(failure)) {
+    if (failure instanceof CaptureAdapterNotWiredError
+      && preDispatchNotWiredErrors.get(failure) === admittedRequest) {
       throw new CaptureUnavailableError(admittedRequest.kind);
     }
     // A rejected transport/promise does not prove that the source did not

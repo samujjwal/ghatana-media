@@ -648,6 +648,36 @@ describe("routedCaptureAdapter", () => {
     expect(captures).toBe(1);
   });
 
+  it("does not let a replayed router error hide a later gRPC dispatch", async () => {
+    let captures = 0;
+    let priorRouterFailure: unknown;
+    const routed = routedCaptureAdapter({
+      GRPC_API: {
+        kind: "GRPC_API",
+        capture: async () => {
+          captures++;
+          throw priorRouterFailure;
+        },
+      },
+    });
+
+    try {
+      await routed.capture({ ...request, kind: "CAMERA" });
+    } catch (error) {
+      priorRouterFailure = error;
+    }
+    expect(priorRouterFailure).toBeInstanceOf(CaptureAdapterNotWiredError);
+
+    await expect(captureWithAdmission({ check: () => "ADMITTED" }, routed,
+      { ...request, kind: "GRPC_API" }))
+      .rejects.toMatchObject({
+        name: "CaptureOutcomeUnknownError",
+        kind: "GRPC_API",
+        reason: "ADAPTER_REJECTED",
+      });
+    expect(captures).toBe(1);
+  });
+
   it("does not invoke the gRPC adapter when trusted eligibility denies capture", async () => {
     let captures = 0;
     const grpcAdapter: CaptureSourceAdapter = {
