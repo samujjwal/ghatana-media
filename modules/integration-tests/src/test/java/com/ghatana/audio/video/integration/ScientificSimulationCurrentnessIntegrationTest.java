@@ -210,6 +210,44 @@ class ScientificSimulationCurrentnessIntegrationTest {
     }
 
     @Test
+    void sourceFreeOutcomeConvertsValueAndUncertaintyUnitsIndependently() {
+        // Test-authored values: 2 kg +/- 1000 g, 6 N +/- 300 mN, and
+        // initial position 100 cm +/- 2 cm. These are simulation estimates only.
+        var mass = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(2, MediaSimulationContracts.Unit.KILOGRAM),
+                new MediaSimulationContracts.Quantity(1000, MediaSimulationContracts.Unit.GRAM));
+        var force = new MediaSimulationContracts.Measurement(
+                new MediaSimulationContracts.Quantity(6_000, MediaSimulationContracts.Unit.MILLINEWTON),
+                new MediaSimulationContracts.Quantity(300, MediaSimulationContracts.Unit.MILLINEWTON));
+        var initial = new MediaSimulationContracts.InitialState(
+                new MediaSimulationContracts.Measurement(
+                        new MediaSimulationContracts.Quantity(100, MediaSimulationContracts.Unit.CENTIMETER),
+                        new MediaSimulationContracts.Quantity(2, MediaSimulationContracts.Unit.CENTIMETER)),
+                new MediaSimulationContracts.Measurement(
+                        new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER_PER_SECOND),
+                        new MediaSimulationContracts.Quantity(0, MediaSimulationContracts.Unit.METER_PER_SECOND)));
+        var request = new MediaSimulationContracts.RunRequest(
+                new MediaSimulationContracts.ConstantForce(mass, force), initial,
+                contractPolicy(2, 0.25, 1e-5, 100, 1000));
+
+        var outcome = PhysicalSimulation.run(request);
+
+        assertThat(outcome.status()).isEqualTo(MediaSimulationContracts.OutcomeStatus.COMPLETED);
+        assertThat(outcome.trace().evidenceClass()).isEqualTo(SIMULATION_ONLY);
+        var terminal = outcome.trace().observations().getLast();
+        assertThat(terminal.position().si(MediaSimulationContracts.Dimension.LENGTH)).isCloseTo(7.0,
+                org.assertj.core.data.Offset.offset(1e-10));
+        // sigma_v^2 = (t*sigma_F/m)^2 + (F*t*sigma_m/m^2)^2 = 0.3^2 + 3^2.
+        assertThat(terminal.uncertainty().velocityStandardUncertainty()
+                .si(MediaSimulationContracts.Dimension.VELOCITY)).isCloseTo(Math.sqrt(9.09),
+                org.assertj.core.data.Offset.offset(1e-10));
+        // Position propagation also includes the converted initial-position uncertainty.
+        assertThat(terminal.uncertainty().positionStandardUncertainty()
+                .si(MediaSimulationContracts.Dimension.LENGTH)).isCloseTo(Math.sqrt(9.0904),
+                org.assertj.core.data.Offset.offset(1e-10));
+    }
+
+    @Test
     void invalidPhysicalConstraintAndInconsistentStepBoundsReturnNoNumericOutcome() {
         var invalidMass = PhysicalSimulation.run(contractRequest(-1, MediaSimulationContracts.Unit.KILOGRAM,
                 6, MediaSimulationContracts.Unit.NEWTON, contractPolicy(2, 0.25, 1e-5, 100, 1000)));

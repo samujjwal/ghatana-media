@@ -53,7 +53,13 @@ class ValidatedSimulationPassIntegrationTest {
                         new SimulationSemanticValidator.DeclaredInvariant("terminal-velocity",
                                 SimulationSemanticValidator.Observable.VELOCITY,
                                 q(6, PhysicalSimulation.Unit.METER_PER_SECOND),
-                                q(1e-8, PhysicalSimulation.Unit.METER_PER_SECOND))),
+                                q(1e-8, PhysicalSimulation.Unit.METER_PER_SECOND)),
+                        // For the constant-force model, total energy includes the
+                        // force potential (-F*x), so the declared terminal value is 0 J.
+                        new SimulationSemanticValidator.DeclaredInvariant("terminal-total-energy",
+                                SimulationSemanticValidator.Observable.TOTAL_ENERGY,
+                                q(0, PhysicalSimulation.Unit.JOULE),
+                                q(1e-8, PhysicalSimulation.Unit.JOULE))),
                 q(2, PhysicalSimulation.Unit.SECOND));
     }
 
@@ -85,6 +91,30 @@ class ValidatedSimulationPassIntegrationTest {
                 assertThat(finding.reason())
                         .isEqualTo(SimulationSemanticValidator.Reason.SEMANTIC_INVARIANT_FAILED));
         assertThat(rejected.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+    }
+
+    @Test
+    void rejectsCandidateThatChangesProtectedTotalEnergy() {
+        var result = deterministicPass();
+        var changedObservations = new ArrayList<>(result.observations());
+        var terminal = changedObservations.getLast();
+        changedObservations.set(changedObservations.size() - 1, new PhysicalSimulation.Observation(
+                terminal.timeSeconds(), terminal.positionMeters(), terminal.velocityMetersPerSecond(),
+                terminal.accelerationMetersPerSecondSquared(), terminal.totalEnergyJoules() + 1.0,
+                terminal.uncertainty()));
+        var changedPass = new PhysicalSimulation.Result(changedObservations, result.acceptedSteps(),
+                result.solverIterations(), result.finalLocalErrorRatio(), result.deterministic(), result.evidenceClass());
+
+        var validation = SimulationSemanticValidator.validate(binding(), changedPass,
+                input -> SimulationSemanticValidator.ReferenceStatus.CURRENT);
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.REJECTED);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason())
+                    .isEqualTo(SimulationSemanticValidator.Reason.SEMANTIC_INVARIANT_FAILED);
+            assertThat(finding.subject()).isEqualTo("terminal-total-energy");
+        });
+        assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
     }
 
     @Test
