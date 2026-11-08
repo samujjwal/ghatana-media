@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.DoubleSupplier;
 import java.time.Instant;
 
 /**
@@ -339,9 +340,17 @@ public final class MediaWorkflowMetrics {
     }
 
     private static double processCpuLoad() {
-        if (PROCESS == null) return Double.NaN;
-        double value = PROCESS.getProcessCpuLoad();
-        return value < 0 || !Double.isFinite(value) ? Double.NaN : value;
+        return PROCESS == null ? Double.NaN : processCpuLoad(PROCESS::getProcessCpuLoad);
+    }
+
+    /** Return UNKNOWN when the JVM's optional process CPU probe is unsupported or fails. */
+    static double processCpuLoad(DoubleSupplier probe) {
+        try {
+            double value = probe.getAsDouble();
+            return value < 0 || value > 1 || !Double.isFinite(value) ? Double.NaN : value;
+        } catch (RuntimeException unavailable) {
+            return Double.NaN;
+        }
     }
 
     public Timer.Sample startTimer() {

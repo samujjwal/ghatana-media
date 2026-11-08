@@ -311,6 +311,15 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void processCpuGaugeReportsUnknownWhenTheOptionalJvmProbeFailsOrIsOutOfRange() {
+        assertThat(Double.isNaN(MediaWorkflowMetrics.processCpuLoad(() -> {
+            throw new UnsupportedOperationException("probe unavailable");
+        }))).isTrue();
+        assertThat(Double.isNaN(MediaWorkflowMetrics.processCpuLoad(() -> 1.01))).isTrue();
+        assertThat(MediaWorkflowMetrics.processCpuLoad(() -> 0.75)).isEqualTo(0.75);
+    }
+
+    @Test
     void providerCredentialShapedIdentitiesAreRejectedWithoutExportingTheValue() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
