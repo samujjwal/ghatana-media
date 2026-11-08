@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Mac;
@@ -158,9 +162,42 @@ class MediaLauncherArtifactIntakeRestartIT {
             String otherTenantUploadId = JSON.readTree(otherTenantBegin.body()).path("uploadId").asString();
             assertThat(otherTenantUploadId).isNotBlank().isNotEqualTo(uploadId);
 
-            HttpResponse<String> exactReplay = sendBytes(port, TENANT, token, "PUT",
-                    "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", first);
-            assertThat(exactReplay.statusCode()).as(exactReplay.body()).isEqualTo(200);
+            // The source contract allows replay only for the matching persisted chunk
+            // receipt. Exercise two simultaneous retries through the authenticated HTTP
+            // boundary after process recovery, where a lost chunk acknowledgement can
+            // naturally cause parallel client retries.
+            ExecutorService replayWorkers = Executors.newFixedThreadPool(2);
+            CountDownLatch replayReady = new CountDownLatch(2);
+            CountDownLatch replayStart = new CountDownLatch(1);
+            try {
+                Future<HttpResponse<String>> replayA = replayWorkers.submit(() -> {
+                    replayReady.countDown();
+                    replayStart.await();
+                    return sendBytes(port, TENANT, token, "PUT",
+                            "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", first);
+                });
+                Future<HttpResponse<String>> replayB = replayWorkers.submit(() -> {
+                    replayReady.countDown();
+                    replayStart.await();
+                    return sendBytes(port, TENANT, token, "PUT",
+                            "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", first);
+                });
+                assertThat(replayReady.await(10, TimeUnit.SECONDS)).isTrue();
+                replayStart.countDown();
+                HttpResponse<String> exactReplayA = replayA.get(15, TimeUnit.SECONDS);
+                HttpResponse<String> exactReplayB = replayB.get(15, TimeUnit.SECONDS);
+                assertThat(exactReplayA.statusCode()).as(exactReplayA.body()).isEqualTo(200);
+                assertThat(exactReplayB.statusCode()).as(exactReplayB.body()).isEqualTo(200);
+                for (HttpResponse<String> replay : List.of(exactReplayA, exactReplayB)) {
+                    JsonNode receipt = JSON.readTree(replay.body());
+                    assertThat(receipt.path("uploadId").asString()).isEqualTo(uploadId);
+                    assertThat(receipt.path("bytesReceived").asLong()).isEqualTo(first.length + second.length);
+                    assertThat(receipt.path("nextChunkIndex").asInt()).isEqualTo(2);
+                }
+            } finally {
+                replayStart.countDown();
+                replayWorkers.shutdownNow();
+            }
             HttpResponse<String> conflictingReplay = sendBytes(port, TENANT, token, "PUT",
                     "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0",
                     "conflicting-prefix".getBytes(StandardCharsets.UTF_8));
