@@ -795,6 +795,7 @@
         "media.dev.rights-and-policy",
         "media.dev.shared-engine-consolidation"
       ],
+      "verificationEvidence": "2026-11-08: HostOciVisionWorkerSupervisorTest, MediaOciBrokerPolicyTest and MediaOciBrokerClientTest PASS 47/47 with zero skips; coverage includes invocation-scoped mounts, pinned commands/images, broker peer/nonce checks, bounded I/O and typed UNKNOWN handling. Docker daemon was unavailable and MEDIA_LINUX_CODECS_DIR/MEDIA_LINUX_PNG_CODECS_DIR were absent, so no kernel container or real codec test ran. Real model/export rights, labeled gold and measured detection/tracking quality remain open.",
       "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
       "integrationPrerequisites": [
         "media.dev.rights-and-policy",
