@@ -2,6 +2,8 @@
 
 ## Current feature-development execution
 
+**Start with [Usable Surface Delivery](development/USABLE-SURFACE-DELIVERY.md)** and its [structured area/task map](development/surface-delivery.json). It prioritizes functioning libraries, headless APIs and actual host flows, assigns all currently open work exactly once, and requires selective testing without repeated unchanged suites. The older dated November 8 handoff is a status snapshot, not another task universe.
+
 The [Engineering Contract and Work-Start Decisions](development/ENGINEERING-DECISIONS.md) clarify semantic boundaries, independent work start, and [historical content preservation](development/historical-content-preservation.json). The [Remaining Media Development Work](development/REMAINING-WORK.md) and its [structured register](development/remaining-work.json) contain the current owner decisions, fixes and ordered implementation-only tasks. They take precedence over older dated execution packets for feature work.
 
 The [Media Surface Development Implementation Plan](development/SURFACE-IMPLEMENTATION-PLAN.md) is the active **implementation-only** plan for all registered surfaces, 30 product outcomes and repository hygiene. It covers feature logic, APIs, tests and stable per-surface documentation; it does not direct gtool, evidence/closure or release work. Existing dated implementation/qualification records remain source material, not a substitute for this maintained development plan.
