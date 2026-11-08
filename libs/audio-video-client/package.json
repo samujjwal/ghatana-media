@@ -94,6 +94,11 @@
       "types": "./dist/offline-reconnect.d.ts",
       "import": "./dist/offline-reconnect.js",
       "require": "./dist-cjs/offline-reconnect.js"
+    },
+    "./caption-version": {
+      "types": "./dist/caption-version.d.ts",
+      "import": "./dist/caption-version.js",
+      "require": "./dist-cjs/caption-version.js"
     }
   },
   "dependencies": {

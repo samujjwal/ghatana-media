@@ -76,12 +76,61 @@ describe('caption-version-write HTTP transport binding', () => {
   });
 
   it('lists caption versions scoped to the source artifact version', async () => {
-    const fetchImpl = async (url: string | URL) => new Response(
-      JSON.stringify({ captionVersions: [registered('req-1')], count: 1 }), { status: 200 });
+    const fetchImpl = vi.fn(async (url: string | URL) => new Response(
+      JSON.stringify({ captionVersions: [registered('req-1')], count: 1 }), { status: 200 }));
     const transport = httpCaptionVersionTransport({ baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
     const versions = await transport.versions('t', 'p', 'artifact-1', 'src-v1');
     expect(versions).toHaveLength(1);
     expect(versions[0].requestId).toBe('req-1');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a mismatched list identity before fetch', async () => {
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ captionVersions: [] }), { status: 200 }));
+    const transport = httpCaptionVersionTransport({
+      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+    });
+    for (const [tenantId, principalId] of [['other-tenant', 'p'], ['t', 'other-principal']]) {
+      await expect(transport.versions(tenantId, principalId, 'artifact-1', 'src-v1'))
+        .rejects.toMatchObject({ name: 'CaptionVersionReadError', code: 'ACCESS_DENIED', status: 403, retryable: false });
+    }
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('forwards optional abort signals to list and snapshot fetches', async () => {
+    const controller = new AbortController();
+    const seen: Array<AbortSignal | null | undefined> = [];
+    const snapshot = {
+      ...registered('req-1'), ticksPerSecond: 90_000, sourceDurationTicks: 9_000_000,
+      captionSegments: [{ segmentId: 'seg-1', text: 'hi', startTick: 10, endTick: 900, origin: 'USER_EDITED' }],
+    };
+    const fetchImpl = async (url: string | URL, init?: RequestInit) => {
+      seen.push(init?.signal);
+      return new Response(JSON.stringify(String(url).includes('?')
+        ? { captionVersions: [registered('req-1')] } : snapshot), { status: 200 });
+    };
+    const transport = httpCaptionVersionTransport({
+      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+    });
+    await transport.versions('t', 'p', 'artifact-1', 'src-v1', controller.signal);
+    await transport.version('capv-1', controller.signal);
+    expect(seen).toEqual([controller.signal, controller.signal]);
+  });
+
+  it('rejects list entries outside the requested source scope or with duplicate version IDs', async () => {
+    const valid = registered('req-1');
+    for (const captionVersions of [
+      [{ ...valid, sourceArtifactVersionId: 'src-other' }],
+      [valid, { ...registered('req-2'), requestFingerprint: 'b'.repeat(64) }],
+      [{ ...valid, registrationReceiptId: undefined }],
+    ]) {
+      const transport = httpCaptionVersionTransport({
+        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        fetchImpl: (async () => new Response(JSON.stringify({ captionVersions }), { status: 200 })) as typeof fetch,
+      });
+      await expect(transport.versions('t', 'p', 'artifact-1', 'src-v1'))
+        .rejects.toMatchObject({ code: 'UNKNOWN_OUTCOME' });
+    }
   });
 
   it('sends the supplied bearer credential and never lets identity hints substitute it', async () => {
@@ -130,7 +179,9 @@ describe('caption-version-write HTTP transport binding', () => {
   it('reads one caption version by exact id and maps 404 to null', async () => {
     const snapshot = {
       ...registered('req-1'), ticksPerSecond: 90_000, sourceDurationTicks: 9_000_000,
-      languageTag: 'en', captionSegments: [], registeredAt: 1,
+      languageTag: 'en', captionSegments: [
+        { segmentId: 'seg-1', text: 'hi', startTick: 10, endTick: 900, origin: 'USER_EDITED' },
+      ], registeredAt: 1,
     };
     const fetchImpl = async (url: string | URL) => {
       if (String(url).endsWith('/capv-missing')) return new Response('{}', { status: 404 });
@@ -156,6 +207,25 @@ describe('caption-version-write HTTP transport binding', () => {
     await expect(transport.version('capv-1'))
       .rejects.toMatchObject({ code: 'UNKNOWN_OUTCOME' });
   });
+
+  it('rejects snapshots missing required fields or containing invalid caption segments', async () => {
+    const valid = {
+      ...registered('req-1'), ticksPerSecond: 90_000, sourceDurationTicks: 9_000_000,
+      captionSegments: [{ segmentId: 'seg-1', text: 'hi', startTick: 10, endTick: 900, origin: 'USER_EDITED' }],
+    };
+    for (const snapshot of [
+      { ...valid, registrationReceiptId: undefined },
+      { ...valid, ticksPerSecond: 0 },
+      { ...valid, captionSegments: [{ ...valid.captionSegments[0], endTick: 9_000_001 }] },
+      { ...valid, captionSegments: [{ ...valid.captionSegments[0], origin: 'SYNTHETIC' }] },
+    ]) {
+      const transport = httpCaptionVersionTransport({
+        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        fetchImpl: (async () => new Response(JSON.stringify(snapshot), { status: 200 })) as typeof fetch,
+      });
+      await expect(transport.version('capv-1')).rejects.toMatchObject({ code: 'UNKNOWN_OUTCOME' });
+    }
+  });
 });
 
 describe('caption-version-write client (J-03)', () => {
@@ -177,6 +247,31 @@ describe('caption-version-write client (J-03)', () => {
     const { languageTag, ...noTag } = request();
     expect(requestFingerprint('t', 'p', noTag)).not.toBe(a);
     expect(requestFingerprint('t', 'p', request({ purpose: 'demo' }))).not.toBe(a);
+  });
+
+  it('preserves the UTF-8 Java/TS fingerprint across controls and Unicode without Node globals', () => {
+    const sourceText = 'controls:\u0000\u0001\u0008\u000b\u001f / combining e\u0301 / Devanagari अक्षर / emoji 😀';
+    const value = request({
+      captionSegments: [{
+        segmentId: 'seg-control', text: sourceText, startTick: 10, endTick: 900,
+        origin: 'USER_EDITED', speakerLabel: 'speaker\t\r\n',
+      }],
+      purpose: 'purpose\f\u0007',
+    });
+    const target = globalThis as typeof globalThis & Record<string, unknown>;
+    const processDescriptor = Object.getOwnPropertyDescriptor(target, 'process');
+    const bufferDescriptor = Object.getOwnPropertyDescriptor(target, 'Buffer');
+    try {
+      Object.defineProperty(target, 'process', { configurable: true, value: undefined });
+      Object.defineProperty(target, 'Buffer', { configurable: true, value: undefined });
+      expect(requestFingerprint('tenant-😀', 'principal-é', value))
+        .toBe('2a9cffe8c61d6ba37dae891b5ec0d6128a49e8a1b149982d28c216873217ec71');
+    } finally {
+      if (processDescriptor) Object.defineProperty(target, 'process', processDescriptor);
+      else Reflect.deleteProperty(target, 'process');
+      if (bufferDescriptor) Object.defineProperty(target, 'Buffer', bufferDescriptor);
+      else Reflect.deleteProperty(target, 'Buffer');
+    }
   });
 
   it('validates request shape before dispatch', async () => {

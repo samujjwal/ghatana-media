@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import type { ParentVersionKind } from './caption-draft.js';
 
 /**
@@ -107,9 +106,9 @@ export class CaptionVersionReadError extends Error {
 /** Server contract: durable registration + scoped readback. */
 export interface CaptionVersionTransport {
   register(request: CaptionRegistrationRequest & { requestFingerprint: string }): Promise<CaptionVersionRegistered | CaptionVersionRejected>;
-  versions(tenantId: string, principalId: string, sourceArtifactId: string, sourceArtifactVersionId: string): Promise<readonly CaptionVersionRegistered[]>;
+  versions(tenantId: string, principalId: string, sourceArtifactId: string, sourceArtifactVersionId: string, signal?: AbortSignal): Promise<readonly CaptionVersionRegistered[]>;
   /** Exact readback of one registered version; null only when the server reports a definitive 404. */
-  version(captionVersionId: string): Promise<CaptionVersionSnapshot | null>;
+  version(captionVersionId: string, signal?: AbortSignal): Promise<CaptionVersionSnapshot | null>;
 }
 
 const REQUEST_ID = /^[A-Za-z0-9._~-]{1,128}$/u;
@@ -134,7 +133,71 @@ export function requestFingerprint(tenantId: string, principalId: string, reques
     request.purpose !== undefined ? 'true' : 'false',
     request.purpose !== undefined ? j(request.purpose) : 'null',
   ].join(',');
-  return createHash('sha256').update(`[${json}]`, 'utf8').digest('hex');
+  return sha256HexUtf8(`[${json}]`);
+}
+
+// This synchronous fingerprint is part of the public client API, so WebCrypto's
+// asynchronous digest interface cannot preserve its ABI. Keep the small SHA-256
+// implementation local and platform-neutral instead of importing node:crypto.
+const SHA256_K = new Uint32Array([
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+]);
+
+function sha256HexUtf8(text: string): string {
+  const input = new TextEncoder().encode(text);
+  const paddedLength = Math.ceil((input.length + 9) / 64) * 64;
+  const padded = new Uint8Array(paddedLength);
+  padded.set(input);
+  padded[input.length] = 0x80;
+  const bitLength = input.length * 8;
+  const view = new DataView(padded.buffer);
+  view.setUint32(paddedLength - 8, Math.floor(bitLength / 0x1_0000_0000), false);
+  view.setUint32(paddedLength - 4, bitLength >>> 0, false);
+
+  const state = new Uint32Array([
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+  ]);
+  const words = new Uint32Array(64);
+  for (let offset = 0; offset < padded.length; offset += 64) {
+    for (let i = 0; i < 16; i++) words[i] = view.getUint32(offset + i * 4, false);
+    for (let i = 16; i < 64; i++) {
+      const x = words[i - 15];
+      const y = words[i - 2];
+      const s0 = rotateRight(x, 7) ^ rotateRight(x, 18) ^ (x >>> 3);
+      const s1 = rotateRight(y, 17) ^ rotateRight(y, 19) ^ (y >>> 10);
+      words[i] = (words[i - 16] + s0 + words[i - 7] + s1) >>> 0;
+    }
+
+    let a = state[0], b = state[1], c = state[2], d = state[3];
+    let e = state[4], f = state[5], g = state[6], h = state[7];
+    for (let i = 0; i < 64; i++) {
+      const sum1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
+      const choice = (e & f) ^ (~e & g);
+      const t1 = (h + sum1 + choice + SHA256_K[i] + words[i]) >>> 0;
+      const sum0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);
+      const majority = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (sum0 + majority) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0;
+      d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    state[0] = (state[0] + a) >>> 0; state[1] = (state[1] + b) >>> 0;
+    state[2] = (state[2] + c) >>> 0; state[3] = (state[3] + d) >>> 0;
+    state[4] = (state[4] + e) >>> 0; state[5] = (state[5] + f) >>> 0;
+    state[6] = (state[6] + g) >>> 0; state[7] = (state[7] + h) >>> 0;
+  }
+  return Array.from(state, (word) => word.toString(16).padStart(8, '0')).join('');
+}
+
+function rotateRight(value: number, count: number): number {
+  return (value >>> count) | (value << (32 - count));
 }
 
 /** JSON string: escapes quote/backslash, b/f/n/r/t short escapes, other controls lowercase hex; unpaired surrogates rejected (for...of yields them as lone code points). */
@@ -240,6 +303,57 @@ function registerError(status: number): RegistrationErrorCode {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isIdentifier(value: unknown): value is string {
+  return typeof value === 'string' && IDENTIFIER.test(value);
+}
+
+function isRegisteredVersion(value: unknown): value is CaptionVersionRegistered {
+  if (!isRecord(value)) return false;
+  return typeof value.requestId === 'string' && REQUEST_ID.test(value.requestId)
+    && typeof value.requestFingerprint === 'string' && /^[0-9a-f]{64}$/u.test(value.requestFingerprint)
+    && isIdentifier(value.captionVersionId) && isIdentifier(value.registrationReceiptId)
+    && isIdentifier(value.sourceArtifactId) && isIdentifier(value.sourceArtifactVersionId)
+    && (value.parentVersionKind === 'TRANSCRIPT_VERSION' || value.parentVersionKind === 'CAPTION_VERSION')
+    && isIdentifier(value.parentVersionId)
+    && (value.languageDisposition === 'NOT_SELECTED' || value.languageDisposition === 'DECLARED_BY_USER'
+      || value.languageDisposition === 'UNCERTAIN')
+    && isIdentifier(value.sourceClockId) && safeInt(value.registeredAt);
+}
+
+function isCaptionSegment(value: unknown, duration: number): value is CaptionVersionSegment {
+  if (!isRecord(value)) return false;
+  return isIdentifier(value.segmentId) && typeof value.text === 'string'
+    && safeInt(value.startTick) && safeInt(value.endTick)
+    && value.startTick < value.endTick && value.endTick <= duration
+    && (value.origin === 'RECOGNIZED' || value.origin === 'USER_EDITED')
+    && (value.speakerLabel === undefined || typeof value.speakerLabel === 'string');
+}
+
+function isCaptionSnapshot(value: unknown, captionVersionId: string): value is CaptionVersionSnapshot {
+  if (!isRegisteredVersion(value) || value.captionVersionId !== captionVersionId) return false;
+  const snapshot = value as unknown as Record<string, unknown>;
+  if (!safeInt(snapshot.ticksPerSecond) || snapshot.ticksPerSecond < 1
+    || !safeInt(snapshot.sourceDurationTicks)
+    || !Array.isArray(snapshot.captionSegments) || snapshot.captionSegments.length === 0
+    || snapshot.captionSegments.length > 4096
+    || !snapshot.captionSegments.every((segment) => isCaptionSegment(segment, snapshot.sourceDurationTicks as number))) {
+    return false;
+  }
+  if (snapshot.languageTag !== undefined && (typeof snapshot.languageTag !== 'string'
+    || snapshot.languageTag.trim().length === 0 || snapshot.languageTag.length > 64)) return false;
+  if (snapshot.purpose !== undefined && (typeof snapshot.purpose !== 'string'
+    || snapshot.purpose.trim().length === 0 || [...snapshot.purpose].length > 240)) return false;
+  return true;
+}
+
+function malformedRead(status: number, detail: string): CaptionVersionReadError {
+  return new CaptionVersionReadError('UNKNOWN_OUTCOME', status, false, detail);
+}
+
 /**
  * Binds the {@link CaptionVersionTransport} seam to the Media Runtime HTTP
  * surface: POST /api/v1/caption-versions, GET /api/v1/caption-versions, and
@@ -278,28 +392,41 @@ export function httpCaptionVersionTransport(options: HttpCaptionTransportOptions
         retryable: detail.retryable === true || RETRYABLE_STATUS.has(response.status),
       };
     },
-    async versions(tenantId, principalId, sourceArtifactId, sourceArtifactVersionId) {
+    async versions(tenantId, principalId, sourceArtifactId, sourceArtifactVersionId, signal) {
+      if (tenantId !== options.tenantId || principalId !== options.principalId) {
+        throw new CaptionVersionReadError('ACCESS_DENIED', 403, false, 'requested identity does not match transport scope');
+      }
       const response = await impl(
         `${base}/api/v1/caption-versions?sourceArtifactId=${encodeURIComponent(sourceArtifactId)}&sourceArtifactVersionId=${encodeURIComponent(sourceArtifactVersionId)}`,
-        { method: 'GET', headers: await headers() });
+        { method: 'GET', headers: await headers(), signal });
       if (!response.ok) throw readError(response.status);
       const body = await response.json().catch(() => ({}));
       if (!Array.isArray(body?.captionVersions)) {
-        throw new CaptionVersionReadError('UNKNOWN_OUTCOME', response.status, false, 'malformed list body');
+        throw malformedRead(response.status, 'malformed list body');
       }
-      return body.captionVersions as CaptionVersionRegistered[];
+      const versions: CaptionVersionRegistered[] = [];
+      const seenVersionIds = new Set<string>();
+      for (const value of body.captionVersions as unknown[]) {
+        if (!isRegisteredVersion(value) || value.sourceArtifactId !== sourceArtifactId
+          || value.sourceArtifactVersionId !== sourceArtifactVersionId || seenVersionIds.has(value.captionVersionId)) {
+          throw malformedRead(response.status, 'malformed, duplicate, or out-of-scope caption version');
+        }
+        seenVersionIds.add(value.captionVersionId);
+        versions.push(value);
+      }
+      return versions;
     },
-    async version(captionVersionId) {
+    async version(captionVersionId, signal) {
       const response = await impl(
         `${base}/api/v1/caption-versions/${encodeURIComponent(captionVersionId)}`,
-        { method: 'GET', headers: await headers() });
+        { method: 'GET', headers: await headers(), signal });
       if (response.status === 404) return null;
       if (!response.ok) throw readError(response.status);
       const body = await response.json().catch(() => ({}));
-      if (!body || typeof body.captionVersionId !== 'string' || body.captionVersionId !== captionVersionId) {
-        throw new CaptionVersionReadError('UNKNOWN_OUTCOME', response.status, false, 'malformed or mismatched snapshot');
+      if (!isCaptionSnapshot(body, captionVersionId)) {
+        throw malformedRead(response.status, 'malformed or mismatched snapshot');
       }
-      return body as CaptionVersionSnapshot;
+      return body;
     },
   };
 }

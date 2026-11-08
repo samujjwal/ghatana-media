@@ -111,6 +111,11 @@ try {
 
   await copyTree(path.join(packageRoot, 'dist'), path.join(clientPackRoot, 'dist'));
   await copyTree(path.join(packageRoot, 'dist-cjs'), path.join(clientPackRoot, 'dist-cjs'));
+  for (const outputPath of ['dist/caption-version.js', 'dist-cjs/caption-version.js']) {
+    const output = await readFile(path.join(clientPackRoot, outputPath), 'utf8');
+    assert.doesNotMatch(output, /(?:from\s*|require\s*\()\s*['"](?:node:)?(?:crypto|buffer|process)['"]/u,
+      `${outputPath} must not import Node-only modules`);
+  }
   const clientTarball = await pack(clientPackRoot, {
     ...sourceClient,
     dependencies: { '@audio-video/types': sourceTypes.version },
@@ -262,6 +267,28 @@ try {
       }),
     });
     await assert.rejects(wrongScopeClient.getJob('job-installed-42'), /outside the caller's tenant and principal scope/u);
+
+    // The caption-version subpath is a browser-host entrypoint. Import it only
+    // after removing Node globals and verify its synchronous wire fingerprint.
+    const processDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'process');
+    const bufferDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'Buffer');
+    try {
+      Object.defineProperty(globalThis, 'process', { configurable: true, value: undefined });
+      Object.defineProperty(globalThis, 'Buffer', { configurable: true, value: undefined });
+      const captionVersion = await import('@audio-video/client/caption-version');
+      assert.equal(typeof captionVersion.httpCaptionVersionTransport, 'function');
+      assert.equal(captionVersion.requestFingerprint('t', 'p', {
+        requestId: 'r', sourceArtifactId: 'a', sourceArtifactVersionId: 'av',
+        parentVersionKind: 'TRANSCRIPT_VERSION', parentVersionId: 'pv', sourceClockId: 'c',
+        ticksPerSecond: 1, sourceDurationTicks: 10, languageDisposition: 'NOT_SELECTED',
+        captionSegments: [{ segmentId: 's', text: 'x', startTick: 0, endTick: 1, origin: 'USER_EDITED' }],
+      }), 'b3b87f7127f7f20bc96e8c1c9dc53488b0138897f5b419b3a3f88a6abf2689ec');
+    } finally {
+      if (processDescriptor) Object.defineProperty(globalThis, 'process', processDescriptor);
+      else Reflect.deleteProperty(globalThis, 'process');
+      if (bufferDescriptor) Object.defineProperty(globalThis, 'Buffer', bufferDescriptor);
+      else Reflect.deleteProperty(globalThis, 'Buffer');
+    }
   `);
   await writeFile(path.join(consumerRoot, 'consumer.cjs'), `
     const assert = require('node:assert/strict');
@@ -274,6 +301,7 @@ try {
     const recorder = require('@audio-video/client/recorder-orchestrator');
     const production = require('@audio-video/client/production-plan');
     const offlineStore = require('@audio-video/client/offline-edit-store');
+    const captionVersion = require('@audio-video/client/caption-version');
     const contracts = require('@audio-video/types/contracts');
     assert.equal(typeof client.createAudioVideoClient, 'function');
     assert.equal(typeof operations.createMediaOperationClient, 'function');
@@ -285,6 +313,7 @@ try {
     assert.equal(typeof production.compileProductionPlan, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
+    assert.equal(typeof captionVersion.requestFingerprint, 'function');
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
   `);
   run(process.execPath, [path.join(consumerRoot, 'consumer.cjs')], { cwd: consumerRoot });
@@ -299,6 +328,8 @@ try {
     import type * as capture from '@audio-video/client/capture-adapters';
     import type * as recorder from '@audio-video/client/recorder-orchestrator';
     import type * as productionExports from '@audio-video/client/production-plan';
+    import type * as captionVersion from '@audio-video/client/caption-version';
+    import { requestFingerprint } from '@audio-video/client/caption-version';
     import { IndexedDbOfflineEditStore, type IndexedDbOfflineEditStoreOptions } from '@audio-video/client/offline-edit-store';
     import { compileProductionPlan, type CaptureSourceResolver } from '@audio-video/client/production-plan';
     import type { SceneTextAdapterErrorCode } from '@audio-video/client';
@@ -309,6 +340,8 @@ try {
     const offlineStoreOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
     const publicExportTypes: [typeof main, typeof operations, typeof routes, typeof canonical,
       typeof http, typeof capture, typeof recorder, typeof productionExports] = null!;
+    const fingerprint: typeof requestFingerprint = requestFingerprint;
+    const captionVersionExports: typeof captionVersion = null!;
     const kind = MediaArtifactKindSchema.parse('AUDIO');
     const resolver: CaptureSourceResolver | undefined = undefined;
     const diErrorCodes = [
@@ -323,7 +356,7 @@ try {
     type MissingDiErrorCode = Exclude<SceneTextAdapterErrorCode, typeof diErrorCodes[number]>;
     const diVocabularyIsExhaustive: MissingDiErrorCode extends never ? true : never = true;
     void [create, compile, kind, resolver, publicExportTypes, offlineStoreConstructor,
-      offlineStoreOptions, diVocabularyIsExhaustive];
+      offlineStoreOptions, diVocabularyIsExhaustive, fingerprint, captionVersionExports];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
@@ -337,6 +370,7 @@ try {
     import recorder = require('@audio-video/client/recorder-orchestrator');
     import production = require('@audio-video/client/production-plan');
     import offlineStore = require('@audio-video/client/offline-edit-store');
+    import captionVersion = require('@audio-video/client/caption-version');
     import type { IndexedDbOfflineEditStoreOptions } from '@audio-video/client/offline-edit-store';
     import types = require('@audio-video/types/contracts');
     const createClient: typeof client.createAudioVideoClient = client.createAudioVideoClient;
@@ -349,9 +383,10 @@ try {
     const compilePlan: typeof production.compileProductionPlan = production.compileProductionPlan;
     const indexedDbStore: typeof offlineStore.IndexedDbOfflineEditStore = offlineStore.IndexedDbOfflineEditStore;
     const storeOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
+    const fingerprint: typeof captionVersion.requestFingerprint = captionVersion.requestFingerprint;
     const kind: typeof types.MediaArtifactKindSchema = types.MediaArtifactKindSchema;
     void [createClient, createOperationClient, routeTable, createCanonicalClient, transport,
-      captureWithAdmission, orchestrate, compilePlan, indexedDbStore, storeOptions, kind];
+      captureWithAdmission, orchestrate, compilePlan, indexedDbStore, storeOptions, kind, fingerprint];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.cts'], { cwd: consumerRoot });

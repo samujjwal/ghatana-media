@@ -18,6 +18,12 @@ the capture adapter SPI. Package: `@audio-video/client`
 - Keep the legacy `AudioVideoClient` and `MediaOperationClient` method ABI for
   consumers while methods without an admitted Media route fail before HTTP
   dispatch. Canonical job/stream and artifact operations use the v1 routes.
+- Provide the source-version-scoped caption-version HTTP transport and stable
+  Java-compatible request fingerprint from browser and Node runtimes. The
+  transport validates exact source scope, unique version IDs, and complete
+  bounded caption snapshots before returning them to a host. Caller tenant and
+  principal scope must match the transport's configured identity hints before
+  reads dispatch; list/snapshot reads accept an `AbortSignal`.
 - Queue offline project edits only when a host supplies a non-extractable key,
   ciphertext-only atomic store, fresh authorization callback, and exact-version
   replay port; reconnect also needs a host-supplied canonical project version
@@ -35,6 +41,7 @@ the capture adapter SPI. Package: `@audio-video/client`
 | --- | --- |
 | `@audio-video/client` | SDK clients, types, error taxonomy |
 | `@audio-video/client/operations` | Operation-scoped client methods |
+| `@audio-video/client/caption-version` | Browser-safe caption registration/read transport and stable fingerprint |
 | `@audio-video/client/canonical-routes`, `/canonical-operations` | Route/operation manifests |
 | `@audio-video/client/capture-adapters` | Eligibility seam, `CaptureSourceAdapter`, `routedCaptureAdapter` |
 | `@audio-video/client/http-capture-adapter` | `HttpApiCaptureAdapter` (HTTP_API) |
@@ -100,6 +107,10 @@ device qualification or integration with canonical stream sessions or writers.
   surface `OUTCOME_UNKNOWN`, never fabricated success.
 - Artifact reads return the runtime observation DTO, not the legacy product
   type; a 404 is scoped non-visibility, not global absence.
+- Caption-version fingerprints remain synchronous and wire-compatible without
+  importing Node crypto, so browser hosts can use the same registration/read
+  contract. Caption list/snapshot responses are rejected as `UNKNOWN_OUTCOME`
+  when malformed, duplicated, or outside the exact requested source scope.
 - Scenario plans are deterministic: identical scenarios produce identical
   `planIdentity`/lineage; `changedSceneLineages` reports carried/replanned/
   removed scenes.
@@ -158,6 +169,7 @@ never enters results — only safe enums and fixed reasons.
 pnpm --filter @audio-video/client typecheck
 pnpm --filter @audio-video/client test        # build + vitest
 pnpm --filter @audio-video/client test:package # isolated ESM/CJS consumer
+pnpm --filter @audio-video/client exec vitest run src/caption-version.test.ts
 pnpm --filter @audio-video/client exec vitest run src/offline-edit-queue.test.ts src/offline-reconnect.test.ts src/camera-capture-adapter.test.ts src/package-surface.test.ts
 ```
 
