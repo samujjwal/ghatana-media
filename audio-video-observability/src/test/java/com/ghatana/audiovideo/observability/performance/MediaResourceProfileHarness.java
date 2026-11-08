@@ -153,6 +153,8 @@ public final class MediaResourceProfileHarness {
                     || failedOperations < 0
                     || budgetNanos <= 0 || budgetNanos > MAX_BUDGET.toNanos() || elapsedNanos <= 0
                     || !Double.isFinite(throughputOperationsPerSecond) || throughputOperationsPerSecond < 0
+                    || throughputOperationsPerSecond > successfulThroughputUpperBound(
+                            completedOperations, failedOperations, elapsedNanos)
                     || incompleteOperations < 0
                     || completedOperations + incompleteOperations != requestedOperations
                     || failedOperations > completedOperations) {
@@ -221,6 +223,12 @@ public final class MediaResourceProfileHarness {
                     "container_cpu_limit_cores", "container_process_limit", "java_version", "java_vendor",
                     "runtime_name", "os", "os_version", "architecture", "available_processors",
                     "model_profile", "corpus_profile");
+        }
+
+        private static double successfulThroughputUpperBound(
+                int completedOperations, int failedOperations, long elapsedNanos) {
+            int successfulOperations = completedOperations - failedOperations;
+            return successfulOperations * 1_000_000_000.0 / elapsedNanos;
         }
     }
 
@@ -364,7 +372,7 @@ public final class MediaResourceProfileHarness {
         int completedCount = completed.get();
         int failedCount = Math.min(failures.get(), completedCount);
         int incompleteCount = Math.max(0, operations - completedCount);
-        double throughput = Math.max(0, completedCount - failedCount) / (elapsed / 1_000_000_000.0);
+        double throughput = Report.successfulThroughputUpperBound(completedCount, failedCount, elapsed);
         Map<Resource, Reading> resources = summarizeResources(before, after, snapshots, processRssSamples);
 
         return new Report(concurrency, operations, completedCount, failedCount, incompleteCount,

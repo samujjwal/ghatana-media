@@ -202,6 +202,22 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void reportRejectsThroughputThatExceedsSuccessfulOperationsPerElapsedTime() {
+        var environment = new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 1,
+                "NOT_CONFIGURED", "NOT_CONFIGURED");
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1_000_000_001.0, 0.0, 0.0, 0.0, environment, java.util.Map.of()));
+
+        var exactUpperBound = new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1_000_000_000.0, 0.0, 0.0, 0.0, environment, java.util.Map.of());
+        assertThat(exactUpperBound.throughputOperationsPerSecond()).isEqualTo(1_000_000_000.0);
+    }
+
+    @Test
     void environmentRequiresExplicitHostAndProfileInputs() {
         assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Environment(
                 "JDK", "Vendor", "runtime", "OS", "version", "arch", 1, " ", "corpus"));
