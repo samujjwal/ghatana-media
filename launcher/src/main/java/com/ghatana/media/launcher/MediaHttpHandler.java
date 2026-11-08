@@ -550,8 +550,11 @@ public final class MediaHttpHandler implements HttpHandler {
         if (query != null) {
             for (String part : query.split("&")) {
                 String[] pair = part.split("=", 2);
-                if (pair.length == 2 && name.equals(decode(pair[0]))) {
+                if (name.equals(decode(pair[0]))) {
                     if (value != null) throw new IllegalArgumentException(name + " must be supplied once");
+                    if (pair.length != 2) {
+                        throw new IllegalArgumentException(name + " must be supplied with a value");
+                    }
                     // Query identifiers are opaque URI values: a literal '+' is not a
                     // form-encoded space. Keep it distinct while still decoding % escapes.
                     value = URLDecoder.decode(pair[1].replace("+", "%2B"), StandardCharsets.UTF_8);

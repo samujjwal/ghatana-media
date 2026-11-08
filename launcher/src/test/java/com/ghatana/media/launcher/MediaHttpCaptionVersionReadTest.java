@@ -77,6 +77,43 @@ class MediaHttpCaptionVersionReadTest {
         }
     }
 
+    @Test
+    void captionVersionReadRejectsDuplicateOpaqueIdentityWhenOneOccurrenceHasNoValue() throws Exception {
+        var root = Files.createTempDirectory("media-caption-version-read-duplicate-");
+        MediaRuntime runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "test", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaCaptionStore captionStore = mock(MediaCaptionStore.class);
+        when(captionStore.ready()).thenReturn(true);
+        MediaSourceRightsAdministration rights = mock(MediaSourceRightsAdministration.class);
+        when(rights.ready()).thenReturn(true);
+        MediaCaptionRuntime captions = new MediaCaptionRuntime(captionStore, rights, null, CLOCK);
+
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, null, captions);
+            ExchangeResult result = request(handler,
+                    "/api/v1/caption-versions?sourceArtifactId=source-a&sourceArtifactId"
+                            + "&sourceArtifactVersionId=version-a");
+
+            assertThat(result.status()).as(result.body()).isEqualTo(400);
+            org.mockito.Mockito.verify(captionStore, org.mockito.Mockito.never())
+                    .versions(anyString(), anyString(), anyString(), anyString());
+        } finally {
+            captions.close();
+            runtime.close();
+            try (var paths = Files.walk(root)) {
+                for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
     private static ExchangeResult request(MediaHttpHandler handler, String pathAndQuery) throws IOException {
         HttpExchange exchange = mock(HttpExchange.class);
         Headers requestHeaders = new Headers();
