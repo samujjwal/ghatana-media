@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -67,6 +68,64 @@ class PostgresqlMediaCaptionStoreTest {
             assertThat(replay).isEqualTo(first); // same key+fingerprint: original receipt, no second version
             assertThat(f.store().versions("tenant-1", "principal-1", "artifact-1", "src-v1"))
                     .extracting(Registered::captionVersionId).containsExactly(registered.captionVersionId());
+        }
+    }
+
+    @Test
+    void exactReplayReconcilesOriginalReceiptAfterCurrentRightsWithoutParentLookup() throws Exception {
+        try (Fixture f = openFixture()) {
+            String sourceVersion = "src-reconcile-" + UUID.randomUUID();
+            RegistrationRequest request = new RegistrationRequest("req-reconcile-" + UUID.randomUUID(),
+                    "artifact-1", sourceVersion, ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1",
+                    "clock.v1", 90_000, 9_000_000, LanguageDisposition.DECLARED_BY_USER,
+                    Optional.of("en"), segments(), Optional.empty());
+            Registered original = (Registered) f.store().register(
+                    "tenant-1", "principal-1", request, ADMITTED, PARENT);
+            AtomicInteger rightsChecks = new AtomicInteger();
+            AtomicInteger parentChecks = new AtomicInteger();
+
+            RegistrationResult replay = f.store().register("tenant-1", "principal-1", request,
+                    check -> {
+                        rightsChecks.incrementAndGet();
+                        return RegistrationAuthority.Decision.ADMITTED;
+                    }, (kind, parentId, sourceId, requestedVersion) -> {
+                        parentChecks.incrementAndGet();
+                        return Optional.empty();
+                    });
+
+            assertThat(replay).isEqualTo(original);
+            assertThat(rightsChecks).hasValue(1);
+            assertThat(parentChecks).hasValue(0);
+            assertThat(f.store().versions("tenant-1", "principal-1", "artifact-1", sourceVersion))
+                    .containsExactly(original);
+        }
+    }
+
+    @Test
+    void revokedExactReplayDoesNotExposeTheOriginalReceipt() throws Exception {
+        try (Fixture f = openFixture()) {
+            String sourceVersion = "src-revoked-replay-" + UUID.randomUUID();
+            RegistrationRequest request = new RegistrationRequest("req-revoked-replay-" + UUID.randomUUID(),
+                    "artifact-1", sourceVersion, ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1",
+                    "clock.v1", 90_000, 9_000_000, LanguageDisposition.DECLARED_BY_USER,
+                    Optional.of("en"), segments(), Optional.empty());
+            Registered original = (Registered) f.store().register(
+                    "tenant-1", "principal-1", request, ADMITTED, PARENT);
+            AtomicInteger parentChecks = new AtomicInteger();
+
+            RegistrationResult replay = f.store().register("tenant-1", "principal-1", request,
+                    check -> RegistrationAuthority.Decision.DENIED,
+                    (kind, parentId, sourceId, requestedVersion) -> {
+                        parentChecks.incrementAndGet();
+                        return Optional.empty();
+                    });
+
+            assertThat(replay).isInstanceOf(Rejected.class);
+            assertThat(((Rejected) replay).error()).isEqualTo(RegistrationError.VERSION_REGISTRATION_NOT_ALLOWED);
+            assertThat(replay).isNotEqualTo(original);
+            assertThat(parentChecks).hasValue(0);
+            assertThat(f.store().versions("tenant-1", "principal-1", "artifact-1", sourceVersion))
+                    .filteredOn(Registered::requestId, request.requestId()).containsExactly(original);
         }
     }
 

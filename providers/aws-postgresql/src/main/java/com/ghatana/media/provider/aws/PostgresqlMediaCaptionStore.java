@@ -58,6 +58,13 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
         if (decision != RegistrationAuthority.Decision.ADMITTED) {
             return new Rejected(request.requestId(), fingerprint, RegistrationError.UNAVAILABLE, true);
         }
+        try {
+            Optional<RegistrationResult> existing = replayAfterAdmission(
+                    tenantId, principalId, request.requestId(), fingerprint);
+            if (existing.isPresent()) return existing.get();
+        } catch (SQLException | RuntimeException unavailable) {
+            return new Rejected(request.requestId(), fingerprint, RegistrationError.UNKNOWN_OUTCOME, true);
+        }
         Optional<ParentClockLookup.ParentFacts> parent;
         try {
             parent = parentLookup.resolve(request.parentVersionKind(), request.parentVersionId(),
@@ -78,6 +85,27 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
             return insert(tenantId, principalId, request, fingerprint, System.currentTimeMillis());
         } catch (SQLException failure) {
             return new Rejected(request.requestId(), fingerprint, RegistrationError.UNKNOWN_OUTCOME, true);
+        }
+    }
+
+    /**
+     * Reconcile a prior request after current write authority succeeds but before re-reading the
+     * parent clock. This lookup is read-only: returning the original receipt cannot create a
+     * caption version or bypass current authority for an exact, changed, or new request.
+     */
+    private Optional<RegistrationResult> replayAfterAdmission(String tenantId, String principalId,
+            String requestId, String fingerprint) throws SQLException {
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                Optional<RegistrationResult> existing = replay(
+                        connection, tenantId, principalId, requestId, fingerprint);
+                connection.commit();
+                return existing;
+            } catch (RuntimeException | SQLException failure) {
+                connection.rollback();
+                throw failure;
+            }
         }
     }
 
