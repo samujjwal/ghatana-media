@@ -2,6 +2,8 @@ package com.ghatana.audiovideo.observability;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
@@ -19,6 +21,22 @@ import java.util.concurrent.TimeUnit;
 import java.time.Instant;
 
 class MediaWorkflowMetricsTest {
+    @Test
+    void workflowStageTimerFailureDoesNotEscapeIntoOutcomePath() {
+        var registry = new StageTimerFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+            Timer.Sample sample = Timer.start(registry);
+            registry.failStageTimer = true;
+
+            org.assertj.core.api.Assertions.assertThatCode(() ->
+                    metrics.stopTimer(sample, MediaWorkflowMetrics.Stage.REQUEST))
+                    .doesNotThrowAnyException();
+        } finally {
+            registry.close();
+        }
+    }
+
     @Test
     void eventCounterFailureDoesNotEscapeIntoWorkflowOutcomePath() {
         var registry = new EventCounterFailureRegistry();
@@ -107,6 +125,23 @@ class MediaWorkflowMetricsTest {
                 throw new IllegalStateException("fixture registry failure");
             }
             return super.newTimer(id, distributionStatisticConfig, pauseDetector);
+        }
+    }
+
+    private static final class StageTimerFailureRegistry extends SimpleMeterRegistry {
+        private boolean failStageTimer;
+
+        @Override
+        protected Timer newTimer(Meter.Id id, DistributionStatisticConfig distributionStatisticConfig,
+                PauseDetector pauseDetector) {
+            Timer timer = super.newTimer(id, distributionStatisticConfig, pauseDetector);
+            if (!"media.workflow.stage.duration".equals(id.getName())) return timer;
+            Timer instrumented = spy(timer);
+            doAnswer(invocation -> {
+                if (failStageTimer) throw new IllegalStateException("fixture timer failure");
+                return invocation.callRealMethod();
+            }).when(instrumented).record(anyLong(), any(TimeUnit.class));
+            return instrumented;
         }
     }
 

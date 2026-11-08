@@ -367,7 +367,11 @@ public final class MediaWorkflowMetrics {
 
     public void stopTimer(Timer.Sample sample, Stage stage) {
         if (sample == null || stage == null) return;
-        sample.stop(stageTimers.get(stage));
+        try {
+            sample.stop(stageTimers.get(stage));
+        } catch (RuntimeException ignored) {
+            // Stage timing is observational and must not replace the workflow result it observes.
+        }
     }
 
     /**
