@@ -348,7 +348,7 @@
       "requires": [
         "media.dev.canonical-job-reconciliation"
       ],
-      "verificationEvidence": "2026-11-08: FULL source-composite HealthMetricsServerTest PASS 7/7. Configured service names containing quote, backslash, newline and U+0001 serialize as valid escaped JSON. Local HTTP fixture only; deployed monitoring, alert delivery, restart and measured 1/16/64 qualification remain open.",
+      "verificationEvidence": "2026-11-08: FULL source-composite HealthMetricsServerTest PASS 7/7. Configured service names containing quote, backslash, newline and U+0001 serialize as valid escaped JSON. Local HTTP fixture only; deployed monitoring, alert delivery, restart and measured 1/16/64 qualification remain open. 2026-11-08: Added warning alert `MediaProviderProfileCheckTimestampMissing` for observed provider profiles whose `checked_at` timestamp series is absent or NaN; the match uses scrape target plus complete bounded profile identity and aggregates warning labels by service/modality. Added Prometheus fixture scenarios for absent-series recovery, NaN-to-timestamp recovery, duplicate provider identity on a second scrape target, and fresh-timestamp silence. `MediaWorkflowAlertRulesTest` PASS 11/11. The pinned Prometheus `promtool` check was not run because Docker daemon is unavailable, so the PromQL/rule fixtures remain unverified by promtool; deployed alert delivery, restart, render producers, and measured 1/16/64 budgets remain open; task remains OPEN.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.canonical-job-reconciliation"

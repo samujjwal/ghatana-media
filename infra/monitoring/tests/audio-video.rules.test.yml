@@ -939,6 +939,49 @@ tests:
   - eval_time: 11m
     alertname: MediaProviderProfileStale
     exp_alerts: []
+- name: provider-profile-missing-or-nan-check-timestamp-is-unknown-and-recovers
+  interval: 1m
+  input_series:
+  - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-a"}
+    values: 1x11
+  - series: media_provider_profile_checked_at_seconds{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-a"}
+    values: NaNx4 240x7
+  - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-b"}
+    values: 1x11
+  - series: media_provider_profile_checked_at_seconds{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-b"}
+    values: 100x11
+  - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r2",contract_version="v1",job="stt-service",instance="host-a"}
+    values: 1x11
+  - series: media_provider_profile_checked_at_seconds{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r2",contract_version="v1",job="stt-service",instance="host-a"}
+    values: _x4 240x7
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: MediaProviderProfileCheckTimestampMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: provider-profile
+        service: stt
+        modality: stt
+      exp_annotations:
+        summary: A Media provider profile health-check timestamp is missing
+        description: A source-reported provider profile for stt (stt) has no non-NaN health-check timestamp for 2 minutes. Treat profile freshness as unknown and keep dependent capabilities closed until a non-NaN check timestamp is observed.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 6m
+    alertname: MediaProviderProfileCheckTimestampMissing
+    exp_alerts: []
+- name: provider-profile-fresh-check-timestamp-stays-quiet
+  interval: 1m
+  input_series:
+  - series: media_provider_profile_readiness{service="vision",modality="vision",provider_id="vision-cpu",provider_version="2.4.1",model_profile="detector-cpu",model_revision="rev-1",contract_version="v1",job="vision-service",instance="host-a"}
+    values: 1x5
+  - series: media_provider_profile_checked_at_seconds{service="vision",modality="vision",provider_id="vision-cpu",provider_version="2.4.1",model_profile="detector-cpu",model_revision="rev-1",contract_version="v1",job="vision-service",instance="host-a"}
+    values: 100x5
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: MediaProviderProfileCheckTimestampMissing
+    exp_alerts: []
 - name: qualified-quality-regression-recovers-before-threshold-stays-quiet
   interval: 1m
   input_series:

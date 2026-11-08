@@ -167,9 +167,11 @@ class MediaWorkflowAlertRulesTest {
                         "component: vision", "alert: MultimodalProviderNotReady",
                         "av_service_readiness{service=\"multimodal\"} == 0", "component: multimodal")
                 .contains("alert: MediaProviderProfileDegraded", "alert: MediaProviderProfileUnavailable",
-                        "alert: MediaProviderProfileStale", "alert: MediaProviderProfileObservationConflict",
+                        "alert: MediaProviderProfileStale", "alert: MediaProviderProfileCheckTimestampMissing",
+                        "alert: MediaProviderProfileObservationConflict",
                         "media_provider_profile_observation_conflict{contract_version=\"v1\"} == 1",
-                        "media_provider_profile_readiness{contract_version=\"v1\"}")
+                        "media_provider_profile_readiness{contract_version=\"v1\"}",
+                        "Treat profile freshness as unknown")
                 .doesNotContain("alert: MediaQualityRegression", "alert: MediaModelQualityRegression\n");
         assertThat(rules).contains(
                 "alert: MediaProviderQualifiedQualityRegression",
@@ -179,6 +181,9 @@ class MediaWorkflowAlertRulesTest {
                 "scope=\"independent_qualified\"", "scope=\"reference_only\"",
                 "metric=\"wer_ci95_upper\"", "locale=\"eng\"", "locale=\"hin\"", "locale=\"npi\"",
                 "media_provider_quality_observation_timestamp_seconds{contract_version=\"v1\"}");
+        assertThat(rules).contains(
+                "media_provider_profile_readiness{contract_version=\"v1\"} unless on (job, instance, service, modality, provider_id, provider_version, model_profile, model_revision, contract_version)",
+                "media_provider_profile_checked_at_seconds{contract_version=\"v1\"} == media_provider_profile_checked_at_seconds{contract_version=\"v1\"}");
         assertThat(operations).contains(
                 "`av_service_readiness{service=\"stt|tts|vision|multimodal\"}`",
                 "Modality-specific provider-not-ready alerts fire only when an observed readiness",
@@ -281,6 +286,9 @@ class MediaWorkflowAlertRulesTest {
                 "name: provider-profile-health-alerts-fire-and-recover-with-fixed-labels",
                 "name: provider-profile-conflict-alert-fires-and-recovers-on-newer-check",
                 "name: provider-profile-stale-health-check-alerts-and-recovers",
+                "name: provider-profile-missing-or-nan-check-timestamp-is-unknown-and-recovers",
+                "name: provider-profile-fresh-check-timestamp-stays-quiet",
+                "values: _x4 240x7",
                 "alertname: SttReadinessTelemetryMissing",
                 "alertname: TtsReadinessTelemetryMissing",
                 "alertname: VisionReadinessTelemetryMissing",
@@ -292,6 +300,7 @@ class MediaWorkflowAlertRulesTest {
                 "alertname: MediaProviderProfileDegraded",
                 "alertname: MediaProviderProfileUnavailable",
                 "alertname: MediaProviderProfileStale",
+                "alertname: MediaProviderProfileCheckTimestampMissing",
                 "alertname: MediaProviderProfileObservationConflict",
                 "values: '0x3'",
                 "values: 1x3",

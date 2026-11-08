@@ -262,6 +262,20 @@ groups:
           description: "The latest provider health check for {{ $labels.service }} ({{ $labels.modality }}) is over five minutes old. Keep dependent capabilities closed until the owning profile reports a fresh check."
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
+      # Every observed profile registers a check timestamp. An absent or NaN timestamp
+      # makes freshness unknown; it must not be interpreted as a stale provider result.
+      - alert: MediaProviderProfileCheckTimestampMissing
+        expr: count by (service, modality) (media_provider_profile_readiness{contract_version="v1"} unless on (job, instance, service, modality, provider_id, provider_version, model_profile, model_revision, contract_version) (media_provider_profile_checked_at_seconds{contract_version="v1"} == media_provider_profile_checked_at_seconds{contract_version="v1"})) > 0
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: provider-profile
+        annotations:
+          summary: "A Media provider profile health-check timestamp is missing"
+          description: "A source-reported provider profile for {{ $labels.service }} ({{ $labels.modality }}) has no non-NaN health-check timestamp for 2 minutes. Treat profile freshness as unknown and keep dependent capabilities closed until a non-NaN check timestamp is observed."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
       - alert: MediaProviderProfileObservationConflict
         expr: count by (service, modality) (media_provider_profile_observation_conflict{contract_version="v1"} == 1) > 0
         labels:
