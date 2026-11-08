@@ -648,8 +648,10 @@ public final class QualityComparisonAndOptimization {
         return revision.frames().stream().mapToLong(f -> f.rgb.length).sum();
     }
     private static String text(String value, String field, int max) {
-        if (value == null || value.isBlank() || value.length() > max) throw invalid(field + " is required and bounded");
-        return value.trim();
+        if (value == null || value.isBlank() || value.length() > max || !value.equals(value.strip())) {
+            throw invalid(field + " must be exact, non-blank, and bounded without surrounding whitespace");
+        }
+        return value;
     }
     private static String exactIdentity(String value, String field, int max) {
         if (value == null || value.isBlank() || value.length() > max || !value.equals(value.strip())) {

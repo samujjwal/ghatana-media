@@ -29,6 +29,25 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void referencePurposeAndProtocolTokensRejectSurroundingWhitespaceInsteadOfNormalizing() {
+        Revision source = revision("source", "v1", "a", 40);
+        AtomicInteger rightsChecks = new AtomicInteger();
+
+        assertThatThrownBy(() -> new ReferenceRequest(source.id(), " quality-reference "))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> new Metric(" RGB8_SAMPLE_PSNR_V1 ", MetricStatus.UNAVAILABLE,
+                java.util.OptionalDouble.empty()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> optimize(" " + OPERATION, source, (id, purpose) -> {
+            rightsChecks.incrementAndGet();
+            return allowed("source-rights");
+        }, port(List.of(revision("candidate", "v1", "b", 25))), 1, BUDGET,
+                Optional.empty(), null, null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("surrounding whitespace");
+        assertThat(rightsChecks).hasValue(0);
+    }
+
+    @Test
     void authorizedAlignedReferenceProducesGoldenPsnrSsimAndImprovementDisposition() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v1", "b", 25);
