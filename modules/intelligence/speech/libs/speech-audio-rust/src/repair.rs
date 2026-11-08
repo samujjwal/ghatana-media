@@ -334,6 +334,9 @@ pub struct AudioQualityMetrics {
     /// Samples at or above 99.9% full scale; a conservative indicator, not proof of clipping.
     pub clipped_sample_count: usize,
     pub changed_sample_count: usize,
+    /// SNR of the untouched source against the same explicit reference.
+    /// Present only when a separate, shape-matched reference was supplied.
+    pub source_snr_db_vs_reference: Option<f64>,
     pub snr_db_vs_reference: Option<f64>,
     /// Absolute change in zero-lag stereo correlation; None unless the layout is exactly stereo.
     pub stereo_correlation_delta: Option<f64>,
@@ -423,7 +426,7 @@ pub fn compare_audio(
         .zip(&repaired.samples)
         .filter(|(left, right)| left.to_bits() != right.to_bits())
         .count();
-    let snr_db_vs_reference = if let Some(reference) = reference {
+    let (source_snr_db_vs_reference, snr_db_vs_reference) = if let Some(reference) = reference {
         validate_buffer(reference, RepairLimits::DEFAULT)?;
         if reference.config != repaired.config || reference.samples.len() != repaired.samples.len()
         {
@@ -431,9 +434,12 @@ pub fn compare_audio(
                 "reference must match repaired PCM format and frame count".into(),
             ));
         }
-        Some(snr_db(&reference.samples, &repaired.samples))
+        (
+            Some(snr_db(&reference.samples, &source.samples)),
+            Some(snr_db(&reference.samples, &repaired.samples)),
+        )
     } else {
-        None
+        (None, None)
     };
     let stereo_correlation_delta = if source.config.channels == 2 {
         match (stereo_correlation(source), stereo_correlation(repaired)) {
@@ -453,6 +459,7 @@ pub fn compare_audio(
             source_near_clip_sample_count,
             clipped_sample_count,
             changed_sample_count,
+            source_snr_db_vs_reference,
             snr_db_vs_reference,
             stereo_correlation_delta,
         },
@@ -787,6 +794,39 @@ mod tests {
             Err(SpeechAudioError::InvalidInput(_))
         ));
         assert!(compare_audio(&source, &repaired, Some(&mono(vec![0.1]))).is_err());
+    }
+
+    #[test]
+    fn comparison_reports_source_and_repaired_snr_against_the_same_reference() {
+        let source = mono(vec![0.0, 0.0, 0.0, 0.0]);
+        let repaired = mono(vec![0.9, 0.0, 0.0, 0.0]);
+        let reference = mono(vec![1.0, 0.0, 0.0, 0.0]);
+
+        // The independent reference remains separate from both revisions.
+        let improved = compare_audio(&source, &repaired, Some(&reference)).unwrap();
+        assert_eq!(improved.metrics.source_snr_db_vs_reference, Some(0.0));
+        assert!(improved.metrics.snr_db_vs_reference.unwrap() > 0.0);
+
+        let degraded = compare_audio(
+            &reference,
+            &mono(vec![0.0, 0.0, 0.0, 0.0]),
+            Some(&mono(vec![1.0, 0.0, 0.0, 0.0])),
+        )
+        .unwrap();
+        assert!(degraded
+            .metrics
+            .source_snr_db_vs_reference
+            .unwrap()
+            .is_infinite());
+        assert!(degraded.metrics.snr_db_vs_reference.unwrap().is_finite());
+
+        assert_eq!(
+            compare_audio(&source, &repaired, None)
+                .unwrap()
+                .metrics
+                .source_snr_db_vs_reference,
+            None
+        );
     }
 
     #[test]
