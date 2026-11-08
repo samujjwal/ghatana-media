@@ -610,13 +610,11 @@ public final class MediaWorkflowMetrics {
                 rows = snapshot;
             }
         } catch (RuntimeException unstableInput) {
-            registry.counter("media.provider.quality.series.rejected",
-                    "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+            recordRejectedQualitySeries();
             return false;
         }
         if (rows.size() > MAX_QUALITY_SAMPLES_PER_MODEL) {
-            registry.counter("media.provider.quality.series.rejected",
-                    "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+            recordRejectedQualitySeries();
             return false;
         }
         ProviderQualityGroupKey group = new ProviderQualityGroupKey(
@@ -624,8 +622,7 @@ public final class MediaWorkflowMetrics {
         synchronized (providerQualityLock) {
             ProviderQualityRefresh previous = providerQualityRefreshes.get(group);
             if (previous != null && checkedAt.isBefore(previous.checkedAt())) {
-                registry.counter("media.provider.quality.series.rejected",
-                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                recordRejectedQualitySeries();
                 return false;
             }
             java.util.Map<ProviderQualityKey, ProviderQualitySeriesSample> desired = new java.util.HashMap<>();
@@ -634,9 +631,7 @@ public final class MediaWorkflowMetrics {
                         || desired.putIfAbsent(new ProviderQualityKey(modality, providerId,
                         providerVersion, modelRevision, sample.locale(), sample.metric(),
                         sample.scope()), sample) != null) {
-                    registry.counter("media.provider.quality.series.rejected",
-                            "service", safeService, "contract_version", CONTRACT_VERSION)
-                            .increment();
+                    recordRejectedQualitySeries();
                     return false;
                 }
             }
@@ -652,20 +647,17 @@ public final class MediaWorkflowMetrics {
                 }
                 providerQualityRefreshes.put(group,
                         new ProviderQualityRefresh(checkedAt, previous.samples(), true));
-                registry.counter("media.provider.quality.series.rejected",
-                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                recordRejectedQualitySeries();
                 return false;
             }
             if (previous == null && providerQualityRefreshes.size() >= MAX_PROVIDER_PROFILES) {
-                registry.counter("media.provider.quality.series.rejected",
-                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                recordRejectedQualitySeries();
                 return false;
             }
             long additional = desired.keySet().stream()
                     .filter(key -> !providerQualitySeries.containsKey(key)).count();
             if (providerQualitySeries.size() + additional > MAX_PROVIDER_QUALITY_SERIES) {
-                registry.counter("media.provider.quality.series.rejected",
-                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                recordRejectedQualitySeries();
                 return false;
             }
             for (java.util.Map.Entry<ProviderQualityKey, AtomicReference<Double>> entry
@@ -707,6 +699,16 @@ public final class MediaWorkflowMetrics {
                         "contract_version", CONTRACT_VERSION))
                 .register(registry);
         return value;
+    }
+
+    private void recordRejectedQualitySeries() {
+        try {
+            registry.counter("media.provider.quality.series.rejected",
+                    "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+        } catch (RuntimeException ignored) {
+            // Rejection diagnostics are optional telemetry and must not change the
+            // rejected observation's result or escape into the provider operation.
+        }
     }
 
     private static double epochSeconds(Instant instant) {

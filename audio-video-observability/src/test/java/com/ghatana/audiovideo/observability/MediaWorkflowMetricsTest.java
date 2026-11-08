@@ -103,6 +103,36 @@ class MediaWorkflowMetricsTest {
         }
     }
 
+    @Test
+    void rejectedProviderQualitySeriesRemainsRejectedWhenDiagnosticCounterFails() {
+        var registry = new RejectedQualitySeriesCounterFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+            registry.failRejectedCounter = true;
+            Instant now = Instant.parse("2026-11-08T12:00:00Z");
+            var sample = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                    "eng", "wer", 0.2, now, "reference_only");
+
+            assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                    "fixture-provider", "v1", "revision", now,
+                    java.util.Collections.nCopies(33, sample))).isFalse();
+        } finally {
+            registry.close();
+        }
+    }
+
+    private static final class RejectedQualitySeriesCounterFailureRegistry extends SimpleMeterRegistry {
+        private boolean failRejectedCounter;
+
+        @Override
+        protected Counter newCounter(Meter.Id id) {
+            if (failRejectedCounter && "media.provider.quality.series.rejected".equals(id.getName())) {
+                throw new IllegalStateException("fixture registry failure");
+            }
+            return super.newCounter(id);
+        }
+    }
+
     private static final class RejectedObservationCounterFailureRegistry extends SimpleMeterRegistry {
         private boolean failRejectedCounter;
 
