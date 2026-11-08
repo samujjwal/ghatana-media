@@ -314,6 +314,44 @@ class QualityComparisonAndOptimizationTest {
     }
 
     @Test
+    void reportComparisonMetricAvailabilityMustMatchAuthorizedReference() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Report withoutReference = run(source, List.of(candidate), null, allowed("src"), null, 1, BUDGET)
+                .report().orElseThrow();
+        CandidateComparison fabricatedImprovement = new CandidateComparison(candidate.id(),
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(30)),
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(0.9)),
+                withoutReference.comparisons().getFirst().heuristics(), QualityDisposition.IMPROVED);
+
+        assertThatThrownBy(() -> new Report(withoutReference.status(), withoutReference.blockReason(),
+                withoutReference.operationId(), withoutReference.budget(), withoutReference.attemptsUsed(),
+                withoutReference.source(), withoutReference.sourceRightsDecisionId(),
+                withoutReference.retainedRevisions(), withoutReference.reference(),
+                withoutReference.referenceRightsDecisionId(), withoutReference.referenceUnavailableReason(),
+                List.of(fabricatedImprovement), withoutReference.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("metric availability must match reference availability");
+
+        Revision reference = revision("reference", "v7", "c", 20);
+        Report withReference = run(source, List.of(candidate), reference, allowed("src"), allowed("ref"), 1, BUDGET)
+                .report().orElseThrow();
+        CandidateComparison unavailableComparison = new CandidateComparison(candidate.id(),
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty()),
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty()),
+                withReference.comparisons().getFirst().heuristics(), QualityDisposition.UNAVAILABLE);
+
+        assertThatThrownBy(() -> new Report(withReference.status(), withReference.blockReason(),
+                withReference.operationId(), withReference.budget(), withReference.attemptsUsed(),
+                withReference.source(), withReference.sourceRightsDecisionId(),
+                withReference.retainedRevisions(), withReference.reference(),
+                withReference.referenceRightsDecisionId(), withReference.referenceUnavailableReason(),
+                List.of(unavailableComparison), withReference.reportSha256()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("metric availability must match reference availability");
+    }
+
+    @Test
     void exactCandidateReferenceMatchBeatsFiniteSourcePsnr() {
         Revision source = revision("source", "v1", "a", 40);
         Revision exact = revision("candidate", "v1", "b", 20);

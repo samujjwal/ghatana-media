@@ -255,8 +255,13 @@ public final class QualityComparisonAndOptimization {
                 throw invalid("report comparisons must contain exactly one result per attempt");
             }
             for (int i = 0; i < comparisons.size(); i++) {
-                if (!comparisons.get(i).candidate().equals(retainedRevisions.get(i + 1))) {
+                CandidateComparison comparison = comparisons.get(i);
+                if (!comparison.candidate().equals(retainedRevisions.get(i + 1))) {
                     throw invalid("report comparison candidates must match retained revisions in attempt order");
+                }
+                boolean metricsUnavailable = comparison.psnr().status() == MetricStatus.UNAVAILABLE;
+                if (reference.isEmpty() != metricsUnavailable) {
+                    throw invalid("report comparison metric availability must match reference availability");
                 }
             }
             reportSha256 = digest(reportSha256, "report sha256");
