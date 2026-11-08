@@ -114,6 +114,7 @@ describe("canonical caption version listing", () => {
     }));
 
     expect(await screen.findByText(/reader scope does not match/)).toBeTruthy();
+    expect(screen.getByRole("status").getAttribute("data-state")).toBe("unknown");
     expect(readVersions).toHaveBeenCalledTimes(1);
     expect(screen.queryByText("caption-version-1", { selector: "code" })).toBeNull();
     expect(screen.queryByText("host-stale-version")).toBeNull();

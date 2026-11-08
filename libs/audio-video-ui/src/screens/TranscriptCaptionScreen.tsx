@@ -226,6 +226,11 @@ export function TranscriptCaptionScreen({
   const saveAction = availableActions.get("media.action.save-caption-version");
   const compareAction = availableActions.get("media.action.compare-caption-versions");
   const canonicalVersionsAvailable = canonicalCaptionVersionReader !== undefined;
+  const canonicalVersionReadDisposition = canonicalVersionsAvailable
+    ? readerScopeIsValid
+      ? canonicalVersionRead?.state ?? "UNKNOWN"
+      : "UNKNOWN"
+    : undefined;
   const displayedVersions = canonicalVersionsAvailable
     ? readerScopeIsValid && canonicalVersionRead?.state === "OBSERVED"
       ? canonicalVersionRead.rows.map((version) => ({
@@ -353,9 +358,7 @@ export function TranscriptCaptionScreen({
           <p>{[segment.confidence, segment.provenance].filter(Boolean).join(" · ")}</p>
         </li>)}
       </ol> : null}
-      {transcript.view === "compare-caption-versions" && <p role="status" aria-live="polite" data-state={canonicalVersionsAvailable
-        ? (canonicalVersionRead?.state.toLowerCase() ?? "unknown")
-        : "host-projected"}>
+      {transcript.view === "compare-caption-versions" && <p role="status" aria-live="polite" data-state={canonicalVersionReadDisposition?.toLowerCase() ?? "host-projected"}>
         {!canonicalVersionsAvailable
           ? "No canonical caption-version reader was supplied. Listed choices are host-projected and have not been refreshed here."
           : !readerScope
