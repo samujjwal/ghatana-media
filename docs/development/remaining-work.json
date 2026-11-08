@@ -348,6 +348,7 @@
       "requires": [
         "media.dev.canonical-job-reconciliation"
       ],
+      "verificationEvidence": "2026-11-08: MediaRuntimeProviderQualityMetricsTest PASS 7/7 for bounded per-locale observations, stale-snapshot clearing, and absent/mismatched quality remaining NaN even when provider readiness is healthy. These are fixture assertions; live Prometheus/Alertmanager firing/clear delivery, restart and measured 1/16/64 host budgets remain open.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.canonical-job-reconciliation"
@@ -691,7 +692,7 @@
         "media.dev.rights-and-policy",
         "media.dev.native-media-dsp"
       ],
-      "verificationEvidence": "2026-11-08: WhisperOnnxThreadPolicyTest PASS 3/3. WhisperReferenceModelIntegrationTest passes its independent-gold-before-load guard; its two profile/model cases skip because the private profile, approved audio and full gold transcript are absent (the GHATANA_MEDIA_WHISPER_PROFILE/AUDIO/GOLD_TRANSCRIPT inputs are unset). No real inference or quality promotion was performed; exact model/export rights, independent Common Voice gold and qualified host evidence remain open.",
+      "verificationEvidence": "2026-11-08: WhisperOnnxThreadPolicyTest PASS 3/3. WhisperReferenceModelIntegrationTest passes its independent-gold-before-load guard; its two profile/model cases skip because the private profile, approved audio and full gold transcript are absent (the GHATANA_MEDIA_WHISPER_PROFILE/AUDIO/GOLD_TRANSCRIPT inputs are unset). No real inference or quality promotion was performed; exact model/export rights, independent Common Voice gold and qualified host evidence remain open.\n2026-11-08 R10 model-free quality selectors: MediaProcessingProviderCapabilityProfileTest PASS 5/5, WhisperOnnxSttProviderTest PASS 22/22, and MediaRuntimeProviderQualityMetricsTest PASS 7/7. Coverage checks exact source-owned profile identity and keeps missing/mismatched quality as NaN without provider admission. Fixture evidence only; no approved Common Voice report, rights-qualified real inference, complete gold or named-host measurement is available.",
       "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
       "integrationPrerequisites": [
         "media.dev.rights-and-policy",
