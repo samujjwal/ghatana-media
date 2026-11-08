@@ -472,6 +472,23 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void outputBudgetUsesTheSourceDefinedTwoGibibyteArtifactBound() {
+        assertThat(MultitrackRenderPlanner.MAX_DECLARED_OUTPUT_BYTES).isEqualTo(2_147_483_648L);
+        var start = new MultitrackRenderPlanner.Time(0, 1);
+        var graph = new MultitrackRenderPlanner.Graph(
+                List.of(video("v", start, List.of(start))), List.of(), List.of(),
+                MultitrackRenderPlanner.MAX_DECLARED_OUTPUT_BYTES);
+        var plan = MultitrackRenderPlanner.plan(graph).plan();
+
+        assertThat(plan.declaredOutputBudgetBytes()).isEqualTo(2_147_483_648L);
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Graph(
+                graph.clips(), graph.captions(), graph.transitions(), 2_147_483_649L));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                plan.capabilityId(), plan.canonicalManifest(), plan.manifestSha256(), plan.duration(),
+                plan.frameMap(), 2_147_483_649L));
+    }
+
+    @Test
     void directPlanConstructorEnforcesDeclaredOutputBudgetCeiling() {
         var start = new MultitrackRenderPlanner.Time(0, 1);
 

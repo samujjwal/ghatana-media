@@ -25,7 +25,8 @@ public final class MultitrackRenderPlanner {
     public static final int MAX_CAPTIONS = 20_000;
     public static final int MAX_TRANSITIONS = 256;
     public static final long MAX_GRAPH_DURATION_NANOS = 24L * 60 * 60 * 1_000_000_000;
-    public static final long MAX_DECLARED_OUTPUT_BYTES = 8L * 1024 * 1024 * 1024;
+    // PDP-1 media-compose bounds cap one output artifact at 2 GiB.
+    public static final long MAX_DECLARED_OUTPUT_BYTES = 2L * 1024 * 1024 * 1024;
 
     private MultitrackRenderPlanner() { }
 
