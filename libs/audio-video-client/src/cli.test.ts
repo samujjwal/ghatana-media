@@ -15,12 +15,6 @@ const artifact = {
   contentType: 'audio/wav', sizeBytes: 42, sha256: 'a'.repeat(64), objectReference: 'opaque://stored/object',
   classification: 'INTERNAL', createdAt: timestamp, expiresAt: '2026-11-08T12:00:00.000Z', metadata: { purpose: 'inspect' },
 };
-const job = {
-  jobId: 'job-a', requestId: 'request-a', tenantId: 'tenant-a', principalId: 'principal-a', artifactId: 'artifact-a',
-  jobType: 'SPEECH_TO_TEXT', providerId: 'whisper-local', status: 'RUNNING', createdAt: timestamp,
-  startedAt: timestamp, completedAt: null, result: { z: 1, nested: { y: 2, a: 3 } }, failureCode: null,
-  version: 2, expectedArtifactVersion: '', requestFingerprint: `sha256:${'b'.repeat(64)}`,
-};
 const servers: Server[] = [];
 
 async function withServer(
@@ -59,10 +53,6 @@ const fetchFixture = fileURLToPath(new URL('./__fixtures__/cli-fetch.mjs', impor
 
 function command(endpoint: string, extra: string[] = []) {
   return ['artifact', 'inspect', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--artifact', 'artifact-a', ...extra];
-}
-
-function jobStatusCommand(endpoint: string, extra: string[] = []) {
-  return ['job', 'status', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--job', 'job-a', ...extra];
 }
 
 afterEach(async () => {
@@ -482,6 +472,7 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     { command: 'upload resume', args: ['upload', 'resume', '--upload', 'u1'] },
     { command: 'transcribe', args: ['transcribe', '--source-version', 'v1', '--language', 'en'] },
     { command: 'transcript review', args: ['transcript', 'review', '--transcript-version', 'v1'] },
+    { command: 'job status', args: ['job', 'status', '--job', 'j1'] },
     { command: 'job cancel', args: ['job', 'cancel', '--job', 'j1'] },
     { command: 'job check-outcome', args: ['job', 'check-outcome', '--job', 'j1'] },
     { command: 'job batch', args: ['job', 'batch'] },
@@ -540,95 +531,6 @@ describe('ghatanamedia-api artifact inspect executable', () => {
       expect(redirectedRequests).toBe(0);
       expect(result.stdout + result.stderr).not.toContain(token);
     });
-  });
-});
-
-describe('ghatanamedia-api job status executable', () => {
-  it('reads an exact authenticated job observation through the canonical scoped route', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-status-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const result = await invoke(jobStatusCommand('https://media.example.test'), token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      const expected = {
-        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.status',
-        job: { ...job, result: { nested: { a: 3, y: 2 }, z: 1 } },
-      };
-      expect(result.status).toBe(0);
-      expect(result.stderr).toBe('');
-      expect(result.stdout).toBe(`${JSON.stringify(expected)}\n`);
-      expect(result.stdout).not.toContain(token);
-      expect(JSON.parse(await readFile(requestLogPath, 'utf8'))).toMatchObject({
-        path: '/api/v1/jobs/job-a', method: 'GET', tenant: 'tenant-a', principal: 'principal-a',
-        authenticated: true, bearerMatches: true,
-      });
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  });
-
-  it('keeps job status scoped and rejects malformed or mismatched responses without printing them', async () => {
-    for (const body of [
-      { ...job, tenantId: 'tenant-b' },
-      { ...job, principalId: 'principal-b' },
-      { ...job, jobId: 'job-b' },
-      { ...job, status: 'DONE' },
-    ]) {
-      const result = await invoke(jobStatusCommand('https://media.example.test'), token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(body),
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-      }, fetchFixture);
-      expect(result.status).toBe(1);
-      expect(result.stdout).toBe('');
-      expect(JSON.parse(result.stderr)).toMatchObject({
-        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status', code: 'INVALID_MEDIA_RESPONSE',
-      });
-      expect(result.stderr).not.toContain(token);
-      expect(result.stderr).not.toContain('tenant-b');
-    }
-  });
-
-  it('requires environment bearer auth and rejects invalid job IDs before dispatch', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-id-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const noToken = await invoke(jobStatusCommand('https://media.example.test'), '');
-      const invalidId = await invoke([
-        'job', 'status', '--endpoint', 'https://media.example.test', '--tenant', 'tenant-a',
-        '--principal', 'principal-a', '--job', '-job',
-      ], token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(noToken.status).toBe(2);
-      expect(JSON.parse(noToken.stderr)).toMatchObject({ commandId: 'media.cli.job.status', code: 'MISSING_AUTH_TOKEN' });
-      expect(invalidId.status).toBe(2);
-      expect(JSON.parse(invalidId.stderr)).toMatchObject({ commandId: 'media.cli.job.status', code: 'INVALID_INVOCATION' });
-      expect(noToken.stdout + noToken.stderr + invalidId.stdout + invalidId.stderr).not.toContain(token);
-      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  });
-
-  it('maps the exact scoped missing-job error without exposing server detail', async () => {
-    const result = await invoke(jobStatusCommand('https://media.example.test'), token, {
-      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'job-not-found',
-      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-    }, fetchFixture);
-    expect(result.status).toBe(1);
-    expect(result.stdout).toBe('');
-    expect(JSON.parse(result.stderr)).toMatchObject({
-      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.status',
-      code: 'JOB_NOT_FOUND', statusCode: 404, correlationId: 'corr-job-404',
-    });
-    expect(result.stderr).not.toContain('private backend detail');
-    expect(result.stderr).not.toContain(token);
   });
 });
 

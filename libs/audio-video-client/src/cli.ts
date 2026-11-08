@@ -3,13 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { realpathSync } from 'node:fs';
 import { MediaClientError } from './http-core.js';
-import { MediaCanonicalClient } from './canonical-operations.js';
+import { createMediaOperationClient } from './operations.js';
 
 const COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact inspect': 'media.cli.artifact.inspect',
-  'job status': 'media.cli.job.status',
 };
-const USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job status --endpoint URL --tenant ID --principal ID --job ID';
+const USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -27,7 +26,7 @@ function parseArguments(argv: readonly string[]): Arguments {
   const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
   if (!Object.hasOwn(COMMAND_IDS, command)) throw new Error('Unknown command.');
   const values = new Map<string, string>();
-  const allowed = new Set(['--endpoint', '--tenant', '--principal', '--artifact', '--job']);
+  const allowed = new Set(['--endpoint', '--tenant', '--principal', '--artifact']);
   for (let index = 2; index < argv.length; index += 2) {
     const option = argv[index];
     const value = argv[index + 1];
@@ -51,14 +50,10 @@ function parseArguments(argv: readonly string[]): Arguments {
       throw new Error(`${name} must be a PDP-1 opaque ID of 1 to 128 characters.`);
     }
   }
-  const resourceOption = command === 'artifact inspect' ? '--artifact' : '--job';
-  const resourceLabel = command === 'artifact inspect' ? 'artifact' : 'job';
-  const otherResourceOption = command === 'artifact inspect' ? '--job' : '--artifact';
-  if (values.has(otherResourceOption)) throw new Error(`${otherResourceOption} is not valid for ${command}.`);
-  if (!values.has(resourceOption)) throw new Error(`Missing required option ${resourceOption}.`);
-  const resourceId = values.get(resourceOption)!;
-  if (!OPAQUE_ID_PATTERN.test(resourceId)) {
-    throw new Error(`${resourceLabel} ID must start with a letter or number and use only letters, numbers, dots, underscores, colons, or hyphens (maximum 128 characters).`);
+  if (!values.has('--artifact')) throw new Error('Missing required option --artifact.');
+  const artifact = values.get('--artifact')!;
+  if (!OPAQUE_ID_PATTERN.test(artifact)) {
+    throw new Error('artifact ID must start with a letter or number and use only letters, numbers, dots, underscores, colons, or hyphens (maximum 128 characters).');
   }
   return parsed;
 }
@@ -191,7 +186,7 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
   }
 
   try {
-    const client = new MediaCanonicalClient({
+    const client = createMediaOperationClient({
       baseUrl: endpoint,
       tenantId: args.tenant,
       requestTimeoutMs,
@@ -199,43 +194,27 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       getAccessToken: () => bearerToken,
       fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),
     });
-    if (args.command === 'job status') {
-      const job = await client.getJob(args.values['--job']!);
-      if (containsCredential(job, bearerToken)) {
-        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.', {}, 1, args.command);
-        return;
-      }
-      process.stdout.write(`${JSON.stringify({
-        schemaVersion: 'media.cli-result.v1', commandId: COMMAND_IDS[args.command],
-        job: { ...job, result: canonicalizeJsonValue(job.result) },
-      })}\n`);
-    } else {
-      const artifact = await client.getArtifact(args.values['--artifact']!);
-      if (containsCredential(artifact, bearerToken)) {
-        writeError('INVALID_MEDIA_RESPONSE', 'Media returned an artifact response containing credential material.', {}, 1, args.command);
-        return;
-      }
-      process.stdout.write(`${JSON.stringify({
-        schemaVersion: 'media.cli-result.v1', commandId: COMMAND_IDS[args.command],
-        artifact: { ...artifact, metadata: canonicalizeJsonValue(artifact.metadata) },
-      })}\n`);
+    const artifact = await client.getArtifact(args.values['--artifact']!);
+    if (containsCredential(artifact, bearerToken)) {
+      writeError('INVALID_MEDIA_RESPONSE', 'Media returned an artifact response containing credential material.', {}, 1, args.command);
+      return;
     }
+    const canonicalArtifact = { ...artifact, metadata: canonicalizeJsonValue(artifact.metadata) };
+    process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: COMMAND_IDS[args.command], artifact: canonicalArtifact })}\n`);
   } catch (error) {
     if (error instanceof MediaClientError) {
-      const isJobStatus = args.command === 'job status';
-      const notFoundCode = isJobStatus ? 'JOB_NOT_FOUND' : 'ARTIFACT_NOT_FOUND';
-      if (error.statusCode === 404 && error.detail.code === notFoundCode) {
-        writeError(notFoundCode, `${isJobStatus ? 'Job' : 'Artifact'} was not visible in the requested tenant and principal scope.`, {
+      if (error.statusCode === 404 && error.detail.code === 'ARTIFACT_NOT_FOUND') {
+        writeError('ARTIFACT_NOT_FOUND', 'Artifact was not visible in the requested tenant and principal scope.', {
           statusCode: 404, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       } else {
-        writeError('MEDIA_REQUEST_FAILED', `Media did not return a ${isJobStatus ? 'job' : 'artifact'} observation; success is not inferred.`, {
+        writeError('MEDIA_REQUEST_FAILED', 'Media did not return an artifact observation; success is not inferred.', {
           statusCode: error.statusCode, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       }
       return;
     }
-    if (error instanceof TypeError && /^Canonical Media (?:artifact|job)/u.test(error.message)) {
+    if (error instanceof TypeError && /^Canonical Media artifact/u.test(error.message)) {
       writeError('INVALID_MEDIA_RESPONSE', 'Media returned a response that did not match the canonical runtime DTO.', {}, 1, args.command);
       return;
     }
