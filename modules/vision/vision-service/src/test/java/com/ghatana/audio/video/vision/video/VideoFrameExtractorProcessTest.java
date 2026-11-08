@@ -660,6 +660,42 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void workerFailureAfterWritingPartialFrameDoesNotPublishCandidateOrMutateSource() throws Exception {
+        Path input = Files.write(tempDir.resolve("partial-worker-source.mp4"), new byte[] {1, 3, 5, 7});
+        byte[] originalSource = Files.readAllBytes(input);
+        Path output = tempDir.resolve("partial-worker-output");
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override
+            public VideoMetadata getVideoMetadataFromSnapshot(Path videoPath) throws java.io.IOException {
+                assertThat(videoPath).isNotEqualTo(input);
+                assertThat(Files.readAllBytes(videoPath)).containsExactly(originalSource);
+                return new VideoMetadata(16, 16, 1, 1, 1, "1/1000");
+            }
+
+            @Override
+            ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
+                    Path monitoredOutput, long maxOutputBytes) throws java.io.IOException {
+                Path codecInput = Path.of(command.get(command.indexOf("-i") + 1));
+                assertThat(codecInput).isNotEqualTo(input);
+                assertThat(Files.readAllBytes(codecInput)).containsExactly(originalSource);
+                Files.write(monitoredOutput.resolve("frame_0001.jpg"), new byte[] {9, 8, 7});
+                return new ProcessResult(137, false, "worker terminated after partial output");
+            }
+        };
+
+        assertThatThrownBy(() -> extractor.extractFrames(input, output,
+                VideoFrameExtractor.ExtractionConfig.builder().maxFrames(1).build()))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessage("FFmpeg failed with exit code: 137");
+
+        assertThat(Files.readAllBytes(input)).containsExactly(originalSource);
+        assertThat(output).isDirectory();
+        try (var published = Files.list(output)) {
+            assertThat(published.toList()).isEmpty();
+        }
+    }
+
+    @Test
     void singleFrameOutputByteCapRejectsOversizedResult() throws Exception {
         Path output = tempDir.resolve("oversized.jpg");
         Files.write(output, new byte[32 * 1024 * 1024 + 1]);

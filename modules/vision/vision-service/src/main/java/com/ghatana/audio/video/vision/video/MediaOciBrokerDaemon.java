@@ -165,7 +165,7 @@ public final class MediaOciBrokerDaemon {
             System.err.println("Broker OS process must be a member of the configured worker/peer shared GID");
             System.exit(2);
         }
-        Path sourceReal = Path.of(sourceRoot).toRealPath();
+        Path sourceReal = validateSharedSourceRoot(Path.of(sourceRoot), uid, gid);
         Path outputReal = MediaOciBrokerPolicy.validateSharedOutputRoot(Path.of(outputRoot), uid, gid);
         Path stageReal = validateStageRoot(Path.of(stageRoot), sourceReal, outputReal, brokerOsUser, allowedPeerUser);
         if (!stageOwnerDistinctFromPeer(stageReal, allowedPeerUser)) {
@@ -382,6 +382,29 @@ public final class MediaOciBrokerDaemon {
 
     static Path validateStageRoot(Path configured, Path sourceRoot, Path outputRoot) throws IOException {
         return validateStageRoot(configured, sourceRoot, outputRoot, currentOsUserName(), null);
+    }
+
+    /** Source data roots must match the pinned worker/shared identity and preflight mode. */
+    static Path validateSharedSourceRoot(Path configured, long workerUid, long workerGid) throws IOException {
+        if (configured == null || Files.isSymbolicLink(configured)
+                || !Files.isDirectory(configured, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("Broker source root must be a real worker-owned directory");
+        }
+        Path root = configured.toRealPath();
+        try {
+            Object uid = Files.getAttribute(root, "unix:uid", LinkOption.NOFOLLOW_LINKS);
+            Object gid = Files.getAttribute(root, "unix:gid", LinkOption.NOFOLLOW_LINKS);
+            Object mode = Files.getAttribute(root, "unix:mode", LinkOption.NOFOLLOW_LINKS);
+            if (!(uid instanceof Number ownerUid) || !(gid instanceof Number ownerGid)
+                    || !(mode instanceof Number rootMode)
+                    || ownerUid.longValue() != workerUid || ownerGid.longValue() != workerGid
+                    || (rootMode.intValue() & 07777) != 02750) {
+                throw new IOException("Broker source root must be worker-owned with dedicated shared-group mode 02750");
+            }
+        } catch (UnsupportedOperationException | IllegalArgumentException unsupported) {
+            throw new IOException("Broker source root ownership and permissions cannot be verified", unsupported);
+        }
+        return root;
     }
 
     static Path validateStageRoot(Path configured, Path sourceRoot, Path outputRoot,
