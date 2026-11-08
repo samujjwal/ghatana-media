@@ -128,7 +128,12 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
                 assertThat(fallbackCalls).hasValue(0);
             }
         } finally {
-            installed.close();
+            try {
+                installed.close();
+            } finally {
+                deleteBucket(bucket);
+                deleteDirectory(root);
+            }
         }
     }
 
@@ -206,7 +211,12 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
                 assertThat(fallbackCalls).hasValue(0);
             }
         } finally {
-            installed.close();
+            try {
+                installed.close();
+            } finally {
+                deleteBucket(bucket);
+                deleteDirectory(root);
+            }
         }
     }
 
@@ -421,5 +431,41 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
                         LOCALSTACK.getAccessKey(), LOCALSTACK.getSecretKey())))
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
+    }
+
+    private static void deleteBucket(String bucket) {
+        try (S3Client s3 = s3()) {
+            var pages = s3.listObjectsV2Paginator(
+                    software.amazon.awssdk.services.s3.model.ListObjectsV2Request.builder()
+                            .bucket(bucket).build());
+            for (var page : pages) {
+                if (!page.contents().isEmpty()) {
+                    s3.deleteObjects(software.amazon.awssdk.services.s3.model.DeleteObjectsRequest.builder()
+                            .bucket(bucket).delete(software.amazon.awssdk.services.s3.model.Delete.builder()
+                                    .objects(page.contents().stream().map(object ->
+                                            software.amazon.awssdk.services.s3.model.ObjectIdentifier.builder()
+                                                    .key(object.key()).build()).toList()).build()).build());
+                }
+            }
+            s3.deleteBucket(software.amazon.awssdk.services.s3.model.DeleteBucketRequest.builder()
+                    .bucket(bucket).build());
+        } catch (RuntimeException cleanupFailure) {
+            // The bucket is unique to this test and LocalStack is stopped by JUnit after the class.
+        }
+    }
+
+    private static void deleteDirectory(java.nio.file.Path directory) {
+        if (!Files.exists(directory)) return;
+        try (var paths = Files.walk(directory)) {
+            paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (java.io.IOException ignored) {
+                    // Test cleanup is best effort; the temporary root is unique to this test.
+                }
+            });
+        } catch (java.io.IOException ignored) {
+            // Test cleanup is best effort; the temporary root is unique to this test.
+        }
     }
 }
