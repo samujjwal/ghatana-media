@@ -57,6 +57,25 @@ class CanonicalVideoStreamFramePortTest {
     }
 
     @Test
+    void bindingRejectsUnicodeEdgeSpacesInEveryIdentityField() {
+        String nbsp = "\u00a0";
+        for (int paddedField = 0; paddedField < 4; paddedField++) {
+            for (String padding : new String[]{nbsp, nbsp + "value", "value" + nbsp}) {
+                String streamId = paddedField == 0 ? padding : "stream-1";
+                String tenantId = paddedField == 1 ? padding : "tenant-1";
+                String principalId = paddedField == 2 ? padding : "principal-1";
+                String purposeRef = paddedField == 3 ? padding : "purpose-1";
+
+                assertThatThrownBy(() -> new CanonicalVideoStreamFramePort.Binding(
+                        streamId, tenantId, principalId, purposeRef, 1, 1, -1,
+                        Instant.parse("2026-11-05T20:00:00Z")))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("surrounding whitespace");
+            }
+        }
+    }
+
+    @Test
     void acknowledgementsCannotExceedSupportedFrameSequenceRange() {
         assertThat(CanonicalVideoStreamFramePort.Result.acknowledged(
                 VideoStreamSession.MAX_FRAME_SEQUENCE).acknowledgedSequence())

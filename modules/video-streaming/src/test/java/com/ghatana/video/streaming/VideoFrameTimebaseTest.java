@@ -123,6 +123,49 @@ class VideoFrameTimebaseTest {
     }
 
     @Test
+    void identityReferencesRejectUnicodePaddingAndUnboundedOrNonOpaqueValues() {
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.known(
+                12, 1, 90_000, "\u00a0source-clock-A"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.known(
+                12, 1, 90_000, "source-clock-A\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("surrounding whitespace");
+
+        var unknown = VideoFrameTimebase.SourceTimestamp.unknown("PTS_NOT_SUPPLIED");
+        var mapping = VideoFrameTimebase.PresentationMapping.unknown("MAP_NOT_ADMITTED");
+        for (String invalid : new String[]{"stream\u00a0", "-stream", "x".repeat(129)}) {
+            assertThatThrownBy(() -> VideoFrameTimebase.bind(
+                    invalid, wireFrame(1, false, 1L), null, unknown, unknown,
+                    "segment-0", "h264", "h264-config-1", mapping))
+                    .as("stream identity %s", invalid)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("bounded exact identity");
+        }
+        assertThatThrownBy(() -> VideoFrameTimebase.bind(
+                "camera\u00a0", wireFrame(1, false, 1L), null, unknown, unknown,
+                "segment-0", "h264", "h264-config-1", mapping))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("bounded exact identity");
+        assertThatThrownBy(() -> VideoFrameTimebase.bind(
+                "camera-A", wireFrame(1, false, 1L), null, unknown,
+                VideoFrameTimebase.SourceTimestamp.known(1, 1, 90_000, "x".repeat(129)),
+                "segment-0", "h264", "h264-config-1", mapping))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("bounded opaque identifier");
+        assertThatThrownBy(() -> VideoFrameTimebase.TimelineTimestamp.known(
+                1, 1, 30, VideoFrameTimebase.ClockDomain.STORY_EXPLANATION, "story-clock\u00a0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("clock identity");
+        assertThatThrownBy(() -> new VideoFrameTimebase.FrameTiming(
+                "camera\u00a0", 1, false, null, unknown, unknown,
+                "segment-0", "h264", "h264-config-1", mapping))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("bounded exact identity");
+    }
+
+    @Test
     void knownPresentationMappingSurvivesFrameBindingWithoutRescaling() {
         var mapping = new VideoFrameTimebase.PresentationMapping(
                 VideoFrameTimebase.Status.KNOWN,

@@ -55,6 +55,20 @@ class VideoFrameReconcilerTest {
                 "vstream-1", "t1", "principal-1", " purpose-1", 1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("surrounding whitespace");
+        String nbsp = "\u00a0";
+        for (int paddedField = 0; paddedField < 4; paddedField++) {
+            for (String padding : new String[]{nbsp, nbsp + "value", "value" + nbsp}) {
+                String streamId = paddedField == 0 ? padding : "vstream-1";
+                String tenantId = paddedField == 1 ? padding : "t1";
+                String principalId = paddedField == 2 ? padding : "principal-1";
+                String purposeRef = paddedField == 3 ? padding : "purpose-1";
+
+                assertThatThrownBy(() -> new SessionIdentity(
+                        streamId, tenantId, principalId, purposeRef, 1))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("surrounding whitespace");
+            }
+        }
         for (long revision : new long[]{0, -1}) {
             assertThatThrownBy(() -> new SessionIdentity(
                     "vstream-1", "t1", "principal-1", "purpose-1", revision))

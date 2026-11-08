@@ -46,6 +46,12 @@ public interface CanonicalVideoStreamFramePort {
             if (value == null || value.isBlank()) {
                 throw new IllegalArgumentException(field + " must not be blank");
             }
+            int first = value.codePointAt(0);
+            int last = value.codePointBefore(value.length());
+            if (Character.isWhitespace(first) || Character.isSpaceChar(first)
+                    || Character.isWhitespace(last) || Character.isSpaceChar(last)) {
+                throw new IllegalArgumentException(field + " must not have surrounding whitespace");
+            }
             return value;
         }
     }

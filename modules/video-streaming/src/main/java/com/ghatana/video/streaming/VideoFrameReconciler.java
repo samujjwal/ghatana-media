@@ -68,10 +68,16 @@ public final class VideoFrameReconciler {
             if (value.isBlank()) {
                 throw new IllegalArgumentException(field + " must not be blank");
             }
-            if (!value.equals(value.strip())) {
+            int first = value.codePointAt(0);
+            int last = value.codePointBefore(value.length());
+            if (isSpace(first) || isSpace(last)) {
                 throw new IllegalArgumentException(field + " must not have surrounding whitespace");
             }
             return value;
+        }
+
+        private static boolean isSpace(int codePoint) {
+            return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
         }
     }
 

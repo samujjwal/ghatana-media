@@ -12,6 +12,8 @@ import java.util.Objects;
  */
 public final class VideoFrameTimebase {
 
+    private static final int MAX_IDENTITY_LENGTH = 128;
+
     private VideoFrameTimebase() { }
 
     /** Binds caller-supplied source timing and codec metadata to an already decoded frame. */
@@ -39,7 +41,7 @@ public final class VideoFrameTimebase {
             throw new IllegalArgumentException("keyframe identity must be at or before the frame sequence");
         }
         return new FrameTiming(
-                required(streamId, "streamId"), sequence, frame.keyFrame(), keyFrameSequence,
+                requiredOpaqueIdentity(streamId, "streamId"), sequence, frame.keyFrame(), keyFrameSequence,
                 Objects.requireNonNull(capturePts, "capturePts"),
                 Objects.requireNonNull(presentationPts, "presentationPts"),
                 required(discontinuityId, "discontinuityId"),
@@ -53,6 +55,18 @@ public final class VideoFrameTimebase {
             throw new IllegalArgumentException(name + " must not be blank");
         }
         return value;
+    }
+
+    private static String requiredOpaqueIdentity(String value, String name) {
+        if (!isOpaqueIdentity(value)) {
+            throw new IllegalArgumentException(name + " must be a bounded exact identity");
+        }
+        return value;
+    }
+
+    private static boolean isOpaqueIdentity(String value) {
+        return value != null && value.length() <= MAX_IDENTITY_LENGTH
+                && value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*");
     }
 
     /** A signed source tick value and its exact declared rational timebase. */
@@ -72,8 +86,11 @@ public final class VideoFrameTimebase {
                     throw new IllegalArgumentException(
                             "known source timestamps require ticks, a positive rational timebase, and clock identity");
                 }
-                if (!clockId.equals(clockId.strip())) {
+                if (!clockId.equals(clockId.strip()) || hasOuterUnicodeWhitespace(clockId)) {
                     throw new IllegalArgumentException("source clock identity must not have surrounding whitespace");
+                }
+                if (!isOpaqueIdentity(clockId)) {
+                    throw new IllegalArgumentException("source clock identity must be a bounded opaque identifier");
                 }
             } else if (ticks != null || timebaseNumerator != null || timebaseDenominator != null
                     || clockId != null || unknownReason == null || unknownReason.isBlank()) {
@@ -169,7 +186,7 @@ public final class VideoFrameTimebase {
                 throw new IllegalArgumentException("timeline timebase must be a positive rational");
             }
             Objects.requireNonNull(domain, "domain");
-            if (clockId == null || clockId.isBlank()) {
+            if (!isOpaqueIdentity(clockId)) {
                 throw new IllegalArgumentException("timeline timestamp requires clock identity");
             }
         }
@@ -202,7 +219,7 @@ public final class VideoFrameTimebase {
             String codecConfigurationId,
             PresentationMapping presentationMapping) {
         public FrameTiming {
-            streamId = required(streamId, "streamId");
+            streamId = requiredOpaqueIdentity(streamId, "streamId");
             if (sequence < 0 || sequence > VideoStreamSession.MAX_FRAME_SEQUENCE) {
                 throw new IllegalArgumentException("frame sequence is outside the supported range");
             }
@@ -231,5 +248,12 @@ public final class VideoFrameTimebase {
 
     private static boolean blank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private static boolean hasOuterUnicodeWhitespace(String value) {
+        return Character.isWhitespace(value.codePointAt(0))
+                || Character.isSpaceChar(value.codePointAt(0))
+                || Character.isWhitespace(value.codePointBefore(value.length()))
+                || Character.isSpaceChar(value.codePointBefore(value.length()));
     }
 }
