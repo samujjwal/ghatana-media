@@ -53,6 +53,20 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void requestCounterFailureDoesNotEscapeIntoWorkflowOutcomePath() {
+        var registry = new RequestCounterFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+            registry.failRequestIncrement = true;
+
+            org.assertj.core.api.Assertions.assertThatCode(metrics::recordRequest)
+                    .doesNotThrowAnyException();
+        } finally {
+            registry.close();
+        }
+    }
+
+    @Test
     void captureMetricRegistryFailureDoesNotEscapeIntoFrameOutcomePath() {
         var registry = new CaptureCounterFailureRegistry();
         try {
@@ -109,6 +123,22 @@ class MediaWorkflowMetricsTest {
             Counter instrumented = spy(counter);
             doAnswer(invocation -> {
                 if (failEventIncrement) throw new IllegalStateException("fixture counter failure");
+                return invocation.callRealMethod();
+            }).when(instrumented).increment();
+            return instrumented;
+        }
+    }
+
+    private static final class RequestCounterFailureRegistry extends SimpleMeterRegistry {
+        private boolean failRequestIncrement;
+
+        @Override
+        protected Counter newCounter(Meter.Id id) {
+            Counter counter = super.newCounter(id);
+            if (!"media.workflow.requests".equals(id.getName())) return counter;
+            Counter instrumented = spy(counter);
+            doAnswer(invocation -> {
+                if (failRequestIncrement) throw new IllegalStateException("fixture counter failure");
                 return invocation.callRealMethod();
             }).when(instrumented).increment();
             return instrumented;

@@ -735,7 +735,11 @@ public final class MediaWorkflowMetrics {
     }
 
     public void recordRequest() {
-        requests.increment();
+        try {
+            requests.increment();
+        } catch (RuntimeException ignored) {
+            // Aggregate request instrumentation must not replace the request result it observes.
+        }
     }
 
     public void setQueueDepth(long depth) {
