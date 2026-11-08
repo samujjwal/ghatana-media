@@ -131,6 +131,30 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void staleExactRetryReconcilesPriorDecisionButCannotCreateOrChangeOne() {
+        Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
+        AppendRequest original = fixture.request(0, "req-lost-accept", new DecisionRecord(Decision.ACCEPT, "reviewed"));
+        AppendReceipt committed = fixture.engine.append(REVIEWER, original);
+        fixture.currentVersion.set(V2.reference());
+
+        AppendReceipt replay = fixture.engine.append(REVIEWER, original);
+
+        assertThat(replay.appendRecordId()).isEqualTo(committed.appendRecordId());
+        assertThat(replay.caseRevision()).isEqualTo(committed.caseRevision());
+        assertThat(replay.reviewSubjectRef()).isEqualTo(V1);
+        assertThat(replay.currentness()).isEqualTo(Currentness.STALE);
+        assertThat(replay.establishesApproval()).isFalse();
+        assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
+        assertThatThrownBy(() -> fixture.engine.append(REVIEWER,
+                fixture.request(0, "req-lost-accept", new DecisionRecord(Decision.ACCEPT, "different"))))
+                .isInstanceOf(ReviewIdempotencyConflictException.class);
+        assertThatThrownBy(() -> fixture.engine.append(REVIEWER,
+                fixture.request(1, "req-new-stale-accept", new DecisionRecord(Decision.ACCEPT, "late"))))
+                .isInstanceOf(StaleReviewException.class);
+        assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
     void materialChangeDuringAppendIsCaughtByFreshEffectBoundaryCheck() {
         Fixture fixture = new Fixture(AuthorizationStatus.ALLOW, RetentionStatus.ACTIVE, V1.reference());
         fixture.changeMaterialDuringSanitization.set(true);

@@ -51,9 +51,6 @@ public final class VersionedReviewEngine {
         requireExpectedAuthorityVersion(request.expectedAuthorityVersion(), authority);
         Currentness currentness = authority.currentnessFor(reviewCase.reviewSubjectRef());
         if (currentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
-        if (request.payload() instanceof DecisionRecord && currentness != Currentness.CURRENT) {
-            throw new StaleReviewException();
-        }
 
         String safeText = sanitize(request.payload().textForSanitization());
         if (safeText == null || safeText.isBlank() || safeText.length() > (request.payload() instanceof Comment ? 10_000 : 4_000)) {
@@ -65,13 +62,20 @@ public final class VersionedReviewEngine {
         requireExpectedAuthorityVersion(request.expectedAuthorityVersion(), effectAuthority);
         Currentness effectCurrentness = effectAuthority.currentnessFor(reviewCase.reviewSubjectRef());
         if (effectCurrentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
-        if (safePayload instanceof DecisionRecord && effectCurrentness != Currentness.CURRENT) {
-            throw new StaleReviewException();
-        }
         String fingerprint = fingerprint(reviewCase, request.expectedCaseRevision(),
                 request.expectedAuthorityVersion(), safePayload);
         Instant now = clock.instant();
         if (!effectAuthority.validUntil().isAfter(now)) throw new ReviewUnavailableException();
+        if (safePayload instanceof DecisionRecord && effectCurrentness != Currentness.CURRENT) {
+            // A lost response can be reconciled after the reviewed material changes, but a
+            // stale request must never create a new decision. Resolve only a complete exact
+            // prior record before returning stale; the store's CAS path remains the sole writer.
+            ReviewRecord prior = findExactReplay(actor, reviewCase, request, expectedNextRevision,
+                    safePayload, effectAuthority, now);
+            if (prior == null) throw new StaleReviewException();
+            return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
+                    prior.appendRecordId(), prior.caseRevision(), effectCurrentness, false, prior.createdAt());
+        }
         String[] allocatedAppendRecordId = new String[1];
         StoreAppendResult appendResult;
         try {
@@ -169,6 +173,40 @@ public final class VersionedReviewEngine {
         if (!record.operationId().equals(record.payload().operationId())) {
             throw new ReviewUnavailableException();
         }
+    }
+
+    private ReviewRecord findExactReplay(Actor actor, ReviewCaseRef reviewCase, AppendRequest request,
+                                        long expectedNextRevision, Payload payload,
+                                        AuthorizationDecision authority, Instant observedAt) {
+        List<ReviewRecord> stored;
+        try {
+            stored = store.read(actor, reviewCase);
+        } catch (ReviewCaseMismatchException | ReviewUnavailableException known) {
+            throw known;
+        } catch (RuntimeException uncertainReadFailure) {
+            throw new ReviewUnavailableException();
+        }
+        if (stored == null) throw new ReviewUnavailableException();
+        ReviewRecord match = null;
+        for (ReviewRecord record : stored) {
+            requireExactReadback(actor, reviewCase, record);
+            if (record.actor().equals(actor) && record.requestId().equals(request.requestId())) {
+                if (match != null) throw new ReviewUnavailableException();
+                match = record;
+            }
+        }
+        if (match == null) return null;
+        if (!match.tenantId().equals(actor.tenantId())
+                || !match.reviewCaseId().equals(reviewCase.reviewCaseId())
+                || !match.reviewSubjectRef().equals(reviewCase.reviewSubjectRef())
+                || !match.payload().equals(payload)
+                || !match.operationId().equals(payload.operationId())
+                || !match.authorityVersion().equals(authority.authorityVersion())
+                || match.caseRevision() != expectedNextRevision
+                || match.createdAt().isAfter(observedAt)) {
+            throw new ReviewIdempotencyConflictException();
+        }
+        return match;
     }
 
     private AuthorizationDecision authorize(Actor actor, ReviewCaseRef reviewCase, String operation) {
