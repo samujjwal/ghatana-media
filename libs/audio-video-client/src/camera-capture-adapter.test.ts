@@ -93,6 +93,7 @@ function harness(options: {
   metadata?: (candidate: CaptureRequest) => CameraTrackSourceMetadata | null;
   mediaDevices?: CameraMediaDevicePort;
   maxFrames?: number;
+  invalidConsentUnsubscribe?: boolean;
 } = {}) {
   const tracks = options.tracks ?? [frameTrack([new Uint8Array([1, 2, 3])])];
   const opens: CaptureRequest[] = [];
@@ -111,6 +112,7 @@ function harness(options: {
   const consent: CameraConsentPort = {
     checkFresh: async (candidate, at) => options.decide?.(candidate, at) ?? permissionFor(candidate),
     subscribe(candidate, listener) {
+      if (options.invalidConsentUnsubscribe) return undefined as never;
       const entry = { request: candidate, listener, active: true };
       subscriptions.push(entry);
       return () => { entry.active = false; };
@@ -209,6 +211,15 @@ async function expectCode(operation: Promise<unknown>, code: string): Promise<vo
 }
 
 describe("CameraCaptureAdapter", () => {
+  it("does not open a camera when live consent monitoring has no usable detach handle", async () => {
+    const h = harness({ invalidConsentUnsubscribe: true });
+
+    await expectCode(h.adapter.openSession(request), "PERMISSION_MISSING");
+
+    expect(h.opens).toHaveLength(0);
+    expect(h.tracks[0]?.stopCalls).toBe(0);
+  });
+
   it("requires explicit browser host permission before opening an exact device", async () => {
     for (const [permission, code] of [["DENIED", "PERMISSION_DENIED"], ["UNKNOWN", "PERMISSION_UNKNOWN"]] as const) {
       const h = browserHarness({ permission });

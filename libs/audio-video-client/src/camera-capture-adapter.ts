@@ -798,22 +798,31 @@ export class CameraCaptureSession {
     this.permissionFailure = null;
     try {
       await this.checkPermission(request, controller.signal);
-      this.unsubscribe = this.options.consent.subscribe(request, (disposition) => {
-        // Unsubscription cannot retract a notification already queued by an
-        // authority. Ignore callbacks from a prior source generation so a
-        // delayed old-device revocation cannot abort/stop the replacement.
-        if (this.controller !== controller || this.closed) return;
-        if (disposition !== "GRANTED") {
-          this.revoked = true;
-          this.permissionFailure = disposition === "DENIED"
-            ? fail("PERMISSION_DENIED", "current camera permission was denied")
-            : disposition === "UNKNOWN"
-              ? fail("PERMISSION_UNKNOWN", "current camera permission became unknown")
-              : abortError();
-          controller.abort();
-          void this.stopCurrentTrack().catch(() => undefined);
+      try {
+        const unsubscribe = this.options.consent.subscribe(request, (disposition) => {
+          // Unsubscription cannot retract a notification already queued by an
+          // authority. Ignore callbacks from a prior source generation so a
+          // delayed old-device revocation cannot abort/stop the replacement.
+          if (this.controller !== controller || this.closed) return;
+          if (disposition !== "GRANTED") {
+            this.revoked = true;
+            this.permissionFailure = disposition === "DENIED"
+              ? fail("PERMISSION_DENIED", "current camera permission was denied")
+              : disposition === "UNKNOWN"
+                ? fail("PERMISSION_UNKNOWN", "current camera permission became unknown")
+                : abortError();
+            controller.abort();
+            void this.stopCurrentTrack().catch(() => undefined);
+          }
+        });
+        if (typeof unsubscribe !== "function") {
+          throw fail("PERMISSION_MISSING", "camera permission monitoring is unavailable");
         }
-      });
+        this.unsubscribe = unsubscribe;
+      } catch (error) {
+        if (error instanceof CameraCaptureError) throw error;
+        throw fail("PERMISSION_MISSING", "camera permission monitoring is unavailable");
+      }
       // The check is repeated after listener installation and immediately
       // before media-device open to close the authorization/start race.
       await this.assertFreshPermission(request);
