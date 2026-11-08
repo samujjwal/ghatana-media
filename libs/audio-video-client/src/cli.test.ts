@@ -535,6 +535,32 @@ describe('ghatanamedia-api artifact inspect executable', () => {
 });
 
 describe('ghatanamedia-api production command boundary', () => {
+  it.each([
+    ['embedded whitespace', 'invalid token'],
+    ['non-bearer punctuation', 'invalid,token'],
+    ['interior padding', 'invalid=token'],
+  ])('rejects bearer credentials with %s before dispatch', async (_label, invalidToken) => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-invalid-bearer-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(command('https://media.example.test'), invalidToken, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: invalidToken,
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_CONFIGURATION', message: 'GHATANA_MEDIA_BEARER_TOKEN is not a valid bearer credential.',
+      });
+      expect(result.stdout + result.stderr).not.toContain(invalidToken);
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('rejects bearer-token-shaped artifact metadata before serializing the response', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-bearer-field-'));
     const requestLogPath = join(directory, 'requests.jsonl');
