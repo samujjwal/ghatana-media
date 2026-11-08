@@ -29,6 +29,8 @@ describe("FirstUseProjectScreen protected project data", () => {
         workspaceName: "Workspace label",
         projectName: "Protected project",
         projects: [{ id: "private-project-id", name: "Private project" }],
+        message: "Private project status",
+        returnDestination: "/projects/private-project-id",
       },
     }));
 
@@ -37,6 +39,8 @@ describe("FirstUseProjectScreen protected project data", () => {
     expect(html).not.toContain("Protected project");
     expect(html).not.toContain("Private project");
     expect(html).not.toContain("private-project-id");
+    expect(html).not.toContain("Private project status");
+    expect(html).not.toContain("/projects/private-project-id");
   });
 
   it("shows project details after the host confirms access", () => {
@@ -48,6 +52,8 @@ describe("FirstUseProjectScreen protected project data", () => {
         workspaceName: "Authorized workspace",
         projectName: "Authorized project",
         projects: [{ id: "authorized-project-id", name: "Visible project" }],
+        message: "Authorized project status",
+        returnDestination: "/projects/authorized-project-id",
       },
     }));
 
@@ -55,5 +61,7 @@ describe("FirstUseProjectScreen protected project data", () => {
     expect(html).toContain("Authorized workspace");
     expect(html).toContain("Visible project");
     expect(html).toContain("authorized-project-id");
+    expect(html).toContain("Authorized project status");
+    expect(html).toContain("/projects/authorized-project-id");
   });
 });
