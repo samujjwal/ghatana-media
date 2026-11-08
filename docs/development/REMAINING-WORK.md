@@ -501,6 +501,8 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-08):** `PostgresqlMediaCaptionStore` now performs exact-request read-only reconciliation after current rights admission but before parent-clock lookup. An authorized exact retry can recover its original receipt when the parent observation is unavailable; a revoked retry returns `VERSION_REGISTRATION_NOT_ALLOWED` without exposing the receipt or adding a version. FULL source-composite `PostgresqlMediaCaptionStoreTest` passes 13/13, and the J-03 authority-revocation restart regression passes 1/1. This preserves current rights checks; trusted active-stream admission, licensed audio/model/gold, source-clock qualification, and production qualification remain open.
 
 - **Coordinator progress (2026-11-08):** PostgreSQL `versions()` now reconstructs each stored registration request and verifies its immutable fingerprint before returning history; payload tampering fails closed through the list path. Forced FULL source-composite `PostgresqlMediaCaptionStoreTest` passes 13/13. Licensed audio/provider gold, human-reviewed correction, source-clock-qualified segments, and real terminal quality remain open.
+- **Coordinator progress (2026-11-08):** snapshot-contract increment: `CaptionVersionSnapshot` now rejects invalid source clocks (nonpositive/unsafe ticksPerSecond, negative/unsafe sourceDurationTicks), duplicate segment IDs, and ranges outside `0 <= startTick < endTick <= sourceDurationTicks`, matching the owner operation. FULL source-composite `MediaCaptionContractsTest` passes 7/7 with zero failures/errors/skips. This local readback-value validation does not establish authorized source-clock evidence, database readback, provider output, or registered captions.
+
 **`media.dev.tts-model-and-rights`** · OPEN
 - **Where:** `modules/speech/tts-service`, `libs/java/common/src/main/java/com/ghatana/media/tts`
 - **What:** Make qualified lawful Piper voice profiles produce real decoded audio, not success-shaped placeholders.
@@ -1395,6 +1397,8 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Predecessors:** `media.dev.stt-streaming-and-caption`, `media.dev.web-host`
 
 - **Coordinator progress (2026-11-08):** J-03 caption history now verifies each immutable registration request fingerprint; the tamper regression proves changed payload cannot be listed as a valid version. FULL source-composite store tests pass 13/13. This is durable fixture integrity only; licensed inference/gold, qualified source clocks, human correction, hosted UI and genuine terminal quality remain open.
+- **Coordinator progress (2026-11-08):** snapshot-boundary increment: public caption readback values now enforce the source clock bounds, unique segment IDs, and exact segment range before they can be constructed. `MediaCaptionContractsTest` passes 7/7. This protects typed readback structure only; canonical transcript/provider, durable runtime readback, correction authority and review remain open.
+
 **`media.dev.outcome-authorized-voice-synthesis`** · OPEN
 - **Where:** `integration-tests`, `modules/integration-tests`, `libs/audio-video-ui`
 - **What:** J-04 — Lawful voice -> real decoded audio; denied locale/profile/revoke.
