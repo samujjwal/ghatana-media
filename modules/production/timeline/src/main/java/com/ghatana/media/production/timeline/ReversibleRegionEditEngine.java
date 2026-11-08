@@ -77,9 +77,10 @@ public final class ReversibleRegionEditEngine {
             throw new RevisionConflictException(plan.expectedRevisionId(), expectedRevisionId);
         }
         Objects.requireNonNull(afterState, "afterState");
+        String validatedRequestId = requestId(requestId);
         validateSamples(plan.sourceTimebase(), plan.evidence());
         verifyRights(actor, plan.source(), plan.sourceSha256(), plan.purpose(), plan.regionId(), plan.evidence().samples());
-        return store.commit(actor, plan, expectedRevisionId, requestId(requestId), afterState);
+        return store.commit(actor, plan, expectedRevisionId, validatedRequestId, afterState);
     }
 
     /**
@@ -88,11 +89,12 @@ public final class ReversibleRegionEditEngine {
      */
     public EditRevision undo(Actor actor, String projectId, String targetRevisionId,
                              String expectedCurrentRevisionId, String requestId) {
+        String validatedRequestId = requestId(requestId);
         EditRevision target = store.revision(actor, projectId, targetRevisionId);
         verifyRights(actor, target.source(), target.sourceSha256(), target.purpose(), target.regionId(),
                 target.evidence().samples());
         return store.undo(actor, projectId, targetRevisionId,
-                required(expectedCurrentRevisionId, "expectedCurrentRevisionId"), requestId(requestId));
+                required(expectedCurrentRevisionId, "expectedCurrentRevisionId"), validatedRequestId);
     }
 
     private void verifyRights(Actor actor, SourceVersion source, String sha256, String purpose, String regionId,

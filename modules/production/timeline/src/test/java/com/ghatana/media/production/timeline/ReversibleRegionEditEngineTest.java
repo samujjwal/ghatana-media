@@ -239,6 +239,36 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void undoRejectsMalformedRequestIdBeforeRightsLookup() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.EditSnapshot before = fixture.store.head(OWNER, "project-region").snapshot();
+
+        assertThatThrownBy(() -> fixture.engine.undo(OWNER, "project-region", "r0", "r0", "bad request id"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("requestId must be a 1-128 character ASCII opaque key");
+
+        assertThat(fixture.rightsCalls).isZero();
+        assertThat(fixture.store.head(OWNER, "project-region").revisionId()).isEqualTo("r0");
+        assertThat(fixture.store.head(OWNER, "project-region").snapshot()).isEqualTo(before);
+    }
+
+    @Test
+    void applyRejectsMalformedRequestIdBeforeRightsLookup() {
+        RegionEditFixture fixture = new RegionEditFixture();
+        ReversibleRegionEditEngine.RegionEditPlan plan = fixture.prepare(evidence(List.of(bboxSample(0, .1, .1, 0))));
+        int rightsCallsBeforeApply = fixture.rightsCalls;
+        ReversibleRegionEditEngine.EditSnapshot before = fixture.store.head(OWNER, "project-region").snapshot();
+
+        assertThatThrownBy(() -> fixture.engine.apply(OWNER, plan, "r0", "bad request id", state("new", "edit", "value")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("requestId must be a 1-128 character ASCII opaque key");
+
+        assertThat(fixture.rightsCalls).isEqualTo(rightsCallsBeforeApply);
+        assertThat(fixture.store.head(OWNER, "project-region").revisionId()).isEqualTo("r0");
+        assertThat(fixture.store.head(OWNER, "project-region").snapshot()).isEqualTo(before);
+    }
+
+    @Test
     void revisionRejectsMixedSourcePresentationTimebases() {
         MediaTimebase otherTimebase = new MediaTimebase(30_000, 1);
         ReversibleRegionEditEngine.TrackingEvidence mixedClockEvidence = evidence(List.of(
