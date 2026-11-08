@@ -139,7 +139,9 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher chunk = CHUNK_PATH.matcher(path);
             if (chunk.matches()) {
                 if (!"PUT".equals(method)) { methodNotAllowed(exchange, "PUT"); return; }
-                appendChunk(exchange, tenantId, principalId, decodePathSegment(chunk.group(1)), Integer.parseInt(chunk.group(2))); return;
+                int index = Integer.parseInt(chunk.group(2));
+                if (index < 0) throw new IllegalArgumentException("chunkIndex must not be negative");
+                appendChunk(exchange, tenantId, principalId, decodePathSegment(chunk.group(1)), index); return;
             }
             Matcher complete = COMPLETE_PATH.matcher(path);
             if (complete.matches()) {

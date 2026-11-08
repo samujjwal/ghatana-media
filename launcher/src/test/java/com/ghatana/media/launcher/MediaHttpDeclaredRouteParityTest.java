@@ -64,6 +64,28 @@ class MediaHttpDeclaredRouteParityTest {
     }
 
     @Test
+    void negativeUploadChunkIndexIsRejectedByDeclaredPathConstraintBeforeLookup() throws Exception {
+        var root = Files.createTempDirectory("media-http-negative-chunk-index-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(new InertProvider(new AtomicInteger())),
+                java.util.List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            ExchangeResult result = request(new MediaHttpHandler(runtime), "PUT",
+                    "/api/v1/artifacts/uploads/missing/chunks/-1", true);
+
+            assertThat(result.status()).isEqualTo(400);
+            assertThat(result.body()).contains("INVALID_REQUEST").doesNotContain("UPLOAD_NOT_FOUND");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void operationalProbesEnforceTheirDeclaredGetMethod() throws Exception {
         var root = Files.createTempDirectory("media-http-health-methods-");
         var runtime = new MediaRuntime(
