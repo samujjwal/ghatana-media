@@ -486,6 +486,27 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void candidateRejectsReferenceMetricsBoundToItsOwnSourceRevision() {
+        Candidate valid = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.of(referenceRequest()),
+                binding -> sequence(REF_SHA, stableFrames(), new Roi(0, 0, 1, 1), "reference", "v7"),
+                (binding, purpose) -> allowed("reference-decision-v2")).candidate().orElseThrow();
+        ReferenceMetrics selfComparison = new ReferenceMetrics(MetricStatus.EXACT_REFERENCE_MATCH,
+                valid.lineage().sourceArtifactId(), valid.lineage().sourceVersionId(), valid.lineage().sourceSha256(),
+                valid.referenceMetrics().algorithm(),
+                new Psnr(MetricStatus.EXACT_REFERENCE_MATCH, java.util.OptionalDouble.empty()),
+                java.util.OptionalDouble.of(1.0), Optional.empty());
+
+        assertThatThrownBy(() -> new Candidate(valid.frames(), valid.timeBase(), valid.lineage(),
+                valid.sourceDelta(), selfComparison, valid.clippedSamples(), valid.clippedMagnitude(),
+                true, true, true, false))
+                .isInstanceOf(InvalidRestorationInputException.class)
+                .hasMessageContaining("cannot use the candidate's exact source revision");
+    }
+
+    @Test
     void sourceDenialOrUnknownPreventsPixelReadAndCandidateDisclosure() {
         DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
         AtomicInteger reads = new AtomicInteger();

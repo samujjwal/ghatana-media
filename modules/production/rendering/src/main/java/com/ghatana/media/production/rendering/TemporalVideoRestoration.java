@@ -456,6 +456,11 @@ public final class TemporalVideoRestoration {
             Objects.requireNonNull(lineage, "lineage");
             Objects.requireNonNull(sourceDelta, "sourceDelta");
             Objects.requireNonNull(referenceMetrics, "referenceMetrics");
+            if (referenceMetrics.status() != MetricStatus.UNAVAILABLE
+                    && referenceMetrics.referenceArtifactId().equals(lineage.sourceArtifactId())
+                    && referenceMetrics.referenceVersionId().equals(lineage.sourceVersionId())) {
+                throw invalid("reference metrics cannot use the candidate's exact source revision");
+            }
             CandidateFrame first = Objects.requireNonNull(frames.getFirst(), "candidate.frames[]");
             long pixels = 0;
             long roiSamples = 0;
