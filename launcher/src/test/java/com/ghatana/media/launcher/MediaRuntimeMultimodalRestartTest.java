@@ -335,6 +335,41 @@ class MediaRuntimeMultimodalRestartTest {
         }
     }
 
+    @Test
+    void crashedParentWithCompletedAndFailedChildrenPreservesUnknownFinality() throws Exception {
+        var root = Files.createTempDirectory("media-mm-restart-mixed-terminal-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var submitted = new CountDownLatch(1);
+        var providers = List.of(
+                blockingMmProvider(submitted, Map.of()), failedSttProvider(),
+                completedVisionProvider());
+        var runtime1 = runtime(root, jobStore, providers);
+        var source = artifact(runtime1);
+        var sttArtifact = artifact(runtime1);
+        var visionArtifact = artifact(runtime1);
+        runtime1.submit(mmRequest(source, specWithVision(source, sttArtifact, visionArtifact)),
+                authenticatedPrincipal());
+        assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
+        awaitStatus(jobStore, "req-mm:stt", JobStatus.FAILED);
+        awaitStatus(jobStore, "req-mm:vision", JobStatus.COMPLETED);
+        runtime1.close();
+
+        var runtime2 = runtime(root, jobStore, providers);
+        try {
+            var parent = jobStore.findByRequest("tenant-a", "req-mm").orElseThrow();
+            // A completed child proves an effect. With no declared partial-result contract,
+            // restart must not claim the parent failed with NO_EFFECT_PROVEN.
+            assertThat(parent.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(parent.result()).containsEntry("providerOutcome", "UNKNOWN");
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:stt").orElseThrow().status())
+                    .isEqualTo(JobStatus.FAILED);
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow().status())
+                    .isEqualTo(JobStatus.COMPLETED);
+        } finally {
+            runtime2.close();
+        }
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaRuntime runtime(
@@ -492,6 +527,27 @@ class MediaRuntimeMultimodalRestartTest {
             @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
                 return new CompletableFuture<>();
+            }
+        };
+    }
+
+    private static MediaProcessingProvider completedVisionProvider() {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-vision"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.completedFuture(Map.of("detections", List.of(Map.of(
+                        "label", "synthetic-object", "confidence", 0.9,
+                        "boundingBox", Map.of("x", 0.1, "y", 0.1, "w", 0.2, "h", 0.2))),
+                        "timedObservations", List.of(MultimodalOperationSpec.timedObservation(
+                                "frame-window", 14_400, 43_200, "src-clock", 48_000))));
             }
         };
     }

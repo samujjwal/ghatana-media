@@ -3534,10 +3534,6 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     .allMatch(child -> child.status() == JobStatus.COMPLETED);
             boolean anyCancelled = children.stream()
                     .anyMatch(child -> child.status() == JobStatus.CANCELLED);
-            boolean anyFailed = children.stream().anyMatch(child ->
-                    child.status() == JobStatus.FAILED || child.status() == JobStatus.CANCELLED);
-            boolean anyUnknown = children.stream()
-                    .anyMatch(child -> child.status() == JobStatus.OUTCOME_UNKNOWN);
             boolean allTerminal = children.stream().allMatch(child -> switch (child.status()) {
                 case COMPLETED, FAILED, CANCELLED, OUTCOME_UNKNOWN -> true;
                 default -> false;
@@ -3550,7 +3546,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             // effect. Restart cannot safely turn a failed sibling plus a cancelled
             // child into parent NO_EFFECT_PROVEN; preserve the generic UNKNOWN result.
             if (anyCancelled) return false;
-            if (!allCompleted && (anyUnknown || !anyFailed)) return false;
+            // One completed child proves that the operation had an effect. Without a
+            // declared partial-result contract, a failed sibling cannot turn that mixed
+            // outcome into parent FAILED/NO_EFFECT_PROVEN; preserve UNKNOWN instead.
+            boolean allFailed = children.stream().allMatch(child -> child.status() == JobStatus.FAILED);
+            if (!allCompleted && !allFailed) return false;
             ProcessingJob terminal;
             if (allCompleted) {
                 MediaArtifact artifact = artifactStore.artifact(job.tenantId(), job.artifactId(),
