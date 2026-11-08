@@ -445,7 +445,7 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "STREAM_NOT_FOUND", "Media stream not found"); return;
         }
         json(exchange, 200, streamSessionView(runtime.connectStream(
-                tenantId, principalId, sessionId, requiredHeader(exchange, "X-Stream-Token"))));
+                tenantId, principalId, sessionId, requiredStreamToken(exchange))));
     }
 
     private void frame(
@@ -456,7 +456,7 @@ public final class MediaHttpHandler implements HttpHandler {
         boolean end = booleanHeader(exchange, "X-End-Of-Stream", false);
         byte[] payload = boundedBody(exchange, runtime.config().maximumChunkBytes(), end);
         var acknowledgement = runtime.acceptFrame(new StreamFrame(
-                tenantId, sessionId, requiredHeader(exchange, "X-Stream-Token"),
+                tenantId, sessionId, requiredStreamToken(exchange),
                 sequence, payload, end, Instant.now()));
         operationStatusHeaders(exchange, "/api/v1/streams/" + sessionId);
         json(exchange, 202, acknowledgement);
@@ -468,7 +468,7 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "STREAM_NOT_FOUND", "Media stream not found"); return;
         }
         json(exchange, 200, streamSessionView(runtime.closeStream(
-                tenantId, principalId, sessionId, requiredHeader(exchange, "X-Stream-Token"))));
+                tenantId, principalId, sessionId, requiredStreamToken(exchange))));
     }
 
     private void stream(HttpExchange exchange, String tenantId, String principalId, String sessionId) throws IOException {
@@ -725,6 +725,14 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         String value = values.get(0);
         return value.trim();
+    }
+
+    private static String requiredStreamToken(HttpExchange exchange) {
+        String token = requiredHeader(exchange, "X-Stream-Token");
+        if (token.codePointCount(0, token.length()) < 32) {
+            throw new IllegalArgumentException("X-Stream-Token must contain at least 32 characters");
+        }
+        return token;
     }
 
     private static String requiredCorrelationHeader(HttpExchange exchange) {

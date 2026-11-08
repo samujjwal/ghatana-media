@@ -338,9 +338,14 @@ class MediaHttpDeclaredRouteParityTest {
                     Map.of("X-Stream-Token", connectionToken));
             assertThat(connected.status()).isEqualTo(200);
 
+            ExchangeResult undersizedToken = request(handler, "POST",
+                    "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
+                    Map.of("X-Stream-Token", "x".repeat(31)));
+            assertThat(undersizedToken.status()).isEqualTo(400);
+            assertThat(undersizedToken.body()).contains("INVALID_REQUEST");
             ExchangeResult deniedFrame = request(handler, "POST",
                     "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
-                    Map.of("X-Stream-Token", "invalid-token"));
+                    Map.of("X-Stream-Token", "x".repeat(32)));
             assertThat(deniedFrame.status()).isEqualTo(403);
             assertThat(runtime.stream(TENANT, PRINCIPAL, sessionId).orElseThrow().lastSequence()).isEqualTo(-1);
 
