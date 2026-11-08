@@ -46,6 +46,7 @@ public final class MediaCaptionContracts {
 
     private static final Pattern REQUEST_ID = Pattern.compile("[A-Za-z0-9._~\\-]{1,128}");
     private static final Pattern IDENTIFIER = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_.:\\-]{0,255}");
+    private static final Pattern FINGERPRINT = Pattern.compile("[0-9a-f]{64}");
     private static final int PURPOSE_MAX_CODE_POINTS = 240;
     private static final int MAX_SEGMENTS = 4096;
 
@@ -169,26 +170,36 @@ public final class MediaCaptionContracts {
                                          List<CaptionSegment> captionSegments, Optional<String> purpose,
                                          long registeredAt) {
         public CaptionVersionSnapshot {
-            Objects.requireNonNull(parentVersionKind, "parentVersionKind");
-            Objects.requireNonNull(languageDisposition, "languageDisposition");
+            if (!REQUEST_ID.matcher(Objects.requireNonNull(requestId, "requestId")).matches()
+                    || !FINGERPRINT.matcher(Objects.requireNonNull(requestFingerprint, "requestFingerprint"))
+                            .matches()
+                    || !IDENTIFIER.matcher(Objects.requireNonNull(captionVersionId, "captionVersionId")).matches()
+                    || !IDENTIFIER.matcher(Objects.requireNonNull(registrationReceiptId,
+                            "registrationReceiptId")).matches()
+                    || !safeInteger(registeredAt)) {
+                throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST,
+                        "snapshot identity metadata is malformed");
+            }
+            // Preserve the readback contract's alignment error for a malformed stored clock;
+            // RegistrationRequest uses INVALID_REQUEST for malformed write input.
             if (!safeInteger(ticksPerSecond) || ticksPerSecond < 1 || !safeInteger(sourceDurationTicks)) {
                 throw new CaptionRegistrationException(RegistrationError.CAPTION_ALIGNMENT_REQUIRED,
                         "snapshot source clock is malformed");
             }
-            languageTag = languageTag == null ? Optional.empty() : languageTag;
-            captionSegments = copySegmentsBounded(captionSegments);
-            java.util.Set<String> seen = new java.util.HashSet<>();
-            for (CaptionSegment segment : captionSegments) {
-                if (!seen.add(segment.segmentId())) {
-                    throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST,
-                            "duplicate segmentId");
-                }
-                if (segment.startTick() >= segment.endTick() || segment.endTick() > sourceDurationTicks) {
-                    throw new CaptionRegistrationException(RegistrationError.CAPTION_ALIGNMENT_REQUIRED,
-                            "segment tick range exceeds source clock");
-                }
-            }
-            purpose = purpose == null ? Optional.empty() : purpose;
+            // Reuse the write contract so readback snapshots enforce the same exact source,
+            // clock, optional-field, segment and purpose invariants as accepted registrations.
+            RegistrationRequest validated = new RegistrationRequest(requestId, sourceArtifactId,
+                    sourceArtifactVersionId, parentVersionKind, parentVersionId, sourceClockId, ticksPerSecond,
+                    sourceDurationTicks, languageDisposition, languageTag, captionSegments, purpose);
+            sourceArtifactId = validated.sourceArtifactId();
+            sourceArtifactVersionId = validated.sourceArtifactVersionId();
+            parentVersionKind = validated.parentVersionKind();
+            parentVersionId = validated.parentVersionId();
+            sourceClockId = validated.sourceClockId();
+            languageDisposition = validated.languageDisposition();
+            languageTag = validated.languageTag();
+            captionSegments = validated.captionSegments();
+            purpose = validated.purpose();
         }
     }
 

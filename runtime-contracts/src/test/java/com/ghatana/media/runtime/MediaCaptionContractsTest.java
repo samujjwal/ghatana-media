@@ -77,6 +77,26 @@ class MediaCaptionContractsTest {
     }
 
     @Test
+    void captionSnapshotRejectsMalformedIdentityAndInvalidRegistrationValues() {
+        assertInvalidRequestBeforeRead(() -> new CaptionVersionSnapshot(
+                "request-1", "A".repeat(64), "caption-v1", "receipt-1", "artifact-1", "source-v1",
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1", "clock-1", 1_000, 10_000,
+                LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("segment-1", "hello", 0, 1_000, SegmentOrigin.USER_EDITED)),
+                Optional.empty(), 1));
+
+        assertThatThrownBy(() -> new CaptionVersionSnapshot(
+                "request-1", "a".repeat(64), "caption-v1", "receipt-1", "artifact-1", "source-v1",
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1", "clock-1", 1_000, 10_000,
+                LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("segment-1", "hello", 0, 1_000, SegmentOrigin.USER_EDITED)),
+                Optional.of("  "), 1))
+                .isInstanceOf(CaptionRegistrationException.class)
+                .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                        .isEqualTo(RegistrationError.INVALID_REQUEST));
+    }
+
+    @Test
     void captionSnapshotRejectsInvalidSourceClockBounds() {
         for (long ticksPerSecond : List.of(0L, -1L)) {
             assertThatThrownBy(() -> snapshot(ticksPerSecond, 10_000,
