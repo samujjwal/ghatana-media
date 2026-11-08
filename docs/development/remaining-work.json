@@ -372,6 +372,7 @@
         "media.dev.domain-contract-parity",
         "media.dev.canonical-job-reconciliation"
       ],
+      "verificationEvidence": "2026-11-08: overflowing path chunk/frame numeric values map to typed HTTP 400 INVALID_REQUEST before lookup; MediaHttpDeclaredRouteParityTest PASS 7/7. Owner request/delegation/authority-receipt consent binding and durable stream-open replay receipt remain unresolved.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.domain-contract-parity",
@@ -715,6 +716,7 @@
         "media.dev.canonical-job-reconciliation",
         "media.dev.stream-session-authority"
       ],
+      "verificationEvidence": "2026-11-08: CaptionVersionSnapshot validates identity, canonical fingerprint, timestamp and reused RegistrationRequest source/clock/segment/purpose invariants while preserving CAPTION_ALIGNMENT_REQUIRED for malformed stored clocks; MediaCaptionContractsTest PASS 8/8. Trusted session, lawful model/gold, durable production readback and source-clock qualification remain open.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.stt-model-and-quality",
@@ -1271,6 +1273,7 @@
         "media.dev.native-media-dsp",
         "media.dev.project-timeline-engine"
       ],
+      "verificationEvidence": "2026-11-08: Java A/B comparison now matches the Rust metric boundary: SNR is undefined for a zero-energy independent reference (including large silent PCM), while hasIndependentReference remains true. AudioRepairComparisonTest PASS 16/16. Metric consistency only; real audio/model quality qualification remains open.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.native-media-dsp",
@@ -1340,6 +1343,7 @@
         "media.dev.project-timeline-engine",
         "media.dev.vision-model-and-geometry"
       ],
+      "verificationEvidence": "2026-11-08: ReversibleRegionEditEngine.undo validates target/current revision identity and rejects a non-head target before rights lookup; store CAS remains the concurrent-race guard. ReversibleRegionEditEngineTest PASS 22/22. Trusted Vision tracking, exact VFR mapping, rendered pixels, canonical project CAS and restart remain open.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.project-timeline-engine",
@@ -1463,6 +1467,7 @@
         "media.dev.project-timeline-engine",
         "media.dev.rights-and-policy"
       ],
+      "verificationEvidence": "2026-11-08: stale exact DecisionRecord retry now reconciles the original receipt after the reviewed subject changes, returning STALE with establishesApproval=false; conflicting payload reuse and a new stale decision still reject. VersionedReviewEngineTest PASS 39/39. Focused engine evidence only; durable PostgreSQL replay/readback, current owner authority, retention and hosted review UI remain open.",
       "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
       "integrationPrerequisites": [
         "media.dev.project-timeline-engine",
