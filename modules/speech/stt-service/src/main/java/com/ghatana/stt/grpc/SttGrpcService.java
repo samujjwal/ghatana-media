@@ -627,9 +627,27 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.READ_STATUS, null)) return;
         try (SttEngine stt = library.getSttEngine()) {
             com.ghatana.media.common.EngineStatus status = stt.getStatus();
-            responseObserver.onNext(StatusResponse.newBuilder()
-                .setActiveModel(status.modelId() != null ? status.modelId() : "")
-                .build());
+            StatusResponse.Builder response = StatusResponse.newBuilder()
+                .setActiveModel(status.modelId() != null ? status.modelId() : "");
+            if (request.getIncludeModelInfo()) {
+                for (com.ghatana.media.stt.api.ModelInfo model : stt.getAvailableModels()) {
+                    List<String> languages = new ArrayList<>();
+                    if (model.supportedLanguages() != null) {
+                        for (Locale language : model.supportedLanguages()) {
+                            if (language != null) languages.add(language.toLanguageTag());
+                        }
+                    }
+                    response.addAvailableModels(com.ghatana.stt.core.grpc.proto.ModelInfo.newBuilder()
+                        .setModelId(model.modelId() == null ? "" : model.modelId())
+                        .setName(model.name() == null ? "" : model.name())
+                        .setVersion(model.version() == null ? "" : model.version())
+                        .addAllLanguages(languages)
+                        .setSizeBytes(model.sizeBytes())
+                        .setIsLoaded(model.modelId() != null && model.modelId().equals(status.modelId()))
+                        .build());
+                }
+            }
+            responseObserver.onNext(response.build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(io.grpc.Status.INTERNAL.withDescription("Status unavailable").asRuntimeException());

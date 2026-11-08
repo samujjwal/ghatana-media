@@ -940,6 +940,44 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("getStatus: include_model_info returns available models and marks the active model")
+    void getStatus_includeModelInfo_returnsAvailableModels() throws Exception {
+        when(mockEngine.getStatus()).thenReturn(
+                new EngineStatus(EngineStatus.State.READY, "whisper-base", "1.0", 5000L, null));
+        when(mockEngine.getAvailableModels()).thenReturn(List.of(
+                new ModelInfo("whisper-base", "Whisper Base", "1.0",
+                        new Locale[]{Locale.ENGLISH, Locale.FRENCH}, 100_000_000L, false),
+                new ModelInfo("whisper-large", "Whisper Large", "2.0",
+                        new Locale[]{Locale.ENGLISH}, 200_000_000L, true)));
+
+        CapturingObserver<StatusResponse> observer = new CapturingObserver<>();
+        service.getStatus(StatusRequest.newBuilder().setIncludeModelInfo(true).build(), observer);
+
+        assertThat(observer.hasError()).isFalse();
+        assertThat(observer.getValue().getAvailableModelsList())
+                .extracting(com.ghatana.stt.core.grpc.proto.ModelInfo::getModelId)
+                .containsExactly("whisper-base", "whisper-large");
+        assertThat(observer.getValue().getAvailableModels(0).getLanguagesList())
+                .containsExactly("en", "fr");
+        assertThat(observer.getValue().getAvailableModels(0).getIsLoaded()).isTrue();
+        assertThat(observer.getValue().getAvailableModels(1).getIsLoaded()).isFalse();
+    }
+
+    @Test
+    @DisplayName("getStatus: omits available models and avoids model lookup unless requested")
+    void getStatus_withoutModelInfo_doesNotLoadModelCatalog() throws Exception {
+        when(mockEngine.getStatus()).thenReturn(
+                new EngineStatus(EngineStatus.State.READY, "whisper-base", "1.0", 5000L, null));
+
+        CapturingObserver<StatusResponse> observer = new CapturingObserver<>();
+        service.getStatus(StatusRequest.getDefaultInstance(), observer);
+
+        assertThat(observer.hasError()).isFalse();
+        assertThat(observer.getValue().getAvailableModelsList()).isEmpty();
+        verify(mockEngine, never()).getAvailableModels();
+    }
+
+    @Test
     @DisplayName("getStatus returns INTERNAL when provider status is unavailable")
     void getStatus_providerFailure_returnsInternal() throws Exception {
         when(mockEngine.getStatus()).thenThrow(new IllegalStateException("provider unavailable"));
