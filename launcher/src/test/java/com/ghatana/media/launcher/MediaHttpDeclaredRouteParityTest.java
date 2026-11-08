@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -236,9 +237,14 @@ class MediaHttpDeclaredRouteParityTest {
             ExchangeResult rejected = request(handler, "POST",
                     "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
                     Map.of("X-Stream-Token", connectionToken, "X-End-Of-Stream", "sometimes"));
+            ExchangeResult duplicate = request(handler, "POST",
+                    "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
+                    Map.of("X-Stream-Token", connectionToken, "X-End-Of-Stream", List.of("true", "false")));
 
             assertThat(rejected.status()).isEqualTo(400);
             assertThat(rejected.body()).contains("INVALID_REQUEST");
+            assertThat(duplicate.status()).isEqualTo(400);
+            assertThat(duplicate.body()).contains("INVALID_REQUEST");
             assertThat(runtime.stream(TENANT, PRINCIPAL, sessionId).orElseThrow().lastSequence()).isEqualTo(-1);
         } finally {
             runtime.close();
@@ -257,13 +263,19 @@ class MediaHttpDeclaredRouteParityTest {
 
     private static ExchangeResult request(
             HttpHandler handler, String method, String path, boolean authenticated, String bearerToken,
-            String body, Map<String, String> extraHeaders) throws Exception {
+            String body, Map<String, ?> extraHeaders) throws Exception {
         HttpExchange exchange = mock(HttpExchange.class);
         Headers requestHeaders = new Headers();
         requestHeaders.set("X-Tenant-Id", TENANT);
         requestHeaders.set("X-Principal-Id", PRINCIPAL);
         if (bearerToken != null) requestHeaders.set("Authorization", "Bearer " + bearerToken);
-        extraHeaders.forEach(requestHeaders::set);
+        extraHeaders.forEach((name, value) -> {
+            if (value instanceof Iterable<?> values) {
+                values.forEach(item -> requestHeaders.add(name, String.valueOf(item)));
+            } else {
+                requestHeaders.set(name, String.valueOf(value));
+            }
+        });
         Headers responseHeaders = new Headers();
         ByteArrayOutputStream responseBody = new ByteArrayOutputStream();
         AtomicReference<Integer> status = new AtomicReference<>();

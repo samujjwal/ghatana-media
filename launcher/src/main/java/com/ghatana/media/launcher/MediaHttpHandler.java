@@ -708,8 +708,12 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private static boolean booleanHeader(HttpExchange exchange, String name, boolean fallback) {
-        String value = exchange.getRequestHeaders().getFirst(name);
-        if (value == null) return fallback;
+        List<String> values = exchange.getRequestHeaders().get(name);
+        if (values == null || values.isEmpty()) return fallback;
+        if (values.size() != 1 || values.get(0) == null) {
+            throw new IllegalArgumentException(name + " header must be supplied at most once");
+        }
+        String value = values.get(0);
         String normalized = value.trim();
         if ("true".equalsIgnoreCase(normalized)) return true;
         if ("false".equalsIgnoreCase(normalized)) return false;
