@@ -24,7 +24,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     private static final Duration DEFAULT_RETRY_MAX = Duration.ofMinutes(15);
     private static final int DEFAULT_MAX_ATTEMPTS = 12;
 
-    private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+    private final MediaAwsPostgresqlRuntimeState state;
     private final String claimOwner = "media-outbox-" + UUID.randomUUID();
     private final int maxAttempts;
     private final Duration claimLease;
@@ -65,6 +65,9 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             throw new IllegalArgumentException("retry bounds must be at least one millisecond");
         }
         this.jitterSample = java.util.Objects.requireNonNull(jitterSample, "jitterSample");
+        // Do not acquire the shared provider lifecycle until construction is known to
+        // succeed. Invalid configuration must not leak a reference to the singleton.
+        this.state = MediaAwsPostgresqlRuntimeState.acquire();
     }
 
     public BatchResult publishPending(MediaLifecycleEventPublisher publisher, int limit) {
