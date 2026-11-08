@@ -85,6 +85,51 @@ class VersionSpecificReviewScenarioTest {
     }
 
     @Test
+    void exactDecisionReplayAfterMaterialChangeReturnsOnlyTheStaleV1Receipt() {
+        AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE, CASE_V2));
+        VersionedReviewEngine engine = new VersionedReviewEngine(store,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(
+                        AuthorizationStatus.ALLOW,
+                        actor.tenantId(),
+                        actor.principalId(),
+                        reviewCase.reviewCaseId(),
+                        reviewCase.exactTargetRef(),
+                        reviewCase.scopeRef(),
+                        "fixture-authority-v1",
+                        NOW.plusSeconds(60),
+                        currentVersion.get(),
+                        RetentionStatus.ACTIVE),
+                value -> value,
+                Clock.fixed(NOW, ZoneOffset.UTC),
+                () -> "record-j21-replay-v1");
+        AppendRequest original = new AppendRequest(CASE, 0, "fixture-authority-v1", "request-j21-replay-v1",
+                new Confirmation("media.operation.action.record-version-review-decision", V1.reference(), true),
+                new DecisionRecord(Decision.ACCEPT, "Reviewed source revision 1"));
+
+        AppendReceipt committed = engine.append(REVIEWER, original);
+        currentVersion.set(V2.reference());
+
+        AppendReceipt replay = engine.append(REVIEWER, original);
+
+        assertThat(replay.appendRecordId()).isEqualTo(committed.appendRecordId());
+        assertThat(replay.caseRevision()).isEqualTo(committed.caseRevision());
+        assertThat(replay.reviewSubjectRef()).isEqualTo(V1);
+        assertThat(replay.currentness()).isEqualTo(Currentness.STALE);
+        assertThat(replay.establishesApproval()).isFalse();
+        assertThat(engine.inspect(REVIEWER, CASE_V2).records()).isEmpty();
+        assertThat(store.read(REVIEWER, CASE)).hasSize(1);
+
+        AppendRequest changedPayloadReuse = new AppendRequest(CASE, 0, "fixture-authority-v1",
+                "request-j21-replay-v1",
+                new Confirmation("media.operation.action.record-version-review-decision", V1.reference(), true),
+                new DecisionRecord(Decision.ACCEPT, "Changed decision under the original request ID"));
+        assertThatThrownBy(() -> engine.append(REVIEWER, changedPayloadReuse))
+                .isInstanceOf(ReviewIdempotencyConflictException.class);
+        assertThat(store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
     void timeAndRegionCommentRemainsBoundToPriorRevisionAfterMaterialChanges() {
         AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
         InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));

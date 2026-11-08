@@ -97,18 +97,28 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
             MediaRuntime firstRuntime = runtime(root, providers);
             String tenant = "tenant-" + runId;
             String principal = "principal-" + runId;
+            String requestId = "request-" + runId;
+            String artifactId;
+            String artifactVersion;
+            String acceptedJobId;
             try {
                 var artifact = uploadFixture(firstRuntime, tenant, principal, runId);
+                artifactId = artifact.artifactId();
+                artifactVersion = artifact.version().value();
                 var accepted = firstRuntime.submit(new ProcessingJobRequest(
-                        "request-" + runId, tenant, principal, "correlation-" + runId,
-                        artifact.artifactId(), artifact.version().value(), JobType.VISION,
+                        requestId, tenant, principal, "correlation-" + runId,
+                        artifactId, artifactVersion, JobType.VISION,
                         "", Map.of(), governance()),
                         authenticated(tenant, principal));
+                acceptedJobId = accepted.jobId();
                 ProcessingJob unknown = awaitTerminal(firstRuntime, tenant, principal, accepted.jobId());
 
                 assertThat(unknown.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
                 assertThat(unknown.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
                 assertThat(unknown.result()).containsEntry("providerOutcome", "UNKNOWN");
+                assertThat(unknown.jobId()).isEqualTo(acceptedJobId);
+                assertThat(unknown.artifactId()).isEqualTo(artifactId);
+                assertThat(unknown.expectedArtifactVersion()).isEqualTo(artifactVersion);
                 assertThat(providerEffects).hasValue(1);
                 assertThat(fallbackCalls).hasValue(0);
                 assertThat(postgresAttemptState(tenant, accepted.jobId())).isEqualTo("OUTCOME_UNKNOWN");
@@ -119,9 +129,12 @@ class MediaProviderPolicyDeniedFinalityPostgresIT {
 
             try (MediaRuntime restarted = runtime(root, providers)) {
                 ProcessingJob recovered = restarted.job(tenant, principal,
-                        readJobId(tenant, "request-" + runId)).orElseThrow();
+                        readJobId(tenant, requestId)).orElseThrow();
+                assertThat(recovered.jobId()).isEqualTo(acceptedJobId);
                 assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
                 assertThat(recovered.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+                assertThat(recovered.artifactId()).isEqualTo(artifactId);
+                assertThat(recovered.expectedArtifactVersion()).isEqualTo(artifactVersion);
                 assertThat(postgresAttemptState(tenant, recovered.jobId())).isEqualTo("OUTCOME_UNKNOWN");
                 assertThat(unknownOutboxRows(tenant, recovered.jobId())).isGreaterThanOrEqualTo(1);
                 assertThat(providerEffects).hasValue(1);

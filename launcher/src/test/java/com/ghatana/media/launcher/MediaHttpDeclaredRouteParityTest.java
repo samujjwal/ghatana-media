@@ -102,6 +102,37 @@ class MediaHttpDeclaredRouteParityTest {
     }
 
     @Test
+    void consentPathIdEnforcesDeclaredLengthBeforeLookup() throws Exception {
+        var root = Files.createTempDirectory("media-http-consent-id-bound-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(new InertProvider(new AtomicInteger())),
+                java.util.List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaConsentAdministration administration = mock(MediaConsentAdministration.class);
+        when(administration.ready()).thenReturn(true);
+        when(administration.find(TENANT, PRINCIPAL, "c".repeat(255))).thenReturn(java.util.Optional.empty());
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, administration);
+            ExchangeResult atMaximum = request(handler, "GET",
+                    "/api/v1/consents/" + "c".repeat(255), true);
+            ExchangeResult oversized = request(handler, "GET",
+                    "/api/v1/consents/" + "c".repeat(256), true);
+
+            assertThat(atMaximum.status()).as(atMaximum.body()).isEqualTo(404);
+            assertThat(oversized.status()).isEqualTo(400);
+            assertThat(oversized.body()).contains("INVALID_REQUEST").doesNotContain("INTERNAL_ERROR");
+            org.mockito.Mockito.verify(administration, org.mockito.Mockito.times(1))
+                    .find(TENANT, PRINCIPAL, "c".repeat(255));
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void negativeUploadChunkIndexIsRejectedByDeclaredPathConstraintBeforeLookup() throws Exception {
         var root = Files.createTempDirectory("media-http-negative-chunk-index-");
         var runtime = new MediaRuntime(

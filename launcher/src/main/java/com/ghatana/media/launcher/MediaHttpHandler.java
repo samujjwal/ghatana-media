@@ -127,6 +127,9 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher consent = CONSENT_PATH.matcher(path);
             if (consent.matches()) {
                 String consentId = decodePathSegment(consent.group(1));
+                if (consentId.isEmpty() || consentId.codePointCount(0, consentId.length()) > 255) {
+                    throw new IllegalArgumentException("consentId must contain between 1 and 255 characters");
+                }
                 if ("GET".equals(method)) readConsent(exchange, tenantId, consentId);
                 else if ("DELETE".equals(method)) revokeConsent(exchange, tenantId, consentId);
                 else methodNotAllowed(exchange, "GET, DELETE");

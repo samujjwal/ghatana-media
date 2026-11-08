@@ -636,6 +636,28 @@ describe('ghatanamedia-api production command boundary', () => {
         { method: 'GET', path: '/api/v1/artifacts/artifact-a', tenant: 'tenant-a', principal: 'principal-a', authenticated: true, bearerMatches: true },
       ]);
       expect(JSON.stringify(requests)).not.toContain(token);
+
+      const invalidSchema = await invoke(command('https://media.example.test'), token,
+        environment('artifact-invalid-schema'), fetchFixture);
+      expect(invalidSchema.status).toBe(1);
+      expect(invalidSchema.stdout).toBe('');
+      expect(JSON.parse(invalidSchema.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_MEDIA_RESPONSE',
+        message: 'Media returned a response that did not match the canonical runtime DTO.',
+      });
+      expect(invalidSchema.stderr).not.toContain(token);
+
+      const unauthenticated = await invoke(command('https://media.example.test'), '',
+        environment('artifact-success'), fetchFixture);
+      expect(unauthenticated.status).toBe(2);
+      expect(unauthenticated.stdout).toBe('');
+      expect(JSON.parse(unauthenticated.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect', code: 'MISSING_AUTH_TOKEN',
+      });
+      expect(unauthenticated.stderr).not.toContain(token);
+      const requestsAfterUnauthenticated = (await readFile(requestLogPath, 'utf8')).trim().split('\n');
+      expect(requestsAfterUnauthenticated).toHaveLength(4);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

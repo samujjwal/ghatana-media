@@ -130,6 +130,23 @@ class MediaLauncherArtifactIntakeRestartIT {
             assertThat(progress.path("bytesReceived").asLong()).isEqualTo(first.length + second.length);
             assertThat(progress.path("nextChunkIndex").asInt()).isEqualTo(2);
 
+            // A process restart must preserve progress without preserving write
+            // authority in a caller's current credential. The same principal can
+            // inspect its upload with read permission, but a read-only token cannot
+            // append the next contiguous chunk or change the acknowledged prefix.
+            String readOnlyToken = authenticatedJwt(PRINCIPAL, TENANT, JWT_SECRET,
+                    Set.of("media:artifact:read"));
+            HttpResponse<String> deniedAppend = sendBytes(port, TENANT, readOnlyToken, "PUT",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/chunks/2", finalChunk);
+            assertThat(deniedAppend.statusCode()).as(deniedAppend.body()).isEqualTo(403);
+            HttpResponse<String> afterDeniedAppend = send(port, TENANT, readOnlyToken, "GET",
+                    "/api/v1/artifacts/uploads/" + uploadId, "", "application/json", null);
+            assertThat(afterDeniedAppend.statusCode()).as(afterDeniedAppend.body()).isEqualTo(200);
+            JsonNode unchangedAfterDeniedAppend = JSON.readTree(afterDeniedAppend.body());
+            assertThat(unchangedAfterDeniedAppend.path("bytesReceived").asLong())
+                    .isEqualTo(first.length + second.length);
+            assertThat(unchangedAfterDeniedAppend.path("nextChunkIndex").asInt()).isEqualTo(2);
+
             // J-02 upload identity is scoped by the authenticated tenant/principal pair.
             // Reusing the same client key from another principal must not disclose or
             // resume the original session after the launcher has recreated its runtime.
@@ -425,8 +442,13 @@ class MediaLauncherArtifactIntakeRestartIT {
     }
 
     private static String authenticatedJwt(String subject, String tenant, String secret) throws Exception {
+        return authenticatedJwt(subject, tenant, secret, UPLOAD_PERMISSIONS);
+    }
+
+    private static String authenticatedJwt(String subject, String tenant, String secret,
+            Set<String> grantedPermissions) throws Exception {
         String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
-        String permissions = UPLOAD_PERMISSIONS.stream().sorted()
+        String permissions = grantedPermissions.stream().sorted()
                 .map(permission -> "\"" + permission + "\"")
                 .collect(java.util.stream.Collectors.joining(","));
         String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + tenant

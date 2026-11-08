@@ -46,6 +46,11 @@ globalThis.fetch = async (input, init = {}) => {
     if (!configuredArtifact) throw new Error('CLI test fixture artifact is missing.');
     return json(JSON.parse(configuredArtifact), 200);
   }
+  if (mode === 'artifact-invalid-schema') {
+    const configuredArtifact = process.env.GHATANA_MEDIA_CLI_TEST_ARTIFACT;
+    if (!configuredArtifact) throw new Error('CLI test fixture artifact is missing.');
+    return json({ ...JSON.parse(configuredArtifact), unsupportedField: true }, 200);
+  }
   if (mode === 'artifact-forbidden') {
     return json({ error: { code: 'FORBIDDEN', message: tokenFromEnvironment() } }, 403);
   }
