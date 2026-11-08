@@ -1,5 +1,6 @@
 package com.ghatana.video.streaming;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -142,6 +143,9 @@ public final class GrpcVideoSourceCapture {
         if (beforeRead.isEmpty() || !sameGeneration(binding, beforeRead.get())
                 || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()) {
             return new Result(Disposition.UNKNOWN, 0, -1, "canonical cursor changed before source read");
+        }
+        if (!beforeRead.get().leaseExpiresAt().isAfter(Instant.now())) {
+            return new Result(Disposition.LEASE_EXPIRED, 0, -1, "canonical video lease expired before source read");
         }
 
         Batch batch;

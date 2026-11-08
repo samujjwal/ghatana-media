@@ -275,6 +275,20 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void expiredCanonicalLeaseBeforeSourceReadDoesNotFetchSourceFrames() {
+        FakePort port = new FakePort();
+        port.expireLeaseOnBindingCall = 2;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
     void eosRequiresAcknowledgementOfTheExactNextMediaSequence() {
         FakePort port = new FakePort();
         port.eosResult = CanonicalVideoStreamFramePort.Result.acknowledged(1);
@@ -457,6 +471,7 @@ class GrpcVideoSourceCaptureTest {
         private int bindingCalls;
         private int changeGenerationOnBindingCall = -1;
         private int changeAckCursorOnBindingCall = -1;
+        private int expireLeaseOnBindingCall = -1;
         private boolean backpressured;
         private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
@@ -467,8 +482,10 @@ class GrpcVideoSourceCaptureTest {
             bindingCalls++;
             long generation = bindingCalls == changeGenerationOnBindingCall ? 2 : 1;
             long acknowledged = bindingCalls == changeAckCursorOnBindingCall ? lastAck + 1 : lastAck;
+            Instant leaseExpiry = bindingCalls == expireLeaseOnBindingCall
+                    ? Instant.EPOCH : Instant.now().plusSeconds(30);
             return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", generation, 1, acknowledged,
-                    Instant.now().plusSeconds(30)));
+                    leaseExpiry));
         }
 
         @Override public Result offer(Binding expected, VideoStreamSession.DecodedFrame frame) {

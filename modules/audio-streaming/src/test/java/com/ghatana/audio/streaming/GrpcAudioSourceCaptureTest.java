@@ -234,6 +234,20 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void expiredCanonicalLeaseBeforeSourceReadDoesNotFetchSourceFrames() {
+        FakePort port = new FakePort();
+        port.expireLeaseOnBindingCall = 2;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                List.of(frame(10, 0, "source@v7")), false));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
     void changedCanonicalCursorBeforeSourceReadDoesNotFetchSourceFrames() {
         FakePort port = new FakePort();
         port.changeAckOnBindingCall = 2;
@@ -380,6 +394,7 @@ class GrpcAudioSourceCaptureTest {
         private int bindingCalls;
         private int changeGenerationOnBindingCall = -1;
         private int changeAckOnBindingCall = -1;
+        private int expireLeaseOnBindingCall = -1;
         private boolean backpressured;
         private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
@@ -390,8 +405,10 @@ class GrpcAudioSourceCaptureTest {
             bindingCalls++;
             long generation = bindingCalls == changeGenerationOnBindingCall ? 2 : 1;
             long acknowledgedSequence = bindingCalls == changeAckOnBindingCall ? 0 : lastAck;
+            Instant leaseExpiry = bindingCalls == expireLeaseOnBindingCall
+                    ? Instant.EPOCH : Instant.now().plusSeconds(30);
             return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", generation, 1,
-                    acknowledgedSequence, Instant.now().plusSeconds(30)));
+                    acknowledgedSequence, leaseExpiry));
         }
 
         @Override public Result offer(Binding expected, AudioStreamSession.DecodedFrame frame) {
