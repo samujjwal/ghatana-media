@@ -64,6 +64,26 @@ class PostgresqlProjectTimelineStoreTest {
     }
 
     @Test
+    void directStoreRejectsInvalidTitleBeforePersistingProjectOrCreateReceipt() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor actor = new Actor("tenant-title-boundary", "principal-title-boundary");
+            for (String invalid : List.of("", "  ", "😀".repeat(201))) {
+                assertThatThrownBy(() -> fixture.store.create(actor, "workspace-title", invalid,
+                        "request-title-boundary", "project-invalid-title", "revision-invalid-title",
+                        "timeline-invalid-title"))
+                        .isInstanceOf(IllegalArgumentException.class);
+                assertThatThrownBy(() -> fixture.store.project(actor, "project-invalid-title"))
+                        .isInstanceOf(ProjectNotFoundException.class);
+            }
+
+            var created = fixture.store.create(actor, "workspace-title", "Valid title", "request-title-boundary",
+                    "project-valid-title", "revision-valid-title", "timeline-valid-title");
+            assertThat(created.createdNow()).isTrue();
+            assertThat(created.project().title()).isEqualTo("Valid title");
+        }
+    }
+
+    @Test
     void restartReadbackPreservesCreateReceiptAndImmutableGraphSnapshot() throws Exception {
         try (Fixture fixture = openFixture()) {
             Actor actor = new Actor("tenant-a", "principal-a");

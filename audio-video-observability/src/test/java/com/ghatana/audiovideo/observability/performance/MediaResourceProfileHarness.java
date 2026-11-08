@@ -146,12 +146,19 @@ public final class MediaResourceProfileHarness {
         public Report {
             Objects.requireNonNull(outcome, "outcome");
             Objects.requireNonNull(environment, "environment");
-            if (requestedOperations < 1 || completedOperations < 0 || failedOperations < 0
+            if (!isRequiredConcurrency(concurrency)) {
+                throw new IllegalArgumentException("concurrency must be one of 1, 16, or 64");
+            }
+            if (requestedOperations < 1 || requestedOperations > MAX_OPERATIONS || completedOperations < 0
+                    || failedOperations < 0
+                    || budgetNanos <= 0 || budgetNanos > MAX_BUDGET.toNanos() || elapsedNanos <= 0
+                    || !Double.isFinite(throughputOperationsPerSecond) || throughputOperationsPerSecond < 0
                     || incompleteOperations < 0
                     || completedOperations + incompleteOperations != requestedOperations
                     || failedOperations > completedOperations) {
-                throw new IllegalArgumentException("operation counts must account for each request exactly once");
+                throw new IllegalArgumentException("report counts and measurements must be within harness bounds");
             }
+            validateLatencyPercentiles(p50Millis, p95Millis, p99Millis);
             if (outcome == Outcome.COMPLETED && (failedOperations != 0 || incompleteOperations != 0)
                     || outcome == Outcome.FAILED && (failedOperations == 0 || incompleteOperations != 0)) {
                 throw new IllegalArgumentException("outcome must match completed, failed, and incomplete counts");
@@ -603,6 +610,14 @@ public final class MediaResourceProfileHarness {
             if (concurrency == value) return true;
         }
         return false;
+    }
+
+    private static void validateLatencyPercentiles(double p50Millis, double p95Millis, double p99Millis) {
+        if (Double.isNaN(p50Millis) && Double.isNaN(p95Millis) && Double.isNaN(p99Millis)) return;
+        if (!Double.isFinite(p50Millis) || !Double.isFinite(p95Millis) || !Double.isFinite(p99Millis)
+                || p50Millis < 0 || p95Millis < p50Millis || p99Millis < p95Millis) {
+            throw new IllegalArgumentException("latency percentiles must be all unavailable or finite and ordered");
+        }
     }
 
     private static String unit(Resource resource) {

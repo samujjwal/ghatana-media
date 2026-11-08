@@ -211,6 +211,33 @@ class PostgresqlMediaCaptionStoreTest {
     }
 
     @Test
+    void replayFailsUnknownWhenStoredCaptionPayloadNoLongerMatchesItsFingerprint() throws Exception {
+        try (Fixture f = openFixture()) {
+            RegistrationRequest original = request("req-replay-tamper");
+            Registered registered = (Registered) f.store().register(
+                    "tenant-1", "principal-1", original, ADMITTED, PARENT);
+            String changedSegments = MediaCaptionContracts.segmentsJson(List.of(
+                    CaptionSegment.of("seg-1", "altered text", 10, 900, SegmentOrigin.USER_EDITED)));
+            try (PreparedStatement update = f.state().connection().prepareStatement("""
+                    UPDATE media_caption_registrations SET segments_json=?
+                    WHERE tenant_id=? AND principal_id=? AND caption_version_id=?
+                    """)) {
+                update.setString(1, changedSegments);
+                update.setString(2, "tenant-1");
+                update.setString(3, "principal-1");
+                update.setString(4, registered.captionVersionId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            RegistrationResult replay = f.store().register(
+                    "tenant-1", "principal-1", original, ADMITTED, PARENT);
+            assertThat(replay).isInstanceOf(Rejected.class);
+            assertThat(((Rejected) replay).error()).isEqualTo(RegistrationError.UNKNOWN_OUTCOME);
+            assertThat(((Rejected) replay).retryable()).isTrue();
+        }
+    }
+
+    @Test
     void snapshotReadbackRejectsOptionalPresenceBitWithoutItsValue() throws Exception {
         try (Fixture f = openFixture()) {
             Registered registered = (Registered) f.store().register(

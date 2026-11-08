@@ -349,7 +349,9 @@ class TranscriptionCacheIT {
 
         assertThat(afterRestart.getText()).isEqualTo("versioned scoped transcript");
         assertThat(sourceLoads).hasValue(1);
-        assertThat(authorityReads).hasValue(4);
+        // Initial miss checks before lookup, before/after persistence, and before
+        // disclosure. The restarted-client hit checks before lookup and disclosure.
+        assertThat(authorityReads).hasValue(6);
     }
 
     private String cacheKey(String tenantId, UUID transcriptionId) {

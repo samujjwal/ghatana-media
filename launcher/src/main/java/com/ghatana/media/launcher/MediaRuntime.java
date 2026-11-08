@@ -2065,13 +2065,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     /** Poll only provider-declared modality profiles; absent measured quality remains absent. */
     private void refreshProviderProfileMetrics() {
         for (MediaProcessingProvider provider : processingProviders) {
+            // Capture poll start, not completion: a slow failure must not invalidate
+            // a newer snapshot published by a later refresh cycle.
+            Instant pollStartedAt = Instant.now();
             final List<MediaModalityContracts.CapabilityProfile> profiles;
             try {
                 profiles = provider.capabilityProfiles();
             } catch (RuntimeException failure) {
                 String providerId = safeText(provider::providerId, "unknown");
                 if (!providerId.equals("unknown")) {
-                    workflowMetrics.markProviderProfileObservationUnknown(providerId);
+                    workflowMetrics.markProviderProfileObservationUnknown(providerId, pollStartedAt);
                 }
                 log.warn("Media provider profile poll failed provider={} failureType={}",
                         providerId, failure.getClass().getSimpleName());
@@ -2081,7 +2084,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             String providerVersion = safeText(provider::providerVersion, "unknown");
             if (profiles == null || profiles.isEmpty()) {
                 if (!providerId.equals("unknown")) {
-                    workflowMetrics.markProviderProfileObservationUnknown(providerId);
+                    workflowMetrics.markProviderProfileObservationUnknown(providerId, pollStartedAt);
                 }
                 log.warn("Media provider profile poll returned no snapshot provider={}", providerId);
                 continue;
@@ -2091,7 +2094,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     || !providerVersion.equals(profile.providerVersion()));
             if (profileIdentityMismatch) {
                 if (!providerId.equals("unknown")) {
-                    workflowMetrics.markProviderProfileObservationUnknown(providerId);
+                    workflowMetrics.markProviderProfileObservationUnknown(providerId, pollStartedAt);
                 }
                 log.warn("Media provider profile poll returned a mismatched identity provider={}",
                         providerId);

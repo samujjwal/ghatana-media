@@ -418,6 +418,37 @@ class MediaLifecycleEventConsumerTest {
         assertThat(result.terminalStatus()).isNull();
     }
 
+    @Test
+    void terminalReadbackRejectsNormalizedTenantOrJobIdentityBeforeAuthorizationOrReadback() {
+        int[] calls = {0};
+        var consumer = new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) {
+                calls[0]++;
+                return true;
+            }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) {
+                calls[0]++;
+                return true;
+            }
+        }, new MemoryProjection(), (principal, tenant, jobRef) -> {
+            calls[0]++;
+            return Optional.empty();
+        });
+
+        for (var invalidIdentity : java.util.List.of(
+                new String[] {" tenant-private", "job-private"},
+                new String[] {"tenant-private\u2003", "job-private"},
+                new String[] {"tenant-private", " job-private"},
+                new String[] {"tenant-private", "job-private\u00a0"})) {
+            assertThatThrownBy(() -> consumer.readTerminalJob("consumer-a", invalidIdentity[0], invalidIdentity[1]))
+                    .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                    .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                    .isEqualTo(MediaLifecycleEventConsumer.Failure.FORBIDDEN);
+        }
+
+        assertThat(calls[0]).isZero();
+    }
+
     private static MediaLifecycleEventConsumer consumer(boolean allowed, MemoryProjection store, LogicalJobStatus status) {
         return new MediaLifecycleEventConsumer(REDACTOR, new MediaLifecycleEventConsumer.Authorization() {
             @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) { return allowed; }

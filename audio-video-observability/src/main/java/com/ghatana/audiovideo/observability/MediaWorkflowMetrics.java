@@ -496,15 +496,20 @@ public final class MediaWorkflowMetrics {
 
     /**
      * Invalidate current provider health and measured-quality values after an
-     * inconclusive provider poll. Check/refresh timestamps remain intact so the
-     * existing ordering guards continue to reject stale observations.
+     * inconclusive provider poll, unless a newer poll has already published its
+     * observation. The poll-start timestamp keeps a slow failure from erasing a
+     * later completed refresh; retained timestamps still fence out stale data.
      */
-    public void markProviderProfileObservationUnknown(String providerId) {
-        if (providerId == null) return;
+    public void markProviderProfileObservationUnknown(String providerId, Instant observedAt) {
+        if (providerId == null || observedAt == null) return;
         synchronized (providerProfileLock) {
             providerProfiles.forEach((key, gauges) -> {
                 if (key.providerId().equals(providerId)) {
                     synchronized (gauges) {
+                        // An inconclusive poll may finish after a later poll has already
+                        // published a complete observation. Preserve that newer truth.
+                        if (gauges.latestObservation != null
+                                && gauges.latestObservation.checkedAt().isAfter(observedAt)) return;
                         gauges.readiness.set(Double.NaN);
                         gauges.qualityObservedAt.set(Double.NaN);
                     }
@@ -513,7 +518,11 @@ public final class MediaWorkflowMetrics {
         }
         synchronized (providerQualityLock) {
             providerQualitySeries.forEach((key, value) -> {
-                if (key.providerId().equals(providerId)) value.set(Double.NaN);
+                if (!key.providerId().equals(providerId)) return;
+                ProviderQualityGroupKey group = new ProviderQualityGroupKey(key.modality(),
+                        key.providerId(), key.providerVersion(), key.modelRevision());
+                ProviderQualityRefresh refresh = providerQualityRefreshes.get(group);
+                if (refresh == null || !refresh.checkedAt().isAfter(observedAt)) value.set(Double.NaN);
             });
         }
     }

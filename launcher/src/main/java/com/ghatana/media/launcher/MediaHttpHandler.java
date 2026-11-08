@@ -23,8 +23,12 @@ import com.sun.net.httpserver.HttpHandler;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
@@ -806,12 +810,45 @@ public final class MediaHttpHandler implements HttpHandler {
     private static String decode(String value) { return URLDecoder.decode(value, StandardCharsets.UTF_8); }
 
     private static String decodePathSegment(String value) {
+        validatePercentEncodedUtf8(value);
         String decoded = URLDecoder.decode(value.replace("+", "%2B"), StandardCharsets.UTF_8);
         if (decoded.indexOf('/') >= 0 || decoded.indexOf('\\') >= 0) {
             throw new IllegalArgumentException("Path identifier must not contain a separator");
         }
         return decoded;
     }
+
+    /** Reject invalid UTF-8 octets in percent-encoded path identity before replacement decoding. */
+    private static void validatePercentEncodedUtf8(String value) {
+        for (int index = 0; index < value.length();) {
+            if (value.charAt(index) != '%') {
+                index++;
+                continue;
+            }
+            ByteArrayOutputStream octets = new ByteArrayOutputStream();
+            while (index < value.length() && value.charAt(index) == '%') {
+                if (index + 2 >= value.length()) {
+                    throw new IllegalArgumentException("Path identifier contains an invalid escape");
+                }
+                int high = Character.digit(value.charAt(index + 1), 16);
+                int low = Character.digit(value.charAt(index + 2), 16);
+                if (high < 0 || low < 0) {
+                    throw new IllegalArgumentException("Path identifier contains an invalid escape");
+                }
+                octets.write((high << 4) | low);
+                index += 3;
+            }
+            try {
+                StandardCharsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(octets.toByteArray()));
+            } catch (CharacterCodingException invalidUtf8) {
+                throw new IllegalArgumentException("Path identifier contains invalid UTF-8", invalidUtf8);
+            }
+        }
+    }
+
     private static boolean isRetryable(int status) {
         return status == 429 || status == 502 || status == 503 || status == 504;
     }

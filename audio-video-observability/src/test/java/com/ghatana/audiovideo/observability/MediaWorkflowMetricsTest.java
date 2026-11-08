@@ -838,7 +838,7 @@ class MediaWorkflowMetricsTest {
                         new MediaWorkflowMetrics.ProviderQualitySeriesSample(
                                 "eng", "cer", 0.1, qualityAt, "reference_only")))).isTrue();
 
-        metrics.markProviderProfileObservationUnknown("provider");
+        metrics.markProviderProfileObservationUnknown("provider", checkedAt);
 
         assertThat(registry.get("media.provider.profile.readiness")
                 .tag("provider_id", "provider").gauge().value()).isNaN();
@@ -858,6 +858,33 @@ class MediaWorkflowMetricsTest {
                         checkedAt.minusSeconds(1), qualityAt))).isFalse();
         assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
                 "provider", "v1", "revision", checkedAt.minusSeconds(1), java.util.List.of())).isFalse();
+    }
+
+    @Test
+    void lateUnknownProviderPollCannotEraseNewerProfileOrQualitySnapshot() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant stalePollStartedAt = Instant.parse("2026-10-30T12:00:00Z");
+        Instant newerCheckAt = stalePollStartedAt.plusSeconds(5);
+        Instant qualityAt = newerCheckAt.minusSeconds(1);
+        assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                new MediaWorkflowMetrics.ProviderProfileObservation("provider", "v1", "profile",
+                        "revision", MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                        newerCheckAt, qualityAt))).isTrue();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "revision", newerCheckAt, java.util.List.of(
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "eng", "wer", 0.2, qualityAt, "reference_only")))).isTrue();
+
+        // This failure belongs to an older poll that completed after the snapshot above.
+        metrics.markProviderProfileObservationUnknown("provider", stalePollStartedAt);
+
+        assertThat(registry.get("media.provider.profile.readiness")
+                .tag("provider_id", "provider").gauge().value()).isEqualTo(1.0);
+        assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
+                .tag("provider_id", "provider").gauge().value()).isEqualTo(qualityAt.getEpochSecond());
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("provider_id", "provider").tag("metric", "wer").gauge().value()).isEqualTo(0.2);
     }
 
     @Test

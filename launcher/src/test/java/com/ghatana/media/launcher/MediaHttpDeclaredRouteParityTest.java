@@ -43,6 +43,27 @@ class MediaHttpDeclaredRouteParityTest {
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-11-05T20:00:00Z"), ZoneOffset.UTC);
 
     @Test
+    void malformedUtf8PathIdentityIsRejectedBeforeResourceLookup() throws Exception {
+        var root = Files.createTempDirectory("media-http-invalid-path-utf8-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(new InertProvider(new AtomicInteger())),
+                java.util.List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            ExchangeResult result = request(new MediaHttpHandler(runtime), "GET", "/api/v1/jobs/%FF", true);
+
+            assertThat(result.status()).isEqualTo(400);
+            assertThat(result.body()).contains("INVALID_REQUEST").doesNotContain("INTERNAL_ERROR");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void operationalProbesEnforceTheirDeclaredGetMethod() throws Exception {
         var root = Files.createTempDirectory("media-http-health-methods-");
         var runtime = new MediaRuntime(

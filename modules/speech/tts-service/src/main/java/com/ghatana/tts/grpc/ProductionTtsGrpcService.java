@@ -49,7 +49,8 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     private static final long MAX_TTS_MODEL_BYTES = 4L * 1024 * 1024 * 1024;
 
     record ProviderProfile(
-            String modelId, String modelVersion, String modelDigest, String voiceSidecarDigest, String license,
+            String modelId, String modelVersion, String modelDigest, String voiceSidecarDigest, String defaultVoiceId,
+            String license,
             String language, String region, String retention, String hardware,
             String status, String reason, TtsProviderAdmission.Decision admission) {}
 
@@ -354,7 +355,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                 "TTS_STREAMING_ENABLED",
                 true) && provider.admission().allows(TtsProviderAdmission.Capability.PCM_STREAMING);
         String defaultVoice = requireText(
-                environment.getOrDefault("TTS_DEFAULT_VOICE", "piper-en"),
+                provider.defaultVoiceId(),
                 "TTS_DEFAULT_VOICE");
         String profilePath = environment.getOrDefault("TTS_PROFILE_STORAGE_PATH", "").trim();
         if (productionLike && profilePath.isBlank()) {
@@ -478,17 +479,17 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             String reason = decision.reason() == null
                     ? "trusted source admission for synthesis is unavailable"
                     : decision.reason();
-            return new ProviderProfile(modelId, version, digest, voiceSidecarDigest, license,
+            return new ProviderProfile(modelId, version, digest, voiceSidecarDigest, defaultVoice, license,
                     language, region, retention, hardware,
                     "NOT_ADMITTED", reason, decision);
         }
-        return new ProviderProfile(modelId, version, digest, voiceSidecarDigest, license,
+        return new ProviderProfile(modelId, version, digest, voiceSidecarDigest, defaultVoice, license,
                 language, region, retention, hardware,
                 "ADMITTED", decision.reason(), decision);
     }
 
     private static ProviderProfile notAdmitted(String reason) {
-        return new ProviderProfile(null, null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason,
+        return new ProviderProfile(null, null, null, null, null, null, null, null, null, null, "NOT_ADMITTED", reason,
                 new TtsProviderAdmission.Decision(Set.of(), null, reason));
     }
 

@@ -167,6 +167,41 @@ class MediaResourceProfileHarnessTest {
     }
 
     @Test
+    void reportRejectsOutOfBoundsAndImpossibleMeasurementValues() {
+        var environment = new MediaResourceProfileHarness.Environment(
+                "JDK", "Vendor", "runtime", "OS", "version", "arch", 1,
+                "NOT_CONFIGURED", "NOT_CONFIGURED");
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                8, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1.0, 1.0, 1.0, 1.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, MediaResourceProfileHarness.MAX_OPERATIONS + 1, MediaResourceProfileHarness.MAX_OPERATIONS + 1,
+                0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1.0, 1.0, 1.0, 1.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                0, 1, 1.0, 1.0, 1.0, 1.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, -1, 1.0, 1.0, 1.0, 1.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, Double.NaN, 1.0, 1.0, 1.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1.0, Double.NaN, 1.0, 1.0, environment, java.util.Map.of()));
+        assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Report(
+                1, 1, 1, 0, 0, MediaResourceProfileHarness.Outcome.COMPLETED, true,
+                1, 1, 1.0, 2.0, 1.0, 3.0, environment, java.util.Map.of()));
+
+        var noLatencySamples = new MediaResourceProfileHarness.Report(
+                1, 1, 0, 0, 1, MediaResourceProfileHarness.Outcome.ABORTED, true,
+                1, 1, 0.0, Double.NaN, Double.NaN, Double.NaN, environment, java.util.Map.of());
+        assertThat(noLatencySamples.p50Millis()).isNaN();
+    }
+
+    @Test
     void environmentRequiresExplicitHostAndProfileInputs() {
         assertThatIllegalArgumentException().isThrownBy(() -> new MediaResourceProfileHarness.Environment(
                 "JDK", "Vendor", "runtime", "OS", "version", "arch", 1, " ", "corpus"));

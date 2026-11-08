@@ -38,6 +38,46 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MediaRuntimeMultimodalRestartTest {
 
     @Test
+    void reconstructedChildObservationsAreDetachedFromMutableReadbackValues() {
+        Instant now = Instant.now();
+        var mutableNested = new java.util.LinkedHashMap<String, Object>();
+        mutableNested.put("label", "before");
+        var mutableObservation = new java.util.LinkedHashMap<String, Object>();
+        mutableObservation.put("startTick", 10L);
+        mutableObservation.put("endTick", 20L);
+        mutableObservation.put("sourceClockId", "unmapped-clock");
+        var timedObservations = new java.util.ArrayList<Object>();
+        timedObservations.add(mutableObservation);
+        var childResult = new java.util.LinkedHashMap<String, Object>();
+        childResult.put("metadata", mutableNested);
+        childResult.put("timedObservations", timedObservations);
+        var child = new ProcessingJob("child", "req-mm:stt", "tenant-a", "principal-a",
+                "stt-artifact", JobType.SPEECH_TO_TEXT, "stt", JobStatus.COMPLETED,
+                now, now, now, childResult, "", 2,
+                "sha256:" + "c".repeat(64), "sha256:" + "d".repeat(64));
+
+        Map<String, Object> fused = MultimodalOperationSpec.fusedResult(List.of(child));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> observations = (Map<String, Object>) ((Map<?, ?>)
+                ((List<?>) fused.get("observations")).get(0)).get("observations");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> detachedMetadata = (Map<String, Object>) observations.get("metadata");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> detachedTiming = (Map<String, Object>)
+                ((List<?>) observations.get("timedObservations")).get(0);
+
+        mutableNested.put("label", "after");
+        mutableObservation.put("startTick", 99L);
+        timedObservations.add(Map.of("startTick", 30L, "endTick", 40L));
+
+        assertThat(detachedMetadata.get("label")).isEqualTo("before");
+        assertThat(detachedTiming.get("startTick")).isEqualTo(10L);
+        assertThat((List<?>) observations.get("timedObservations")).hasSize(1);
+        assertThat(detachedMetadata).isUnmodifiable();
+        assertThat(detachedTiming).isUnmodifiable();
+    }
+
+    @Test
     void launcherDispatchBindingAcceptsOnlyThePersistedChildRequest() {
         String parentDigest = "a".repeat(64);
         String childDigest = "b".repeat(64);

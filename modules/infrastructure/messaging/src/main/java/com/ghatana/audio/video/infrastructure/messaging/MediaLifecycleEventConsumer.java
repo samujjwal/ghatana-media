@@ -132,10 +132,10 @@ public final class MediaLifecycleEventConsumer {
     }
 
     private static String required(String value, String name) {
-        if (value == null || value.isBlank() || value.length() > 512) {
-            throw new IllegalArgumentException(name + " is required and bounded");
+        if (value == null || value.length() > 512 || hasBoundaryWhitespace(value)) {
+            throw new LifecycleEventException(Failure.FORBIDDEN, name + " identity is invalid");
         }
-        return value.trim();
+        return value;
     }
 
     /** Missing caller identity is a typed authorization failure and must fail before any port call. */

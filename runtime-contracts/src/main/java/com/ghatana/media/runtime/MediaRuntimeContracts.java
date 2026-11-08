@@ -1111,7 +1111,8 @@ public final class MediaRuntimeContracts {
                     List<Object> bounded = new ArrayList<>(maxEntries);
                     java.util.Iterator<?> iterator = declared.iterator();
                     while (bounded.size() < maxEntries && iterator.hasNext()) {
-                        bounded.add(iterator.next());
+                        bounded.add(immutableJsonValue(
+                                iterator.next(), new IdentityHashMap<>(), 0));
                     }
                     timedObservationsTruncated = bounded.size() == maxEntries
                             && iterator.hasNext();
@@ -1123,7 +1124,8 @@ public final class MediaRuntimeContracts {
                 String serialized = String.valueOf(entry.getValue());
                 if (serialized.length() > budget) continue;
                 budget -= serialized.length();
-                copy.put(entry.getKey(), entry.getValue());
+                copy.put(entry.getKey(), immutableJsonValue(
+                        entry.getValue(), new IdentityHashMap<>(), 0));
             }
             return new BoundedChildResult(Map.copyOf(copy), timedObservationsTruncated);
         }

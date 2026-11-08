@@ -129,7 +129,8 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
         try (PreparedStatement select = connection.prepareStatement("""
                 SELECT request_fingerprint,caption_version_id,registration_receipt_id,
                        source_artifact_id,source_artifact_version_id,parent_version_kind,parent_version_id,
-                       language_disposition,source_clock_id,registered_at
+                       language_disposition,source_clock_id,ticks_per_second,source_duration_ticks,
+                       language_tag_present,language_tag,purpose_present,purpose,segments_json,registered_at
                 FROM media_caption_registrations
                 WHERE tenant_id=? AND principal_id=? AND request_id=? FOR UPDATE
                 """)) {
@@ -138,14 +139,31 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
             select.setString(3, requestId);
             try (ResultSet row = select.executeQuery()) {
                 if (!row.next()) return Optional.empty();
-                if (!row.getString(1).equals(fingerprint)) {
+                String storedFingerprint = row.getString(1);
+                RegistrationRequest storedRequest;
+                try {
+                    storedRequest = new RegistrationRequest(requestId, row.getString(4), row.getString(5),
+                            ParentVersionKind.valueOf(row.getString(6)), row.getString(7), row.getString(9),
+                            row.getLong(10), row.getLong(11),
+                            MediaCaptionContracts.LanguageDisposition.valueOf(row.getString(8)),
+                            optionalStoredValue(row, 12, 13, "language tag"),
+                            MediaCaptionContracts.parseSegmentsJson(row.getString(16)),
+                            optionalStoredValue(row, 14, 15, "purpose"));
+                    if (!MediaCaptionContracts.fingerprint(tenantId, principalId, storedRequest)
+                            .equals(storedFingerprint)) {
+                        throw new IllegalStateException("stored caption request differs from its immutable fingerprint");
+                    }
+                } catch (RuntimeException corruptRecord) {
+                    throw new SQLException("caption registration replay integrity check failed", "XX001", corruptRecord);
+                }
+                if (!storedFingerprint.equals(fingerprint)) {
                     return Optional.of(new Rejected(requestId, fingerprint, RegistrationError.IDEMPOTENCY_CONFLICT, false));
                 }
                 return Optional.of(new Registered(requestId, fingerprint, row.getString(2), row.getString(3),
                         row.getString(4), row.getString(5),
                         ParentVersionKind.valueOf(row.getString(6)), row.getString(7),
                         com.ghatana.media.runtime.MediaCaptionContracts.LanguageDisposition.valueOf(row.getString(8)),
-                        row.getString(9), row.getLong(10)));
+                        row.getString(9), row.getLong(17)));
             }
         }
     }

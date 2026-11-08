@@ -123,6 +123,46 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
+    void runtimeUsesTheExactVoiceProfilePresentedToAdmissionEvenIfEnvironmentChanges() throws Exception {
+        Path model = createModelFile("tts-model-voice-profile-binding");
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        TtsEngine engine = mock(TtsEngine.class);
+        AtomicReference<TtsConfig> configured = new AtomicReference<>();
+        when(library.getTtsEngine()).thenReturn(engine);
+        when(engine.getStatus()).thenReturn(new EngineStatus(
+                EngineStatus.State.READY, "fixture", "v1", 1L, null));
+        try {
+            Files.writeString(model, "local fixture model bytes");
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = new java.util.HashMap<>(localProfile(model, digest));
+            environment.put("TTS_DEFAULT_VOICE", "admitted-voice");
+            TtsProviderAdmission resolver = candidate -> {
+                assertThat(candidate.defaultVoiceId()).isEqualTo("admitted-voice");
+                // Model an environment change after the trusted resolver examined the candidate.
+                environment.put("TTS_DEFAULT_VOICE", "different-unadmitted-voice");
+                return new TtsProviderAdmission.Decision(
+                        java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                        "local-fixture-resolver:test-only", "test fixture decision");
+            };
+
+            try (ProductionTtsGrpcService ignored = new ProductionTtsGrpcService(
+                    environment, new SimpleMeterRegistry(), resolver,
+                    admittedVoiceAuthorization(true), config -> {
+                        configured.set(config);
+                        return library;
+                    })) {
+                assertThat(configured.get()).isNotNull();
+                assertThat(configured.get().defaultVoiceId()).isEqualTo("admitted-voice");
+                assertThat(environment.get("TTS_DEFAULT_VOICE")).isEqualTo("different-unadmitted-voice");
+            }
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
     void oneFixtureAdmissionDecisionGatesReadinessSynthesisAndStreaming() throws Exception {
         Path model = createModelFile("tts-model-local-fixture-admission");
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
