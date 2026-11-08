@@ -177,6 +177,28 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void publicReviewedPlanConstructionEnforcesProjectRevisionOpaqueIdBoundary() {
+        StoryboardPlanner.ScenePlan plan = new StoryboardPlanner(new CountingRights()).prepare(OWNER,
+                "project-review-identity", "head-review-identity", "plan-review-identity", "v1",
+                brief(List.of()), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of())))));
+        StoryboardPlanner.SavedPlan saved = new StoryboardPlanner.SavedPlan(plan, "owner-receipt");
+        String maximumOpaqueId = "r" + "x".repeat(127);
+
+        StoryboardPlanner.ReviewedPlan reviewed = new StoryboardPlanner.ReviewedPlan(saved, OWNER,
+                maximumOpaqueId, "review-receipt", StoryboardPlanner.EditionState.REVIEWED);
+        assertThat(reviewed.projectRevisionId()).isEqualTo(maximumOpaqueId);
+
+        for (String invalid : List.of("", " ", ":starts-with-punctuation", "contains/slash", "x".repeat(129))) {
+            assertThatThrownBy(() -> new StoryboardPlanner.ReviewedPlan(saved, OWNER, invalid,
+                    "review-receipt", StoryboardPlanner.EditionState.REVIEWED))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("projectRevisionId")
+                    .hasMessageContaining("owner opaque-ID format");
+        }
+    }
+
+    @Test
     void freshRightsAreRecheckedAtAppendAndMissingStaleRevokedOrUnknownSourcesFailClosed() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);

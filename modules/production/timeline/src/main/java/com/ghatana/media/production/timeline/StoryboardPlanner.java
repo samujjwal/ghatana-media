@@ -302,7 +302,7 @@ public final class StoryboardPlanner {
         public ReviewedPlan {
             Objects.requireNonNull(savedPlan, "savedPlan");
             Objects.requireNonNull(reviewer, "reviewer");
-            projectRevisionId = required(projectRevisionId, "projectRevisionId");
+            projectRevisionId = ownerOpaqueId(projectRevisionId, "projectRevisionId");
             reviewReceipt = required(reviewReceipt, "reviewReceipt");
             Objects.requireNonNull(state, "state");
             if (state != EditionState.REVIEWED) {
