@@ -353,6 +353,30 @@ test("origin permission for a host does not authorize a different port", () => {
   assert.deepEqual(state.route, []);
 });
 
+test("manifest rejects script-scheme media URLs before a scene becomes playable", () => {
+  const candidate = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene, index) => index === 0
+      ? { ...scene, asset: { ...scene.asset, url: "javascript:alert(1)" } }
+      : scene),
+  };
+  const candidateVerifier = {
+    attest: () => ({
+      manifestId: candidate.id,
+      revision: candidate.revision,
+      sha256: candidate.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: candidate.sourceTruth,
+      originPermissions: candidate.originPermissions,
+    }),
+  };
+
+  const state = createDemoPlayerState(candidate, candidateVerifier);
+  assert.equal(state.status, "POLICY_DENIED");
+  assert.equal(state.failure, "UNAUTHORIZED_ASSET_ORIGIN");
+  assert.deepEqual(state.route, []);
+});
+
 test("replay reproduces play and progress state, status, and history", () => {
   const actions = [
     { type: "play" },
