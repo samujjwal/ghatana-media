@@ -82,6 +82,40 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void rejectedProviderObservationRemainsRejectedWhenDiagnosticCounterFails() {
+        var registry = new RejectedObservationCounterFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+            Instant newer = Instant.parse("2026-11-07T12:00:00Z");
+            assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                    new MediaWorkflowMetrics.ProviderProfileObservation(
+                            "fixture-provider", "v1", "profile", "revision",
+                            MediaWorkflowMetrics.ProviderReadiness.HEALTHY, newer, null))).isTrue();
+
+            registry.failRejectedCounter = true;
+            assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                    new MediaWorkflowMetrics.ProviderProfileObservation(
+                            "fixture-provider", "v1", "profile", "revision",
+                            MediaWorkflowMetrics.ProviderReadiness.UNAVAILABLE,
+                            newer.minusSeconds(1), null))).isFalse();
+        } finally {
+            registry.close();
+        }
+    }
+
+    private static final class RejectedObservationCounterFailureRegistry extends SimpleMeterRegistry {
+        private boolean failRejectedCounter;
+
+        @Override
+        protected Counter newCounter(Meter.Id id) {
+            if (failRejectedCounter && "media.provider.profile.observation.rejected".equals(id.getName())) {
+                throw new IllegalStateException("fixture registry failure");
+            }
+            return super.newCounter(id);
+        }
+    }
+
+    @Test
     void captureFrameCountersUseFixedLabelsAndKeepUnknownDistinct() {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         try {

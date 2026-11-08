@@ -450,8 +450,7 @@ public final class MediaWorkflowMetrics {
             gauges = providerProfiles.get(key);
             if (gauges == null) {
                 if (providerProfiles.size() >= MAX_PROVIDER_PROFILES) {
-                    registry.counter("media.provider.profile.observation.rejected",
-                            "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                    recordRejectedObservation("media.provider.profile.observation.rejected");
                     return false;
                 }
                 gauges = new ProviderProfileGauges();
@@ -462,8 +461,7 @@ public final class MediaWorkflowMetrics {
         synchronized (gauges) {
             ProviderProfileObservation latest = gauges.latestObservation;
             if (latest != null && observation.checkedAt().isBefore(latest.checkedAt())) {
-                registry.counter("media.provider.profile.observation.rejected",
-                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                recordRejectedObservation("media.provider.profile.observation.rejected");
                 return false;
             }
             if (latest != null && observation.checkedAt().equals(latest.checkedAt())) {
@@ -475,8 +473,7 @@ public final class MediaWorkflowMetrics {
                 gauges.qualityObservedAt.set(Double.NaN);
                 gauges.observationConflict.set(1.0);
                 gauges.latestObservationConflicted = true;
-                registry.counter("media.provider.profile.observation.rejected",
-                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                recordRejectedObservation("media.provider.profile.observation.rejected");
                 return false;
             }
             gauges.readiness.set(switch (observation.readiness()) {
@@ -553,6 +550,16 @@ public final class MediaWorkflowMetrics {
                 .description("1 when equal-time provider profile observations conflict, 0 after an unambiguous check, NaN before the first check")
                 .tags(tags)
                 .register(registry);
+    }
+
+    private void recordRejectedObservation(String metricName) {
+        try {
+            registry.counter(metricName, "service", safeService,
+                    "contract_version", CONTRACT_VERSION).increment();
+        } catch (RuntimeException ignored) {
+            // Rejection diagnostics are optional telemetry and must not alter the rejected
+            // observation's result or escape into the provider operation being observed.
+        }
     }
 
     /**

@@ -133,13 +133,21 @@ public record MediaPublicLifecycleEvent(
             if (!CLASSIFICATIONS.contains(classification)) {
                 throw new IllegalArgumentException("classification is not part of the public lifecycle ABI");
             }
+            String occurredAt = string(map, "occurredAt");
+            // RFC 3339 date-time uses a four-digit year; Instant.parse also accepts ISO
+            // extended years (for example +10000), which are outside the pinned schema.
+            if (occurredAt.length() < 5 || !isAsciiDigit(occurredAt.charAt(0))
+                    || !isAsciiDigit(occurredAt.charAt(1)) || !isAsciiDigit(occurredAt.charAt(2))
+                    || !isAsciiDigit(occurredAt.charAt(3)) || occurredAt.charAt(4) != '-') {
+                throw new IllegalArgumentException("occurredAt must use a four-digit RFC 3339 year");
+            }
             return new MediaPublicLifecycleEvent(
                     string(map, "schemaVersion"), eventRef,
                     MediaLifecycleEventType.fromWireName(string(map, "eventType")),
                     tenantRef, principalRef, correlationRef, causationRef,
                     aggregateType, aggregateRef,
                     aggregateVersion, classification,
-                    Instant.parse(string(map, "occurredAt")),
+                    Instant.parse(occurredAt),
                     AppendFinality.valueOf(string(map, "appendFinality")), (Boolean) terminal);
         } catch (RuntimeException failure) {
             if (failure instanceof IllegalArgumentException argument) throw argument;
@@ -191,6 +199,10 @@ public record MediaPublicLifecycleEvent(
         Object value = map.get(field);
         if (!(value instanceof String text)) throw new IllegalArgumentException(field + " must be a string");
         return text;
+    }
+
+    private static boolean isAsciiDigit(char value) {
+        return value >= '0' && value <= '9';
     }
 
     private static String wireRedactedId(Map<?, ?> map, String field) {

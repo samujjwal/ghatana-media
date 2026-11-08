@@ -167,6 +167,17 @@ class MediaPublicLifecycleEventTest {
     }
 
     @Test
+    void payloadParserRejectsIsoExtendedYearsOutsideTheRfc3339SchemaFormat() {
+        var payload = new java.util.LinkedHashMap<>(MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload());
+        payload.put("occurredAt", "+10000-01-01T00:00:00Z");
+
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("four-digit RFC 3339 year");
+    }
+
+    @Test
     void publicSchemaPinsVersionEventNamesRedactedIdentifiersAndNonfinalAppendAbi() throws Exception {
         try (InputStream input = getClass().getResourceAsStream("/contracts/media-public-lifecycle-event-v1.schema.json")) {
             assertThat(input).isNotNull();
