@@ -608,6 +608,25 @@ export function replayDemoBranchPath(
   if (branches.length >= MAX_BRANCH_VISITS) {
     return unavailableFrom(initial, "PLAYBACK_LIMIT_REACHED");
   }
-  const actions = branches.map((branch) => ({ type: "choose-branch", branchId: branch.choiceId } as const));
-  return replayDemoActions(manifest, verificationPort, actions);
+  let state = initial;
+  for (let index = 0; index < branches.length; index += 1) {
+    // The public replay helper can receive caller-owned data. Require each
+    // visit to be a complete edge on the currently reached authored route;
+    // reading only choiceId would silently accept forged or sparse paths.
+    if (!(index in branches)) return unavailableFrom(initial, "INVALID_BUNDLE");
+    const visit = branches[index] as DemoBranchVisit | undefined;
+    if (
+      !visit || typeof visit !== "object" ||
+      typeof visit.fromSceneId !== "string" || typeof visit.choiceId !== "string" ||
+      typeof visit.toSceneId !== "string"
+    ) return unavailableFrom(initial, "INVALID_BUNDLE");
+    const scene = manifest.scenes.find((item) => item.id === state.activeSceneId);
+    const branch = scene?.branches.find((item) => item.id === visit.choiceId);
+    if (
+      !scene || visit.fromSceneId !== scene.id || !branch || branch.targetSceneId !== visit.toSceneId
+    ) return unavailableFrom(initial, "INVALID_BUNDLE");
+    state = reduceDemoPlayerState(manifest, state, { type: "choose-branch", branchId: visit.choiceId }, verificationPort);
+    if (state.status !== "READY") return state;
+  }
+  return state;
 }

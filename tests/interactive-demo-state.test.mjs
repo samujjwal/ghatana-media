@@ -402,3 +402,20 @@ test("branch-path replay enforces the route bound before copying caller input", 
   assert.deepEqual(rejected.history, []);
   assert.deepEqual(rejected.route, ["intro"]);
 });
+
+test("branch-path replay rejects sparse or forged authored edges before returning a route", () => {
+  const forgedVisits = [
+    [{ fromSceneId: "other", choiceId: "next", toSceneId: "next" }],
+    [{ fromSceneId: "intro", choiceId: "next", toSceneId: "intro" }],
+    Array(1),
+  ];
+
+  for (const visits of forgedVisits) {
+    const replayed = replayDemoBranchPath(manifest, verifier, visits);
+    assert.equal(replayed.status, "UNAVAILABLE");
+    assert.equal(replayed.failure, "INVALID_BUNDLE");
+    assert.deepEqual(replayed.route, ["intro"]);
+    assert.deepEqual(replayed.branches, []);
+    assert.deepEqual(replayed.history, []);
+  }
+});
