@@ -625,6 +625,12 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
     public void getStatus(StatusRequest request, StreamObserver<StatusResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.READ_STATUS, null)) return;
+        if (request.getIncludeMetrics()) {
+            responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+                    .withDescription("STT status metrics are NOT_ADMITTED: engine metrics do not provide the declared real-time factor, active session count, and average confidence values")
+                    .asRuntimeException());
+            return;
+        }
         try (SttEngine stt = library.getSttEngine()) {
             com.ghatana.media.common.EngineStatus status = stt.getStatus();
             StatusResponse.Builder response = StatusResponse.newBuilder()

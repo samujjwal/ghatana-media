@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.runtime.MediaConsentAdministration;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
@@ -58,6 +59,43 @@ class MediaHttpDeclaredRouteParityTest {
 
             assertThat(result.status()).isEqualTo(400);
             assertThat(result.body()).contains("INVALID_REQUEST").doesNotContain("INTERNAL_ERROR");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void consentRevokeRequiresCorrelationHeaderWithinDeclaredMaximum() throws Exception {
+        var root = Files.createTempDirectory("media-http-consent-correlation-bound-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(new InertProvider(new AtomicInteger())),
+                java.util.List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaConsentAdministration administration = mock(MediaConsentAdministration.class);
+        when(administration.ready()).thenReturn(true);
+        String maximumCorrelationId = "c".repeat(255);
+        when(administration.revoke(TENANT, PRINCIPAL, "consent-a", maximumCorrelationId))
+                .thenReturn(java.util.Optional.empty());
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, administration);
+            String path = "/api/v1/consents/consent-a";
+            ExchangeResult atMaximum = request(handler, "DELETE", path, true, null, "",
+                    Map.of("X-Correlation-Id", maximumCorrelationId));
+            ExchangeResult oversized = request(handler, "DELETE", path, true, null, "",
+                    Map.of("X-Correlation-Id", "c".repeat(256)));
+            ExchangeResult missing = request(handler, "DELETE", path, true, null, "", Map.of());
+
+            assertThat(atMaximum.status()).as(atMaximum.body()).isEqualTo(404);
+            assertThat(oversized.status()).isEqualTo(400);
+            assertThat(oversized.body()).contains("INVALID_REQUEST");
+            assertThat(missing.status()).isEqualTo(400);
+            assertThat(missing.body()).contains("INVALID_REQUEST");
+            org.mockito.Mockito.verify(administration, org.mockito.Mockito.times(1))
+                    .revoke(TENANT, PRINCIPAL, "consent-a", maximumCorrelationId);
         } finally {
             runtime.close();
         }

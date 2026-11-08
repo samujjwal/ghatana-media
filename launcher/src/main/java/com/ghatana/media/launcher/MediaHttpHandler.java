@@ -293,8 +293,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private void revokeConsent(HttpExchange exchange, String tenantId, String consentId) throws IOException {
         MediaConsentAdministration administration = requireConsentAdministration();
         String principalId = requiredHeader(exchange, "X-Principal-Id");
-        String correlationId = optionalHeader(
-                exchange, "X-Correlation-Id", UUID.randomUUID().toString());
+        String correlationId = requiredCorrelationHeader(exchange);
         var record = administration.revoke(tenantId, principalId, consentId, correlationId);
         if (record.isEmpty()) {
             error(exchange, 404, "CONSENT_NOT_FOUND", "Media consent not found");
@@ -723,6 +722,16 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         String value = values.get(0);
         return value.trim();
+    }
+
+    private static String requiredCorrelationHeader(HttpExchange exchange) {
+        List<String> values = exchange.getRequestHeaders().get("X-Correlation-Id");
+        if (values != null && values.size() == 1 && values.get(0) != null
+                && values.get(0).codePointCount(0, values.get(0).length()) > 255) {
+            throw new IllegalArgumentException("X-Correlation-Id header exceeds 255 characters");
+        }
+        String value = requiredHeader(exchange, "X-Correlation-Id");
+        return value;
     }
 
     private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticatedPrincipal(

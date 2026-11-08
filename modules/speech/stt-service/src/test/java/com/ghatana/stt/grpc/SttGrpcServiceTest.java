@@ -964,6 +964,21 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("getStatus: requested metrics are explicitly unavailable without a source-backed mapping")
+    void getStatus_includeMetrics_returnsUnimplemented() {
+        CapturingObserver<StatusResponse> observer = new CapturingObserver<>();
+
+        service.getStatus(StatusRequest.newBuilder().setIncludeMetrics(true).build(), observer);
+
+        assertThat(observer.hasError()).isTrue();
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNIMPLEMENTED.getCode());
+        assertThat(failure.getStatus().getDescription())
+                .contains("real-time factor", "active session count", "average confidence");
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
     @DisplayName("getStatus: omits available models and avoids model lookup unless requested")
     void getStatus_withoutModelInfo_doesNotLoadModelCatalog() throws Exception {
         when(mockEngine.getStatus()).thenReturn(
