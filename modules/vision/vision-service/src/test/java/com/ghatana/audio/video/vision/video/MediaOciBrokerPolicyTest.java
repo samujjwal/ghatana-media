@@ -7,7 +7,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.ByteArrayInputStream;
 import java.net.StandardProtocolFamily;
 import java.net.UnixDomainSocketAddress;
-import jdk.net.ExtendedSocketOptions;
+import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
+import jdk.net.ExtendedSocketOptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -234,6 +235,31 @@ class MediaOciBrokerPolicyTest {
                             Duration.ofMillis(50)))
                             .isInstanceOf(java.io.IOException.class)
                             .hasMessageContaining("write deadline");
+                }
+            }
+        }
+    }
+
+    @Test
+    void stalledBrokerRequestBodyExpiresAtTheFixedReadDeadline() throws Exception {
+        Path socketPath = root.resolve("stalled-request.sock");
+        try (ServerSocketChannel server = ServerSocketChannel.open(StandardProtocolFamily.UNIX)) {
+            server.bind(UnixDomainSocketAddress.of(socketPath));
+            try (SocketChannel peer = SocketChannel.open(StandardProtocolFamily.UNIX)) {
+                peer.connect(UnixDomainSocketAddress.of(socketPath));
+                try (SocketChannel accepted = server.accept()) {
+                    ByteBuffer partialFrame = ByteBuffer.allocate(Integer.BYTES + 1);
+                    partialFrame.putInt(4).put((byte) '{').flip();
+                    while (partialFrame.hasRemaining()) peer.write(partialFrame);
+
+                    long started = System.nanoTime();
+                    byte[] request = MediaOciBrokerDaemon.readFrame(accepted, 1024,
+                            started + Duration.ofMillis(50).toNanos());
+                    long elapsedMillis = Duration.ofNanos(System.nanoTime() - started).toMillis();
+
+                    assertThat(request).as("partial authenticated request must be discarded").isNull();
+                    assertThat(elapsedMillis).as("stalled peer must not hold the handler beyond its deadline")
+                            .isLessThan(1_000);
                 }
             }
         }

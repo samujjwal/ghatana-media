@@ -1278,7 +1278,7 @@ public final class MediaOciBrokerDaemon {
         }
     }
 
-    private static byte[] readFrame(SocketChannel channel, int limit, long deadlineNanos)
+    static byte[] readFrame(SocketChannel channel, int limit, long deadlineNanos)
             throws IOException {
         // The request read is wall-time bounded so a stalled peer cannot pin the
         // single serialized broker loop forever.
