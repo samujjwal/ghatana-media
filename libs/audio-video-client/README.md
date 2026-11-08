@@ -71,22 +71,23 @@ artifact contains no source upload ID.
 
 ## Host-configured production CLI
 
-The package exposes `ghatanamedia-api` as an authenticated, read-only consumer
-of the canonical SDK. The current production command registry admits exactly
-one command:
+The package exposes `ghatanamedia-api` as an authenticated consumer of the
+canonical SDK. It currently admits two read commands and one explicitly
+mutating cancellation command:
 
 | CLI operation | SDK operation | Result boundary |
 | --- | --- | --- |
-| `artifact inspect` | `MediaOperationClient.getArtifact()` | Scoped artifact observation |
+| `artifact inspect` | `MediaCanonicalClient.getArtifact()` | Scoped artifact observation |
+| `job status` | `MediaCanonicalClient.getJob()` | Scoped point-in-time job observation |
+| `job cancel` | `MediaCanonicalClient.cancelJob()` | Exact job observation returned by the cancellation request |
 
 The endpoint and tenant/principal scope are explicit. The bearer token is read
 only from `GHATANA_MEDIA_BEARER_TOKEN` and is never accepted in command
 arguments. Requests use the SDK's bounded timeout, configurable with
 `GHATANA_MEDIA_REQUEST_TIMEOUT_MS` (integer milliseconds, 1–300000; default
-30000). Other command identities from the proposed/fixture registry, including
-job, capture, and recorder commands, are rejected as `INVALID_INVOCATION`
-before authentication or network dispatch. The SDK's job and stream methods
-remain separately available to source-bound application consumers.
+30000). Unsupported command identities from the proposed/fixture registry,
+including job batch/check-outcome, capture, and recorder commands, are rejected
+as `INVALID_INVOCATION` before authentication or network dispatch.
 
 ```sh
 GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \
@@ -94,15 +95,30 @@ GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \
   --tenant tenant-1 \
   --principal principal-1 \
   --artifact artifact-1
+
+GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api job status \
+  --endpoint https://media.example.test \
+  --tenant tenant-1 \
+  --principal principal-1 \
+  --job job-1
+
+GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api job cancel \
+  --endpoint https://media.example.test \
+  --tenant tenant-1 \
+  --principal principal-1 \
+  --job job-1
 ```
 
 Successful observations use a `media.cli-result.v1` JSON envelope on stdout.
 Errors use a typed `media.cli-error.v1` envelope on stderr and a nonzero exit
-code; auth/transport details are sanitized. A 404 means the artifact was not
-visible in the supplied tenant and principal scope; it does not establish
-global absence. Artifact output is a point-in-time metadata observation and
-does not establish rights, content retrieval, publication, or downstream
-availability.
+code; auth/transport details are sanitized. A 404 means the artifact or job
+was not visible in the supplied tenant and principal scope; it does not
+establish global absence. Artifact output is a point-in-time metadata
+observation and does not establish rights, content retrieval, publication, or
+downstream availability. Job status returns the server's observed state.
+Cancellation can return `RUNNING`, which does not mean it succeeded. If the
+post-dispatch response is lost, the CLI reports `OUTCOME_UNKNOWN`, performs no
+retry, and instructs the caller to reconcile with `job status`.
 Remote endpoints require HTTPS; plain HTTP is accepted only for loopback
 testing. Redirects are rejected so bearer credentials are not forwarded to
 another endpoint.
