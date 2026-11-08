@@ -16,6 +16,8 @@ test("every current open task, surface, journey and capability family routes onc
  assert.equal(plan.areas.length,9);
  assert.equal(plan.counts.verified,30);
  assert.equal(plan.counts.optional,1);
+ for(const area of plan.areas)assert.equal(Object.hasOwn(area,"tasks"),false,"task definitions must not be duplicated");
+ assert.equal(Object.hasOwn(plan,"taskAssignments"),false);
 });
 test("duplicate, missing, and deferred core tasks are rejected",()=>{
  let copy=structuredClone(plan);
