@@ -97,6 +97,15 @@ class MediaJobReconciliationReadTest {
             assertThat(encodedPlusRequestId.status()).isEqualTo(200);
             assertThat(encodedPlusRequestId.body()).contains("request+exact");
 
+            // Invalid percent-encoded UTF-8 must not be silently replaced with U+FFFD,
+            // which would make a malformed wire identity indistinguishable from a real one.
+            for (String malformed : List.of("%FF", "%C3")) {
+                ExchangeResult invalidUtf8 = request(
+                        handler, "/api/v1/jobs/job-1?requestId=" + malformed);
+                assertThat(invalidUtf8.status()).as("requestId=%s", malformed).isEqualTo(400);
+                assertThat(invalidUtf8.body()).contains("INVALID_REQUEST");
+            }
+
             ExchangeResult untrustedHeaders = request(
                     handler, "/api/v1/jobs/job-1?requestId=request-1", null, false);
             assertThat(untrustedHeaders.status()).isEqualTo(401);

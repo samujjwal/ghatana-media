@@ -567,7 +567,7 @@ public final class MediaHttpHandler implements HttpHandler {
                     }
                     // Query identifiers are opaque URI values: a literal '+' is not a
                     // form-encoded space. Keep it distinct while still decoding % escapes.
-                    value = URLDecoder.decode(pair[1].replace("+", "%2B"), StandardCharsets.UTF_8);
+                    value = decodeOpaqueQueryValue(pair[1]);
                 }
             }
         }
@@ -680,7 +680,7 @@ public final class MediaHttpHandler implements HttpHandler {
                 // URLDecoder implements form-url-encoded semantics, where a raw plus
                 // becomes a space. This is an opaque identity in a URI query, so keep
                 // literal '+' distinct and only decode percent escapes.
-                requestId = URLDecoder.decode(pair[1].replace("+", "%2B"), StandardCharsets.UTF_8);
+                requestId = decodeOpaqueQueryValue(pair[1]);
                 if (requestId.isBlank() || requestId.codePointCount(0, requestId.length()) > 255) {
                     throw new IllegalArgumentException("requestId must contain between 1 and 255 characters");
                 }
@@ -808,6 +808,12 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private static String decode(String value) { return URLDecoder.decode(value, StandardCharsets.UTF_8); }
+
+    /** Decode an opaque URI query value without accepting lossy malformed UTF-8 replacement. */
+    private static String decodeOpaqueQueryValue(String value) {
+        validatePercentEncodedUtf8(value);
+        return URLDecoder.decode(value.replace("+", "%2B"), StandardCharsets.UTF_8);
+    }
 
     private static String decodePathSegment(String value) {
         validatePercentEncodedUtf8(value);
