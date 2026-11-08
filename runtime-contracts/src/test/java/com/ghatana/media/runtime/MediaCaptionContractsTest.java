@@ -65,6 +65,23 @@ class MediaCaptionContractsTest {
     }
 
     @Test
+    void captionSegmentAndPersistedParserRejectEmptyOrReversedIntervals() {
+        for (long[] interval : List.of(new long[] {5, 5}, new long[] {6, 5})) {
+            assertThatThrownBy(() -> CaptionSegment.of(
+                    "segment-1", "hello", interval[0], interval[1], SegmentOrigin.USER_EDITED))
+                    .isInstanceOf(CaptionRegistrationException.class)
+                    .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                            .isEqualTo(RegistrationError.CAPTION_ALIGNMENT_REQUIRED));
+        }
+
+        assertThatThrownBy(() -> parseSegmentsJson(
+                "[[\"segment-1\",\"hello\",5,5,\"USER_EDITED\",null]]"))
+                .isInstanceOf(CaptionRegistrationException.class)
+                .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                        .isEqualTo(RegistrationError.CAPTION_ALIGNMENT_REQUIRED));
+    }
+
+    @Test
     void captionSnapshotRejectsDuplicateSegmentIds() {
         List<CaptionSegment> duplicateIds = List.of(
                 CaptionSegment.of("segment-1", "first", 0, 1_000, SegmentOrigin.USER_EDITED),

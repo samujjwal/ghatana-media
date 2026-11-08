@@ -73,6 +73,10 @@ public final class MediaCaptionContracts {
                 throw new CaptionRegistrationException(RegistrationError.CAPTION_ALIGNMENT_REQUIRED,
                         "segment ticks must be nonnegative safe integers");
             }
+            if (startTick >= endTick) {
+                throw new CaptionRegistrationException(RegistrationError.CAPTION_ALIGNMENT_REQUIRED,
+                        "segment end tick must be after its start tick");
+            }
         }
 
         public static CaptionSegment of(String segmentId, String text, long startTick, long endTick,
