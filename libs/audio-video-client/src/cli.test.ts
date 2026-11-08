@@ -449,6 +449,35 @@ describe('ghatanamedia-api artifact inspect executable', () => {
 });
 
 describe('ghatanamedia-api production command boundary', () => {
+  it('rejects bearer-token-shaped artifact metadata before serializing the response', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-bearer-field-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const responseArtifact = {
+      ...artifact,
+      metadata: { nested: { Bearer_Token: 'provider-credential-do-not-print' } },
+    };
+    try {
+      const result = await invoke(command('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+        GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(responseArtifact),
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_MEDIA_RESPONSE', message: 'Media returned an artifact response containing credential material.',
+      });
+      expect(result.stderr).not.toContain('provider-credential-do-not-print');
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(1);
+      expect(requests[0]).toMatchObject({ method: 'GET', path: '/api/v1/artifacts/artifact-a', authenticated: true, bearerMatches: true });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('keeps the registered artifact read truthful across source-free process boundaries', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-source-free-'));
     const requestLogPath = join(directory, 'requests.jsonl');

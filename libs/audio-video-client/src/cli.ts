@@ -109,7 +109,7 @@ function safeCorrelationExtra(correlationId: unknown, token: string): Record<str
 
 function containsCredential(value: unknown, token: string): boolean {
   const secrets = [token, token.trim()].filter(Boolean);
-  const credentialKeys = new Set(['authorization', 'accesstoken', 'refreshtoken', 'clientsecret', 'apikey', 'password', 'credential', 'credentials', 'privatekey']);
+  const credentialKeys = new Set(['authorization', 'bearertoken', 'accesstoken', 'refreshtoken', 'clientsecret', 'apikey', 'password', 'credential', 'credentials', 'privatekey']);
   if (typeof value === 'string') return secrets.some(secret => value.includes(secret));
   if (Array.isArray(value)) return value.some(item => containsCredential(item, token));
   if (value && typeof value === 'object') {
