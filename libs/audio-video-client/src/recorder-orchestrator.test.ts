@@ -713,6 +713,23 @@ describe("executeScenario", () => {
 });
 
 describe("publishFinalRender", () => {
+  it("fails closed before upload when the runtime digest provider is unavailable", async () => {
+    const digestFailure = vi.spyOn(globalThis.crypto.subtle, "digest")
+      .mockRejectedValue(new Error("digest unavailable"));
+    const client = fakeClient();
+    try {
+      await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+        outcome: "NOT_ADMITTED",
+        reason: expect.stringContaining("digest verification is unavailable"),
+      });
+    } finally {
+      digestFailure.mockRestore();
+    }
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+  });
+
   const request = () => ({
     renderId: "render/demo/v1",
     plan: orchestrateScenario(scenario()),

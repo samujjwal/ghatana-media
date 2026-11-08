@@ -1053,8 +1053,17 @@ export async function publishFinalRender(
     return { outcome: "NOT_ADMITTED", reason: "decoder/probe or mux observations do not prove requested frame timing, narration, caption track/timing, or credit inclusion" };
   }
 
-  const sha256 = await sha256Hex(bytes);
-  const identityDigest = await sha256Hex(new TextEncoder().encode(stableRenderIdentity(safeRequest)));
+  let sha256: string;
+  let identityDigest: string;
+  try {
+    sha256 = await sha256Hex(bytes);
+    identityDigest = await sha256Hex(new TextEncoder().encode(stableRenderIdentity(safeRequest)));
+  } catch {
+    // Hashing is a required precondition for binding the canonical upload to
+    // these exact verified bytes. If the runtime digest provider is unavailable,
+    // fail before creating an upload session and preserve the typed boundary.
+    return { outcome: "NOT_ADMITTED", reason: "render digest verification is unavailable" };
+  }
   const idempotencyKey = `media-render-v1-${identityDigest}`;
   let uploadId: string | undefined;
   let completionStarted = false;
