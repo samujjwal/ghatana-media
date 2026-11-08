@@ -46,7 +46,7 @@ public final class StoryboardPlanner {
         String project = ownerOpaqueId(projectId, "projectId");
         String expectedRevision = ownerOpaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
         String planId = ownerOpaqueId(scenePlanId, "scenePlanId");
-        String version = ownerSemanticVersion(semanticVersion);
+        String version = ownerSemanticVersion(semanticVersion, "semanticVersion");
         Objects.requireNonNull(brief, "brief");
         List<AuthoredScene> scenes = copyBoundedScenes(authoredScenes);
         if (scenes.isEmpty()) throw new IllegalArgumentException("storyboard requires at least one authored scene");
@@ -160,7 +160,7 @@ public final class StoryboardPlanner {
             // A brief is the owner-defined SceneBrief value. Enforce its identity scalars at
             // construction so callers cannot bypass the same boundary used for ScenePlan.
             briefId = ownerOpaqueId(briefId, "briefId");
-            semanticVersion = ownerSemanticVersion(semanticVersion);
+            semanticVersion = ownerSemanticVersion(semanticVersion, "semanticVersion");
             purpose = required(purpose, "purpose");
             narrative = required(narrative, "narrative");
             exactReferences = canonicalSources(exactReferences);
@@ -246,7 +246,7 @@ public final class StoryboardPlanner {
             ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
             projectId = ownerOpaqueId(projectId, "projectId");
             scenePlanId = ownerOpaqueId(scenePlanId, "scenePlanId");
-            semanticVersion = ownerSemanticVersion(semanticVersion);
+            semanticVersion = ownerSemanticVersion(semanticVersion, "semanticVersion");
             expectedProjectRevisionId = ownerOpaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
             Objects.requireNonNull(brief, "brief");
             scenes = copyBoundedPlannedScenes(scenes).stream().sorted(Comparator.comparingInt(PlannedScene::authoredOrder)
@@ -436,7 +436,7 @@ public final class StoryboardPlanner {
     private static String optionalVersion(String value) {
         if (value == null) return null;
         if (value.isBlank()) throw new IllegalArgumentException("expectedParentSemanticVersion must not be blank");
-        return required(value, "expectedParentSemanticVersion");
+        return ownerSemanticVersion(value, "expectedParentSemanticVersion");
     }
 
     /**
@@ -534,10 +534,9 @@ public final class StoryboardPlanner {
     }
 
     /** PDP-1 semantic-version-or-owner-version-id scalar; validate before rights or append effects. */
-    private static String ownerSemanticVersion(String value) {
+    private static String ownerSemanticVersion(String value, String name) {
         if (value == null || value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9.+:-]*")) {
-            throw new IllegalArgumentException(
-                    "semanticVersion must match the 1-128 character owner version format");
+            throw new IllegalArgumentException(name + " must match the 1-128 character owner version format");
         }
         return value;
     }

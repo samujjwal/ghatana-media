@@ -282,6 +282,12 @@ class StoryboardPlannerTest {
         assertThatThrownBy(() -> planner.save(OWNER, plan, "  ", "save-blank-parent", authority))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("expectedParentSemanticVersion must not be blank");
+        for (String invalidParent : List.of(":starts-with-punctuation", "bad_parent", "contains/slash", "x".repeat(129))) {
+            assertThatThrownBy(() -> planner.save(OWNER, plan, invalidParent, "save-invalid-parent", authority))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("expectedParentSemanticVersion")
+                    .hasMessageContaining("owner version format");
+        }
         assertThat(rights.calls()).isEqualTo(rightsReadsBeforeSave);
         assertThat(authority.saved).isEmpty();
 
