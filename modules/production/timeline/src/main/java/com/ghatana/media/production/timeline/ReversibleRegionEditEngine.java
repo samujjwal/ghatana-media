@@ -90,11 +90,17 @@ public final class ReversibleRegionEditEngine {
     public EditRevision undo(Actor actor, String projectId, String targetRevisionId,
                              String expectedCurrentRevisionId, String requestId) {
         String validatedRequestId = requestId(requestId);
-        EditRevision target = store.revision(actor, projectId, targetRevisionId);
+        String validatedProjectId = required(projectId, "projectId");
+        String validatedTargetRevisionId = required(targetRevisionId, "targetRevisionId");
+        String validatedExpectedCurrentRevisionId = required(expectedCurrentRevisionId, "expectedCurrentRevisionId");
+        if (!validatedTargetRevisionId.equals(validatedExpectedCurrentRevisionId)) {
+            throw new RevisionConflictException(validatedExpectedCurrentRevisionId, validatedTargetRevisionId);
+        }
+        EditRevision target = store.revision(actor, validatedProjectId, validatedTargetRevisionId);
         verifyRights(actor, target.source(), target.sourceSha256(), target.purpose(), target.regionId(),
                 target.evidence().samples());
-        return store.undo(actor, projectId, targetRevisionId,
-                required(expectedCurrentRevisionId, "expectedCurrentRevisionId"), validatedRequestId);
+        return store.undo(actor, validatedProjectId, validatedTargetRevisionId,
+                validatedExpectedCurrentRevisionId, validatedRequestId);
     }
 
     private void verifyRights(Actor actor, SourceVersion source, String sha256, String purpose, String regionId,

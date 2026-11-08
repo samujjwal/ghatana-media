@@ -309,8 +309,10 @@ class ReversibleRegionEditEngineTest {
                 new byte[] {9, 8, 7, 6, 5}, Map.of("mask", "edited", "selection", "ROI-B"));
         ReversibleRegionEditEngine.EditRevision edit = fixture.engine.apply(OWNER, plan, "r0", "edit-undo", after);
         assertThat(edit.snapshot()).isEqualTo(after);
+        int rightsCallsBeforeWrongTarget = fixture.rightsCalls;
         assertThatThrownBy(() -> fixture.engine.undo(OWNER, "project-region", "r0", edit.revisionId(), "undo-wrong-target"))
                 .isInstanceOf(RevisionConflictException.class);
+        assertThat(fixture.rightsCalls).isEqualTo(rightsCallsBeforeWrongTarget);
 
         ReversibleRegionEditEngine.EditRevision undone = fixture.engine.undo(OWNER, "project-region", edit.revisionId(),
                 edit.revisionId(), "undo-1");
@@ -320,8 +322,10 @@ class ReversibleRegionEditEngineTest {
         assertThat(fixture.engine.undo(OWNER, "project-region", edit.revisionId(), edit.revisionId(), "undo-1"))
                 .isEqualTo(undone);
 
+        int rightsCallsBeforeStaleTarget = fixture.rightsCalls;
         assertThatThrownBy(() -> fixture.engine.undo(OWNER, "project-region", edit.revisionId(), "r0", "undo-stale"))
                 .isInstanceOf(RevisionConflictException.class);
+        assertThat(fixture.rightsCalls).isEqualTo(rightsCallsBeforeStaleTarget);
         assertThat(fixture.store.head(OWNER, "project-region").snapshot()).isEqualTo(before);
     }
 
