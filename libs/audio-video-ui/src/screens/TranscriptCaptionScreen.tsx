@@ -1,12 +1,22 @@
 import React from "react";
+import type { CaptionVersionRegistered, CaptionVersionTransport } from "@audio-video/client/caption-version";
 import { MediaTaskScreen, type MediaScreenAction, type MediaTaskScreenProps } from "./MediaTaskScreen";
 import type { MediaActionDispatchContext, MediaActionDispatchResult } from "../ports";
 import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
+import {
+  bindCaptionVersionRows,
+  captionVersionReadScopeKey,
+  hasValidCaptionVersionReadScope,
+  type CaptionVersionReadScope,
+} from "./captionVersionReadBinding";
 
 export type TranscriptCaptionView = "select-source" | "monitor-transcription" | "review-transcript" | "correct-captions" | "compare-caption-versions";
 
 export interface TranscriptCaptionProjection {
   readonly view: TranscriptCaptionView;
+  /** Exact source identifiers for authenticated caption-version reads. */
+  readonly sourceArtifactId?: string;
+  readonly sourceArtifactVersionId?: string;
   readonly sourceArtifactVersion?: string;
   readonly sourceTime?: string;
   readonly language?: string;
@@ -36,11 +46,30 @@ export interface TranscriptCaptionProjection {
 
 export interface TranscriptCaptionScreenProps extends Omit<MediaTaskScreenProps, "children"> {
   readonly transcript: TranscriptCaptionProjection;
+  /**
+   * Optional host-injected authenticated reader. Presence means the host has
+   * admitted this exact read route; Media still derives caller authority from
+   * the supplied transport credential.
+   */
+  readonly canonicalCaptionVersionReader?: CanonicalCaptionVersionReadCapability;
   /** Host projection callbacks retain the draft values until an explicit version save. */
   readonly onCaptionEdit?: (segmentId: string, text: string) => void;
   readonly onCaptionTimingDraftChange?: (segmentId: string, field: "startTick" | "endTick", value: number | null) => void;
   readonly onVersionPurposeChange?: (purpose: string) => void;
   readonly onCompareVersionSelection?: (side: "left" | "right", versionId: string) => void;
+}
+
+/**
+ * Host identities in this capability are exact scope hints. The canonical
+ * HTTP endpoint still derives tenant/principal authority from its credential.
+ */
+export interface CanonicalCaptionVersionReadCapability {
+  readonly runtimeAdmission: "ADMITTED";
+  readonly tenantId: string;
+  readonly principalId: string;
+  readonly sourceArtifactId: string;
+  readonly sourceArtifactVersionId: string;
+  readonly transport: Pick<CaptionVersionTransport, "versions">;
 }
 
 /** Preserve the host's action scope while binding the exact displayed versions to an edit. */
@@ -89,11 +118,84 @@ function dispatchMessage(result: MediaActionDispatchResult): string {
 /** Candidate J-03 body for source selection, transcript review, caption correction and version comparison. */
 export function TranscriptCaptionScreen({
   transcript, onCaptionEdit, onCaptionTimingDraftChange, onVersionPurposeChange,
-  onCompareVersionSelection,
+  onCompareVersionSelection, canonicalCaptionVersionReader,
   actions = [], nextSafeActionIds = [], actionPort, ...flow
 }: TranscriptCaptionScreenProps): React.ReactElement {
   const [payloadActionStatus, setPayloadActionStatus] = React.useState<string | undefined>();
   const [pendingPayloadAction, setPendingPayloadAction] = React.useState<string | undefined>();
+  const readerScope: CaptionVersionReadScope | undefined = canonicalCaptionVersionReader
+    ? {
+      tenantId: canonicalCaptionVersionReader.tenantId,
+      principalId: canonicalCaptionVersionReader.principalId,
+      sourceArtifactId: canonicalCaptionVersionReader.sourceArtifactId,
+      sourceArtifactVersionId: canonicalCaptionVersionReader.sourceArtifactVersionId,
+    }
+    : undefined;
+  const readerScopeKey = readerScope ? captionVersionReadScopeKey(readerScope) : undefined;
+  const readerScopeMatchesProjection = Boolean(readerScope
+    && transcript.sourceArtifactId === readerScope.sourceArtifactId
+    && transcript.sourceArtifactVersionId === readerScope.sourceArtifactVersionId);
+  const readerScopeIsValid = Boolean(readerScope && readerScopeMatchesProjection && hasValidCaptionVersionReadScope(readerScope));
+  type CanonicalVersionReadState =
+    | { readonly state: "LOADING" }
+    | { readonly state: "DENIED" }
+    | { readonly state: "UNKNOWN" }
+    | { readonly state: "OBSERVED"; readonly rows: readonly CaptionVersionRegistered[] };
+  const [versionReadRecord, setVersionReadRecord] = React.useState<{
+    readonly scopeKey: string;
+    readonly value: CanonicalVersionReadState;
+  } | undefined>();
+  const [versionReadRefresh, setVersionReadRefresh] = React.useState(0);
+  const canonicalVersionRead = readerScopeKey && versionReadRecord?.scopeKey === readerScopeKey
+    ? versionReadRecord.value
+    : undefined;
+  React.useEffect(() => {
+    if (transcript.view !== "compare-caption-versions" || !readerScope || !readerScopeKey || !readerScopeIsValid
+      || canonicalCaptionVersionReader?.runtimeAdmission !== "ADMITTED") return;
+    let active = true;
+    const controller = new AbortController();
+    setVersionReadRecord({ scopeKey: readerScopeKey, value: { state: "LOADING" } });
+    void canonicalCaptionVersionReader.transport.versions(
+      readerScope.tenantId,
+      readerScope.principalId,
+      readerScope.sourceArtifactId,
+      readerScope.sourceArtifactVersionId,
+      controller.signal,
+    ).then((result) => {
+      if (!active) return;
+      const rows = bindCaptionVersionRows(result, readerScope);
+      setVersionReadRecord({ scopeKey: readerScopeKey, value: rows === undefined
+        ? { state: "UNKNOWN" }
+        : { state: "OBSERVED", rows } });
+    }).catch((error: unknown) => {
+      if (!active) return;
+      const statusCode = error && typeof error === "object"
+        ? "status" in error
+          ? (error as { readonly status?: unknown }).status
+          : "statusCode" in error
+            ? (error as { readonly statusCode?: unknown }).statusCode
+            : undefined
+        : undefined;
+      setVersionReadRecord({ scopeKey: readerScopeKey, value: statusCode === 401 || statusCode === 403
+        ? { state: "DENIED" }
+        : { state: "UNKNOWN" } });
+    });
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [
+    transcript.view,
+    readerScopeKey,
+    canonicalCaptionVersionReader?.runtimeAdmission,
+    canonicalCaptionVersionReader?.transport,
+    readerScope?.tenantId,
+    readerScope?.principalId,
+    readerScope?.sourceArtifactId,
+    readerScope?.sourceArtifactVersionId,
+    readerScopeIsValid,
+    versionReadRefresh,
+  ]);
   const [, refreshDispatchState] = React.useState(0);
   const actionPortRef = React.useRef(actionPort);
   actionPortRef.current = actionPort;
@@ -123,7 +225,17 @@ export function TranscriptCaptionScreen({
   const alignAction = availableActions.get("media.action.align-caption-timing");
   const saveAction = availableActions.get("media.action.save-caption-version");
   const compareAction = availableActions.get("media.action.compare-caption-versions");
-  const availableCaptionVersionIds = new Set((transcript.versions ?? []).map((version) => version.id));
+  const canonicalVersionsAvailable = canonicalCaptionVersionReader !== undefined;
+  const displayedVersions = canonicalVersionsAvailable
+    ? readerScopeIsValid && canonicalVersionRead?.state === "OBSERVED"
+      ? canonicalVersionRead.rows.map((version) => ({
+        id: version.captionVersionId,
+        label: version.captionVersionId,
+        createdAt: String(version.registeredAt),
+      }))
+      : []
+    : transcript.versions ?? [];
+  const availableCaptionVersionIds = new Set(displayedVersions.map((version) => version.id));
   const leftCompareVersionId = transcript.leftCompareVersionId;
   const rightCompareVersionId = transcript.rightCompareVersionId;
   const comparePairIsDistinct = Boolean(leftCompareVersionId && rightCompareVersionId
@@ -241,8 +353,35 @@ export function TranscriptCaptionScreen({
           <p>{[segment.confidence, segment.provenance].filter(Boolean).join(" · ")}</p>
         </li>)}
       </ol> : null}
+      {transcript.view === "compare-caption-versions" && <p role="status" aria-live="polite" data-state={canonicalVersionsAvailable
+        ? (canonicalVersionRead?.state.toLowerCase() ?? "unknown")
+        : "host-projected"}>
+        {!canonicalVersionsAvailable
+          ? "No canonical caption-version reader was supplied. Listed choices are host-projected and have not been refreshed here."
+          : !readerScope
+            ? "Canonical caption-version list is unknown because exact source artifact identity is unavailable."
+            : !readerScopeIsValid
+              ? "Canonical caption-version list is unknown because reader scope does not match the displayed source identity."
+            : canonicalVersionRead?.state === "LOADING"
+              ? "Loading caption versions for this exact source artifact version…"
+              : canonicalVersionRead?.state === "DENIED"
+                ? "Canonical caption-version read was denied. No version choices are disclosed."
+                : canonicalVersionRead?.state === "UNKNOWN"
+                  ? "Canonical caption-version list is unknown. Reconcile this source version before comparing."
+                  : canonicalVersionRead?.state === "OBSERVED"
+                    ? canonicalVersionRead.rows.length === 0
+                      ? "No canonical caption versions are registered for this source version."
+                      : `${canonicalVersionRead.rows.length} canonical caption version(s) observed for this source version.`
+                    : "Canonical caption-version list is not yet observed."}
+      </p>}
+      {transcript.view === "compare-caption-versions" && canonicalVersionsAvailable && <button
+        type="button"
+        className="media-action-button"
+        disabled={!readerScopeIsValid || canonicalVersionRead?.state === "LOADING"}
+        onClick={() => setVersionReadRefresh((revision) => revision + 1)}
+      >Refresh canonical versions</button>}
       {transcript.view === "compare-caption-versions" && <ul aria-label="Caption versions">
-        {transcript.versions?.map((version) => <li key={version.id}><p>{version.label}</p><p><code>{version.id}</code>{version.createdAt ? ` · ${version.createdAt}` : ""}</p></li>)}
+        {displayedVersions.map((version) => <li key={version.id}><p>{version.label}</p><p><code>{version.id}</code>{version.createdAt ? ` · ${version.createdAt}` : ""}</p></li>)}
       </ul>}
       {transcript.view === "compare-caption-versions" && <fieldset>
         <legend>Choose versions to compare</legend>
@@ -251,14 +390,14 @@ export function TranscriptCaptionScreen({
           disabled={!onCompareVersionSelection || !compareAction?.enabled}
           onChange={(event) => onCompareVersionSelection?.("left", event.currentTarget.value)}>
           <option value="">Choose a version</option>
-          {transcript.versions?.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
+          {displayedVersions.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
         </select>
         <label htmlFor="caption-version-right">Other version</label>
         <select id="caption-version-right" className="media-input" value={transcript.rightCompareVersionId ?? ""}
           disabled={!onCompareVersionSelection || !compareAction?.enabled}
           onChange={(event) => onCompareVersionSelection?.("right", event.currentTarget.value)}>
           <option value="">Choose a version</option>
-          {transcript.versions?.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
+          {displayedVersions.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
         </select>
         <button type="button" className="media-action-button media-action-button--primary" disabled={!compareAction?.enabled || !canCompareSelectedPair || pendingPayloadAction !== undefined}
           onClick={() => {

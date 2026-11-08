@@ -22,6 +22,12 @@ product host.
 - **Ports** (`src/ports/`): typed host ports — the library binds to a
   host-provided adapter; it does not own runtime state, identity,
   uploads or provider calls itself.
+- `TranscriptCaptionScreen` can accept an optional admitted caption-version
+  reader. It requests the exact tenant/principal/source-version scope, checks
+  every returned row and duplicate identity, discards stale responses, and
+  suppresses projected choices while the canonical read is loading or fails.
+  This is a read adapter only; it does not admit caption writes, comparison
+  actions, transcript generation, or a deployed product route.
 - Foundations/hooks/styles consumed by product hosts and sibling UI
   packages (`ai-voice-ui-react` consumes `@audio-video/ui`).
 
@@ -72,3 +78,8 @@ Vitest suites colocated with components/screens
 `TranscriptCaptionScreen.test`, `MediaProgress.test`,
 `MediaFamilyAccessibility.test`, `styles.test`,
 `shared-control-reuse.test`). Run via the pnpm scripts above.
+The source-scope binding helper also has a dependency-free Node selector:
+`node --experimental-strip-types --test src/screens/captionVersionReadBinding.test.mjs`.
+The React component selector could not be run in this checkout because the UI
+package has no linked Vitest/React dependencies; only the helper and TSX
+transformation are verified here.

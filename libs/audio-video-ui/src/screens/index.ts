@@ -9,7 +9,12 @@ export type { CanonicalArtifactReadClient, ArtifactInspectionScreenProps } from 
 export { JobRecoveryScreen } from "./JobRecoveryScreen";
 export type { CanonicalJobReadClient, CanonicalJobStatus, JobRecoveryProjection, JobRecoveryScreenProps } from "./JobRecoveryScreen";
 export { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
-export type { TranscriptCaptionProjection, TranscriptCaptionScreenProps, TranscriptCaptionView } from "./TranscriptCaptionScreen";
+export type {
+  CanonicalCaptionVersionReadCapability,
+  TranscriptCaptionProjection,
+  TranscriptCaptionScreenProps,
+  TranscriptCaptionView,
+} from "./TranscriptCaptionScreen";
 export { MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS, MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS, MediaProductRenderer } from "./MediaProductRenderer";
 export type { MediaProductRendererProps, MediaScreenRealizationStatus } from "./MediaProductRenderer";
 export { MediaContractScreen, MEDIA_SCREEN_COMPONENTS } from "./MediaContractScreen";
