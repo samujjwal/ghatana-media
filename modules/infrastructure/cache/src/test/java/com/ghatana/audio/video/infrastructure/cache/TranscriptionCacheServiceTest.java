@@ -357,6 +357,42 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void scopedCacheEntryWithStaleVersionMetadataIsInvalidatedBeforeCurrentSourceReload() throws Exception {
+        UUID id = UUID.randomUUID();
+        var scope = scopedScope("tenant-a", "principal-a", "policy-1");
+        String key = scopedKey(scope, id);
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(key), any(String.class), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(port, objectMapper);
+        TranscriptionEntity original = versionedEntity("tenant-a", id, 9L, "version nine");
+        await(service.getOrLoadTranscriptionWithAuthority(scope, id, currentAuthority(),
+                requested -> AsyncOperation.success(Optional.of(original))));
+
+        ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+        verify(port).put(eq(key), stored.capture(), any(Duration.class));
+        String staleMetadata = stored.getValue().replace("\"entityVersion\":9", "\"entityVersion\":8");
+        assertThat(staleMetadata).isNotEqualTo(stored.getValue());
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of(staleMetadata)),
+                AsyncOperation.success(Optional.empty()));
+        TranscriptionEntity current = versionedEntity("tenant-a", id, 10L, "current version ten");
+        AtomicInteger sourceLoads = new AtomicInteger();
+
+        TranscriptionEntity result = await(service.getOrLoadTranscriptionWithAuthority(scope, id,
+                currentAuthority(), requested -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(current));
+                }));
+
+        assertThat(result.getText()).isEqualTo("current version ten");
+        assertThat(result.getVersion()).isEqualTo(10L);
+        assertThat(sourceLoads).hasValue(1);
+        verify(port).invalidateAsync(key);
+        verify(port, org.mockito.Mockito.times(3)).get(key);
+    }
+
+    @Test
     void concurrentScopedMissesShareOneAuthorizedSourceLoad() {
         UUID id = UUID.randomUUID();
         var scope = scopedScope("tenant-a", "principal-a", "policy-1");
