@@ -266,6 +266,11 @@ class PostgresqlMediaCaptionStoreTest {
                     "tenant-1", "principal-1", registered.captionVersionId(), "artifact-1", "src-v1"))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("immutable request fingerprint");
+            assertThatThrownBy(() -> f.store().versions(
+                    "tenant-1", "principal-1", "artifact-1", "src-v1"))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("caption versions readback failed")
+                    .hasRootCauseMessage("stored caption request differs from its immutable fingerprint");
         }
     }
 

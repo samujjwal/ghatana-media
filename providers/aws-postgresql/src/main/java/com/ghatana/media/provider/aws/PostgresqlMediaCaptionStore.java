@@ -202,7 +202,9 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
         try (Connection connection = state.connection();
              PreparedStatement select = connection.prepareStatement("""
                 SELECT request_id,request_fingerprint,caption_version_id,registration_receipt_id,
-                       parent_version_kind,parent_version_id,language_disposition,source_clock_id,registered_at
+                       parent_version_kind,parent_version_id,language_disposition,source_clock_id,registered_at,
+                       ticks_per_second,source_duration_ticks,language_tag_present,language_tag,
+                       purpose_present,purpose,segments_json
                 FROM media_caption_registrations
                 WHERE tenant_id=? AND principal_id=? AND source_artifact_id=? AND source_artifact_version_id=?
                 ORDER BY registered_at, caption_version_id
@@ -214,6 +216,24 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
             List<Registered> out = new ArrayList<>();
             try (ResultSet row = select.executeQuery()) {
                 while (row.next()) {
+                    RegistrationRequest storedRequest;
+                    try {
+                        storedRequest = new RegistrationRequest(row.getString(1), sourceArtifactId,
+                                sourceArtifactVersionId, ParentVersionKind.valueOf(row.getString(5)),
+                                row.getString(6), row.getString(8), row.getLong(10), row.getLong(11),
+                                MediaCaptionContracts.LanguageDisposition.valueOf(row.getString(7)),
+                                optionalStoredValue(row, 12, 13, "language tag"),
+                                MediaCaptionContracts.parseSegmentsJson(row.getString(16)),
+                                optionalStoredValue(row, 14, 15, "purpose"));
+                        if (!MediaCaptionContracts.fingerprint(tenantId, principalId, storedRequest)
+                                .equals(row.getString(2))) {
+                            throw new IllegalStateException(
+                                    "stored caption request differs from its immutable fingerprint");
+                        }
+                    } catch (RuntimeException corruptRecord) {
+                        throw new SQLException("caption versions readback integrity check failed", "XX001",
+                                corruptRecord);
+                    }
                     out.add(new Registered(row.getString(1), row.getString(2), row.getString(3), row.getString(4),
                             sourceArtifactId, sourceArtifactVersionId,
                             ParentVersionKind.valueOf(row.getString(5)), row.getString(6),
