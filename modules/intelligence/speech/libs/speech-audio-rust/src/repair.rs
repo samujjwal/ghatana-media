@@ -335,8 +335,9 @@ pub struct AudioQualityMetrics {
     pub clipped_sample_count: usize,
     pub changed_sample_count: usize,
     /// SNR of the untouched source against the same explicit reference.
-    /// Present only when a separate, shape-matched reference was supplied.
+    /// Absent when no reference was supplied or the reference has no signal energy.
     pub source_snr_db_vs_reference: Option<f64>,
+    /// Absent when no reference was supplied or the reference has no signal energy.
     pub snr_db_vs_reference: Option<f64>,
     /// Absolute change in zero-lag stereo correlation; None unless the layout is exactly stereo.
     pub stereo_correlation_delta: Option<f64>,
@@ -446,8 +447,8 @@ pub fn compare_audio(
             ));
         }
         (
-            Some(snr_db(&reference.samples, &source.samples)),
-            Some(snr_db(&reference.samples, &repaired.samples)),
+            snr_db(&reference.samples, &source.samples),
+            snr_db(&reference.samples, &repaired.samples),
         )
     } else {
         (None, None)
@@ -498,7 +499,7 @@ fn stereo_correlation(buffer: &AudioBuffer) -> Option<f64> {
     }
 }
 
-fn snr_db(reference: &[f32], output: &[f32]) -> f64 {
+fn snr_db(reference: &[f32], output: &[f32]) -> Option<f64> {
     let mut signal = 0.0f64;
     let mut error = 0.0f64;
     for (&expected, &actual) in reference.iter().zip(output) {
@@ -506,12 +507,12 @@ fn snr_db(reference: &[f32], output: &[f32]) -> f64 {
         let difference = expected as f64 - actual as f64;
         error += difference * difference;
     }
-    if error == 0.0 {
-        f64::INFINITY
-    } else if signal == 0.0 {
-        f64::NEG_INFINITY
+    if signal == 0.0 {
+        None
+    } else if error == 0.0 {
+        Some(f64::INFINITY)
     } else {
-        10.0 * (signal / error).log10()
+        Some(10.0 * (signal / error).log10())
     }
 }
 
@@ -838,6 +839,18 @@ mod tests {
                 .source_snr_db_vs_reference,
             None
         );
+    }
+
+    #[test]
+    fn silent_reference_omits_undefined_snr_instead_of_reporting_infinity() {
+        let source = mono(vec![0.0, 0.0, 0.0, 0.0]);
+        let repaired = mono(vec![0.0, 0.0, 0.0, 0.0]);
+        let silent_reference = mono(vec![0.0, 0.0, 0.0, 0.0]);
+
+        let comparison = compare_audio(&source, &repaired, Some(&silent_reference)).unwrap();
+
+        assert_eq!(comparison.metrics.source_snr_db_vs_reference, None);
+        assert_eq!(comparison.metrics.snr_db_vs_reference, None);
     }
 
     #[test]
