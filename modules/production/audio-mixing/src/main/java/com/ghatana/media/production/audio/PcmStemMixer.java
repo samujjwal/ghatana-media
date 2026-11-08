@@ -118,6 +118,10 @@ public final class PcmStemMixer {
 
     public record MixSpec(int sampleRate, int frameCount, float truePeakCeiling) { }
 
+    /** Exact validated input binding used for this local render. */
+    public record StemInputProvenance(String stemVersionRef, Provenance provenance,
+                                      float gain, float pan) { }
+
     public static final class MixResult {
         private final byte[] pcmS16Le;
         private final byte[] wav;
@@ -130,12 +134,13 @@ public final class PcmStemMixer {
         private final double estimatedTruePeakAfterCeiling;
         private final double samplePeakAfterCeiling;
         private final double rmsDbfsAfterCeiling;
+        private final List<StemInputProvenance> inputStems;
 
         private MixResult(byte[] pcmS16Le, byte[] wav, int sampleRate, int frameCount,
                           float appliedMasterGain,
                           double estimatedTruePeakBeforeCeiling,
-                          double estimatedTruePeakAfterCeiling,
-                          double samplePeakAfterCeiling, double rmsDbfsAfterCeiling) {
+                          double estimatedTruePeakAfterCeiling, double samplePeakAfterCeiling,
+                          double rmsDbfsAfterCeiling, List<StemInputProvenance> inputStems) {
             this.pcmS16Le = pcmS16Le.clone();
             this.wav = wav.clone();
             this.pcmSha256 = sha256(this.pcmS16Le);
@@ -147,6 +152,7 @@ public final class PcmStemMixer {
             this.estimatedTruePeakAfterCeiling = estimatedTruePeakAfterCeiling;
             this.samplePeakAfterCeiling = samplePeakAfterCeiling;
             this.rmsDbfsAfterCeiling = rmsDbfsAfterCeiling;
+            this.inputStems = List.copyOf(inputStems);
         }
 
         public byte[] pcmS16Le() { return pcmS16Le.clone(); }
@@ -161,6 +167,8 @@ public final class PcmStemMixer {
         public double samplePeakAfterCeiling() { return samplePeakAfterCeiling; }
         /** Unweighted stereo sample RMS in dBFS; this is not an ITU-R BS.1770 LUFS measurement. */
         public double rmsDbfsAfterCeiling() { return rmsDbfsAfterCeiling; }
+        /** Validated input bindings in the order they contributed to this local render. */
+        public List<StemInputProvenance> inputStems() { return inputStems; }
     }
 
     public MixResult mix(List<Stem> stems, MixSpec spec, Clock clock) {
@@ -259,8 +267,13 @@ public final class PcmStemMixer {
         for (Stem stem : acceptedStems) {
             validateStem(stem, spec, resultTime);
         }
+        List<StemInputProvenance> inputStems = acceptedStems.stream()
+                .map(stem -> new StemInputProvenance(stem.versionRef(), stem.provenance(),
+                        stem.gain(), stem.pan()))
+                .toList();
         return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), spec.sampleRate(),
-                spec.frameCount(), (float) limiterGain, peakBefore, peakAfter, samplePeak, rmsDbfs);
+                spec.frameCount(), (float) limiterGain, peakBefore, peakAfter, samplePeak, rmsDbfs,
+                inputStems);
     }
 
     private static void validateSpec(MixSpec spec) {

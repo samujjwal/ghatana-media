@@ -12,6 +12,7 @@ import com.ghatana.media.production.audio.PcmStemMixer.RightsDisposition;
 import com.ghatana.media.production.audio.PcmStemMixer.RightsEvidence;
 import com.ghatana.media.production.audio.PcmStemMixer.RightsPurpose;
 import com.ghatana.media.production.audio.PcmStemMixer.Stem;
+import com.ghatana.media.production.audio.PcmStemMixer.StemInputProvenance;
 import com.ghatana.media.production.audio.PcmStemMixer.SyntheticProvenance;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,6 +50,23 @@ class PcmStemMixerTest {
         MixResult result = mix(List.of(stem), 4, 0.98f);
         assertThat(stem.pcmS16Le()).containsExactly(before);
         assertThat(samples(result.pcmS16Le())).containsExactly(10_000, 0, 0, -10_000, 10_000, 0, 0, -10_000);
+    }
+
+    @Test
+    void result_preserves_immutable_exact_input_stem_provenance_in_mix_order() {
+        Stem generated = synthetic("generated-footsteps-v3", pcm(new short[] {1_000, 500}),
+                1, 0.5f, -0.25f);
+        Stem licensedAsset = new Stem("foley-source:v8", RATE, 2, 16,
+                pcm(new short[] {700, 900}), 1.0f, 0.0f,
+                new AssetProvenance("foley-source:v8", evidence("foley-source:v8",
+                        NOW.minusSeconds(30), NOW.plusSeconds(30))));
+
+        MixResult result = mix(List.of(generated, licensedAsset), 1, 0.98f);
+
+        assertThat(result.inputStems()).containsExactly(
+                new StemInputProvenance(generated.versionRef(), generated.provenance(), 0.5f, -0.25f),
+                new StemInputProvenance(licensedAsset.versionRef(), licensedAsset.provenance(), 1.0f, 0.0f));
+        assertThatThrownBy(() -> result.inputStems().clear()).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
