@@ -255,6 +255,10 @@ public final class PcmStemMixer {
         }
         double rms = Math.sqrt(sumSquares / sums.length);
         double rmsDbfs = rms == 0.0 ? Double.NEGATIVE_INFINITY : 20.0 * Math.log10(rms);
+        Instant resultTime = clock.instant();
+        for (Stem stem : acceptedStems) {
+            validateStem(stem, spec, resultTime);
+        }
         return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), spec.sampleRate(),
                 spec.frameCount(), (float) limiterGain, peakBefore, peakAfter, samplePeak, rmsDbfs);
     }

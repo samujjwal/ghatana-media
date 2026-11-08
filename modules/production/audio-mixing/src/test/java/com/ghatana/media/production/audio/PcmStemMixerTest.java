@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import org.junit.jupiter.api.Test;
@@ -279,6 +280,26 @@ class PcmStemMixerTest {
         expect(ErrorCode.RIGHTS_MISSING, () -> mix(List.of(wrongPurpose), 2, 0.98f));
         Stem notYetValid = asset("asset:v7", evidence("asset:v7", NOW.plusSeconds(1), NOW.plusSeconds(60)));
         expect(ErrorCode.RIGHTS_STALE, () -> mix(List.of(notYetValid), 2, 0.98f));
+    }
+
+    @Test
+    void asset_rights_must_remain_current_until_result_bytes_are_created() {
+        Stem expiresAtResultBoundary = asset("asset:v7", evidence("asset:v7",
+                NOW.minusSeconds(60), NOW.plusSeconds(1)));
+        AtomicInteger clockReads = new AtomicInteger();
+        Clock expiresDuringMix = new Clock() {
+            @Override public ZoneOffset getZone() { return ZoneOffset.UTC; }
+            @Override public Clock withZone(java.time.ZoneId zone) { return this; }
+            @Override public Instant instant() {
+                return clockReads.incrementAndGet() == 1 ? NOW : NOW.plusSeconds(1);
+            }
+        };
+
+        assertThatThrownBy(() -> MIXER.mix(List.of(expiresAtResultBoundary),
+                new MixSpec(RATE, 2, 0.98f), expiresDuringMix))
+                .isInstanceOf(MixException.class)
+                .extracting(error -> ((MixException) error).code()).isEqualTo(ErrorCode.RIGHTS_STALE);
+        assertThat(clockReads).hasValue(2);
     }
 
     @Test
