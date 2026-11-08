@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,6 +68,39 @@ class PostgresqlMediaCaptionStoreTest {
             assertThat(f.store().versions("tenant-1", "principal-1", "artifact-1", "src-v1"))
                     .extracting(Registered::captionVersionId).containsExactly(registered.captionVersionId());
         }
+    }
+
+    @Test
+    void concurrentSameRequestRegistrationReturnsOneImmutableVersion() throws Exception {
+        try (Fixture f = openFixture();
+             PostgresqlMediaCaptionStore secondStore = new PostgresqlMediaCaptionStore();
+             var callers = Executors.newFixedThreadPool(2)) {
+            RegistrationRequest request = request("req-concurrent-" + UUID.randomUUID());
+            CountDownLatch ready = new CountDownLatch(2);
+            CountDownLatch start = new CountDownLatch(1);
+
+            var first = callers.submit(() -> registerWhenReleased(f.store(), request, ready, start));
+            var second = callers.submit(() -> registerWhenReleased(secondStore, request, ready, start));
+            assertThat(ready.await(5, TimeUnit.SECONDS)).as("both independent stores reach the race").isTrue();
+            start.countDown();
+
+            RegistrationResult firstResult = first.get(10, TimeUnit.SECONDS);
+            RegistrationResult secondResult = second.get(10, TimeUnit.SECONDS);
+            assertThat(firstResult).isInstanceOf(Registered.class);
+            assertThat(secondResult).isEqualTo(firstResult);
+            Registered receipt = (Registered) firstResult;
+            assertThat(f.store().versions("tenant-1", "principal-1", "artifact-1", "src-v1"))
+                    .filteredOn(Registered::requestId, request.requestId()).containsExactly(receipt);
+        }
+    }
+
+    private static RegistrationResult registerWhenReleased(PostgresqlMediaCaptionStore store,
+            RegistrationRequest request, CountDownLatch ready, CountDownLatch start) throws InterruptedException {
+        ready.countDown();
+        if (!start.await(5, TimeUnit.SECONDS)) {
+            throw new IllegalStateException("concurrent caption registration start timed out");
+        }
+        return store.register("tenant-1", "principal-1", request, ADMITTED, PARENT);
     }
 
     @Test
