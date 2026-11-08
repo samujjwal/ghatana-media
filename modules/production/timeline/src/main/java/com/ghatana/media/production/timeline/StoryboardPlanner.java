@@ -425,7 +425,12 @@ public final class StoryboardPlanner {
         if (start.clock() != Clock.STORY || duration.clock() != Clock.STORY || duration.ticks() == 0) {
             throw new IllegalArgumentException(subject + " requires positive story-clock timing");
         }
-        start.plus(duration); // exact overflow/range check; never round a long duration.
+        try {
+            start.plus(duration); // exact overflow/range check; never round a long duration.
+        } catch (ArithmeticException unrepresentableEnd) {
+            throw new IllegalArgumentException(subject + " story interval end is not exactly representable",
+                    unrepresentableEnd);
+        }
     }
 
     private static String optionalVersion(String value) {

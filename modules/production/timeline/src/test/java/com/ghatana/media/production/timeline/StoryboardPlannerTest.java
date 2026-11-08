@@ -611,6 +611,23 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void unrepresentableExactStoryIntervalEndIsRejectedAsInvalidInput() {
+        RationalTime start = new RationalTime(1, Long.MAX_VALUE, 1, Clock.STORY);
+        RationalTime duration = new RationalTime(1, Long.MAX_VALUE - 1, 1, Clock.STORY);
+
+        assertThatThrownBy(() -> new StoryboardPlanner.ShotInput(
+                "shot-overflow", 0, "shot intent", start, duration, List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("shot story interval end is not exactly representable")
+                .hasCauseInstanceOf(ArithmeticException.class);
+        assertThatThrownBy(() -> new StoryboardPlanner.AuthoredScene(
+                "scene-overflow", 0, "scene intent", start, duration, List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("scene story interval end is not exactly representable")
+                .hasCauseInstanceOf(ArithmeticException.class);
+    }
+
+    @Test
     void authoredAndPlannedShotListsAreBoundedByActualTraversal() {
         List<StoryboardPlanner.ShotInput> actual = java.util.stream.IntStream.range(0,
                 StoryboardPlanner.MAX_SHOTS_PER_SCENE + 1)
