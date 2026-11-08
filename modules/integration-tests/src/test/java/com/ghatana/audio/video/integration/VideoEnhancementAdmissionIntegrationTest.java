@@ -128,6 +128,35 @@ class VideoEnhancementAdmissionIntegrationTest {
     }
 
     @Test
+    void malformedTemporalSequenceIsUnavailableWithoutCandidateOrSourceMutation() {
+        ArtifactBinding originalBinding = SOURCE;
+        AtomicInteger decoderCalls = new AtomicInteger();
+        Result malformedSequence = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-malformed-temporal-sequence", SOURCE),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
+                binding -> {
+                    decoderCalls.incrementAndGet();
+                    // Repeated PTS is not a valid source presentation sequence. Simulate a
+                    // decoder adapter discovering this while constructing its decoded result.
+                    return new DecodedFrameSequence(SOURCE.artifactId(), SOURCE.versionId(), SOURCE.sha256(),
+                            new TimeBase(1, 30), List.of(
+                                    new Frame(0, 0, 1, 1, new Roi(0, 0, 1, 1), new byte[] {1, 2, 3}),
+                                    new Frame(1, 0, 1, 1, new Roi(0, 0, 1, 1), new byte[] {4, 5, 6}),
+                                    new Frame(2, 2, 1, 1, new Roi(0, 0, 1, 1), new byte[] {7, 8, 9})));
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        assertThat(malformedSequence.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(malformedSequence.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
+        assertThat(malformedSequence.candidate()).isEmpty();
+        assertThat(decoderCalls).hasValue(1);
+        assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
+
+    @Test
     void sourceRightsAndDecoderReceiveTheExactTenantPrincipalAndRightsBinding() {
         AtomicReference<ArtifactBinding> authorityBinding = new AtomicReference<>();
         AtomicReference<String> authorizedOperation = new AtomicReference<>();

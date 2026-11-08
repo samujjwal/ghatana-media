@@ -82,6 +82,20 @@ class MultitrackFinishedMasterScenarioTest {
         assertThat(sha256(first.plan().canonicalManifest())).isEqualTo(first.plan().manifestSha256());
     }
 
+    @Test
+    void canonicalPlanIdentityDoesNotDependOnClipInputOrder() {
+        Graph fixture = fixtureGraph();
+        Graph reordered = new Graph(
+                fixture.clips().stream().sorted(java.util.Comparator.comparing(Clip::id).reversed()).toList(),
+                fixture.captions(), fixture.transitions(), fixture.declaredOutputBudgetBytes());
+
+        var originalPlan = MultitrackRenderPlanner.plan(fixture).plan();
+        var reorderedPlan = MultitrackRenderPlanner.plan(reordered).plan();
+
+        assertThat(reorderedPlan.canonicalManifest()).isEqualTo(originalPlan.canonicalManifest());
+        assertThat(reorderedPlan.manifestSha256()).isEqualTo(originalPlan.manifestSha256());
+    }
+
     private static Graph fixtureGraph() {
         return new Graph(
                 List.of(
