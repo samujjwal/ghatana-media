@@ -221,18 +221,24 @@ public interface VisionDetector {
         }
 
         public double iou(BoundingBox other) {
-            double intersection = intersectionArea(other);
-            double firstArea = getArea();
-            double secondArea = other.getArea();
-            double scale = Math.max(firstArea, secondArea);
-            if (scale == 0) {
+            double widthScale = Math.max(width, other.width);
+            double heightScale = Math.max(height, other.height);
+            if (widthScale == 0 || heightScale == 0) {
                 return 0;
             }
 
-            // Normalize before summing so two large, finite areas cannot overflow
-            // the union calculation and incorrectly produce an IoU of zero.
-            double normalizedIntersection = intersection / scale;
-            double normalizedUnion = firstArea / scale + secondArea / scale - normalizedIntersection;
+            double xOverlap = Math.max(0,
+                    Math.min(x + width, other.x + other.width) - Math.max(x, other.x));
+            double yOverlap = Math.max(0,
+                    Math.min(y + height, other.y + other.height) - Math.max(y, other.y));
+
+            // Scale each axis before multiplying. Normalizing already-computed areas
+            // avoids union overflow, but those areas may have underflowed to zero for
+            // tiny, otherwise valid boxes (for example, 1e-200 by 1e-200).
+            double firstArea = (width / widthScale) * (height / heightScale);
+            double secondArea = (other.width / widthScale) * (other.height / heightScale);
+            double normalizedIntersection = (xOverlap / widthScale) * (yOverlap / heightScale);
+            double normalizedUnion = firstArea + secondArea - normalizedIntersection;
             return normalizedUnion > 0 ? normalizedIntersection / normalizedUnion : 0;
         }
 

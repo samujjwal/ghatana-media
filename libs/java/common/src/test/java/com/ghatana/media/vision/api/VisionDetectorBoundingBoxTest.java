@@ -49,4 +49,15 @@ class VisionDetectorBoundingBoxTest {
         assertThat(first.getArea()).isFinite();
         assertThat(first.iou(identical)).isEqualTo(1.0);
     }
+
+    @Test
+    void computesIouWhenRepresentableDimensionsHaveUnderflowingAreas() {
+        VisionDetector.BoundingBox first = new VisionDetector.BoundingBox(0, 0, 1e-200, 1e-200);
+        VisionDetector.BoundingBox identical = new VisionDetector.BoundingBox(0, 0, 1e-200, 1e-200);
+        VisionDetector.BoundingBox halfOverlap = new VisionDetector.BoundingBox(5e-201, 0, 1e-200, 1e-200);
+
+        assertThat(first.getArea()).isZero();
+        assertThat(first.iou(identical)).isEqualTo(1.0);
+        assertThat(first.iou(halfOverlap)).isEqualTo(1.0 / 3.0);
+    }
 }

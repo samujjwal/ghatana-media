@@ -135,6 +135,15 @@ public final class GrpcVideoSourceCapture {
         Readback admitted = readback(request, -1, nextMedia);
         if (!admitted(admitted, request, -1, nextMedia)) return blocked(admitted);
 
+        // Source authorization can take time. Confirm the canonical session
+        // generation and ACK cursor again before fetching source bytes; each
+        // canonical offer is fenced independently below as well.
+        Optional<CanonicalVideoStreamFramePort.Binding> beforeRead = binding(request);
+        if (beforeRead.isEmpty() || !sameGeneration(binding, beforeRead.get())
+                || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()) {
+            return new Result(Disposition.UNKNOWN, 0, -1, "canonical cursor changed before source read");
+        }
+
         Batch batch;
         try {
             batch = source.readBatch(request, admitted, MAX_BATCH_FRAMES, MAX_BATCH_BYTES);

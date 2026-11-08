@@ -12,6 +12,9 @@ the "shared media engines" layer consumed by the modality services.
 - `com.ghatana.media.capability` — capability declarations/inventory.
 - `com.ghatana.media.production` / `simulation` — production planning
   and deterministic simulation support shared by services.
+- `com.ghatana.media.vision.api.VisionDetector.BoundingBox` — finite
+  local geometry validation and scale-normalized IoU arithmetic; it does
+  not select or infer a coordinate frame or range.
 - `com.ghatana.media.stt` (+ `engine.native_whisper`, `engine.onnx`,
   `eval`, `api`) — STT engine abstractions and evaluation harnesses.
 - `com.ghatana.media.runtime` / `service` / `service.http` /

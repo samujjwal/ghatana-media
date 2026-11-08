@@ -22,6 +22,7 @@ Provides cross-cutting configuration, factory utilities, and shared models consu
 | `TimeoutConfig` | Shared timeout and retry configuration |
 | `VisionEngineFactory` | Factory that instantiates the configured vision detection engine |
 | `DetectionModelInfo` | Value object describing a loaded detection model |
+| `VisionDetector.BoundingBox` | Validates finite local box geometry and computes scale-normalized IoU without imposing a coordinate-frame range |
 
 ## Dependencies
 

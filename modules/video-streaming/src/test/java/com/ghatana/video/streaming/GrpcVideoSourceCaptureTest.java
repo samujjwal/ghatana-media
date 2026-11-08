@@ -247,6 +247,34 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void changedCanonicalGenerationBeforeSourceReadDoesNotFetchSourceFrames() {
+        FakePort port = new FakePort();
+        port.changeGenerationOnBindingCall = 2;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void changedCanonicalAckCursorBeforeSourceReadDoesNotFetchSourceFrames() {
+        FakePort port = new FakePort();
+        port.changeAckCursorOnBindingCall = 2;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(10, 0, "video@v3", 20)), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+    }
+
+    @Test
     void eosRequiresAcknowledgementOfTheExactNextMediaSequence() {
         FakePort port = new FakePort();
         port.eosResult = CanonicalVideoStreamFramePort.Result.acknowledged(1);
@@ -426,6 +454,9 @@ class GrpcVideoSourceCaptureTest {
         private long lastAck = -1;
         private int offerCalls;
         private int eosCalls;
+        private int bindingCalls;
+        private int changeGenerationOnBindingCall = -1;
+        private int changeAckCursorOnBindingCall = -1;
         private boolean backpressured;
         private boolean feedbackUnavailable;
         private boolean nullOfferFeedback;
@@ -433,7 +464,10 @@ class GrpcVideoSourceCaptureTest {
         private Result eosResult;
 
         @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
-            return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", 1, 1, lastAck,
+            bindingCalls++;
+            long generation = bindingCalls == changeGenerationOnBindingCall ? 2 : 1;
+            long acknowledged = bindingCalls == changeAckCursorOnBindingCall ? lastAck + 1 : lastAck;
+            return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", generation, 1, acknowledged,
                     Instant.now().plusSeconds(30)));
         }
 

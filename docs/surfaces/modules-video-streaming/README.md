@@ -58,6 +58,9 @@ rows vs local-helper-only vs `NOT_ADMITTED` vs delegated rows.
   authorization, or backpressure. Lost ACK is `OUTCOME_UNKNOWN`; no blind
   replay occurs. A frame ACK confirms Media sequence acceptance only, not a
   durable source-provenance receipt.
+- After the initial trusted source readback, capture rechecks the canonical
+  session generation and ACK cursor before reading the source batch; a change
+  returns `UNKNOWN` without fetching source bytes.
 - If the highest canonical frame sequence is accepted and that batch also
   declares EOS, capture returns `UNKNOWN` before readback or dispatch of an
   out-of-range EOS sequence.
