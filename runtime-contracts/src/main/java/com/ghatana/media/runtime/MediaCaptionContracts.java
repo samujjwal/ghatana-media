@@ -171,8 +171,23 @@ public final class MediaCaptionContracts {
         public CaptionVersionSnapshot {
             Objects.requireNonNull(parentVersionKind, "parentVersionKind");
             Objects.requireNonNull(languageDisposition, "languageDisposition");
+            if (!safeInteger(ticksPerSecond) || ticksPerSecond < 1 || !safeInteger(sourceDurationTicks)) {
+                throw new CaptionRegistrationException(RegistrationError.CAPTION_ALIGNMENT_REQUIRED,
+                        "snapshot source clock is malformed");
+            }
             languageTag = languageTag == null ? Optional.empty() : languageTag;
             captionSegments = copySegmentsBounded(captionSegments);
+            java.util.Set<String> seen = new java.util.HashSet<>();
+            for (CaptionSegment segment : captionSegments) {
+                if (!seen.add(segment.segmentId())) {
+                    throw new CaptionRegistrationException(RegistrationError.INVALID_REQUEST,
+                            "duplicate segmentId");
+                }
+                if (segment.startTick() >= segment.endTick() || segment.endTick() > sourceDurationTicks) {
+                    throw new CaptionRegistrationException(RegistrationError.CAPTION_ALIGNMENT_REQUIRED,
+                            "segment tick range exceeds source clock");
+                }
+            }
             purpose = purpose == null ? Optional.empty() : purpose;
         }
     }

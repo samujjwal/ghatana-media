@@ -52,6 +52,51 @@ class MediaCaptionContractsTest {
     }
 
     @Test
+    void captionSnapshotRejectsSegmentsOutsideItsSourceClock() {
+        assertThatThrownBy(() -> new CaptionVersionSnapshot(
+                "request-1", "a".repeat(64), "caption-v1", "receipt-1", "artifact-1", "source-v1",
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1", "clock-1", 1_000, 10_000,
+                LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("segment-1", "hello", 9_000, 10_001, SegmentOrigin.USER_EDITED)),
+                Optional.empty(), 1))
+                .isInstanceOf(CaptionRegistrationException.class)
+                .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                        .isEqualTo(RegistrationError.CAPTION_ALIGNMENT_REQUIRED));
+    }
+
+    @Test
+    void captionSnapshotRejectsDuplicateSegmentIds() {
+        List<CaptionSegment> duplicateIds = List.of(
+                CaptionSegment.of("segment-1", "first", 0, 1_000, SegmentOrigin.USER_EDITED),
+                CaptionSegment.of("segment-1", "second", 1_000, 2_000, SegmentOrigin.RECOGNIZED));
+
+        assertThatThrownBy(() -> snapshot(1_000, 10_000, duplicateIds))
+                .isInstanceOf(CaptionRegistrationException.class)
+                .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                        .isEqualTo(RegistrationError.INVALID_REQUEST));
+    }
+
+    @Test
+    void captionSnapshotRejectsInvalidSourceClockBounds() {
+        for (long ticksPerSecond : List.of(0L, -1L)) {
+            assertThatThrownBy(() -> snapshot(ticksPerSecond, 10_000,
+                    List.of(CaptionSegment.of("segment-1", "hello", 0, 1_000,
+                            SegmentOrigin.USER_EDITED))))
+                    .isInstanceOf(CaptionRegistrationException.class)
+                    .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                            .isEqualTo(RegistrationError.CAPTION_ALIGNMENT_REQUIRED));
+        }
+        for (long sourceDurationTicks : List.of(-1L, 9_007_199_254_740_992L)) {
+            assertThatThrownBy(() -> snapshot(1_000, sourceDurationTicks,
+                    List.of(CaptionSegment.of("segment-1", "hello", 0, 1_000,
+                            SegmentOrigin.USER_EDITED))))
+                    .isInstanceOf(CaptionRegistrationException.class)
+                    .satisfies(error -> assertThat(((CaptionRegistrationException) error).error())
+                            .isEqualTo(RegistrationError.CAPTION_ALIGNMENT_REQUIRED));
+        }
+    }
+
+    @Test
     void rejectsSegmentListsWhoseDeclaredSizeDoesNotMatchObservedElements() {
         AtomicInteger reads = new AtomicInteger();
         List<CaptionSegment> underreported = new AbstractList<>() {
@@ -102,5 +147,13 @@ class MediaCaptionContractsTest {
         return new RegistrationRequest("request-1", "artifact-1", "source-v1",
                 ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1", "clock-1", 1_000, 10_000,
                 LanguageDisposition.DECLARED_BY_USER, Optional.of("en"), segments, Optional.empty());
+    }
+
+    private static CaptionVersionSnapshot snapshot(long ticksPerSecond, long sourceDurationTicks,
+                                                    List<CaptionSegment> segments) {
+        return new CaptionVersionSnapshot("request-1", "a".repeat(64), "caption-v1", "receipt-1",
+                "artifact-1", "source-v1", ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1", "clock-1",
+                ticksPerSecond, sourceDurationTicks, LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                segments, Optional.empty(), 1);
     }
 }
