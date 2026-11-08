@@ -92,7 +92,7 @@ public final class VersionedReviewEngine {
         ReviewRecord record = appendResult.record();
         requireExactAppendReceipt(actor, reviewCase, request, expectedNextRevision,
                 allocatedAppendRecordId[0],
-                safePayload, effectAuthority, record, appendResult.idempotentReplay());
+                safePayload, effectAuthority, now, record, appendResult.idempotentReplay());
         return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
                 record.appendRecordId(), record.caseRevision(), effectCurrentness, false, record.createdAt());
     }
@@ -138,7 +138,8 @@ public final class VersionedReviewEngine {
 
     private static void requireExactAppendReceipt(Actor actor, ReviewCaseRef reviewCase, AppendRequest request,
                                                   long expectedNextRevision, String expectedAppendRecordId,
-                                                  Payload payload, AuthorizationDecision authority, ReviewRecord record,
+                                                  Payload payload, AuthorizationDecision authority, Instant observedAt,
+                                                  ReviewRecord record,
                                                   boolean idempotentReplay) {
         if (record == null) throw new ReviewUnavailableException();
         if (!record.tenantId().equals(actor.tenantId())
@@ -150,6 +151,8 @@ public final class VersionedReviewEngine {
                 || !record.operationId().equals(payload.operationId())
                 || !record.payload().equals(payload)
                 || !record.authorityVersion().equals(authority.authorityVersion())
+                || record.createdAt().isAfter(observedAt)
+                || (!idempotentReplay && !record.createdAt().equals(observedAt))
                 || record.caseRevision() != expectedNextRevision) {
             throw new ReviewUnavailableException();
         }
