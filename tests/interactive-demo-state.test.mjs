@@ -328,6 +328,31 @@ test("manifest rejects ambiguous or sparse origin permission entries", () => {
   }
 });
 
+test("origin permission for a host does not authorize a different port", () => {
+  const candidate = {
+    ...manifest,
+    originPermissions: [{ origin: "https://cdn.example.test", capabilities: ["read-asset"] }],
+    scenes: manifest.scenes.map((scene, index) => index === 0
+      ? { ...scene, asset: { ...scene.asset, url: "https://cdn.example.test:8443/intro.mp4" } }
+      : scene),
+  };
+  const candidateVerifier = {
+    attest: () => ({
+      manifestId: candidate.id,
+      revision: candidate.revision,
+      sha256: candidate.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: candidate.sourceTruth,
+      originPermissions: candidate.originPermissions,
+    }),
+  };
+
+  const state = createDemoPlayerState(candidate, candidateVerifier);
+  assert.equal(state.status, "POLICY_DENIED");
+  assert.equal(state.failure, "UNAUTHORIZED_ASSET_ORIGIN");
+  assert.deepEqual(state.route, []);
+});
+
 test("replay reproduces play and progress state, status, and history", () => {
   const actions = [
     { type: "play" },
