@@ -65,10 +65,6 @@ function jobStatusCommand(endpoint: string, extra: string[] = []) {
   return ['job', 'status', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--job', 'job-a', ...extra];
 }
 
-function jobCancelCommand(endpoint: string, extra: string[] = []) {
-  return ['job', 'cancel', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--job', 'job-a', ...extra];
-}
-
 afterEach(async () => {
   await Promise.all(servers.splice(0).map(server => new Promise<void>(resolve => {
     server.closeAllConnections();
@@ -486,6 +482,7 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     { command: 'upload resume', args: ['upload', 'resume', '--upload', 'u1'] },
     { command: 'transcribe', args: ['transcribe', '--source-version', 'v1', '--language', 'en'] },
     { command: 'transcript review', args: ['transcript', 'review', '--transcript-version', 'v1'] },
+    { command: 'job cancel', args: ['job', 'cancel', '--job', 'j1'] },
     { command: 'job check-outcome', args: ['job', 'check-outcome', '--job', 'j1'] },
     { command: 'job batch', args: ['job', 'batch'] },
     { command: 'caption correct-text', args: ['caption', 'correct-text', '--artifact-version', 'v1', '--segment', 's1', '--text', 'text'] },
@@ -632,88 +629,6 @@ describe('ghatanamedia-api job status executable', () => {
     });
     expect(result.stderr).not.toContain('private backend detail');
     expect(result.stderr).not.toContain(token);
-  });
-});
-
-describe('ghatanamedia-api job cancel executable', () => {
-  it.each(['RUNNING', 'CANCELLED'] as const)('returns the canonical %s observation without inferring cancellation', async status => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-cancel-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const responseJob = { ...job, status };
-      const result = await invoke(jobCancelCommand('https://media.example.test'), token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(responseJob),
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(result.status).toBe(0);
-      expect(result.stderr).toBe('');
-      expect(JSON.parse(result.stdout)).toMatchObject({
-        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.cancel', job: { ...job, status },
-      });
-      expect(JSON.parse(result.stdout).job.status).toBe(status);
-      expect(result.stdout).not.toContain(token);
-      expect(JSON.parse(await readFile(requestLogPath, 'utf8'))).toMatchObject({
-        path: '/api/v1/jobs/job-a/cancel', method: 'POST', tenant: 'tenant-a', principal: 'principal-a',
-        authenticated: true, bearerMatches: true, idempotencyKey: null,
-      });
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  });
-
-  it('rejects malformed job IDs before cancellation dispatch', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-cancel-id-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const result = await invoke([
-        'job', 'cancel', '--endpoint', 'https://media.example.test', '--tenant', 'tenant-a',
-        '--principal', 'principal-a', '--job', '../job-a',
-      ], token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'timeout',
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(result.status).toBe(2);
-      expect(result.stdout).toBe('');
-      expect(JSON.parse(result.stderr)).toMatchObject({
-        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.cancel', code: 'INVALID_INVOCATION',
-      });
-      expect(result.stderr).not.toContain(token);
-      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  });
-
-  it('reports a lost post-dispatch acknowledgement as OUTCOME_UNKNOWN and never retries', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-job-cancel-unknown-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const result = await invoke(jobCancelCommand('https://media.example.test'), token, {
-        GHATANA_MEDIA_REQUEST_TIMEOUT_MS: '1',
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'timeout',
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(result.status).toBe(1);
-      expect(result.stdout).toBe('');
-      expect(JSON.parse(result.stderr)).toMatchObject({
-        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.cancel',
-        code: 'OUTCOME_UNKNOWN', path: '/api/v1/jobs/job-a/cancel',
-      });
-      expect(JSON.parse(result.stderr).requestId).toMatch(/^[A-Za-z0-9._:-]{1,128}$/u);
-      expect(result.stderr).toContain('Do not retry');
-      expect(result.stderr).not.toContain(token);
-      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
-      expect(requests).toHaveLength(1);
-      expect(requests[0]).toMatchObject({
-        path: '/api/v1/jobs/job-a/cancel', method: 'POST', tenant: 'tenant-a', principal: 'principal-a',
-        authenticated: true, bearerMatches: true,
-      });
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
   });
 });
 

@@ -2,15 +2,14 @@
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { realpathSync } from 'node:fs';
-import { MediaClientError, MediaOperationAmbiguousError } from './http-core.js';
+import { MediaClientError } from './http-core.js';
 import { MediaCanonicalClient } from './canonical-operations.js';
 
 const COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact inspect': 'media.cli.artifact.inspect',
   'job status': 'media.cli.job.status',
-  'job cancel': 'media.cli.job.cancel',
 };
-const USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job status --endpoint URL --tenant ID --principal ID --job ID | job cancel --endpoint URL --tenant ID --principal ID --job ID';
+const USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job status --endpoint URL --tenant ID --principal ID --job ID';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -200,10 +199,8 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       getAccessToken: () => bearerToken,
       fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),
     });
-    if (args.command === 'job status' || args.command === 'job cancel') {
-      const job = args.command === 'job cancel'
-        ? await client.cancelJob(args.values['--job']!)
-        : await client.getJob(args.values['--job']!);
+    if (args.command === 'job status') {
+      const job = await client.getJob(args.values['--job']!);
       if (containsCredential(job, bearerToken)) {
         writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.', {}, 1, args.command);
         return;
@@ -224,23 +221,15 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       })}\n`);
     }
   } catch (error) {
-    if (error instanceof MediaOperationAmbiguousError && args.command === 'job cancel') {
-      const requestId = error.requestId;
-      writeError('OUTCOME_UNKNOWN', 'Cancellation was dispatched but no authoritative response was received. Do not retry; inspect job status to reconcile.', {
-        path: error.path,
-        ...(typeof requestId === 'string' && /^[A-Za-z0-9._:-]{1,128}$/u.test(requestId) ? { requestId } : {}),
-      }, 1, args.command);
-      return;
-    }
     if (error instanceof MediaClientError) {
-      const isJobCommand = args.command === 'job status' || args.command === 'job cancel';
-      const notFoundCode = isJobCommand ? 'JOB_NOT_FOUND' : 'ARTIFACT_NOT_FOUND';
+      const isJobStatus = args.command === 'job status';
+      const notFoundCode = isJobStatus ? 'JOB_NOT_FOUND' : 'ARTIFACT_NOT_FOUND';
       if (error.statusCode === 404 && error.detail.code === notFoundCode) {
-        writeError(notFoundCode, `${isJobCommand ? 'Job' : 'Artifact'} was not visible in the requested tenant and principal scope.`, {
+        writeError(notFoundCode, `${isJobStatus ? 'Job' : 'Artifact'} was not visible in the requested tenant and principal scope.`, {
           statusCode: 404, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       } else {
-        writeError('MEDIA_REQUEST_FAILED', `Media did not return a ${isJobCommand ? 'job' : 'artifact'} observation; success is not inferred.`, {
+        writeError('MEDIA_REQUEST_FAILED', `Media did not return a ${isJobStatus ? 'job' : 'artifact'} observation; success is not inferred.`, {
           statusCode: error.statusCode, ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command);
       }
