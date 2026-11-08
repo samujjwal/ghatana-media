@@ -53,6 +53,29 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void flushFailureInvalidatesRenderDigestAndStillAllowsDestinationCleanup() throws Exception {
+        var closed = new AtomicBoolean();
+        OutputStream destination = new OutputStream() {
+            @Override public void write(int value) { }
+            @Override public void flush() throws IOException { throw new IOException("simulated flush failure"); }
+            @Override public void close() { closed.set(true); }
+        };
+        var output = new BoundedRenderOutput(destination, 8);
+        output.write("frame".getBytes(StandardCharsets.UTF_8));
+
+        assertThatThrownBy(output::flush).isInstanceOf(IOException.class).hasMessage("simulated flush failure");
+        assertThat(output.bytesWritten()).isEqualTo("frame".length());
+        assertThat(output.completedSha256()).isNull();
+        assertThatThrownBy(() -> output.write(1)).isInstanceOf(IOException.class)
+                .hasMessage("render output has failed");
+
+        output.close();
+
+        assertThat(closed).isTrue();
+        assertThat(output.completedSha256()).isNull();
+    }
+
+    @Test
     void concurrentWritesCannotRacePastTheOutputByteBudget() throws Exception {
         var firstDestinationWrite = new CountDownLatch(1);
         var secondDestinationWrite = new CountDownLatch(1);
