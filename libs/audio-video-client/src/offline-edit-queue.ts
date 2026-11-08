@@ -624,7 +624,11 @@ export class OfflineEditQueue {
 
   private async listScoped(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
     const stableScope = snapshotScope(scope);
-    const records = await this.options.store.list(stableScope);
+    const storedRecords = await this.options.store.list(stableScope);
+    // Store adapters may return live objects (unlike IndexedDB's structured
+    // clone). Detach the readback before any later await so the exact row used
+    // as a CAS expectation cannot be changed through an adapter-owned alias.
+    const records = storedRecords.map(snapshotRecord);
     if (records.some((record) => record.tenantId !== stableScope.tenantId || record.projectId !== stableScope.projectId)) {
       throw new OfflineEditQueueError("STORE_SCOPE_MISMATCH");
     }
@@ -667,6 +671,37 @@ export class OfflineEditQueue {
     const copy = new Uint8Array(bytes.byteLength);
     copy.set(bytes);
     return copy.buffer;
+  }
+}
+
+function snapshotRecord(record: OfflineEditRecord): OfflineEditRecord {
+  const read = <T>(name: string): T => {
+    const descriptor = Object.getOwnPropertyDescriptor(record, name);
+    if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) {
+      throw new OfflineEditQueueError("STORE_RECORD_INVALID");
+    }
+    return descriptor.value as T;
+  };
+  try {
+    const nonce = read<Uint8Array>("nonce");
+    const ciphertext = read<Uint8Array>("ciphertext");
+    if (!(nonce instanceof Uint8Array) || !(ciphertext instanceof Uint8Array)) {
+      throw new OfflineEditQueueError("STORE_RECORD_INVALID");
+    }
+    const envelopeVersion = Object.getOwnPropertyDescriptor(record, "envelopeVersion");
+    if (envelopeVersion && (!envelopeVersion.enumerable || !("value" in envelopeVersion))) {
+      throw new OfflineEditQueueError("STORE_RECORD_INVALID");
+    }
+    return {
+      tenantId: read("tenantId"), projectId: read("projectId"), editId: read("editId"),
+      idempotencyKey: read("idempotencyKey"), expectedVersion: read("expectedVersion"),
+      nonce: new Uint8Array(nonce), ciphertext: new Uint8Array(ciphertext),
+      payloadBytes: read("payloadBytes"), state: read("state"),
+      ...(envelopeVersion ? { envelopeVersion: envelopeVersion.value as 2 } : {}),
+    };
+  } catch (error) {
+    if (error instanceof OfflineEditQueueError) throw error;
+    throw new OfflineEditQueueError("STORE_RECORD_INVALID");
   }
 }
 

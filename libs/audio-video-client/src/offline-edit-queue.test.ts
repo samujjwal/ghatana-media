@@ -653,6 +653,36 @@ describe("OfflineEditQueue", () => {
     }
   });
 
+  it("keeps the exact store readback as the CAS expectation when an adapter mutates its live row", async () => {
+    class ObservedStore extends MemoryStore {
+      readonly expectedStates: string[] = [];
+      override async compareAndSet(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean> {
+        this.expectedStates.push(expected.state);
+        return super.compareAndSet(expected, replacement);
+      }
+    }
+
+    const store = new ObservedStore();
+    const { queue } = await createQueue(store);
+    await queue.enqueue(edit);
+    let dispatches = 0;
+    const result = await replayAfterExplicitReview(queue, scope, {
+      reauthorize: async () => ({ authorized: true, disposition: "AUTHORIZED" }),
+      readCurrentVersion: async () => {
+        // Some store adapters expose their live row object. A concurrent
+        // context changing it during preflight must not rewrite this replay's
+        // previously observed CAS expectation.
+        (store.records.get(edit.editId)! as { state: OfflineEditRecord["state"] }).state = "APPLIED";
+        return "v7";
+      },
+      apply: async () => { dispatches++; return { outcome: "APPLIED" as const, receipt: "receipt" }; },
+    });
+
+    expect(result).toEqual([{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }]);
+    expect(store.expectedStates).toEqual(["PENDING"]);
+    expect(dispatches).toBe(0);
+  });
+
   it("rechecks revocation after the pre-dispatch fence and never applies after a rights change during storage", async () => {
     let revoked = false;
     class RevokingFenceStore extends MemoryStore {
