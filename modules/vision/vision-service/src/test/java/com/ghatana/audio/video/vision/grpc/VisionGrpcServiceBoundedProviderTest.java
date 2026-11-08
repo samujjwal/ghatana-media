@@ -176,6 +176,31 @@ class VisionGrpcServiceBoundedProviderTest {
         workers.shutdownNow();
     }
 
+    @Test
+    void processVideoPreservesProviderCancellationStatus() throws Exception {
+        VisionDetector detector = mock(VisionDetector.class);
+        when(detector.detectObjects(any(byte[].class), any(DetectionOptions.class)))
+                .thenThrow(new java.util.concurrent.CancellationException("provider cancelled"));
+        VisionGrpcService service = new VisionGrpcService(detector, mock(VideoFrameExtractor.class)) {
+            @Override protected boolean isInferenceProviderAdmitted() { return true; }
+        };
+        ExecutorService workers = workerPool(1, 1);
+        service.bindProviderExecutor(workers);
+        CapturingStreamObserver observer = new CapturingStreamObserver();
+        AtomicReference<StreamObserver<com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest>> requestStream =
+                new AtomicReference<>();
+
+        tenantContext().run(() -> requestStream.set(service.processVideo(observer)));
+        tenantContext().run(() -> requestStream.get().onNext(
+                com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest.newBuilder()
+                        .setFrameData(ByteString.copyFrom(new byte[]{1, 2, 3}))
+                        .build()));
+
+        assertThat(observer.terminal.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(Status.fromThrowable(observer.failure).getCode()).isEqualTo(Status.Code.CANCELLED);
+        workers.shutdownNow();
+    }
+
     private static ThreadPoolExecutor workerPool(int workers, int queueCapacity) {
         return new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(queueCapacity), runnable -> {

@@ -1300,8 +1300,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                                             .withDescription("Unsupported video frame metadata").asRuntimeException());
                                 } else {
                                     LOG.error("Video frame processing failed ({})", cause.getClass().getSimpleName());
-                                    sendFailure(io.grpc.Status.INTERNAL
-                                            .withDescription("Video frame processing failed").asRuntimeException());
+                                    sendFailure(providerFailureStatus(cause, "Video frame processing failed")
+                                            .asRuntimeException());
                                 }
                                 return;
                             }
