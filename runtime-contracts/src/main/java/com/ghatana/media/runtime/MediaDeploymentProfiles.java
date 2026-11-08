@@ -22,6 +22,9 @@ public final class MediaDeploymentProfiles {
      */
     private static final Set<String> PRODUCTION_LIKE = Set.of(
             "prod", "production", "staging", "sovereign", "integration", "e2e");
+    private static final Set<String> SUPPORTED = Set.of(
+            "local", "dev", "development", "test", "ci",
+            "prod", "production", "staging", "sovereign", "integration", "e2e");
 
     /** Canonical profile spelling: trimmed, lower-cased, null-safe. */
     public static String canonical(String profile) {
@@ -31,5 +34,15 @@ public final class MediaDeploymentProfiles {
     /** True when the profile names a deployed environment that must fail closed. */
     public static boolean productionLike(String profile) {
         return PRODUCTION_LIKE.contains(canonical(profile));
+    }
+
+    /** True when a profile is an explicitly supported Media Runtime environment. */
+    public static boolean isSupported(String profile) {
+        return SUPPORTED.contains(canonical(profile));
+    }
+
+    /** Immutable accepted profile names, used in configuration errors and validation. */
+    public static Set<String> supportedProfiles() {
+        return SUPPORTED;
     }
 }

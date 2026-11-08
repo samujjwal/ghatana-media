@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.vision.video;
 
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,8 +74,23 @@ final class HostOciVisionWorkerSupervisor {
      * broker is required but unconfigured the caller fails closed.
      */
     static boolean brokerRequired() {
-        String required = System.getenv(BROKER_REQUIRED_ENV);
-        return required != null && (required.equalsIgnoreCase("true") || required.equals("1"));
+        return brokerRequired(System.getenv());
+    }
+
+    /** Resolves profile and explicit override from one immutable environment snapshot. */
+    static boolean brokerRequired(Map<String, String> environment) {
+        String profile = environment.getOrDefault("MEDIA_RUNTIME_ENVIRONMENT",
+                environment.getOrDefault("MEDIA_PROFILE", "local"));
+        String required = environment.get(BROKER_REQUIRED_ENV);
+        boolean explicitlyRequired = required != null
+                && (required.equalsIgnoreCase("true") || required.equals("1"));
+        boolean malformedOverride = required != null
+                && !required.equalsIgnoreCase("true") && !required.equals("1")
+                && !required.equalsIgnoreCase("false");
+        return !MediaDeploymentProfiles.isSupported(profile)
+                || MediaDeploymentProfiles.productionLike(profile)
+                || explicitlyRequired
+                || malformedOverride;
     }
 
     /** Fails before any direct Docker CLI fallback when the selected runtime requires the broker. */

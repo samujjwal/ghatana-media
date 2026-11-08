@@ -32,4 +32,18 @@ class MediaDeploymentProfilesTest {
         assertThat(MediaDeploymentProfiles.productionLike("Staging")).isTrue();
         assertThat(MediaDeploymentProfiles.canonical(null)).isEmpty();
     }
+
+    @Test
+    void supportValidationIncludesAllAcceptedProfilesAndRejectsBlankOrUnknownNames() {
+        for (String profile : new String[] {
+                "local", "dev", "development", "test", "ci",
+                "prod", "production", "staging", "sovereign", "integration", "e2e"}) {
+            assertThat(MediaDeploymentProfiles.isSupported(profile))
+                    .as(profile + " is supported").isTrue();
+        }
+        for (String profile : new String[] {"", " ", "unknown", "prodution"}) {
+            assertThat(MediaDeploymentProfiles.isSupported(profile))
+                    .as("'%s' is unsupported", profile).isFalse();
+        }
+    }
 }

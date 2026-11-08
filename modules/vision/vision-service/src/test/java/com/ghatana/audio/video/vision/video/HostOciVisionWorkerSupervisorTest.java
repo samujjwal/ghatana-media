@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.vision.video;
 
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +53,53 @@ class HostOciVisionWorkerSupervisorTest {
                 .hasMessageContaining("authenticated OCI broker is required and unconfigured");
         HostOciVisionWorkerSupervisor.requireBrokerConfigured(false, false);
         HostOciVisionWorkerSupervisor.requireBrokerConfigured(true, true);
+    }
+
+    @Test
+    void brokerRequirementUsesCanonicalProductionProfilesAndExplicitOverride() {
+        for (String profile : List.of("prod", "production", "staging", "sovereign", "integration", "e2e")) {
+            assertThat(HostOciVisionWorkerSupervisor.brokerRequired(
+                    Map.of("MEDIA_RUNTIME_ENVIRONMENT", profile))).as(profile).isTrue();
+        }
+
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of("MEDIA_PROFILE", "production")))
+                .as("profile fallback is production-like").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of("MEDIA_PROFILE", "local")))
+                .as("MEDIA_PROFILE is used when runtime environment is absent").isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of("MEDIA_RUNTIME_ENVIRONMENT", "local")))
+                .as("explicit local profile keeps direct worker available").isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "", "MEDIA_PROFILE", "local")))
+                .as("present blank runtime environment suppresses fallback and forbids direct OCI")
+                .isTrue();
+        assertThat(MediaDeploymentProfiles.productionLike("prodution"))
+                .as("unknown typo is not classified as production").isFalse();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of("MEDIA_RUNTIME_ENVIRONMENT", "prodution")))
+                .as("unknown profile forbids direct OCI fallback").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "local",
+                HostOciVisionWorkerSupervisor.BROKER_REQUIRED_ENV, "true")))
+                .as("explicit true override").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "local",
+                HostOciVisionWorkerSupervisor.BROKER_REQUIRED_ENV, "1")))
+                .as("explicit 1 override").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "local",
+                HostOciVisionWorkerSupervisor.BROKER_REQUIRED_ENV, "yes")))
+                .as("malformed nonempty override forbids direct OCI fallback").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "local",
+                HostOciVisionWorkerSupervisor.BROKER_REQUIRED_ENV, "")))
+                .as("present empty override forbids direct OCI fallback").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "local",
+                HostOciVisionWorkerSupervisor.BROKER_REQUIRED_ENV, "true ")))
+                .as("whitespace malformed override forbids direct OCI fallback").isTrue();
+        assertThat(HostOciVisionWorkerSupervisor.brokerRequired(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", "prod",
+                HostOciVisionWorkerSupervisor.BROKER_REQUIRED_ENV, "false")))
+                .as("explicit false cannot disable production profile").isTrue();
     }
 
     @Test

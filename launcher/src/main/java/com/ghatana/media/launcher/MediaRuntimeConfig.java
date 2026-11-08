@@ -5,7 +5,6 @@ import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Typed standalone Media Runtime configuration.
@@ -31,16 +30,12 @@ public record MediaRuntimeConfig(
         Path localStorageRoot,
         int maximumConcurrentJobsPerTenant) {
 
-    private static final Set<String> SUPPORTED_PROFILES = Set.of(
-            "local", "dev", "development", "test", "ci", "staging", "production", "prod",
-            "sovereign", "integration", "e2e");
-
     public MediaRuntimeConfig {
         profile = required(profile, "profile").toLowerCase(java.util.Locale.ROOT);
-        if (!SUPPORTED_PROFILES.contains(profile)) {
+        if (!MediaDeploymentProfiles.isSupported(profile)) {
             throw new IllegalArgumentException(
                     "Unsupported Media Runtime profile '" + profile + "'; supported profiles: "
-                            + SUPPORTED_PROFILES);
+                            + MediaDeploymentProfiles.supportedProfiles());
         }
         artifactStoreId = canonicalOptional(artifactStoreId);
         jobStoreId = canonicalOptional(jobStoreId);
