@@ -338,6 +338,22 @@ describe("MediaOperationClient", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it("binds the upload request size ceiling to the 1 TiB runtime contract", async () => {
+    const maxBytes = 1_099_511_627_776;
+    const fetchImpl = vi.fn(async (): Promise<Response> =>
+      jsonResponse(uploadSession({ expectedSizeBytes: maxBytes }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    const request = { fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: maxBytes,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL" as const, retention: "PT24H", idempotencyKey: "key" };
+
+    await expect(client.createUploadSession(request)).resolves.toMatchObject({ expectedSizeBytes: maxBytes });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    await expect(client.createUploadSession({ ...request, expectedSizeBytes: maxBytes + 1 }))
+      .rejects.toThrow(/1 TiB service-level contract limit/u);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects filenames that runtime stores would trim, path-normalize, or rewrite before upload dispatch", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
@@ -562,6 +578,7 @@ describe("MediaOperationClient", () => {
     ["a minute rollover", { expiresAt: "2026-08-06T12:60:00Z" }],
     ["a fraction longer than Java Instant precision", { expiresAt: "2026-08-06T12:00:00.1234567890Z" }],
     ["an unsafe size", { expectedSizeBytes: Number.MAX_SAFE_INTEGER + 1 }],
+    ["a size above the runtime limit", { expectedSizeBytes: 1_099_511_627_777 }],
   ])("rejects upload observations with %s", async (_caseName, override) => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({ ...uploadSession(), ...override })) as unknown as typeof fetch;
     const client = createMediaOperationClient({

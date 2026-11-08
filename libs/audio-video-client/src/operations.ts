@@ -214,6 +214,9 @@ const UPLOAD_SESSION_FIELDS = new Set([
   "nextChunkIndex", "status", "metadata",
 ]);
 
+/** Maximum service-level artifact size declared by contracts/openapi/media.yaml. */
+const MAX_ARTIFACT_SIZE_BYTES = 1_099_511_627_776;
+
 function parseCanonicalMediaUploadSession(input: unknown): CanonicalMediaUploadSessionObservation {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     throw new TypeError("Canonical Media upload response must be an object.");
@@ -234,7 +237,9 @@ function parseCanonicalMediaUploadSession(input: unknown): CanonicalMediaUploadS
   const bytesReceived = value.bytesReceived;
   const nextChunkIndex = value.nextChunkIndex;
   if (typeof expectedSizeBytes !== "number" || !Number.isSafeInteger(expectedSizeBytes) || expectedSizeBytes < 1
+    || expectedSizeBytes > MAX_ARTIFACT_SIZE_BYTES
     || typeof bytesReceived !== "number" || !Number.isSafeInteger(bytesReceived) || bytesReceived < 0
+    || bytesReceived > MAX_ARTIFACT_SIZE_BYTES
     || typeof nextChunkIndex !== "number" || !Number.isSafeInteger(nextChunkIndex) || nextChunkIndex < 0) {
     throw new TypeError("Canonical Media upload size and progress fields are invalid.");
   }
@@ -445,8 +450,8 @@ export class MediaOperationClient {
     validateUploadFileName(request.fileName);
     validateUploadTextField(request.contentType, "contentType");
     if (!Number.isSafeInteger(request.expectedSizeBytes) || request.expectedSizeBytes < 1
-      || request.expectedSizeBytes > 1_073_741_824) {
-      throw new Error("expectedSizeBytes must be between 1 byte and the 1 GiB contract limit.");
+      || request.expectedSizeBytes > MAX_ARTIFACT_SIZE_BYTES) {
+      throw new Error("expectedSizeBytes must be between 1 byte and the 1 TiB service-level contract limit.");
     }
     if (!/^[a-fA-F0-9]{64}$/u.test(request.expectedSha256)) {
       throw new Error("expectedSha256 must be a SHA-256 hex digest.");
