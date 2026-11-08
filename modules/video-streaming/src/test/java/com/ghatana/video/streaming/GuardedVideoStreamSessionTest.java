@@ -318,6 +318,39 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("expired or unavailable consent purges held and undispatched frames during drain")
+    void nonAdmittedConsentPurgesHeldAndUndispatchedFramesDuringDrain() {
+        for (ConsentDecision decision : new ConsentDecision[]{
+                ConsentDecision.EXPIRED, ConsentDecision.NOT_ADMITTED}) {
+            AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);
+            GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                    identity("t1"), context -> live.get(), "worker-a");
+            VideoStreamSession.DecodedFrame admitted = frame(0, true);
+            session.submitFrame("worker-a", 1L, admitted);
+            assertThat(session.submitFrame("worker-a", 1L, frame(2, false)))
+                    .isEqualTo(FrameVerdict.HELD);
+            session.submitFrame("worker-a", 1L, frame(1, false));
+            assertThat(session.pendingCount()).isEqualTo(1);
+            assertThat(session.nextAck("worker-a", 1L)).isEqualTo(1);
+
+            live.set(decision);
+            assertThatThrownBy(() -> session.takeDelivered("worker-a", 1L))
+                    .isInstanceOf(ConsentDeniedException.class)
+                    .hasMessageContaining(decision.name());
+            assertThat(session.pendingCount()).isZero();
+            assertThat(session.nextAck("worker-a", 1L)).isEqualTo(1);
+
+            live.set(ConsentDecision.ADMITTED);
+            AtomicInteger egressEffects = new AtomicInteger();
+            assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
+                    f -> egressEffects.incrementAndGet()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("not delivered");
+            assertThat(egressEffects.get()).isZero();
+        }
+    }
+
+    @Test
     @DisplayName("provider egress requires the exact delivered decodable frame and is single-attempt")
     void egressRequiresDeliveredFrameAndRejectsMutationAndReplay() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
