@@ -12,6 +12,7 @@ const USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant 
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
+const OPAQUE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
 
 interface Arguments {
   command: string;
@@ -45,11 +46,13 @@ function parseArguments(argv: readonly string[]): Arguments {
     values: Object.fromEntries(values),
   };
   for (const [name, value] of [['tenant', parsed.tenant], ['principal', parsed.principal]] as const) {
-    if (!/^[\x21-\x7e]{1,255}$/u.test(value)) throw new Error(`${name} must be a non-empty printable identity of at most 255 characters.`);
+    if (!OPAQUE_ID_PATTERN.test(value)) {
+      throw new Error(`${name} must be a PDP-1 opaque ID of 1 to 128 characters.`);
+    }
   }
   if (!values.has('--artifact')) throw new Error('Missing required option --artifact.');
   const artifact = values.get('--artifact')!;
-  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u.test(artifact)) {
+  if (!OPAQUE_ID_PATTERN.test(artifact)) {
     throw new Error('artifact ID must start with a letter or number and use only letters, numbers, dots, underscores, colons, or hyphens (maximum 128 characters).');
   }
   return parsed;

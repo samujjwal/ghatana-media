@@ -383,6 +383,40 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     }
   });
 
+  it('rejects tenant and principal values outside the PDP-1 opaque-ID grammar before fetch', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-scope-id-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const invalidScopes = [
+        ['-tenant', 'principal-a'],
+        ['tenant with spaces', 'principal-a'],
+        ['t'.repeat(129), 'principal-a'],
+        ['tenant-a', '_principal'],
+        ['tenant-a', 'principal/slash'],
+        ['tenant-a', 'p'.repeat(129)],
+      ];
+      for (const [tenant, principal] of invalidScopes) {
+        const result = await invoke([
+          'artifact', 'inspect', '--endpoint', 'https://media.example.test',
+          '--tenant', tenant, '--principal', principal, '--artifact', 'artifact-a',
+        ], token, {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+        }, fetchFixture);
+        expect(result.status).toBe(2);
+        expect(result.stdout).toBe('');
+        expect(JSON.parse(result.stderr)).toMatchObject({
+          schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+          code: 'INVALID_INVOCATION',
+        });
+        expect(result.stderr).not.toContain(token);
+      }
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('rejects an endpoint over the shared 8,192-character normalized URL ceiling before fetch', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-endpoint-size-'));
     const requestLogPath = join(directory, 'requests.jsonl');
