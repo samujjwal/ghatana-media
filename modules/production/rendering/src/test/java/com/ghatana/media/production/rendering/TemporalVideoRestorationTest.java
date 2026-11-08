@@ -381,6 +381,28 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void signedZeroFilterValuesShareCanonicalParameterAndCandidateIdentity() {
+        FilterParameters positiveZero = FilterParameters.unsharpMask("zero-v1", 0.0);
+        FilterParameters negativeZero = FilterParameters.unsharpMask("zero-v1", -0.0);
+        assertThat(negativeZero.parameterSha256()).isEqualTo(positiveZero.parameterSha256());
+        assertThat(Double.doubleToRawLongBits(negativeZero.amount())).isZero();
+
+        FilterParameters positiveColorZero = FilterParameters.rgbAdjustment("black-v1", 0.0, 0.0, 0.0, 0, 0, 0);
+        FilterParameters negativeColorZero = FilterParameters.rgbAdjustment("black-v1", -0.0, -0.0, -0.0, 0, 0, 0);
+        assertThat(negativeColorZero.parameterSha256()).isEqualTo(positiveColorZero.parameterSha256());
+
+        DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+        Candidate positive = TemporalVideoRestoration.restore(request(positiveZero),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.empty(), null, null).candidate().orElseThrow();
+        Candidate negative = TemporalVideoRestoration.restore(request(negativeZero),
+                (binding, operation) -> allowed("source-decision-v3"), binding -> source,
+                Optional.empty(), null, null).candidate().orElseThrow();
+        assertThat(negative.lineage().parameterSha256()).isEqualTo(positive.lineage().parameterSha256());
+        assertThat(negative.lineage().candidateSha256()).isEqualTo(positive.lineage().candidateSha256());
+    }
+
+    @Test
     void selectedFilterAuthorizationIsCheckedBeforeReadingSourceFrames() {
         DecodedFrameSequence source = sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
         AtomicInteger reads = new AtomicInteger();

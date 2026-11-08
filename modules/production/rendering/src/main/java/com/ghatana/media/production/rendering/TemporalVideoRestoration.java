@@ -105,6 +105,13 @@ public final class TemporalVideoRestoration {
                     || !Double.isFinite(greenGain) || !Double.isFinite(blueGain)) {
                 throw invalid("filter parameters must be finite");
             }
+            // Numeric filters treat +0.0 and -0.0 identically, but Double.toHexString
+            // preserves the sign and feeds it into the parameter/lineage digest. Canonicalize
+            // zero-valued inputs so equivalent operations have one stable identity.
+            amount = canonicalZero(amount);
+            redGain = canonicalZero(redGain);
+            greenGain = canonicalZero(greenGain);
+            blueGain = canonicalZero(blueGain);
             switch (operation) {
                 case TEMPORAL_MEDIAN -> {
                     if (amount != 0 || redGain != 1 || greenGain != 1 || blueGain != 1
@@ -740,6 +747,8 @@ public final class TemporalVideoRestoration {
     }
 
     private static int clamp8(long value) { return (int) Math.max(0, Math.min(255, value)); }
+
+    private static double canonicalZero(double value) { return value == 0.0 ? 0.0 : value; }
 
     private static String disclosure(FilterParameters filter) {
         return switch (filter.operation()) {
