@@ -855,6 +855,8 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Predecessors:** `media.dev.project-timeline-engine`
 
 - **Coordinator mapping disposition (2026-11-08):** Canonical `scenePlanRef`/`sceneRefs`/`timelineRef` mapping and reviewer authority remain undefined. Keep draft planning separate from canonical scene/timeline edits; no mapping or approval authority was inferred.
+- **Coordinator progress (2026-11-08):** planner identity increment: public `ReviewedPlan` construction now applies the same owner `opaque-id` validator as the review path. Tests accept a 128-character leading-alphanumeric ID and reject blank, padded, punctuation-leading, slash-containing, and 129-character values. FULL source-composite `StoryboardPlannerTest` passes 27/27 with zero failures/errors/skips. This closes only the local identifier boundary; canonical scene/timeline mapping, reviewer authority, source rights, renderer qualification, and runtime admission remain open.
+
 **`media.dev.animation-2d-renderer`** · VERIFIED (14 focused AnimationRendererTest methods pass; prior bounded raster and decoded PNG/GIF evidence retained)
 - **Where:** `libs/java/common/src/main/java/com/ghatana/media/production/AnimationSpecCompiler.java`, `modules/production/animation`
 - **What:** Implement real 2D/vector/procedural frame rendering on current AnimationSpec parser.
