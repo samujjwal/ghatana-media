@@ -245,7 +245,14 @@ public final class CommonVoicePilotQualityEvidence
     private boolean eligible(String requestedProvider, String requestedVersion, String requestedModel) {
         return !revoked && providerId.equals(requestedProvider) && providerVersion.equals(requestedVersion)
                 && modelRevision.equals(requestedModel)
-                && !clock.instant().isAfter(measuredAt.plus(maxEvidenceAge));
+                && isWithinEvidenceAge(clock.instant());
+    }
+
+    private boolean isWithinEvidenceAge(Instant now) {
+        // Compare elapsed time rather than adding the configured age to the
+        // measurement instant: plus() can overflow for a valid large Duration.
+        return !now.isAfter(measuredAt)
+                || Duration.between(measuredAt, now).compareTo(maxEvidenceAge) <= 0;
     }
 
     private boolean hasBothActiveLocales() {

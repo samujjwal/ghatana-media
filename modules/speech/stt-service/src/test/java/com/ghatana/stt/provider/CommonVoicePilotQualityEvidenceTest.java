@@ -13,6 +13,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.HexFormat;
 import java.util.Map;
 
@@ -241,6 +242,20 @@ class CommonVoicePilotQualityEvidenceTest {
                 trustedManifestPins(true),
                 Clock.fixed(MEASURED_AT.plus(MAX_AGE).plusSeconds(1), ZoneOffset.UTC), MAX_AGE);
         assertThat(stale.latest("whisper-provider", "whisper-v1", "whisper-tiny")).isEmpty();
+    }
+
+    @Test
+    void veryLargeEvidenceAgeDoesNotOverflowInstantArithmetic() throws Exception {
+        byte[] snapshot = bytes(validEnvelope());
+        var evidence = CommonVoicePilotQualityEvidence.parse(
+                snapshot,
+                "sha256:" + sha256(snapshot),
+                trustedManifestPins(true),
+                Clock.fixed(MEASURED_AT.plus(1, ChronoUnit.DAYS), ZoneOffset.UTC),
+                Duration.ofSeconds(Long.MAX_VALUE));
+
+        assertThat(evidence.latestAll("whisper-provider", "whisper-v1", "whisper-tiny"))
+                .hasSize(5);
     }
 
     @Test
