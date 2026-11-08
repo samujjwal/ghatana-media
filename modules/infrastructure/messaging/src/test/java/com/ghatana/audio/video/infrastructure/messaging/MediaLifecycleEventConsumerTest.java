@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -304,6 +305,47 @@ class MediaLifecycleEventConsumerTest {
                 .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
                 .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
                 .isEqualTo(MediaLifecycleEventConsumer.Failure.FORBIDDEN);
+    }
+
+    @Test
+    void terminalReadbackRedactionFailuresAreTypedBeforeAuthorizationOrReadback() {
+        var downstreamCalls = new java.util.concurrent.atomic.AtomicInteger();
+        var authorization = new MediaLifecycleEventConsumer.Authorization() {
+            @Override public boolean mayObserve(String principal, String tenant, String eventPrincipal) {
+                downstreamCalls.incrementAndGet();
+                return true;
+            }
+            @Override public boolean mayReadTerminalJob(String principal, String tenant, String jobRef) {
+                downstreamCalls.incrementAndGet();
+                return true;
+            }
+        };
+        var readback = (MediaLifecycleEventConsumer.TerminalJobReadback) (principal, tenant, jobRef) -> {
+            downstreamCalls.incrementAndGet();
+            return Optional.empty();
+        };
+
+        for (var failureCase : List.of(
+                new Object[] {new IllegalArgumentException("invalid internal detail"),
+                        MediaLifecycleEventConsumer.Failure.FORBIDDEN},
+                new Object[] {new IllegalStateException("secret key detail"),
+                        MediaLifecycleEventConsumer.Failure.UNAVAILABLE})) {
+            RuntimeException redactionFailure = (RuntimeException) failureCase[0];
+            MediaLifecycleEventConsumer.Failure expectedFailure =
+                    (MediaLifecycleEventConsumer.Failure) failureCase[1];
+            var consumer = new MediaLifecycleEventConsumer((kind, raw) -> {
+                if (!"aggregate".equals(kind)) throw new AssertionError("unexpected redaction purpose");
+                throw redactionFailure;
+            }, authorization, new MemoryProjection(), readback);
+
+            assertThatThrownBy(() -> consumer.readTerminalJob("consumer-a", "tenant-private", "job-private"))
+                    .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                    .hasMessageNotContaining("detail")
+                    .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                    .isEqualTo(expectedFailure);
+        }
+
+        assertThat(downstreamCalls).hasValue(0);
     }
 
     @Test

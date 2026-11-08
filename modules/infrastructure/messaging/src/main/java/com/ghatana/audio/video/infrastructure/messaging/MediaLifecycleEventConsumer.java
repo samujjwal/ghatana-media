@@ -103,7 +103,15 @@ public final class MediaLifecycleEventConsumer {
         String principal = requiredPrincipal(consumerPrincipal);
         String tenant = required(tenantId, "tenantId");
         String reference = required(jobRef, "jobRef");
-        String redactedReference = redactor.redact("aggregate", reference);
+        final String redactedReference;
+        try {
+            redactedReference = redactor.redact("aggregate", reference);
+        } catch (IllegalArgumentException malformedReference) {
+            throw new LifecycleEventException(Failure.FORBIDDEN, "Terminal job reference is invalid");
+        } catch (RuntimeException redactionUnavailable) {
+            throw new LifecycleEventException(Failure.UNAVAILABLE,
+                    "Terminal job identifier redaction is unavailable");
+        }
         final boolean allowed;
         try {
             allowed = authorization.mayReadTerminalJob(principal, tenant, redactedReference);
