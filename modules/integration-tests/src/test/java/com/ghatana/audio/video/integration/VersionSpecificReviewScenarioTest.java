@@ -32,11 +32,13 @@ class VersionSpecificReviewScenarioTest {
             "artifact-j21", "revision-2");
     private static final ReviewCaseRef CASE = new ReviewCaseRef(REVIEWER.tenantId(), "case-j21-v1",
             V1.reference(), V1, "scope-j21-review");
+    private static final ReviewCaseRef CASE_V2 = new ReviewCaseRef(REVIEWER.tenantId(), "case-j21-v2",
+            V2.reference(), V2, "scope-j21-review");
 
     @Test
     void decisionForPriorSourceRevisionIsStaleAndCannotBeReusedForNewRevision() {
         AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
-        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE));
+        InMemoryReviewStore store = new InMemoryReviewStore(List.of(CASE, CASE_V2));
         VersionedReviewEngine engine = new VersionedReviewEngine(store,
                 (actor, reviewCase, operation, now) -> new AuthorizationDecision(
                         AuthorizationStatus.ALLOW,
@@ -68,6 +70,11 @@ class VersionSpecificReviewScenarioTest {
             assertThat(observation.record().reviewSubjectRef()).isEqualTo(V1);
             assertThat(observation.currentness()).isEqualTo(Currentness.STALE);
         });
+
+        // The historical V1 decision is not an approval and cannot be disclosed as V2 review evidence.
+        ReviewSnapshot newVersion = engine.inspect(REVIEWER, CASE_V2);
+        assertThat(newVersion.currentness()).isEqualTo(Currentness.CURRENT);
+        assertThat(newVersion.records()).isEmpty();
 
         assertThatThrownBy(() -> engine.append(REVIEWER, new AppendRequest(CASE, 1,
                 "fixture-authority-v1", "request-j21-reuse-v1",
