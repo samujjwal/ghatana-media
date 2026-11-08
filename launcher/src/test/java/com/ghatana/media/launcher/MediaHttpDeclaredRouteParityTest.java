@@ -211,6 +211,40 @@ class MediaHttpDeclaredRouteParityTest {
         }
     }
 
+    @Test
+    void malformedEndOfStreamHeaderIsRejectedBeforeFrameAcceptance() throws Exception {
+        var root = Files.createTempDirectory("media-http-frame-end-header-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                java.util.List.of(new InertProvider(new AtomicInteger())),
+                java.util.List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            String openBody = "{\"tenantId\":\"" + TENANT + "\",\"principalId\":\"" + PRINCIPAL
+                    + "\",\"correlationId\":\"invalid-end-header\",\"streamKind\":\"AUDIO\","
+                    + "\"maximumBufferedBytes\":64,\"leaseDuration\":\"PT1M\",\"metadata\":{}}";
+            ExchangeResult opened = request(handler, "POST", "/api/v1/streams", true, null, openBody, Map.of());
+            assertThat(opened.status()).isEqualTo(201);
+            var registration = new tools.jackson.databind.ObjectMapper().readTree(opened.body());
+            String sessionId = registration.path("session").path("sessionId").asText();
+            String connectionToken = registration.path("connectionToken").asText();
+
+            ExchangeResult rejected = request(handler, "POST",
+                    "/api/v1/streams/" + sessionId + "/frames/0", true, null, "frame-bytes",
+                    Map.of("X-Stream-Token", connectionToken, "X-End-Of-Stream", "sometimes"));
+
+            assertThat(rejected.status()).isEqualTo(400);
+            assertThat(rejected.body()).contains("INVALID_REQUEST");
+            assertThat(runtime.stream(TENANT, PRINCIPAL, sessionId).orElseThrow().lastSequence()).isEqualTo(-1);
+        } finally {
+            runtime.close();
+        }
+    }
+
     private static ExchangeResult request(
             HttpHandler handler, String method, String path, boolean authenticated) throws Exception {
         return request(handler, method, path, authenticated, null);

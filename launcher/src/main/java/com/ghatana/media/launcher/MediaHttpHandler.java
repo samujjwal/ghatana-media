@@ -423,7 +423,7 @@ public final class MediaHttpHandler implements HttpHandler {
         if (runtime.stream(tenantId, principalId, sessionId).isEmpty()) {
             error(exchange, 404, "STREAM_NOT_FOUND", "Media stream not found"); return;
         }
-        boolean end = Boolean.parseBoolean(optionalHeader(exchange, "X-End-Of-Stream", "false"));
+        boolean end = booleanHeader(exchange, "X-End-Of-Stream", false);
         byte[] payload = boundedBody(exchange, runtime.config().maximumChunkBytes(), end);
         var acknowledgement = runtime.acceptFrame(new StreamFrame(
                 tenantId, sessionId, requiredHeader(exchange, "X-Stream-Token"),
@@ -699,6 +699,15 @@ public final class MediaHttpHandler implements HttpHandler {
     private static String optionalHeader(HttpExchange exchange, String name, String fallback) {
         String value = exchange.getRequestHeaders().getFirst(name);
         return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private static boolean booleanHeader(HttpExchange exchange, String name, boolean fallback) {
+        String value = exchange.getRequestHeaders().getFirst(name);
+        if (value == null) return fallback;
+        String normalized = value.trim();
+        if ("true".equalsIgnoreCase(normalized)) return true;
+        if ("false".equalsIgnoreCase(normalized)) return false;
+        throw new IllegalArgumentException(name + " must be true or false");
     }
 
     private void methodNotAllowed(HttpExchange exchange, String allow) throws IOException {
