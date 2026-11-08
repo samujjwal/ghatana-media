@@ -366,9 +366,11 @@ public final class MultitrackRenderPlanner {
         int transitions = 0;
         String previousClipId = null;
         boolean pastClipRows = false;
+        int recordStage = 0;
         for (int i = 3; i < lines.length - 1; i++) {
             String line = lines[i];
             if (line.startsWith("clip=")) {
+                if (recordStage > 0) throw invalid("canonical manifest clip rows must precede all other records");
                 if (pastClipRows) throw invalid("canonical manifest clip rows must precede all other records");
                 if (++clips > MAX_CLIPS) throw invalid("canonical manifest clip count exceeds limit");
                 String[] fields = line.substring("clip=".length()).split("\\|", -1);
@@ -379,12 +381,17 @@ public final class MultitrackRenderPlanner {
                 }
                 previousClipId = clipId;
             } else if (line.startsWith("frame=")) {
+                if (recordStage > 1) throw invalid("canonical manifest record groups are out of order");
+                recordStage = 1;
                 pastClipRows = true;
                 if (++frames > MAX_FRAMES_PER_PLAN) throw invalid("canonical manifest frame count exceeds limit");
             } else if (line.startsWith("caption=")) {
+                if (recordStage > 2) throw invalid("canonical manifest record groups are out of order");
+                recordStage = 2;
                 pastClipRows = true;
                 if (++captions > MAX_CAPTIONS) throw invalid("canonical manifest caption count exceeds limit");
             } else if (line.startsWith("transition=")) {
+                recordStage = 3;
                 pastClipRows = true;
                 if (++transitions > MAX_TRANSITIONS) throw invalid("canonical manifest transition count exceeds limit");
             } else {

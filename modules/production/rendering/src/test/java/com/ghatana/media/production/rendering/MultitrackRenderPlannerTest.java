@@ -572,6 +572,26 @@ class MultitrackRenderPlannerTest {
     }
 
     @Test
+    void publicPlanRejectsManifestRecordGroupsOutOfCanonicalOrderEvenWhenRehashed() throws Exception {
+        var zero = new MultitrackRenderPlanner.Time(0, 1);
+        var one = new MultitrackRenderPlanner.Time(1, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("v", zero, List.of(zero), one)),
+                List.of(new MultitrackRenderPlanner.Caption("cap", zero, one, "text")), List.of(), 1_000)).plan();
+        String frame = "frame=v|0|0/1|0/1\n";
+        String caption = valid.canonicalManifest().substring(valid.canonicalManifest().indexOf("caption="));
+        String reordered = valid.canonicalManifest().replace(frame + caption, caption + frame);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(reordered.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(reordered).isNotEqualTo(valid.canonicalManifest());
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), reordered, digest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("record groups are out of order");
+    }
+
+    @Test
     void publicPlanRejectsForgedClipSourceMetadataEvenWhenManifestDigestMatches() throws Exception {
         var start = new MultitrackRenderPlanner.Time(0, 1);
         var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
