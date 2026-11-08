@@ -261,6 +261,38 @@ test("manifest rejects duplicate caption cue IDs within a scene before playback"
   assert.equal(state.playing, false);
 });
 
+test("manifest rejects a keyboard branch in a scene unreachable from the initial scene", () => {
+  const disconnected = {
+    ...manifest,
+    scenes: [
+      ...manifest.scenes,
+      {
+        id: "island",
+        label: "Unreachable scene",
+        startMs: 2_000,
+        endMs: 3_000,
+        asset: { url: "/island.mp4", version: "v1", sourceRevision: "s1" },
+        captions: { language: "en", assetVersion: "v1", cues: [] },
+        branches: [{ id: "hidden-choice", label: "Hidden choice", targetSceneId: "next" }],
+      },
+    ],
+  };
+  const state = createDemoPlayerState(disconnected, {
+    attest: () => ({
+      manifestId: disconnected.id,
+      revision: disconnected.revision,
+      sha256: disconnected.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: disconnected.sourceTruth,
+      originPermissions: disconnected.originPermissions,
+    }),
+  });
+
+  assert.equal(state.status, "UNAVAILABLE");
+  assert.equal(state.failure, "INVALID_BUNDLE");
+  assert.deepEqual(state.route, []);
+});
+
 test("manifest rejects ambiguous or sparse origin permission entries", () => {
   const malformedPermissions = [
     [
@@ -322,7 +354,13 @@ test("branch-path replay enforces the route bound before copying caller input", 
   const loopManifest = {
     ...manifest,
     scenes: manifest.scenes.map((scene) => scene.id === "intro"
-      ? { ...scene, branches: [{ id: "loop", label: "Repeat", targetSceneId: "intro" }] }
+      ? {
+          ...scene,
+          branches: [
+            { id: "loop", label: "Repeat", targetSceneId: "intro" },
+            { id: "next", label: "Continue", targetSceneId: "next" },
+          ],
+        }
       : scene),
   };
   const loopVerifier = {

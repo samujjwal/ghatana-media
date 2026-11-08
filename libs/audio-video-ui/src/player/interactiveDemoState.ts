@@ -327,6 +327,7 @@ function validateManifest(
 
   const sceneIds = new Set(manifest.scenes.map((scene) => scene.id));
   if (sceneIds.size !== manifest.scenes.length || !sceneIds.has(manifest.initialSceneId)) return "INVALID_BUNDLE";
+  const scenesById = new Map(manifest.scenes.map((scene) => [scene.id, scene]));
 
   for (const scene of manifest.scenes) {
     if (
@@ -385,6 +386,23 @@ function validateManifest(
       branchIds.add(branch.id);
     }
   }
+
+  // A syntactically valid branch is not useful if no local choice from the
+  // initial scene can ever reach it. Keep the authored keyboard graph rooted
+  // at the entry scene so disconnected branches cannot be presented as usable.
+  const reachableSceneIds = new Set<string>([manifest.initialSceneId]);
+  const pendingSceneIds = [manifest.initialSceneId];
+  while (pendingSceneIds.length > 0) {
+    const sceneId = pendingSceneIds.pop()!;
+    const scene = scenesById.get(sceneId)!;
+    for (const branch of scene.branches) {
+      if (!reachableSceneIds.has(branch.targetSceneId)) {
+        reachableSceneIds.add(branch.targetSceneId);
+        pendingSceneIds.push(branch.targetSceneId);
+      }
+    }
+  }
+  if (reachableSceneIds.size !== sceneIds.size) return "INVALID_BUNDLE";
   return undefined;
 }
 
