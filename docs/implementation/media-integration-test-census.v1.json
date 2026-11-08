@@ -1076,6 +1076,24 @@
       "evidenceLimit": "J-30 unavailable/not-admitted boundary selector only. The source requires missing, stale, or unavailable readiness evidence to remain UNKNOWN, and this test covers one local modality boundary only; it does not establish a composite eligibility catalog, provider/model/host qualification, rights, or journey completion."
     },
     {
+      "id": "journey-outcome-j30-inventory-not-admission",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:speech:tts-service:test",
+      "selectors": [
+        "com.ghatana.tts.grpc.J30ProviderCatalogUnavailableTest.visibleVoiceInventoryDoesNotAdmitSynthesis"
+      ],
+      "sources": [
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+        "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/J30ProviderCatalogUnavailableTest.java"
+      ],
+      "resources": ["JUnit Jupiter", "in-process TTS gRPC service", "test-owned voice inventory fixture"],
+      "prerequisites": ["JDK/Gradle runtime; no Docker or external service is required"],
+      "assets": "Synthetic informational voice metadata only; no model or generated speech.",
+      "safety": "An informational catalog entry is explicitly not qualification evidence; synthesis returns NOT_ADMITTED before load or provider effect.",
+      "evidenceLimit": "J-30 TTS inventory-versus-admission negative slice only; it does not provide the bounded composite eligibility observation, owner evidence, licensed/qualified output, or journey completion."
+    },
+    {
       "id": "journey-outcome-j23-browser-offline-reconnect-fixture",
       "tier": "LOCAL_FIXTURE",
       "commandKind": "PNPM",

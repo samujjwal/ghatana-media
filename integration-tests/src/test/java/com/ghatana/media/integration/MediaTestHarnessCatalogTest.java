@@ -75,6 +75,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j27-process-restart-unknown",
                         "journey-outcome-j29-runtime-unknown-prefix",
                         "journey-outcome-j30-unavailable-readiness",
+                        "journey-outcome-j30-inventory-not-admission",
                         "journey-outcome-j23-browser-offline-reconnect-fixture",
                         "journey-outcome-j23-wrong-project-readback-negative",
                         "journey-outcome-j24-cli-unregistered-command-negative-fixture");
