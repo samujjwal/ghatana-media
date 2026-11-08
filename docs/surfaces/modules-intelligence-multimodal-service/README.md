@@ -66,6 +66,13 @@ admission/restart selectors pass. This is local provider/fixture evidence;
 it does not qualify real licensed STT/Vision providers, source/rights
 grounding, or external runtime behavior. Those remain open.
 
+Launcher restart reconstruction also deep-copies bounded child result JSON
+before building parent observations. A regression mutates nested metadata and
+timed observations after fusion and confirms the reconstructed snapshot remains
+unchanged and immutable. This protects the local readback snapshot only; it
+does not establish PostgreSQL crash recovery, licensed child outputs, or
+source/rights grounding.
+
 ## Tests and commands
 
 ```bash

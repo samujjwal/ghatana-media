@@ -38,6 +38,10 @@ provider; no live provider or model-quality qualification is claimed.
   and Hindi deferred/nonblocking; real inference `NOT_ADMITTED`).
 - Engine/provider absence is an explicit typed rejection, never a
   fabricated transcript.
+- PostgreSQL caption-registration replay reconstructs the stored request,
+  including optional-field presence and segments, and checks it against the
+  persisted fingerprint before returning a receipt. Corrupt readback maps to
+  `UNKNOWN_OUTCOME`; this is storage integrity evidence, not provider admission.
 
 ## Dependencies and configuration
 

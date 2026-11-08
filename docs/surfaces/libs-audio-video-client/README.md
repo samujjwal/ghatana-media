@@ -27,8 +27,12 @@ the capture adapter SPI. Package: `@audio-video/client`
 - Queue offline project edits only when a host supplies a non-extractable key,
   ciphertext-only atomic store, fresh authorization callback, and exact-version
   replay port; reconnect also needs a host-supplied canonical project version
-  read and CAS apply operation. The SDK does not provide a production key
-  store, project edit route, or delivery writer.
+  read and CAS apply operation. Dirty drafts return `REVIEW_REQUIRED` by
+  default. The host presents `readEdits()` separately from the current remote
+  revision and passes that exact queue snapshot back for replay; a queue change
+  during review requires another review. This is a review boundary, not owner
+  authorization. The SDK does not provide a production key store, project edit
+  route, or delivery writer.
 - Plan unattended recordings deterministically (`orchestrateScenario`,
   `compileProductionPlan`) and execute bounded recapture only through the
   trusted capture eligibility seam (`recaptureScenario`).
@@ -119,6 +123,10 @@ device qualification or integration with canonical stream sessions or writers.
   observations before later awaited admission checks, so adapter-retained
   objects cannot rewrite validated scope or chunk progress. This does not
   qualify a muxer/decoder or establish playable output.
+- `publishFinalRender` snapshots each adapter ACK once and validates/reuses
+  that detached snapshot for completion. A getter cannot return one tenant for
+  validation and another during publication; snapshot failure after dispatch
+  remains `OUTCOME_UNKNOWN`.
 - Offline edits persist AES-GCM ciphertext only; the key is host supplied and
   non-extractable. Reconnect returns `UNAVAILABLE` until the host supplies
   canonical project version-read and CAS apply operations. With those ports,
@@ -152,7 +160,12 @@ device qualification or integration with canonical stream sessions or writers.
   endpoints require HTTPS (plain HTTP only for loopback); redirects rejected
   so credentials are not forwarded. The production CLI currently registers
   only `artifact inspect`; other command identities fail before network
-  dispatch. The fixture CLI remains a separate simulation surface.
+  dispatch. Original endpoint paths reject literal and percent-encoded dot
+  segments before URL normalization. The fixture CLI remains a separate
+  simulation surface.
+- Document Intelligence scene-text consumption bounds a page to 5,000 blocks,
+  2,000 lines per block, and 5,000 total observations before materializing
+  Media observations. It consumes DI v1; it does not provide an OCR engine.
 
 ## Errors
 

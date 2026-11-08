@@ -28,6 +28,10 @@ Multimodal and authorized gRPC clients.
   remain unverified.
 - Generic OCR belongs to Document Intelligence — no Media-owned OCR
   engine exists here.
+- The TypeScript DI scene-text consumer rejects pages above the existing v1
+  block/line limits or 5,000-observation Media ceiling before materializing
+  observations. Installed DI client identity, durable status, trusted video
+  frame/PTS binding, and provider rights remain unresolved.
 
 ## Public operations
 

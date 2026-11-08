@@ -80,6 +80,10 @@ and stable terminal reads — **no second writer**.
 (`NOT_ADMITTED`-class), never silent fallbacks.
 Inbound JSON uses strict duplicate-member detection, so ambiguous fields such
 as repeated tenant identity are rejected before upload persistence.
+Dynamic HTTP path identifiers also reject malformed percent-encoded UTF-8
+before resource lookup, so replacement decoding cannot alias a job identity.
+Provider-profile poll failures use poll-start time when invalidating metrics;
+an older slow failure preserves a newer published observation.
 
 ## Tests and commands
 

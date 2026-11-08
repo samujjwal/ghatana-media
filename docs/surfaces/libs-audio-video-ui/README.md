@@ -18,7 +18,9 @@ product host.
 - **Interactive player** (`src/player/`): `InteractiveDemoPlayer` renders
   host-attested authored media with deterministic branch/replay/seek/caption
   state. Playback uses nonnegative safe-integer millisecond positions and
-  does not dispatch product mutations.
+  does not dispatch product mutations. At the authored scene end, Play is
+  disabled and reducer play is a no-op until the viewer chooses a branch or
+  replays the scene.
 - **Ports** (`src/ports/`): typed host ports — the library binds to a
   host-provided adapter; it does not own runtime state, identity,
   uploads or provider calls itself.

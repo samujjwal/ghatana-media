@@ -54,6 +54,9 @@ and independently verified effects.
 - Terminal readback errors remain `UNAVAILABLE`, never confirmed completion.
   Event append, broker publication, consumer application, terminal job state,
   and provider effect receipts remain separate facts.
+- Terminal readback tenant and job references are exact opaque identities;
+  ASCII or Unicode boundary whitespace is rejected as `FORBIDDEN` before
+  authorization or readback, with no trim-based aliasing.
 - The public typed v1 consumer is not wired into the legacy map-payload
   outbox rows or an admitted broker subscription yet. Existing outbox relay
   acceptance records broker publication only. Consumer retries, durable

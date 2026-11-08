@@ -4,6 +4,15 @@ Creative production channel. Physical owner: `libs/audio-video-ui`
 (studio-facing components/ports); dedicated execution engines remain
 plan work.
 
+`StoryboardPlanner` produces deterministic bounded local draft candidates with
+exact source-version references and fresh rights checks. Canonical scene-plan /
+scene-graph / timeline mapping and durable review authority remain unresolved.
+Plan-wide source references use the declared 16,384 aggregate ceiling while
+individual authored collections retain their 4,096 ceiling. The reference-
+guided planner also rejects conflicting digests for one immutable source
+version across roles before rights checks. Model generation and J-10 result
+binding remain unresolved.
+
 ## Supported operations (plan target)
 
 Project/timeline/asset/track/audio/video/annotation interfaces over one

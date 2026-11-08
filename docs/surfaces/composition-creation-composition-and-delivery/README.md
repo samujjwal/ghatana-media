@@ -31,7 +31,11 @@ media, reviewed approvals, versioned exports with destination ACKs.
   J-13 scenario slice verifies that source-bound pose output matches the
   encoded node hierarchy and translation/quaternion accessors, with exact
   source/revision/frame metadata and digest. This does not establish viewer
-  fidelity, canonical job persistence, restart, or delivery.
+  fidelity, canonical job persistence, restart, or delivery. Public artifact
+  construction also checks the returned identity against the GLB's embedded
+  rig, revision, frame, and source-version manifest; this is local consistency,
+  not output registration or external lineage. The parser rejects duplicate
+  JSON keys so the validated lineage has one unambiguous value per field.
 - Versioned export/delivery: artifact store + job finality via
   `providers/aws-postgresql`.
 - Delivery operation scope preserves the exact tenant, principal, request,

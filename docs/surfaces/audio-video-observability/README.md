@@ -46,6 +46,10 @@ Media business RPC, provider, job store or generic telemetry engine.
   vocabularies and never carry secrets or raw provider diagnostics.
 - Absent series stay unknown/NaN — never fabricated zeroes; stale
   measurements and hostile labels are rejected.
+- An inconclusive provider poll carries its start timestamp. A slow failure
+  cannot clear a newer health or quality snapshot published while it was
+  waiting; equal-time outcomes stay conservative because their order is
+  ambiguous.
 - `ProviderProfileObservation` rejects recognizable credential-shaped
   identities, including GitHub PAT and app-token prefixes, before the value
   can enter registry tags. This is label redaction at the metrics boundary;
@@ -82,6 +86,11 @@ scope cleanup, hostile labels, privacy markers, stale measurements,
 alert rules, and the c1/16/64 resource-profile harness (local-test
 workload, `NOT_ADMITTED`, not an SLO result). Deployed alert delivery and
 real modality baselines are not proven by fixtures.
+
+The resource-profile harness validates report bounds and latency percentile
+ordering at construction, including explicit unavailable percentiles for a
+zero-sample run. These checks protect fixture reports; they do not establish
+provider capacity or quality.
 
 `MediaWorkflowMetricsTest.prometheusScrapePreservesUnknownQualityAsNanWithoutIdentityLabels`
 checks the actual Prometheus exposition format: readiness may be measured

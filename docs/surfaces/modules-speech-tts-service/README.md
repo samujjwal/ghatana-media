@@ -41,6 +41,10 @@ intelligibility, codec/container support or speech quality.
 
 - No synthesized audio is produced on any current path; unsupported
   encodings and unqualified voices reject before engine access.
+- Runtime `TtsConfig` uses the exact default voice captured in the candidate
+  evaluated by provider admission; it does not reread a mutable environment
+  value after admission. This binds configuration identity and does not prove
+  voice rights or qualify a model.
 - `UNIMPLEMENTED` is an honest gRPC status — never a placeholder success.
 
 ## Dependencies and configuration
