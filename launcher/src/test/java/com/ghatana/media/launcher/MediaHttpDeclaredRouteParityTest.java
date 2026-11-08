@@ -80,6 +80,11 @@ class MediaHttpDeclaredRouteParityTest {
 
             assertThat(result.status()).isEqualTo(400);
             assertThat(result.body()).contains("INVALID_REQUEST").doesNotContain("UPLOAD_NOT_FOUND");
+
+            ExchangeResult outOfRange = request(new MediaHttpHandler(runtime), "PUT",
+                    "/api/v1/artifacts/uploads/missing/chunks/2147483648", true);
+            assertThat(outOfRange.status()).isEqualTo(400);
+            assertThat(outOfRange.body()).contains("INVALID_REQUEST").doesNotContain("INTERNAL_ERROR");
         } finally {
             runtime.close();
         }
@@ -103,6 +108,11 @@ class MediaHttpDeclaredRouteParityTest {
             assertThat(result.status()).isEqualTo(400);
             assertThat(result.body()).contains("INVALID_REQUEST")
                     .doesNotContain("NOT_FOUND", "STREAM_NOT_FOUND");
+
+            ExchangeResult outOfRange = request(new MediaHttpHandler(runtime), "POST",
+                    "/api/v1/streams/missing/frames/9223372036854775808", true);
+            assertThat(outOfRange.status()).isEqualTo(400);
+            assertThat(outOfRange.body()).contains("INVALID_REQUEST").doesNotContain("INTERNAL_ERROR");
         } finally {
             runtime.close();
         }

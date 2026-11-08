@@ -139,7 +139,12 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher chunk = CHUNK_PATH.matcher(path);
             if (chunk.matches()) {
                 if (!"PUT".equals(method)) { methodNotAllowed(exchange, "PUT"); return; }
-                int index = Integer.parseInt(chunk.group(2));
+                int index;
+                try {
+                    index = Integer.parseInt(chunk.group(2));
+                } catch (NumberFormatException failure) {
+                    throw new IllegalArgumentException("chunkIndex must be an integer", failure);
+                }
                 if (index < 0) throw new IllegalArgumentException("chunkIndex must not be negative");
                 appendChunk(exchange, tenantId, principalId, decodePathSegment(chunk.group(1)), index); return;
             }
@@ -186,7 +191,12 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher frame = STREAM_FRAME_PATH.matcher(path);
             if (frame.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                long sequence = Long.parseLong(frame.group(2));
+                long sequence;
+                try {
+                    sequence = Long.parseLong(frame.group(2));
+                } catch (NumberFormatException failure) {
+                    throw new IllegalArgumentException("sequence must be an integer", failure);
+                }
                 if (sequence < 0) throw new IllegalArgumentException("sequence must not be negative");
                 frame(exchange, tenantId, principalId, decodePathSegment(frame.group(1)), sequence); return;
             }
