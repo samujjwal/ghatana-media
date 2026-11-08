@@ -120,20 +120,21 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
     && request?.title === project.projectNameDraft
     && Boolean(subjectRefs?.length && subjectRefs.every((ref) => ref.trim().length > 0));
   const flowActions = actions.filter((action) => action.id !== "media.action.create-project");
+  const mayShowProjectData = project.accessState === "resolved";
   return <MediaTaskScreen {...flow} actions={flowActions} actionPort={actionPort}>
     <section className="media-screen-body" aria-labelledby="first-use-project-title">
       <header>
         <h3 id="first-use-project-title">{heading}</h3>
-        {project.workspaceName && <p>Workspace: {project.workspaceName}</p>}
+        {mayShowProjectData && project.workspaceName && <p>Workspace: {project.workspaceName}</p>}
       </header>
       {project.accessState === "loading" && <p role="status">Checking your current access…</p>}
       {project.accessState === "denied" && <p role="status">Workspace access is unavailable. Project data is hidden until access is granted.</p>}
       {project.accessState === "unknown" && <p role="status">Workspace access could not be confirmed. Try checking access again.</p>}
       {project.message && <p role="status">{project.message}</p>}
       {project.returnDestination && <p>Return destination: {project.returnDestination}</p>}
-      {project.projectName && <p>Project: <strong>{project.projectName}</strong></p>}
+      {mayShowProjectData && project.projectName && <p>Project: <strong>{project.projectName}</strong></p>}
       {(project.view === "resume-work" || project.view === "find-projects") && <>
-        {project.projects?.length ? <ul aria-label="Authorized projects">
+        {mayShowProjectData && project.projects?.length ? <ul aria-label="Authorized projects">
           {project.projects.map((item) => <li key={item.id}>
             <p>{item.name}</p>
             <p>Project ID: {item.id}{item.updatedAt ? ` · Updated ${item.updatedAt}` : ""}</p>
