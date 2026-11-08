@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.sql.DriverManager;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
@@ -228,6 +229,11 @@ class MediaLauncherArtifactIntakeRestartIT {
             assertThat(durableArtifact.path("sizeBytes").asLong()).isEqualTo(completeBytes.length);
             objectReference = durableArtifact.path("objectReference").asString();
 
+            long artifactsBeforeCorruptUpload = countRows(
+                    "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", TENANT);
+            long jobsBeforeCorruptUpload = countRows(
+                    "SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", TENANT);
+
             // This upload uses deterministic synthetic bytes only; it is not source-rights acceptance evidence.
             String objectKey = URI.create(objectReference).getPath().substring(1);
             try (S3Client s3 = s3()) {
@@ -278,6 +284,12 @@ class MediaLauncherArtifactIntakeRestartIT {
                     "/api/v1/artifacts/uploads/" + rejectedUploadId + "/complete", "", "application/json", null);
             assertThat(rejectedCompletion.statusCode()).as(rejectedCompletion.body()).isEqualTo(409);
             assertThat(rejectedCompletion.body()).contains("MEDIA_STATE_CONFLICT");
+            assertThat(countRows("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", TENANT))
+                    .as("checksum-rejected upload must not create an artifact row")
+                    .isEqualTo(artifactsBeforeCorruptUpload);
+            assertThat(countRows("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", TENANT))
+                    .as("checksum-rejected upload must not create a processing job")
+                    .isEqualTo(jobsBeforeCorruptUpload);
 
             // A checksum-rejected upload remains terminal across process recreation:
             // the same identity cannot accept more parts or be finalized into a receipt.
@@ -293,6 +305,12 @@ class MediaLauncherArtifactIntakeRestartIT {
                     "/api/v1/artifacts/uploads/" + rejectedUploadId + "/complete", "", "application/json", null);
             assertThat(rejectedCompletionReplay.statusCode()).as(rejectedCompletionReplay.body()).isEqualTo(409);
             assertThat(rejectedCompletionReplay.body()).contains("MEDIA_STATE_CONFLICT");
+            assertThat(countRows("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", TENANT))
+                    .as("terminal corrupt-upload replay must remain artifact-free after process restart")
+                    .isEqualTo(artifactsBeforeCorruptUpload);
+            assertThat(countRows("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", TENANT))
+                    .as("terminal corrupt-upload replay must remain job-free after process restart")
+                    .isEqualTo(jobsBeforeCorruptUpload);
 
             String absentArtifactId = UUID.randomUUID().toString();
             HttpResponse<String> absentArtifact = send(port, TENANT, token, "GET",
@@ -477,5 +495,17 @@ class MediaLauncherArtifactIntakeRestartIT {
 
     private static String sha256(byte[] bytes) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+    }
+
+    private static long countRows(String sql, String tenant) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                        POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                var statement = connection.prepareStatement(sql)) {
+            statement.setString(1, tenant);
+            try (var result = statement.executeQuery()) {
+                if (!result.next()) throw new AssertionError("Count query returned no row");
+                return result.getLong(1);
+            }
+        }
     }
 }
