@@ -541,7 +541,7 @@ class MultitrackRenderPlannerTest {
         var valid = MultitrackRenderPlanner.plan(graph).plan();
         String ghostClip = "clip=ghost|VIDEO|artifact-ghost|v1|" + SHA + "|0/1|0/1|10/1\n";
         String forgedManifest = valid.canonicalManifest().replace(
-                "frame=v|0|0/1|0/1\n", ghostClip + "frame=v|0|0/1|0/1\n");
+                "output-budget-bytes=1000\n", "output-budget-bytes=1000\n" + ghostClip);
         String forgedDigest = HexFormat.of().formatHex(
                 MessageDigest.getInstance("SHA-256").digest(forgedManifest.getBytes(StandardCharsets.UTF_8)));
 
@@ -549,6 +549,26 @@ class MultitrackRenderPlannerTest {
                 valid.capabilityId(), forgedManifest, forgedDigest, valid.duration(), valid.frameMap(),
                 valid.declaredOutputBudgetBytes()))
                 .withMessageContaining("clip ids must have exact frame-map coverage");
+    }
+
+    @Test
+    void publicPlanRejectsReorderedClipRowsEvenWhenManifestDigestMatches() throws Exception {
+        var zero = new MultitrackRenderPlanner.Time(0, 1);
+        var one = new MultitrackRenderPlanner.Time(1, 1);
+        var valid = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                List.of(video("a", zero, List.of(zero), one), video("b", one, List.of(zero), one)),
+                List.of(), List.of(), 1_000)).plan();
+        String first = "clip=a|VIDEO|artifact-a|v1|" + SHA + "|0/1|0/1|1/1\n";
+        String second = "clip=b|VIDEO|artifact-b|v1|" + SHA + "|1/1|0/1|1/1\n";
+        String reordered = valid.canonicalManifest().replace(first + second, second + first);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(reordered.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(reordered).isNotEqualTo(valid.canonicalManifest());
+        assertThatIllegalArgumentException().isThrownBy(() -> new MultitrackRenderPlanner.Plan(
+                valid.capabilityId(), reordered, digest, valid.duration(), valid.frameMap(),
+                valid.declaredOutputBudgetBytes()))
+                .withMessageContaining("clip rows must be sorted by clip id");
     }
 
     @Test
