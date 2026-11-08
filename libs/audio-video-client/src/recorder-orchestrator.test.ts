@@ -794,6 +794,21 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("snapshots caller-owned rational components once before validation and normalization", async () => {
+    let numeratorReads = 0;
+    let denominatorReads = 0;
+    const changingFrameRate = {
+      get numerator() { numeratorReads += 1; return 60; },
+      get denominator() { denominatorReads += 1; return denominatorReads === 1 ? 2 : 0; },
+    };
+    const client = fakeClient();
+
+    await expect(publishFinalRender({ ...request(), frameRate: changingFrameRate }, admitted, muxer, client))
+      .resolves.toMatchObject({ outcome: "PUBLISHED" });
+    expect(numeratorReads).toBe(1);
+    expect(denominatorReads).toBe(1);
+  });
+
   it("rejects caption timing refs that are not declared by the scenario plan before any effect", async () => {
     const client = fakeClient();
     const admission = { admit: vi.fn(async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] })) };

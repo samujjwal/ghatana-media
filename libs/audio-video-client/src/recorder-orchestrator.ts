@@ -650,12 +650,23 @@ function sameRenderJson(actual: unknown, expected: unknown): boolean {
 }
 
 function normalizeRenderRational(value: RenderRational, field: string): RenderRational {
-  if (!value || !Number.isSafeInteger(value.numerator) || value.numerator < 1
-    || !Number.isSafeInteger(value.denominator) || value.denominator < 1) {
+  if (!value || typeof value !== "object") {
     throw new ScenarioError("INVALID_SCENARIO", `${field} must be a positive rational`);
   }
-  let numerator = value.numerator;
-  let denominator = value.denominator;
+  let numerator: number;
+  let denominator: number;
+  try {
+    // Request values can be caller-owned accessors/proxies. Snapshot each
+    // component exactly once so validation and normalization share one value.
+    numerator = value.numerator;
+    denominator = value.denominator;
+  } catch {
+    throw new ScenarioError("INVALID_SCENARIO", `${field} must be a positive rational`);
+  }
+  if (!Number.isSafeInteger(numerator) || numerator < 1
+    || !Number.isSafeInteger(denominator) || denominator < 1) {
+    throw new ScenarioError("INVALID_SCENARIO", `${field} must be a positive rational`);
+  }
   let a = numerator;
   let b = denominator;
   while (b !== 0) {
