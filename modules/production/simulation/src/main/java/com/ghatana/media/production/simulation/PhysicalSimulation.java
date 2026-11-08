@@ -62,6 +62,9 @@ public final class PhysicalSimulation {
             }
             double converted = value * unit.toSi;
             requireFinite(converted, label + " in SI");
+            if (value != 0.0 && converted == 0.0) {
+                throw new InvalidSimulationInputException(label + " underflowed during SI conversion");
+            }
             return converted;
         }
     }
