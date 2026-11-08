@@ -23,7 +23,9 @@ in `modules/production/audio-mixing`.
 ## Public operations
 
 - `PcmStemMixer.mix(stems, spec, clock)` returns PCM/WAV bytes, SHA-256 digests,
-  applied master gain, estimated/sample peak and unweighted RMS dBFS.
+  applied master gain, estimated/sample peak, unweighted RMS dBFS, and
+  `inputStems()` with the ordered exact version reference, asset/synthetic
+  provenance, gain, and pan for each validated input.
 - `AudioRepairComparison.compare(source, repaired[, reference])` returns
   defensive-copy source/repaired values, digests, metrics and `undo()` for the
   source value. Inputs must be same-shape, bounded PCM.
@@ -35,6 +37,9 @@ in `modules/production/audio-mixing`.
 - Mixer input is limited to 16 stems, 1,000,000 frames, and 16 MiB aggregate
   PCM; each stem must exactly match requested sample rate, stereo S16 layout,
   and frame count. No implicit trim, pad, or resample occurs.
+- The result's stem-lineage list is immutable and preserves the validated mix
+  order. This is local render provenance; it does not establish external rights
+  or create a durable project/master revision.
 - Supported mixer rates are 8–192 kHz, gain is finite and bounded, pan is in
   [-1, 1], and ceiling is in (0, 0.98]. Returned byte arrays and input stems
   are defensively copied.
