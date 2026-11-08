@@ -219,7 +219,11 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher captionVersion = CAPTION_VERSION_PATH.matcher(path);
             if (captionVersion.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                readCaptionVersion(exchange, tenantId, principalId, decodePathSegment(captionVersion.group(1)));
+                String captionVersionId = decodePathSegment(captionVersion.group(1));
+                if (captionVersionId.isBlank() || captionVersionId.codePointCount(0, captionVersionId.length()) > 255) {
+                    throw new IllegalArgumentException("captionVersionId must contain between 1 and 255 characters");
+                }
+                readCaptionVersion(exchange, tenantId, principalId, captionVersionId);
                 return;
             }
             if ("/api/v1/providers".equals(path)) {

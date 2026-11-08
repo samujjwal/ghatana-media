@@ -159,6 +159,47 @@ class MediaHttpCaptionVersionReadTest {
         }
     }
 
+    @Test
+    void captionVersionPathIdentityMatchesOpenApiMaximumBeforeStoreLookup() throws Exception {
+        var root = Files.createTempDirectory("media-caption-version-path-bound-");
+        MediaRuntime runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "test", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaCaptionStore captionStore = mock(MediaCaptionStore.class);
+        when(captionStore.ready()).thenReturn(true);
+        when(captionStore.version(anyString(), anyString(), anyString())).thenReturn(java.util.Optional.empty());
+        MediaSourceRightsAdministration rights = mock(MediaSourceRightsAdministration.class);
+        when(rights.ready()).thenReturn(true);
+        MediaCaptionRuntime captions = new MediaCaptionRuntime(captionStore, rights, null, CLOCK);
+
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, null, captions);
+            String maximumId = "v".repeat(255);
+            ExchangeResult maximumLength = request(handler, "/api/v1/caption-versions/" + maximumId);
+            ExchangeResult oversized = request(handler, "/api/v1/caption-versions/" + "v".repeat(256));
+
+            assertThat(maximumLength.status()).as(maximumLength.body()).isEqualTo(404);
+            assertThat(oversized.status()).as(oversized.body()).isEqualTo(400);
+            assertThat(oversized.body()).contains("INVALID_REQUEST");
+            org.mockito.Mockito.verify(captionStore).version("tenant-a", "principal-a", maximumId);
+            org.mockito.Mockito.verify(captionStore, org.mockito.Mockito.never())
+                    .version("tenant-a", "principal-a", "v".repeat(256));
+        } finally {
+            captions.close();
+            runtime.close();
+            try (var paths = Files.walk(root)) {
+                for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
     private static ExchangeResult request(MediaHttpHandler handler, String pathAndQuery) throws IOException {
         HttpExchange exchange = mock(HttpExchange.class);
         Headers requestHeaders = new Headers();
