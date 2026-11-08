@@ -193,6 +193,30 @@ class ValidatedSimulationPassIntegrationTest {
     }
 
     @Test
+    void rejectsRenderedAppearanceAsADeclaredPhysicalModelInput() {
+        var complete = binding();
+        var inputs = new ArrayList<>(complete.inputs());
+        inputs.add(new SimulationSemanticValidator.VersionedInput(
+                SimulationSemanticValidator.InputRole.VISUAL_PRESENTATION,
+                "render.scene-preview", "v1", "e".repeat(64)));
+        var appearanceBound = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), inputs,
+                complete.invariants(), complete.expectedDuration());
+
+        var validation = SimulationSemanticValidator.validate(appearanceBound, deterministicPass(),
+                input -> SimulationSemanticValidator.ReferenceStatus.CURRENT);
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason())
+                    .isEqualTo(SimulationSemanticValidator.Reason.VISUAL_PRESENTATION_IS_NOT_PHYSICAL_MODEL);
+            assertThat(finding.subject()).isEqualTo("render.scene-preview");
+        });
+        assertThat(validation.resultKind())
+                .isEqualTo(SimulationSemanticValidator.ResultKind.DETERMINISTIC_SIMULATION_ONLY);
+        assertThat(validation.evidenceClass()).isEqualTo(SIMULATION_ONLY);
+    }
+
+    @Test
     void abstainsBeforeReferenceChecksWhenNoProtectedSemanticInvariantIsDeclared() {
         var complete = binding();
         var noProtectedProperties = new SimulationSemanticValidator.RunBinding(complete.runIdentity(),
