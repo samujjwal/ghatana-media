@@ -140,6 +140,10 @@ device qualification or integration with canonical stream sessions or writers.
   counts the exact serialized UTF-8 bytes before stringification and rejects
   oversized or unsupported values; it does not coerce arbitrary JavaScript
   values into JSON.
+- Enqueue and conflict resolution snapshot own edit identity/scope fields and
+  serialize the payload before awaiting the store. Replay similarly snapshots
+  the reconnect scope before version preflight, so caller mutation while a
+  store read is pending cannot retarget the encrypted record or version check.
 - Persisted encrypted envelopes are checked before WebCrypto: plaintext length
   metadata must be safe and within the configured cap, AES-GCM nonce length is
   12 bytes, and ciphertext length must equal plaintext length plus the 16-byte

@@ -100,6 +100,94 @@ describe("OfflineEditQueue", () => {
       .rejects.toMatchObject({ code: "QUEUE_FULL" } satisfies Partial<OfflineEditQueueError>);
   });
 
+  it("snapshots exact tenant, project, edit and version identity before an async store read", async () => {
+    let startList!: () => void;
+    let releaseList!: () => void;
+    const listStarted = new Promise<void>((resolve) => { startList = resolve; });
+    const listReleased = new Promise<void>((resolve) => { releaseList = resolve; });
+    class DelayedListStore extends MemoryStore {
+      override async list(query: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
+        startList();
+        await listReleased;
+        return super.list(query);
+      }
+    }
+
+    const store = new DelayedListStore();
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const queue = new OfflineEditQueue({ store, encryptionKey: key });
+    const mutableEdit: {
+      tenantId: string;
+      projectId: string;
+      editId: string;
+      idempotencyKey: string;
+      expectedVersion: string;
+      payload: { operation: string; clipId: string; position: number };
+    } = { ...edit, payload: { ...edit.payload } };
+    const enqueue = queue.enqueue(mutableEdit);
+    await listStarted;
+    mutableEdit.tenantId = "tenant-retargeted";
+    mutableEdit.projectId = "project-retargeted";
+    mutableEdit.editId = "edit-retargeted";
+    mutableEdit.idempotencyKey = "idem-retargeted";
+    mutableEdit.expectedVersion = "v8";
+    mutableEdit.payload.position = 99;
+    releaseList();
+    await enqueue;
+
+    expect([...store.records.values()]).toHaveLength(1);
+    expect([...store.records.values()][0]).toMatchObject({
+      tenantId: scope.tenantId,
+      projectId: scope.projectId,
+      editId: edit.editId,
+      idempotencyKey: edit.idempotencyKey,
+      expectedVersion: edit.expectedVersion,
+    });
+    expect(await queue.readEdits(scope)).toEqual([{ edit, state: "PENDING" }]);
+  });
+
+  it("uses the snapshotted reconnect scope for version preflight", async () => {
+    let blockNextList = false;
+    let startList!: () => void;
+    let releaseList!: () => void;
+    let listStarted = Promise.resolve();
+    let listReleased = Promise.resolve();
+    class DelayedListStore extends MemoryStore {
+      override async list(query: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
+        if (blockNextList) {
+          blockNextList = false;
+          startList();
+          await listReleased;
+        }
+        return super.list(query);
+      }
+    }
+
+    const store = new DelayedListStore();
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const queue = new OfflineEditQueue({ store, encryptionKey: key });
+    await queue.enqueue(edit);
+    const reviewedQueue = await queue.readEdits(scope);
+    const mutableScope = { ...scope };
+    blockNextList = true;
+    listStarted = new Promise<void>((resolve) => { startList = resolve; });
+    listReleased = new Promise<void>((resolve) => { releaseList = resolve; });
+    const replay = queue.replay(mutableScope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async (observedScope) => {
+        expect(observedScope).toEqual(scope);
+        return "v7";
+      },
+      apply: async () => ({ outcome: "APPLIED" as const, receipt: "receipt-1" }),
+    }, reviewedQueue);
+    await listStarted;
+    mutableScope.tenantId = "tenant-retargeted";
+    mutableScope.projectId = "project-retargeted";
+    releaseList();
+
+    await expect(replay).resolves.toMatchObject([{ editId: edit.editId, state: "APPLIED" }]);
+  });
+
   it("rejects a reused edit identity when its payload changes", async () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);

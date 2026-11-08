@@ -196,6 +196,41 @@ function assertScope(scope: OfflineEditScope): void {
   }
 }
 
+/** Snapshot exact storage identity before the first asynchronous boundary. */
+function snapshotScope(scope: OfflineEditScope): OfflineEditScope {
+  const snapshot = {
+    tenantId: readOwnDataProperty<string>(scope, "tenantId"),
+    projectId: readOwnDataProperty<string>(scope, "projectId"),
+  };
+  assertScope(snapshot);
+  return Object.freeze(snapshot);
+}
+
+/** Caller-owned edit identity must not be reread after storage or authority awaits. */
+function snapshotEdit<T>(edit: OfflineEdit<T>): OfflineEdit<T> {
+  const snapshot = {
+    tenantId: readOwnDataProperty<string>(edit, "tenantId"),
+    projectId: readOwnDataProperty<string>(edit, "projectId"),
+    editId: readOwnDataProperty<string>(edit, "editId"),
+    idempotencyKey: readOwnDataProperty<string>(edit, "idempotencyKey"),
+    expectedVersion: readOwnDataProperty<string>(edit, "expectedVersion"),
+    payload: readOwnDataProperty<T>(edit, "payload"),
+  };
+  assertEdit(snapshot);
+  return Object.freeze(snapshot);
+}
+
+function readOwnDataProperty<T>(value: unknown, name: string): T {
+  try {
+    if (!value || typeof value !== "object") throw new TypeError();
+    const descriptor = Object.getOwnPropertyDescriptor(value, name);
+    if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) throw new TypeError();
+    return descriptor.value as T;
+  } catch {
+    throw new OfflineEditQueueError("INVALID_EDIT");
+  }
+}
+
 function assertEdit(edit: OfflineEdit): void {
   assertScope(edit);
   if (!isValidAadIdentity(edit.editId) || !isValidAadIdentity(edit.idempotencyKey)
@@ -234,64 +269,62 @@ export class OfflineEditQueue {
   }
 
   public async enqueue<T>(edit: OfflineEdit<T>): Promise<void> {
-    assertEdit(edit);
-    const serialized = serializeJsonPayload(edit.payload, this.maximumPayloadBytes);
+    const stableEdit = snapshotEdit(edit);
+    const serialized = serializeJsonPayload(stableEdit.payload, this.maximumPayloadBytes);
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
-    const records = await this.listScoped(edit);
-    const existing = records.find((record) => record.editId === edit.editId
-      || record.idempotencyKey === edit.idempotencyKey);
+    const records = await this.listScoped(stableEdit);
+    const existing = records.find((record) => record.editId === stableEdit.editId
+      || record.idempotencyKey === stableEdit.idempotencyKey);
     if (existing) {
-      if (existing.editId !== edit.editId || existing.idempotencyKey !== edit.idempotencyKey
-        || existing.expectedVersion !== edit.expectedVersion
+      if (existing.editId !== stableEdit.editId || existing.idempotencyKey !== stableEdit.idempotencyKey
+        || existing.expectedVersion !== stableEdit.expectedVersion
         || !equalBytes(await this.decryptPayloadBytes(existing), plaintext)) {
         throw new OfflineEditQueueError("INVALID_EDIT");
       }
       return; // exact duplicate is suppressed, including terminal/unknown entries.
     }
     if (records.length >= this.maximumEntries) throw new OfflineEditQueueError("QUEUE_FULL");
-    const record = await this.encrypt(edit, plaintext, "PENDING");
+    const record = await this.encrypt(stableEdit, plaintext, "PENDING");
     if (!await this.options.store.insert(record, this.maximumEntries)) {
-      const afterInsertRace = await this.listScoped(edit);
-      const raced = afterInsertRace.find((item) => item.editId === edit.editId
-        || item.idempotencyKey === edit.idempotencyKey);
+      const afterInsertRace = await this.listScoped(stableEdit);
+      const raced = afterInsertRace.find((item) => item.editId === stableEdit.editId
+        || item.idempotencyKey === stableEdit.idempotencyKey);
       if (!raced && afterInsertRace.length >= this.maximumEntries) throw new OfflineEditQueueError("QUEUE_FULL");
-      if (!raced || raced.editId !== edit.editId || raced.idempotencyKey !== edit.idempotencyKey
-        || raced.expectedVersion !== edit.expectedVersion
+      if (!raced || raced.editId !== stableEdit.editId || raced.idempotencyKey !== stableEdit.idempotencyKey
+        || raced.expectedVersion !== stableEdit.expectedVersion
         || !equalBytes(await this.decryptPayloadBytes(raced), plaintext)) throw new OfflineEditQueueError("INVALID_EDIT");
     }
   }
 
   /** Explicitly rebase a conflict with a new exact version and idempotency key. */
   public async resolveConflict<T>(edit: OfflineEdit<T>): Promise<void> {
-    assertEdit(edit);
-    const compareAndSet = this.options.store.compareAndSet;
-    if (!compareAndSet) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
-    const previous = (await this.listScoped(edit)).find((record) => record.editId === edit.editId);
-    if (previous?.envelopeVersion !== 2 || previous.state !== "CONFLICT"
-      || previous.idempotencyKey === edit.idempotencyKey
-      || previous.expectedVersion === edit.expectedVersion) {
-      throw new Error("Conflict resolution requires a conflicted edit, new version and new idempotency key.");
-    }
-    if ((await this.listScoped(edit)).some((record) => record.editId !== edit.editId
-      && record.idempotencyKey === edit.idempotencyKey)) throw new OfflineEditQueueError("INVALID_EDIT");
-    const serialized = serializeJsonPayload(edit.payload, this.maximumPayloadBytes);
+    const stableEdit = snapshotEdit(edit);
+    const serialized = serializeJsonPayload(stableEdit.payload, this.maximumPayloadBytes);
     const plaintext = encoder.encode(serialized);
     if (plaintext.byteLength > this.maximumPayloadBytes) throw new OfflineEditQueueError("PAYLOAD_TOO_LARGE");
-    const replacement = await this.encrypt(edit, plaintext, "PENDING");
+    const compareAndSet = this.options.store.compareAndSet;
+    if (!compareAndSet) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
+    const previous = (await this.listScoped(stableEdit)).find((record) => record.editId === stableEdit.editId);
+    if (previous?.envelopeVersion !== 2 || previous.state !== "CONFLICT"
+      || previous.idempotencyKey === stableEdit.idempotencyKey
+      || previous.expectedVersion === stableEdit.expectedVersion) {
+      throw new Error("Conflict resolution requires a conflicted edit, new version and new idempotency key.");
+    }
+    if ((await this.listScoped(stableEdit)).some((record) => record.editId !== stableEdit.editId
+      && record.idempotencyKey === stableEdit.idempotencyKey)) throw new OfflineEditQueueError("INVALID_EDIT");
+    const replacement = await this.encrypt(stableEdit, plaintext, "PENDING");
     if (!await compareAndSet.call(this.options.store, previous, replacement)) {
       throw new OfflineEditQueueError("INVALID_EDIT");
     }
   }
 
   public async hasDirtyEdits(scope: OfflineEditScope): Promise<boolean> {
-    assertScope(scope);
     return (await this.listScoped(scope)).some((record) => record.envelopeVersion !== 2 || record.state !== "APPLIED");
   }
 
   /** Restore exact queued edits after restart for a scoped local editor. */
   public async readEdits<T = unknown>(scope: OfflineEditScope): Promise<readonly OfflineEditReviewEntry<T>[]> {
-    assertScope(scope);
     const records = await this.listScoped(scope);
     return Promise.all(records.map(async (record) => ({ edit: freezeEdit(await this.decrypt<T>(record)),
       state: record.envelopeVersion === 2 ? record.state : "OUTCOME_UNKNOWN" as const })));
@@ -303,8 +336,8 @@ export class OfflineEditQueue {
     readonly state: OfflineEditReplayState;
     readonly receipt?: R;
   }[]> {
-    assertScope(scope);
-    const records = await this.listScoped(scope);
+    const stableScope = snapshotScope(scope);
+    const records = await this.listScoped(stableScope);
     await this.assertReviewedQueue(records, reviewedQueue);
     if (!this.canReplaySafely) {
       return records.filter((record) => record.state === "PENDING")
@@ -324,7 +357,7 @@ export class OfflineEditQueue {
       const edit = freezeEdit(await this.decrypt<T>(record));
       let versionRead: Awaited<ReturnType<typeof adapter.readCurrentVersion>>;
       try {
-        versionRead = await adapter.readCurrentVersion(scope);
+        versionRead = await adapter.readCurrentVersion(stableScope);
       } catch {
         // A failed read is pre-dispatch. Preserve PENDING and retry only the
         // authorization/version checks on the next explicit reconnect.
@@ -515,10 +548,10 @@ export class OfflineEditQueue {
 
   /** Remove only after an authoritative reconciliation proves no effect occurred. */
   public async discardUnknown(scope: OfflineEditScope, editId: string, confirmedNotApplied: boolean): Promise<void> {
-    assertScope(scope);
+    const stableScope = snapshotScope(scope);
     if (!confirmedNotApplied) throw new Error("OUTCOME_UNKNOWN requires authoritative no-effect reconciliation.");
     if (!this.options.store.removeIfMatches) throw new OfflineEditQueueError("STORE_CAS_UNAVAILABLE");
-    const record = (await this.listScoped(scope)).find((candidate) => candidate.editId === editId);
+    const record = (await this.listScoped(stableScope)).find((candidate) => candidate.editId === editId);
     if (record && record.envelopeVersion !== 2) {
       await this.transition(record, "OUTCOME_UNKNOWN");
       throw new Error("Legacy edit fenced; reconcile its outcome again before discard.");
@@ -590,8 +623,9 @@ export class OfflineEditQueue {
   }
 
   private async listScoped(scope: OfflineEditScope): Promise<readonly OfflineEditRecord[]> {
-    const records = await this.options.store.list(scope);
-    if (records.some((record) => record.tenantId !== scope.tenantId || record.projectId !== scope.projectId)) {
+    const stableScope = snapshotScope(scope);
+    const records = await this.options.store.list(stableScope);
+    if (records.some((record) => record.tenantId !== stableScope.tenantId || record.projectId !== stableScope.projectId)) {
       throw new OfflineEditQueueError("STORE_SCOPE_MISMATCH");
     }
     if (records.some((record) => !isValidAadIdentity(record.tenantId) || !isValidAadIdentity(record.projectId)
