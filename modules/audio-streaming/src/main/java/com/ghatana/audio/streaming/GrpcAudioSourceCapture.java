@@ -239,6 +239,10 @@ public final class GrpcAudioSourceCapture {
                 || eosBinding.get().lastAcknowledgedSequence() != eosMediaSequence - 1) {
             return new Result(Disposition.UNKNOWN, accepted, lastCursor, "canonical cursor changed before EOS");
         }
+        if (!eosBinding.get().leaseExpiresAt().isAfter(Instant.now())) {
+            return new Result(Disposition.LEASE_EXPIRED, accepted, lastCursor,
+                    "canonical stream lease expired before EOS");
+        }
         try {
             CanonicalStreamFramePort.OfferFeedback eos = canonical.endOfStreamWithFeedback(eosBinding.get());
             if (eos == null || eos.result() == null) {

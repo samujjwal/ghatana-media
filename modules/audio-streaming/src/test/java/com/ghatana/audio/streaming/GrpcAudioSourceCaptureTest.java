@@ -300,6 +300,19 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void expiredCanonicalLeaseAfterEosReadbackDoesNotDispatchEos() {
+        FakePort port = new FakePort();
+        port.expireLeaseOnBindingCall = 3;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(source.readbackCalls).isEqualTo(2);
+        assertThat(port.eosCalls).isZero();
+    }
+
+    @Test
     void highestLegalFrameDoesNotDispatchEosOutsideCanonicalSequenceRange() {
         FakePort port = new FakePort();
         port.lastAck = AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER - 1L;

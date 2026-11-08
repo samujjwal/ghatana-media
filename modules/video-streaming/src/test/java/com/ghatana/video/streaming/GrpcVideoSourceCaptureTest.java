@@ -302,6 +302,19 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void expiredCanonicalLeaseAfterEosReadbackDoesNotDispatchEos() {
+        FakePort port = new FakePort();
+        port.expireLeaseOnBindingCall = 3;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(), true));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.LEASE_EXPIRED);
+        assertThat(source.readbackCalls).isEqualTo(2);
+        assertThat(port.eosCalls).isZero();
+    }
+
+    @Test
     void highestLegalFrameDoesNotDispatchEosOutsideCanonicalSequenceRange() {
         FakePort port = new FakePort();
         port.lastAck = VideoStreamSession.MAX_FRAME_SEQUENCE - 1L;

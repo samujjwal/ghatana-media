@@ -1164,10 +1164,12 @@ export async function publishFinalRender(
     }
     completionStarted = true;
     const artifact = snapshotArtifactObservation(await artifactClient.completeUploadSession(session, signal));
-    if (artifact.tenantId !== session.tenantId || artifact.principalId !== session.principalId
+    if (typeof artifact.artifactId !== "string" || artifact.artifactId.trim().length === 0
+      || typeof artifact.objectReference !== "string" || artifact.objectReference.trim().length === 0
+      || artifact.tenantId !== session.tenantId || artifact.principalId !== session.principalId
       || artifact.sha256 !== sha256 || artifact.sizeBytes !== bytes.byteLength
       || artifact.fileName !== safeRequest.fileName || artifact.contentType !== contentType) {
-      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not match verified render bytes or upload scope", uploadId };
+      return { outcome: "OUTCOME_UNKNOWN", reason: "canonical artifact receipt does not identify the verified render bytes or upload scope", uploadId };
     }
     if (artifact.classification !== session.classification
       || !sameRenderJson(artifact.metadata, session.metadata)) {
