@@ -653,7 +653,12 @@ public final class QualityComparisonAndOptimization {
         return value;
     }
     private static String digest(String value, String field) {
-        String result = text(value, field, 64).toLowerCase(java.util.Locale.ROOT);
+        if (value == null || value.isBlank() || value.length() > 64 || !value.equals(value.strip())) {
+            throw invalid(field + " must be an exact bounded digest without surrounding whitespace");
+        }
+        // Case normalization is an explicitly supported internal digest rule; trimming is
+        // not, because it would silently change the caller's immutable revision binding.
+        String result = value.toLowerCase(java.util.Locale.ROOT);
         if (!result.matches(SHA256)) throw invalid(field + " must be lowercase SHA-256 hex");
         return result;
     }

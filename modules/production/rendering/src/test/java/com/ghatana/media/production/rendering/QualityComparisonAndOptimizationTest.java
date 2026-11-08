@@ -421,6 +421,12 @@ class QualityComparisonAndOptimizationTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
         assertThatThrownBy(() -> new RevisionId("tenant", "principal", "artifact", " v1", "a".repeat(64)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exact");
+        assertThatThrownBy(() -> new RevisionId("tenant", "principal", "artifact", "v1", " " + "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("surrounding whitespace");
+        assertThatThrownBy(() -> new RevisionId("tenant", "principal", "artifact", "v1", "a".repeat(64) + " "))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("surrounding whitespace");
+        assertThat(new RevisionId("tenant", "principal", "artifact", "v1", "A".repeat(64)).sha256())
+                .isEqualTo("a".repeat(64));
     }
 
     @Test
