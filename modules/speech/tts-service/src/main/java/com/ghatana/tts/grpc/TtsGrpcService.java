@@ -1433,6 +1433,8 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
             status = Status.UNIMPLEMENTED;
         } else if (exception instanceof TtsStreamTimeoutException) {
             status = Status.DEADLINE_EXCEEDED;
+        } else if (exception instanceof java.util.concurrent.CancellationException) {
+            status = Status.CANCELLED;
         } else if (exception instanceof IllegalStateException) {
             status = Status.FAILED_PRECONDITION;
         } else {
@@ -1454,6 +1456,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
             case UNIMPLEMENTED -> "TTS_NOT_ADMITTED: requested TTS capability is unsupported";
             case FAILED_PRECONDITION -> "TTS synthesis preconditions are not met";
             case DEADLINE_EXCEEDED -> "TTS streaming deadline exceeded";
+            case CANCELLED -> "TTS operation was cancelled";
             default -> "TTS synthesis failed";
             };
         }

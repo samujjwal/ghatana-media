@@ -58,7 +58,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private static final Pattern CANCEL_PATH = Pattern.compile("^/api/v1/jobs/([^/]+)/cancel$");
     private static final Pattern STREAM_PATH = Pattern.compile("^/api/v1/streams/([^/]+)$");
     private static final Pattern STREAM_CONNECT_PATH = Pattern.compile("^/api/v1/streams/([^/]+)/connect$");
-    private static final Pattern STREAM_FRAME_PATH = Pattern.compile("^/api/v1/streams/([^/]+)/frames/(\\d+)$");
+    private static final Pattern STREAM_FRAME_PATH = Pattern.compile("^/api/v1/streams/([^/]+)/frames/(-?\\d+)$");
     private static final Pattern STREAM_CLOSE_PATH = Pattern.compile("^/api/v1/streams/([^/]+)/close$");
     private static final Pattern CONSENT_PATH = Pattern.compile("^/api/v1/consents/([^/]+)$");
     private static final Pattern CAPTION_VERSION_PATH = Pattern.compile("^/api/v1/caption-versions/([^/]+)$");
@@ -186,7 +186,9 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher frame = STREAM_FRAME_PATH.matcher(path);
             if (frame.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                frame(exchange, tenantId, principalId, decodePathSegment(frame.group(1)), Long.parseLong(frame.group(2))); return;
+                long sequence = Long.parseLong(frame.group(2));
+                if (sequence < 0) throw new IllegalArgumentException("sequence must not be negative");
+                frame(exchange, tenantId, principalId, decodePathSegment(frame.group(1)), sequence); return;
             }
             Matcher close = STREAM_CLOSE_PATH.matcher(path);
             if (close.matches()) {

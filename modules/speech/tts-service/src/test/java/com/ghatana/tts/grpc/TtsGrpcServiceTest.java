@@ -52,9 +52,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Locale;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.time.Duration;
@@ -384,6 +385,37 @@ class TtsGrpcServiceTest {
         assertThat(span.getAttributes().get(
                 io.opentelemetry.api.common.AttributeKey.stringKey("media.outcome"))).isEqualTo("unknown");
         assertNoProtectedMarker(span, "private stream input 718204", "provider-private-error-44019");
+    }
+
+    @Test
+    void providerStreamCancellationMapsToGrpcCancelled() throws InterruptedException {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofSeconds(2));
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        when(observer.isCancelled()).thenReturn(false);
+        when(engine.startStreaming(anyString(), any(), any()))
+                .thenReturn(TtsStreamingSession.create(new AtomicBoolean(), completion));
+        doAnswer(invocation -> {
+            error.set(invocation.getArgument(0));
+            errorReceived.countDown();
+            return null;
+        }).when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder()
+                .setText("private cancellation input 58142").build(), observer);
+        completion.completeExceptionally(new CancellationException("provider-private-cancel-detail"));
+
+        assertThat(errorReceived.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.CANCELLED);
+        assertThat(Status.fromThrowable(error.get()).getDescription()).isEqualTo("TTS operation was cancelled");
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        assertThat(Status.fromThrowable(error.get()).getDescription())
+                .doesNotContain("provider-private-cancel-detail", "private cancellation input 58142");
     }
 
     @Test
@@ -1936,10 +1968,16 @@ class TtsGrpcServiceTest {
         assertThat(finalChunkObserved.await(1, TimeUnit.SECONDS)).isTrue();
         verify(observer, never()).onCompleted();
         verify(observer, never()).onError(any());
-        Timer responseUnknown = registry.find("media.modality.boundary.duration")
-                .tag("modality", "tts").tag("service", "tts")
-                .tag("boundary", "response").tag("execution_class", "control")
-                .tag("outcome", "unknown").timer();
+        long metricDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+        Timer responseUnknown;
+        do {
+            responseUnknown = registry.find("media.modality.boundary.duration")
+                    .tag("modality", "tts").tag("service", "tts")
+                    .tag("boundary", "response").tag("execution_class", "control")
+                    .tag("outcome", "unknown").timer();
+            if (responseUnknown != null && responseUnknown.count() == 1) break;
+            Thread.yield();
+        } while (System.nanoTime() < metricDeadline);
         assertThat(responseUnknown).isNotNull();
         assertThat(responseUnknown.count()).isEqualTo(1);
         assertThat(registry.find("media.modality.boundary.duration")
