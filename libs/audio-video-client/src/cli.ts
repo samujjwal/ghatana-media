@@ -113,7 +113,7 @@ function containsCredential(value: unknown, token: string): boolean {
   if (typeof value === 'string') return secrets.some(secret => value.includes(secret));
   if (Array.isArray(value)) return value.some(item => containsCredential(item, token));
   if (value && typeof value === 'object') {
-    return Object.entries(value).some(([key, item]) => secrets.some(secret => key.includes(secret))
+    return Object.entries(value).some(([key, item]) => secrets.some(secret => key.toLowerCase().includes(secret.toLowerCase()))
       || credentialKeys.has(key.toLowerCase().replace(/[^a-z0-9]/gu, ''))
       || containsCredential(item, token));
   }

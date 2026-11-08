@@ -232,6 +232,30 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     });
   });
 
+  it('rejects a case-varied credential echoed as a response field name', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-case-varied-credential-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const responseArtifact = {
+      ...artifact, metadata: { [token.toUpperCase()]: 'provider echoed a credential in a field name' },
+    };
+    try {
+      const result = await invoke(command('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+        GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(responseArtifact),
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect', code: 'INVALID_MEDIA_RESPONSE',
+      });
+      expect(result.stdout + result.stderr).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('preserves a scope-safe 404 and safe correlation without claiming global absence', async () => {
     await withServer((_request, response) => {
       response.writeHead(404, { 'content-type': 'application/json' }).end(JSON.stringify({
