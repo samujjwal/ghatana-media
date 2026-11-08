@@ -99,6 +99,26 @@ class ReferenceGuidedScenePlannerTest {
     }
 
     @Test
+    void deterministicSeedBindsAuthoredTemplateSceneContent() {
+        Authority authority = new Authority();
+        var planner = planner(authority, unavailableProvider());
+        var first = request(List.of(source("reference-image", IMAGE_VERSION, D2)),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue"))));
+        var changedTemplate = new ReferenceGuidedScenePlanner.Template(first.template().templateId(),
+                first.template().version(), "A composed authored scene with a changed ending",
+                first.template().continuityFacts(), first.template().exactSources());
+        var second = new ReferenceGuidedScenePlanner.Request(first.projectId(), first.sceneId(),
+                first.expectedProjectRevisionId(), first.purpose(), first.seedInput(), first.prompt(),
+                first.references(), changedTemplate, first.continuity());
+
+        var firstCandidate = planner.prepare(ACTOR, first);
+        var secondCandidate = planner.prepare(ACTOR, second);
+
+        assertThat(firstCandidate.deterministicSeed()).isNotEqualTo(secondCandidate.deterministicSeed());
+        assertThat(firstCandidate.authoredScene()).isNotEqualTo(secondCandidate.authoredScene());
+    }
+
+    @Test
     void mismatchOrMissingContinuityFactBlocksCandidate() {
         var planner = planner(new Authority(), unavailableProvider());
         var request = request(List.of(source("reference-image", IMAGE_VERSION, D2)),

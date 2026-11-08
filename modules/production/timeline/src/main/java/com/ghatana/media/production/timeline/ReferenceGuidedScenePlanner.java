@@ -302,6 +302,7 @@ public final class ReferenceGuidedScenePlanner {
         appendField(material, "prompt", request.prompt().authoredText());
         appendField(material, "templateId", request.template().templateId());
         appendField(material, "templateVersion", request.template().version());
+        appendField(material, "authoredTemplateScene", request.template().authoredScene());
         appendField(material, "continuityStateId", request.continuity().stateId());
         appendField(material, "continuityVersion", request.continuity().semanticVersion());
         request.continuity().facts().forEach(f -> appendFact(material, "priorContinuity", f));
