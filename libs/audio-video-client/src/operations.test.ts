@@ -338,8 +338,8 @@ describe("MediaOperationClient", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("binds the upload request size ceiling to the 1 TiB runtime contract", async () => {
-    const maxBytes = 1_099_511_627_776;
+  it("binds upload requests and readbacks to the 2 GiB PDP-1 operation limit", async () => {
+    const maxBytes = 2_147_483_648;
     const fetchImpl = vi.fn(async (): Promise<Response> =>
       jsonResponse(uploadSession({ expectedSizeBytes: maxBytes }))) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
@@ -350,7 +350,7 @@ describe("MediaOperationClient", () => {
     await expect(client.createUploadSession(request)).resolves.toMatchObject({ expectedSizeBytes: maxBytes });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     await expect(client.createUploadSession({ ...request, expectedSizeBytes: maxBytes + 1 }))
-      .rejects.toThrow(/1 TiB service-level contract limit/u);
+      .rejects.toThrow(/2 GiB PDP-1 begin-upload limit/u);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
@@ -578,7 +578,7 @@ describe("MediaOperationClient", () => {
     ["a minute rollover", { expiresAt: "2026-08-06T12:60:00Z" }],
     ["a fraction longer than Java Instant precision", { expiresAt: "2026-08-06T12:00:00.1234567890Z" }],
     ["an unsafe size", { expectedSizeBytes: Number.MAX_SAFE_INTEGER + 1 }],
-    ["a size above the runtime limit", { expectedSizeBytes: 1_099_511_627_777 }],
+    ["a size above the PDP-1 operation limit", { expectedSizeBytes: 2_147_483_649 }],
   ])("rejects upload observations with %s", async (_caseName, override) => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({ ...uploadSession(), ...override })) as unknown as typeof fetch;
     const client = createMediaOperationClient({
