@@ -172,6 +172,13 @@ public final class MediaDeliveryEngine {
                                  String versionRef, String artifactDigest, String destinationRef,
                                  Status status, int acknowledgedBytes, Optional<String> destinationReceiptRef) {
         public DeliveryResult {
+            tenantId = requiredExact(tenantId, "tenantId");
+            principalId = requiredExact(principalId, "principalId");
+            requestId = requiredExact(requestId, "requestId");
+            artifactId = requiredExact(artifactId, "artifactId");
+            versionRef = requiredExact(versionRef, "versionRef");
+            artifactDigest = requiredExact(artifactDigest, "artifactDigest");
+            destinationRef = requiredExact(destinationRef, "destinationRef");
             Objects.requireNonNull(status, "status");
             destinationReceiptRef = destinationReceiptRef == null ? Optional.empty() : destinationReceiptRef;
             destinationReceiptRef = destinationReceiptRef.map(receipt -> requiredExact(receipt, "destinationReceiptRef"));

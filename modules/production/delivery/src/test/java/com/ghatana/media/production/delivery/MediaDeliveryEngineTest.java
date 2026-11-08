@@ -88,6 +88,21 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void confirmedDeliveryResultRequiresExactDestinationIdentity() {
+        String digest = "sha256:" + "0".repeat(64);
+
+        assertThat(new DeliveryResult("tenant:1", "principal:1", "request:1", "artifact:1",
+                "version:1", digest, "destination:1", Status.DESTINATION_CONFIRMED, 16,
+                Optional.of("destination-receipt:1")).destinationRef()).isEqualTo("destination:1");
+
+        assertThatThrownBy(() -> new DeliveryResult("tenant:1", "principal:1", "request:1", "artifact:1",
+                "version:1", digest, " destination:1 ", Status.DESTINATION_CONFIRMED, 16,
+                Optional.of("destination-receipt:1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("destinationRef must not contain surrounding whitespace");
+    }
+
+    @Test
     void durableOperationAndClaimScopesRejectSurroundingWhitespace() {
         String digest = "a".repeat(64);
         String fingerprint = "b".repeat(64);
