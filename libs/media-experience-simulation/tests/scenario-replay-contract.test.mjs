@@ -82,6 +82,22 @@ test("malformed fixture contracts reject unsupported truth, sources, seeds, cloc
   for (const fixture of malformed) {
     assert.equal(validateScenarioReplayContract(fixture).valid, false);
   }
+
+  let accessorReads = 0;
+  const accessorBacked = { ...valid };
+  Object.defineProperty(accessorBacked, "consumer", {
+    enumerable: true,
+    get() {
+      accessorReads += 1;
+      return "explorer";
+    },
+  });
+  assert.equal(validateScenarioReplayContract(accessorBacked).valid, false);
+  assert.equal(accessorReads, 0, "validation rejects executable accessors without evaluating them");
+  assert.equal(validateScenarioReplayContract(new (class FixtureEnvelope { value = valid; })()).valid, false);
+  const uninspectable = new Proxy({}, { getPrototypeOf: () => { throw new Error("uninspectable input"); } });
+  assert.equal(validateScenarioReplayContract(uninspectable).valid, false);
+
   const nearLimit = createScenarioReplayContract({
     ...explorerInput,
     clock: { ...explorerInput.clock, initialTick: 1 },

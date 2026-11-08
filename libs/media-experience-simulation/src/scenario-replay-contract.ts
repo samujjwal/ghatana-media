@@ -74,12 +74,22 @@ const SCENARIO_ID = /^media\.(?:scenario\.[a-z0-9-]+|recorder\.p3\.scenario\.[a-
 const LOCAL_SOURCE_REF = /^\.product-experience\/[A-Za-z0-9._/-]+#[A-Za-z0-9._/=@-]+$/u;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return false;
+    return Object.values(Object.getOwnPropertyDescriptors(value)).every(
+      (descriptor) => Object.hasOwn(descriptor, "value") && descriptor.get === undefined && descriptor.set === undefined,
+    );
+  } catch {
+    return false;
+  }
 }
 
 function hasExactKeys(value: Record<string, unknown>, expected: readonly string[]): boolean {
-  const actual = Object.keys(value);
-  return actual.length === expected.length && expected.every((key) => Object.hasOwn(value, key));
+  const descriptors = Object.getOwnPropertyDescriptors(value);
+  const actual = Object.keys(descriptors);
+  return actual.length === expected.length && expected.every((key) => Object.hasOwn(descriptors, key));
 }
 
 /** FNV-1a is used only for a reproducible fixture identity, never integrity or trust. */

@@ -39,6 +39,8 @@ providers, or live user data.
 - Scenario replay contracts bind stable source IDs and an explicit clock;
   fixture labels remain `SIMULATED_FIXTURE_ONLY`, with no dispatch, network,
   owner evidence, solver output, model output, or runtime admission.
+- Scenario envelopes accept only plain or null-prototype data records; class
+  instances and accessor-backed fields are rejected without evaluating getters.
 - The seed is a repeatable source-pair identifier, not a random generator,
   integrity proof, or scientific result. Clock operations advance/reset only
   explicit whole ticks and never consult wall time.
