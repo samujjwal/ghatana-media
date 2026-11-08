@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   OfflineEditQueue,
   OfflineEditQueueError,
+  type OfflineEditReplayAdapter,
   type OfflineEditRecord,
   type OfflineEditScope,
   type OfflineEditStore,
@@ -75,6 +76,13 @@ function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
 async function createQueue(store = new MemoryStore()): Promise<{ queue: OfflineEditQueue; store: MemoryStore; key: CryptoKey }> {
   const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
   return { queue: new OfflineEditQueue({ store, encryptionKey: key, maximumEntries: 2 }), store, key };
+}
+
+/** Models a host supplying the exact queue snapshot it presented for review. */
+async function replayAfterExplicitReview<T, R>(queue: OfflineEditQueue, targetScope: OfflineEditScope,
+    adapter: OfflineEditReplayAdapter<T, R>) {
+  const reviewedQueue = await queue.readEdits<T>(targetScope);
+  return queue.replay<T, R>(targetScope, adapter, reviewedQueue);
 }
 
 describe("OfflineEditQueue", () => {
@@ -198,7 +206,7 @@ describe("OfflineEditQueue", () => {
     store.records.set(edit.editId, { ...original, payloadBytes: original.payloadBytes + 1 });
     await expect(queue.readEdits(scope))
       .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
-    await expect(queue.replay(scope, adapter))
+    await expect(replayAfterExplicitReview(queue, scope, adapter))
       .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
     expect(authorityReads).toBe(0);
     expect(applyCount).toBe(0);
@@ -232,7 +240,7 @@ describe("OfflineEditQueue", () => {
       store.records.set(edit.editId, malformed);
       await expect(queue.readEdits(scope))
         .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
-      await expect(queue.replay(scope, adapter))
+      await expect(replayAfterExplicitReview(queue, scope, adapter))
         .rejects.toMatchObject({ code: "STORE_RECORD_INVALID" } satisfies Partial<OfflineEditQueueError>);
     }
     expect(authorityReads).toBe(0);
@@ -280,7 +288,7 @@ describe("OfflineEditQueue", () => {
   it("rejects invalid conflict payloads without replacing the conflicted stored edit", async () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);
-    await queue.replay(scope, {
+    await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v8",
       apply: async () => ({ outcome: "APPLIED", receipt: "unused" }),
@@ -320,7 +328,7 @@ describe("OfflineEditQueue", () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);
     let dispatched = false;
-    const denied = await queue.replay(scope, {
+    const denied = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => ({ authorized: false }),
       readCurrentVersion: async () => "v7",
       apply: async () => { dispatched = true; return { outcome: "APPLIED", receipt: "r" }; },
@@ -331,7 +339,7 @@ describe("OfflineEditQueue", () => {
 
     const { queue: conflictQueue, store: conflictStore } = await createQueue();
     await conflictQueue.enqueue(edit);
-    const conflict = await conflictQueue.replay(scope, {
+    const conflict = await replayAfterExplicitReview(conflictQueue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v8",
       apply: async () => { dispatched = true; return { outcome: "APPLIED", receipt: "r" }; },
@@ -344,7 +352,7 @@ describe("OfflineEditQueue", () => {
     expect(conflictStore.records.get(edit.editId)).toMatchObject({
       idempotencyKey: "idem-2", expectedVersion: "v8", state: "PENDING",
     });
-    const rebased = await conflictQueue.replay(scope, {
+    const rebased = await replayAfterExplicitReview(conflictQueue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v8",
       apply: async (queued) => ({ outcome: "APPLIED", receipt: queued.idempotencyKey }),
@@ -361,8 +369,8 @@ describe("OfflineEditQueue", () => {
       readCurrentVersion: async () => "v7",
       apply: async () => { attempts += 1; throw new Error("connection lost after dispatch"); },
     };
-    expect((await queue.replay(scope, adapter))[0]?.state).toBe("OUTCOME_UNKNOWN");
-    expect((await queue.replay(scope, adapter)).length).toBe(0);
+    expect((await replayAfterExplicitReview(queue, scope, adapter))[0]?.state).toBe("OUTCOME_UNKNOWN");
+    expect((await replayAfterExplicitReview(queue, scope, adapter)).length).toBe(0);
     expect(attempts).toBe(1);
     await expect(queue.discardUnknown(scope, edit.editId, false)).rejects.toThrow(/authoritative no-effect/u);
     await queue.discardUnknown(scope, edit.editId, true);
@@ -373,7 +381,7 @@ describe("OfflineEditQueue", () => {
   it("authenticates replay state so a persisted unknown fence cannot be downgraded to pending", async () => {
     const { queue, store } = await createQueue();
     await queue.enqueue(edit);
-    const first = await queue.replay(scope, {
+    const first = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v7",
       apply: async () => ({ outcome: "OUTCOME_UNKNOWN" }),
@@ -385,7 +393,7 @@ describe("OfflineEditQueue", () => {
     // Simulate storage tampering that tries to make an unknown effect replayable.
     store.records.set(edit.editId, { ...fenced, state: "PENDING" });
     let adapterCalls = 0;
-    await expect(queue.replay(scope, {
+    await expect(replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => { adapterCalls++; return { authorized: true }; },
       readCurrentVersion: async () => { adapterCalls++; return "v7"; },
       apply: async () => { adapterCalls++; return { outcome: "APPLIED", receipt: "r" }; },
@@ -414,7 +422,7 @@ describe("OfflineEditQueue", () => {
     expect(await queue.hasDirtyEdits(scope)).toBe(true);
     let adapterCalls = 0;
     store.failNextCas = true;
-    const results = await queue.replay(scope, {
+    const results = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => { adapterCalls++; return { authorized: true }; },
       readCurrentVersion: async () => { adapterCalls++; return "v7"; },
       apply: async () => { adapterCalls++; return { outcome: "APPLIED", receipt: "r" }; },
@@ -422,7 +430,7 @@ describe("OfflineEditQueue", () => {
     expect(results).toEqual([{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }]);
     expect(adapterCalls).toBe(0);
     expect(store.records.get(edit.editId)?.envelopeVersion).toBeUndefined();
-    const migratedResults = await queue.replay(scope, {
+    const migratedResults = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => { adapterCalls++; return { authorized: true }; },
       readCurrentVersion: async () => { adapterCalls++; return "v7"; },
       apply: async () => { adapterCalls++; return { outcome: "APPLIED", receipt: "r" }; },
@@ -455,7 +463,7 @@ describe("OfflineEditQueue", () => {
     const store = new ReplacingStore();
     const { queue } = await createQueue(store);
     await queue.enqueue(edit);
-    await queue.replay(scope, {
+    await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v7",
       apply: async () => { throw new Error("connection lost after dispatch"); },
@@ -491,13 +499,70 @@ describe("OfflineEditQueue", () => {
       },
     };
 
-    const firstRun = firstQueue.replay(scope, adapter);
+    const firstReview = await firstQueue.readEdits(scope);
+    const secondReview = await secondQueue.readEdits(scope);
+    const firstRun = firstQueue.replay(scope, adapter, firstReview);
     await started;
-    const concurrentRun = await secondQueue.replay(scope, adapter);
-    expect(concurrentRun).toEqual([]);
+    await expect(secondQueue.replay(scope, adapter, secondReview))
+      .rejects.toMatchObject({ code: "REVIEW_REQUIRED" } satisfies Partial<OfflineEditQueueError>);
     releaseDispatch();
     expect(await firstRun).toMatchObject([{ state: "APPLIED", receipt: "receipt-1" }]);
     expect(dispatches).toBe(1);
+  });
+
+  it("allows one concurrent reviewed PENDING snapshot to win the pre-dispatch CAS", async () => {
+    for (const winningOutcome of ["APPLIED", "OUTCOME_UNKNOWN"] as const) {
+      class CoordinatedStore extends MemoryStore {
+        casAttempts = 0;
+        private releaseValidatedCas!: () => void;
+        private readonly bothValidatedCas = new Promise<void>((resolve) => { this.releaseValidatedCas = resolve; });
+
+        override async compareAndSet(expected: OfflineEditRecord, replacement: OfflineEditRecord): Promise<boolean> {
+          if (expected.state === "PENDING" && replacement.state === "OUTCOME_UNKNOWN") {
+            this.casAttempts++;
+            if (this.casAttempts === 2) this.releaseValidatedCas();
+            await this.bothValidatedCas;
+          }
+          return super.compareAndSet(expected, replacement);
+        }
+      }
+
+      const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+      const store = new CoordinatedStore();
+      const firstQueue = new OfflineEditQueue({ store, encryptionKey: key });
+      const secondQueue = new OfflineEditQueue({ store, encryptionKey: key });
+      await firstQueue.enqueue(edit);
+
+      const firstReview = await firstQueue.readEdits(scope);
+      const secondReview = await secondQueue.readEdits(scope);
+      expect(firstReview).toMatchObject([{ edit, state: "PENDING" }]);
+      expect(secondReview).toEqual(firstReview);
+
+      let dispatches = 0;
+      const adapter: OfflineEditReplayAdapter<typeof edit.payload, string> = {
+        reauthorize: async () => ({ authorized: true, disposition: "AUTHORIZED" }),
+        readCurrentVersion: async () => "v7",
+        apply: async () => {
+          dispatches++;
+          expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
+          return winningOutcome === "APPLIED"
+            ? { outcome: "APPLIED", receipt: "race-winner" }
+            : { outcome: "OUTCOME_UNKNOWN" };
+        },
+      };
+
+      const [firstResult, secondResult] = await Promise.all([
+        firstQueue.replay(scope, adapter, firstReview),
+        secondQueue.replay(scope, adapter, secondReview),
+      ]);
+
+      expect(store.casAttempts).toBe(2);
+      expect(dispatches).toBe(1);
+      expect([...firstResult, ...secondResult].map(({ state }) => state).sort()).toEqual(
+        winningOutcome === "APPLIED" ? ["APPLIED", "OUTCOME_UNKNOWN"] : ["OUTCOME_UNKNOWN", "OUTCOME_UNKNOWN"],
+      );
+      expect(store.records.get(edit.editId)?.state).toBe(winningOutcome);
+    }
   });
 
   it("rechecks revocation after the pre-dispatch fence and never applies after a rights change during storage", async () => {
@@ -514,7 +579,7 @@ describe("OfflineEditQueue", () => {
     await queue.enqueue(edit);
     let authorizationReads = 0;
     let dispatches = 0;
-    const result = await queue.replay(scope, {
+    const result = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => {
         authorizationReads++;
         return revoked ? { authorized: false, disposition: "REVOKED" as const }
@@ -541,11 +606,11 @@ describe("OfflineEditQueue", () => {
       apply: async () => { dispatches++; return { outcome: "APPLIED" as const, receipt: "receipt" }; },
     };
 
-    expect(await queue.replay(scope, adapter)).toMatchObject([{ state: "OUTCOME_UNKNOWN" }]);
+    expect(await replayAfterExplicitReview(queue, scope, adapter)).toMatchObject([{ state: "OUTCOME_UNKNOWN" }]);
     expect(store.records.get(edit.editId)?.state).toBe("PENDING");
     expect(dispatches).toBe(0);
 
-    expect(await queue.replay(scope, adapter)).toMatchObject([{ state: "APPLIED", receipt: "receipt" }]);
+    expect(await replayAfterExplicitReview(queue, scope, adapter)).toMatchObject([{ state: "APPLIED", receipt: "receipt" }]);
     expect(dispatches).toBe(1);
   });
 
@@ -563,10 +628,38 @@ describe("OfflineEditQueue", () => {
       },
     };
 
-    expect(await queue.replay(scope, adapter)).toMatchObject([{ state: "OUTCOME_UNKNOWN" }]);
+    expect(await replayAfterExplicitReview(queue, scope, adapter)).toMatchObject([{ state: "OUTCOME_UNKNOWN" }]);
     expect(store.records.get(edit.editId)?.state).toBe("OUTCOME_UNKNOWN");
-    expect(await queue.replay(scope, adapter)).toEqual([]);
+    expect(await replayAfterExplicitReview(queue, scope, adapter)).toEqual([]);
     expect(dispatches).toBe(1);
+  });
+
+  it("snapshots apply outcome and receipt once before persisting replay state", async () => {
+    const { queue, store } = await createQueue();
+    await queue.enqueue(edit);
+    let outcomeReads = 0;
+    let receiptReads = 0;
+
+    const result = await replayAfterExplicitReview(queue, scope, {
+      reauthorize: async () => ({ authorized: true }),
+      readCurrentVersion: async () => "v7",
+      apply: async () => ({
+        get outcome(): "APPLIED" | "CONFLICT" {
+          outcomeReads++;
+          return outcomeReads === 1 ? "APPLIED" : "CONFLICT";
+        },
+        get receipt(): string {
+          receiptReads++;
+          return receiptReads === 1 ? "receipt-first" : "receipt-second";
+        },
+      }),
+    });
+
+    expect(result).toEqual([{ editId: edit.editId, state: "APPLIED", receipt: "receipt-first" }]);
+    expect(outcomeReads).toBe(1);
+    expect(receiptReads).toBe(1);
+    expect(store.records.get(edit.editId)?.state).toBe("APPLIED");
+    expect(await queue.readEdits(scope)).toMatchObject([{ edit, state: "APPLIED" }]);
   });
 
   it("keeps malformed version and apply observations out of conflict or success states", async () => {
@@ -574,7 +667,7 @@ describe("OfflineEditQueue", () => {
     await queue.enqueue(edit);
     let applyCount = 0;
     let authorizationReads = 0;
-    const unknownVersion = await queue.replay(scope, {
+    const unknownVersion = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => { authorizationReads++; return { authorized: true }; },
       readCurrentVersion: async () => ({ disposition: "CURRENT", version: "   " }),
       apply: async () => { applyCount++; return { outcome: "APPLIED", receipt: "receipt" }; },
@@ -583,7 +676,7 @@ describe("OfflineEditQueue", () => {
     expect(store.records.get(edit.editId)?.state).toBe("PENDING");
     expect(applyCount).toBe(0);
 
-    const paddedVersion = await queue.replay(scope, {
+    const paddedVersion = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => { authorizationReads++; return { authorized: true }; },
       readCurrentVersion: async () => " revision-7 ",
       apply: async () => { applyCount++; return { outcome: "APPLIED", receipt: "receipt" }; },
@@ -593,7 +686,7 @@ describe("OfflineEditQueue", () => {
     expect(authorizationReads).toBe(0);
     expect(applyCount).toBe(0);
 
-    const malformedAck = await queue.replay(scope, {
+    const malformedAck = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v7",
       apply: async () => ({ outcome: "APPLIED" }) as { outcome: "APPLIED"; receipt: string },
@@ -609,7 +702,7 @@ describe("OfflineEditQueue", () => {
     expect(await queue.hasDirtyEdits(scope)).toBe(false);
     await queue.enqueue(edit);
     expect(await queue.hasDirtyEdits(scope)).toBe(true);
-    const result = await queue.replay(scope, {
+    const result = await replayAfterExplicitReview(queue, scope, {
       reauthorize: async () => ({ authorized: true }),
       readCurrentVersion: async () => "v7",
       apply: async (queued) => ({ outcome: "APPLIED", receipt: queued.idempotencyKey }),

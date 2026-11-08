@@ -423,26 +423,35 @@ export class OfflineEditQueue {
       // durable record OUTCOME_UNKNOWN until an owner readback resolves it.
       try {
         const outcome = await adapter.apply(edit);
-        if (!outcome || (outcome.outcome !== "APPLIED" && outcome.outcome !== "CONFLICT"
-          && outcome.outcome !== "OUTCOME_UNKNOWN")) {
+        if (!outcome || typeof outcome !== "object") {
           results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
           continue;
         }
-        if (outcome.outcome === "APPLIED" && !validReceipt(outcome.receipt)) {
+        // Treat adapter results as untrusted readbacks. Snapshot accessor-backed
+        // fields once so validation, durable state and caller result use the
+        // same observation even if a getter changes on later reads.
+        const observedOutcome = outcome.outcome;
+        const observedReceipt = observedOutcome === "APPLIED" ? outcome.receipt : undefined;
+        if (observedOutcome !== "APPLIED" && observedOutcome !== "CONFLICT"
+          && observedOutcome !== "OUTCOME_UNKNOWN") {
           results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
           continue;
         }
-        if (outcome.outcome === "OUTCOME_UNKNOWN") {
+        if (observedOutcome === "APPLIED" && !validReceipt(observedReceipt)) {
           results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
           continue;
         }
-        const confirmed = await this.transition(dispatchIntent, outcome.outcome);
+        if (observedOutcome === "OUTCOME_UNKNOWN") {
+          results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
+          continue;
+        }
+        const confirmed = await this.transition(dispatchIntent, observedOutcome);
         if (!confirmed) {
           results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
           continue;
         }
-        results.push({ editId: record.editId, state: outcome.outcome,
-          ...(outcome.outcome === "APPLIED" ? { receipt: outcome.receipt } : {}) });
+        results.push({ editId: record.editId, state: observedOutcome,
+          ...(observedOutcome === "APPLIED" ? { receipt: observedReceipt as R } : {}) });
       } catch {
         results.push({ editId: record.editId, state: "OUTCOME_UNKNOWN" });
       }
