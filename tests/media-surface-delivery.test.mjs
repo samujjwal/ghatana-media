@@ -33,6 +33,7 @@ test("change selector avoids repeated unrelated test suites",()=>{
  const ids=paths=>selectAffectedAreas(plan,paths).map(a=>a.id);
  assert.deepEqual(ids(["modules/production/animation/src/main/java/AnimationRenderer.java"]),["creative-preview"]);
  assert.deepEqual(ids(["libs/audio-video-client/src/cli.ts"]),["headless-media"]);
+ assert.deepEqual(ids(["libs/audio-video-client/src/operations.ts"]),["headless-media","delivery-agents"]);
  assert.deepEqual(ids(["docs/development/USABLE-SURFACE-DELIVERY.md"]),[]);
  assert.equal(ids(["runtime-contracts/src/main/java/Updated.java"]).length,8);
  assert.deepEqual(ids(["docs/implementation/old-run.md"]),["history-retention"]);

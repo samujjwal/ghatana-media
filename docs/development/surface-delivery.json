@@ -319,7 +319,9 @@
         "modules/infrastructure/cache",
         "audio-video-observability",
         "libs/audio-video-client/src/cli.ts",
-        "integration-tests"
+        "integration-tests",
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-client/src/canonical-operations.ts"
       ],
       "existing": "Durable upload/job stores, HTTP handlers, caption store, lifecycle metrics and focused restart tests exist. CLI currently admits artifact inspect only. Do not rebuild established writers or run old all-surface qualification loops.",
       "steps": [
@@ -1732,7 +1734,8 @@
         "modules/infrastructure/messaging",
         "providers/aws-postgresql",
         "runtime-contracts",
-        "libs/audio-video-client"
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-client/src/canonical-operations.ts"
       ],
       "existing": "FileInvocationLedger, Tools execution fence, Postgresql delivery state with V031/V032 candidate, and MediaDeliveryEngine exist. No real destination FencedDestinationPort or authorized Tool-to-canonical operation effect is admitted.",
       "steps": [
