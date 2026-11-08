@@ -253,6 +253,13 @@ pub fn declip_bounded(
     }
     let channels = input.config.channels as usize;
     let frames = input.frame_count();
+    validate_declip_runs(
+        &input.samples,
+        channels,
+        frames,
+        clip_threshold,
+        limits.max_declip_run_frames,
+    )?;
     let mut output = Vec::new();
     output
         .try_reserve_exact(input.samples.len())
@@ -263,23 +270,20 @@ pub fn declip_bounded(
     for channel in 0..channels {
         let mut frame = 0;
         while frame < frames {
-            if output[frame * channels + channel].abs() < clip_threshold {
+            if input.samples[frame * channels + channel].abs() < clip_threshold {
                 frame += 1;
                 continue;
             }
             let start = frame;
-            while frame < frames && output[frame * channels + channel].abs() >= clip_threshold {
+            while frame < frames
+                && input.samples[frame * channels + channel].abs() >= clip_threshold
+            {
                 frame += 1;
             }
             let end = frame;
             let run = end - start;
-            if start == 0 || end == frames || run > limits.max_declip_run_frames {
-                return Err(SpeechAudioError::InvalidInput(
-                    "clipped run lacks bounded unclipped neighbors".into(),
-                ));
-            }
-            let left = output[(start - 1) * channels + channel] as f64;
-            let right = output[end * channels + channel] as f64;
+            let left = input.samples[(start - 1) * channels + channel] as f64;
+            let right = input.samples[end * channels + channel] as f64;
             for offset in 0..run {
                 let fraction = (offset + 1) as f64 / (run + 1) as f64;
                 output[(start + offset) * channels + channel] =
@@ -288,6 +292,36 @@ pub fn declip_bounded(
         }
     }
     Ok(AudioBuffer::new(output, input.config))
+}
+
+/// Reject unrepairable runs before reserving or copying the output candidate.
+fn validate_declip_runs(
+    samples: &[f32],
+    channels: usize,
+    frames: usize,
+    clip_threshold: f32,
+    max_run_frames: usize,
+) -> Result<()> {
+    for channel in 0..channels {
+        let mut frame = 0;
+        while frame < frames {
+            if samples[frame * channels + channel].abs() < clip_threshold {
+                frame += 1;
+                continue;
+            }
+            let start = frame;
+            while frame < frames && samples[frame * channels + channel].abs() >= clip_threshold {
+                frame += 1;
+            }
+            let run = frame - start;
+            if start == 0 || frame == frames || run > max_run_frames {
+                return Err(SpeechAudioError::InvalidInput(
+                    "clipped run lacks bounded unclipped neighbors".into(),
+                ));
+            }
+        }
+    }
+    Ok(())
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -669,6 +703,20 @@ mod tests {
             Err(SpeechAudioError::InvalidInput(_))
         ));
         assert_eq!(over_limit.samples, vec![0.0, 1.0, 1.0, 1.0, 0.8]);
+    }
+
+    #[test]
+    fn declip_rejects_later_invalid_run_without_mutating_source() {
+        let input = mono(vec![0.0, 0.5, 1.0, 0.5, 0.0, 1.0]);
+        let original = input.clone();
+
+        assert!(matches!(
+            declip(&input, 0.98),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        // A valid interior run precedes the invalid edge run. Rejection must
+        // leave the caller's source unchanged.
+        assert_eq!(input, original);
     }
 
     #[test]
