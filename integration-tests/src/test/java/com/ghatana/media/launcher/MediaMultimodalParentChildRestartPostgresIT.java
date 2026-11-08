@@ -328,6 +328,75 @@ class MediaMultimodalParentChildRestartPostgresIT {
         }
     }
 
+    @Test
+    void failedAndCancelledChildrenKeepParentUnknownAcrossPostgresRestartWithoutRedispatch() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-mm-cancelled-child-" + runId;
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        var installed = TestAwsStateInstall.install(environment(bucket));
+        AtomicInteger sttEffects = new AtomicInteger();
+        AtomicInteger visionEffects = new AtomicInteger();
+        var root = Files.createTempDirectory("media-mm-cancelled-child-");
+        try (PostgresqlMediaJobStore stateKeeper = new PostgresqlMediaJobStore()) {
+            String tenant = "tenant-" + runId;
+            String principal = "principal-" + runId;
+            String requestId = "request-" + runId;
+            ProcessingJob parent;
+            MediaArtifact source;
+            MediaArtifact sttChild;
+            MediaArtifact visionChild;
+            MultimodalOperationSpec operationSpec;
+            try (MediaRuntime firstRuntime = runtimeWithProviders(root, List.of(
+                    new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider(),
+                    failedSttProvider(sttEffects), pendingVisionProvider(visionEffects)))) {
+                source = upload(firstRuntime, tenant, principal, "mm-parent-" + runId);
+                sttChild = upload(firstRuntime, tenant, principal, "stt-child-" + runId);
+                visionChild = upload(firstRuntime, tenant, principal, "vision-child-" + runId);
+                operationSpec = spec(source, List.of(
+                        child("stt", JobType.SPEECH_TO_TEXT, sttChild, sttParameters()),
+                        child("vision", JobType.VISION, visionChild, Map.of())));
+                parent = firstRuntime.submit(mmRequest(requestId, tenant, principal, source, operationSpec),
+                        authenticated(tenant, principal));
+
+                awaitJobState(tenant, requestId + ":stt", "FAILED");
+                awaitJobState(tenant, requestId + ":vision", "RUNNING");
+                var vision = firstRuntime.job(tenant, principal,
+                        readJobId(tenant, requestId + ":vision")).orElseThrow();
+                assertThat(firstRuntime.cancel(tenant, principal, vision.jobId()).status())
+                        .isEqualTo(JobStatus.CANCELLED);
+                assertThat(sttEffects).hasValue(1);
+                assertThat(visionEffects).hasValue(1);
+            }
+
+            // Reconstruct from PostgreSQL after the failed sibling and confirmed child
+            // cancellation. The cancelled effect is not proof that the parent had no
+            // effect, even though its sibling has a definitive failure receipt.
+            try (MediaRuntime restarted = runtimeWithProviders(root, List.of(
+                    new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider(),
+                    failedSttProvider(sttEffects), pendingVisionProvider(visionEffects)))) {
+                awaitParentTerminal(tenant, parent.jobId());
+                ProcessingJob recovered = restarted.job(tenant, principal, parent.jobId()).orElseThrow();
+                assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(recovered.result()).containsEntry("providerOutcome", "UNKNOWN");
+                assertThat(jobState(tenant, requestId + ":stt")).isEqualTo("FAILED");
+                assertThat(jobState(tenant, requestId + ":vision")).isEqualTo("CANCELLED");
+                assertThat(sttEffects).hasValue(1);
+                assertThat(visionEffects).hasValue(1);
+
+                var replay = restarted.submit(mmRequest(requestId, tenant, principal, source, operationSpec),
+                        authenticated(tenant, principal));
+                assertThat(replay.jobId()).isEqualTo(parent.jobId());
+                assertThat(replay.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(sttEffects).hasValue(1);
+                assertThat(visionEffects).hasValue(1);
+            }
+        } finally {
+            installed.close();
+        }
+    }
+
     // ── Wiring ──────────────────────────────────────────────────────────────
 
     private static Map<String, String> environment(String bucket) {
@@ -407,6 +476,47 @@ class MediaMultimodalParentChildRestartPostgresIT {
 
     private static MediaProcessingProvider pendingSttProvider(AtomicInteger effects) {
         return sttLikeProvider("stt-pending", effects, false);
+    }
+
+    private static MediaProcessingProvider failedSttProvider(AtomicInteger effects) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "stt-failed"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.SPEECH_TO_TEXT); }
+            @Override public java.util.Optional<com.ghatana.media.runtime
+                    .MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+                return java.util.Optional.of(new com.ghatana.media.runtime
+                        .MediaSpeechToTextAdmission.Profile(
+                        providerId(), "v1", "profile-a", "v1", "sha256:" + "a".repeat(64),
+                        com.ghatana.media.runtime.MediaSpeechToTextAdmission
+                                .ProfileQualification.QUALIFIED,
+                        Set.of("en-US"), false,
+                        com.ghatana.media.runtime.MediaSpeechToTextAdmission
+                                .TimingDisposition.SOURCE_CLOCK_BOUND,
+                        "fixture-qualification-evidence"));
+            }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.failedFuture(
+                        new AssertionError("durable dispatch must use the typed attempt path"));
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts
+                    .ProviderSubmission> processAttempt(
+                    ProcessingContext context,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
+                effects.incrementAndGet();
+                return CompletableFuture.completedFuture(
+                        new com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission(
+                                com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality.FAILED,
+                                "op-stt-failed", "receipt-stt-failed", Map.of(),
+                                "b".repeat(64), Instant.now()));
+            }
+        };
     }
 
     private static MediaProcessingProvider sttLikeProvider(
@@ -490,6 +600,35 @@ class MediaMultimodalParentChildRestartPostgresIT {
         };
     }
 
+    private static MediaProcessingProvider pendingVisionProvider(AtomicInteger effects) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "vision-pending"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.failedFuture(
+                        new AssertionError("durable dispatch must use the typed attempt path"));
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts
+                    .ProviderSubmission> processAttempt(
+                    ProcessingContext context,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
+                effects.incrementAndGet();
+                return new CompletableFuture<>();
+            }
+            @Override public com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome cancel(
+                    String tenantId, String principalId, String correlationId, String jobId) {
+                return com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome.CONFIRMED;
+            }
+        };
+    }
+
     private static com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore
             transcriptStore() {
         return new com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore() {
@@ -545,6 +684,12 @@ class MediaMultimodalParentChildRestartPostgresIT {
                         MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
             }
         };
+    }
+
+    private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated(
+            String tenantId, String principalId) {
+        return new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                tenantId, principalId, Instant.now());
     }
 
     private static Map<String, Object> sttParameters() {
