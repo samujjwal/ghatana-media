@@ -58,18 +58,31 @@ public class MediaTestHarness implements AutoCloseable {
             String evidenceLimit) {
 
         public TestProfile {
-            Objects.requireNonNull(id, "id");
+            requireNonBlank(id, "id");
             Objects.requireNonNull(tier, "tier");
             Objects.requireNonNull(commandKind, "commandKind");
-            commandArguments = List.copyOf(commandArguments);
-            if (commandKind == TestCommandKind.GRADLE) Objects.requireNonNull(gradleTestTask, "gradleTestTask");
-            selectors = List.copyOf(selectors);
-            sources = List.copyOf(sources);
-            resources = List.copyOf(resources);
-            prerequisites = List.copyOf(prerequisites);
-            Objects.requireNonNull(assets, "assets");
-            Objects.requireNonNull(safety, "safety");
-            Objects.requireNonNull(evidenceLimit, "evidenceLimit");
+            commandArguments = immutableNonBlankList(commandArguments, "commandArguments", commandKind == TestCommandKind.PNPM);
+            if (commandKind == TestCommandKind.GRADLE) requireNonBlank(gradleTestTask, "gradleTestTask");
+            else if (gradleTestTask != null) throw new IllegalArgumentException("PNPM profile must not declare a Gradle task");
+            selectors = immutableNonBlankList(selectors, "selectors", true);
+            sources = immutableNonBlankList(sources, "sources", true);
+            resources = immutableNonBlankList(resources, "resources", true);
+            prerequisites = immutableNonBlankList(prerequisites, "prerequisites", true);
+            requireNonBlank(assets, "assets");
+            requireNonBlank(safety, "safety");
+            requireNonBlank(evidenceLimit, "evidenceLimit");
+        }
+
+        private static String requireNonBlank(String value, String field) {
+            if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " must be non-blank");
+            return value;
+        }
+
+        private static List<String> immutableNonBlankList(List<String> values, String field, boolean required) {
+            Objects.requireNonNull(values, field);
+            if (required && values.isEmpty()) throw new IllegalArgumentException(field + " must not be empty");
+            for (String value : values) requireNonBlank(value, field + " entries");
+            return List.copyOf(values);
         }
 
         /** Gradle selection arguments for this profile, usable from the repo root. */

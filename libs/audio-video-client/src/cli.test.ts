@@ -382,24 +382,37 @@ describe('ghatanamedia-api artifact inspect executable', () => {
   });
 
   it.each([
-    ['upload', 'inspect', '--upload', 'u1'],
-    ['upload', 'resume', '--upload', 'u1'],
-    ['transcribe', '--source-version', 'v1', '--language', 'en'],
-    ['transcript', 'review', '--transcript-version', 'v1'],
-    ['job', 'status', '--job', 'j1'],
-    ['job', 'cancel', '--job', 'j1'],
-    ['job', 'check-outcome', '--job', 'j1'],
-    ['caption', 'correct-text', '--artifact-version', 'v1', '--segment', 's1', '--text', 'text'],
-    ['caption', 'align-timing', '--artifact-version', 'v1', '--segment', 's1', '--start-tick', '0', '--end-tick', '1'],
-    ['caption', 'save-version', '--draft-version', 'v1', '--purpose', 'review'],
-    ['caption', 'compare-versions', '--left-version', 'v1', '--right-version', 'v2'],
-    ['demo', 'run'],
-  ])('never exposes the unregistered fixture command %s as real', async (...commandArgs) => {
-    const result = await invoke(commandArgs);
-    expect(result.status).toBe(2);
-    expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
-    expect(result.stderr).not.toContain(token);
-    expect(result.stdout).toBe('');
+    { command: 'upload inspect', args: ['upload', 'inspect', '--upload', 'u1'] },
+    { command: 'upload resume', args: ['upload', 'resume', '--upload', 'u1'] },
+    { command: 'transcribe', args: ['transcribe', '--source-version', 'v1', '--language', 'en'] },
+    { command: 'transcript review', args: ['transcript', 'review', '--transcript-version', 'v1'] },
+    { command: 'job status', args: ['job', 'status', '--job', 'j1'] },
+    { command: 'job cancel', args: ['job', 'cancel', '--job', 'j1'] },
+    { command: 'job check-outcome', args: ['job', 'check-outcome', '--job', 'j1'] },
+    { command: 'job batch', args: ['job', 'batch'] },
+    { command: 'caption correct-text', args: ['caption', 'correct-text', '--artifact-version', 'v1', '--segment', 's1', '--text', 'text'] },
+    { command: 'caption align-timing', args: ['caption', 'align-timing', '--artifact-version', 'v1', '--segment', 's1', '--start-tick', '0', '--end-tick', '1'] },
+    { command: 'caption save-version', args: ['caption', 'save-version', '--draft-version', 'v1', '--purpose', 'review'] },
+    { command: 'caption compare-versions', args: ['caption', 'compare-versions', '--left-version', 'v1', '--right-version', 'v2'] },
+    { command: 'demo run', args: ['demo', 'run'] },
+  ])('never exposes the unregistered fixture command $command as real', async ({ args }) => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-unregistered-command-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(args, token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+        GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(artifact),
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(2);
+      expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
+      expect(result.stderr).not.toContain(token);
+      expect(result.stdout).toBe('');
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it('rejects human and scenario output modes instead of changing the registered JSON contract', async () => {

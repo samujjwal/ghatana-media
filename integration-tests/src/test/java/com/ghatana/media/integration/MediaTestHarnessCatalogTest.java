@@ -61,6 +61,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j01", "journey-outcome-j02", "journey-outcome-j05",
                         "journey-outcome-j02-corrupt-chunk-restart",
                         "journey-outcome-j03-caption-rights-ambiguity",
+                        "journey-outcome-j03-caption-unknown-revocation-fixture",
                         "journey-outcome-j06-service-ambiguous-rights",
                         "journey-outcome-j08-timebase-bound",
                         "journey-outcome-j04-voice-consent-negative",
@@ -76,7 +77,7 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j30-unavailable-readiness",
                         "journey-outcome-j23-browser-offline-reconnect-fixture",
                         "journey-outcome-j23-wrong-project-readback-negative",
-                        "journey-outcome-j24-cli-command-boundary-fixture");
+                        "journey-outcome-j24-cli-unregistered-command-negative-fixture");
 
         for (MediaTestHarness.TestProfile profile : profiles) {
             assertThat(profile.sources()).as(profile.id()).isNotEmpty();
@@ -165,6 +166,16 @@ class MediaTestHarnessCatalogTest {
         assertThat(covered).isEqualTo(allJourneys);
         var profiles = MediaTestHarness.testProfiles(root).stream()
                 .collect(Collectors.toMap(MediaTestHarness.TestProfile::id, profile -> profile));
+        var j03Unknown = profiles.get("journey-outcome-j03-caption-unknown-revocation-fixture");
+        assertThat(j03Unknown.gradleTestTask()).isEqualTo(":services:media:integration-tests:test");
+        assertThat(j03Unknown.selectors()).containsExactly(
+                "com.ghatana.media.launcher.J03CaptionUnknownRevocationScenarioTest"
+                        + ".unknownCaptionWriteStaysOnExactTranscriptAndRevocationBlocksRetry");
+        assertThat(j03Unknown.sources()).contains(
+                ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+                "integration-tests/src/test/java/com/ghatana/media/launcher/J03CaptionUnknownRevocationScenarioTest.java");
+        assertThat(j03Unknown.evidenceLimit()).contains("does not establish licensed inference",
+                "durable caption readback/restart", "journey completion");
         var j23 = profiles.get("journey-outcome-j23-browser-offline-reconnect-fixture");
         assertThat(j23.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "run", "test:browser:offline-store");
         assertThat(j23.sources()).contains("libs/audio-video-client/scripts/test-indexeddb-offline-edit-store-browser.mjs");
@@ -182,12 +193,21 @@ class MediaTestHarnessCatalogTest {
                 "keeps wrong-project version readback unknown without authorizing or applying the edit");
         assertThat(j23WrongProject.sources()).contains("libs/audio-video-client/src/offline-reconnect.test.ts");
         assertThat(j23WrongProject.evidenceLimit()).contains("do not prove a canonical project-edit route");
-        var j24 = profiles.get("journey-outcome-j24-cli-command-boundary-fixture");
+        var j24 = profiles.get("journey-outcome-j24-cli-unregistered-command-negative-fixture");
+        String j24Selector = "never exposes the unregistered fixture command";
         assertThat(j24.commandArguments()).containsExactly("pnpm", "--filter", "@audio-video/client", "exec", "vitest", "run",
-                "src/cli.test.ts", "-t", "keeps the J-24 CLI scenario truthful across the currently supported command boundary"
-                        + "|rejects the unadmitted J-24 batch spelling before the configured fetch boundary");
-        assertThat(Files.readString(root.resolve(j24.sources().getFirst())))
-                .contains(j24.selectors().get(0), "NOT_ADMITTED", j24.selectors().get(1), "INVALID_INVOCATION");
+                "src/cli.test.ts", "-t", j24Selector);
+        assertThat(j24.selectors()).containsExactly(j24Selector);
+        String j24CliTest = Files.readString(root.resolve("libs/audio-video-client/src/cli.test.ts"));
+        assertThat(j24CliTest).contains("command: 'job batch', args: ['job', 'batch']", j24Selector,
+                "expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION')");
+        String j24Contract = Files.readString(root.resolve(
+                ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml"));
+        assertThat(j24.sources()).contains(
+                ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml");
+        assertThat(j24Contract).contains("journeyId: J-24", "status: pdp0-grounded-proposal", "NO_STEP_SCENARIO_BOUND");
+        assertThat(j24.evidenceLimit()).contains("before fetch", "J-24 remains NO_STEP_SCENARIO_BOUND",
+                "no positive output", "durable finality", "journey completion");
         var j30 = profiles.get("journey-outcome-j30-unavailable-readiness");
         assertThat(j30.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
         assertThat(j30.selectors()).containsExactly(
@@ -348,6 +368,41 @@ class MediaTestHarnessCatalogTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("selectors")
                 .hasMessageContaining("non-empty string array");
+    }
+
+    @Test
+    void directlyConstructedProfilesRejectBlankSelectorsAndSources() {
+        assertThatThrownBy(() -> new MediaTestHarness.TestProfile(
+                "direct-profile",
+                MediaTestHarness.TestTier.LOCAL_FIXTURE,
+                MediaTestHarness.TestCommandKind.GRADLE,
+                ":services:media:integration-tests:test",
+                List.of(),
+                List.of(" "),
+                List.of("integration-tests/src/test/java/ExampleTest.java"),
+                List.of("JUnit"),
+                List.of("local runtime"),
+                "synthetic bytes",
+                "isolated fixture",
+                "fixture only"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("selectors entries must be non-blank");
+
+        assertThatThrownBy(() -> new MediaTestHarness.TestProfile(
+                "direct-profile",
+                MediaTestHarness.TestTier.LOCAL_FIXTURE,
+                MediaTestHarness.TestCommandKind.GRADLE,
+                ":services:media:integration-tests:test",
+                List.of(),
+                List.of("ExampleTest.example"),
+                List.of(" "),
+                List.of("JUnit"),
+                List.of("local runtime"),
+                "synthetic bytes",
+                "isolated fixture",
+                "fixture only"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sources entries must be non-blank");
     }
 
     @Test
