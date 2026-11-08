@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const json=p=>JSON.parse(readFileSync(resolve(root,p),"utf8"));
@@ -38,15 +39,66 @@ export function validateSurfaceDelivery(plan, register, crosswalk) {
  if(plan.counts.open!==open.size)errors.push("source-open count changed; refresh plan routing");
  return errors;
 }
-const plan=json("docs/development/surface-delivery.json"),
- register=json("docs/development/remaining-work.json"),
- cap=json("docs/development/capability-implementation-crosswalk.v1.json");
-const problems=validateSurfaceDelivery(plan,register,cap);
-if(problems.length) {
- console.error(problems.join("\n"));
- process.exitCode=1;
-} else if(process.argv.includes("--list")) {
- for(const area of plan.areas) console.log(area.id+"\t"+area.taskIds.length+"\t"+area.title);
-} else if(process.argv.includes("--check")||process.argv.length<=2) {
- console.log("SURFACE_DELIVERY_OK areas="+plan.areas.length+" tasks="+plan.counts.open+" surfaces="+plan.surfaces.length+" journeys="+plan.journeys.length+" capabilityLeaves="+cap.records.length);
+
+/**
+ * A change-impact SELECTOR, not a test executor or a verdict. It reports only
+ * relevant area checks. Reuse a prior passing result only after separately
+ * comparing all transitive inputs and host/provider/toolchain fingerprints.
+ */
+export function selectAffectedAreas(plan, changedPaths) {
+ const paths=[...new Set(changedPaths.map(p=>p.replaceAll("\\","/")))];
+ const semantic=paths.some(p=>p.startsWith(".product-experience/"));
+ const shared=paths.some(p=>p.startsWith("runtime-contracts/")
+   || p.startsWith("libs/audio-video-types/")
+   || p.startsWith("contracts/openapi/")
+   || p==="config/route-manifest.json"
+   || p==="settings.gradle.kts"
+   || p==="package.json"
+   || p==="pnpm-lock.yaml"
+   || p.startsWith("gradle/"));
+ return plan.areas.filter(area=>{
+   if(area.id!=="history-retention"&&(semantic||shared))return true;
+   return paths.some(p=>area.source.some(owner=>
+     p===owner || p.startsWith(owner.endsWith("/")?owner:owner+"/")));
+ });
+}
+function changedSince(ref) {
+ if(!/^[A-Za-z0-9._/~-]+$/.test(ref)||ref.startsWith("-"))throw new Error("invalid Git ref");
+ const commands=[
+   ["diff","--name-only",ref+"...HEAD"],
+   ["diff","--name-only","HEAD"],
+   ["ls-files","--others","--exclude-standard"]
+ ];
+ const result=new Set();
+ for(const args of commands) {
+   const run=spawnSync("git",args,{cwd:root,encoding:"utf8",maxBuffer:2*1024*1024});
+   if(run.status!==0)throw new Error("git changed-input query failed for "+args[0]+": "+(run.stderr||"nonzero exit").trim());
+   for(const p of run.stdout.split("\n").filter(Boolean))result.add(p);
+ }
+ return [...result].sort();
+}
+function runCli(args=process.argv.slice(2)) {
+ const plan=json("docs/development/surface-delivery.json"),
+       register=json("docs/development/remaining-work.json"),
+       cap=json("docs/development/capability-implementation-crosswalk.v1.json");
+ const problems=validateSurfaceDelivery(plan,register,cap);
+ if(problems.length)throw new Error(problems.join("\n"));
+ const affects=args.filter(a=>a.startsWith("--affected="));
+ if(affects.length>1)throw new Error("only one --affected Git ref allowed");
+ if(affects.length) {
+   const changedPaths=changedSince(affects[0].slice("--affected=".length));
+   const areas=selectAffectedAreas(plan,changedPaths);
+   console.log(JSON.stringify({changedPaths,areas:areas.map(a=>({
+     id:a.id,taskIds:a.taskIds,focusedChecks:a.checks
+   })),note:"Selection only; external host/current rights/provider changes require explicit targeted recheck. No tests were run."},null,2));
+ } else if(args.includes("--list")) {
+   for(const area of plan.areas)console.log(area.id+"\t"+area.taskIds.length+"\t"+area.title);
+ } else {
+   console.log("SURFACE_DELIVERY_OK areas="+plan.areas.length+" tasks="+plan.counts.open+
+     " surfaces="+plan.surfaces.length+" journeys="+plan.journeys.length+
+     " capabilityLeaves="+cap.records.length);
+ }
+}
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
+ try {runCli()}catch(error){console.error(error.message);process.exitCode=1}
 }
