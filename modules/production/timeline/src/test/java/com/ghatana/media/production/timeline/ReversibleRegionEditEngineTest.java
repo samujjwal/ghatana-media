@@ -239,6 +239,16 @@ class ReversibleRegionEditEngineTest {
     }
 
     @Test
+    void revisionCannotReuseItsImmediateParentIdentity() {
+        assertThatThrownBy(() -> new ReversibleRegionEditEngine.EditRevision(
+                OWNER.tenantId(), OWNER.principalId(), "project-region", "r1", "r1", "plan-edit",
+                SOURCE, DIGEST, "local-region-edit", "region-1", evidence(List.of(bboxSample(0, .1, .1, 0))),
+                state("snapshot", "edit", "value"), null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("revisionId must differ from its parent revisionId");
+    }
+
+    @Test
     void undoRejectsMalformedRequestIdBeforeRightsLookup() {
         RegionEditFixture fixture = new RegionEditFixture();
         ReversibleRegionEditEngine.EditSnapshot before = fixture.store.head(OWNER, "project-region").snapshot();

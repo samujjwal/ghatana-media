@@ -450,6 +450,9 @@ public final class ReversibleRegionEditEngine {
             projectId = required(projectId, "projectId");
             revisionId = required(revisionId, "revisionId");
             parentRevisionId = parentRevisionId == null ? null : required(parentRevisionId, "parentRevisionId");
+            if (revisionId.equals(parentRevisionId)) {
+                throw new IllegalArgumentException("revisionId must differ from its parent revisionId");
+            }
             planId = required(planId, "planId");
             Objects.requireNonNull(source, "source");
             sourceSha256 = requireSha256(sourceSha256);
