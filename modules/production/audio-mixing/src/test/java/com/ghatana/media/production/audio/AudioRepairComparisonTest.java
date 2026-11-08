@@ -122,13 +122,14 @@ class AudioRepairComparisonTest {
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 0.0, 0.0, 0, 0, 0, 0, 0, 0.0, 0.0, false, null, null, null));
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
-                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, true, null, null, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, 1.01, 0.5, 0.51));
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, 1.0, 0.5, 0.25));
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, null, null, 0.0));
+        assertThat(new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, true, null, null, null))
+                .satisfies(metrics -> assertThat(metrics.hasIndependentReference()).isTrue());
     }
 
     @Test
@@ -179,8 +180,8 @@ class AudioRepairComparisonTest {
         assertThat(comparison.metrics().rmsChangeDb()).isZero();
         assertThat(comparison.metrics().sourceNearClipSampleCount()).isZero();
         assertThat(comparison.metrics().repairedNearClipSampleCount()).isZero();
-        assertThat(Double.isInfinite(comparison.metrics().snrDbVsReference())
-                && comparison.metrics().snrDbVsReference() > 0.0).isTrue();
+        assertThat(comparison.metrics().snrDbVsReference()).isNaN();
+        assertThat(comparison.metrics().hasIndependentReference()).isTrue();
         assertThat(comparison.metrics().sourceStereoCorrelation()).isNull();
         assertThat(comparison.metrics().stereoCorrelationDelta()).isNull();
     }
@@ -239,7 +240,7 @@ class AudioRepairComparisonTest {
         AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired, reference);
 
         assertThat(comparison.metrics().hasIndependentReference()).isTrue();
-        assertThat(comparison.metrics().snrDbVsReference()).isEqualTo(Double.POSITIVE_INFINITY);
+        assertThat(comparison.metrics().snrDbVsReference()).isNaN();
         assertThat(comparison.metrics().changedSampleCount()).isZero();
     }
 

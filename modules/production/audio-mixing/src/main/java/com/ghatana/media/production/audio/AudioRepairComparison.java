@@ -131,9 +131,11 @@ public final class AudioRepairComparison {
             }
         }
         double count = output.length / (double) bytes;
-        double snr = reference == null ? Double.NaN :
+        // SNR is undefined when the independent reference contains no signal,
+        // even when the repaired output is also silent (zero error).
+        double snr = reference == null || referenceEnergy == 0.0 ? Double.NaN :
                 errorEnergy == 0 ? Double.POSITIVE_INFINITY :
-                referenceEnergy == 0 ? Double.NEGATIVE_INFINITY : 10.0 * Math.log10(referenceEnergy / errorEnergy);
+                10.0 * Math.log10(referenceEnergy / errorEnergy);
         double sourceRms = Math.sqrt(inputEnergy / count);
         double repairedRms = Math.sqrt(outputEnergy / count);
         double rmsChangeDb = sourceRms == 0.0
@@ -205,8 +207,8 @@ public final class AudioRepairComparison {
                     || changedSampleCount < 0 || changedSampleCount > MAX_PCM_SAMPLES) {
                 throw new IllegalArgumentException("audio comparison metrics must be non-negative and numerically defined");
             }
-            if (hasIndependentReference == Double.isNaN(snrDbVsReference)) {
-                throw new IllegalArgumentException("reference SNR must be present exactly when an independent reference exists");
+            if (!hasIndependentReference && !Double.isNaN(snrDbVsReference)) {
+                throw new IllegalArgumentException("reference SNR must be absent when no independent reference exists");
             }
             boolean hasStereoCorrelation = sourceStereoCorrelation != null && repairedStereoCorrelation != null;
             if ((sourceStereoCorrelation == null) != (repairedStereoCorrelation == null)
