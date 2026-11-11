@@ -216,6 +216,24 @@ class MediaLifecycleEventConsumerTest {
     }
 
     @Test
+    void envelopeOccurrenceTimestampMustMatchPayloadBeforeProjection() {
+        var store = new MemoryProjection();
+        var consumer = consumer(true, store, LogicalJobStatus.RUNNING);
+        var event = event("media.job.accepted", 1);
+        var mismatchedTimestamp = new EventEnvelope<>(SimpleEventId.of(event.eventRef()), event.toPayload(),
+                event.occurredAt().toEpochMilli() + 1, MediaLifecycleEventConsumer.TOPIC,
+                event.eventType().wireName(), MediaPublicLifecycleEvent.SCHEMA_VERSION,
+                "media-runtime", "tenant-private", event.correlationRef(), MediaPublicLifecycleEvent.SCHEMA_URI,
+                event.aggregateRef(), event.eventRef(), Map.of(), "application/json");
+
+        assertThatThrownBy(() -> consumer.consume("consumer-a", mismatchedTimestamp))
+                .isInstanceOf(MediaLifecycleEventConsumer.LifecycleEventException.class)
+                .extracting(error -> ((MediaLifecycleEventConsumer.LifecycleEventException) error).failure())
+                .isEqualTo(MediaLifecycleEventConsumer.Failure.INVALID_ABI);
+        assertThat(store.applied).isEmpty();
+    }
+
+    @Test
     void invalidTenantRedactionAndUnavailableRedactionReturnTypedFailuresBeforeAuthorizationOrProjection() {
         var store = new MemoryProjection();
         var authorizationCalls = new java.util.concurrent.atomic.AtomicInteger();

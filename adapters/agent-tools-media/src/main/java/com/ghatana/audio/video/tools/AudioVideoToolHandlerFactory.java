@@ -5,6 +5,11 @@
 package com.ghatana.audio.video.tools;
 
 import com.ghatana.toolruntime.ToolHandler;
+import com.ghatana.agent.framework.tools.ToolContract;
+import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
+import com.ghatana.agent.framework.tools.ToolExecutionResult;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
+import io.activej.promise.Promise;
 
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +34,13 @@ import java.util.Objects;
  * @doc.pattern Factory Method
  */
 public final class AudioVideoToolHandlerFactory {
+
+    /** Host entry point that carries the authenticated principal per invocation. */
+    @FunctionalInterface
+    public interface AuthenticatedToolHandler {
+        Promise<ToolExecutionResult> handle(
+                ToolExecutionEnvelope envelope, ToolContract contract, AuthenticatedPrincipal authenticated);
+    }
 
     /** Canonical tool IDs exposed by the Audio-Video capability registry. */
     public static final String TOOL_ID_STT = SpeechToTextToolHandler.TOOL_ID;
@@ -73,7 +85,28 @@ public final class AudioVideoToolHandlerFactory {
      * @throws IllegalArgumentException if the toolId is not recognized
      */
     public ToolHandler create(String toolId) {
-        ToolHandler handler = switch (toolId) {
+        ToolHandler handler = createDelegate(toolId);
+        if (executionBinder == null) return handler;
+        return (envelope, contract) -> executionBinder.execute(handler, envelope, contract);
+    }
+
+    /**
+     * Creates a host-facing handler whose authenticated principal is supplied for each call.
+     * This avoids caching credentials in a reusable ToolHandler and lets the binder validate
+     * the principal-to-actor mapping before claim or dispatch. A binder must be configured;
+     * this method never falls back to a direct modality handler.
+     */
+    public AuthenticatedToolHandler createAuthenticated(String toolId) {
+        if (executionBinder == null) {
+            throw new IllegalStateException("authenticated Media tool execution requires an invocation binder");
+        }
+        ToolHandler handler = createDelegate(toolId);
+        return (envelope, contract, authenticated) ->
+                executionBinder.execute(handler, envelope, contract, authenticated);
+    }
+
+    private static ToolHandler createDelegate(String toolId) {
+        return switch (toolId) {
             case TOOL_ID_STT       -> new SpeechToTextToolHandler();
             case TOOL_ID_TTS       -> new TextToSpeechToolHandler();
             case TOOL_ID_VISION    -> new VisionAnalysisToolHandler();
@@ -81,8 +114,6 @@ public final class AudioVideoToolHandlerFactory {
             default -> throw new IllegalArgumentException(
                     "Unknown Audio-Video tool ID: '" + toolId + "'. Known IDs: " + HANDLER_REGISTRY.keySet());
         };
-        if (executionBinder == null) return handler;
-        return (envelope, contract) -> executionBinder.execute(handler, envelope, contract);
     }
 
     /**

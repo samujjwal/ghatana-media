@@ -75,8 +75,12 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   const physicals = topology.manifestCandidates ?? [];
   const physicalIds = physicals.map(c => c.surfaceId);
   const domains = extract(original.domain, /^\s+- id: (media\.domain\.\S+)/gm);
-  if (physicals.length !== 26 || topology.activeManifestCandidateCount !== 26)
+  const historicalPhysicalCount = topology.recorderStudioConsumerSuccessor?.historicalPhysicalCount;
+  if (historicalPhysicalCount !== 26)
     fail('historical physical candidate denominator changed');
+  if (!Number.isInteger(topology.activeManifestCandidateCount) ||
+      physicals.length !== topology.activeManifestCandidateCount)
+    fail('active physical candidate denominator differs from topology manifest');
   if (topology.compositions?.length !== 7) fail('historical composition denominator changed');
   if (old.length !== 17 || added.length !== 4 || topology.recorderStudioConsumerSuccessor?.historicalPhaseCells !== 200)
     fail('historical 50×4 PDP population not preserved');
@@ -88,7 +92,7 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   if (!sameSet(registryIds, consumerIds)) fail('surface-registry and consumer crosswalk identities mismatch');
   if (old.some(id => !consumerIds.includes(id)) || old.some(id => added.includes(id)))
     fail('historical consumer identities were dropped or reused');
-  if (new Set(physicalIds).size !== 26) fail('physical candidate identity duplicated');
+  if (new Set(physicalIds).size !== physicalIds.length) fail('physical candidate identity duplicated');
 
   // The new surfaces are logical child contracts of canonical consumer surfaces.
   // The owning PDP-0 Product Truth states the intent; registry and physical
@@ -157,14 +161,15 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
       fail(p.surfaceId + ': physical-to-consumer reverse refs not reconciled');
   }
 
-  const req = original.requirements;
   const p0 = original.p0, p1 = original.p1, p2 = original.p2;
   const requirementsDocument = parsedDocs.requirements.toJS();
   const requirementLeaves = new Map((requirementsDocument?.requirements ?? [])
     .map(r => [r.id, new Set(r.capabilityIds ?? [])]));
   const allCapIds = extract(original.capabilities.slice(original.capabilities.indexOf('\ncapabilities:\n')), /^  - id: (media\.[^\s]+)$/gm);
   const canonCaps = new Set(allCapIds);
-  const canonReqIds = new Set(extract(req, /^- id: (MEDIA-REQ-CAP-[A-Z-]+)$/gm));
+  const canonicalRequirementRows = requirementsDocument?.requirements ?? [];
+  const canonicalRequirementIds = canonicalRequirementRows.map(requirement => requirement?.id);
+  const canonReqIds = new Set(canonicalRequirementIds);
   const leafReviewDocument = parsedDocs.leafReview.toJS();
   const campaignExtensionDocument = parsedDocs.campaignExtensions.toJS();
   const currentDefinitionPopulation = campaignExtensionDocument?.currentDefinitionPopulation ?? {};
@@ -195,7 +200,9 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
       || [...joinedCapabilityIds].some(id => !currentCapabilityIds.has(id))) {
     fail('current capabilities must partition into 462 owner-adjudicated leaves and seven separately recorded definition extensions');
   }
-  if (canonReqIds.size !== 38) fail('current requirement family denominator must be 38');
+  if (canonicalRequirementRows.length !== 38 || canonReqIds.size !== 38 ||
+      canonicalRequirementIds.some(id => typeof id !== 'string' || !/^MEDIA-REQ-CAP-[A-Z-]+$/u.test(id)))
+    fail('current requirement family denominator must be 38');
   const recorderStudioProfile = requirementsDocument?.recorderStudioProfile;
   if (!recorderStudioProfile) return { errors: [...errors, 'canonical Recorder Studio requirements profile is missing'], stats: {} };
   const clauses = recorderStudioProfile.acceptanceClauses ?? [];
@@ -479,7 +486,8 @@ export function verifyRecorderStudioDefinitions({root = defaultRoot, overrides =
   return {
     errors,
     stats: {
-      historicalPhysical:26,historicalCompositions:7,historicalConsumers:17,
+      historicalPhysical:historicalPhysicalCount,activePhysicalCandidates:physicals.length,
+      historicalCompositions:7,historicalConsumers:17,
       successorConsumers:consumers.length,historicalPdpCells:200,proposedPdpCells:216,
       capabilityLeaves:canonCaps.size,parentRequirements:canonReqIds.size,
       recorderCases:caseIds.length,p0Groups:p0FeatureIds.length,

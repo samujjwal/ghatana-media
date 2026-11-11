@@ -20,7 +20,7 @@
     "causationRef": { "oneOf": [{ "$ref": "#/$defs/redactedId" }, { "const": "" }] },
     "aggregateType": { "enum": ["upload", "artifact", "job", "stream"] },
     "aggregateRef": { "$ref": "#/$defs/redactedId" },
-    "aggregateVersion": { "type": "integer", "minimum": 1 },
+    "aggregateVersion": { "type": "integer", "minimum": 1, "maximum": 9223372036854775807 },
     "classification": { "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"] },
     "occurredAt": { "type": "string", "format": "date-time" },
     "appendFinality": { "const": "NON_FINAL_APPEND" },

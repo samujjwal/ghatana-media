@@ -1,0 +1,84 @@
+schemaVersion: media.local-development-cli-command-registry.v1
+productId: media
+status: local-development-command-definitions-only; production-admission-open
+sourceDisposition:
+  decisionRef: .product-experience/decision-log.md#PXD-051
+  scope: explicit-local-development-source-contract-extension
+  supersedesPlanConflict: true
+  clarification: PXD-051's no-upload-CLI-command exclusion predates this explicit local-development disposition; this registry defines the four listed local-development command identities only and does not amend the production CLI registry.
+  productionAdmission: OPEN
+executionScope:
+  binary: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
+  runtimeProfile: MEDIA_PROFILE-exactly-dev
+  endpointConstraint: HTTP-or-HTTPS-loopback-only
+  credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+  expectedIssuer: urn:ghatana:media:dev-only
+  expectedAudience: ghatana-media-dev
+  requiredClaims: [dev_only-true, unexpired, tenant_id-matches---tenant, sub-matches---principal, command-permissions-present]
+  signatureValidation: Media-host-verifies-HMAC; client-claim-preflight-is-not-an-authority-decision
+productionAdmission:
+  status: OPEN
+  productionRegistryRef: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
+  productionIdentityCount: 1
+  productionIdentities: [media.cli.artifact.inspect]
+commands:
+  - id: media.cli.local-development.artifact.upload
+    canonicalCommand: ghatanamedia-api-dev artifact upload
+    runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATIONS
+    sdkMethods:
+      - libs/audio-video-client/src/operations.ts#MediaOperationClient.createUploadSession
+      - libs/audio-video-client/src/operations.ts#MediaOperationClient.getUploadSession
+      - libs/audio-video-client/src/operations.ts#MediaOperationClient.uploadPart
+      - libs/audio-video-client/src/operations.ts#MediaOperationClient.completeUploadSession
+    operationRefs:
+      - media.operation-slice.begin-upload
+      - media.operation-slice.inspect-upload
+      - media.operation-slice.append-upload-chunk
+      - media.operation-slice.complete-upload
+    httpOperations: [beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload]
+    requiredOptions: [--endpoint, --tenant, --principal, --file, --content-type, --classification, --retention, --idempotency-key]
+    effectBoundary: bounded-source-read-and-explicit-upload-to-loopback-dev-host; completion-returns-an-artifact-observation-only
+    unknownOutcome: preserve-known-upload-id; report-OUTCOME_UNKNOWN; no-blind-retry; reconcile-exact-upload-session-before-next-action
+    productionAdmission: OPEN
+  - id: media.cli.local-development.artifact.inspect
+    canonicalCommand: ghatanamedia-api-dev artifact inspect
+    runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATION
+    sdkMethods: [libs/audio-video-client/src/operations.ts#MediaOperationClient.getArtifact]
+    operationRefs: [media.operation-slice.inspect-artifact]
+    httpOperations: [getMediaArtifact]
+    requiredOptions: [--endpoint, --tenant, --principal, --artifact]
+    outcome: point-in-time-scoped-artifact-metadata; does-not-prove-rights-or-global-absence
+    productionAdmission: OPEN
+  - id: media.cli.local-development.job.get
+    canonicalCommand: ghatanamedia-api-dev job get
+    runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATION
+    sdkMethods:
+      - libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.getJob
+      - libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.getJobByRequest
+    operationRefs: [media.operation-slice.inspect-job]
+    httpOperations: [getMediaJob]
+    requiredOptions: [--endpoint, --tenant, --principal, --job]
+    optionalOptions: [--request-id]
+    outcome: caller-scoped-point-in-time-job-observation; not-a-provider-finality-receipt; no-command-replay
+    productionAdmission: OPEN
+  - id: media.cli.local-development.job.cancel
+    canonicalCommand: ghatanamedia-api-dev job cancel
+    commandDefinition: local-development-only; requires---job-and---request-id
+    operationRefCandidate: media.operation-slice.cancel-job
+    observedHostRoute: POST-/dev/v1/jobs/{jobId}/cancel
+    requiredOptions: [--endpoint, --tenant, --principal, --job, --request-id]
+    optionalOptions: [--expected-version]
+    runtimeBinding: EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION
+    sdkMethods: [libs/audio-video-client/src/dev-job-cancellation.ts#MediaDevOnlyJobCancellationClient.cancelJob]
+    wireContract: media.dev.job-cancellation-result.v1
+    semantics:
+      - exact-dev-profile-and-in-process-LOCAL-provider-only
+      - require-stable-requestId; optional-expectedVersion-is-compare-and-set-precondition
+      - durably-reserve-request-before-provider-cancel; same-request-replay-never-redispatches
+      - outcomes-distinguish-confirmed-requested-unconfirmed-unknown-unsupported-terminal-and-race
+      - cancellation-requested-is-not-provider-finality; job-status-readback-remains-authoritative
+      - unsupported-provider-or-non-dev-host-returns-explicit-not-admitted
+      - parent-multimodal-cancellation-preserves-child-finality-and-unknown-semantics
+    safetyBoundary: signed-DEV_ONLY-identity; owner-scoped-job; loopback-CLI; absent-from-canonical-OpenAPI-and-production-CLI
+    unknownOutcome: reuse-the-same-requestId-to-reconcile-durable-cancellation-record; never-issue-a-new-request-as-blind-retry
+    productionAdmission: OPEN

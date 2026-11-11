@@ -20,6 +20,23 @@ function sameStrings(left: readonly string[], right: readonly string[]): boolean
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
+/** Snapshot the source-defined flat scalar request before binding its reconciliation identity. */
+function snapshotPayload(
+  payload?: Readonly<Record<string, string | number | boolean | null>>,
+): Readonly<Record<string, string | number | boolean | null>> | undefined {
+  if (payload === undefined) return undefined;
+  if (payload === null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new TypeError("Action payload must be a flat object.");
+  }
+  return Object.freeze(Object.fromEntries(Object.entries(payload)));
+}
+
+/** Preserve ordered exact subject refs while preventing caller or host mutation. */
+function snapshotSubjectRefs(subjectRefs: readonly string[]): readonly string[] {
+  if (!Array.isArray(subjectRefs)) throw new TypeError("Action subjects must be an array of exact references.");
+  return Object.freeze(Array.from({ length: subjectRefs.length }, (_, index) => subjectRefs[index]!));
+}
+
 function sameReconciliationIdentity(record: MediaActionReconciliation, expected: Pick<AwaitingOwnerReconciliation, "actionId" | "requestId" | "requestCanonical" | "subjectRefs">): boolean {
   return record.actionId === expected.actionId
     && record.requestId === expected.requestId
@@ -81,10 +98,15 @@ export function createMediaActionDispatchGuard(
         if (inFlight.has(actionId)) {
           return { status: "unavailable", reason: "This action is already in flight or awaits exact owner reconciliation; do not retry from a stale projection." };
         }
-        const subjectRefs = context?.subjectRefs ?? [];
+        let dispatchPayload: Readonly<Record<string, string | number | boolean | null>> | undefined;
+        let subjectRefs: readonly string[];
         let requestCanonical: string;
         try {
-          requestCanonical = canonicalMediaActionRequest(actionId, payload, { subjectRefs });
+          // Canonical identity and host dispatch must observe the same immutable request
+          // snapshot, even if a caller mutates its draft while the host promise is pending.
+          dispatchPayload = snapshotPayload(payload);
+          subjectRefs = snapshotSubjectRefs(context?.subjectRefs ?? []);
+          requestCanonical = canonicalMediaActionRequest(actionId, dispatchPayload, { subjectRefs });
         } catch (error) {
           return { status: "unavailable", reason: error instanceof Error ? error.message : "Action request is malformed." };
         }
@@ -101,7 +123,7 @@ export function createMediaActionDispatchGuard(
         onPendingChange(actionId, true);
         let release = false;
         try {
-          const result = await delegate.invoke(actionId, payload, { subjectRefs });
+          const result = await delegate.invoke(actionId, dispatchPayload, { subjectRefs });
           if (result.status === "denied" || result.status === "unavailable"
             || (result.status === "local-applied" && MEDIA_LOCAL_ACTION_IDS.has(actionId))) {
             release = true;

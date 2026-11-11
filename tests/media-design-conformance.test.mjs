@@ -3,10 +3,11 @@ import { createRequire } from "node:module";
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { analyzeDesignConformance } from "../scripts/check-media-design-conformance.mjs";
 
-const repositoryRoot = resolve(new URL("..", import.meta.url).pathname);
+const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const { parse: parseYaml } = createRequire(resolve(repositoryRoot, "../ghatana-tools/package.json"))("yaml");
 
 const write = (root, path, content) => {
@@ -122,6 +123,106 @@ test("unregistered local component implementation fails", () => withFixture({ ex
   assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("LocalCard")));
 }));
 
+test("private helper used by an exact registered screen is implementation detail, while unknown exports still fail", () => withFixture({
+  extraSource: "export function DevProjectTimelineWorkspaceScreen() { return <PrivateWorkspace />; }\nfunction PrivateWorkspace() { return null; }\nexport function LocalCard() { return null; }",
+}, (root) => {
+  write(root, ".product-experience/executable-representation/export-map.yaml", `exports:\n  - subpath: ./screens/dev-project-timeline\n    publicNames: [DevProjectTimelineWorkspaceScreen]\n    source: libs/audio-video-ui/src/Local.tsx\n    layer: screen-composition\n`);
+  const result = analyzeDesignConformance(root);
+  assert.ok(!result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("PrivateWorkspace")));
+  assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("LocalCard")));
+}));
+
+function writeEmbeddedSurfaceBinding(root, {
+  id = "media.gui.embedded-surface.interactive-demo-player.v1",
+  implementationExport = "InteractiveDemoPlayer",
+  implementationCandidate = "libs/audio-video-ui/src/player/interactiveDemoPlayer.tsx",
+  surfaceId = "media.surface.interactive-demo-player",
+  experienceKey = "interactiveDemoPlayerExperience",
+  status = "candidate-source-observation-only; route-runtime-admission-not-recorded",
+  omitSurfaceRef = false,
+  omitExperienceRef = false,
+  surfaceRefOverride,
+  experienceRefOverride,
+  includePublicExport = true,
+} = {}) {
+  const definedSurfaceRef = `.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#surfaceInterfaces/${surfaceId}`;
+  const surfaceRef = surfaceRefOverride ?? definedSurfaceRef;
+  const experienceRef = experienceRefOverride ?? `.product-experience/pdp-3-product-experience/recorder-studio-experience.yaml#${experienceKey}`;
+  const record = {
+    id,
+    implementationExport,
+    implementationCandidate,
+    surfaceId,
+    surfaceSourceRef: omitSurfaceRef ? undefined : surfaceRef,
+    experienceSourceRef: omitExperienceRef ? undefined : experienceRef,
+    status,
+  };
+  const { id: recordId, ...recordFields } = record;
+  const fields = Object.entries(recordFields).filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `    ${key}: ${value}`).join("\n");
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml", `embeddedSurfaceBindings:\n  - id: ${recordId}\n${fields}\n`);
+  write(root, ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml", `surfaceInterfaces:\n  - surfaceId: ${surfaceId}\n    kind: EMBEDDED_GUI\n`);
+  write(root, ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml", `${experienceKey}:\n  surfaceId: ${surfaceId}\n  sourcePdp2Ref: ${definedSurfaceRef}\n`);
+  write(root, record.implementationCandidate, `export function ${implementationExport}() { return null; }`);
+  write(root, "libs/audio-video-ui/src/index.ts", 'export * from "./player";');
+  const leafModule = implementationCandidate.slice("libs/audio-video-ui/src/player/".length).replace(/\.(?:tsx?|jsx?)$/u, "");
+  write(root, "libs/audio-video-ui/src/player/index.ts", `export * from "./${leafModule}";`);
+  const publicNames = includePublicExport ? `[${implementationExport}]` : "[]";
+  write(root, ".product-experience/executable-representation/export-map.yaml", `exports:\n  - subpath: .\n    publicNames: ${publicNames}\n    source: libs/audio-video-ui/src/index.ts\n    status: candidate; admission-not-recorded\n`);
+}
+
+test("embedded player source binding requires exact PDP-2, PDP-3, and implementation references", () => withFixture({}, (root) => {
+  writeEmbeddedSurfaceBinding(root);
+  const result = analyzeDesignConformance(root);
+  assert.ok(!result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("InteractiveDemoPlayer")));
+  assert.equal(result.blockers.some((item) => item.includes("embedded surface")), false);
+}));
+
+test("embedded surface binding is generic across exact source identities", () => withFixture({}, (root) => {
+  writeEmbeddedSurfaceBinding(root, {
+    id: "media.gui.embedded-surface.training-demo.v1",
+    implementationExport: "TrainingDemo",
+    implementationCandidate: "libs/audio-video-ui/src/player/trainingDemo.tsx",
+    surfaceId: "media.surface.training-demo",
+    experienceKey: "trainingDemoExperience",
+  });
+  const result = analyzeDesignConformance(root);
+  assert.ok(!result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("TrainingDemo")));
+  assert.equal(result.blockers.some((item) => item.includes("semantic component bindings:")), false, result.blockers.join("\n"));
+}));
+
+test("embedded surface binding rejects wrong or missing refs, status, and public exports", () => {
+  for (const options of [
+    { surfaceRefOverride: ".product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#surfaceInterfaces/media.surface.other" },
+    { omitSurfaceRef: true },
+    { experienceRefOverride: ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml#missingExperience" },
+    { omitExperienceRef: true },
+    { status: "accepted-and-runtime-admitted" },
+    { includePublicExport: false },
+  ]) withFixture({}, (root) => {
+    writeEmbeddedSurfaceBinding(root, options);
+    const result = analyzeDesignConformance(root);
+    assert.ok(result.blockers.some((item) => item.includes("semantic component bindings:")), result.blockers.join("\n"));
+    assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("InteractiveDemoPlayer")));
+  });
+  withFixture({}, (root) => {
+    writeEmbeddedSurfaceBinding(root);
+    write(root, ".product-experience/pdp-3-product-experience/recorder-studio-experience.yaml", "interactiveDemoPlayerExperience: {}\n");
+    const result = analyzeDesignConformance(root);
+    assert.ok(result.blockers.some((item) => item.includes("PDP-3 source ref")));
+    assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("InteractiveDemoPlayer")));
+  });
+  withFixture({}, (root) => {
+    writeEmbeddedSurfaceBinding(root);
+    const bindingPath = ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml";
+    const binding = readFileSync(join(root, bindingPath), "utf8");
+    write(root, bindingPath, `${binding}${binding.replace("embeddedSurfaceBindings:\n", "")}`);
+    const result = analyzeDesignConformance(root);
+    assert.ok(result.blockers.some((item) => item.includes("unique exact identities")));
+    assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("InteractiveDemoPlayer")));
+  });
+});
+
 test("candidate-first semantic bindings register exports and their interaction selectors only with valid sources and component refs", () => {
   const semanticPath = ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml";
   const binding = (candidate, componentRef = "media.component.sample") => `status: SOURCE_INCOMPLETE\nbindings:\n  - implementationCandidate: ${candidate}\n    componentRefs: [${componentRef}]\n    implementationExport: MediaTaskFlow\n`;
@@ -204,6 +305,7 @@ test("Explorer CSS remains visible as fixture-only and does not become product a
 test("repository keeps owner-gated blockers separate from source findings", () => {
   const result = analyzeDesignConformance();
   assert.equal(result.ok, false);
+  assert.equal(result.summary.productLiteralColors, 0);
   assert.equal(result.summary.unexplained, 0);
   assert.ok(result.summary.explorerFixtureObservations > 0);
   assert.ok(result.blockers.some((item) => item.includes("shared-artifact-binding remains EXTERNAL_PENDING")));
@@ -211,6 +313,46 @@ test("repository keeps owner-gated blockers separate from source findings", () =
   assert.equal(result.summary.resolvedOwnerGates, 5);
   assert.equal(result.summary.openGovernanceGates.length, 2);
   assert.ok(!result.blockers.some((item) => item.includes("concrete-component-bindings")), result.blockers.join("\n"));
+  assert.deepEqual(result.findings.filter((item) => item.disposition === "unexplained").map((item) => item.rootCauseKey), []);
+});
+
+test("public component evidence uses the current package export barrel", () => {
+  const bindings = readFileSync(join(repositoryRoot, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml"), "utf8");
+  const reuse = readFileSync(join(repositoryRoot, ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml"), "utf8");
+  const exportMap = readFileSync(join(repositoryRoot, ".product-experience/executable-representation/export-map.yaml"), "utf8");
+  assert.doesNotMatch(bindings, /libs\/audio-video-ui\/src\/index\.tsx#export\*from-components/u);
+  assert.doesNotMatch(reuse, /libs\/audio-video-ui\/src\/index\.tsx#export\*from-components/u);
+  assert.doesNotMatch(exportMap, /libs\/audio-video-ui\/src\/index\.tsx/u);
+  assert.match(exportMap, /source: libs\/audio-video-ui\/src\/index\.ts\n/u);
+  assert.match(bindings, /libs\/audio-video-ui\/src\/components\/index\.ts#MediaProgress/u);
+  assert.match(bindings, /libs\/audio-video-ui\/src\/components\/index\.ts#MediaTaskFlow/u);
+  assert.match(exportMap, /publicNames: \[[^\]]*ArtifactInspectionScreen/u);
+  const componentBarrel = readFileSync(join(repositoryRoot, "libs/audio-video-ui/src/components/index.ts"), "utf8");
+  assert.doesNotMatch(componentBarrel, /MediaActionFeedback|mediaActionFeedbackForResult|MediaActionFeedbackValue/u);
+  const candidates = parseYaml(exportMap).exports;
+  const rootCandidate = candidates.find(({ subpath }) => subpath === ".");
+  const componentCandidate = candidates.find(({ subpath }) => subpath === "./components");
+  const screenCandidate = candidates.find(({ subpath }) => subpath === "./screens");
+  for (const name of [
+    "InteractiveDemoPlayer",
+    "ArtifactInspectionScreen",
+    "DevProjectTimelineWorkspaceScreen",
+  ]) {
+    assert.ok(rootCandidate.publicNames.includes(name), `${name} is indexed at the package root`);
+  }
+  for (const name of ["MediaActionFeedback", "mediaActionFeedbackForResult"]) {
+    assert.ok(!rootCandidate.publicNames.includes(name), `${name} is absent from the root API`);
+    assert.ok(!componentCandidate.publicNames.includes(name), `${name} is absent from ./components`);
+  }
+  assert.equal(rootCandidate.status, "active-public-api; admission-not-recorded");
+  assert.equal(componentCandidate.status, "active-public-api; candidate; admission-not-recorded");
+  assert.equal(screenCandidate.status, "active-public-api; candidate; admission-not-recorded");
+});
+
+test("current product presentation CSS uses accepted semantic or native system colors", () => {
+  const result = analyzeDesignConformance();
+  assert.equal(result.summary.productLiteralColors, 0);
+  assert.equal(result.findings.filter((item) => item.kind === "literal-color" && item.disposition === "unexplained").length, 0);
 });
 
 test("definition-only mode defers external gates but still blocks incomplete Media definitions", () => withFixture({}, (root) => {
@@ -227,12 +369,14 @@ test("definition-only mode defers external gates but still blocks incomplete Med
   assert.ok(result.blockers.some((item) => item.includes("concrete-component-bindings remains SOURCE_INCOMPLETE")));
 }));
 
-test("current repository passes definition-only checks without claiming external acceptance", () => {
+test("definition-only mode defers external acceptance after internal helper cleanup", () => {
   const result = analyzeDesignConformance(undefined, { definitionOnly: true, includeP3ScreenInstances: false });
   assert.equal(result.mode, "DEFINITION_ONLY");
   assert.equal(result.screenInstanceScope, "DEFERRED_PDP3_INSTANCE_VALIDATION");
   assert.equal(result.acceptanceClaim, "NONE");
-  assert.equal(result.ok, true, result.blockers.join("\n"));
+  assert.equal(result.ok, true);
+  assert.equal(result.summary.unexplained, 0);
+  assert.ok(!result.blockers.some((item) => item.includes("source-observable design-authority finding(s) are unexplained")));
   assert.equal(result.summary.screenContracts, 0, "PDP-2 scope must not scan downstream screen instances");
   assert.deepEqual(result.deferredAdmissionGates, [
     { id: "shared-artifact-binding", disposition: "EXTERNAL_PENDING" },

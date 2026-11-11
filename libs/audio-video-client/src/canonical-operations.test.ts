@@ -101,7 +101,9 @@ describe("MediaCanonicalClient job operations", () => {
   it("serializes caller-owned mutation data before asynchronous credential lookup", async () => {
     let releaseToken!: (value: string) => void;
     const token = new Promise<string>((resolve) => { releaseToken = resolve; });
-    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job(), 202));
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job({
+      requestId: "req-snapshot", artifactId: "art-1", jobType: "SPEECH_TO_TEXT", status: "ACCEPTED",
+    }), 202));
     const client = createMediaCanonicalClient({
       baseUrl: "https://media.example.test",
       tenantId: "tenant-1",
@@ -130,6 +132,23 @@ describe("MediaCanonicalClient job operations", () => {
     }).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
     expect(failure).toMatchObject({ path: "/api/v1/jobs", requestKey: "idem-cross-scope" });
+    expect(calls).toHaveLength(1);
+  });
+
+  it.each([
+    ["request ID", { requestId: "req-other" }],
+    ["artifact ID", { artifactId: "art-other" }],
+    ["job type", { jobType: "VISION" }],
+  ])("keeps a dispatched submit with a mismatched %s acknowledgement OUTCOME_UNKNOWN", async (_label, override) => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job(override), 202));
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitJob({
+      requestId: "req-1", correlationId: "corr-1", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-mismatched-ack",
+    }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/jobs");
+    expect(failure).toMatchObject({ requestKey: "idem-mismatched-ack" });
     expect(calls).toHaveLength(1);
   });
 
@@ -343,43 +362,17 @@ describe("MediaCanonicalClient job operations", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it("cancelJob round-trips and never retries after a dispatch abort", async () => {
-    const { fetchImpl, calls } = recordedFetch(() =>
-      jsonResponse(job({ status: "CANCELLED" }), 200));
+  it("fails cancelJob closed with NOT_ADMITTED and performs no fetch", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job({ status: "CANCELLED" }), 200));
     const client = clientWith(fetchImpl);
-    const cancelled = await client.cancelJob("job-1");
-    expect(cancelled.status).toBe("CANCELLED");
-    expect(calls[0]!.url).toBe("https://media.example.test/api/v1/jobs/job-1/cancel");
-  });
-
-  it("keeps a dispatched cancel with a mismatched job acknowledgement OUTCOME_UNKNOWN", async () => {
-    const { fetchImpl, calls } = recordedFetch(() =>
-      jsonResponse(job({ jobId: "job-2", status: "CANCELLED" }), 200));
-    const client = clientWith(fetchImpl);
-    const failure = await client.cancelJob("job-1").catch((error: unknown) => error);
-    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
-    expect(failure).toMatchObject({ path: "/api/v1/jobs/job-1/cancel" });
+    await expect(client.cancelJob("job-1")).rejects.toMatchObject({
+      name: "MediaOperationNotAdmittedError",
+      operation: "media.operation-slice.cancel-job",
+    });
+    expect(calls).toHaveLength(0);
+    await expect(client.getJob("job-1")).resolves.toMatchObject({ jobId: "job-1" });
     expect(calls).toHaveLength(1);
-  });
-
-  it("reports a post-dispatch cancel abort as OUTCOME_UNKNOWN without retry", async () => {
-    const controller = new AbortController();
-    const { fetchImpl, calls } = recordedFetch((_url, init) => new Promise<Response>((_resolve, reject) => {
-      init.signal?.addEventListener("abort", () => {
-        reject(init.signal?.reason ?? new DOMException("The operation was aborted.", "AbortError"));
-      }, { once: true });
-    }));
-    const client = clientWith(fetchImpl);
-    const pending = client.cancelJob("job-1", controller.signal);
-    await vi.waitFor(() => expect(calls).toHaveLength(1));
-    controller.abort();
-    const failure = await pending.then(
-      () => { throw new Error("unreachable"); },
-      (error: unknown) => error,
-    );
-    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
-    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/jobs/job-1/cancel");
-    expect(calls).toHaveLength(1);
+    expect(calls[0]!.init.method).toBe("GET");
   });
 
   it("listJobs honors the bounded limit and binds every job to scope", async () => {

@@ -231,7 +231,9 @@ class MediaMultimodalParentChildRestartPostgresIT {
                 var spec = spec(source, List.of(
                         child("stt", JobType.SPEECH_TO_TEXT, sttChild, sttParameters()),
                         child("vision", JobType.VISION, visionChild, Map.of())));
-                accepted = firstRuntime.submit(mmRequest("request-" + runId, tenant, principal, source, spec));
+                accepted = firstRuntime.submit(
+                        mmRequest("request-" + runId, tenant, principal, source, spec),
+                        authenticated(tenant, principal));
                 ProcessingJob terminal = awaitTerminal(
                         firstRuntime, tenant, principal, accepted.jobId());
                 assertThat(terminal.status())
@@ -270,7 +272,8 @@ class MediaMultimodalParentChildRestartPostgresIT {
                 var replay = restarted.submit(mmRequest("request-" + runId, tenant, principal,
                         source, spec(source, List.of(
                                 child("stt", JobType.SPEECH_TO_TEXT, sttChild, sttParameters()),
-                                child("vision", JobType.VISION, visionChild, Map.of())))));
+                                child("vision", JobType.VISION, visionChild, Map.of())))),
+                        authenticated(tenant, principal));
                 assertThat(replay.jobId()).isEqualTo(accepted.jobId());
                 assertThat(sttEffects).hasValue(1);
                 assertThat(visionEffects).hasValue(1);
@@ -303,7 +306,8 @@ class MediaMultimodalParentChildRestartPostgresIT {
                         child("stt", JobType.SPEECH_TO_TEXT, sttChild, sttParameters()),
                         child("vision", JobType.VISION, visionChild, Map.of())));
                 var accepted = firstRuntime.submit(
-                        mmRequest("request-" + runId, tenant, principal, source, spec));
+                        mmRequest("request-" + runId, tenant, principal, source, spec),
+                        authenticated(tenant, principal));
                 // Wait until the vision sibling completes; STT stays in flight, then the
                 // runtime is torn down — losing the in-memory completion registry.
                 awaitJobState(tenant, "request-" + runId + ":vision", "COMPLETED");

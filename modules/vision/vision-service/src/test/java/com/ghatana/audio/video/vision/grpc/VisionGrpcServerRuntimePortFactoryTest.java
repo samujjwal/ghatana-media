@@ -7,6 +7,7 @@ import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaRuntimePortFactory;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +70,7 @@ public class VisionGrpcServerRuntimePortFactoryTest {
     }
 
     @Test
-    void fullVisionMayStartWithoutMediaRuntimeWhileOcrOnlyStillRequiresIt() {
+    void fullVisionMayOmitSceneTextRuntimeWhileOcrOnlyRequiresSourceAuthority() {
         assertThat(VisionGrpcServer.composeRuntimePortForProfile(
                 Map.of("VISION_CAPABILITY_PROFILE", "FULL_VISION"), List.of())).isNull();
         assertThatThrownBy(() -> VisionGrpcServer.composeRuntimePortForProfile(
@@ -83,6 +84,7 @@ public class VisionGrpcServerRuntimePortFactoryTest {
             throws Exception {
         MediaProcessingRuntimePort port = mock(MediaProcessingRuntimePort.class,
                 org.mockito.Mockito.withSettings().extraInterfaces(AutoCloseable.class));
+        when(port.processingReady(JobType.VISION)).thenReturn(false);
         RegisteredTestFactory.runtimePort = port;
         Path serviceFile = temp.resolve("META-INF/services/" + MediaRuntimePortFactory.class.getName());
         Files.createDirectories(serviceFile.getParent());
@@ -105,6 +107,7 @@ public class VisionGrpcServerRuntimePortFactoryTest {
         }
         assertThat(server.isShutdown()).isTrue();
         verify((AutoCloseable) port).close();
+        verify(port, times(0)).processingReady(JobType.VISION);
         RegisteredTestFactory.runtimePort = null;
     }
 

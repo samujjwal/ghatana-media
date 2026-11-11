@@ -12,9 +12,13 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-/** Applies deterministic graph edits and delegates every canonical mutation to one CAS store. */
+/** Applies deterministic graph edits and commits project revision changes through the store's CAS boundary. */
 public final class ProjectTimelineEngine {
     private static final int MAX_EDIT_OPERATIONS = 10_000;
+    private static final String REVISION_SCOPE_MISMATCH =
+            "project timeline store returned a revision outside the requested identity scope";
+    private static final String PROJECT_SCOPE_MISMATCH =
+            "project timeline store returned a project outside the requested identity scope";
     private final ProjectTimelineStore store;
     private final Supplier<String> ids;
 
@@ -32,36 +36,144 @@ public final class ProjectTimelineEngine {
         requireCreateProjectRequestId(requestId);
         requireSelectedWorkspaceId(workspaceId);
         requiredProjectTitle(title);
-        return store.create(actor, workspaceId, title, requestId, nextId(), nextId(), nextId());
+        return store.create(actor, workspaceId, title, requestId, nextId(), nextId());
     }
 
-    public Project project(Actor actor, String projectId) { return store.project(actor, projectId); }
-
-    public Revision edit(Actor actor, String projectId, String expectedHeadRevisionId, List<Edit> edits) {
-        requireExpectedHead(expectedHeadRevisionId);
+    public Project project(Actor actor, String projectId) {
+        Objects.requireNonNull(actor, "actor");
+        requiredOpaqueId(projectId, "projectId");
         Project project = store.project(actor, projectId);
-        Revision head = store.revision(actor, projectId, project.headRevisionId());
+        if (project == null
+                || !Objects.equals(actor.tenantId(), project.tenantId())
+                || !Objects.equals(projectId, project.projectId())) {
+            throw new IllegalStateException(PROJECT_SCOPE_MISMATCH);
+        }
+        return project;
+    }
+
+    /** Reads one immutable revision through the store's tenant/project and actor-authorization boundary. */
+    public Revision revision(Actor actor, String projectId, String revisionId) {
+        Objects.requireNonNull(actor, "actor");
+        requiredOpaqueId(projectId, "projectId");
+        requiredOpaqueId(revisionId, "revisionId");
+        return requireRevisionIdentity(actor, projectId, revisionId,
+                store.revision(actor, projectId, revisionId));
+    }
+
+    /** Reads the currently committed head and its immutable timeline snapshot. */
+    public Revision currentRevision(Actor actor, String projectId) {
+        Project project = project(actor, projectId);
+        return revision(actor, projectId, project.headRevisionId());
+    }
+
+    public Revision createTimeline(Actor actor, String projectId, String expectedHeadRevisionId, String timelineId) {
+        requireExpectedHead(expectedHeadRevisionId);
+        requiredOpaqueId(timelineId, "timelineId");
+        Project project = project(actor, projectId);
+        Revision head = revision(actor, projectId, project.headRevisionId());
         if (!head.revisionId().equals(expectedHeadRevisionId)) {
             throw new RevisionConflictException(expectedHeadRevisionId, head.revisionId());
         }
-        Graph next = apply(head.graph(), edits);
-        return store.commit(actor, projectId, expectedHeadRevisionId, nextId(), next);
+        if (head.timelines().stream().anyMatch(t -> t.timelineId().equals(timelineId))) {
+            throw new IllegalArgumentException("timeline already exists in the project");
+        }
+        List<TimelineSnapshot> next = new ArrayList<>(head.timelines());
+        next.add(new TimelineSnapshot(nextVersionId(), Graph.empty(timelineId)));
+        String revisionId = nextId();
+        return requireSuccessor(actor, projectId, expectedHeadRevisionId, revisionId,
+                store.commit(actor, projectId, expectedHeadRevisionId, revisionId, next));
     }
 
-    /** Restore copies an exact immutable historical graph into a new successor revision (undo/redo primitive). */
+    public Revision edit(Actor actor, String projectId, String timelineId, String expectedHeadRevisionId,
+                         List<Edit> edits) {
+        requireExpectedHead(expectedHeadRevisionId);
+        requiredOpaqueId(timelineId, "timelineId");
+        Project project = project(actor, projectId);
+        Revision head = revision(actor, projectId, project.headRevisionId());
+        if (!head.revisionId().equals(expectedHeadRevisionId)) {
+            throw new RevisionConflictException(expectedHeadRevisionId, head.revisionId());
+        }
+        List<TimelineSnapshot> next = new ArrayList<>(head.timelines());
+        int selected = indexOfTimeline(next, timelineId);
+        TimelineSnapshot current = next.get(selected);
+        Graph graph = apply(current.graph(), edits);
+        next.set(selected, new TimelineSnapshot(nextVersionId(), graph));
+        String revisionId = nextId();
+        return requireSuccessor(actor, projectId, expectedHeadRevisionId, revisionId,
+                store.commit(actor, projectId, expectedHeadRevisionId, revisionId, next));
+    }
+
+    /** Restore copies the target project's complete timeline set into a new successor revision. */
     public Revision restore(Actor actor, String projectId, String expectedHeadRevisionId, String targetRevisionId) {
         requireExpectedHead(expectedHeadRevisionId);
-        Revision target = store.revision(actor, projectId, targetRevisionId);
-        return store.commit(actor, projectId, expectedHeadRevisionId, nextId(), target.graph());
+        requiredOpaqueId(targetRevisionId, "targetRevisionId");
+        Project project = project(actor, projectId);
+        Revision head = revision(actor, projectId, project.headRevisionId());
+        if (!head.revisionId().equals(expectedHeadRevisionId)) {
+            throw new RevisionConflictException(expectedHeadRevisionId, head.revisionId());
+        }
+        Revision target = revision(actor, projectId, targetRevisionId);
+        Map<String, TimelineSnapshot> current = byTimeline(head.timelines());
+        List<TimelineSnapshot> restored = new ArrayList<>();
+        for (TimelineSnapshot snapshot : target.timelines()) {
+            TimelineSnapshot prior = current.get(snapshot.timelineId());
+            restored.add(prior != null && prior.graph().equals(snapshot.graph()) ? prior
+                    : new TimelineSnapshot(nextVersionId(), snapshot.graph()));
+        }
+        String revisionId = nextId();
+        return requireSuccessor(actor, projectId, expectedHeadRevisionId, revisionId,
+                store.commit(actor, projectId, expectedHeadRevisionId, revisionId, restored));
+    }
+
+    /** Reads two actor-authorized immutable revisions and returns a stable graph delta between them. */
+    public RevisionDiff diff(Actor actor, String projectId, String fromRevisionId, String toRevisionId) {
+        requiredOpaqueId(fromRevisionId, "fromRevisionId");
+        requiredOpaqueId(toRevisionId, "toRevisionId");
+        Revision from = requireRevisionIdentity(actor, projectId, fromRevisionId,
+                store.revision(actor, projectId, fromRevisionId));
+        Revision to = requireRevisionIdentity(actor, projectId, toRevisionId,
+                store.revision(actor, projectId, toRevisionId));
+        Map<String, TimelineSnapshot> before = byTimeline(from.timelines());
+        Map<String, TimelineSnapshot> after = byTimeline(to.timelines());
+        List<String> added = after.keySet().stream().filter(id -> !before.containsKey(id)).sorted().toList();
+        List<String> removed = before.keySet().stream().filter(id -> !after.containsKey(id)).sorted().toList();
+        Map<String, TimelineDiff> changes = new java.util.TreeMap<>();
+        before.keySet().stream().filter(after::containsKey).sorted().forEach(id -> {
+            TimelineSnapshot oldTimeline = before.get(id);
+            TimelineSnapshot newTimeline = after.get(id);
+            changes.put(id, new TimelineDiff(id, oldTimeline.semanticVersionId(), newTimeline.semanticVersionId(),
+                    diff(oldTimeline.graph(), newTimeline.graph())));
+        });
+        return new RevisionDiff(from.revisionId(), to.revisionId(), added, removed, changes);
+    }
+
+    private static Revision requireRevisionIdentity(Actor actor, String projectId, String revisionId,
+                                                    Revision revision) {
+        if (revision == null || actor == null
+                || !Objects.equals(actor.tenantId(), revision.tenantId())
+                || !Objects.equals(projectId, revision.projectId())
+                || !Objects.equals(revisionId, revision.revisionId())) {
+            throw new IllegalStateException(REVISION_SCOPE_MISMATCH);
+        }
+        return revision;
+    }
+
+    private static Revision requireSuccessor(Actor actor, String projectId, String expectedParentRevisionId,
+                                             String revisionId, Revision revision) {
+        Revision scoped = requireRevisionIdentity(actor, projectId, revisionId, revision);
+        if (!Objects.equals(expectedParentRevisionId, scoped.parentRevisionId())) {
+            throw new IllegalStateException(REVISION_SCOPE_MISMATCH);
+        }
+        return scoped;
     }
 
     /** Check live authority for every exact source before an external effect such as rendering. */
     public void requireCurrentSources(Actor actor, String projectId, String revisionId,
                                       Predicate<SourceVersion> currentlyEligible) {
-        Revision revision = store.revision(actor, projectId, revisionId);
-        if (revision.graph().clips().isEmpty()) return;
+        Revision revision = revision(actor, projectId, revisionId);
+        if (revision.timelines().stream().allMatch(t -> t.graph().clips().isEmpty())) return;
         if (currentlyEligible == null) throw new SourceEligibilityException(SourceEligibility.UNKNOWN);
-        for (Clip clip : revision.graph().clips()) {
+        for (Clip clip : revision.timelines().stream().flatMap(t -> t.graph().clips().stream()).toList()) {
             final boolean eligible;
             try {
                 eligible = currentlyEligible.test(clip.source());
@@ -78,10 +190,10 @@ public final class ProjectTimelineEngine {
      */
     public void requireCurrentSources(Actor actor, String projectId, String revisionId,
                                       SourceEligibilityPort authority) {
-        Revision revision = store.revision(actor, projectId, revisionId);
-        if (revision.graph().clips().isEmpty()) return;
+        Revision revision = revision(actor, projectId, revisionId);
+        if (revision.timelines().stream().allMatch(t -> t.graph().clips().isEmpty())) return;
         if (authority == null) throw new SourceEligibilityException(SourceEligibility.UNKNOWN);
-        for (Clip clip : revision.graph().clips()) {
+        for (Clip clip : revision.timelines().stream().flatMap(t -> t.graph().clips().stream()).toList()) {
             final SourceEligibility current;
             try {
                 current = authority.current(actor, clip.source());
@@ -204,6 +316,28 @@ public final class ProjectTimelineEngine {
         }
     }
 
+    public record TimelineDiff(String timelineId, String fromSemanticVersionId, String toSemanticVersionId,
+                               GraphDiff changes) {
+        public TimelineDiff {
+            timelineId = requiredOpaqueId(timelineId, "timelineId");
+            fromSemanticVersionId = requiredOpaqueVersionId(fromSemanticVersionId, "fromSemanticVersionId");
+            toSemanticVersionId = requiredOpaqueVersionId(toSemanticVersionId, "toSemanticVersionId");
+            Objects.requireNonNull(changes, "changes");
+        }
+    }
+
+    /** Project-scoped revision delta with timeline membership and per-shared-timeline changes. */
+    public record RevisionDiff(String fromRevisionId, String toRevisionId, List<String> addedTimelineIds,
+                               List<String> removedTimelineIds, Map<String, TimelineDiff> timelineChanges) {
+        public RevisionDiff {
+            fromRevisionId = requiredOpaqueId(fromRevisionId, "fromRevisionId");
+            toRevisionId = requiredOpaqueId(toRevisionId, "toRevisionId");
+            addedTimelineIds = List.copyOf(addedTimelineIds);
+            removedTimelineIds = List.copyOf(removedTimelineIds);
+            timelineChanges = java.util.Collections.unmodifiableMap(new java.util.TreeMap<>(timelineChanges));
+        }
+    }
+
     private static <T> ChangeSet changes(List<T> before, List<T> after, java.util.function.Function<T, String> id) {
         Map<String, T> left = byId(before, id), right = byId(after, id);
         List<String> added = right.keySet().stream().filter(k -> !left.containsKey(k)).sorted().toList();
@@ -217,6 +351,17 @@ public final class ProjectTimelineEngine {
         Map<String, T> result = new HashMap<>(); values.forEach(v -> result.put(id.apply(v), v)); return result;
     }
     private record ChangeSet(List<String> added, List<String> removed, List<String> changed) { }
+
+    private static Map<String, TimelineSnapshot> byTimeline(List<TimelineSnapshot> values) {
+        Map<String, TimelineSnapshot> result = new HashMap<>();
+        values.forEach(value -> result.put(value.timelineId(), value));
+        return result;
+    }
+
+    private static int indexOfTimeline(List<TimelineSnapshot> values, String timelineId) {
+        for (int i = 0; i < values.size(); i++) if (values.get(i).timelineId().equals(timelineId)) return i;
+        throw new IllegalArgumentException("timeline does not exist in the current project revision");
+    }
 
     private static Graph graph(Graph g, List<Scene> scenes, List<Track> tracks, List<Clip> clips) {
         return new Graph(g.timelineId(), scenes, tracks, clips);
@@ -236,6 +381,15 @@ public final class ProjectTimelineEngine {
             return requiredOpaqueId(value, "generatedId");
         } catch (IllegalArgumentException invalidId) {
             throw new IllegalStateException("id supplier returned an invalid opaque id", invalidId);
+        }
+    }
+
+    private String nextVersionId() {
+        String value = ids.get();
+        try {
+            return requiredOpaqueVersionId(value, "generatedSemanticVersionId");
+        } catch (IllegalArgumentException invalidId) {
+            throw new IllegalStateException("id supplier returned an invalid opaque semantic version id", invalidId);
         }
     }
 }

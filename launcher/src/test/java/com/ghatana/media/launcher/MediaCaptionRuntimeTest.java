@@ -1,6 +1,7 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaCaptionContracts.CaptionSegment;
+import com.ghatana.media.runtime.MediaCaptionContracts.CaptionVersionSnapshot;
 import com.ghatana.media.runtime.MediaCaptionContracts.LanguageDisposition;
 import com.ghatana.media.runtime.MediaCaptionContracts.MediaCaptionStore;
 import com.ghatana.media.runtime.MediaCaptionContracts.ParentClockLookup;
@@ -196,6 +197,33 @@ class MediaCaptionRuntimeTest {
     }
 
     @Test
+    void transcriptParentReadFailureRejectsCaptionRegistrationAsSourceNotReady() {
+        MediaTranscriptStore unavailable = new MediaTranscriptStore() {
+            @Override public TranscriptRevision append(TranscriptDraft draft) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
+            @Override public Optional<TranscriptRevision> revisionByVersionRef(String t, String p, String ref) {
+                throw new IllegalStateException("transcript store unavailable");
+            }
+            @Override public boolean productionEligible() { return true; }
+            @Override public boolean ready() { return true; }
+            @Override public void close() { }
+        };
+        var store = new FakeCaptionStore();
+        var runtime = new MediaCaptionRuntime(store,
+                rights(List.of(record("sha256:" + "a".repeat(64), "principal-1", false, false,
+                        Set.of("caption_version_write")))), unavailable, CLOCK);
+
+        RegistrationResult result = runtime.register("tenant-1", "principal-1",
+                request("parent-read-failure", ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact"));
+
+        assertThat(result).isInstanceOf(Rejected.class);
+        assertThat(((Rejected) result).error()).isEqualTo(RegistrationError.SOURCE_NOT_READY);
+        assertThat(((Rejected) result).retryable()).isTrue();
+    }
+
+    @Test
     void transcriptParentClockRequiresAdmittedImmutableRevision() {
         String sourceVersion = "sha256:" + "a".repeat(64);
         var draft = new TranscriptDraft("tenant-1", "principal-1", "transcript-1", "artifact-1",
@@ -348,6 +376,87 @@ class MediaCaptionRuntimeTest {
         assertThat(((Rejected) result).error()).isEqualTo(RegistrationError.IDEMPOTENCY_CONFLICT);
     }
 
+    @Test
+    void captionVersionListingRechecksCurrentSourceRightsAfterRevocation() {
+        var current = new ArrayList<>(List.of(record("sha256:" + "a".repeat(64), "principal-1",
+                false, false, Set.of("caption_version_write"))));
+        var store = new FakeCaptionStore();
+        var runtime = new MediaCaptionRuntime(store, rights(current), null, CLOCK);
+
+        assertThat(runtime.versions("tenant-1", "principal-1", "artifact-1", "sha256:" + "a".repeat(64)))
+                .isEmpty();
+        current.clear();
+        current.add(record("sha256:" + "a".repeat(64), "principal-1", true, false,
+                Set.of("caption_version_write")));
+
+        assertThatThrownBy(() -> runtime.versions("tenant-1", "principal-1", "artifact-1",
+                "sha256:" + "a".repeat(64)))
+                .isInstanceOfSatisfying(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class,
+                        failure -> assertThat(failure.reason()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+    }
+
+    @Test
+    void exactCaptionVersionReadRechecksRevocationAndFailsClosedOnAmbiguousOrUnavailableRights() {
+        var current = new ArrayList<>(List.of(record("sha256:" + "a".repeat(64), "principal-1",
+                false, false, Set.of("caption_version_write"))));
+        var store = new FakeCaptionStore();
+        store.exactVersion = versionSnapshot();
+        var runtime = new MediaCaptionRuntime(store, rights(current), null, CLOCK);
+
+        assertThat(runtime.version("tenant-1", "principal-1", "capv-1")).contains(store.exactVersion);
+
+        current.clear();
+        current.add(record("sha256:" + "a".repeat(64), "principal-1",
+                true, false, Set.of("caption_version_write")));
+        assertThatThrownBy(() -> runtime.version("tenant-1", "principal-1", "capv-1"))
+                .isInstanceOfSatisfying(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class,
+                        failure -> assertThat(failure.reason()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+
+        var admitted = record("sha256:" + "a".repeat(64), "principal-1", false, false,
+                Set.of("caption_version_write"));
+        current.clear();
+        current.add(admitted);
+        current.add(admitted);
+        assertThatThrownBy(() -> runtime.version("tenant-1", "principal-1", "capv-1"))
+                .isInstanceOfSatisfying(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class,
+                        failure -> assertThat(failure.reason()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE));
+
+        MediaSourceRightsAdministration unavailable = new MediaSourceRightsAdministration() {
+            @Override public String administrationId() { return "unavailable-rights"; }
+            @Override public boolean ready() { return false; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public SourceRecord register(RegisterRequest request,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public Optional<SourceRecord> record(String tenantId, String artifactId, String sourceVersion) {
+                return Optional.empty();
+            }
+            @Override public List<SourceRecord> currentRecords(String tenantId, String artifactId) {
+                throw new IllegalStateException("unavailable authority must not be read");
+            }
+            @Override public Optional<SourceRecord> revoke(String tenantId, String artifactId, String sourceVersion,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
+                    String correlationId) { return Optional.empty(); }
+        };
+        var unavailableRuntime = new MediaCaptionRuntime(store, unavailable, null, CLOCK);
+        assertThatThrownBy(() -> unavailableRuntime.version("tenant-1", "principal-1", "capv-1"))
+                .isInstanceOfSatisfying(com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.class,
+                        failure -> assertThat(failure.reason()).isEqualTo(
+                                com.ghatana.media.runtime.MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE));
+    }
+
+    private static CaptionVersionSnapshot versionSnapshot() {
+        return new CaptionVersionSnapshot("req-1", "f".repeat(64), "capv-1", "capreg-1", "artifact-1",
+                "sha256:" + "a".repeat(64), ParentVersionKind.CAPTION_VERSION, "capv-parent", "clock.v1",
+                90_000, 9_000_000, LanguageDisposition.DECLARED_BY_USER, Optional.of("en"),
+                List.of(CaptionSegment.of("seg-1", "caption text", 10, 900, SegmentOrigin.USER_EDITED)),
+                Optional.empty(), 1);
+    }
+
     static final class FakeCaptionStore implements MediaCaptionStore {
         RegistrationResult next = new Registered("req-1", "f".repeat(64), "capv-1", "capreg-1",
                 "artifact-1", "sha256:" + "a".repeat(64), ParentVersionKind.CAPTION_VERSION,
@@ -355,6 +464,7 @@ class MediaCaptionRuntimeTest {
         RegistrationAuthority.AuthorityCheck lastAuthority;
         LookupCall lastLookup;
         List<Registered> stored = new ArrayList<>();
+        CaptionVersionSnapshot exactVersion;
 
         record LookupCall(ParentVersionKind kind, String parentId, String sourceId, String versionId) { }
 
@@ -370,6 +480,9 @@ class MediaCaptionRuntimeTest {
             return next;
         }
         @Override public List<Registered> versions(String t, String p, String a, String v) { return stored; }
+        @Override public Optional<CaptionVersionSnapshot> version(String t, String p, String id) {
+            return Optional.ofNullable(exactVersion);
+        }
         @Override public Optional<ParentClockLookup.ParentFacts> parentClock(String t, String p,
                 String captionVersionId, String sourceArtifactId, String sourceArtifactVersionId) {
             lastLookup = new LookupCall(ParentVersionKind.CAPTION_VERSION, captionVersionId,

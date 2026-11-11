@@ -64,6 +64,25 @@ class CanonicalStreamFramePortTest {
     }
 
     @Test
+    void bindingRejectsWhitespaceAliasesAcrossEveryIdentityAndAuthorityScope() {
+        String nbsp = "\u00a0";
+        for (int field = 0; field < 4; field++) {
+            for (String padded : new String[]{" value", "value ", nbsp + "value", "value" + nbsp}) {
+                String streamId = field == 0 ? padded : "stream-1";
+                String tenantId = field == 1 ? padded : "tenant-1";
+                String principalId = field == 2 ? padded : "principal-1";
+                String purposeRef = field == 3 ? padded : "purpose-1";
+
+                org.assertj.core.api.Assertions.assertThatThrownBy(() -> new CanonicalStreamFramePort.Binding(
+                                streamId, tenantId, principalId, purposeRef, 1, 1, -1,
+                                java.time.Instant.now().plusSeconds(30)))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("surrounding whitespace");
+            }
+        }
+    }
+
+    @Test
     void acknowledgementsCannotExceedTheSupportedFrameSequenceRange() {
         assertThat(CanonicalStreamFramePort.Result.acknowledged(
                         AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER).acknowledgedSequence())

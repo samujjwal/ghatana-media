@@ -116,7 +116,9 @@ class MediaUploadTenantScopedResumeIT {
             String uploadId;
 
             try (S3PostgresqlMediaArtifactStore firstWorker = new S3PostgresqlMediaArtifactStore()) {
-                uploadId = firstWorker.begin(request, "synthetic-j02-upload").uploadId();
+                UploadSession begun = firstWorker.begin(request, "synthetic-j02-upload");
+                assertThat(begun.retention()).isEqualTo(Duration.ofDays(1));
+                uploadId = begun.uploadId();
                 firstWorker.append("tenant-owner", "principal-owner", uploadId, 0, acknowledged);
                 assertThat(firstWorker.upload("tenant-foreign", uploadId)).isEmpty();
                 assertThatThrownBy(() -> firstWorker.append(
@@ -127,6 +129,7 @@ class MediaUploadTenantScopedResumeIT {
             try (S3PostgresqlMediaArtifactStore restartedWorker = new S3PostgresqlMediaArtifactStore()) {
                 UploadSession resumed = restartedWorker.upload("tenant-owner", uploadId).orElseThrow();
                 assertThat(resumed.status()).isEqualTo(UploadStatus.OPEN);
+                assertThat(resumed.retention()).isEqualTo(Duration.ofDays(1));
                 assertThat(resumed.nextChunkIndex()).isEqualTo(1);
                 assertThat(resumed.bytesReceived()).isEqualTo(acknowledged.length);
 

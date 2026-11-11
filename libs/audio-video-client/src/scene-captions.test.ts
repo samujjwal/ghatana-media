@@ -84,6 +84,23 @@ describe("admitNarrationSource", () => {
       expect(() => admitNarrationSource({ tag })).toThrow(SceneCaptionError);
     }
   });
+
+  it("refuses admitted tags without a concrete voice or track reference", () => {
+    const invalidSources = [
+      { tag: "APPROVED_TTS" },
+      { tag: "APPROVED_TTS", voiceRef: "" },
+      { tag: "APPROVED_TTS", voiceRef: " \t " },
+      { tag: "APPROVED_TTS", voiceRef: 42 },
+      { tag: "USER_PROVIDED" },
+      { tag: "USER_PROVIDED", trackRef: "" },
+      { tag: "USER_PROVIDED", trackRef: "\n " },
+      { tag: "USER_PROVIDED", trackRef: false },
+    ];
+
+    for (const source of invalidSources) {
+      expect(() => admitNarrationSource(source as never)).toThrow(SceneCaptionError);
+    }
+  });
 });
 
 describe("seek and cancel", () => {

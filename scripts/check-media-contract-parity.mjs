@@ -9,8 +9,9 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const read = (path) => readFileSync(join(root, path), "utf8");
 const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse: parseYaml } = requireTools("yaml");
@@ -994,7 +995,7 @@ export function collectLiveInput() {
   };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
   const args = process.argv.slice(2);
   const unknownArgs = args.filter((arg) => arg !== "--definition-only");
   if (unknownArgs.length) {

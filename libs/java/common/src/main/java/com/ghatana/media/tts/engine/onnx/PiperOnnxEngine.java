@@ -9,6 +9,7 @@ package com.ghatana.media.tts.engine.onnx;
 import ai.onnxruntime.*;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.*;
+import com.ghatana.media.common.lifecycle.NativeModelLifecycle;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.*;
 import com.ghatana.media.tts.phoneme.PiperPhonemizeProcessConverter;
@@ -40,6 +41,7 @@ public final class PiperOnnxEngine implements TtsEngine {
     private final OrtSession session;
     private final Semaphore concurrencyLimiter;
     private final ExecutorService executor;
+    private final NativeModelLifecycle modelLifecycle = new NativeModelLifecycle("Piper engine is closed");
     private final AtomicLong requestCount = new AtomicLong(0);
     private final AtomicReference<EngineStatus.State> state;
     private final AtomicReference<String> activeVoiceId;
@@ -103,40 +105,42 @@ public final class PiperOnnxEngine implements TtsEngine {
 
     @Override
     public AudioData synthesize(String text, SynthesisOptions options) {
-        ensureReady();
-        validateText(text);
-        validateRequestedSampleRate(options.sampleRate(), voiceSampleRate);
-        requireProductionCompatiblePhonemizer(productionPhonemizerCompatible);
+        try (NativeModelLifecycle.Lease ignored = modelLifecycle.acquire()) {
+            ensureReady();
+            validateText(text);
+            validateRequestedSampleRate(options.sampleRate(), voiceSampleRate);
+            requireProductionCompatiblePhonemizer(productionPhonemizerCompatible);
 
-        requestCount.incrementAndGet();
-        if (!concurrencyLimiter.tryAcquire()) {
-            throw new ResourceExhaustedError("Piper request concurrency limit is saturated");
-        }
-        try {
-            // Preprocess text to phonemes
-            String phonemes = textToPhonemes(text, options.language());
-
-            // Run ONNX inference
-            float[] audioSamples = runInference(phonemes, options);
-
-            // Apply prosody modifications if enabled
-            if (config.enableProsody()) {
-                audioSamples = applyProsody(audioSamples, options);
+            requestCount.incrementAndGet();
+            if (!concurrencyLimiter.tryAcquire()) {
+                throw new ResourceExhaustedError("Piper request concurrency limit is saturated");
             }
+            try {
+                // Preprocess text to phonemes
+                String phonemes = textToPhonemes(text, options.language());
 
-            // Convert to bytes
-            byte[] audioBytes = floatsToBytes(audioSamples);
+                // Run ONNX inference
+                float[] audioSamples = runInference(phonemes, options);
 
-            return AudioData.builder()
-                .data(audioBytes)
-                .sampleRate(voiceSampleRate)
-                .channels(1)
-                .bitsPerSample(16)
-                .build();
-        } catch (Exception e) {
-            throw new InferenceError("Synthesis failed", e, false);
-        } finally {
-            concurrencyLimiter.release();
+                // Apply prosody modifications if enabled
+                if (config.enableProsody()) {
+                    audioSamples = applyProsody(audioSamples, options);
+                }
+
+                // Convert to bytes
+                byte[] audioBytes = floatsToBytes(audioSamples);
+
+                return AudioData.builder()
+                    .data(audioBytes)
+                    .sampleRate(voiceSampleRate)
+                    .channels(1)
+                    .bitsPerSample(16)
+                    .build();
+            } catch (Exception e) {
+                throw new InferenceError("Synthesis failed", e, false);
+            } finally {
+                concurrencyLimiter.release();
+            }
         }
     }
 
@@ -253,8 +257,10 @@ public final class PiperOnnxEngine implements TtsEngine {
     @Override
     public void close() {
         LOG.info("Closing Piper TTS engine...");
-        state.set(EngineStatus.State.CLOSED);
-        closeResources(session, environment, executor);
+        modelLifecycle.close(() -> {
+            state.set(EngineStatus.State.CLOSED);
+            closeResources(session, environment, executor);
+        });
     }
 
     /** Closes every owned resource even when an earlier native close operation fails. */

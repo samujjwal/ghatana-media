@@ -115,7 +115,7 @@ export class HttpApiCaptureAdapter {
     if (typeof fetchImpl !== "function") {
       throw new TypeError("a fetch implementation is required");
     }
-    this.fetchImpl = fetchImpl;
+    this.fetchImpl = options.fetchImpl === undefined ? fetchImpl.bind(globalThis) : fetchImpl;
   }
 
   private validateEndpoint(raw: string | URL): URL {

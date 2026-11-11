@@ -1,8 +1,11 @@
 /** Concrete browser camera host backed by Permissions, getUserMedia and canvas JPEG encoding. */
 import {
+  CameraCaptureAdapter,
   BrowserCameraMediaDevicePort,
   type BrowserCameraCodecBinding,
   type BrowserCameraCodecPort,
+  type CameraConsentPort,
+  type CameraFrameClockPort,
   type BrowserCameraDevice,
   type BrowserCameraDevicePort,
   type CameraHostPermissionDisposition,
@@ -25,6 +28,17 @@ export interface BrowserCameraHostOptions {
     readonly permissions?: Pick<Permissions, "query">;
     readonly document?: Pick<Document, "createElement">;
   };
+}
+
+/** Options for the supported browser-to-capture-client wiring. */
+export interface BrowserCameraCaptureAdapterOptions extends BrowserCameraHostOptions {
+  /** Trusted Media consent authority; browser permission does not replace it. */
+  readonly consent: CameraConsentPort;
+  /** Host epoch clock; browser JPEG frames do not declare a qualified source clock. */
+  readonly frameClock: CameraFrameClockPort;
+  readonly maxConsentAgeMillis?: number;
+  readonly maxFrames?: number;
+  readonly maxSessionMillis?: number;
 }
 
 interface SizedBrowserCameraDevice extends BrowserCameraDevice { readonly width?: number; readonly height?: number }
@@ -86,17 +100,39 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
     subscribe(_request, listener) {
       if (!permissionApi?.query) return () => undefined;
       let status: BrowserPermissionStatus | undefined;
+      let changed: (() => void) | undefined;
       let active = true;
+      let listenerRegistrationAttempted = false;
+      let listenerRemovalComplete = false;
+      const removeChangeListener = () => {
+        if (!listenerRegistrationAttempted || listenerRemovalComplete || !status || !changed) return;
+        // Mark complete only after the host confirms removal. A later explicit
+        // unsubscribe can retry if an add-then-throw implementation also fails
+        // its first removal attempt.
+        status.removeEventListener("change", changed);
+        listenerRemovalComplete = true;
+      };
       void permissionApi.query({ name: "camera" as PermissionName }).then((value) => {
         if (!active) return;
         status = value as BrowserPermissionStatus;
-        const changed = () => listener(status?.state === "granted" ? "GRANTED" : status?.state === "denied" ? "DENIED" : "UNKNOWN");
-        status.addEventListener("change", changed);
-        // Keep removal paired with the exact listener.
-        unsubscribeChange = () => status?.removeEventListener("change", changed);
-      }).catch(() => { if (active) listener("UNKNOWN"); });
-      let unsubscribeChange: () => void = () => {};
-      return () => { active = false; unsubscribeChange(); };
+        changed = () => {
+          if (!active) return;
+          listener(status?.state === "granted" ? "GRANTED" : status?.state === "denied" ? "DENIED" : "UNKNOWN");
+        };
+        listenerRegistrationAttempted = true;
+        try {
+          status.addEventListener("change", changed);
+        } catch {
+          // Some host shims can attach before throwing. Remove the exact
+          // listener even on partial registration, then fail closed as UNKNOWN.
+          try { removeChangeListener(); } catch { /* explicit unsubscribe may retry */ }
+          if (active) listener("UNKNOWN");
+        }
+      }, () => { if (active) listener("UNKNOWN"); });
+      return () => {
+        active = false;
+        removeChangeListener();
+      };
     },
   };
 
@@ -269,4 +305,29 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
     },
   };
   return new BrowserCameraMediaDevicePort(permission, devices, codecs);
+}
+
+/**
+ * Compose the concrete browser host with the governed camera capture adapter.
+ * The caller still supplies trusted Media consent and the host capture clock;
+ * the browser Permissions API remains the authority for browser permission.
+ */
+export function createBrowserCameraCaptureAdapter(options: BrowserCameraCaptureAdapterOptions): CameraCaptureAdapter {
+  if (!options || typeof options !== "object"
+    || typeof options.consent?.checkFresh !== "function"
+    || typeof options.consent?.subscribe !== "function"
+    || typeof options.frameClock?.nowEpochMillis !== "function"
+    || typeof options.frameClock?.beginEpoch !== "function"
+    || typeof options.frameClock?.readPtsNanos !== "function") {
+    throw new TypeError("trusted camera consent and host frame-clock ports are required");
+  }
+  const { consent, frameClock, maxConsentAgeMillis, maxFrames, maxSessionMillis, ...hostOptions } = options;
+  return new CameraCaptureAdapter({
+    mediaDevices: createBrowserCameraMediaDevicePort(hostOptions),
+    consent,
+    frameClock,
+    maxConsentAgeMillis,
+    maxFrames,
+    maxSessionMillis,
+  });
 }

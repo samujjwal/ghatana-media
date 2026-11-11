@@ -70,6 +70,28 @@ function validText(value: unknown): value is string {
 }
 type AdmittedSceneTextDecision = Extract<MediaSceneTextDecision, { readonly status: 'ADMITTED' }>;
 
+function snapshotPolicy(policy: SceneTextAdapterPolicy): SceneTextAdapterPolicy {
+  try {
+    // The caller owns this object too. Copy it before the first await so its
+    // provider/model pin, timeout and limits cannot change during admission.
+    return Object.freeze({
+      providerRef: policy.providerRef,
+      providerVersion: policy.providerVersion,
+      modelRef: policy.modelRef,
+      modelVersion: policy.modelVersion,
+      acceptedMediaTypes: Array.isArray(policy.acceptedMediaTypes)
+        ? Object.freeze([...policy.acceptedMediaTypes]) : policy.acceptedMediaTypes,
+      acceptedLanguages: Array.isArray(policy.acceptedLanguages)
+        ? Object.freeze([...policy.acceptedLanguages]) : policy.acceptedLanguages,
+      timeoutMs: policy.timeoutMs,
+      workerLimits: policy.workerLimits !== null && typeof policy.workerLimits === 'object'
+        ? Object.freeze({ ...policy.workerLimits }) : policy.workerLimits,
+    });
+  } catch {
+    reject('INVALID_SOURCE');
+  }
+}
+
 async function currentSourceDecision(
   sourceAuthority: MediaSceneTextSourceAuthority,
   frame: SceneTextSourceFrame,
@@ -125,6 +147,8 @@ export async function recognizeAuthorizedMediaSceneText(
     || !validText(operationId) || !frame || !access
     || typeof access !== 'object') reject('INVALID_SOURCE');
 
+  const admittedPolicy = snapshotPolicy(diPolicy);
+
   // The access object is caller-owned. Snapshot its identity and digest scope
   // before the asynchronous digest or authority lookup can observe mutations.
   const admittedAccess = Object.freeze({
@@ -179,7 +203,7 @@ export async function recognizeAuthorizedMediaSceneText(
       return diClient.parse(input);
     },
   };
-  const di = new DocumentIntelligenceSceneTextAdapter(guardedClient, diPolicy);
+  const di = new DocumentIntelligenceSceneTextAdapter(guardedClient, admittedPolicy);
   let results: readonly SceneTextObservation[];
   try {
     results = await di.recognizeFrame(operationId, frozenFrame, signal);

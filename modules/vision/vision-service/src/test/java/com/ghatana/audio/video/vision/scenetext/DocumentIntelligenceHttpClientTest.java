@@ -138,6 +138,18 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     @Test
+    void providerCatalogRejectsDuplicateProviderIdentity() {
+        String provider = "{\"providerRef\":\"di.ocr.en\",\"providerVersion\":\"2.4.1\","
+                + "\"promotionStatus\":\"ACCEPTED\",\"loaded\":true,\"ready\":true}";
+        providersBody = ("{\"protocolVersion\":\"document-intelligence.v1\",\"providers\":["
+                + provider + "," + provider + "]}").getBytes(StandardCharsets.UTF_8);
+
+        assertThatThrownBy(() -> client().providers(Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+    }
+
+    @Test
     void successfulParseMustEchoTheRequestedOperationAndProvider() {
         parseStatus = 200;
         String validShape = "{\"protocolVersion\":\"document-intelligence.v1\",\"operationId\":\"operation-1\","

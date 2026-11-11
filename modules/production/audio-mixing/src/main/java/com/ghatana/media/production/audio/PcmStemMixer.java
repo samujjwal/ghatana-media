@@ -18,8 +18,8 @@ import java.util.Objects;
  *
  * This is a local mix/render primitive. It does not generate Foley, qualify
  * source rights, normalize loudness, or claim a standards-certified true-peak
- * measurement. Its 4x linear-interpolation inter-sample estimate is used only
- * to apply a conservative global peak ceiling before encoding a playable WAV.
+ * measurement. Its separate Annex 2-based FIR estimate is used as a bounded
+ * global peak ceiling guard before encoding a playable WAV.
  */
 public final class PcmStemMixer {
     public static final int MAX_STEMS = 16;
@@ -32,6 +32,27 @@ public final class PcmStemMixer {
     public static final int MAX_STEM_PCM_BYTES = MAX_FRAMES * CHANNELS * (BITS_PER_SAMPLE / 8);
     private static final int TRUE_PEAK_OVERSAMPLE = 4;
     private static final int TRUE_PEAK_KERNEL_RADIUS = 4;
+    private static final int ANNEX_2_FIR_PHASES = 4;
+    private static final int ANNEX_2_FIR_TAPS = 12;
+    private static final String TRUE_PEAK_METHOD_ID = "itu-r-bs.1770-5-annex-2-4x-fir-plus-sample-peak-estimate";
+    private static final String TRUE_PEAK_METHOD_VERSION = "48-order-4-phase-table-v1";
+    private static final String TRUE_PEAK_EDGE_POLICY = "zero-extension-including-fir-tail";
+    // ITU-R BS.1770-5 Annex 2 Table 1: rows are chronological FIR delays
+    // (current sample, then older samples); columns are the four oversampling phases.
+    private static final double[][] ANNEX_2_FIR = {
+        { 0.0017089843750, -0.0291748046875, -0.0189208984375, -0.0083007812500 },
+        { 0.0109863281250,  0.0292968750000,  0.0330810546875,  0.0148925781250 },
+        {-0.0196533203125, -0.0517578125000, -0.0582275390625, -0.0266113281250 },
+        { 0.0332031250000,  0.0891113281250,  0.1015625000000,  0.0476074218750 },
+        {-0.0594482421875, -0.1665039062500, -0.2003173828125, -0.1022949218750 },
+        { 0.1373291015625,  0.4650878906250,  0.7797851562500,  0.9721679687500 },
+        { 0.9721679687500,  0.7797851562500,  0.4650878906250,  0.1373291015625 },
+        {-0.1022949218750, -0.2003173828125, -0.1665039062500, -0.0594482421875 },
+        { 0.0476074218750,  0.1015625000000,  0.0891113281250,  0.0332031250000 },
+        {-0.0266113281250, -0.0582275390625, -0.0517578125000, -0.0196533203125 },
+        { 0.0148925781250,  0.0330810546875,  0.0292968750000,  0.0109863281250 },
+        {-0.0083007812500, -0.0189208984375, -0.0291748046875,  0.0017089843750 }
+    };
     private static final double TRUE_PEAK_HEADROOM = 1.02;
     private static final float MAX_STEM_GAIN = 4.0f;
     private static final float MAX_ABS_PAN = 1.0f;
@@ -118,6 +139,15 @@ public final class PcmStemMixer {
 
     public record MixSpec(int sampleRate, int frameCount, float truePeakCeiling) { }
 
+    /**
+     * Limited-scope estimate using the maximum of native samples and the
+     * BS.1770-5 Annex 2-based 4x FIR grid. Components and finite-buffer policy
+     * are exposed separately; this is not a conformance claim.
+     */
+    public record TruePeakMeasurement(double linear, double dbTp, double samplePeakLinear,
+                                      double oversampledFirPeakLinear, String methodId,
+                                      String methodVersion, String edgePolicy) { }
+
     /** Exact validated input binding used for this local render. */
     public record StemInputProvenance(String stemVersionRef, Provenance provenance,
                                       float gain, float pan) { }
@@ -132,6 +162,8 @@ public final class PcmStemMixer {
         private final float appliedMasterGain;
         private final double estimatedTruePeakBeforeCeiling;
         private final double estimatedTruePeakAfterCeiling;
+        private final TruePeakMeasurement annex2TruePeakBeforeCeiling;
+        private final TruePeakMeasurement annex2TruePeakAfterCeiling;
         private final double samplePeakAfterCeiling;
         private final double rmsDbfsAfterCeiling;
         private final List<StemInputProvenance> inputStems;
@@ -140,6 +172,8 @@ public final class PcmStemMixer {
                           float appliedMasterGain,
                           double estimatedTruePeakBeforeCeiling,
                           double estimatedTruePeakAfterCeiling, double samplePeakAfterCeiling,
+                          TruePeakMeasurement annex2TruePeakBeforeCeiling,
+                          TruePeakMeasurement annex2TruePeakAfterCeiling,
                           double rmsDbfsAfterCeiling, List<StemInputProvenance> inputStems) {
             this.pcmS16Le = pcmS16Le.clone();
             this.wav = wav.clone();
@@ -150,6 +184,8 @@ public final class PcmStemMixer {
             this.appliedMasterGain = appliedMasterGain;
             this.estimatedTruePeakBeforeCeiling = estimatedTruePeakBeforeCeiling;
             this.estimatedTruePeakAfterCeiling = estimatedTruePeakAfterCeiling;
+            this.annex2TruePeakBeforeCeiling = annex2TruePeakBeforeCeiling;
+            this.annex2TruePeakAfterCeiling = annex2TruePeakAfterCeiling;
             this.samplePeakAfterCeiling = samplePeakAfterCeiling;
             this.rmsDbfsAfterCeiling = rmsDbfsAfterCeiling;
             this.inputStems = List.copyOf(inputStems);
@@ -164,6 +200,8 @@ public final class PcmStemMixer {
         public float appliedMasterGain() { return appliedMasterGain; }
         public double estimatedTruePeakBeforeCeiling() { return estimatedTruePeakBeforeCeiling; }
         public double estimatedTruePeakAfterCeiling() { return estimatedTruePeakAfterCeiling; }
+        public TruePeakMeasurement annex2TruePeakBeforeCeiling() { return annex2TruePeakBeforeCeiling; }
+        public TruePeakMeasurement annex2TruePeakAfterCeiling() { return annex2TruePeakAfterCeiling; }
         public double samplePeakAfterCeiling() { return samplePeakAfterCeiling; }
         /** Unweighted stereo sample RMS in dBFS; this is not an ITU-R BS.1770 LUFS measurement. */
         public double rmsDbfsAfterCeiling() { return rmsDbfsAfterCeiling; }
@@ -226,8 +264,10 @@ public final class PcmStemMixer {
 
         double peakBefore = estimateTruePeak(spec.frameCount(),
                 (frame, channel) -> sums[frame * CHANNELS + channel] / 32768.0);
+        TruePeakMeasurement annex2Before = measureAnnex2TruePeak(spec.frameCount(),
+                (frame, channel) -> sums[frame * CHANNELS + channel] / 32768.0);
         double ceiling = spec.truePeakCeiling();
-        double guardedPeak = peakBefore * TRUE_PEAK_HEADROOM;
+        double guardedPeak = Math.max(peakBefore, annex2Before.linear()) * TRUE_PEAK_HEADROOM;
         double limiterGain = guardedPeak <= ceiling || guardedPeak == 0.0 ? 1.0 : ceiling / guardedPeak;
         byte[] pcm = new byte[expectedBytes];
         int maximumQuantizedMagnitude = (int) Math.floor(ceiling * 32768.0);
@@ -251,12 +291,16 @@ public final class PcmStemMixer {
         }
         double peakAfter = estimateTruePeak(spec.frameCount(),
                 (frame, channel) -> decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
-        if (peakAfter > ceiling) {
+        TruePeakMeasurement annex2After = measureAnnex2TruePeak(spec.frameCount(),
+                (frame, channel) -> decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
+        if (Math.max(peakAfter, annex2After.linear()) > ceiling) {
             // At very low ceilings, the smallest representable PCM step can
             // still exceed the cap after inter-sample reconstruction. Silence
             // is the only bounded PCM result when no nonzero level is safe.
             Arrays.fill(pcm, (byte) 0);
             peakAfter = 0.0;
+            annex2After = measureAnnex2TruePeak(spec.frameCount(),
+                    (frame, channel) -> decode(pcm, frame * BYTES_PER_FRAME + channel * 2) / 32768.0);
             samplePeak = 0.0;
             sumSquares = 0.0;
             limiterGain = 0.0;
@@ -272,7 +316,8 @@ public final class PcmStemMixer {
                         stem.gain(), stem.pan()))
                 .toList();
         return new MixResult(pcm, encodeWav(pcm, spec.sampleRate()), spec.sampleRate(),
-                spec.frameCount(), (float) limiterGain, peakBefore, peakAfter, samplePeak, rmsDbfs,
+                spec.frameCount(), (float) limiterGain, peakBefore, peakAfter, samplePeak,
+                annex2Before, annex2After, rmsDbfs,
                 inputStems);
     }
 
@@ -353,6 +398,36 @@ public final class PcmStemMixer {
     @FunctionalInterface
     private interface SampleReader {
         double sample(int frame, int channel);
+    }
+
+    private static TruePeakMeasurement measureAnnex2TruePeak(int frames, SampleReader samples) {
+        double peak = 0.0;
+        // Zero extension is explicit on both sides. Include the full FIR tail
+        // (last input frame plus 11 delay positions) so edge impulses are measured.
+        for (int channel = 0; channel < CHANNELS; channel++) {
+            for (int outputFrame = 0; outputFrame < frames + ANNEX_2_FIR_TAPS - 1; outputFrame++) {
+                for (int phase = 0; phase < ANNEX_2_FIR_PHASES; phase++) {
+                    double value = 0.0;
+                    for (int tap = 0; tap < ANNEX_2_FIR_TAPS; tap++) {
+                        int sourceFrame = outputFrame - tap;
+                        if (sourceFrame >= 0 && sourceFrame < frames) {
+                            value += samples.sample(sourceFrame, channel) * ANNEX_2_FIR[tap][phase];
+                        }
+                    }
+                    peak = Math.max(peak, Math.abs(value));
+                }
+            }
+        }
+        double samplePeak = 0.0;
+        for (int frame = 0; frame < frames; frame++) {
+            for (int channel = 0; channel < CHANNELS; channel++) {
+                samplePeak = Math.max(samplePeak, Math.abs(samples.sample(frame, channel)));
+            }
+        }
+        double measuredPeak = Math.max(samplePeak, peak);
+        double dbTp = measuredPeak == 0.0 ? Double.NEGATIVE_INFINITY : 20.0 * Math.log10(measuredPeak);
+        return new TruePeakMeasurement(measuredPeak, dbTp, samplePeak, peak, TRUE_PEAK_METHOD_ID,
+                TRUE_PEAK_METHOD_VERSION, TRUE_PEAK_EDGE_POLICY);
     }
 
     /** 4x windowed-sinc oversampling estimate, with edge replication. */

@@ -3,8 +3,9 @@ import { createRequire } from "node:module";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { repositoryRootForModuleUrl } from "../scripts/lib/media-repository-root.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = repositoryRootForModuleUrl(import.meta.url);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 
@@ -25,11 +26,31 @@ function grpcSignatures(path) {
 function protobufMessageFields(path, name) {
   const source = readFileSync(resolve(root, path), "utf8");
   if (new RegExp(`\\bmessage\\s+${name}\\s*\\{\\s*\\}`, "u").test(source)) return [];
-  const message = source.match(new RegExp(`\\bmessage\\s+${name}\\s*\\{([\\s\\S]*?)\\n\\}`, "u"));
-  assert.ok(message, `missing protobuf message ${path}#message.${name}`);
-  return message[1].split(/\r?\n/u).flatMap((line) => {
+  const declaration = new RegExp(`\\bmessage\\s+${name}\\s*\\{`, "u").exec(source);
+  assert.ok(declaration, `missing protobuf message ${path}#message.${name}`);
+  let depth = 1;
+  let end = declaration.index + declaration[0].length;
+  for (; end < source.length && depth > 0; end += 1) {
+    if (source[end] === "{") depth += 1;
+    else if (source[end] === "}") depth -= 1;
+  }
+  assert.equal(depth, 0, `unterminated protobuf message ${path}#message.${name}`);
+  const body = source.slice(declaration.index + declaration[0].length, end - 1);
+  let nestedDeclarationDepth = 0;
+  return body.split(/\r?\n/u).flatMap((line) => {
     const content = line.replace(/\/\/.*$/u, "").trim();
-    if (!content || content === "}") return [];
+    if (!content) return [];
+    const opens = (content.match(/\{/gu) ?? []).length;
+    const closes = (content.match(/\}/gu) ?? []).length;
+    if (nestedDeclarationDepth > 0) {
+      nestedDeclarationDepth += opens - closes;
+      return [];
+    }
+    if (/^(?:enum|message)\s+[A-Za-z_]\w*\s*\{/u.test(content)) {
+      nestedDeclarationDepth = opens - closes;
+      return [];
+    }
+    if (/^oneof\s+[A-Za-z_]\w*\s*\{/u.test(content) || content === "}") return [];
     const field = content.match(/^(repeated|optional)?\s*([A-Za-z_][\w.]*|map<\s*([A-Za-z_][\w.]*)\s*,\s*([A-Za-z_][\w.]*)\s*>)\s+([A-Za-z_]\w*)\s*=\s*(\d+)\s*(?:\[[^\]]*\])?;$/u);
     assert.ok(field, `unparsed protobuf field ${path}#message.${name}: ${content}`);
     const [, label = "", type, mapKey, mapValue, fieldName, number] = field;
@@ -72,17 +93,29 @@ test("PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without 
   assert.equal(grammar.channels.gRPC.runtimeAdmission, "NOT_ADMITTED");
 
   const grpcSources = handoff.sourcePopulations.interfaceIdentities.grpc.sources.map((source) => source.split("#", 1)[0]);
-  assert.equal(handoff.sourcePopulations.interfaceIdentities.grpc.count, 43);
-  const sourceSignatures = new Map(grpcSources.flatMap((path) => [...grpcSignatures(path)]));
+  const allCurrentSourceSignatures = new Map(grpcSources.flatMap((path) => [...grpcSignatures(path)]));
   const parity = readYaml(".product-experience/interface-parity/operation-parity.yaml");
-  const contracts = parity.typedGrpcMethodContracts;
-  assert.equal(contracts.length, 43);
+  const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const ownerGrpcIdentities = new Set(Object.entries(operations.sourceDenominators.grpcRpcs.exactObservedIdentities)
+    .flatMap(([service, methods]) => methods.map((method) => `${service}.${method}`)));
+  const sourceSignatures = new Map([...allCurrentSourceSignatures].filter(([identity]) => ownerGrpcIdentities.has(identity)));
+  const currentContracts = parity.typedGrpcMethodContracts;
+  assert.equal(currentContracts.length, 45, "the current proto inventory includes two source identities outside the historical PDP-1 handoff");
+  assert.equal(handoff.sourcePopulations.interfaceIdentities.grpc.count, allCurrentSourceSignatures.size,
+    "the handoff inventory count follows its current source proto files");
+  const contracts = currentContracts.filter(({ identity }) => sourceSignatures.has(identity));
+  assert.equal(contracts.length, 43, "the PDP-2 handoff validates only the exact PDP-1-owned identity population");
   assert.equal(sourceSignatures.size, 43);
+  assert.equal(allCurrentSourceSignatures.size, 45, "proto files contain 45 current source identities");
+  assert.equal(ownerGrpcIdentities.size, 43, "PDP-1's owner-defined gRPC identity denominator remains 43");
   assert.deepEqual([...contracts.map(({ identity }) => identity)].sort(), [...sourceSignatures.keys()].sort(),
     "gRPC identities must be derived from the exact four PDP-1 handoff proto sources");
+  assert.deepEqual(currentContracts.filter(({ identity }) => !sourceSignatures.has(identity)).map(({ identity }) => identity).sort(), [
+    "VisionService.RecognizeSceneText",
+    "VisionService.ResolveSourceFrame",
+  ], "current proposal/source-support additions stay outside the historical PDP-1 handoff denominator");
 
   const nonOperationDispositions = new Map(parity.typedGrpcNonOperationDispositions.map((record) => [record.identity, record]));
-  const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
   const operationIds = new Set(operations.operations.map(({ id }) => id));
   const ownerOperationIds = new Set(operations.ownerDefinedOperationContracts.records.map(({ id }) => id));
   const counts = { CANDIDATE_ONLY: 0, SOURCE_BACKED_NON_OPERATION: 0, OWNER_ADAPTER_REQUIRED: 0, UNRESOLVED: 0 };
@@ -191,7 +224,8 @@ test("PDP-2 SDK async-handle definition keeps API operation and SDK job projecti
   assert.match(sdkTypes, /state: z\.literal\("OUTCOME_UNKNOWN"\)/u);
   assert.match(sdkTypes, /state: z\.literal\("RECONCILING"\)/u);
   assert.match(sdkTypes, /state: z\.enum\(\["FAILED", "PARTIALLY_SUCCEEDED"\]\)/u);
-  assert.match(client, /getOperation\([\s\S]*?MediaProcessingJobSchema/u);
+  assert.match(client, /public async getOperation\([\s\S]*?Promise<MediaProcessingJob>[\s\S]*?throw new MediaOperationNotAdmittedError\("media\.sdk\.getOperation"\)/u,
+    "the legacy SDK observation remains typed and explicitly NOT_ADMITTED");
 
   for (const expected of [
     "platform-operation-operationId-treated-as-sdk-job-id-or-canonical-jobId-without-an-explicit-owner-binding",

@@ -1,0 +1,52 @@
+{
+  "tenantId": "tenant-local",
+  "principalId": "creator-local",
+  "projectId": "project-local",
+  "sceneId": "scene-candidate",
+  "expectedProjectRevisionId": "revision-local",
+  "seedInput": 17,
+  "prompt": {
+    "text": "A quiet harbor at dawn, authored for this local fixture.",
+    "source": {
+      "role": "authored-prompt",
+      "artifactId": "authored-prompt-01",
+      "artifactVersionId": "fixture-v1",
+      "sha256": "02cf2e518fc992dfe32b8eb40bd8fedc3adff2bd99aeaa773dfd05445bccab25"
+    }
+  },
+  "references": [
+    {
+      "role": "reference-video",
+      "artifactId": "synthetic-reference-video-01",
+      "artifactVersionId": "fixture-v1",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "template": {
+    "templateId": "template-harbor",
+    "version": "fixture-v1",
+    "authoredScene": "Open on a calm harbor; hold the blue sail in frame.",
+    "continuityFacts": [
+      { "key": "sailColor", "value": "blue" }
+    ],
+    "source": {
+      "role": "authored-template",
+      "artifactId": "authored-template-01",
+      "artifactVersionId": "fixture-v1",
+      "sha256": "364eb923a4aaee694a25275f8a852b4b5fcfce02245de15012cceab91b6ed0f2"
+    }
+  },
+  "continuity": {
+    "stateId": "continuity-harbor",
+    "semanticVersion": "fixture-v1",
+    "facts": [
+      { "key": "sailColor", "value": "blue" }
+    ],
+    "source": {
+      "role": "prior-continuity",
+      "artifactId": "prior-continuity-01",
+      "artifactVersionId": "fixture-v1",
+      "sha256": "71cdac9560bbfcfd2cb6c274e32d3efe7c3f3400f20c41272228f2e606def99f"
+    }
+  }
+}

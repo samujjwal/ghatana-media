@@ -13,9 +13,10 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 
 const rootArgument = process.argv.find((argument) => argument.startsWith("--root="))?.slice("--root=".length);
-const root = rootArgument ? resolve(rootArgument) : resolve(new URL("..", import.meta.url).pathname);
+const root = rootArgument ? resolve(rootArgument) : fileURLToPath(new URL("..", import.meta.url));
 const productRoot = join(root, ".product-experience");
 const require = createRequire(import.meta.url);
 const { parse: parseYaml } = require("yaml");

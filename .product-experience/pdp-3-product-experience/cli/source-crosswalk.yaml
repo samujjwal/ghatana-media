@@ -1,6 +1,6 @@
 schemaVersion: media.cli-source-crosswalk.v1
 productId: media
-status: bounded-single-command-source-binding; remaining-cli-identities-unresolved
+status: bounded-local-development-definitions-and-single-production-command; historical-cli-identities-unresolved
 populations:
   explorerFixtureCommands:
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
@@ -22,6 +22,32 @@ populations:
         ownerDecisions: [PXD-040, PXD-044, PXD-051]
         admission: exact-existing-bounded-query-definition; runtime-host-identity-and-production-qualification-open
         productionHost: explicitly-supplied-by-caller; no-host-is-qualified
+  localDevelopmentCommandDefinitions:
+    source: .product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml
+    entrypoint: libs/audio-video-client/src/cli-dev.ts
+    implementation: libs/audio-video-client/src/cli.ts#runLocalDevelopmentCli
+    binary: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
+    count: 4
+    meaning: explicitly-loopback-only-development-command-definitions
+    productionAdmission: OPEN
+    identities:
+      - commandId: media.cli.local-development.artifact.upload
+        operationRefs: [media.operation-slice.begin-upload, media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+        runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATIONS
+      - commandId: media.cli.local-development.artifact.inspect
+        operationRefs: [media.operation-slice.inspect-artifact]
+        runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATION
+      - commandId: media.cli.local-development.job.get
+        operationRefs: [media.operation-slice.inspect-job]
+        runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATION
+      - commandId: media.cli.local-development.job.cancel
+        operationRefCandidate: media.operation-slice.cancel-job
+        observedHostRoute: POST-/dev/v1/jobs/{jobId}/cancel
+        sdkMethod: libs/audio-video-client/src/dev-job-cancellation.ts#MediaDevOnlyJobCancellationClient.cancelJob
+        wireContract: media.dev.job-cancellation-result.v1
+        runtimeBinding: EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION
+        semantics: durable-request-reservation;idempotent-same-request-replay;LOCAL-provider-only;truthful-provider-outcomes;multimodal-child-finality-preserved
+        productionAdmission: OPEN
   unresolvedHistoricalAndProposedIdentities:
     source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
     sourcePopulation: 12
@@ -34,5 +60,6 @@ populations:
 identityRule: matching-command-words-do-not-establish-operation-or-runtime-parity
 verification:
   sourceTest: tests/media-cli-artifact-inspect-source.test.mjs
+  localDevelopmentSourceTest: tests/media-cli-local-development-command-source.test.mjs
   executableWireTest: libs/audio-video-client/src/cli.test.ts
   status: local-source-and-loopback-fixture-tests-required; production-host-proof-not-claimed

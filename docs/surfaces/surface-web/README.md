@@ -32,7 +32,9 @@ authentication; `launcher` hosts routes.
 ## Errors
 
 Dispatch guard rejects unadmitted actions; unsupported operations render
-typed refusal/unknown states.
+typed refusal/unknown states. Thrown host/transport exceptions are shown only
+as a generic unknown outcome so credentials and private request details in
+exception text are not exposed to the product UI.
 
 ## Tests
 

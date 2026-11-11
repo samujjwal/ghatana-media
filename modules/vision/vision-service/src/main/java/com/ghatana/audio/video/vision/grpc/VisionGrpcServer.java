@@ -120,19 +120,19 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
         return composeRuntimePort(environment, ServiceLoader.load(MediaRuntimePortFactory.class, classLoader));
     }
 
-    /**
-     * The canonical runtime port is mandatory for OCR_ONLY source authority, while FULL_VISION
-     * remains independently startable without Media job access. If factories are present in
-     * either profile, the usual single-provider and non-null checks still apply.
-     */
+    /** OCR_ONLY requires one owner-selected Media runtime port for per-request source authorization. */
     static MediaProcessingRuntimePort composeRuntimePortForProfile(
             Map<String, String> environment, Iterable<MediaRuntimePortFactory> discoveredFactories) {
-        boolean required = com.ghatana.audio.video.vision.model.VisionCapabilityProfile.fromEnvironment(environment)
-                == com.ghatana.audio.video.vision.model.VisionCapabilityProfile.OCR_ONLY;
+        boolean required = isOcrOnly(environment);
         List<MediaRuntimePortFactory> factories = new ArrayList<>();
         discoveredFactories.forEach(factories::add);
         if (factories.isEmpty() && !required) return null;
         return composeRuntimePort(environment, factories);
+    }
+
+    private static boolean isOcrOnly(Map<String, String> environment) {
+        return com.ghatana.audio.video.vision.model.VisionCapabilityProfile.fromEnvironment(environment)
+                == com.ghatana.audio.video.vision.model.VisionCapabilityProfile.OCR_ONLY;
     }
 
     static MediaProcessingRuntimePort composeRuntimePortForProfile(

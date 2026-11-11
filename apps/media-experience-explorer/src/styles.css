@@ -75,6 +75,8 @@ a { color: inherit; }
 .mode-more-item.is-selected { color: #183c6c; background: #eaf2fa; font-weight: 650; }
 .mode-more-item kbd { display: inline-grid; min-width: 18px; height: 18px; place-items: center; border: 1px solid #e7e9ed; border-radius: 4px; color: #8b95a1; background: #fafbfc; font-family: inherit; font-size: 9px; }
 .header-utilities { display: flex; align-items: center; justify-content: flex-end; gap: 13px; }
+.local-dev-project-link { color: #155da1; font-size: 10px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.local-dev-project-link:hover { text-decoration: underline; }
 .simulation-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 1px solid #f1d8aa; border-radius: 999px; color: #835113; background: #fffaf0; font-size: 10px; font-weight: 650; }
 .status-dot, .preview-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #d48a21; box-shadow: 0 0 0 3px rgb(212 138 33 / 12%); }
 .avatar { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #c9d8e9; border-radius: 50%; color: #235487; background: #edf5fd; font-size: 10px; font-weight: 700; }
@@ -420,6 +422,8 @@ a { color: inherit; }
 .phase-selector { display: grid; gap: 5px; margin-top: 19px; }
 .phase-tab { display: grid; grid-template-columns: 27px 1fr; align-items: center; gap: 8px; padding: 9px 8px; border: 1px solid transparent; border-radius: 8px; color: #657184; background: transparent; cursor: pointer; text-align: left; }
 .phase-tab:last-child { grid-template-columns: 72px minmax(0, 1fr); }
+.phase-tab[data-phase="EXPLORER"] { grid-template-columns: max-content minmax(0, 1fr); }
+.phase-tab[data-phase="EXPLORER"] > span { width: auto; min-width: 25px; justify-self: start; padding: 0 5px; white-space: nowrap; }
 .phase-tab > span { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid #e3e6ea; border-radius: 7px; color: #667486; background: #fff; font-size: 8px; font-weight: 750; }
 .phase-tab:last-child > span { width: auto; min-width: 25px; justify-self: start; padding: 0 5px; white-space: nowrap; }
 .phase-tab strong { color: #526074; font-size: 9px; font-weight: 650; }
@@ -752,6 +756,7 @@ a { color: inherit; }
   .spec-sidebar { padding: 15px 12px 10px; border-right: 0; border-bottom: 1px solid #e5e7eb; }
   .phase-selector { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 11px; }
   .phase-tab { display: grid; grid-template-columns: 27px minmax(0, 1fr); align-items: center; gap: 8px; padding: 8px; text-align: left; }
+  .phase-tab[data-phase="EXPLORER"] { grid-column: 1 / -1; }
   .phase-tab:last-child { grid-column: 1 / -1; }
   .phase-tab strong { font-size: 9px; line-height: 1.25; }
   .spec-artifacts-heading { margin-top: 12px; }

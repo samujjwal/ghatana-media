@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="Read an owner-scoped Media job through the local DEV_ONLY Explorer." />
+    <title>Local Job Recovery · Media</title>
+    <link rel="stylesheet" href="/src/dev-job-recovery.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Job status and recovery</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>This page reads an existing job through the canonical Media SDK. It does not cancel, retry, or change the job.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <section class="panel">
+        <h2>Read existing job</h2>
+        <form id="job-form"><label for="job-id">Job ID</label><input id="job-id" autocomplete="off" pattern="[A-Za-z0-9][A-Za-z0-9._:\-]{0,127}" required /><button id="show-job" type="submit" disabled>Show job recovery screen</button></form>
+        <div id="screen"></div>
+      </section>
+    </main>
+    <script type="module" src="/src/dev-job-recovery.tsx"></script>
+  </body>
+</html>

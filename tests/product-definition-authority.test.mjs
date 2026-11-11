@@ -5,8 +5,9 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { validateScopeStatuses } from "../scripts/normalize-media-scope-status.mjs";
+import { repositoryRootForModuleUrl } from "../scripts/lib/media-repository-root.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = repositoryRootForModuleUrl(import.meta.url);
 const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse: parseYaml } = requireTools("yaml");
 const sourceCache = new Map();
@@ -2862,11 +2863,12 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
 test("gRPC source inventory status matches the active proto census without changing pending bindings", () => {
   const registry = readYaml(".product-experience/pdp-3-product-experience/grpc/service-registry.yaml");
   assert.equal(registry.status, "active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending");
-  assert.equal(registry.observedRpcCount, 44);
-  assert.equal(registry.requestedRpcCount, 44);
+  assert.equal(registry.observedRpcCount, 45);
+  assert.equal(registry.requestedRpcCount, 45);
   assert.equal(registry.unresolvedRpcCount, 0);
-  assert.equal(registry.rpcs.length, 44);
-  assert.equal(new Set(registry.rpcs.map(record => record.id)).size, 44);
+  assert.equal(registry.rpcs.length, 45);
+  assert.equal(new Set(registry.rpcs.map(record => record.id)).size, 45);
+  assert.equal(registry.rpcs.find(record => record.method === "ResolveSourceFrame")?.experienceBinding, "pending-owner-review");
   assert.ok(registry.rpcs.every(record => record.experienceBinding === "pending-owner-review"));
 
 });
@@ -3259,9 +3261,9 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: PASS/u);
   assert.match(output, /"openapiRoutes":30,"runtimeRoutes":30,"httpRegistryRoutes":30/u);
   assert.match(output, /semantic binding: REVIEW_REQUIRED/u);
-  assert.match(output, /source findings audited: 45 \(45 dispositioned; 0 unresolved\)/u);
-  assert.match(output, /source-dispositioned findings: 45/u);
-  assert.match(output, /historical source findings: 51 \(51 dispositioned; 0 unresolved; 6 retired routes\)/u);
+  assert.match(output, /source findings audited: 37 \(37 dispositioned; 0 unresolved\)/u);
+  assert.match(output, /source-dispositioned findings: 37/u);
+  assert.match(output, /historical source findings: 51 \(51 dispositioned; 0 unresolved; 14 retired routes\)/u);
   assert.doesNotMatch(output, /explicit gaps/u);
 });
 

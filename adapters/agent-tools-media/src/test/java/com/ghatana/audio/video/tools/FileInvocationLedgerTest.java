@@ -18,6 +18,8 @@ import java.time.Duration;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,11 @@ class FileInvocationLedgerTest {
         return new FileInvocationLedger(directory, key, retention, clock);
     }
 
+    private static FileInvocationLedger ledger(Path directory, SecretKeySpec key,
+            Duration retention, Clock clock, FileInvocationLedger.DirectorySync directorySync) {
+        return new FileInvocationLedger(directory, key, retention, clock, directorySync);
+    }
+
     private static RequestIdentity identity(String toolId, String fingerprint) {
         return new RequestIdentity(toolId, "1.0.0", "caller-agent", "rel-1",
                 "tenant-1", ToolActionClass.CALL_EXTERNAL, "1.0", fingerprint, true);
@@ -76,6 +83,102 @@ class FileInvocationLedgerTest {
             assertThat(found.result()).isNull();
             assertThat(found.requestIdentity()).isEqualTo(fence.requestIdentity());
         });
+    }
+
+    @Test
+    void newlyCreatedNestedStoreDirectoriesSyncEachContainingParent() throws Exception {
+        Path realParent = dir.toRealPath();
+        Path nested = realParent.resolve("new-parent").resolve("another-parent").resolve("ledger");
+        List<Path> syncedDirectories = new ArrayList<>();
+        FileInvocationLedger ledger = ledger(nested, new SecretKeySpec(new byte[32], "AES"),
+                Duration.ofDays(1), Clock.systemUTC(), syncedDirectories::add);
+
+        assertThat(syncedDirectories.stream().filter(path -> path.startsWith(realParent)).toList()).containsExactly(
+                realParent,
+                realParent.resolve("new-parent"),
+                realParent.resolve("new-parent").resolve("another-parent"));
+        assertThat(Files.getPosixFilePermissions(nested, LinkOption.NOFOLLOW_LINKS))
+                .containsExactlyInAnyOrderElementsOf(PosixFilePermissions.fromString("rwx------"));
+        assertThat(ledger.directory()).isEqualTo(nested.toAbsolutePath().normalize());
+    }
+
+    @Test
+    void publicConstructorCreatesAndReadsBackNestedStoreWithRealDirectorySync() throws Exception {
+        Path nested = dir.toRealPath().resolve("public-store").resolve("nested").resolve("ledger");
+        RequestIdentity requestIdentity = identity("stt", "public-directory-sync");
+        FileInvocationLedger ledger = ledger(nested);
+
+        assertThat(ledger.claim(fence("public-directory-sync", requestIdentity)))
+                .isEqualTo(ClaimResult.CLAIMED);
+        FileInvocationLedger restarted = ledger(nested);
+
+        assertThat(restarted.find("public-directory-sync")).hasValueSatisfying(found -> {
+            assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN);
+            assertThat(found.requestIdentity()).isEqualTo(requestIdentity);
+        });
+    }
+
+    @Test
+    void storeConstructionFailsWhenDirectoryEntryCannotBeSynced() throws Exception {
+        Path realParent = dir.toRealPath();
+        for (int failAtCreatedParent = 1; failAtCreatedParent <= 3; failAtCreatedParent++) {
+            int injectedFailure = failAtCreatedParent;
+            Path nested = realParent.resolve("unsynced-" + failAtCreatedParent)
+                    .resolve("another-parent").resolve("ledger");
+            AtomicInteger createdParentSyncs = new AtomicInteger();
+
+            assertThatThrownBy(() -> ledger(nested, new SecretKeySpec(new byte[32], "AES"),
+                    Duration.ofDays(1), Clock.systemUTC(), parent -> {
+                        if (parent.startsWith(realParent)) {
+                            int syncNumber = createdParentSyncs.incrementAndGet();
+                            if (syncNumber == injectedFailure) {
+                                throw new IOException("injected directory sync failure");
+                            }
+                        }
+                    }))
+                    .as("creation parent sync %s", failAtCreatedParent)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("invocation ledger directory is not securely usable");
+            assertThat(createdParentSyncs).hasValue(failAtCreatedParent);
+        }
+    }
+
+    @Test
+    void failedClaimDirectorySyncReturnsUnavailable() throws Exception {
+        Path storeDirectory = dir.toRealPath().resolve("claim-sync-ledger");
+        Files.createDirectory(storeDirectory, PosixFilePermissions.asFileAttribute(
+                PosixFilePermissions.fromString("rwx------")));
+        FileInvocationLedger ledger = ledger(storeDirectory, new SecretKeySpec(new byte[32], "AES"),
+                Duration.ofDays(1), Clock.systemUTC(), parent -> {
+                    if (parent.equals(storeDirectory)) throw new IOException("injected claim sync failure");
+                });
+
+        assertThat(ledger.claim(fence("claim-sync-failure", identity("stt", "fp"))))
+                .isEqualTo(ClaimResult.UNAVAILABLE);
+        assertThat(ledger.find("claim-sync-failure")).hasValueSatisfying(found -> {
+            assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN);
+            assertThat(found.result()).isNull();
+        });
+    }
+
+    @Test
+    void failedTerminalDirectorySyncDoesNotAcknowledgeCompletion() throws Exception {
+        Path storeDirectory = dir.toRealPath().resolve("completion-sync-ledger");
+        Files.createDirectory(storeDirectory, PosixFilePermissions.asFileAttribute(
+                PosixFilePermissions.fromString("rwx------")));
+        AtomicInteger storeDirectorySyncs = new AtomicInteger();
+        FileInvocationLedger ledger = ledger(storeDirectory, new SecretKeySpec(new byte[32], "AES"),
+                Duration.ofDays(1), Clock.systemUTC(), parent -> {
+                    if (parent.equals(storeDirectory) && storeDirectorySyncs.incrementAndGet() == 2) {
+                        throw new IOException("injected terminal sync failure");
+                    }
+                });
+        RequestIdentity identity = identity("stt", "fp-terminal-sync");
+
+        assertThat(ledger.claim(fence("terminal-sync-failure", identity)))
+                .isEqualTo(ClaimResult.CLAIMED);
+        assertThat(ledger.complete(terminal("terminal-sync-failure", identity))).isFalse();
+        assertThat(storeDirectorySyncs).hasValue(2);
     }
 
     @Test
@@ -335,6 +438,25 @@ class FileInvocationLedgerTest {
         assertThatThrownBy(() -> ledger(link))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("not a symlink");
+    }
+
+    @Test
+    void existingSymlinkAncestorsAreResolvedBeforeCreatingTheLedger() throws Exception {
+        Path physicalParent = Files.createDirectory(dir.resolve("physical-parent"),
+                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
+        Path alias = dir.resolve("parent-alias");
+        try {
+            Files.createSymbolicLink(alias, physicalParent.getFileName());
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException unsupported) {
+            org.junit.jupiter.api.Assumptions.abort("symbolic links unavailable on this filesystem");
+        }
+
+        FileInvocationLedger ledger = ledger(alias.resolve("ledger"));
+
+        assertThat(ledger.directory()).isEqualTo(physicalParent.toRealPath().resolve("ledger"));
+        assertThat(Files.isSymbolicLink(ledger.directory())).isFalse();
+        assertThat(ledger.claim(fence("canonical-parent", identity("stt", "fp"))))
+                .isEqualTo(ClaimResult.CLAIMED);
     }
 
     @Test

@@ -324,6 +324,24 @@ class FrozenHoldoutQualityEvidenceTest {
     }
 
     @Test
+    void rejectsDuplicateFieldsAndTrailingTopLevelJson() {
+        Clock clock = Clock.fixed(MEASURED_AT, ZoneOffset.UTC);
+        String valid = new String(validSnapshot(), StandardCharsets.UTF_8);
+        String duplicateStatus = valid.replace("\"status\": \"ACTIVE\"",
+                "\"status\": \"ACTIVE\", \"status\": \"REVOKED\"");
+        assertThatThrownBy(() -> parse(
+                        duplicateStatus.getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("valid JSON");
+
+        String trailingValue = valid + " {}";
+        assertThatThrownBy(() -> parse(
+                        trailingValue.getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("valid JSON");
+    }
+
+    @Test
     void manifestDigestAndAggregateHoldoutProvenanceAreRequiredAndBound() {
         Clock clock = Clock.fixed(MEASURED_AT, ZoneOffset.UTC);
         String valid = new String(validSnapshot(), StandardCharsets.UTF_8);

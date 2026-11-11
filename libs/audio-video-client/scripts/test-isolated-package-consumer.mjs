@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { access, cp, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { constants } from 'node:fs';
@@ -89,6 +90,10 @@ async function assertNoSensitiveLiterals(root, packageName) {
 
 try {
   const sourceClient = JSON.parse(await readFile(path.join(packageRoot, 'package.json'), 'utf8'));
+  assert.deepEqual(sourceClient.bin, {
+    'ghatanamedia-api': './dist/cli.js',
+    'ghatanamedia-api-dev': './dist/cli-dev.js',
+  }, 'the published production and local-development executables must remain distinct');
   const sourceTypes = JSON.parse(await readFile(path.join(typesRoot, 'package.json'), 'utf8'));
   const zodRoot = path.join(typeNodeModules, 'zod');
   const zodManifest = JSON.parse(await readFile(path.join(zodRoot, 'package.json'), 'utf8'));
@@ -152,6 +157,7 @@ try {
     import * as recorder from '@audio-video/client/recorder-orchestrator';
     import * as production from '@audio-video/client/production-plan';
     import * as offlineStore from '@audio-video/client/offline-edit-store';
+    import * as devProjects from '@audio-video/client/dev-project-timeline';
     import { DocumentIntelligenceSceneTextAdapter, SceneTextAdapterError,
       DOCUMENT_INTELLIGENCE_PROTOCOL_V1, DOCUMENT_INTELLIGENCE_WORKER_V1 } from '@audio-video/client';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
@@ -165,6 +171,7 @@ try {
     assert.equal(typeof production.compileProductionPlan, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
+    assert.equal(typeof devProjects.MediaDevProjectTimelineClient, 'function');
     assert.equal(typeof DocumentIntelligenceSceneTextAdapter, 'function');
     assert.equal(typeof SceneTextAdapterError, 'function');
     assert.equal(MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
@@ -268,6 +275,84 @@ try {
     });
     await assert.rejects(wrongScopeClient.getJob('job-installed-42'), /outside the caller's tenant and principal scope/u);
 
+    const devProjectRequests = [];
+    const devContextFixture = {
+      tenantId: 'fixture-tenant', principalId: 'fixture-principal',
+      selectedAuthorizedWorkspaceId: 'dev-workspace.fixture-owner',
+      workspaceName: 'Private DEV_ONLY workspace',
+      authority: 'synthetic-local-owner-scope; no Shared membership or production authority',
+      capabilities: { artifactUpload: false, artifactRead: false },
+      scope: 'DEV_ONLY',
+    };
+    const devInitialRevision = {
+      tenantId: 'fixture-tenant', projectId: 'dev-project-1', revisionId: 'dev-revision-0',
+      parentRevisionId: null, timelines: [],
+    };
+    const devTimelineRevision = {
+      tenantId: 'fixture-tenant', projectId: 'dev-project-1', revisionId: 'dev-revision-1',
+      parentRevisionId: 'dev-revision-0', timelines: [{
+        semanticVersionId: 'semantic-v1',
+        graph: { timelineId: 'main', scenes: [], tracks: [], clips: [] },
+      }],
+    };
+    let devHead = devInitialRevision;
+    const devProjectFixture = {
+      tenantId: 'fixture-tenant', projectId: 'dev-project-1',
+      workspaceId: devContextFixture.selectedAuthorizedWorkspaceId, ownerPrincipalId: 'fixture-principal',
+      title: 'Packed local project', headRevisionId: devInitialRevision.revisionId,
+    };
+    const devProjectClient = new devProjects.MediaDevProjectTimelineClient({
+      baseUrl: 'http://127.0.0.1:8093', bearerToken: () => 'packed-dev-only-token',
+      fetch: async (input, init) => {
+        const url = new URL(String(input));
+        const body = init?.body ? JSON.parse(String(init.body)) : undefined;
+        devProjectRequests.push({ method: init?.method, path: url.pathname, body, init });
+        let value;
+        if (init?.method === 'GET' && url.pathname === '/dev/v1/context') value = devContextFixture;
+        else if (init?.method === 'POST' && url.pathname === '/dev/v1/projects') {
+          value = { project: devProjectFixture, initialRevision: devInitialRevision, createdNow: true, scope: 'DEV_ONLY' };
+        } else if (init?.method === 'POST' && url.pathname === '/dev/v1/projects/dev-project-1/timelines') {
+          devHead = devTimelineRevision;
+          value = { revision: devTimelineRevision, scope: 'DEV_ONLY' };
+        } else if (init?.method === 'GET' && url.pathname === '/dev/v1/projects/dev-project-1') {
+          value = { project: { ...devProjectFixture, headRevisionId: devHead.revisionId }, currentRevision: devHead, scope: 'DEV_ONLY' };
+        } else if (init?.method === 'GET'
+          && url.pathname === '/dev/v1/projects/dev-project-1/revisions/dev-revision-0') {
+          value = { revision: devInitialRevision, scope: 'DEV_ONLY' };
+        } else throw new Error('Unexpected DEV_ONLY request: ' + init?.method + ' ' + url.pathname);
+        return new Response(JSON.stringify(value), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      },
+    });
+    const devContext = await devProjectClient.getContext();
+    const devCreated = await devProjectClient.createProject({
+      selectedAuthorizedWorkspaceId: devContext.selectedAuthorizedWorkspaceId,
+      title: 'Packed local project', requestId: 'packed-create-1',
+    });
+    const devTimeline = await devProjectClient.createTimeline(devCreated.project.projectId, {
+      expectedHeadRevisionId: devCreated.initialRevision.revisionId, timelineId: 'main',
+    });
+    const devReopened = await devProjectClient.getProject(devCreated.project.projectId);
+    const devExact = await devProjectClient.getRevision(devCreated.project.projectId,
+      devCreated.initialRevision.revisionId);
+    assert.equal(devContext.scope, 'DEV_ONLY');
+    assert.deepEqual(devContext.capabilities, { artifactUpload: false, artifactRead: false });
+    assert.equal(devCreated.project.projectId, 'dev-project-1');
+    assert.equal(devTimeline.revision.timelines[0].graph.timelineId, 'main');
+    assert.equal(devReopened.currentRevision.revisionId, 'dev-revision-1');
+    assert.deepEqual(devExact.revision.timelines, []);
+    assert.deepEqual(devProjectRequests.map(({ method, path: requestPath }) => [method, requestPath]), [
+      ['GET', '/dev/v1/context'],
+      ['POST', '/dev/v1/projects'],
+      ['POST', '/dev/v1/projects/dev-project-1/timelines'],
+      ['GET', '/dev/v1/projects/dev-project-1'],
+      ['GET', '/dev/v1/projects/dev-project-1/revisions/dev-revision-0'],
+    ]);
+    assert.equal(devProjectRequests[0].init.headers.Authorization, 'Bearer packed-dev-only-token');
+    assert.equal(devProjectRequests[0].init.credentials, 'omit');
+    assert.equal(devProjectRequests[0].init.redirect, 'error');
+    assert.equal(devProjectRequests[1].body.requestId, 'packed-create-1');
+    assert.equal(devProjectRequests[2].body.expectedHeadRevisionId, 'dev-revision-0');
+
     // The caption-version subpath is a browser-host entrypoint. Import it only
     // after removing Node globals and verify its synchronous wire fingerprint.
     const processDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'process');
@@ -301,6 +386,7 @@ try {
     const recorder = require('@audio-video/client/recorder-orchestrator');
     const production = require('@audio-video/client/production-plan');
     const offlineStore = require('@audio-video/client/offline-edit-store');
+    const devProjects = require('@audio-video/client/dev-project-timeline');
     const captionVersion = require('@audio-video/client/caption-version');
     const contracts = require('@audio-video/types/contracts');
     assert.equal(typeof client.createAudioVideoClient, 'function');
@@ -313,6 +399,7 @@ try {
     assert.equal(typeof production.compileProductionPlan, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
+    assert.equal(typeof devProjects.MediaDevProjectTimelineClient, 'function');
     assert.equal(typeof captionVersion.requestFingerprint, 'function');
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
   `);
@@ -328,6 +415,8 @@ try {
     import type * as capture from '@audio-video/client/capture-adapters';
     import type * as recorder from '@audio-video/client/recorder-orchestrator';
     import type * as productionExports from '@audio-video/client/production-plan';
+    import { MediaDevProjectTimelineClient } from '@audio-video/client/dev-project-timeline';
+    import type { DevProjectContext, DevProjectTimelineClientOptions, CreateDevProjectRequest } from '@audio-video/client/dev-project-timeline';
     import type * as captionVersion from '@audio-video/client/caption-version';
     import { requestFingerprint } from '@audio-video/client/caption-version';
     import { IndexedDbOfflineEditStore, type IndexedDbOfflineEditStoreOptions } from '@audio-video/client/offline-edit-store';
@@ -338,6 +427,10 @@ try {
     const compile: typeof compileProductionPlan = compileProductionPlan;
     const offlineStoreConstructor: typeof IndexedDbOfflineEditStore = IndexedDbOfflineEditStore;
     const offlineStoreOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
+    const devProjectClient: typeof MediaDevProjectTimelineClient = MediaDevProjectTimelineClient;
+    const devProjectOptions: DevProjectTimelineClientOptions | undefined = undefined;
+    const devProjectRequest: CreateDevProjectRequest | undefined = undefined;
+    const devProjectContext: DevProjectContext | undefined = undefined;
     const publicExportTypes: [typeof main, typeof operations, typeof routes, typeof canonical,
       typeof http, typeof capture, typeof recorder, typeof productionExports] = null!;
     const fingerprint: typeof requestFingerprint = requestFingerprint;
@@ -356,7 +449,8 @@ try {
     type MissingDiErrorCode = Exclude<SceneTextAdapterErrorCode, typeof diErrorCodes[number]>;
     const diVocabularyIsExhaustive: MissingDiErrorCode extends never ? true : never = true;
     void [create, compile, kind, resolver, publicExportTypes, offlineStoreConstructor,
-      offlineStoreOptions, diVocabularyIsExhaustive, fingerprint, captionVersionExports];
+      offlineStoreOptions, devProjectClient, devProjectOptions, devProjectRequest, devProjectContext,
+      diVocabularyIsExhaustive, fingerprint, captionVersionExports];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
@@ -370,8 +464,10 @@ try {
     import recorder = require('@audio-video/client/recorder-orchestrator');
     import production = require('@audio-video/client/production-plan');
     import offlineStore = require('@audio-video/client/offline-edit-store');
+    import devProjects = require('@audio-video/client/dev-project-timeline');
     import captionVersion = require('@audio-video/client/caption-version');
     import type { IndexedDbOfflineEditStoreOptions } from '@audio-video/client/offline-edit-store';
+    import type { DevProjectContext, DevProjectTimelineClientOptions } from '@audio-video/client/dev-project-timeline';
     import types = require('@audio-video/types/contracts');
     const createClient: typeof client.createAudioVideoClient = client.createAudioVideoClient;
     const createOperationClient: typeof operations.createMediaOperationClient = operations.createMediaOperationClient;
@@ -382,11 +478,15 @@ try {
     const orchestrate: typeof recorder.orchestrateScenario = recorder.orchestrateScenario;
     const compilePlan: typeof production.compileProductionPlan = production.compileProductionPlan;
     const indexedDbStore: typeof offlineStore.IndexedDbOfflineEditStore = offlineStore.IndexedDbOfflineEditStore;
+    const devProjectClient: typeof devProjects.MediaDevProjectTimelineClient = devProjects.MediaDevProjectTimelineClient;
+    const devProjectOptions: DevProjectTimelineClientOptions | undefined = undefined;
+    const devProjectContext: DevProjectContext | undefined = undefined;
     const storeOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
     const fingerprint: typeof captionVersion.requestFingerprint = captionVersion.requestFingerprint;
     const kind: typeof types.MediaArtifactKindSchema = types.MediaArtifactKindSchema;
     void [createClient, createOperationClient, routeTable, createCanonicalClient, transport,
-      captureWithAdmission, orchestrate, compilePlan, indexedDbStore, storeOptions, kind, fingerprint];
+      captureWithAdmission, orchestrate, compilePlan, indexedDbStore, storeOptions, devProjectClient,
+      devProjectOptions, devProjectContext, kind, fingerprint];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.cts'], { cwd: consumerRoot });
@@ -396,6 +496,10 @@ try {
   const cliMode = (await stat(cli)).mode;
   assert.notEqual(cliMode & 0o111, 0, 'installed CLI entrypoint must remain executable');
   await access(path.join(consumerRoot, 'node_modules/.bin/ghatanamedia-api'), constants.X_OK);
+  const cliDev = path.join(consumerRoot, 'node_modules/@audio-video/client/dist/cli-dev.js');
+  const cliDevMode = (await stat(cliDev)).mode;
+  assert.notEqual(cliDevMode & 0o111, 0, 'installed local-development CLI entrypoint must remain executable');
+  await access(path.join(consumerRoot, 'node_modules/.bin/ghatanamedia-api-dev'), constants.X_OK);
   const cliResult = spawnSync(process.execPath, [cli, 'artifact', 'inspect', '--endpoint', 'http://127.0.0.1',
     '--tenant', 'fixture-tenant', '--principal', 'fixture-principal', '--artifact', 'fixture-artifact'], {
     cwd: consumerRoot,
@@ -408,8 +512,347 @@ try {
   assert.match(cliError.message, /environment/u);
 
   const token = 'installed-consumer-secret-do-not-print';
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const devClaims = {
+    sub: 'fixture-principal', tenant_id: 'fixture-tenant',
+    iss: 'urn:ghatana:media:dev-only', aud: 'ghatana-media-dev', dev_only: true,
+    iat: nowSeconds, exp: nowSeconds + 120,
+    permissions: ['media:artifact:create', 'media:artifact:read', 'media:artifact:write',
+      'media:job:read', 'media:job:cancel'],
+  };
+  // This token-shaped fixture reaches an injected-fetch fixture only; the real
+  // local host remains responsible for verifying signed DEV_ONLY identity.
+  const devToken = `test.${Buffer.from(JSON.stringify(devClaims)).toString('base64url')}.fixture`;
+  const uploadDevClaims = { ...devClaims, sub: 'principal-a', tenant_id: 'tenant-a' };
+  const uploadDevToken = `test.${Buffer.from(JSON.stringify(uploadDevClaims)).toString('base64url')}.fixture`;
+  const cliArtifact = {
+    tenantId: 'fixture-tenant', principalId: 'fixture-principal', artifactId: 'fixture-artifact',
+    fileName: 'fixture.wav', contentType: 'audio/wav', sizeBytes: 42, sha256: 'a'.repeat(64),
+    objectReference: 'opaque://fixture/artifact', classification: 'INTERNAL',
+    createdAt: '2026-10-30T12:00:00.000Z', expiresAt: '2026-11-30T12:00:00.000Z',
+    metadata: { purpose: 'packed-cli-inspect' },
+  };
+  const cliJob = {
+    jobId: 'fixture-job', requestId: 'fixture-job-request',
+    tenantId: 'fixture-tenant', principalId: 'fixture-principal', artifactId: 'fixture-artifact',
+    jobType: 'SPEECH_TO_TEXT', providerId: 'fixture-provider', status: 'RUNNING',
+    createdAt: '2026-10-30T12:00:00.000Z', startedAt: '2026-10-30T12:00:01.000Z',
+    completedAt: null, result: {}, failureCode: null, version: 3,
+    expectedArtifactVersion: '', requestFingerprint: 'sha256:' + 'b'.repeat(64),
+  };
+  const cliFetchFixture = path.join(packageRoot, 'src/__fixtures__/cli-fetch.mjs');
+  const cliRequestLog = path.join(consumerRoot, 'cli-requests.jsonl');
+  const unsupportedCommandArgs = [
+    ['artifact', 'upload-inspect', '--upload', 'fixture-upload'],
+    ['artifact', 'upload', '--file', '/not-read-before-cli-admission', '--content-type', 'audio/wav',
+      '--classification', 'INTERNAL', '--retention', 'P30D', '--idempotency-key', 'upload-request'],
+    ['job', 'get', '--job', 'fixture-job'],
+    ['job', 'cancel', '--job', 'fixture-job', '--request-id', 'cancel-request'],
+    ['job', 'submit', '--artifact', 'fixture-artifact', '--job-type', 'SPEECH_TO_TEXT',
+      '--request-id', 'request-fixture', '--correlation-id', 'correlation-fixture',
+      '--idempotency-key', 'job-fixture'],
+  ];
+  for (const commandArgs of unsupportedCommandArgs) {
+    const args = [...commandArgs, '--endpoint', 'http://127.0.0.1:1',
+      '--tenant', 'fixture-tenant', '--principal', 'fixture-principal'];
+    for (const bearerToken of [token, '']) {
+      const rejected = spawnSync(process.execPath, ['--import', cliFetchFixture, cli, ...args], {
+        cwd: consumerRoot,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          GHATANA_MEDIA_BEARER_TOKEN: bearerToken,
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+          GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+          GHATANA_MEDIA_CLI_TEST_LOG: cliRequestLog,
+        },
+      });
+      assert.equal(rejected.status, 2, `${commandArgs.slice(0, 2).join(' ')} must be rejected as an invalid invocation`);
+      assert.equal(rejected.stdout, '', `${commandArgs.slice(0, 2).join(' ')} must not write stdout`);
+      const error = JSON.parse(rejected.stderr.trim());
+      assert.equal(error.code, 'INVALID_INVOCATION');
+      assert.equal(error.commandId, 'media.cli.invocation');
+      assert.match(error.message, /Usage: ghatanamedia-api artifact inspect --endpoint/u);
+      assert.doesNotMatch(error.message, /artifact upload-inspect|job submit/u);
+      assert.equal((rejected.stdout + rejected.stderr).includes(token), false,
+        `${commandArgs.slice(0, 2).join(' ')} must not expose credentials`);
+    }
+  }
+  try {
+    await access(cliRequestLog, constants.F_OK);
+    assert.fail('unsupported packed CLI commands must not dispatch fetch');
+  } catch (error) {
+    assert.equal(error.code, 'ENOENT', 'unsupported packed CLI commands must leave no fetch log');
+  }
+
+  const devInspectArgs = ['artifact', 'inspect', '--endpoint', 'http://127.0.0.1:1',
+    '--tenant', 'fixture-tenant', '--principal', 'fixture-principal', '--artifact', 'fixture-artifact'];
+  const missingDevTokenResult = spawnSync(process.execPath, [cliDev, ...devInspectArgs], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: '' },
+  });
+  assert.equal(missingDevTokenResult.status, 2, 'local-development commands require an environment token');
+  assert.equal(JSON.parse(missingDevTokenResult.stderr.trim()).code, 'MISSING_AUTH_TOKEN');
+
+  const devRequestLog = path.join(consumerRoot, 'cli-dev-requests.jsonl');
+  const remoteEndpointResult = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'artifact', 'inspect', '--endpoint', 'https://media.example.test', '--tenant', 'fixture-tenant',
+    '--principal', 'fixture-principal', '--artifact', 'fixture-artifact'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: devToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: devToken,
+      GHATANA_MEDIA_CLI_TEST_LOG: devRequestLog,
+    },
+  });
+  assert.equal(remoteEndpointResult.status, 3, 'local-development commands must reject remote hosts');
+  assert.equal(JSON.parse(remoteEndpointResult.stderr.trim()).code, 'LOCAL_DEV_ENDPOINT_REQUIRED');
+  assert.equal(remoteEndpointResult.stdout, '');
+
+  const devCancelRequestLog = path.join(consumerRoot, 'cli-dev-cancel-requests.jsonl');
+  const devCancelResult = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'job', 'cancel', '--endpoint', 'http://127.0.0.1:1', '--tenant', 'fixture-tenant',
+    '--principal', 'fixture-principal', '--job', 'fixture-job', '--request-id', 'cancel-request',
+    '--expected-version', '3'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: devToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'job-get-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: devToken,
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(cliJob),
+      GHATANA_MEDIA_CLI_TEST_LOG: devCancelRequestLog,
+    },
+  });
+  assert.equal(devCancelResult.status, 0, 'installed local-development CLI must use the scoped DEV_ONLY cancellation route');
+  assert.equal(JSON.parse(devCancelResult.stdout.trim()).cancellation.outcome, 'UNSUPPORTED');
+  assert.equal(JSON.parse(devCancelResult.stdout.trim()).cancellation.requestId, 'cancel-request');
+  const devCancelRequests = (await readFile(devCancelRequestLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(devCancelRequests.length, 1);
+  assert.equal(devCancelRequests[0].path, '/dev/v1/jobs/fixture-job/cancel');
+  assert.equal(devCancelRequests[0].method, 'POST');
+  assert.equal(devCancelRequests[0].bearerMatches, true);
+  assert.equal((devCancelResult.stdout + devCancelResult.stderr).includes(devToken), false);
+  try {
+    await access(devRequestLog, constants.F_OK);
+    assert.fail('remote-host preflight rejection must not dispatch fetch');
+  } catch (error) {
+    assert.equal(error.code, 'ENOENT', 'remote-host preflight rejection must leave no fetch log');
+  }
+
+  const packedDevInspectLog = path.join(consumerRoot, 'packed-dev-inspect.jsonl');
+  const packedDevInspect = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev, ...devInspectArgs], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: devToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: devToken,
+      GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(cliArtifact),
+      GHATANA_MEDIA_CLI_TEST_LOG: packedDevInspectLog,
+    },
+  });
+  assert.equal(packedDevInspect.status, 0, 'installed local-development CLI must return a loopback artifact observation');
+  assert.equal(packedDevInspect.stderr, '');
+  assert.deepEqual(JSON.parse(packedDevInspect.stdout.trim()), {
+    schemaVersion: 'media.cli-result.v1',
+    commandId: 'media.cli.local-development.artifact.inspect',
+    artifact: cliArtifact,
+  });
+  const packedDevInspectRequests = (await readFile(packedDevInspectLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(packedDevInspectRequests.length, 1);
+  assert.deepEqual({
+    path: packedDevInspectRequests[0].path,
+    method: packedDevInspectRequests[0].method,
+    tenant: packedDevInspectRequests[0].tenant,
+    principal: packedDevInspectRequests[0].principal,
+    authenticated: packedDevInspectRequests[0].authenticated,
+    bearerMatches: packedDevInspectRequests[0].bearerMatches,
+    redirect: packedDevInspectRequests[0].redirect,
+  }, {
+    path: '/api/v1/artifacts/fixture-artifact', method: 'GET',
+    tenant: 'fixture-tenant', principal: 'fixture-principal',
+    authenticated: true, bearerMatches: true, redirect: 'error',
+  });
+  assert.equal((packedDevInspect.stdout + packedDevInspect.stderr).includes(devToken), false);
+
+  const packedDevJobLog = path.join(consumerRoot, 'packed-dev-job.jsonl');
+  const packedDevJob = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'job', 'get', '--endpoint', 'http://127.0.0.1:8093', '--tenant', 'fixture-tenant',
+    '--principal', 'fixture-principal', '--job', 'fixture-job', '--request-id', 'fixture-job-request'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: devToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'job-get-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: devToken,
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(cliJob),
+      GHATANA_MEDIA_CLI_TEST_LOG: packedDevJobLog,
+    },
+  });
+  assert.equal(packedDevJob.status, 0, 'installed local-development CLI must return a request-bound job observation');
+  assert.deepEqual(JSON.parse(packedDevJob.stdout.trim()), {
+    schemaVersion: 'media.cli-result.v1',
+    commandId: 'media.cli.local-development.job.get', job: cliJob,
+  });
+  const packedDevJobRequests = (await readFile(packedDevJobLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(packedDevJobRequests.length, 1);
+  assert.equal(packedDevJobRequests[0].path, '/api/v1/jobs/fixture-job');
+  assert.equal(packedDevJobRequests[0].search, '?requestId=fixture-job-request');
+  assert.equal(packedDevJobRequests[0].method, 'GET');
+  assert.equal(packedDevJobRequests[0].tenant, 'fixture-tenant');
+  assert.equal(packedDevJobRequests[0].principal, 'fixture-principal');
+  assert.equal(packedDevJobRequests[0].bearerMatches, true);
+  assert.equal(packedDevJobRequests[0].redirect, 'error');
+  assert.equal((packedDevJob.stdout + packedDevJob.stderr).includes(devToken), false);
+
+  const packedDevMalformedJobLog = path.join(consumerRoot, 'packed-dev-malformed-job.jsonl');
+  const packedDevMalformedJob = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'job', 'get', '--endpoint', 'http://127.0.0.1:8093', '--tenant', 'fixture-tenant',
+    '--principal', 'fixture-principal', '--job', 'fixture-job'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: devToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'job-get-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: devToken,
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ jobId: 'fixture-job' }),
+      GHATANA_MEDIA_CLI_TEST_LOG: packedDevMalformedJobLog,
+    },
+  });
+  assert.equal(packedDevMalformedJob.status, 1, 'installed local-development CLI must reject malformed job observations');
+  assert.equal(packedDevMalformedJob.stdout, '');
+  assert.equal(JSON.parse(packedDevMalformedJob.stderr.trim()).code, 'INVALID_MEDIA_RESPONSE');
+  assert.equal((packedDevMalformedJob.stdout + packedDevMalformedJob.stderr).includes(devToken), false);
+  const packedDevMalformedJobRequests = (await readFile(packedDevMalformedJobLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(packedDevMalformedJobRequests.length, 1);
+  assert.equal(packedDevMalformedJobRequests[0].path, '/api/v1/jobs/fixture-job');
+  assert.equal(packedDevMalformedJobRequests[0].method, 'GET');
+  assert.equal(packedDevMalformedJobRequests[0].bearerMatches, true);
+
+  const packedDevMissingUploadLog = path.join(consumerRoot, 'packed-dev-missing-upload.jsonl');
+  const packedDevMissingUpload = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'artifact', 'upload', '--endpoint', 'http://127.0.0.1:8093', '--tenant', 'tenant-a',
+    '--principal', 'principal-a', '--file', path.join(consumerRoot, 'missing-source.bin'),
+    '--content-type', 'application/octet-stream', '--classification', 'INTERNAL',
+    '--retention', 'P30D', '--idempotency-key', 'missing-upload-request'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: uploadDevToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'upload-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: uploadDevToken,
+      GHATANA_MEDIA_CLI_TEST_LOG: packedDevMissingUploadLog,
+    },
+  });
+  assert.equal(packedDevMissingUpload.status, 1, 'installed local-development CLI must reject a missing upload source');
+  assert.equal(packedDevMissingUpload.stdout, '');
+  assert.equal(JSON.parse(packedDevMissingUpload.stderr.trim()).code, 'LOCAL_FILE_ERROR');
+  assert.equal((packedDevMissingUpload.stdout + packedDevMissingUpload.stderr).includes(uploadDevToken), false);
+  try {
+    await access(packedDevMissingUploadLog, constants.F_OK);
+    assert.fail('a missing upload source must fail before authenticated fetch dispatch');
+  } catch (error) {
+    assert.equal(error.code, 'ENOENT');
+  }
+
+  const uploadBytes = Buffer.from('abc');
+  const uploadSha256 = createHash('sha256').update(uploadBytes).digest('hex');
+  const uploadArtifact = {
+    tenantId: 'tenant-a', principalId: 'principal-a', artifactId: 'fixture-uploaded-artifact',
+    fileName: 'source.bin', contentType: 'application/octet-stream', sizeBytes: uploadBytes.length,
+    sha256: uploadSha256, objectReference: 'opaque://fixture/uploaded-artifact', classification: 'INTERNAL',
+    createdAt: '2026-10-30T12:00:00.000Z', expiresAt: '2026-11-30T12:00:00.000Z', metadata: {},
+  };
+  const uploadSourcePath = path.join(consumerRoot, 'source.bin');
+  await writeFile(uploadSourcePath, uploadBytes);
+  const packedDevUploadLog = path.join(consumerRoot, 'packed-dev-upload.jsonl');
+  const packedDevUpload = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'artifact', 'upload', '--endpoint', 'http://127.0.0.1:8093', '--tenant', 'tenant-a',
+    '--principal', 'principal-a', '--file', uploadSourcePath, '--content-type', 'application/octet-stream',
+    '--classification', 'INTERNAL', '--retention', 'P30D', '--idempotency-key', 'fixture-upload-request'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: uploadDevToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'upload-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: uploadDevToken,
+      GHATANA_MEDIA_CLI_TEST_UPLOAD_SHA256: uploadSha256,
+      GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(uploadArtifact),
+      GHATANA_MEDIA_CLI_TEST_LOG: packedDevUploadLog,
+    },
+  });
+  assert.equal(packedDevUpload.status, 0, 'installed local-development CLI must complete and read back an uploaded artifact');
+  assert.deepEqual(JSON.parse(packedDevUpload.stdout.trim()), {
+    schemaVersion: 'media.cli-result.v1',
+    commandId: 'media.cli.local-development.artifact.upload', artifact: uploadArtifact,
+  });
+  assert.equal((packedDevUpload.stdout + packedDevUpload.stderr).includes(uploadDevToken), false);
+  assert.equal((packedDevUpload.stdout + packedDevUpload.stderr).includes(uploadSourcePath), false);
+  const packedDevUploadRequests = (await readFile(packedDevUploadLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+  assert.deepEqual(packedDevUploadRequests.map(({ method, path: requestPath }) => `${method} ${requestPath}`), [
+    'GET /dev/v1/artifact-upload-policy',
+    'POST /api/v1/artifacts/uploads',
+    'PUT /api/v1/artifacts/uploads/upload-a/chunks/0',
+    'GET /api/v1/artifacts/uploads/upload-a',
+    'POST /api/v1/artifacts/uploads/upload-a/complete',
+    'GET /api/v1/artifacts/fixture-uploaded-artifact',
+  ]);
+  assert.equal(packedDevUploadRequests[1].idempotencyKey, 'fixture-upload-request');
+  assert.equal(packedDevUploadRequests[2].bodySha256, uploadSha256);
+  assert.ok(packedDevUploadRequests.every((request) => request.authenticated && request.bearerMatches
+    && request.redirect === 'error'
+    && (request.path === '/dev/v1/artifact-upload-policy'
+      ? request.tenant === null && request.principal === null
+      : request.tenant === 'tenant-a' && request.principal === 'principal-a')));
+  assert.equal(JSON.stringify(packedDevUploadRequests).includes(uploadDevToken), false);
+
   const args = ['artifact', 'inspect', '--endpoint', 'http://127.0.0.1:1', '--tenant', 'fixture-tenant',
     '--principal', 'fixture-principal', '--artifact', 'fixture-artifact'];
+  const packedInspectResult = spawnSync(process.execPath, ['--import', cliFetchFixture, cli, ...args], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: token,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'artifact-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+      GHATANA_MEDIA_CLI_TEST_ARTIFACT: JSON.stringify(cliArtifact),
+      GHATANA_MEDIA_CLI_TEST_LOG: cliRequestLog,
+    },
+  });
+  assert.equal(packedInspectResult.status, 0, 'installed CLI must return the admitted artifact observation');
+  assert.equal(packedInspectResult.stderr, '');
+  assert.deepEqual(JSON.parse(packedInspectResult.stdout.trim()), {
+    schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.artifact.inspect', artifact: cliArtifact,
+  });
+  assert.equal((packedInspectResult.stdout + packedInspectResult.stderr).includes(token), false,
+    'installed CLI success output must not expose the bearer credential');
+  const packedInspectRequests = (await readFile(cliRequestLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(packedInspectRequests.length, 1, 'installed CLI inspect must dispatch exactly one request');
+  const [packedInspectRequest] = packedInspectRequests;
+  assert.equal(typeof packedInspectRequest.requestId, 'string', 'installed CLI inspect must carry request correlation');
+  assert.ok(packedInspectRequest.requestId.length > 0);
+  const { requestId: _requestId, ...packedInspectRequestWithoutRequestId } = packedInspectRequest;
+  assert.deepEqual(packedInspectRequestWithoutRequestId, {
+    path: '/api/v1/artifacts/fixture-artifact', search: '', method: 'GET',
+    tenant: 'fixture-tenant', principal: 'fixture-principal', idempotencyKey: null,
+    accept: 'application/json', contentLength: null, redirect: 'error',
+    authenticated: true, bearerMatches: true,
+  });
+  assert.equal(JSON.stringify(packedInspectRequests).includes(token), false,
+    'installed CLI request evidence must not contain the bearer credential');
+
   const trustedResult = spawnSync(process.execPath, [cli, ...args], {
     cwd: consumerRoot,
     encoding: 'utf8',
@@ -464,7 +907,7 @@ try {
       'installed CLI must not expose credentials during endpoint validation');
   }
 
-  console.log(`Installed ESM/CJS/types consumers, injected-fetch job-read and wrong-scope fixtures, packed-output credential/PII scan, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
+  console.log(`Installed ESM/CJS/types consumers, DEV_ONLY timeline SDK, local upload/inspect/job-get/cancel dispatch, production artifact-inspect boundary, credential/PII scan, and packed CLI admission checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

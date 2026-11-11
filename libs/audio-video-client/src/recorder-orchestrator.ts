@@ -24,6 +24,7 @@ import {
   type CanonicalMediaClassification,
   type CanonicalMediaUploadSessionObservation,
 } from "./operations.js";
+import { sameMediaRetention } from "./retention-duration.js";
 
 export interface ScenarioActor {
   readonly actorId: string;
@@ -602,6 +603,20 @@ export interface FinalRenderMuxAndProbePort {
   muxAndVerify(request: FinalRenderRequest): Promise<RenderedContainer>;
 }
 
+/** Number of frames implied by an exact CFR duration and rational clocks. */
+function expectedConstantFrameCount(
+  frameRate: RenderRational,
+  timeBase: RenderRational,
+  durationTicks: number,
+): number | undefined {
+  const numerator = BigInt(durationTicks) * BigInt(timeBase.numerator) * BigInt(frameRate.numerator);
+  const denominator = BigInt(timeBase.denominator) * BigInt(frameRate.denominator);
+  if (denominator <= 0n || numerator <= 0n || numerator % denominator !== 0n) return undefined;
+  const frames = numerator / denominator;
+  if (frames < 1n || frames > BigInt(Number.MAX_SAFE_INTEGER)) return undefined;
+  return Number(frames);
+}
+
 export type FinalRenderPublishResult =
   | { readonly outcome: "PUBLISHED"; readonly artifact: CanonicalMediaArtifactObservation; readonly sha256: string }
   | { readonly outcome: "NOT_ADMITTED"; readonly reason: string }
@@ -745,6 +760,11 @@ function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRen
   if (typeof request.variableFrameRate !== "boolean") {
     throw new ScenarioError("INVALID_SCENARIO", "variableFrameRate must be a boolean");
   }
+  if (!request.variableFrameRate
+    && expectedConstantFrameCount(frameRate, timeBase, request.durationTicks) === undefined) {
+    throw new ScenarioError("INVALID_SCENARIO",
+      "constant-frame-rate duration must resolve to a positive integer frame count from its rational clocks");
+  }
   if (!Array.isArray(request.captions) || request.captions.length > 4096) {
     throw new ScenarioError("INVALID_SCENARIO", "captions must contain at most 4096 timed cues");
   }
@@ -824,6 +844,7 @@ function sameUploadSessionIdentity(
     && actual.expectedSizeBytes === expected.expectedSizeBytes
     && actual.expectedSha256 === expected.expectedSha256
     && actual.classification === expected.classification
+    && sameMediaRetention(actual.retention, expected.retention)
     && actual.createdAt === expected.createdAt
     && actual.expiresAt === expected.expiresAt
     && sameRenderJson(actual.metadata, expected.metadata);
@@ -932,6 +953,8 @@ function probeMatchesRequest(
       || timeBase.denominator !== request.timeBase.denominator
       || durationTicks !== request.durationTicks
       || !Number.isSafeInteger(decodedFrameCount) || decodedFrameCount < 1
+      || (!request.variableFrameRate
+        && decodedFrameCount !== expectedConstantFrameCount(request.frameRate, request.timeBase, request.durationTicks))
       || !Number.isSafeInteger(audioTrackCount) || audioTrackCount < 0
       || (narrationRefs.length > 0 && audioTrackCount < 1)
       || !Number.isSafeInteger(captionTrackCount) || captionTrackCount < 0
@@ -1112,6 +1135,7 @@ export async function publishFinalRender(
     if (session.fileName !== safeRequest.fileName || session.contentType !== contentType
       || session.expectedSizeBytes !== bytes.byteLength || session.expectedSha256 !== sha256
       || session.classification !== safeRequest.classification
+      || !sameMediaRetention(session.retention, safeRequest.retention)
       || !sameRenderJson(session.metadata, uploadMetadata)) {
       return { outcome: "OUTCOME_UNKNOWN", reason: "canonical upload session does not bind the verified render request; inspect state before replay", uploadId };
     }

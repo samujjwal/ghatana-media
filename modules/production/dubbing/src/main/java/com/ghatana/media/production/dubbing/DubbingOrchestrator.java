@@ -12,6 +12,8 @@ import java.util.Optional;
 /** Source-version-bound translation and dubbing orchestration through injected admitted capabilities. */
 public final class DubbingOrchestrator {
     public static final int MAX_SEGMENTS = 4096;
+    /** Largest integer that can cross JSON/JavaScript boundaries without losing source-tick precision. */
+    public static final long MAX_SAFE_INTEGER = 9_007_199_254_740_991L;
     public static final int MAX_TRANSLATED_TEXT_CODE_POINTS = 100_000;
     public static final int MAX_SEGMENT_AUDIO_BYTES = 16 * 1024 * 1024;
     public static final long MAX_TOTAL_TEXT_CODE_POINTS = 4_000_000L;
@@ -29,17 +31,19 @@ public final class DubbingOrchestrator {
 
     public record SourceVersion(String artifactId, String versionId) {
         public SourceVersion {
-            artifactId = required(artifactId, "artifactId");
-            versionId = required(versionId, "versionId");
+            artifactId = requiredOpaqueId(artifactId, "artifactId");
+            versionId = requiredOpaqueVersionId(versionId, "versionId");
         }
     }
 
     /** Exact source-tick transcript revision; caller/provider time is not implicitly converted. */
     public record TranscriptSegment(String segmentId, String text, long startTick, long endTick) {
         public TranscriptSegment {
-            segmentId = required(segmentId, "segmentId");
+            segmentId = requiredOpaqueId(segmentId, "segmentId");
             text = bounded(text, MAX_TRANSLATED_TEXT_CODE_POINTS, "source transcript text");
-            if (startTick < 0 || endTick <= startTick) throw new IllegalArgumentException("transcript segment requires a positive source-tick interval");
+            if (!safeNonnegativeTick(startTick) || !safeNonnegativeTick(endTick) || endTick <= startTick) {
+                throw new IllegalArgumentException("transcript segment requires a safe positive source-tick interval");
+            }
         }
     }
 
@@ -47,11 +51,11 @@ public final class DubbingOrchestrator {
                                      String sourceClockId, long ticksPerSecond, long sourceDurationTicks,
                                      List<TranscriptSegment> segments) {
         public TranscriptRevision {
-            transcriptVersionId = required(transcriptVersionId, "transcriptVersionId");
+            transcriptVersionId = requiredOpaqueVersionId(transcriptVersionId, "transcriptVersionId");
             Objects.requireNonNull(sourceVersion, "sourceVersion");
             sourceLocale = locale(sourceLocale);
-            sourceClockId = required(sourceClockId, "sourceClockId");
-            if (ticksPerSecond < 1 || sourceDurationTicks < 1) throw new IllegalArgumentException("source clock tuple must be positive");
+            sourceClockId = requiredOpaqueId(sourceClockId, "sourceClockId");
+            requireSafeClockTuple(ticksPerSecond, sourceDurationTicks, "source clock tuple");
             segments = boundedSegmentCopy(segments, "segments");
             if (segments.isEmpty()) throw new IllegalArgumentException("transcript segment count is outside bounds");
             java.util.Set<String> ids = new java.util.HashSet<>();
@@ -88,10 +92,21 @@ public final class DubbingOrchestrator {
         return input.clone();
     }
 
+    private static boolean safeNonnegativeTick(long tick) {
+        return tick >= 0 && tick <= MAX_SAFE_INTEGER;
+    }
+
+    private static void requireSafeClockTuple(long ticksPerSecond, long sourceDurationTicks, String name) {
+        if (ticksPerSecond < 1 || ticksPerSecond > MAX_SAFE_INTEGER
+                || sourceDurationTicks < 1 || sourceDurationTicks > MAX_SAFE_INTEGER) {
+            throw new IllegalArgumentException(name + " must contain positive safe integers");
+        }
+    }
+
     public record VoiceIdentity(String voiceId, String voiceVersionId) {
         public VoiceIdentity {
-            voiceId = required(voiceId, "voiceId");
-            voiceVersionId = required(voiceVersionId, "voiceVersionId");
+            voiceId = requiredOpaqueId(voiceId, "voiceId");
+            voiceVersionId = requiredOpaqueVersionId(voiceVersionId, "voiceVersionId");
         }
     }
 
@@ -99,8 +114,8 @@ public final class DubbingOrchestrator {
                           TranscriptRevision transcript, String targetLocale, VoiceIdentity voice,
                           String purpose) {
         public Request {
-            tenantId = required(tenantId, "tenantId");
-            requestId = required(requestId, "requestId");
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            requestId = requiredOpaqueId(requestId, "requestId");
             Objects.requireNonNull(sourceVersion, "sourceVersion");
             Objects.requireNonNull(transcript, "transcript");
             targetLocale = locale(targetLocale);
@@ -116,16 +131,16 @@ public final class DubbingOrchestrator {
                               String targetLocale, String purpose) {
         public RightsScope {
             Objects.requireNonNull(kind, "kind");
-            tenantId = required(tenantId, "tenantId");
-            requestId = required(requestId, "requestId");
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            requestId = requiredOpaqueId(requestId, "requestId");
             targetLocale = locale(targetLocale);
             purpose = required(purpose, "purpose");
             if (kind == RightsKind.SOURCE_DERIVATIVE) {
-                artifactId = required(artifactId, "artifactId");
-                artifactVersionId = required(artifactVersionId, "artifactVersionId");
+                artifactId = requiredOpaqueId(artifactId, "artifactId");
+                artifactVersionId = requiredOpaqueVersionId(artifactVersionId, "artifactVersionId");
             } else {
-                voiceId = required(voiceId, "voiceId");
-                voiceVersionId = required(voiceVersionId, "voiceVersionId");
+                voiceId = requiredOpaqueId(voiceId, "voiceId");
+                voiceVersionId = requiredOpaqueVersionId(voiceVersionId, "voiceVersionId");
             }
         }
     }
@@ -163,7 +178,7 @@ public final class DubbingOrchestrator {
                                      List<TranscriptSegment> segments) {}
     public record TranslatedSegment(String segmentId, String text, long sourceStartTick, long sourceEndTick) {
         public TranslatedSegment {
-            segmentId = required(segmentId, "segmentId");
+            segmentId = requiredOpaqueId(segmentId, "segmentId");
             text = bounded(text, MAX_TRANSLATED_TEXT_CODE_POINTS, "translated text");
         }
     }
@@ -229,16 +244,14 @@ public final class DubbingOrchestrator {
                                 int synthesisDispatchCount, List<DubbedSegment> segments) {
         public DubbingResult {
             Objects.requireNonNull(status, "status");
-            tenantId = required(tenantId, "tenantId");
-            requestId = required(requestId, "requestId");
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            requestId = requiredOpaqueId(requestId, "requestId");
             Objects.requireNonNull(sourceVersion, "sourceVersion");
-            transcriptVersionId = required(transcriptVersionId, "transcriptVersionId");
+            transcriptVersionId = requiredOpaqueVersionId(transcriptVersionId, "transcriptVersionId");
             targetLocale = locale(targetLocale);
             Objects.requireNonNull(voice, "voice");
-            sourceClockId = required(sourceClockId, "sourceClockId");
-            if (ticksPerSecond < 1 || sourceDurationTicks < 1) {
-                throw new IllegalArgumentException("completed dubbing source clock tuple must be positive");
-            }
+            sourceClockId = requiredOpaqueId(sourceClockId, "sourceClockId");
+            requireSafeClockTuple(ticksPerSecond, sourceDurationTicks, "dubbing source clock tuple");
             reason = reason == null ? Optional.empty() : reason;
             segments = boundedSegmentCopy(segments == null ? List.of() : segments, "segments");
             if ((status == ResultStatus.COMPLETED) != reason.isEmpty()) throw new IllegalArgumentException("only completed dubbing has no failure reason");
@@ -263,11 +276,13 @@ public final class DubbingOrchestrator {
         long totalTextCodePoints = 0;
         long totalAudioBytes = 0;
         for (DubbedSegment segment : segments) {
-            String id = required(segment.segmentId(), "dubbed segmentId");
+            String id = requiredOpaqueId(segment.segmentId(), "dubbed segmentId");
             if (!segmentIds.add(id)) throw new IllegalArgumentException("completed dubbing contains duplicate segment identities");
             String text = bounded(segment.text(), MAX_TRANSLATED_TEXT_CODE_POINTS, "dubbed text");
             if (text.isBlank()) throw new IllegalArgumentException("completed dubbing segment text must not be blank");
-            if (segment.sourceStartTick() < 0 || segment.sourceEndTick() > sourceDurationTicks
+            if (!safeNonnegativeTick(segment.sourceStartTick()) || !safeNonnegativeTick(segment.sourceEndTick())
+                    || !safeNonnegativeTick(segment.alignedStartTick()) || !safeNonnegativeTick(segment.alignedEndTick())
+                    || segment.sourceStartTick() < 0 || segment.sourceEndTick() > sourceDurationTicks
                     || segment.sourceEndTick() <= segment.sourceStartTick()
                     || segment.alignedStartTick() < segment.sourceStartTick()
                     || segment.alignedEndTick() > segment.sourceEndTick()
@@ -577,5 +592,21 @@ public final class DubbingOrchestrator {
         String normalized = value.trim();
         if (normalized.isEmpty() || normalized.chars().anyMatch(Character::isISOControl)) throw new IllegalArgumentException(field + " must be non-empty and contain no control characters");
         return normalized;
+    }
+
+    private static String requiredOpaqueId(String value, String field) {
+        Objects.requireNonNull(value, field);
+        if (!value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException(field + " must be a 1-128 character opaque id");
+        }
+        return value;
+    }
+
+    private static String requiredOpaqueVersionId(String value, String field) {
+        Objects.requireNonNull(value, field);
+        if (!value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException(field + " must be a 1-128 character opaque version id");
+        }
+        return value;
     }
 }

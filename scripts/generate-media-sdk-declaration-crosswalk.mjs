@@ -17,8 +17,9 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const requireClient = createRequire(resolve(root, "libs/audio-video-client/package.json"));
 const ts = requireClient("typescript");
 
@@ -201,7 +202,7 @@ function render(artifact) {
   return `${JSON.stringify(artifact, null, 2)}\n`;
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const checkOnly = process.argv.includes("--check");
   const artifact = buildCrosswalk();
   const rendered = render(artifact);

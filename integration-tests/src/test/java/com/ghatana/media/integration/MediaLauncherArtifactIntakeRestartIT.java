@@ -54,8 +54,10 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class MediaLauncherArtifactIntakeRestartIT {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final String JWT_SECRET = "media-launcher-upload-restart-secret-0123456789";
+    private static final String DEV_JWT_SECRET = "media-launcher-dev-only-secret-0123456789";
     private static final Set<String> UPLOAD_PERMISSIONS = Set.of(
-            "media:artifact:create", "media:artifact:write", "media:artifact:read");
+            "media:artifact:create", "media:artifact:write", "media:artifact:read",
+            "media:job:create", "media:job:read");
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
@@ -106,6 +108,8 @@ class MediaLauncherArtifactIntakeRestartIT {
             HttpResponse<String> begun = send(port, TENANT, token, "POST", "/api/v1/artifacts/uploads",
                     request, "application/json", "artifact-intake-restart-" + run);
             assertThat(begun.statusCode()).as(begun.body()).isEqualTo(201);
+            JsonNode begunSession = JSON.readTree(begun.body());
+            assertThat(begunSession.path("retention").asText()).isEqualTo("PT720H");
             String uploadId = JSON.readTree(begun.body()).path("uploadId").asString();
             assertThat(uploadId).isNotBlank();
 
@@ -127,6 +131,7 @@ class MediaLauncherArtifactIntakeRestartIT {
             assertThat(resumed.statusCode()).as(resumed.body()).isEqualTo(200);
             JsonNode progress = JSON.readTree(resumed.body());
             assertThat(progress.path("uploadId").asString()).isEqualTo(uploadId);
+            assertThat(progress.path("retention").asText()).isEqualTo("PT720H");
             assertThat(progress.path("bytesReceived").asLong()).isEqualTo(first.length + second.length);
             assertThat(progress.path("nextChunkIndex").asInt()).isEqualTo(2);
 
@@ -246,6 +251,44 @@ class MediaLauncherArtifactIntakeRestartIT {
             assertThat(durableArtifact.path("sizeBytes").asLong()).isEqualTo(completeBytes.length);
             objectReference = durableArtifact.path("objectReference").asString();
 
+            // This exercises the explicitly local diagnostic provider only. Its result
+            // records artifact identity and deliberately does not read or transform media.
+            String jobRequestId = "artifact-intake-diagnostic-" + run;
+            String jobRequest = """
+                    {"requestId":"%s","tenantId":"%s","principalId":"%s",
+                     "correlationId":"artifact-intake-diagnostic-correlation-%s",
+                     "artifactId":"%s","expectedArtifactVersion":"sha256:%s",
+                     "jobType":"TRANSCODE","providerHint":"local-diagnostic","parameters":{}}
+                    """.formatted(jobRequestId, TENANT, PRINCIPAL, run, artifactId, expectedDigest);
+            HttpResponse<String> submittedJob = send(port, TENANT, token, "POST", "/api/v1/jobs",
+                    jobRequest, "application/json", null);
+            assertThat(submittedJob.statusCode()).as(submittedJob.body()).isEqualTo(202);
+            JsonNode acceptedJob = JSON.readTree(submittedJob.body());
+            String jobId = acceptedJob.path("jobId").asString();
+            assertThat(jobId).isNotBlank();
+
+            JsonNode diagnosticOutcome = null;
+            long jobDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
+            while (System.nanoTime() < jobDeadline) {
+                HttpResponse<String> jobReadback = send(port, TENANT, token, "GET",
+                        "/api/v1/jobs/" + jobId + "?requestId=" + jobRequestId,
+                        "", "application/json", null);
+                assertThat(jobReadback.statusCode()).as(jobReadback.body()).isEqualTo(200);
+                JsonNode observed = JSON.readTree(jobReadback.body());
+                if ("COMPLETED".equals(observed.path("status").asString())) {
+                    diagnosticOutcome = observed;
+                    break;
+                }
+                assertThat(observed.path("status").asString())
+                        .as("diagnostic job must remain in a recognized nonterminal state while polling")
+                        .isIn("ACCEPTED", "RUNNING");
+                Thread.sleep(100);
+            }
+            assertThat(diagnosticOutcome).as("durable diagnostic job outcome").isNotNull();
+            assertThat(diagnosticOutcome.path("providerId").asString()).isEqualTo("local-diagnostic");
+            assertThat(diagnosticOutcome.path("result").path("diagnostic").asBoolean()).isTrue();
+            assertThat(diagnosticOutcome.path("result").path("rawMediaRead").asBoolean()).isFalse();
+
             long artifactsBeforeCorruptUpload = countRows(
                     "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", TENANT);
             long jobsBeforeCorruptUpload = countRows(
@@ -278,6 +321,19 @@ class MediaLauncherArtifactIntakeRestartIT {
                     "/api/v1/artifacts/" + artifactId, "", "application/json", null);
             assertThat(replayReadback.statusCode()).as(replayReadback.body()).isEqualTo(200);
             assertThat(JSON.readTree(replayReadback.body()).path("artifactId").asString()).isEqualTo(artifactId);
+
+            HttpResponse<String> jobReplay = send(port, TENANT, token, "GET",
+                    "/api/v1/jobs/" + jobId + "?requestId=" + jobRequestId,
+                    "", "application/json", null);
+            assertThat(jobReplay.statusCode()).as(jobReplay.body()).isEqualTo(200);
+            JsonNode recoveredJob = JSON.readTree(jobReplay.body());
+            assertThat(recoveredJob.path("jobId").asString()).isEqualTo(jobId);
+            assertThat(recoveredJob.path("requestId").asString()).isEqualTo(jobRequestId);
+            assertThat(recoveredJob.path("status").asString()).isEqualTo("COMPLETED");
+            assertThat(recoveredJob.path("providerId").asString()).isEqualTo("local-diagnostic");
+            assertThat(recoveredJob.path("result")).isEqualTo(diagnosticOutcome.path("result"));
+            assertThat(recoveredJob.path("result").path("diagnostic").asBoolean()).isTrue();
+            assertThat(recoveredJob.path("result").path("rawMediaRead").asBoolean()).isFalse();
 
             // A syntactically valid WAV with a deliberately false expected digest must never
             // produce an artifact receipt. The upload ID remains the reconciliation identity;
@@ -356,6 +412,150 @@ class MediaLauncherArtifactIntakeRestartIT {
         }
     }
 
+    @Test
+    void devOnlyIdentityPersistsUploadArtifactAndDiagnosticJobAcrossRestart() throws Exception {
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-dev-finalize-diagnostic-" + run;
+        Process launcher = null;
+        Path services = null;
+        Path log = null;
+        try {
+            try (S3Client s3 = s3()) {
+                s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+            }
+            int port;
+            try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+            Map<String, String> env = devEnvironment(bucket, port);
+            services = Files.createTempDirectory("media-launcher-dev-finalize-services-");
+            installChildServiceDescriptors(services);
+            String childClasspath = System.getProperty("media.child.classpath", "");
+            assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
+            String classpath = services + java.io.File.pathSeparator + childClasspath;
+            log = Files.createTempFile("media-launcher-dev-finalize-process-", ".log");
+            Set<String> permissions = Set.of(
+                    "media:artifact:create", "media:artifact:write", "media:artifact:read",
+                    "media:job:create", "media:job:read", "media:provider:read");
+            String devPrincipal = "media-dev-owner-" + run;
+            String token = devOnlyJwt(devPrincipal, TENANT, DEV_JWT_SECRET, permissions);
+            launcher = startLauncher(classpath, env, log);
+            awaitReady(launcher, port);
+
+            String context = "MEDIA_PROFILE=dev, MEDIA_RUNTIME_ENVIRONMENT=dev, bucket=" + bucket;
+            HttpResponse<String> providers = send(port, TENANT, token, "GET",
+                    "/api/v1/providers", "", "application/json", null);
+            assertThat(providers.statusCode()).as(providers.body()).isEqualTo(200);
+            JsonNode providerSnapshot = JSON.readTree(providers.body());
+            String artifactStore = providerSnapshot.path("artifactStoreId").asString();
+            String jobStore = providerSnapshot.path("jobStoreId").asString();
+            assertThat(artifactStore).as(context).isEqualTo("s3-postgresql");
+            assertThat(jobStore).as(context).isEqualTo("postgresql");
+            context += ", artifactStore=" + artifactStore + ", jobStore=" + jobStore;
+
+            byte[] completeBytes = syntheticWav();
+            byte[] first = java.util.Arrays.copyOfRange(completeBytes, 0, 128);
+            byte[] second = java.util.Arrays.copyOfRange(completeBytes, 128, 256);
+            byte[] finalChunk = java.util.Arrays.copyOfRange(completeBytes, 256, completeBytes.length);
+            List<byte[]> chunks = List.of(first, second, finalChunk);
+            String expectedDigest = sha256(completeBytes);
+            String uploadRequest = """
+                    {"tenantId":"%s","principalId":"%s","fileName":"synthetic.wav",
+                     "contentType":"audio/wav","expectedSizeBytes":%d,
+                     "expectedSha256":"%s","classification":"CONFIDENTIAL",
+                     "retention":"P30D","metadata":{"sourceClockId":"fixture-clock",
+                       "sourceClockMappingEvidenceRef":"fixture-clock-evidence",
+                       "sourceClockTicksPerSecond":16000,"sourceDurationTicks":16000}}
+                    """.formatted(TENANT, devPrincipal, completeBytes.length, expectedDigest);
+            HttpResponse<String> begun = send(port, TENANT, token, "POST", "/api/v1/artifacts/uploads",
+                    uploadRequest, "application/json", "dev-finalize-" + run);
+            assertThat(begun.statusCode()).as(begun.body()).isEqualTo(201);
+            String uploadId = JSON.readTree(begun.body()).path("uploadId").asString();
+
+            long acknowledgedBytes = 0L;
+            for (int index = 0; index < chunks.size(); index++) {
+                byte[] chunk = chunks.get(index);
+                HttpResponse<String> ack = sendBytes(port, TENANT, token, "PUT",
+                        "/api/v1/artifacts/uploads/" + uploadId + "/chunks/" + index, chunk);
+                assertThat(ack.statusCode()).as(context + ", chunkIndex=" + index + ": " + ack.body())
+                        .isEqualTo(200);
+                acknowledgedBytes += chunk.length;
+                JsonNode receipt = JSON.readTree(ack.body());
+                assertThat(receipt.path("bytesReceived").asLong()).as(context).isEqualTo(acknowledgedBytes);
+                assertThat(receipt.path("nextChunkIndex").asInt()).as(context).isEqualTo(index + 1);
+            }
+
+            HttpResponse<String> persistedUpload = send(port, TENANT, token, "GET",
+                    "/api/v1/artifacts/uploads/" + uploadId, "", "application/json", null);
+            assertThat(persistedUpload.statusCode()).as(context + ", uploadId=" + uploadId)
+                    .isEqualTo(200);
+            JsonNode session = JSON.readTree(persistedUpload.body());
+            assertThat(session.path("status").asString()).as(context).isEqualTo("OPEN");
+            assertThat(session.path("retention").asText()).as(context).isEqualTo("PT720H");
+            assertThat(session.path("principalId").asString()).as(context).isEqualTo(devPrincipal);
+            assertThat(session.path("expectedSizeBytes").asLong()).as(context)
+                    .isEqualTo(completeBytes.length);
+            assertThat(session.path("expectedSha256").asString()).as(context).isEqualTo(expectedDigest);
+            assertThat(session.path("bytesReceived").asLong()).as(context).isEqualTo(completeBytes.length);
+            assertThat(session.path("nextChunkIndex").asInt()).as(context).isEqualTo(chunks.size());
+            assertStoredChunkManifest(uploadId, chunks, context);
+
+            HttpResponse<String> completed = send(port, TENANT, token, "POST",
+                    "/api/v1/artifacts/uploads/" + uploadId + "/complete", "", "application/json", null);
+            assertThat(completed.statusCode()).as(context + ", uploadId=" + uploadId
+                    + ", persistedSession=" + persistedUpload.body()).isEqualTo(201);
+            JsonNode artifact = JSON.readTree(completed.body());
+            String artifactId = artifact.path("artifactId").asString();
+            assertThat(artifact.path("sha256").asString()).isEqualTo(expectedDigest);
+
+            String jobRequestId = "dev-diagnostic-job-" + run;
+            String jobRequest = """
+                    {"requestId":"%s","tenantId":"%s","principalId":"%s",
+                     "correlationId":"dev-diagnostic-correlation-%s",
+                     "artifactId":"%s","expectedArtifactVersion":"sha256:%s",
+                     "jobType":"TRANSCODE","providerHint":"local-diagnostic","parameters":{}}
+                    """.formatted(jobRequestId, TENANT, devPrincipal, run, artifactId, expectedDigest);
+            HttpResponse<String> submitted = send(port, TENANT, token, "POST", "/api/v1/jobs",
+                    jobRequest, "application/json", null);
+            assertThat(submitted.statusCode()).as(submitted.body()).isEqualTo(202);
+            String jobId = JSON.readTree(submitted.body()).path("jobId").asString();
+            assertThat(jobId).isNotBlank();
+            JsonNode diagnosticOutcome = awaitDiagnosticJob(port, TENANT, token, jobId, jobRequestId);
+
+            stopLauncher(launcher);
+            launcher = null;
+            launcher = startLauncher(classpath, env, log);
+            awaitReady(launcher, port);
+
+            HttpResponse<String> artifactReadback = send(port, TENANT, token, "GET",
+                    "/api/v1/artifacts/" + artifactId, "", "application/json", null);
+            assertThat(artifactReadback.statusCode()).as(artifactReadback.body()).isEqualTo(200);
+            assertThat(JSON.readTree(artifactReadback.body()).path("sha256").asString())
+                    .isEqualTo(expectedDigest);
+            JsonNode recoveredJob = awaitDiagnosticJob(port, TENANT, token, jobId, jobRequestId);
+            assertThat(recoveredJob.path("status").asString()).isEqualTo("COMPLETED");
+            assertThat(recoveredJob.path("result")).isEqualTo(diagnosticOutcome.path("result"));
+        } finally {
+            try {
+                if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
+            } finally {
+                try {
+                    if (log != null) Files.deleteIfExists(log);
+                } finally {
+                    try {
+                        deleteBucket(bucket);
+                    } finally {
+                        if (services != null && Files.exists(services)) {
+                            try (var paths = Files.walk(services)) {
+                                paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                                    try { Files.deleteIfExists(path); } catch (Exception ignored) { }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static Map<String, String> environment(String bucket, int port) {
         Map<String, String> env = new HashMap<>();
         env.put("MEDIA_RUNTIME_ENABLED", "true");
@@ -383,6 +583,38 @@ class MediaLauncherArtifactIntakeRestartIT {
         env.put("MEDIA_JWT_AUDIENCE", "ghatana-runtime");
         env.put("MEDIA_LAUNCHER_TEST_JWT_SECRET", JWT_SECRET);
         return env;
+    }
+
+    private static Map<String, String> devEnvironment(String bucket, int port) {
+        Map<String, String> env = environment(bucket, port);
+        env.put("MEDIA_RUNTIME_ENVIRONMENT", "dev");
+        env.put("MEDIA_PROFILE", "dev");
+        env.put("MEDIA_DEV_IDENTITY_ENABLED", "true");
+        env.put("MEDIA_DEV_JWT_HMAC_SECRET", DEV_JWT_SECRET);
+        return env;
+    }
+
+    private static JsonNode awaitDiagnosticJob(
+            int port, String tenant, String token, String jobId, String requestId) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
+        while (System.nanoTime() < deadline) {
+            HttpResponse<String> readback = send(port, tenant, token, "GET",
+                    "/api/v1/jobs/" + jobId + "?requestId=" + requestId,
+                    "", "application/json", null);
+            assertThat(readback.statusCode()).as(readback.body()).isEqualTo(200);
+            JsonNode observed = JSON.readTree(readback.body());
+            if ("COMPLETED".equals(observed.path("status").asString())) {
+                assertThat(observed.path("providerId").asString()).isEqualTo("local-diagnostic");
+                assertThat(observed.path("result").path("diagnostic").asBoolean()).isTrue();
+                assertThat(observed.path("result").path("rawMediaRead").asBoolean()).isFalse();
+                return observed;
+            }
+            assertThat(observed.path("status").asString())
+                    .as("diagnostic job must remain in a recognized nonterminal state while polling")
+                    .isIn("ACCEPTED", "RUNNING");
+            Thread.sleep(100);
+        }
+        throw new AssertionError("Timed out waiting for the local diagnostic job result");
     }
 
     private static void installChildServiceDescriptors(Path root) throws Exception {
@@ -529,5 +761,44 @@ class MediaLauncherArtifactIntakeRestartIT {
                 return result.getLong(1);
             }
         }
+    }
+
+    private static void assertStoredChunkManifest(String uploadId, List<byte[]> chunks, String context)
+            throws Exception {
+        try (var connection = DriverManager.getConnection(
+                        POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                var statement = connection.prepareStatement(
+                        "SELECT chunk_index,size_bytes,sha256 FROM media_upload_chunks "
+                                + "WHERE tenant_id=? AND upload_id=? ORDER BY chunk_index")) {
+            statement.setString(1, TENANT);
+            statement.setString(2, uploadId);
+            try (var result = statement.executeQuery()) {
+                for (int expectedIndex = 0; expectedIndex < chunks.size(); expectedIndex++) {
+                    assertThat(result.next()).as(context + ", missing persisted chunk " + expectedIndex).isTrue();
+                    byte[] chunk = chunks.get(expectedIndex);
+                    assertThat(result.getInt("chunk_index")).as(context).isEqualTo(expectedIndex);
+                    assertThat(result.getLong("size_bytes")).as(context).isEqualTo(chunk.length);
+                    assertThat(result.getString("sha256")).as(context).isEqualTo(sha256(chunk));
+                }
+                assertThat(result.next()).as(context + ", unexpected extra persisted chunk").isFalse();
+            }
+        }
+    }
+
+    private static String devOnlyJwt(String subject, String tenant, String secret,
+            Set<String> grantedPermissions) throws Exception {
+        String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+        String permissions = grantedPermissions.stream().sorted()
+                .map(permission -> "\"" + permission + "\"")
+                .collect(java.util.stream.Collectors.joining(","));
+        String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + tenant
+                + "\",\"iss\":\"urn:ghatana:media:dev-only\",\"aud\":\"ghatana-media-dev\",\"exp\":"
+                + Instant.now().plusSeconds(300).getEpochSecond()
+                + ",\"dev_only\":true,\"permissions\":[" + permissions + "]}");
+        String signingInput = header + "." + payload;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return signingInput + "." + Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(mac.doFinal(signingInput.getBytes(StandardCharsets.US_ASCII)));
     }
 }

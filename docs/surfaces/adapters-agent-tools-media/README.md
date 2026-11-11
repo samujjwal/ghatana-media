@@ -25,7 +25,7 @@ before any provider dispatch today.
 | `AudioVideoToolHandlerFactory.toolIds()` | Canonical registered tool IDs |
 | `MediaToolExecutionBinder.execute(handler, envelope, contract)` | Claim → dispatch → complete/reconcile |
 | `InvocationLedger` (interface) | Atomic claim/completion port |
-| `FileInvocationLedger` | Durable filesystem backing: atomic no-replace claim, lock-file CAS complete, restart-surviving JSON records, digest filenames |
+| `FileInvocationLedger` | Single-host filesystem development backing: create-if-absent hard-link claim, lock-file CAS completion, restart-surviving JSON records, digest filenames |
 | `MediaJobReadback` (interface) | Durable job-state read port for reconciliation |
 
 ## States and invariants
@@ -33,13 +33,31 @@ before any provider dispatch today.
 - `ClaimResult`: `CLAIMED` / `ALREADY_CLAIMED` / `UNAVAILABLE`; the
   interface defaults still **fail closed** for ledgers that do not
   implement claim/complete.
-- `FileInvocationLedger` is a single-node durable backing: records are
-  per-invocation JSON files named by SHA-256 digest (no caller identity
-  on disk), claims use atomic no-replace rename, completions serialize
-  on a lock sidecar then verify-and-replace the exact UNKNOWN fence.
-  It does not provide tenant-scoped access control, classification-aware
-  encryption, retention or multi-host replication — those remain host
-  responsibilities; replay authorization stays with the binder.
+- `FileInvocationLedger` is a single-host development backing. Record and
+  lock filenames use the invocation ID's SHA-256 digest. The JSON record
+  still contains the request identity and terminal outcome metadata in
+  plaintext inside an owner-only (`0700` directory / `0600` files) location;
+  terminal result bodies are AES-GCM encrypted with a host-injected key and
+  expire under the host-supplied retention duration. Claims use an atomic
+  create-if-absent hard link to a forced temporary record. Completion
+  serializes through a lock sidecar, verifies the exact UNKNOWN fence, and
+  atomically replaces it. Each newly created path component's containing
+  directory is synced, as is the final store entry even when it already
+  exists; the nearest pre-existing canonical ancestor is host-provisioned
+  durable storage. Claim and completion sync their record directory before
+  acknowledging. Unsupported sync fails closed. The store itself does not enforce tenant-scoped
+  access control or provide multi-host replication; fresh principal
+  authorization remains with the binder's host-supplied authorizer.
+
+## Crash recovery
+
+A hard stop may leave `.inv-*.tmp` staging files. They do not replace the
+digest-named `.json` records as ledger truth, and the implementation does not
+delete them automatically. Reclaim them only after all writers for this
+directory have stopped: inventory their names, sizes and SHA-256 values, then
+remove only `.inv-*.tmp` files. Preserve `.json` records and `.lock` sidecars,
+retain the before/after inventory, then restart and verify expected invocation
+readback. Age-based cleanup while a writer may be active is unsafe.
 - `LogicalOutcome`: `SUCCESS` / `FAILED` / `OUTCOME_UNKNOWN`;
   `OutcomeUnknownException` carries `invocationId` + `durableJobState`.
 - `RequestIdentity`/`LogicalAction` bind invocation id, tool id, tenant,

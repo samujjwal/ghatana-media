@@ -105,6 +105,43 @@ class MediaRuntimePortProbeTest {
     }
 
     @Test
+    void processingReadyRejectsProviderThatFailsRuntimeReadinessValidation() throws Exception {
+        var root = Files.createTempDirectory("media-probe-verify-ready-");
+        MediaProcessingProvider invalidVisionProvider = new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-invalid-vision"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.completedFuture(Map.of());
+            }
+            @Override public void verifyReady() {
+                throw new IllegalStateException("capability profile identity mismatch");
+            }
+        };
+        var runtime = runtime(root, "local", List.of(
+                provider("stt", Set.of(JobType.SPEECH_TO_TEXT), false), invalidVisionProvider), null);
+        try {
+            assertThat(runtime.processingReady(JobType.VISION)).isFalse();
+            assertThat(runtime.processingReady(JobType.SPEECH_TO_TEXT)).isTrue();
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> components = (Map<String, Object>) runtime.readinessSnapshot().get("components");
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> providers = (List<Map<String, Object>>) components.get("processingProviders");
+            assertThat(providers).anySatisfy(provider -> assertThat(provider)
+                    .containsEntry("providerId", "test-invalid-vision")
+                    .containsEntry("usable", false)
+                    .containsEntry("reason", "verification failed: IllegalStateException"));
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void resolveSourceAuthorizationWithoutAuthorityIsUnavailable() throws Exception {
         var root = Files.createTempDirectory("media-probe-noauth-");
         var runtime = runtime(root, "local", List.of(provider("mm", Set.of(JobType.MULTIMODAL), false)), null);
@@ -243,7 +280,7 @@ class MediaRuntimePortProbeTest {
     }
 
     @Test
-    void delegatingProviderBindsUsableChildCapabilitiesAtComposition() throws Exception {
+    void delegatingProviderDoesNotBindChildCapabilitiesWithoutValidProviderProfiles() throws Exception {
         var root = Files.createTempDirectory("media-probe-bind-");
         var multimodal = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
         var runtime = runtime(root, "production", List.of(
@@ -252,9 +289,10 @@ class MediaRuntimePortProbeTest {
                 provider("vision", Set.of(JobType.VISION), true)),
                 allowAllAuthority());
         try {
-            // Qualified usable children make the orchestrator production-eligible.
-            assertThat(multimodal.productionEligible()).isTrue();
-            assertThat(runtime.processingReady(JobType.MULTIMODAL)).isTrue();
+            // Boolean eligibility flags alone do not qualify production children:
+            // these fixtures declare no capability profiles, so verifyReady rejects them.
+            assertThat(multimodal.productionEligible()).isFalse();
+            assertThat(runtime.processingReady(JobType.MULTIMODAL)).isFalse();
         } finally {
             runtime.close();
         }

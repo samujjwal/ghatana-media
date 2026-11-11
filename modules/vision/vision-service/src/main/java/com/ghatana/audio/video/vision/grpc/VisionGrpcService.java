@@ -12,6 +12,7 @@ import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.model.ObjectAttributes;
 import com.ghatana.audio.video.vision.model.VisionCapabilityDisposition;
 import com.ghatana.audio.video.vision.yolo.YoloV8Adapter;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
@@ -82,6 +83,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
     private volatile String degradationReason = null;
     /** DI-only scene-text consumer (VIS-09); null keeps the RPC fail-closed. */
     private volatile com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService sceneTextService;
+    /** Canonical source readback is available independently of the optional DI binding. */
+    private volatile com.ghatana.audio.video.vision.scenetext.MediaRuntimeSceneTextSource mediaRuntimeSceneTextSource;
     /** Bounded worker pool for the blocking DI call; direct execution unless production binds one. */
     private volatile java.util.concurrent.Executor sceneTextExecutor = Runnable::run;
     /** Blocking detector calls use a separate finite pool in production; tests keep direct execution. */
@@ -142,6 +145,12 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
             java.util.concurrent.Executor sceneTextExecutor) {
         this.sceneTextExecutor = Objects.requireNonNull(sceneTextExecutor, "sceneTextExecutor");
         this.sceneTextService = service;
+    }
+
+    /** Production seam: bind Media's authenticated immutable source-frame reader. */
+    void bindMediaRuntimeSceneTextSource(
+            com.ghatana.audio.video.vision.scenetext.MediaRuntimeSceneTextSource source) {
+        this.mediaRuntimeSceneTextSource = Objects.requireNonNull(source, "source");
     }
 
     /** Production seam: detector inference runs on a bounded worker pool, away from gRPC threads. */
@@ -748,6 +757,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     .asRuntimeException());
             return;
         }
+        String principalId = resolveUserId();
+        if (principalId == null || principalId.isBlank()) {
+            mediaMetrics.recordFailed("vision.scene-text");
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("Missing authenticated subject context")
+                    .asRuntimeException());
+            return;
+        }
+        AuthenticatedPrincipal authenticatedPrincipal = new AuthenticatedPrincipal(
+                tenantId, principalId, Instant.now());
         var service = sceneTextService;
         if (service == null) {
             mediaMetrics.recordFailed("vision.scene-text");
@@ -761,7 +780,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
         byte[] declaredCropBytes = cropDeclarationAbsent ? null : request.getCroppedBytes().toByteArray();
         String declaredCropSha256 = cropDeclarationAbsent ? null : request.getCroppedFrameSha256();
         var frameRequest = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.FrameRequest(
-                request.getOperationId(), tenantId, resolveUserId(), request.getPurposeRef(),
+                request.getOperationId(), tenantId, principalId, request.getPurposeRef(),
                 request.getSourceArtifactId(), request.getSourceVersion(), request.getFrameId(),
                 request.getPtsUs(), request.getFrameWidth(), request.getFrameHeight(),
                 new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Roi(
@@ -770,7 +789,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                 request.getMediaType(), declaredCropBytes,
                 request.getOriginalFrameSha256(), declaredCropSha256,
                 request.getLanguageHint().isBlank()
-                        ? Optional.empty() : Optional.of(request.getLanguageHint()));
+                        ? Optional.empty() : Optional.of(request.getLanguageHint()), authenticatedPrincipal);
         var cancellation = new com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Cancellation();
         var observerRef = responseObserver;
         io.grpc.Context requestContext = io.grpc.Context.current();
@@ -818,6 +837,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     .setPtsUs(recognized.ptsUs())
                     .setRightsDecisionRef(recognized.rightsDecisionRef())
                     .setProvenance(provenance);
+            if (recognized.videoFrameBinding() != null) {
+                body.setSourceFrameResolution(sourceFrameResolution(recognized.videoFrameBinding(),
+                        recognized.frameId(), recognized.ptsUs()));
+            }
             for (var observation : recognized.observations()) {
                 body.addObservations(SceneTextObservation.newBuilder()
                         .setText(observation.text())
@@ -849,6 +872,133 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                 .setX(value.x()).setY(value.y())
                 .setWidth(value.width()).setHeight(value.height())
                 .build();
+    }
+
+    private static SourceFrameResolution sourceFrameResolution(
+            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.VideoFrameBinding binding,
+            String frameId, long ptsUs) {
+        return SourceFrameResolution.newBuilder()
+                .setTenantId(binding.tenantId())
+                .setPrincipalId(binding.principalId())
+                .setSourceArtifactId(binding.artifactId())
+                .setSourceVersion(binding.artifactVersion())
+                .setSourceSha256(binding.sourceSha256())
+                .setFrameId(frameId)
+                .setArtifactLocalEpoch(binding.artifactLocalEpoch())
+                .setSourceStreamSelector(binding.sourceStreamSelector())
+                .setFrameNumber(binding.frameNumber())
+                .setSourcePts(binding.sourcePts())
+                .setTimeBaseNumerator(binding.timeBaseNumerator())
+                .setTimeBaseDenominator(binding.timeBaseDenominator())
+                .setPtsUs(ptsUs)
+                .setFrameWidth(binding.frameWidth())
+                .setFrameHeight(binding.frameHeight())
+                .setRoi(SceneTextRoi.newBuilder().setX(binding.roi().x()).setY(binding.roi().y())
+                        .setWidth(binding.roi().width()).setHeight(binding.roi().height()))
+                .setFrameSha256(binding.frameSha256())
+                .setCropSha256(binding.cropSha256())
+                .build();
+    }
+
+    private static SourceFrameResolution sourceFrameResolution(
+            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceFrameResolution value) {
+        return SourceFrameResolution.newBuilder()
+                .setTenantId(value.tenantId())
+                .setPrincipalId(value.principalId())
+                .setSourceArtifactId(value.sourceArtifactId())
+                .setSourceVersion(value.sourceVersion())
+                .setSourceSha256(value.sourceSha256())
+                .setFrameId(value.frameId())
+                .setArtifactLocalEpoch(value.artifactLocalEpoch())
+                .setSourceStreamSelector(value.sourceStreamSelector())
+                .setFrameNumber(value.frameNumber())
+                .setSourcePts(value.sourcePts())
+                .setTimeBaseNumerator(value.timeBaseNumerator())
+                .setTimeBaseDenominator(value.timeBaseDenominator())
+                .setPtsUs(value.ptsUs())
+                .setFrameWidth(value.frameWidth())
+                .setFrameHeight(value.frameHeight())
+                .setRoi(SceneTextRoi.newBuilder().setX(value.roi().x()).setY(value.roi().y())
+                        .setWidth(value.roi().width()).setHeight(value.roi().height()))
+                .setFrameSha256(value.frameSha256())
+                .setCropSha256(value.cropSha256())
+                .build();
+    }
+
+    @Override
+    public void resolveSourceFrame(SourceFrameResolveRequest request,
+                                   StreamObserver<SourceFrameResolveResponse> responseObserver) {
+        TracedResponse<SourceFrameResolveResponse> traced = genericTracedResponse("resolveSourceFrame", responseObserver);
+        responseObserver = traced.observer;
+        StreamObserver<SourceFrameResolveResponse> observerRef = responseObserver;
+        try (Scope scope = tracingService.createScope(traced.span)) {
+            String tenantId = resolveTenantId();
+            String principalId = resolveUserId();
+            if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
+                observerRef.onNext(sourceFrameRejected("AUTHENTICATION_REQUIRED", false));
+                observerRef.onCompleted();
+                return;
+            }
+            var reader = mediaRuntimeSceneTextSource;
+            if (reader == null) {
+                observerRef.onNext(sourceFrameRejected("SOURCE_NOT_ADMITTED", false));
+                observerRef.onCompleted();
+                return;
+            }
+            if (!request.hasRoi() || request.getSourceArtifactId().isBlank()
+                    || request.getSourceVersion().isBlank() || request.getFrameId().isBlank()
+                    || request.getPurposeRef().isBlank()
+                    || request.getFrameWidth() <= 0 || request.getFrameHeight() <= 0) {
+                observerRef.onNext(sourceFrameRejected("INVALID_REQUEST", false));
+                observerRef.onCompleted();
+                return;
+            }
+            var requestedRoi = request.getRoi();
+            if (requestedRoi.getX() < 0 || requestedRoi.getY() < 0
+                    || requestedRoi.getWidth() <= 0 || requestedRoi.getHeight() <= 0
+                    || (long) requestedRoi.getX() + requestedRoi.getWidth() > request.getFrameWidth()
+                    || (long) requestedRoi.getY() + requestedRoi.getHeight() > request.getFrameHeight()) {
+                observerRef.onNext(sourceFrameRejected("INVALID_REQUEST", false));
+                observerRef.onCompleted();
+                return;
+            }
+            AuthenticatedPrincipal authenticatedPrincipal = new AuthenticatedPrincipal(
+                    tenantId, principalId, Instant.now());
+            var cropRequest = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.CropRequest(
+                    tenantId, principalId, request.getPurposeRef(), request.getSourceArtifactId(),
+                    request.getSourceVersion(), request.getFrameId(), request.getPtsUs(), request.getFrameWidth(),
+                    request.getFrameHeight(), new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Roi(
+                            request.getRoi().getX(), request.getRoi().getY(), request.getRoi().getWidth(),
+                            request.getRoi().getHeight()), "image/png", authenticatedPrincipal);
+            io.grpc.Context requestContext = io.grpc.Context.current();
+            var submission = new com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor(providerExecutor)
+                    .<com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceFrameResolutionOutcome>
+                            submit(() -> reader.resolveSourceFrame(cropRequest));
+            submission.result().whenComplete((outcome, failure) -> requestContext.run(() -> {
+                // Extraction may finish after a client disconnect; never emit a stale metadata result.
+                if (requestContext.isCancelled()) return;
+                if (failure != null || outcome == null) {
+                    observerRef.onNext(sourceFrameRejected("SOURCE_UNAVAILABLE", true));
+                } else if (outcome instanceof com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceFrameResolved resolved) {
+                    observerRef.onNext(SourceFrameResolveResponse.newBuilder()
+                            .setResolved(sourceFrameResolution(resolved.metadata())).build());
+                } else {
+                    var refused = (com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceFrameRefused) outcome;
+                    boolean retryable = refused.status()
+                            == com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceStatus.UNAVAILABLE;
+                    observerRef.onNext(sourceFrameRejected(refused.status().name(), retryable));
+                }
+                observerRef.onCompleted();
+            }));
+        } catch (RuntimeException failure) {
+            observerRef.onNext(sourceFrameRejected("SOURCE_UNAVAILABLE", true));
+            observerRef.onCompleted();
+        }
+    }
+
+    private static SourceFrameResolveResponse sourceFrameRejected(String code, boolean retryable) {
+        return SourceFrameResolveResponse.newBuilder().setRejected(SourceFrameResolveRejected.newBuilder()
+                .setCode(code).setRetryable(retryable)).build();
     }
 
     // ── AV-003.5: classifyImage ────────────────────────────────────────────

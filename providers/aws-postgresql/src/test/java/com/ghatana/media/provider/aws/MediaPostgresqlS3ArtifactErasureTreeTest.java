@@ -218,6 +218,79 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
     }
 
     @Test
+    void expiryPurgesUnreferencedFinalizedUploadObjectAfterArtifactRegistrationFailure() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-orphan-finalized-" + runId;
+        String prefix = "ip06-orphan-finalized/" + runId;
+        String tenant = "tenant-ip06-orphan-finalized-" + runId;
+        String principal = "principal-ip06-orphan-finalized-" + runId;
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore(cleanScanner());
+             PostgresqlMediaPrivacyMaintenance maintenance = new PostgresqlMediaPrivacyMaintenance(environment);
+             S3Client admin = s3Client()) {
+            byte[] bytes = wav(("orphan-upload:" + runId).getBytes(StandardCharsets.UTF_8));
+            var retainedUpload = store.begin(new UploadRequest(tenant, principal, "retained.wav", "audio/wav",
+                    bytes.length, sha256(bytes), "RESTRICTED", Duration.ofDays(30), Map.of()),
+                    "retained-finalized-" + runId);
+            store.append(tenant, principal, retainedUpload.uploadId(), 0, bytes);
+            MediaArtifact retained = store.complete(tenant, principal, retainedUpload.uploadId());
+            var failedUpload = store.begin(new UploadRequest(tenant, principal, "renamed.wav", "audio/wav",
+                    bytes.length, sha256(bytes), "RESTRICTED", Duration.ofDays(30), Map.of()),
+                    "orphan-finalized-" + runId);
+            store.append(tenant, principal, failedUpload.uploadId(), 0, bytes);
+
+            assertThatThrownBy(() -> store.complete(tenant, principal, failedUpload.uploadId()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("byte identity conflicts with governed metadata: fileName");
+            assertThat(store.upload(tenant, failedUpload.uploadId())).isPresent();
+
+            String finalizedKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                    + failedUpload.uploadId() + "/" + sha256(bytes);
+            String retainedKey = objectKey(retained.objectReference());
+            String chunkKey;
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var query = connection.prepareStatement(
+                         "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+                query.setString(1, tenant);
+                query.setString(2, failedUpload.uploadId());
+                try (var rows = query.executeQuery()) {
+                    assertThat(rows.next()).isTrue();
+                    chunkKey = rows.getString(1);
+                    assertThat(rows.next()).isFalse();
+                }
+            }
+            assertObjectExists(admin, bucket, finalizedKey);
+            assertObjectExists(admin, bucket, chunkKey);
+            assertObjectExists(admin, bucket, retainedKey);
+
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var expire = connection.prepareStatement(
+                         "UPDATE media_upload_sessions SET expires_at=? WHERE tenant_id=? AND upload_id=?")) {
+                expire.setLong(1, Instant.now().minusSeconds(1).toEpochMilli());
+                expire.setString(2, tenant);
+                expire.setString(3, failedUpload.uploadId());
+                assertThat(expire.executeUpdate()).isEqualTo(1);
+            }
+
+            var report = maintenance.purgeExpired(Instant.now());
+            assertThat(report.uploadsDeleted()).isEqualTo(1);
+            assertThat(report.chunksDeleted()).isEqualTo(1);
+            assertThat(store.upload(tenant, failedUpload.uploadId())).isEmpty();
+            assertObjectAbsent(admin, bucket, finalizedKey);
+            assertObjectAbsent(admin, bucket, chunkKey);
+            assertObjectExists(admin, bucket, retainedKey);
+            assertThat(store.artifact(tenant, retained.artifactId())).isPresent();
+        } finally {
+            deleteBucket(bucket);
+        }
+    }
+
+    @Test
     void expiryWaitsForAnAlreadyStagedReadBeforeErasureCanCommit() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-ip06-read-fence-" + runId;

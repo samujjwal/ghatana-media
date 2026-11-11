@@ -70,7 +70,9 @@ public final class SimulationSemanticValidator {
             PhysicalSimulation.Quantity expected,
             PhysicalSimulation.Quantity absoluteTolerance) {
         public DeclaredInvariant {
-            invariantId = invariantId == null ? "" : invariantId.trim();
+            // An invariant ID is part of the pass identity. Preserve the exact
+            // caller value so whitespace cannot silently alias another invariant.
+            invariantId = invariantId == null ? "" : invariantId;
             Objects.requireNonNull(observable, "observable");
             Objects.requireNonNull(expected, "expected");
             Objects.requireNonNull(absoluteTolerance, "absoluteTolerance");
@@ -185,9 +187,9 @@ public final class SimulationSemanticValidator {
         }
         Set<String> invariantIds = new HashSet<>();
         for (DeclaredInvariant invariant : binding.invariants()) {
-            if (invariant.invariantId().isBlank()) {
+            if (invariant.invariantId().isBlank() || hasOuterUnicodeWhitespace(invariant.invariantId())) {
                 findings.add(new Finding(Reason.MISSING_DECLARED_INVARIANT, "invariants",
-                        "every declared invariant requires a stable identity"));
+                        "every declared invariant requires an exact, unpadded stable identity"));
             } else if (!invariantIds.add(invariant.invariantId())) {
                 findings.add(new Finding(Reason.DUPLICATE_INVARIANT_ID, invariant.invariantId(),
                         "invariant identities must be unique within a pass"));
@@ -234,16 +236,16 @@ public final class SimulationSemanticValidator {
             findings.add(new Finding(Reason.INCOMPATIBLE_UNITS, "expectedDuration", incompatible.getMessage()));
             expectedDuration = Double.NaN;
         }
+        double timeTolerance = Double.isFinite(expectedDuration) && expectedDuration > 0
+                ? Math.ulp(expectedDuration) * 8 : Double.NaN;
         if (!Double.isFinite(expectedDuration) || !(expectedDuration > 0)
-                || Math.abs(result.observations().getLast().timeSeconds() - expectedDuration)
-                        > Math.max(1e-12, Math.ulp(expectedDuration) * 8)) {
+                || Math.abs(result.observations().getLast().timeSeconds() - expectedDuration) > timeTolerance) {
             findings.add(new Finding(Reason.HORIZON_MISMATCH, "expectedDuration",
                     "terminal observation does not match the versioned run horizon"));
         }
         if (Double.isFinite(expectedDuration)) {
-            double timeTolerance = Math.max(1e-12, Math.ulp(expectedDuration) * 8);
             List<PhysicalSimulation.Observation> observations = result.observations();
-            if (observations.size() < 2 || Math.abs(observations.getFirst().timeSeconds()) > timeTolerance) {
+            if (observations.size() < 2 || observations.getFirst().timeSeconds() != 0.0) {
                 findings.add(new Finding(Reason.INVALID_OBSERVATION_TRACE, "observations",
                         "a simulation trace must start at zero and contain a terminal observation"));
             }

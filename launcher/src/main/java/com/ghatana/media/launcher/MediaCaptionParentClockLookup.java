@@ -55,7 +55,10 @@ final class MediaCaptionParentClockLookup implements ParentClockLookup {
         Optional<TranscriptRevision> versioned;
         try {
             versioned = transcriptStore.revisionByVersionRef(tenantId, principalId, transcriptVersionRef);
-        } catch (UnsupportedOperationException unsupported) {
+        } catch (RuntimeException unavailable) {
+            // Store implementations may signal a closed/unavailable connection by throwing.
+            // An unreadable exact parent cannot authorize a caption version, so keep this
+            // optional lookup fail-closed and let registration return its typed SOURCE_NOT_READY.
             return Optional.empty();
         }
         if (versioned.isEmpty()) return Optional.empty();

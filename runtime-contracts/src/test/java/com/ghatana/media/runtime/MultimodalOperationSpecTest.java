@@ -102,7 +102,7 @@ class MultimodalOperationSpecTest {
     }
 
     @Test
-    void timedObservationsAreCappedWithoutReadingTheExcessItem() {
+    void timedObservationProjectionCapsPerChildEntriesWithoutReadingTheExcessItem() {
         List<Map<String, Object>> values = new ArrayList<>();
         for (int i = 0; i < 17; i++) {
             values.add(Map.of("startTick", (long) i, "endTick", (long) i + 1,
@@ -110,43 +110,118 @@ class MultimodalOperationSpecTest {
         }
         AtomicInteger consumed = new AtomicInteger();
         List<Map<String, Object>> underreported = trackedUnderreported(values, consumed);
-        var child = completedChild("job-timed", JobType.SPEECH_TO_TEXT,
-                Map.of("timedObservations", underreported));
-        var fused = MultimodalOperationSpec.fusedResult(
-                clockedSpec(new MultimodalOperationSpec.SourceClockBinding(
-                        "ev", 48_000, 0, "src-clock", 100)), List.of(child));
-        List<?> observations = (List<?>) fused.get("observations");
-        Map<?, ?> timing = (Map<?, ?>) ((Map<?, ?>) observations.getFirst()).get("timing");
+        var bounded = MultimodalOperationSpec.boundedChildResult(
+                Map.of("timedObservations", underreported), 24);
 
-        assertThat(timing.get("status")).isEqualTo("SYNC_UNDETERMINED");
-        assertThat(timing.get("reason")).isEqualTo("TIMED_OBSERVATION_BUDGET_EXCEEDED");
-        assertThat(timing.get("groundedTimedObservations"))
-                .isEqualTo(16);
+        assertThat(bounded.timedObservationsTruncated()).isTrue();
+        assertThat((List<?>) bounded.values().get("timedObservations")).hasSize(16);
         assertThat(consumed).hasValue(16);
     }
 
     @Test
-    void timedObservationsRespectGlobalBudgetWithoutReadingExcessItems() {
+    void timedObservationProjectionRespectsGlobalBudgetWithoutReadingExcessItems() {
         List<Map<String, Object>> values = new ArrayList<>();
         for (int i = 0; i < 16; i++) {
             values.add(Map.of("startTick", (long) i, "endTick", (long) i + 1,
                     "sourceClockId", "src-clock", "ticksPerSecond", 48_000L));
         }
         AtomicInteger consumed = new AtomicInteger();
-        var first = completedChild("job-first", JobType.SPEECH_TO_TEXT,
-                Map.of("timedObservations", values));
-        var second = completedChild("job-second", JobType.VISION,
-                Map.of("timedObservations", trackedUnderreported(values, consumed)));
+        var bounded = MultimodalOperationSpec.boundedChildResult(
+                Map.of("timedObservations", trackedUnderreported(values, consumed)), 8);
+
+        assertThat(bounded.timedObservationsTruncated()).isTrue();
+        assertThat((List<?>) bounded.values().get("timedObservations")).hasSize(8);
+        assertThat(consumed).hasValue(8);
+    }
+
+    @Test
+    void fusedResultHashesFullChildInputAndReportsCharacterBudgetTruncation() {
+        String oversizedLabel = "l".repeat(9_000);
+        Map<String, Object> timed = Map.of("timedObservations", List.of(Map.of(
+                "label", oversizedLabel,
+                "startTick", 0L,
+                "endTick", 1L,
+                "sourceClockId", "src-clock",
+                "ticksPerSecond", 48_000L)));
+        var child = completedChild("job-timed-large", JobType.SPEECH_TO_TEXT, timed);
         var fused = MultimodalOperationSpec.fusedResult(
                 clockedSpec(new MultimodalOperationSpec.SourceClockBinding(
-                        "ev", 48_000, 0, "src-clock", 100)), List.of(first, second));
-        List<?> observations = (List<?>) fused.get("observations");
-        Map<?, ?> secondTiming = (Map<?, ?>) ((Map<?, ?>) observations.get(1)).get("timing");
+                        "ev", 48_000, 0, "src-clock", 100)), List.of(child));
+        Map<?, ?> observation = (Map<?, ?>) ((List<?>) fused.get("observations")).getFirst();
+        Map<?, ?> timing = (Map<?, ?>) observation.get("timing");
 
-        assertThat(secondTiming.get("status")).isEqualTo("SYNC_UNDETERMINED");
-        assertThat(secondTiming.get("reason")).isEqualTo("TIMED_OBSERVATION_BUDGET_EXCEEDED");
-        assertThat(secondTiming.get("groundedTimedObservations")).isEqualTo(8);
-        assertThat(consumed).hasValue(8);
+        assertThat(timing.get("status")).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(timing.get("reason")).isEqualTo("TIMED_OBSERVATION_BUDGET_EXCEEDED");
+        assertThat(timing.get("groundedTimedObservations")).isEqualTo(0);
+        assertThat(((Map<?, ?>) observation.get("observations")).get("timedObservations"))
+                .isEqualTo(List.of());
+        assertThat(observation.get("childResultDigest")).isEqualTo(
+                MediaJobRequestFingerprint.boundedCanonicalJsonDigest(
+                        timed, MediaModalityContracts.ExecutionBounds.defaults().maximumOutputBytes()));
+    }
+
+    @Test
+    void timingBudgetDispositionRemainsExplicitWhenTheEmptyTimingFieldCannotFit() {
+        Map<String, Object> childResult = new java.util.LinkedHashMap<>();
+        childResult.put("text", "x".repeat(8_160));
+        childResult.put("timedObservations", List.of(Map.of(
+                "startTick", 0L, "endTick", 1L,
+                "sourceClockId", "src-clock", "ticksPerSecond", 48_000L)));
+        var child = completedChild("job-timing-no-space", JobType.SPEECH_TO_TEXT, childResult);
+
+        var fused = MultimodalOperationSpec.fusedResult(
+                clockedSpec(new MultimodalOperationSpec.SourceClockBinding(
+                        "ev", 48_000, 0, "src-clock", 100)), List.of(child));
+        Map<?, ?> observation = (Map<?, ?>) ((List<?>) fused.get("observations")).getFirst();
+        Map<?, ?> timing = (Map<?, ?>) observation.get("timing");
+        Map<?, ?> projected = (Map<?, ?>) observation.get("observations");
+
+        assertThat(MediaJobRequestFingerprint.boundedCanonicalJsonLength(projected, 8_192))
+                .isLessThanOrEqualTo(8_192);
+        assertThat(projected.containsKey("timedObservations")).isFalse();
+        assertThat(timing.get("status")).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(timing.get("reason")).isEqualTo("TIMED_OBSERVATION_BUDGET_EXCEEDED");
+    }
+
+    @Test
+    void fusedResultRejectsOversizedNonTimingFieldsInsteadOfReturningPartialSuccess() {
+        var child = completedChild("job-large", JobType.SPEECH_TO_TEXT,
+                Map.of("text", "x".repeat(8_192)));
+
+        assertThatThrownBy(() -> MultimodalOperationSpec.fusedResult(List.of(child)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("complete bounded projection");
+    }
+
+    @Test
+    void fusedResultSortsProjectedFieldsAndKeepsDigestIndependentOfInsertionOrder() {
+        Map<String, Object> forward = new java.util.LinkedHashMap<>();
+        forward.put("zeta", "last");
+        forward.put("alpha", "first");
+        Map<String, Object> reverse = new java.util.LinkedHashMap<>();
+        reverse.put("alpha", "first");
+        reverse.put("zeta", "last");
+
+        var left = MultimodalOperationSpec.boundedChildResult(forward, 24).values();
+        var right = MultimodalOperationSpec.boundedChildResult(reverse, 24).values();
+
+        assertThat(left).isEqualTo(right);
+        assertThat(new ArrayList<>(left.keySet())).containsExactly("alpha", "zeta");
+        assertThat(MediaJobRequestFingerprint.boundedCanonicalJsonDigest(forward, 4 * 1024 * 1024))
+                .isEqualTo(MediaJobRequestFingerprint.boundedCanonicalJsonDigest(reverse, 4 * 1024 * 1024));
+    }
+
+    @Test
+    void malformedTimedObservationsAreNotTreatedAsAbsent() {
+        var child = completedChild("job-timed-malformed", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", "not-a-list"));
+        var fused = MultimodalOperationSpec.fusedResult(List.of(child));
+        Map<?, ?> observation = (Map<?, ?>) ((List<?>) fused.get("observations")).getFirst();
+        Map<?, ?> timing = (Map<?, ?>) observation.get("timing");
+
+        assertThat(timing.get("status")).isEqualTo("SYNC_UNDETERMINED");
+        assertThat(timing.get("reason")).isEqualTo("TIMED_OBSERVATIONS_MALFORMED");
+        assertThat(timing.containsKey("declaredTimedObservations")).isFalse();
     }
 
     @Test

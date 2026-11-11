@@ -306,7 +306,7 @@ class MediaRuntimeRestartReconciliationTest {
     }
 
     @Test
-    void unconfirmedCancellationSurvivesShutdownAndRestartRequiresExplicitReconciliation() throws Exception {
+    void unconfirmedCancellationWithLiveLeaseSurvivesSameStoreRuntimeRestart() throws Exception {
         var root = Files.createTempDirectory("media-restart-reconciliation-");
         var artifacts = new LocalMediaRuntimeSupport.FileArtifactStore(root);
         var jobs = new LocalMediaRuntimeSupport.JobStore(false);
@@ -346,23 +346,17 @@ class MediaRuntimeRestartReconciliationTest {
         MediaRuntime restarted = runtime(root, artifacts, jobs, streams, provider);
         try {
             var reconciled = restarted.job("tenant-a", "principal-a", jobId).orElseThrow();
-            assertThat(reconciled.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
-            assertThat(reconciled.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(reconciled.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(reconciled.failureCode()).isEmpty();
 
             assertThat(reconciled.result())
-                    .containsEntry("reconciliation", "provider outcome unknown after runtime restart")
-                    .containsEntry("providerOutcome", "UNKNOWN");
+                    .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
             assertThat(reconciled.status()).isNotEqualTo(JobStatus.CANCELLED);
             assertThat(calls).hasValue(1);
 
-            // J-20 fixture binding: after restart, authenticated cancellation is an
-            // observation against the same canonical job. It cannot convert an
-            // unresolved provider outcome into cancellation or create another dispatch.
-            var cancelReplay = restarted.cancel("tenant-a", "principal-a", jobId);
             var readReplay = restarted.job("tenant-a", "principal-a", jobId).orElseThrow();
-            assertThat(cancelReplay).isEqualTo(reconciled);
             assertThat(readReplay).isEqualTo(reconciled);
-            assertThat(readReplay.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+            assertThat(readReplay.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
             assertThat(calls).hasValue(1);
         } finally {
             restarted.close();
@@ -420,6 +414,33 @@ class MediaRuntimeRestartReconciliationTest {
                     .extracting(job -> job.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
         } finally {
             runtime.close();
+        }
+    }
+
+    @Test
+    void startupRecoveryLeavesJobWithUnexpiredLocalLeaseToItsCurrentWorker() throws Exception {
+        var root = Files.createTempDirectory("media-recovery-live-lease-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        ProcessingJob running = new ProcessingJob(
+                "job-live-lease", "request-live-lease", "tenant-a", "principal-a", "artifact-live-lease",
+                JobType.VISION, "remote", JobStatus.RUNNING, java.time.Instant.now(),
+                java.time.Instant.now(), null, Map.of(), "", 1);
+        jobs.create(running);
+        var lease = jobs.claim(running, "worker-still-running", java.time.Instant.now().plusSeconds(60));
+        var providerCalls = new AtomicInteger();
+
+        var runtime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), jobs,
+                new LocalMediaRuntimeSupport.StreamStore(), pendingProvider(
+                        new CompletableFuture<>(), providerCalls));
+        try {
+            ProcessingJob afterStartup = jobs.find(running.tenantId(), running.jobId()).orElseThrow();
+            assertThat(afterStartup.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(jobs.leaseValid(lease)).isTrue();
+            assertThat(jobs.recoverableAfter(100, null)).isEmpty();
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            runtime.close();
+            jobs.release(lease);
         }
     }
 

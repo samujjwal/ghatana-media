@@ -454,7 +454,14 @@ public final class MediaWorkflowMetrics {
                     return false;
                 }
                 gauges = new ProviderProfileGauges();
-                registerProviderGauges(key, gauges);
+                try {
+                    registerProviderGauges(key, gauges);
+                } catch (RuntimeException registryFailure) {
+                    // Provider health is observational. A registry outage must leave this
+                    // observation unreported/UNKNOWN without escaping into the provider path.
+                    removeProviderGauges(key);
+                    return false;
+                }
                 providerProfiles.put(key, gauges);
             }
         }
@@ -550,6 +557,29 @@ public final class MediaWorkflowMetrics {
                 .description("1 when equal-time provider profile observations conflict, 0 after an unambiguous check, NaN before the first check")
                 .tags(tags)
                 .register(registry);
+    }
+
+    private void removeProviderGauges(ProviderProfileKey key) {
+        Set<String> names = Set.of("media.provider.profile.readiness",
+                "media.provider.profile.checked_at_seconds",
+                "media.provider.quality.observation_timestamp_seconds",
+                "media.provider.profile.observation_conflict");
+        try {
+            for (var meter : registry.getMeters()) {
+                var id = meter.getId();
+                if (names.contains(id.getName())
+                        && java.util.Objects.equals(id.getTag("service"), safeService)
+                        && java.util.Objects.equals(id.getTag("modality"), key.modality().label)
+                        && java.util.Objects.equals(id.getTag("provider_id"), key.providerId())
+                        && java.util.Objects.equals(id.getTag("provider_version"), key.providerVersion())
+                        && java.util.Objects.equals(id.getTag("model_profile"), key.modelProfile())
+                        && java.util.Objects.equals(id.getTag("model_revision"), key.modelRevision())) {
+                    registry.remove(meter);
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Cleanup is best-effort and must not turn unavailable telemetry into an operation error.
+        }
     }
 
     private void recordRejectedObservation(String metricName) {

@@ -34,3 +34,22 @@ samples; after validation it skips PCM sample conversion and accumulation while
 preserving the same output bytes. This local optimization does not establish
 lawful production audio, certified true-peak measurement, perceptual mastering
 quality, or durable project revision and delivery.
+
+The mix result also exposes an explicitly scoped BS.1770-5 Annex 2-based 4x
+four-phase FIR peak estimate, including its method ID/version and finite-buffer
+policy (`zero-extension-including-fir-tail`). The reported value is the greater
+of the native sample peak and FIR oversampled-grid peak; both components are
+available in the measurement. The mixer uses this value and its existing
+windowed-sinc estimate in the pre-limit gain guard, then rechecks quantized PCM
+against the ceiling. This is an estimate-based ceiling guard, not a proof of the
+continuous-time peak or a hard true-peak guarantee. Existing windowed-sinc
+accessors remain available for compatibility. No BS.2217 corpus validation is
+included. Algorithm basis: [ITU-R BS.1770-5, Annex 2](https://www.itu.int/rec/R-REC-BS.1770-5-202311-I).
+
+The `examples/media-creative-preview` consumer also has an `audioRepairPreview`
+task for caller-provided signed PCM WAV. It writes separate source and
+linear-interpolation candidate WAVs and verifies the persisted PCM/digest
+lineage. The local format and 16 MiB payload bounds, clipping heuristic,
+algorithm assumptions, and quality limitations are documented in the example
+README; this consumer does not establish rights, independent-reference quality,
+or durable J-07 behavior.

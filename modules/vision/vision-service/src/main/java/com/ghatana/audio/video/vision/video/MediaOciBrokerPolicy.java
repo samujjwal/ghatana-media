@@ -271,20 +271,21 @@ final class MediaOciBrokerPolicy {
         if (singleFrameArgsAllowed(args) || audioDemuxArgsAllowed(args)) return true;
         // Production VideoFrameExtractor frame extraction plan, including its bounded
         // select/scale filter and fixed output format/options.
-        if (args.size() != 32 || !args.subList(0, 16).equals(List.of(
+        if (args.size() != 34 || !args.subList(0, 16).equals(List.of(
                 "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
                 "-max_alloc", "268435456", "-max_pixels", args.get(9), "-threads", "2",
                 "-filter_threads", "1", "-f", args.get(15)))
                 || !args.get(9).equals("16000000")
                 || !INPUT_FORMATS.contains(args.get(15)) || !args.get(16).equals("-i")
-                || !args.get(17).equals("/source/input") || !args.get(18).equals("-threads")
-                || !args.get(19).equals("2") || !args.get(20).equals("-vf")
-                || !safeFrameFilter(args.get(21)) || !args.get(22).equals("-fps_mode")
-                || !args.get(23).equals("passthrough") || !args.get(24).equals("-enc_time_base")
-                || !args.get(25).equals("demux") || !args.get(26).equals("-frames:v")
-                || !positiveInt(args.get(27), 10_000) || !args.get(28).equals("-q:v")
-                || !positiveInt(args.get(29), 31) || !outputPattern(args.get(30))
-                || !args.get(31).equals("-n")) return false;
+                || !args.get(17).equals("/source/input") || !args.get(18).equals("-map")
+                || !args.get(19).equals("0:v:0") || !args.get(20).equals("-threads")
+                || !args.get(21).equals("2") || !args.get(22).equals("-vf")
+                || !safeFrameFilter(args.get(23)) || !args.get(24).equals("-fps_mode")
+                || !args.get(25).equals("passthrough") || !args.get(26).equals("-enc_time_base")
+                || !args.get(27).equals("demux") || !args.get(28).equals("-frames:v")
+                || !positiveInt(args.get(29), 10_000) || !args.get(30).equals("-q:v")
+                || !positiveInt(args.get(31), 31) || !outputPattern(args.get(32))
+                || !args.get(33).equals("-n")) return false;
         return true;
     }
 

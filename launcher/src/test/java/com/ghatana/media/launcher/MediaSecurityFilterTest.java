@@ -38,6 +38,9 @@ import static org.mockito.Mockito.*;
 class MediaSecurityFilterTest {
 
     private static final String JWT_SECRET = "0123456789abcdef0123456789abcdef";
+    private static final String DEV_JWT_SECRET = "dev-only-secret-value-at-least-32-bytes";
+    private static final String DEV_ISSUER = "urn:ghatana:media:dev-only";
+    private static final String DEV_AUDIENCE = "ghatana-media-dev";
     private static final Clock CLOCK = Clock.fixed(
             Instant.parse("2026-08-03T00:00:00Z"),
             ZoneOffset.UTC);
@@ -66,6 +69,35 @@ class MediaSecurityFilterTest {
         mac.init(new SecretKeySpec(JWT_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
         return signingInput + "." + Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(mac.doFinal(signingInput.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    private static String signedDevJwt(String tenantId, String subject) throws Exception {
+        return signedDevJwt(tenantId, subject, true);
+    }
+
+    private static String signedDevJwt(String tenantId, String subject, boolean devOnly) throws Exception {
+        String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+        String payloadJson = "{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + tenantId
+                + "\",\"iss\":\"" + DEV_ISSUER + "\",\"aud\":\"" + DEV_AUDIENCE
+                + "\",\"dev_only\":" + devOnly + ",\"exp\":"
+                + CLOCK.instant().plusSeconds(120).getEpochSecond()
+                + ",\"permissions\":[\"media:job:read\"]}";
+        String header = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
+        String payload = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+        String signingInput = header + "." + payload;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(DEV_JWT_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return signingInput + "." + Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(mac.doFinal(signingInput.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    private static Map<String, String> devIdentityEnvironment() {
+        Map<String, String> configured = new HashMap<>(environment());
+        configured.put("MEDIA_DEV_IDENTITY_ENABLED", "true");
+        configured.put("MEDIA_DEV_JWT_HMAC_SECRET", DEV_JWT_SECRET);
+        return configured;
     }
 
     private HttpExchange mockExchange(String path, Map<String, String> headers) throws IOException {
@@ -368,6 +400,97 @@ class MediaSecurityFilterTest {
                         assertThat(identity.tenantId()).isEqualTo("fixture-tenant");
                         assertThat(identity.principalId()).isEqualTo("media-local-development");
                     });
+        }
+    }
+
+    @Nested
+    @DisplayName("opt-in DEV_ONLY identity")
+    class DevOnlyIdentity {
+
+        @Test
+        void acceptsSignedDevBearerAndReplacesForgedIdentityHeaders() throws Exception {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "dev", devIdentityEnvironment(), CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Authorization", "Bearer " + signedDevJwt("signed-tenant", "signed-subject"));
+            headers.put("X-Tenant-Id", "forged-tenant");
+            headers.put("X-Principal-Id", "forged-subject");
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            var seen = ArgumentCaptor.forClass(HttpExchange.class);
+            verify(delegate).handle(seen.capture());
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Tenant-Id")).isEqualTo("signed-tenant");
+            assertThat(seen.getValue().getRequestHeaders().getFirst("X-Principal-Id")).isEqualTo("signed-subject");
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue()))
+                    .satisfies(identity -> {
+                        assertThat(identity.tenantId()).isEqualTo("signed-tenant");
+                        assertThat(identity.principalId()).isEqualTo("signed-subject");
+                    });
+        }
+
+        @Test
+        void requiresBearerAndRejectsHeaderOnlyOrApiKeyIdentity() throws IOException {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "dev", devIdentityEnvironment(), CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "caller-tenant");
+            headers.put("X-Principal-Id", "caller-subject");
+            headers.put("X-API-Key", "test-key");
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            verify(delegate, never()).handle(any());
+            verify(exchange).sendResponseHeaders(eq(401), anyLong());
+        }
+
+        @Test
+        void requiresExplicitDevOnlyClaimEvenOnCorrectlySignedToken() throws Exception {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "dev", devIdentityEnvironment(), CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Authorization", "Bearer " + signedDevJwt("tenant-a", "user-a", false));
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            verify(delegate, never()).handle(any());
+            verify(exchange).sendResponseHeaders(eq(401), anyLong());
+        }
+
+        @Test
+        void rejectsDevOnlyModeOutsideExactDevProfile() {
+            assertThat(org.assertj.core.api.Assertions.catchThrowable(
+                    () -> new MediaSecurityFilter(mock(HttpHandler.class), "production", devIdentityEnvironment(), CLOCK)))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("only for the dev profile");
+            assertThat(org.assertj.core.api.Assertions.catchThrowable(
+                    () -> new MediaSecurityFilter(mock(HttpHandler.class), "local", devIdentityEnvironment(), CLOCK)))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        void rejectsDevTokenEvenWhenProductionVerifierWouldOtherwiseAcceptIt() throws Exception {
+            HttpHandler delegate = mock(HttpHandler.class);
+            Map<String, String> configured = new HashMap<>(devIdentityEnvironment());
+            configured.put("MEDIA_DEV_IDENTITY_ENABLED", "false");
+            configured.remove("MEDIA_DEV_JWT_HMAC_SECRET");
+            configured.put("JWT_SECRET", DEV_JWT_SECRET);
+            configured.put("MEDIA_JWT_HMAC_SECRET_REFERENCE", "secret:env:JWT_SECRET");
+            configured.put("MEDIA_JWT_ISSUER", DEV_ISSUER);
+            configured.put("MEDIA_JWT_AUDIENCE", DEV_AUDIENCE);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "production", configured, CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "signed-tenant");
+            headers.put("Authorization", "Bearer " + signedDevJwt("signed-tenant", "signed-subject"));
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            verify(delegate, never()).handle(any());
+            verify(exchange).sendResponseHeaders(eq(401), anyLong());
         }
     }
 

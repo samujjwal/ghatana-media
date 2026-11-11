@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -260,9 +261,10 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                     connection.setAutoCommit(false);
                     long expiresAt;
                     String status;
+                    String expectedSha256;
                     Long finalizationStartedAt;
                     try (PreparedStatement lock = connection.prepareStatement(
-                            "SELECT expires_at,status,finalization_started_at FROM media_upload_sessions "
+                            "SELECT expires_at,status,finalization_started_at,expected_sha256 FROM media_upload_sessions "
                                     + "WHERE tenant_id=? AND upload_id=? FOR UPDATE")) {
                         lock.setString(1, upload.tenantId());
                         lock.setString(2, upload.uploadId());
@@ -273,6 +275,7 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                             }
                             expiresAt = result.getLong("expires_at");
                             status = result.getString("status");
+                            expectedSha256 = result.getString("expected_sha256");
                             finalizationStartedAt = result.getObject("finalization_started_at") == null
                                     ? null : result.getLong("finalization_started_at");
                         }
@@ -290,6 +293,14 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                     // metadata are removed. Renewal or active finalization that wins first is
                     // rechecked above and leaves all chunk bytes intact.
                     List<String> objectKeys = uploadChunkKeys(connection, upload);
+                    String finalizedKey = uploadFinalizedObjectKey(upload, expectedSha256);
+                    if (!artifactReferenceExists(connection,
+                            "s3://" + state.bucket() + "/" + finalizedKey)) {
+                        // A failed/retried upload can leave its private finalized object after
+                        // scan or immutable metadata persistence. Delete only this canonical
+                        // upload-owned key, and preserve it if any committed artifact references it.
+                        deleteObject(finalizedKey);
+                    }
                     for (String key : objectKeys) deleteObject(key);
                     int removedChunks;
                     try (PreparedStatement chunks = connection.prepareStatement(
@@ -335,6 +346,27 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
             return List.copyOf(keys);
         } catch (SQLException failure) {
             throw databaseFailure("read expired Media upload chunks", failure);
+        }
+    }
+
+    private String uploadFinalizedObjectKey(UploadDelete upload, String sha256) {
+        if (upload.uploadId() == null || !UUID.fromString(upload.uploadId()).toString().equals(upload.uploadId())) {
+            throw new IllegalStateException("Refusing to delete Media quarantine object for a noncanonical upload ID");
+        }
+        if (sha256 == null || !sha256.matches("[0-9a-f]{64}")) {
+            throw new IllegalStateException("Refusing to delete Media quarantine object without a valid SHA-256");
+        }
+        return state.key("quarantine/finalized/" + MediaArtifactObjectOwnership.opaque(upload.tenantId())
+                + "/" + upload.uploadId() + "/" + sha256);
+    }
+
+    private boolean artifactReferenceExists(Connection connection, String objectReference) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT 1 FROM media_artifacts WHERE object_reference=? LIMIT 1")) {
+            statement.setString(1, objectReference);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next();
+            }
         }
     }
 

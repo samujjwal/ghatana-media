@@ -24,6 +24,18 @@ class VideoFrameExtractorProcessTest {
     @TempDir Path tempDir;
 
     @Test
+    void exactFrameConfigSelectsSourceOrdinalAndBoundsOutputToOne() throws Exception {
+        var config = VideoFrameExtractor.ExtractionConfig.builder().sourceFrameNumber(37).build();
+        List<String> command = new VideoFrameExtractor().buildFFmpegCommand(
+                tempDir.resolve("source.mp4"), tempDir.resolve("out"), config);
+
+        assertThat(config.getMaxFrames()).isEqualTo(1);
+        assertThat(command).anyMatch(arg -> arg.contains("select='eq(n\\,37)',showinfo"));
+        assertThat(command).containsSubsequence("-frames:v", "1");
+        assertThat(command).noneMatch(arg -> arg.contains("prev_selected_t"));
+    }
+
+    @Test
     void extractedFrameRejectsNegativeIdentityAtConstruction() {
         assertThatThrownBy(() -> new VideoFrameExtractor.ExtractedFrame(
                 tempDir.resolve("negative.png"), SourceMediaTimestamp.fromPts("0", "1/1"), -1))
@@ -710,7 +722,7 @@ class VideoFrameExtractorProcessTest {
                 tempDir.resolve("safe.mp4"), tempDir.resolve("frames"), config);
         assertThat(command).containsSubsequence("-protocol_whitelist", "file", "-max_alloc", "268435456",
                 "-max_pixels", "16000000", "-threads", "2", "-filter_threads", "1",
-                "-f", "mov", "-i", tempDir.resolve("safe.mp4").toString());
+                "-f", "mov", "-i", tempDir.resolve("safe.mp4").toString(), "-map", "0:v:0");
         assertThat(command).containsSubsequence("-copyts", "-i", tempDir.resolve("safe.mp4").toString(),
                 "-threads", "2",
                 "-vf", "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/1)',showinfo,scale=640:480",
@@ -883,6 +895,24 @@ class VideoFrameExtractorProcessTest {
                         + "[Parsed_showinfo_0] n: 0 pts: 500 pts_time:0.5\n", 0, "1/90000");
         assertThat(mismatch.status()).isEqualTo(SourceMediaTimestamp.Status.UNKNOWN);
         assertThat(mismatch.reason()).isEqualTo("FFPROBE_FFMPEG_TIMEBASE_MISMATCH");
+    }
+
+    @Test
+    void bindsFramePtsToTheLatestPriorFfmpegTimebaseDeclaration() {
+        String diagnostics = "[Parsed_showinfo_0] config in time_base: 1/90000, frame_rate: 30/1\n"
+                + "[Parsed_showinfo_0] n: 0 pts: 90000 pts_time:1.0\n"
+                + "[Parsed_showinfo_0] config in time_base: 1/1000, frame_rate: 30/1\n"
+                + "[Parsed_showinfo_0] n: 1 pts: 2000 pts_time:2.0\n";
+
+        var first = VideoFrameExtractor.timestampForOutputFrame(diagnostics, 0, "1/90000");
+        var second = VideoFrameExtractor.timestampForOutputFrame(diagnostics, 1, "1/90000");
+
+        assertThat(first.status()).isEqualTo(SourceMediaTimestamp.Status.KNOWN);
+        assertThat(first.pts()).isEqualTo(90_000L);
+        assertThat(first.timeBaseNumerator()).isEqualTo(1L);
+        assertThat(first.timeBaseDenominator()).isEqualTo(90_000L);
+        assertThat(second.status()).isEqualTo(SourceMediaTimestamp.Status.UNKNOWN);
+        assertThat(second.reason()).isEqualTo("FFPROBE_FFMPEG_TIMEBASE_MISMATCH");
     }
 
     @Test

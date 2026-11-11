@@ -96,8 +96,8 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                 seed.create(job("unknown-" + runId, "tenant-u-" + runId, JobStatus.OUTCOME_UNKNOWN));
                 ProcessingJob running = job("running-" + runId, "tenant-r-" + runId, JobStatus.ACCEPTED);
                 seed.create(running);
-                ProcessingJob leased = seed.startAttempt(
-                        running, "worker-crashed", Instant.now().plusSeconds(30), "provider-local").job();
+                ProcessingJob leased = startRunningAttempt(
+                        seed, running, "worker-crashed", Instant.now().plusSeconds(30));
                 expireJobLease(leased);
                 seedExpiredOutboxClaim(runId);
                 try (MediaRuntime restarted = MediaRuntime.compose(environment)) {
@@ -107,8 +107,8 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                     ProcessingJob liveLease = job(
                             "live-lease-" + runId, "tenant-l-" + runId, JobStatus.ACCEPTED);
                     seed.create(liveLease);
-                    ProcessingJob liveRunning = seed.startAttempt(
-                            liveLease, "worker-live-lease", Instant.now().plusSeconds(5), "provider-local").job();
+                    ProcessingJob liveRunning = startRunningAttempt(
+                            seed, liveLease, "worker-live-lease", Instant.now().plusSeconds(5));
                     expireJobLease(liveRunning);
 
                     String scrape = restarted.prometheusMetrics();
@@ -316,8 +316,8 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                 seed.create(job("unknown-" + runId, "tenant-u-" + runId, JobStatus.OUTCOME_UNKNOWN));
                 ProcessingJob running = job("running-" + runId, "tenant-r-" + runId, JobStatus.ACCEPTED);
                 seed.create(running);
-                ProcessingJob leased = seed.startAttempt(
-                        running, "worker-crashed", Instant.now().plusSeconds(30), "provider-local").job();
+                ProcessingJob leased = startRunningAttempt(
+                        seed, running, "worker-crashed", Instant.now().plusSeconds(30));
                 expireJobLease(leased);
                 seedExpiredOutboxClaim(runId);
 
@@ -333,8 +333,8 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                     ProcessingJob liveLease = job(
                             "live-lease-" + runId, "tenant-l-" + runId, JobStatus.ACCEPTED);
                     seed.create(liveLease);
-                    ProcessingJob liveRunning = seed.startAttempt(
-                            liveLease, "worker-live-lease", Instant.now().plusSeconds(5), "provider-local").job();
+                    ProcessingJob liveRunning = startRunningAttempt(
+                            seed, liveLease, "worker-live-lease", Instant.now().plusSeconds(5));
                     expireJobLease(liveRunning);
 
                     String scrape = httpGet("http://127.0.0.1:" + port + "/metrics");
@@ -581,12 +581,27 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build()).build();
     }
 
-    private static ProcessingJob job(String id, String tenant, JobStatus status) {
-        return new ProcessingJob(id, "request-" + id, tenant, "principal", "artifact", JobType.VISION,
+    private static ProcessingJob job(String id, String tenant, JobStatus status) throws Exception {
+        String requestId = "request-" + id;
+        String requestFingerprint = sha256(("fixture-request:" + requestId).getBytes(StandardCharsets.UTF_8));
+        return new ProcessingJob(id, requestId, tenant, "principal", "artifact", JobType.VISION,
                 "provider-local", status, Instant.now(), null,
                 status == JobStatus.OUTCOME_UNKNOWN ? Instant.now() : null,
                 status == JobStatus.OUTCOME_UNKNOWN ? Map.of("providerOutcome", "UNKNOWN") : Map.of(),
-                status == JobStatus.OUTCOME_UNKNOWN ? "PROCESSING_OUTCOME_UNKNOWN" : "", 1L);
+                status == JobStatus.OUTCOME_UNKNOWN ? "PROCESSING_OUTCOME_UNKNOWN" : "", 1L, "", requestFingerprint);
+    }
+
+    private static ProcessingJob startRunningAttempt(
+            com.ghatana.media.provider.aws.PostgresqlMediaJobStore store,
+            ProcessingJob accepted,
+            String ownerId,
+            Instant leaseExpiresAt) {
+        var lease = store.claim(accepted, ownerId, leaseExpiresAt);
+        ProcessingJob running = new ProcessingJob(accepted.jobId(), accepted.requestId(), accepted.tenantId(),
+                accepted.principalId(), accepted.artifactId(), accepted.jobType(), accepted.providerId(),
+                JobStatus.RUNNING, accepted.createdAt(), Instant.now(), null, Map.of(), "",
+                accepted.version() + 1, accepted.expectedArtifactVersion(), accepted.requestFingerprint());
+        return store.startAttempt(accepted, running, lease, 1, accepted.requestFingerprint()).running();
     }
 
     private static void expireJobLease(ProcessingJob job) throws Exception {

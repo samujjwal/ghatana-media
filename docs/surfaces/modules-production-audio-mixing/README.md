@@ -14,6 +14,35 @@ in `modules/production/audio-mixing`.
 - `BoundedPcmDeclipper` creates a local PCM candidate by linearly interpolating
   bounded interior clipped runs, returning typed errors for unsupported or
   underdetermined inputs.
+- The runnable [`media-creative-preview` consumer](../../../examples/media-creative-preview/README.md)
+  preserves separate synthetic clipped-source and repaired-candidate WAVs,
+  reopens both through Java Sound, and records their digests plus descriptive
+  PCM-only comparison metrics. Its example is not a quality benchmark.
+- The same example exposes `foleyStemMasterPreview` for 1–16 caller WAV stems.
+  It accepts exact-rate, exact-frame, little-endian PCM16 stereo input, calls
+  `PcmStemMixer`, writes and reopens a playable WAV master, and records input
+  and output digests plus mix observations. Caller-declared rights are marked
+  unverified; peak output is an estimate, not certified mastering evidence.
+- The same consumer accepts a caller-provided signed PCM16/24/32 mono/stereo
+  WAV up to 16 MiB of decoded PCM. It snapshots bounded input bytes, writes
+  separate source and bounded-declip candidate WAVs, reopens both, and binds
+  their PCM/file digests and descriptive metrics in a local manifest. The
+  input is never overwritten; rights, independent-reference, quality, durable
+  revision, and hosted-job evidence are not supplied.
+- The Rust `speech-audio-rust` crate also has a runnable caller-file preview:
+  `cargo run --offline --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml --example audio-repair-preview -- INPUT OUTPUT_DIR NOISE_START_FRAME NOISE_END_FRAME`.
+  It requires the caller's explicit noise-only frame span, copies the exact
+  encoded source into its own branch, and emits separate denoise-only and
+  declip-only float WAV candidates using the crate's default denoise options
+  and a 0.98 declip threshold. It reopens outputs, binds SHA-256 file
+  digests and descriptive `compare_audio` metrics, and records effective
+  parameters plus decoded sample rate, channels, sample format, and frame
+  count for the source and each candidate. It records no independent reference
+  or quality claim. Existing output paths are rejected. Input,
+  decoded-sample (lowered to the 6,000,000 repair-sample cap), profile-frame,
+  channel, sample-rate, and decode-time bounds come from the crate APIs; this
+  local example does not create durable timeline A/B revisions or complete
+  J-07.
 - This is an in-memory DSP surface. It does not persist timeline revisions,
   create a durable A/B branch, generate music/Foley, establish actor authority,
   or qualify rights. Asset inputs require typed, current, exact-version
@@ -78,7 +107,11 @@ unsupported, mismatched, malformed, or oversized PCM with
 
 ```bash
 ./gradlew :services:media:modules:production:audio-mixing:test
+./gradlew :services:media:examples:media-creative-preview:test
 ```
+
+To run the caller-WAV preview, use the command and input constraints in the
+[example guide](../../../examples/media-creative-preview/README.md).
 
 Tests cover deterministic stereo mix, gain/pan and peak limiting, bounded PCM
 declip interpolation and rejection cases, WAV

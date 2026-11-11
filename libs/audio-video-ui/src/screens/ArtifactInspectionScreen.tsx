@@ -4,6 +4,8 @@ import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
 /** Minimal authenticated SDK projection used by the source-defined inspect-artifact read. */
 export interface CanonicalArtifactReadClient {
   getArtifact(artifactId: string, signal?: AbortSignal): Promise<{
+    readonly tenantId: string;
+    readonly principalId: string;
     readonly artifactId: string;
     readonly fileName: string;
     readonly contentType: string;
@@ -15,6 +17,35 @@ export interface CanonicalArtifactReadClient {
     readonly expiresAt: string;
     readonly metadata: Readonly<Record<string, unknown>>;
   }>;
+}
+
+/** Host-authenticated scope used to bind a read response before presentation. */
+export interface ArtifactReadHostContext {
+  readonly tenantId: string;
+  readonly principalId: string;
+}
+
+/** Validate the bounded metadata observation again at the presentation boundary. */
+function isRenderableArtifact(
+  artifact: Awaited<ReturnType<CanonicalArtifactReadClient["getArtifact"]>>,
+  requestedId: string,
+  hostContext: ArtifactReadHostContext,
+): boolean {
+  const nonempty = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
+  const dateTime = (value: unknown): value is string => nonempty(value)
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/u.test(value)
+    && Number.isFinite(Date.parse(value));
+  return artifact !== null && typeof artifact === "object"
+    && artifact.artifactId === requestedId
+    && nonempty(hostContext.tenantId) && artifact.tenantId === hostContext.tenantId
+    && nonempty(hostContext.principalId) && artifact.principalId === hostContext.principalId
+    && nonempty(artifact.fileName) && nonempty(artifact.contentType)
+    && Number.isSafeInteger(artifact.sizeBytes) && artifact.sizeBytes >= 1
+    && /^[0-9a-fA-F]{64}$/u.test(artifact.sha256)
+    && nonempty(artifact.objectReference)
+    && ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"].includes(artifact.classification)
+    && dateTime(artifact.createdAt) && dateTime(artifact.expiresAt)
+    && artifact.metadata !== null && typeof artifact.metadata === "object" && !Array.isArray(artifact.metadata);
 }
 
 type ArtifactReadState =
@@ -30,15 +61,25 @@ export interface ArtifactInspectionScreenProps extends Omit<MediaTaskScreenProps
   readonly artifactId: string;
   /** Optional authenticated SDK; absent means NOT_ADMITTED and performs no request. */
   readonly canonicalArtifactReadClient?: CanonicalArtifactReadClient;
+  /** Trusted host identity; a reader without this scope remains NOT_ADMITTED. */
+  readonly authenticatedHostContext?: ArtifactReadHostContext;
 }
 
 /** Candidate media.view.inspect-media body: metadata only, never byte retrieval or rights admission. */
-export function ArtifactInspectionScreen({ artifactId, canonicalArtifactReadClient, ...flow }: ArtifactInspectionScreenProps): React.ReactElement {
-  const initial = canonicalArtifactReadClient ? { state: "READY" as const } : { state: "NOT_ADMITTED" as const };
-  const [record, setRecord] = React.useState({ artifactId, reader: canonicalArtifactReadClient, value: initial as ArtifactReadState });
+export function ArtifactInspectionScreen({ artifactId, canonicalArtifactReadClient, authenticatedHostContext, ...flow }: ArtifactInspectionScreenProps): React.ReactElement {
+  const hostTenantId = authenticatedHostContext?.tenantId;
+  const hostPrincipalId = authenticatedHostContext?.principalId;
+  const hasAuthenticatedHostContext = typeof hostTenantId === "string" && hostTenantId.trim().length > 0
+    && typeof hostPrincipalId === "string" && hostPrincipalId.trim().length > 0;
+  const initial = canonicalArtifactReadClient && hasAuthenticatedHostContext
+    ? { state: "READY" as const } : { state: "NOT_ADMITTED" as const };
+  const [record, setRecord] = React.useState({ artifactId, reader: canonicalArtifactReadClient,
+    hostTenantId, hostPrincipalId, value: initial as ArtifactReadState });
   const activeRead = React.useRef<AbortController | undefined>(undefined);
-  const readState = record.artifactId === artifactId && record.reader === canonicalArtifactReadClient ? record.value : initial;
-  const setReadState = (value: ArtifactReadState): void => setRecord({ artifactId, reader: canonicalArtifactReadClient, value });
+  const readState = record.artifactId === artifactId && record.reader === canonicalArtifactReadClient
+    && record.hostTenantId === hostTenantId && record.hostPrincipalId === hostPrincipalId ? record.value : initial;
+  const setReadState = (value: ArtifactReadState): void => setRecord({ artifactId, reader: canonicalArtifactReadClient,
+    hostTenantId, hostPrincipalId, value });
 
   React.useEffect(() => {
     activeRead.current?.abort();
@@ -47,17 +88,17 @@ export function ArtifactInspectionScreen({ artifactId, canonicalArtifactReadClie
       activeRead.current?.abort();
       activeRead.current = undefined;
     };
-  }, [artifactId, canonicalArtifactReadClient]);
+  }, [artifactId, canonicalArtifactReadClient, hostTenantId, hostPrincipalId]);
 
   const refresh = (): void => {
-    if (!canonicalArtifactReadClient || readState.state === "LOADING" || activeRead.current) return;
+    if (!canonicalArtifactReadClient || !hasAuthenticatedHostContext || !authenticatedHostContext
+        || readState.state === "LOADING" || activeRead.current) return;
     const controller = new AbortController();
     activeRead.current = controller;
     setReadState({ state: "LOADING" });
     void canonicalArtifactReadClient.getArtifact(artifactId, controller.signal).then((artifact) => {
       if (controller.signal.aborted || activeRead.current !== controller) return;
-      if (artifact.artifactId !== artifactId || !Number.isSafeInteger(artifact.sizeBytes) || artifact.sizeBytes < 1
-        || !/^[0-9a-fA-F]{64}$/u.test(artifact.sha256)) {
+      if (!isRenderableArtifact(artifact, artifactId, authenticatedHostContext)) {
         setReadState({ state: "UNKNOWN" });
         return;
       }
@@ -93,7 +134,8 @@ export function ArtifactInspectionScreen({ artifactId, canonicalArtifactReadClie
       <section aria-labelledby="artifact-canonical-read-title">
         <h4 id="artifact-canonical-read-title">Canonical metadata read</h4>
         <p role="status" aria-live="polite" aria-atomic="true" aria-busy={readState.state === "LOADING"} data-state={readState.state.toLowerCase()}>{message}</p>
-        {canonicalArtifactReadClient && <button type="button" onClick={refresh} disabled={readState.state === "LOADING"}>Refresh artifact metadata</button>}
+        {canonicalArtifactReadClient && hasAuthenticatedHostContext
+          && <button type="button" onClick={refresh} disabled={readState.state === "LOADING"}>Refresh artifact metadata</button>}
         {readState.state === "OBSERVED" && <dl>
           <div><dt>File name</dt><dd>{readState.artifact.fileName}</dd></div>
           <div><dt>Content type</dt><dd>{readState.artifact.contentType}</dd></div>

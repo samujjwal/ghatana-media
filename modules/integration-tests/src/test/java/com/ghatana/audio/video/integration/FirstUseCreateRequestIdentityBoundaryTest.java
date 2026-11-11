@@ -41,9 +41,9 @@ class FirstUseCreateRequestIdentityBoundaryTest {
         var accepted = engine.createProject(actor, "workspace-j01", "First cut", "valid.request-1");
 
         assertThat(accepted.createdNow()).isTrue();
-        assertThat(ids).hasValue(3);
+        assertThat(ids).hasValue(2);
         assertThat(accepted.project().headRevisionId()).isEqualTo(accepted.initialRevision().revisionId());
-        assertThat(accepted.initialRevision().graph().scenes()).isEmpty();
+        assertThat(accepted.initialRevision().timelines()).isEmpty();
         assertThat(store.project(actor, accepted.project().projectId())).isEqualTo(accepted.project());
     }
 }

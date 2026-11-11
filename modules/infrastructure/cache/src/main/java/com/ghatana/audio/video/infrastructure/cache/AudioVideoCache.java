@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.Duration;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +46,8 @@ public class AudioVideoCache<K, V> {
             String transcriptRevision,
             String sourceFingerprint,
             String policyEpoch,
-            String modelLicenseRef) {
+            String modelLicenseRef,
+            long revocationEpoch) {
         public CacheKeyScope {
             requireScopeValue(tenantId, "tenantId");
             requireScopeValue(authenticatedPrincipalId, "authenticatedPrincipalId");
@@ -57,6 +60,9 @@ public class AudioVideoCache<K, V> {
             requireScopeValue(sourceFingerprint, "sourceFingerprint");
             requireScopeValue(policyEpoch, "policyEpoch");
             requireScopeValue(modelLicenseRef, "modelLicenseRef");
+            if (revocationEpoch < 0) {
+                throw new IllegalArgumentException("revocationEpoch cannot be negative");
+            }
         }
 
         private static void requireScopeValue(String value, String name) {
@@ -95,25 +101,30 @@ public class AudioVideoCache<K, V> {
      * authority provider; local fixtures exercise this boundary but do not establish production
      * authority or policy integration.
      */
-    public record ScopedAuthorityResult(ScopedAuthorityStatus status, CacheKeyScope currentScope) {
+    public record ScopedAuthorityResult(
+            ScopedAuthorityStatus status, CacheKeyScope currentScope, Instant validUntil) {
         public ScopedAuthorityResult {
             Objects.requireNonNull(status, "status");
             if (status == ScopedAuthorityStatus.CURRENT && currentScope == null) {
                 throw new IllegalArgumentException("CURRENT authority result requires exact current scope");
             }
+            if (status == ScopedAuthorityStatus.CURRENT && validUntil == null) {
+                throw new IllegalArgumentException("CURRENT authority result requires an expiry");
+            }
         }
 
-        public static ScopedAuthorityResult current(CacheKeyScope scope) {
+        public static ScopedAuthorityResult current(CacheKeyScope scope, Instant validUntil) {
             return new ScopedAuthorityResult(ScopedAuthorityStatus.CURRENT,
-                    Objects.requireNonNull(scope, "scope"));
+                    Objects.requireNonNull(scope, "scope"),
+                    Objects.requireNonNull(validUntil, "validUntil"));
         }
 
         public static ScopedAuthorityResult rejected(CacheKeyScope currentScope) {
-            return new ScopedAuthorityResult(ScopedAuthorityStatus.REJECTED, currentScope);
+            return new ScopedAuthorityResult(ScopedAuthorityStatus.REJECTED, currentScope, null);
         }
 
         public static ScopedAuthorityResult unknown() {
-            return new ScopedAuthorityResult(ScopedAuthorityStatus.UNKNOWN, null);
+            return new ScopedAuthorityResult(ScopedAuthorityStatus.UNKNOWN, null, null);
         }
     }
 
@@ -132,6 +143,7 @@ public class AudioVideoCache<K, V> {
     
     private final DistributedCachePort<K, V> cachePort;
     private final String namespace;
+    private final Clock clock;
     private final long cacheOperationTimeoutNanos;
     private final Object mutationLock = new Object();
     /** Active per-key coordination only; entries are removed after readers and mutations settle. */
@@ -154,8 +166,17 @@ public class AudioVideoCache<K, V> {
             DistributedCachePort<K, V> cachePort,
             String namespace,
             Duration cacheOperationTimeout) {
+        this(cachePort, namespace, cacheOperationTimeout, Clock.systemUTC());
+    }
+
+    AudioVideoCache(
+            DistributedCachePort<K, V> cachePort,
+            String namespace,
+            Duration cacheOperationTimeout,
+            Clock clock) {
         this.cachePort = Objects.requireNonNull(cachePort, "cachePort cannot be null");
         this.namespace = Objects.requireNonNull(namespace, "namespace cannot be null");
+        this.clock = Objects.requireNonNull(clock, "clock cannot be null");
         Duration operationTimeout = Objects.requireNonNull(
                 cacheOperationTimeout, "cacheOperationTimeout cannot be null");
         if (operationTimeout.isZero() || operationTimeout.isNegative()) {
@@ -896,6 +917,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.sourceFingerprint());
             updateFramedUtf16(digest, scope.policyEpoch());
             updateFramedUtf16(digest, scope.modelLicenseRef());
+            updateFramedUtf16(digest, Long.toString(scope.revocationEpoch()));
             StringBuilder key = new StringBuilder("av2p-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
@@ -933,6 +955,7 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, scope.sourceFingerprint());
             updateFramedUtf16(digest, scope.policyEpoch());
             updateFramedUtf16(digest, scope.modelLicenseRef());
+            updateFramedUtf16(digest, Long.toString(scope.revocationEpoch()));
             updateFramedUtf16(digest, objectIdentity);
             StringBuilder key = new StringBuilder("av2p-");
             for (byte value : digest.digest()) {
@@ -1041,6 +1064,8 @@ public class AudioVideoCache<K, V> {
             readback.whenComplete((result, failure) -> checked.complete(failure == null
                     && result != null
                     && result.status() == ScopedAuthorityStatus.CURRENT
+                    && result.validUntil() != null
+                    && clock.instant().isBefore(result.validUntil())
                     && scope.equals(result.currentScope())));
         } catch (Throwable unavailable) {
             checked.complete(false);

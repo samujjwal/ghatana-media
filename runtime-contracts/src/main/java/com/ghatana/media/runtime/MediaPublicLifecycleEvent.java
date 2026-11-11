@@ -55,6 +55,9 @@ public record MediaPublicLifecycleEvent(
         if (!AGGREGATE_TYPES.contains(aggregateType)) {
             throw new IllegalArgumentException("aggregateType is not part of the public lifecycle ABI");
         }
+        if (!eventType.aggregateType().equals(aggregateType)) {
+            throw new IllegalArgumentException("aggregateType does not match the lifecycle event type");
+        }
         aggregateRef = redacted(aggregateRef, "aggregateRef");
         if (aggregateVersion < 1) throw new IllegalArgumentException("aggregateVersion must be positive");
         classification = required(classification, "classification").toUpperCase(Locale.ROOT);

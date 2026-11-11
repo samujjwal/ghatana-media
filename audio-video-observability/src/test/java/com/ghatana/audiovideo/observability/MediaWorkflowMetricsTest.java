@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
@@ -19,8 +20,49 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.time.Instant;
+import java.util.function.ToDoubleFunction;
 
 class MediaWorkflowMetricsTest {
+    @Test
+    void providerProfileGaugeRegistrationFailureIsContainedAndLeavesReadinessUnknown() {
+        var registry = new ProviderProfileGaugeFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+            registry.failQualityTimestampGauge = true;
+
+            assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                    new MediaWorkflowMetrics.ProviderProfileObservation(
+                            "fixture-provider", "v1", "profile", "revision",
+                            MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                            Instant.parse("2026-11-10T12:00:00Z"), null))).isFalse();
+            assertThat(registry.find("media.provider.profile.readiness").gauges()).isEmpty();
+            registry.failQualityTimestampGauge = false;
+            assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                    new MediaWorkflowMetrics.ProviderProfileObservation(
+                            "fixture-provider", "v1", "profile", "revision",
+                            MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                            Instant.parse("2026-11-10T12:00:00Z"), null))).isTrue();
+            assertThat(registry.find("media.provider.profile.readiness").gauges())
+                    .hasSize(1)
+                    .allSatisfy(gauge -> assertThat(gauge.value()).isEqualTo(1.0));
+        } finally {
+            registry.close();
+        }
+    }
+
+    private static final class ProviderProfileGaugeFailureRegistry extends SimpleMeterRegistry {
+        private boolean failQualityTimestampGauge;
+
+        @Override
+        protected <T> Gauge newGauge(Meter.Id id, T obj, ToDoubleFunction<T> valueFunction) {
+            if (failQualityTimestampGauge
+                    && "media.provider.quality.observation_timestamp_seconds".equals(id.getName())) {
+                throw new IllegalStateException("fixture registry failure");
+            }
+            return super.newGauge(id, obj, valueFunction);
+        }
+    }
+
     @Test
     void workflowStageTimerFailureDoesNotEscapeIntoOutcomePath() {
         var registry = new StageTimerFailureRegistry();

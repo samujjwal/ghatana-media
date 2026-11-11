@@ -4,9 +4,23 @@ Media caching adapter source; not an independently deployed cache service or a r
 
 ## Purpose
 
-Provides a unified facade for audio-video cache operations while keeping services decoupled from the underlying cache backend. Unscoped transcription methods do not read or write protected transcript values because their inputs lack authenticated principal, rights/purpose/classification, immutable artifact/transcript revisions, source fingerprint, and policy epoch. `getOrLoadTranscription` calls the current source/authorization loader on every request and returns only its matching non-deleted result. On a valid source read it best-effort invalidates the legacy tenant/transcription key, which has no source-version dimension and could contain an older snapshot; absent or deleted source results invalidate that same exact key. Cache invalidation failure never replaces the current source result or its denial. Direct unscoped cache lookup methods return a miss.
+Provides a unified facade for audio-video cache operations while keeping services decoupled from the underlying cache backend. Unscoped transcription methods do not read or write protected transcript values because their inputs lack authenticated principal, rights/purpose/classification, immutable artifact/transcript revisions, source fingerprint, and policy/revocation epochs. `getOrLoadTranscription` calls the current source/authorization loader on every request and returns only its matching non-deleted result. On a valid source read it best-effort invalidates the legacy tenant/transcription key, which has no source-version dimension and could contain an older snapshot; absent or deleted source results invalidate that same exact key. Cache invalidation failure never replaces the current source result or its denial. Direct unscoped cache lookup methods return a miss.
 
-The generic protected-cache API requires a complete `CacheKeyScope`, including tenant, principal, rights, purpose, classification, immutable artifact/transcript/source identity, and policy epoch. `getOrLoadScopedWithAuthority` accepts a typed `ScopedAuthorityResult`: only `CURRENT` with an exact echo of the requested scope permits a cache lookup, and authority is checked again immediately before disclosure. `REJECTED`, `UNKNOWN`, null, error, or mismatched scope fails closed and triggers best-effort invalidation of only that exact key. The deprecated Boolean `getOrLoadScoped` overload cannot authorize protected cache reads or writes; it evicts the exact scoped key best-effort and returns an unavailable error without invoking the loader. A typed callback is only an SPI: production use requires a host owner-backed current-authority provider. Local test fixtures exercise the boundary but do not establish production authority. Source or policy epoch changes produce distinct keys, preventing reuse of entries from prior versions. Callers processing a revocation, consent, or retention change can use `invalidateScoped` with the prior scope for exact-key cleanup; this adapter does not claim event wiring or tenant-wide invalidation. Cache key scope partitions entries but never grants authority by itself.
+The generic protected-cache API requires a complete `CacheKeyScope`, including tenant, principal, rights, purpose, classification, immutable artifact/transcript/source identity, policy epoch, model-license reference, and a nonnegative source-rights `revocationEpoch`. The revocation epoch is separate from policy epoch. `getOrLoadScopedWithAuthority` accepts a typed `ScopedAuthorityResult`: only `CURRENT` with an exact echo of the requested scope permits a cache lookup, and authority is checked again immediately before disclosure. `REJECTED`, `UNKNOWN`, null, error, or mismatched scope fails closed and triggers best-effort invalidation of only that exact key. The deprecated Boolean `getOrLoadScoped` overload cannot authorize protected cache reads or writes; it evicts the exact scoped key best-effort and returns an unavailable error without invoking the loader. A typed callback is only an SPI: production use requires a host owner-backed current-authority provider. Source, policy, or revocation-epoch changes produce distinct keys, preventing reuse of entries from prior versions or rights states. Callers processing a revocation, consent, or retention change can use `invalidateScoped` with the prior scope for exact-key cleanup; this adapter does not claim event wiring or tenant-wide invalidation. Cache key scope partitions entries but never grants authority by itself.
+
+Protected transcription caching also requires a `ScopedTranscriptionSnapshot` that pairs the entity with the complete scope observed by the host loader. The host loader must construct `observedScope` from independently fetched immutable source/transcript facts plus owner-authority evidence; it must not echo the requested scope as a substitute for source readback. The adapter rejects a mismatched scope, transcription identity, tenant, or unpersisted entity version before caching. The public callback contract cannot prove that an arbitrary implementation is truthful, so production use still requires a reviewed owner-backed loader and authority provider. Envelope format 2 invalidates prior envelopes that lacked this scope binding. Example composition shape (the source-reader methods are host-owned):
+
+```java
+cacheService.getOrLoadTranscriptionWithScopedSnapshot(
+    requestedScope,
+    transcriptionId,
+    ownerBackedAuthority,
+    id -> sourceReader.readCurrent(id).map(read -> Optional.of(
+        new TranscriptionCacheService.ScopedTranscriptionSnapshot(
+            read.observedScope(), id, read.transcription()))));
+```
+
+`readCurrent` must return its scope from authoritative source metadata and current policy evidence. A local callback or unit fixture is not production authority, and this example does not claim production wiring exists. The deprecated entity-only `getOrLoadTranscriptionWithAuthority` overload is retained for source compatibility but fails closed without cache or source access because its loader cannot attest the complete scope. Use `getOrLoadTranscriptionWithScopedSnapshot` only from a host composition that can supply that source readback.
 
 ## Layer
 
@@ -34,6 +48,11 @@ Shared `DistributedCachePort` owns backend storage and expiration behavior,
 while this adapter applies its local TTL cap before calling the port. Unscoped
 transcript APIs remain source-read-only; protected scoped cache use is available
 only through the typed authority SPI and has no production provider wired here.
+Each typed `CURRENT` authority result must carry an absolute `validUntil`
+deadline. A result that is expired when received or expires during an
+asynchronous cache/source operation fails closed before protected disclosure.
+The host derives this deadline from current source and rights facts; cache TTL
+does not extend the authority lease.
 
 ## Dependencies
 

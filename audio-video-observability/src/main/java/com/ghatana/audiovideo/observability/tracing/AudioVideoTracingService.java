@@ -10,9 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -157,19 +159,22 @@ public class AudioVideoTracingService {
     public void recordError(Span span, Exception exception, long durationMs) {
         if (span != null) {
             // Exception messages can contain user supplied paths, tokens, or media metadata.
+            // Exception class names can also be application-defined and unbounded, so export
+            // only this fixed category vocabulary to traces and structured logs.
+            String errorType = safeErrorType(exception);
             span.setStatus(StatusCode.ERROR, "Media operation failed");
             if (durationMs >= 0) {
                 span.setAttribute("duration.ms", durationMs);
             }
             span.setAttribute("error", true);
-            span.setAttribute("error.type", exception.getClass().getSimpleName());
+            span.setAttribute("error.type", errorType);
             span.end();
 
             if (durationMs >= 0) {
                 log.error("Audio-Video operation failed after {}ms (type={})",
-                        durationMs, exception.getClass().getSimpleName());
+                        durationMs, errorType);
             } else {
-                log.error("Audio-Video operation failed (type={})", exception.getClass().getSimpleName());
+                log.error("Audio-Video operation failed (type={})", errorType);
             }
         }
     }
@@ -342,6 +347,18 @@ public class AudioVideoTracingService {
         String primary = language.substring(0, language.indexOf('-') < 0 ? language.length() : language.indexOf('-'))
                 .toLowerCase(java.util.Locale.ROOT);
         return LANGUAGES.contains(primary) ? primary : "other";
+    }
+
+    /** Reduce exception classes, including application-defined subclasses, to fixed telemetry labels. */
+    private static String safeErrorType(Exception exception) {
+        if (exception == null) return "unknown";
+        if (exception instanceof TimeoutException) return "timeout";
+        if (exception instanceof SecurityException) return "security";
+        if (exception instanceof IllegalArgumentException) return "invalid_argument";
+        if (exception instanceof IllegalStateException) return "invalid_state";
+        if (exception instanceof IOException) return "io";
+        if (exception instanceof RuntimeException) return "runtime";
+        return "checked";
     }
 
     private static String confidenceBand(double confidence) {

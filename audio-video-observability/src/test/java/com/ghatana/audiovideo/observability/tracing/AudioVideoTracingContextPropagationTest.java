@@ -99,10 +99,16 @@ class AudioVideoTracingContextPropagationTest {
     }
 
     @Test
-    void exceptionContentIsNeverCopiedToSpanAttributes() {
+    void exceptionContentAndApplicationDefinedClassNamesAreNotCopiedToTelemetry() {
         Span span = mock(Span.class);
         String sensitiveMarker = "private-media-content-7f4c";
-        tracing.recordError(span, new IllegalStateException(sensitiveMarker), 12);
+        tracing.recordError(span, new TenantPrivatePathException(sensitiveMarker), 12);
+        verify(span).setAttribute("error.type", "runtime");
+        verify(span, never()).setAttribute("error.type", "TenantPrivatePathException");
         verify(span, never()).setAttribute(anyString(), org.mockito.ArgumentMatchers.contains(sensitiveMarker));
+    }
+
+    private static final class TenantPrivatePathException extends RuntimeException {
+        private TenantPrivatePathException(String message) { super(message); }
     }
 }

@@ -440,6 +440,75 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactRejectsExactTimeManifestThatDisagreesWithEncodedAnimation() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-exact-times", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)),
+                Map.of("root", List.of(
+                        key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), SpatialRigEngine.Quaternion.IDENTITY))),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        String json = readGlbJson(artifact.bytes());
+        String expectedTimes = "\"exactKeyframeTimes\":[{\"boneId\":\"root\",\"times\":[[\"0\",\"1\"],[\"1\",\"1\"]]}]";
+        assertThat(json).contains(expectedTimes);
+        String omittedTimes = json.replace(expectedTimes, "\"exactKeyframeTimes\":[]");
+        byte[] inconsistent = replaceGlbJson(artifact.bytes(), omittedTimes);
+        String matchingDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(inconsistent));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                matchingDigest, inconsistent))
+                .withMessageContaining("exact keyframe-time manifest");
+
+        String wrongRationalTime = json.replace(expectedTimes,
+                "\"exactKeyframeTimes\":[{\"boneId\":\"root\",\"times\":[[\"0\",\"1\"],[\"2\",\"1\"]]}]");
+        byte[] mismatchedTimes = replaceGlbJson(artifact.bytes(), wrongRationalTime);
+        String mismatchedDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(mismatchedTimes));
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                mismatchedDigest, mismatchedTimes))
+                .withMessageContaining("exact keyframe-time manifest");
+
+        String shiftedAccessorJson = json
+                .replace("\"buffer\":0,\"byteOffset\":0,\"byteLength\":8}",
+                        "\"buffer\":0,\"byteOffset\":0,\"byteLength\":16}")
+                .replace("\"bufferView\":0,\"componentType\":5126,\"count\":2,\"type\":\"SCALAR\"",
+                        "\"bufferView\":0,\"byteOffset\":8,\"componentType\":5126,\"count\":2,\"type\":\"SCALAR\"");
+        assertThat(shiftedAccessorJson).isNotEqualTo(json);
+        byte[] shiftedAccessor = replaceGlbJson(artifact.bytes(), shiftedAccessorJson);
+        ByteBuffer shiftedBytes = ByteBuffer.wrap(shiftedAccessor).order(ByteOrder.LITTLE_ENDIAN);
+        int jsonChunkLength = shiftedBytes.getInt(12);
+        int binaryDataOffset = 28 + jsonChunkLength;
+        shiftedBytes.putFloat(binaryDataOffset + 8, 0.5f);
+        shiftedBytes.putFloat(binaryDataOffset + 12, 1.5f);
+        String shiftedAccessorDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(shiftedAccessor));
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                shiftedAccessorDigest, shiftedAccessor))
+                .withMessageContaining("exact keyframe-time manifest");
+
+        int binLength = glbBinaryLength(artifact.bytes());
+        String accessorIntoUnknownChunkJson = json.replace(
+                "\"buffer\":0,\"byteOffset\":0,\"byteLength\":8}",
+                "\"buffer\":0,\"byteOffset\":" + (binLength + 8) + ",\"byteLength\":8}");
+        assertThat(accessorIntoUnknownChunkJson).isNotEqualTo(json);
+        byte[] accessorIntoUnknownChunk = appendGlbChunk(replaceGlbJson(artifact.bytes(), accessorIntoUnknownChunkJson),
+                0x12345678, ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putFloat(0).putFloat(1).array());
+        String unknownChunkDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(accessorIntoUnknownChunk));
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                unknownChunkDigest, accessorIntoUnknownChunk))
+                .withMessageContaining("exact keyframe-time manifest");
+    }
+
+    @Test
     void publicGlbArtifactRejectsMalformedUtf8InJsonChunkEvenWhenDigestMatches() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-utf8", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
@@ -483,6 +552,24 @@ class SpatialRigEngineTest {
         output.putInt(paddedJsonLength).putInt(jsonType).put(jsonBytes);
         while (output.position() % 4 != 0) output.put((byte) 0x20);
         output.put(glb, oldJsonEnd, trailingLength);
+        return output.array();
+    }
+
+    private static int glbBinaryLength(byte[] glb) {
+        ByteBuffer input = ByteBuffer.wrap(glb).order(ByteOrder.LITTLE_ENDIAN);
+        input.position(12);
+        int jsonLength = input.getInt();
+        input.position(20 + jsonLength);
+        return input.getInt();
+    }
+
+    private static byte[] appendGlbChunk(byte[] glb, int type, byte[] payload) {
+        int paddedLength = (payload.length + 3) & ~3;
+        ByteBuffer output = ByteBuffer.allocate(glb.length + 8 + paddedLength).order(ByteOrder.LITTLE_ENDIAN);
+        output.put(glb);
+        output.putInt(paddedLength).putInt(type).put(payload);
+        while (output.position() % 4 != 0) output.put((byte) 0);
+        output.putInt(8, output.capacity());
         return output.array();
     }
 

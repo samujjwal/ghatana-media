@@ -220,6 +220,40 @@ class DeliveryDestinationReceiptScenarioTest {
         assertThat(destination.reconcileCount).isEqualTo(1);
     }
 
+    @Test
+    void acknowledgedChunkWithLostProgressPersistenceReconcilesAfterRestartWithoutReplay() {
+        byte[] content = new byte[] { 0x41, 0x52, 0x63, 0x74 };
+        ExportRequest request = request(content, "request-lost-progress-persistence");
+        FixtureDestination destination = new FixtureDestination(false, false);
+        ClaimCapableFixtureStore operations = new ClaimCapableFixtureStore(true);
+
+        DeliveryResult beforeRestart = engine(request, destination, operations).export(request);
+
+        // The destination returned an exact chunk receipt, but the coordinator could not
+        // persist SENT progress. Its durable state must stay ambiguous across process loss.
+        assertThat(beforeRestart.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(beforeRestart.acknowledgedBytes()).isZero();
+        assertThat(destination.sendCount).isEqualTo(1);
+        assertThat(destination.offset).isEqualTo(content.length);
+        assertThat(operations.find(request.tenantId(), request.requestId()).orElseThrow().status())
+                .isEqualTo(Status.OUTCOME_UNKNOWN);
+
+        MediaDeliveryEngine afterRestart = engine(request, destination, operations);
+        DeliveryResult reconciled = afterRestart.reconcileAndResume(request);
+
+        assertThat(reconciled.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(reconciled.artifactId()).isEqualTo(request.artifact().artifactId());
+        assertThat(reconciled.versionRef()).isEqualTo(request.artifact().versionRef());
+        assertThat(reconciled.artifactDigest()).isEqualTo(request.artifact().digest());
+        assertThat(reconciled.destinationRef()).isEqualTo(request.destinationRef());
+        assertThat(reconciled.acknowledgedBytes()).isEqualTo(content.length);
+        assertThat(reconciled.destinationReceiptRef()).contains("fixture-final-receipt");
+        assertThat(afterRestart.export(request)).isEqualTo(reconciled);
+        assertThat(destination.sendCount).as("accepted bytes are not transferred twice").isEqualTo(1);
+        assertThat(destination.offset).isEqualTo(content.length);
+        assertThat(destination.reconcileCount).isEqualTo(1);
+    }
+
     private static ExportRequest request(byte[] content, String requestId) {
         Artifact artifact = new Artifact("tenant-j22", "artifact-j22", "version-3",
                 MediaCreationContracts.sha256(content), content);
@@ -320,6 +354,14 @@ class DeliveryDestinationReceiptScenarioTest {
     /** Local claim-capable test adapter only; it is not durable or evidence of production fencing. */
     private static final class ClaimCapableFixtureStore implements DeliveryOperationStore {
         private final InMemoryDeliveryOperationStore backing = new InMemoryDeliveryOperationStore(() -> NOW);
+        private boolean loseFirstSentProgress;
+
+        private ClaimCapableFixtureStore() { }
+
+        private ClaimCapableFixtureStore(boolean loseFirstSentProgress) {
+            this.loseFirstSentProgress = loseFirstSentProgress;
+        }
+
         @Override public Optional<Operation> find(String tenantId, String requestId) { return backing.find(tenantId, requestId); }
         @Override public boolean insertIfAbsent(Operation operation) { return backing.insertIfAbsent(operation); }
         @Override public boolean update(Operation operation) { return backing.update(operation); }
@@ -332,6 +374,12 @@ class DeliveryDestinationReceiptScenarioTest {
         }
         @Override public boolean isDispatchClaimCurrent(DispatchClaim claim) { return backing.isDispatchClaimCurrent(claim); }
         @Override public boolean releaseDispatchClaim(DispatchClaim claim) { return backing.releaseDispatchClaim(claim); }
-        @Override public boolean update(Operation operation, DispatchClaim claim) { return backing.update(operation, claim); }
+        @Override public boolean update(Operation operation, DispatchClaim claim) {
+            if (loseFirstSentProgress && operation.status() == Status.SENT) {
+                loseFirstSentProgress = false;
+                return false;
+            }
+            return backing.update(operation, claim);
+        }
     }
 }

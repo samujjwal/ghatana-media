@@ -26,6 +26,12 @@ is `NO_IMPLEMENTATION_ADMITTED` for video-specific transport.
   rational source PTS (including explicit unknown), and delegates writes to
   `CanonicalVideoStreamFramePort`. No concrete authenticated gRPC client is
   wired; canonical ACK does not durably persist source cursor/version/PTS.
+Video Streaming owns transport and session frame semantics. It does not own
+artifact/version/PTS/ROI source-frame extraction. The public source-frame
+readback path is implemented by the Vision service, where the source-frame
+resolution RPC
+revalidates source rights and returns metadata without exposing frame pixels.
+This path does not qualify a detector/model or authorize external processing.
 
 ## Public operations
 
@@ -58,6 +64,8 @@ rows vs local-helper-only vs `NOT_ADMITTED` vs delegated rows.
   authorization, or backpressure. Lost ACK is `OUTCOME_UNKNOWN`; no blind
   replay occurs. A frame ACK confirms Media sequence acceptance only, not a
   durable source-provenance receipt.
+- Trusted gRPC source readbacks reject Media sequence values outside the
+  canonical frame range before they can authorize source bytes or frame offers.
 - After the initial trusted source readback, capture rechecks the canonical
   session generation and ACK cursor before reading the source batch; a change
   returns `UNKNOWN` without fetching source bytes.
@@ -86,6 +94,7 @@ provider finality or persist a recovery receipt.
 
 ```bash
 ./gradlew :services:media:modules:video-streaming:test
+./gradlew -Pghatana.media.compositeScope=FULL :services:media:modules:video-streaming:test --tests com.ghatana.video.streaming.GrpcVideoSourceCaptureTest
 ```
 
 `VideoVfrTransportIntegrationTest` exercises source timing and frame

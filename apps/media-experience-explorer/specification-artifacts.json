@@ -1337,6 +1337,13 @@
     "title": "Command Registry"
   },
   {
+    "artifactId": "ART-MEDIA-CFDED05C332D74DAED54",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml",
+    "title": "Local Development Command Registry"
+  },
+  {
     "artifactId": "ART-MEDIA-CLI-HOST-CONSUMER-REGISTRY",
     "authorityClass": "OBSERVATION_ONLY_SOURCE",
     "phase": "PDP-3",
@@ -1720,6 +1727,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.RecognizeSceneText.yaml",
     "title": "VisionService.RecognizeSceneText"
+  },
+  {
+    "artifactId": "ART-MEDIA-181FE59D7149B6A6DBD7",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ResolveSourceFrame.yaml",
+    "title": "VisionService.ResolveSourceFrame"
   },
   {
     "artifactId": "ART-MEDIA-EE8431F8F54C42140EAB",

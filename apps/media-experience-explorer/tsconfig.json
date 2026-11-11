@@ -9,14 +9,19 @@
     "strict": true,
     "noEmit": true,
     "paths": {
+      "@audio-video/client/dev-project-timeline": ["../../libs/audio-video-client/src/dev-project-timeline.ts"],
+      "@audio-video/client/operations": ["../../libs/audio-video-client/src/operations.ts"],
+      "@audio-video/client/canonical-operations": ["../../libs/audio-video-client/src/canonical-operations.ts"],
       "@ghatana/media-experience-simulation": ["../../libs/media-experience-simulation/src/index.ts"],
+      "@audio-video/ui": ["../../libs/audio-video-ui/src/index.ts"],
       "@audio-video/ui/ports": ["../../libs/audio-video-ui/src/ports/index.ts"],
       "@audio-video/ui/screens": ["../../libs/audio-video-ui/src/screens/index.ts"],
       "@audio-video/ui/components": ["../../libs/audio-video-ui/src/components/index.ts"],
       "@ghatana/design-system": ["../../../ghatana-shared/platform/typescript/design-system/dist/index.d.ts"],
-      "react": ["../../../ghatana-shared/node_modules/.pnpm/@types+react@19.2.18/node_modules/@types/react/index.d.ts"],
-      "react/jsx-runtime": ["../../../ghatana-shared/node_modules/.pnpm/@types+react@19.2.18/node_modules/@types/react/jsx-runtime.d.ts"],
-      "react-dom/client": ["../../../ghatana-shared/node_modules/.pnpm/@types+react-dom@19.2.4_@types+react@19.2.18/node_modules/@types/react-dom/client.d.ts"]
+      "react": ["./node_modules/@types/react/index.d.ts"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime.d.ts"],
+      "react-dom/client": ["./node_modules/@types/react-dom/client.d.ts"],
+      "zod": ["./node_modules/zod/index.d.ts"]
     }
   },
   "include": ["src"]

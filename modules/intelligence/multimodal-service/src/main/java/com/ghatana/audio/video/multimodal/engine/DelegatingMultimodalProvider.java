@@ -65,10 +65,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     private static final Duration DEFAULT_OPERATION_DEADLINE = Duration.ofMinutes(4);
     private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(250);
     private static final int MAX_OBSERVATION_RESULT_CHARS = 8_192;
-    /**
-     * Canonical child job types this orchestrator can fan out to. Production
-     * eligibility requires every one of them to be usable through another provider.
-     */
+    /** Canonical child job types this orchestrator can fan out to. */
     private static final Set<JobType> DELEGATED_CHILDREN =
             Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION);
 
@@ -77,8 +74,6 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     private final Duration operationDeadline;
     private final Duration pollInterval;
     private final AtomicBoolean closed = new AtomicBoolean(false);
-    /** Composition-bound usable child capabilities; unbound stays ineligible. */
-    private volatile Set<JobType> boundUsableCapabilities;
 
     /** ServiceLoader composition. */
     public DelegatingMultimodalProvider() {
@@ -121,19 +116,13 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     @Override public Set<JobType> capabilities() { return Set.of(JobType.MULTIMODAL); }
     @Override public boolean ready() { return !closed.get(); }
     /**
-     * Conditional eligibility only: a multimodal orchestrator is production-usable
-     * when the composing runtime bound usable providers for every child job type it
-     * can fan out to. Independently qualified child/source admission is still
-     * enforced per job and per attempt; unbound providers remain ineligible.
+     * Usable STT and Vision children make local composition possible, but do not
+     * qualify the multimodal operation itself. This provider has no owner-bound
+     * multimodal capability profile or qualification evidence, so production
+     * admission remains closed even when every delegated child is available.
      */
-    @Override public boolean productionEligible() {
-        Set<JobType> bound = boundUsableCapabilities;
-        return !closed.get() && bound != null && bound.containsAll(delegatedCapabilities());
-    }
+    @Override public boolean productionEligible() { return false; }
     @Override public Set<JobType> delegatedCapabilities() { return DELEGATED_CHILDREN; }
-    @Override public void bindRuntimeCapabilities(Set<JobType> usableJobTypes) {
-        boundUsableCapabilities = usableJobTypes == null ? Set.of() : Set.copyOf(usableJobTypes);
-    }
     @Override public int priority() { return 0; }
     @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
     @Override public String processingRegion() { return "local"; }
@@ -352,19 +341,20 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                 }
                 current.add(snapshotChildResult(readback.orElseThrow()));
             }
+            long remainingNanos = deadline.remainingNanos();
+            if (remainingNanos <= 0) {
+                // Readback can itself be delayed past the parent budget. Even if every
+                // child now appears terminal, that observation does not extend the
+                // parent's deadline or prove the parent operation completed in-budget.
+                // Preserve UNKNOWN and let the canonical parent finalizer/reconciler
+                // apply its own exact deadline and receipt rules.
+                cancelChildrenQuietly(current, dispatcher);
+                result.complete(OperationOutcome.unknown());
+                return;
+            }
             OperationOutcome terminal = evaluate(spec, current);
             if (terminal != null) {
                 result.complete(terminal);
-                return;
-            }
-            long remainingNanos = deadline.remainingNanos();
-            if (remainingNanos <= 0) {
-                // A child may still be ACCEPTED/RUNNING or its outcome lost. UNKNOWN is
-                // the honest parent finality; reconciliation reads exact child receipts.
-                // The operation bound is spent, so the remaining children are cancelled
-                // best-effort rather than left running past the parent deadline.
-                cancelChildrenQuietly(current, dispatcher);
-                result.complete(OperationOutcome.unknown());
                 return;
             }
             scheduler.schedule(
@@ -382,24 +372,33 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
 
     /**
      * Maps durable child states to the parent outcome. COMPLETED requires every declared
-     * child durably completed; FAILED/CANCELLED is a final child fact; anything else —
-     * including a child still running at the deadline — is UNKNOWN, never a partial
-     * success.
+     * child durably completed; a cancellation is terminal but does not prove that a
+     * dispatched provider had no effect. Anything else — including cancellation or a
+     * child still running at the deadline — is UNKNOWN, never a partial success.
      */
     private OperationOutcome evaluate(MultimodalOperationSpec spec, List<ProcessingJob> children) {
-        boolean anyFailed = false;
+        int completed = 0;
+        int failed = 0;
         boolean anyUnknown = false;
+        boolean anyCancelled = false;
         for (ProcessingJob child : children) {
             switch (child.status()) {
-                case COMPLETED -> { }
-                case FAILED, CANCELLED -> anyFailed = true;
+                case COMPLETED -> completed++;
+                case FAILED -> failed++;
+                case CANCELLED -> anyCancelled = true;
                 case OUTCOME_UNKNOWN -> anyUnknown = true;
                 default -> { return null; }
             }
         }
-        if (anyUnknown) return OperationOutcome.unknown();
-        if (anyFailed) return OperationOutcome.failed("CHILD_FAILED");
-        return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(spec, children));
+        if (anyUnknown || anyCancelled) return OperationOutcome.unknown();
+        if (completed == children.size()) {
+            return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(spec, children));
+        }
+        if (failed == children.size()) return OperationOutcome.failed("CHILD_FAILED");
+        // A mixed terminal set proves that at least one child completed an effect.
+        // Without a partial-result contract, it cannot be represented as parent
+        // FAILED/NO_EFFECT_PROVEN; restart reconciliation applies the same rule.
+        return OperationOutcome.unknown();
     }
 
     /**

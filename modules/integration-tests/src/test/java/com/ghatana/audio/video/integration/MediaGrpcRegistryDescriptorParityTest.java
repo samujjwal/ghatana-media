@@ -46,12 +46,12 @@ class MediaGrpcRegistryDescriptorParityTest {
         JsonNode registry = YAML.readTree(Files.readString(REGISTRY_PATH));
         JsonNode rows = registry.path("rpcs");
 
-        // The registry is an observation of 44 declared RPCs. A separate CT-01
-        // plan row still says 43; that plan denominator is intentionally not
-        // normalized or treated as authority by this source-consumption test.
-        assertThat(registry.path("observedRpcCount").asInt()).isEqualTo(44);
         assertThat(rows.isArray()).isTrue();
-        assertThat(rows.size()).as("number of currently declared registry rows").isEqualTo(44);
+        int registryRpcCount = rows.size();
+        // Registry counts describe this source inventory only. PDP-1's historical
+        // 43-method semantic denominator is preserved and is not inferred here.
+        assertThat(registry.path("observedRpcCount").asInt()).isEqualTo(registryRpcCount);
+        assertThat(registry.path("requestedRpcCount").asInt()).isEqualTo(registryRpcCount);
 
         Map<String, Descriptors.MethodDescriptor> descriptorMethods = descriptorMethods();
         Set<String> registryIds = new HashSet<>();
@@ -135,9 +135,21 @@ class MediaGrpcRegistryDescriptorParityTest {
 
             // These files describe observed/proposed mappings only. They must not
             // silently promote pending bindings into selected protocol authority.
-            assertThat(requiredText(contract, "contractStatus")).contains("proposal-only", "owner-review-pending");
-            assertThat(requiredText(contract.path("pdp1SemanticBinding"), "ownerReview"))
-                    .isEqualTo("pending");
+            String contractStatus = requiredText(contract, "contractStatus");
+            if ("media.grpc.VisionService.ResolveSourceFrame".equals(id)) {
+                assertThat(contractStatus).contains("identity-only-source-projection", "owner-review-pending");
+                assertThat(requiredText(contract, "sourceContractDisposition"))
+                        .contains("implementation-or-projection-observation", "not-declared-canonical-wire-authority");
+                assertThat(requiredText(contract, "semanticDisposition"))
+                        .contains("PDP-1-operation-binding-pending-owner-review");
+                assertThat(contract.has("pdp1SemanticBinding"))
+                        .as("ResolveSourceFrame does not invent a PDP-1 semantic binding")
+                        .isFalse();
+            } else {
+                assertThat(contractStatus).contains("proposal-only", "owner-review-pending");
+                assertThat(requiredText(contract.path("pdp1SemanticBinding"), "ownerReview"))
+                        .isEqualTo("pending");
+            }
         }
     }
 
@@ -180,6 +192,18 @@ class MediaGrpcRegistryDescriptorParityTest {
                 .contains("proposed", "owner-review-pending");
         assertThat(requiredText(sceneTextContract.path("pdp1SemanticBinding"), "ownerReview"))
                 .isEqualTo("pending");
+
+        JsonNode sourceFrame = findRpc(rows, "media.grpc.VisionService.ResolveSourceFrame");
+        assertThat(sourceFrame).as("current ResolveSourceFrame appears in the source registry").isNotNull();
+        assertThat(requiredText(sourceFrame, "experienceBinding"))
+                .as("ResolveSourceFrame remains pending owner review")
+                .isEqualTo("pending-owner-review");
+        Path sourceFrameContractPath = REPOSITORY_ROOT.resolve(REGISTRY_RELATIVE_PATH.getParent())
+                .resolve(requiredText(sourceFrame, "contractFile")).normalize();
+        JsonNode sourceFrameContract = YAML.readTree(Files.readString(sourceFrameContractPath));
+        assertThat(requiredText(sourceFrameContract, "contractStatus"))
+                .contains("identity-only-source-projection", "owner-review-pending");
+        assertThat(sourceFrameContract.has("pdp1SemanticBinding")).isFalse();
     }
 
     private static JsonNode findRpc(JsonNode rows, String id) {

@@ -17,6 +17,8 @@ the "shared media engines" layer consumed by the modality services.
   not select or infer a coordinate frame or range.
 - `com.ghatana.media.stt` (+ `engine.native_whisper`, `engine.onnx`,
   `eval`, `api`) — STT engine abstractions and evaluation harnesses.
+- `com.ghatana.media.common.lifecycle.NativeModelLifecycle` — fair
+  read-use leases that fence native-model disposal for Whisper and Piper.
 - `com.ghatana.media.runtime` / `service` / `service.http` /
   `integration` / `resilience` / `common.pool` / `common.validation` /
   `sync` — runtime composition, HTTP service helpers, integration and
@@ -35,6 +37,12 @@ entrypoint.
   mark fixtures as nonproduction.
 - Simulation support produces deterministic plans/state only — never
   implies provider admission or real effects.
+- Native model calls must hold a lifecycle lease. Closing from a thread that
+  still owns a lease fails promptly instead of deadlocking on a read-to-write
+  lock upgrade; disposal remains one-shot after active uses drain. Whisper
+  pointer access and Piper inference use this fence. These lifecycle tests do
+  not load a licensed model or establish inference quality, leak freedom, or
+  host qualification.
 - `platform-local` style boundary: shared within Media; no dependency on
   product modules.
 

@@ -9,23 +9,30 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs && vitest run test/dev-artifact-hasher.test.ts",
+    "test:dev-project-timeline:browser": "node test/dev-project-timeline-browser.mjs",
+    "test:visual-regression": "node test/run-visual-regression.mjs"
   },
   "dependencies": {
-    "@ghatana/development-traceability": "0.1.0-SNAPSHOT",
-    "@ghatana/experience-package": "0.1.0-SNAPSHOT",
-    "@ghatana/product-dev-explorer": "0.1.0-SNAPSHOT",
-    "@ghatana/product-definition": "0.1.0-SNAPSHOT",
-    "@ghatana/experience-explorer-contracts": "0.1.0-SNAPSHOT",
-    "@ghatana/media-experience-simulation": "workspace:*",
+    "@audio-video/client": "workspace:*",
     "@audio-video/ui": "workspace:*",
+    "@ghatana/development-traceability": "0.1.0-SNAPSHOT",
+    "@ghatana/experience-explorer-contracts": "0.1.0-SNAPSHOT",
+    "@ghatana/experience-package": "0.1.0-SNAPSHOT",
+    "@ghatana/media-experience-simulation": "workspace:*",
+    "@ghatana/product-definition": "0.1.0-SNAPSHOT",
+    "@ghatana/product-dev-explorer": "0.1.0-SNAPSHOT",
+    "@noble/hashes": "2.4.0",
+    "lucide-react": "catalog:shared",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "playwright": "1.63.0",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

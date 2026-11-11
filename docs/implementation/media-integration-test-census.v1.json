@@ -421,23 +421,43 @@
       "tier": "ISOLATED_INTEGRATION",
       "gradleTestTask": ":services:media:integration-tests:test",
       "selectors": [
-        "com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT.authenticatedUploadResumesAcknowledgedPrefixAfterLauncherProcessRestart"
+        "com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT.authenticatedUploadResumesAcknowledgedPrefixAfterLauncherProcessRestart",
+        "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT.ownerIssuedDevIdentityCompletesAndReadsBackUploadAndDiagnosticJobAcrossRestart",
+        "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT.devOnlyCliResumesPartialOpenUploadFromSameIdempotencyKeyAfterLauncherRestart",
+        "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT.realExplorerUploadKeepsProductInspectionNotAdmittedAcrossLauncherRestart",
+        "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT.realExplorerResumesUploadAfterReloadAndLauncherRestart",
+        "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT.realExplorerUploadsThenLinksExactArtifactVersionAcrossLauncherRestart"
       ],
       "sources": [
-        "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java"
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+        ".product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml",
+        "libs/audio-video-client/package.json",
+        "libs/audio-video-client/src/cli-dev.ts",
+        "libs/audio-video-client/src/cli.ts",
+        "libs/audio-video-client/src/canonical-operations.ts",
+        "apps/media-experience-explorer/package.json",
+        "integration-tests/src/test/resources/media-dev-artifact-upload-recovery-live-browser.mjs",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevIssuerHeadlessRestartIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
       ],
       "resources": [
         "JUnit Jupiter",
         "Testcontainers PostgreSQL",
         "Testcontainers LocalStack",
-        "launcher subprocesses"
+        "launcher subprocesses",
+        "Node.js compiled CLI process",
+        "Playwright Chromium browser and Vite Explorer process"
       ],
       "prerequisites": [
-        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers"
+        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers",
+        "pnpm install and pnpm --filter @audio-video/client build for the workspace SDK and compiled CLI entry point",
+        "Pinned Playwright 1.63.0 Chromium runtime and Vite 7.3.1 (or the recorded host fallback 8.3.0) for the live Explorer browser selector"
       ],
-      "assets": "Synthetic WAV and test-owned provider dispatch marker only.",
-      "safety": "Synthetic identities and isolated containers; no production credentials or customer data.",
-      "evidenceLimit": "J-02 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+      "assets": "Synthetic WAV bytes, DEV_ONLY test identities, and isolated PostgreSQL/LocalStack state only.",
+      "safety": "The SDK selector uses an exact artifact:read-only DEV_ONLY token and verifies denied append without mutation; the CLI selector uses a separate job:read-only DEV_ONLY token for one request-bound job GET before and after restart; the browser selectors verify local DEV_ONLY intake, exact artifact readback, and recovery of a partial upload after page reload and launcher restart. No production credentials or customer data.",
+      "evidenceLimit": "These selectors cover bounded local DEV_ONLY J-02 SDK denial/recovery, read-only CLI point-in-time job observation, Explorer artifact-intake restart/readback, one browser upload-recovery scenario, and one cross-surface case linking the SDK-produced artifact ID and exact SHA-256 version into a project timeline clip across launcher restarts. The CLI result is not provider-finality evidence. The browser cases use generated synthetic WAV bytes; they do not establish production authority, source rights, a qualified provider output, J-01 or J-02 completion, or J-01–J-30 completion."
     },
     {
       "id": "journey-outcome-j02-corrupt-chunk-restart",
@@ -528,6 +548,32 @@
       "assets": "Synthetic JWTs, temporary model bytes, test-owned profile and generated PCM only.",
       "safety": "Pre-effect voice consent, tenant, purpose, locale, and revocation negatives; any admitted engine response uses a mock and is not qualified voice output.",
       "evidenceLimit": "J-04 voice admission negative-path slice only; no licensed model/voice, genuine decoded audio, durable job/restart, or journey completion is established."
+    },
+    {
+      "id": "journey-outcome-j04-profile-binding-negative",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.tts.grpc.TtsAuthorizedVoiceSynthesisScenarioTest.profileOnlySelectionReturnsUnavailableWithoutAudioOrModelLookup"
+      ],
+      "sources": [
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsRequestAuthorization.java",
+        "modules/integration-tests/src/test/java/com/ghatana/tts/grpc/TtsAuthorizedVoiceSynthesisScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "in-process gRPC",
+        "synthetic JWT and local text fixture",
+        "mock TTS engine and unavailable owner authority"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no Docker or external service is required"
+      ],
+      "assets": "Synthetic JWT and text only; no voice model, source media, or generated audio bytes.",
+      "safety": "An unqualified profile-only request returns UNAVAILABLE before TTS engine lookup and emits no audio.",
+      "evidenceLimit": "J-04 profile-to-voice no-effect boundary only; no licensed voice/model, real consent, decoded positive output, durable job/restart, or journey completion is established."
     },
     {
       "id": "journey-outcome-j05",
@@ -835,29 +881,66 @@
       "evidenceLimit": "J-19 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
     },
     {
+      "id": "journey-outcome-j19-cancellation",
+      "tier": "LOCAL_FIXTURE",
+      "gradleTestTask": ":services:media:modules:integration-tests:test",
+      "selectors": [
+        "com.ghatana.audio.video.integration.J19QualityOutcomeScenarioTest.cancellationAfterCandidateDispatchRetainsKnownRevisionsWithoutReport"
+      ],
+      "sources": [
+        "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/J19QualityOutcomeScenarioTest.java"
+      ],
+      "resources": [
+        "JUnit Jupiter",
+        "source-mapped local scenario fixture"
+      ],
+      "prerequisites": [
+        "JDK/Gradle runtime; no external service is required"
+      ],
+      "assets": "Synthetic source, candidate and reference revisions only; no decoder, provider or project store is used.",
+      "safety": "An in-process fixture interrupts the current thread after candidate dispatch; known revisions are retained and no report is returned.",
+      "evidenceLimit": "J-19 cancellation selector slice only; fixture behavior does not establish a real quality improvement, qualified provider output, durable project revision, or journey completion."
+    },
+    {
       "id": "journey-outcome-j20",
       "tier": "ISOLATED_INTEGRATION",
       "gradleTestTask": ":services:media:integration-tests:test",
       "selectors": [
         "com.ghatana.media.integration.MediaLauncherSttProcessIT.dispatchedJobBecomesUnknownAfterHardProcessRestartWithoutRedispatch",
-        "com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT.hardProcessLossRetainsSubjectArtifactAndUnknownJobWithoutReplayingEffects"
+        "com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT.hardProcessLossRetainsSubjectArtifactAndUnknownJobWithoutReplayingEffects",
+        "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT.ownerIssuedDevIdentityCompletesAndReadsBackUploadAndDiagnosticJobAcrossRestart",
+        "com.ghatana.media.launcher.MediaDevOnlyJobCancellationFinalityPostgresIT.definitiveProviderSuccessFinalizesAfterUnconfirmedCancellation",
+        "com.ghatana.media.launcher.MediaDevOnlyJobCancellationRestartPostgresIT.hardProcessLossDuringCancelDispatchReplaysUnknownWithoutRedispatch"
       ],
       "sources": [
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+        ".product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml",
+        "libs/audio-video-client/package.json",
+        "libs/audio-video-client/src/cli-dev.ts",
+        "libs/audio-video-client/src/cli.ts",
+        "libs/audio-video-client/src/canonical-operations.ts",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherSttProcessIT.java",
-        "integration-tests/src/test/java/com/ghatana/media/integration/MediaRuntimePostgresWorkflowMetricsIT.java"
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaRuntimePostgresWorkflowMetricsIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevIssuerHeadlessRestartIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/launcher/MediaDevOnlyJobCancellationFinalityPostgresIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/launcher/MediaDevOnlyJobCancellationRestartPostgresIT.java"
       ],
       "resources": [
         "JUnit Jupiter",
         "Testcontainers PostgreSQL",
         "Testcontainers LocalStack",
-        "launcher subprocesses"
+        "launcher subprocesses",
+        "Node.js compiled CLI process",
+        "child JVM cancellation-dispatch cut"
       ],
       "prerequisites": [
-        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers"
+        "JDK/Gradle runtime and Docker daemon; uses disposable PostgreSQL and LocalStack containers",
+        "pnpm install and pnpm --filter @audio-video/client build for the workspace SDK and compiled CLI entry point"
       ],
-      "assets": "Synthetic request and fixture provider only.",
-      "safety": "Test-only launcher subprocess and synthetic dispatch; restart recovery does not claim real provider finality.",
-      "evidenceLimit": "J-20 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+      "assets": "Synthetic WAV bytes, DEV_ONLY test identities, a local synthetic provider's typed success receipt, and isolated PostgreSQL/LocalStack state.",
+      "safety": "The CLI observation uses an exact job:read-only DEV_ONLY token and requestId-bound GET before and after launcher restart. The cancellation finality and hard-loss selectors use only test-owned LOCAL providers with production eligibility false and PostgreSQL-backed DEV_ONLY runtime state; they perform no real provider operation or qualified external effect.",
+      "evidenceLimit": "The CLI selector proves only caller-scoped point-in-time readback of a completed local-diagnostic job across launcher restart. The finality selector proves a definitive typed synthetic provider receipt persists after an unconfirmed DEV_ONLY cancellation and PostgreSQL runtime/store reconstruction. The hard-loss selector kills the process after a test-owned LOCAL cancellation callback begins, then proves replay remains UNKNOWN with the persisted cancellation fingerprint and no second provider call. PostgreSQL and LocalStack are local fixtures. These do not prove real provider output, real provider effect, transformed output, or complete J-20; the profile remains local/synthetic and does not establish journey completion."
     },
     {
       "id": "journey-outcome-j21",
@@ -885,7 +968,8 @@
       "tier": "LOCAL_FIXTURE",
       "gradleTestTask": ":services:media:modules:integration-tests:test",
       "selectors": [
-        "com.ghatana.audio.video.integration.DeliveryDestinationReceiptScenarioTest.wrongDestinationReceiptRemainsUnknownAndHasNoDeliveredReceiptReference"
+        "com.ghatana.audio.video.integration.DeliveryDestinationReceiptScenarioTest.wrongDestinationReceiptRemainsUnknownAndHasNoDeliveredReceiptReference",
+        "com.ghatana.audio.video.integration.DeliveryDestinationReceiptScenarioTest.acknowledgedChunkWithLostProgressPersistenceReconcilesAfterRestartWithoutReplay"
       ],
       "sources": [
         "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/DeliveryDestinationReceiptScenarioTest.java"
@@ -899,7 +983,7 @@
       ],
       "assets": "Synthetic identities, request values, and test-owned fixture data only.",
       "safety": "Local or synthetic scenario boundary only; rights, identity, and provider inputs are fixtures, and no qualified external effect is claimed.",
-      "evidenceLimit": "J-22 selector slice only; local/synthetic test evidence does not establish the genuine hosted journey, qualified provider output, or journey completion."
+      "evidenceLimit": "J-22 local selector slices only, including wrong-destination receipt rejection and lost SENT-progress persistence reconciled from an exact final receipt after restart without resending. Destination ACK/state are synthetic fixtures; this does not establish authenticated destination acceptance, qualified provider output, or journey completion."
     },
     {
       "id": "journey-outcome-j25",

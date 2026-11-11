@@ -690,6 +690,7 @@
           "metadata",
           "nextChunkIndex",
           "principalId",
+          "retention",
           "status",
           "tenantId",
           "uploadId"
@@ -754,6 +755,7 @@
           "metadata",
           "nextChunkIndex",
           "principalId",
+          "retention",
           "status",
           "tenantId",
           "uploadId"
@@ -820,6 +822,7 @@
           "metadata",
           "nextChunkIndex",
           "principalId",
+          "retention",
           "status",
           "tenantId",
           "uploadId"

@@ -17,8 +17,9 @@
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = new URL("..", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const SURFACES_DIR = join(ROOT, "docs", "surfaces");
 const SOURCE_GLOBS = [".java", ".kt", ".ts", ".tsx", ".rs", ".mjs", ".js"];
 const SKIP_DIRS = new Set(["node_modules", "dist", "build", "docs", ".git", ".product-experience", "target"]);

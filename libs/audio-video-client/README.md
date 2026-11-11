@@ -8,6 +8,12 @@ Typed client for source-bound Media artifact and job operations. Historical moda
 - `MediaCanonicalClient` for the observed job and stream routes.
 - Request timeout, cancellation, stable request identity, and typed `OUTCOME_UNKNOWN` handling for dispatched mutations.
 - Tenant and caller scope propagation through configured transport.
+- `MediaDevProjectTimelineClient` on the separate
+  `@audio-video/client/dev-project-timeline` subpath for the loopback-only
+  `/dev/v1` preview. It requires a DEV_ONLY token, never sends credentials off
+  loopback, reads the host-selected synthetic development workspace, creates
+  and reopens exact project revisions, and returns typed stale/unknown
+  outcomes without retrying mutations.
 
 `AudioVideoClient` methods for transcription, synthesis, AI voice, vision, and
 multimodal processing are compatibility stubs until their operation and route
@@ -60,7 +66,8 @@ exported `CanonicalMediaUploadSessionObservation` runtime DTO. `uploadPart()`
 accepts the session's current zero-based `nextChunkIndex`, returns the updated
 session, and sends raw `application/octet-stream` bytes. The SDK never retries
 an append after a timeout or connection loss: the server may have accepted the
-chunk even when its acknowledgement was lost. Query the the existing scoped upload-status HTTP route before deciding how to proceed. Completion
+chunk even when its acknowledgement was lost. Query the existing scoped
+upload-status HTTP route before deciding how to proceed. Completion
 returns `CanonicalMediaArtifactObservation` and sends no request body. Prefer
 passing the complete session to `completeUploadSession(session)`; it verifies
 the returned artifact's tenant, principal, size, SHA-256, filename, content
@@ -71,9 +78,9 @@ artifact contains no source upload ID.
 
 ## Host-configured production CLI
 
-The package exposes `ghatanamedia-api` as an authenticated, read-only consumer
-of the canonical SDK. The current production command registry admits exactly
-one command:
+The package exposes `ghatanamedia-api` as an authenticated consumer of the
+canonical SDK. The current production command registry admits exactly one
+command:
 
 | CLI operation | SDK operation | Result boundary |
 | --- | --- | --- |
@@ -83,10 +90,25 @@ The endpoint and tenant/principal scope are explicit. The bearer token is read
 only from `GHATANA_MEDIA_BEARER_TOKEN` and is never accepted in command
 arguments. Requests use the SDK's bounded timeout, configurable with
 `GHATANA_MEDIA_REQUEST_TIMEOUT_MS` (integer milliseconds, 1–300000; default
-30000). Other command identities from the proposed/fixture registry, including
-job, capture, and recorder commands, are rejected as `INVALID_INVOCATION`
-before authentication or network dispatch. The SDK's job and stream methods
-remain separately available to source-bound application consumers.
+30000). `artifact inspect` performs the source-bound, scoped artifact GET and
+returns the observed artifact metadata. A read timeout or unavailable
+observation does not establish absence or failure.
+
+All programmatic SDK clients apply the same endpoint transport boundary:
+absolute HTTPS URLs are required except for `localhost`, `127.0.0.1`, and
+`[::1]` development endpoints. URL user information, query/fragment parts, and
+literal or percent-encoded dot segments are rejected before a credential is
+attached.
+
+The SDK's artifact upload and job methods remain available to programmatic
+consumers; their availability does not admit corresponding CLI commands. Upload
+and upload-session inspection, job submit/get/cancel, batch, capture, recorder,
+and stream commands are not in the production command registry and fail as
+`INVALID_INVOCATION` before credential or transport dispatch. Add a CLI command
+only after its exact source operation, request/result schema, authority, and
+finality are bound and admitted. The 11 Explorer fixture commands remain a
+separate synthetic population. Local client tests do not qualify a production
+host or release.
 
 ```sh
 GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \
@@ -112,6 +134,82 @@ the Explorer simulator. The fixture executable does not call this SDK; fixture
 responses never stand in for provider or host behavior. Local consumer tests do
 not qualify a production host or release.
 
+## Local-development CLI definitions
+
+The package also exposes `ghatanamedia-api-dev` as a separate, loopback-only
+development executable. Its source registry defines `artifact upload`,
+`artifact inspect`, `job get`, and `job cancel`, all bound to local-development
+operations. The commands require an explicitly supplied `localhost`,
+`127.0.0.1`, or `[::1]` endpoint and a short-lived `DEV_ONLY` token minted for
+the exact `dev` profile, tenant, principal, and command permissions. The CLI
+checks the token claim profile before their dispatch; the Media host verifies
+the token signature and current authority. A token-shaped claim alone is not
+authentication.
+
+```sh
+GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_DEV_TOKEN" ghatanamedia-api-dev artifact inspect \
+  --endpoint http://127.0.0.1:8080 \
+  --tenant tenant-1 \
+  --principal principal-1 \
+  --artifact artifact-1
+```
+
+`artifact upload` validates `--content-type` against the PDP-1 media-type
+grammar (3–127 characters) before credentials, source-file access, or host
+requests. It then reads a bounded regular file, uses the existing upload
+session routes, checks persisted session progress before completion, and
+reports ambiguous mutations without blind retry. Before any upload mutation,
+the DEV_ONLY CLI reads the authenticated host's `maxChunkBytes` policy and uses
+that bound for file hashing and chunk uploads. If the policy cannot be read or
+validated, no upload is attempted. This local transfer policy does not admit
+production upload commands. Reusing the same upload idempotency key after a CLI
+restart resumes only an existing OPEN session: the CLI checks the acknowledged
+byte/chunk position, rehashes the local prefix, appends from that exact
+position, and checks the full-file digest before completion. An inconsistent
+or ambiguous session remains unresolved; the CLI does not start a replacement
+upload or replay an uncertain chunk. `job get` returns a scoped, point-in-time
+observation and may include `--request-id`; an unknown job state does not
+establish provider finality. `job cancel` calls the signed DEV_ONLY
+`POST /dev/v1/jobs/{jobId}/cancel` route with a required stable `--request-id`
+and optional `--expected-version`. The host durably reserves the request before
+provider cancellation, admits only exact `dev` profile jobs with an in-process
+LOCAL provider, and replays the same request without a second dispatch.
+Responses distinguish confirmation, unconfirmed request, unknown outcome,
+unsupported cancellation, terminal state, and terminal race. A cancellation
+request never implies provider finality; reuse the same request ID to reconcile
+an ambiguous result. Production admission remains `OPEN`, and the production
+binary continues to expose only `artifact inspect`.
+
+## DEV_ONLY project and timeline client
+
+The separate `@audio-video/client/dev-project-timeline` subpath is an explicit
+loopback consumer for the launcher’s noncanonical `/dev/v1` project routes:
+
+```ts
+import { MediaDevProjectTimelineClient } from '@audio-video/client/dev-project-timeline';
+
+const projects = new MediaDevProjectTimelineClient({
+  baseUrl: 'http://127.0.0.1:8093',
+  bearerToken: () => devTokenHeldInHostMemory,
+});
+const context = await projects.getContext();
+const created = await projects.createProject({
+  selectedAuthorizedWorkspaceId: context.selectedAuthorizedWorkspaceId,
+  title: 'Local edit',
+  requestId: 'create-local-1',
+});
+const revision = await projects.createTimeline(created.project.projectId, {
+  expectedHeadRevisionId: created.initialRevision.revisionId,
+  timelineId: 'main',
+});
+```
+
+The returned workspace is a synthetic local owner scope, not Shared membership.
+Only the server-signed DEV_ONLY identity supplies tenant/principal authority.
+Network loss during a mutation produces `OUTCOME_UNKNOWN`; read the project or
+exact revision before any new command. The client sends no cookies, rejects
+redirects, and never retries.
+
 ## Current HTTP bindings
 
 The SDK's transport methods are limited to these OpenAPI operations. Route
@@ -127,6 +225,7 @@ observations without a corresponding SDK method remain unadvertised here.
 | `submitJob` | `submitMediaJob` | `POST /api/v1/jobs` |
 | `listJobs` | `listMediaJobs` | `GET /api/v1/jobs?limit={limit}` |
 | `getJob` | `getMediaJob` | `GET /api/v1/jobs/{jobId}` |
+| `getJobByRequest` | `getMediaJob` | `GET /api/v1/jobs/{jobId}?requestId={requestId}` |
 | `cancelJob` | `cancelMediaJob` | `POST /api/v1/jobs/{jobId}/cancel` |
 | `openStream` | `openMediaStream` | `POST /api/v1/streams` |
 | `getStream` | `getMediaStream` | `GET /api/v1/streams/{sessionId}` |
@@ -148,7 +247,9 @@ OpenAPI and route manifest.
 the exact `CanonicalMediaUploadSessionObservation` runtime DTO. It requires the
 configured tenant and `defaultHeaders: { 'X-Principal-Id': callerPrincipalId }`;
 the SDK rejects a response whose tenant, principal, or upload ID differs from
-that request. The method accepts only a safe single path-segment upload ID.
+that request. Its `retention` is the persisted requested-retention duration in
+ISO-8601 form; `expiresAt` remains the separate transfer-session expiry. The
+method accepts only a safe single path-segment upload ID.
 
 ```ts
 const observation = await client.getUploadSession(uploadId);

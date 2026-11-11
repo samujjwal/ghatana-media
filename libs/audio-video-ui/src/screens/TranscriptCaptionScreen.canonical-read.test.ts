@@ -38,6 +38,8 @@ function props(transcript: TranscriptCaptionProjection, versions: CaptionVersion
         currentStepId: "compare",
       },
     },
+    actions: [],
+    actionPort: { invoke: async () => ({ status: "unavailable" as const, reason: "No action is admitted." }) },
     context: { locale: "en-US" },
     transcript,
     canonicalCaptionVersionReader: {
@@ -69,7 +71,7 @@ describe("canonical caption version listing", () => {
     expect(await screen.findByText("caption-version-1", { selector: "code" })).toBeTruthy();
     expect(screen.queryByText("host-stale-version")).toBeNull();
     expect(screen.getByRole("status").textContent).toMatch(/1 canonical caption version/);
-    expect(readVersions).toHaveBeenCalledWith("tenant-1", "principal-1", "artifact-1", "artifact-version-2");
+    expect(readVersions).toHaveBeenCalledWith("tenant-1", "principal-1", "artifact-1", "artifact-version-2", expect.any(AbortSignal));
   });
 
   it("hides projected versions after denial", async () => {
@@ -124,15 +126,15 @@ describe("canonical caption version listing", () => {
     let finishOld!: (versions: readonly CaptionVersionRegistered[]) => void;
     const readVersions = vi.fn((_: string, __: string, ___: string, sourceVersionId: string) => {
       if (sourceVersionId === "artifact-version-2") {
-        return new Promise<readonly unknown[]>((resolve) => { finishOld = resolve; });
+        return new Promise<readonly CaptionVersionRegistered[]>((resolve) => { finishOld = resolve; });
       }
       return Promise.resolve([row("artifact-version-3", "caption-version-current")]);
     });
     const readerProps = props(projection(), readVersions);
     const view = render(React.createElement(TranscriptCaptionScreen, readerProps));
+    const currentReaderProps = props(projection("artifact-version-3"), readVersions);
     view.rerender(React.createElement(TranscriptCaptionScreen, {
-      ...readerProps,
-      transcript: projection("artifact-version-3"),
+      ...currentReaderProps,
     }));
     expect(await screen.findByText("caption-version-current", { selector: "code" })).toBeTruthy();
 

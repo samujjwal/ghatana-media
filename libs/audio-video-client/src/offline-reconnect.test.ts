@@ -175,7 +175,7 @@ describe("OfflineReconnectCoordinator", () => {
 
     expect(result).toMatchObject({ status: "RECONNECTED", dirty: false,
       results: [{ editId: edit.editId, state: "APPLIED" }] });
-    expect(observedScopes).toEqual([scope, scope, scope, scope]);
+    expect(observedScopes).toEqual([scope, scope, scope, scope, scope]);
   });
 
   it("validates the copied scope rather than rereading caller getters", async () => {
@@ -238,6 +238,23 @@ describe("OfflineReconnectCoordinator", () => {
     expect(afterRestart.status).toBe("RECONNECTED");
     if (afterRestart.status === "RECONNECTED") expect(afterRestart.results).toEqual([]);
     expect(applyCount).toBe(0);
+  });
+
+  it("does not read the canonical revision before current project access is authorized", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let versionReads = 0;
+    let applyCount = 0;
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      readProjectVersion: async () => { versionReads++; return { ...scope, disposition: "CURRENT", version: edit.expectedVersion }; },
+      reauthorize: async () => ({ ...scope, disposition: "REVOKED" }),
+      applyEdit: async (...args) => { applyCount++; return operations().applyEdit(...args); },
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
+    expect(result.status).toBe("RECONNECTED");
+    if (result.status === "RECONNECTED") expect(result.results[0]?.state).toBe("REVOKED");
+    expect(versionReads).toBe(0);
+    expect(applyCount).toBe(0);
+    expect((await q.readEdits(scope))[0]?.state).toBe("REVOKED");
   });
 
   it("revalidates rights after version preflight and does not replay a revoke observed before dispatch", async () => {
@@ -419,7 +436,7 @@ describe("OfflineReconnectCoordinator", () => {
       expect(result.results).toEqual([{ editId: edit.editId, state: "VERSION_UNKNOWN" }]);
     }
     expect((await q.readEdits(scope))[0]?.state).toBe("PENDING");
-    expect(authorizationReads).toBe(0);
+    expect(authorizationReads).toBe(1);
     expect(applyCount).toBe(0);
   });
 
@@ -450,7 +467,7 @@ describe("OfflineReconnectCoordinator", () => {
       expect(result.results).toEqual([{ editId: edit.editId, state: "CONFLICT" }]);
     }
     expect(versionReads).toBe(1);
-    expect(authorizationReads).toBe(0);
+    expect(authorizationReads).toBe(1);
     expect(applyCount).toBe(0);
     expect((await q.readEdits(scope))[0]?.state).toBe("CONFLICT");
   });
@@ -549,7 +566,7 @@ describe("OfflineReconnectCoordinator", () => {
     })).reconnect(true, { reviewedQueue: await offlineQueue.readEdits(scope) });
     expect(revoked.status).toBe("RECONNECTED");
     if (revoked.status === "RECONNECTED") expect(revoked.results).toEqual([{ editId: edit.editId, state: "REVOKED" }]);
-    expect(reconnectVersionReads).toBe(1);
+    expect(reconnectVersionReads).toBe(0);
     expect(reconnectAuthorizationReads).toBe(1);
     expect(await offlineQueue.readEdits(scope)).toMatchObject([{ edit: rebasedEdit, state: "REVOKED" }]);
     expect(await offlineQueue.hasDirtyEdits(scope)).toBe(true);
@@ -565,7 +582,7 @@ describe("OfflineReconnectCoordinator", () => {
     })).reconnect(true, { reviewedQueue: await recreatedQueue.readEdits(scope) });
     expect(afterQueueRecreation).toEqual({ status: "RECONNECTED", dirty: true, results: [] });
     expect(reconnectAuthorizationReads).toBe(1);
-    expect(reconnectVersionReads).toBe(1);
+    expect(reconnectVersionReads).toBe(0);
     expect(applyCount).toBe(0);
     expect(await recreatedQueue.readEdits(scope)).toMatchObject([{ edit: rebasedEdit, state: "REVOKED" }]);
   });
@@ -766,7 +783,7 @@ describe("OfflineReconnectCoordinator", () => {
     })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(result.status).toBe("RECONNECTED");
-    expect(observed).toHaveLength(3); // two authorization reads and one apply
+    expect(observed).toHaveLength(4); // three authorization reads and one apply
     for (const operationInput of observed) {
       expect(Object.keys(operationInput).sort()).toEqual([
         "editId", "expectedVersion", "idempotencyKey", "payload", "projectId", "tenantId",

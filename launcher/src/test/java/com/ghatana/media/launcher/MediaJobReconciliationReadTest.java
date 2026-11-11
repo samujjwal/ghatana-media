@@ -130,6 +130,33 @@ class MediaJobReconciliationReadTest {
                     "media_workflow_unknown_backlog",
                     "service=\"launcher\"");
             assertThat(scrape.body()).doesNotContain("tenant-a", "job-1", "request-1", "provider-1");
+            ExchangeResult openMetrics = request(handler, "/metrics", "application/openmetrics-text; version=1.0.0");
+            assertThat(openMetrics.status()).isEqualTo(200);
+            assertThat(openMetrics.contentType()).startsWith("application/openmetrics-text; version=1.0.0");
+            assertThat(openMetrics.body()).contains(
+                    "media_workflow_events_total",
+                    "event=\"unknown\"",
+                    "# EOF");
+            assertThat(openMetrics.body()).doesNotContain("tenant-a", "job-1", "request-1", "provider-1");
+            ExchangeResult refusedOpenMetrics = request(
+                    handler, "/metrics", "application/openmetrics-text;q=0, text/plain");
+            assertThat(refusedOpenMetrics.contentType()).startsWith("text/plain; version=0.0.4");
+            assertThat(refusedOpenMetrics.body()).doesNotContain("# EOF");
+            ExchangeResult preferredOpenMetrics = request(
+                    handler, "/metrics", "application/openmetrics-text;q=0.9, text/plain;q=0.5");
+            assertThat(preferredOpenMetrics.contentType()).startsWith("application/openmetrics-text; version=1.0.0");
+            ExchangeResult preferredPrometheus = request(
+                    handler, "/metrics", "application/openmetrics-text;q=0.2, text/plain;q=0.8");
+            assertThat(preferredPrometheus.contentType()).startsWith("text/plain; version=0.0.4");
+            ExchangeResult tiedMetrics = request(
+                    handler, "/metrics", "text/plain;q=0.7, application/openmetrics-text;q=0.7");
+            assertThat(tiedMetrics.contentType()).startsWith("application/openmetrics-text; version=1.0.0");
+            ExchangeResult noAcceptedMetrics = request(
+                    handler, "/metrics", "application/openmetrics-text;q=0, text/plain;q=0");
+            assertThat(noAcceptedMetrics.contentType()).isEqualTo("application/json");
+            ExchangeResult invalidQuality = request(
+                    handler, "/metrics", "application/openmetrics-text;q=1.1, text/plain;q=0");
+            assertThat(invalidQuality.contentType()).isEqualTo("application/json");
             ExchangeResult legacyMetrics = request(handler, "/metrics");
             assertThat(legacyMetrics.contentType()).isEqualTo("application/json");
             assertThat(legacyMetrics.body()).contains("\"service\":\"media\"");

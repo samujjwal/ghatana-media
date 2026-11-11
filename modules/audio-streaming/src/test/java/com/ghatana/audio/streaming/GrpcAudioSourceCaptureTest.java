@@ -78,6 +78,15 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void readbackRejectsMediaSequenceOutsideCanonicalFrameRange() {
+        assertThatThrownBy(() -> new GrpcAudioSourceCapture.Readback(
+                GrpcAudioSourceCapture.Authorization.AUTHORIZED, "source@v7", 10,
+                (long) AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER + 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("source cursor or Media sequence is outside the supported range");
+    }
+
+    @Test
     void batchRejectsUnderreportedFrameListBeforeTraversingPastItsBound() {
         GrpcAudioSourceCapture.SourceFrame sourceFrame = frame(10, 0, "source@v7");
         List<GrpcAudioSourceCapture.SourceFrame> actualFrames = new ArrayList<>(

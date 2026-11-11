@@ -11,8 +11,9 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { validateCanonicalMediaReads } from "./lib/media-canonical-read-contracts.mjs";
+import { repositoryRootForModuleUrl } from "./lib/media-repository-root.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = repositoryRootForModuleUrl(import.meta.url);
 const productRoot = join(root, ".product-experience");
 const failures = [];
 const notes = [];
@@ -50,7 +51,7 @@ for (const declaration of [
 }
 const registryCounts = [
   [".product-experience/pdp-3-product-experience/api/api-registry.yaml", /^  - id: media\.http\./gmu, 30],
-  [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", /^  - id: media\.grpc\./gmu, 44],
+  [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", /^  - id: media\.grpc\./gmu, 45],
   [".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml", /^  - id: /gmu, 4],
   [".product-experience/pdp-3-product-experience/cli/command-registry.yaml", /^  - id: /gmu, 11],
 ];

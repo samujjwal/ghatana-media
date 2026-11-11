@@ -516,7 +516,7 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("Vision capability census maps exactly 22 intents to the eleven proto RPCs")
+    @DisplayName("Vision capability census maps exactly 22 intents; source-frame read is a separate RPC")
     void visionCapabilityCensusMatchesPdpIdsRpcContractsAndProviderQualification() {
         Map<String, Set<String>> expectedRpcBindings = Map.ofEntries(
                 Map.entry("media.vision.scene-text.region.track", Set.of("AnalyzeVideoFile", "ProcessVideo")),
@@ -582,7 +582,12 @@ class VisionGrpcServiceTest {
                 .containsExactlyInAnyOrder(
                         "DetectObjects", "AnalyzeImage", "ClassifyImage", "RecognizeSceneText",
                         "AnalyzeVideoFile", "ProcessVideo",
-                        "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck");
+                        "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck",
+                        "ResolveSourceFrame");
+        // ResolveSourceFrame performs an authenticated, rights-revalidated metadata-only source read.
+        // It is covered by resolveSourceFrameOverGrpcReturnsMetadataAndFailsClosedOnRightsDenial,
+        // and is deliberately outside the 22 model-intent dispositions above.
+        assertThat(expectedRpcBindings).hasSize(22);
     }
 
     // -------------------------------------------------------------------------

@@ -4,6 +4,8 @@ import com.ghatana.audio.video.common.GrpcInterceptorChain;
 import com.ghatana.observability.MetricsCollector;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.health.v1.HealthCheckRequest;
@@ -30,6 +32,66 @@ import static org.mockito.Mockito.mock;
 
 class AudioVideoHealthGrpcPublicProbeTest {
     private static final String TEST_SECRET = "public-health-probe-test-secret";
+
+    @Test
+    void unknownNamedCheckReturnsNotFoundAndUnknownWatchReturnsServiceUnknown() throws Exception {
+        String serverName = InProcessServerBuilder.generateName();
+        AudioVideoHealthService health = new AudioVideoHealthService(
+                "stt-service", mock(MetricsCollector.class), Set.of("provider"));
+        Server server = null;
+        ManagedChannel channel = null;
+        try {
+            health.registerCheck("provider", () -> true);
+            assertThat(health.markReady()).isTrue();
+            server = InProcessServerBuilder.forName(serverName).directExecutor().addService(health).build().start();
+            channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+            StatusRuntimeException failure = null;
+            try {
+                HealthGrpc.newBlockingStub(channel)
+                        .check(HealthCheckRequest.newBuilder().setService("tts-service").build());
+            } catch (StatusRuntimeException expected) {
+                failure = expected;
+            }
+            assertThat(failure).isNotNull();
+            assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.NOT_FOUND);
+            assertThat(failure.getStatus().getDescription()).isEqualTo("Health service is unknown");
+
+            CountDownLatch firstStatus = new CountDownLatch(1);
+            AtomicReference<ClientCallStreamObserver<HealthCheckRequest>> call = new AtomicReference<>();
+            List<HealthCheckResponse> responses = new CopyOnWriteArrayList<>();
+            HealthGrpc.newStub(channel).watch(
+                    HealthCheckRequest.newBuilder().setService("tts-service").build(),
+                    new ClientResponseObserver<HealthCheckRequest, HealthCheckResponse>() {
+                        @Override
+                        public void beforeStart(ClientCallStreamObserver<HealthCheckRequest> requestStream) {
+                            call.set(requestStream);
+                        }
+
+                        @Override public void onNext(HealthCheckResponse value) {
+                            responses.add(value);
+                            firstStatus.countDown();
+                        }
+                        @Override public void onError(Throwable watchFailure) { firstStatus.countDown(); }
+                        @Override public void onCompleted() { firstStatus.countDown(); }
+                    });
+
+            assertThat(firstStatus.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(responses).extracting(HealthCheckResponse::getStatus)
+                    .containsExactly(HealthCheckResponse.ServingStatus.SERVICE_UNKNOWN);
+            call.get().cancel("test cancellation", null);
+        } finally {
+            if (channel != null) {
+                channel.shutdownNow();
+                channel.awaitTermination(2, TimeUnit.SECONDS);
+            }
+            if (server != null) {
+                server.shutdownNow();
+                server.awaitTermination(2, TimeUnit.SECONDS);
+            }
+            health.close();
+        }
+    }
 
     @Test
     void unauthenticatedCheckAndWatchReturnOnlyPublicServingStatusAndWatchCanCancel() throws Exception {

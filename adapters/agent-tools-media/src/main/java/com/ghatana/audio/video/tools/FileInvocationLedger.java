@@ -46,8 +46,10 @@ import java.util.function.Supplier;
  AT-05 durable backing: one JSON record per invocation on the local filesystem.
  *
  * <p>Claim exclusivity comes from an atomic create-if-absent hard link to a fully
- * fsynced temporary fence file; completion durability comes from a lock-file-serialized
- * read-verify-atomic-replace. Records survive process restart because state
+ * fsynced temporary fence file followed by a required directory sync; completion durability
+ * comes from a lock-file-serialized read-verify-atomic-replace followed by the same required
+ * directory sync. Newly created path components are synced through their containing parents
+ * before the store is usable. Records survive process restart because state
  * lives on disk, not in memory. This is a single-host development backing. The
  * host injects the AES key and result-retention policy, and the binder requires
  * a freshly authenticated principal plus an injected replay authorizer before
@@ -59,9 +61,15 @@ import java.util.function.Supplier;
  */
 public final class FileInvocationLedger implements InvocationLedger {
 
+    @FunctionalInterface
+    interface DirectorySync {
+        void force(Path directory) throws IOException;
+    }
+
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final int SCHEMA_VERSION = 2;
     private static final int GCM_NONCE_BYTES = 12;
+    private static final String COMPLETION_PENDING_CONTENT = "completion-pending-v1";
     private static final int GCM_TAG_BITS = 128;
     private static final int LOCK_STRIPE_COUNT = 64;
     private static final Set<PosixFilePermission> DIRECTORY_PERMISSIONS =
@@ -74,6 +82,7 @@ public final class FileInvocationLedger implements InvocationLedger {
     private final SecretKey resultEncryptionKey;
     private final Duration resultRetention;
     private final Clock clock;
+    private final DirectorySync directorySync;
     private final SecureRandom secureRandom = new SecureRandom();
     private final ReentrantLock[] stripes = new ReentrantLock[LOCK_STRIPE_COUNT];
 
@@ -91,17 +100,29 @@ public final class FileInvocationLedger implements InvocationLedger {
      */
     public FileInvocationLedger(Path directory, SecretKey resultEncryptionKey,
             Duration resultRetention, Clock clock) {
-        this.directory = directory.toAbsolutePath().normalize();
+        this(directory, resultEncryptionKey, resultRetention, clock, FileInvocationLedger::forceDirectoryEntry);
+    }
+
+    FileInvocationLedger(Path directory, SecretKey resultEncryptionKey,
+            Duration resultRetention, Clock clock, DirectorySync directorySync) {
+        Path resolvedDirectory;
+        try {
+            resolvedDirectory = resolveDirectoryPath(directory);
+        } catch (IOException | UnsupportedOperationException e) {
+            throw new IllegalStateException("invocation ledger path cannot be safely resolved", e);
+        }
+        this.directory = resolvedDirectory;
         this.resultEncryptionKey = requireAesKey(resultEncryptionKey);
         this.resultRetention = Objects.requireNonNull(resultRetention, "resultRetention");
         if (resultRetention.isNegative() || resultRetention.isZero()) {
             throw new IllegalArgumentException("result retention must be positive");
         }
         this.clock = Objects.requireNonNull(clock, "clock");
+        this.directorySync = Objects.requireNonNull(directorySync, "directorySync");
         for (int i = 0; i < LOCK_STRIPE_COUNT; i++) stripes[i] = new ReentrantLock();
         this.expectedOwner = currentUser(this.directory);
         try {
-            createPrivateDirectoryIfAbsent(this.directory);
+            createPrivateDirectoryIfAbsent(this.directory, this.directorySync);
             validatePrivateDirectory();
         } catch (IOException | UnsupportedOperationException e) {
             throw new IllegalStateException("invocation ledger directory is not securely usable", e);
@@ -129,15 +150,65 @@ public final class FileInvocationLedger implements InvocationLedger {
         }
     }
 
-    private static void createPrivateDirectoryIfAbsent(Path directory) throws IOException {
-        if (Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) return;
-        Path parent = directory.getParent();
-        if (parent != null) Files.createDirectories(parent);
-        try {
-            Files.createDirectory(directory, PosixFilePermissions.asFileAttribute(DIRECTORY_PERMISSIONS));
-        } catch (java.nio.file.FileAlreadyExistsException raced) {
-            // Validate the winning entry below; never follow or repair it silently.
+    private static void createPrivateDirectoryIfAbsent(Path directory, DirectorySync directorySync)
+            throws IOException {
+        Path root = directory.getRoot();
+        if (root == null) throw new IllegalArgumentException("invocation ledger path must be absolute");
+
+        Path current = root;
+        for (Path component : directory) {
+            current = current.resolve(component);
+            boolean missingBeforeCreate = !Files.exists(current, LinkOption.NOFOLLOW_LINKS);
+            if (missingBeforeCreate) {
+                try {
+                    Files.createDirectory(current, PosixFilePermissions.asFileAttribute(DIRECTORY_PERMISSIONS));
+                } catch (java.nio.file.FileAlreadyExistsException raced) {
+                    // Validate the winning entry below; never repair or replace it silently.
+                }
+            }
+            boolean finalDirectory = current.equals(directory);
+            if (Files.isSymbolicLink(current)
+                    || !(finalDirectory ? Files.isDirectory(current, LinkOption.NOFOLLOW_LINKS)
+                            : Files.isDirectory(current))) {
+                throw new IllegalStateException("invocation ledger path components must be real directories");
+            }
+            Path parent = current.getParent();
+            // Existing ancestors up to the nearest canonical host-provisioned
+            // directory are outside this store's creation transaction. Sync each
+            // newly inserted entry, including a concurrent winner, plus the
+            // final store entry even when the directory already existed.
+            if (parent != null && (missingBeforeCreate || finalDirectory)) directorySync.force(parent);
         }
+    }
+
+    /** Resolve existing ancestors to real paths while refusing a symlink at the store itself. */
+    private static Path resolveDirectoryPath(Path requested) throws IOException {
+        Path absolute = Objects.requireNonNull(requested, "directory").toAbsolutePath().normalize();
+        Path root = absolute.getRoot();
+        if (root == null) throw new IllegalArgumentException("invocation ledger path must be absolute");
+
+        Path resolved = root;
+        int index = 0;
+        int componentCount = absolute.getNameCount();
+        for (Path component : absolute) {
+            index++;
+            Path candidate = resolved.resolve(component);
+            boolean finalDirectory = index == componentCount;
+            if (Files.exists(candidate, LinkOption.NOFOLLOW_LINKS)) {
+                if (finalDirectory && Files.isSymbolicLink(candidate)) {
+                    throw new IllegalStateException(
+                            "invocation ledger path must be a real directory, not a symlink");
+                }
+                Path real = candidate.toRealPath();
+                if (!Files.isDirectory(real, LinkOption.NOFOLLOW_LINKS)) {
+                    throw new IllegalStateException("invocation ledger path components must be directories");
+                }
+                resolved = real;
+            } else {
+                resolved = candidate;
+            }
+        }
+        return resolved.normalize();
     }
 
     private void validatePrivateDirectory() throws IOException {
@@ -192,6 +263,11 @@ public final class FileInvocationLedger implements InvocationLedger {
             validatePrivateRegularFile(file);
             String serialized = Files.readString(file);
             JsonNode record = JSON.readTree(serialized);
+            if (hasCompletionPending(invocationId)) {
+                LogicalAction action = decode(record);
+                return Optional.of(new LogicalAction(action.invocationId(), action.requestIdentity(),
+                        LogicalOutcome.OUTCOME_UNKNOWN, null));
+            }
             if (record.path("resultExpired").asBoolean(false) || resultExpired(record, clock.instant())) {
                 purgeExpiredResult(invocationId, file);
                 return Optional.empty();
@@ -265,7 +341,10 @@ public final class FileInvocationLedger implements InvocationLedger {
                     return false;
                 }
                 try {
+                    ensureCompletionPending(terminalAction.invocationId());
                     atomicWrite(target, encode(terminalAction), true);
+                    Files.delete(completionPendingPath(terminalAction.invocationId()));
+                    directorySync.force(directory);
                     return true;
                 } catch (IOException e) {
                     return false;
@@ -303,6 +382,28 @@ public final class FileInvocationLedger implements InvocationLedger {
         });
     }
 
+    private void ensureCompletionPending(String invocationId) throws IOException {
+        Path pending = completionPendingPath(invocationId);
+        if (Files.exists(pending, LinkOption.NOFOLLOW_LINKS)) {
+            validatePrivateRegularFile(pending);
+            if (!COMPLETION_PENDING_CONTENT.equals(Files.readString(pending))) {
+                throw new IOException("invocation completion marker is corrupt");
+            }
+            return;
+        }
+        atomicWrite(pending, COMPLETION_PENDING_CONTENT, false);
+    }
+
+    private boolean hasCompletionPending(String invocationId) throws IOException {
+        Path pending = completionPendingPath(invocationId);
+        if (!Files.exists(pending, LinkOption.NOFOLLOW_LINKS)) return false;
+        validatePrivateRegularFile(pending);
+        if (!COMPLETION_PENDING_CONTENT.equals(Files.readString(pending))) {
+            throw new IOException("invocation completion marker is corrupt");
+        }
+        return true;
+    }
+
     // ---- filesystem primitives ----
 
     private <T> T withKeyLock(String invocationId, Supplier<T> supplier) {
@@ -324,7 +425,7 @@ public final class FileInvocationLedger implements InvocationLedger {
         FileAlreadyExistsMarker(Throwable cause) { super(cause); }
     }
 
-    private static void atomicWrite(Path target, String content, boolean replace) throws IOException {
+    private void atomicWrite(Path target, String content, boolean replace) throws IOException {
         Path temp = Files.createTempFile(target.getParent(), ".inv-", ".tmp",
                 PosixFilePermissions.asFileAttribute(FILE_PERMISSIONS));
         try {
@@ -355,14 +456,14 @@ public final class FileInvocationLedger implements InvocationLedger {
             Files.deleteIfExists(temp);
             throw e;
         }
-        forceDirectory(target.getParent());
+        directorySync.force(target.getParent());
     }
 
-    private static void forceDirectory(Path dir) {
-        try (FileChannel channel = FileChannel.open(dir, StandardOpenOption.READ)) {
+    private static void forceDirectoryEntry(Path dir) throws IOException {
+        try (FileChannel channel = FileChannel.open(dir, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
             channel.force(true);
-        } catch (IOException | UnsupportedOperationException ignored) {
-            // Directory fsync is best-effort; file content was already forced.
+        } catch (UnsupportedOperationException unsupported) {
+            throw new IOException("filesystem does not support durable directory synchronization", unsupported);
         }
     }
 
@@ -372,6 +473,10 @@ public final class FileInvocationLedger implements InvocationLedger {
 
     private Path lockPath(String invocationId) {
         return directory.resolve(fileKey(invocationId) + ".lock");
+    }
+
+    private Path completionPendingPath(String invocationId) {
+        return directory.resolve(fileKey(invocationId) + ".completion-pending");
     }
 
     /** Filename is the invocation-id digest: path-safe and free of caller identity. */

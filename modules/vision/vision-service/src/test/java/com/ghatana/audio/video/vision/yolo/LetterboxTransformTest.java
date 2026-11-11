@@ -209,7 +209,8 @@ class LetterboxTransformTest {
                     orientedDetection.x() - roi.x(), orientedDetection.y() - roi.y(),
                     orientedDetection.width(), orientedDetection.height());
             LetterboxTransform.Box modelDetection = letterbox.toModelPixels(cropDetection);
-            LetterboxTransform.Box sourceDetection = roi.toSourceRasterPixels(letterbox, modelDetection);
+            LetterboxTransform.Box sourceDetection = roi.toSourceRasterPixels(
+                    exif.orientedWidth(), exif.orientedHeight(), letterbox, modelDetection);
 
             assertThat(sourceDetection.x()).as("orientation %s x", orientation)
                     .isCloseTo(orientedDetection.x(), org.assertj.core.data.Offset.offset(1.0));
@@ -231,13 +232,17 @@ class LetterboxTransformTest {
 
         LetterboxTransform transform = LetterboxTransform.fit(roi.width(), roi.height(), 640);
         LetterboxTransform.Box mapped = roi.toSourceRasterPixels(
-                transform, new LetterboxTransform.Box(-20, 20, 700, 700));
+                500, 400, transform, new LetterboxTransform.Box(-20, 20, 700, 700));
         assertThat(mapped.x()).isEqualTo(roi.x());
         assertThat(mapped.y()).isEqualTo(roi.y());
         assertThat(mapped.x() + mapped.width()).isLessThanOrEqualTo(roi.x() + roi.width());
         assertThat(mapped.y() + mapped.height()).isLessThanOrEqualTo(roi.y() + roi.height());
         assertThatThrownBy(() -> roi.toSourceRasterPixels(
-                LetterboxTransform.fit(roi.width() - 1, roi.height(), 640),
+                400, 289, transform, new LetterboxTransform.Box(10, 10, 20, 20)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("fit within");
+        assertThatThrownBy(() -> roi.toSourceRasterPixels(
+                500, 400, LetterboxTransform.fit(roi.width() - 1, roi.height(), 640),
                 new LetterboxTransform.Box(0, 0, 1, 1)))
                 .isInstanceOf(IllegalArgumentException.class);
     }

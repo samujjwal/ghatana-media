@@ -11,6 +11,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
+import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -163,8 +164,8 @@ class MediaRuntimeStreamTimeoutTest {
                     "frame".getBytes(StandardCharsets.UTF_8),
                     false,
                     Instant.now())))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("Media stream frame processing timed out")
+                    .isInstanceOf(MediaStreamOutcomeUnknownException.class)
+                    .hasMessage("Media stream frame processing outcome is unknown")
                     .hasRootCauseInstanceOf(TimeoutException.class);
 
             assertThat(provider.cancellation()).isNotNull();
@@ -187,6 +188,61 @@ class MediaRuntimeStreamTimeoutTest {
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("Media stream is not connected");
             assertThat(provider.calls()).isEqualTo(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void synchronousFatalProviderFailurePersistsUnknownAndPreservesFatalSignal() throws Exception {
+        var root = Files.createTempDirectory("media-stream-fatal-provider-");
+        var calls = new AtomicInteger();
+        LinkageError fatal = new LinkageError("private native transport detail");
+        MediaStreamingProvider provider = new MediaStreamingProvider() {
+            @Override public String providerId() { return "fatal-stream-provider"; }
+            @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 1; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public CompletableFuture<StreamAck> accept(StreamContext context, StreamFrame frame) {
+                calls.incrementAndGet();
+                throw fatal;
+            }
+        };
+        var streamStore = new LocalMediaRuntimeSupport.StreamStore();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                streamStore,
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+        try {
+            var registration = runtime.openStream(new StreamSessionRequest(
+                    "tenant-a", "principal-a", "correlation-fatal", StreamKind.AUDIO,
+                    provider.providerId(), 128, Duration.ofSeconds(30), java.util.Map.of()));
+            var connected = runtime.connectStream(
+                    "tenant-a", registration.session().sessionId(), registration.connectionToken());
+            StreamFrame frame = new StreamFrame(
+                    "tenant-a", connected.sessionId(), registration.connectionToken(), 0,
+                    new byte[] {1, 2, 3}, false, Instant.now());
+
+            assertThatThrownBy(() -> runtime.acceptFrame(frame)).isSameAs(fatal);
+
+            StreamSession persisted = runtime.stream("tenant-a", connected.sessionId()).orElseThrow();
+            assertThat(persisted.lastSequence()).isEqualTo(connected.lastSequence());
+            assertThat(persisted.finality()).isEqualTo(StreamFinality.UNKNOWN);
+            assertThat(persisted.state()).isEqualTo(StreamState.FAILED);
+            assertThat(persisted.inFlightSequence()).isZero();
+            assertThat(calls).hasValue(1);
+            assertThatThrownBy(() -> runtime.acceptFrame(frame))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Media stream is not connected");
+            assertThat(calls).hasValue(1);
         } finally {
             runtime.close();
         }

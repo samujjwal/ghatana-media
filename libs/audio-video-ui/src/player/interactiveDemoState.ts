@@ -33,6 +33,8 @@ export interface DemoScene {
   readonly asset: {
     readonly url: string;
     readonly version: string;
+    /** Explicit browser element kind; omitted existing manifests remain video. */
+    readonly mediaKind?: "audio" | "video";
     /** Asset must be authored against the bundle's exact source revision. */
     readonly sourceRevision: string;
   };
@@ -246,6 +248,38 @@ function isValidPermissionList(value: unknown): value is readonly DemoOriginPerm
   return true;
 }
 
+type DemoMediaKind = "audio" | "video";
+
+/** Inspect the optional media-kind discriminator without invoking host accessors. */
+function readDemoMediaKind(asset: object): DemoMediaKind | undefined | null {
+  try {
+    const ownDescriptor = Object.getOwnPropertyDescriptor(asset, "mediaKind");
+    if (ownDescriptor) {
+      if (!Object.prototype.hasOwnProperty.call(ownDescriptor, "value")) return null;
+      const value: unknown = ownDescriptor.value;
+      if (value === undefined || value === "audio" || value === "video") return value;
+      return null;
+    }
+
+    // JSON objects have no mediaKind prototype field. Reject inherited fields
+    // so rendering cannot observe a value or getter different from the one
+    // validated on the asset itself.
+    let prototype = Object.getPrototypeOf(asset) as object | null;
+    while (prototype) {
+      if (Object.getOwnPropertyDescriptor(prototype, "mediaKind")) return null;
+      prototype = Object.getPrototypeOf(prototype) as object | null;
+    }
+    return undefined;
+  } catch {
+    return null;
+  }
+}
+
+/** Return the validated media element kind; legacy assets use video. */
+export function demoSceneMediaKind(scene: DemoScene): DemoMediaKind {
+  return readDemoMediaKind(scene.asset) === "audio" ? "audio" : "video";
+}
+
 function isExactEvidenceRef(value: unknown): value is string {
   return typeof value === "string" && value.length > 0 && value === value.trim();
 }
@@ -341,6 +375,7 @@ function validateManifest(
       !scene.id || !scene.label || !Number.isSafeInteger(scene.startMs) || !Number.isSafeInteger(scene.endMs) ||
       scene.startMs < 0 || scene.endMs <= scene.startMs || scene.asset.version.length === 0
     ) return "INVALID_BUNDLE";
+    if (readDemoMediaKind(scene.asset) === null) return "INVALID_BUNDLE";
 
     if (scene.asset.sourceRevision !== manifest.sourceRevision) return "STALE_ASSET_REVISION";
     if (scene.captions.assetVersion !== scene.asset.version) return "STALE_CAPTION_ASSET_VERSION";

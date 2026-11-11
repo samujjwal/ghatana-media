@@ -47,13 +47,12 @@ public final class WhisperCppAdapter implements SttEngine {
     private static final int N_SAMPLES = 30 * SAMPLE_RATE; // 30 seconds max
 
     private final SttConfig config;
-    private final long modelPtr; // Native model pointer
+    private final WhisperNativeModel model;
     private final Semaphore concurrencyLimiter;
     private final ExecutorService executor;
     private final AtomicLong requestCount = new AtomicLong(0);
     private final AtomicLong errorCount = new AtomicLong(0);
     private final AtomicReference<EngineStatus.State> state;
-    private final NativeModelLifecycle modelLifecycle = new NativeModelLifecycle();
 
     /**
      * Load the native whisper library.
@@ -111,11 +110,12 @@ public final class WhisperCppAdapter implements SttEngine {
 
             // Load the GGML model file
             String modelPath = config.modelPath().toString();
-            this.modelPtr = whisper_init_from_file(modelPath);
+            long modelPtr = whisper_init_from_file(modelPath);
 
-            if (this.modelPtr == 0) {
+            if (modelPtr == 0) {
                 throw new ModelLoadingError("Failed to initialize Whisper model: " + modelPath);
             }
+            this.model = new WhisperNativeModel(modelPtr, WhisperCppAdapter::whisper_free);
 
             LOG.info("Whisper model loaded successfully");
             state.set(EngineStatus.State.READY);
@@ -128,7 +128,7 @@ public final class WhisperCppAdapter implements SttEngine {
 
     @Override
     public TranscriptionResult transcribe(AudioData audio, TranscriptionOptions options) {
-        try (NativeModelLifecycle.Lease ignored = modelLifecycle.acquire()) {
+        try (WhisperNativeModel.Use modelUse = model.acquire()) {
             ensureReady();
             validateAudio(audio);
 
@@ -152,12 +152,12 @@ public final class WhisperCppAdapter implements SttEngine {
                     }
 
                     // Run native inference
-                    String text = whisper_full(modelPtr, samples, options.language().toLanguageTag());
+                    String text = whisper_full(modelUse.pointer(), samples, options.language().toLanguageTag());
 
                     long latency = System.currentTimeMillis() - startTime;
 
                     List<WordTiming> words = options.enableTimestamps()
-                        ? extractWordTimings(modelPtr)
+                        ? extractWordTimings(modelUse.pointer())
                         : List.of();
 
                     return TranscriptionResult.withoutConfidence(
@@ -247,12 +247,12 @@ public final class WhisperCppAdapter implements SttEngine {
 
     @Override
     public void warmup() {
-        try (NativeModelLifecycle.Lease ignored = modelLifecycle.acquire()) {
+        try (WhisperNativeModel.Use modelUse = model.acquire()) {
             ensureReady();
             LOG.info("Warming up Whisper engine...");
             try {
                 float[] dummy = new float[SAMPLE_RATE]; // 1 second
-                whisper_full(modelPtr, dummy, "en");
+                whisper_full(modelUse.pointer(), dummy, "en");
                 LOG.info("Warmup complete");
             } catch (Exception e) {
                 LOG.warning("Warmup failed: " + e.getMessage());
@@ -264,10 +264,7 @@ public final class WhisperCppAdapter implements SttEngine {
     public void close() {
         LOG.info("Closing Whisper.cpp adapter...");
         try {
-            modelLifecycle.close(() -> {
-                state.set(EngineStatus.State.CLOSED);
-                if (modelPtr != 0) whisper_free(modelPtr);
-            });
+            model.close(() -> state.set(EngineStatus.State.CLOSED));
         } finally {
             executor.shutdown();
         }

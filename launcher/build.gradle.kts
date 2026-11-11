@@ -60,6 +60,7 @@ dependencies {
     val sharedVersion = providers.gradleProperty("ghatana.shared.version").get()
 
     implementation(project(":services:media:runtime-contracts"))
+    implementation(project(":services:media:modules:production:timeline"))
     implementation(project(":services:media:audio-video-observability"))
     runtimeOnly(project(":services:media:providers:aws-postgresql"))
 

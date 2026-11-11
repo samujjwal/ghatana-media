@@ -13,6 +13,34 @@ guided planner also rejects conflicting digests for one immutable source
 version across roles before rights checks. Model generation and J-10 result
 binding remain unresolved.
 
+The definition-only contract preview remains available. A separate
+`dev-project-timeline` renderer is now consumed by the local Explorer host:
+it edits the DEV_ONLY project's single owner revision through the existing
+exact-head API and confirms each successor by reopening the current head.
+Exact immutable revision reads, read-only comparison of two exact project
+snapshots, and restore-as-successor are available there. Comparison reports
+timeline membership and scene/track/clip reference changes with exact rational
+clip-time equality; it does not evaluate source eligibility, clock mapping,
+overlap behavior, or rendered output.
+The workspace explicitly reports rendering as unavailable; it submits no
+render request and fabricates no output. This local consumer does not create a
+second graph writer or establish a hosted Studio route, Shared identity,
+production rights, render engine, review approval, or delivery operation.
+
+The original Studio contract UI is a definition-only contract preview. Its
+`media.view.arrange-scenes` save action is controlled by the host-projected
+action state and guarded dispatcher; the focused regression verifies disabled
+actions do not dispatch and an ambiguous `intent-accepted` result stays locked
+pending reconciliation. This is action-boundary coverage only: no canonical
+project write, Studio route, durable revision, render, review approval, or
+delivery operation is admitted.
+
+A separate [local synthetic multitrack preview](../../../examples/recorder-mux-preview/multitrack/README.md)
+demonstrates decoded video/graphic/audio/caption composition with the pinned
+development FFmpeg pair. It runs outside the Studio UI and project graph; it
+does not change the definition-only UI status or establish project lineage,
+rights, production codec admission, or delivery.
+
 ## Supported operations (plan target)
 
 Project/timeline/asset/track/audio/video/annotation interfaces over one
@@ -44,4 +72,6 @@ outcomes remain `UNKNOWN`.
 ## Tests
 
 UI contract/renderer tests in `libs/audio-video-ui`; end-to-end studio
-journeys tracked under the plan's creative-production workstream.
+journeys tracked under the plan's creative-production workstream. Run the
+storyboard action-boundary regression with
+`pnpm --filter @audio-video/ui exec vitest run src/screens/MediaContractScreen.test.ts --maxWorkers=1 --no-file-parallelism`.

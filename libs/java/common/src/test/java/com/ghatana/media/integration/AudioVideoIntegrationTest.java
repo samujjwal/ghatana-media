@@ -3,6 +3,7 @@ package com.ghatana.media.integration;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.EngineStatus;
+import com.ghatana.media.common.InferenceError;
 import com.ghatana.media.common.pool.EnginePool;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.resilience.CircuitBreakerSttEngine;
@@ -27,13 +28,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Deterministic integration tests for Media resilience and lifecycle boundaries.
  *
  * <p>Provider accuracy and native-model loading are validated in provider-backed suites. These
  * tests prove behavior that is deterministic without external models: retry accounting,
- * circuit-breaker degradation, bounded engine-pool concurrency, and explicit degraded TTS
+ * fail-closed circuit-breaker outcomes, bounded engine-pool concurrency, and explicit degraded TTS
  * lifecycle. No test accepts both success and failure as equivalent outcomes.
  *
  * @doc.type class
@@ -63,7 +65,7 @@ class AudioVideoIntegrationTest {
     }
 
     @Test
-    void circuitBreakerReturnsExplicitDegradedResultAfterFailureThreshold() throws Exception {
+    void circuitBreakerReportsRetryableUnavailableAfterFailureThreshold() throws Exception {
         var failingEngine = AudioVideoTestUtils.createFailingSttEngine(1.0, RuntimeException.class);
         var circuitBreakerEngine = new CircuitBreakerSttEngine(failingEngine, eventloop);
         AudioData audio = new AudioData(new byte[16_000], 16_000, 1, 16);
@@ -75,12 +77,11 @@ class AudioVideoIntegrationTest {
                 // Required provider failures drive the circuit to open.
             }
         }
-        Thread.sleep(100);
-
-        var degraded = circuitBreakerEngine.transcribe(audio, TranscriptionOptions.defaults());
-        assertThat(degraded).isNotNull();
-        assertThat(degraded.text()).isEmpty();
-        assertThat(degraded.confidence()).isZero();
+        assertThatThrownBy(() -> circuitBreakerEngine.transcribe(audio, TranscriptionOptions.defaults()))
+                .isInstanceOfSatisfying(InferenceError.class, error -> {
+                    assertThat(error.isRetryable()).isTrue();
+                    assertThat(error).hasMessageContaining("circuit breaker is open");
+                });
         circuitBreakerEngine.close();
     }
 

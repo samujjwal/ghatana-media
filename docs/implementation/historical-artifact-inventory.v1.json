@@ -1,14 +1,14 @@
 {
   "schemaVersion": "media.historical-artifact-inventory/v1",
   "summary": {
-    "generated": "2026-11-05T20:06:15.451Z",
+    "generated": "2026-11-11T07:14:14.827Z",
     "historicalPrefixes": [
       "docs/implementation/",
       "archive/",
       "docs/migration/"
     ],
     "totalTrackedHistoricalFiles": 1375,
-    "totalTrackedHistoricalBytes": 999081965,
+    "totalTrackedHistoricalBytes": 999144534,
     "byDisposition": {
       "KEEP": 1333,
       "EXTERNAL_ARCHIVE": 42
@@ -37,7 +37,7 @@
       "bytes": 1408,
       "sha256": "725c77c742bd5f4905046d8780ce2eaebf04202b739a1699327c7f2100b13efc",
       "kind": "source",
-      "inboundReferences": 491,
+      "inboundReferences": 496,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -97,7 +97,7 @@
       "bytes": 1522,
       "sha256": "040c1a3209de52c3b28042b617b4833ee0829cddd01d5434d8fd91788cf965c8",
       "kind": "record",
-      "inboundReferences": 16,
+      "inboundReferences": 19,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -1227,7 +1227,7 @@
       "bytes": 361,
       "sha256": "9c3f2dfba1b54d08513e723feb261c2468e879291c70a1f21b5b27edb2e1bceb",
       "kind": "record",
-      "inboundReferences": 8,
+      "inboundReferences": 9,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -1237,7 +1237,7 @@
       "bytes": 554,
       "sha256": "87fa0e5bfc71804180b6aa32edeb34eba7c2009d1a5e544c72ce5ed443cf35e2",
       "kind": "record",
-      "inboundReferences": 6,
+      "inboundReferences": 7,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -1277,7 +1277,7 @@
       "bytes": 1433,
       "sha256": "153481272ecf518eb95db8e99162bdf3a1733fab3735a27a3c60a59167eb5060",
       "kind": "source",
-      "inboundReferences": 491,
+      "inboundReferences": 496,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -1327,7 +1327,7 @@
       "bytes": 731,
       "sha256": "34719e37b96cd12b4e35c108538d4b612bfc8daccb9c2da21a1a3a12a51096e7",
       "kind": "record",
-      "inboundReferences": 16,
+      "inboundReferences": 19,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -1437,7 +1437,7 @@
       "bytes": 1276,
       "sha256": "638a396f2180de179480878d034145b16d21542bde9a2e6c908729800b6396a4",
       "kind": "record",
-      "inboundReferences": 6,
+      "inboundReferences": 7,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -2260,7 +2260,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large evidence/preimage (13.2 MiB) with no inbound references — external storage candidate"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/evidence/media-pdp3-demo/j03-explorer-simulated-2026-10-21/narration-captions.vtt",
@@ -2477,10 +2477,10 @@
       "bytes": 505853,
       "sha256": "30d8bf2b2f518cfa244c94ce871b62a5dfead145fd0a8d3528e3c3d0a8fd84eb",
       "kind": "source",
-      "inboundReferences": 13,
+      "inboundReferences": 12,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "13 inbound reference(s)"
+      "reason": "12 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json",
@@ -2587,20 +2587,20 @@
       "bytes": 1303255,
       "sha256": "6504f053c20d1398ccf853e93a4e9a2b10d1e0904c554e2ee746e5c0414d2450",
       "kind": "derived",
-      "inboundReferences": 4,
+      "inboundReferences": 3,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "4 inbound reference(s)"
+      "reason": "3 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
       "bytes": 248789,
       "sha256": "ba62647856df0466f021b66e7441c75d4656d4be61c82b5954fed67eae94776a",
       "kind": "source",
-      "inboundReferences": 10,
+      "inboundReferences": 9,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "10 inbound reference(s)"
+      "reason": "9 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
@@ -2807,10 +2807,10 @@
       "bytes": 44729,
       "sha256": "7e295302b4ef5357653e9254502c77e3222433f9b6ad439e40ff0a4d1087266c",
       "kind": "source",
-      "inboundReferences": 5,
+      "inboundReferences": 4,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "5 inbound reference(s)"
+      "reason": "4 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
@@ -2824,13 +2824,13 @@
     },
     {
       "path": "docs/implementation/media-integration-test-census.v1.json",
-      "bytes": 20040,
-      "sha256": "bc21dc9e48068237dcdc7b5bd76c687f2d5d64e650c6b8886e001e864d46a572",
+      "bytes": 81445,
+      "sha256": "3a4c35606278285115c1a36e0de6c6302aec1516ea26dcdcd18a662fce7a331d",
       "kind": "source",
-      "inboundReferences": 5,
+      "inboundReferences": 6,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "5 inbound reference(s)"
+      "reason": "6 inbound reference(s)"
     },
     {
       "path": "docs/implementation/media-libs-common-census.v1.json",
@@ -2927,20 +2927,20 @@
       "bytes": 44340,
       "sha256": "63851a5bb4dec5a6a3c6e8d008b34c92526a261a29171e92cc6278b246a3a127",
       "kind": "source",
-      "inboundReferences": 1,
+      "inboundReferences": 0,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "1 inbound reference(s)"
+      "reason": "tracked source/record byte; removal requires owner review"
     },
     {
       "path": "docs/implementation/MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md",
       "bytes": 40994,
       "sha256": "6f226c37f3c93b834b60254d8528e72c91ba1419a7999f08168c2ccc8c92cca7",
       "kind": "source",
-      "inboundReferences": 1,
+      "inboundReferences": 0,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "1 inbound reference(s)"
+      "reason": "tracked source/record byte; removal requires owner review"
     },
     {
       "path": "docs/implementation/MEDIA-PDP3-DEVCOMPLETE-TO-BUILD-EXECUTION-2026-10-16.md",
@@ -3197,10 +3197,10 @@
       "bytes": 19730,
       "sha256": "0f4c680d5c5eca8a20f84ff9dc88d50e5bd6b04f7a6f83b7e093bbd0b1a1a0bd",
       "kind": "source",
-      "inboundReferences": 4,
+      "inboundReferences": 3,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "4 inbound reference(s)"
+      "reason": "3 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-WAVE2-PRIVATE-CONSENT-RECORDING-TEMPLATE.md",
@@ -3224,8 +3224,8 @@
     },
     {
       "path": "docs/implementation/MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md",
-      "bytes": 30553,
-      "sha256": "d0f6ed6c5b7be65e4950a4ce8232fee959342459c977ee7008e13a46ddd4641b",
+      "bytes": 30683,
+      "sha256": "898a5065a17b127a4ddc5971e92f3d257bf37ce2063069b659d4b5a5bed29a96",
       "kind": "source",
       "inboundReferences": 2,
       "retentionOwner": "implementation-planning",
@@ -3237,10 +3237,10 @@
       "bytes": 256212,
       "sha256": "e8bd0b862081974f2c7de09011d82175bf460bc2be9c8cbcd80b55d21b720778",
       "kind": "source",
-      "inboundReferences": 2,
+      "inboundReferences": 1,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "2 inbound reference(s)"
+      "reason": "1 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json",
@@ -3264,8 +3264,8 @@
     },
     {
       "path": "docs/implementation/media-wire-projection-snapshot.v1.json",
-      "bytes": 23825,
-      "sha256": "74adb3a1615fb7dc8b55f9091790b6eaf3dc259d8e427650835d9a18f0f4f691",
+      "bytes": 24859,
+      "sha256": "559eaa150f27488d1e8d9d5f27b0d298c54aa89cc8b1dec11f7dc1da5d6107e9",
       "kind": "source",
       "inboundReferences": 2,
       "retentionOwner": "implementation-planning",
@@ -3300,7 +3300,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v1.json",
@@ -3310,7 +3310,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v10.json",
@@ -3320,7 +3320,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v11.candidate.json",
@@ -3330,7 +3330,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v2.json",
@@ -3340,7 +3340,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v3.json",
@@ -3350,7 +3350,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v4.json",
@@ -3360,7 +3360,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v5.json",
@@ -3370,7 +3370,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v6.json",
@@ -3380,7 +3380,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v7.json",
@@ -3390,7 +3390,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v8.json",
@@ -3400,7 +3400,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-build-task-execution-2026-10-23/scoped-task-plan-readback.v9.json",
@@ -3410,12 +3410,12 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-candidate-decision-crosswalk-2026-10-28.json",
       "bytes": 113998,
-      "sha256": "218bf8608156da83c1142a05e679d4f896cfe72585454013bd03394ae729f20f",
+      "sha256": "24995082954d113c3195e3ec15bd72a1cba4dfc63b9787bb2ab368c51fe23bba",
       "kind": "derived",
       "inboundReferences": 4,
       "retentionOwner": "owner-review-provenance",
@@ -5990,7 +5990,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r6.yaml",
@@ -6000,7 +6000,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.r7.yaml",
@@ -6010,7 +6010,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capabilities.postimage.v2.yaml",
@@ -6020,7 +6020,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-capability-leaf-review.postimage.r7.yaml",
@@ -6030,7 +6030,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-pdp0-501-disposition-crosswalk.postimage.r7.json",
@@ -6390,7 +6390,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.v7-casebatch-capability-leaf-review.postimage.yaml",
@@ -6400,7 +6400,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.v7-casebatch-crosswalk.postimage.json",
@@ -6450,7 +6450,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-capability-leaf-review.postimage.yaml",
@@ -6460,7 +6460,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r8-root-directed-crosswalk.postimage.json",
@@ -6810,7 +6810,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-capabilities.preimage.r2.yaml",
@@ -6820,7 +6820,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-record-postimages.r2.json",
@@ -6910,7 +6910,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-capability-leaf-review.postimage.yaml",
@@ -6920,7 +6920,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
@@ -7080,7 +7080,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.capability-leaf-review.postimage.yaml",
@@ -7090,7 +7090,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.core.allowed-operations.candidate.v1.json",
@@ -7190,7 +7190,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.capability-leaf-review.postimage.yaml",
@@ -7200,7 +7200,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.shared.crosswalk.postimage.json",
@@ -7230,7 +7230,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.capability-leaf-review.postimage.yaml",
@@ -7240,7 +7240,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.split.crosswalk.postimage.json",
@@ -7310,7 +7310,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.capability-leaf-review.postimage.yaml",
@@ -7320,7 +7320,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.core.pdp0-501-disposition-crosswalk.postimage.json",
@@ -7460,7 +7460,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.capability-leaf-review.postimage.yaml",
@@ -7470,7 +7470,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.shared.pdp0-501-disposition-crosswalk.postimage.json",
@@ -7600,7 +7600,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.capability-leaf-review.postimage.yaml",
@@ -7610,7 +7610,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.split.pdp0-501-disposition-crosswalk.postimage.json",
@@ -9390,7 +9390,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.split.capability-leaf-review.postimage.yaml",
@@ -9400,7 +9400,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.split.pdp0-501-disposition-crosswalk.postimage.json",
@@ -10900,7 +10900,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/1-requirements.yaml",
@@ -10930,7 +10930,7 @@
       "inboundReferences": 0,
       "retentionOwner": "owner-review-provenance",
       "disposition": "EXTERNAL_ARCHIVE",
-      "reason": "large derived projection with no inbound references — regenerable or externally archivable"
+      "reason": "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion"
     },
     {
       "path": "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-preimages/c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc/4-campaign-extensions.yaml",
@@ -13227,10 +13227,10 @@
       "bytes": 54469,
       "sha256": "5fb64a8d18fcee202c5d02375d8876f5385cd7a9fa6aa603d90160d630e83ae0",
       "kind": "record",
-      "inboundReferences": 4,
+      "inboundReferences": 5,
       "retentionOwner": "owner-review-provenance",
       "disposition": "KEEP",
-      "reason": "4 inbound reference(s)"
+      "reason": "5 inbound reference(s)"
     },
     {
       "path": "docs/implementation/verification/pdp-38/responsive-reference-captures/review-transcript-medium-768.png",

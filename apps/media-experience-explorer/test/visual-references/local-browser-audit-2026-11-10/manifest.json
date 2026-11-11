@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "media-experience-local-visual-references.v1",
+  "classification": "LOCAL_VISUAL_REGRESSION_REFERENCE_AFTER_LAYOUT_FIX_NOT_CANONICAL_DESIGN_APPROVAL",
+  "capturedAt": "2026-11-10",
+  "source": {
+    "directory": "/tmp/media-experience-browser-audit",
+    "baseUrl": "http://127.0.0.1:4179/",
+    "playwright": "1.63.0",
+    "chromium": "153.0.8010.12",
+    "host": "macOS ARM64",
+    "repeatability": "The user-supplied source audit and a fresh current-source rerun had identical report and screenshot hashes before the layout correction. The original eight screenshots are retained in original-user-captures/. The corrected Specification screenshots changed only after the responsive overlap fix; all other screenshot pixels remained byte-identical. A later current-source audit after two specification artifact entries were added also produced exact local references; only the two Specification screens changed to display the 215-record source inventory, while all other screens stayed identical.",
+    "inputCaptureReportSha256": "c56d5fed19c3337cc7a924a38f9b1e9584e907d07d6b82064cacec02950c247f",
+    "correctedAuditReportSha256": "e67c9bbf8705967887b4c460dfb9416dc34ce11ff11fbe300e298f6c8b7e76fc"
+  },
+  "manualGates": {
+    "screenReader": "MANUAL_NOT_VERIFIED",
+    "independentVisualReview": "MANUAL_NOT_VERIFIED",
+    "canonicalVisualReferences": "NOT_SUPPLIED"
+  },
+  "screenshots": [
+    {
+      "name": "explore-desktop",
+      "file": "explore-desktop.png",
+      "route": "#explore",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "sha256": "be47acbe1c186631bdb622cda4c7783e060c4ac8a0714a1a14101d8bfe081395",
+      "inputCaptureFile": "original-user-captures/explore-desktop.png",
+      "inputCaptureSha256": "be47acbe1c186631bdb622cda4c7783e060c4ac8a0714a1a14101d8bfe081395",
+      "referenceFile": "screenshots/explore-desktop.png"
+    },
+    {
+      "name": "specification-desktop",
+      "file": "specification-desktop.png",
+      "route": "#specification",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "sha256": "5af349935b5e01bdaa0e1a3fb90f44699fe0dc534058257a738dedb5a0d797ad",
+      "inputCaptureFile": "original-user-captures/specification-desktop.png",
+      "inputCaptureSha256": "854bf3a3155e17bc7aedc311bf3a39fd51e9fc2a7a8f83f4a79104e9628e57f1",
+      "referenceFile": "screenshots/specification-desktop.png"
+    },
+    {
+      "name": "verify-desktop",
+      "file": "verify-desktop.png",
+      "route": "#verify",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "sha256": "3ab705efc4a8045a99db2c878560425e659008e30a8d3c644099fc0d0bf2772d",
+      "inputCaptureFile": "original-user-captures/verify-desktop.png",
+      "inputCaptureSha256": "3ab705efc4a8045a99db2c878560425e659008e30a8d3c644099fc0d0bf2772d",
+      "referenceFile": "screenshots/verify-desktop.png"
+    },
+    {
+      "name": "candidate-edit-captions-desktop",
+      "file": "candidate-edit-captions-desktop.png",
+      "route": "#product, captions view",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "sha256": "40919d097b5aed8ff64470b48c2b53e7f7a52a123fa18bc8db8a4a1de76b904c",
+      "inputCaptureFile": "original-user-captures/candidate-edit-captions-desktop.png",
+      "inputCaptureSha256": "40919d097b5aed8ff64470b48c2b53e7f7a52a123fa18bc8db8a4a1de76b904c",
+      "referenceFile": "screenshots/candidate-edit-captions-desktop.png"
+    },
+    {
+      "name": "explore-narrow-mobile",
+      "file": "explore-narrow-mobile.png",
+      "route": "#explore",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "sha256": "e396b40286723404b64b8f2837e57c1a0f7402c83c5fddcc075157fa31560e0d",
+      "inputCaptureFile": "original-user-captures/explore-narrow-mobile.png",
+      "inputCaptureSha256": "e396b40286723404b64b8f2837e57c1a0f7402c83c5fddcc075157fa31560e0d",
+      "referenceFile": "screenshots/explore-narrow-mobile.png"
+    },
+    {
+      "name": "specification-narrow-mobile",
+      "file": "specification-narrow-mobile.png",
+      "route": "#specification",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "sha256": "aa301df9a83b112da90850e52551c59ec235c1cdf37bc4e0888a2f4bc8cd735b",
+      "inputCaptureFile": "original-user-captures/specification-narrow-mobile.png",
+      "inputCaptureSha256": "11071291c2287a66286b5dc3685c4af4d65b8eb6f60d1525bf924fe4bb3215ef",
+      "referenceFile": "screenshots/specification-narrow-mobile.png"
+    },
+    {
+      "name": "verify-narrow-mobile",
+      "file": "verify-narrow-mobile.png",
+      "route": "#verify",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "sha256": "a8f01ed762fd80fa224723d28d92eb8cc60eab270ffd6576f29d0a63a645c134",
+      "inputCaptureFile": "original-user-captures/verify-narrow-mobile.png",
+      "inputCaptureSha256": "a8f01ed762fd80fa224723d28d92eb8cc60eab270ffd6576f29d0a63a645c134",
+      "referenceFile": "screenshots/verify-narrow-mobile.png"
+    },
+    {
+      "name": "candidate-edit-captions-narrow-mobile",
+      "file": "candidate-edit-captions-narrow-mobile.png",
+      "route": "#product, captions view",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "sha256": "b645b1d4158c83a7bd8e177f3553d652b9bb228f32394bfa6e1bd6cdd61bcde1",
+      "inputCaptureFile": "original-user-captures/candidate-edit-captions-narrow-mobile.png",
+      "inputCaptureSha256": "b645b1d4158c83a7bd8e177f3553d652b9bb228f32394bfa6e1bd6cdd61bcde1",
+      "referenceFile": "screenshots/candidate-edit-captions-narrow-mobile.png"
+    }
+  ],
+  "correctedBaseline": {
+    "capturedAt": "2026-11-10",
+    "source": "fresh Playwright audit after fixing the Explorer phase badge overflow",
+    "changedScreenshots": [
+      "specification-desktop.png",
+      "specification-narrow-mobile.png"
+    ],
+    "reason": "The EXPLORER badge text overflowed its fixed 25px grid cell and overlapped the Experience Explorer label. The badge now uses its intrinsic width; on narrow screens its phase tab spans the full selector row.",
+    "auditReportSha256": "e67c9bbf8705967887b4c460dfb9416dc34ce11ff11fbe300e298f6c8b7e76fc"
+  },
+  "baselineUpdates": [
+    {
+      "capturedAt": "2026-11-10",
+      "source": "fresh Playwright 1.63.0 / Chromium 153.0.8010.12 audit on macOS ARM64 against the current source checkout",
+      "changedScreenshots": [
+        "specification-desktop.png",
+        "specification-narrow-mobile.png"
+      ],
+      "reason": "The current source artifact inventory adds the Local Development Command Registry and VisionService.ResolveSourceFrame entries. Specification counts therefore move from 213 to 215; the only pixel differences were the two corresponding count labels. Original user captures remain preserved under original-user-captures/.",
+      "auditReportSha256": "5cb711145d681b7a515d1a255b6e5cfeb0a5c8fc8b6126aa83bfae9113f5d650",
+      "referenceSha256": {
+        "specification-desktop.png": "5af349935b5e01bdaa0e1a3fb90f44699fe0dc534058257a738dedb5a0d797ad",
+        "specification-narrow-mobile.png": "aa301df9a83b112da90850e52551c59ec235c1cdf37bc4e0888a2f4bc8cd735b"
+      }
+    }
+  ]
+}

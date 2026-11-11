@@ -6,6 +6,7 @@ import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ParsedDoc
 import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ProviderCatalog;
 import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.ProviderEntry;
 import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Provenance;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -72,6 +73,7 @@ public final class SceneTextRecognitionService {
         this.operationIdentityReservation = Objects.requireNonNull(operationIdentityReservation, "operationIdentityReservation");
     }
 
+
     /** Trusted source-rights seam; caller-supplied consent strings are not an input. */
     @FunctionalInterface
     public interface SourceAuthority {
@@ -115,9 +117,32 @@ public final class SceneTextRecognitionService {
     /** Exact admitted frame identity handed to the trusted resolver. */
     public record CropRequest(String tenantId, String principalId, String purposeRef,
                               String sourceArtifactId, String sourceVersion, String frameId, long ptsUs,
-                              int frameWidth, int frameHeight, Roi roi, String mediaType) { }
+                              int frameWidth, int frameHeight, Roi roi, String mediaType,
+                              AuthenticatedPrincipal authenticatedPrincipal) {
+        public CropRequest(String tenantId, String principalId, String purposeRef,
+                           String sourceArtifactId, String sourceVersion, String frameId, long ptsUs,
+                           int frameWidth, int frameHeight, Roi roi, String mediaType) {
+            this(tenantId, principalId, purposeRef, sourceArtifactId, sourceVersion, frameId, ptsUs,
+                    frameWidth, frameHeight, roi, mediaType, null);
+        }
+    }
 
     public sealed interface CropOutcome permits ResolvedCrop, CropRefused { }
+
+    public sealed interface SourceFrameResolutionOutcome permits SourceFrameResolved, SourceFrameRefused { }
+
+    public record SourceFrameResolved(SourceFrameResolution metadata) implements SourceFrameResolutionOutcome { }
+
+    public record SourceFrameRefused(SourceStatus status) implements SourceFrameResolutionOutcome { }
+
+    /** Public source-free readback. It contains digests and coordinates, never derived pixels. */
+    public record SourceFrameResolution(String tenantId, String principalId, String sourceArtifactId,
+                                        String sourceVersion, String sourceSha256, String frameId,
+                                        String artifactLocalEpoch, String sourceStreamSelector,
+                                        int frameNumber, boolean sourceTimestampKnown, long sourcePts,
+                                        long timeBaseNumerator, long timeBaseDenominator, long ptsUs,
+                                        int frameWidth, int frameHeight, Roi roi, String frameSha256,
+                                        String cropSha256) { }
 
     /**
      * Pixels the resolver derived from the true original frame. {@code originalFrameSha256},
@@ -125,9 +150,15 @@ public final class SceneTextRecognitionService {
      * decoded; the service rejects any claim that differs from the admitted request.
      */
     public record ResolvedCrop(byte[] pixels, String mediaType, String originalFrameSha256,
-                               long ptsUs, int frameWidth, int frameHeight) implements CropOutcome {
+                               long ptsUs, int frameWidth, int frameHeight,
+                               VideoFrameBinding videoFrameBinding) implements CropOutcome {
         public ResolvedCrop {
             pixels = pixels == null ? null : pixels.clone();
+        }
+
+        public ResolvedCrop(byte[] pixels, String mediaType, String originalFrameSha256,
+                            long ptsUs, int frameWidth, int frameHeight) {
+            this(pixels, mediaType, originalFrameSha256, ptsUs, frameWidth, frameHeight, null);
         }
 
         @Override
@@ -136,16 +167,33 @@ public final class SceneTextRecognitionService {
         }
     }
 
+    /** Exact decoder output metadata; artifactLocalEpoch is not an external source-clock epoch. */
+    public record VideoFrameBinding(String tenantId, String principalId, String artifactId,
+                                    String artifactVersion, String sourceSha256,
+                                    String artifactLocalEpoch, String sourceStreamSelector,
+                                    int frameNumber, long sourcePts,
+                                    long timeBaseNumerator, long timeBaseDenominator,
+                                    int frameWidth, int frameHeight, Roi roi,
+                                    String frameSha256, String cropSha256) { }
+
     public record CropRefused(SourceStatus status) implements CropOutcome { }
 
     public record SourceCheck(String tenantId, String principalId, String purposeRef, String sourceArtifactId,
                               String sourceVersion, String frameId, String originalFrameSha256,
-                              String dispatchProviderRef, String dispatchProviderVersion) {
+                              String dispatchProviderRef, String dispatchProviderVersion,
+                              AuthenticatedPrincipal authenticatedPrincipal) {
         /** Legacy callers carry no DI destination authority and therefore fail closed in runtime bindings. */
         public SourceCheck(String tenantId, String principalId, String purposeRef, String sourceArtifactId,
                            String sourceVersion, String frameId, String originalFrameSha256) {
             this(tenantId, principalId, purposeRef, sourceArtifactId, sourceVersion, frameId,
-                    originalFrameSha256, null, null);
+                    originalFrameSha256, null, null, null);
+        }
+
+        public SourceCheck(String tenantId, String principalId, String purposeRef, String sourceArtifactId,
+                           String sourceVersion, String frameId, String originalFrameSha256,
+                           String dispatchProviderRef, String dispatchProviderVersion) {
+            this(tenantId, principalId, purposeRef, sourceArtifactId, sourceVersion, frameId,
+                    originalFrameSha256, dispatchProviderRef, dispatchProviderVersion, null);
         }
     }
 
@@ -186,10 +234,21 @@ public final class SceneTextRecognitionService {
     public record FrameRequest(String operationId, String tenantId, String principalId, String purposeRef,
                                String sourceArtifactId, String sourceVersion, String frameId, long ptsUs,
                                int frameWidth, int frameHeight, Roi roi, String mediaType, byte[] croppedBytes,
-                               String originalFrameSha256, String croppedFrameSha256, Optional<String> languageHint) {
+                               String originalFrameSha256, String croppedFrameSha256, Optional<String> languageHint,
+                               AuthenticatedPrincipal authenticatedPrincipal) {
         public FrameRequest {
             croppedBytes = croppedBytes == null ? null : croppedBytes.clone();
             languageHint = languageHint == null ? Optional.empty() : languageHint;
+        }
+
+        public FrameRequest(String operationId, String tenantId, String principalId, String purposeRef,
+                            String sourceArtifactId, String sourceVersion, String frameId, long ptsUs,
+                            int frameWidth, int frameHeight, Roi roi, String mediaType, byte[] croppedBytes,
+                            String originalFrameSha256, String croppedFrameSha256,
+                            Optional<String> languageHint) {
+            this(operationId, tenantId, principalId, purposeRef, sourceArtifactId, sourceVersion, frameId,
+                    ptsUs, frameWidth, frameHeight, roi, mediaType, croppedBytes, originalFrameSha256,
+                    croppedFrameSha256, languageHint, null);
         }
 
         @Override
@@ -217,7 +276,8 @@ public final class SceneTextRecognitionService {
     /** Recognized text bound to the exact source/frame/PTS and rights decision; DI did not observe these Media fields. */
     public record Recognized(String operationId, String tenantId, String sourceArtifactId, String sourceVersion,
                              String frameId, long ptsUs, String rightsDecisionRef, Provenance provenance,
-                             List<Observation> observations) implements Outcome {
+                             List<Observation> observations,
+                             VideoFrameBinding videoFrameBinding) implements Outcome {
         public Recognized {
             observations = List.copyOf(observations);
         }
@@ -266,6 +326,10 @@ public final class SceneTextRecognitionService {
                 || !SHA256.matcher(resolved.originalFrameSha256()).matches()) {
             return Rejected.of(Code.SOURCE_FRAME_MISMATCH);
         }
+        if (resolved.videoFrameBinding() != null
+                && !videoFrameBindingMatches(request, resolved)) {
+            return Rejected.of(Code.SOURCE_FRAME_MISMATCH);
+        }
         if (resolved.ptsUs() != request.ptsUs() || resolved.frameWidth() != request.frameWidth()
                 || resolved.frameHeight() != request.frameHeight()) {
             return Rejected.of(Code.SOURCE_FRAME_MISMATCH);
@@ -277,8 +341,22 @@ public final class SceneTextRecognitionService {
         if (documentIntelligence.isEmpty()) return Rejected.of(Code.DI_NOT_CONFIGURED);
         DocumentIntelligenceV1 di = documentIntelligence.get();
         try {
-            ProviderCatalog catalog = di.providers(cancellation);
-            Code catalogProblem = checkCatalog(catalog, request);
+            final ProviderCatalog catalog;
+            try {
+                catalog = di.providers(cancellation);
+            } catch (RuntimeException unavailable) {
+                // Catalog discovery has no parse effect, so an unexpected client/runtime
+                // failure is safely exposed as typed unavailability.
+                return Rejected.of(Code.DI_UNAVAILABLE);
+            }
+            final Code catalogProblem;
+            try {
+                catalogProblem = checkCatalog(catalog, request);
+            } catch (RuntimeException malformedCatalog) {
+                // The public client port may return malformed DTOs that bypass the HTTP parser.
+                // Reject them before any parse request is dispatched.
+                return Rejected.of(Code.RESPONSE_INVALID);
+            }
             if (catalogProblem != null) return Rejected.of(catalogProblem);
             // Rights can be revoked while crop derivation and the DI catalog request are in flight.
             // Re-resolve the exact source immediately before the external parse effect.
@@ -323,14 +401,33 @@ public final class SceneTextRecognitionService {
             Code finalSourceProblem = sourceProblem(request, finalDecision);
             if (finalSourceProblem != null) return Rejected.of(finalSourceProblem);
             if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
-            ParsedDocument parsed = di.parse(new DocumentIntelligenceV1.ParseRequest(diOperationId, reservedGeneration,
-                    policy.providerRef(), resolved.mediaType(), request.languageHint(), policy.timeoutMs(),
-                    policy.workerLimits(), resolved.pixels()), cancellation);
-            if (cancellation.isCancelled()) {
-                return di.cancel(diOperationId, reservedGeneration)
-                        ? Rejected.of(Code.CANCELLED) : Rejected.of(Code.UNKNOWN_OUTCOME);
+            DocumentIntelligenceV1.ParseRequest parseRequest = new DocumentIntelligenceV1.ParseRequest(
+                    diOperationId, reservedGeneration, policy.providerRef(), resolved.mediaType(),
+                    request.languageHint(), policy.timeoutMs(), policy.workerLimits(), resolved.pixels());
+            final ParsedDocument parsed;
+            try {
+                parsed = di.parse(parseRequest, cancellation);
+            } catch (RuntimeException ambiguousParse) {
+                // Once parse has been invoked, an unchecked client failure cannot prove that
+                // the remote operation did not start or finish.
+                return Rejected.of(Code.UNKNOWN_OUTCOME);
             }
-            return map(request, finalDecision, parsed, diOperationId);
+            if (cancellation.isCancelled()) {
+                try {
+                    return di.cancel(diOperationId, reservedGeneration)
+                            ? Rejected.of(Code.CANCELLED) : Rejected.of(Code.UNKNOWN_OUTCOME);
+                } catch (RuntimeException ambiguousCancel) {
+                    return Rejected.of(Code.UNKNOWN_OUTCOME);
+                }
+            }
+            if (parsed == null) return Rejected.of(Code.RESPONSE_INVALID);
+            try {
+                return map(request, finalDecision, resolved, parsed, diOperationId);
+            } catch (RuntimeException malformedResponse) {
+                // A public port implementation may return malformed DTOs even when its
+                // transport parser is defensive. Keep malformed output typed at this seam.
+                return Rejected.of(Code.RESPONSE_INVALID);
+            }
         } catch (DocumentIntelligenceException failure) {
             return switch (failure.kind()) {
                 case CANCELLED -> Rejected.of(Code.CANCELLED);
@@ -348,7 +445,8 @@ public final class SceneTextRecognitionService {
         try {
             return sourceAuthority.verify(new SourceCheck(request.tenantId(), request.principalId(),
                     request.purposeRef(), request.sourceArtifactId(), request.sourceVersion(), request.frameId(),
-                    request.originalFrameSha256(), policy.providerRef(), policy.providerVersion()));
+                    request.originalFrameSha256(), policy.providerRef(), policy.providerVersion(),
+                    request.authenticatedPrincipal()));
         } catch (RuntimeException unavailable) {
             return Decision.of(SourceStatus.UNAVAILABLE);
         }
@@ -366,6 +464,31 @@ public final class SceneTextRecognitionService {
         return null;
     }
 
+    private static boolean videoFrameBindingMatches(FrameRequest request, ResolvedCrop resolved) {
+        VideoFrameBinding binding = resolved.videoFrameBinding();
+        if (binding == null || binding.frameNumber() < 0
+                || !Objects.equals(binding.tenantId(), request.tenantId())
+                || !Objects.equals(binding.principalId(), request.principalId())
+                || !Objects.equals(binding.artifactId(), request.sourceArtifactId())
+                || !Objects.equals(binding.artifactVersion(), request.sourceVersion())
+                || !Objects.equals(binding.sourceSha256(), request.sourceVersion().substring("sha256:".length()))
+                || !Integer.toString(binding.frameNumber()).equals(request.frameId())
+                || binding.frameWidth() != request.frameWidth() || binding.frameHeight() != request.frameHeight()
+                || !Objects.equals(binding.roi(), request.roi())
+                || binding.timeBaseNumerator() <= 0 || binding.timeBaseDenominator() <= 0
+                || binding.artifactLocalEpoch() == null
+                || !binding.artifactLocalEpoch().matches("artifact-local:[0-9a-f]{64}")
+                || !"0:v:0".equals(binding.sourceStreamSelector())
+                || !Objects.equals(binding.frameSha256(), resolved.originalFrameSha256())
+                || !Objects.equals(binding.cropSha256(), sha256(resolved.pixels()))) return false;
+        java.math.BigInteger sourcePts = java.math.BigInteger.valueOf(binding.sourcePts())
+                .multiply(java.math.BigInteger.valueOf(binding.timeBaseNumerator()))
+                .multiply(java.math.BigInteger.valueOf(1_000_000L));
+        java.math.BigInteger requestPts = java.math.BigInteger.valueOf(request.ptsUs())
+                .multiply(java.math.BigInteger.valueOf(binding.timeBaseDenominator()));
+        return sourcePts.equals(requestPts) && resolved.ptsUs() == request.ptsUs();
+    }
+
     /**
      * Authoritative crop derivation under the source-rights decision. Caller crop bytes are
      * never an input: the resolver re-derives pixels from the true original frame and the
@@ -377,7 +500,8 @@ public final class SceneTextRecognitionService {
         try {
             outcome = cropResolver.get().resolve(new CropRequest(request.tenantId(), request.principalId(),
                     request.purposeRef(), request.sourceArtifactId(), request.sourceVersion(), request.frameId(),
-                    request.ptsUs(), request.frameWidth(), request.frameHeight(), request.roi(), request.mediaType()));
+                    request.ptsUs(), request.frameWidth(), request.frameHeight(), request.roi(), request.mediaType(),
+                    request.authenticatedPrincipal()));
         } catch (RuntimeException failure) {
             return new CropRefused(SourceStatus.UNAVAILABLE);
         }
@@ -389,7 +513,8 @@ public final class SceneTextRecognitionService {
                 ? Rejected.of(Code.SOURCE_UNAVAILABLE) : Rejected.of(Code.SOURCE_DENIED);
     }
 
-    private Outcome map(FrameRequest request, Decision decision, ParsedDocument parsed, String diOperationId) {
+    private Outcome map(FrameRequest request, Decision decision, ResolvedCrop crop,
+                        ParsedDocument parsed, String diOperationId) {
         if (!parsed.operationId().equals(diOperationId) || !parsed.providerRef().equals(policy.providerRef())
                 || !DocumentIntelligenceV1.PROTOCOL_VERSION.equals(parsed.protocolVersion())) {
             return Rejected.of(Code.RESPONSE_INVALID);
@@ -433,7 +558,8 @@ public final class SceneTextRecognitionService {
             }
         }
         return new Recognized(request.operationId(), request.tenantId(), request.sourceArtifactId(), request.sourceVersion(),
-                request.frameId(), request.ptsUs(), decision.decisionRef(), provenance, observations);
+                request.frameId(), request.ptsUs(), decision.decisionRef(), provenance, observations,
+                crop.videoFrameBinding());
     }
 
     /** Maps a DI box normalized to the submitted crop into a box normalized to the full source frame. */
@@ -513,6 +639,15 @@ public final class SceneTextRecognitionService {
         if (!DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION.equals(catalog.workerCapabilityVersion())) {
             return Code.WORKER_VERSION_NOT_ADMITTED;
         }
+        // The HTTP parser enforces this wire invariant, but injected/public client ports
+        // can bypass it. A duplicated identity makes the selected provider row ambiguous;
+        // fail closed before the parse effect instead of accepting whichever row is first.
+        Set<String> providerRefs = new java.util.HashSet<>();
+        for (ProviderEntry entry : catalog.providers()) {
+            if (entry == null || entry.providerRef() == null || !providerRefs.add(entry.providerRef())) {
+                return Code.RESPONSE_INVALID;
+            }
+        }
         Optional<ProviderEntry> provider = catalog.providers().stream()
                 .filter(entry -> entry.providerRef().equals(policy.providerRef())).findFirst();
         if (provider.isEmpty() || !"ACCEPTED".equals(provider.get().promotionStatus())
@@ -543,6 +678,27 @@ public final class SceneTextRecognitionService {
             field(fields, "ptsUs", Long.toString(request.ptsUs()));
             field(fields, "originalFrameSha256", crop.originalFrameSha256());
             field(fields, "cropSha256", sha256(crop.pixels()));
+            if (crop.videoFrameBinding() != null) {
+                VideoFrameBinding binding = crop.videoFrameBinding();
+                field(fields, "videoArtifactLocalEpoch", binding.artifactLocalEpoch());
+                field(fields, "videoSourceStreamSelector", binding.sourceStreamSelector());
+                field(fields, "videoTenantId", binding.tenantId());
+                field(fields, "videoPrincipalId", binding.principalId());
+                field(fields, "videoArtifactId", binding.artifactId());
+                field(fields, "videoArtifactVersion", binding.artifactVersion());
+                field(fields, "videoSourceSha256", binding.sourceSha256());
+                field(fields, "videoFrameNumber", Integer.toString(binding.frameNumber()));
+                field(fields, "videoSourcePts", Long.toString(binding.sourcePts()));
+                field(fields, "videoTimeBaseNumerator", Long.toString(binding.timeBaseNumerator()));
+                field(fields, "videoTimeBaseDenominator", Long.toString(binding.timeBaseDenominator()));
+                field(fields, "videoFrameWidth", Integer.toString(binding.frameWidth()));
+                field(fields, "videoFrameHeight", Integer.toString(binding.frameHeight()));
+                field(fields, "videoRoiX", Integer.toString(binding.roi().x()));
+                field(fields, "videoRoiY", Integer.toString(binding.roi().y()));
+                field(fields, "videoRoiWidth", Integer.toString(binding.roi().width()));
+                field(fields, "videoRoiHeight", Integer.toString(binding.roi().height()));
+                field(fields, "videoFrameSha256", binding.frameSha256());
+            }
             field(fields, "mediaType", crop.mediaType());
             field(fields, "decisionStatus", decision.status().name());
             field(fields, "providerRef", policy.providerRef());

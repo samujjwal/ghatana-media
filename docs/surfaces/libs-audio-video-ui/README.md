@@ -5,6 +5,14 @@ Reusable accessible React UI library (`libs/audio-video-ui`,
 over the canonical Ghatana design system — a UI library, not a deployed
 product host.
 
+## Vision, consumers, and non-goals
+
+The library gives Media host applications accessible React projections of
+canonical Media contracts. It is consumed by the Experience Explorer and
+sibling UI packages. It does not own product runtime, identity, persistence,
+provider effects, source rights, human approval, or a deployed host. The package
+entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/README.md).
+
 ## Responsibility
 
 - **Component families** (`src/components/`): `MediaComponentFamilies`,
@@ -34,6 +42,16 @@ product host.
   actions, transcript generation, or a deployed product route.
 - Foundations/hooks/styles consumed by product hosts and sibling UI
   packages (`ai-voice-ui-react` consumes `@audio-video/ui`).
+- `DevProjectTimelineWorkspaceScreen` supports owner artifact inspection,
+  exact-version clip attachment/removal, and exact-revision reopen in the
+  isolated DEV_ONLY workspace. It requires `media:artifact:read` only when
+  inspecting/attaching a clip source. Source/story positions are decimal-string
+  rational coordinates persisted through the project-head CAS; this UI makes
+  no current rights/revocation, decoder-clock, overlap, rendering, Shared
+  membership, or production-authority claim. An ambiguous mutation is
+  reconciled as this request only when its effect is present in the exact
+  direct successor of the recorded CAS base; a matching graph at another
+  head remains unresolved and does not enable retry.
 
 ## Public operations
 
@@ -41,6 +59,34 @@ Package exports `.` (index), component/hook/type subpaths via
 `dist/`. Consumers supply the port implementations; screens render
 authored contracts and dispatch actions through
 `MediaActionDispatchGuard`/`MediaLocalActionContracts`.
+
+## Architecture and design
+
+Components reuse Shared design-system semantics; screens compose typed Media
+values and host ports; player state remains a deterministic local reducer. The
+interactive player renders native audio/video elements, binds the exact
+host-attested manifest, checks declared origins, and keeps branches local. It
+does not execute bundle code, verify signatures, or mutate a Media project.
+Public subpaths are the explicit `exports` entries in
+`libs/audio-video-ui/package.json`; source folders without an export mapping
+are implementation details.
+
+## Requirements and current-state alignment
+
+The surface must expose keyboard-equivalent controls and truthful runtime
+states, guard stale identity and scope, and keep local simulations separate
+from live output. The player transcript is derived only from exact authored
+caption cues. Its current manifest has no separate visual-description field,
+so the renderer must not invent a complete non-verbal visual alternative.
+The source-defined behavior and local gap disposition are recorded in the
+player-specific review.
+
+## Examples
+
+The focused player contract, local generated fixture, and browser command are
+documented in [the logical player guide](../surface-interactive-demo-player/README.md).
+The package and DEV_ONLY workspace boundaries are in the
+[package entrypoint](../../../libs/audio-video-ui/README.md).
 
 ## States and invariants
 
@@ -53,10 +99,15 @@ authored contracts and dispatch actions through
   controls rather than forking a state model.
 - `MediaContractScreen`/renderer tests keep screen output reconciled
   with authored contract fixtures.
+- `MediaProductRenderer` exports deeply frozen route-admission and 47-screen
+  realization dispositions, including each nested entry. A consumer cannot
+  mutate `NOT_ADMITTED`, `LOCAL_SIMULATION`, or `CONTRACT_PREVIEW` into a live
+  status at runtime.
 - The player fails closed without exact host attestation; source truth is
   labeled explicitly and unverified live evidence is not shown as live output.
-  Its Node reducer tests pass, while React component tests, browser playback,
-  and live-output/host qualification remain open.
+  Local preview browser playback is verified against a generated synthetic
+  WAV by the persistent loopback consumer; this does not qualify the production
+  host or source rights.
 
 ## Dependencies and configuration
 
@@ -84,7 +135,21 @@ Vitest suites colocated with components/screens
 `shared-control-reuse.test`). Run via the pnpm scripts above.
 The source-scope binding helper also has a dependency-free Node selector:
 `node --experimental-strip-types --test src/screens/captionVersionReadBinding.test.mjs`.
-The React component selector could not be run in this checkout because the UI
-package has no linked Vitest/React dependencies. The latest mismatch-state
-regression is added but unexecuted; the pure helper remains independently
-verified.
+The current UI Vitest suite passes 181/181 using the strict pinned TypeScript
+noEmit check and package build; both pass. The bounded DEV_ONLY project/timeline
+browser selector passes with keyboard-only artifact inspection, exact rational
+clip attachment, dependent-track removal rejection, and lost-response clip
+removal reconciliation without a duplicate mutation. The real-host clip
+persistence check is documented with the Explorer surface. The interactive
+player browser selector uses generated `interactive-demo-preview.wav` and
+pinned Playwright 1.63.0 / Chromium 153.0.8010.12; it passes 5/5 local cases.
+These results are `LOCAL_PREVIEW_ONLY`, not production-host or screen-reader
+qualification.
+
+## Evidence and change policy
+
+These checks establish local package and fixture behavior only; they do not
+establish production host, screen-reader certification, rights, provider
+effects, release, or journey acceptance. Keep implementation aligned with the
+owning PDP sources, explicit package export map, and behavior tests. Document
+unbound behavior instead of adding runtime or public-contract authority.

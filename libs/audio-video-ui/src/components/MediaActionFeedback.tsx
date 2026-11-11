@@ -34,7 +34,8 @@ export function mediaActionFeedbackForResult(result: MediaActionDispatchResult):
   }
 }
 
-export function MediaActionFeedback({ value }: { readonly value: MediaActionFeedbackValue }): React.ReactElement {
+/** Internal accessible output shared by product screens; not a standalone public component. */
+export function mediaActionFeedbackElement(value: MediaActionFeedbackValue): React.ReactElement {
   return <p
     role="status"
     aria-live="polite"

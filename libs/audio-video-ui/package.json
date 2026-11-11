@@ -11,6 +11,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "vitest run",
+    "test:interactive-demo-player:browser": "node --test test/interactive-demo-player/browser.test.mjs",
     "test:watch": "vitest",
     "check": "pnpm typecheck && pnpm test && pnpm build"
   },
@@ -59,6 +60,10 @@
     "./screens/transcript-caption": {
       "types": "./dist/screens/TranscriptCaptionScreen.d.ts",
       "import": "./dist/screens/TranscriptCaptionScreen.js"
+    },
+    "./screens/dev-project-timeline": {
+      "types": "./dist/screens/DevProjectTimelineWorkspaceScreen.d.ts",
+      "import": "./dist/screens/DevProjectTimelineWorkspaceScreen.js"
     }
   },
   "peerDependencies": {
@@ -71,7 +76,10 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "jsdom": "catalog:shared",
+    "lucide-react": "catalog:shared",
+    "playwright": "1.63.0",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {

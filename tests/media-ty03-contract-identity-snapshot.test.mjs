@@ -64,16 +64,23 @@ test("TY-03 snapshots the current wire identities without expanding PDP-1 admiss
   const currentGrpcIds = protoIdentities();
   assert.equal(grpc.count, 43, "the historical PDP-1 gRPC denominator remains intact");
   assert.equal(new Set(pdp1GrpcIds).size, 43, "the PDP-1 gRPC identity list has no duplicates");
-  assert.equal(currentGrpcIds.length, 44, "current protobuf source inventory remains 44 RPCs");
+  assert.equal(currentGrpcIds.length, 45, "current protobuf source inventory contains 45 observed RPCs");
   assert.deepEqual(new Set(grpcRegistry.rpcs.map(({ id }) => id)), new Set(currentGrpcIds.map((id) => `media.grpc.${id}`)));
   assert.ok(pdp1GrpcIds.every((id) => currentGrpcIds.includes(id)), "all historical PDP-1 gRPC identities remain observable");
   assert.deepEqual(
     currentGrpcIds.filter((id) => !pdp1GrpcIds.includes(id)),
-    ["VisionService.RecognizeSceneText"],
-    "the additional OCR RPC remains outside the historical PDP-1 identity set",
+    ["VisionService.RecognizeSceneText", "VisionService.ResolveSourceFrame"],
+    "the OCR proposal and source-frame resolver remain outside the historical PDP-1 identity set",
   );
 
   const sceneText = read(".product-experience/pdp-3-product-experience/grpc/operations/VisionService.RecognizeSceneText.yaml");
   assert.match(sceneText, /^  bindingStatus: proposed-exact-source-member-map; owner-review-pending$/mu);
   assert.match(sceneText, /^contractStatus: proposal-only; owner-review-pending$/mu);
+
+  const sourceFrame = read(".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ResolveSourceFrame.yaml");
+  assert.match(sourceFrame, /^semanticDisposition: source-identity-only; PDP-1-operation-binding-pending-owner-review$/mu);
+  assert.match(sourceFrame, /^contractStatus: identity-only-source-projection; owner-review-pending$/mu);
+  assert.doesNotMatch(sourceFrame, /^pdp1SemanticBinding:/mu);
+  assert.match(sourceFrame, /^- runtime admission or qualification$/mu,
+    "the source projection explicitly disclaims runtime admission and qualification");
 });

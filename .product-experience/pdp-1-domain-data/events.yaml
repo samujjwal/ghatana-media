@@ -101,15 +101,15 @@ observedEnvelope:
     observedWirePayloadFields: [ aggregateType, aggregateId, aggregateVersion, classification, attributes ]
     publisherSourcePaths: [ launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java ]
     records:
-      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: atomic-store-disposition-reports-new-upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
-      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: atomic-store-disposition-reports-first-completion-transition, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
-      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410", publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status], trigger: job-persisted-as-accepted, aggregateType: job, aggregateId: accepted.jobId, aggregateVersion: accepted.version}
-      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
-      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
-      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536", publisherCallSite: {identity: MediaRuntime#openStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId], trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
-      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678", publisherCallSite: {identity: MediaRuntime#closeStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId, lastSequence, state], trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
-      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
-      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L444-L448", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: atomic-store-disposition-reports-new-upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
+      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L509-L515", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: atomic-store-disposition-reports-first-completion-transition, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
+      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1036-L1042", publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status], trigger: job-persisted-as-accepted, aggregateType: job, aggregateId: accepted.jobId, aggregateVersion: accepted.version}
+      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1935-L1939", publisherCallSite: {identity: MediaRuntime#openStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId], trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
+      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2195-L2201", publisherCallSite: {identity: MediaRuntime#closeStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId, lastSequence, state], trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
+      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
     sharedPublisher: "MediaRuntime#publishLifecycle constructs dynamic media.job.<status>; current startJob assignments establish only completed and failed concrete outcomes in this inventory"
     perEventProducerAuthority: unresolved
     canonicalTaxonomy: unresolved
@@ -120,63 +120,63 @@ observedEnvelope:
       records:
       - eventType: media.upload.started
         callSite: MediaRuntime#beginUpload
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280, candidate: upload-session-returned-with-atomic-new-session-disposition}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L444-L448, candidate: upload-session-returned-with-atomic-new-session-disposition}
         aggregateProposal: { type: upload, identity: session.uploadId, version: literal-1; no-upload-version-record-observed}
         provenanceCandidates: [ tenantId, principalId, classification, contentType, expectedSizeBytes ]
         evidenceStatus: source-observation-candidate-only; committed-or-delivery-evidence-unavailable
         policySemantics: pending-owner-review
       - eventType: media.artifact.completed
         callSite: MediaRuntime#completeUpload
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328, candidate: artifact-returned-with-atomic-first-completion-disposition}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L509-L515, candidate: artifact-returned-with-atomic-first-completion-disposition}
         aggregateProposal: { type: artifact, identity: artifact.artifactId, version: literal-1; no-artifact-version-record-observed}
         provenanceCandidates: [ tenantId, principalId, classification, contentType, sizeBytes, sourceUploadId, sha256 ]
         evidenceStatus: source-observation-candidate-only; completion-is-not-independent-verification-or-committed-event-evidence
         policySemantics: pending-owner-review
       - eventType: media.job.accepted
         callSite: MediaRuntime#submitJob
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410, candidate: accepted-ProcessingJob-after-jobStore.create}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1036-L1042, candidate: accepted-ProcessingJob-after-jobStore.create}
         aggregateProposal: { type: job, identity: accepted.jobId, version: accepted.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, request.artifactId, accepted.jobType, accepted.providerId, accepted.status, artifact.classification ]
         evidenceStatus: source-observation-candidate-only; accepted-record-does-not-prove-processing-finality
         policySemantics: pending-owner-review
       - eventType: media.job.cancelled
         callSite: MediaRuntime#cancel
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506, candidate: provider-confirmed-cancellation-and-stored-job}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886, candidate: provider-confirmed-cancellation-and-stored-job}
         aggregateProposal: { type: job, identity: current.jobId, version: stored.version}
         provenanceCandidates: [ tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome ]
         evidenceStatus: source-observation-candidate-only; provider-confirmation-is-not-an-independent-delivery-receipt
         policySemantics: pending-owner-review
       - eventType: media.job.cancel_requested
         callSite: MediaRuntime#cancel
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
         aggregateProposal: { type: job, identity: current.jobId, version: stored.version}
         provenanceCandidates: [ tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome ]
         evidenceStatus: source-observation-candidate-only; explicitly-not-cancellation-finality
         policySemantics: pending-owner-review
       - eventType: media.stream.opened
         callSite: MediaRuntime#openStream
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536, candidate: created-StreamSession}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1935-L1939, candidate: created-StreamSession}
         aggregateProposal: { type: stream, identity: sessionId, version: session.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, session.streamKind, session.providerId, session.version, governanceContext.classification ]
         evidenceStatus: source-observation-candidate-only; session-creation-is-not-provider-delivery-or-stream-success-evidence
         policySemantics: pending-owner-review
       - eventType: media.stream.closed
         callSite: MediaRuntime#closeStream
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678, candidate: transitioned-StreamSession}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2195-L2201, candidate: transitioned-StreamSession}
         aggregateProposal: { type: stream, identity: sessionId, version: closed.version}
         provenanceCandidates: [ tenantId, principalId, sessionId, closed.streamKind, closed.providerId, closed.lastSequence, closed.state, closed.version ]
         evidenceStatus: source-observation-candidate-only; closed-state-observation-is-not-independent-consumer-or-delivery-acknowledgement
         policySemantics: pending-owner-review
       - eventType: media.job.completed
         callSite: MediaRuntime#startJob-terminal-publication
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
         aggregateProposal: { type: job, identity: value.jobId, version: terminal.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification ]
         evidenceStatus: source-observation-candidate-only; terminal-record-is-not-independent-quality-or-delivery-evidence
         policySemantics: pending-owner-review
       - eventType: media.job.failed
         callSite: MediaRuntime#startJob-terminal-publication
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
         aggregateProposal: { type: job, identity: value.jobId, version: terminal.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification ]
         evidenceStatus: source-observation-candidate-only; failure-record-is-not-independent-delivery-or-recovery-evidence
@@ -191,29 +191,29 @@ observedEnvelope:
     sourcePath: libs/audio-video-client/src/index.ts
     sourceRefreshObservation:
       previousFileSha256: 8ff2f4ff91cf67093ffe63e8110ccfd3d777f0b6f4d8dcf05444b71d90c629c0
-      currentFileSha256: 08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701
-      changeScope: twelve added top-level scene-text adapter exports before AudioVideoClient; notification methods are outside the changed hunk
-      clientNotificationMethodsSha256: 03e560e21fa2f7aeb0e255337862987ad9337357240c8e07420d32bf45cfebf6
+      currentFileSha256: d1c2aafa522e0ddf34d4d15ac681429e9534ecc7f0172c4e2557c90ee0b8b2b6
+      changeScope: current full-file digest and source line references were refreshed; notification-method digest differs from the retained historical digest
+      clientNotificationMethodsSha256: a420440951be5ee4e913ab4ba7e5e8119a3dd5e3adf2b5745f2357e3c16773e3
       previousClientNotificationMethodsSha256: 03e560e21fa2f7aeb0e255337862987ad9337357240c8e07420d32bf45cfebf6
-      semanticDisposition: client event names, publisher methods, and payload fields unchanged; source line refs advanced by twelve
+      semanticDisposition: current event names and payload shapes match source inventory; method-byte delta from the historical digest has no semantic equivalence claim and awaits owner review
       lifecycleProofRouteImpact: none; no candidate route is derived from these client-local notification methods
       ownerReview: pending
     records:
-      - {eventName: "stt:transcription:start", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L177"}
-      - {eventName: "stt:transcription:complete", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L187"}
-      - {eventName: "stt:transcription:error", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L191"}
-      - {eventName: "tts:synthesis:start", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L205"}
-      - {eventName: "tts:synthesis:complete", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L214"}
-      - {eventName: "tts:synthesis:error", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L218"}
-      - {eventName: "ai-voice:process:start", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L232"}
-      - {eventName: "ai-voice:process:complete", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L241"}
-      - {eventName: "ai-voice:process:error", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L245"}
-      - {eventName: "vision:process:start", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L259"}
-      - {eventName: "vision:process:complete", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L269"}
-      - {eventName: "vision:process:error", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L273"}
-      - {eventName: "multimodal:process:start", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L287"}
-      - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L297"}
-      - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L301"}
+      - {eventName: "stt:transcription:start", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L310"}
+      - {eventName: "stt:transcription:complete", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L321"}
+      - {eventName: "stt:transcription:error", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L325"}
+      - {eventName: "tts:synthesis:start", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L339"}
+      - {eventName: "tts:synthesis:complete", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L349"}
+      - {eventName: "tts:synthesis:error", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L353"}
+      - {eventName: "ai-voice:process:start", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L367"}
+      - {eventName: "ai-voice:process:complete", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L377"}
+      - {eventName: "ai-voice:process:error", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L381"}
+      - {eventName: "vision:process:start", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L395"}
+      - {eventName: "vision:process:complete", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L406"}
+      - {eventName: "vision:process:error", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L410"}
+      - {eventName: "multimodal:process:start", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L424"}
+      - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L435"}
+      - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L439"}
     families:
     - { family: stt:transcription, eventNames: [ "stt:transcription:start", "stt:transcription:complete", "stt:transcription:error" ]}
     - { family: tts:synthesis, eventNames: [ "tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error" ]}
@@ -361,7 +361,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#beginUpload
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L444-L448
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: upload
@@ -486,7 +486,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#completeUpload
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L509-L515
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: artifact
@@ -617,7 +617,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#submitJob
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1036-L1042
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -743,7 +743,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#cancel
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -870,7 +870,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#cancel
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -997,7 +997,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#openStream
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1935-L1939
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: stream-session
@@ -1121,7 +1121,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#closeStream
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2195-L2201
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: stream-session
@@ -1248,7 +1248,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#startJob terminal publication
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -1381,7 +1381,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#startJob terminal publication
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -1513,7 +1513,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#transcribe
-      sourceRef: libs/audio-video-client/src/index.ts#L177
+      sourceRef: libs/audio-video-client/src/index.ts#L310
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1585,7 +1585,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#transcribe
-      sourceRef: libs/audio-video-client/src/index.ts#L187
+      sourceRef: libs/audio-video-client/src/index.ts#L321
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1659,7 +1659,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#transcribe
-      sourceRef: libs/audio-video-client/src/index.ts#L191
+      sourceRef: libs/audio-video-client/src/index.ts#L325
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1735,7 +1735,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#synthesize
-      sourceRef: libs/audio-video-client/src/index.ts#L205
+      sourceRef: libs/audio-video-client/src/index.ts#L339
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1807,7 +1807,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#synthesize
-      sourceRef: libs/audio-video-client/src/index.ts#L214
+      sourceRef: libs/audio-video-client/src/index.ts#L349
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1881,7 +1881,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#synthesize
-      sourceRef: libs/audio-video-client/src/index.ts#L218
+      sourceRef: libs/audio-video-client/src/index.ts#L353
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1957,7 +1957,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#processAIVoice
-      sourceRef: libs/audio-video-client/src/index.ts#L232
+      sourceRef: libs/audio-video-client/src/index.ts#L367
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2029,7 +2029,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#processAIVoice
-      sourceRef: libs/audio-video-client/src/index.ts#L241
+      sourceRef: libs/audio-video-client/src/index.ts#L377
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2103,7 +2103,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#processAIVoice
-      sourceRef: libs/audio-video-client/src/index.ts#L245
+      sourceRef: libs/audio-video-client/src/index.ts#L381
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2179,7 +2179,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#processVision
-      sourceRef: libs/audio-video-client/src/index.ts#L259
+      sourceRef: libs/audio-video-client/src/index.ts#L395
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2251,7 +2251,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#processVision
-      sourceRef: libs/audio-video-client/src/index.ts#L269
+      sourceRef: libs/audio-video-client/src/index.ts#L406
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2325,7 +2325,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#processVision
-      sourceRef: libs/audio-video-client/src/index.ts#L273
+      sourceRef: libs/audio-video-client/src/index.ts#L410
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2401,7 +2401,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#processMultimodal
-      sourceRef: libs/audio-video-client/src/index.ts#L287
+      sourceRef: libs/audio-video-client/src/index.ts#L424
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2473,7 +2473,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#processMultimodal
-      sourceRef: libs/audio-video-client/src/index.ts#L297
+      sourceRef: libs/audio-video-client/src/index.ts#L435
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2547,7 +2547,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#processMultimodal
-      sourceRef: libs/audio-video-client/src/index.ts#L301
+      sourceRef: libs/audio-video-client/src/index.ts#L439
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request

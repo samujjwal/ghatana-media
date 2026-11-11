@@ -19,23 +19,41 @@ retention eligibility, source version or transcript revision.
   tenant/transcription key (no source-version dimension). Cache
   invalidation failure never replaces the current source result or its
   denial. Direct cache lookups return a miss.
-- `getOrLoadTranscription(scope, id, authorityCheck, loader)` is the opt-in
-  protected path. It keys by exact transcript ID plus every `CacheKeyScope`
-  dimension, stores a versioned envelope bound to the scoped key digest (raw
+- `TranscriptionCacheService.getOrLoadTranscriptionWithScopedSnapshot(scope, id,
+  authority, loader)` is the typed protected path. The loader returns a
+  `ScopedTranscriptionSnapshot` pairing the entity with the complete source
+  scope it actually observed; the adapter rejects a mismatch before cache
+  insertion. It keys by exact transcript ID plus every `CacheKeyScope`
+  dimension, stores a format-2 envelope bound to the scoped key digest (raw
   principal/rights/source scope fields are not duplicated in the envelope),
   checks trusted current authority before lookup and again before disclosure,
-  and invalidates/reloads malformed or scope-mismatched envelopes. The supplied
-  authority reader must verify the principal, rights/purpose/classification,
-  immutable source and transcript revisions, source fingerprint, retention and
+  and invalidates/reloads malformed or scope-mismatched envelopes. A source
+  reader must derive its snapshot from immutable source/transcript records and
+  not echo the request scope. The supplied `ScopedAuthority` must verify the
+  principal, rights/purpose/classification, immutable source and transcript
+  revisions, source fingerprint, retention, policy epoch, and source-rights
+  revocation epoch, and return an absolute `validUntil` deadline with each
+  `CURRENT` result. The cache rejects expired results and rechecks freshness
+  after asynchronous work, so a grant expiring during a source load cannot
+  authorize disclosure or a cache write. The revocation epoch is a separate key dimension from
   policy epoch. Scope values alone never grant access. Absent/deleted source
   results are not negative-cached. Call `invalidateTranscriptionScoped` with
   the prior scope for explicit revocation/retention cleanup.
-- The generic `AudioVideoCache.getOrLoadScoped` uses the same before-access and
-  before-disclosure authority checks. A denied or unavailable recheck returns no
-  protected value and starts best-effort invalidation for that exact scoped key.
+- The protected generic path is
+  `AudioVideoCache.getOrLoadScopedWithAuthority(scope, objectIdentity,
+  authority, loader)`. A denied or unavailable recheck returns no protected
+  value and starts best-effort invalidation for that exact scoped key. The
+  deprecated Boolean overloads do not authorize protected cache reads: the
+  generic overloads fail closed, and the transcript compatibility overload
+  consults only the caller's current source path without reading or writing
+  protected cache entries. The deprecated entity-only typed overload remains
+  source-compatible but fails closed before cache or source access because it
+  cannot return the full observed scope.
   A cache write may already have completed before a revocation is observed; in
   that case disclosure still fails, and later lookups remain gated by fresh
-  authority and the policy/source-version key.
+  authority and the policy/source-version key. The backend entry may remain
+  stored until its normal TTL or explicit invalidation; expiry prevents reuse
+  but does not establish immediate erasure.
 
 ## Public operations
 
@@ -48,11 +66,13 @@ retention eligibility, source version or transcript revision.
 
 - `CacheKeyScope` requires non-blank, bounded values for tenant, authenticated
   principal, rights scope, purpose, classification, artifact ID, artifact
-  revision, transcript revision, source fingerprint, and policy epoch. These
-  ten protected key components reject surrounding whitespace instead of
-  trimming it into an alias. This is key-scope canonicalization only; owner-
-  backed authorization and rights-invalidation wiring remain separately
-  required, and this rule does not qualify runtime cache behavior.
+  revision, transcript revision, source fingerprint, policy epoch, and model
+  license reference, plus a nonnegative source-rights revocation epoch. String
+  components reject surrounding whitespace instead of trimming it into an
+  alias. Policy and revocation epochs are distinct. This is key-scope
+  canonicalization only; owner-backed authorization and rights-invalidation
+  wiring remain separately required, and this rule does not qualify runtime
+  cache behavior.
 - **No unscoped transcript persistence**: the legacy tenant/entity-only APIs
   lack authenticated principal, rights/purpose/classification, immutable
   artifact/transcript revisions and authoritative source fingerprint, so their

@@ -75,6 +75,22 @@ class BoundedPcmDeclipperTest {
     }
 
     @Test
+    void failed_edge_repair_keeps_source_pcm_recoverable_for_ab_undo() {
+        AudioData source = pcm16(new short[] {120, 900, 32767, 32767});
+        byte[] original = source.data();
+
+        assertThatThrownBy(() -> BoundedPcmDeclipper.repair(source, 0.99, 2))
+                .isInstanceOf(BoundedPcmDeclipper.RepairException.class)
+                .extracting(error -> ((BoundedPcmDeclipper.RepairException) error).code())
+                .isEqualTo(BoundedPcmDeclipper.ErrorCode.UNREPAIRABLE_RUN);
+
+        assertThat(source.data()).containsExactly(original);
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, source);
+        assertThat(comparison.sourceSha256()).isEqualTo(comparison.repairedSha256());
+        assertThat(comparison.undo().data()).containsExactly(original);
+    }
+
+    @Test
     void rejects_incomplete_frames_and_unsupported_depth() {
         AudioData incomplete = new AudioData(new byte[] {1}, 48_000, 1, 16);
         assertCode(incomplete, 0.99, 2, BoundedPcmDeclipper.ErrorCode.INVALID_INPUT);

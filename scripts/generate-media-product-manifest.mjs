@@ -14,8 +14,11 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { repositoryRootForModuleUrl } from "./lib/media-repository-root.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+export { repositoryRootForModuleUrl };
+
+const root = repositoryRootForModuleUrl(import.meta.url);
 const productRoot = join(root, ".product-experience");
 const manifestPath = join(productRoot, "source-manifest.yaml");
 const identityRegistryPath = join(productRoot, "artifact-identities.yaml");

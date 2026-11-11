@@ -1,7 +1,7 @@
 # Surface: `libs-audio-video-client`
 
 Typed TypeScript client for Ghatana Media: canonical artifact/job/stream SDK,
-read-only host-configured CLI, deterministic scenario recorder planning, and
+host-configured CLI, deterministic scenario recorder planning, and
 the capture adapter SPI. Package: `@audio-video/client`
 (`libs/audio-video-client`).
 
@@ -10,11 +10,36 @@ the capture adapter SPI. Package: `@audio-video/client`
 - Expose the admitted HTTP operations (artifact upload sessions, artifact
   reads, job submit/list/get/cancel, stream open/get/connect/frame/close)
   through `MediaOperationClient` and `MediaCanonicalClient`.
-- Provide the `ghatanamedia-api` CLI for the single production-registry command,
-  `artifact inspect`. Job, capture, and recorder command identities are not
-  admitted in the production CLI and fail as `INVALID_INVOCATION` before auth
-  or network dispatch; the separately maintained Explorer CLI remains
-  fixture-only.
+- Provide the `ghatanamedia-api` CLI with exactly one production command:
+  `artifact inspect`, backed by `MediaOperationClient.getArtifact()`. Artifact
+  upload, upload-session inspection, job, batch, capture, recorder, and stream
+  command identities fail as `INVALID_INVOCATION` before authentication or
+  network dispatch. Broader SDK methods remain available to programmatic
+  consumers; they do not add CLI commands. The separately maintained Explorer
+  CLI remains fixture-only.
+- Provide a separate `ghatanamedia-api-dev` executable with an explicit
+  loopback-only local-development registry for `artifact upload`,
+  `artifact inspect`, `job get`, and `job cancel`. The first three definitions
+  bind to existing scoped HTTP operations. `job cancel` binds only to the
+  signed DEV_ONLY loopback route, requires a stable request ID, and uses its
+  durable reservation/replay behavior; its outcomes never imply provider
+  finality. This local-development binding does not admit the production
+  operation or host. The production CLI remains artifact-inspect-only and
+  production admission remains OPEN.
+- Validate local-development upload `contentType` with the same PDP-1 media-type
+  predicate as the SDK during argument parsing, before credentials, source-file
+  access, or host requests. Invalid invocation must return `INVALID_INVOCATION`
+  with no fetch; this preflight does not change host authority or admission.
+- Export `@audio-video/client/dev-project-timeline` as a separate loopback-only
+  DEV_ONLY consumer for project context/create/read, timeline creation, and
+  exact revision reopen and project-head CAS edits, including clip attachment
+  and removal. Clip source inspection uses the existing
+  `GET /api/v1/artifacts/{id}` operation and requires the verified identity's
+  `media:artifact:read`; the exact artifact version and decimal-string rational
+  source/story coordinates are included in the DEV_ONLY edit. It rejects
+  non-loopback origins, omits cookies, rejects redirects, and never retries
+  ambiguous mutations. This local-only transport does not add an OpenAPI or
+  production route.
 - Keep the legacy `AudioVideoClient` and `MediaOperationClient` method ABI for
   consumers while methods without an admitted Media route fail before HTTP
   dispatch. Canonical job/stream and artifact operations use the v1 routes.
@@ -44,6 +69,7 @@ the capture adapter SPI. Package: `@audio-video/client`
 | Subpath | Contents |
 | --- | --- |
 | `@audio-video/client` | SDK clients, types, error taxonomy |
+| `@audio-video/client/dev-project-timeline` | Loopback-only DEV_ONLY project, timeline, owner-artifact read, and CAS clip edit client |
 | `@audio-video/client/operations` | Operation-scoped client methods |
 | `@audio-video/client/caption-version` | Browser-safe caption registration/read transport and stable fingerprint |
 | `@audio-video/client/canonical-routes`, `/canonical-operations` | Route/operation manifests |
@@ -92,7 +118,21 @@ integer timestamp) and detaches the byte buffer.
 clock ports are host supplied: it does not call browser camera APIs, grant
 permission, or establish that a real host device is authorized. It requires
 fresh exact source/purpose rights before open and rechecks around frame reads;
-revocation stops tracks and discards an in-flight frame. `BROWSER`, `DESKTOP`,
+revocation stops tracks and discards an in-flight frame. Host capture PTS must
+fit a non-negative signed 64-bit value; invalid, throwing, or backwards host
+clock observations fail closed and release the active track. This local
+timestamp bound does not establish source-clock or physical-device
+qualification. Browser consumers can compose the concrete host and adapter
+with `createBrowserCameraCaptureAdapter({ sourceVersionRef, consent,
+frameClock, ... })`, then register the returned adapter under `CAMERA` in
+`routedCaptureAdapter`. The factory uses browser `Permissions` and exact-device
+`getUserMedia`; the caller must still provide trusted Media consent and the
+host epoch clock. The current source contract has no user-gesture-bound
+first-use permission operation: a browser Permissions state of `prompt` (or
+an unavailable Permissions API) remains `UNKNOWN`, so this factory requires
+permission already granted by the browser and does not initiate a permission
+prompt. Browser JPEG capture declares no source clock, and this consumer
+wiring does not qualify physical devices. `BROWSER`, `DESKTOP`,
 `MOBILE`, `TERMINAL`, and `GRPC_API` still have no wired adapter in this
 package; nothing simulates those capture sources.
 
@@ -107,8 +147,13 @@ device qualification or integration with canonical stream sessions or writers.
 
 ## States and invariants
 
-- Upload/job mutations carry stable request identity; lost acknowledgements
-  surface `OUTCOME_UNKNOWN`, never fabricated success.
+- SDK upload/job mutations carry stable request identity where the route
+  contract defines it; lost acknowledgements surface `OUTCOME_UNKNOWN`, never
+  fabricated success. These methods are programmatic SDK operations, not CLI
+  command admissions.
+- The CLI artifact query returns a point-in-time observation. An unavailable
+  read does not establish global absence or failure; the production host is
+  not qualified by local package behavior.
 - Artifact reads return the runtime observation DTO, not the legacy product
   type; a 404 is scoped non-visibility, not global absence.
 - Caption-version fingerprints remain synchronous and wire-compatible without
@@ -127,6 +172,12 @@ device qualification or integration with canonical stream sessions or writers.
   that detached snapshot for completion. A getter cannot return one tenant for
   validation and another during publication; snapshot failure after dispatch
   remains `OUTCOME_UNKNOWN`.
+- `publishFinalRender` binds the created and acknowledged upload session to the
+  requested retention duration, comparing valid ISO duration spellings by
+  their millisecond value. For constant frame rate, the declared rational
+  clocks must imply an integer frame count and the decoder's observed count
+  must match it before upload. These checks bind local observations; they do
+  not qualify a codec or establish production authority.
 - Offline edits persist AES-GCM ciphertext only; the key is host supplied and
   non-extractable. Reconnect returns `UNAVAILABLE` until the host supplies
   canonical project version-read and CAS apply operations. With those ports,
@@ -144,6 +195,10 @@ device qualification or integration with canonical stream sessions or writers.
   serialize the payload before awaiting the store. Replay similarly snapshots
   the reconnect scope before version preflight, so caller mutation while a
   store read is pending cannot retarget the encrypted record or version check.
+- `OfflineEditQueue` snapshots and freezes its constructor options, pinning the
+  host-selected store and key for the queue lifetime. Mutating the caller's
+  options object during reauthorization cannot redirect later replay-state
+  writes to a different store.
 - Persisted encrypted envelopes are checked before WebCrypto: plaintext length
   metadata must be safe and within the configured cap, AES-GCM nonce length is
   12 bytes, and ciphertext length must equal plaintext length plus the 16-byte
@@ -162,11 +217,11 @@ device qualification or integration with canonical stream sessions or writers.
   `unavailableCaptureAdapter` (reports `UNAVAILABLE`).
 - CLI bearer token is read only from `GHATANA_MEDIA_BEARER_TOKEN`; remote
   endpoints require HTTPS (plain HTTP only for loopback); redirects rejected
-  so credentials are not forwarded. The production CLI currently registers
-  only `artifact inspect`; other command identities fail before network
-  dispatch. Original endpoint paths reject literal and percent-encoded dot
-  segments before URL normalization. The fixture CLI remains a separate
-  simulation surface.
+  so credentials are not forwarded. Original endpoint paths reject literal
+  and percent-encoded dot segments before URL normalization. The fixture CLI
+  remains a separate simulation surface. Programmatic SDK transports apply the
+  same HTTPS/loopback, credential-free, query-free, and path-traversal checks
+  before adding configured credentials.
 - Document Intelligence scene-text consumption bounds a page to 5,000 blocks,
   2,000 lines per block, and 5,000 total observations before materializing
   Media observations. It consumes DI v1; it does not provide an OCR engine.
@@ -180,18 +235,67 @@ Typed families: `MediaOperationNotAdmittedError` (unbound routes),
 (`INVALID_SCENARIO`/`ACTOR_UNRESOLVED`). Adapter and provider error detail
 never enters results — only safe enums and fixed reasons.
 
+## Source-free headless artifact/job example
+
+[`examples/media-headless-api`](../../../examples/media-headless-api/README.md)
+is a runnable Node consumer importing the public `operations` and
+`canonical-operations` package subpaths. It reads an input file, begins an
+upload, sends chunks, completes it, reads the immutable artifact back, submits
+a `TRANSCODE` job hinted to `local-diagnostic`, and reads the job by its exact
+request ID. It requires host-supplied `GHATANA_MEDIA_BASE_URL`, tenant,
+principal, bearer token, and input file environment variables. It does not
+mint credentials or add a CLI command.
+
+```bash
+pnpm --filter @audio-video/client build
+GHATANA_MEDIA_BASE_URL=http://127.0.0.1:8080 \
+GHATANA_MEDIA_TENANT_ID=tenant-1 \
+GHATANA_MEDIA_PRINCIPAL_ID=principal-1 \
+GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_BEARER_TOKEN" \
+GHATANA_MEDIA_INPUT_FILE=./sample.wav \
+GHATANA_MEDIA_CONTENT_TYPE=audio/wav \
+pnpm --filter ./examples/media-headless-api start
+```
+
+The example hashes and uploads in bounded sequential blocks from one open file
+handle. Its filename or content type must make a supported Media format claim;
+when both are known they must agree. Unsupported content types fail before
+opening an upload session. The server still verifies the bytes at completion.
+
+The local diagnostic job reports artifact metadata only (`rawMediaRead=false`);
+it does not transform media or prove an external provider result. The job read
+is a point-in-time observation and may be nonterminal. The example does not
+claim provider finality, durable restart, production authentication, or release
+qualification. Its injected-fetch contract check is runnable with
+`pnpm --filter ./examples/media-headless-api test` and contacts no host.
+
 ## Tests and commands
 
 ```bash
 pnpm --filter @audio-video/client typecheck
 pnpm --filter @audio-video/client test        # build + vitest
 pnpm --filter @audio-video/client test:package # isolated ESM/CJS consumer
+pnpm --filter @audio-video/client exec vitest run src/cli.test.ts -t 'runs admitted upload and job commands through source-free child-process transport'
 pnpm --filter @audio-video/client exec vitest run src/caption-version.test.ts
 pnpm --filter @audio-video/client exec vitest run src/offline-edit-queue.test.ts src/offline-reconnect.test.ts src/camera-capture-adapter.test.ts src/package-surface.test.ts
 ```
 
+CLI command regressions run the packaged Node entry point in child processes
+with a socket-free fetch replacement. They check production-command
+no-dispatch boundaries and local-development upload bytes, persisted session
+readback, checksum-bound completion, scoped job observation, stable
+cancellation request identity/replay, auth scope, and credential redaction.
+These are local CLI and DEV_ONLY-host checks, not production Media integration
+or provider-finality evidence.
 Capture tests use a real `node:http` server and real temporary files; they
 verify actual bytes, redirect/origin policy, byte/time bounds, symlink
 containment, and UNKNOWN semantics. Camera tests use injected Node mocks and
 prove state handling only; they do not prove real host permission or device
 capture. No fixture frames stand in for a real capture provider.
+
+Current focused verification for the DEV_ONLY timeline SDK passes 53/53, with
+package typecheck/build and packed ESM/CJS/types consumer checks passing. The
+project/timeline clip reference stores declared coordinates only; it does not
+establish current rights/revocation, decoder-clock verification, overlap
+semantics, rendering, Shared membership, or production authority. Production
+CLI commands and route admission are unchanged.

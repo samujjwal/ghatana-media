@@ -3,7 +3,7 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { hasAdmissibleCaptionTimingRange, transcriptActionContext, TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
+import { hasAdmissibleCaptionTimingRange, hasExactCaptionDraftIdentity, transcriptActionContext, TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 import { canonicalMediaActionRequest, type MediaActionPort } from "../ports";
 import type { TranscriptCaptionScreenProps } from "./TranscriptCaptionScreen";
@@ -78,7 +78,9 @@ describe("caption text draft dispatch", () => {
       actionPort: { invoke: vi.fn(async () => ({ status: "local-applied" as const })) },
       context: { locale: "en-US" },
       transcript: {
-        view: "correct-captions", sourceArtifactVersion: "source@v7",
+        view: "correct-captions", sourceArtifactId: "artifact-1", sourceArtifactVersionId: "artifact-version-7",
+        parentVersionKind: "TRANSCRIPT_VERSION", parentVersionId: "transcript@v3", captionDraftRevision: 4,
+        sourceArtifactVersion: "source@v7",
         transcriptVersion: "transcript@v3", captionDraftVersion: "draft@v4",
         segments: [segment],
       },
@@ -95,6 +97,25 @@ describe("caption text draft dispatch", () => {
     expect((screen.getByLabelText("Caption text for segment segment-1") as HTMLTextAreaElement).disabled).toBe(true);
     const apply = screen.getByRole("button", { name: "Apply caption correction" }) as HTMLButtonElement;
     expect(apply.disabled).toBe(true);
+    fireEvent.click(apply);
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("requires exact source, typed parent, and expected draft revision before dispatch", () => {
+    const invoke = vi.fn(async () => ({ status: "local-applied" as const }));
+    const incomplete = props({
+      transcript: {
+        view: "correct-captions", sourceArtifactVersion: "source@v7",
+        transcriptVersion: "transcript@v3", captionDraftVersion: "draft@v4", segments: [segment],
+      },
+      actionPort: { invoke },
+      onCaptionEdit: vi.fn(),
+    });
+    expect(hasExactCaptionDraftIdentity(incomplete.transcript)).toBe(false);
+    render(React.createElement(TranscriptCaptionScreen, incomplete));
+    const apply = screen.getByRole("button", { name: "Apply caption correction" }) as HTMLButtonElement;
+    expect(apply.disabled).toBe(true);
+    expect(screen.getByText(/Exact source, typed parent, and caption draft revision are required/)).toBeTruthy();
     fireEvent.click(apply);
     expect(invoke).not.toHaveBeenCalled();
   });
@@ -120,7 +141,11 @@ describe("caption text draft dispatch", () => {
     await waitFor(() => expect(invoke).toHaveBeenCalledTimes(1));
     expect(invoke).toHaveBeenCalledWith(actionId, {
       segmentId: "segment-1", text: "Corrected wording",
-    }, { subjectRefs: ["source@v7", "transcript@v3", "draft@v4"] });
+    }, { subjectRefs: [
+      "source@v7", "transcript@v3", "draft@v4",
+      "source-artifact:artifact-1", "source-version:artifact-version-7",
+      "parent:TRANSCRIPT_VERSION:transcript@v3", "caption-draft:draft@v4", "caption-draft-revision:4",
+    ] });
   });
 });
 
@@ -161,7 +186,11 @@ describe("caption version save recovery", () => {
 
   it("keeps the screen save lock across a parent port replacement until exact reconciliation", async () => {
     const actionId = "media.action.save-caption-version";
-    const context = { subjectRefs: ["source@v7", "transcript@v3", "draft@v4"] };
+    const context = { subjectRefs: [
+      "source@v7", "transcript@v3", "draft@v4",
+      "source-artifact:artifact-1", "source-version:artifact-version-7",
+      "parent:TRANSCRIPT_VERSION:transcript@v3", "caption-draft:draft@v4", "caption-draft-revision:4",
+    ] };
     const payload = {};
     const firstPort: MediaActionPort = { invoke: async () => ({ status: "request-acknowledged", requestId: "save-request-rerender" }) };
     const replacementInvoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "save-request-duplicate" }));
@@ -179,7 +208,9 @@ describe("caption version save recovery", () => {
       context: { locale: "en-US" },
       transcript: {
         view: "correct-captions", sourceArtifactVersion: "source@v7", transcriptVersion: "transcript@v3",
-        captionDraftVersion: "draft@v4", segments: [],
+        sourceArtifactId: "artifact-1", sourceArtifactVersionId: "artifact-version-7",
+        parentVersionKind: "TRANSCRIPT_VERSION", parentVersionId: "transcript@v3",
+        captionDraftVersion: "draft@v4", captionDraftRevision: 4, segments: [],
       },
     };
     const view = render(React.createElement(TranscriptCaptionScreen, props));

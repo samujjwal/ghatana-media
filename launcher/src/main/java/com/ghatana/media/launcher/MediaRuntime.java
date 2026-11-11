@@ -43,6 +43,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRegistration;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
+import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaModalityContracts;
@@ -114,6 +115,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntimePort {
     /** A consent lookup must be current for the effect; older decisions fail closed. */
     private static final Duration MAX_CONSENT_DECISION_AGE = Duration.ofSeconds(30);
+    private static final String DEV_ONLY_JOB_CANCELLATION_OPERATION = "media.operation-slice.cancel-job";
     private static final Logger log = LoggerFactory.getLogger(MediaRuntime.class);
     private static final Logger audit = LoggerFactory.getLogger("media.auditTrail");
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -142,6 +144,12 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private static final Set<com.ghatana.media.runtime.MediaRuntimeContracts.JobType>
             WAVE2_SOURCE_RIGHTS_JOB_TYPES = Set.of(
                     com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL);
+    private static final Set<com.ghatana.media.runtime.MediaRuntimeContracts.JobType>
+            PRODUCTION_SOURCE_RIGHTS_JOB_TYPES = Set.of(
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH,
                     com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
                     com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL);
 
@@ -955,6 +963,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         if (!artifact.principalId().equals(request.principalId())) {
             throw new SecurityException("Media artifact is not owned by the authenticated principal");
         }
+        requireProductionSourceRightsAuthority(request.jobType());
         List<MediaProcessingProvider> providers = selectProcessingProviders(request);
         MediaProcessingProvider provider = providers.getFirst();
         MediaSourceAuthorizationContracts.Evidence sourceAuthorization = null;
@@ -1252,6 +1261,41 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         };
     }
 
+    /**
+     * Checks the production source-rights authority before provider selection so a missing
+     * policy boundary cannot be obscured by, or become distinguishable from, provider
+     * availability for an otherwise valid owned artifact.
+     */
+    private void requireProductionSourceRightsAuthority(
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType) {
+        if (!config.productionLike() || !PRODUCTION_SOURCE_RIGHTS_JOB_TYPES.contains(jobType)) return;
+        boolean ready = false;
+        if (sourceAuthorizationAuthority != null) {
+            try {
+                ready = sourceAuthorizationAuthority.ready();
+            } catch (RuntimeException unavailable) {
+                log.debug("Media source rights authority readiness is unavailable", unavailable);
+            }
+        }
+        if (!ready) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "authoritative source rights resolver is unavailable");
+        }
+        boolean productionEligible;
+        try {
+            productionEligible = sourceAuthorizationAuthority.productionEligible();
+        } catch (RuntimeException unavailable) {
+            productionEligible = false;
+            log.debug("Media source rights authority production eligibility is unavailable", unavailable);
+        }
+        if (!productionEligible) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
+                    "source rights authority is not eligible for production admission");
+        }
+    }
+
     /** Source rights are separate from consent; external effects require current evidence. */
     private void requireSourceRightsAdmission(
             com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType,
@@ -1259,10 +1303,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaProcessingProvider provider) {
         if (sourceAuthorization != null) return;
         boolean productionRightsRequired = config.productionLike()
-                && (jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
-                        || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
-                        || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION
-                        || jobType == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL);
+                && PRODUCTION_SOURCE_RIGHTS_JOB_TYPES.contains(jobType);
         if (productionRightsRequired || provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
             throw new MediaCapabilityNotAdmittedException(
                     MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, jobType.name(),
@@ -1553,6 +1594,238 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return cancelOwnedJob(tenantId, principalId, jobId);
     }
 
+    /**
+     * Replay-safe cancellation request for the signed DEV_ONLY command surface. The request key
+     * and its dispatch phase are persisted on the job row before provider cancellation is called.
+     * A repeated request returns that durable observation and never dispatches a second cancel.
+     * This method deliberately admits only in-process LOCAL providers; production cancellation
+     * remains governed by its separate owner wire and admission contract.
+     */
+    public record DevOnlyJobCancellationResult(
+            String schemaVersion,
+            String scope,
+            String requestId,
+            String outcome,
+            boolean replayed,
+            MediaJobView job) { }
+
+    public DevOnlyJobCancellationResult cancelLocalDevelopmentJob(
+            String tenantId, String principalId, String jobId, String requestId, Long expectedVersion) {
+        ensureOpen();
+        if (!"dev".equals(config.profile())) {
+            throw new DevJobCancellationNotAdmittedException();
+        }
+        requirePrincipal(principalId);
+        requireCancellationId(requestId);
+        if (expectedVersion != null && expectedVersion < 1) {
+            throw new IllegalArgumentException("expectedVersion must be positive");
+        }
+        ProcessingJob current = findOwnedJob(tenantId, principalId, jobId);
+        String fingerprint = cancellationFingerprint(tenantId, principalId, jobId, requestId, expectedVersion);
+        Map<String, Object> prior = developmentCancellation(current.result());
+        if (prior != null) return replayDevelopmentCancellation(current, prior, requestId, fingerprint);
+        if (terminal(current.status())) {
+            return devCancellationResult(current, requestId, "ALREADY_TERMINAL", false);
+        }
+        if (expectedVersion != null && current.version() != expectedVersion) {
+            throw new DevJobCancellationVersionConflictException(expectedVersion, current.version());
+        }
+        MediaProcessingProvider provider = processingProviders.stream()
+                .filter(candidate -> candidate.providerId().equalsIgnoreCase(current.providerId()))
+                .findFirst().orElse(null);
+        if (provider == null || provider.processingBoundary() != ProcessingBoundary.LOCAL) {
+            throw new DevJobCancellationNotAdmittedException();
+        }
+
+        ProcessingJob reserved = developmentCancellation(current, requestId, fingerprint, expectedVersion,
+                "DISPATCH_STARTED", "");
+        try {
+            reserved = jobStore.update(current, reserved);
+        } catch (com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException raced) {
+            ProcessingJob latest = findOwnedJob(tenantId, principalId, jobId);
+            Map<String, Object> latestCancellation = developmentCancellation(latest.result());
+            if (latestCancellation != null) {
+                return replayDevelopmentCancellation(latest, latestCancellation, requestId, fingerprint);
+            }
+            if (terminal(latest.status())) return devCancellationResult(latest, requestId, "ALREADY_TERMINAL", true);
+            throw new DevJobCancellationConflictException();
+        }
+
+        final CancellationOutcome providerOutcome;
+        try {
+            // The stable cancel request ID is the provider correlation identity for this one
+            // local dispatch. The job's submission request identity remains in the job row.
+            providerOutcome = java.util.Objects.requireNonNull(
+                    provider.cancel(tenantId, principalId, requestId, jobId),
+                    "LOCAL provider returned no cancellation outcome");
+        } catch (RuntimeException ambiguous) {
+            try {
+                ProcessingJob latest = markDevelopmentCancellationOutcome(
+                        reserved, "OUTCOME_UNKNOWN", "UNKNOWN", false, false);
+                return devCancellationResult(latest, requestId, "OUTCOME_UNKNOWN", false);
+            } catch (com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException raced) {
+                ProcessingJob latest = findOwnedJob(tenantId, principalId, jobId);
+                String racedOutcome = terminal(latest.status()) ? "TERMINAL_RACE" : "OUTCOME_UNKNOWN";
+                return devCancellationResult(latest, requestId, racedOutcome, false);
+            }
+        }
+
+        JobControl control = activeJobs.get(jobId);
+        boolean runtimeCancellationSignal = control != null;
+        String outcome = providerOutcome == CancellationOutcome.UNSUPPORTED && runtimeCancellationSignal
+                ? "REQUESTED_UNCONFIRMED" : switch (providerOutcome) {
+            case CONFIRMED -> "CONFIRMED";
+            case REQUESTED_UNCONFIRMED -> "REQUESTED_UNCONFIRMED";
+            case UNSUPPORTED -> "UNSUPPORTED";
+        };
+        try {
+            ProcessingJob latest = markDevelopmentCancellationOutcome(
+                    reserved, outcome,
+                    providerOutcome == CancellationOutcome.CONFIRMED ? "CONFIRMED" : providerOutcome.name(),
+                    providerOutcome == CancellationOutcome.CONFIRMED, runtimeCancellationSignal);
+            if (providerOutcome == CancellationOutcome.REQUESTED_UNCONFIRMED
+                    || providerOutcome == CancellationOutcome.UNSUPPORTED && runtimeCancellationSignal) {
+                if (control != null) control.cancellation().cancel();
+            } else if (providerOutcome == CancellationOutcome.CONFIRMED) {
+                if (control != null) {
+                    control.cancellation().cancel();
+                    control.future().cancel(true);
+                }
+            }
+            return devCancellationResult(latest, requestId, outcome, false);
+        } catch (com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException raced) {
+            ProcessingJob latest = findOwnedJob(tenantId, principalId, jobId);
+            String racedOutcome = terminal(latest.status()) ? "TERMINAL_RACE" : "OUTCOME_UNKNOWN";
+            return devCancellationResult(latest, requestId, racedOutcome, false);
+        }
+    }
+
+    public static final class DevJobCancellationConflictException extends IllegalStateException {
+        public DevJobCancellationConflictException() { super("a different cancellation request already owns this job"); }
+    }
+
+    public static final class DevJobCancellationVersionConflictException extends IllegalStateException {
+        private final long expected;
+        private final long actual;
+        public DevJobCancellationVersionConflictException(long expected, long actual) {
+            super("Media job version changed before cancellation was reserved");
+            this.expected = expected;
+            this.actual = actual;
+        }
+        public long expected() { return expected; }
+        public long actual() { return actual; }
+    }
+
+    public static final class DevJobCancellationNotAdmittedException extends IllegalStateException {
+        public DevJobCancellationNotAdmittedException() { super("local-development cancellation requires a LOCAL provider"); }
+    }
+
+    private ProcessingJob findOwnedJob(String tenantId, String principalId, String jobId) {
+        return jobStore.find(tenantId, jobId)
+                .filter(value -> value.principalId().equals(principalId))
+                .orElseThrow(() -> new IllegalArgumentException("Media job not found: " + jobId));
+    }
+
+    private ProcessingJob markDevelopmentCancellationOutcome(
+            ProcessingJob reserved, String outcome, String providerOutcome,
+            boolean confirmed, boolean runtimeCancellationSignal) {
+        Map<String, Object> result = new LinkedHashMap<>(reserved.result());
+        Map<String, Object> record = new LinkedHashMap<>(developmentCancellation(result));
+        record.put("outcome", outcome);
+        record.put("providerOutcome", providerOutcome);
+        record.put("runtimeCancellationSignal", runtimeCancellationSignal);
+        record.put("updatedAt", Instant.now().toString());
+        result.put("devOnlyCancellation", Map.copyOf(record));
+        if (confirmed) {
+            return jobStore.update(reserved,
+                    transition(reserved, JobStatus.CANCELLED, Map.copyOf(result), "CANCELLED"));
+        }
+        ProcessingJob updated = new ProcessingJob(
+                reserved.jobId(), reserved.requestId(), reserved.tenantId(), reserved.principalId(),
+                reserved.artifactId(), reserved.jobType(), reserved.providerId(), reserved.status(),
+                reserved.createdAt(), reserved.startedAt(), reserved.completedAt(), Map.copyOf(result),
+                reserved.failureCode(), reserved.version() + 1, reserved.expectedArtifactVersion(),
+                reserved.requestFingerprint());
+        return jobStore.update(reserved, updated);
+    }
+
+    private ProcessingJob developmentCancellation(
+            ProcessingJob current, String requestId, String fingerprint, Long expectedVersion,
+            String outcome, String providerOutcome) {
+        Map<String, Object> record = new LinkedHashMap<>();
+        record.put("operationRef", DEV_ONLY_JOB_CANCELLATION_OPERATION);
+        record.put("requestId", requestId);
+        record.put("requestFingerprint", fingerprint);
+        if (expectedVersion != null) record.put("expectedVersion", expectedVersion);
+        record.put("reservedVersion", current.version());
+        record.put("outcome", outcome);
+        record.put("providerOutcome", providerOutcome);
+        record.put("runtimeCancellationSignal", false);
+        record.put("createdAt", Instant.now().toString());
+        record.put("updatedAt", Instant.now().toString());
+        Map<String, Object> result = new LinkedHashMap<>(current.result());
+        result.put("devOnlyCancellation", Map.copyOf(record));
+        return new ProcessingJob(current.jobId(), current.requestId(), current.tenantId(), current.principalId(),
+                current.artifactId(), current.jobType(), current.providerId(), current.status(), current.createdAt(),
+                current.startedAt(), current.completedAt(), Map.copyOf(result), current.failureCode(),
+                current.version() + 1, current.expectedArtifactVersion(), current.requestFingerprint());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> developmentCancellation(Map<String, Object> result) {
+        Object value = result.get("devOnlyCancellation");
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> copy = new LinkedHashMap<>();
+            map.forEach((key, entry) -> { if (key instanceof String text) copy.put(text, entry); });
+            return copy;
+        }
+        return null;
+    }
+
+    private DevOnlyJobCancellationResult replayDevelopmentCancellation(
+            ProcessingJob job, Map<String, Object> prior, String requestId, String fingerprint) {
+        if (!requestId.equals(prior.get("requestId")) || !fingerprint.equals(prior.get("requestFingerprint"))) {
+            throw new DevJobCancellationConflictException();
+        }
+        String outcome = prior.get("outcome") instanceof String text ? text : "OUTCOME_UNKNOWN";
+        if ("DISPATCH_STARTED".equals(outcome)) outcome = "OUTCOME_UNKNOWN";
+        return devCancellationResult(job, requestId, outcome, true);
+    }
+
+    private DevOnlyJobCancellationResult devCancellationResult(
+            ProcessingJob job, String requestId, String outcome, boolean replayed) {
+        return new DevOnlyJobCancellationResult("media.dev.job-cancellation-result.v1", "DEV_ONLY",
+                requestId, outcome, replayed, projectJobView(job));
+    }
+
+    private static void requireCancellationId(String requestId) {
+        if (requestId == null || !requestId.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException("cancellation requestId must be a bounded opaque ID");
+        }
+    }
+
+    private static String cancellationFingerprint(
+            String tenantId, String principalId, String jobId, String requestId, Long expectedVersion) {
+        try {
+            java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            java.io.DataOutputStream output = new java.io.DataOutputStream(bytes);
+            for (String value : java.util.List.of(DEV_ONLY_JOB_CANCELLATION_OPERATION,
+                    tenantId, principalId, jobId, requestId,
+                    expectedVersion == null ? "" : expectedVersion.toString())) {
+                byte[] encoded = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                output.writeInt(encoded.length);
+                output.write(encoded);
+            }
+            output.flush();
+            return java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(bytes.toByteArray()));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is required by the Java runtime", impossible);
+        } catch (java.io.IOException impossible) {
+            throw new IllegalStateException("Unable to encode cancellation identity", impossible);
+        }
+    }
+
     private ProcessingJob cancelOwnedJob(String tenantId, String principalId, String jobId) {
         ProcessingJob current = jobStore.find(tenantId, jobId)
                 .filter(value -> value.principalId().equals(principalId))
@@ -1782,15 +2055,17 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             future = control.provider().accept(
                     new StreamContext(reserved, control.cancellation(), consent, control.governance()), frame);
         } catch (RuntimeException failure) {
+            throw unknownFrameOutcome("Media stream frame processing outcome is unknown", reserved, failure);
+        } catch (Error failure) {
             markStreamOutcomeUnknown(reserved, failure);
-            throw new IllegalStateException("Media stream frame processing failed", failure);
+            throw failure;
         }
         if (future == null) {
             IllegalStateException failure =
                     new IllegalStateException("Media streaming provider returned a null future");
-            markStreamOutcomeUnknown(reserved, failure);
-            throw failure;
+            throw unknownFrameOutcome("Media stream frame processing outcome is unknown", reserved, failure);
         }
+        boolean frameAcknowledgementPersisted = false;
         try {
             StreamAck ack = future.copy()
                     .orTimeout(config.jobTimeout().toMillis(), TimeUnit.MILLISECONDS)
@@ -1802,6 +2077,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 throw new IllegalStateException("Media streaming provider exceeded the session buffer limit");
             }
             streamStore.recordFrame(reserved, frame.sequence(), ack.bufferedBytes(), frame.endOfStream());
+            frameAcknowledgementPersisted = true;
             workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                     MediaWorkflowMetrics.Outcome.SUCCESS);
             return new StreamAck(ack.acceptedSequence(), ack.bufferedBytes(), ack.backpressured());
@@ -1809,24 +2085,36 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             Throwable cause = unwrap(failure);
             if (cause instanceof TimeoutException) {
                 cancelTimedOutStreamFrame(control, future);
-                markStreamOutcomeUnknown(reserved, failure);
+                MediaStreamOutcomeUnknownException unknown = unknownFrameOutcome(
+                        "Media stream frame processing outcome is unknown", reserved, failure);
                 workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                         MediaWorkflowMetrics.Outcome.UNKNOWN);
-                throw new IllegalStateException("Media stream frame processing timed out", cause);
+                throw unknown;
             }
-            markStreamOutcomeUnknown(reserved, failure);
+            MediaStreamOutcomeUnknownException unknown = unknownFrameOutcome(
+                    "Media stream frame processing outcome is unknown", reserved, failure);
             workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                     MediaWorkflowMetrics.Outcome.UNKNOWN);
-            throw new IllegalStateException("Media stream frame processing failed", cause);
+            throw unknown;
         } catch (java.util.concurrent.CancellationException failure) {
-            markStreamOutcomeUnknown(reserved, failure);
+            MediaStreamOutcomeUnknownException unknown = unknownFrameOutcome(
+                    "Media stream frame processing outcome is unknown", reserved, failure);
             workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                     MediaWorkflowMetrics.Outcome.UNKNOWN);
-            throw new IllegalStateException("Media stream frame processing was cancelled", failure);
+            throw unknown;
         } catch (RuntimeException failure) {
-            markStreamOutcomeUnknown(reserved, failure);
+            if (frameAcknowledgementPersisted) {
+                throw failure;
+            }
+            MediaStreamOutcomeUnknownException unknown = unknownFrameOutcome(
+                    "Media stream frame processing outcome is unknown", reserved, failure);
             workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                     MediaWorkflowMetrics.Outcome.UNKNOWN);
+            throw unknown;
+        } catch (Error failure) {
+            if (!frameAcknowledgementPersisted) {
+                markStreamOutcomeUnknown(reserved, failure);
+            }
             throw failure;
         }
     }
@@ -1848,12 +2136,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
     }
 
-    private void markStreamOutcomeUnknown(StreamSession reserved, RuntimeException triggeringFailure) {
+    private void markStreamOutcomeUnknown(StreamSession reserved, Throwable triggeringFailure) {
         try {
             streamStore.markFrameOutcomeUnknown(reserved);
-        } catch (RuntimeException persistenceFailure) {
-            triggeringFailure.addSuppressed(persistenceFailure);
+        } catch (RuntimeException | Error persistenceFailure) {
+            if (persistenceFailure != triggeringFailure) {
+                triggeringFailure.addSuppressed(persistenceFailure);
+            }
         }
+    }
+
+    private MediaStreamOutcomeUnknownException unknownFrameOutcome(
+            String message, StreamSession reserved, RuntimeException triggeringFailure) {
+        MediaStreamOutcomeUnknownException unknown =
+                new MediaStreamOutcomeUnknownException(message, triggeringFailure);
+        markStreamOutcomeUnknown(reserved, unknown);
+        return unknown;
     }
 
     public StreamSession closeStream(String tenantId, String sessionId, String token) {
@@ -2025,9 +2323,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     /** Prometheus scrape used by the established HTTP /metrics route. */
     public String prometheusMetrics() {
+        return prometheusMetrics("text/plain; version=0.0.4; charset=utf-8");
+    }
+
+    /** Prometheus or OpenMetrics exposition from this runtime's registry. */
+    public String prometheusMetrics(String contentType) {
         ensureOpen();
         refreshWorkflowGauges();
-        return metricsRegistry.scrape();
+        return metricsRegistry.scrape(contentType);
     }
 
     void recordHttpRequest() {
@@ -2476,10 +2779,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private static boolean usableProcessingProvider(
             MediaProcessingProvider provider, boolean productionLike) {
         try {
-            return provider.ready() && provider.capabilities() != null
+            if (!(provider.ready() && provider.capabilities() != null
                     && !provider.capabilities().isEmpty()
                     && provider.processingBoundary() != null
-                    && (!productionLike || provider.productionEligible());
+                    && (!productionLike || provider.productionEligible()))) {
+                return false;
+            }
+            // Keep availability probes and job selection aligned with the full
+            // provider identity/profile validation used by runtime readiness.
+            provider.verifyReady();
+            return true;
         } catch (RuntimeException failure) {
             return false;
         }
@@ -2729,8 +3038,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 "failureType", TimeoutException.class.getSimpleName(),
                                 "providerOutcome", "UNKNOWN"),
                         "PROCESSING_OUTCOME_UNKNOWN");
-            } else if (cancellation.cancelled()
-                    || cause instanceof java.util.concurrent.CancellationException) {
+            } else if ((cancellation.cancelled()
+                    || cause instanceof java.util.concurrent.CancellationException)
+                    && !hasDefinitiveProviderOutcome(outcome)) {
                 if (closed.get()) {
                     audit.warn("MEDIA_JOB_LOCAL_CANCELLATION_UNCONFIRMED tenantId={} jobId={} status={}",
                             value.tenantId(), value.jobId(), value.status());
@@ -2848,7 +3158,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                     ? Map.of() : submission.result(),
                             submission.provenanceDigest(), submission.observedAt());
                     if (terminal.status() == JobStatus.COMPLETED
-                            && successFinalizationFenceLost(cancellation, jobBudget)) {
+                            && successFinalizationFenceLost(cancellation, jobBudget, true)) {
                         terminal = unknownAfterSuccessfulFinalization(value, cancellation);
                     }
                     if (terminal.status() == JobStatus.OUTCOME_UNKNOWN
@@ -2869,7 +3179,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 transcript = speechTranscriptFinalization(request, dispatchArtifact, value,
                                         submission, providers.getFirst(), sourceAuthorization, authenticated);
                         MediaLifecycleEvent completedEvent = lifecycleEvent(value, terminal, request, dispatchArtifact);
-                        if (successFinalizationFenceLost(cancellation, jobBudget)) {
+                        if (successFinalizationFenceLost(cancellation, jobBudget, true)) {
                             terminal = unknownAfterSuccessfulFinalization(value, cancellation);
                             terminal = jobStore.recordProviderSuccessWithUnknownJob(value, recorded, terminal,
                                     observation,
@@ -2884,7 +3194,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         MediaLifecycleEvent finalEvent = lifecycleEvent(value, terminal, request, dispatchArtifact);
                         if (terminal.status() == JobStatus.COMPLETED
                                 && submission.finality() == AttemptFinality.SUCCEEDED
-                                && successFinalizationFenceLost(cancellation, jobBudget)) {
+                                && successFinalizationFenceLost(cancellation, jobBudget, true)) {
                             terminal = unknownAfterSuccessfulFinalization(value, cancellation);
                             terminal = jobStore.recordProviderSuccessWithUnknownJob(value, recorded, terminal,
                                     observation,
@@ -2926,7 +3236,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     }
                 } else {
                     if (terminal.status() == JobStatus.COMPLETED
-                            && successFinalizationFenceLost(cancellation, jobBudget)) {
+                            && successFinalizationFenceLost(cancellation, jobBudget, false)) {
                         terminal = unknownAfterSuccessfulFinalization(value, cancellation);
                     }
                     jobStore.update(value, terminal);
@@ -3540,7 +3850,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             });
             // A RUNNING child row alone does not prove a live lease owner or a safe resume
             // path after restart. Leave the parent for generic OUTCOME_UNKNOWN recovery;
-            // only durable terminal child outcomes can establish parent finality here.
+            // an all-completed child set also needs current authority before disclosure.
             if (!allTerminal) return false;
             // A child cancellation is not proof that its dispatched provider had no
             // effect. Restart cannot safely turn a failed sibling plus a cancelled
@@ -3550,43 +3860,20 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             // declared partial-result contract, a failed sibling cannot turn that mixed
             // outcome into parent FAILED/NO_EFFECT_PROVEN; preserve UNKNOWN instead.
             boolean allFailed = children.stream().allMatch(child -> child.status() == JobStatus.FAILED);
-            if (!allCompleted && !allFailed) return false;
-            ProcessingJob terminal;
             if (allCompleted) {
-                MediaArtifact artifact = artifactStore.artifact(job.tenantId(), job.artifactId(),
-                                new ArtifactVersion(job.expectedArtifactVersion())).orElse(null);
-                Object purpose = spec.plan().get("purpose");
-                MediaProcessingProvider provider = processingProviders.stream()
-                        .filter(candidate -> candidate.providerId().equals(job.providerId()))
-                        .findFirst().orElse(null);
-                if (artifact == null || !(purpose instanceof String) || provider == null) return false;
-                MediaGovernanceContext governance = new MediaGovernanceContext("",
-                        (String) purpose,
-                        com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification
-                                .valueOf(artifact.classification()),
-                        "unspecified", Set.of(), false, "service-default", false, false, "",
-                        com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity.NONE,
-                        com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk.ASSISTIVE);
-                ProcessingJobRequest synthetic = new ProcessingJobRequest(
-                        job.requestId(), job.tenantId(), job.principalId(), job.requestId(),
-                        job.artifactId(), job.expectedArtifactVersion(), job.jobType(), "",
-                        Map.of(com.ghatana.media.runtime.MediaRuntimeContracts
-                                        .MultimodalOperationSpec.PARAMETERS_KEY,
-                                spec.toParametersValue()),
-                        governance);
-                Map<String, Object> governed = MediaModalityContracts.governedResult(
-                        synthetic, artifact, provider.providerId(), provider.providerVersion(),
-                        provider.modelVersion(job.jobType()),
-                        com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
-                                .fusedResult(spec, children),
-                        ConsentDecision.unverified(), ProcessingBoundary.LOCAL,
-                        com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE);
-                terminal = transition(job, provider.providerId(), JobStatus.COMPLETED, governed, "");
-            } else {
-                terminal = transition(job, JobStatus.FAILED, Map.of(
-                        "childOutcome", "FAILED", "providerOutcome", "NO_EFFECT_PROVEN"),
-                        "MULTIMODAL_CHILD_FAILED");
+                // Startup has persisted identity strings and decision references, but no
+                // fresh authenticated principal or full authorization Evidence. Rebuilding
+                // either from those strings would turn identity into authentication and
+                // old child success into current source authority. Keep parent finality
+                // UNKNOWN until an owner-authorized recovery contract is available.
+                audit.warn("MEDIA_MULTIMODAL_PARENT_CURRENT_AUTHORITY_UNAVAILABLE tenantId={} jobId={}",
+                        job.tenantId(), job.jobId());
+                return false;
             }
+            if (!allFailed) return false;
+            ProcessingJob terminal = transition(job, JobStatus.FAILED, Map.of(
+                    "childOutcome", "FAILED", "providerOutcome", "NO_EFFECT_PROVEN"),
+                    "MULTIMODAL_CHILD_FAILED");
             jobStore.reconcileExpired(job, terminal, lifecycleEvent(job, terminal, "INTERNAL"));
             audit.warn("MEDIA_MULTIMODAL_PARENT_RECONCILED tenantId={} jobId={} status={}",
                     job.tenantId(), job.jobId(), terminal.status());
@@ -3981,10 +4268,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 && handoff.getCause() instanceof TimeoutException;
     }
 
+    private static boolean hasDefinitiveProviderOutcome(ProcessingOutcome outcome) {
+        return outcome != null && outcome.submission() != null
+                && outcome.submission().finality() != AttemptFinality.UNKNOWN;
+    }
+
     private static boolean successFinalizationFenceLost(
             Cancellation cancellation,
-            ProcessingContext.MonotonicDeadline jobBudget) {
-        return cancellation.cancelled() || jobBudget.expired();
+            ProcessingContext.MonotonicDeadline jobBudget,
+            boolean definitiveProviderOutcome) {
+        return jobBudget.expired() || cancellation.cancelled() && !definitiveProviderOutcome;
     }
 
     private ProcessingJob unknownAfterSuccessfulFinalization(
@@ -4110,10 +4403,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             JobStatus status,
             Map<String, Object> result,
             String failureCode) {
+        Map<String, Object> durableResult = new LinkedHashMap<>(result == null ? Map.of() : result);
+        // Cancellation replay identity belongs to the job lifecycle row. Worker terminal
+        // projections must retain it so an uncertain DEV_ONLY response can be reconciled after
+        // a concurrent completion or restart without redispatching cancellation.
+        Object cancellation = current.result().get("devOnlyCancellation");
+        if (cancellation != null) durableResult.putIfAbsent("devOnlyCancellation", cancellation);
         return new ProcessingJob(
                 current.jobId(), current.requestId(), current.tenantId(), current.principalId(), current.artifactId(),
                 current.jobType(), providerId, status, current.createdAt(), current.startedAt(),
-                Instant.now(), result, failureCode, current.version() + 1,
+                Instant.now(), Map.copyOf(durableResult), failureCode, current.version() + 1,
                 current.expectedArtifactVersion(), current.requestFingerprint());
     }
 

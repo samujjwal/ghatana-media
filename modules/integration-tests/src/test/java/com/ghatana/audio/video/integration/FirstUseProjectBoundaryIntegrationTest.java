@@ -69,7 +69,7 @@ class FirstUseProjectBoundaryIntegrationTest {
         assertThat(replay.createdNow()).isFalse();
         assertThat(replay.project().projectId()).isEqualTo(first.project().projectId());
         assertThat(replay.initialRevision().revisionId()).isEqualTo(first.initialRevision().revisionId());
-        assertThat(replay.initialRevision().graph().scenes()).isEmpty();
+        assertThat(replay.initialRevision().timelines()).isEmpty();
         assertThat(engine.project(CREATOR, first.project().projectId()).headRevisionId())
                 .isEqualTo(first.initialRevision().revisionId());
     }
@@ -117,20 +117,48 @@ class FirstUseProjectBoundaryIntegrationTest {
                 store, () -> "j01-revision-id-" + ids.incrementAndGet());
         var created = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-revision-readback-request");
         var initial = created.initialRevision();
+        var timelineHead = engine.createTimeline(CREATOR, created.project().projectId(), initial.revisionId(), "timeline-j01");
 
-        var successor = engine.edit(CREATOR, created.project().projectId(), initial.revisionId(),
+        var successor = engine.edit(CREATOR, created.project().projectId(), "timeline-j01", timelineHead.revisionId(),
                 List.of(new AddScene(new Scene("scene-j01-first-edit", 0))));
 
         assertThat(successor.revisionId()).isNotEqualTo(initial.revisionId());
-        assertThat(successor.parentRevisionId()).isEqualTo(initial.revisionId());
+        assertThat(successor.parentRevisionId()).isEqualTo(timelineHead.revisionId());
         assertThat(engine.project(CREATOR, created.project().projectId()).headRevisionId())
                 .isEqualTo(successor.revisionId());
         assertThat(store.revision(CREATOR, created.project().projectId(), initial.revisionId()))
                 .isEqualTo(initial);
-        assertThat(store.revision(CREATOR, created.project().projectId(), initial.revisionId()).graph().scenes())
-                .isEmpty();
-        assertThat(store.revision(CREATOR, created.project().projectId(), successor.revisionId()).graph().scenes())
+        assertThat(initial.timelines()).isEmpty();
+        assertThat(store.revision(CREATOR, created.project().projectId(), timelineHead.revisionId()).timelines()
+                .getFirst().graph().scenes()).isEmpty();
+        assertThat(store.revision(CREATOR, created.project().projectId(), successor.revisionId()).timelines()
+                .getFirst().graph().scenes())
                 .containsExactly(new Scene("scene-j01-first-edit", 0));
+
+        var createdTimelineDiff = engine.diff(CREATOR, created.project().projectId(), initial.revisionId(), timelineHead.revisionId());
+        assertThat(createdTimelineDiff.addedTimelineIds()).containsExactly("timeline-j01");
+        assertThat(createdTimelineDiff.removedTimelineIds()).isEmpty();
+
+        var diff = engine.diff(CREATOR, created.project().projectId(), timelineHead.revisionId(), successor.revisionId());
+        assertThat(diff.fromRevisionId()).isEqualTo(timelineHead.revisionId());
+        assertThat(diff.toRevisionId()).isEqualTo(successor.revisionId());
+        assertThat(diff.timelineChanges().get("timeline-j01").changes().addedScenes())
+                .containsExactly("scene-j01-first-edit");
+        assertThat(diff.timelineChanges().get("timeline-j01").fromSemanticVersionId())
+                .isEqualTo(timelineHead.timelines().getFirst().semanticVersionId());
+        assertThat(diff.timelineChanges().get("timeline-j01").toSemanticVersionId())
+                .isEqualTo(successor.timelines().getFirst().semanticVersionId());
+        assertThat(diff.timelineChanges().get("timeline-j01").fromSemanticVersionId())
+                .isNotEqualTo(diff.timelineChanges().get("timeline-j01").toSemanticVersionId());
+        assertThat(engine.project(CREATOR, created.project().projectId()).headRevisionId())
+                .isEqualTo(successor.revisionId());
+
+        assertThatThrownBy(() -> engine.diff(new Actor(CREATOR.tenantId(), "another-principal"),
+                created.project().projectId(), initial.revisionId(), successor.revisionId()))
+                .isInstanceOf(ProjectAccessDeniedException.class)
+                .hasMessage("principal is not authorized to edit this project");
+        assertThat(engine.project(CREATOR, created.project().projectId()).headRevisionId())
+                .isEqualTo(successor.revisionId());
     }
 
     @Test
@@ -153,7 +181,7 @@ class FirstUseProjectBoundaryIntegrationTest {
         assertThatThrownBy(() -> engine.project(new Actor(CREATOR.tenantId(), "another-principal"),
                 created.project().projectId())).isInstanceOf(ProjectAccessDeniedException.class);
         assertThat(engine.project(CREATOR, created.project().projectId()).headRevisionId()).isEqualTo(head);
-        assertThat(store.revision(CREATOR, created.project().projectId(), head).graph().scenes()).isEmpty();
+        assertThat(store.revision(CREATOR, created.project().projectId(), head).timelines()).isEmpty();
     }
 
     @Test
@@ -164,7 +192,8 @@ class FirstUseProjectBoundaryIntegrationTest {
                 store, () -> "j01-id-" + ids.incrementAndGet());
         var created = engine.createProject(CREATOR, WORKSPACE, "First cut", REQUEST);
         String projectId = created.project().projectId();
-        String initialRevision = created.initialRevision().revisionId();
+        String initialRevision = engine.createTimeline(CREATOR, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-j01").revisionId();
 
         // Tenant-scoped absence does not disclose the project; the creator's head is unchanged.
         assertThatThrownBy(() -> engine.project(new Actor("tenant-j01-b", "creator-j01-a"), projectId))
@@ -176,13 +205,13 @@ class FirstUseProjectBoundaryIntegrationTest {
                 .isInstanceOf(IdempotencyConflictException.class);
         assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevision);
 
-        var committed = engine.edit(CREATOR, projectId, initialRevision,
+        var committed = engine.edit(CREATOR, projectId, "timeline-j01", initialRevision,
                 List.of(new AddScene(new Scene("scene-j01-1", 0))));
-        assertThatThrownBy(() -> engine.edit(CREATOR, projectId, initialRevision,
+        assertThatThrownBy(() -> engine.edit(CREATOR, projectId, "timeline-j01", initialRevision,
                 List.of(new AddScene(new Scene("scene-j01-stale", 1)))))
                 .isInstanceOf(RevisionConflictException.class);
         assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(committed.revisionId());
-        assertThat(store.revision(CREATOR, projectId, committed.revisionId()).graph().scenes())
+        assertThat(store.revision(CREATOR, projectId, committed.revisionId()).timelines().getFirst().graph().scenes())
                 .containsExactly(new Scene("scene-j01-1", 0));
     }
 
@@ -203,7 +232,7 @@ class FirstUseProjectBoundaryIntegrationTest {
         var observed = engine.project(CREATOR, projectId);
         assertThat(observed.title()).isEqualTo("First cut");
         assertThat(observed.headRevisionId()).isEqualTo(initialRevisionId);
-        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).timelines()).isEmpty();
     }
 
     @Test
@@ -224,7 +253,7 @@ class FirstUseProjectBoundaryIntegrationTest {
         assertThat(ids).hasValue(allocatedIdsAfterCreate);
         assertThat(engine.project(CREATOR, projectId).title()).isEqualTo("First cut");
         assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
-        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).timelines()).isEmpty();
         var exactReplay = engine.createProject(CREATOR, WORKSPACE, "First cut", "j01-blank-title-bound-request");
         assertThat(exactReplay.createdNow()).isFalse();
         assertThat(exactReplay.project()).isEqualTo(created.project());
@@ -264,15 +293,15 @@ class FirstUseProjectBoundaryIntegrationTest {
         String initialRevisionId = created.initialRevision().revisionId();
         Actor otherTenant = new Actor("tenant-j01-other", CREATOR.principalId());
 
-        assertThatThrownBy(() -> engine.edit(otherTenant, projectId, initialRevisionId,
+        assertThatThrownBy(() -> engine.edit(otherTenant, projectId, "timeline-j01", initialRevisionId,
                 List.of(new AddScene(new Scene("scene-j01-forbidden", 0)))))
                 .isInstanceOf(ProjectNotFoundException.class);
 
         assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
-        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).timelines()).isEmpty();
         assertThatThrownBy(() -> store.revision(CREATOR, projectId, "j01-tenant-edit-id-4"))
                 .isInstanceOf(ProjectNotFoundException.class);
-        assertThat(ids).hasValue(3);
+        assertThat(ids).hasValue(2);
     }
 
     @Test
@@ -286,12 +315,12 @@ class FirstUseProjectBoundaryIntegrationTest {
         String initialRevisionId = created.initialRevision().revisionId();
         Actor otherPrincipal = new Actor(CREATOR.tenantId(), "another-principal");
 
-        assertThatThrownBy(() -> engine.edit(otherPrincipal, projectId, initialRevisionId,
+        assertThatThrownBy(() -> engine.edit(otherPrincipal, projectId, "timeline-j01", initialRevisionId,
                 List.of(new AddScene(new Scene("scene-j01-forbidden-principal", 0)))))
                 .isInstanceOf(ProjectAccessDeniedException.class);
 
         assertThat(engine.project(CREATOR, projectId).headRevisionId()).isEqualTo(initialRevisionId);
-        assertThat(store.revision(CREATOR, projectId, initialRevisionId).graph().scenes()).isEmpty();
-        assertThat(ids).hasValue(3);
+        assertThat(store.revision(CREATOR, projectId, initialRevisionId).timelines()).isEmpty();
+        assertThat(ids).hasValue(2);
     }
 }

@@ -295,6 +295,9 @@ function modeNavigation(): string {
 }
 
 function explorerHeader(): string {
+  const localDevProjectLink = import.meta.env.DEV
+    ? '<a class="local-dev-project-link" href="/dev-project-timeline.html">Local DEV_ONLY project</a><a class="local-dev-project-link" href="/dev-job-recovery.html">Local DEV_ONLY job read</a>'
+    : "";
   return `<header class="explorer-header">
     <a class="brand" href="#explore" aria-label="Experience Explorer home" data-mode="explore">
       <span class="brand-mark" aria-hidden="true">m</span>
@@ -303,6 +306,7 @@ function explorerHeader(): string {
     ${modeNavigation()}
     <div class="header-utilities">
       <span class="simulation-badge"><span class="status-dot" aria-hidden="true"></span> Synthetic fixture</span>
+      ${localDevProjectLink}
       <button class="icon-button header-help" type="button" aria-label="Open experience notes" data-mode="specification">?</button>
       <span class="avatar" aria-label="Creator">AM</span>
     </div>

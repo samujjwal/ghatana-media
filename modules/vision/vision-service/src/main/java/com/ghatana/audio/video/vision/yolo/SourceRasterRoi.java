@@ -22,8 +22,15 @@ public record SourceRasterRoi(int x, int y, int width, int height, String source
     }
 
     /** Maps a model-canvas detection through letterbox inversion and crop translation. */
-    public LetterboxTransform.Box toSourceRasterPixels(LetterboxTransform transform,
-                                                        LetterboxTransform.Box modelBox) {
+    public LetterboxTransform.Box toSourceRasterPixels(
+            int sourceRasterWidth,
+            int sourceRasterHeight,
+            LetterboxTransform transform,
+            LetterboxTransform.Box modelBox) {
+        validateWithin(sourceRasterWidth, sourceRasterHeight);
+        if (transform == null) {
+            throw new IllegalArgumentException("Letterbox transform is required for ROI mapping");
+        }
         if (transform.sourceWidth() != width || transform.sourceHeight() != height) {
             throw new IllegalArgumentException("Letterbox dimensions must match the ROI crop dimensions");
         }

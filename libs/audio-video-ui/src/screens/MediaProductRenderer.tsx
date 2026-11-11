@@ -4,6 +4,7 @@ import { ArtifactInspectionScreen, type ArtifactInspectionScreenProps } from "./
 import { FirstUseProjectScreen, type FirstUseProjectScreenProps } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen, type JobRecoveryScreenProps } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen, type TranscriptCaptionScreenProps } from "./TranscriptCaptionScreen";
+import { DevProjectTimelineWorkspaceScreen, type DevProjectTimelineWorkspaceScreenProps } from "./DevProjectTimelineWorkspaceScreen";
 import { MediaContractScreen, type MediaContractScreenProps } from "./MediaContractScreen";
 import { MEDIA_SCREEN_COMPONENTS, type MediaContractScreenId } from "./MediaContractScreen";
 
@@ -13,14 +14,15 @@ import { MEDIA_SCREEN_COMPONENTS, type MediaContractScreenId } from "./MediaCont
  * and typed ports; selecting an implemented renderer does not admit a product
  * route, runtime, provider, or deployment.
  */
-export const MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS = {
-  "first-use-project": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
-  "artifact-intake": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
-  "artifact-inspection": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
-  "job-recovery": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
-  "transcript-caption": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
-  "contract-screen": { renderer: "DEFINITION_ONLY_PREVIEW", productRoute: "NOT_ADMITTED" },
-} as const;
+export const MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS = Object.freeze({
+  "first-use-project": Object.freeze({ renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" }),
+  "artifact-intake": Object.freeze({ renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" }),
+  "artifact-inspection": Object.freeze({ renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" }),
+  "job-recovery": Object.freeze({ renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" }),
+  "transcript-caption": Object.freeze({ renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" }),
+  "contract-screen": Object.freeze({ renderer: "DEFINITION_ONLY_PREVIEW", productRoute: "NOT_ADMITTED" }),
+  "dev-project-timeline": Object.freeze({ renderer: "DEV_ONLY_DEVELOPMENT_SCREEN", productRoute: "NOT_ADMITTED" }),
+} as const);
 
 export type MediaScreenRealizationStatus = "LIVE_IMPLEMENTED" | "LOCAL_SIMULATION" | "CONTRACT_PREVIEW" | "NOT_ADMITTED";
 
@@ -48,10 +50,10 @@ export const MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS: Readonly<Record<Medi
   readonly status: MediaScreenRealizationStatus;
   readonly productRoute: "NOT_ADMITTED";
 }>> = Object.freeze(Object.fromEntries(
-  Object.keys(MEDIA_SCREEN_COMPONENTS).map((screenId) => [screenId, {
+  Object.keys(MEDIA_SCREEN_COMPONENTS).map((screenId) => [screenId, Object.freeze({
     status: locallySimulatedScreenIds.has(screenId as MediaContractScreenId) ? "LOCAL_SIMULATION" : "CONTRACT_PREVIEW",
-    productRoute: "NOT_ADMITTED",
-  }]),
+    productRoute: "NOT_ADMITTED" as const,
+  })]),
 ) as Record<MediaContractScreenId, { readonly status: MediaScreenRealizationStatus; readonly productRoute: "NOT_ADMITTED" }>);
 
 export type MediaProductRendererProps =
@@ -60,7 +62,8 @@ export type MediaProductRendererProps =
   | ({ readonly kind: "artifact-inspection" } & ArtifactInspectionScreenProps)
   | ({ readonly kind: "job-recovery" } & JobRecoveryScreenProps)
   | ({ readonly kind: "transcript-caption" } & TranscriptCaptionScreenProps)
-  | ({ readonly kind: "contract-screen" } & MediaContractScreenProps);
+  | ({ readonly kind: "contract-screen" } & MediaContractScreenProps)
+  | ({ readonly kind: "dev-project-timeline" } & DevProjectTimelineWorkspaceScreenProps);
 
 export function MediaProductRenderer(props: MediaProductRendererProps): React.ReactElement {
   switch (props.kind) {
@@ -87,6 +90,10 @@ export function MediaProductRenderer(props: MediaProductRendererProps): React.Re
     case "contract-screen": {
       const { kind: _kind, ...screenProps } = props;
       return <MediaContractScreen {...screenProps} />;
+    }
+    case "dev-project-timeline": {
+      const { kind: _kind, ...screenProps } = props;
+      return <DevProjectTimelineWorkspaceScreen {...screenProps} />;
     }
     default: {
       const unreachable: never = props;

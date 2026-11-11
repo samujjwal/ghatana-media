@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const Ajv2020 = require("ajv/dist/2020").default ?? require("ajv/dist/2020");
@@ -285,6 +286,39 @@ test("erasure outcome classifier requires exact current read receipt, coverage, 
   const input = { expected, inventory, holdAssessment, restorePathInventory, restorePaths, restoreReplays, currentReadReceipt, tombstoneRecord, tombstoneRef: "tombstone:31" };
   assert.equal(valid(contract.erasureFinality.outcomeClassifier.currentReadReceiptSchema)(currentReadReceipt), true);
   assert.equal(classifyErasureOutcome(input).disposition, "ERASURE_CONFIRMED");
+
+  assert.equal(classifyErasureOutcome({
+    ...input,
+    tombstoneRecord: { ...tombstoneRecord, policyDecisionRef: " " },
+  }).disposition, "ERASURE_OUTCOME_UNKNOWN",
+  "whitespace-only policy-decision references cannot establish erasure finality");
+
+  const malformedOwnerSupport = [
+    ["hold evidence", {
+      ...input,
+      holdAssessment: { ...holdAssessment, evidenceRefs: [" "] },
+    }],
+    ["released hold identity", {
+      ...input,
+      holdAssessment: { ...holdAssessment, holdRefs: [" "] },
+    }],
+    ["decision-boundary receipt evidence", {
+      ...input,
+      currentReadReceipt: { ...currentReadReceipt, evidenceRefs: [" "] },
+    }],
+    ["restore-path inventory evidence", {
+      ...input,
+      restorePathInventory: { ...restorePathInventory, evidenceRefs: [" "] },
+    }],
+    ["restore replay evidence", {
+      ...input,
+      restoreReplays: [{ ...restoreReplays[0], evidenceRefs: [" "] }],
+    }],
+  ];
+  for (const [label, malformed] of malformedOwnerSupport) {
+    assert.equal(classifyErasureOutcome(malformed).disposition, "ERASURE_OUTCOME_UNKNOWN",
+      `whitespace-only ${label} references cannot establish erasure finality`);
+  }
 
   assert.equal(classifyErasureOutcome({ ...input, currentReadReceipt: undefined }).disposition, "ERASURE_OUTCOME_UNKNOWN",
     "a valid inventory boolean or COMPLETE status without a decision-boundary read receipt is never finality");

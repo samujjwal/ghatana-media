@@ -55,6 +55,33 @@ class MediaLifecycleOutboxRelayTest {
     }
 
     @Test
+    void relayRestartAfterBrokerAcceptanceReplaysSameEventUntilDurableAck() {
+        UUID eventId = UUID.randomUUID();
+        FakeSource durableSource = new FakeSource(event(eventId), NOW.plusSeconds(30));
+        durableSource.failNextPublicationAck = true;
+        FakeEventBus broker = new FakeEventBus();
+
+        try (MediaLifecycleOutboxRelay firstProcess = relay(durableSource, broker, NOW)) {
+            assertThatThrownBy(() -> run(firstProcess.runOnce()))
+                    .isInstanceOf(CompletionException.class)
+                    .hasCauseInstanceOf(OutboxPublicationException.class);
+        }
+
+        assertThat(broker.eventIds).containsExactly(eventId.toString());
+        assertThat(durableSource.publicationAcknowledged).isFalse();
+
+        try (MediaLifecycleOutboxRelay restartedProcess = relay(durableSource, broker, NOW)) {
+            var recovered = run(restartedProcess.runOnce());
+            assertThat(recovered.publishedEvents()).isEqualTo(1);
+        }
+
+        assertThat(broker.eventIds).containsExactly(eventId.toString(), eventId.toString());
+        assertThat(durableSource.publicationAcknowledged).isTrue();
+        assertThat(durableSource.consumerEffectRecorded).isFalse();
+        assertThat(durableSource.jobTerminalStateRecorded).isFalse();
+    }
+
+    @Test
     void expiredLeaseFailsClosedBeforeBrokerPublication() {
         UUID eventId = UUID.randomUUID();
         FakeSource source = new FakeSource(event(eventId), NOW.minusSeconds(1));

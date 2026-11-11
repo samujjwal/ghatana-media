@@ -73,8 +73,16 @@ public final class VersionedReviewEngine {
             ReviewRecord prior = findExactReplay(actor, reviewCase, request, expectedNextRevision,
                     safePayload, effectAuthority, now);
             if (prior == null) throw new StaleReviewException();
+            // Reconciliation reads a committed receipt too. Reauthorize after the store read so a
+            // revocation or expiry during readback cannot disclose that receipt to a stale caller.
+            AuthorizationDecision replayAuthority = authorize(actor, reviewCase, operation);
+            requireExpectedAuthorityVersion(request.expectedAuthorityVersion(), replayAuthority);
+            Currentness replayCurrentness = replayAuthority.currentnessFor(reviewCase.reviewSubjectRef());
+            if (replayCurrentness == Currentness.UNKNOWN) throw new ReviewUnavailableException();
+            Instant replayObservedAt = clock.instant();
+            if (!replayAuthority.validUntil().isAfter(replayObservedAt)) throw new ReviewUnavailableException();
             return new AppendReceipt(request.requestId(), reviewCase.reviewCaseId(), reviewCase.reviewSubjectRef(),
-                    prior.appendRecordId(), prior.caseRevision(), effectCurrentness, false, prior.createdAt());
+                    prior.appendRecordId(), prior.caseRevision(), replayCurrentness, false, prior.createdAt());
         }
         String[] allocatedAppendRecordId = new String[1];
         StoreAppendResult appendResult;

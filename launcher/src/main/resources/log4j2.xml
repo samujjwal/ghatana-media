@@ -2,20 +2,15 @@
 <!--
   Log4j2 configuration for Media runtime service.
 
-  Emits structured JSON logs to stdout with MDC context fields:
-  - serviceName, version
-  - requestId (correlation ID)
-  - tenantId, traceId
-  - httpMethod, httpPath, principal
-
-  In LOCAL and TEST profiles, a human-readable console pattern is used
-  for developer convenience. Set system property -Dmedia.log.format=json
-  to force JSON in any profile.
+  Plain output is the default. Set LOG_FORMAT=json for JSON output, or use
+  -Dmedia.log.format=json to override the environment setting. The system
+  property takes precedence over LOG_FORMAT. LOG_LEVEL follows the same
+  system-property-over-environment precedence.
 -->
 <Configuration status="WARN" name="media-runtime" monitorInterval="30">
     <Properties>
-        <Property name="LOG_FORMAT">${sys:media.log.format:-plain}</Property>
-        <Property name="LOG_LEVEL">${sys:media.log.level:-INFO}</Property>
+        <Property name="MEDIA_LOG_FORMAT">${sys:media.log.format:-${env:LOG_FORMAT:-plain}}</Property>
+        <Property name="MEDIA_LOG_LEVEL">${sys:media.log.level:-${env:LOG_LEVEL:-INFO}}</Property>
         <Property name="PLAIN_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %X{serviceName:-media} %X{requestId:--} %X{tenantId:--} %logger{36} - %msg%n</Property>
     </Properties>
 
@@ -30,19 +25,26 @@
                 <KeyValuePair key="version" value="0.0.1"/>
             </JsonLayout>
         </Console>
+
+        <Routing name="ConsoleRouter">
+            <Routes pattern="${MEDIA_LOG_FORMAT}">
+                <Route key="json" ref="ConsoleJson"/>
+                <Route ref="ConsolePlain"/>
+            </Routes>
+        </Routing>
     </Appenders>
 
     <Loggers>
-        <Logger name="com.ghatana.media" level="${LOG_LEVEL}" additivity="false">
-            <AppenderRef ref="${LOG_FORMAT:eq:json}?ConsoleJson:ConsolePlain"/>
+        <Logger name="com.ghatana.media" level="${MEDIA_LOG_LEVEL}" additivity="false">
+            <AppenderRef ref="ConsoleRouter"/>
         </Logger>
 
         <Logger name="io.activej" level="WARN"/>
         <Logger name="org.apache" level="WARN"/>
         <Logger name="com.tngtech.archunit" level="${sys:archunit.log.level:-WARN}"/>
 
-        <Root level="${LOG_LEVEL}">
-            <AppenderRef ref="${LOG_FORMAT:eq:json}?ConsoleJson:ConsolePlain"/>
+        <Root level="${MEDIA_LOG_LEVEL}">
+            <AppenderRef ref="ConsoleRouter"/>
         </Root>
     </Loggers>
 </Configuration>

@@ -210,6 +210,9 @@ public final class AudioRepairComparison {
             if (!hasIndependentReference && !Double.isNaN(snrDbVsReference)) {
                 throw new IllegalArgumentException("reference SNR must be absent when no independent reference exists");
             }
+            if (hasIndependentReference && snrDbVsReference == Double.NEGATIVE_INFINITY) {
+                throw new IllegalArgumentException("reference SNR cannot be negative infinity");
+            }
             boolean hasStereoCorrelation = sourceStereoCorrelation != null && repairedStereoCorrelation != null;
             if ((sourceStereoCorrelation == null) != (repairedStereoCorrelation == null)
                     || (stereoCorrelationDelta != null) != hasStereoCorrelation

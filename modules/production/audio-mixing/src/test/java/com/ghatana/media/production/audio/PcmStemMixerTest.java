@@ -147,6 +147,112 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void annex2_based_fir_measurement_distinguishes_inter_sample_peak_and_is_channel_max() {
+        short[] stereo = new short[128 * 2];
+        short[] cycle = {16_384, 16_384, -16_384, -16_384};
+        for (int frame = 0; frame < 128; frame++) {
+            stereo[frame * 2] = (short) (cycle[frame % cycle.length] / 2);
+            stereo[frame * 2 + 1] = cycle[frame % cycle.length];
+        }
+
+        MixResult result = mix(List.of(synthetic("annex2-quarter-rate-v1", pcm(stereo), 128,
+                1.0f, 0.0f)), 128, 0.98f);
+        PcmStemMixer.TruePeakMeasurement measured = result.annex2TruePeakBeforeCeiling();
+
+        assertThat(result.annex2TruePeakAfterCeiling().linear()).isGreaterThan(0.70);
+        assertThat(measured.linear()).isCloseTo(Math.sqrt(2.0) * 0.5,
+                org.assertj.core.data.Offset.offset(0.02));
+        assertThat(measured.linear()).isGreaterThan(0.5);
+        assertThat(measured.dbTp()).isCloseTo(-3.0103,
+                org.assertj.core.data.Offset.offset(0.25));
+        assertThat(measured.samplePeakLinear()).isEqualTo(0.5);
+        assertThat(measured.oversampledFirPeakLinear()).isCloseTo(Math.sqrt(2.0) * 0.5,
+                org.assertj.core.data.Offset.offset(0.02));
+        assertThat(measured.methodId()).isEqualTo("itu-r-bs.1770-5-annex-2-4x-fir-plus-sample-peak-estimate");
+        assertThat(measured.methodVersion()).isEqualTo("48-order-4-phase-table-v1");
+        assertThat(measured.edgePolicy()).isEqualTo("zero-extension-including-fir-tail");
+        assertThat(result.samplePeakAfterCeiling()).isEqualTo(0.5);
+        assertThat(result.annex2TruePeakAfterCeiling().linear()).isEqualTo(measured.linear());
+    }
+
+    @Test
+    void annex2_based_post_quantization_guard_keeps_the_reported_measurement_under_an_active_ceiling() {
+        short[] stereo = new short[128 * 2];
+        short[] cycle = {16_384, 16_384, -16_384, -16_384};
+        for (int frame = 0; frame < 128; frame++) stereo[frame * 2] = cycle[frame % cycle.length];
+
+        MixResult result = mix(List.of(synthetic("annex2-limited-quarter-rate-v1", pcm(stereo), 128,
+                1.0f, 0.0f)), 128, 0.40f);
+
+        assertThat(result.appliedMasterGain()).isGreaterThan(0.0f).isLessThan(1.0f);
+        assertThat(result.annex2TruePeakAfterCeiling().linear()).isLessThanOrEqualTo(0.40);
+        assertThat(result.samplePeakAfterCeiling()).isLessThanOrEqualTo(0.40);
+        assertThat(result.annex2TruePeakAfterCeiling().samplePeakLinear())
+                .isEqualTo(result.samplePeakAfterCeiling());
+    }
+
+    @Test
+    void annex2_fir_reports_dc_response_with_the_documented_zero_extended_edges() {
+        short[] stereo = new short[128 * 2];
+        for (int frame = 0; frame < 128; frame++) {
+            stereo[frame * 2] = 8_192;
+            stereo[frame * 2 + 1] = 8_192;
+        }
+        MixResult result = mix(List.of(synthetic("annex2-dc-v1", pcm(stereo), 128,
+                1.0f, 0.0f)), 128, 0.98f);
+
+        // The largest response is the first-frame transient from the partial
+        // FIR sum under the documented zero-extension boundary policy.
+        assertThat(result.annex2TruePeakBeforeCeiling().linear()).isCloseTo(0.278961181640625,
+                org.assertj.core.data.Offset.offset(1e-12));
+    }
+
+    @Test
+    void annex2_fir_zero_extension_measures_impulses_at_both_edges_and_interior_symmetrically() {
+        double[] measured = new double[3];
+        double[] combined = new double[3];
+        int[] positions = {0, 48, 95};
+        for (int index = 0; index < positions.length; index++) {
+            short[] stereo = new short[96 * 2];
+            stereo[positions[index] * 2] = 16_384;
+            MixResult result = mix(List.of(synthetic("annex2-impulse-v1", pcm(stereo), 96,
+                    1.0f, 0.0f)), 96, 0.98f);
+            PcmStemMixer.TruePeakMeasurement measurement = result.annex2TruePeakBeforeCeiling();
+            measured[index] = measurement.oversampledFirPeakLinear();
+            combined[index] = measurement.linear();
+            assertThat(measurement.samplePeakLinear()).isEqualTo(0.5);
+        }
+
+        assertThat(measured[0]).isCloseTo(0.486083984375,
+                org.assertj.core.data.Offset.offset(1e-12));
+        assertThat(measured[1]).isEqualTo(measured[0]);
+        assertThat(measured[2]).isEqualTo(measured[0]);
+        assertThat(combined).containsExactly(0.5, 0.5, 0.5);
+    }
+
+    @Test
+    void annex2_fir_is_polarity_symmetric_and_silence_has_negative_infinite_dbTp() {
+        short[] positive = new short[64 * 2];
+        short[] negative = new short[64 * 2];
+        for (int frame = 0; frame < 64; frame++) {
+            short sample = (short) ((frame * 7919) % 24_000 - 12_000);
+            positive[frame * 2 + 1] = sample;
+            negative[frame * 2 + 1] = (short) -sample;
+        }
+        MixResult positiveResult = mix(List.of(synthetic("annex2-polarity-v1", pcm(positive), 64,
+                1.0f, 0.0f)), 64, 0.98f);
+        MixResult negativeResult = mix(List.of(synthetic("annex2-polarity-v1", pcm(negative), 64,
+                1.0f, 0.0f)), 64, 0.98f);
+        MixResult silence = mix(List.of(synthetic("annex2-silence-v1", pcm(new short[32]), 16,
+                1.0f, 0.0f)), 16, 0.98f);
+
+        assertThat(positiveResult.annex2TruePeakBeforeCeiling().linear())
+                .isEqualTo(negativeResult.annex2TruePeakBeforeCeiling().linear());
+        assertThat(silence.annex2TruePeakBeforeCeiling().linear()).isZero();
+        assertThat(silence.annex2TruePeakBeforeCeiling().dbTp()).isEqualTo(Double.NEGATIVE_INFINITY);
+    }
+
+    @Test
     void reports_stereo_rms_dbfs_and_exact_sample_clock() {
         // Both channels carry half-scale constant samples: RMS is 0.5, or approximately -6.02 dBFS.
         Stem stem = synthetic("half-scale-v1", pcm(new short[] {16_384, 16_384, 16_384, 16_384}),

@@ -10,6 +10,7 @@ import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.agent.framework.tools.ToolExecutionStatus;
 import com.ghatana.agent.framework.tools.ToolTransport;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import com.ghatana.audio.video.tools.MediaToolExecutionBinder.ClaimResult;
 import com.ghatana.audio.video.tools.MediaToolExecutionBinder.InvocationLedger;
 import com.ghatana.audio.video.tools.MediaToolExecutionBinder.LogicalAction;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,11 +65,14 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
     }
 
     @Test
-    void injectedBinderWrapsFactoryHandlerAndRequiresAuthenticationForReplay() {
+    void injectedBinderFactoryCarriesHostIdentityPerCallAndReauthorizesReplay() {
         TestLedger ledger = new TestLedger();
-        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger, (tenant, invocation) -> Optional.empty());
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(),
+                (principal, identity) -> principal.tenantId().equals(identity.tenantId())
+                        && principal.principalId().equals(identity.callerAgentId()));
         AudioVideoToolHandlerFactory factory = new AudioVideoToolHandlerFactory(binder);
-        var handler = factory.create(AudioVideoToolHandlerFactory.TOOL_ID_STT);
+        var handler = factory.createAuthenticated(AudioVideoToolHandlerFactory.TOOL_ID_STT);
         ToolExecutionEnvelope envelope = ToolExecutionEnvelope.of(
                 AudioVideoToolHandlerFactory.TOOL_ID_STT,
                 "1.0.0",
@@ -83,9 +88,13 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
                 envelope.actionClass(), false, true, Map.of("type", "object"), Map.of("type", "object"),
                 Set.of(), ToolTransport.IN_PROCESS, null, Map.of());
 
-        ToolExecutionResult first = runPromise(() -> handler.handle(envelope, contract));
-        assertThatThrownBy(() -> runPromise(() -> handler.handle(envelope, contract)))
+        AuthenticatedPrincipal hostPrincipal = new AuthenticatedPrincipal(
+                envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+        ToolExecutionResult first = runPromise(() -> handler.handle(envelope, contract, hostPrincipal));
+        assertThatThrownBy(() -> runPromise(() -> handler.handle(envelope, contract,
+                new AuthenticatedPrincipal(envelope.tenantId(), "other-agent", Instant.now()))))
                 .isInstanceOf(MediaToolExecutionBinder.InvocationReplayDeniedException.class);
+        ToolExecutionResult replay = runPromise(() -> handler.handle(envelope, contract, hostPrincipal));
 
         assertThat(first.status()).isEqualTo(ToolExecutionStatus.FAILED);
         assertThat(first.failure().kind()).isEqualTo(
@@ -95,6 +104,7 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
         assertThat(first.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         assertThat(first.invocationId()).isEqualTo(envelope.invocationId());
         assertThat(first.correlationId()).isEqualTo(envelope.invocationId());
+        assertThat(replay).isSameAs(first);
         assertThat(ledger.claims).hasValue(2);
         assertThat(ledger.find(envelope.invocationId())).hasValueSatisfying(action -> {
             assertThat(action.outcome()).isEqualTo(LogicalOutcome.FAILED);
@@ -108,7 +118,9 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
             @Override public Optional<LogicalAction> find(String invocationId) { return Optional.empty(); }
             @Override public void record(LogicalAction action) { throw new AssertionError("must not record"); }
         };
-        var binder = new MediaToolExecutionBinder(unavailable, (tenant, invocation) -> Optional.empty());
+        var binder = new MediaToolExecutionBinder(unavailable, (tenant, invocation) -> Optional.empty(),
+                (principal, identity) -> principal.tenantId().equals(identity.tenantId())
+                        && principal.principalId().equals(identity.callerAgentId()));
         var factory = new AudioVideoToolHandlerFactory(binder);
         ToolExecutionEnvelope envelope = ToolExecutionEnvelope.of(
                 AudioVideoToolHandlerFactory.TOOL_ID_STT, "1.0.0", "caller-agent", null, "tenant-at05",
@@ -117,7 +129,17 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
                 envelope.actionClass(), false, true, Map.of(), Map.of(), Set.of(), ToolTransport.IN_PROCESS,
                 null, Map.of());
 
-        assertThatThrownBy(() -> runPromise(() -> factory.create(envelope.toolId()).handle(envelope, contract)))
+        AuthenticatedPrincipal hostPrincipal = new AuthenticatedPrincipal(
+                envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+        assertThatThrownBy(() -> runPromise(() -> factory.createAuthenticated(envelope.toolId())
+                .handle(envelope, contract, hostPrincipal)))
                 .isInstanceOf(MediaToolExecutionBinder.InvocationClaimUnavailableException.class);
+    }
+
+    @Test
+    void authenticatedFactoryHandlerRequiresConfiguredBinder() {
+        assertThatThrownBy(() -> new AudioVideoToolHandlerFactory()
+                .createAuthenticated(AudioVideoToolHandlerFactory.TOOL_ID_STT))
+                .isInstanceOf(IllegalStateException.class);
     }
 }

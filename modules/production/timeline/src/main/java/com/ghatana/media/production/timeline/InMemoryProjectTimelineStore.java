@@ -13,7 +13,7 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
 
     @Override
     public synchronized Created create(Actor actor, String workspaceId, String title, String requestId,
-                                       String projectId, String initialRevisionId, String timelineId) {
+                                       String projectId, String initialRevisionId) {
         Objects.requireNonNull(actor, "actor");
         requireCreateProjectRequestId(requestId);
         requireSelectedWorkspaceId(workspaceId);
@@ -27,7 +27,7 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
         }
         ProjectKey key = new ProjectKey(actor.tenantId(), required(projectId, "projectId"));
         if (projects.containsKey(key)) throw new IllegalStateException("project identity already exists in tenant");
-        Revision initial = new Revision(actor.tenantId(), projectId, initialRevisionId, null, Graph.empty(timelineId));
+        Revision initial = new Revision(actor.tenantId(), projectId, initialRevisionId, null, java.util.List.of());
         Project project = new Project(actor.tenantId(), projectId, workspaceId, actor.principalId(), title, initialRevisionId);
         Aggregate aggregate = new Aggregate(project);
         aggregate.revisions.put(initial.revisionId(), initial);
@@ -48,20 +48,16 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
     }
 
     @Override public synchronized Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
-                                                  String newRevisionId, Graph graph) {
-        Objects.requireNonNull(graph, "graph");
+                                                  String newRevisionId, java.util.List<TimelineSnapshot> timelines) {
+        timelines = java.util.List.copyOf(Objects.requireNonNull(timelines, "timelines"));
         Aggregate aggregate = owned(actor, projectId);
         if (!aggregate.project.headRevisionId().equals(expectedHeadRevisionId)) {
             throw new RevisionConflictException(expectedHeadRevisionId, aggregate.project.headRevisionId());
         }
-        Revision currentHead = aggregate.revisions.get(aggregate.project.headRevisionId());
-        if (currentHead == null || !currentHead.graph().timelineId().equals(graph.timelineId())) {
-            throw new IllegalArgumentException("timeline identity is immutable across project revisions");
-        }
         String revisionId = required(newRevisionId, "newRevisionId");
         if (aggregate.revisions.containsKey(revisionId)) throw new IllegalStateException("revision identity cannot be reused");
         Revision revision = new Revision(aggregate.project.tenantId(), aggregate.project.projectId(), revisionId,
-                aggregate.project.headRevisionId(), graph);
+                aggregate.project.headRevisionId(), timelines);
         aggregate.revisions.put(revisionId, revision);
         Project old = aggregate.project;
         aggregate.project = new Project(old.tenantId(), old.projectId(), old.workspaceId(), old.ownerPrincipalId(),

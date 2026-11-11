@@ -1,0 +1,12 @@
+{
+  "name": "@ghatana/media-headless-api-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs",
+    "test": "node --test consumer.test.mjs"
+  },
+  "dependencies": {
+    "@audio-video/client": "workspace:*"
+  }
+}

@@ -44,6 +44,21 @@ class ReferenceGuidedScenePlannerTest {
     }
 
     @Test
+    void modelOutputUsesThePdpOpaqueArtifactAndVersionIdentityFormats() {
+        assertThat(new ReferenceGuidedScenePlanner.ModelOutput("candidate-1", "v1:blue+2", D1))
+                .isEqualTo(new ReferenceGuidedScenePlanner.ModelOutput("candidate-1", "v1:blue+2", D1));
+
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.ModelOutput("candidate/1", "v1", D1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactId");
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.ModelOutput("candidate-1", "v 1", D1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactVersionId");
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.ModelOutput("c".repeat(129), "v1", D1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactId");
+        assertThatThrownBy(() -> new ReferenceGuidedScenePlanner.ModelOutput("candidate-1", "v".repeat(129), D1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactVersionId");
+    }
+
+    @Test
     void unauthorizedExactReferenceIsRejectedAndRightsPortReceivesVersionDigestAndPurpose() {
         Authority authority = new Authority();
         ReferenceGuidedScenePlanner planner = planner(authority, unavailableProvider());

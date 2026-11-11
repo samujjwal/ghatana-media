@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="Local DEV_ONLY Media project and timeline preview." />
+    <title>Local Project Preview · Media</title>
+    <link rel="stylesheet" href="/src/dev-project-timeline.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <main id="main-content" class="shell">
+      <header class="page-header">
+        <a class="back-link" href="/">← Media Experience Explorer</a>
+        <p class="eyebrow">Separate local development route</p>
+        <h1>Project and timeline preview</h1>
+        <p class="lede">Connect to a loopback Media host, create an owner-scoped development project, then read back its exact revisions.</p>
+      </header>
+
+      <aside class="scope-notice" aria-labelledby="scope-heading">
+        <h2 id="scope-heading">DEV_ONLY · local data</h2>
+        <p>This is a synthetic local development workspace. It does not authenticate through Shared, establish Shared membership, or create production authority. The existing Explorer modes remain simulated.</p>
+      </aside>
+
+      <section class="panel" aria-labelledby="connection-heading">
+        <div class="section-heading">
+          <div><p class="step">01 · Connect</p><h2 id="connection-heading">Local host context</h2></div>
+          <span class="host-chip" id="host-origin"></span>
+        </div>
+        <p class="help">The endpoint is fixed to this loopback page origin. During local development, Vite proxies <code>/dev/v1</code> to <code>127.0.0.1:8093</code> by default.</p>
+        <form id="connect-form" class="connect-form">
+          <label for="dev-token">Short-lived DEV_ONLY bearer token</label>
+          <div class="token-row">
+            <input id="dev-token" name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required aria-describedby="token-help" />
+            <button class="button primary" type="submit">Read host context</button>
+          </div>
+          <p id="token-help" class="help">Paste a raw token. It is held in this page's memory only, never saved in browser storage, and cleared from the field after connecting.</p>
+        </form>
+        <div class="connection-actions"><button id="forget-token" class="button quiet" type="button" disabled>Forget token and disconnect</button></div>
+        <p id="status" class="status" role="status" aria-live="polite">Not connected.</p>
+        <dl id="context-fields" class="context-grid" hidden></dl>
+      </section>
+
+      <section class="panel" aria-labelledby="project-heading">
+        <div class="section-heading"><div><p class="step">02 · Create and replay</p><h2 id="project-heading">New project</h2></div></div>
+        <p class="help">Creation uses the workspace returned by the host context. Replay reuses the same request identity and payload; after an unknown outcome, read the project before trying a different request.</p>
+        <form id="project-form" class="form-grid">
+          <label for="project-title">Project title</label>
+          <input id="project-title" name="title" required aria-describedby="project-title-help" placeholder="Local edit review" />
+          <p id="project-title-help" class="help">Up to 200 Unicode code points. Submitted whitespace and characters are preserved.</p>
+          <div class="button-row">
+            <button id="create-project" class="button primary" type="submit" disabled>Create project</button>
+            <button id="replay-project" class="button secondary" type="button" disabled>Replay same create request</button>
+          </div>
+        </form>
+        <div id="project-result" class="result" hidden>
+          <h3>Project creation result</h3><pre id="project-json"></pre>
+        </div>
+      </section>
+
+      <section id="timeline-workspace-panel" class="panel" aria-labelledby="timeline-heading" hidden>
+        <div class="section-heading"><div><p class="step">03 · Edit and reconcile</p><h2 id="timeline-heading">Project timeline workspace</h2></div></div>
+        <p class="help">The reusable Media UI screen operates through this loopback DEV_ONLY client. Project creation stays in the host flow above; timeline edits and restores commit as successor project revisions.</p>
+        <div id="timeline-workspace-root"></div>
+      </section>
+      <footer><p>Local preview only · credentials are not persisted · scope is DEV_ONLY</p></footer>
+    </main>
+    <script type="module" src="/src/dev-project-timeline.ts"></script>
+  </body>
+</html>

@@ -15,7 +15,7 @@ CREATE TABLE media_timeline_revisions (
     project_id TEXT NOT NULL,
     revision_id TEXT NOT NULL,
     parent_revision_id TEXT,
-    graph_snapshot JSONB NOT NULL,
+    timeline_snapshots JSONB NOT NULL,
     PRIMARY KEY (tenant_id, project_id, revision_id),
     FOREIGN KEY (tenant_id, project_id) REFERENCES media_timeline_projects (tenant_id, project_id),
     FOREIGN KEY (tenant_id, project_id, parent_revision_id)

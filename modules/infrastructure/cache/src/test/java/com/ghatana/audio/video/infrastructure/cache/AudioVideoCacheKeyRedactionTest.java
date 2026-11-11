@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -153,7 +155,7 @@ class AudioVideoCacheKeyRedactionTest {
         AudioVideoCache.CacheKeyScope baseScope = withFingerprint(baseline, fingerprint);
         String baseKey = cache.buildScopedKey(baseScope);
         assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(baseScope,
-                authority -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(authority)),
+                authority -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(authority, java.time.Instant.now().plusSeconds(3600))),
                 ignored -> {
             loads.incrementAndGet();
             return AsyncOperation.success("baseline-transcript");
@@ -164,7 +166,7 @@ class AudioVideoCacheKeyRedactionTest {
             String key = cache.buildScopedKey(scoped);
             assertThat(key).matches("av2p-[0-9a-f]{64}").isNotEqualTo(baseKey);
             assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(scoped,
-                    authority -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(authority)),
+                    authority -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(authority, java.time.Instant.now().plusSeconds(3600))),
                     ignored -> {
                 loads.incrementAndGet();
                 return AsyncOperation.success("isolated-transcript");
@@ -195,7 +197,7 @@ class AudioVideoCacheKeyRedactionTest {
         String changedSourceKey = cache.buildScopedKey(withFingerprint(scope, "source-sha256:revision-two"));
 
         AudioVideoCache.ScopedAuthority authority = requested ->
-                AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(requested));
+                AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(requested, java.time.Instant.now().plusSeconds(3600)));
         assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(
                 withFingerprint(scope, "source-sha256:revision-one"), authority, ignored -> {
             loads.incrementAndGet();
@@ -237,7 +239,7 @@ class AudioVideoCacheKeyRedactionTest {
         }))).hasRootCauseInstanceOf(SecurityException.class);
         assertThat(AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(newScope, ignored -> {
             authorityCalls.incrementAndGet();
-            return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(newScope));
+            return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(newScope, java.time.Instant.now().plusSeconds(3600)));
         }, ignored -> {
             loaderCalls.incrementAndGet();
             return AsyncOperation.success("current-policy-value");
@@ -270,14 +272,18 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
-    void scopedReadFailsClosedWhenAuthorityReadbackNeverCompletes() {
+    void scopedReadFailsClosedWhenAuthorityReadbackNeverCompletes() throws InterruptedException {
         DistributedCacheService port = mock(DistributedCacheService.class);
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(
                 port, "transcription", Duration.ofMillis(10));
         AudioVideoCache.CacheKeyScope scope = scopedKey("tenant", "principal", "rights",
                 "transcription", "sensitive", "artifact", "source-v1", "transcript-v1", "policy-v1");
         String key = cache.buildScopedKey(scope);
-        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        CountDownLatch invalidationDispatched = new CountDownLatch(1);
+        when(port.invalidateAsync(key)).thenAnswer(invocation -> {
+            invalidationDispatched.countDown();
+            return AsyncOperation.success(null);
+        });
 
         assertThatThrownBy(() -> AsyncOperationTestSupport.await(cache.getOrLoadScopedWithAuthority(scope,
                 ignored -> AsyncOperation.from(new java.util.concurrent.CompletableFuture<>()),
@@ -286,15 +292,27 @@ class AudioVideoCacheKeyRedactionTest {
                 .hasRootCauseMessage("Current cache authority is denied or unknown");
         verify(port, never()).get(key);
         verify(port, never()).put(any(), any(), any());
+        // Best-effort invalidation runs from an observer callback and may race with
+        // the denied operation's completion. Await dispatch, not completion ordering.
+        assertThat(invalidationDispatched.await(1, TimeUnit.SECONDS)).isTrue();
         verify(port).invalidateAsync(key);
     }
 
     @Test
     void protectedScopeRequiresAllDimensions() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
-                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch", " "))
+                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", "fingerprint", "policy-epoch", " ", 0L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("modelLicenseRef");
+    }
+
+    @Test
+    void protectedScopeRejectsNegativeRevocationEpoch() {
+        assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
+                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",
+                "fingerprint", "policy-epoch", "license", -1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("revocationEpoch");
     }
 
     @Test
@@ -311,7 +329,7 @@ class AudioVideoCacheKeyRedactionTest {
             int offendingIndex = index;
             assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope(candidate[0], candidate[1],
                     candidate[2], candidate[3], candidate[4], candidate[5], candidate[6],
-                    candidate[7], candidate[8], candidate[9], candidate[10]))
+                    candidate[7], candidate[8], candidate[9], candidate[10], 0L))
                     .as("reject padded %s", names[offendingIndex])
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(names[offendingIndex])
@@ -334,7 +352,7 @@ class AudioVideoCacheKeyRedactionTest {
                 int offendingIndex = index;
                 assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope(candidate[0], candidate[1],
                         candidate[2], candidate[3], candidate[4], candidate[5], candidate[6],
-                        candidate[7], candidate[8], candidate[9], candidate[10]))
+                        candidate[7], candidate[8], candidate[9], candidate[10], 0L))
                         .as("reject nonbreaking-space %s of %s", prefix ? "prefix" : "suffix", offendingIndex)
                         .isInstanceOf(IllegalArgumentException.class)
                         .hasMessageContaining("surrounding whitespace");
@@ -346,7 +364,7 @@ class AudioVideoCacheKeyRedactionTest {
     void protectedScopeRejectsComponentsBeyondSharedCacheKeyLimit() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",
-                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1), "policy-1", "license-1"))
+                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1), "policy-1", "license-1", 0L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sourceFingerprint")
                 .hasMessageContaining(Integer.toString(CachePolicy.MAX_KEY_LENGTH));
@@ -406,7 +424,7 @@ class AudioVideoCacheKeyRedactionTest {
             String artifact, String artifactRevision, String transcriptRevision, String policyEpoch) {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, rights, purpose, classification,
                 artifact, artifactRevision, transcriptRevision, "fingerprint-placeholder", policyEpoch,
-                "model-license-v1");
+                "model-license-v1", 0L);
     }
 
     private static AudioVideoCache.CacheKeyScope withFingerprint(
@@ -414,7 +432,7 @@ class AudioVideoCacheKeyRedactionTest {
         return new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
                 scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
                 scope.artifactRevision(), scope.transcriptRevision(), fingerprint, scope.policyEpoch(),
-                scope.modelLicenseRef());
+                scope.modelLicenseRef(), scope.revocationEpoch());
     }
 
     private static AudioVideoCache.CacheKeyScope withModelLicense(
@@ -422,7 +440,7 @@ class AudioVideoCacheKeyRedactionTest {
         return new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
                 scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
                 scope.artifactRevision(), scope.transcriptRevision(), scope.sourceFingerprint(),
-                scope.policyEpoch(), modelLicenseRef);
+                scope.policyEpoch(), modelLicenseRef, scope.revocationEpoch());
     }
 
     @Test

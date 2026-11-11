@@ -106,7 +106,6 @@ const clientBoundRoutes: Route[] = [
   { method: "POST", path: "/api/v1/jobs", operationId: "submitMediaJob" },
   { method: "GET", path: "/api/v1/jobs", operationId: "listMediaJobs" },
   { method: "GET", path: "/api/v1/jobs/{jobId}", operationId: "getMediaJob" },
-  { method: "POST", path: "/api/v1/jobs/{jobId}/cancel", operationId: "cancelMediaJob" },
   { method: "POST", path: "/api/v1/streams", operationId: "openMediaStream" },
   { method: "GET", path: "/api/v1/streams/{sessionId}", operationId: "getMediaStream" },
   { method: "POST", path: "/api/v1/streams/{sessionId}/connect", operationId: "connectMediaStream" },
@@ -149,10 +148,10 @@ describe("SK-01 canonical Media route parity", () => {
         local: [],
       },
       MediaCanonicalClient: {
-        canonicalHttp: ["submitJob", "getJob", "listJobs", "cancelJob", "openStream", "getStream", "connectStream", "submitStreamFrame", "closeStream"],
+        canonicalHttp: ["submitJob", "getJob", "getJobByRequest", "getArtifact", "listJobs", "openStream", "getStream", "connectStream", "submitStreamFrame", "closeStream"],
         legacyUnboundHttp: [],
         unboundNotAdmitted: [],
-        noRoute: ["watchStream", "checkOutcome", "listJobsPage", "readJobStatusDimensions"],
+        noRoute: ["watchStream", "checkOutcome", "listJobsPage", "readJobStatusDimensions", "cancelJob"],
         local: [],
       },
     };
@@ -179,9 +178,10 @@ describe("SK-01 canonical Media route parity", () => {
       },
       MediaCanonicalClient: {
         submitJob: "canonicalMediaHttpRoutes.submitJob",
-        getJob: "canonicalMediaHttpRoutes.getJob.replace",
+        getJob: "this.readJob(jobId, undefined, signal)",
+        getJobByRequest: "this.readJob(jobId, requestedRequestId, signal)",
+        getArtifact: "canonicalMediaHttpRoutes.getArtifact.replace",
         listJobs: "canonicalMediaHttpRoutes.listJobs",
-        cancelJob: "canonicalMediaHttpRoutes.cancelJob.replace",
         openStream: '"POST", "/api/v1/streams"',
         getStream: '`/api/v1/streams/${encodeURIComponent(requested)}`',
         connectStream: '`/api/v1/streams/${encodeURIComponent(requested)}/connect`',
@@ -208,6 +208,9 @@ describe("SK-01 canonical Media route parity", () => {
           .toContain(sourceNeedle);
       }
     }
+    expect(sdkClassSources.MediaCanonicalClient)
+      .toContain('canonicalMediaHttpRoutes.getJob.replace("{jobId}", encodeURIComponent(requested))');
+    expect(sdkClassSources.MediaCanonicalClient).toContain('`${route}?requestId=${encodeURIComponent(requestId)}`');
     for (const [className, methods] of Object.entries(legacyDispatchSource)) {
       for (const [method, sourceNeedle] of Object.entries(methods)) {
         expect(publicSdkMethods[className as keyof typeof sdkClassSources].get(method), `${className}.${method}`)
@@ -257,15 +260,15 @@ describe("SK-01 canonical Media route parity", () => {
     for (const method of methodDisposition.MediaCanonicalClient.noRoute) {
       expect(publicSdkMethods.MediaCanonicalClient.get(method)).toContain("MediaOperationNotAdmittedError");
     }
-    expect(methodDisposition.MediaCanonicalClient.canonicalHttp).toHaveLength(9);
+    expect(methodDisposition.MediaCanonicalClient.canonicalHttp).toHaveLength(10);
     expect(methodDisposition.MediaOperationClient.canonicalHttp).toHaveLength(5);
     expect(methodDisposition.AudioVideoClient.legacyUnboundHttp).toHaveLength(1);
     expect(methodDisposition.AudioVideoClient.unboundNotAdmitted).toHaveLength(5);
     expect(methodDisposition.MediaOperationClient.legacyUnboundHttp).toHaveLength(0);
     expect(methodDisposition.MediaOperationClient.unboundNotAdmitted).toHaveLength(8);
-    expect(Object.values(publicSdkMethods).reduce((total, methods) => total + methods.size, 0)).toBe(38);
+    expect(Object.values(publicSdkMethods).reduce((total, methods) => total + methods.size, 0)).toBe(40);
     expect(methodDisposition.MediaCanonicalClient.canonicalHttp.length
-      + methodDisposition.MediaOperationClient.canonicalHttp.length).toBe(14);
+      + methodDisposition.MediaOperationClient.canonicalHttp.length).toBe(15);
     expect(methodDisposition.AudioVideoClient.legacyUnboundHttp.length
       + methodDisposition.AudioVideoClient.unboundNotAdmitted.length
       + methodDisposition.MediaOperationClient.unboundNotAdmitted.length).toBe(14);
@@ -281,7 +284,6 @@ describe("SK-01 canonical Media route parity", () => {
       submitMediaJob: { owner: MediaCanonicalClient.prototype, method: "submitJob" },
       listMediaJobs: { owner: MediaCanonicalClient.prototype, method: "listJobs" },
       getMediaJob: { owner: MediaCanonicalClient.prototype, method: "getJob" },
-      cancelMediaJob: { owner: MediaCanonicalClient.prototype, method: "cancelJob" },
       openMediaStream: { owner: MediaCanonicalClient.prototype, method: "openStream" },
       getMediaStream: { owner: MediaCanonicalClient.prototype, method: "getStream" },
       connectMediaStream: { owner: MediaCanonicalClient.prototype, method: "connectStream" },
@@ -402,10 +404,10 @@ describe("SK-01 canonical Media route parity", () => {
     expect(operationBlock("media.operation.caption-version-write")).toContain("NOT_ADMITTED");
   });
 
-  it("keeps the 44 gRPC identities a separate channel and retains scene-text proposal status", () => {
+  it("keeps the 45 gRPC identities a separate channel and retains scene-text proposal status", () => {
     const rpcNames = rpcSources.flatMap((source) => [...source.matchAll(/^\s*rpc\s+(\w+)\s*\(/gmu)]
       .map((match) => match[1]!));
-    expect(rpcNames).toHaveLength(44);
+    expect(rpcNames).toHaveLength(45);
     expect(rpcNames.filter((name) => name === "RecognizeSceneText")).toHaveLength(1);
     expect(sk01SourceText).toContain("VisionService.RecognizeSceneText` proposal-only");
   });

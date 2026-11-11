@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,7 +116,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.of("protected payload")));
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
@@ -120,7 +124,7 @@ class AudioVideoCacheTest {
 
         assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
                 checked -> AsyncOperation.success(checks.incrementAndGet() == 1
-                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked, java.time.Instant.now().plusSeconds(3600))
                         : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 ignored -> { throw new AssertionError("cache hit should not call source"); })))
                 .hasRootCauseInstanceOf(SecurityException.class)
@@ -137,7 +141,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
@@ -145,7 +149,7 @@ class AudioVideoCacheTest {
 
         assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
                 checked -> AsyncOperation.success(checks.incrementAndGet() == 1
-                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked, java.time.Instant.now().plusSeconds(3600))
                         : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 ignored -> AsyncOperation.success("protected source value"))))
                 .hasRootCauseInstanceOf(SecurityException.class);
@@ -162,7 +166,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String key = cache.buildScopedKey(scope, "transcript-a");
         CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
@@ -173,7 +177,7 @@ class AudioVideoCacheTest {
 
         String value = await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a", checked ->
                 AsyncOperation.success(checks.incrementAndGet() <= 3
-                        ? AudioVideoCache.ScopedAuthorityResult.current(checked)
+                        ? AudioVideoCache.ScopedAuthorityResult.current(checked, java.time.Instant.now().plusSeconds(3600))
                         : AudioVideoCache.ScopedAuthorityResult.rejected(checked)),
                 ignored -> AsyncOperation.success("protected source value")));
 
@@ -195,10 +199,10 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var oldScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         var currentScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v5", "transcript-v10",
-                "sha256-source-10", "policy-epoch-12", "model-license-v1");
+                "sha256-source-10", "policy-epoch-12", "model-license-v1", 0L);
         String oldKey = cache.buildScopedKey(oldScope, "transcript-a");
         String currentKey = cache.buildScopedKey(currentScope, "transcript-a");
         when(port.get(currentKey)).thenReturn(AsyncOperation.success(Optional.empty()));
@@ -206,7 +210,7 @@ class AudioVideoCacheTest {
                 .thenReturn(AsyncOperation.success(null));
 
         String value = await(cache.getOrLoadScopedWithAuthority(currentScope, "transcript-a",
-                checked -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked)),
+                checked -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked, java.time.Instant.now().plusSeconds(3600))),
                 ignored -> AsyncOperation.success("current transcript")));
 
         assertThat(oldKey).isNotEqualTo(currentKey);
@@ -221,13 +225,13 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(cachePort, "protected-transcripts");
         var original = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         var otherTenant = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         var revokedRights = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-revoked",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-13", "model-license-v1");
+                "sha256-source-9", "policy-epoch-13", "model-license-v1", 0L);
 
         assertThat(cache.buildScopedKey(original, "transcript-a"))
                 .isNotEqualTo(cache.buildScopedKey(otherTenant, "transcript-a"));
@@ -236,14 +240,36 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void changedRightsRevocationEpochCannotReusePriorProtectedCacheEntry() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var beforeRevocation = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
+        var afterRevocation = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 1L);
+
+        assertThat(cache.buildScopedKey(beforeRevocation, "transcript-a"))
+                .isNotEqualTo(cache.buildScopedKey(afterRevocation, "transcript-a"));
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(afterRevocation, "transcript-a",
+                ignored -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(beforeRevocation, java.time.Instant.now().plusSeconds(3600))),
+                ignored -> { throw new AssertionError("stale revocation epoch cannot load or disclose"); })))
+                .hasRootCauseInstanceOf(SecurityException.class);
+        verify(port, org.mockito.Mockito.never()).get(any());
+        verify(port, org.mockito.Mockito.never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
     void changedModelLicenseCannotReusePriorProtectedCacheEntry() {
         var cache = new AudioVideoCache<String, String>(cachePort, "protected-derived-assets");
         var licensed = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "render", "CONFIDENTIAL", "artifact-a", "artifact-v4", "derived-v2",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         var changedLicense = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "render", "CONFIDENTIAL", "artifact-a", "artifact-v4", "derived-v2",
-                "sha256-source-9", "policy-epoch-12", "model-license-v2");
+                "sha256-source-9", "policy-epoch-12", "model-license-v2", 0L);
 
         assertThat(cache.buildScopedKey(licensed, "render-result"))
                 .isNotEqualTo(cache.buildScopedKey(changedLicense, "render-result"));
@@ -255,7 +281,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String protectedKey = cache.buildScopedKey(scope, "transcript-a");
         String legacySharedKey = "av2-" + "0".repeat(64);
         String rawKey = cache.buildKey("tenant-a", "unprotected-fixture");
@@ -306,7 +332,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-revoked", "model-license-v1");
+                "sha256-source-9", "policy-epoch-revoked", "model-license-v1", 0L);
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
 
@@ -326,17 +352,17 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var requested = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-a",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         var foreign = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-b", "rights-b",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String requestedKey = cache.buildScopedKey(requested, "transcript-a");
         String foreignKey = cache.buildScopedKey(foreign, "transcript-a");
         when(port.invalidateAsync(requestedKey)).thenReturn(AsyncOperation.success(null));
         AtomicInteger loaderCalls = new AtomicInteger();
 
         assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(requested, "transcript-a",
-                ignored -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(foreign)),
+                ignored -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(foreign, java.time.Instant.now().plusSeconds(3600))),
                 ignored -> {
                     loaderCalls.incrementAndGet();
                     return AsyncOperation.success("foreign protected payload");
@@ -358,7 +384,7 @@ class AudioVideoCacheTest {
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
@@ -366,7 +392,7 @@ class AudioVideoCacheTest {
 
         assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a", checked -> {
             if (checks.incrementAndGet() == 1) {
-                return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked));
+                return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked, java.time.Instant.now().plusSeconds(3600)));
             }
             return AsyncOperation.failure(new IllegalStateException("rights authority unavailable"));
         }, ignored -> AsyncOperation.success("protected payload"))))
@@ -379,12 +405,71 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void expiredRightsAuthorityCannotStartProtectedCacheLookup() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        Instant now = Instant.parse("2026-11-09T12:00:00Z");
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts",
+                Duration.ofSeconds(1), Clock.fixed(now, ZoneId.of("UTC")));
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
+        AtomicInteger loaderCalls = new AtomicInteger();
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
+                checked -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(
+                        checked, now)),
+                ignored -> {
+                    loaderCalls.incrementAndGet();
+                    return AsyncOperation.success("protected payload");
+                })))
+                .hasRootCauseInstanceOf(SecurityException.class);
+
+        assertThat(loaderCalls).hasValue(0);
+        verify(port, org.mockito.Mockito.never()).get(any());
+        verify(port, org.mockito.Mockito.never()).put(any(), any(), any());
+    }
+
+    @Test
+    void rightsExpiryDuringSourceLoadPreventsDisclosureAndCacheWrite() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        Instant issuedAt = Instant.parse("2026-11-09T12:00:00Z");
+        Instant expiresAt = issuedAt.plusSeconds(5);
+        AtomicReference<Instant> now = new AtomicReference<>(issuedAt);
+        Clock clock = new Clock() {
+            @Override public ZoneId getZone() { return ZoneId.of("UTC"); }
+            @Override public Clock withZone(ZoneId zone) { return this; }
+            @Override public Instant instant() { return now.get(); }
+        };
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts",
+                Duration.ofSeconds(1), clock);
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        when(port.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+
+        assertThatThrownBy(() -> await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
+                checked -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(
+                        checked, expiresAt)),
+                ignored -> {
+                    now.set(expiresAt);
+                    return AsyncOperation.success("protected payload");
+                })))
+                .hasRootCauseInstanceOf(SecurityException.class);
+
+        verify(port).get(key);
+        verify(port, org.mockito.Mockito.never()).put(eq(key), any(), any(Duration.class));
+        verify(port).invalidateAsync(key);
+    }
+
+    @Test
     void legacyBooleanScopedLookupInvalidatesExactKeyWithoutCacheReadOrLoader() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
         var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
                 "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
-                "sha256-source-9", "policy-epoch-12", "model-license-v1");
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
         String key = cache.buildScopedKey(scope, "transcript-a");
         when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
 

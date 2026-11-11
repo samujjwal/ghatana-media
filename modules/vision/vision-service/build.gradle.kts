@@ -69,6 +69,7 @@ dependencies {
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
     testImplementation("com.ghatana.platform:testing-activej:${providers.gradleProperty("ghatana.shared.version").get()}")
+    testImplementation(project(":services:media:modules:production:rendering"))
 }
 
 // Reuse the common module's checked-in test-only TLS identities without adding them to

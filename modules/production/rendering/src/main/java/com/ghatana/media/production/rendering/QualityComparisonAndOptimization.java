@@ -21,7 +21,7 @@ public final class QualityComparisonAndOptimization {
     public static final long MAX_BYTES = 64L * 1024 * 1024;
     public static final int MAX_ATTEMPTS = 8;
     private static final String SHA256 = "^[a-f0-9]{64}$";
-    private static final String REPORT_FORMAT_VERSION = "quality-comparison-v2";
+    private static final String REPORT_FORMAT_VERSION = "quality-comparison-v3";
     private static final String PSNR_ID = "RGB8_SAMPLE_PSNR_V1";
     private static final String SSIM_ID = "GLOBAL_SRGB_LUMA_SSIM_V1";
     private static final double SSIM_C1 = 6.5025;
@@ -178,34 +178,55 @@ public final class QualityComparisonAndOptimization {
     }
 
     public record CandidateComparison(RevisionId candidate, Metric psnr, Metric ssim,
-            Heuristics heuristics, QualityDisposition disposition) {
+            Metric sourcePsnr, Metric sourceSsim, Heuristics heuristics, QualityDisposition disposition) {
         public CandidateComparison {
             Objects.requireNonNull(candidate, "candidate"); Objects.requireNonNull(psnr, "psnr");
-            Objects.requireNonNull(ssim, "ssim"); Objects.requireNonNull(heuristics, "heuristics");
+            Objects.requireNonNull(ssim, "ssim"); Objects.requireNonNull(sourcePsnr, "sourcePsnr");
+            Objects.requireNonNull(sourceSsim, "sourceSsim"); Objects.requireNonNull(heuristics, "heuristics");
             Objects.requireNonNull(disposition, "disposition");
-            if (!PSNR_ID.equals(psnr.algorithm()) || !SSIM_ID.equals(ssim.algorithm())) {
+            if (!PSNR_ID.equals(psnr.algorithm()) || !SSIM_ID.equals(ssim.algorithm())
+                    || !PSNR_ID.equals(sourcePsnr.algorithm()) || !SSIM_ID.equals(sourceSsim.algorithm())) {
                 throw invalid("candidate comparison must use the pinned RGB8 PSNR and global SSIM algorithms");
             }
-            if (ssim.status() == MetricStatus.EXACT_MATCH) {
-                throw invalid("global SSIM is reported as a measured value, including exact frame matches");
+            validateMetricPair(psnr, ssim, "candidate");
+            validateMetricPair(sourcePsnr, sourceSsim, "source");
+            boolean candidateUnavailable = psnr.status() == MetricStatus.UNAVAILABLE;
+            boolean sourceUnavailable = sourcePsnr.status() == MetricStatus.UNAVAILABLE;
+            if (candidateUnavailable != sourceUnavailable) {
+                throw invalid("candidate and source metrics must have matching availability");
             }
-            if (psnr.status() == MetricStatus.MEASURED && psnr.value().orElseThrow() < 0) {
-                throw invalid("RGB8 sample PSNR cannot be negative");
+            QualityDisposition expectedDisposition;
+            if (candidateUnavailable) {
+                expectedDisposition = QualityDisposition.UNAVAILABLE;
+            } else if (psnrBetter(psnr, sourcePsnr)
+                    && ssim.value().orElseThrow() > sourceSsim.value().orElseThrow()) {
+                expectedDisposition = QualityDisposition.IMPROVED;
+            } else {
+                expectedDisposition = QualityDisposition.NOT_IMPROVED;
             }
-            if (ssim.status() == MetricStatus.MEASURED
-                    && (ssim.value().orElseThrow() < -1.0 || ssim.value().orElseThrow() > 1.0)) {
-                throw invalid("global SSIM must be within its bounded range");
+            if (disposition != expectedDisposition) {
+                throw invalid("disposition must match candidate and source reference metrics");
             }
-            if (psnr.status() == MetricStatus.EXACT_MATCH
-                    && (ssim.status() != MetricStatus.MEASURED || ssim.value().orElseThrow() != 1.0)) {
-                throw invalid("exact RGB8 PSNR match requires global SSIM of exactly 1.0");
-            }
-            boolean psnrUnavailable = psnr.status() == MetricStatus.UNAVAILABLE;
-            boolean ssimUnavailable = ssim.status() == MetricStatus.UNAVAILABLE;
-            if (psnrUnavailable != ssimUnavailable
-                    || (disposition == QualityDisposition.UNAVAILABLE) != psnrUnavailable) {
-                throw invalid("candidate disposition must match measured metric availability");
-            }
+        }
+    }
+
+    private static void validateMetricPair(Metric psnr, Metric ssim, String subject) {
+        if (ssim.status() == MetricStatus.EXACT_MATCH) {
+            throw invalid(subject + " global SSIM is reported as a measured value, including exact frame matches");
+        }
+        if (psnr.status() == MetricStatus.MEASURED && psnr.value().orElseThrow() < 0) {
+            throw invalid(subject + " RGB8 sample PSNR cannot be negative");
+        }
+        if (ssim.status() == MetricStatus.MEASURED
+                && (ssim.value().orElseThrow() < -1.0 || ssim.value().orElseThrow() > 1.0)) {
+            throw invalid(subject + " global SSIM must be within its bounded range");
+        }
+        if (psnr.status() == MetricStatus.EXACT_MATCH
+                && (ssim.status() != MetricStatus.MEASURED || ssim.value().orElseThrow() != 1.0)) {
+            throw invalid(subject + " exact RGB8 PSNR match requires global SSIM of exactly 1.0");
+        }
+        if ((psnr.status() == MetricStatus.UNAVAILABLE) != (ssim.status() == MetricStatus.UNAVAILABLE)) {
+            throw invalid(subject + " PSNR and SSIM availability must match");
         }
     }
 
@@ -259,7 +280,8 @@ public final class QualityComparisonAndOptimization {
                 if (!comparison.candidate().equals(retainedRevisions.get(i + 1))) {
                     throw invalid("report comparison candidates must match retained revisions in attempt order");
                 }
-                boolean metricsUnavailable = comparison.psnr().status() == MetricStatus.UNAVAILABLE;
+                boolean metricsUnavailable = comparison.psnr().status() == MetricStatus.UNAVAILABLE
+                        || comparison.sourcePsnr().status() == MetricStatus.UNAVAILABLE;
                 if (reference.isEmpty() != metricsUnavailable) {
                     throw invalid("report comparison metric availability must match reference availability");
                 }
@@ -477,15 +499,15 @@ public final class QualityComparisonAndOptimization {
 
     private static CandidateComparison compare(Revision source, Revision candidate, Revision reference) {
         Heuristics heuristics = new Heuristics(meanAbsDelta(source, candidate), spatialActivity(candidate));
-        if (reference == null) return new CandidateComparison(candidate.id(), unavailable(PSNR_ID), unavailable(SSIM_ID), heuristics,
-                QualityDisposition.UNAVAILABLE);
+        if (reference == null) return new CandidateComparison(candidate.id(), unavailable(PSNR_ID), unavailable(SSIM_ID),
+                unavailable(PSNR_ID), unavailable(SSIM_ID), heuristics, QualityDisposition.UNAVAILABLE);
         Metric candidatePsnr = psnr(candidate, reference);
         Metric candidateSsim = ssim(candidate, reference);
         Metric sourcePsnr = psnr(source, reference);
         Metric sourceSsim = ssim(source, reference);
         boolean improved = psnrBetter(candidatePsnr, sourcePsnr)
                 && candidateSsim.value().orElse(Double.NEGATIVE_INFINITY) > sourceSsim.value().orElse(Double.POSITIVE_INFINITY);
-        return new CandidateComparison(candidate.id(), candidatePsnr, candidateSsim, heuristics,
+        return new CandidateComparison(candidate.id(), candidatePsnr, candidateSsim, sourcePsnr, sourceSsim, heuristics,
                 improved ? QualityDisposition.IMPROVED : QualityDisposition.NOT_IMPROVED);
     }
 
@@ -507,7 +529,7 @@ public final class QualityComparisonAndOptimization {
             String sourceDecision, List<RevisionId> retained,
             Optional<RevisionId> reference, String refDecision, Optional<UnavailableReason> unavailable,
             List<CandidateComparison> comparisons) {
-        // V2 records caller-controlled strings as length-prefixed fields.
+        // V3 binds source and candidate measurements against the same reference.
         StringBuilder out = new StringBuilder(REPORT_FORMAT_VERSION).append('\n');
         appendCanonicalField(out, "operation", operationId);
         out.append("budget=").append(budget.maxPixels()).append(',').append(budget.maxBytes()).append(',')
@@ -519,7 +541,8 @@ public final class QualityComparisonAndOptimization {
         out.append("referenceUnavailable=").append(unavailable.map(Enum::name).orElse("")).append('\n');
         for (CandidateComparison item : comparisons) {
             out.append("candidate="); appendRevision(out, item.candidate());
-            appendMetric(out, "psnr", item.psnr()); appendMetric(out, "ssim", item.ssim());
+            appendMetric(out, "candidatePsnr", item.psnr()); appendMetric(out, "candidateSsim", item.ssim());
+            appendMetric(out, "sourcePsnr", item.sourcePsnr()); appendMetric(out, "sourceSsim", item.sourceSsim());
             out.append("heuristics=").append(Double.toHexString(item.heuristics().meanAbsoluteSourceDelta())).append(',')
                     .append(Double.toHexString(item.heuristics().candidateSpatialActivity())).append('\n');
             out.append("disposition=").append(item.disposition()).append('\n');

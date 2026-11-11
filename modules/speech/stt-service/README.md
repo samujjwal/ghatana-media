@@ -4,6 +4,26 @@ Media-owned STT gRPC implementation. The protobuf service contract is
 `src/main/proto/stt_service.proto`; the production composition is
 `com.ghatana.stt.grpc.ProductionSttGrpcService`.
 
+## Purpose and design boundary
+
+This module exposes the Media-owned STT gRPC contract and composes it with the
+shared `SttEngine` SPI. It is intended for authenticated Media runtime clients
+that already have a source artifact, trusted processing purpose, and current
+rights decision. It owns request validation, gRPC mapping, and bounded local
+stream input checks. It does not own source-rights policy, consent authority,
+durable stream-session storage, job reconciliation, caption persistence, or
+model licensing and qualification. Those remain with their runtime, policy,
+caption, and provider owners.
+
+The streaming design is fail-closed: authenticate and admit the canonical
+session before consuming audio, keep sequence and source-clock checks local to
+the live request, and report only provider-observed finality. The current
+production composition lacks the trusted session/consent/provider wiring, so
+`StreamTranscribe` returns `FAILED_PRECONDITION` before chunk dispatch. The
+sequence helper does not provide reconnect or durable resume. Adding those
+behaviors requires the owning session and provider-attempt contracts; a client
+field or local cursor cannot establish that authority.
+
 ## Runtime provider boundary
 
 Before this Wave 2 change, the STT server composition built the shared
@@ -157,6 +177,33 @@ The source-level RPC-to-test mapping is: `Transcribe` — `SttGrpcServiceTest`,
 coverage); `GetStatus`, `HealthCheck` — `SttGrpcServiceTest`, with health also
 covered in production and in-process tests. These existing suites were not
 rerun for STT-01; only the new descriptor test was run.
+
+## Streaming request example
+
+The following protobuf text shows the existing `AudioChunk` shape for one
+bounded PCM chunk. It is a contract example only: the production `StreamTranscribe`
+RPC is currently `NOT_ADMITTED` and rejects before reading this chunk because
+trusted canonical session and consent authority are not wired. The sample does
+not create consent, a session, a provider attempt, or a client acknowledgement.
+
+```protobuf
+AudioChunk {
+  session_id: "caller-supplied canonical session reference"
+  sequence: 1
+  sample_rate: 16000
+  timestamp_ms: 0
+  audio_data: "<320 bytes of mono S16LE PCM>"
+}
+```
+
+If a stream is later admitted, sequence starts at 1 and advances contiguously;
+sample rate stays constant and source timestamps stay monotonic. `sequence` is
+per connection and does not enable reconnect. `accepted_sequence_snapshot` in
+a `Transcription` is only the server's accepted-sequence snapshot, not a client
+ack. `durable_resume_enabled` remains false until the canonical runtime store
+and provider are wired. See `SttGrpcStreamingSemanticsTest` for the current
+fail-before-consume assertion and `SttStreamSequenceValidatorTest` for the
+local bounds and corrected-retry behavior.
 
 ## STT-12 fixture transport load
 

@@ -3,9 +3,10 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
-const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const { parse } = createRequire(resolve(root, "package.json"))("yaml");
 const sourcePath = ".product-experience/pdp-2-design-interface-system/events/conventions.yaml";
 const read = () => parse(readFileSync(resolve(root, sourcePath), "utf8"));
 

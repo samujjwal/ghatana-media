@@ -18,6 +18,76 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DubbingOrchestratorTest {
     @Test
+    void sourceClockAndSegmentTicksRespectExactIntegerInteroperabilityBoundary() {
+        long maxSafe = MAX_SAFE_INTEGER;
+        SourceVersion source = new SourceVersion("artifact-a", "version-a");
+        TranscriptSegment boundarySegment = new TranscriptSegment("seg-boundary", "hello", maxSafe - 1, maxSafe);
+        TranscriptRevision boundary = new TranscriptRevision("transcript-v1", source, "en-US", "clock",
+                maxSafe, maxSafe, List.of(boundarySegment));
+
+        assertThat(boundary.ticksPerSecond()).isEqualTo(maxSafe);
+        assertThat(boundary.sourceDurationTicks()).isEqualTo(maxSafe);
+        assertThat(boundary.segments()).containsExactly(boundarySegment);
+        assertThatThrownBy(() -> new TranscriptRevision("transcript-v1", source, "en-US", "clock",
+                maxSafe + 1, maxSafe, List.of(new TranscriptSegment("seg-1", "hello", 0, 1))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("safe integers");
+        assertThatThrownBy(() -> new TranscriptRevision("transcript-v1", source, "en-US", "clock",
+                1, maxSafe + 1, List.of(new TranscriptSegment("seg-1", "hello", 0, 1))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("safe integers");
+        assertThatThrownBy(() -> new TranscriptSegment("seg-1", "hello", maxSafe, maxSafe + 1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("safe positive source-tick interval");
+
+        VoiceIdentity voice = new VoiceIdentity("voice-a", "voice-v1");
+        byte[] audio = { 1 };
+        String digest = com.ghatana.media.runtime.MediaCreationContracts.sha256(audio);
+        assertThatThrownBy(() -> new DubbingResult(ResultStatus.COMPLETED, Optional.empty(), "tenant", "request",
+                source, "transcript-v1", "es-MX", voice, "clock", maxSafe + 1, maxSafe,
+                true, 1, List.of(new DubbedSegment("seg-1", "hola", audio, digest,
+                        0, 1, 0, 1))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("safe integers");
+    }
+
+    @Test
+    void exactSourceAndVoiceIdentifiersFollowPdpOpaqueScalarWithoutNormalization() {
+        String maxId = "A" + "x".repeat(127);
+        String maxVersion = "v" + ":".repeat(127);
+        SourceVersion validBoundary = new SourceVersion(maxId, maxVersion);
+        VoiceIdentity validVoiceBoundary = new VoiceIdentity(maxId, maxVersion);
+
+        assertThat(validBoundary.artifactId()).isEqualTo(maxId);
+        assertThat(validBoundary.versionId()).isEqualTo(maxVersion);
+        assertThat(validVoiceBoundary.voiceId()).isEqualTo(maxId);
+        assertThat(validVoiceBoundary.voiceVersionId()).isEqualTo(maxVersion);
+
+        assertThatThrownBy(() -> new SourceVersion(" artifact-a", "version-a"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque id");
+        assertThatThrownBy(() -> new SourceVersion("artifact-a ", "version-a"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque id");
+        assertThatThrownBy(() -> new SourceVersion("artifact/a", "version-a"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque id");
+        assertThatThrownBy(() -> new SourceVersion("artifact-a", " version-a"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque version id");
+        assertThatThrownBy(() -> new SourceVersion("x".repeat(129), "version-a"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque id");
+        assertThatThrownBy(() -> new TranscriptSegment("seg-1 ", "hello", 0, 1))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque id");
+        assertThatThrownBy(() -> new VoiceIdentity("voice-a", "voice-v1/"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque version id");
+        assertThatThrownBy(() -> new VoiceIdentity("voice-a", "voice+v1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque version id");
+
+        Fixture f = new Fixture();
+        Request valid = f.request();
+        assertThatThrownBy(() -> f.orchestrator().dub(new Request("tenant-a ", valid.requestId(),
+                valid.sourceVersion(), valid.transcript(), valid.targetLocale(), valid.voice(), valid.purpose())))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque id");
+        assertThat(f.rights.evaluationCalls).hasValue(0);
+        assertThat(f.translationCalls).hasValue(0);
+        assertThat(f.synthesisCalls).hasValue(0);
+        assertThat(f.alignmentCalls).hasValue(0);
+    }
+
+    @Test
     void localeValidationRejectsMalformedSuffixInsteadOfAcceptingParsedPrefix() {
         SourceVersion source = new SourceVersion("artifact-a", "version-a");
 
@@ -455,11 +525,13 @@ class DubbingOrchestratorTest {
     }
 
     private static final class TestRights implements RightsConsentPort {
+        final AtomicInteger evaluationCalls = new AtomicInteger();
         RightsStatus sourceStatus = RightsStatus.ALLOW;
         RightsStatus voiceStatus = RightsStatus.ALLOW;
         boolean sourceCurrent = true;
         boolean voiceCurrent = true;
         @Override public RightsDecision evaluate(RightsScope scope) {
+            evaluationCalls.incrementAndGet();
             RightsStatus status = scope.kind() == RightsKind.SOURCE_DERIVATIVE ? sourceStatus : voiceStatus;
             return new RightsDecision(status, status == RightsStatus.ALLOW ? "authority:test" : "", status == RightsStatus.ALLOW ? "decision:test" : "");
         }

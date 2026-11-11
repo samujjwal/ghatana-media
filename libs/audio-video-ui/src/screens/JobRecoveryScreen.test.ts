@@ -93,6 +93,23 @@ describe("JobRecoveryScreen canonical read", () => {
     expect(await screen.findByText("Canonical job reports OUTCOME_UNKNOWN. Reconcile the same job before retrying.")).toBeTruthy();
   });
 
+  it("recovers from a reader that throws synchronously and leaves refresh available", async () => {
+    const getJob = vi.fn()
+      .mockImplementationOnce(() => { throw new Error("transport setup failed"); })
+      .mockResolvedValueOnce({ jobId: "job-canonical-17", status: "RUNNING", version: 4 });
+    const canonicalJobReadClient: CanonicalJobReadClient = { getJob };
+    render(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient }));
+
+    const refresh = screen.getByRole("button", { name: "Refresh canonical status" });
+    fireEvent.click(refresh);
+    expect(await screen.findByText("Canonical job status is unknown. Reconcile the same job before taking another action.")).toBeTruthy();
+    expect(refresh.hasAttribute("disabled")).toBe(false);
+
+    fireEvent.click(refresh);
+    expect(await screen.findByText("Canonical job status observed: RUNNING (version 4).")).toBeTruthy();
+    expect(getJob).toHaveBeenCalledTimes(2);
+  });
+
   it("fails closed when a canonical response has the wrong identity, status, or version", async () => {
     const malformedSnapshots: readonly unknown[] = [
       { jobId: "another-job", status: "COMPLETED", version: 2 },
@@ -134,7 +151,7 @@ describe("JobRecoveryScreen canonical read", () => {
     const canonicalJobReadClient: CanonicalJobReadClient = {
       getJob: vi.fn((_jobId, signal) => {
         requestSignal = signal;
-        return new Promise(() => undefined);
+        return new Promise<never>(() => undefined);
       }),
     };
     const { rerender } = render(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient }));

@@ -17,6 +17,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import tools.jackson.core.StreamReadFeature;
@@ -750,6 +751,7 @@ public final class SpatialRigEngine {
                 throw new IllegalArgumentException("GLB spatial precision-loss fields do not match its animation data");
             }
         }
+        validateGlbExactKeyframeTimes(document, metadata, bytes, hasAnimation);
         if (!rigId.equals(metadata.path("rigId").asString())
                 || !revisionRef.equals(metadata.path("sourceProjectRevisionRef").asString())
                 || !frameRef.equals(metadata.path("frameRef").asString())
@@ -772,6 +774,145 @@ public final class SpatialRigEngine {
         if (embedded.size() != embeddedSources.size() || !embedded.equals(new HashSet<>(sourceVersions))) {
             throw new IllegalArgumentException("GLB spatial source versions do not match artifact lineage");
         }
+    }
+
+    /** Keeps the exact rational-time report bound to the actual FLOAT32 animation inputs. */
+    private static void validateGlbExactKeyframeTimes(JsonNode document, JsonNode metadata,
+            byte[] bytes, boolean hasAnimation) {
+        JsonNode exactTracks = metadata.path("exactKeyframeTimes");
+        if (!exactTracks.isArray()) throw invalidExactKeyframeTimes();
+        if (!hasAnimation) {
+            if (!exactTracks.isEmpty()) throw invalidExactKeyframeTimes();
+            return;
+        }
+
+        JsonNode animations = document.path("animations");
+        if (animations.size() != 1) throw invalidExactKeyframeTimes();
+        JsonNode animation = animations.get(0);
+        JsonNode samplers = animation.path("samplers");
+        JsonNode channels = animation.path("channels");
+        JsonNode nodes = document.path("nodes");
+        if (!samplers.isArray() || !channels.isArray() || !nodes.isArray()) throw invalidExactKeyframeTimes();
+
+        HashMap<String, Integer> inputAccessorByBone = new HashMap<>();
+        HashMap<String, HashSet<String>> pathsByBone = new HashMap<>();
+        for (JsonNode channel : channels) {
+            int nodeIndex = requiredArrayIndex(channel.path("target").path("node"), nodes.size());
+            int samplerIndex = requiredArrayIndex(channel.path("sampler"), samplers.size());
+            JsonNode nodeName = nodes.get(nodeIndex).path("name");
+            JsonNode path = channel.path("target").path("path");
+            if (!nodeName.isString() || !path.isString()) throw invalidExactKeyframeTimes();
+            int inputAccessor = requiredArrayIndex(samplers.get(samplerIndex).path("input"),
+                    document.path("accessors").size());
+            String boneId = nodeName.asString();
+            Integer previousInput = inputAccessorByBone.putIfAbsent(boneId, inputAccessor);
+            if (previousInput != null && previousInput != inputAccessor) throw invalidExactKeyframeTimes();
+            if (!pathsByBone.computeIfAbsent(boneId, ignored -> new HashSet<>()).add(path.asString())) {
+                throw invalidExactKeyframeTimes();
+            }
+        }
+        if (inputAccessorByBone.size() != exactTracks.size()) throw invalidExactKeyframeTimes();
+
+        JsonNode buffers = document.path("buffers");
+        if (!buffers.isArray() || buffers.size() != 1 || !buffers.get(0).path("byteLength").isInt()) {
+            throw invalidExactKeyframeTimes();
+        }
+        GlbBinaryRange binaryRange = glbBinaryRange(bytes);
+        int declaredBufferLength = buffers.get(0).path("byteLength").intValue();
+        if (declaredBufferLength < 0 || declaredBufferLength > binaryRange.length()
+                || binaryRange.length() - declaredBufferLength > 3) {
+            throw invalidExactKeyframeTimes();
+        }
+
+        String previousBoneId = null;
+        for (JsonNode exactTrack : exactTracks) {
+            JsonNode boneNode = exactTrack.path("boneId");
+            JsonNode times = exactTrack.path("times");
+            if (!boneNode.isString() || !times.isArray()) throw invalidExactKeyframeTimes();
+            String boneId = boneNode.asString();
+            if (previousBoneId != null && previousBoneId.compareTo(boneId) >= 0) throw invalidExactKeyframeTimes();
+            previousBoneId = boneId;
+            Integer accessorIndex = inputAccessorByBone.get(boneId);
+            if (accessorIndex == null || !pathsByBone.get(boneId).equals(Set.of("translation", "rotation"))) {
+                throw invalidExactKeyframeTimes();
+            }
+            JsonNode accessor = document.path("accessors").get(accessorIndex);
+            if (!accessor.path("componentType").isInt() || accessor.path("componentType").intValue() != 5126
+                    || !"SCALAR".equals(accessor.path("type").asString())
+                    || !accessor.path("count").isInt() || accessor.path("count").intValue() != times.size()) {
+                throw invalidExactKeyframeTimes();
+            }
+            int viewIndex = requiredArrayIndex(accessor.path("bufferView"), document.path("bufferViews").size());
+            JsonNode view = document.path("bufferViews").get(viewIndex);
+            if (!view.path("buffer").isInt() || view.path("buffer").intValue() != 0
+                    || !view.path("byteLength").isInt()) throw invalidExactKeyframeTimes();
+            JsonNode viewByteOffsetNode = view.path("byteOffset");
+            int byteOffset = viewByteOffsetNode.isMissingNode() ? 0
+                    : viewByteOffsetNode.isInt() ? viewByteOffsetNode.intValue() : -1;
+            int byteLength = view.path("byteLength").intValue();
+            JsonNode accessorByteOffsetNode = accessor.path("byteOffset");
+            int accessorByteOffset = accessorByteOffsetNode.isMissingNode() ? 0
+                    : accessorByteOffsetNode.isInt() ? accessorByteOffsetNode.intValue() : -1;
+            JsonNode byteStrideNode = view.path("byteStride");
+            if (!byteStrideNode.isMissingNode() && (!byteStrideNode.isInt() || byteStrideNode.intValue() != 4)) {
+                throw invalidExactKeyframeTimes();
+            }
+            long end = (long) byteOffset + byteLength;
+            long accessorEnd = (long) accessorByteOffset + times.size() * 4L;
+            if (byteOffset < 0 || accessorByteOffset < 0 || byteLength < times.size() * 4L
+                    || accessorEnd > byteLength || end > declaredBufferLength || end > binaryRange.length()) {
+                throw invalidExactKeyframeTimes();
+            }
+            ByteBuffer binary = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+            float previousSeconds = -1;
+            for (int index = 0; index < times.size(); index++) {
+                JsonNode rational = times.get(index);
+                if (!rational.isArray() || rational.size() != 2
+                        || !rational.get(0).isString() || !rational.get(1).isString()) {
+                    throw invalidExactKeyframeTimes();
+                }
+                BigInteger numerator = new BigInteger(rational.get(0).asString());
+                BigInteger denominator = new BigInteger(rational.get(1).asString());
+                RationalTime exact = new RationalTime(numerator, denominator);
+                if (!exact.numerator().toString().equals(rational.get(0).asString())
+                        || !exact.denominator().toString().equals(rational.get(1).asString())) {
+                    throw invalidExactKeyframeTimes();
+                }
+                float expectedSeconds = checkFloatTime(exact);
+                float encodedSeconds = binary.getFloat(binaryRange.offset() + byteOffset + accessorByteOffset + index * 4);
+                if (!Float.isFinite(encodedSeconds) || Float.floatToIntBits(encodedSeconds) != Float.floatToIntBits(expectedSeconds)
+                        || (index > 0 && encodedSeconds <= previousSeconds)) {
+                    throw invalidExactKeyframeTimes();
+                }
+                previousSeconds = encodedSeconds;
+            }
+        }
+    }
+
+    private static int requiredArrayIndex(JsonNode value, int size) {
+        if (!value.isInt() || value.intValue() < 0 || value.intValue() >= size) throw invalidExactKeyframeTimes();
+        return value.intValue();
+    }
+
+    private record GlbBinaryRange(int offset, int length) {}
+
+    private static GlbBinaryRange glbBinaryRange(byte[] bytes) {
+        ByteBuffer input = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        input.position(12);
+        int jsonLength = input.getInt();
+        if (input.getInt() != 0x4e4f534a) throw invalidExactKeyframeTimes();
+        long nextChunk = (long) input.position() + jsonLength;
+        if (nextChunk + 8 > bytes.length) throw invalidExactKeyframeTimes();
+        input.position((int) nextChunk);
+        int binLength = input.getInt();
+        if (input.getInt() != 0x004e4942 || binLength < 0 || input.position() + binLength > bytes.length) {
+            throw invalidExactKeyframeTimes();
+        }
+        return new GlbBinaryRange(input.position(), binLength);
+    }
+
+    private static IllegalArgumentException invalidExactKeyframeTimes() {
+        return new IllegalArgumentException("GLB exact keyframe-time manifest disagrees with animation data");
     }
 
     private static void writeFloat(ByteArrayOutputStream output, float value) {

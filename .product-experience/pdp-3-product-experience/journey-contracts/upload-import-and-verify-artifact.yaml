@@ -2153,7 +2153,8 @@ channelEquivalents:
 accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
 requiredScenarioBehaviors:
   status: seven-metadata-only-PDP-3-fixtures-authored;
-    actual-transfers-and-runtime-contracts-remain-unimplemented
+    local-DEV_ONLY-byte-transfer-and-process-restart-are-tested;
+    owner-runtime-contract-binding-and-production-admission-remain-open
   scenarios:
     - media.scenario.upload-interrupted
     - media.scenario.upload-checksum-mismatch

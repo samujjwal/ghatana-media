@@ -372,13 +372,21 @@ downloads, unpinned PATH lookup or a second runtime implementation. The opt-in
 platform-specific published SHA-256, rejects unsafe tar entries and extracts
 only to a private, bounded temporary directory. It retains the exact archive;
 `VisionNativeBoundedIT` checks both the archive's fixed digest and that the
-actual `ffmpeg` and `ffprobe` executables match archived members. Existing
+actual `ffmpeg` and `ffprobe` executables match archived members. If an exact
+release archive is already cached, `GHATANA_MEDIA_CODEC_ARCHIVE_SOURCE` may
+point to it; the provisioner copies it into its private scratch directory and
+still requires the same pinned SHA-256 before extraction. `PROVISION.json`
+records whether the archive came from the network or a local cache. Existing
 direct executable SHA-256 profiles remain supported.
 
 ```bash
 # From the Media root. No sudo, no global binary install, no runtime admission.
 bash scripts/prepare-wave2-codecs.sh mac-arm64
 bash scripts/prepare-wave2-codecs.sh linux-arm64
+
+# Use this in place of the macOS command above with a fresh output directory.
+GHATANA_MEDIA_CODEC_ARCHIVE_SOURCE=/absolute/path/to/ffmpeg-8.1.2-aarch64-apple-darwin.tar.gz \
+  bash scripts/prepare-wave2-codecs.sh mac-arm64 /absolute/path/to/fresh-output
 
 # Default output directory is /tmp/ghatana-media-codecs; use the paths
 # actually printed by the provisioner, or supply your own isolated output root.
@@ -443,6 +451,20 @@ generated `sourceAuthorities` can add explicit source-path mentions, including
 PDP-3 screen-contract paths, so the post-projection manifest pass updates the
 provenance-only dependency edges. This is an expected synchronization step; it
 does not make those edges semantic dependencies or currentness evidence.
+
+The per-leaf capability implementation inventory is a separate conservative
+engineering view. After changing the task register, family map, or capability
+catalog, refresh and verify its generated artifact and run its source-bound
+tests:
+
+    node scripts/generate-media-capability-implementation-crosswalk.mjs
+    pnpm check:capability-implementation-crosswalk
+    pnpm test:capability-implementation-crosswalk
+
+`NOT_IMPLEMENTED` remains the default until a task explicitly binds complete
+behavior to a capability family; a verified prerequisite does not implement
+the leaf. `OPTIONAL_DEFERRED` leaves carry no blocking or verified-task refs.
+This inventory does not establish semantic acceptance or lifecycle status.
 
 Historical isolated-build issue (October 8 source cut): an older, broad
 source-composite configuration was blocked by the Ghatana service-contract

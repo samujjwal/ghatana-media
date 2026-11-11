@@ -21,6 +21,10 @@ Multimodal and authorized gRPC clients.
   detector available.
 - `BoundedImageDecoder`, EXIF/source-raster transforms and
   `VideoFrameExtractor` provide Media-specific input preparation.
+  `ExtractionConfig.Builder.sourceFrameNumber(n)` selects one decoded input
+  ordinal without FPS sampling, preserves source PTS/timebase diagnostics and
+  limits the result to one frame. It does not establish an artifact/version
+  or request-frame binding, source rights, or permission to send pixels to DI.
 - `YoloXNanoAdapter` is a separate experimental adapter (416×416
   preprocessing, `[1,3549,85]` decoder) that does not reuse the YOLOv8
   parser; its catalog digest identifies official release bytes only —
@@ -87,7 +91,20 @@ failure fails closed.
   -Pghatana.media.focusedModules=vision \
   :services:media:modules:vision:vision-service:test \
   --tests '*VisionGrpcServiceInProcessIntegrationTest'
+
+./gradlew -Pghatana.media.compositeScope=FULL \
+  :services:media:modules:vision:vision-service:test \
+  --tests com.ghatana.audio.video.vision.video.VideoFrameExtractorProcessTest \
+  --tests com.ghatana.audio.video.vision.video.VideoRestorationSyntheticIntegrationTest
 ```
+
+The frame-extractor selector covers the exact source ordinal path; it does not
+establish a trusted artifact/frame binding or external-processing consent. The
+test-only `VideoRestorationSyntheticIntegrationTest` uses a pinned local
+FFmpeg/FFprobe pair on `PATH` and generated frames to carry exact ordinal,
+PTS/timebase and synthetic reference measurements through `PngFrameCodec` and
+`TemporalVideoRestoration`; it claims neither source rights nor qualified
+restoration quality.
 
 `bash scripts/qualification/run-wave2-vision-oci-checks.sh broker` is
 external-broker-only (never builds an image or starts a daemon);

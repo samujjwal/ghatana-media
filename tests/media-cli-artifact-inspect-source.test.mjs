@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = resolve(new URL('..', import.meta.url).pathname);
+const root = fileURLToPath(new URL('..', import.meta.url));
 const { parse } = createRequire(resolve(root, '../ghatana-tools/package.json'))('yaml');
 const readYaml = path => parse(readFileSync(resolve(root, path), 'utf8'));
 

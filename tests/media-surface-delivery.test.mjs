@@ -31,6 +31,26 @@ test("duplicate, missing, and deferred core tasks are rejected",()=>{
  assert.ok(validateSurfaceDelivery(copy,register,capabilities).some(x=>x.includes("optional task")));
 });
 
+test("non-open authoritative tasks cannot be assigned to a delivery area",()=>{
+ const copy=structuredClone(plan);
+ copy.areas[0].taskIds.push(register.tasks.find(t=>t.state==="VERIFIED").id);
+ assert.ok(validateSurfaceDelivery(copy,register,capabilities).some(x=>x.includes("non-open task")));
+});
+
+test("duplicate surface IDs cannot mask an omitted surface",()=>{
+ const copy=structuredClone(plan);
+ copy.surfaces[1].id=copy.surfaces[0].id;
+ assert.ok(validateSurfaceDelivery(copy,register,capabilities).some(x=>x.includes("duplicate surface ID")));
+ assert.ok(validateSurfaceDelivery(copy,register,capabilities).some(x=>x.includes("surface coverage mismatch")));
+});
+
+test("duplicate capability family IDs cannot mask an omitted family",()=>{
+ const copy=structuredClone(plan);
+ copy.capabilityFamilies[1].familyId=copy.capabilityFamilies[0].familyId;
+ assert.ok(validateSurfaceDelivery(copy,register,capabilities).some(x=>x.includes("duplicate capability family ID")));
+ assert.ok(validateSurfaceDelivery(copy,register,capabilities).some(x=>x.includes("capability families coverage mismatch")));
+});
+
 test("change selector avoids repeated unrelated test suites",()=>{
  const ids=paths=>selectAffectedAreas(plan,paths).map(a=>a.id);
  assert.deepEqual(ids(["modules/production/animation/src/main/java/AnimationRenderer.java"]),["creative-preview"]);

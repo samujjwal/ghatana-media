@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.AbstractList;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,6 +36,41 @@ class MediaJobRequestFingerprintTest {
         assertThat(fingerprint(first)).isNotEqualTo(fingerprint(request(
                 Map.of("nested", Map.of("alpha", 1, "beta", List.of("second", "first"))),
                 Set.of("east", "west"))));
+    }
+
+    @Test
+    void boundedCanonicalLengthAndDigestMatchTheCanonicalJsonEncoding() throws Exception {
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("unicode", "voice \"sample\" — 🎧");
+        value.put("controls", "line\nfeed\tend");
+        value.put("values", java.util.Arrays.asList(1, true, null));
+        value.put("array", new int[] {4, 5});
+        String canonical = MediaJobRequestFingerprint.canonicalJson(value);
+        String expectedDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(canonical.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(MediaJobRequestFingerprint.boundedCanonicalJsonLength(value, 8_192))
+                .isEqualTo(canonical.length());
+        assertThat(MediaJobRequestFingerprint.boundedCanonicalJsonDigest(value, 8_192))
+                .isEqualTo(expectedDigest);
+    }
+
+    @Test
+    void boundedCanonicalDigestStopsBeforeMaterializingAnOversizedCollection() {
+        AtomicInteger readItems = new AtomicInteger();
+        List<Object> oversized = new AbstractList<>() {
+            @Override public Object get(int index) {
+                readItems.incrementAndGet();
+                return "x";
+            }
+            @Override public int size() { return Integer.MAX_VALUE; }
+        };
+
+        assertThatThrownBy(() -> MediaJobRequestFingerprint.boundedCanonicalJsonDigest(
+                oversized, 32))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exceeds 32 bytes");
+        assertThat(readItems.get()).isBetween(1, 8);
     }
 
     @Test

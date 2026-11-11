@@ -8,7 +8,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -22,8 +24,15 @@ import java.util.Set;
  * @doc.pattern Controller
  */
 public final class MediaSecurityFilter implements HttpHandler {
+    private static final String DEV_ONLY_ISSUER = "urn:ghatana:media:dev-only";
+    private static final String DEV_ONLY_AUDIENCE = "ghatana-media-dev";
+    private static final String DEV_ONLY_SECRET = "MEDIA_DEV_JWT_HMAC_SECRET";
     static final String AUTHENTICATED_PRINCIPAL_ATTRIBUTE =
             MediaSecurityFilter.class.getName() + ".authenticatedPrincipal";
+    private static final String DEV_ONLY_AUTHENTICATED_ATTRIBUTE =
+            MediaSecurityFilter.class.getName() + ".devOnlyAuthenticated";
+    private static final String DEV_ONLY_PERMISSIONS_ATTRIBUTE =
+            MediaSecurityFilter.class.getName() + ".devOnlyPermissions";
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/health", "/health/live", "/health/ready", "/health/startup",
             "/ready", "/metrics", "/info", "/api/v1/health");
@@ -31,6 +40,8 @@ public final class MediaSecurityFilter implements HttpHandler {
     private final SecurityFilterSupport support;
     private final HttpHandler delegate;
     private final JwtAuthenticationVerifier jwtVerifier;
+    private final JwtAuthenticationVerifier devJwtVerifier;
+    private final boolean devIdentityEnabled;
     private final boolean productionLike;
     private final boolean bootstrapApiKeyEnabled;
     private final String bootstrapApiKeyTenant;
@@ -49,10 +60,19 @@ public final class MediaSecurityFilter implements HttpHandler {
         this.delegate = java.util.Objects.requireNonNull(delegate, "delegate");
         Map<String, String> immutable = Map.copyOf(environment);
         this.clock = java.util.Objects.requireNonNull(clock, "clock");
-        this.support = new SecurityFilterSupport(
-                "MEDIA-SEC", "MEDIA_API_KEY", delegate, deploymentProfile, immutable, clock);
-        this.jwtVerifier = JwtAuthenticationVerifier.fromEnvironment("MEDIA", immutable, clock);
         this.productionLike = MediaDeploymentProfiles.productionLike(deploymentProfile);
+        this.devIdentityEnabled = parseDevIdentityEnabled(immutable);
+        if (devIdentityEnabled && !"dev".equals(MediaDeploymentProfiles.canonical(deploymentProfile))) {
+            throw new IllegalArgumentException("MEDIA_DEV_IDENTITY_ENABLED is supported only for the dev profile");
+        }
+        Map<String, String> devVerifierEnvironment = devVerifierEnvironment(immutable, devIdentityEnabled);
+        this.devJwtVerifier = devVerifierEnvironment == null
+                ? null : JwtAuthenticationVerifier.fromEnvironment("MEDIA_DEV", devVerifierEnvironment, clock);
+        Map<String, String> supportEnvironment = devIdentityEnabled
+                ? mediaVerifierEnvironment(immutable) : immutable;
+        this.support = new SecurityFilterSupport(
+                "MEDIA-SEC", "MEDIA_API_KEY", delegate, deploymentProfile, supportEnvironment, clock);
+        this.jwtVerifier = JwtAuthenticationVerifier.fromEnvironment("MEDIA", supportEnvironment, clock);
         this.bootstrapApiKeyEnabled = Boolean.parseBoolean(immutable.getOrDefault("MEDIA_BOOTSTRAP_API_KEYS_ENABLED", "false"));
         this.bootstrapApiKeyTenant = immutable.get("MEDIA_BOOTSTRAP_API_KEY_TENANT");
         this.bootstrapServiceId = immutable.get("MEDIA_BOOTSTRAP_API_KEY_SERVICE_ID");
@@ -82,8 +102,50 @@ public final class MediaSecurityFilter implements HttpHandler {
                 SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Unsupported authorization scheme");
                 return;
             }
+            if (devIdentityEnabled) {
+                // This opt-in mode admits only an operator-signed, short-lived dev token. Caller
+                // identity headers and API keys do not provide an alternate path.
+                if (hasApiKey || authorization == null || !authorization.startsWith("Bearer ")) {
+                    SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "A DEV_ONLY bearer token is required");
+                    return;
+                }
+                Optional<JwtAuthenticationVerifier.VerifiedJwt> devVerified = devJwtVerifier.verify(
+                        authorization.substring(7).trim(), null);
+                if (devVerified.isEmpty()) {
+                    SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Invalid DEV_ONLY bearer token");
+                    return;
+                }
+                var identity = devVerified.orElseThrow();
+                if (!Boolean.TRUE.equals(identity.claims().get("dev_only"))) {
+                    SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Bearer token is not marked DEV_ONLY");
+                    return;
+                }
+                String required = requiredPermission(exchange.getRequestMethod(), exchange.getRequestURI().getPath(), true);
+                if (required == null || !identity.hasPermission(required)) {
+                    SecurityFilterSupport.sendError(exchange, 403, "FORBIDDEN", "Access denied");
+                    return;
+                }
+                exchange.setAttribute(DEV_ONLY_AUTHENTICATED_ATTRIBUTE, Boolean.TRUE);
+                Set<String> verifiedPermissions = Set.of(
+                        "media:artifact:create", "media:artifact:write", "media:artifact:read",
+                        "media:job:read", "media:job:cancel").stream()
+                        .filter(identity::hasPermission)
+                        .collect(java.util.stream.Collectors.toUnmodifiableSet());
+                exchange.setAttribute(DEV_ONLY_PERMISSIONS_ATTRIBUTE, verifiedPermissions);
+                replaceHint(exchange, SecurityFilterSupport.HEADER_TENANT_ID, identity.tenantId());
+                replaceHint(exchange, "X-Principal-Id", identity.subject());
+                authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        identity.tenantId(), identity.subject(), clock.instant());
+            } else if (productionLike && devJwtVerifier != null && authorization != null
+                    && authorization.startsWith("Bearer ")
+                    && devJwtVerifier.verify(authorization.substring(7).trim(), null).isPresent()) {
+                // Even if production is misconfigured to accept a development key/claim set via
+                // the general verifier, explicitly reject any token verifiable as DEV_ONLY.
+                SecurityFilterSupport.sendError(exchange, 401, "DEV_ONLY_TOKEN_FORBIDDEN", "DEV_ONLY identity is not valid in production");
+                return;
+            }
             if (hasApiKey && !authorizeBootstrapApiKey(exchange)) return;
-            if (authorization != null && authorization.startsWith("Bearer ")) {
+            if (!devIdentityEnabled && authorization != null && authorization.startsWith("Bearer ")) {
                 String tenantHint = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_TENANT_ID);
                 Optional<JwtAuthenticationVerifier.VerifiedJwt> verified = jwtVerifier.verify(
                         authorization.substring(7).trim(), tenantHint);
@@ -92,7 +154,11 @@ public final class MediaSecurityFilter implements HttpHandler {
                     return;
                 }
                 var identity = verified.orElseThrow();
-                String required = MediaRouteManifest.requiredPermission(exchange.getRequestMethod(), exchange.getRequestURI().getPath());
+                if (identity.claims().containsKey("dev_only")) {
+                    SecurityFilterSupport.sendError(exchange, 401, "DEV_ONLY_TOKEN_FORBIDDEN", "DEV_ONLY identity requires the enabled dev profile");
+                    return;
+                }
+                String required = requiredPermission(exchange.getRequestMethod(), exchange.getRequestURI().getPath(), false);
                 if (required == null || !identity.hasPermission(required)) {
                     SecurityFilterSupport.sendError(exchange, 403, "FORBIDDEN", "Access denied");
                     return;
@@ -101,7 +167,7 @@ public final class MediaSecurityFilter implements HttpHandler {
                 replaceHint(exchange, "X-Principal-Id", identity.subject());
                 authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
                         identity.tenantId(), identity.subject(), clock.instant());
-            } else if (!productionLike) {
+            } else if (!devIdentityEnabled && !productionLike) {
                 // Local identities are intentionally synthetic and cannot be selected by clients.
                 // Tenant remains a fixture input in local profiles; production uses verified JWT
                 // tenant claims or the explicitly configured bootstrap service tenant.
@@ -113,7 +179,7 @@ public final class MediaSecurityFilter implements HttpHandler {
                     authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
                             tenant, localPrincipal, clock.instant());
                 }
-            } else if (hasApiKey) {
+            } else if (!devIdentityEnabled && hasApiKey) {
                 // authorizeBootstrapApiKey has already matched the configured service tenant and
                 // replaced the caller's principal hint with the configured service identity.
                 authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
@@ -142,6 +208,21 @@ public final class MediaSecurityFilter implements HttpHandler {
                 ? principal : null;
     }
 
+    static boolean isDevOnlyIdentity(HttpExchange exchange) {
+        return Boolean.TRUE.equals(exchange.getAttribute(DEV_ONLY_AUTHENTICATED_ATTRIBUTE));
+    }
+
+    static boolean hasDevOnlyPermission(HttpExchange exchange, String permission) {
+        Object value = exchange.getAttribute(DEV_ONLY_PERMISSIONS_ATTRIBUTE);
+        return value instanceof Set<?> permissions && permissions.contains(permission);
+    }
+
+    private static String requiredPermission(String method, String path, boolean devOnlyIdentity) {
+        String canonical = MediaRouteManifest.requiredPermission(method, path);
+        if (canonical != null || !devOnlyIdentity) return canonical;
+        return MediaDevOnlyRoutePermissions.requiredPermission(method, path);
+    }
+
     private static void replaceHint(HttpExchange exchange, String name, String value) {
         exchange.getRequestHeaders().remove(name);
         exchange.getRequestHeaders().set(name, value);
@@ -154,6 +235,37 @@ public final class MediaSecurityFilter implements HttpHandler {
             SecurityFilterSupport.sendError(exchange, 403, "BOOTSTRAP_CREDENTIAL_FORBIDDEN", "Bootstrap credential is not authorized for this tenant"); return false;
         }
         replaceHint(exchange, "X-Principal-Id", bootstrapServiceId); return true;
+    }
+
+    private static boolean parseDevIdentityEnabled(Map<String, String> environment) {
+        String value = environment.getOrDefault("MEDIA_DEV_IDENTITY_ENABLED", "false");
+        if ("true".equalsIgnoreCase(value)) return true;
+        if ("false".equalsIgnoreCase(value)) return false;
+        throw new IllegalArgumentException("MEDIA_DEV_IDENTITY_ENABLED must be true or false");
+    }
+
+    private static Map<String, String> devVerifierEnvironment(
+            Map<String, String> environment, boolean required) {
+        String secret = environment.get(DEV_ONLY_SECRET);
+        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            if (required) {
+                throw new IllegalArgumentException("MEDIA_DEV_JWT_HMAC_SECRET must contain at least 32 UTF-8 bytes");
+            }
+            return null;
+        }
+        Map<String, String> verifierEnvironment = new HashMap<>(environment);
+        verifierEnvironment.put("MEDIA_DEV_JWT_HMAC_SECRET_REFERENCE", "secret:env:" + DEV_ONLY_SECRET);
+        verifierEnvironment.put("MEDIA_DEV_JWT_ISSUER", DEV_ONLY_ISSUER);
+        verifierEnvironment.put("MEDIA_DEV_JWT_AUDIENCE", DEV_ONLY_AUDIENCE);
+        return Map.copyOf(verifierEnvironment);
+    }
+
+    private static Map<String, String> mediaVerifierEnvironment(Map<String, String> environment) {
+        Map<String, String> verifierEnvironment = new HashMap<>(environment);
+        verifierEnvironment.put("MEDIA_JWT_HMAC_SECRET_REFERENCE", "secret:env:" + DEV_ONLY_SECRET);
+        verifierEnvironment.put("MEDIA_JWT_ISSUER", DEV_ONLY_ISSUER);
+        verifierEnvironment.put("MEDIA_JWT_AUDIENCE", DEV_ONLY_AUDIENCE);
+        return Map.copyOf(verifierEnvironment);
     }
 
     /**

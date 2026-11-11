@@ -77,9 +77,9 @@ test("all PDP-3 gRPC records project exact protobuf identity, message refs, and 
   const contractFiles = readdirSync(contractDir).filter((path) => path.endsWith(".yaml") && path !== "README.md");
   const registry = readFileSync(join(grpcRoot, "service-registry.yaml"), "utf8");
   const identities = sourceRows.map(({ service, method }) => `${service}.${method}`);
-  assert.equal(sourceRows.length, 44, "the current governed protobuf service source population is 44 RPCs");
-  assert.equal(new Set(identities).size, 44, "protobuf RPC identities are unique");
-  assert.equal(contractFiles.length, 44, "there is one PDP-3 gRPC operation record per observed protobuf RPC");
+  assert.equal(sourceRows.length, 45, "the current governed protobuf service source population is 45 RPCs");
+  assert.equal(new Set(identities).size, 45, "protobuf RPC identities are unique");
+  assert.equal(contractFiles.length, 45, "there is one PDP-3 gRPC operation record per observed protobuf RPC");
 
   for (const row of sourceRows) {
     const identity = `${row.service}.${row.method}`;
@@ -109,9 +109,15 @@ test("all PDP-3 gRPC records project exact protobuf identity, message refs, and 
 
   const sceneTextContract = readFileSync(join(contractDir, "VisionService.RecognizeSceneText.yaml"), "utf8");
   assert.equal(scalar(sceneTextContract, "bindingStatus"), "proposed-exact-source-member-map; owner-review-pending",
-    "the 44th observed RPC retains its pending owner review");
+    "the scene-text RPC retains its pending owner review");
   assert.equal(scalar(sceneTextContract, "contractStatus"), "proposal-only; owner-review-pending",
-    "the 44th observed RPC remains proposal-only");
+    "the scene-text RPC remains proposal-only");
+
+  const sourceFrameContract = readFileSync(join(contractDir, "VisionService.ResolveSourceFrame.yaml"), "utf8");
+  assert.equal(scalar(sourceFrameContract, "operationId"), "media.grpc.VisionService.ResolveSourceFrame");
+  assert.equal(scalar(sourceFrameContract, "semanticDisposition"), "source-identity-only; PDP-1-operation-binding-pending-owner-review");
+  assert.equal(scalar(sourceFrameContract, "contractStatus"), "identity-only-source-projection; owner-review-pending");
+  assert.doesNotMatch(sourceFrameContract, /^pdp1SemanticBinding:/mu, "source-frame resolution has no PDP-1 operation binding");
 });
 
 test("gRPC registry projection rejects a request or stream-shape drift", () => {

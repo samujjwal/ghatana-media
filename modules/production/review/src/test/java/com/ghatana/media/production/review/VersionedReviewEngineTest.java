@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Locale;
@@ -152,6 +153,108 @@ class VersionedReviewEngineTest {
                 fixture.request(1, "req-new-stale-accept", new DecisionRecord(Decision.ACCEPT, "late"))))
                 .isInstanceOf(StaleReviewException.class);
         assertThat(fixture.store.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
+    void staleExactRetryRechecksAuthorizationAfterStoreReadback() {
+        InMemoryReviewStore backingStore = new InMemoryReviewStore(List.of(CASE));
+        AtomicBoolean revoked = new AtomicBoolean();
+        AtomicBoolean revokeOnNextRead = new AtomicBoolean();
+        AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
+        ReviewStore revokingReadStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                return backingStore.append(actor, reviewCase, expectedCaseRevision, requestId, fingerprint,
+                        appendRecordId, authorityVersion, payload, createdAt);
+            }
+
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                List<ReviewRecord> records = backingStore.read(actor, reviewCase);
+                if (revokeOnNextRead.compareAndSet(true, false)) {
+                    revoked.set(true);
+                }
+                return records;
+            }
+        };
+        VersionedReviewEngine engine = new VersionedReviewEngine(revokingReadStore,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(
+                        revoked.get() ? AuthorizationStatus.DENY : AuthorizationStatus.ALLOW,
+                        actor.tenantId(), actor.principalId(), reviewCase.reviewCaseId(),
+                        reviewCase.exactTargetRef(), reviewCase.scopeRef(), "authority-v1",
+                        NOW.plusSeconds(60), currentVersion.get(),
+                        RetentionStatus.ACTIVE),
+                value -> value, Clock.fixed(NOW, ZoneOffset.UTC), () -> "record-stale-replay-auth");
+        AppendRequest original = new AppendRequest(CASE, 0, "authority-v1", "req-stale-replay-auth",
+                new Confirmation("media.operation.action.record-version-review-decision", V1.reference(), true),
+                new DecisionRecord(Decision.ACCEPT, "reviewed"));
+        AppendReceipt committed = engine.append(REVIEWER, original);
+        assertThat(committed.appendRecordId()).isEqualTo("record-stale-replay-auth");
+        // The reviewed version changes, then the caller is revoked while the prior receipt is read.
+        currentVersion.set(V2.reference());
+        revokeOnNextRead.set(true);
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, original)).isInstanceOf(ReviewDeniedException.class);
+
+        assertThat(revoked).isTrue();
+        assertThat(backingStore.read(REVIEWER, CASE)).hasSize(1);
+    }
+
+    @Test
+    void staleExactRetryRejectsAuthorityThatExpiresDuringStoreReadback() {
+        InMemoryReviewStore backingStore = new InMemoryReviewStore(List.of(CASE));
+        AtomicReference<Instant> currentTime = new AtomicReference<>(NOW);
+        AtomicBoolean expireOnNextRead = new AtomicBoolean();
+        ReviewStore expiringReadStore = new ReviewStore() {
+            @Override public ReviewRecord append(Actor actor, ReviewCaseRef reviewCase, long expectedCaseRevision,
+                    String requestId, String fingerprint, String appendRecordId, String authorityVersion,
+                    Payload payload, Instant createdAt) {
+                return backingStore.append(actor, reviewCase, expectedCaseRevision, requestId, fingerprint,
+                        appendRecordId, authorityVersion, payload, createdAt);
+            }
+
+            @Override public List<ReviewRecord> read(Actor actor, ReviewCaseRef reviewCase) {
+                List<ReviewRecord> records = backingStore.read(actor, reviewCase);
+                if (expireOnNextRead.compareAndSet(true, false)) {
+                    currentTime.set(NOW.plusSeconds(60));
+                }
+                return records;
+            }
+        };
+        Clock clock = new Clock() {
+            @Override
+            public ZoneId getZone() {
+                return ZoneOffset.UTC;
+            }
+
+            @Override
+            public Clock withZone(ZoneId zone) {
+                return Clock.fixed(currentTime.get(), zone);
+            }
+
+            @Override
+            public Instant instant() {
+                return currentTime.get();
+            }
+        };
+        AtomicReference<String> currentVersion = new AtomicReference<>(V1.reference());
+        VersionedReviewEngine engine = new VersionedReviewEngine(expiringReadStore,
+                (actor, reviewCase, operation, now) -> new AuthorizationDecision(
+                        AuthorizationStatus.ALLOW, actor.tenantId(), actor.principalId(), reviewCase.reviewCaseId(),
+                        reviewCase.exactTargetRef(), reviewCase.scopeRef(), "authority-v1",
+                        NOW.plusSeconds(60), currentVersion.get(), RetentionStatus.ACTIVE),
+                value -> value, clock, () -> "record-stale-replay-expiry");
+        AppendRequest original = new AppendRequest(CASE, 0, "authority-v1", "req-stale-replay-expiry",
+                new Confirmation("media.operation.action.record-version-review-decision", V1.reference(), true),
+                new DecisionRecord(Decision.ACCEPT, "reviewed"));
+        engine.append(REVIEWER, original);
+        currentVersion.set(V2.reference());
+        expireOnNextRead.set(true);
+
+        assertThatThrownBy(() -> engine.append(REVIEWER, original)).isInstanceOf(ReviewUnavailableException.class);
+
+        assertThat(currentTime.get()).isEqualTo(NOW.plusSeconds(60));
+        assertThat(backingStore.read(REVIEWER, CASE)).hasSize(1);
     }
 
     @Test

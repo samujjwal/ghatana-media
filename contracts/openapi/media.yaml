@@ -1475,6 +1475,7 @@ components:
           expectedSizeBytes,
           expectedSha256,
           classification,
+          retention,
           createdAt,
           expiresAt,
           bytesReceived,
@@ -1491,6 +1492,12 @@ components:
         expectedSizeBytes: { type: integer, format: int64, minimum: 1, maximum: 1099511627776 }
         expectedSha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
         classification: { type: string, enum: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED] }
+        retention:
+          {
+            type: string,
+            format: duration,
+            description: Persisted requested retention duration, positive up to 3650 days at millisecond precision; distinct from transfer-session expiresAt.,
+          }
         createdAt: { type: string, format: date-time }
         expiresAt: { type: string, format: date-time }
         bytesReceived: { type: integer, format: int64, minimum: 0, maximum: 1099511627776 }

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import {
@@ -56,6 +56,27 @@ function adapterFor(origin: string, options: {
 }
 
 describe("HttpApiCaptureAdapter", () => {
+  it("invokes default fetch with the browser global receiver", async () => {
+    let fetchReceiver: unknown;
+    const defaultFetch = vi.fn(function (this: unknown) {
+      fetchReceiver = this;
+      return Promise.resolve(new Response(new Uint8Array([7, 8, 9])));
+    }) as unknown as typeof fetch;
+    vi.stubGlobal("fetch", defaultFetch);
+    try {
+      const adapter = new HttpApiCaptureAdapter({
+        resolveEndpoint: () => "http://127.0.0.1:8093/capture",
+      });
+      const frame = await adapter.capture(request);
+
+      expect(frame.bytes).toEqual(new Uint8Array([7, 8, 9]));
+      expect(defaultFetch).toHaveBeenCalledTimes(1);
+      expect(fetchReceiver).toBe(globalThis);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("captures real response bytes through the admission seam", async () => {
     const payload = new Uint8Array([0, 1, 2, 250, 251, 252]);
     let sawPath: string | undefined;

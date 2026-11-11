@@ -223,7 +223,7 @@ class EnginePoolLifecycleTest {
         var factoryEngines = new ConcurrentLinkedQueue<>(List.of(first, second));
         var firstAttempts = new AtomicInteger();
         var pool = new EnginePool<>(factoryEngines::remove, resource -> true, resource -> {
-            if (resource == first && firstAttempts.incrementAndGet() == 1) {
+            if (resource == first && firstAttempts.incrementAndGet() == 1) { // NOPMD CompareObjectsWithEquals - Native engine handles use object identity.
                 throw new LinkageError("native provider close unavailable");
             }
             resource.closes.incrementAndGet();
@@ -254,8 +254,8 @@ class EnginePoolLifecycleTest {
         var pendingHealthy = new java.util.concurrent.atomic.AtomicBoolean(true);
         var pendingAttempts = new AtomicInteger();
         var pool = new EnginePool<>(factoryEngines::remove,
-                resource -> resource != pending || pendingHealthy.get(), resource -> {
-                    if (resource == pending) {
+                resource -> resource != pending || pendingHealthy.get(), resource -> { // NOPMD CompareObjectsWithEquals - Native engine handles use object identity.
+                    if (resource == pending) { // NOPMD CompareObjectsWithEquals - Native engine handles use object identity.
                         int attempt = pendingAttempts.incrementAndGet();
                         if (attempt == 1) throw new IllegalStateException("transient close failure");
                         if (attempt == 2) throw new LinkageError("native provider close unavailable");

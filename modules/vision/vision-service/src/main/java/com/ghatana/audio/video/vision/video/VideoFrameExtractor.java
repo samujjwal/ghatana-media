@@ -117,6 +117,7 @@ public class VideoFrameExtractor {
         private final int height;
         private final String format;
         private final int quality;
+        private final Integer sourceFrameNumber;
 
         private ExtractionConfig(Builder builder) {
             this.fps = builder.fps;
@@ -125,6 +126,7 @@ public class VideoFrameExtractor {
             this.height = builder.height;
             this.format = builder.format;
             this.quality = builder.quality;
+            this.sourceFrameNumber = builder.sourceFrameNumber;
         }
 
         public static Builder builder() {
@@ -138,6 +140,17 @@ public class VideoFrameExtractor {
             private int height = -1;
             private String format = "jpg";
             private int quality = 2; // FFmpeg quality scale (2-31, lower is better)
+            private Integer sourceFrameNumber;
+
+            /** Select one exact decoded source-frame ordinal, without FPS sampling or PTS defaults. */
+            public Builder sourceFrameNumber(int frameNumber) {
+                if (frameNumber < 0 || frameNumber > 10_000_000) {
+                    throw new IllegalArgumentException("sourceFrameNumber is outside the supported range");
+                }
+                this.sourceFrameNumber = frameNumber;
+                this.maxFrames = 1;
+                return this;
+            }
 
             public Builder fps(int fps) {
                 if (fps < 1 || fps > 60) throw new IllegalArgumentException("fps must be between 1 and 60");
@@ -148,6 +161,9 @@ public class VideoFrameExtractor {
             public Builder maxFrames(int maxFrames) {
                 if (maxFrames < 1 || maxFrames > 10_000) {
                     throw new IllegalArgumentException("maxFrames must be between 1 and 10000");
+                }
+                if (sourceFrameNumber != null && maxFrames != 1) {
+                    throw new IllegalArgumentException("exact source-frame extraction is limited to one output frame");
                 }
                 this.maxFrames = maxFrames;
                 return this;
@@ -194,6 +210,7 @@ public class VideoFrameExtractor {
         public int getHeight() { return height; }
         public String getFormat() { return format; }
         public int getQuality() { return quality; }
+        public Integer getSourceFrameNumber() { return sourceFrameNumber; }
     }
 
     /**
@@ -847,6 +864,10 @@ public class VideoFrameExtractor {
         command.add(inputFormat(videoPath));
         command.add("-i");
         command.add(videoPath.toString());
+        // Match getVideoMetadataFromSnapshot's exact ffprobe selection (v:0); never
+        // let FFmpeg's automatic stream scoring bind frame pixels to another video stream.
+        command.add("-map");
+        command.add("0:v:0");
         command.add("-threads");
         command.add("2");
 
@@ -854,8 +875,15 @@ public class VideoFrameExtractor {
         // manufacture CFR timestamps for variable-rate input.
         command.add("-vf");
         StringBuilder filter = new StringBuilder();
-        filter.append("select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/")
-                .append(config.getFps()).append(")',showinfo");
+        if (config.getSourceFrameNumber() != null) {
+            // `n` is the decoded input-frame ordinal; showinfo records the selected frame's
+            // original PTS and source timebase. Output remains capped to one frame.
+            filter.append("select='eq(n\\,")
+                    .append(config.getSourceFrameNumber()).append(")',showinfo");
+        } else {
+            filter.append("select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/")
+                    .append(config.getFps()).append(")',showinfo");
+        }
 
         // Resolution scaling if specified
         if (config.getWidth() > 0 && config.getHeight() > 0) {
@@ -937,12 +965,14 @@ public class VideoFrameExtractor {
                 cleanupFrames(outputDir, config.getFormat());
                 throw new IOException("Extracted frame output exceeded configured byte bounds");
             }
-            int sourceSequence = frameSequenceNumber(framePath.getFileName().toString()) - 1;
-            if (sourceSequence < 0) {
+            int outputSequence = frameSequenceNumber(framePath.getFileName().toString()) - 1;
+            if (outputSequence < 0) {
                 cleanupFrames(outputDir, config.getFormat());
                 throw new IOException("FFmpeg produced an invalid frame sequence number");
             }
-            SourceMediaTimestamp timestamp = timestampForOutputFrame(diagnosticOutput, sourceSequence, timeBase);
+            SourceMediaTimestamp timestamp = timestampForOutputFrame(diagnosticOutput, outputSequence, timeBase);
+            int sourceSequence = config.getSourceFrameNumber() == null
+                    ? outputSequence : config.getSourceFrameNumber();
             // Preserve the emitted sequence number so a missing frame remains visible as a gap;
             // do not renumber observations densely or infer media time from this ordinal.
             frames.add(new ExtractedFrame(framePath, timestamp, sourceSequence));
@@ -965,32 +995,39 @@ public class VideoFrameExtractor {
 
     static SourceMediaTimestamp timestampForOutputFrame(String diagnostics, int frameNumber, String timeBase) {
         String source = diagnostics == null ? "" : diagnostics;
-        String ffmpegTimeBase = null;
-        Matcher timeBaseMatcher = SHOWINFO_TIMEBASE.matcher(source);
-        if (timeBaseMatcher.find()) {
-            ffmpegTimeBase = timeBaseMatcher.group(1) + "/" + timeBaseMatcher.group(2);
-            if (timeBase != null) {
+        String effectiveTimeBase = null;
+        SourceMediaTimestamp matchedTimestamp = null;
+        for (String line : source.split("\\R")) {
+            Matcher timeBaseMatcher = SHOWINFO_TIMEBASE.matcher(line);
+            if (timeBaseMatcher.find()) {
+                effectiveTimeBase = timeBaseMatcher.group(1) + "/" + timeBaseMatcher.group(2);
                 try {
-                    if (!SourceMediaTimestamp.parseTimeBase(timeBase)
-                            .equals(SourceMediaTimestamp.parseTimeBase(ffmpegTimeBase))) {
-                        return SourceMediaTimestamp.unknown("FFPROBE_FFMPEG_TIMEBASE_MISMATCH");
-                    }
+                    SourceMediaTimestamp.parseTimeBase(effectiveTimeBase);
                 } catch (IllegalArgumentException invalidTimeBase) {
                     return SourceMediaTimestamp.unknown("INVALID_SOURCE_TIMEBASE");
                 }
+                continue;
             }
-        }
-        String effectiveTimeBase = ffmpegTimeBase == null ? timeBase : ffmpegTimeBase;
-        Matcher matcher = SHOWINFO_PTS.matcher(source);
-        SourceMediaTimestamp matchedTimestamp = null;
-        while (matcher.find()) {
+            Matcher matcher = SHOWINFO_PTS.matcher(line);
+            if (!matcher.find()) continue;
             try {
                 int reportedFrame = Integer.parseInt(matcher.group(1));
                 if (reportedFrame == frameNumber) {
+                    String frameTimeBase = effectiveTimeBase == null ? timeBase : effectiveTimeBase;
+                    if (frameTimeBase != null && timeBase != null) {
+                        try {
+                            if (!SourceMediaTimestamp.parseTimeBase(timeBase)
+                                    .equals(SourceMediaTimestamp.parseTimeBase(frameTimeBase))) {
+                                return SourceMediaTimestamp.unknown("FFPROBE_FFMPEG_TIMEBASE_MISMATCH");
+                            }
+                        } catch (IllegalArgumentException invalidTimeBase) {
+                            return SourceMediaTimestamp.unknown("INVALID_SOURCE_TIMEBASE");
+                        }
+                    }
                     String rawPts = matcher.group(2);
                     SourceMediaTimestamp candidate = "NOPTS".equalsIgnoreCase(rawPts)
                             ? SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING")
-                            : SourceMediaTimestamp.fromPts(rawPts, effectiveTimeBase);
+                            : SourceMediaTimestamp.fromPts(rawPts, frameTimeBase);
                     // A frame ordinal must identify exactly one source timestamp. Repeated
                     // showinfo records can arise from merged/truncated diagnostics; choosing
                     // the first would silently attach an arbitrary PTS to the emitted image.

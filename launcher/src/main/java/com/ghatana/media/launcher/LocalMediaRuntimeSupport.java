@@ -165,7 +165,7 @@ public final class LocalMediaRuntimeSupport {
                 UploadSession session = new UploadSession(
                         uploadId, request.tenantId(), request.principalId(), safeName(request.fileName()), request.contentType(),
                         request.expectedSizeBytes(), request.expectedSha256(), request.classification(),
-                        now, now.plusSeconds(3_600), 0L, 0, UploadStatus.OPEN, request.metadata());
+                        request.retention(), now, now.plusSeconds(3_600), 0L, 0, UploadStatus.OPEN, request.metadata());
                 String uploadKey = key(request.tenantId(), uploadId);
                 LocalUploadManifest manifest = manifest(request, idempotencyKey, fingerprint, session,
                         request.retention(), null, null, null);
@@ -432,7 +432,7 @@ public final class LocalMediaRuntimeSupport {
         }
         private static UploadSession copy(UploadSession current, long bytes, int next, UploadStatus status) {
             return new UploadSession(current.uploadId(), current.tenantId(), current.principalId(), current.fileName(), current.contentType(),
-                    current.expectedSizeBytes(), current.expectedSha256(), current.classification(), current.createdAt(),
+                    current.expectedSizeBytes(), current.expectedSha256(), current.classification(), current.retention(), current.createdAt(),
                     current.expiresAt(), bytes, next, status, current.metadata());
         }
 
@@ -748,7 +748,8 @@ public final class LocalMediaRuntimeSupport {
                 String artifactId, Long artifactCreatedAt, Long artifactExpiresAt) {
             UploadSession session() {
                 return new UploadSession(uploadId, tenantId, principalId, fileName, contentType,
-                        expectedSizeBytes, expectedSha256, classification, Instant.ofEpochMilli(createdAt),
+                        expectedSizeBytes, expectedSha256, classification,
+                        Duration.ofSeconds(retentionSeconds, retentionNanos), Instant.ofEpochMilli(createdAt),
                         Instant.ofEpochMilli(expiresAt), bytesReceived, nextChunkIndex,
                         UploadStatus.valueOf(status), metadata);
             }
@@ -773,6 +774,7 @@ public final class LocalMediaRuntimeSupport {
                 .MultimodalOperationSnapshot> multimodalSnapshots = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, JobLease> leases = new ConcurrentHashMap<>();
         private final boolean clearStateOnClose;
+        private final java.time.Clock leaseClock;
 
         public JobStore() {
             this(true);
@@ -786,7 +788,17 @@ public final class LocalMediaRuntimeSupport {
          * non-durable and non-production-eligible.
          */
         JobStore(boolean clearStateOnClose) {
+            this(clearStateOnClose, java.time.Clock.systemUTC());
+        }
+
+        /**
+         * Creates a local store with an explicit lease clock for deterministic recovery tests.
+         * The default remains the system clock; tests may advance it to model a worker lease
+         * expiring after process loss without weakening live-lease protection.
+         */
+        JobStore(boolean clearStateOnClose, java.time.Clock leaseClock) {
             this.clearStateOnClose = clearStateOnClose;
+            this.leaseClock = java.util.Objects.requireNonNull(leaseClock, "leaseClock");
         }
 
         @Override public String storeId() { return "local-job-store"; }
@@ -999,8 +1011,16 @@ public final class LocalMediaRuntimeSupport {
                     .toList();
         }
         @Override public List<ProcessingJob> recoverableAfter(int limit, RecoveryCursor cursor) {
+            Instant now = Instant.now(leaseClock);
             return jobs.values().stream()
                     .filter(job -> job.status() == JobStatus.ACCEPTED || job.status() == JobStatus.RUNNING)
+                    // Match the durable store contract: a live lease proves another
+                    // worker still owns this job, so startup reconciliation must not
+                    // turn its in-flight outcome into UNKNOWN.
+                    .filter(job -> {
+                        JobLease lease = leases.get(key(job.tenantId(), job.jobId()));
+                        return lease == null || !lease.expiresAt().isAfter(now);
+                    })
                     .filter(job -> cursor == null || job.createdAt().isAfter(cursor.createdAt())
                             || (job.createdAt().equals(cursor.createdAt())
                             && job.tenantId().compareTo(cursor.tenantId()) > 0)

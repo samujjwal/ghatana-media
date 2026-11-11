@@ -23,6 +23,8 @@ import {
   type MediaTransportConfig,
   type RuntimeParser,
 } from "./http-core.js";
+import { isCanonicalMediaContentType } from "./upload-validation.js";
+import { mediaRetentionMilliseconds, sameMediaRetention } from "./retention-duration.js";
 
 export {
   MediaClientError,
@@ -65,6 +67,8 @@ export interface CanonicalMediaUploadSessionObservation {
   readonly expectedSizeBytes: number;
   readonly expectedSha256: string;
   readonly classification: CanonicalMediaClassification;
+  /** Persisted requested-retention policy as an ISO-8601 duration, distinct from transfer-session expiresAt. */
+  readonly retention: string;
   readonly createdAt: string;
   readonly expiresAt: string;
   readonly bytesReceived: number;
@@ -193,7 +197,7 @@ function uploadImmutableFieldsMatch(
   actual: CanonicalMediaUploadSessionObservation,
   expected: Pick<CanonicalMediaUploadSessionObservation,
     "uploadId" | "tenantId" | "principalId" | "fileName" | "contentType" | "expectedSizeBytes"
-    | "expectedSha256" | "classification" | "createdAt" | "expiresAt" | "metadata">,
+    | "expectedSha256" | "classification" | "retention" | "createdAt" | "expiresAt" | "metadata">,
 ): boolean {
   return actual.uploadId === expected.uploadId
     && actual.tenantId === expected.tenantId
@@ -203,6 +207,7 @@ function uploadImmutableFieldsMatch(
     && actual.expectedSizeBytes === expected.expectedSizeBytes
     && actual.expectedSha256 === expected.expectedSha256
     && actual.classification === expected.classification
+    && sameMediaRetention(actual.retention, expected.retention)
     && actual.createdAt === expected.createdAt
     && actual.expiresAt === expected.expiresAt
     && sameJson(actual.metadata, expected.metadata);
@@ -210,7 +215,7 @@ function uploadImmutableFieldsMatch(
 
 const UPLOAD_SESSION_FIELDS = new Set([
   "uploadId", "tenantId", "principalId", "fileName", "contentType", "expectedSizeBytes",
-  "expectedSha256", "classification", "createdAt", "expiresAt", "bytesReceived",
+  "expectedSha256", "classification", "retention", "createdAt", "expiresAt", "bytesReceived",
   "nextChunkIndex", "status", "metadata",
 ]);
 
@@ -262,10 +267,12 @@ function parseCanonicalMediaUploadSession(input: unknown): CanonicalMediaUploadS
   const createdAt = parseCanonicalUtcInstant(value.createdAt, "Canonical Media upload createdAt");
   const expiresAt = parseCanonicalUtcInstant(value.expiresAt, "Canonical Media upload expiresAt");
   if (!isLaterUtcInstant(expiresAt, createdAt)) throw new TypeError("Canonical Media upload expiry must follow creation.");
+  mediaRetentionMilliseconds(value.retention);
+  const retention = value.retention as string;
   return {
     uploadId: requiredText("uploadId"), tenantId: requiredText("tenantId"), principalId: requiredText("principalId"),
     fileName: requiredText("fileName"), contentType: requiredText("contentType"), expectedSizeBytes,
-    expectedSha256, classification, createdAt: createdAt.value, expiresAt: expiresAt.value, bytesReceived, nextChunkIndex, status,
+    expectedSha256, classification, retention, createdAt: createdAt.value, expiresAt: expiresAt.value, bytesReceived, nextChunkIndex, status,
     metadata: metadata as Readonly<Record<string, unknown>>,
   };
 }
@@ -331,9 +338,8 @@ function validateUploadFileName(value: string): void {
 }
 
 function validateUploadTextField(value: string, field: "contentType"): void {
-  if (typeof value !== "string" || !value || value.trim() !== value
-    || /[\u0000-\u001f\u007f-\u009f]/u.test(value)) {
-    throw new Error(`${field} must be non-empty and canonical without surrounding whitespace or control characters.`);
+  if (!isCanonicalMediaContentType(value)) {
+    throw new Error(`${field} must be a 3–127 character canonical IANA media type.`);
   }
 }
 
@@ -489,6 +495,7 @@ export class MediaOperationClient {
           || created.expectedSizeBytes !== requestSnapshot.expectedSizeBytes
           || created.expectedSha256 !== requestSnapshot.expectedSha256
           || created.classification !== requestSnapshot.classification
+          || !sameMediaRetention(created.retention, requestSnapshot.retention)
           || !sameJson(created.metadata, requestSnapshot.metadata)) {
           throw new TypeError("Canonical Media upload response does not bind the submitted immutable request fields.");
         }

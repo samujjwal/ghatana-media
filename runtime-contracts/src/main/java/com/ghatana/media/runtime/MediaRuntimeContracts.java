@@ -358,6 +358,7 @@ public final class MediaRuntimeContracts {
             long expectedSizeBytes,
             String expectedSha256,
             String classification,
+            Duration retention,
             Instant createdAt,
             Instant expiresAt,
             long bytesReceived,
@@ -372,6 +373,11 @@ public final class MediaRuntimeContracts {
             contentType = required(contentType, "contentType");
             expectedSha256 = requireSha256(expectedSha256);
             classification = required(classification, "classification");
+            if (retention == null || retention.isZero() || retention.isNegative()
+                    || retention.compareTo(Duration.ofDays(3_650)) > 0
+                    || retention.getNano() % 1_000_000 != 0) {
+                throw new IllegalArgumentException("retention must be between 1 ms and 3650 days at millisecond precision");
+            }
             createdAt = createdAt == null ? Instant.now() : createdAt;
             expiresAt = java.util.Objects.requireNonNull(expiresAt, "expiresAt");
             if (bytesReceived < 0 || nextChunkIndex < 0) throw new IllegalArgumentException("upload progress must not be negative");
@@ -679,6 +685,17 @@ public final class MediaRuntimeContracts {
      * (and therefore inside the request fingerprint and submission digest) and mirrored into
      * the job-row {@link MultimodalOperationSnapshot}. Java closures and mutable process
      * memory are never part of the operation definition.
+     *
+     * <p>Consumers are the live {@code DelegatingMultimodalProvider} and the
+     * {@code MediaRuntime} restart reconciler. This contract defines durable
+     * operation input and deterministic local child-result composition; it does
+     * not establish provider admission, source rights, consent, calibrated
+     * quality, or biometric identity. Preserve the persisted v1 representation
+     * and live/restart projection parity when changing it. Child results are
+     * hashed from their complete canonical durable value, while the emitted
+     * observation snapshot is deterministically bounded; a non-timing field
+     * that cannot fit causes composition to abstain rather than return a partial
+     * success. Do not infer new owner semantics or introduce a parallel schema.</p>
      */
     public record MultimodalOperationSpec(
             String specVersion,
@@ -888,7 +905,10 @@ public final class MediaRuntimeContracts {
          * jobs. Used identically by the attempt-time provider and the restart reconciler:
          * the composition is a pure function of the persisted spec and child terminal
          * state, so a parent result rebuilt after a process crash is exactly the result
-         * the live attempt would have committed.
+         * the live attempt would have committed. Child result digests cover the complete
+         * canonical durable child result. Emitted child observations are capped at 8,192
+         * canonical JSON characters; non-timing overflow rejects composition, while
+         * timed-observation truncation is disclosed through SYNC_UNDETERMINED.
          */
         public static Map<String, Object> fusedResult(List<ProcessingJob> children) {
             return fusedResult(null, children);
@@ -921,9 +941,9 @@ public final class MediaRuntimeContracts {
                 entry.put("childRequestId", child.requestId());
                 entry.put("childJobType", child.jobType().name());
                 entry.put("childStatus", child.status().name());
+                entry.put("childResultDigest", childResultDigest(child.result()));
                 BoundedChildResult boundedResult = boundedChildResult(child.result(), entryBudget);
                 Map<String, Object> childResult = boundedResult.values();
-                entry.put("childResultDigest", childResultDigest(childResult));
                 entry.put("observations", childResult);
                 Map<String, Object> timing = groundChildTiming(
                         spec, childResult, entryBudget, boundedResult.timedObservationsTruncated());
@@ -953,6 +973,7 @@ public final class MediaRuntimeContracts {
 
         private static final int MAX_TIMED_OBSERVATIONS_PER_CHILD = 16;
         private static final int MAX_GROUNDED_TIMED_ENTRIES = 24;
+        private static final int MAX_CHILD_RESULT_PROJECTION_CHARACTERS = 8_192;
         private static final String TIMING_ALIGNED = "TIMESTAMP_ALIGNED";
         private static final String TIMING_UNDETERMINED = "SYNC_UNDETERMINED";
 
@@ -960,7 +981,15 @@ public final class MediaRuntimeContracts {
                 MultimodalOperationSpec spec, Map<String, Object> childResult, int entryBudget,
                 boolean declaredTruncated) {
             Map<String, Object> timing = new LinkedHashMap<>();
+            boolean timingFieldPresent = childResult.containsKey("timedObservations");
             Object raw = childResult.get("timedObservations");
+            if (timingFieldPresent && !(raw instanceof List<?>)) {
+                timing.put("status", TIMING_UNDETERMINED);
+                timing.put("reason", "TIMED_OBSERVATIONS_MALFORMED");
+                timing.put("groundedTimedObservations", 0);
+                timing.put("entries", List.of());
+                return Map.copyOf(timing);
+            }
             List<?> declared = raw instanceof List<?> list ? list : List.of();
             int processed = 0;
             String firstUndetermined = null;
@@ -989,7 +1018,6 @@ public final class MediaRuntimeContracts {
                                 ? "TIMED_OBSERVATION_BUDGET_EXCEEDED"
                                 : "TIMED_OBSERVATIONS_ABSENT");
             }
-            timing.put("declaredTimedObservations", processed + (budgetTruncated ? 1 : 0));
             timing.put("groundedTimedObservations", processed);
             timing.put("entries", List.copyOf(entries));
             return Map.copyOf(timing);
@@ -1097,42 +1125,68 @@ public final class MediaRuntimeContracts {
             return number.longValue();
         }
 
-        private record BoundedChildResult(Map<String, Object> values,
+        record BoundedChildResult(Map<String, Object> values,
                 boolean timedObservationsTruncated) {}
 
-        private static BoundedChildResult boundedChildResult(Map<String, Object> result, int entryBudget) {
+        static BoundedChildResult boundedChildResult(Map<String, Object> result, int entryBudget) {
             Map<String, Object> copy = new LinkedHashMap<>();
-            int budget = 8_192;
             boolean timedObservationsTruncated = false;
-            for (Map.Entry<String, Object> entry : result.entrySet()) {
+            java.util.TreeMap<String, Object> ordered = new java.util.TreeMap<>(result);
+            for (Map.Entry<String, Object> entry : ordered.entrySet()) {
                 if ("timedObservations".equals(entry.getKey())
                         && entry.getValue() instanceof List<?> declared) {
                     int maxEntries = Math.min(entryBudget, MAX_TIMED_OBSERVATIONS_PER_CHILD);
                     List<Object> bounded = new ArrayList<>(maxEntries);
                     java.util.Iterator<?> iterator = declared.iterator();
                     while (bounded.size() < maxEntries && iterator.hasNext()) {
-                        bounded.add(immutableJsonValue(
-                                iterator.next(), new IdentityHashMap<>(), 0));
+                        Object observation = immutableJsonValue(
+                                iterator.next(), new IdentityHashMap<>(), 0);
+                        bounded.add(observation);
+                        Map<String, Object> candidate = new LinkedHashMap<>(copy);
+                        candidate.put(entry.getKey(), java.util.Collections.unmodifiableList(
+                                new ArrayList<>(bounded)));
+                        if (!MediaJobRequestFingerprint.fitsBoundedCanonicalJson(
+                                candidate, MAX_CHILD_RESULT_PROJECTION_CHARACTERS)) {
+                            bounded.remove(bounded.size() - 1);
+                            timedObservationsTruncated = true;
+                            break;
+                        }
                     }
-                    timedObservationsTruncated = bounded.size() == maxEntries
-                            && iterator.hasNext();
+                    timedObservationsTruncated |= iterator.hasNext();
                     // Null is malformed observation input, but still has a typed
                     // SYNC_UNDETERMINED result in groundTimedObservation; retain it here.
-                    copy.put(entry.getKey(), java.util.Collections.unmodifiableList(bounded));
+                    List<Object> boundedSnapshot = java.util.Collections.unmodifiableList(bounded);
+                    Map<String, Object> completeCandidate = new LinkedHashMap<>(copy);
+                    completeCandidate.put(entry.getKey(), boundedSnapshot);
+                    if (MediaJobRequestFingerprint.fitsBoundedCanonicalJson(
+                            completeCandidate, MAX_CHILD_RESULT_PROJECTION_CHARACTERS)) {
+                        copy.put(entry.getKey(), boundedSnapshot);
+                    } else if (bounded.isEmpty()) {
+                        // The separate timing section will carry the explicit budget
+                        // disposition even when the empty source field itself cannot fit.
+                        timedObservationsTruncated = true;
+                    } else {
+                        throw new IllegalArgumentException(
+                                "multimodal timed observations exceed their bounded projection");
+                    }
                     continue;
                 }
-                String serialized = String.valueOf(entry.getValue());
-                if (serialized.length() > budget) continue;
-                budget -= serialized.length();
                 copy.put(entry.getKey(), immutableJsonValue(
                         entry.getValue(), new IdentityHashMap<>(), 0));
+                if (!MediaJobRequestFingerprint.fitsBoundedCanonicalJson(
+                        copy, MAX_CHILD_RESULT_PROJECTION_CHARACTERS)) {
+                    throw new IllegalArgumentException(
+                            "multimodal child result cannot fit its complete bounded projection");
+                }
             }
-            return new BoundedChildResult(Map.copyOf(copy), timedObservationsTruncated);
+            return new BoundedChildResult(
+                    java.util.Collections.unmodifiableMap(copy), timedObservationsTruncated);
         }
 
         private static String childResultDigest(Map<String, Object> result) {
-            return sha256Hex(MediaJobRequestFingerprint.canonicalJson(
-                    result == null ? Map.of() : result));
+            return MediaJobRequestFingerprint.boundedCanonicalJsonDigest(
+                    result == null ? Map.of() : result,
+                    MediaModalityContracts.ExecutionBounds.defaults().maximumOutputBytes());
         }
 
         /**

@@ -328,6 +328,10 @@ include(productProjectPrefix)
 if (isStandaloneBuild) {
     project(":services").projectDir = rootDir.parentFile.parentFile
 }
+includeProject("$productProjectPrefix:examples", File(rootDir, "examples"))
+includeProject("$productProjectPrefix:examples:media-creative-preview", File(rootDir, "examples/media-creative-preview"))
+includeProject("$productProjectPrefix:examples:media-storyboard-draft", File(rootDir, "examples/media-storyboard-draft"))
+includeProject("$productProjectPrefix:examples:media-reference-guided-draft", File(rootDir, "examples/media-reference-guided-draft"))
 project(":$productProjectPrefix").projectDir = rootDir.parentFile
 include("$productProjectPrefix:modules")
 project(":$productProjectPrefix:modules").projectDir = File(rootDir, "modules")
@@ -696,11 +700,11 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    val sharedBuildLogic = if (gradle.parent == null) {
+    val sharedBuildLogic = (if (gradle.parent == null) {
         File(rootDir.parentFile, "ghatana-shared/build-logic")
     } else {
         File(rootDir.parentFile.parentFile.parentFile, "ghatana-shared/build-logic")
-    }
+    }).canonicalFile
     val pluginDependencyProfile = gradle.startParameter.projectProperties["ghatana.media.dependencyProfile"]
         ?: "DEV_SOURCE_COMPOSITE"
     if (pluginDependencyProfile == "DEV_SOURCE_COMPOSITE" && !sharedBuildLogic.isDirectory) {

@@ -16,6 +16,19 @@ import com.ghatana.audio.video.vision.model.BoundingBox;
 import com.ghatana.audio.video.vision.model.DetectedObject;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
+import com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractedFrame;
+import com.ghatana.audio.video.vision.video.VideoFrameExtractor.ExtractionConfig;
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
+import com.ghatana.audio.video.vision.scenetext.MediaRuntimeSceneTextSource;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Evidence;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
 import io.grpc.Contexts;
@@ -39,16 +52,26 @@ import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
 
 /**
  * @doc.type class
@@ -348,5 +371,113 @@ class VisionGrpcServiceInProcessIntegrationTest {
         assertThat(missingDigestResponse.getRejected().getCode()).isEqualTo("INVALID_REQUEST");
         assertThat(sourceChecks).hasValue(0);
         assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
+    @DisplayName("source frame readback returns authenticated exact metadata without pixels or DI")
+    void resolveSourceFrameOverGrpcReturnsMetadataAndFailsClosedOnRightsDenial() throws Exception {
+        byte[] source = "immutable-video-source".getBytes(StandardCharsets.UTF_8);
+        String sourceSha = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(source));
+        ByteArrayOutputStream bmp = new ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(new java.awt.image.BufferedImage(8, 8,
+                java.awt.image.BufferedImage.TYPE_INT_RGB), "bmp", bmp);
+        final byte[] frame = bmp.toByteArray();
+        VideoFrameExtractor extractor = new VideoFrameExtractor() {
+            @Override public List<ExtractedFrame> extractFrames(Path input, Path output, ExtractionConfig config)
+                    throws IOException {
+                assertThat(Files.readAllBytes(input)).containsExactly(source);
+                Files.createDirectories(output);
+                Path decoded = output.resolve("frame_0001.bmp");
+                Files.write(decoded, frame);
+                return List.of(new ExtractedFrame(decoded,
+                        new SourceMediaTimestamp(SourceMediaTimestamp.Status.KNOWN, 1_500L, 1L, 30_000L,
+                                50L, null), config.getSourceFrameNumber()));
+            }
+        };
+        MediaProcessingRuntimePort runtime = mock(MediaProcessingRuntimePort.class);
+        AtomicInteger readbacks = new AtomicInteger();
+        ArtifactVersion version = ArtifactVersion.fromSha256(sourceSha);
+        when(runtime.artifact(any(), any(), any())).thenReturn(Optional.of(new MediaArtifact(
+                TEST_TENANT, "principal-integration-test", "artifact-video", "source.mp4", "video/mp4",
+                source.length, sourceSha, "private-ref", "restricted", Instant.now(),
+                Instant.now().plusSeconds(300), Map.of())));
+        doAnswer(invocation -> {
+            readbacks.incrementAndGet();
+            ((OutputStream) invocation.getArgument(4)).write(source);
+            return Optional.of(new ArtifactContentReadReceipt(version, sourceSha, source.length));
+        }).when(runtime).copyArtifactContent(any(), any(), any(), any(), any(), anyLong());
+        AtomicReference<Boolean> allow = new AtomicReference<>(true);
+        doAnswer(invocation -> {
+            String tenant = invocation.getArgument(0);
+            String principal = invocation.getArgument(1);
+            String artifact = invocation.getArgument(2);
+            ArtifactVersion requestedVersion = invocation.getArgument(3);
+            JobType job = invocation.getArgument(4);
+            String purpose = invocation.getArgument(5);
+            AuthenticatedPrincipal authenticated = invocation.getArgument(6);
+            assertThat(authenticated.tenantId()).isEqualTo(tenant);
+            assertThat(authenticated.principalId()).isEqualTo(principal);
+            if (!allow.get()) {
+                return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.REVOKED, null);
+            }
+            Evidence evidence = new Evidence("fixture-authority", "fixture-decision", tenant, principal,
+                    principal, artifact, requestedVersion, sourceSha, job.name(), purpose,
+                    "vision-local-frame-reader", "1",
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.LOCAL, "local",
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE,
+                    Set.of(job.name()), Set.of("*"), Set.of(
+                            com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE),
+                    "fixture-rights", "fixture-policy", "fixture-policy-v1",
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition
+                            .NOT_APPLICABLE_HUMAN_CONSENT,
+                    "", "artifact-local-clock", 0, Instant.now().minusSeconds(1), Instant.now().plusSeconds(300));
+            return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, evidence);
+        }).when(runtime).resolveSourceAuthorization(any(), any(), any(), any(), any(), any(), any());
+
+        VisionGrpcService grpcService = new VisionGrpcService(detector, mock(VideoFrameExtractor.class));
+        grpcService.bindMediaRuntimeSceneTextSource(new MediaRuntimeSceneTextSource(runtime, extractor));
+        server.shutdownNow();
+        server = ServerBuilder.forPort(0).directExecutor().intercept(new TenantInjector())
+                .addService(grpcService).build().start();
+        channel.shutdownNow();
+        channel = ManagedChannelBuilder.forAddress("localhost", server.getPort()).usePlaintext().directExecutor().build();
+        var stub = VisionServiceGrpc.newBlockingStub(channel);
+        var request = com.ghatana.audio.video.vision.grpc.proto.SourceFrameResolveRequest.newBuilder()
+                .setSourceArtifactId("artifact-video").setSourceVersion(version.value())
+                .setFrameId("0").setPtsUs(50_000).setFrameWidth(8).setFrameHeight(8)
+                .setRoi(com.ghatana.audio.video.vision.grpc.proto.SceneTextRoi.newBuilder()
+                        .setX(1).setY(1).setWidth(4).setHeight(4))
+                .setPurposeRef("captioning").build();
+
+        var outOfBounds = stub.resolveSourceFrame(request.toBuilder()
+                .setRoi(request.getRoi().toBuilder().setX(7).setWidth(2)).build());
+        assertThat(outOfBounds.hasRejected()).isTrue();
+        assertThat(outOfBounds.getRejected().getCode()).isEqualTo("INVALID_REQUEST");
+        assertThat(readbacks).hasValue(0);
+
+        var resolved = stub.resolveSourceFrame(request);
+        assertThat(resolved.hasResolved()).isTrue();
+        assertThat(resolved.getResolved().getTenantId()).isEqualTo(TEST_TENANT);
+        assertThat(resolved.getResolved().getPrincipalId()).isEqualTo("principal-integration-test");
+        assertThat(resolved.getResolved().getSourceSha256()).isEqualTo(sourceSha);
+        assertThat(resolved.getResolved().getFrameNumber()).isZero();
+        assertThat(resolved.getResolved().getSourcePts()).isEqualTo(1_500);
+        assertThat(resolved.getResolved().getTimeBaseNumerator()).isEqualTo(1);
+        assertThat(resolved.getResolved().getTimeBaseDenominator()).isEqualTo(30_000);
+        assertThat(resolved.getResolved().getSourceStreamSelector()).isEqualTo("0:v:0");
+        assertThat(resolved.getResolved().getArtifactLocalEpoch()).startsWith("artifact-local:");
+        assertThat(resolved.getResolved().getFrameSha256()).hasSize(64);
+        assertThat(resolved.getResolved().getCropSha256()).hasSize(64);
+        assertThat(resolved.getDescriptorForType().findFieldByName("resolved").getMessageType()
+                .findFieldByName("pixels")).isNull();
+        assertThat(readbacks).hasValue(1);
+        allow.set(false);
+        var denied = stub.resolveSourceFrame(request);
+        assertThat(denied.hasRejected()).isTrue();
+        assertThat(denied.getRejected().getCode()).isEqualTo("NOT_ADMITTED");
+        assertThat(readbacks).hasValue(1);
     }
 }

@@ -5191,8 +5191,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
-      "sha256": "d3a047e37ab5eaca0c4db5b04a464e1dd6eec1d8a3cafc3fb0ba687482fb2b21",
-      "bytes": 97541,
+      "sha256": "2d821a8e26625e99c1527e4f3b67dc259df142bf41e90f2beff7857b1832c233",
+      "bytes": 97418,
       "format": "yaml",
       "schemaVersion": "media.pdp2-reuse-audit.v1",
       "authority": "Source inventory observations and PDP-2 contract/catalog identity crosswalk; candidate links are not admitted implementation or design bindings.",
@@ -8412,8 +8412,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-      "sha256": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
-      "bytes": 221109,
+      "sha256": "ee11c6ea1cd0a52844d763b964a0469f289ea778b8273349117a209748bfcc83",
+      "bytes": 224094,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.domain-objects.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -12796,8 +12796,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-      "sha256": "3fed2b63c6a4312e3bce5f17ac6058b5f029d6452c555f13e0a8ed96d3bd8835",
-      "bytes": 157075,
+      "sha256": "6a94bf3ec12d15dae9974e742ff0004ba7ad6bc46087ad78ea92c22c72d39272",
+      "bytes": 157887,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -13345,8 +13345,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-      "sha256": "fd0fff233a833a2541cb51264339f9b7f23af0493da36df1acdddababef60e55",
-      "bytes": 129809,
+      "sha256": "ba9c2b86ac84f206b324e1e7989d54c5ac716b37f05ed72a91993536d8f14e2b",
+      "bytes": 129882,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -33394,7 +33394,7 @@
       }
     ],
     "createdAt": "2026-10-23T18:03:46.711Z",
-    "updatedAt": "2026-11-01T20:56:52.081Z"
+    "updatedAt": "2026-11-10T20:34:42.834Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

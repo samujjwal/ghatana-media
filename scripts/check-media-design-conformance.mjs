@@ -177,6 +177,138 @@ export function validateComponentDefinitionBindings(bindings, contracts, root = 
   return errors;
 }
 
+const EMBEDDED_SURFACE_BINDING_STATUS = "candidate-source-observation-only; route-runtime-admission-not-recorded";
+
+function safeSourceReference(sourceRef, requiredDirectory) {
+  if (typeof sourceRef !== "string") return null;
+  const separator = sourceRef.indexOf("#");
+  if (separator <= 0 || separator === sourceRef.length - 1 || sourceRef.indexOf("#", separator + 1) >= 0) return null;
+  const sourcePath = sourceRef.slice(0, separator);
+  const fragment = sourceRef.slice(separator + 1);
+  if (!sourcePath.startsWith(`${requiredDirectory}/`) || sourcePath.includes("\\")
+      || sourcePath.split("/").some((segment) => segment === ".." || segment === "." || segment.length === 0)
+      || fragment.startsWith("/") || fragment.includes("..")) return null;
+  return { sourcePath, fragment };
+}
+
+function selectedObject(document, fragment) {
+  return fragment.split("/").filter(Boolean).reduce((value, key) => value && typeof value === "object" ? value[key] : undefined, document);
+}
+
+function candidateSourcePath(sourcePath, root) {
+  if (typeof sourcePath !== "string" || sourcePath.startsWith("/") || sourcePath.includes("\\")
+      || sourcePath.split("/").some((segment) => segment === ".." || segment === "." || segment.length === 0)) return null;
+  if (!PATHS.productSources.some((directory) => sourcePath.startsWith(`${directory}/`))) return null;
+  const absolute = resolve(root, sourcePath);
+  return relative(root, absolute).startsWith("..") ? null : sourcePath;
+}
+
+function publicExportMapsToImplementation(exportName, implementationCandidate, exportMap, root) {
+  const candidates = exportMap?.exports;
+  if (!Array.isArray(candidates)) return false;
+  const reachesImplementation = (sourcePath, visited) => {
+    const safePath = candidateSourcePath(sourcePath, root);
+    if (!safePath || visited.has(safePath)) return false;
+    visited.add(safePath);
+    const source = read(root, safePath);
+    if (!source) return false;
+    if (safePath === implementationCandidate) {
+      return new RegExp(`export\\s+(?:function|const)\\s+${exportName}\\b`, "u").test(source);
+    }
+    const specifiers = [
+      ...[...source.matchAll(/export\s+\*\s+from\s+["']([^"']+)["']/gu)].map((match) => match[1]),
+      ...[...source.matchAll(/export\s*\{[^}]*\b([A-Za-z_$][\w$]*)\b[^}]*\}\s*from\s+["']([^"']+)["']/gu)]
+        .filter((match) => match[1] === exportName).map((match) => match[2]),
+    ];
+    for (const specifier of specifiers) {
+      if (!specifier.startsWith(".")) continue;
+      const base = resolve(dirname(resolve(root, safePath)), specifier);
+      const candidatesForModule = [`${base}.ts`, `${base}.tsx`, `${base}.js`, join(base, "index.ts"), join(base, "index.tsx"), join(base, "index.js")];
+      for (const target of candidatesForModule) {
+        const relativeTarget = relative(root, target);
+        if (!relativeTarget.startsWith("..") && existsSync(target) && reachesImplementation(relativeTarget, visited)) return true;
+      }
+    }
+    return false;
+  };
+  return candidates.some((candidate) => Array.isArray(candidate?.publicNames)
+    && candidate.publicNames.includes(exportName)
+    && candidate.status?.includes("admission-not-recorded")
+    && typeof candidate.source === "string"
+    && reachesImplementation(candidate.source, new Set()));
+}
+
+/** Validate candidate embedded-surface bindings against both design phases and public source. */
+export function validateEmbeddedSurfaceBindings(bindings, root = DEFAULT_ROOT) {
+  const errors = [];
+  const records = bindings?.embeddedSurfaceBindings;
+  if (records === undefined) return { errors, implementationExports: [] };
+  if (!Array.isArray(records)) return { errors: ["embedded surface bindings must be an array"], implementationExports: [] };
+  const ids = new Set();
+  const exports = new Set();
+  const implementationExports = [];
+  let exportMap = null;
+  try {
+    const exportMapText = read(root, ".product-experience/executable-representation/export-map.yaml");
+    exportMap = exportMapText ? parseYaml(exportMapText) : null;
+  } catch { /* fail closed for each record below */ }
+
+  for (const record of records) {
+    if (!record || typeof record.id !== "string" || !record.id.trim() || ids.has(record.id)) {
+      errors.push("embedded surface bindings must have unique exact identities");
+      continue;
+    }
+    ids.add(record.id);
+    const required = ["implementationExport", "implementationCandidate", "surfaceId", "surfaceSourceRef", "experienceSourceRef", "status"];
+    for (const field of required) if (typeof record[field] !== "string" || !record[field].trim()) errors.push(`${record.id}: missing embedded surface ${field}`);
+    if (!/^[A-Z][A-Za-z0-9_]*$/u.test(record.implementationExport ?? "")) errors.push(`${record.id}: invalid embedded surface implementation export`);
+    if (exports.has(record.implementationExport)) errors.push(`${record.id}: duplicate embedded surface implementation export`);
+    exports.add(record.implementationExport);
+    if (record.status !== EMBEDDED_SURFACE_BINDING_STATUS) errors.push(`${record.id}: embedded surface binding must remain candidate-only with route/runtime admission unrecorded`);
+
+    const sourcePath = candidateSourcePath(record.implementationCandidate, root);
+    const implementationSource = sourcePath ? read(root, sourcePath) : null;
+    const sourceDeclaration = new RegExp(`export\\s+(?:function\\s+${record.implementationExport}\\s*\\(|const\\s+${record.implementationExport}\\s*=)`, "u");
+    const implementationValid = Boolean(implementationSource && sourceDeclaration.test(implementationSource));
+    if (!implementationValid) errors.push(`${record.id}: embedded surface implementation source/export is missing or stale`);
+
+    const p2Ref = safeSourceReference(record.surfaceSourceRef, ".product-experience/pdp-2-design-interface-system");
+    const p3Ref = safeSourceReference(record.experienceSourceRef, ".product-experience/pdp-3-product-experience");
+    let surface = null;
+    let experience = null;
+    if (p2Ref) {
+      try {
+        const p2Text = read(root, p2Ref.sourcePath);
+        const p2 = p2Text ? parseYaml(p2Text) : null;
+        const match = p2Ref.fragment.match(/^surfaceInterfaces\/([A-Za-z0-9._-]+)$/u);
+        if (match) surface = p2?.surfaceInterfaces?.find((item) => item?.surfaceId === match[1]);
+      } catch { /* fail closed below */ }
+    }
+    if (!p2Ref || !surface || surface.kind !== "EMBEDDED_GUI" || surface.surfaceId !== record.surfaceId) {
+      errors.push(`${record.id}: PDP-2 source ref must select its exact EMBEDDED_GUI surface`);
+    }
+    if (p3Ref) {
+      try {
+        const p3Text = read(root, p3Ref.sourcePath);
+        const p3 = p3Text ? parseYaml(p3Text) : null;
+        experience = p3 ? selectedObject(p3, p3Ref.fragment) : null;
+      } catch { /* fail closed below */ }
+    }
+    if (!p3Ref || !experience || experience.surfaceId !== record.surfaceId || experience.sourcePdp2Ref !== record.surfaceSourceRef) {
+      errors.push(`${record.id}: PDP-3 source ref must select an experience that repeats the exact surface ID and PDP-2 ref`);
+    }
+
+    const publicSourceValid = publicExportMapsToImplementation(record.implementationExport, sourcePath, exportMap, root);
+    if (!publicSourceValid) errors.push(`${record.id}: no candidate-only public export-map source chain reaches the implementation export`);
+    if (implementationValid && p2Ref && surface?.kind === "EMBEDDED_GUI" && surface.surfaceId === record.surfaceId
+        && p3Ref && experience?.surfaceId === record.surfaceId && experience?.sourcePdp2Ref === record.surfaceSourceRef
+        && record.status === EMBEDDED_SURFACE_BINDING_STATUS && publicSourceValid) {
+      implementationExports.push(record.implementationExport);
+    }
+  }
+  return { errors, implementationExports: errors.length === 0 ? implementationExports : [] };
+}
+
 function sourceStatusValue(source, field) {
   const [section, key] = field.split(".");
   return key ? sectionScalar(source, section, key) : scalar(source, section);
@@ -372,8 +504,9 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT, { definitionOnly =
   const semanticBindingSource = semanticBindings ?? "";
   const componentIdSet = new Set(listIds(componentContracts, "id"));
   let semanticBindingRecords = [];
+  let semanticBindingDocument = null;
   try {
-    const semanticBindingDocument = parseYaml(semanticBindingSource);
+    semanticBindingDocument = parseYaml(semanticBindingSource);
     semanticBindingRecords = [
       ...(semanticBindingDocument?.bindings ?? []),
       ...(semanticBindingDocument?.rendererAdapterBindings ?? []),
@@ -382,6 +515,8 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT, { definitionOnly =
     // The canonical source-validation path below reports malformed YAML. Do
     // not infer component registration from a partially parsed binding file.
   }
+  const embeddedSurfaceBindings = validateEmbeddedSurfaceBindings(semanticBindingDocument, root);
+  for (const error of embeddedSurfaceBindings.errors) block(`semantic component bindings: ${error}`);
   for (const record of semanticBindingRecords) {
     const exportName = record?.implementationExport;
     const componentRefs = record?.componentRefs;
@@ -392,10 +527,22 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT, { definitionOnly =
         || typeof sourcePath !== "string" || !existsSync(join(root, sourcePath))) continue;
     registeredComponentNames.add(exportName);
   }
+  for (const exportName of embeddedSurfaceBindings.implementationExports) registeredComponentNames.add(exportName);
   for (const { path, content } of productSourceContent.filter(({ path }) => /\.(?:tsx|jsx|ts|js)$/u.test(path))) {
-    for (const match of content.matchAll(/(?:function\s+([A-Z][A-Za-z0-9_]*)\s*\(|const\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:\([^)]*\)\s*=>|function\s*\())/gu)) {
+    const componentMatches = [...content.matchAll(/(?:function\s+([A-Z][A-Za-z0-9_]*)\s*\(|const\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:\([^)]*\)\s*=>|function\s*\())/gu)];
+    const isExported = (match) => /\bexport\s+(?:default\s+)?$/u.test(content.slice(Math.max(0, match.index - 32), match.index));
+    const isPrivateHelperOfRegisteredScreen = (match, name) => {
+      if (isExported(match)) return false;
+      const helperUse = new RegExp(`<${name}(?=[\\s/>])`, "u");
+      return componentMatches.some((parent) => {
+        const parentName = parent[1] ?? parent[2];
+        if (!registeredComponentNames.has(parentName) || !isExported(parent) || parent.index >= match.index) return false;
+        return helperUse.test(content.slice(parent.index, match.index));
+      });
+    };
+    for (const match of componentMatches) {
       const name = match[1] ?? match[2];
-      if (!registeredComponentNames.has(name)) add("unregistered-local-component", path, lineAt(content, match.index), `${name} has a product source implementation but no exact PDP-2 component, PDP-3 screen, or renderer-adapter binding`, "unexplained", `${path}:component:${name}`);
+      if (!registeredComponentNames.has(name) && !isPrivateHelperOfRegisteredScreen(match, name)) add("unregistered-local-component", path, lineAt(content, match.index), `${name} has a product source implementation but no exact PDP-2 component, PDP-3 screen, or renderer-adapter binding`, "unexplained", `${path}:component:${name}`);
     }
   }
 

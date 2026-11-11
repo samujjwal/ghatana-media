@@ -6,9 +6,9 @@ authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: coordinator-reviewed-logical-relationship-definitions; storage-and-runtime-parity-not-admitted
 relationshipPopulationAdjudication:
   coordinatorDecisionRef: .product-experience/decision-log.md#PXD-140
-  observedRelationshipCount: 13
-  status: current-13-record-source-population-reviewed; definition-only; runtime-and-storage-parity-not-admitted
-  rationale: The frozen PDP-0 handoff count of 11 is stale relative to the current source. Preserve all 13 unique relationships, including the four PXD-119 owner-defined logical bindings, because each resolves to explicit PDP-0 concepts and canonical PDP-1 object identity tuples.
+  observedRelationshipCount: 14
+  status: current-14-record-source-population-reviewed; user-directed-project-timeline-snapshot-binding-added; definition-only; runtime-and-storage-parity-not-admitted
+  rationale: The frozen PDP-0 handoff count of 11 is stale relative to the current source. Preserve all 13 existing unique relationships, including the four PXD-119 owner-defined logical bindings, and add the explicit ProjectRevision-to-TimelineSnapshot containment selected under user direction. This is a product mapping definition only; it does not claim storage, wire, or runtime parity.
   pendingOwnerDecisions:
     - id: relationship-storage-constraints
       question: Which exact relationship cardinalities and lineage constraints are enforced by persistence, and what evidence establishes that enforcement?
@@ -58,6 +58,47 @@ relationships:
       deletionRule: Project archival does not cascade-delete revisions; erasure follows the separate retention/hold contract.
       lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
       runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
+  - id: media.rel.project-revision-timeline-snapshot
+    from: media.domain.project-revision
+    to: media.domain.timeline
+    meaning: immutable-project-revision-contains-exact-versioned-timeline-snapshots
+    cardinality: one-revision-to-zero-or-many-timeline-snapshots
+    cardinalityBasis: user-directed coordinator semantic choice; logical source definition only; not a storage or wire constraint
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.project-revision/timelineSnapshotBinding
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline
+      - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md
+    scopeStatus: USER_DIRECTED_LOGICAL_MAPPING_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.project-revision-timeline-snapshot.v1
+      ownerDecisionId: USER-DIRECTED-COORDINATOR-DISPOSITION-2026-11-09
+      disposition: USER_AUTHORIZED_COORDINATOR_SEMANTIC_CHOICE
+      path: ProjectRevision → TimelineSnapshot
+      fieldBinding: ProjectRevision.timelines[]
+      parentIdentityContracts:
+        - objectRef: media.domain.project-revision
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision
+          identityTuple:
+            - tenantId
+            - projectId
+            - revisionId
+      childIdentityContracts:
+        - objectRef: media.domain.timeline
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline
+          identityTuple:
+            - tenantId
+            - projectId
+            - timelineId
+            - semanticVersion
+      sameTenantRequired: true
+      sameProjectRequired: true
+      cardinalityRule: A project revision contains zero or more timeline snapshots; the initial committed revision contains zero; each member binds one exact timeline semantic version.
+      exactVersionRule: timelineId is stable within the project; semanticVersionId identifies one immutable timeline snapshot and is distinct from ProjectRevision.revisionId.
+      lifecycleRule: Explicit timeline creation adds an empty snapshot in a successor project revision; editing retains timelineId and replaces the snapshot with a new semanticVersionId in another successor revision.
+      deletionRule: A project revision does not mutate or delete prior timeline snapshots; restore appends a successor project revision containing the selected historical content.
+      lineageRule: The project revision is the only authoritative write head; timeline snapshots do not own an independently advancing head.
+      runtimeParity: NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence
   - id: media.rel.project-asset
     from: media.domain.project
     to: media.domain.media-asset
@@ -537,6 +578,9 @@ ownerNormativeRuleRecords:
   - id: media.relationship-owner.project-revision.v1
     ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision/ownerDefinition
     sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.project-revision-timeline-snapshot.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision-timeline-snapshot/ownerDefinition
+    sourceRole: user-directed-semantic-mapping-definition; acceptance-effect-none
   - id: media.relationship-owner.project-asset.v1
     ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-asset/ownerDefinition
     sourceRole: flat-index-to-the-exact-nested-owner-definition

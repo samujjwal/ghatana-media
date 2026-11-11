@@ -72,9 +72,9 @@ within their time bound rather than throwing provider detail.
 ## Tests and commands
 
 ```bash
-./gradlew :services:media:audio-video-observability:test \
-  -Pghatana.media.compositeScope=FOCUSED \
-  -Pghatana.media.focusedModules=observability
+./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FULL \
+  :services:media:audio-video-observability:test
 
 bash infra/monitoring/tests/promtool-rules.sh
 
@@ -104,6 +104,12 @@ Each production service composition must pass its own registry into its
 `MediaWorkflowMetrics` instrumentation and sidecar scrape. The standalone
 launcher exposes a separate runtime registry at `/metrics`. Real authorized
 profile and quality observations still come from their owning providers.
+The launcher `/metrics` route returns OpenMetrics 1.0 for an explicit
+`Accept: application/openmetrics-text` request and Prometheus text 0.0.4 for
+`Accept: text/plain`. When both are accepted it honors their `q` preferences,
+preferring OpenMetrics on a tie; media types marked `q=0` are not selected. If
+neither supported exposition type is acceptable, the existing JSON health
+snapshot is returned.
 Canonical capture frame outcomes have a runtime-owned success/unknown counter
 and a warning rule for recent ambiguous outcomes. This does not provide a
 render metric: the render path has no canonical runtime producer or metrics

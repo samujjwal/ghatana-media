@@ -140,6 +140,79 @@ test("manifest accepts only safe integer milliseconds for scenes and caption cue
   }
 });
 
+test("manifest accepts an explicitly typed audio scene", () => {
+  const audioManifest = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => scene.id === "intro"
+      ? { ...scene, asset: { ...scene.asset, url: "/preview.wav", mediaKind: "audio" } }
+      : scene),
+  };
+
+  const state = createDemoPlayerState(audioManifest, verifier);
+  assert.equal(state.status, "READY");
+  assert.equal(state.activeSceneId, "intro");
+});
+
+test("manifest keeps omitted media kind valid for legacy video scenes", () => {
+  const legacyManifest = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => {
+      if (scene.id !== "intro") return scene;
+      const { mediaKind: _omitted, ...asset } = scene.asset;
+      return { ...scene, asset };
+    }),
+  };
+
+  const state = createDemoPlayerState(legacyManifest, verifier);
+  assert.equal(state.status, "READY");
+  assert.equal(state.activeSceneId, "intro");
+  assert.equal(legacyManifest.scenes[0].asset.mediaKind, undefined);
+});
+
+test("manifest rejects unknown media kind before playback", () => {
+  const invalidManifest = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => scene.id === "intro"
+      ? { ...scene, asset: { ...scene.asset, mediaKind: "document" } }
+      : scene),
+  };
+
+  const state = createDemoPlayerState(invalidManifest, verifier);
+  assert.equal(state.status, "UNAVAILABLE");
+  assert.equal(state.failure, "INVALID_BUNDLE");
+  assert.deepEqual(state.route, []);
+});
+
+test("manifest rejects own and inherited media-kind accessors without invoking them", () => {
+  let getterCalls = 0;
+  const ownAccessorAsset = { ...manifest.scenes[0].asset };
+  Object.defineProperty(ownAccessorAsset, "mediaKind", {
+    enumerable: true,
+    get() {
+      getterCalls += 1;
+      throw new Error("media-kind accessor must not run");
+    },
+  });
+  const inheritedAccessorAsset = Object.assign(Object.create({
+    get mediaKind() {
+      getterCalls += 1;
+      throw new Error("inherited media-kind accessor must not run");
+    },
+  }), manifest.scenes[0].asset);
+
+  for (const asset of [ownAccessorAsset, inheritedAccessorAsset]) {
+    const invalidManifest = {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro" ? { ...scene, asset } : scene),
+    };
+    const state = createDemoPlayerState(invalidManifest, verifier);
+    assert.equal(state.status, "UNAVAILABLE");
+    assert.equal(state.failure, "INVALID_BUNDLE");
+    assert.deepEqual(state.route, []);
+  }
+  assert.equal(getterCalls, 0);
+});
+
 test("seek and progress reject unsafe millisecond positions without changing state", () => {
   const initial = createDemoPlayerState(manifest, verifier);
   const seeked = reduceDemoPlayerState(manifest, initial, { type: "seek", positionMs: 500 }, verifier);

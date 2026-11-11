@@ -325,13 +325,14 @@ class TranscriptionCacheIT {
         AtomicInteger authorityReads = new AtomicInteger();
         var authority = (AudioVideoCache.ScopedAuthority) checked -> {
                     authorityReads.incrementAndGet();
-                    return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked));
+                    return AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(checked, java.time.Instant.now().plusSeconds(3600)));
                 };
 
-        TranscriptionEntity initial = await(cacheService.getOrLoadTranscriptionWithAuthority(scope, transcriptionId,
+        TranscriptionEntity initial = await(cacheService.getOrLoadTranscriptionWithScopedSnapshot(scope, transcriptionId,
                 authority, id -> {
                     sourceLoads.incrementAndGet();
-                    return AsyncOperation.success(Optional.of(source));
+                    return AsyncOperation.success(Optional.of(
+                            new TranscriptionCacheService.ScopedTranscriptionSnapshot(scope, id, source)));
                 }));
         assertThat(initial.getText()).isEqualTo("versioned scoped transcript");
 
@@ -341,10 +342,11 @@ class TranscriptionCacheIT {
         cachePort = new DistributedCacheService(redisBackend, "transcription-cache-it");
         cacheService = new TranscriptionCacheService(cachePort, objectMapper);
 
-        TranscriptionEntity afterRestart = await(cacheService.getOrLoadTranscriptionWithAuthority(scope, transcriptionId,
+        TranscriptionEntity afterRestart = await(cacheService.getOrLoadTranscriptionWithScopedSnapshot(scope, transcriptionId,
                 authority, id -> {
                     sourceLoads.incrementAndGet();
-                    return AsyncOperation.success(Optional.of(source));
+                    return AsyncOperation.success(Optional.of(
+                            new TranscriptionCacheService.ScopedTranscriptionSnapshot(scope, id, source)));
                 }));
 
         assertThat(afterRestart.getText()).isEqualTo("versioned scoped transcript");
@@ -363,7 +365,7 @@ class TranscriptionCacheIT {
             String tenant, String principal, String policyEpoch) {
         return new AudioVideoCache.CacheKeyScope(tenant, principal, "rights-current", "transcription",
                 "confidential", "artifact-restart", "artifact-revision-3", "transcript-revision-14",
-                "source-sha256-restart", policyEpoch, "model-license-v1");
+                "source-sha256-restart", policyEpoch, "model-license-v1", 0L);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

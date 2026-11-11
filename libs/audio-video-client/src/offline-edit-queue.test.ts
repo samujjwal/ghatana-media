@@ -100,6 +100,47 @@ describe("OfflineEditQueue", () => {
       .rejects.toMatchObject({ code: "QUEUE_FULL" } satisfies Partial<OfflineEditQueueError>);
   });
 
+  it("pins the selected store when the caller mutates queue options during replay", async () => {
+    const primary = new MemoryStore();
+    const alternate = new MemoryStore();
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    const options = { store: primary, encryptionKey: key };
+    const queue = new OfflineEditQueue(options);
+    await queue.enqueue(edit);
+    alternate.records.set(edit.editId, primary.records.get(edit.editId)!);
+
+    let authorizationReads = 0;
+    const results = await replayAfterExplicitReview(queue, scope, {
+      readCurrentVersion: async () => "v7",
+      reauthorize: async () => {
+        if (++authorizationReads === 1) options.store = alternate;
+        return { authorized: true, disposition: "AUTHORIZED" as const };
+      },
+      apply: async () => ({ outcome: "APPLIED" as const, receipt: "receipt-1" }),
+    });
+
+    expect(results).toMatchObject([{ editId: edit.editId, state: "APPLIED" }]);
+    expect(primary.records.get(edit.editId)?.state).toBe("APPLIED");
+    expect(alternate.records.get(edit.editId)?.state).toBe("PENDING");
+  });
+
+  it("uses the same snapshotted queue limit it captured from constructor options", async () => {
+    const store = new MemoryStore();
+    const key = await globalThis.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    let limitReads = 0;
+    const queue = new OfflineEditQueue({
+      store,
+      encryptionKey: key,
+      get maximumEntries() { return ++limitReads === 1 ? 1 : 2; },
+    });
+
+    await queue.enqueue(edit);
+    await expect(queue.enqueue({ ...edit, editId: "edit-2", idempotencyKey: "idem-2" }))
+      .rejects.toMatchObject({ code: "QUEUE_FULL" } satisfies Partial<OfflineEditQueueError>);
+    expect(limitReads).toBe(1);
+    expect(store.records.size).toBe(1);
+  });
+
   it("snapshots exact tenant, project, edit and version identity before an async store read", async () => {
     let startList!: () => void;
     let releaseList!: () => void;
@@ -738,7 +779,7 @@ describe("OfflineEditQueue", () => {
     });
 
     expect(result).toEqual([{ editId: edit.editId, state: "REVOKED" }]);
-    expect(authorizationReads).toBe(2);
+    expect(authorizationReads).toBe(3);
     expect(dispatches).toBe(0);
     expect(store.records.get(edit.editId)?.state).toBe("REVOKED");
   });
@@ -831,7 +872,7 @@ describe("OfflineEditQueue", () => {
     });
     expect(paddedVersion[0]?.state).toBe("VERSION_UNKNOWN");
     expect(store.records.get(edit.editId)?.state).toBe("PENDING");
-    expect(authorizationReads).toBe(0);
+    expect(authorizationReads).toBe(2);
     expect(applyCount).toBe(0);
 
     const malformedAck = await replayAfterExplicitReview(queue, scope, {
@@ -874,6 +915,7 @@ describe("OfflineEditQueue", () => {
 
     expect(result).toEqual([{ editId: edit.editId, state: "APPLIED", receipt: "receipt" }]);
     expect(authorizationReads).toEqual([
+      { authorized: 1, disposition: 1 },
       { authorized: 1, disposition: 1 },
       { authorized: 1, disposition: 1 },
     ]);

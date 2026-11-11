@@ -75,6 +75,13 @@ interface TtsRequestAuthorization {
         }
         String effectiveVoiceId = voiceId == null || voiceId.isBlank()
                 ? configuredDefaultVoiceId : voiceId;
+        // The current authorization contract returns only a decision; it cannot return the
+        // canonical voice bound to a profile. Allowing a profile-only request here would let
+        // later provider matching treat the missing voice as the configured default.
+        if ((voiceId == null || voiceId.isBlank()) && profileId != null && !profileId.isBlank()) {
+            throw new AuthorizationException(Status.UNAVAILABLE,
+                    "TTS_PROFILE_VOICE_BINDING_NOT_ADMITTED: profile selection cannot be bound to an exact admitted voice");
+        }
         boolean selected = effectiveVoiceId != null || profileId != null && !profileId.isBlank();
         if (!selected) {
             throw new AuthorizationException(Status.UNAVAILABLE,

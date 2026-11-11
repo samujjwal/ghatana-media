@@ -64,6 +64,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     private static final long WATCH_REFRESH_MILLIS = 1_000L;
 
     private final Map<String, Supplier<Boolean>> checks = new ConcurrentHashMap<>();
+    private final String healthServiceName;
     private final Set<String> requiredChecks;
     private final AtomicReference<LifecycleState> lifecycle = new AtomicReference<>(LifecycleState.STARTING);
     private final ExecutorService checkExecutor;
@@ -93,7 +94,8 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     /** Construct the health service with an explicit maximum duration for the full check set. */
     public AudioVideoHealthService(String serviceName, MetricsCollector metricsCollector,
                                    Set<String> requiredChecks, Duration checkTimeout) {
-        this.metricServiceName = safeMetricServiceName(requireName(serviceName, "serviceName"));
+        this.healthServiceName = requireName(serviceName, "serviceName");
+        this.metricServiceName = safeMetricServiceName(healthServiceName);
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector");
         Objects.requireNonNull(requiredChecks, "requiredChecks");
         if (requiredChecks.size() > MAX_HEALTH_CHECKS) {
@@ -180,9 +182,15 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
      */
     @Override
     public boolean isServing() {
-        return lifecycle.get() == LifecycleState.READY
-                && !checks.isEmpty() && checks.keySet().containsAll(requiredChecks)
-                && evaluateWithinDeadline(this::allChecksHealthy, false);
+        if (lifecycle.get() != LifecycleState.READY
+                || checks.isEmpty() || !checks.keySet().containsAll(requiredChecks)) {
+            return false;
+        }
+        // Dependency evaluation may block while shutdown or a check-set change moves the
+        // service out of READY. Recheck after the evaluation so an in-flight probe cannot
+        // report stale SERVING after that lifecycle transition has completed.
+        return evaluateWithinDeadline(this::allChecksHealthy, false)
+                && lifecycle.get() == LifecycleState.READY;
     }
 
     // ── gRPC Health Check Protocol ─────────────────────────────────────────
@@ -191,7 +199,15 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     public void check(
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
-
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(responseObserver, "responseObserver");
+        RequestedService requestedService = classifyRequestedService(request.getService());
+        if (requestedService == RequestedService.UNKNOWN) {
+            recordHealthMetric(HealthCheckResponse.ServingStatus.SERVICE_UNKNOWN);
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription("Health service is unknown").asRuntimeException());
+            return;
+        }
         HealthCheckResponse.ServingStatus status = currentStatus();
         recordHealthMetric(status);
 
@@ -202,8 +218,10 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     public void watch(
             HealthCheckRequest request,
             StreamObserver<HealthCheckResponse> responseObserver) {
+        Objects.requireNonNull(request, "request");
         Objects.requireNonNull(responseObserver, "responseObserver");
-        WatchSubscription subscription = new WatchSubscription(responseObserver);
+        WatchSubscription subscription = new WatchSubscription(
+                classifyRequestedService(request.getService()), responseObserver);
         synchronized (watchLock) {
             if (closed) {
                 responseObserver.onError(Status.UNAVAILABLE
@@ -231,7 +249,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
             }
         }
 
-        HealthCheckResponse.ServingStatus status = currentStatus();
+        HealthCheckResponse.ServingStatus status = currentStatus(subscription.requestedService);
         recordHealthMetric(status);
         try {
             subscription.sendInitial(status);
@@ -287,7 +305,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         checkExecutor.shutdownNow();
         for (WatchSubscription subscriber : subscribersToComplete) {
             try {
-                subscriber.complete(HealthCheckResponse.ServingStatus.NOT_SERVING);
+                subscriber.complete(currentStatus(subscriber.requestedService));
             } catch (RuntimeException observerFailure) {
                 LOG.debug("Unable to complete a health Watch during shutdown (type={})",
                         observerFailure.getClass().getSimpleName());
@@ -299,6 +317,21 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         return isServing()
                 ? HealthCheckResponse.ServingStatus.SERVING
                 : HealthCheckResponse.ServingStatus.NOT_SERVING;
+    }
+
+    private HealthCheckResponse.ServingStatus currentStatus(RequestedService requestedService) {
+        if (requestedService == RequestedService.UNKNOWN) {
+            return HealthCheckResponse.ServingStatus.SERVICE_UNKNOWN;
+        }
+        return currentStatus();
+    }
+
+    private RequestedService classifyRequestedService(String requestedService) {
+        if (requestedService == null) return RequestedService.UNKNOWN;
+        if (requestedService.isEmpty()) return RequestedService.OVERALL;
+        return healthServiceName.equals(requestedService)
+                ? RequestedService.CONFIGURED
+                : RequestedService.UNKNOWN;
     }
 
     int activeWatchSubscriberCount() {
@@ -325,7 +358,6 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
     private void refreshWatchSubscribers() {
         if (closed) return;
-        HealthCheckResponse.ServingStatus status = currentStatus();
         Set<WatchSubscription> snapshot;
         synchronized (watchLock) {
             if (closed || watchSubscribers.isEmpty()) return;
@@ -333,6 +365,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         }
         for (WatchSubscription subscriber : snapshot) {
             try {
+                HealthCheckResponse.ServingStatus status = currentStatus(subscriber.requestedService);
                 if (subscriber.sendIfChanged(status)) {
                     recordHealthMetric(status);
                 }
@@ -418,13 +451,18 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
 
     private enum LifecycleState { STARTING, READY, DRAINING }
 
+    /** Retained Watch state is fixed-size; caller-controlled service names are discarded. */
+    private enum RequestedService { OVERALL, CONFIGURED, UNKNOWN }
+
     private static final class WatchSubscription {
+        private final RequestedService requestedService;
         private final StreamObserver<HealthCheckResponse> observer;
         private HealthCheckResponse.ServingStatus lastStatus;
         private boolean initialized;
         private boolean ended;
 
-        private WatchSubscription(StreamObserver<HealthCheckResponse> observer) {
+        private WatchSubscription(RequestedService requestedService, StreamObserver<HealthCheckResponse> observer) {
+            this.requestedService = requestedService;
             this.observer = observer;
         }
 

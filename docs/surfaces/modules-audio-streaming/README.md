@@ -49,6 +49,10 @@ the Media launcher; `modules/integration-tests` also depends on it.
   operation-parity entries are `ADAPTER_REQUIRED`.
 - Frame ACK acknowledges the accepted frame operation; it does not by
   itself prove downstream artifact creation or provider finality.
+- `CanonicalStreamFramePort.Binding` rejects blank values and surrounding
+  ASCII/Unicode whitespace for stream, tenant, principal, and purpose identity
+  fields. It preserves the exact accepted strings rather than trimming an
+  alternate spelling into the same identity.
 - Callers must inspect `OfferFeedback.feedbackAvailable` before treating
   `backpressured=false` as a provider signal.
 - Session reconnect reuses `/connect` (durable `reconnectCount`
@@ -59,6 +63,8 @@ the Media launcher; `modules/integration-tests` also depends on it.
   deliver a contiguous prefix, and stopped on gaps or backpressure. Unknown,
   denied, revoked, stale-version, and lost-ACK outcomes do not produce an
   accepted frame; lost ACK is never replayed automatically.
+- Trusted gRPC source readbacks reject Media sequence values outside the
+  canonical frame range before they can authorize source bytes or frame offers.
 - If the highest canonical frame sequence is accepted and that batch also
   declares EOS, capture returns `UNKNOWN` before readback or dispatch of an
   out-of-range EOS sequence.

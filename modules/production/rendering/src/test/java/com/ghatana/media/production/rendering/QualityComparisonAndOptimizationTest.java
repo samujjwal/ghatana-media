@@ -59,8 +59,12 @@ class QualityComparisonAndOptimizationTest {
         assertThat(comparison.psnr().algorithm()).isEqualTo("RGB8_SAMPLE_PSNR_V1");
         assertThat(comparison.psnr().status()).isEqualTo(MetricStatus.MEASURED);
         assertThat(comparison.psnr().value().orElseThrow()).isCloseTo(34.1514, org.assertj.core.data.Offset.offset(0.001));
+        assertThat(comparison.sourcePsnr().value().orElseThrow())
+                .isLessThan(comparison.psnr().value().orElseThrow());
         assertThat(comparison.ssim().algorithm()).isEqualTo("GLOBAL_SRGB_LUMA_SSIM_V1");
         assertThat(comparison.ssim().value().orElseThrow()).isCloseTo(0.9758, org.assertj.core.data.Offset.offset(0.001));
+        assertThat(comparison.sourcePsnr().status()).isEqualTo(MetricStatus.MEASURED);
+        assertThat(comparison.sourceSsim().value().orElseThrow()).isLessThan(comparison.ssim().value().orElseThrow());
         assertThat(comparison.disposition()).isEqualTo(QualityDisposition.IMPROVED);
         assertThat(comparison.heuristics().meanAbsoluteSourceDelta()).isEqualTo(15.0);
         assertThat(run.report().orElseThrow().reference()).contains(reference.id());
@@ -227,7 +231,7 @@ class QualityComparisonAndOptimizationTest {
         CandidateComparison comparison = report.comparisons().getFirst();
         CandidateComparison mismatched = new CandidateComparison(
                 revision("other-candidate", "v1", "c", 20).id(), comparison.psnr(), comparison.ssim(),
-                comparison.heuristics(), comparison.disposition());
+                comparison.sourcePsnr(), comparison.sourceSsim(), comparison.heuristics(), comparison.disposition());
 
         assertThatThrownBy(() -> new Report(report.status(), report.blockReason(), report.operationId(),
                 report.budget(), report.attemptsUsed(), report.source(), report.sourceRightsDecisionId(),
@@ -341,6 +345,8 @@ class QualityComparisonAndOptimizationTest {
         CandidateComparison fabricatedImprovement = new CandidateComparison(candidate.id(),
                 new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(30)),
                 new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(0.9)),
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(20)),
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(0.8)),
                 withoutReference.comparisons().getFirst().heuristics(), QualityDisposition.IMPROVED);
 
         assertThatThrownBy(() -> new Report(withoutReference.status(), withoutReference.blockReason(),
@@ -356,6 +362,8 @@ class QualityComparisonAndOptimizationTest {
         Report withReference = run(source, List.of(candidate), reference, allowed("src"), allowed("ref"), 1, BUDGET)
                 .report().orElseThrow();
         CandidateComparison unavailableComparison = new CandidateComparison(candidate.id(),
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty()),
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty()),
                 new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty()),
                 new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.UNAVAILABLE, java.util.OptionalDouble.empty()),
                 withReference.comparisons().getFirst().heuristics(), QualityDisposition.UNAVAILABLE);
@@ -409,45 +417,56 @@ class QualityComparisonAndOptimizationTest {
                 java.util.OptionalDouble.of(0.9));
 
         assertThatThrownBy(() -> new CandidateComparison(candidate, unavailablePsnr, unavailableSsim,
-                heuristics, QualityDisposition.IMPROVED))
+                unavailablePsnr, unavailableSsim, heuristics, QualityDisposition.IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("disposition must match measured metric availability");
+                .hasMessageContaining("disposition must match candidate and source reference metrics");
         assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr, measuredSsim,
-                heuristics, QualityDisposition.UNAVAILABLE))
+                measuredPsnr, measuredSsim, heuristics, QualityDisposition.UNAVAILABLE))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("disposition must match measured metric availability");
+                .hasMessageContaining("disposition must match candidate and source reference metrics");
         assertThatThrownBy(() -> new CandidateComparison(candidate,
                 new Metric("UNQUALIFIED_METRIC", MetricStatus.MEASURED, java.util.OptionalDouble.of(99)),
-                measuredSsim, heuristics, QualityDisposition.IMPROVED))
+                measuredSsim, measuredPsnr, measuredSsim, heuristics, QualityDisposition.IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("pinned RGB8 PSNR and global SSIM algorithms");
         assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr,
                 new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.EXACT_MATCH,
-                        java.util.OptionalDouble.empty()), heuristics, QualityDisposition.NOT_IMPROVED))
+                        java.util.OptionalDouble.empty()), measuredPsnr, measuredSsim,
+                heuristics, QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("global SSIM is reported as a measured value");
         assertThatThrownBy(() -> new CandidateComparison(candidate,
                 new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED,
-                        java.util.OptionalDouble.of(-0.01)), measuredSsim, heuristics,
+                        java.util.OptionalDouble.of(-0.01)), measuredSsim, measuredPsnr, measuredSsim, heuristics,
                 QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("PSNR cannot be negative");
         assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr,
                 new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
-                        java.util.OptionalDouble.of(1.0001)), heuristics, QualityDisposition.NOT_IMPROVED))
+                        java.util.OptionalDouble.of(1.0001)), measuredPsnr, measuredSsim,
+                heuristics, QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("SSIM must be within its bounded range");
         assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr,
                 new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
-                        java.util.OptionalDouble.of(-1.0001)), heuristics, QualityDisposition.NOT_IMPROVED))
+                        java.util.OptionalDouble.of(-1.0001)), measuredPsnr, measuredSsim,
+                heuristics, QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("SSIM must be within its bounded range");
         assertThatThrownBy(() -> new CandidateComparison(candidate,
                 new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.EXACT_MATCH, java.util.OptionalDouble.empty()),
                 new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED,
-                        java.util.OptionalDouble.of(0.9999)), heuristics, QualityDisposition.NOT_IMPROVED))
+                        java.util.OptionalDouble.of(0.9999)), measuredPsnr, measuredSsim, heuristics,
+                QualityDisposition.NOT_IMPROVED))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("exact RGB8 PSNR match requires global SSIM of exactly 1.0");
+
+        assertThatThrownBy(() -> new CandidateComparison(candidate, measuredPsnr, measuredSsim,
+                new Metric("RGB8_SAMPLE_PSNR_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(35)),
+                new Metric("GLOBAL_SRGB_LUMA_SSIM_V1", MetricStatus.MEASURED, java.util.OptionalDouble.of(0.95)),
+                heuristics, QualityDisposition.IMPROVED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("disposition must match candidate and source reference metrics");
     }
 
     @Test
@@ -503,6 +522,26 @@ class QualityComparisonAndOptimizationTest {
         assertThat(unalignedResult.psnr().status()).isEqualTo(MetricStatus.UNAVAILABLE);
         assertThat(unalignedResult.disposition()).isEqualTo(QualityDisposition.UNAVAILABLE);
         assertThat(unaligned.report().orElseThrow().referenceUnavailableReason()).contains(UnavailableReason.REFERENCE_NOT_ALIGNED);
+    }
+
+    @Test
+    void referenceWithMatchingTimeBaseButShiftedFramePtsIsNotTemporallyAligned() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidate = revision("candidate", "v1", "b", 25);
+        Revision shiftedReference = new Revision(referenceId("reference", "v7", "c"), TB, List.of(
+                new RgbFrame(0, 1, 1, 0, new byte[] {20, 20, 20}),
+                new RgbFrame(1, 1, 1, 2, new byte[] {20, 20, 20}),
+                new RgbFrame(2, 1, 1, 3, new byte[] {20, 20, 20})));
+
+        Run run = run(source, List.of(candidate), shiftedReference, allowed("src"), allowed("ref"), 1, BUDGET);
+
+        Report report = run.report().orElseThrow();
+        CandidateComparison comparison = report.comparisons().getFirst();
+        assertThat(report.reference()).isEmpty();
+        assertThat(report.referenceUnavailableReason()).contains(UnavailableReason.REFERENCE_NOT_ALIGNED);
+        assertThat(comparison.psnr().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+        assertThat(comparison.ssim().status()).isEqualTo(MetricStatus.UNAVAILABLE);
+        assertThat(comparison.disposition()).isEqualTo(QualityDisposition.UNAVAILABLE);
     }
 
     @Test

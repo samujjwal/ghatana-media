@@ -362,6 +362,26 @@ class CrossModalFusionEngineTest {
     }
 
     @Test
+    @DisplayName("confidence scores do not imply an unowned grounding threshold or calibration")
+    void sourceBoundFusionKeepsConfidenceUncalibratedAtScoreExtremes() {
+        var lowScore = engine.fuseAudioVisual(makeAudio(DIM, 0.01), makeVisual(DIM, 0.01),
+                region("source-v1", 10, 20), region("source-v1", 10, 20),
+                sourceTime(100, 1, 1_000), sourceTime(50, 1, 500));
+        var highScore = engine.fuseAudioVisual(makeAudio(DIM, 0.99), makeVisual(DIM, 0.99),
+                region("source-v1", 10, 20), region("source-v1", 10, 20),
+                sourceTime(100, 1, 1_000), sourceTime(50, 1, 500));
+
+        assertThat(lowScore.fusion()).isPresent();
+        assertThat(lowScore.fusion().orElseThrow().fusionConfidence()).isEqualTo(0.01);
+        assertThat(lowScore.confidenceDisposition())
+                .isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+        assertThat(highScore.fusion()).isPresent();
+        assertThat(highScore.fusion().orElseThrow().fusionConfidence()).isEqualTo(0.99);
+        assertThat(highScore.confidenceDisposition())
+                .isEqualTo(ConfidenceDisposition.HEURISTIC_UNCALIBRATED);
+    }
+
+    @Test
     @DisplayName("source-bound fusion rejects a shared timestamp clock from a different immutable version")
     void sourceBoundFusionRejectsClockFromDifferentVersion() {
         var outcome = engine.fuseAudioVisual(makeAudio(DIM, 0.5), makeVisual(DIM, 0.5),

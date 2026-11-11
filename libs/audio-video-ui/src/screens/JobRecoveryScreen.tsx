@@ -52,7 +52,11 @@ export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobR
     ? { ...action, enabled: false, disabledReason: "This request has not been reconciled by the owner; check the same job before retrying." }
     : action);
   const initialReadState: CanonicalJobReadState = canonicalJobReadClient ? { state: "READY" } : { state: "NOT_ADMITTED" };
-  const [readStateRecord, setReadStateRecord] = React.useState({ jobId: job.jobId, reader: canonicalJobReadClient, value: initialReadState });
+  const [readStateRecord, setReadStateRecord] = React.useState<{
+    readonly jobId: string;
+    readonly reader: CanonicalJobReadClient | undefined;
+    readonly value: CanonicalJobReadState;
+  }>({ jobId: job.jobId, reader: canonicalJobReadClient, value: initialReadState });
   const activeRead = React.useRef<AbortController | undefined>(undefined);
   const readState = readStateRecord.jobId === job.jobId && readStateRecord.reader === canonicalJobReadClient
     ? readStateRecord.value
@@ -71,7 +75,17 @@ export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobR
     const controller = new AbortController();
     activeRead.current = controller;
     setReadState({ state: "LOADING" });
-    void canonicalJobReadClient.getJob(job.jobId, controller.signal).then((snapshot) => {
+    // A host supplied reader can fail before returning its promise (for example,
+    // while resolving credentials or constructing its transport). Normalize
+    // that synchronous failure into the same fail-closed read state so the
+    // screen never stays stuck in LOADING with the refresh action locked.
+    let read: ReturnType<CanonicalJobReadClient["getJob"]>;
+    try {
+      read = canonicalJobReadClient.getJob(job.jobId, controller.signal);
+    } catch {
+      read = Promise.reject(new Error("Canonical job status read failed."));
+    }
+    void read.then((snapshot) => {
       if (controller.signal.aborted || activeRead.current !== controller) return;
       if (snapshot.jobId !== job.jobId || ![
         "ACCEPTED", "RUNNING", "OUTCOME_UNKNOWN", "COMPLETED", "FAILED", "CANCELLED",

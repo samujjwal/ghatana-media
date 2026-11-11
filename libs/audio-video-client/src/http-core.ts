@@ -83,7 +83,37 @@ export function boundedPositive(value: number | undefined, fallback: number): nu
 export function normalizeBaseUrl(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) throw new Error("Media client baseUrl is required.");
-  return trimmed.replace(/\/+$/u, "");
+  const maxEndpointUrlChars = 8_192;
+  if (trimmed.length > maxEndpointUrlChars) {
+    throw new Error(`Media client baseUrl must not exceed ${maxEndpointUrlChars} characters.`);
+  }
+
+  let endpoint: URL;
+  try { endpoint = new URL(trimmed); }
+  catch { throw new Error("Media client baseUrl must be an absolute HTTPS URL (HTTP is allowed only for loopback testing)."); }
+  const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
+  const loopbackHttp = endpoint.protocol === "http:" && localHosts.has(endpoint.hostname.toLowerCase());
+  if ((endpoint.protocol !== "https:" && !loopbackHttp)
+    || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
+    throw new Error("Media client baseUrl must use HTTPS, contain no credentials or query, and use HTTP only on loopback.");
+  }
+
+  const rawPath = trimmed.match(/^[A-Za-z][A-Za-z0-9+.-]*:\/\/[^/?#]*(\/[^?#]*)?/u)?.[1] ?? "";
+  let decodedRawPath: string;
+  try { decodedRawPath = decodeURIComponent(rawPath); }
+  catch { throw new Error("Media client baseUrl path is invalid."); }
+  if (/[\\\u0000-\u001f\u007f]/u.test(decodedRawPath)
+    || decodedRawPath.split("/").some((segment) => segment === "." || segment === "..")) {
+    throw new Error("Media client baseUrl path is invalid.");
+  }
+  let decodedPath: string;
+  try { decodedPath = decodeURIComponent(endpoint.pathname); }
+  catch { throw new Error("Media client baseUrl path is invalid."); }
+  if (/[\\\u0000-\u001f\u007f]/u.test(decodedPath)
+    || decodedPath.split("/").some((segment) => segment === "." || segment === "..")) {
+    throw new Error("Media client baseUrl path is invalid.");
+  }
+  return `${endpoint.origin}${endpoint.pathname.replace(/\/+$/u, "")}`;
 }
 
 export function linkAbortSignal(source: AbortSignal | undefined, target: AbortController): () => void {
@@ -181,7 +211,14 @@ export class MediaHttpTransport {
     this.baseUrl = normalizeBaseUrl(config.baseUrl);
     this.tenantId = safeIdentityHeader("tenantId", config.tenantId.trim()) ?? "";
     if (!this.tenantId) throw new Error("Media client tenantId is required.");
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    const fetchImpl = config.fetchImpl ?? globalThis.fetch;
+    if (typeof fetchImpl !== "function") {
+      throw new TypeError("a fetch implementation is required");
+    }
+    // fetch is a Web API with a receiver brand check in browsers. Keeping the
+    // default unbound and invoking it as this.fetchImpl(...) gives the
+    // MediaHttpTransport instance as `this`, which rejects before dispatch.
+    this.fetchImpl = config.fetchImpl === undefined ? fetchImpl.bind(globalThis) : fetchImpl;
     this.getAccessToken = config.getAccessToken;
     // The configured caller identity must not change through an external mutable alias.
     this.defaultHeaders = Object.freeze({ ...config.defaultHeaders });

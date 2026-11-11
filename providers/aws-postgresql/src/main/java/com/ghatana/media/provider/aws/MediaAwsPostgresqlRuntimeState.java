@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 
 /** Shared lifecycle for Media PostgreSQL metadata and S3 object storage. */
-final class MediaAwsPostgresqlRuntimeState {
+final class MediaAwsPostgresqlRuntimeState implements ProjectTimelinePersistenceState {
     private static final int MAX_PARALLEL_COMMIT_CANCEL_REQUESTS = 4;
     private static final Object LOCK = new Object();
     private static MediaAwsPostgresqlRuntimeState shared;
@@ -209,7 +209,7 @@ final class MediaAwsPostgresqlRuntimeState {
         return new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), false, null, null);
     }
 
-    void release() {
+    @Override public void release() {
         if (!sharedLifecycle) {
             close();
             return;
@@ -225,12 +225,12 @@ final class MediaAwsPostgresqlRuntimeState {
 
     boolean configured() { return configured && !closed.get(); }
     boolean productionEligible() { return configured() && productionEligible; }
-    ObjectMapper mapper() { return mapper; }
+    @Override public ObjectMapper mapper() { return mapper; }
     S3Client s3() { ensureConfigured(); return s3; }
     String bucket() { ensureConfigured(); return bucket; }
     String key(String relative) { ensureConfigured(); return prefix + "/" + relative; }
 
-    Connection connection() {
+    @Override public Connection connection() {
         ensureConfigured();
         try {
             Connection connection = dataSource.getConnection();
@@ -356,7 +356,7 @@ final class MediaAwsPostgresqlRuntimeState {
         if (!configured()) throw new IllegalStateException("Media AWS/PostgreSQL providers are not configured");
     }
 
-    void close() {
+    @Override public void close() {
         if (!closed.compareAndSet(false, true)) return;
         commitCancelTimer.shutdownNow();
         commitCancelWorkers.shutdownNow();

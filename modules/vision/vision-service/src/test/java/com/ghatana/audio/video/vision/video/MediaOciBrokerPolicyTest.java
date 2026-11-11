@@ -327,7 +327,7 @@ class MediaOciBrokerPolicyTest {
                 "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
                 "-max_alloc", "268435456", "-max_pixels", "16000000", "-threads", "2",
                 "-filter_threads", "1", "-f", "mov", "-i", "/source/input",
-                "-threads", "2", "-vf",
+                "-map", "0:v:0", "-threads", "2", "-vf",
                 "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/2)',showinfo,scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
                 "-fps_mode", "passthrough", "-enc_time_base", "demux", "-frames:v", "120",
                 "-q:v", "2", "/output/frame_%04d.jpg", "-n"))).isTrue();
@@ -362,6 +362,23 @@ class MediaOciBrokerPolicyTest {
         alteredFilter.set(filterArgumentIndex, alteredFilter.get(filterArgumentIndex)
                 .replace(",showinfo,scale=", ",volume=1,showinfo,scale="));
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", alteredFilter)).isFalse();
+
+        int mapOptionIndex = workerArgs.indexOf("-map");
+        assertThat(workerArgs.get(mapOptionIndex + 1)).isEqualTo("0:v:0");
+        for (String invalidTarget : List.of("0:v", "0:v:1", "0:a:0", "0:0", "[v:0]")) {
+            java.util.ArrayList<String> alteredMap = new java.util.ArrayList<>(workerArgs);
+            alteredMap.set(mapOptionIndex + 1, invalidTarget);
+            assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", alteredMap))
+                    .as("only first video stream mapping is admitted: %s", invalidTarget)
+                    .isFalse();
+        }
+        java.util.ArrayList<String> alternateMapOption = new java.util.ArrayList<>(workerArgs);
+        alternateMapOption.set(mapOptionIndex, "-map_metadata");
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", alternateMapOption)).isFalse();
+        java.util.ArrayList<String> duplicateMap = new java.util.ArrayList<>(workerArgs);
+        duplicateMap.add(mapOptionIndex + 2, "-map");
+        duplicateMap.add(mapOptionIndex + 3, "0:v:0");
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", duplicateMap)).isFalse();
     }
 
     @Test
@@ -401,7 +418,8 @@ class MediaOciBrokerPolicyTest {
         List<String> validFrames = List.of(
                 "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
                 "-max_alloc", "268435456", "-max_pixels", "16000000", "-threads", "2",
-                "-filter_threads", "1", "-f", "mov", "-i", "/source/input", "-threads", "2",
+                "-filter_threads", "1", "-f", "mov", "-i", "/source/input",
+                "-map", "0:v:0", "-threads", "2",
                 "-vf", "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/2)',showinfo,"
                         + "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
                 "-fps_mode", "passthrough", "-enc_time_base", "demux", "-frames:v", "10000",
@@ -409,11 +427,11 @@ class MediaOciBrokerPolicyTest {
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", validFrames))
                 .as("the declared frame-count and quality ceilings are accepted").isTrue();
         java.util.ArrayList<String> excessiveFrames = new java.util.ArrayList<>(validFrames);
-        excessiveFrames.set(27, "10001");
+        excessiveFrames.set(29, "10001");
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", excessiveFrames))
                 .as("a codec request cannot exceed the declared frame count").isFalse();
         java.util.ArrayList<String> excessiveQuality = new java.util.ArrayList<>(validFrames);
-        excessiveQuality.set(29, "32");
+        excessiveQuality.set(31, "32");
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", excessiveQuality))
                 .as("a codec request cannot exceed the declared quality range").isFalse();
 

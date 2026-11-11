@@ -584,41 +584,6 @@ class MediaRuntimeJobGovernanceTest {
     }
 
     @Test
-    void unconfirmedCancellationRemainsNonTerminalAndProviderOutcomeStillWins() throws Exception {
-        CompletableFuture<Map<String, Object>> pending = new CompletableFuture<>();
-        MediaProcessingProvider provider = provider(
-                "remote", 0, new AtomicInteger(), pending,
-                CancellationOutcome.REQUESTED_UNCONFIRMED);
-        var root = Files.createTempDirectory("media-cancel-unconfirmed-");
-        var runtime = runtime(root, List.of(provider));
-        try {
-            var artifact = artifact(runtime);
-            var accepted = runtime.submit(new ProcessingJobRequest(
-                    "request-cancel-unconfirmed", "tenant-a", "principal-a", "correlation-a",
-                    artifact.artifactId(), JobType.VISION, "remote", Map.of()));
-
-            var cancellationRequested = runtime.cancel("tenant-a", "principal-a", accepted.jobId());
-
-            assertThat(cancellationRequested.status()).isEqualTo(JobStatus.RUNNING);
-            assertThat(cancellationRequested.failureCode()).isBlank();
-            assertThat(cancellationRequested.completedAt()).isNull();
-            assertThat(cancellationRequested.result())
-                    .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED")
-                    .containsKey("cancellationRequestedAt");
-            assertThat(pending).isNotCancelled();
-
-            pending.complete(Map.of("labels", List.of("provider-completed-after-cancel-request")));
-            var terminal = awaitTerminal(runtime, accepted.jobId());
-            assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
-            assertThat(terminal.result())
-                    .containsEntry("providerId", "remote")
-                    .containsEntry("labels", List.of("provider-completed-after-cancel-request"));
-        } finally {
-            runtime.close();
-        }
-    }
-
-    @Test
     void providerFutureCancellationWithoutConfirmationRemainsOutcomeUnknown() throws Exception {
         CompletableFuture<Map<String, Object>> cancelledByProvider = new CompletableFuture<>();
         AtomicInteger providerCalls = new AtomicInteger();

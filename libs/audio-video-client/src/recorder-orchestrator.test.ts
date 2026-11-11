@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { promisify } from "node:util";
 import {
   ScenarioError,
   changedSceneLineages,
@@ -22,6 +24,11 @@ import {
 } from "./capture-adapters";
 import { HttpApiCaptureAdapter } from "./http-capture-adapter";
 import { MediaFileCaptureAdapter } from "./file-capture-adapter";
+
+const execFileAsync = promisify(execFile);
+const pinnedPreviewToolchainAvailable = Boolean(
+  process.env.GHATANA_MEDIA_FFMPEG && process.env.GHATANA_MEDIA_FFPROBE,
+);
 
 function scenario(overrides: Partial<Scenario> = {}): Scenario {
   const source = (identity: string, sourceVersionRef: string) => ({
@@ -765,7 +772,7 @@ describe("publishFinalRender", () => {
   const uploadSession = (overrides: Record<string, unknown> = {}) => ({
     uploadId: "upload-1", tenantId: "tenant-1", principalId: "principal-1", fileName: "demo.mp4",
     contentType: "video/mp4", expectedSizeBytes: 3, expectedSha256: "a".repeat(64), classification: "INTERNAL",
-    createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-11-06T00:00:00Z", bytesReceived: 0,
+    retention: "PT720H", createdAt: "2026-11-05T00:00:00Z", expiresAt: "2026-11-06T00:00:00Z", bytesReceived: 0,
     nextChunkIndex: 0, status: "OPEN", metadata: {}, ...overrides,
   });
   const fakeClient = (overrides: Record<string, unknown> = {}) => {
@@ -777,6 +784,7 @@ describe("publishFinalRender", () => {
       readonly expectedSizeBytes: number;
       readonly expectedSha256: string;
       readonly classification: string;
+      readonly retention: string;
       readonly metadata?: Readonly<Record<string, unknown>>;
     }) => {
       submittedSha256 = input.expectedSha256;
@@ -786,6 +794,7 @@ describe("publishFinalRender", () => {
         expectedSizeBytes: input.expectedSizeBytes,
         expectedSha256: submittedSha256,
         classification: input.classification,
+        retention: input.retention,
         metadata: input.metadata ?? {},
       });
     }),
@@ -805,10 +814,169 @@ describe("publishFinalRender", () => {
   }) as unknown as MediaOperationClient;
   };
 
+  it.skipIf(!pinnedPreviewToolchainAvailable)(
+    "passes real local FFmpeg preview bytes through publishFinalRender with only synthetic authority and artifact ports",
+    async () => {
+      const parent = await mkdtemp(join(tmpdir(), "media-recorder-publish-preview-"));
+      const outputDir = join(parent, "preview");
+      const previewScript = resolve(import.meta.dirname, "../../../examples/recorder-mux-preview/preview.mjs");
+      const ffprobe = process.env.GHATANA_MEDIA_FFPROBE!;
+      try {
+        await execFileAsync(process.execPath, [previewScript, outputDir], { env: process.env });
+        const mediaBytes = new Uint8Array(await readFile(join(outputDir, "local-preview.mp4")));
+        const manifest = JSON.parse(await readFile(join(outputDir, "preview-manifest.json"), "utf8")) as {
+          readonly output: { readonly sha256: string; readonly contentType: string };
+        };
+        const { stdout } = await execFileAsync(ffprobe, [
+          "-v", "error", "-count_frames",
+          "-show_entries",
+          "format=format_name:stream=codec_type,codec_name,channels,sample_rate,nb_read_frames,r_frame_rate,avg_frame_rate,time_base,duration_ts,duration",
+          "-of", "json", join(outputDir, "local-preview.mp4"),
+        ]);
+        const observed = JSON.parse(stdout) as {
+          readonly format: { readonly format_name: string };
+          readonly streams: readonly {
+            readonly codec_type: string;
+            readonly channels?: number;
+            readonly sample_rate?: string;
+            readonly nb_read_frames?: string;
+            readonly r_frame_rate?: string;
+            readonly avg_frame_rate?: string;
+            readonly time_base?: string;
+            readonly duration_ts?: string;
+            readonly duration?: string;
+          }[];
+        };
+        const video = observed.streams.find((stream) => stream.codec_type === "video");
+        const audio = observed.streams.filter((stream) => stream.codec_type === "audio");
+        const subtitles = observed.streams.filter((stream) => stream.codec_type === "subtitle");
+        expect(video).toBeDefined();
+        expect(subtitles).toHaveLength(1);
+        const parseRational = (value: string | undefined) => {
+          const [numerator, denominator] = (value ?? "").split("/").map(Number);
+          if (!Number.isSafeInteger(numerator) || !Number.isSafeInteger(denominator)
+            || numerator! < 1 || denominator! < 1) {
+            throw new Error("FFprobe returned an invalid fixture clock");
+          }
+          return { numerator: numerator!, denominator: denominator! };
+        };
+        const frameRate = parseRational(video!.r_frame_rate);
+        const timeBase = parseRational(video!.time_base);
+        const durationTicks = Number(video!.duration_ts);
+        const captionEndTicks = Math.round(Number(subtitles[0]!.duration) * timeBase.denominator / timeBase.numerator);
+        expect(Number.isSafeInteger(durationTicks)).toBe(true);
+        expect(Number.isSafeInteger(captionEndTicks)).toBe(true);
+
+        const captionRef = "captions/local-fixture-preview@v1";
+        const syntheticPlan = orchestrateScenario(scenario({
+          scenarioId: "local-preview-fixture",
+          revision: "synthetic-v1",
+          actors: [],
+          scenes: [{
+            sceneId: "local-preview",
+            sourceRef: {
+              kind: "TERMINAL",
+              sourceIdentity: "local-fixture:recorder-mux-preview",
+              purposeRef: "purpose/local-fixture-only",
+              exactRightsScope: "rights/local-fixture-only",
+              sourceVersionRef: "local-fixture:recorder-mux-preview:v1",
+              secretsRef: "secrets/local-fixture-only",
+              frameClockRef: "clock/local-fixture-video-v1",
+            },
+            actorRefs: [],
+            narration: [],
+            captionRefs: [captionRef],
+            durationMillis: 1_000,
+          }],
+        }));
+        const syntheticRequest = {
+          ...request(),
+          renderId: "local-preview-fixture/v1",
+          plan: syntheticPlan,
+          frameRate,
+          variableFrameRate: video!.r_frame_rate !== video!.avg_frame_rate,
+          timeBase,
+          durationTicks,
+          captions: [{ captionRef, startTicks: 0, endTicks: captionEndTicks }],
+          creditRefs: [],
+          fileName: "local-preview.mp4",
+        };
+        const muxer = {
+          muxAndVerify: async () => ({
+            bytes: mediaBytes,
+            contentType: manifest.output.contentType,
+            probe: {
+              container: observed.format.format_name,
+              frameRate,
+              variableFrameRate: video!.r_frame_rate !== video!.avg_frame_rate,
+              timeBase,
+              durationTicks,
+              decodedFrameCount: Number(video!.nb_read_frames),
+              audioTrackCount: audio.length,
+              narrationTrackRefs: [],
+              captionTrackCount: subtitles.length,
+              captionTimings: [{ captionRef, startTicks: 0, endTicks: captionEndTicks }],
+              creditRefsIncluded: [],
+            },
+          }),
+        };
+        const fixtureAdmission = {
+          admit: async () => ({
+            status: "ADMITTED" as const,
+            decisionRefs: ["local-fixture-only:recorder-preview"],
+          }),
+        };
+        const client = fakeClient();
+
+        const result = await publishFinalRender(syntheticRequest, fixtureAdmission, muxer, client);
+
+        // PUBLISHED is the local function result for this fake client, not a canonical artifact claim.
+        expect(result).toMatchObject({
+          outcome: "PUBLISHED",
+          sha256: manifest.output.sha256,
+          artifact: { artifactId: "artifact-1" },
+        });
+        const createSession = (client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession;
+        expect(createSession.mock.calls[0]?.[0]).toMatchObject({
+          fileName: "local-preview.mp4",
+          contentType: "video/mp4",
+          expectedSizeBytes: mediaBytes.byteLength,
+          expectedSha256: manifest.output.sha256,
+          metadata: { operation: "media.recorder.final-render.v1" },
+        });
+        const uploadPart = (client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart;
+        expect(uploadPart).toHaveBeenCalledOnce();
+        const uploaded = uploadPart.mock.calls[0]?.[2] as Blob;
+        expect(new Uint8Array(await uploaded.arrayBuffer())).toEqual(mediaBytes);
+        expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+          .toHaveBeenCalledOnce();
+      } finally {
+        await rm(parent, { recursive: true, force: true });
+      }
+    },
+  );
+
   it("fails closed when trusted codec/probe or canonical artifact client is absent", async () => {
     const client = fakeClient();
     await expect(publishFinalRender(request(), undefined, muxer, client)).resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("fails closed before authority or artifact effects when no codec/probe host is available", async () => {
+    const client = fakeClient();
+    const admission = { admit: vi.fn(admitted.admit) };
+
+    await expect(publishFinalRender(request(), admission, undefined, client)).resolves.toMatchObject({
+      outcome: "NOT_ADMITTED",
+      reason: expect.stringContaining("codec/probe"),
+    });
+
+    expect(admission.admit).not.toHaveBeenCalled();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
   });
 
   it("snapshots caller-owned rational components once before validation and normalization", async () => {
@@ -946,6 +1114,35 @@ describe("publishFinalRender", () => {
     }) };
     await expect(publishFinalRender(request(), admitted, badMuxer, client)).resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
     expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("rejects decoded CFR frame counts that disagree with the declared rational duration", async () => {
+    const client = fakeClient();
+    const badMuxer = { muxAndVerify: async () => ({
+      ...verifiedContainer(),
+      probe: { ...verifiedContainer().probe, decodedFrameCount: 449 },
+    }) };
+
+    await expect(publishFinalRender(request(), admitted, badMuxer, client))
+      .resolves.toMatchObject({ outcome: "NOT_ADMITTED" });
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("rejects a CFR request whose rational duration does not imply an integer frame count before effects", async () => {
+    const client = fakeClient();
+    const admission = { admit: vi.fn(admitted.admit) };
+    const mux = { muxAndVerify: vi.fn(async () => verifiedContainer()) };
+
+    await expect(publishFinalRender({
+      ...request(),
+      durationTicks: 1,
+    }, admission, mux, client)).rejects.toThrowError(/positive integer frame count/u);
+
+    expect(admission.admit).not.toHaveBeenCalled();
+    expect(mux.muxAndVerify).not.toHaveBeenCalled();
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
   });
 
   it.each([
@@ -1290,6 +1487,34 @@ describe("publishFinalRender", () => {
     expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
     expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
       .not.toHaveBeenCalled();
+  });
+
+  it("does not dispatch render bytes when the created upload session changes retention", async () => {
+    const client = fakeClient({
+      createUploadSession: vi.fn(async () => uploadSession({ retention: "P31D" })),
+    });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "OUTCOME_UNKNOWN",
+      uploadId: "upload-1",
+      reason: expect.stringContaining("does not bind the verified render request"),
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+    expect((client as unknown as { completeUploadSession: ReturnType<typeof vi.fn> }).completeUploadSession)
+      .not.toHaveBeenCalled();
+  });
+
+  it("accepts an equivalent ISO spelling for the created upload session retention", async () => {
+    const client = fakeClient();
+    const createSession = client.createUploadSession.bind(client);
+    (client as unknown as { createUploadSession: (input: Parameters<typeof createSession>[0]) => Promise<unknown> })
+      .createUploadSession = async (input) => ({ ...(await createSession(input)), retention: "PT720H" });
+
+    await expect(publishFinalRender(request(), admitted, muxer, client)).resolves.toMatchObject({
+      outcome: "PUBLISHED",
+      artifact: { artifactId: "artifact-1" },
+    });
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).toHaveBeenCalledOnce();
   });
 
   it("accepts the exact created session when JSON metadata object keys are reordered", async () => {

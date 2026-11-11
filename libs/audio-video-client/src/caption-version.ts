@@ -339,9 +339,17 @@ function isCaptionSnapshot(value: unknown, captionVersionId: string): value is C
   if (!safeInt(snapshot.ticksPerSecond) || snapshot.ticksPerSecond < 1
     || !safeInt(snapshot.sourceDurationTicks)
     || !Array.isArray(snapshot.captionSegments) || snapshot.captionSegments.length === 0
-    || snapshot.captionSegments.length > 4096
-    || !snapshot.captionSegments.every((segment) => isCaptionSegment(segment, snapshot.sourceDurationTicks as number))) {
+    || snapshot.captionSegments.length > 4096) {
     return false;
+  }
+  // Segment IDs are the stable keys used to edit/replay individual caption rows.
+  // A durable snapshot with duplicate IDs cannot be unambiguously reconciled by a client.
+  const segmentIds = new Set<string>();
+  for (const segment of snapshot.captionSegments) {
+    if (!isCaptionSegment(segment, snapshot.sourceDurationTicks as number) || segmentIds.has(segment.segmentId)) {
+      return false;
+    }
+    segmentIds.add(segment.segmentId);
   }
   if (snapshot.languageTag !== undefined && (typeof snapshot.languageTag !== 'string'
     || snapshot.languageTag.trim().length === 0 || snapshot.languageTag.length > 64)) return false;

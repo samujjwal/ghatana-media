@@ -208,6 +208,38 @@ class MediaHttpUploadJourneyTest {
     }
 
     @Test
+    void idempotencyKeyEnforcesDeclaredMaximumBeforeUploadCreation() throws Exception {
+        Path root = Files.createTempDirectory("media-http-upload-key-bound-");
+        MediaRuntime runtime = runtime(root);
+        HttpServer server = null;
+        try {
+            server = server(runtime);
+            byte[] content = "valid-upload".getBytes(StandardCharsets.UTF_8);
+            UploadRequest request = new UploadRequest(TENANT, PRINCIPAL, "source.wav", "audio/wav",
+                    content.length, sha256(content), "INTERNAL", Duration.ofMinutes(10), Map.of());
+            byte[] body = JSON.writeValueAsBytes(request);
+
+            HttpResponse<String> atMaximum = send(base(server), "POST", "/api/v1/artifacts/uploads",
+                    body, PRINCIPAL, PERMISSIONS, "application/json", "k".repeat(255));
+            assertThat(atMaximum.statusCode()).as(atMaximum.body()).isEqualTo(201);
+
+            HttpResponse<String> oversized = send(base(server), "POST", "/api/v1/artifacts/uploads",
+                    body, PRINCIPAL, PERMISSIONS, "application/json", "k".repeat(256));
+            assertThat(oversized.statusCode()).as(oversized.body()).isEqualTo(400);
+            assertThat(oversized.body()).contains("INVALID_REQUEST");
+            try (var uploadFiles = Files.list(root.resolve("uploads"))) {
+                assertThat(uploadFiles.count()).isEqualTo(1);
+            }
+        } finally {
+            if (server != null) server.stop(0);
+            runtime.close();
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
+
+    @Test
     void duplicateJsonPropertiesAreRejectedBeforeUploadCreation() throws Exception {
         Path root = Files.createTempDirectory("media-http-upload-duplicate-json-");
         MediaRuntime runtime = runtime(root);

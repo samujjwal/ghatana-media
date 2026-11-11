@@ -2,7 +2,7 @@ import React from "react";
 import { MediaTaskScreen, type MediaScreenAction, type MediaTaskScreenProps } from "./MediaTaskScreen";
 import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 import { EmptyState } from "../foundations";
-import { MediaActionFeedback, type MediaActionFeedbackValue } from "../components/MediaActionFeedback";
+import { mediaActionFeedbackElement, type MediaActionFeedbackValue } from "../components/MediaActionFeedback";
 import type { MediaActionDispatchResult } from "../ports";
 
 export type FirstUseProjectView =
@@ -38,12 +38,30 @@ interface CreateProjectRequest {
 
 function createProjectRequest(action: MediaScreenAction | undefined): CreateProjectRequest | undefined {
   try {
-    if (!action || typeof action !== "object" || !("payload" in action)) return undefined;
-    const payload = action.payload;
+    if (!action || typeof action !== "object") return undefined;
+    let actionOwner: object | null = action;
+    let payloadDescriptor: PropertyDescriptor | undefined;
+    while (actionOwner && !payloadDescriptor) {
+      payloadDescriptor = Object.getOwnPropertyDescriptor(actionOwner, "payload");
+      if (!payloadDescriptor) actionOwner = Object.getPrototypeOf(actionOwner) as object | null;
+    }
+    if (!payloadDescriptor || !("value" in payloadDescriptor)) return undefined;
+    const payload = payloadDescriptor.value;
     if (!payload || typeof payload !== "object") return undefined;
-    const keys = Object.keys(payload).sort();
+    const descriptors = Object.getOwnPropertyDescriptors(payload);
+    const keys = Object.keys(descriptors)
+      .filter((key) => descriptors[key]?.enumerable)
+      .sort();
     if (keys.length !== 3 || keys[0] !== "requestId" || keys[1] !== "selectedAuthorizedWorkspaceId" || keys[2] !== "title") return undefined;
-    const { selectedAuthorizedWorkspaceId, title, requestId } = payload;
+    const readDataProperty = (key: string): unknown => {
+      const descriptor = descriptors[key];
+      return descriptor?.enumerable && Object.prototype.hasOwnProperty.call(descriptor, "value")
+        ? descriptor.value
+        : undefined;
+    };
+    const selectedAuthorizedWorkspaceId = readDataProperty("selectedAuthorizedWorkspaceId");
+    const title = readDataProperty("title");
+    const requestId = readDataProperty("requestId");
     if (typeof selectedAuthorizedWorkspaceId !== "string" || selectedAuthorizedWorkspaceId.length > 128
       || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(selectedAuthorizedWorkspaceId)) return undefined;
     if (typeof title !== "string" || [...title].length > 200 || !/\S/.test(title)) return undefined;
@@ -151,8 +169,11 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
         <input id="new-project-name" className="media-input" type="text" value={project.projectNameDraft ?? ""}
           disabled={dispatchGuard.isInFlight("media.action.create-project") || !onProjectNameDraftChange || !createAction?.enabled}
           onChange={(event) => onProjectNameDraftChange?.(event.currentTarget.value)} />
-        {createReady && request && <p>Confirm project creation: “{request.title}” in workspace “{project.workspaceName}”.</p>}
-        <button type="button" className="media-action-button media-action-button--primary" disabled={dispatchGuard.isInFlight("media.action.create-project") || !createReady} onClick={() => {
+        {createReady && request && <p id="create-project-confirmation">Confirm project creation: “{request.title}” in workspace “{project.workspaceName}”.</p>}
+        <button type="button" className="media-action-button media-action-button--primary"
+          aria-describedby={createReady ? "create-project-confirmation" : "create-project-unavailable"}
+          aria-busy={createPending ? "true" : undefined}
+          disabled={dispatchGuard.isInFlight("media.action.create-project") || !createReady} onClick={() => {
           if (!createReady || !createAction || !request || !subjectRefs || dispatchGuard.isInFlight("media.action.create-project")) return;
           setCreateFeedback({ state: "pending", message: "Requesting project creation; completion remains unknown until exact owner reconciliation." });
           void (async () => {
@@ -169,8 +190,8 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
             }
           })();
         }}>{createPending ? "Waiting for project outcome…" : createAction?.label ?? "Create project"}</button>
-        {createFeedback && <MediaActionFeedback value={createFeedback} />}
-        {!createReady && <p>Project creation is unavailable until the host confirms the authorized workspace and supplies the exact approved request and reconciliation references.</p>}
+        {createFeedback && mediaActionFeedbackElement(createFeedback)}
+        {!createReady && <p id="create-project-unavailable">Project creation is unavailable until the host confirms the authorized workspace and supplies the exact approved request and reconciliation references.</p>}
       </section>}
     </section>
   </MediaTaskScreen>;

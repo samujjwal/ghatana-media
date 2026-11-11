@@ -28,6 +28,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 /** PostgreSQL-backed durable status and lease counts across job-store recreation. */
 @Testcontainers(disabledWithoutDocker = true)
 class PostgresqlMediaJobStoreMetricsTest {
+    private static final String REQUEST_FINGERPRINT = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
             DockerImageName.parse("postgres:16-alpine"));
@@ -52,9 +54,15 @@ class PostgresqlMediaJobStoreMetricsTest {
 
             ProcessingJob runningAccepted = job("job-running-" + runId, JobStatus.ACCEPTED, 1);
             initial.create(runningAccepted);
-            var running = initial.startAttempt(
-                    runningAccepted, "worker-a", Instant.now().plusSeconds(30), "provider-a").job();
-            expireLease(running);
+            var lease = initial.claim(runningAccepted, "worker-a", Instant.now().plusSeconds(30));
+            ProcessingJob running = new ProcessingJob(
+                    runningAccepted.jobId(), runningAccepted.requestId(), runningAccepted.tenantId(),
+                    runningAccepted.principalId(), runningAccepted.artifactId(), runningAccepted.jobType(),
+                    runningAccepted.providerId(), JobStatus.RUNNING, runningAccepted.createdAt(), Instant.now(),
+                    null, Map.of(), "", runningAccepted.version() + 1,
+                    runningAccepted.expectedArtifactVersion(), runningAccepted.requestFingerprint());
+            var started = initial.startAttempt(runningAccepted, running, lease, 1, REQUEST_FINGERPRINT);
+            expireLease(started.running());
 
             ProcessingJob unknown = job("job-unknown-" + runId, JobStatus.OUTCOME_UNKNOWN, 1);
             initial.create(unknown);
@@ -157,6 +165,7 @@ class PostgresqlMediaJobStoreMetricsTest {
                 "provider-a", status, Instant.now(), null,
                 status == JobStatus.OUTCOME_UNKNOWN ? Instant.now() : null,
                 status == JobStatus.OUTCOME_UNKNOWN ? Map.of("providerOutcome", "UNKNOWN") : Map.of(),
-                status == JobStatus.OUTCOME_UNKNOWN ? "PROCESSING_OUTCOME_UNKNOWN" : "", version);
+                status == JobStatus.OUTCOME_UNKNOWN ? "PROCESSING_OUTCOME_UNKNOWN" : "", version, "",
+                REQUEST_FINGERPRINT);
     }
 }

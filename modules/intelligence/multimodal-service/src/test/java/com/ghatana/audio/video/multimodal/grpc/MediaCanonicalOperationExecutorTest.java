@@ -744,7 +744,7 @@ class MediaCanonicalOperationExecutorTest {
                 if (beginCalls.getAndIncrement() == 0) return open;
                 return new UploadSession(open.uploadId(), open.tenantId(), open.principalId(),
                         open.fileName(), open.contentType(), open.expectedSizeBytes(), open.expectedSha256(),
-                        open.classification(), open.createdAt(), open.expiresAt(), open.expectedSizeBytes(),
+                        open.classification(), open.retention(), open.createdAt(), open.expiresAt(), open.expectedSizeBytes(),
                         1, com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.COMPLETED,
                         open.metadata());
             }
@@ -790,7 +790,7 @@ class MediaCanonicalOperationExecutorTest {
                 if (beginCalls.getAndIncrement() == 0) return open;
                 return new UploadSession(open.uploadId(), open.tenantId(), open.principalId(),
                         open.fileName(), open.contentType(), open.expectedSizeBytes(), open.expectedSha256(),
-                        open.classification(), open.createdAt(), open.expiresAt(), open.expectedSizeBytes(),
+                        open.classification(), open.retention(), open.createdAt(), open.expiresAt(), open.expectedSizeBytes(),
                         1,
                         com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.FINALIZING,
                         open.metadata());
@@ -1132,7 +1132,7 @@ class MediaCanonicalOperationExecutorTest {
             if (beginUploadFailure != null) throw beginUploadFailure;
             return new UploadSession("up-1", request.tenantId(), request.principalId(),
                     request.fileName(), request.contentType(), request.expectedSizeBytes(),
-                    request.expectedSha256(), request.classification(), Instant.now(),
+                    request.expectedSha256(), request.classification(), request.retention(), Instant.now(),
                     Instant.now().plusSeconds(3_600), 0, 0,
                     UploadStatus.OPEN, request.metadata());
         }
@@ -1142,7 +1142,7 @@ class MediaCanonicalOperationExecutorTest {
             UploadRequest request = uploads.peek();
             return new UploadSession(uploadId, authenticated.tenantId(), authenticated.principalId(),
                     request.fileName(), request.contentType(), request.expectedSizeBytes(),
-                    request.expectedSha256(), request.classification(), Instant.now(),
+                    request.expectedSha256(), request.classification(), request.retention(), Instant.now(),
                     Instant.now().plusSeconds(3_600), 0, chunkIndex + 1,
                     UploadStatus.OPEN, request.metadata());
         }

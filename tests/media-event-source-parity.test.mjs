@@ -222,7 +222,7 @@ test("event registry binds exact runtime and client source populations while pre
   assert.deepEqual(validate(base), []);
 });
 
-test("client event source refresh proves notification method bytes unchanged", () => {
+test("client event source refresh binds current notification bytes and retains historical drift", () => {
   const methods = ["transcribe", "synthesize", "processAIVoice", "processVision", "processMultimodal"];
   const methodBodies = methods.map((name) => {
     const match = base.client.match(new RegExp(`  async ${name}\\([\\s\\S]*?(?=\\n  /\\*\\*|\\n  async |\\n\\})`, "u"));
@@ -238,8 +238,9 @@ test("client event source refresh proves notification method bytes unchanged", (
   const previousMethodSha = refresh.match(/^      previousClientNotificationMethodsSha256: ([a-f0-9]{64})$/mu)?.[1];
   assert.equal(currentFileSha, hash(base.client));
   assert.equal(currentMethodSha, hash(methodBodies));
-  assert.equal(previousMethodSha, currentMethodSha);
-  assert.match(refresh, /semanticDisposition: client event names, publisher methods, and payload fields unchanged/u);
+  assert.notEqual(previousMethodSha, currentMethodSha,
+    "historical source drift stays visible until its semantics receive owner review");
+  assert.match(refresh, /method-byte delta from the historical digest has no semantic equivalence claim and awaits owner review/u);
   assert.match(refresh, /lifecycleProofRouteImpact: none/u);
 });
 

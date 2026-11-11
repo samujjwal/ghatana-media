@@ -1,0 +1,57 @@
+{
+  "authoredPrompt" : "A quiet harbor at dawn, authored for this local fixture.",
+  "deterministicSeed" : "994f95597e75c9ef755b9b337bc0965168ec8f6c378ea2587e5d0cc1397ad57d",
+  "disclosure" : "Authored template candidate only. Synthetic local references are fixture data; no model ran, no media was generated, and no project revision was written.",
+  "kind" : "LOCAL_REFERENCE_GUIDED_SCENE_CANDIDATE",
+  "modelAvailability" : "NO_ADMITTED_PROVIDER",
+  "modelDispatch" : "NOT_PERFORMED",
+  "persistence" : "NOT_PERFORMED",
+  "preparation" : "AUTHORED_TEMPLATE_CANDIDATE",
+  "priorContinuity" : {
+    "facts" : [ {
+      "key" : "sailColor",
+      "value" : "blue"
+    } ],
+    "semanticVersion" : "fixture-v1",
+    "stateId" : "continuity-harbor"
+  },
+  "provenance" : [ {
+    "artifactId" : "authored-prompt-01",
+    "artifactVersionId" : "fixture-v1",
+    "role" : "authored-prompt",
+    "sha256" : "02cf2e518fc992dfe32b8eb40bd8fedc3adff2bd99aeaa773dfd05445bccab25"
+  }, {
+    "artifactId" : "authored-template-01",
+    "artifactVersionId" : "fixture-v1",
+    "role" : "authored-template",
+    "sha256" : "364eb923a4aaee694a25275f8a852b4b5fcfce02245de15012cceab91b6ed0f2"
+  }, {
+    "artifactId" : "prior-continuity-01",
+    "artifactVersionId" : "fixture-v1",
+    "role" : "prior-continuity",
+    "sha256" : "71cdac9560bbfcfd2cb6c274e32d3efe7c3f3400f20c41272228f2e606def99f"
+  }, {
+    "artifactId" : "synthetic-reference-video-01",
+    "artifactVersionId" : "fixture-v1",
+    "role" : "reference-video",
+    "sha256" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  } ],
+  "purpose" : "source-conditioned-scene",
+  "renderable" : false,
+  "scope" : {
+    "expectedProjectRevisionId" : "revision-local",
+    "principalId" : "creator-local",
+    "projectId" : "project-local",
+    "sceneId" : "scene-candidate",
+    "tenantId" : "tenant-local"
+  },
+  "template" : {
+    "authoredScene" : "Open on a calm harbor; hold the blue sail in frame.",
+    "continuityFacts" : [ {
+      "key" : "sailColor",
+      "value" : "blue"
+    } ],
+    "templateId" : "template-harbor",
+    "version" : "fixture-v1"
+  }
+}

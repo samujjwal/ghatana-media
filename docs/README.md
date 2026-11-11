@@ -2,6 +2,8 @@
 
 ## Current feature-development execution
 
+For source-composite pnpm installs, see [pnpm source-composite manifest authority](development/PNPM-SOURCE-COMPOSITE-MANIFEST-AUTHORITY.md); sibling `package.json` files remain npm dependency truth when temporary Kernel `package.yaml` projections are present.
+
 **Start with [Usable Surface Delivery](development/USABLE-SURFACE-DELIVERY.md)** and its [structured area/task map](development/surface-delivery.json). It prioritizes functioning libraries, headless APIs and actual host flows, assigns all currently open work exactly once, and requires selective testing without repeated unchanged suites. The older dated November 8 handoff is a status snapshot, not another task universe.
 
 The [Engineering Contract and Work-Start Decisions](development/ENGINEERING-DECISIONS.md) clarify semantic boundaries, independent work start, and [historical content preservation](development/historical-content-preservation.json). The [Remaining Media Development Work](development/REMAINING-WORK.md) and its [structured register](development/remaining-work.json) contain the current owner decisions, fixes and ordered implementation-only tasks. They take precedence over older dated execution packets for feature work.
@@ -10,12 +12,7 @@ The [Media Surface Development Implementation Plan](development/SURFACE-IMPLEMEN
 
 ## Historical build and formal-stage references
 
-The prior planning baseline for Media's post-Discovery **BUILD / Plan Implementation** lane is [Media BUILD Implementation Plan](implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md).
-
-The historical backend engineering slice was the [58-task Wave 2 plan](implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md), covering STT, TTS, Vision, Multimodal and observability. Use the [R7 owner implementation directive](implementation/MEDIA-WAVE2-OWNER-IMPLEMENTATION-DIRECTIVE-2026-10-27.md) for engineering decisions and the [R7 execution schedule](implementation/MEDIA-WAVE2-R7-EXECUTION-SCHEDULE.json) for work selection. The Wave 2 plan retains task acceptance/status ownership; the schedule does not promote a task. [Requirements](REQUIREMENTS.md), [testing](TESTING.md) and [evidence](EVIDENCE.md) distinguish implementation requirements, local checks and formal acceptance.
-
-**Historical implementation handoff (2026-10-22; not the current feature selector):** [PDP-0–3 gtool execution board v2](implementation/MEDIA-PDP0-3-GTOOL-EXECUTION-BOARD.v2.md), [structured 19-task queue](implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json), and [owner-approved scope/protocol](implementation/MEDIA-PDP0-3-GTOOL-OWNER-APPROVED-EXECUTION.md). These describe dependency ordering, per-surface advancement and parallel native closure. They are **execution coordination records**, subordinate to source PDP and the canonical Build plan, not another project task authority or fake `KCRIT-PLAN-READY` proof. The Lifecycle OOB method v2 adds declarative PDP3 narrated recording artifact vocabulary; actual source-owner recording admission and transition host integration remain explicit work.
- Its [exact source-identity trace](implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json) is a subordinate read-only planning appendix, not a second product-definition or runtime authority. The plan targets all shared foundations before all 30 PDP-3 end-to-end journeys and the Recorder/Studio/Player consumers. It is source-bound planning, **not** runtime implementation, independent PDP closure or release qualification.
+The historical **BUILD / Plan Implementation**, backend Wave 2 and PDP/gtool execution packets are collected in the [historical implementation index](implementation/README.md). The maintained feature-development references above remain the current selectors.
 
 ## Product definition source
 
@@ -31,6 +28,7 @@ The canonical editable Media product-definition root is [`.product-experience/`]
 | Product API and provider boundaries | [OpenAPI](../contracts/openapi/media.yaml), [route manifest](../config/route-manifest.json), [surface registry](../.product-experience/surface-registry.yaml) |
 | Clients and screen experiences | [Media SDK](../libs/audio-video-client/README.md), [Media Explorer](../apps/media-experience-explorer/README.md), [screen registry](../.product-experience/pdp-3-product-experience/screen-registry.yaml) |
 | Machine-only operation experiences | [CLI registry](../.product-experience/pdp-3-product-experience/cli/command-registry.yaml), [Agent Tool registry](../.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml), [events](../.product-experience/pdp-1-domain-data/events.yaml) |
+| Source-free storyboard draft example | [Runnable consumer guide](../examples/media-storyboard-draft/README.md); it emits a local, non-persisted, non-renderable authored plan candidate |
 | Test, debug or operate | [Testing](TESTING.md), [examples](EXAMPLES.md), [operations](OPERATIONS.md), [verification history](EVIDENCE.md) |
 | Check tracked-file hygiene and retired code | [Repository hygiene](REPOSITORY-HYGIENE.md), `pnpm audit:repository-hygiene` |
 | Privacy, qualification and source transfer | [Privacy/retention](MEDIA_PRIVACY_AND_RETENTION_POLICY.md), [qualification](qualification/R-05-release-profile-admission.md), [migration status](migration/repository-preparation-status.md) |
@@ -62,4 +60,4 @@ There is no active `service-contract.yaml`. The source-specific wire authorities
 
 ## Historical records
 
-Dated plans, migration records, and verification logs preserve provenance. They are not live task queues or product-definition authorities unless a current source manifest explicitly assigns that role. Do not infer current status from an old report, commit, heading, checklist, or filename.
+Dated plans, migration records, and verification logs preserve provenance. See the [historical implementation index](implementation/README.md) for the legacy execution packets and the preservation inventory. These records are not live task queues or product-definition authorities unless a current source manifest explicitly assigns that role. Do not infer current status from an old report, commit, heading, checklist, or filename.

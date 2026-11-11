@@ -46,6 +46,7 @@ describe("package surface", () => {
     expect(typeof camera.CameraCaptureError).toBe("function");
     const packageRootExports = await import("@audio-video/client");
     expect(typeof packageRootExports.CameraCaptureAdapter).toBe("function");
+    expect(typeof packageRootExports.createBrowserCameraCaptureAdapter).toBe("function");
     expect(typeof packageRootExports.OfflineReconnectCoordinator).toBe("function");
     const recorder = await import("@audio-video/client/recorder-orchestrator");
     expect(typeof recorder.orchestrateScenario).toBe("function");
@@ -54,10 +55,14 @@ describe("package surface", () => {
     expect(typeof production.compileProductionPlan).toBe("function");
     const offlineReconnect = await import("@audio-video/client/offline-reconnect");
     expect(typeof offlineReconnect.OfflineReconnectCoordinator).toBe("function");
+    const devCancellation = await import("@audio-video/client/dev-job-cancellation");
+    expect(typeof devCancellation.MediaDevOnlyJobCancellationClient).toBe("function");
     // The CJS files are emitted independently and keep Node <22 consumers supported.
     const require = createRequire(resolve(packageRoot, "package.json"));
     const cjs = require("./dist-cjs/canonical-operations.js") as Record<string, unknown>;
     expect(typeof cjs.createMediaCanonicalClient).toBe("function");
+    const devCancellationCjs = require("./dist-cjs/dev-job-cancellation.js") as Record<string, unknown>;
+    expect(typeof devCancellationCjs.MediaDevOnlyJobCancellationClient).toBe("function");
   });
 
   it("no source file imports monorepo-private paths outside the package", () => {

@@ -267,6 +267,37 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void deliveryFingerprintExcludesRequestIdWhileLedgerAndReceiptIdentityRemainDistinct() {
+        Fixture f = new Fixture();
+        byte[] content = bytes(16);
+        Artifact artifact = new Artifact("tenant:1", "artifact:1", "version:1",
+                MediaCreationContracts.sha256(content), content);
+        ExportRequest first = new ExportRequest("tenant:1", "principal:1", "request:1", artifact,
+                "destination:1");
+        ExportRequest second = new ExportRequest("tenant:1", "principal:1", "request:2", artifact,
+                "destination:1");
+        ExportRequest differentDestination = new ExportRequest("tenant:1", "principal:1", "request:3", artifact,
+                "destination:2");
+
+        f.engine.enqueue(first);
+        f.engine.enqueue(second);
+        f.engine.enqueue(differentDestination);
+
+        String firstFingerprint = f.operations.find("tenant:1", "request:1").orElseThrow().requestFingerprint();
+        String secondFingerprint = f.operations.find("tenant:1", "request:2").orElseThrow().requestFingerprint();
+        String destinationFingerprint = f.operations.find("tenant:1", "request:3").orElseThrow().requestFingerprint();
+        assertThat(firstFingerprint).isEqualTo(secondFingerprint);
+        assertThat(destinationFingerprint).isNotEqualTo(firstFingerprint);
+        assertThat(f.operations.find("tenant:1", "request:1")).get()
+                .extracting(DeliveryOperationStore.Operation::requestId, DeliveryOperationStore.Operation::status)
+                .containsExactly("request:1", Status.QUEUED);
+        assertThat(f.operations.find("tenant:1", "request:2")).get()
+                .extracting(DeliveryOperationStore.Operation::requestId, DeliveryOperationStore.Operation::status)
+                .containsExactly("request:2", Status.QUEUED);
+        assertThat(f.destination.sendCount).isZero();
+    }
+
+    @Test
     void durableReadbackRejectsDelimiterCollisionInArtifactAndVersionScope() {
         Fixture f = new Fixture();
         byte[] content = bytes(16);
@@ -488,6 +519,31 @@ class MediaDeliveryEngineTest {
         f.destination.omitFinalReceipt = true;
         DeliveryResult result = f.engine.export(f.request(bytes(16)));
         assertThat(result.status()).isEqualTo(Status.OUTCOME_UNKNOWN);
+        assertThat(f.destination.sendCount).isEqualTo(1);
+    }
+
+    @Test
+    void callerCanObserveQueuedBeforeDispatchAndConfirmationRequiresDestinationReceipt() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(32));
+
+        DeliveryResult queued = f.engine.enqueue(request);
+        assertThat(queued.status()).isEqualTo(Status.QUEUED);
+        assertThat(f.operations.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryOperationStore.Operation::status,
+                        DeliveryOperationStore.Operation::acknowledgedBytes,
+                        DeliveryOperationStore.Operation::destinationReceiptRef)
+                .containsExactly(Status.QUEUED, 0, null);
+        assertThat(f.destination.sendCount).isZero();
+
+        assertThat(f.engine.enqueue(request)).isEqualTo(queued);
+        assertThat(f.destination.sendCount).isZero();
+
+        DeliveryResult confirmed = f.engine.dispatch(request);
+        assertThat(confirmed.status()).isEqualTo(Status.DESTINATION_CONFIRMED);
+        assertThat(confirmed.acknowledgedBytes()).isEqualTo(request.artifact().size());
+        assertThat(confirmed.destinationReceiptRef()).contains("destination-receipt:1");
+        assertThat(f.engine.dispatch(request)).isEqualTo(confirmed);
         assertThat(f.destination.sendCount).isEqualTo(1);
     }
 

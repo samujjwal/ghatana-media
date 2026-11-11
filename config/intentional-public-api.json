@@ -213,6 +213,33 @@
           "NFR-OBS-001",
           "NFR-SLO-001"
         ]
+      },
+      {
+        "surface": "services/media/modules/production/review",
+        "selector": "type-family:com.ghatana.media.production.review.*",
+        "classification": "requirements",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-PROJECT"
+        ]
+      },
+      {
+        "surface": "services/media/modules/production/delivery",
+        "selector": "type-family:com.ghatana.media.production.delivery.*",
+        "classification": "requirements",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-ARTIFACT"
+        ]
+      },
+      {
+        "surface": "services/media/modules/production/rendering",
+        "selector": "type-family:com.ghatana.media.production.rendering.*",
+        "classification": "requirements",
+        "requirementIds": [
+          "MEDIA-REQ-CAP-PROJECT",
+          "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+          "MEDIA-REQ-CAP-QUALITY",
+          "MEDIA-REQ-CAP-QUALITY-VIDEO"
+        ]
       }
     ],
     "typescript": []

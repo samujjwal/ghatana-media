@@ -6,6 +6,8 @@ import com.ghatana.media.runtime.MediaCaptionContracts.MediaCaptionStore;
 import com.ghatana.media.runtime.MediaCaptionContracts.Registered;
 import com.ghatana.media.runtime.MediaCaptionContracts.RegistrationRequest;
 import com.ghatana.media.runtime.MediaCaptionContracts.RegistrationResult;
+import com.ghatana.media.runtime.MediaCaptionContracts.RegistrationAuthority;
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
 import com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore;
 
@@ -127,12 +129,31 @@ final class MediaCaptionRuntime implements AutoCloseable {
     List<Registered> versions(String tenantId, String principalId,
                               String sourceArtifactId, String sourceArtifactVersionId) {
         if (closed.get()) throw new IllegalStateException("Media caption runtime is closed");
+        requireCurrentReadAuthority(tenantId, principalId, sourceArtifactId, sourceArtifactVersionId);
         return captionStore.versions(tenantId, principalId, sourceArtifactId, sourceArtifactVersionId);
     }
 
     Optional<CaptionVersionSnapshot> version(String tenantId, String principalId, String captionVersionId) {
         if (closed.get()) throw new IllegalStateException("Media caption runtime is closed");
-        return captionStore.version(tenantId, principalId, captionVersionId);
+        Optional<CaptionVersionSnapshot> snapshot = captionStore.version(tenantId, principalId, captionVersionId);
+        snapshot.ifPresent(value -> requireCurrentReadAuthority(tenantId, principalId,
+                value.sourceArtifactId(), value.sourceArtifactVersionId()));
+        return snapshot;
+    }
+
+    private void requireCurrentReadAuthority(String tenantId, String principalId, String sourceArtifactId,
+                                            String sourceArtifactVersionId) {
+        RegistrationAuthority.Decision decision = new MediaCaptionRegistrationAuthority(rightsAdministration, clock)
+                .check(new RegistrationAuthority.AuthorityCheck(tenantId, principalId, sourceArtifactId,
+                        sourceArtifactVersionId, null, null));
+        if (decision == RegistrationAuthority.Decision.DENIED) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED, "caption-version-read");
+        }
+        if (decision == RegistrationAuthority.Decision.UNAVAILABLE) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE, "caption-version-read");
+        }
     }
 
     @Override

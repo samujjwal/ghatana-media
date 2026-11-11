@@ -162,7 +162,6 @@ componentFamilyCrosswalk:
 
   publicExportEvidence:
   - libs/audio-video-ui/package.json#./components
-  - libs/audio-video-ui/src/index.tsx#export*from-components
   - libs/audio-video-ui/src/components/index.ts#MediaTaskFlow
   actualConsumers:
   - libs/audio-video-ui/src/screens/MediaTaskScreen.tsx
@@ -673,7 +672,6 @@ componentFamilyCrosswalk:
 
   publicExportEvidence:
   - libs/audio-video-ui/package.json#./components
-  - libs/audio-video-ui/src/index.tsx#export*from-components
   - libs/audio-video-ui/src/components/index.ts#MediaProgress
   actualConsumers:
   - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
@@ -1184,7 +1182,7 @@ ecosystemReuseReview:
     finding: Media package already depends on and re-exports Shared tokens. Current Media stylesheet deliberately uses browser/OS system colors; the audited Shared token CSS and ui-styles recipes still have no exact variable-name matches or admitted semantic/unit bridge. Do not synthesize aliases in Media.
     evidence:
     - libs/audio-video-ui/package.json
-    - libs/audio-video-ui/src/index.tsx
+    - libs/audio-video-ui/src/index.ts
     - libs/audio-video-ui/src/styles.css
     - .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview
   - package: "@ghatana/theme"

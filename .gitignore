@@ -35,6 +35,7 @@ venv/
 .model-cache/
 model-cache/
 local-models/
+.local-test-pass-cache/
 
 # Editor and OS files
 .idea/

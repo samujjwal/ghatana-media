@@ -8,12 +8,14 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
+import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -467,8 +469,15 @@ class MediaRuntimeActiveTest {
                 assertThatThrownBy(() -> streamRuntime.acceptFrame(new StreamFrame(
                         "tenant-a", registration.session().sessionId(), registration.connectionToken(),
                         0, "12345".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
-                        .isInstanceOf(IllegalStateException.class)
-                        .hasMessageContaining("buffer limit");
+                        .isInstanceOf(MediaStreamOutcomeUnknownException.class)
+                        .satisfies(failure -> assertThat(failure.getCause())
+                                .isInstanceOf(IllegalStateException.class)
+                                .hasMessageContaining("buffer limit"));
+                var uncertain = streamRuntime.stream(
+                        "tenant-a", "principal-a", registration.session().sessionId()).orElseThrow();
+                assertThat(uncertain.finality()).isEqualTo(StreamFinality.UNKNOWN);
+                assertThat(uncertain.lastSequence()).isEqualTo(registration.session().lastSequence());
+                assertThat(uncertain.inFlightSequence()).isEqualTo(0L);
             } finally {
                 streamRuntime.close();
             }
@@ -775,12 +784,24 @@ class MediaRuntimeActiveTest {
             assertThat(uploadDto.properties().stream().map(Map.Entry::getKey)
                     .collect(java.util.stream.Collectors.toSet()))
                     .containsExactlyInAnyOrder("uploadId", "tenantId", "principalId", "fileName", "contentType",
-                            "expectedSizeBytes", "expectedSha256", "classification", "createdAt", "expiresAt",
+                            "expectedSizeBytes", "expectedSha256", "classification", "retention", "createdAt", "expiresAt",
                             "bytesReceived", "nextChunkIndex", "status", "metadata");
             assertThat(uploadDto.path("status").asString()).isEqualTo("OPEN");
+            assertThat(uploadDto.path("retention").asString()).isEqualTo("PT1M");
+            Instant createdAt = Instant.parse(uploadDto.path("createdAt").asString());
+            Instant transferExpiry = Instant.parse(uploadDto.path("expiresAt").asString());
+            assertThat(Duration.between(createdAt, transferExpiry))
+                    .isBetween(Duration.ofMinutes(59), Duration.ofMinutes(61));
             assertThat(uploadDto.path("expectedSha256").asString()).matches("[a-f0-9]{64}");
             assertThat(uploadDto.path("expectedSizeBytes").asLong()).isEqualTo(1L);
             String uploadId = uploadDto.path("uploadId").asString();
+            var observed = client.send(java.net.http.HttpRequest.newBuilder(
+                            java.net.URI.create(endpoint + "/api/v1/artifacts/uploads/" + uploadId))
+                    .header("X-Tenant-Id", "tenant-http")
+                    .header("X-Principal-Id", "principal-a")
+                    .GET().build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(observed.statusCode()).isEqualTo(200);
+            assertThat(mapper.readTree(observed.body()).path("retention").asString()).isEqualTo("PT1M");
             var replay = client.send(java.net.http.HttpRequest.newBuilder(
                             java.net.URI.create(endpoint + "/api/v1/artifacts/uploads"))
                     .header("Content-Type", "application/json")
@@ -912,13 +933,26 @@ class MediaRuntimeActiveTest {
                     .header("Content-Type", "application/octet-stream")
                     .header("X-Tenant-Id", tenant)
                     .header("X-Principal-Id", principal)
-                    .header("X-Stream-Token", "wrong-stream-token")
+                    .header("X-Stream-Token", "x".repeat(32))
                     .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(new byte[] { 8 }))
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(wrongToken.statusCode()).as("wrong-token frame response: %s", wrongToken.body())
                     .isEqualTo(403);
             assertThat(mapper.readTree(wrongToken.body()).path("error").path("code").asString()).isNotBlank();
-            assertThat(wrongToken.body()).doesNotContain("wrong-stream-token");
+            assertThat(wrongToken.body()).doesNotContain("x".repeat(32));
+
+            var malformedToken = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId + "/frames/1"))
+                    .header("Content-Type", "application/octet-stream")
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .header("X-Stream-Token", "short")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(new byte[] { 8 }))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(malformedToken.statusCode()).as("malformed-token response: %s", malformedToken.body())
+                    .isEqualTo(400);
+            assertThat(mapper.readTree(malformedToken.body()).path("error").path("code").asString())
+                    .isEqualTo("INVALID_REQUEST");
 
             byte[] oversizedPcm = new byte[17];
             var oversized = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(

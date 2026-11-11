@@ -253,7 +253,18 @@ public final class MediaToolExecutionBinder {
             return Promise.ofException(new InvocationReplayDeniedException());
         }
 
-        RequestIdentity identity = RequestIdentity.from(envelope);
+        // Bind the request fingerprint and dispatch to the same immutable input
+        // tree. ToolExecutionEnvelope does not make nested maps/lists immutable,
+        // so retaining the caller-owned input would leave a TOCTOU gap between
+        // identity calculation and the delegate's read of the request.
+        final ToolExecutionEnvelope boundEnvelope;
+        final RequestIdentity identity;
+        try {
+            boundEnvelope = snapshotEnvelope(envelope);
+            identity = RequestIdentity.from(boundEnvelope);
+        } catch (RuntimeException invalidInput) {
+            return Promise.ofException(invalidInput);
+        }
         final boolean authorized;
         try {
             authorized = replayAuthorizer.mayReplay(authenticated, identity);
@@ -262,7 +273,7 @@ public final class MediaToolExecutionBinder {
         }
         if (!authorized) return Promise.ofException(new InvocationReplayDeniedException());
 
-        LogicalAction fence = new LogicalAction(envelope.invocationId(), identity,
+        LogicalAction fence = new LogicalAction(boundEnvelope.invocationId(), identity,
                 LogicalOutcome.OUTCOME_UNKNOWN, null);
         final ClaimResult claim;
         try {
@@ -274,14 +285,14 @@ public final class MediaToolExecutionBinder {
         if (claim == ClaimResult.ALREADY_CLAIMED) {
             final Optional<LogicalAction> prior;
             try {
-                prior = ledger.find(envelope.invocationId());
+                prior = ledger.find(boundEnvelope.invocationId());
             } catch (RuntimeException unavailableReadback) {
                 return Promise.ofException(new InvocationClaimUnavailableException());
             }
             if (prior == null || prior.isEmpty()) {
                 return Promise.ofException(new InvocationClaimUnavailableException());
             }
-            return replay(prior.get(), identity, envelope, authenticated);
+            return replay(prior.get(), identity, boundEnvelope, authenticated);
         }
         if (claim != ClaimResult.CLAIMED) {
             return Promise.ofException(new InvocationClaimUnavailableException());
@@ -289,10 +300,51 @@ public final class MediaToolExecutionBinder {
 
         // The durable UNKNOWN fence exists before this effect boundary. Any
         // dispatch/completion ambiguity retains that fence, preventing replay.
-        return AgentToolInput.dispatch(delegate, envelope, contract)
-                .map(result -> finishIfTerminal(result, identity, envelope))
+        return AgentToolInput.dispatch(delegate, boundEnvelope, contract)
+                .map(result -> finishIfTerminal(result, identity, boundEnvelope))
                 .mapException(failure -> failure instanceof OutcomeUnknownException
-                        ? failure : unknown(envelope));
+                        ? failure : unknown(boundEnvelope));
+    }
+
+    private static ToolExecutionEnvelope snapshotEnvelope(ToolExecutionEnvelope envelope) {
+        var nodeCount = new int[1];
+        @SuppressWarnings("unchecked")
+        Map<String, Object> input = (Map<String, Object>) snapshotValue(envelope.input(), 0, nodeCount);
+        return new ToolExecutionEnvelope(envelope.invocationId(), envelope.toolId(), envelope.toolVersion(),
+                envelope.callerAgentId(), envelope.callerReleaseId(), envelope.tenantId(), envelope.actionClass(),
+                envelope.requestSchemaVersion(), input, envelope.requestedAt());
+    }
+
+    private static Object snapshotValue(Object value, int depth, int[] nodeCount) {
+        if (++nodeCount[0] > InputFingerprintWriter.MAX_NODES || depth > InputFingerprintWriter.MAX_DEPTH) {
+            throw new IllegalArgumentException("TOOL_INPUT_IDENTITY_TOO_LARGE");
+        }
+        if (value == null || value instanceof String || value instanceof Boolean
+                || InputFingerprintWriter.isSupportedNumber(value)) {
+            return value;
+        }
+        if (value instanceof Map<?, ?> map) {
+            if (map.size() > InputFingerprintWriter.MAX_NODES - nodeCount[0]) {
+                throw new IllegalArgumentException("TOOL_INPUT_IDENTITY_TOO_LARGE");
+            }
+            var copy = new java.util.LinkedHashMap<String, Object>(map.size());
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (!(entry.getKey() instanceof String key)) {
+                    throw new IllegalArgumentException("INVALID_TOOL_INPUT_KEY");
+                }
+                copy.put(key, snapshotValue(entry.getValue(), depth + 1, nodeCount));
+            }
+            return java.util.Collections.unmodifiableMap(copy);
+        }
+        if (value instanceof java.util.List<?> list) {
+            if (list.size() > InputFingerprintWriter.MAX_NODES - nodeCount[0]) {
+                throw new IllegalArgumentException("TOOL_INPUT_IDENTITY_TOO_LARGE");
+            }
+            var copy = new java.util.ArrayList<Object>(list.size());
+            for (Object child : list) copy.add(snapshotValue(child, depth + 1, nodeCount));
+            return java.util.Collections.unmodifiableList(copy);
+        }
+        throw new IllegalArgumentException("INVALID_TOOL_INPUT_VALUE");
     }
 
     private Promise<ToolExecutionResult> replay(

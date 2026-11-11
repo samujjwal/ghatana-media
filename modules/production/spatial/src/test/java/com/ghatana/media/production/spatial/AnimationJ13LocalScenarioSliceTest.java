@@ -30,7 +30,7 @@ class AnimationJ13LocalScenarioSliceTest {
                     SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
 
     @Test
-    void authoredRigPreservesWorldCoordinatesAndKinematicsForExactAuthorizedSource() {
+    void localFixtureComposesParentChildPoseInDeclaredFrameForEligibleSource() {
         var engine = new SpatialRigEngine();
         var rig = authoredRig();
         var checkedSources = new java.util.ArrayList<SpatialRigEngine.SourceVersionRef>();
@@ -48,6 +48,8 @@ class AnimationJ13LocalScenarioSliceTest {
         assertThat(result.outputScope()).isEqualTo("POSE_ONLY");
         assertThat(result.encodedSpatialOutputAvailable()).isFalse();
 
+        // These expectations come from test-authored local transforms in GLB_FRAME;
+        // they do not establish an external coordinate registry or real-world accuracy.
         var root = result.bones().get("root");
         assertThat(root.position().x()).isCloseTo(2.0, org.assertj.core.data.Offset.offset(1e-12));
         assertThat(root.position().y()).isCloseTo(0.0, org.assertj.core.data.Offset.offset(1e-12));

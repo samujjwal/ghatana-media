@@ -72,6 +72,44 @@ class J19QualityOutcomeScenarioTest {
     }
 
     @Test
+    void cancellationAfterCandidateDispatchRetainsKnownRevisionsWithoutReport() {
+        Revision source = revision("source", "v1", "a", 40);
+        Revision candidateRevision = revision("candidate", "v2", "b", 25);
+        AtomicInteger referenceReads = new AtomicInteger();
+        CandidatePort candidate = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return true; }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input,
+                    int attempt, Budget budget) {
+                Thread.currentThread().interrupt();
+                return OptimizationAttempt.available(candidateRevision);
+            }
+        };
+
+        boolean wasInterrupted = Thread.currentThread().isInterrupted();
+        try {
+            Run cancelled = optimize(OPERATION, source, (id, purpose) -> allowed("fixture-source-rights"),
+                    candidate, 1, BOUNDS,
+                    Optional.of(new ReferenceRequest(revision("reference", "v1", "c", 20).id(),
+                            "quality-comparison")),
+                    (id, purpose) -> allowed("fixture-reference-rights"), id -> {
+                        referenceReads.incrementAndGet();
+                        return revision("reference", "v1", "c", 20);
+                    });
+
+            assertThat(cancelled.status()).isEqualTo(RunStatus.CANCELLED);
+            assertThat(cancelled.reason()).contains(BlockReason.CANCELLED);
+            assertThat(cancelled.report()).isEmpty();
+            assertThat(cancelled.retainedRevisions()).containsExactly(source, candidateRevision);
+            assertThat(cancelled.attemptsUsed()).isEqualTo(1);
+            assertThat(referenceReads).hasValue(0);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        } finally {
+            Thread.interrupted();
+            if (wasInterrupted) Thread.currentThread().interrupt();
+        }
+    }
+
+    @Test
     void ambiguousSecondAttemptRetainsOnlyExactRevisionsAndPreservesSourceUndoPath() {
         Revision source = revision("source", "v1", "a", 40);
         Revision candidate = revision("candidate", "v2", "b", 25);

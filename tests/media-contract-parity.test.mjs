@@ -682,10 +682,11 @@ test("semantic candidates never contradict the HTTP and gRPC typed role disposit
     "TTSService.CreateProfile", "TTSService.GetProfile", "TTSService.UpdateProfile",
   ]);
   assert.deepEqual(inlineList(typedGrpc, "unimplementedEndpoint"), ["TTSService.SubmitFeedback"]);
-  assert.equal(grpcUnresolvedRoleIds.length, 0, "all remaining profile/feedback identities have explicit source-backed role dispositions");
+  assert.deepEqual(grpcUnresolvedRoleIds, ["VisionService.ResolveSourceFrame"],
+    "the new source-frame read remains unresolved until its owner defines the operation/query identity");
   assert.equal(grpcRoleOnly.some((identity) => grpcCandidateIds.includes(identity)), false,
     "transport-only/provider-admin gRPC identities cannot be proposed as domain operations");
-  assert.match(grpcSurface, /dispositionCounts:\s*\{\s*mappedProposal: 18,\s*transportOnly: 8,\s*providerAdmin: 10,\s*legacyProviderProfileAdmin: 3,\s*unimplementedEndpoint: 1,\s*ownerAdapterRequired: 4,\s*unresolved: 0\s*\}/u);
+  assert.match(grpcSurface, /dispositionCounts:\s*\{\s*mappedProposal: 18,\s*transportOnly: 8,\s*providerAdmin: 10,\s*legacyProviderProfileAdmin: 3,\s*unimplementedEndpoint: 1,\s*ownerAdapterRequired: 4,\s*unresolved: 1\s*\}/u);
 
   const grpcSource = operations.match(/^  grpcRpcs:\n([\s\S]*?)(?=^  cliSimulationCommands:)/mu)?.[1];
   assert.ok(grpcSource, "PDP-1 gRPC source observation section exists");

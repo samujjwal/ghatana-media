@@ -19,6 +19,7 @@ const validInstant = (value) => {
     && date.getUTCHours() === hour && date.getUTCMinutes() === minute && date.getUTCSeconds() === second;
 };
 const nonblank = (value) => typeof value === "string" && value.trim().length > 0;
+const nonblankStrings = (values) => Array.isArray(values) && values.every(nonblank);
 const exact = (left, right) => typeof left === "string" && nonblank(left) && left === right;
 const ajv = new Ajv2020({ allErrors: true, strict: false, validateFormats: true });
 addFormats(ajv);
@@ -72,6 +73,7 @@ export function validateCurrentErasureHoldObservation(observation, expected) {
 /** Definition oracle only: restored-copy replay cannot cross tenant/object/version/tombstone identity. */
 export function validateCurrentErasureRestoreReplay(observation, expected) {
   return Boolean(restoreReplayIsValid(observation)
+    && nonblankStrings(observation.evidenceRefs)
     && exact(observation.tenantRef, expected?.tenantRef)
     && exact(observation.objectRef, expected?.objectRef)
     && exact(observation.artifactVersionRef, expected?.artifactVersionRef)
@@ -99,16 +101,30 @@ export function classifyErasureOutcome(input) {
   if (!input || !input.expected || !input.inventory || !input.holdAssessment) return unknown("required current evidence is missing");
   const { expected, inventory, holdAssessment, restorePathInventory, restorePaths = [], restoreReplays = [], currentReadReceipt, tombstoneRecord } = input;
   if (!validateCurrentErasureInventoryObservation(inventory, expected)) return unknown("inventory tuple is malformed or does not match the expected subject/read");
-  if (!holdAssessmentIsValid(holdAssessment) || !sameSubject(holdAssessment, expected)) return unknown("hold assessment is malformed or does not match the expected subject");
+  if (!holdAssessmentIsValid(holdAssessment) || !sameSubject(holdAssessment, expected)
+    || !nonblankStrings(holdAssessment.holdRefs) || !nonblankStrings(holdAssessment.evidenceRefs)) {
+    return unknown("hold assessment or its exact owner evidence is malformed or does not match the expected subject");
+  }
   if (!tombstoneRecordIsValid(tombstoneRecord) || !sameSubject(tombstoneRecord, expected)
     || !exact(tombstoneRecord.tombstoneRef, input.tombstoneRef)
     || !exact(tombstoneRecord.erasureRequestRef, expected.erasureRequestRef)
+    || !nonblank(tombstoneRecord.policyDecisionRef)
     || !sameStringSet(tombstoneRecord.copyRefs, inventory.copyEntries.map(({ copyRef }) => copyRef))) {
     return unknown("exact request-bound tombstone record, durable revision, or affected copy set is missing or mismatched");
   }
-  if (!restorePathInventoryIsValid(restorePathInventory) || !sameSubject(restorePathInventory, expected)) return unknown("restore-path inventory is missing or does not match the expected subject");
-  if (!Array.isArray(restorePaths) || !Array.isArray(restoreReplays) || !restorePaths.every(restorePathIsValid)) return unknown("restore-path evidence is malformed");
+  if (!restorePathInventoryIsValid(restorePathInventory) || !sameSubject(restorePathInventory, expected)
+    || !nonblankStrings(restorePathInventory.pathRefs) || !nonblankStrings(restorePathInventory.evidenceRefs)) {
+    return unknown("restore-path inventory or its exact owner evidence is missing or malformed");
+  }
+  if (!Array.isArray(restorePaths) || !Array.isArray(restoreReplays) || !restorePaths.every((path) =>
+    restorePathIsValid(path) && nonblank(path.restorePathRef) && nonblank(path.restoreAuthorityRef)
+    && nonblank(path.restoreRevisionRef) && nonblankStrings(path.copyRefs))) {
+    return unknown("restore-path evidence is malformed");
+  }
   if (!currentReadReceiptIsValid(currentReadReceipt) || !sameSubject(currentReadReceipt, expected)
+    || !nonblankStrings(currentReadReceipt.evidenceRefs)
+    || !currentReadReceipt.restorePathReads.every((row) => nonblank(row.restorePathRef)
+      && nonblank(row.readAuthorityRef) && nonblank(row.readVersionRef))
     || !exact(currentReadReceipt.decisionBoundaryRef, expected.decisionBoundaryRef)
     || !exact(currentReadReceipt.inventoryRead.readAuthorityRef, inventory.readAuthorityRef)
     || !exact(currentReadReceipt.inventoryRead.readVersionRef, inventory.readVersionRef)

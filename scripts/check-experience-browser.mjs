@@ -173,6 +173,25 @@ async function gotoHash(page, hash) {
   await page.waitForTimeout(30);
 }
 
+async function explorerPhaseBadgeLayout(page) {
+  return page.locator("#phase-tab-explorer").evaluate((button) => {
+    const badge = button.querySelector("span");
+    const label = button.querySelector("strong");
+    if (!badge || !label) throw new Error("Explorer phase tab is missing its badge or label.");
+    const badgeText = document.createRange();
+    badgeText.selectNodeContents(badge);
+    const badgeRect = badgeText.getBoundingClientRect();
+    const labelRect = label.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    return {
+      viewportWidth: window.innerWidth,
+      badgeText: { left: badgeRect.left, right: badgeRect.right },
+      label: { left: labelRect.left, right: labelRect.right },
+      button: { left: buttonRect.left, right: buttonRect.right },
+    };
+  });
+}
+
 async function screenshot(page, name) {
   await page.screenshot({ path: resolve(artifactDirectory, `${name}.png`), fullPage: false });
 }
@@ -616,6 +635,11 @@ try {
   await gotoHash(page, "#explore");
   await screenshot(page, "explore-desktop");
   await gotoHash(page, "#specification");
+  const desktopExplorerPhaseLayout = await explorerPhaseBadgeLayout(page);
+  if (desktopExplorerPhaseLayout.badgeText.right > desktopExplorerPhaseLayout.label.left
+      || desktopExplorerPhaseLayout.label.right > desktopExplorerPhaseLayout.button.right) {
+    fail("explorer-phase-badge-layout", "badge/label overlap or overflow at 1280px: " + JSON.stringify(desktopExplorerPhaseLayout));
+  }
   await screenshot(page, "specification-desktop");
   await gotoHash(page, "#verify");
   await screenshot(page, "verify-desktop");
@@ -626,6 +650,13 @@ try {
   await gotoHash(page, "#explore");
   await screenshot(page, "explore-narrow-mobile");
   await gotoHash(page, "#specification");
+  const mobileExplorerPhaseLayout = await explorerPhaseBadgeLayout(page);
+  if (mobileExplorerPhaseLayout.badgeText.right > mobileExplorerPhaseLayout.label.left
+      || mobileExplorerPhaseLayout.label.right > mobileExplorerPhaseLayout.button.right
+      || mobileExplorerPhaseLayout.button.right > 320) {
+    fail("explorer-phase-badge-layout", "badge/label overlap or overflow at 320px: " + JSON.stringify(mobileExplorerPhaseLayout));
+  }
+  observations.push("Explorer phase badge text and label remain separated and within the tab at 1280px and 320px viewport widths");
   await screenshot(page, "specification-narrow-mobile");
   await gotoHash(page, "#verify");
   await screenshot(page, "verify-narrow-mobile");

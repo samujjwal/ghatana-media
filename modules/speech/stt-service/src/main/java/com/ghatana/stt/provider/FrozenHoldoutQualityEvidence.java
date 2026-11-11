@@ -2,6 +2,9 @@ package com.ghatana.stt.provider;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.DeserializationFeature;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 
@@ -46,7 +49,9 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
     /** Evidence snapshots are small JSON documents; larger input is rejected before parse. */
     public static final int MAX_EVIDENCE_BYTES = 256 * 1024;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(JsonFactory.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build())
+            .rebuild().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();
     private static final Set<String> REPORT_LOCALES = Set.of("eng", "hin", "npi");
     private static final String TOKEN = "[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}";
     private static final String SHA256_HEX = "[0-9a-f]{64}";

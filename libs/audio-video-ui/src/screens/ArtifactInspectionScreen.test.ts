@@ -9,10 +9,11 @@ const baseProps = {
   data: { currentProjection: { title: "Inspect media", description: "Read metadata.", steps: [{ id: "read", title: "Read", description: "Read metadata.", state: "current" as const }], currentStepId: "read" }, operationObservation: { state: "READY", progress: { kind: "none" as const } } } satisfies MediaDataPort,
   actions: [], actionPort: { invoke: vi.fn(async () => ({ status: "unavailable" as const, reason: "No action dispatched." })) } satisfies MediaActionPort,
   context: { locale: "en-US" } satisfies MediaContextPort,
+  authenticatedHostContext: { tenantId: "tenant-1", principalId: "principal-1" },
   artifactId: "artifact-17",
 };
 
-const snapshot = (artifactId: string) => ({ artifactId, fileName: "clip.mp4", contentType: "video/mp4", sizeBytes: 128, sha256: "a".repeat(64), objectReference: "opaque-ref", classification: "INTERNAL" as const, createdAt: "2026-11-01T12:00:00Z", expiresAt: "2026-12-01T12:00:00Z", metadata: {} });
+const snapshot = (artifactId: string) => ({ tenantId: "tenant-1", principalId: "principal-1", artifactId, fileName: "clip.mp4", contentType: "video/mp4", sizeBytes: 128, sha256: "a".repeat(64), objectReference: "opaque-ref", classification: "INTERNAL" as const, createdAt: "2026-11-01T12:00:00Z", expiresAt: "2026-12-01T12:00:00Z", metadata: {} });
 
 describe("ArtifactInspectionScreen canonical read", () => {
   it("shows only metadata from the exact authenticated read and keeps object reference opaque", async () => {
@@ -44,7 +45,7 @@ describe("ArtifactInspectionScreen canonical read", () => {
 
   it("aborts stale reads on artifact change and labels an absent reader NOT_ADMITTED", () => {
     let signal: AbortSignal | undefined;
-    const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn((_id, requestSignal) => { signal = requestSignal; return new Promise(() => undefined); }) };
+    const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn((_id, requestSignal) => { signal = requestSignal; return new Promise<never>(() => undefined); }) };
     const { rerender } = render(React.createElement(ArtifactInspectionScreen, { ...baseProps, canonicalArtifactReadClient: reader }));
     fireEvent.click(screen.getByRole("button", { name: "Refresh artifact metadata" }));
     rerender(React.createElement(ArtifactInspectionScreen, { ...baseProps, artifactId: "artifact-18", canonicalArtifactReadClient: reader }));
@@ -52,5 +53,41 @@ describe("ArtifactInspectionScreen canonical read", () => {
     expect(screen.getByText("Artifact metadata has not been refreshed in this view.")).toBeTruthy();
     rerender(React.createElement(ArtifactInspectionScreen, baseProps));
     expect(screen.getByText("Canonical artifact inspection is NOT_ADMITTED. No live read was requested.")).toBeTruthy();
+  });
+
+  it("fails closed when the host reader returns metadata outside the bounded observation schema", async () => {
+    const malformed = snapshot("artifact-17");
+    const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn(async () => ({
+      ...malformed,
+      sizeBytes: Number.MAX_SAFE_INTEGER + 1,
+      objectReference: "",
+      metadata: [] as unknown as Readonly<Record<string, unknown>>,
+    })) };
+    render(React.createElement(ArtifactInspectionScreen, { ...baseProps, canonicalArtifactReadClient: reader }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh artifact metadata" }));
+    expect(await screen.findByText("Artifact metadata is unavailable or invalid. No availability or rights conclusion was made.")).toBeTruthy();
+    expect(screen.queryByText("clip.mp4")).toBeNull();
+    expect(screen.queryByText("opaque-ref")).toBeNull();
+  });
+
+  it("rejects a response outside the trusted host tenant or principal", async () => {
+    const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn(async () => ({
+      ...snapshot("artifact-17"),
+      tenantId: "tenant-other",
+    })) };
+    render(React.createElement(ArtifactInspectionScreen, { ...baseProps, canonicalArtifactReadClient: reader }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh artifact metadata" }));
+    expect(await screen.findByText("Artifact metadata is unavailable or invalid. No availability or rights conclusion was made.")).toBeTruthy();
+    expect(screen.queryByText("clip.mp4")).toBeNull();
+    expect(screen.queryByText("opaque-ref")).toBeNull();
+  });
+
+  it("does not dispatch a reader without trusted host identity", () => {
+    const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn(async (id) => snapshot(id)) };
+    render(React.createElement(ArtifactInspectionScreen, { ...baseProps, authenticatedHostContext: undefined,
+      canonicalArtifactReadClient: reader }));
+    expect(screen.getByText("Canonical artifact inspection is NOT_ADMITTED. No live read was requested.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Refresh artifact metadata" })).toBeNull();
+    expect(reader.getArtifact).not.toHaveBeenCalled();
   });
 });

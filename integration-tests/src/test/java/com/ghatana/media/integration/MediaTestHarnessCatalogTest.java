@@ -65,11 +65,13 @@ class MediaTestHarnessCatalogTest {
                         "journey-outcome-j06-service-ambiguous-rights",
                         "journey-outcome-j08-timebase-bound",
                         "journey-outcome-j04-voice-consent-negative",
+                        "journey-outcome-j04-profile-binding-negative",
                         "journey-outcome-j06", "journey-outcome-j07", "journey-outcome-j08",
                         "journey-outcome-j09", "journey-outcome-j10", "journey-outcome-j11",
                         "journey-outcome-j14", "journey-outcome-j15", "journey-outcome-j18",
                         "journey-outcome-j19-ambiguous-candidate",
-                        "journey-outcome-j19", "journey-outcome-j20", "journey-outcome-j21",
+                        "journey-outcome-j19", "journey-outcome-j19-cancellation",
+                        "journey-outcome-j20", "journey-outcome-j21",
                         "journey-outcome-j22", "journey-outcome-j25", "journey-outcome-j26",
                         "journey-outcome-j27", "journey-outcome-j28", "journey-outcome-j29",
                         "journey-outcome-j27-process-restart-unknown",
@@ -167,6 +169,117 @@ class MediaTestHarnessCatalogTest {
         assertThat(covered).isEqualTo(allJourneys);
         var profiles = MediaTestHarness.testProfiles(root).stream()
                 .collect(Collectors.toMap(MediaTestHarness.TestProfile::id, profile -> profile));
+        var j04Consent = profiles.get("journey-outcome-j04-voice-consent-negative");
+        assertThat(j04Consent.selectors()).containsExactly("com.ghatana.tts.grpc.TtsVoiceConsentNegativeTest");
+        var j04ProfileBinding = profiles.get("journey-outcome-j04-profile-binding-negative");
+        assertThat(j04ProfileBinding.gradleTestTask()).isEqualTo(":services:media:modules:integration-tests:test");
+        assertThat(j04ProfileBinding.selectors()).containsExactly(
+                "com.ghatana.tts.grpc.TtsAuthorizedVoiceSynthesisScenarioTest"
+                        + ".profileOnlySelectionReturnsUnavailableWithoutAudioOrModelLookup");
+        assertThat(j04ProfileBinding.sources()).contains(
+                ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+                ".product-experience/pdp-1-domain-data/operations.yaml",
+                "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsRequestAuthorization.java",
+                "modules/integration-tests/src/test/java/com/ghatana/tts/grpc/TtsAuthorizedVoiceSynthesisScenarioTest.java");
+        assertThat(j04ProfileBinding.safety()).contains("unqualified profile-only request", "UNAVAILABLE",
+                "before TTS engine lookup", "no audio");
+        assertThat(j04ProfileBinding.evidenceLimit())
+                .contains("no licensed voice/model", "journey completion is established");
+        var j02 = profiles.get("journey-outcome-j02");
+        String j02SdkSelector = "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT"
+                + ".ownerIssuedDevIdentityCompletesAndReadsBackUploadAndDiagnosticJobAcrossRestart";
+        String j02CliResumeSelector = "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT"
+                + ".devOnlyCliResumesPartialOpenUploadFromSameIdempotencyKeyAfterLauncherRestart";
+        String j02BrowserSelector = "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT"
+                + ".realExplorerUploadKeepsProductInspectionNotAdmittedAcrossLauncherRestart";
+        String j02RecoverySelector = "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT"
+                + ".realExplorerResumesUploadAfterReloadAndLauncherRestart";
+        String j02TimelineLinkSelector = "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT"
+                + ".realExplorerUploadsThenLinksExactArtifactVersionAcrossLauncherRestart";
+        assertThat(j02.selectors()).containsExactly(
+                "com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT"
+                        + ".authenticatedUploadResumesAcknowledgedPrefixAfterLauncherProcessRestart",
+                j02SdkSelector,
+                j02CliResumeSelector,
+                j02BrowserSelector,
+                j02RecoverySelector,
+                j02TimelineLinkSelector);
+        assertThat(j02.sources()).contains(
+                ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+                ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+                ".product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml",
+                "libs/audio-video-client/package.json",
+                "libs/audio-video-client/src/cli-dev.ts",
+                "libs/audio-video-client/src/cli.ts",
+                "libs/audio-video-client/src/canonical-operations.ts",
+                "apps/media-experience-explorer/package.json",
+                "integration-tests/src/test/resources/media-dev-artifact-upload-recovery-live-browser.mjs",
+                "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevIssuerHeadlessRestartIT.java",
+                "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java");
+        assertThat(j02.resources()).contains("Node.js compiled CLI process",
+                "Playwright Chromium browser and Vite Explorer process");
+        assertThat(j02.prerequisites()).anySatisfy(prerequisite -> assertThat(prerequisite)
+                .contains("pnpm install", "pnpm --filter @audio-video/client build", "compiled CLI entry point"));
+        assertThat(j02.evidenceLimit()).contains("bounded local DEV_ONLY J-02 SDK denial/recovery",
+                "read-only CLI point-in-time job observation", "CLI result is not provider-finality evidence",
+                "Explorer artifact-intake restart/readback", "do not establish production authority",
+                "J-01", "J-02 completion", "J-01–J-30 completion",
+                "exact SHA-256 version into a project timeline clip across launcher restarts");
+        assertThat(j02.prerequisites()).anySatisfy(prerequisite -> assertThat(prerequisite)
+                .contains("Playwright 1.63.0 Chromium runtime", "Vite 7.3.1", "8.3.0"));
+        assertThat(j02.evidenceLimit()).contains("one browser upload-recovery scenario",
+                "generated synthetic WAV bytes");
+        String j02SdkSource = Files.readString(root.resolve(
+                "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevIssuerHeadlessRestartIT.java"));
+        assertThat(j02SdkSource).contains("issueArtifactReadOnlyDevToken(tenant, principal)",
+                "media:artifact:read", "runHeadlessSdkExampleExpectingFailure(",
+                "doesNotContain(readOnlyArtifactToken)", "assertUploadSessionAndChunks(",
+                "issueJobReadOnlyDevToken(tenant, principal)", "assertJobReadOnlyToken(",
+                "assertRealHostCliJobGet(", "GHATANA_MEDIA_BEARER_TOKEN",
+                "media.cli-result.v1", "media.cli.local-development.job.get");
+        var j20 = profiles.get("journey-outcome-j20");
+        assertThat(j20.selectors()).containsExactly(
+                "com.ghatana.media.integration.MediaLauncherSttProcessIT"
+                        + ".dispatchedJobBecomesUnknownAfterHardProcessRestartWithoutRedispatch",
+                "com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT"
+                        + ".hardProcessLossRetainsSubjectArtifactAndUnknownJobWithoutReplayingEffects",
+                j02SdkSelector,
+                "com.ghatana.media.launcher.MediaDevOnlyJobCancellationFinalityPostgresIT"
+                        + ".definitiveProviderSuccessFinalizesAfterUnconfirmedCancellation",
+                "com.ghatana.media.launcher.MediaDevOnlyJobCancellationRestartPostgresIT"
+                        + ".hardProcessLossDuringCancelDispatchReplaysUnknownWithoutRedispatch");
+        assertThat(j20.sources()).contains(
+                ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+                ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+                ".product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml",
+                "libs/audio-video-client/package.json",
+                "libs/audio-video-client/src/cli-dev.ts",
+                "libs/audio-video-client/src/cli.ts",
+                "libs/audio-video-client/src/canonical-operations.ts",
+                "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevIssuerHeadlessRestartIT.java",
+                "integration-tests/src/test/java/com/ghatana/media/launcher/MediaDevOnlyJobCancellationFinalityPostgresIT.java",
+                "integration-tests/src/test/java/com/ghatana/media/launcher/MediaDevOnlyJobCancellationRestartPostgresIT.java");
+        assertThat(j20.evidenceLimit()).contains("completed local-diagnostic job across launcher restart",
+                "definitive typed synthetic provider receipt", "PostgreSQL",
+                "runtime/store reconstruction", "do not prove real provider output",
+                "after a test-owned LOCAL cancellation callback begins",
+                "persisted cancellation fingerprint", "no second provider call",
+                "does not establish journey completion");
+        var j22 = profiles.get("journey-outcome-j22");
+        assertThat(j22.selectors()).containsExactly(
+                "com.ghatana.audio.video.integration.DeliveryDestinationReceiptScenarioTest"
+                        + ".wrongDestinationReceiptRemainsUnknownAndHasNoDeliveredReceiptReference",
+                "com.ghatana.audio.video.integration.DeliveryDestinationReceiptScenarioTest"
+                        + ".acknowledgedChunkWithLostProgressPersistenceReconcilesAfterRestartWithoutReplay");
+        assertThat(j22.evidenceLimit()).contains("lost SENT-progress persistence",
+                "after restart without resending", "synthetic fixtures",
+                "does not establish authenticated destination acceptance");
+        String j02BrowserSource = Files.readString(root.resolve(
+                "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"));
+        assertThat(j02BrowserSource).contains("realExplorerUploadKeepsProductInspectionNotAdmittedAcrossLauncherRestart",
+                "realExplorerResumesUploadAfterReloadAndLauncherRestart",
+                "realExplorerUploadsThenLinksExactArtifactVersionAcrossLauncherRestart",
+                "media-dev-artifact-upload-recovery-live-browser.mjs");
         var j03Unknown = profiles.get("journey-outcome-j03-caption-unknown-revocation-fixture");
         assertThat(j03Unknown.gradleTestTask()).isEqualTo(":services:media:integration-tests:test");
         assertThat(j03Unknown.selectors()).containsExactly(
@@ -252,6 +365,14 @@ class MediaTestHarnessCatalogTest {
         assertThat(j19Ambiguous.selectors()).containsExactly(
                 "com.ghatana.audio.video.integration.J19QualityOutcomeScenarioTest.ambiguousSecondAttemptRetainsOnlyExactRevisionsAndPreservesSourceUndoPath");
         assertThat(j19Ambiguous.evidenceLimit()).contains(
+                "does not establish a real quality improvement", "journey completion");
+        var j19Cancellation = profiles.get("journey-outcome-j19-cancellation");
+        assertThat(j19Cancellation.tier()).isEqualTo(MediaTestHarness.TestTier.LOCAL_FIXTURE);
+        assertThat(j19Cancellation.gradleTestTask()).isEqualTo(":services:media:modules:integration-tests:test");
+        assertThat(j19Cancellation.selectors()).containsExactly(
+                "com.ghatana.audio.video.integration.J19QualityOutcomeScenarioTest."
+                        + "cancellationAfterCandidateDispatchRetainsKnownRevisionsWithoutReport");
+        assertThat(j19Cancellation.evidenceLimit()).contains(
                 "does not establish a real quality improvement", "journey completion");
     }
 

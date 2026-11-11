@@ -362,6 +362,25 @@ class SimulationSemanticValidatorTest {
     }
 
     @Test
+    void rejectsTraceThatIsHundredsOfThousandsOfTimesLongerThanASubPicosecondHorizon() {
+        var complete = binding();
+        var subPicosecond = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
+                complete.invariants(), q(1e-18, PhysicalSimulation.Unit.SECOND));
+        var uncertainty = new PhysicalSimulation.StateUncertainty(null, null,
+                PhysicalSimulation.UncertaintyStatus.NOT_ASSESSED_MODEL_DERIVATIVE_UNAVAILABLE);
+        var overlongTrace = new PhysicalSimulation.Result(List.of(
+                new PhysicalSimulation.Observation(0.0, 0.0, 0.0, 3.0, 0.0, uncertainty),
+                new PhysicalSimulation.Observation(5e-13, 6.0, 6.0, 3.0, 18.0, uncertainty)),
+                2, 1, 0.0, true, "DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+
+        var validation = SimulationSemanticValidator.validate(subPicosecond, overlongTrace, CURRENT_INPUTS);
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.HORIZON_MISMATCH));
+    }
+
+    @Test
     void abstainsWhenInvariantIdsAreMissingOrDuplicated() {
         var complete = binding();
         var repeated = complete.invariants().getFirst();
@@ -385,5 +404,27 @@ class SimulationSemanticValidatorTest {
         assertThat(blankValidation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
         assertThat(blankValidation.findings()).anySatisfy(finding ->
                 assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.MISSING_DECLARED_INVARIANT));
+    }
+
+    @Test
+    void abstainsOnPaddedInvariantIdWithoutNormalizingPassIdentity() {
+        var complete = binding();
+        var original = complete.invariants().getFirst();
+        var paddedInvariant = new SimulationSemanticValidator.DeclaredInvariant(" " + original.invariantId(),
+                original.observable(), original.expected(), original.absoluteTolerance());
+        var padded = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), complete.inputs(),
+                List.of(paddedInvariant, complete.invariants().get(1)), complete.expectedDuration());
+        var verifierCalls = new AtomicInteger();
+
+        var validation = SimulationSemanticValidator.validate(padded, result(), input -> {
+            verifierCalls.incrementAndGet();
+            return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+        });
+
+        assertThat(padded.invariants().getFirst().invariantId()).isEqualTo(" " + original.invariantId());
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding ->
+                assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.MISSING_DECLARED_INVARIANT));
+        assertThat(verifierCalls).hasValue(0);
     }
 }

@@ -1,5 +1,8 @@
+// @vitest-environment jsdom
+
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -117,6 +120,148 @@ describe("Media contract screen composition", () => {
     expect(html).toContain("media.view.find-projects");
     expect(html).toContain("Context was denied.");
     expect(html).toMatch(/<button[^>]*disabled=""/u);
+  });
+
+  it("explains an unavailable voice-use action when the host omits its reason", () => {
+    const voiceInstance: MediaContractScreenProps["instances"][number] = {
+      componentId: "media.component.rights-retention-review",
+      props: {
+        subjectVersionRef: { tenantId: "tenant-a", subjectId: "voice-profile", versionId: "v4" },
+        authorityRef: "authority-current",
+        rightOrConsent: "voice",
+        scope: {
+          tenantId: "tenant-a",
+          subjectVersionRef: { tenantId: "tenant-a", subjectId: "voice-profile", versionId: "v4" },
+          purpose: "speech-synthesis",
+          territory: "US",
+        },
+        validity: "unknown",
+        retentionDisposition: "unknown",
+        decisionHistory: [],
+        nextActions: [],
+        state: "unknown",
+        variant: "unknown",
+        actionIntents: ["media.action.continue-within-recorded-scope"],
+        keyboardBehavior: "Evidence and disposition disclosures are keyboard-operable; keep review action separate from evidence inspection.",
+      },
+    };
+    const supportingInstances: MediaContractScreenProps["instances"] = [
+      voiceInstance,
+      {
+        componentId: "media.component.provenance-summary",
+        props: {
+          resultVersionRef: { tenantId: "tenant-a", artifactId: "voice-result", versionId: "v1" },
+          sourceVersionRefs: [], derivationSteps: [], timeReferences: [], uncertainties: [],
+          state: "incomplete", variant: "incomplete", actionIntents: [],
+          keyboardBehavior: "disclosure-is-operable-with-keyboard",
+        },
+      },
+      {
+        componentId: "media.component.creation-plan-summary",
+        props: {
+          planRef: "voice-plan-1", requestedOutcome: "media.intent.create", inputVersionRefs: [],
+          capabilityDisposition: [], policyAndRightsEffects: [], planFinality: "proposal-only",
+          state: "missing-input", variant: "missing-input", actionIntents: [],
+          keyboardBehavior: "information-order-is-stable; all-disclosures-and-next-view-links-are-keyboard-operable",
+        },
+      },
+    ];
+    const voiceInvoke = vi.fn(async () => ({ status: "denied" as const, reason: "Rights are unknown." }));
+    const view = render(React.createElement(MediaContractScreen, {
+      screenId: "media.view.use-authorized-voice",
+      instances: supportingInstances,
+      actions: [{
+        id: "media.action.continue-within-recorded-scope",
+        label: "Continue within recorded scope",
+        enabled: false,
+      }],
+      data,
+      actionPort: { invoke: voiceInvoke },
+      context,
+    }));
+
+    const button = screen.getByRole("button", { name: "Continue within recorded scope" });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    const reasonId = button.getAttribute("aria-describedby");
+    expect(reasonId).toBeTruthy();
+    expect(document.getElementById(reasonId!)?.textContent)
+      .toBe("This action is unavailable in the current host projection.");
+    fireEvent.click(button);
+    expect(voiceInvoke).not.toHaveBeenCalled();
+    view.unmount();
+  });
+
+  it("keeps storyboard save controlled by the host projection and exact dispatch guard", async () => {
+    const saveActionId = "media.action.save-storyboard-revision";
+    let resolveHost!: (result: { status: "intent-accepted" }) => void;
+    const invokeSave = vi.fn(() => new Promise<{ status: "intent-accepted" }>((resolve) => { resolveHost = resolve; }));
+    const storyboardInstances: MediaContractScreenProps["instances"] = [
+      {
+        componentId: "media.component.storyboard",
+        props: {
+          compositionVersionRef: { tenantId: "tenant-a", compositionId: "composition-a", versionId: "v1" },
+          scenes: [],
+          timebaseRef: {
+            clockKind: "story", clockId: "story-clock", streamId: "story-stream",
+            secondsPerTick: { numerator: "1", denominator: "24" }, originTicks: "0", unit: "frame",
+          },
+          transitionSpecs: [], validationDisposition: "unknown", storyboardActionIntents: [],
+          state: "no-scenes", variant: "empty", actionIntents: [],
+          keyboardBehavior: "Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on the moved scene.",
+        },
+      },
+      {
+        componentId: "media.component.artifact-browser",
+        props: {
+          workspaceRef: { tenantId: "tenant-a", workspaceId: "workspace-a" },
+          query: { text: "", mediaTypes: [], limit: 10 }, artifactVersions: [], selectionState: "no-results",
+          state: "no-results", variant: "no-results", actionIntents: [],
+          keyboardBehavior: "label search and filters; preserve focus through result updates; provide named row actions and keyboard selection without drag.",
+        },
+      },
+      {
+        componentId: "media.component.provenance-summary",
+        props: {
+          resultVersionRef: { tenantId: "tenant-a", artifactId: "artifact-a", versionId: "v1" },
+          sourceVersionRefs: [], derivationSteps: [], timeReferences: [], uncertainties: [],
+          state: "incomplete", variant: "incomplete", actionIntents: [],
+          keyboardBehavior: "disclosure-is-operable-with-keyboard",
+        },
+      },
+    ];
+    const props = (enabled: boolean): MediaContractScreenProps => ({
+      screenId: "media.view.arrange-scenes",
+      instances: storyboardInstances,
+      actions: [{
+        id: saveActionId,
+        label: "Save storyboard revision",
+        enabled,
+        disabledReason: enabled ? undefined : "Host projection has not admitted this action.",
+      }],
+      data,
+      actionPort: { invoke: invokeSave },
+      context,
+    });
+
+    const view = render(React.createElement(MediaContractScreen, props(false)));
+    const deniedSave = screen.getByRole("button", { name: "Save storyboard revision" });
+    expect((deniedSave as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText("Definition-only preview candidate. Product route not admitted.")).toBeTruthy();
+    fireEvent.click(deniedSave);
+    expect(invokeSave).not.toHaveBeenCalled();
+
+    view.rerender(React.createElement(MediaContractScreen, props(true)));
+    const admittedSave = screen.getByRole("button", { name: "Save storyboard revision" });
+    expect((admittedSave as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(admittedSave);
+    expect(invokeSave).toHaveBeenCalledTimes(1);
+    expect(invokeSave).toHaveBeenCalledWith(saveActionId, undefined, { subjectRefs: [] });
+
+    resolveHost({ status: "intent-accepted" });
+    await waitFor(() => expect((screen.getByRole("button", { name: "Save storyboard revision" }) as HTMLButtonElement).disabled).toBe(true));
+    expect(screen.getByText(/already being requested/u)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Save storyboard revision" }));
+    expect(invokeSave).toHaveBeenCalledTimes(1);
   });
 
   it("fails closed when component refs differ and withholds actions not declared by the screen", () => {
@@ -265,6 +410,61 @@ describe("Media contract screen composition", () => {
     }]);
     expect(guard.isInFlight("media.action.save-caption-version")).toBe(false);
     expect(hostInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("dispatches the immutable flat-payload and ordered-subject snapshot used for reconciliation", async () => {
+    let resolveHost!: (value: { status: "intent-accepted" }) => void;
+    let receivedPayload: Readonly<Record<string, string | number | boolean | null>> | undefined;
+    let receivedSubjects: readonly string[] | undefined;
+    let receivedCanonical = "";
+    const actionId = "media.action.save-caption-version";
+    const payload = { draftRef: "caption@v2", expectedRevision: 7 };
+    const subjectRefs = ["tenant-a:caption@v2", "tenant-a:source@v3"];
+    const guard = createMediaActionDispatchGuard({
+      invoke: (receivedActionId, dispatchedPayload, dispatchContext) => {
+        receivedPayload = dispatchedPayload;
+        receivedSubjects = dispatchContext?.subjectRefs;
+        receivedCanonical = canonicalMediaActionRequest(receivedActionId, dispatchedPayload, dispatchContext);
+        return new Promise((resolve) => { resolveHost = resolve; });
+      },
+    });
+
+    const invocation = guard.actionPort.invoke(actionId, payload, { subjectRefs });
+    payload.draftRef = "caption@changed";
+    payload.expectedRevision = 8;
+    subjectRefs[0] = "tenant-a:foreign@v4";
+    subjectRefs.push("tenant-a:extra@v1");
+
+    expect(receivedPayload).toEqual({ draftRef: "caption@v2", expectedRevision: 7 });
+    expect(receivedSubjects).toEqual(["tenant-a:caption@v2", "tenant-a:source@v3"]);
+    expect(Object.isFrozen(receivedPayload)).toBe(true);
+    expect(Object.isFrozen(receivedSubjects)).toBe(true);
+    const exactCanonical = canonicalMediaActionRequest(actionId,
+      { draftRef: "caption@v2", expectedRevision: 7 },
+      { subjectRefs: ["tenant-a:caption@v2", "tenant-a:source@v3"] });
+    expect(receivedCanonical).toBe(exactCanonical);
+
+    resolveHost({ status: "intent-accepted" });
+    await invocation;
+    expect(guard.isInFlight(actionId)).toBe(true);
+    guard.observeReconciliations([{
+      actionId,
+      requestId: null,
+      requestCanonical: canonicalMediaActionRequest(actionId, payload, { subjectRefs }),
+      subjectRefs,
+      reconciliationRevision: "changed-request-rev",
+      disposition: "retry-authorized",
+    }]);
+    expect(guard.isInFlight(actionId)).toBe(true);
+    guard.observeReconciliations([{
+      actionId,
+      requestId: null,
+      requestCanonical: exactCanonical,
+      subjectRefs: ["tenant-a:caption@v2", "tenant-a:source@v3"],
+      reconciliationRevision: "exact-request-rev",
+      disposition: "retry-authorized",
+    }]);
+    expect(guard.isInFlight(actionId)).toBe(false);
   });
 
   it("keeps the action locked when one immutable owner revision has conflicting dispositions", async () => {

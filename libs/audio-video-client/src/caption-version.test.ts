@@ -65,10 +65,10 @@ describe('caption-version-write HTTP transport binding', () => {
       }
       return new Response(JSON.stringify({ error: { details: { requestId: 'req-2', requestFingerprint: 'b'.repeat(64), error: 'IDEMPOTENCY_CONFLICT', retryable: false } } }), { status: 409 });
     };
-    const transport = httpCaptionVersionTransport({ baseUrl: 'http://media.test/', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
+    const transport = httpCaptionVersionTransport({ baseUrl: 'https://media.test/', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
     const first = await transport.register({ ...request(), requestFingerprint: 'a'.repeat(64) });
     expect(first).toMatchObject({ captionVersionId: 'capv-1' });
-    expect(calls[0].url).toBe('http://media.test/api/v1/caption-versions');
+    expect(calls[0].url).toBe('https://media.test/api/v1/caption-versions');
     expect(calls[0].method).toBe('POST');
     expect(calls[0].body).toMatchObject({ requestId: 'req-1', requestFingerprint: 'a'.repeat(64) });
     const conflict = await transport.register({ ...request(), requestFingerprint: 'c'.repeat(64) });
@@ -78,7 +78,7 @@ describe('caption-version-write HTTP transport binding', () => {
   it('lists caption versions scoped to the source artifact version', async () => {
     const fetchImpl = vi.fn(async (url: string | URL) => new Response(
       JSON.stringify({ captionVersions: [registered('req-1')], count: 1 }), { status: 200 }));
-    const transport = httpCaptionVersionTransport({ baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
+    const transport = httpCaptionVersionTransport({ baseUrl: 'https://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
     const versions = await transport.versions('t', 'p', 'artifact-1', 'src-v1');
     expect(versions).toHaveLength(1);
     expect(versions[0].requestId).toBe('req-1');
@@ -88,7 +88,7 @@ describe('caption-version-write HTTP transport binding', () => {
   it('rejects a mismatched list identity before fetch', async () => {
     const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ captionVersions: [] }), { status: 200 }));
     const transport = httpCaptionVersionTransport({
-      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+      baseUrl: 'https://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
     });
     for (const [tenantId, principalId] of [['other-tenant', 'p'], ['t', 'other-principal']]) {
       await expect(transport.versions(tenantId, principalId, 'artifact-1', 'src-v1'))
@@ -110,7 +110,7 @@ describe('caption-version-write HTTP transport binding', () => {
         ? { captionVersions: [registered('req-1')] } : snapshot), { status: 200 });
     };
     const transport = httpCaptionVersionTransport({
-      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+      baseUrl: 'https://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
     });
     await transport.versions('t', 'p', 'artifact-1', 'src-v1', controller.signal);
     await transport.version('capv-1', controller.signal);
@@ -125,7 +125,7 @@ describe('caption-version-write HTTP transport binding', () => {
       [{ ...valid, registrationReceiptId: undefined }],
     ]) {
       const transport = httpCaptionVersionTransport({
-        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        baseUrl: 'https://media.test', tenantId: 't', principalId: 'p',
         fetchImpl: (async () => new Response(JSON.stringify({ captionVersions }), { status: 200 })) as typeof fetch,
       });
       await expect(transport.versions('t', 'p', 'artifact-1', 'src-v1'))
@@ -140,7 +140,7 @@ describe('caption-version-write HTTP transport binding', () => {
       return new Response(JSON.stringify(registered('req-1')), { status: 201 });
     };
     const transport = httpCaptionVersionTransport({
-      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+      baseUrl: 'https://media.test', tenantId: 't', principalId: 'p',
       getAccessToken: async () => 'token-abc', fetchImpl: fetchImpl as typeof fetch,
     });
     await transport.register({ ...request(), requestFingerprint: 'a'.repeat(64) });
@@ -155,7 +155,7 @@ describe('caption-version-write HTTP transport binding', () => {
     ];
     for (const [status, error, retryable] of statuses) {
       const transport = httpCaptionVersionTransport({
-        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        baseUrl: 'https://media.test', tenantId: 't', principalId: 'p',
         fetchImpl: (async () => new Response('{}', { status })) as typeof fetch,
       });
       const result = await transport.register({ ...request(), requestFingerprint: 'a'.repeat(64) });
@@ -168,7 +168,7 @@ describe('caption-version-write HTTP transport binding', () => {
       [401, 'UNAUTHENTICATED', false], [403, 'ACCESS_DENIED', false], [503, 'UNAVAILABLE', true],
     ] as const) {
       const transport = httpCaptionVersionTransport({
-        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        baseUrl: 'https://media.test', tenantId: 't', principalId: 'p',
         fetchImpl: (async () => new Response('{}', { status })) as typeof fetch,
       });
       await expect(transport.versions('t', 'p', 'artifact-1', 'src-v1'))
@@ -189,7 +189,7 @@ describe('caption-version-write HTTP transport binding', () => {
       return new Response('{}', { status: 503 });
     };
     const transport = httpCaptionVersionTransport({
-      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+      baseUrl: 'https://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
     });
     const found = await transport.version('capv-1');
     expect(found).toMatchObject({ captionVersionId: 'capv-1', requestId: 'req-1' });
@@ -202,7 +202,7 @@ describe('caption-version-write HTTP transport binding', () => {
     const fetchImpl = async () => new Response(
       JSON.stringify({ captionVersionId: 'capv-other', requestId: 'req-1' }), { status: 200 });
     const transport = httpCaptionVersionTransport({
-      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+      baseUrl: 'https://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
     });
     await expect(transport.version('capv-1'))
       .rejects.toMatchObject({ code: 'UNKNOWN_OUTCOME' });
@@ -218,9 +218,10 @@ describe('caption-version-write HTTP transport binding', () => {
       { ...valid, ticksPerSecond: 0 },
       { ...valid, captionSegments: [{ ...valid.captionSegments[0], endTick: 9_000_001 }] },
       { ...valid, captionSegments: [{ ...valid.captionSegments[0], origin: 'SYNTHETIC' }] },
+      { ...valid, captionSegments: [valid.captionSegments[0], { ...valid.captionSegments[0], text: 'ambiguous duplicate' }] },
     ]) {
       const transport = httpCaptionVersionTransport({
-        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        baseUrl: 'https://media.test', tenantId: 't', principalId: 'p',
         fetchImpl: (async () => new Response(JSON.stringify(snapshot), { status: 200 })) as typeof fetch,
       });
       await expect(transport.version('capv-1')).rejects.toMatchObject({ code: 'UNKNOWN_OUTCOME' });

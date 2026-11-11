@@ -1003,7 +1003,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 // The prior implementation deleted this object before waiting on the locked
                 // upload row during metadata deletion. The fenced path waits before deleting it.
                 awaitBlockedStatement(jdbcUrl,
-                        "SELECT EXPIRES_AT,STATUS,FINALIZATION_STARTED_AT FROM MEDIA_UPLOAD_SESSIONS");
+                        "SELECT EXPIRES_AT,STATUS,FINALIZATION_STARTED_AT,EXPECTED_SHA256 FROM MEDIA_UPLOAD_SESSIONS");
                 assertThat(admin.headObject(HeadObjectRequest.builder()
                         .bucket(bucket).key(chunkObjectKey).build()).contentLength()).isEqualTo((long) chunk.length);
                 finalization.commit();

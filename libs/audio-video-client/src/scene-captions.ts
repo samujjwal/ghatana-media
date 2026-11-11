@@ -48,10 +48,24 @@ export function admitNarrationSource(source: NarrationSource | { tag: string }):
   if (!source || typeof source !== "object") {
     throw new SceneCaptionError("NARRATION_NOT_ADMITTED", "narration source must be an object");
   }
-  if (source.tag !== "APPROVED_TTS" && source.tag !== "USER_PROVIDED") {
-    throw new SceneCaptionError("NARRATION_NOT_ADMITTED",
-      `narration source '${String((source as { tag?: unknown }).tag)}' is not admitted — only APPROVED_TTS or USER_PROVIDED tracks may voice a scene`);
+  if (source.tag === "APPROVED_TTS") {
+    if (typeof (source as { voiceRef?: unknown }).voiceRef !== "string"
+      || (source as { voiceRef: string }).voiceRef.trim().length === 0) {
+      throw new SceneCaptionError("NARRATION_NOT_ADMITTED",
+        "APPROVED_TTS narration must identify a non-empty voiceRef");
+    }
+    return;
   }
+  if (source.tag === "USER_PROVIDED") {
+    if (typeof (source as { trackRef?: unknown }).trackRef !== "string"
+      || (source as { trackRef: string }).trackRef.trim().length === 0) {
+      throw new SceneCaptionError("NARRATION_NOT_ADMITTED",
+        "USER_PROVIDED narration must identify a non-empty trackRef");
+    }
+    return;
+  }
+  throw new SceneCaptionError("NARRATION_NOT_ADMITTED",
+    `narration source '${String((source as { tag?: unknown }).tag)}' is not admitted — only APPROVED_TTS or USER_PROVIDED tracks may voice a scene`);
 }
 
 function requireClock(clock: SourceCaptionClock): void {

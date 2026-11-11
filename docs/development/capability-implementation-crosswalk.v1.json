@@ -43,7 +43,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -69,7 +74,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -95,7 +105,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -121,7 +136,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -147,7 +167,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -173,7 +198,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -199,7 +229,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -225,7 +260,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -251,7 +291,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -277,7 +322,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -303,7 +353,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -329,7 +384,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -355,7 +415,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -381,7 +446,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -407,7 +477,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -433,7 +508,12 @@
         "media.dev.outcome-version-specific-review",
         "media.dev.outcome-offline-conflict-reconnect"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "launcher",
         "modules/infrastructure/persistence",
@@ -461,7 +541,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -489,7 +578,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -517,7 +615,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -545,7 +652,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -573,7 +689,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -601,7 +726,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -629,7 +763,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -657,7 +800,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -685,7 +837,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -713,7 +874,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -741,7 +911,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -769,7 +948,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -797,7 +985,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -825,7 +1022,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -853,7 +1059,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -881,7 +1096,16 @@
         "media.dev.grpc-source-capture",
         "media.dev.camera-source-capture"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.capture-http-and-file-regression",
+        "media.dev.browser-source-capture",
+        "media.dev.desktop-source-capture",
+        "media.dev.mobile-source-capture",
+        "media.dev.terminal-source-capture"
+      ],
       "evidenceRefs": [
         "launcher",
         "libs/audio-video-client",
@@ -906,7 +1130,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -931,7 +1160,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -956,7 +1190,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -981,7 +1220,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -1006,7 +1250,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -1031,7 +1280,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -1056,7 +1310,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -1081,7 +1340,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -1106,7 +1370,12 @@
         "media.dev.outcome-live-session-recovery",
         "media.dev.outcome-provider-outage-safe-path"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.projection-single-writer-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "adapters/ledger",
@@ -1128,7 +1397,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1150,7 +1422,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1172,7 +1447,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1194,7 +1472,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1216,7 +1497,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1238,7 +1522,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1260,7 +1547,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1282,7 +1572,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1304,7 +1597,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1326,7 +1622,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1348,7 +1647,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1370,7 +1672,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1392,7 +1697,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1414,7 +1722,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1436,7 +1747,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1458,7 +1772,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1480,7 +1797,10 @@
         "media.dev.grpc-operation-parity",
         "media.dev.outcome-live-session-recovery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "modules/video-streaming",
@@ -1499,7 +1819,10 @@
         "media.dev.cross-surface-integration-harness",
         "media.dev.http-operation-parity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "contracts",
         "runtime-contracts"
@@ -1517,7 +1840,10 @@
         "media.dev.cross-surface-integration-harness",
         "media.dev.http-operation-parity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "contracts",
         "runtime-contracts"
@@ -1537,7 +1863,11 @@
         "media.dev.sdk-canonical-migration",
         "media.dev.structured-cli"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.sdk-canonical-migration"
+      ],
       "evidenceRefs": [
         "libs/audio-video-client",
         "launcher"
@@ -1557,7 +1887,11 @@
         "media.dev.sdk-canonical-migration",
         "media.dev.structured-cli"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.sdk-canonical-migration"
+      ],
       "evidenceRefs": [
         "libs/audio-video-client",
         "launcher"
@@ -1577,7 +1911,11 @@
         "media.dev.sdk-canonical-migration",
         "media.dev.structured-cli"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.sdk-canonical-migration"
+      ],
       "evidenceRefs": [
         "libs/audio-video-client",
         "launcher"
@@ -1596,7 +1934,10 @@
         "media.dev.http-operation-parity",
         "media.dev.service-observability"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "audio-video-observability"
@@ -1617,7 +1958,10 @@
         "media.dev.outcome-retention-and-erasure",
         "media.dev.outcome-authorized-agent-outcome"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/infrastructure/security",
         "adapters/agent-tools-media"
@@ -1638,7 +1982,10 @@
         "media.dev.outcome-retention-and-erasure",
         "media.dev.outcome-authorized-agent-outcome"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/infrastructure/security",
         "adapters/agent-tools-media"
@@ -1659,7 +2006,10 @@
         "media.dev.outcome-retention-and-erasure",
         "media.dev.outcome-authorized-agent-outcome"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/infrastructure/security",
         "adapters/agent-tools-media"
@@ -1680,7 +2030,12 @@
         "media.dev.transactional-event-outbox",
         "media.dev.outcome-reference-continuity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "adapters/ledger",
         "modules/infrastructure/persistence"
@@ -1701,7 +2056,12 @@
         "media.dev.transactional-event-outbox",
         "media.dev.outcome-reference-continuity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "adapters/ledger",
         "modules/infrastructure/persistence"
@@ -1722,7 +2082,12 @@
         "media.dev.transactional-event-outbox",
         "media.dev.outcome-reference-continuity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "adapters/ledger",
         "modules/infrastructure/persistence"
@@ -1743,7 +2108,12 @@
         "media.dev.transactional-event-outbox",
         "media.dev.outcome-reference-continuity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "adapters/ledger",
         "modules/infrastructure/persistence"
@@ -1764,7 +2134,12 @@
         "media.dev.transactional-event-outbox",
         "media.dev.outcome-reference-continuity"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage",
+        "media.dev.canonical-job-reconciliation"
+      ],
       "evidenceRefs": [
         "adapters/ledger",
         "modules/infrastructure/persistence"
@@ -1783,7 +2158,10 @@
         "media.dev.vision-document-intelligence",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/audio-video-client/src/scene-text-adapter.ts",
         "libs/audio-video-client/src/authorized-scene-text.ts"
@@ -1804,7 +2182,10 @@
         "media.dev.vision-document-intelligence",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/audio-video-client/src/scene-text-adapter.ts",
         "libs/audio-video-client/src/authorized-scene-text.ts"
@@ -1827,7 +2208,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1847,7 +2232,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1867,7 +2256,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1887,7 +2280,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1907,7 +2304,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1927,7 +2328,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1947,7 +2352,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1967,7 +2376,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -1987,7 +2400,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2007,7 +2424,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2027,7 +2448,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2047,7 +2472,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2067,7 +2496,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2087,7 +2520,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2107,7 +2544,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2127,7 +2568,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-transcript-to-reviewed-captions"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/speech/stt-service"
       ],
@@ -2145,7 +2590,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2163,7 +2611,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2181,7 +2632,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2199,7 +2653,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2217,7 +2674,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2235,7 +2695,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2253,7 +2716,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2271,7 +2737,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2289,7 +2758,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2307,7 +2779,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2325,7 +2800,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2343,7 +2821,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2361,7 +2842,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2379,7 +2863,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2397,7 +2884,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2415,7 +2905,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2433,7 +2926,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2451,7 +2947,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2469,7 +2968,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2487,7 +2989,10 @@
         "media.dev.vision-model-and-geometry",
         "media.dev.outcome-vision-detection-and-tracking"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service"
       ],
@@ -2506,7 +3011,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2525,7 +3033,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2544,7 +3055,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2563,7 +3077,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2582,7 +3099,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2601,7 +3121,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2620,7 +3143,10 @@
         "media.dev.multimodal-grounding-and-quality",
         "media.dev.outcome-grounded-cross-modal-result"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/intelligence/multimodal-service"
       ],
@@ -2639,7 +3165,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2659,7 +3189,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2679,7 +3213,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2699,7 +3237,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2719,7 +3261,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2739,7 +3285,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2759,7 +3309,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2779,7 +3333,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2799,7 +3357,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2819,7 +3381,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2839,7 +3405,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2859,7 +3429,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2879,7 +3453,11 @@
         "media.dev.audio-repair-and-comparison",
         "media.dev.load-and-quality-profiles"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "modules/audio-streaming",
         "src"
@@ -2899,7 +3477,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -2918,7 +3499,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -2937,7 +3521,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -2956,7 +3543,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -2975,7 +3565,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -2994,7 +3587,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3013,7 +3609,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3032,7 +3631,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3051,7 +3653,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3070,7 +3675,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3089,7 +3697,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3108,7 +3719,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3127,7 +3741,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3146,7 +3763,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3165,7 +3785,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3184,7 +3807,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3203,7 +3829,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3222,7 +3851,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3241,7 +3873,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3260,7 +3895,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3279,7 +3917,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3298,7 +3939,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3317,7 +3961,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3336,7 +3983,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3355,7 +4005,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3374,7 +4027,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3393,7 +4049,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3412,7 +4071,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3431,7 +4093,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3450,7 +4115,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3469,7 +4137,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3488,7 +4159,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3507,7 +4181,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3526,7 +4203,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3546,7 +4226,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3566,7 +4249,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3586,7 +4272,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3606,7 +4295,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3626,7 +4318,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3646,7 +4341,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3666,7 +4364,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3686,7 +4387,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3706,7 +4410,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3726,7 +4433,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3746,7 +4456,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3766,7 +4479,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3786,7 +4502,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3806,7 +4525,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3826,7 +4548,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3846,7 +4571,10 @@
         "media.dev.tts-streaming-and-finality",
         "media.dev.outcome-authorized-voice-synthesis"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/speech/tts-service",
         "modules/intelligence/ai-voice"
@@ -3866,7 +4594,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3885,7 +4616,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3904,7 +4638,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3923,7 +4660,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3942,7 +4682,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3961,7 +4704,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3980,7 +4726,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -3999,7 +4748,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -4018,7 +4770,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -4037,7 +4792,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -4056,7 +4814,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -4075,7 +4836,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -4094,7 +4858,10 @@
         "media.dev.spatial-and-interactive-export",
         "media.dev.outcome-spatial-interactive-delivery"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "providers"
       ],
@@ -4115,7 +4882,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4136,7 +4908,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4157,7 +4934,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4178,7 +4960,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4199,7 +4986,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4220,7 +5012,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4241,7 +5038,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4262,7 +5064,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4283,7 +5090,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4304,7 +5116,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4325,7 +5142,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4346,7 +5168,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4367,7 +5194,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4388,7 +5220,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4409,7 +5246,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4430,7 +5272,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4451,7 +5298,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4472,7 +5324,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4493,7 +5350,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4514,7 +5376,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4535,7 +5402,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4556,7 +5428,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4577,7 +5454,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4598,7 +5480,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4619,7 +5506,12 @@
         "media.dev.outcome-two-dimensional-animation",
         "media.dev.outcome-three-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer",
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4639,7 +5531,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4659,7 +5555,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4679,7 +5579,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4699,7 +5603,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4719,7 +5627,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4739,7 +5651,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4759,7 +5675,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4779,7 +5699,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4799,7 +5723,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4819,7 +5747,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4839,7 +5771,11 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -4859,7 +5795,11 @@
         "media.dev.interactive-demo-player",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
@@ -4880,7 +5820,11 @@
         "media.dev.interactive-demo-player",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
@@ -4901,7 +5845,11 @@
         "media.dev.interactive-demo-player",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
@@ -4922,7 +5870,11 @@
         "media.dev.interactive-demo-player",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
@@ -4943,7 +5895,11 @@
         "media.dev.interactive-demo-player",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
@@ -4964,7 +5920,11 @@
         "media.dev.interactive-demo-player",
         "media.dev.outcome-two-dimensional-animation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.animation-2d-renderer"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
@@ -4984,7 +5944,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5003,7 +5968,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5022,7 +5992,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5041,7 +6016,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5060,7 +6040,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5079,7 +6064,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5098,7 +6088,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5117,7 +6112,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5136,7 +6136,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5155,7 +6160,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5174,7 +6184,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5193,7 +6208,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5212,7 +6232,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5231,7 +6256,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5250,7 +6280,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5269,7 +6304,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5288,7 +6328,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5307,7 +6352,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5326,7 +6376,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5345,7 +6400,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5364,7 +6424,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5383,7 +6448,12 @@
         "media.dev.simulation-semantic-validation",
         "media.dev.outcome-scientific-simulation"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5403,7 +6473,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5423,7 +6498,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5443,7 +6523,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5463,7 +6548,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5483,7 +6573,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5503,7 +6598,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5523,7 +6623,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5543,7 +6648,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5563,7 +6673,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5583,7 +6698,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5603,7 +6723,12 @@
         "media.dev.outcome-scientific-simulation",
         "media.dev.outcome-validated-simulation-pass"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.scientific-simulation-engine",
+        "media.dev.simulation-semantic-validation"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5621,7 +6746,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5639,7 +6767,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5657,7 +6788,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5675,7 +6809,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5693,7 +6830,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5711,7 +6851,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5729,7 +6872,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5747,7 +6893,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5765,7 +6914,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -5784,7 +6936,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5804,7 +6959,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5824,7 +6982,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5844,7 +7005,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5864,7 +7028,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5884,7 +7051,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5904,7 +7074,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5924,7 +7097,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5944,7 +7120,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5964,7 +7143,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -5984,7 +7166,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6004,7 +7189,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6024,7 +7212,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6044,7 +7235,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6064,7 +7258,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6084,7 +7281,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6104,7 +7304,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6124,7 +7327,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6144,7 +7350,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6164,7 +7373,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6184,7 +7396,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6204,7 +7419,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6224,7 +7442,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6244,7 +7465,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6264,7 +7488,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6284,7 +7511,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6304,7 +7534,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6324,7 +7557,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6344,7 +7580,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6364,7 +7603,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6384,7 +7626,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6404,7 +7649,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6424,7 +7672,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6444,7 +7695,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6464,7 +7718,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6484,7 +7741,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6504,7 +7764,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6524,7 +7787,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6544,7 +7810,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "modules/vision/vision-service",
         "src"
@@ -6564,7 +7833,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6583,7 +7856,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6602,7 +7879,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6621,7 +7902,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6640,7 +7925,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6659,7 +7948,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6678,7 +7971,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6697,7 +7994,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6716,7 +8017,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6735,7 +8040,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6754,7 +8063,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6773,7 +8086,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6792,7 +8109,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6811,7 +8132,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6830,7 +8155,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6849,7 +8178,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6868,7 +8201,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6887,7 +8224,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6906,7 +8247,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6925,7 +8270,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6944,7 +8293,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6963,7 +8316,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -6982,7 +8339,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-audio-restoration"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7000,7 +8361,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7018,7 +8382,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7036,7 +8403,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7054,7 +8424,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7072,7 +8445,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7090,7 +8466,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7108,7 +8487,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7126,7 +8508,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7144,7 +8529,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7162,7 +8550,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7180,7 +8571,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7198,7 +8592,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7216,7 +8613,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7234,7 +8634,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7252,7 +8655,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7270,7 +8676,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7288,7 +8697,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7306,7 +8718,10 @@
         "media.dev.tracked-region-reversible-edits",
         "media.dev.outcome-reversible-tracked-edit"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7324,7 +8739,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7342,7 +8760,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7360,7 +8781,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7378,7 +8802,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7396,7 +8823,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7414,7 +8844,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7432,7 +8865,10 @@
         "media.dev.dubbing-and-translation",
         "media.dev.outcome-translated-dubbed-video"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7451,7 +8887,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7470,7 +8909,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7489,7 +8931,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7508,7 +8953,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7527,7 +8975,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7546,7 +8997,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7565,7 +9019,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7584,7 +9041,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7603,7 +9063,10 @@
         "media.dev.multitrack-composition-render",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
@@ -7622,7 +9085,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7641,7 +9107,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7660,7 +9129,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7679,7 +9151,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7698,7 +9173,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7717,7 +9195,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7736,7 +9217,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7755,7 +9239,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7774,7 +9261,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7793,7 +9283,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7812,7 +9305,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7831,7 +9327,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7850,7 +9349,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7869,7 +9371,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7888,7 +9393,10 @@
         "media.dev.quality-comparison-and-optimization",
         "media.dev.outcome-multitrack-finished-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7907,7 +9415,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7926,7 +9438,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7945,7 +9461,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7964,7 +9484,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -7983,7 +9507,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -8002,7 +9530,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -8021,7 +9553,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -8040,7 +9576,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -8059,7 +9599,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -8078,7 +9622,11 @@
         "media.dev.native-media-dsp",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
       "evidenceRefs": [
         "src"
       ],
@@ -8097,7 +9645,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8117,7 +9668,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8137,7 +9691,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8157,7 +9714,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8177,7 +9737,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8197,7 +9760,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8217,7 +9783,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "audio-video-observability",
         "benchmarks"
@@ -8237,7 +9806,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8256,7 +9828,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8275,7 +9850,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8294,7 +9872,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8313,7 +9894,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8332,7 +9916,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8351,7 +9938,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8370,7 +9960,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-bounded-quality-improvement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8389,7 +9982,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8408,7 +10004,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8427,7 +10026,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8446,7 +10048,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8465,7 +10070,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8484,7 +10092,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8503,7 +10114,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8522,7 +10136,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8541,7 +10158,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8560,7 +10180,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8579,7 +10202,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8598,7 +10224,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-video-enhancement"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8617,7 +10246,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8636,7 +10268,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8655,7 +10290,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8674,7 +10312,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8693,7 +10334,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8712,7 +10356,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8731,7 +10378,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8750,7 +10400,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8769,7 +10422,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8788,7 +10444,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8807,7 +10466,10 @@
         "media.dev.load-and-quality-profiles",
         "media.dev.outcome-music-effects-master"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "benchmarks"
       ],
@@ -8830,7 +10492,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8854,7 +10519,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8878,7 +10546,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8902,7 +10573,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8926,7 +10600,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8950,7 +10627,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8974,7 +10654,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -8998,7 +10681,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9022,7 +10708,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9046,7 +10735,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9070,7 +10762,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9094,7 +10789,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9118,7 +10816,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9142,7 +10843,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9166,7 +10870,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9190,7 +10897,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9214,7 +10924,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9238,7 +10951,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9262,7 +10978,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9286,7 +11005,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9310,7 +11032,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9334,7 +11059,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9358,7 +11086,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9382,7 +11113,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9406,7 +11140,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9430,7 +11167,10 @@
         "media.dev.outcome-spatial-interactive-delivery",
         "media.dev.outcome-structured-command-batch"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "launcher",
         "apps/media-experience-explorer"
@@ -9449,7 +11189,10 @@
         "media.dev.storyboard-and-shot-plan",
         "media.dev.outcome-brief-to-reviewed-media"
       ],
-      "verifiedTaskRefs": [],
+      "verifiedTaskRefs": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],

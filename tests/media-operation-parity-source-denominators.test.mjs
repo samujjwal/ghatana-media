@@ -88,11 +88,12 @@ test("HTTP and gRPC proposal/unresolved crosswalks partition exact current sourc
   const grpcSource = protoSourceIds(protos);
   const grpcAdapterRequired = grpcOwnerAdapterRequiredIds(grpc);
   const grpcCrosswalk = [...candidateIds(grpc), ...grpcAdapterRequired, ...grpcUnresolvedIds(grpc), ...grpcNonOperationIds(grpc)];
-  assert.equal(grpcSource.length, 44);
+  assert.equal(grpcSource.length, 45);
   assertExactPartition(grpcSource, grpcCrosswalk, "gRPC");
   assert.equal(candidateIds(grpc).length, 18, "the recorded gRPC candidate count remains source-inventory-only");
   assert.equal(grpcAdapterRequired.length, 4, "four STT profile methods have exact owner definitions and still need field-level adapters");
-  assert.equal(grpcUnresolvedIds(grpc).length, 0, "all current gRPC identities have a candidate, adapter-required, or source-backed non-operation role");
+  assert.deepEqual(grpcUnresolvedIds(grpc), ["VisionService.ResolveSourceFrame"],
+    "source-frame resolution remains unbound until an owner-defined PDP-1 operation identity exists");
   assert.equal(grpcNonOperationIds(grpc).length, 22, "health, provider administration, legacy TTS profiles, and unimplemented feedback retain explicit non-domain dispositions");
 });
 

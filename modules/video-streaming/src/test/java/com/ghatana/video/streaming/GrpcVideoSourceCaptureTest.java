@@ -74,6 +74,15 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void readbackRejectsMediaSequenceOutsideCanonicalFrameRange() {
+        assertThatThrownBy(() -> new GrpcVideoSourceCapture.Readback(
+                GrpcVideoSourceCapture.Authorization.AUTHORIZED, "video@v3", 10,
+                (long) VideoStreamSession.MAX_FRAME_SEQUENCE + 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("source cursor or Media sequence is outside the supported range");
+    }
+
+    @Test
     void versionReferenceLengthUsesUnicodeCodePoints() {
         String maxCodePoints = "\uD83D\uDE00".repeat(384);
         assertThat(new GrpcVideoSourceCapture.Request(

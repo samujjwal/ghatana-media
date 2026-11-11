@@ -328,22 +328,74 @@ public final class YoloOnnxEngine implements VisionEngine {
         }
 
         OnnxTensor input = OnnxTensor.createTensor(
-            environment,
-            FloatBuffer.wrap(flatInput),
-            new long[]{1, 3, size, size}
-        );
+                environment,
+                FloatBuffer.wrap(flatInput),
+                new long[]{1, 3, size, size});
+        try {
+            return withInferenceResources(input, OnnxTensor::close,
+                    ownedInput -> {
+                        Map<String, OnnxTensor> inputs = new HashMap<>();
+                        inputs.put(session.getInputNames().iterator().next(), ownedInput);
+                        return session.run(inputs);
+                    }, OrtSession.Result::close,
+                    results -> {
+                        // Extract output tensor. The session result owns its output values.
+                        // YOLOv8 output: [batch, 84, 8400] where 84 = 4 (bbox) + 80 (classes)
+                        OnnxTensor outputTensor = (OnnxTensor) results.get(0);
+                        return (float[][]) outputTensor.getValue();
+                    });
+        } catch (OrtException | RuntimeException | Error failure) {
+            throw failure;
+        } catch (Exception impossibleOnOnnxNativeResources) {
+            // Both ONNX close methods are non-throwing. Keep the compiler-safe adapter for the
+            // generic helper while preserving an explicit failure if that API ever changes.
+            throw new IllegalStateException("Unexpected checked ONNX resource cleanup failure",
+                    impossibleOnOnnxNativeResources);
+        }
+    }
 
-        Map<String, OnnxTensor> inputs = new HashMap<>();
-        inputs.put(session.getInputNames().iterator().next(), input);
+    /**
+     * Owns the input tensor and session result across every inference outcome. The nested
+     * try-with-resources order closes the result (and its output tensors) before the input.
+     * Package-private so cleanup order and suppression can be tested without loading ONNX.
+     */
+    static <I extends AutoCloseable, R extends AutoCloseable, T> T withInferenceResources(
+            I input, ResourceCloser<I> closeInput, ResourceOperation<I, R> run,
+            ResourceCloser<R> closeResult, ResourceReader<R, T> read) throws Exception {
+        try (OwnedResource<I> inputResource = new OwnedResource<>(input, closeInput)) {
+            R result = run.apply(inputResource.value());
+            try (OwnedResource<R> resultResource = new OwnedResource<>(result, closeResult)) {
+                return read.apply(resultResource.value());
+            }
+        }
+    }
 
-        OrtSession.Result results = session.run(inputs);
+    @FunctionalInterface
+    interface ResourceCloser<T> {
+        void close(T resource) throws Exception;
+    }
 
-        // Extract output tensor
-        // YOLOv8 output: [batch, 84, 8400] where 84 = 4 (bbox) + 80 (classes)
-        OnnxTensor outputTensor = (OnnxTensor) results.get(0);
-        float[][] output = (float[][]) outputTensor.getValue();
+    @FunctionalInterface
+    interface ResourceOperation<I, R> {
+        R apply(I input) throws Exception;
+    }
 
-        return output;
+    @FunctionalInterface
+    interface ResourceReader<R, T> {
+        T apply(R result) throws Exception;
+    }
+
+    private record OwnedResource<T extends AutoCloseable>(T value, ResourceCloser<T> closer)
+            implements AutoCloseable {
+        private OwnedResource {
+            Objects.requireNonNull(value, "resource");
+            Objects.requireNonNull(closer, "closer");
+        }
+
+        @Override
+        public void close() throws Exception {
+            closer.close(value);
+        }
     }
 
     /**

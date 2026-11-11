@@ -293,6 +293,151 @@ class SceneTextRecognitionServiceTest {
     }
 
     @Test
+    void uncheckedCatalogFailureIsTypedUnavailableWithoutParseEffect() {
+        AtomicInteger parseCalls = new AtomicInteger();
+        DocumentIntelligenceV1 client = new DocumentIntelligenceV1() {
+            @Override public ProviderCatalog providers(Cancellation cancellation) {
+                throw new IllegalStateException("transport internals must not escape");
+            }
+
+            @Override public ParsedDocument parse(ParseRequest request, Cancellation cancellation) {
+                parseCalls.incrementAndGet();
+                throw new AssertionError("parse must not be reached");
+            }
+
+            @Override public boolean cancel(String operationId, String operationGeneration) {
+                throw new AssertionError("cancel must not be reached");
+            }
+        };
+
+        Outcome outcome = serviceWithClient(client).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.DI_UNAVAILABLE);
+        assertThat(((Rejected) outcome).retryable()).isTrue();
+        assertThat(parseCalls).hasValue(0);
+    }
+
+    @Test
+    void nullProviderReferenceInCatalogIsInvalidBeforeParseEffect() {
+        AtomicInteger parseCalls = new AtomicInteger();
+        DocumentIntelligenceV1 client = new DocumentIntelligenceV1() {
+            @Override public ProviderCatalog providers(Cancellation cancellation) {
+                return new ProviderCatalog(DocumentIntelligenceV1.PROTOCOL_VERSION,
+                        DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION, List.of(
+                        new ProviderEntry(null, POLICY.providerVersion(),
+                                Optional.of(POLICY.modelRef()), Optional.of(POLICY.modelVersion()),
+                                List.of("image/png"), List.of("en"), "ACCEPTED", true, true)));
+            }
+
+            @Override public ParsedDocument parse(ParseRequest request, Cancellation cancellation) {
+                parseCalls.incrementAndGet();
+                throw new AssertionError("malformed catalog must prevent parse");
+            }
+
+            @Override public boolean cancel(String operationId, String operationGeneration) {
+                throw new AssertionError("malformed catalog must prevent cancellation");
+            }
+        };
+
+        Outcome outcome = serviceWithClient(client).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.RESPONSE_INVALID);
+        assertThat(parseCalls).hasValue(0);
+    }
+
+    @Test
+    void duplicateProviderIdentityInInjectedCatalogIsInvalidBeforeParseEffect() {
+        AtomicInteger parseCalls = new AtomicInteger();
+        ProviderEntry accepted = new ProviderEntry(POLICY.providerRef(), POLICY.providerVersion(),
+                Optional.of(POLICY.modelRef()), Optional.of(POLICY.modelVersion()),
+                List.of("image/png"), List.of("en"), "ACCEPTED", true, true);
+        ProviderEntry conflicting = new ProviderEntry(POLICY.providerRef(), "different-version",
+                Optional.of(POLICY.modelRef()), Optional.of(POLICY.modelVersion()),
+                List.of("image/png"), List.of("en"), "ACCEPTED", true, true);
+        DocumentIntelligenceV1 client = new DocumentIntelligenceV1() {
+            @Override public ProviderCatalog providers(Cancellation cancellation) {
+                return new ProviderCatalog(DocumentIntelligenceV1.PROTOCOL_VERSION,
+                        DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION, List.of(accepted, conflicting));
+            }
+
+            @Override public ParsedDocument parse(ParseRequest request, Cancellation cancellation) {
+                parseCalls.incrementAndGet();
+                throw new AssertionError("ambiguous provider catalog must prevent parse");
+            }
+
+            @Override public boolean cancel(String operationId, String operationGeneration) {
+                throw new AssertionError("ambiguous provider catalog must prevent cancellation");
+            }
+        };
+
+        Outcome outcome = serviceWithClient(client).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.RESPONSE_INVALID);
+        assertThat(parseCalls).hasValue(0);
+    }
+
+    @Test
+    void uncheckedParseFailureIsTypedUnknownOutcomeWithoutRecognizedText() {
+        AtomicInteger parseCalls = new AtomicInteger();
+        DocumentIntelligenceV1 client = new DocumentIntelligenceV1() {
+            @Override public ProviderCatalog providers(Cancellation cancellation) {
+                return catalogValue();
+            }
+
+            @Override public ParsedDocument parse(ParseRequest request, Cancellation cancellation) {
+                parseCalls.incrementAndGet();
+                throw new IllegalStateException("response was lost after dispatch");
+            }
+
+            @Override public boolean cancel(String operationId, String operationGeneration) {
+                return false;
+            }
+        };
+
+        Outcome outcome = serviceWithClient(client).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.UNKNOWN_OUTCOME);
+        assertThat(((Rejected) outcome).retryable()).isFalse();
+        assertThat(parseCalls).hasValue(1);
+    }
+
+    @Test
+    void uncheckedCancelFailureAfterParseIsTypedUnknownOutcome() {
+        AtomicInteger cancelCalls = new AtomicInteger();
+        DocumentIntelligenceV1 delegate = directClient(
+                new Box(0.5, 0.5, 0.25, 0.25), Optional.of(0.9));
+        DocumentIntelligenceV1 client = new DocumentIntelligenceV1() {
+            @Override public ProviderCatalog providers(Cancellation cancellation)
+                    throws DocumentIntelligenceException {
+                return delegate.providers(cancellation);
+            }
+
+            @Override public ParsedDocument parse(ParseRequest request, Cancellation cancellation)
+                    throws DocumentIntelligenceException {
+                ParsedDocument parsed = delegate.parse(request, cancellation);
+                cancellation.cancel();
+                return parsed;
+            }
+
+            @Override public boolean cancel(String operationId, String operationGeneration) {
+                cancelCalls.incrementAndGet();
+                throw new IllegalStateException("cancel acknowledgment unavailable");
+            }
+        };
+
+        Outcome outcome = serviceWithClient(client).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.UNKNOWN_OUTCOME);
+        assertThat(((Rejected) outcome).retryable()).isFalse();
+        assertThat(cancelCalls).hasValue(1);
+    }
+
+    @Test
     void cancellationDuringParseDiscardsResultAndSendsGenerationFencedDelete() throws Exception {
         parseGate = new CountDownLatch(1);
         Cancellation cancellation = new Cancellation();
@@ -576,6 +721,14 @@ class SceneTextRecognitionServiceTest {
 
             @Override public boolean cancel(String operationId, String operationGeneration) { return false; }
         };
+    }
+
+    private static ProviderCatalog catalogValue() {
+        return new ProviderCatalog(DocumentIntelligenceV1.PROTOCOL_VERSION,
+                DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION, List.of(
+                new ProviderEntry(POLICY.providerRef(), POLICY.providerVersion(),
+                        Optional.of(POLICY.modelRef()), Optional.of(POLICY.modelVersion()),
+                        List.of("image/png"), List.of("en"), "ACCEPTED", true, true)));
     }
 
     private static Policy policyWithTimeout(long timeoutMs) {

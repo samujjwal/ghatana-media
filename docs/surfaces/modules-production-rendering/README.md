@@ -27,6 +27,12 @@ a production video codec/muxer, or qualify a renderer/provider. It does not
 establish lawful source/reference rights itself: injected authorities and host
 adapters own those decisions and exact-byte reads.
 
+The separate [`local multitrack preview`](../../../examples/recorder-mux-preview/multitrack/README.md)
+uses synthetic video, graphic, audio, and caption layers with a pinned local
+FFmpeg build. It demonstrates only preview-file composition and does not call
+or admit `MultitrackRenderPlanner` execution, bind a canonical project, or prove
+source rights, production quality, or artifact registration.
+
 ## Public operations
 
 - `MultitrackRenderPlanner.plan(graph)` returns `PLAN_READY` and an immutable
@@ -44,9 +50,11 @@ adapters own those decisions and exact-byte reads.
   still PNGs with caller-supplied timebase and per-frame PTS/ROI metadata. The
   sequence output is not a video container or a provenance-bearing artifact.
 - `QualityComparisonAndOptimization.optimize(...)` runs bounded candidate
-  attempts, reports source delta and reference metrics where authorized, and
-  returns an explicit quality disposition. `undo(run, exactSourceRevision)`
-  selects the retained exact source revision.
+  attempts, reports source and candidate PSNR/SSIM against the same authorized
+  reference, and returns a disposition derived from both pairs. Its V3 report
+  digest binds all four measurements and the disposition. These decoded RGB8
+  measurements do not qualify codec or general perceptual quality.
+  `undo(run, exactSourceRevision)` selects the retained exact source revision.
 - `BoundedRenderOutput` accepts writes up to its configured byte limit and
   fails when another write would exceed it.
 

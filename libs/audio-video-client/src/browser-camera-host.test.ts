@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CameraCaptureAdapter, type CameraConsentPort, type CameraFrameClockPort } from "./camera-capture-adapter.js";
-import { createBrowserCameraMediaDevicePort } from "./browser-camera-host.js";
-import type { CaptureRequest } from "./capture-adapters.js";
+import { createBrowserCameraCaptureAdapter, createBrowserCameraMediaDevicePort } from "./browser-camera-host.js";
+import { captureWithAdmission, routedCaptureAdapter, type CaptureRequest } from "./capture-adapters.js";
 
 const request: CaptureRequest = { kind: "CAMERA", sourceIdentity: "camera:device-A", purposeRef: "purpose/record/v1",
   exactRightsScope: "rights/device-A/v1", sourceVersionRef: "device-A@rev-4", secretsRef: "secrets/session", frameClockRef: "clock/host" };
@@ -105,6 +105,62 @@ async function expectCode(promise: Promise<unknown>, code: string) {
 }
 
 describe("concrete browser camera host", () => {
+  it("routes an admitted browser camera through the recorder capture SPI and closes its host stream", async () => {
+    const now = 1_800_000_000_000;
+    const permissionListeners = new Set<() => void>();
+    const trackListeners = new Set<() => void>();
+    let stops = 0;
+    let reads = 0;
+    const track = {
+      readyState: "live",
+      getSettings: () => ({ deviceId: "device-A", width: 2, height: 2 }),
+      addEventListener: (_type: string, listener: () => void) => trackListeners.add(listener),
+      removeEventListener: (_type: string, listener: () => void) => trackListeners.delete(listener),
+      stop: () => { stops++; track.readyState = "ended"; },
+    };
+    const stream = { getVideoTracks: () => [track], getTracks: () => [track] };
+    const video = { muted: false, playsInline: false, videoWidth: 2, videoHeight: 2, srcObject: null as unknown,
+      play: async () => undefined, pause: () => undefined };
+    const canvas = { width: 0, height: 0, getContext: () => ({ drawImage: () => undefined }),
+      toBlob: (callback: (blob: Blob) => void) => {
+        reads++;
+        callback(new Blob([new Uint8Array([8, 9, 10])], { type: "image/jpeg" }));
+      } };
+    const consent: CameraConsentPort = {
+      async checkFresh(candidate) { return { disposition: "GRANTED", sourceIdentity: candidate.sourceIdentity,
+        purposeRef: candidate.purposeRef, exactRightsScope: candidate.exactRightsScope,
+        sourceVersionRef: candidate.sourceVersionRef, allowedSignals: ["VIDEO"], selectedSignals: ["VIDEO"],
+        syncPolicyRef: "sync-policy/independent-video:v1", codecProfileRef: "codec-profile/browser-jpeg:v1",
+        decisionRef: "decision/browser-integration:v1", checkedAtEpochMillis: now, expiresAtEpochMillis: now + 5_000 }; },
+      subscribe: () => () => undefined,
+    };
+    let epoch = 0;
+    const adapter = createBrowserCameraCaptureAdapter({
+      sourceVersionRef: (deviceId) => deviceId === "device-A" ? "device-A@rev-4" : undefined,
+      consent,
+      frameClock: { nowEpochMillis: () => now, beginEpoch: () => `host-epoch-${++epoch}`, readPtsNanos: () => BigInt(epoch) },
+      browser: {
+        mediaDevices: { getUserMedia: async (constraints: MediaStreamConstraints) => {
+          expect(constraints.video).toEqual({ deviceId: { exact: "device-A" } });
+          return stream as never;
+        } },
+        permissions: { query: async () => ({ state: "granted" as PermissionState,
+          addEventListener: (_type: string, listener: () => void) => permissionListeners.add(listener),
+          removeEventListener: (_type: string, listener: () => void) => permissionListeners.delete(listener) }) },
+        document: { createElement: (tag: string) => (tag === "video" ? video : canvas) as never },
+      } as never,
+    });
+    const routed = routedCaptureAdapter({ CAMERA: adapter });
+    const frame = await captureWithAdmission({ check: () => "ADMITTED" }, routed, request);
+
+    expect(frame.bytes).toEqual(new Uint8Array([8, 9, 10]));
+    expect(frame.sourceIdentity).toBe(request.sourceIdentity);
+    expect(reads).toBe(1);
+    expect(stops).toBe(1);
+    expect(permissionListeners.size).toBe(0);
+    expect(trackListeners.size).toBe(0);
+  });
+
   it("does not report a late permission-query failure after the subscription was removed", async () => {
     let rejectQuery!: (error: Error) => void;
     const port = createBrowserCameraMediaDevicePort({
@@ -121,6 +177,39 @@ describe("concrete browser camera host", () => {
     expect(observations).toEqual([]);
   });
 
+  it("removes a permission listener when event registration throws before or after attachment", async () => {
+    for (const attachBeforeThrow of [false, true]) {
+      let queries = 0;
+      let removals = 0;
+      const listeners = new Set<() => void>();
+      const port = createBrowserCameraMediaDevicePort({
+        sourceVersionRef: () => undefined,
+        browser: {
+          permissions: { query: async () => {
+            const queryNumber = ++queries;
+            return {
+              state: "granted" as PermissionState,
+              addEventListener: (_type: string, listener: () => void) => {
+                if (queryNumber === 2) {
+                  if (attachBeforeThrow) listeners.add(listener);
+                  throw new Error("synthetic permission listener registration failure");
+                }
+              },
+              removeEventListener: (_type: string, listener: () => void) => {
+                removals++;
+                listeners.delete(listener);
+              },
+            };
+          } } as never,
+        },
+      });
+
+      await expectCode(port.open(request, new AbortController().signal), "PERMISSION_UNKNOWN");
+      expect(removals).toBe(1);
+      expect(listeners.size).toBe(0);
+    }
+  });
+
   it("fails closed for denied, unknown and absent browser APIs without opening a device", async () => {
     for (const [state, code] of [["denied", "PERMISSION_DENIED"], ["prompt", "PERMISSION_UNKNOWN"]] as const) {
       const h = setup(state);
@@ -130,6 +219,16 @@ describe("concrete browser camera host", () => {
     const absent = setup("granted", { available: false });
     await expectCode(absent.adapter.openSession(request), "PERMISSION_UNKNOWN");
     expect(absent.counts()).toEqual({ opens: 0, stops: 0, reads: 0, draws: 0 });
+  });
+
+  it("does not turn a Permissions prompt into camera access without a source-defined gesture flow", async () => {
+    const h = setup("prompt");
+
+    // Media consent is GRANTED in this fixture, but browser permission remains
+    // UNKNOWN. No getUserMedia request or captured frame is permitted here.
+    await expectCode(h.adapter.openSession(request), "PERMISSION_UNKNOWN");
+
+    expect(h.counts()).toEqual({ opens: 0, stops: 0, reads: 0, draws: 0 });
   });
 
   it("requests only the exact source revision and returns bounded JPEG frame bytes", async () => {

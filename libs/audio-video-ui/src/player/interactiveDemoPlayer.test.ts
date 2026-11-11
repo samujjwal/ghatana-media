@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 import React from "react";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -87,6 +90,58 @@ function testAuthority(
 }
 
 describe("interactive demo player", () => {
+  it.skipIf(!existsSync(resolve(process.cwd(), "../../build/media-creative-preview/preview.wav")))(
+    "binds the generated local preview WAV to audio controls and caption seeking",
+    () => {
+      const wavPath = resolve(process.cwd(), "../../build/media-creative-preview/preview.wav");
+      const wav = readFileSync(wavPath);
+      expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
+      expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
+      const version = `sha256:${createHash("sha256").update(wav).digest("hex")}`;
+      const sourceRevision = "local-fixture:creative-preview:v1";
+      const audioManifest: InteractiveDemoManifest = {
+        ...BASE,
+        id: "creative-preview-audio",
+        revision: "local-preview-only-v1",
+        sourceRevision,
+        scenes: [{
+          ...BASE.scenes[0],
+          startMs: 0,
+          endMs: 10,
+          asset: {
+            url: "/build/media-creative-preview/preview.wav",
+            version,
+            mediaKind: "audio",
+            sourceRevision,
+          },
+          captions: {
+            language: "en",
+            assetVersion: version,
+            cues: [{ id: "fixture-caption", startMs: 0, endMs: 8, text: "Fixture caption." }],
+          },
+          branches: [],
+        }],
+      };
+      const { container } = render(React.createElement(InteractiveDemoPlayer, {
+        manifest: audioManifest,
+        verificationPort: testAuthority(audioManifest),
+      }));
+
+      const audio = container.querySelector("audio")!;
+      expect(audio).toBeTruthy();
+      expect(container.querySelector("video")).toBeNull();
+      expect(audio.getAttribute("src")).toBe("/build/media-creative-preview/preview.wav");
+      expect(audio.crossOrigin).toBe("anonymous");
+      expect(screen.getByText("Simulated demonstration")).toBeTruthy();
+      fireEvent.loadedMetadata(audio);
+      expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
+      fireEvent.change(screen.getByRole("slider", { name: "Seek within Introduction" }), { target: { value: "5" } });
+      expect(screen.getByLabelText("Captions").textContent).toBe("Fixture caption.");
+      fireEvent.change(screen.getByRole("slider", { name: "Seek within Introduction" }), { target: { value: "9" } });
+      expect(screen.getByLabelText("Captions").textContent).toBe("");
+    },
+  );
+
   it("replays branch choices and seek edits deterministically", () => {
     const actions: DemoPlayerAction[] = [
       { type: "choose-branch", branchId: "left" },
@@ -276,7 +331,8 @@ describe("interactive demo player", () => {
     const scene = BASE.scenes[0];
     expect(demoCaptionAt(scene, -1)).toBe("");
     expect(demoCaptionAt(scene, 0)).toBe("Choose a path.");
-    expect(demoCaptionAt(scene, 599.9)).toBe("Choose a path.");
+    expect(demoCaptionAt(scene, 599)).toBe("Choose a path.");
+    expect(demoCaptionAt(scene, 599.9)).toBe("");
     expect(demoCaptionAt(scene, 600)).toBe("");
     expect(demoCaptionAt(scene, Number.NaN)).toBe("");
   });
@@ -284,9 +340,7 @@ describe("interactive demo player", () => {
   it("bounds authored branch loops without diverging route and branch history", () => {
     const loopManifest: InteractiveDemoManifest = {
       ...BASE,
-      scenes: BASE.scenes.map((scene, index) => index === 0
-        ? { ...scene, branches: [{ id: "loop", label: "Repeat introduction", targetSceneId: "intro" }] }
-        : scene),
+      scenes: [{ ...BASE.scenes[0], branches: [{ id: "loop", label: "Repeat introduction", targetSceneId: "intro" }] }],
     };
     const authority = testAuthority(loopManifest);
     const actions: DemoPlayerAction[] = Array.from({ length: 256 }, () => ({ type: "choose-branch", branchId: "loop" }));
@@ -403,6 +457,102 @@ describe("interactive demo player", () => {
     expect(html).not.toContain("<iframe");
   });
 
+  it("renders the exact active-scene caption transcript in chronological order and follows branches", () => {
+    const withTranscript: InteractiveDemoManifest = {
+      ...BASE,
+      scenes: BASE.scenes.map((scene) => {
+        if (scene.id === "intro") {
+          return {
+            ...scene,
+            captions: {
+              ...scene.captions,
+              cues: [
+                { id: "late", startMs: 900, endMs: 1_000, text: "Last authored cue." },
+                { id: "same-a", startMs: 250, endMs: 500, text: "First cue at a tied time." },
+                { id: "early", startMs: 0, endMs: 200, text: "Opening cue." },
+                { id: "same-b", startMs: 250, endMs: 400, text: "Second cue at a tied time." },
+              ],
+            },
+          };
+        }
+        if (scene.id === "left-scene") {
+          return {
+            ...scene,
+            captions: {
+              ...scene.captions,
+              cues: [{ id: "left-caption", startMs: 1_000, endMs: 1_500, text: "Left scene transcript." }],
+            },
+          };
+        }
+        return scene;
+      }),
+    };
+    const { container } = render(React.createElement(InteractiveDemoPlayer, {
+      manifest: withTranscript,
+      verificationPort: testAuthority(withTranscript),
+    }));
+
+    const disclosure = container.querySelector("details")!;
+    expect(disclosure.open).toBe(false);
+    fireEvent.click(disclosure.querySelector("summary")!);
+
+    const transcript = screen.getByRole("list", { name: "Transcript for Introduction" });
+    expect(Array.from(transcript.querySelectorAll("li")).map((item) => item.textContent)).toEqual([
+      "00:00:00.000 Opening cue.",
+      "00:00:00.250 First cue at a tied time.",
+      "00:00:00.250 Second cue at a tied time.",
+      "00:00:00.900 Last authored cue.",
+    ]);
+    expect(Array.from(transcript.querySelectorAll("time")).map((time) => time.dateTime)).toEqual([
+      "PT0S", "PT0.25S", "PT0.25S", "PT0.9S",
+    ]);
+    expect(Array.from(transcript.querySelectorAll("time")).map((time) => time.getAttribute("aria-label"))).toEqual([
+      "0 milliseconds", "250 milliseconds", "250 milliseconds", "900 milliseconds",
+    ]);
+
+    const video = container.querySelector("video")!;
+    fireEvent.click(screen.getByRole("button", { name: "Seek to 250 milliseconds: First cue at a tied time." }));
+    expect((screen.getByRole("slider", { name: "Seek within Introduction" }) as HTMLInputElement).value).toBe("250");
+    expect(video.currentTime).toBe(0.25);
+    expect(screen.getByLabelText("Captions").textContent).toBe("First cue at a tied time. Second cue at a tied time.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore left path; continue to Left path" }));
+    expect(screen.getByRole("list", { name: "Transcript for Left path" }).textContent)
+      .toBe("00:00:01.000 Left scene transcript.");
+    expect(screen.queryByText("Last authored cue.")).toBeNull();
+  });
+
+  it("states when authored transcript is empty and withholds it for denied or stale scenes", () => {
+    const emptyManifest: InteractiveDemoManifest = {
+      ...BASE,
+      initialSceneId: "only-scene",
+      scenes: [{ ...BASE.scenes[1], id: "only-scene", branches: [] }],
+    };
+    const view = render(React.createElement(InteractiveDemoPlayer, {
+      manifest: emptyManifest,
+      verificationPort: testAuthority(emptyManifest),
+    }));
+    expect(screen.getByText("No authored transcript is available for this scene.")).toBeTruthy();
+
+    view.rerender(React.createElement(InteractiveDemoPlayer, { manifest: emptyManifest }));
+    expect(screen.getByRole("status").textContent).toContain("trust verifier unavailable");
+    expect(screen.queryByText("Transcript", { selector: "summary" })).toBeNull();
+
+    const staleManifest: InteractiveDemoManifest = {
+      ...emptyManifest,
+      scenes: [{
+        ...emptyManifest.scenes[0],
+        captions: { ...emptyManifest.scenes[0].captions, assetVersion: "stale-caption-version" },
+      }],
+    };
+    view.rerender(React.createElement(InteractiveDemoPlayer, {
+      manifest: staleManifest,
+      verificationPort: testAuthority(staleManifest),
+    }));
+    expect(screen.getByRole("status").textContent).toContain("stale caption asset version");
+    expect(screen.queryByText("Transcript", { selector: "summary" })).toBeNull();
+  });
+
   it("keeps branch, seek, playback, and caption updates reachable through accessible native controls", () => {
     const playMock = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
       fireEvent.play(this);
@@ -413,13 +563,13 @@ describe("interactive demo player", () => {
       verificationPort: testAuthority(BASE),
     }));
 
-    const play = screen.getByRole("button", { name: "Play Introduction" });
+    const play = screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement;
     expect(play.disabled).toBe(true);
     const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
     fireEvent.loadedMetadata(video);
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(play);
-    expect(screen.getByRole("button", { name: "Pause Introduction" }).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "Pause Introduction" }) as HTMLButtonElement).disabled).toBe(false);
     expect(playMock).toHaveBeenCalledTimes(1);
 
     Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0.25 });
@@ -511,14 +661,24 @@ describe("interactive demo player", () => {
     Object.defineProperty(video, "seeking", { configurable: true, get: () => false });
     fireEvent.seeked(video);
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
+
+    Object.defineProperty(video, "seeking", { configurable: true, get: () => true });
+    fireEvent.change(screen.getByRole("slider", { name: "Seek within Introduction" }), {
+      target: { value: "500" },
+    });
+    expect(video.currentTime).toBe(0.5);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
+
+    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0.5 });
+    Object.defineProperty(video, "seeking", { configurable: true, get: () => false });
+    fireEvent.seeked(video);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
   it("rewinds the mounted video when an authored branch loops to its current scene", () => {
     const loopManifest: InteractiveDemoManifest = {
       ...BASE,
-      scenes: BASE.scenes.map((scene) => scene.id === "intro"
-        ? { ...scene, branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }
-        : scene),
+      scenes: [{ ...BASE.scenes[0], branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }],
     };
     const pauseMock = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
     render(React.createElement(InteractiveDemoPlayer, {
@@ -549,9 +709,7 @@ describe("interactive demo player", () => {
   it("keeps readiness when a same-scene branch starts at the already confirmed scene position", () => {
     const loopManifest: InteractiveDemoManifest = {
       ...BASE,
-      scenes: BASE.scenes.map((scene) => scene.id === "intro"
-        ? { ...scene, branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }
-        : scene),
+      scenes: [{ ...BASE.scenes[0], branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }],
     };
     render(React.createElement(InteractiveDemoPlayer, {
       manifest: loopManifest,
@@ -571,9 +729,7 @@ describe("interactive demo player", () => {
   it("waits for a same-scene replay rewind before enabling playback", () => {
     const loopManifest: InteractiveDemoManifest = {
       ...BASE,
-      scenes: BASE.scenes.map((scene) => scene.id === "intro"
-        ? { ...scene, branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }
-        : scene),
+      scenes: [{ ...BASE.scenes[0], branches: [{ id: "repeat", label: "Repeat introduction", targetSceneId: "intro" }] }],
     };
     render(React.createElement(InteractiveDemoPlayer, {
       manifest: loopManifest,

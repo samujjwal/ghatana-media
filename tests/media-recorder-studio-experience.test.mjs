@@ -13,7 +13,7 @@ const expectReject=(report,part)=>assert.ok(report.errors.some(x=>x.includes(par
 test('source-derived Recorder Studio PDP3 exact coverage is 4/16/84/52/13 without runtime claims',()=>{
   const result=verifyRecorderStudioExperience();
   assert.deepEqual(result.errors,[]);
-  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,interactiveScreenCaseContracts:4,interactiveFixtureDefinitions:6,scopedExperienceScenarios:7});
+  assert.deepEqual(result.stats,{sourceDocumentsValid:true,logicalSurfaces:4,flowContracts:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,workspaceIntents:13,reusedCanonicalScreenViews:12,unregisteredScreenCandidates:1,baselineScreenViews:41,laneSpecificScreenViews:6,canonicalScreenContractIdentities:47,jobFamilySpecializations:1,interactiveScreenCaseContracts:4,interactiveFixtureDefinitions:6,scopedExperienceScenarios:7});
 });
 test('rejects missing PDP3 owner reference in the logical surface registry',()=>{
   const filename='.product-experience/surface-registry.yaml';
@@ -119,11 +119,15 @@ test('rejects a fabricated production-ready page or Explorer claim',()=>{
 });
 test('rejects fictional upstream journeys and invented operation admissions',()=>{
   expectReject(probe(x=>x.flowContracts[0].reuseExistingJourneyRefs=['J-99']),'missing or invented existing PDP3 journey');
-  expectReject(probe(x=>x.flowContracts[0].operationSelectionStatus='ADMITTED'),'step operation admission not proven');
+  expectReject(probe(x=>x.flowContracts[0].operationSelectionStatus='ADMITTED'),'step operation admission or safety not proven');
 });
 test('rejects dropped canonical journey or screen registry identities',()=>{
   const screenSource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/screen-registry.yaml'),'utf8');
   expectReject(verifyRecorderStudioExperience({overrides:{screens:screenSource.replace(/^- id: media.view.resume-work$/m,'- id: media.view.find-projects')}}),'historical PDP3 journey/screen inventory');
+  const screenRegistry=parse(screenSource);
+  screenRegistry.laneViews.pop();
+  expectReject(verifyRecorderStudioExperience({overrides:{screens:stringify(screenRegistry)}}),
+    'historical PDP3 journey/screen inventory');
   const journeySource=fs.readFileSync(path.join(root,'.product-experience/pdp-3-product-experience/journey-registry.yaml'),'utf8');
   expectReject(verifyRecorderStudioExperience({overrides:{journeys:journeySource.replace(/^  - id: J-01$/m,'  - id: J-02')}}),'historical PDP3 journey/screen inventory');
 });

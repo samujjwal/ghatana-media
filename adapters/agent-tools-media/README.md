@@ -4,6 +4,11 @@ This module binds Media tool calls to Media handlers. `MediaToolExecutionBinder`
 requires an atomic, durable invocation claim before dispatch. Its default interface methods remain fail-closed. `FileInvocationLedger` now
 provides a single-host durable UNKNOWN claim/complete implementation with
 exclusive hard-link claim, lock-serialized CAS completion and restart readback.
+Terminal completion first persists a per-invocation `.completion-pending`
+marker; replay remains `UNKNOWN` until the terminal record and marker removal
+are both directory-synced. If that final sync fails, a restarted ledger keeps
+the invocation fenced instead of exposing a potentially non-durable terminal
+result.
 Construction requires a host-injected AES key, a positive result-retention
 duration and a clock; this adapter does not generate or persist keys. Terminal
 result JSON is AES-GCM encrypted with invocation and request identity
@@ -41,3 +46,19 @@ boundary. Multi-process hosting still requires a separate transactional CAS
 implementation through a declared public port; none is currently required.
 `LogicalAction.toString()` intentionally reports only outcome and presence
 markers so result payloads and request identity do not enter routine diagnostics.
+
+Directory synchronization is part of the claim/completion acknowledgement:
+each newly created path component is synced through its containing parent,
+and the final store entry is synced even when it already exists. The nearest
+pre-existing canonical ancestor is host-provisioned durable storage. Record-
+directory sync must succeed before a claim or terminal completion is
+acknowledged. Unsupported or failed sync fails closed. A hard
+stop can leave `.inv-*.tmp` staging files; they never replace digest-named
+`.json` records as ledger truth, and the store does not remove them
+automatically. For safe recovery, stop every process that can write to the
+directory, inventory staging-file names, sizes and SHA-256 values, then remove
+only `.inv-*.tmp` files. Preserve `.json` records, `.lock` sidecars, and
+`.completion-pending` markers, retain
+the before/after inventory with the local operator record, then restart and
+verify expected invocation readback. Do not delete staging files by age while
+a writer may be active.

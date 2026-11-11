@@ -2,7 +2,7 @@ import React, { useId, useState } from "react";
 import { Badge, Button } from "@ghatana/design-system";
 import type { MediaActionDispatchResult } from "../ports";
 import { MediaComponentValueTypes } from "./MediaComponentValueTypes";
-import { MediaActionFeedback, mediaActionFeedbackForResult, type MediaActionFeedbackValue } from "./MediaActionFeedback";
+import { mediaActionFeedbackElement, mediaActionFeedbackForResult, type MediaActionFeedbackValue } from "./MediaActionFeedback";
 
 export type MediaComponentValue = MediaComponentValueTypes.JsonValue;
 
@@ -261,7 +261,7 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
       </span>)}
     </div>}
     {invalidActions.length > 0 && <p role="status">An action not declared by this component was withheld.</p>}
-    {actionObservation && <MediaActionFeedback value={actionObservation.value} />}
+    {actionObservation && mediaActionFeedbackElement(actionObservation.value)}
     <details className="media-family__keyboard-contract"><summary>Keyboard behavior contract</summary><ValueView value={keyboardBehavior} /></details>
   </section>;
 }

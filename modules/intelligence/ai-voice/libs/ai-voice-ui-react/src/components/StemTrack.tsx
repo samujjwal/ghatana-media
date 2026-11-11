@@ -141,6 +141,7 @@ export const StemTrack: React.FC<StemTrackProps> = ({
               disabled={disabled || !onVolumeChange}
               className="min-h-11 w-full cursor-pointer"
               style={{ accentColor: colors.focus }}
+              aria-label={`${displayName} volume`}
               aria-valuetext={`${Math.round(volume * 100)} percent`}
             />
           </label>
@@ -169,6 +170,7 @@ export const StemTrack: React.FC<StemTrackProps> = ({
               disabled={disabled || !onPanChange}
               className="min-h-11 w-full cursor-pointer"
               style={{ accentColor: colors.focus }}
+              aria-label={`${displayName} pan`}
               aria-valuetext={
                 pan === 0
                   ? "center"

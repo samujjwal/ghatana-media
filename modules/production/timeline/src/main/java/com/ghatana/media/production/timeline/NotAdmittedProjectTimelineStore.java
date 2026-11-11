@@ -13,7 +13,7 @@ public final class NotAdmittedProjectTimelineStore implements ProjectTimelineSto
     }
 
     @Override public Created create(Actor actor, String workspaceId, String title, String requestId,
-                                   String projectId, String initialRevisionId, String timelineId) {
+                                   String projectId, String initialRevisionId) {
         requireCreateProjectRequestId(requestId);
         throw unavailable();
     }
@@ -23,7 +23,7 @@ public final class NotAdmittedProjectTimelineStore implements ProjectTimelineSto
     @Override public Revision revision(Actor actor, String projectId, String revisionId) { throw unavailable(); }
 
     @Override public Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
-                                     String newRevisionId, Graph graph) {
+                                     String newRevisionId, java.util.List<TimelineSnapshot> timelines) {
         throw unavailable();
     }
 }

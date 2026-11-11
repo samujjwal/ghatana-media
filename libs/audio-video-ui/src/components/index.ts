@@ -1,8 +1,6 @@
 export { MediaTaskFlow } from "./MediaTaskFlow";
 export { MediaProgress } from "./MediaProgress";
 export type { MediaProgressProps, MediaProgressTone } from "./MediaProgress";
-export { MediaActionFeedback, mediaActionFeedbackForResult } from "./MediaActionFeedback";
-export type { MediaActionFeedbackState, MediaActionFeedbackValue } from "./MediaActionFeedback";
 export {
   IdentityContextBoundary,
   IntentLauncher,
@@ -94,7 +92,7 @@ export type {
   ActivityRecoveryFeedProps,
   CliOutputProps,
 } from "./MediaComponentFamilies";
-export { MediaComponentValueTypes } from "./MediaComponentValueTypes";
+export type * as MediaComponentValueTypes from "./MediaComponentValueTypes";
 export { MEDIA_COMPONENT_RUNTIME_CONTRACTS, validateMediaFamilyProjection } from "./MediaComponentRuntimeContracts";
 export type { MediaFamilyProjectionValidation } from "./MediaComponentRuntimeContracts";
 export type {

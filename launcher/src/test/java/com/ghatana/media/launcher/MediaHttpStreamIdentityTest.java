@@ -123,6 +123,69 @@ class MediaHttpStreamIdentityTest {
         }
     }
 
+    @Test
+    void ambiguousFrameOutcomeIsReportedAsUnknownAndNotRetryable() throws Exception {
+        var root = Files.createTempDirectory("media-http-stream-unknown-");
+        var provider = new LocalAudioProvider(true);
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "test", 8093, 1_024, 128, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, true, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+        HttpServer server = null;
+        try {
+            server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/", new MediaSecurityFilter(
+                    new MediaHttpHandler(runtime), "test", jwtEnvironment(), CLOCK));
+            server.start();
+            HttpClient client = HttpClient.newHttpClient();
+            String base = "http://127.0.0.1:" + server.getAddress().getPort();
+            String openBody = "{\"tenantId\":\"" + TENANT + "\",\"principalId\":\"subject-A\","
+                    + "\"correlationId\":\"stream-unknown-outcome\",\"streamKind\":\"AUDIO\","
+                    + "\"providerHint\":\"" + provider.providerId() + "\",\"maximumBufferedBytes\":128,"
+                    + "\"leaseDuration\":\"PT30S\",\"metadata\":{}}";
+            Response opened = send(client, base, "POST", "/api/v1/streams", "application/json",
+                    "subject-A", false, null, openBody.getBytes(StandardCharsets.UTF_8));
+            assertThat(opened.status()).as(opened.body()).isEqualTo(201);
+            JsonNode registration = JSON.readTree(opened.body());
+            String sessionId = registration.path("session").path("sessionId").asString();
+            String streamToken = registration.path("connectionToken").asString();
+            Response connected = send(client, base, "POST", "/api/v1/streams/" + sessionId + "/connect",
+                    "application/json", "subject-A", false, streamToken, new byte[0]);
+            assertThat(connected.status()).as(connected.body()).isEqualTo(200);
+
+            byte[] frame = new byte[] {1, 2, 3};
+            Response uncertain = send(client, base, "POST", "/api/v1/streams/" + sessionId + "/frames/0",
+                    "application/octet-stream", "subject-A", false, streamToken, frame);
+            JsonNode error = JSON.readTree(uncertain.body()).path("error");
+            assertThat(uncertain.status()).isEqualTo(503);
+            assertThat(error.path("code").asString()).isEqualTo("UNKNOWN_OUTCOME");
+            assertThat(error.path("retryable").asBoolean()).isFalse();
+            assertThat(uncertain.body()).doesNotContain("provider-private-detail");
+
+            var persisted = runtime.stream(TENANT, sessionId).orElseThrow();
+            assertThat(persisted.finality()).isEqualTo(
+                    com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality.UNKNOWN);
+            assertThat(persisted.inFlightSequence()).isZero();
+            assertThat(provider.calls()).isEqualTo(1);
+        } finally {
+            try {
+                if (server != null) server.stop(0);
+                runtime.close();
+            } finally {
+                try (var paths = Files.walk(root)) {
+                    for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                        Files.deleteIfExists(path);
+                    }
+                }
+            }
+        }
+    }
+
     private static Response send(HttpClient client, String base, String method, String path,
             String contentType, String subject, boolean forgePrincipal, String streamToken, byte[] body) throws Exception {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(base + path))
@@ -178,6 +241,13 @@ class MediaHttpStreamIdentityTest {
 
     private static final class LocalAudioProvider implements MediaStreamingProvider {
         private final AtomicInteger calls = new AtomicInteger();
+        private final boolean unknownOutcome;
+
+        private LocalAudioProvider() { this(false); }
+
+        private LocalAudioProvider(boolean unknownOutcome) {
+            this.unknownOutcome = unknownOutcome;
+        }
 
         @Override public String providerId() { return "local-stream-identity-provider"; }
         @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
@@ -191,6 +261,9 @@ class MediaHttpStreamIdentityTest {
         public CompletableFuture<StreamAck> accept(StreamContext context,
                 com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame frame) {
             calls.incrementAndGet();
+            if (unknownOutcome) {
+                return CompletableFuture.failedFuture(new IllegalStateException("provider-private-detail"));
+            }
             return CompletableFuture.completedFuture(
                     new StreamAck(frame.sequence(), frame.payload().length, false));
         }

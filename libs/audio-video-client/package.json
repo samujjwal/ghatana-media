@@ -3,7 +3,8 @@
   "version": "0.1.0-SNAPSHOT",
   "description": "Operation-oriented TypeScript client for governed media artifacts and processing jobs",
   "bin": {
-    "ghatanamedia-api": "./dist/cli.js"
+    "ghatanamedia-api": "./dist/cli.js",
+    "ghatanamedia-api-dev": "./dist/cli-dev.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -99,6 +100,16 @@
       "types": "./dist/caption-version.d.ts",
       "import": "./dist/caption-version.js",
       "require": "./dist-cjs/caption-version.js"
+    },
+    "./dev-project-timeline": {
+      "types": "./dist/dev-project-timeline.d.ts",
+      "import": "./dist/dev-project-timeline.js",
+      "require": "./dist-cjs/dev-project-timeline.js"
+    },
+    "./dev-job-cancellation": {
+      "types": "./dist/dev-job-cancellation.d.ts",
+      "import": "./dist/dev-job-cancellation.js",
+      "require": "./dist-cjs/dev-job-cancellation.js"
     }
   },
   "dependencies": {

@@ -2,6 +2,59 @@
 
 Prepared Media-specific broker integration source; not a competing Event Plane or Shared messaging engine. Production publication/finality must use the owning platform's admitted interface and independently verified effects.
 
+## Vision, consumers, and non-goals
+
+This module keeps Media lifecycle intent durable and observable across broker
+delivery without treating broker acknowledgement as consumer application, job
+finality, or provider effect. Its consumers are Media runtime hosts and
+authorized lifecycle projection consumers. The module adapts Shared messaging
+primitives; it does not own a broker, durable outbox, durable projection store,
+job state, provider effects, or Event Plane admission.
+
+## Requirements and public contracts
+
+`MediaLifecycleOutboxRelay` is the public adapter entry point. It uses Shared
+`OutboxPublicationSource`, `ClaimedOutboxPublisher`, and `EventBusPort`, with the
+stable `media-lifecycle` topic, `media-runtime` source identity, and lifecycle
+v1 schema URI. The source must append intent in the same transaction as the
+owning state change, persist fenced claims and publication attempts, and make
+unacknowledged events retryable with their original identity. The relay's
+published count means broker acceptance was durably recorded only.
+
+`MediaLifecycleEventConsumer` validates the public v1 envelope and payload,
+redacts identifiers, authorizes projection, and requires idempotent,
+aggregate-version-aware projection storage. Projection failures are
+`CONSUMPTION_UNKNOWN`; terminal job status requires separate authorized durable
+readback. Existing legacy payload families still require an owner-approved
+mapping and drain protocol before they can be combined or suppressed.
+
+## Architecture and design
+
+The module is an adapter layer. Durable claim/attempt/retry state belongs to the
+PostgreSQL provider; broker acceptance belongs to the Shared publisher/broker
+boundary; consumer receipts belong to the projection store; job finality belongs
+to the canonical job store. All boundaries use stable event identity and keep
+append, delivery, consumption, and effect facts distinct. Extension points are
+the Shared source, event bus, authorization, redaction, projection, and terminal
+readback ports. No provider or broker implementation should be added here.
+
+## Example
+
+Construct `MediaLifecycleOutboxRelay` with the durable source, `EventBusPort`,
+owner identity, bounded batch size, lease duration, diagnostics, and a clock;
+call `runOnce()` and persist broker acceptance through the source. A successful
+batch does not confirm a consumer effect or terminal job state.
+
+## Evidence and known gaps
+
+The deterministic module tests cover relay replay after lost acknowledgement,
+expired lease handling, envelope parity, consumer idempotency, ordering,
+authorization, and non-final append semantics. They do not prove a real broker,
+durable consumer receipt store, Event Plane receipt, or legacy-family migration.
+Use the module test task below and the provider's H2/PostgreSQL source tests;
+repository-native path-scoped convergence evidence is not currently registered
+for this adapter.
+
 ## Purpose
 
 Provides producer and consumer implementations for the transcription job queue. Decouples request ingestion from asynchronous transcription execution.

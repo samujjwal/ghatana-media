@@ -14,7 +14,7 @@ import type {
   MediaScreenBody,
 } from "../ports";
 import type { MediaComponentValue } from "../components/MediaComponentFamilies";
-import { MediaActionFeedback, mediaActionFeedbackForResult, type MediaActionFeedbackValue } from "../components/MediaActionFeedback";
+import { mediaActionFeedbackElement, mediaActionFeedbackForResult, type MediaActionFeedbackValue } from "../components/MediaActionFeedback";
 
 /** Action facts projected by a host. The host port performs the requested action. */
 export interface MediaScreenAction {
@@ -58,7 +58,9 @@ export function MediaTaskScreen({
     id: action.id,
     label: action.label,
     disabled: !action.enabled || pendingActionId !== undefined,
-    disabledReason: action.disabledReason,
+    disabledReason: action.disabledReason
+      ?? (!action.enabled ? "This action is unavailable in the current host projection." : undefined)
+      ?? (pendingActionId !== undefined ? "Another action is being requested; wait for its outcome before continuing." : undefined),
     destructive: action.destructive,
     onAction: () => {
       if (!action.enabled || pendingActionId !== undefined) return;
@@ -72,8 +74,10 @@ export function MediaTaskScreen({
               ? await actionPort.invoke(action.id, undefined, { subjectRefs: action.subjectRefs ?? [] })
               : await actionPort.invoke(action.id, action.payload, { subjectRefs: action.subjectRefs ?? [] });
           setActionStatus(mediaActionFeedbackForResult(result));
-        } catch (error) {
-          setActionStatus({ state: "unknown", message: `Request outcome is unknown: ${error instanceof Error ? error.message : "request failure"}. Reconcile before retrying.` });
+        } catch {
+          // Host and transport exceptions can contain credentials or private
+          // request details. Keep the result unknown without projecting them.
+          setActionStatus({ state: "unknown", message: "Request outcome is unknown. Reconcile with the owner before retrying." });
         } finally {
           setPendingActionId(undefined);
         }
@@ -96,7 +100,7 @@ export function MediaTaskScreen({
       onStepSelect={onSelectStep}
       className={className}
     >
-      <>{children}{actionStatus && <MediaActionFeedback value={actionStatus} />}</>
+      <>{children}{actionStatus && mediaActionFeedbackElement(actionStatus)}</>
     </MediaTaskFlow>
   </div>;
 }

@@ -1,6 +1,7 @@
 package com.ghatana.media.production.timeline;
 
 import static com.ghatana.media.runtime.MediaProjectTimelineContracts.requiredOpaqueId;
+import static com.ghatana.media.runtime.MediaProjectTimelineContracts.requiredOpaqueVersionId;
 
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion;
@@ -124,8 +125,8 @@ public final class ReferenceGuidedScenePlanner {
     /** Kept in the type system for a future admitted adapter; this planner never fabricates it. */
     public record ModelOutput(String artifactId, String artifactVersionId, String sha256) implements ModelResult {
         public ModelOutput {
-            artifactId = required(artifactId, "artifactId");
-            artifactVersionId = required(artifactVersionId, "artifactVersionId");
+            artifactId = requiredOpaqueId(artifactId, "artifactId");
+            artifactVersionId = requiredOpaqueVersionId(artifactVersionId, "artifactVersionId");
             sha256 = digest(sha256);
         }
     }

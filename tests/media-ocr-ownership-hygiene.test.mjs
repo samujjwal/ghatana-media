@@ -49,7 +49,15 @@ test('MDI-001 is the sole OCR execution owner and Media has no generic recognize
   assert.match(owner, /All OCR\s+execution anywhere in Ghatana is exposed \*\*exclusively through Document/u);
   assert.match(pdp, /PDP0-003-D4/u);
   assert.match(source, /diClient: DocumentIntelligenceV1Client/u);
-  assert.match(source, /new DocumentIntelligenceSceneTextAdapter\(diClient, diPolicy\)/u);
+  assert.match(source, /const guardedClient: DocumentIntelligenceV1Client = \{/u,
+    'Media must wrap the DI client to recheck source authority at the parse egress boundary');
+  assert.match(source, /providers: \(providerSignal\) => diClient\.providers\(providerSignal\)/u,
+    'DI remains the sole provider catalog and OCR authority');
+  assert.match(source, /parse: async \(input\) => \{\s*try \{\s*current = await currentSourceDecision/u,
+    'current source authority must be rechecked immediately before parse');
+  assert.match(source, /return diClient\.parse\(input\)/u,
+    'all OCR execution must continue through the DI client');
+  assert.match(source, /new DocumentIntelligenceSceneTextAdapter\(guardedClient, admittedPolicy\)/u);
   assert.doesNotMatch(source, /interface MediaSceneTextRecognizer/u);
   assert.doesNotMatch(source, /qualified Vision OCR provider|Media-owned OCR model/u);
   assert.match(contract, /DOCUMENT_INTELLIGENCE_PROTOCOL_V1/u);

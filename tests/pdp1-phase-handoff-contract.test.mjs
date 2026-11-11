@@ -3,8 +3,9 @@ import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { repositoryRootForModuleUrl } from "../scripts/lib/media-repository-root.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = repositoryRootForModuleUrl(import.meta.url);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const handoff = readYaml(".product-experience/pdp-1-domain-data/handoff-contracts.yaml").handoffs.pdp1ToPdp2CanonicalDomain;
@@ -47,6 +48,14 @@ test("PDP-1 to PDP-2 handoff names a stable source contract and current owner po
     "modules/vision/vision-service/src/main/proto/vision_service.proto",
     "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
   ];
+  const ownerGrpcIdentities = Object.entries(operations.sourceDenominators.grpcRpcs.exactObservedIdentities)
+    .flatMap(([service, methods]) => methods.map((method) => `${service}.${method}`));
+  const currentGrpcIdentities = grpcPaths.flatMap((path) => {
+    const content = readFileSync(resolve(root, path), "utf8");
+    const service = content.match(/^service\s+(\w+)\s*\{/mu)?.[1];
+    assert.ok(service, `${path} declares its gRPC service`);
+    return [...content.matchAll(/^\s*rpc\s+(\w+)\s*\(/gmu)].map(([, method]) => `${service}.${method}`);
+  });
 
   assert.equal(population.domainObjects.count, domain.objects.length);
   assert.equal(population.registeredObjectIdentities.count, domain.ownerTypedIdentityContracts.records.length);
@@ -93,7 +102,19 @@ test("PDP-1 to PDP-2 handoff names a stable source contract and current owner po
     id === "media.operation.spatial-export.execute.v1"),
   "the J-28 spatial export command is included in the owner-defined operation handoff population");
   assert.equal(population.interfaceIdentities.http.count, httpCount);
-  assert.equal(population.interfaceIdentities.grpc.count, countGrpcMethods(grpcPaths));
+  assert.equal(population.interfaceIdentities.grpc.count, currentGrpcIdentities.length,
+    "PDP-1 handoff inventory count follows the current proto sources");
+  assert.equal(ownerGrpcIdentities.length, 43);
+  assert.equal(operations.sourceDenominators.grpcRpcs.count, ownerGrpcIdentities.length,
+    "the historical PDP-1 owner-defined RPC denominator remains 43");
+  assert.ok(ownerGrpcIdentities.every((identity) => currentGrpcIdentities.includes(identity)),
+    "all historical PDP-1 gRPC identities remain observable in current proto source");
+  assert.equal(currentGrpcIdentities.length, countGrpcMethods(grpcPaths));
+  assert.equal(currentGrpcIdentities.length, 45);
+  assert.deepEqual(currentGrpcIdentities.filter((identity) => !ownerGrpcIdentities.includes(identity)).sort(), [
+    "VisionService.RecognizeSceneText",
+    "VisionService.ResolveSourceFrame",
+  ], "the OCR proposal and source-frame resolver remain outside the 43-identity PDP-1 handoff");
   assert.equal(population.interfaceIdentities.sdk.rawRegistryRows, sdk.methods.length);
   assert.equal(population.interfaceIdentities.sdk.count, sdk.methods.filter((row) => row.visibility === "public" && row.declaringClass !== "none; parser-artifact").length);
   assert.equal(population.interfaceIdentities.sdk.parserTokensExcluded, sdk.methods.filter((row) => row.declaringClass === "none; parser-artifact").length);

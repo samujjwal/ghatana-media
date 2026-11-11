@@ -37,8 +37,8 @@ test('TY-03: HTTP route surface has not drifted (27 ops)', () => {
   assert.deepEqual(http, committed.http.operations);
 });
 
-test('TY-03: gRPC RPC surface has not drifted (44 RPCs)', () => {
-  assert.equal(grpc.length, 44);
+test('TY-03: gRPC RPC surface has not drifted (45 RPCs)', () => {
+  assert.equal(grpc.length, 45);
   assert.deepEqual(grpc, committed.grpc.rpcs);
 });
 

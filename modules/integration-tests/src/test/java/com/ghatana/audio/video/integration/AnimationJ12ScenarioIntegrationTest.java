@@ -248,13 +248,15 @@ class AnimationJ12ScenarioIntegrationTest {
                 () -> "j12-fixture-id-" + generatedId.incrementAndGet());
         Actor actor = new Actor(TENANT, ACTOR);
         var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 source", "j12-create-unknown");
+        var timelineHead = timeline.createTimeline(actor, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-j12");
         var source = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
                 "synthetic-source", "synthetic-source-v1");
         var sourceIn = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
         var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
         var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
         var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
-        var revision = timeline.edit(actor, created.project().projectId(), created.initialRevision().revisionId(), List.of(
+        var revision = timeline.edit(actor, created.project().projectId(), "timeline-j12", timelineHead.revisionId(), List.of(
                 new ProjectTimelineEngine.AddScene(
                         new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
                 new ProjectTimelineEngine.AddTrack(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Track(
@@ -295,13 +297,15 @@ class AnimationJ12ScenarioIntegrationTest {
                 () -> "j12-denied-fixture-id-" + generatedId.incrementAndGet());
         Actor actor = new Actor(TENANT, ACTOR);
         var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 source", "j12-create-denied");
+        var timelineHead = timeline.createTimeline(actor, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-j12");
         var source = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
                 "synthetic-source", "synthetic-source-v1");
         var sourceIn = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
         var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
         var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
         var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
-        var revision = timeline.edit(actor, created.project().projectId(), created.initialRevision().revisionId(), List.of(
+        var revision = timeline.edit(actor, created.project().projectId(), "timeline-j12", timelineHead.revisionId(), List.of(
                 new ProjectTimelineEngine.AddScene(
                         new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
                 new ProjectTimelineEngine.AddTrack(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Track(
@@ -339,6 +343,63 @@ class AnimationJ12ScenarioIntegrationTest {
     }
 
     @Test
+    void oneRevokedSourceAmongMultipleClipsBlocksFixtureRenderDispatch() {
+        AtomicInteger generatedId = new AtomicInteger();
+        ProjectTimelineEngine timeline = new ProjectTimelineEngine(new InMemoryProjectTimelineStore(),
+                () -> "j12-multisource-fixture-id-" + generatedId.incrementAndGet());
+        Actor actor = new Actor(TENANT, ACTOR);
+        var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 multi-source", "j12-create-multisource");
+        var timelineHead = timeline.createTimeline(actor, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-j12");
+        var firstSource = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
+                "synthetic-source-a", "synthetic-source-a-v1");
+        var secondSource = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
+                "synthetic-source-b", "synthetic-source-b-v1");
+        var sourceIn = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
+        var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
+        var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
+        var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
+        var revision = timeline.edit(actor, created.project().projectId(), "timeline-j12", timelineHead.revisionId(), List.of(
+                new ProjectTimelineEngine.AddScene(
+                        new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
+                new ProjectTimelineEngine.AddTrack(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Track(
+                        "j12-track", "j12-scene",
+                        com.ghatana.media.runtime.MediaProjectTimelineContracts.TrackKind.OVERLAY, 0)),
+                new ProjectTimelineEngine.PutClip(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip(
+                        "j12-clip-a", "j12-scene", "j12-track", firstSource, sourceIn, sourceOut,
+                        storyStart, storyDuration)),
+                new ProjectTimelineEngine.PutClip(new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip(
+                        "j12-clip-b", "j12-scene", "j12-track", secondSource, sourceIn, sourceOut,
+                        storyStart, storyDuration))));
+
+        java.util.Set<String> checkedSources = new java.util.HashSet<>();
+        AtomicInteger renderDispatches = new AtomicInteger();
+        Runnable fixtureRenderDispatch = () -> {
+            timeline.requireCurrentSources(actor, created.project().projectId(), revision.revisionId(),
+                    (checkedActor, checkedSource) -> {
+                        assertThat(checkedActor).isEqualTo(actor);
+                        checkedSources.add(checkedSource.artifactId());
+                        return checkedSource.equals(firstSource)
+                                ? com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.ELIGIBLE
+                                : com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.REVOKED;
+                    });
+            renderDispatches.incrementAndGet();
+            new AnimationRenderer().render(spec(), scene(), new AnimationRenderer.Profile(10, 1, 3));
+        };
+
+        assertThatThrownBy(fixtureRenderDispatch::run)
+                .isInstanceOf(com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibilityException.class)
+                .satisfies(error -> assertThat(
+                        ((com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibilityException) error)
+                                .observed())
+                        .isEqualTo(com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceEligibility.REVOKED));
+        assertThat(checkedSources).containsExactlyInAnyOrder("synthetic-source-a", "synthetic-source-b");
+        assertThat(renderDispatches).hasValue(0);
+        assertThat(timeline.project(actor, created.project().projectId()).headRevisionId())
+                .isEqualTo(revision.revisionId());
+    }
+
+    @Test
     void staleSourceRevisionCannotAdvanceDraftOrReachFixtureRenderer() {
         AtomicInteger generatedId = new AtomicInteger();
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
@@ -346,6 +407,8 @@ class AnimationJ12ScenarioIntegrationTest {
                 () -> "j12-stale-fixture-id-" + generatedId.incrementAndGet());
         Actor actor = new Actor(TENANT, ACTOR);
         var created = timeline.createProject(actor, WORKSPACE, "Synthetic J-12 source", "j12-create-stale");
+        var timelineHead = timeline.createTimeline(actor, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-j12");
         var sourceV1 = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
                 "synthetic-source", "synthetic-source-v1");
         var sourceV2 = new com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion(
@@ -354,8 +417,8 @@ class AnimationJ12ScenarioIntegrationTest {
         var sourceOut = new RationalTime(1, 24, 1, Clock.SOURCE_PRESENTATION);
         var storyStart = new RationalTime(0, 24, 1, Clock.STORY);
         var storyDuration = new RationalTime(1, 24, 1, Clock.STORY);
-        var initialDraft = timeline.edit(actor, created.project().projectId(),
-                created.initialRevision().revisionId(), List.of(
+        var initialDraft = timeline.edit(actor, created.project().projectId(), "timeline-j12",
+                timelineHead.revisionId(), List.of(
                         new ProjectTimelineEngine.AddScene(
                                 new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("j12-scene", 0)),
                         new ProjectTimelineEngine.AddTrack(
@@ -367,7 +430,7 @@ class AnimationJ12ScenarioIntegrationTest {
 
         // A later local draft revision selects the new immutable source version.
         // This uses the process-local test store and does not claim a durable commit.
-        var currentDraft = timeline.edit(actor, created.project().projectId(), initialDraft.revisionId(), List.of(
+        var currentDraft = timeline.edit(actor, created.project().projectId(), "timeline-j12", initialDraft.revisionId(), List.of(
                 new ProjectTimelineEngine.PutClip(
                         new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip("j12-clip", "j12-scene",
                                 "j12-track", sourceV2, sourceIn, sourceOut, storyStart, storyDuration))));
@@ -376,7 +439,7 @@ class AnimationJ12ScenarioIntegrationTest {
         Runnable staleDraftRender = () -> {
             // Replaying a render with the old head must fail before any renderer
             // effect, even though its old source bytes are still in the fixture.
-            timeline.edit(actor, created.project().projectId(), initialDraft.revisionId(), List.of(
+            timeline.edit(actor, created.project().projectId(), "timeline-j12", initialDraft.revisionId(), List.of(
                     new ProjectTimelineEngine.PutClip(
                             new com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip("j12-clip", "j12-scene",
                                     "j12-track", sourceV1, sourceIn, sourceOut, storyStart, storyDuration))));
@@ -392,7 +455,7 @@ class AnimationJ12ScenarioIntegrationTest {
         assertThat(timeline.project(actor, created.project().projectId()).headRevisionId())
                 .isEqualTo(currentDraft.revisionId());
         assertThat(store.revision(actor, created.project().projectId(), currentDraft.revisionId())
-                .graph().clips().getFirst().source()).isEqualTo(sourceV2);
+                .timelines().getFirst().graph().clips().getFirst().source()).isEqualTo(sourceV2);
     }
 
     @Test

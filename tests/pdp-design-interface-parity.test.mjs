@@ -3,8 +3,9 @@ import { createRequire } from "node:module";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { repositoryRootForModuleUrl } from "../scripts/lib/media-repository-root.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = repositoryRootForModuleUrl(import.meta.url);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const parity = readYaml(".product-experience/interface-parity/operation-parity.yaml");
@@ -184,8 +185,15 @@ test("HTTP health and diagnostic identities have exact source-backed transport d
   assert.match(routeManifest, /"GET"\.equals\(method\) && "\/api\/v1\/providers"\.equals\(path\)\) return "media:provider:read"/u);
   const publicPaths = securityFilter.match(/PUBLIC_PATHS = Set\.of\(([\s\S]*?)\);/u)?.[1] ?? "";
   assert.doesNotMatch(publicPaths, /\/api\/v1\/providers/u, "provider readiness is not a public probe");
-  assert.match(securityFilter, /MediaRouteManifest\.requiredPermission\([\s\S]*?identity\.hasPermission\(required\)/u,
-    "the authenticated provider route checks its exact manifest permission");
+  assert.match(securityFilter,
+    /String required = requiredPermission\(exchange\.getRequestMethod\(\), exchange\.getRequestURI\(\)\.getPath\(\), true\);[\s\S]*?identity\.hasPermission\(required\)/u,
+    "DEV_ONLY bearer authorization resolves and checks the route permission");
+  assert.match(securityFilter,
+    /String required = requiredPermission\(exchange\.getRequestMethod\(\), exchange\.getRequestURI\(\)\.getPath\(\), false\);[\s\S]*?identity\.hasPermission\(required\)/u,
+    "standard bearer authorization resolves and checks the route permission");
+  assert.match(securityFilter,
+    /private static String requiredPermission\(String method, String path, boolean devOnlyIdentity\) \{\s*String canonical = MediaRouteManifest\.requiredPermission\(method, path\);\s*if \(canonical != null \|\| !devOnlyIdentity\) return canonical;\s*return MediaDevOnlyRoutePermissions\.requiredPermission\(method, path\);\s*\}/u,
+    "the shared helper uses the route manifest and falls back to DEV_ONLY permissions only for DEV_ONLY identities");
   for (const forbidden of ["qualified", "admitted", "rights", "eligible"]) {
     assert.equal(Object.keys(providerSchema.properties).some((field) => field.toLowerCase().includes(forbidden)), false,
       `provider read model must not acquire a ${forbidden} field`);
@@ -394,6 +402,7 @@ test("gRPC transport and provider administration methods partition the exact obs
 
   const contracts = parity.typedGrpcMethodContracts;
   assert.equal(contracts.length, inventory.length);
+  assert.equal(contracts.length, 45);
   assert.equal(new Set(contracts.map(({ identity }) => identity)).size, contracts.length);
   const sourceSignatures = new Map(surface.source.flatMap((path) => [...grpcSignatures(path)]));
   const operationSource = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
@@ -458,7 +467,7 @@ test("gRPC identities retain every exact request/result field while leaving sema
   const contracts = parity.typedGrpcMethodContracts;
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
   const operationIds = new Set(operations.ownerDefinedOperationContracts.records.map(({ id }) => id));
-  assert.equal(contracts.length, 44);
+  assert.equal(contracts.length, 45);
   const counts = {};
   for (const contract of contracts) {
     counts[contract.fieldParityStatus] = (counts[contract.fieldParityStatus] ?? 0) + 1;
@@ -492,7 +501,12 @@ test("gRPC identities retain every exact request/result field while leaving sema
   assert.equal(counts["FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted"], 18);
   assert.equal(counts["SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable"], 22);
   assert.equal(counts["OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established"], 4);
-  assert.equal(counts.UNRESOLVED_ROLE_AND_FIELD_PARITY ?? 0, 0);
+  assert.equal(counts.UNRESOLVED_ROLE_AND_FIELD_PARITY ?? 0, 1);
+  const sourceFrameResolution = contracts.find(({ identity }) => identity === "VisionService.ResolveSourceFrame");
+  assert.equal(sourceFrameResolution.bindingStatus, "UNRESOLVED");
+  assert.equal(sourceFrameResolution.role, "UNRESOLVED");
+  assert.equal(sourceFrameResolution.canonicalFamilyCandidateRef, null);
+  assert.match(sourceFrameResolution.bindingBasis, /no owner-defined PDP-1 operation or query identity/u);
 
   const transcribe = structuredClone(contracts.find(({ identity }) => identity === "STTService.Transcribe"));
   transcribe.inputFieldInventory.fields = transcribe.inputFieldInventory.fields.filter(({ name }) => name !== "tenant_id");
@@ -559,14 +573,26 @@ test("STT file-transcription candidate records the exact canonical adapter gaps 
   const direct = readFileSync(resolve(root, "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java"), "utf8");
   const persistent = readFileSync(resolve(root, "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/PersistentSttGrpcService.java"), "utf8");
   const directMethod = direct.slice(direct.indexOf("public void transcribe("), direct.indexOf("public StreamObserver<AudioChunk> streamTranscribe("));
+  const directOptions = direct.slice(direct.indexOf("private static TranscriptionOptions transcriptionOptions("), direct.indexOf("@Override", direct.indexOf("private static TranscriptionOptions transcriptionOptions(")));
   const persistentMethod = persistent.slice(persistent.indexOf("public void transcribe("), persistent.indexOf("private String getTenantId("));
   assert.match(directMethod, /SttAudioInputDecoder\.requireSampleRate\(sampleRate\)/u);
   assert.match(directMethod, /transcriptionOptions\(request\)/u);
   assert.match(directMethod, /SttLanguageSupport\.isSupported\(language\)/u);
-  assert.doesNotMatch(directMethod, /getProfileId\(\)|getTenantId\(\)|getConsentStatus\(\)|getRetentionPolicy\(\)/u);
+  assert.match(directOptions, /request\.hasOptions\(\)[\s\S]*?request\.getOptions\(\)/u);
+  for (const consumedOption of ["getMaxAlternatives", "getEnablePunctuation", "getEnableWordTimings"]) {
+    assert.match(directOptions, new RegExp(`wireOptions\\.${consumedOption}\\(\\)`),
+      `direct STT transcription options must consume ${consumedOption}`);
+  }
+  assert.match(directOptions, /request\.getLanguage\(\)/u, "direct STT options also consume the request language");
+  assert.doesNotMatch(directOptions, /getProfileId\(\)|getTenantId\(\)|getConsentStatus\(\)|getRetentionPolicy\(\)/u,
+    "direct STT transcription options do not consume profile, tenant, consent, or retention fields");
   assert.match(persistentMethod, /String tenantId\s*=\s*identity\.tenantId\(\)/u);
+  assert.match(persistentMethod,
+    /String requestedTenantId = request\.getTenantId\(\);\s*if \(!requestedTenantId\.isEmpty\(\) && !tenantId\.equals\(requestedTenantId\)\) \{[\s\S]*?Status\.PERMISSION_DENIED/u,
+    "persistent STT treats the authenticated tenant as authoritative and denies an explicit mismatch");
   assert.match(persistent, /JwtServerInterceptor\.verifiedIdentity\(\)/u);
-  assert.doesNotMatch(persistentMethod, /request\.getTenantId\(\)|request\.getProfileId\(\)|request\.getOptions\(\)/u);
+  assert.doesNotMatch(persistentMethod, /request\.getProfileId\(\)|request\.getOptions\(\)/u,
+    "persistent STT transcribe does not consume request profile or transcription options");
 
   const requiredGaps = [
     "exact immutable sourceArtifactId plus sourceArtifactVersionId and authoritative content digest",
@@ -917,18 +943,37 @@ test("remaining machine-channel identities are finite, source-backed, and explic
   assert.equal(providerCatalog.bindingStatus, "NOT_ADMITTED");
   assert.equal(providerCatalog.canonicalOperationRef, null);
   assert.equal(providerCatalog.candidateOperationRef, null);
-  assert.deepEqual(providerCatalog.responseFields, [
+  assert.equal(providerCatalog.declaredResultTypeRef, "libs/audio-video-types/src/contracts.ts#ProviderCapability");
+  assert.deepEqual(providerCatalog.declaredResultFields, [
     "id", "providerId", "operation", "state", "supportedMimeTypes", "supportedLanguages", "maxInputBytes",
     "maxDurationMs", "streamingSupported", "cancellationSupported", "limitations", "lastCheckedAt",
   ]);
+  assert.equal(Object.hasOwn(providerCatalog, "responseFields"), false,
+    "a fail-closed legacy method declaration is not an observed provider response");
   assert.equal(providerCatalogRole.type, "LEGACY_PROVIDER_CATALOG_READ");
   assert.ok(!sdkSurface.unresolved.includes("media.sdk.listProviderCapabilities"),
     "source-exact legacy catalog role is not left as an unexplained operation identity");
   const legacyProviderSource = readFileSync(resolve(root, "libs/audio-video-client/src/operations.ts"), "utf8");
   const providerTypeSource = readFileSync(resolve(root, "libs/audio-video-types/src/contracts.ts"), "utf8");
-  assert.match(legacyProviderSource, /listProviderCapabilities[\s\S]*?"GET",\s*"\/api\/v1\/media\/providers\/capabilities"/u);
-  assert.match(legacyProviderSource, /ProviderCapabilitySchema\.parse\(item\)/u);
-  for (const field of providerCatalog.responseFields) assert.match(providerTypeSource, new RegExp(`\\b${field}\\s*:`));
+  const providerMethodStart = legacyProviderSource.indexOf("public async listProviderCapabilities(");
+  const providerMethodEnd = legacyProviderSource.indexOf("public async transcribe(", providerMethodStart);
+  assert.ok(providerMethodStart >= 0 && providerMethodEnd > providerMethodStart,
+    "legacy provider method source must remain observable as a finite implementation block");
+  const providerMethod = legacyProviderSource.slice(providerMethodStart, providerMethodEnd);
+  assert.match(providerMethod, /Promise<readonly ProviderCapability\[\]>/u,
+    "the retained legacy method declares its source-compatible result DTO");
+  assert.match(providerMethod, /void signal;\s*throw new MediaOperationNotAdmittedError\("media\.sdk\.listProviderCapabilities"\)/u,
+    "the legacy provider read is fail-closed before any client dispatch");
+  assert.doesNotMatch(providerMethod, /request\(|fetch\(|ProviderCapabilitySchema\.parse/u,
+    "the NOT_ADMITTED legacy method does not fetch or validate a provider response");
+  const transportSource = readFileSync(resolve(root, "libs/audio-video-client/src/http-core.ts"), "utf8");
+  assert.match(transportSource,
+    /if \(path\.startsWith\("\/api\/v1\/media\/"\)\) \{[\s\S]*?path === "\/api\/v1\/media\/providers\/capabilities"[\s\S]*?throw new MediaOperationNotAdmittedError\(operation\)/u,
+    "the historical provider path is rejected by the transport guard before credentials or fetch");
+  const activeRoutes = JSON.parse(readFileSync(resolve(root, "config/route-manifest.json"), "utf8")).routes;
+  assert.equal(activeRoutes.some(({ method, path }) => method === "GET" && path === "/api/v1/media/providers/capabilities"), false,
+    "the historical provider path remains absent from the active runtime route manifest");
+  for (const field of providerCatalog.declaredResultFields) assert.match(providerTypeSource, new RegExp(`\\b${field}\\s*:`));
   assert.match(providerCatalog.semanticBinding, /not-a-Media-domain-operation-or-provider-qualification/u);
   const catalogAsDomainOperation = { ...providerCatalog, role: "DOMAIN_QUERY", canonicalOperationRef: "media.operation.capability-list" };
   assert.notEqual(catalogAsDomainOperation.role, providerCatalogRole.type,

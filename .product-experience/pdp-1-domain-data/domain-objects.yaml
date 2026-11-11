@@ -205,11 +205,24 @@ objects:
     identity: tenantId-plus-projectId-plus-stable-opaque-revisionId; revisionId-is-not-a-content-digest
     lifecycle: immutable-after-commit; every-project-has-one-current-head-reference; any later semantic edit creates a new revision
     initialRevision: unique-opaque-revisionId; COMMITTED; parentRevisionId-null; empty assets-scenes-timelines-and-settings; created atomically with project
+    timelineSnapshotBinding:
+      selectionDisposition: USER_AUTHORIZED_COORDINATOR_SEMANTIC_CHOICE
+      acceptanceEffect: none
+      representation: ProjectRevision.timelines-is-an-immutable-list-of-Timeline-snapshots
+      timelineIdentity: stable-opaque-timelineId-within-tenant-and-project
+      timelineVersion: each-snapshot-has-an-opaque-semanticVersionId-distinct-from-the-project-revisionId
+      creation: explicit-timeline-creation-adds-an-empty-timeline-snapshot-in-a-successor-ProjectRevision
+      edit: timeline-content-edit-replaces-that-timeline-snapshot-with-the-same-timelineId-and-a-new-semanticVersionId-in-a-successor-ProjectRevision
+      authority: Project.headRevisionId-is-the-only-writable-head; every-timeline-create-edit-restore-uses-project-head-CAS
+      restore: restore-creates-one-successor-ProjectRevision-containing-the-selected-historical-project-content; changed-timeline-content-gets-a-new-semanticVersionId
+      noIndependentTimelineHead: true
+      runtimeStatus: local-engine-and-signed-DEV_ONLY-launcher-project-timeline-routes; isolated-PostgreSQL-development-schema; production-admission-NOT_ADMITTED
     scopeStatus: bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
       - .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
       - docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
+      - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md
   - id: media.domain.artifact
     name: MediaArtifact
     kind: entity
@@ -377,8 +390,10 @@ objects:
   - id: media.domain.timeline
     name: Timeline
     kind: versioned-editorial-specification
-    identity: stable-id-and-version
-    lifecycle: rational-time-distinct-from-simulation-and-wall-clock
+    identity: tenantId-plus-projectId-plus-stable-opaque-timelineId-plus-opaque-semanticVersionId
+    lifecycle: immutable-snapshot-contained-in-a-ProjectRevision; semantic-edits-create-a-new-version-while-retaining-timelineId; project-head-CAS-is-the-only-authoritative-write-head
+    initialState: absent-from-the-empty-initial-ProjectRevision-until-explicitly-created; explicit-creation-adds-an-empty-versioned-timeline-to-a-successor-ProjectRevision
+    timeSemantics: rational-time-distinct-from-simulation-and-wall-clock
     scopeStatus: proposed; pending-owner-review
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig
@@ -799,10 +814,18 @@ canonicalRelationshipAdjudication:
           status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
           targetObjectRef: media.domain.project
           tenantInvariant: source-and-target-tenant-ids-must-match
+        - name: timelineSnapshots
+          cardinality: zero-to-many
+          meaning: Each revision contains exact immutable semantic versions of its project timelines; the initial committed revision contains none.
+          status: USER_DIRECTED_COORDINATOR_SEMANTIC_CHOICE; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.timeline
+          tenantInvariant: source-and-target-tenant-ids-must-match
+          projectInvariant: source-and-target-project-ids-must-match
       unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
       sourceRefs:
         - .product-experience/pdp-0-product-truth/domain-model.yaml
         - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+        - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md
     - objectRef: media.domain.artifact
       disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
       relationships: []

@@ -188,7 +188,7 @@
     ]
   },
   "grpc": {
-    "count": 44,
+    "count": 45,
     "rpcs": [
       {
         "service": "stt_service.proto",
@@ -387,6 +387,12 @@
         "rpc": "RecognizeSceneText",
         "request": "SceneTextRecognizeRequest",
         "response": "SceneTextRecognizeResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "ResolveSourceFrame",
+        "request": "SourceFrameResolveRequest",
+        "response": "SourceFrameResolveResponse"
       },
       {
         "service": "tts_service.proto",
@@ -916,6 +922,44 @@
       "source_artifact_id",
       "source_version"
     ],
+    "SourceFrameResolveRequest": [
+      "frame_height",
+      "frame_id",
+      "frame_width",
+      "pts_us",
+      "purpose_ref",
+      "roi",
+      "source_artifact_id",
+      "source_version"
+    ],
+    "SourceFrameResolution": [
+      "artifact_local_epoch",
+      "crop_sha256",
+      "frame_height",
+      "frame_id",
+      "frame_number",
+      "frame_sha256",
+      "frame_width",
+      "principal_id",
+      "pts_us",
+      "roi",
+      "source_artifact_id",
+      "source_pts",
+      "source_sha256",
+      "source_stream_selector",
+      "source_version",
+      "tenant_id",
+      "time_base_denominator",
+      "time_base_numerator"
+    ],
+    "SourceFrameResolveRejected": [
+      "code",
+      "retryable"
+    ],
+    "SourceFrameResolveResponse": [
+      "rejected",
+      "resolved"
+    ],
     "SceneTextBox": [
       "height",
       "width",
@@ -946,6 +990,7 @@
       "pts_us",
       "rights_decision_ref",
       "source_artifact_id",
+      "source_frame_resolution",
       "source_version"
     ],
     "SceneTextRejected": [

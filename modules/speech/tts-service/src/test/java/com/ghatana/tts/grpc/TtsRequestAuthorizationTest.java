@@ -103,17 +103,22 @@ class TtsRequestAuthorizationTest {
     }
 
     @Test
-    void explicitProfileIsAnAuthorizedSelectionAndStillRequiresResolverDecision() {
+    void profileOnlySelectionFailsUntilAuthorizationCanBindItsExactVoice() {
         AtomicReference<TtsRequestAuthorization.Request> observed = new AtomicReference<>();
         TtsRequestAuthorization resolver = request -> {
             observed.set(request);
             return TtsRequestAuthorization.Decision.ADMITTED;
         };
 
-        TtsRequestAuthorization.requireAdmission(resolver, IDENTITY,
-                TtsRequestAuthorization.Operation.SYNTHESIZE, null, "profile-1");
-        assertThat(observed.get()).isEqualTo(new TtsRequestAuthorization.Request(
-                IDENTITY, TtsRequestAuthorization.Operation.SYNTHESIZE, null, "profile-1"));
+        assertThatThrownBy(() -> TtsRequestAuthorization.requireAdmission(resolver, IDENTITY,
+                TtsRequestAuthorization.Operation.SYNTHESIZE, null, "profile-1"))
+                .isInstanceOf(TtsRequestAuthorization.AuthorizationException.class)
+                .satisfies(failure -> {
+                    var authorization = (TtsRequestAuthorization.AuthorizationException) failure;
+                    assertThat(authorization.status().getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                    assertThat(authorization.getMessage()).contains("PROFILE_VOICE_BINDING_NOT_ADMITTED");
+                });
+        assertThat(observed).hasValue(null);
     }
 
     @Test

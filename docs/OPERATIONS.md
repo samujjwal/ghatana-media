@@ -41,6 +41,7 @@ provider state, provider clients, and gRPC transport policy — shares it.
 | Event Plane | MEDIA_EVENT_PLANE_URL, _STREAM_ID, _TOKEN_REFERENCE, _TIMEOUT_MS | Optional locally; stream ID default media-lifecycle, timeout default 5000 ms; local publisher is synchronous best-effort, while production-like profiles require the contract's durable queue-and-retry adapter |
 | Redaction | MEDIA_SEMANTIC_REDACTION_PROVIDER_ID | Required when a request demands semantic de-identification |
 | Auth | MEDIA_API_KEY, bootstrap API-key settings, MEDIA_JWT_HMAC_SECRET_REFERENCE, MEDIA_JWT_ISSUER, MEDIA_JWT_AUDIENCE | Business routes require tenant/principal identity and permission; use typed secret references |
+| DEV_ONLY project timeline | MEDIA_DEV_IDENTITY_ENABLED, MEDIA_PROJECT_TIMELINE_DEV_ENABLED, MEDIA_PROJECT_TIMELINE_POSTGRES_JDBC_URL, MEDIA_PROJECT_TIMELINE_SCHEMA, MEDIA_PROJECT_TIMELINE_POSTGRES_USER, MEDIA_PROJECT_TIMELINE_POSTGRES_PASSWORD_REFERENCE | Both flags must be true, profile exactly `dev`, loopback PostgreSQL only, isolated `media_dev_*` schema; applies only the local project migration |
 
 Production-like profiles (staging, production, prod, sovereign, integration,
 and e2e) forbid local stores/providers and require selected durable stores,
@@ -70,6 +71,94 @@ before restart.
 The local file artifact store may leave files under the configured root, but
 local job and stream indexes are in memory. A local restart therefore loses
 active job/stream state and leases; it is not restart-durable.
+
+### DEV_ONLY project and timeline preview
+
+The optional project lane is independent of the canonical route manifest. To
+enable it, set `MEDIA_RUNTIME_ENABLED=true`, `MEDIA_RUNTIME_ENVIRONMENT=dev`,
+`MEDIA_DEV_IDENTITY_ENABLED=true`, and `MEDIA_PROJECT_TIMELINE_DEV_ENABLED=true`.
+Supply `MEDIA_PROJECT_TIMELINE_POSTGRES_JDBC_URL` with a loopback PostgreSQL
+URL, a `MEDIA_PROJECT_TIMELINE_SCHEMA` beginning with `media_dev_`, a database
+user, and a `MEDIA_PROJECT_TIMELINE_POSTGRES_PASSWORD_REFERENCE` such as
+`secret:env:MEDIA_DEV_PROJECT_DB_PASSWORD`. The lane creates and migrates only
+that named schema. It does not run the project migration from production-like
+runtime composition.
+
+Mint a short-lived token with only the needed local permissions, for example:
+
+    node scripts/media-dev-identity-token.mjs --tenant local-tenant --subject local-owner \
+      --permission media:project:dev:read --permission media:project:dev:create \
+      --permission media:project:dev:write
+
+The `/dev/v1/context` endpoint returns a synthetic owner-scoped development
+workspace. `POST /dev/v1/projects` accepts its exact
+`selectedAuthorizedWorkspaceId`, a title, and a stable request ID. The host
+returns a committed empty project revision; `POST /dev/v1/projects/{id}/timelines`
+adds an empty timeline snapshot by expected-head compare-and-set. Project and
+exact revision reads are available under `/dev/v1/projects/{id}` and
+`/dev/v1/projects/{id}/revisions/{revisionId}`. These routes require a verified
+DEV_ONLY token even when a local bearer token has other Media permissions.
+The synthetic workspace grants no Shared membership or production authority.
+
+### DEV_ONLY browser artifact intake
+
+The Explorer's separate `/dev-artifact-intake.html` page is a local browser
+consumer of the existing canonical artifact routes. Run the Media-owned Vite
+host on loopback and configure its proxy to the same local Media launcher. The
+page keeps the bearer token in memory, reads the verified DEV_ONLY host context,
+and forwards only `/api/v1/artifacts` requests through the configured loopback
+proxy. It does not add an HTTP route or accept a remote API origin.
+
+Before enabling upload, the page reads `GET /dev/v1/artifact-upload-policy`.
+That DEV_ONLY route requires a signed token with `media:artifact:create` and
+returns exactly `{schemaVersion:"media.dev.artifact-upload-policy.v1",
+scope:"DEV_ONLY",maxChunkBytes:<runtime.config().maximumChunkBytes>}`. It is
+available with project/timeline storage disabled and is not part of OpenAPI or
+production route admission. The client limits each sequential chunk to the
+smaller of this host bound and its 5 MiB resource cap.
+
+Mint a short-lived token with context-read and artifact permissions:
+
+    node scripts/media-dev-identity-token.mjs --tenant local-tenant --subject local-owner \
+      --permission media:project:dev:read \
+      --permission media:artifact:create --permission media:artifact:write
+
+The signed host context reports whether artifact upload and read scopes are
+actually present. The browser does not decode JWT claims or assert them itself.
+The launcher still authorizes each canonical request using the verified token.
+Select an accurate classification and retention value before upload; those
+request metadata values do not establish source ownership, rights, consent,
+processing authority, or Shared membership. Completion confirms a stored
+artifact receipt only. Inspecting metadata does not prove that bytes are
+available for processing or delivery.
+
+The Explorer upload route uses the existing bounded chunked SDK path and reads
+metadata for the exact artifact ID returned by completion. A lost mutation
+response remains UNKNOWN and must be reconciled by the existing session or
+same-key contract before another identity is used. Local Postgres/S3 restart
+evidence is development evidence only; it does not establish production
+storage admission or J-02 acceptance.
+
+### DEV_ONLY timeline clip references
+
+To attach a local clip, first use the existing artifact-intake page to upload
+the media (or locate an existing owner artifact), then copy the exact artifact
+ID. Connect to `/dev-project-timeline.html` using a short-lived DEV_ONLY token
+with project read/create/write permissions and `media:artifact:read` for the
+clip inspection/attachment. The timeline page reads the exact owner artifact
+through the existing `GET /api/v1/artifacts/{id}` route and verifies that its
+tenant and principal match the signed local context. Select the returned exact
+artifact version, then attach or remove its clip reference with the isolated
+project-head compare-and-set edit. Source in/out and story start/duration are
+decimal-string rational values; successful edits append immutable project
+revisions. After a launcher restart, reopen the exact revision ID and inspect
+its clip reference to verify persisted state.
+
+`media:artifact:read` is needed for clip source inspection/attachment; it is
+not needed by the upload/intake example above. These clip references remain
+`DEV_ONLY` and establish no current rights or revocation checks, decoder-clock
+verification, overlap semantics, rendering, Shared membership, or production
+authority. The canonical production routes and CLI admission remain unchanged.
 
 ## Health, readiness, and routes
 
@@ -265,8 +354,10 @@ fixture quality alerts do not represent a live model result.
 
 For privacy-safe triage, use public liveness/readiness and
 `av_service_readiness` only for a yes/no signal.
-Scrape Prometheus text from `/metrics` with an explicit Prometheus `Accept`
-header rather than treating its default JSON response as a metric schema. Use
+Scrape Prometheus text from `/metrics` with an explicit `Accept` header:
+`text/plain; version=0.0.4` returns Prometheus text format 0.0.4, while
+`application/openmetrics-text; version=1.0.0` returns OpenMetrics 1.0. Use
+an explicit format rather than treating the default JSON response as a metric schema. Use
 the existing authenticated provider metadata route for IDs/capability profiles.
 Do not put tenant, principal, request, media, voice, face, token, model, or
 provider identifiers in alert labels or copy media content into alert

@@ -1,6 +1,7 @@
 package com.ghatana.audiovideo.observability;
 
 import com.ghatana.observability.MetricsCollector;
+import io.grpc.Status;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.stub.StreamObserver;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +77,59 @@ class AudioVideoHealthServiceTest {
 
         assertThat(observer.responses.get(0).getStatus()) 
                 .isEqualTo(HealthCheckResponse.ServingStatus.SERVING); 
+    }
+
+    @Test
+    @DisplayName("A named check reports configured service readiness and rejects unknown services")
+    void namedCheckUsesConfiguredServiceIdentity() {
+        healthService.registerCheck("provider", () -> true);
+        assertThat(healthService.markReady()).isTrue();
+
+        CapturingObserver configured = new CapturingObserver();
+        healthService.check(HealthCheckRequest.newBuilder().setService("stt-service").build(), configured);
+        assertThat(configured.responses).extracting(HealthCheckResponse::getStatus)
+                .containsExactly(HealthCheckResponse.ServingStatus.SERVING);
+
+        CapturingObserver unknown = new CapturingObserver();
+        healthService.check(HealthCheckRequest.newBuilder().setService("tts-service").build(), unknown);
+        assertThat(unknown.responses).isEmpty();
+        assertThat(unknown.completed).isFalse();
+        assertThat(Status.fromThrowable(unknown.error).getCode()).isEqualTo(Status.Code.NOT_FOUND);
+        assertThat(Status.fromThrowable(unknown.error).getDescription()).isEqualTo("Health service is unknown");
+    }
+
+    @Test
+    @DisplayName("An unknown Watch remains SERVICE_UNKNOWN through shutdown")
+    void unknownWatchRemainsServiceUnknown() {
+        healthService.registerCheck("provider", () -> true);
+        assertThat(healthService.markReady()).isTrue();
+        CapturingObserver unknown = new CapturingObserver();
+        String untrustedServiceName = "unknown-private-service-name-" + "x".repeat(4_096);
+
+        healthService.watch(HealthCheckRequest.newBuilder().setService(untrustedServiceName).build(), unknown);
+        assertThat(unknown.responses).extracting(HealthCheckResponse::getStatus)
+                .containsExactly(HealthCheckResponse.ServingStatus.SERVICE_UNKNOWN);
+        assertThat(unknown.responses.getFirst().toString()).doesNotContain(untrustedServiceName);
+
+        healthService.close();
+        assertThat(unknown.responses).extracting(HealthCheckResponse::getStatus)
+                .containsExactly(HealthCheckResponse.ServingStatus.SERVICE_UNKNOWN);
+        assertThat(unknown.completed).isTrue();
+    }
+
+    @Test
+    @DisplayName("Watch subscriptions retain only a fixed service classification")
+    void watchSubscriptionsDoNotRetainCallerServiceNames() throws NoSuchFieldException {
+        Class<?> subscriptionType = java.util.Arrays.stream(AudioVideoHealthService.class.getDeclaredClasses())
+                .filter(type -> type.getSimpleName().equals("WatchSubscription"))
+                .findFirst()
+                .orElseThrow();
+        Class<?>[] retainedTypes = java.util.Arrays.stream(subscriptionType.getDeclaredFields())
+                .map(java.lang.reflect.Field::getType)
+                .toArray(Class<?>[]::new);
+
+        assertThat(subscriptionType.getDeclaredField("requestedService").getType().isEnum()).isTrue();
+        assertThat(retainedTypes).doesNotContain(String.class);
     }
 
     @Test
@@ -284,6 +339,40 @@ class AudioVideoHealthServiceTest {
     }
 
     @Test
+    @DisplayName("A drain during dependency evaluation cannot return stale serving readiness")
+    void drainDuringDependencyEvaluationCannotReturnStaleServing() throws Exception {
+        CountDownLatch checkStarted = new CountDownLatch(1);
+        CountDownLatch finishCheck = new CountDownLatch(1);
+        AudioVideoHealthService readiness = new AudioVideoHealthService(
+                "stt-service", metricsCollector, java.util.Set.of("provider"), Duration.ofSeconds(3));
+        readiness.registerCheck("provider", () -> {
+            checkStarted.countDown();
+            try {
+                return finishCheck.await(2, TimeUnit.SECONDS);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        });
+        assertThat(readiness.markReady()).isTrue();
+
+        FutureTask<Boolean> inFlightProbe = new FutureTask<>(readiness::isServing);
+        Thread probeThread = new Thread(inFlightProbe, "health-readiness-drain-regression");
+        try {
+            probeThread.start();
+            assertThat(checkStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            readiness.setNotServing();
+            finishCheck.countDown();
+
+            assertThat(inFlightProbe.get(2, TimeUnit.SECONDS)).isFalse();
+        } finally {
+            finishCheck.countDown();
+            readiness.close();
+            probeThread.join(1_000);
+        }
+    }
+
+    @Test
     @DisplayName("Rejects blank names and null provider checks")
     void rejectsInvalidCheckRegistration() {
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> healthService.registerCheck("  ", () -> true))
@@ -381,7 +470,7 @@ class AudioVideoHealthServiceTest {
         assertThat(healthService.markReady()).isTrue();
 
         CapturingObserver observer = new CapturingObserver();
-        healthService.check(HealthCheckRequest.newBuilder().setService(marker).build(), observer);
+        healthService.check(HealthCheckRequest.newBuilder().setService("stt-service").build(), observer);
 
         assertThat(observer.responses.get(0).getStatus())
                 .isEqualTo(HealthCheckResponse.ServingStatus.NOT_SERVING);

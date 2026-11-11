@@ -25,7 +25,7 @@ handoffs:
         source: .product-experience/pdp-1-domain-data/value-objects.yaml#values
         definitions: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions
       relationships:
-        count: 13
+        count: 14
         source: .product-experience/pdp-1-domain-data/relationships.yaml#relationships
       stateMachines:
         count: 11
@@ -69,7 +69,7 @@ handoffs:
       interfaceIdentities:
         http: {count: 30, source: contracts/openapi/media.yaml#/paths}
         grpc:
-          count: 44
+          count: 45
           sources:
             - modules/speech/stt-service/src/main/proto/stt_service.proto#service.rpc
             - modules/speech/tts-service/src/main/proto/tts_service.proto#service.rpc

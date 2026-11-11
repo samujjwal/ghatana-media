@@ -172,7 +172,7 @@ function familyActions(
       id: action.id,
       label: action.label,
       enabled: action.enabled,
-      disabledReason: action.disabledReason,
+      disabledReason: action.disabledReason ?? (!action.enabled ? "This action is unavailable in the current host projection." : undefined),
       selectionPayloadAvailable: selectionAdapter !== undefined,
       invoke: async (selectedValue?: import("../components/MediaComponentFamilies").MediaComponentValue) => {
         const dispatchContext = { subjectRefs: action.subjectRefs ?? [] };

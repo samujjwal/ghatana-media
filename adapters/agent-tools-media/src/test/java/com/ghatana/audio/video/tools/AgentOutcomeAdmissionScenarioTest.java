@@ -17,7 +17,13 @@ import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authenticated
 import com.ghatana.tools.testing.EventloopTestBase;
 import com.ghatana.toolruntime.ToolHandler;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +65,48 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
             actions.put(terminal.invocationId(), terminal);
             return true;
         }
+    }
+
+    @Test
+    void hostAuthorizationCannotChangeTheInputAfterItsOutcomeIdentityIsBound() {
+        var nested = new java.util.ArrayList<>(java.util.List.of("original"));
+        Map<String, Object> input = new HashMap<>();
+        input.put("scope", nested);
+        ToolExecutionEnvelope requested = new ToolExecutionEnvelope("invocation-j25-snapshot",
+                SpeechToTextToolHandler.TOOL_ID, "1.0.0", "agent-j25", null, "tenant-j25",
+                ToolActionClass.CALL_EXTERNAL, "1.0", input, Instant.now());
+        Ledger ledger = new Ledger();
+        AtomicBoolean delegateSawSnapshot = new AtomicBoolean();
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(), (principal, identity) -> {
+                    nested.add("changed-after-identity");
+                    input.put("added-after-identity", true);
+                    return mapsToEnvelopeActor(principal, identity);
+                });
+        ToolHandler delegate = (envelope, contract) -> {
+            Map<?, ?> boundInput = (Map<?, ?>) envelope.input();
+            var boundScope = (java.util.List<?>) boundInput.get("scope");
+            delegateSawSnapshot.set(boundScope.equals(java.util.List.of("original"))
+                    && !boundInput.containsKey("added-after-identity"));
+            return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
+                    envelope.invocationId(), Map.of("bounded", true), Map.of(),
+                    envelope.invocationId(), Instant.now(), java.time.Duration.ZERO));
+        };
+
+        ToolExecutionResult result = runPromise(() -> binder.execute(
+                delegate, requested, contract(requested), authenticatedHostPrincipal(requested)));
+
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+        assertThat(delegateSawSnapshot).isTrue();
+        assertThat(ledger.find(requested.invocationId())).hasValueSatisfying(action -> {
+            assertThat(action.requestIdentity().inputFingerprint())
+                    .isEqualTo(MediaToolExecutionBinder.RequestIdentity.from(
+                            new ToolExecutionEnvelope(requested.invocationId(), requested.toolId(),
+                                    requested.toolVersion(), requested.callerAgentId(), requested.callerReleaseId(),
+                                    requested.tenantId(), requested.actionClass(), requested.requestSchemaVersion(),
+                                    Map.of("scope", java.util.List.of("original")), requested.requestedAt()))
+                            .inputFingerprint());
+        });
     }
 
     @Test
@@ -273,6 +321,83 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         }
 
         assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
+    void fileLedgerDirectorySyncFailurePreventsBinderDispatch(@TempDir Path parentDirectory) throws IOException {
+        Path ledgerDirectory = parentDirectory.toRealPath().resolve("invocations");
+        FileInvocationLedger ledger = new FileInvocationLedger(ledgerDirectory,
+                new SecretKeySpec(new byte[32], "AES"), Duration.ofMinutes(5), Clock.systemUTC(), directory -> {
+                    if (directory.equals(ledgerDirectory)) {
+                        throw new IOException("injected invocation directory sync failure");
+                    }
+                });
+        AtomicInteger providerCalls = new AtomicInteger();
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
+        ToolExecutionEnvelope envelope = envelope("tenant-j25", "agent-j25");
+        ToolHandler delegate = (request, contract) -> {
+            providerCalls.incrementAndGet();
+            return io.activej.promise.Promise.of(ToolExecutionResult.succeeded(
+                    request.invocationId(), Map.of("result", "must-not-run"), Map.of(),
+                    request.invocationId(), Instant.now(), Duration.ZERO));
+        };
+
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(
+                delegate, envelope, contract(envelope), authenticatedHostPrincipal(envelope))))
+                .isInstanceOf(MediaToolExecutionBinder.InvocationClaimUnavailableException.class);
+        assertThat(providerCalls).hasValue(0);
+        assertThat(ledger.find(envelope.invocationId())).hasValueSatisfying(action -> {
+            assertThat(action.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN);
+            assertThat(action.result()).isNull();
+        });
+    }
+
+    @Test
+    void terminalSyncFailureReturnsUnknownAndRestartedReplayDoesNotDispatchAgain(
+            @TempDir Path parentDirectory) throws IOException {
+        Path ledgerDirectory = parentDirectory.toRealPath().resolve("terminal-sync-ledger");
+        AtomicInteger ledgerDirectorySyncs = new AtomicInteger();
+        FileInvocationLedger ledger = new FileInvocationLedger(ledgerDirectory,
+                new SecretKeySpec(new byte[32], "AES"), Duration.ofMinutes(5), Clock.systemUTC(), directory -> {
+                    if (directory.equals(ledgerDirectory) && ledgerDirectorySyncs.incrementAndGet() == 3) {
+                        throw new IOException("injected terminal directory sync failure");
+                    }
+                });
+        ToolExecutionEnvelope envelope = envelope("tenant-j25", "agent-j25");
+        ToolContract contract = contract(envelope);
+        AuthenticatedPrincipal principal = authenticatedHostPrincipal(envelope);
+        AtomicInteger delegateCalls = new AtomicInteger();
+        ToolHandler delegate = (request, ignoredContract) -> {
+            delegateCalls.incrementAndGet();
+            ToolExecutionResult result = ToolExecutionResult.succeeded(
+                    request.invocationId(), Map.of("result", "test-only-terminal"), Map.of(),
+                    request.invocationId(), Instant.now(), Duration.ZERO);
+            return io.activej.promise.Promise.of(result);
+        };
+        MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
+                (tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
+
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contract, principal)))
+                .isInstanceOf(MediaToolExecutionBinder.OutcomeUnknownException.class)
+                .hasFieldOrPropertyWithValue("invocationId", envelope.invocationId());
+        assertThat(ledgerDirectorySyncs).hasValue(3);
+        assertThat(delegateCalls).hasValue(1);
+
+        FileInvocationLedger restartedLedger = new FileInvocationLedger(
+                ledgerDirectory, new SecretKeySpec(new byte[32], "AES"), Duration.ofMinutes(5), Clock.systemUTC());
+        MediaToolExecutionBinder restartedBinder = new MediaToolExecutionBinder(restartedLedger,
+                (tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
+        assertThatThrownBy(() -> runPromise(
+                () -> restartedBinder.execute(delegate, envelope, contract, principal)))
+                .isInstanceOf(MediaToolExecutionBinder.OutcomeUnknownException.class)
+                .hasFieldOrPropertyWithValue("invocationId", envelope.invocationId());
+        assertThat(restartedLedger.find(envelope.invocationId())).hasValueSatisfying(action -> {
+            assertThat(action.requestIdentity()).isEqualTo(MediaToolExecutionBinder.RequestIdentity.from(envelope));
+            assertThat(action.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN);
+            assertThat(action.result()).isNull();
+        });
+        assertThat(delegateCalls).hasValue(1);
     }
 
     private static ToolExecutionEnvelope envelope(String tenantId, String callerAgentId) {

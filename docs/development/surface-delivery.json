@@ -503,7 +503,7 @@
         [
           "Bind one editorial timeline",
           "modules/production/timeline; runtime-contracts",
-          "Freeze project-revision/scene/track/clip/time mapping with CAS and rights; prepare scene graph and reversible edits tied to exact source assets; reject stale undo/overlap ambiguities."
+          "Keep the initial ProjectRevision empty; create explicit versioned timeline snapshots in successor revisions; preserve stable timelineId and commit edits/restore through the single project-head CAS. Bind exact source versions and rational PTS; leave overlap and transition behavior unresolved until defined."
         ],
         [
           "Make one playable timeline master",

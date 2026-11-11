@@ -2,7 +2,11 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { afterEach, describe, expect, it } from 'vitest';
 import { createMediaCanonicalClient } from '../canonical-operations.js';
 import { createMediaOperationClient } from '../operations.js';
-import { MediaClientError, MediaOperationAmbiguousError } from '../http-core.js';
+import {
+  MediaClientError,
+  MediaOperationAmbiguousError,
+  MediaOperationNotAdmittedError,
+} from '../http-core.js';
 
 /**
  * SK-07: real HTTP roundtrip for the canonical job and stream client —
@@ -112,7 +116,7 @@ describe('MediaCanonicalClient over real HTTP', () => {
     });
   });
 
-  it('submits, reads, lists and cancels a job against a live server', async () => {
+  it('submits, reads and lists jobs against a live server; direct cancel stays NOT_ADMITTED', async () => {
     const seen: string[] = [];
     await withServer((request, response) => {
       seen.push(`${request.method} ${request.url}`);
@@ -126,8 +130,6 @@ describe('MediaCanonicalClient over real HTTP', () => {
         json({ jobs: [job()] });
       } else if (request.url === '/api/v1/jobs/job-1' && request.method === 'GET') {
         json(job({ status: 'RUNNING' }));
-      } else if (request.url === '/api/v1/jobs/job-1/cancel' && request.method === 'POST') {
-        json(job({ status: 'CANCELLED', completedAt: timestamp }));
       } else {
         json({ error: { code: 'NOT_FOUND', message: 'nope', retryable: false },
           meta: { correlationId: 'c' } }, 404);
@@ -141,12 +143,13 @@ describe('MediaCanonicalClient over real HTTP', () => {
       expect(submitted.status).toBe('ACCEPTED');
       expect((await client.getJob('job-1')).status).toBe('RUNNING');
       expect(await client.listJobs({ limit: 10 })).toHaveLength(1);
-      expect((await client.cancelJob('job-1')).status).toBe('CANCELLED');
+      const cancellation = await client.cancelJob('job-1').catch((error: unknown) => error);
+      expect(cancellation).toBeInstanceOf(MediaOperationNotAdmittedError);
+      expect(cancellation).toMatchObject({ operation: 'media.operation-slice.cancel-job' });
       expect(seen).toEqual([
         'POST /api/v1/jobs',
         'GET /api/v1/jobs/job-1',
         'GET /api/v1/jobs?limit=10',
-        'POST /api/v1/jobs/job-1/cancel',
       ]);
     });
   });

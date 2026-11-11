@@ -11,6 +11,17 @@ Run from the repository root. The `:services:media:integration-tests:test` task 
 ./gradlew :services:media:integration-tests:test \
   --tests com.ghatana.media.integration.MediaTestHarnessCatalogTest
 
+# Source-free DEV_ONLY client/host compositions, forced against FULL source composites
+./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FULL \
+  :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaTestHarnessCatalogTest' \
+  --tests 'com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT.ownerIssuedDevIdentityCompletesAndReadsBackUploadAndDiagnosticJobAcrossRestart' \
+  --tests 'com.ghatana.media.integration.MediaDevProjectTimelineRestartIT.realExplorerUploadsThenLinksExactArtifactVersionAcrossLauncherRestart' \
+  --tests 'com.ghatana.media.launcher.MediaDevOnlyJobCancellationFinalityPostgresIT.definitiveProviderSuccessFinalizesAfterUnconfirmedCancellation' \
+  --tests 'com.ghatana.media.launcher.MediaDevOnlyJobCancellationRestartPostgresIT.hardProcessLossDuringCancelDispatchReplaysUnknownWithoutRedispatch' \
+  --rerun-tasks
+
 # Local fixture selectors (synthetic/local state only)
 ./gradlew :services:media:integration-tests:test \
   --tests com.ghatana.media.integration.MediaProviderJobLifecycleE2ETest \
@@ -30,6 +41,8 @@ Run from the repository root. The `:services:media:integration-tests:test` task 
 ```
 
 These fixture profiles use generated or test-authored payloads and isolated databases, buckets, and keys. Never point them at the active legacy Media store. H2 compatibility mode is not PostgreSQL-engine evidence; LocalStack is not AWS-production evidence; fixture providers do not establish model quality, rights, or provider effects. The child-process PostgreSQL metrics variant is separately run with `./gradlew :services:media:integration-tests:postgresWorkflowProcessRestart`.
+
+The FULL source-composite command above covers a bounded local diagnostic SDK upload/readback and CLI read observation, an Explorer upload-to-timeline exact-version link across launcher restarts, synthetic-provider cancellation finality, and UNKNOWN replay after hard process loss during local cancellation dispatch. The catalog test checks selector/source traceability. These DEV_ONLY fixtures do not establish hosted identity, rights, qualified provider output, production authority, or complete J-01–J-30 acceptance.
 
 `MediaProviderJobLifecycleE2ETest` uses only `MediaTestHarness` in-memory maps and simulated provider results. It is selected by the `integration` tag for compatibility, but deliberately has no `production` tag. The name and lifecycle-shaped assertions do not imply durable storage or real provider behavior.
 

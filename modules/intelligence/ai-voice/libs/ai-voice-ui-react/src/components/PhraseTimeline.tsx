@@ -133,7 +133,7 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
                   aria-label={accessibleLabel}
                   aria-pressed={selected}
                   className={clsx(
-                    "h-full w-full min-w-1 overflow-hidden rounded border-2 px-1 text-left text-[10px] font-medium transition",
+                    "h-full w-full min-w-1 overflow-hidden rounded border-2 px-1 text-left text-[10px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                     selected
                       ? "opacity-100"
                       : "border-transparent opacity-80 hover:opacity-100 focus:opacity-100",
@@ -144,9 +144,11 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
                     backgroundColor: colors.surfaceElevated,
                     color: colors.content,
                     borderColor: selected ? colors.focus : colors.border,
+                    "--tw-ring-color": colors.focus,
+                    "--tw-ring-offset-color": colors.surface,
                     outline: selected ? `2px solid ${colors.focus}` : undefined,
                     outlineOffset: selected ? 1 : undefined,
-                  }}
+                  } as React.CSSProperties}
                   title={accessibleLabel}
                 >
                   <span className="truncate" aria-hidden="true">

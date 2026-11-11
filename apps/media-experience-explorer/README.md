@@ -4,10 +4,10 @@ This Media-owned browser client reviews deterministic first-use,
 artifact-intake, verification-job, transcription-job, and transcript/caption simulations. It
 provides Product, Explore, Specification, Verify, and Tools Review modes for these slices.
 The in-browser terminal runs the registered synthetic `ghatana-media`
-commands against the same fixture state and reducer. It is not the generic
-`ghatana-tools` Explorer host for its Product and Explore modes, and it does not
-connect to the Media runtime, Shared identity, a project service, or a processing
-provider.
+commands against the same fixture state and reducer. Its existing Product and
+Explore modes are simulations. The separate `/dev-project-timeline.html` page is
+a local DEV_ONLY host consumer; it does not connect to Shared identity or a
+processing provider and is not the generic `ghatana-tools` Explorer host.
 
 ## Two-pass demo recording — Media v1 adopted; cross-repository admission pending
 
@@ -27,8 +27,168 @@ See the [single canonical plan](../../docs/implementation/MEDIA-BUILD-IMPLEMENTA
 From the repository root, start the browser client with:
 
 ```sh
-pnpm dlx vite@7.3.1 --config apps/media-experience-explorer/vite.config.mjs
+pnpm --filter @ghatana/media-experience-explorer dev
 ```
+
+Run the fixed-viewport browser audit and local pixel comparison with:
+
+```sh
+pnpm --filter @ghatana/media-experience-explorer test:visual-regression
+```
+
+The command builds the current app, starts a loopback preview on an available
+port, captures the eight pinned screens, and compares them with the retained
+local references. Reports, screenshots, and any pixel-diff images are kept in
+a unique temporary directory printed at the end. These user-selected local
+references are regression inputs, not canonical design approval; the audit
+continues to report screen-reader and independent visual review as manual gates.
+
+The existing Explorer remains a deterministic simulation. A separate local-only
+DEV_ONLY project lane is available at
+[`/dev-project-timeline.html`](http://127.0.0.1:4178/dev-project-timeline.html)
+while that Vite server is running. Start the Media host with the exact `dev`
+profile and isolated loopback database settings described in
+[`docs/OPERATIONS.md`](../../docs/OPERATIONS.md#dev_only-project-and-timeline-preview),
+then mint a short-lived token for `media:project:dev:read`,
+`media:project:dev:create`, and `media:project:dev:write`. Paste the raw token
+into the page; it stays in page memory and the password field is cleared after
+connect. The page reads the host context, creates and safely replays a project
+request, adds an empty timeline snapshot, and commits scene and track structure
+edits as successor project revisions. Edits read the current owner head and use
+its CAS; after a lost response, the page reconciles the exact requested graph
+effect before allowing another write. Reading an exact immutable revision
+enables restore as a new project head; undo and redo append CAS successors and
+keep earlier graph snapshots available. An ambiguous restore response is
+reconciled against the owner head before another write is enabled. Vite proxies
+only allowlisted `/dev/v1` routes and the exact artifact read/upload routes to
+`127.0.0.1:8093`; the browser cannot set a remote host. To attach a clip, first
+upload or locate an artifact through the
+existing `/dev-artifact-intake.html` local intake flow and copy its exact
+artifact ID. In the timeline page, read that exact owner artifact through
+`GET /api/v1/artifacts/{id}`; this requires the verified DEV_ONLY identity to
+have `media:artifact:read` and the response must match its tenant and principal.
+Choose the exact artifact version, then attach or remove the clip through the
+isolated project-head compare-and-set (CAS) edit. Source in/out and story
+start/duration are decimal-string rational coordinates; the timeline records
+them as declared values and creates immutable successor revisions. Reopen the
+exact revision after restarting the launcher to verify persistence.
+
+For clip inspection/attachment, add `media:artifact:read` to the short-lived
+DEV_ONLY token. The ordinary upload/intake token does not need that permission.
+
+This path is explicitly `DEV_ONLY`. It establishes no current rights or
+revocation checks, decoder-clock verification, overlap semantics, rendering,
+Shared membership, or production authority, and it is not a production
+application route.
+Run `pnpm --filter @ghatana/media-experience-explorer
+test:dev-project-timeline:browser` for the failure-path browser contract. It
+launches this page against a bounded loopback API fixture, including lost
+project, timeline, graph-edit, and restore responses, exact-request replay,
+owner-head reconciliation without duplicate mutation, track commit, exact
+revision readback, undo/redo, immutable history, and disconnect. It does not
+invoke a live Media backend.
+
+### DEV_ONLY artifact upload recovery
+
+The separate [`/dev-artifact-intake.html`](http://127.0.0.1:4178/dev-artifact-intake.html)
+page exercises artifact upload and recovery against the verified DEV_ONLY
+host. After a reload, browser memory is empty: reconnect with a short-lived
+token, reselect the same file, enter its existing upload ID, then explicitly
+inspect the upload. Inspection is a caller-scoped, read-only request. It binds
+the selected file digest and original request metadata to the existing upload,
+checks the persisted retention duration and the still-unexpired OPEN upload
+session, and requires the observed next chunk index to match the contiguous
+position in the selected file. Only after all checks pass does the page offer
+**Resume from observed upload**; the user must explicitly confirm that action.
+Recovery continues the same upload session and ID rather than creating a
+duplicate session. Tokens, selected files, and upload IDs remain in page
+memory; a reload discards them. The persisted canonical ISO-duration
+`retention` session field is separate from the transfer-session `expiresAt`
+timestamp.
+
+This path is `DEV_ONLY` and does not establish rights, consent, Shared
+membership, production admission, or J-02 acceptance. The real Chromium
+recovery selector and catalog guard pass together. The complete focused J-02
+source-composite selector set also passes with PostgreSQL and LocalStack
+Testcontainers active:
+
+```sh
+./gradlew \
+  -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FULL \
+  :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaDevProjectTimelineRestartIT.realExplorerResumesUploadAfterReloadAndLauncherRestart' \
+  --tests 'com.ghatana.media.integration.MediaTestHarnessCatalogTest' \
+  --no-daemon --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+That browser selector plus the nine catalog checks passed 10/10. The full
+focused J-02 run passed 13/13: raw HTTP resume, owner-issued DEV_ONLY SDK
+denial/recovery, Explorer artifact upload/inspection/readback, Explorer
+same-page reload/restart recovery, and all catalog checks. The browser test
+verified persisted `PT720H` retention against requested `P30D`, same-session
+recovery at the observed chunk index, explicit confirmation, one completion,
+and exact artifact readback. These are local synthetic-media results only;
+J-02 remains OPEN.
+
+### Real browser to DEV_ONLY host restart test
+
+The real-host browser test is selected explicitly as an integration test. From
+the repository root, run:
+
+```sh
+./gradlew \
+  -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FULL \
+  :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaDevProjectTimelineRestartIT.realExplorerBrowserCreatesReplaysAndReopensExactTimelineAcrossLauncherRestart' \
+  --no-daemon --no-build-cache --no-parallel --max-workers=2 --console=plain
+```
+
+This selector uses the local DEV_ONLY issuer, real Media launcher, isolated
+PostgreSQL, actual Explorer page, Chromium, and same-origin Vite `/dev/v1`
+proxy. The browser creates a project, replays its exact original request, adds
+an empty timeline, commits a scene and video track from successive observed
+heads, restores the exact scene revision as undo, restores the track revision
+as redo, and stays open while Java restarts the Media process. It then reopens
+the owner project and reads the exact redo head and historical revisions. It uses
+Vite's configured loopback port 4178 and fails clearly if that port is occupied.
+The test requires Docker and the pinned Playwright 1.63.0 browser runner with its
+installed Chromium. It resolves workspace packages first. If those links are
+missing in this checkout, the currently qualified host tools are
+`/opt/homebrew/lib/node_modules/@playwright/test` 1.63.0 with nested Playwright
+and Playwright Core 1.63.0, Chromium revision 1243 / Chrome for Testing
+153.0.8010.12, and `/opt/homebrew/lib/node_modules/vitest/node_modules/vite/bin/vite.js`
+8.3.0. The runner checks those exact versions and fails on mismatch; it does not
+accept an arbitrary global browser or Vite install.
+The DEV_ONLY editor can persist exact artifact-version clip references and
+declared rational source/story coordinates. This does not verify current
+rights/revocation, decoder clocks, overlap behavior, or rendered output, and
+establishes no Shared membership or production authority.
+
+**Verification record (2026-11-10):** the real-host Chromium → Vite → Media →
+PostgreSQL clip restart test passed 1/1 with zero skips. It reads the exact
+owner artifact, attaches and removes a clip, restarts the launcher, and reopens
+the exact persisted revision. UI verification passes 178/178, with strict
+pinned TypeScript noEmit and build passing. The client timeline SDK passes
+53/53, with typecheck/build and packed ESM/CJS/types consumer checks passing.
+Explorer verification passes 20 Node tests and 4 Vitest tests, plus
+typecheck/build. The bounded browser selector now passes with keyboard-only
+interaction and no pointer events. It verifies exact owner artifact inspection
+through the Vite proxy, SHA-256 and decimal-string rational clip payloads,
+successor revision readback, pre-POST rejection of track removal while a clip
+depends on it, and committed-but-lost `removeClip` reconciliation at the exact
+owner head without a duplicate POST.
+
+The timeline editor retains the previously documented accessible scene and
+track removal behavior: it reads the current owner head, rejects removal of a
+scene that still has tracks or a track that still has clips, then commits valid
+removals through expected-head CAS. Exact-revision restore continues to append
+undo/redo successors while preserving history. Ambiguous edit results remain
+UNKNOWN until reconciled against owner state; no duplicate mutation is sent.
+Clip references remain DEV_ONLY and establish no rights/revocation,
+decoder-clock verification, overlap semantics, rendering, Shared membership,
+or production authority.
 
 To typecheck and build the simulation package before using its terminal
 executable:
@@ -124,15 +284,45 @@ Run `pnpm check:product-experience-local` from the repository root for the
 read-only local invariant check that backs the closure matrix.
 
 Run `pnpm test:experience-browser` with the Vite preview active on port 4179 to
-exercise all 29 scenarios, the generated source index, 47 valid Product proposal
-routes, Verify, the inline artifact-verification specialization, the Tools Review
-route, keyboard navigation, accessible names, and six responsive viewports. The audit writes
-fixed-viewport screenshots and `report.json` to
-`/tmp/media-experience-browser-audit` by default. A repeat run must produce
-identical screenshot hashes. It is browser evidence for visual review, not a
-human pixel-perfect approval or Lifecycle-owned acceptance receipt.
+exercise 31 scenarios, 376 specification artifacts, 47 Product routes, 282
+legacy proposal URLs, keyboard navigation, accessibility/layout checks, and
+six responsive viewports. The audit writes fixed-viewport screenshots and
+`report.json` to `/tmp/media-experience-browser-audit` by default. It is browser
+evidence, not a human visual approval or Lifecycle-owned acceptance receipt.
+
+For a self-contained pixel regression, run
+`pnpm --filter @ghatana/media-experience-explorer test:visual-regression`. It
+builds the current app, starts Vite preview on an available loopback port, runs
+the browser audit, and compares eight desktop/narrow-mobile screenshots with the
+user-selected local references in
+[`test/visual-references/local-browser-audit-2026-11-10`](test/visual-references/local-browser-audit-2026-11-10).
+The comparator checks exact decoded pixels (no crop, rescale, or visual
+tolerance), reports changed-pixel counts/bounds/samples, and writes diff PNGs
+beside the run report in a unique temporary directory. The reference manifest
+keeps the original supplied captures and hashes separate from corrected active
+references; its history records the responsive-layout fix and the later
+source-inventory count update. These references are local regression inputs,
+not canonical design approval. Screen-reader and independent visual review
+remain manual gates.
+
+These images are local regression references, not canonical design-owner
+references. The audit continues to report independent expert visual review as
+`MANUAL_NOT_VERIFIED`, canonical visual references as `NOT_SUPPLIED`, and
+screen-reader review as `MANUAL_NOT_VERIFIED`. The visual selector does not
+complete the 47-route host requirement or change task/admission status. To
+accept a deliberate visual change, inspect it, obtain the relevant design
+owner's disposition, then update the local reference images and their manifest
+hashes together.
 # Shared presentation review host
 
 The Explorer mounts the public `@audio-video/ui/screens` exports for four candidate screen bodies through a local review adapter. The Vite aliases resolve those public import specifiers to repository source for local review, with the installed sibling Shared design-system build used only to make the candidate render. This does not admit the screens, qualify the published UI package, or establish a production Web surface. Every mounted screen is labeled **CANDIDATE · NOT ADMITTED** and receives synthetic simulation state and fixture actions.
 
 Legacy Product renderer helpers in the Explorer are not the source for these candidate screens. Source-derived PDP-3 proposals remain read-only Specification previews.
+
+### Local owner-scoped job read
+
+Open `/dev-job-recovery.html` while the local Explorer is running to connect a short-lived DEV_ONLY token and read a known job. The page uses the public `MediaCanonicalClient.getJob` method through the same-origin `GET /api/v1/jobs/{jobId}` proxy; the Media host remains responsible for owner and `media:job:read` authorization. The page does not request a job until the user selects a job ID and presses **Refresh canonical status** in the rendered recovery screen. A denied or unknown read remains explicitly DENIED or UNKNOWN in `JobRecoveryScreen`. This page has no cancel or retry action and does not make provider-finality claims.
+
+The recovery page is served only by the local Vite development host and is excluded from production build inputs. Its proxy accepts one safe job ID with an exact `GET` and no query string; collection reads, writes, cancel paths, encoded separators, and query variants are rejected locally.
+
+The real-host browser assertion is part of `MediaDevIssuerHeadlessRestartIT`. It issues a short-lived test owner identity and diagnostic job, then opens this Vite page against the restarted Media process. The test verifies that the canonical SDK returns the job's tenant, owner, terminal status and version; no job request occurs on screen mount; a token without `media:job:read` renders DENIED; another owner receives UNKNOWN without job status/version disclosure; and all credentialed calls stay same-origin GETs. It also checks keyboard submission, a 375px viewport, browser storage, and absence of cancel/retry requests. This remains local DEV_ONLY engineering evidence; it does not alter production admission or imply provider finality.

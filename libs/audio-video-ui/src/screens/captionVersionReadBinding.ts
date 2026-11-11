@@ -29,6 +29,7 @@ export function bindCaptionVersionRows(
   for (const value of input) {
     if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
     const row = value as Partial<CaptionVersionRegistered>;
+    const registeredAt = row.registeredAt;
     if (typeof row.requestId !== "string" || !REQUEST_ID.test(row.requestId)
       || typeof row.requestFingerprint !== "string" || !SHA256.test(row.requestFingerprint)
       || typeof row.captionVersionId !== "string" || !OPAQUE_ID.test(row.captionVersionId)
@@ -42,7 +43,7 @@ export function bindCaptionVersionRows(
         && row.languageDisposition !== "DECLARED_BY_USER"
         && row.languageDisposition !== "UNCERTAIN")
       || typeof row.sourceClockId !== "string" || !OPAQUE_ID.test(row.sourceClockId)
-      || !Number.isSafeInteger(row.registeredAt) || (row.registeredAt ?? -1) < 0) return undefined;
+      || typeof registeredAt !== "number" || !Number.isSafeInteger(registeredAt) || registeredAt < 0) return undefined;
     ids.add(row.captionVersionId);
     rows.push({
       requestId: row.requestId,
@@ -55,7 +56,7 @@ export function bindCaptionVersionRows(
       parentVersionId: row.parentVersionId,
       languageDisposition: row.languageDisposition,
       sourceClockId: row.sourceClockId,
-      registeredAt: row.registeredAt,
+      registeredAt,
     });
   }
   return Object.freeze(rows.map((row) => Object.freeze(row)));

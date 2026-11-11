@@ -85,6 +85,16 @@ class MediaPublicLifecycleEventTest {
     }
 
     @Test
+    void eventTypeMustUseTheAggregateFamilyObservedByItsOwnerCallSite() {
+        var payload = new java.util.LinkedHashMap<>(MediaPublicLifecycleEvent.fromInternal(
+                internal("media.job.accepted"), REDACTOR).toPayload());
+        payload.put("aggregateType", "stream");
+        assertThatThrownBy(() -> MediaPublicLifecycleEvent.fromPayload(payload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("aggregateType");
+    }
+
+    @Test
     void payloadParserRejectsValuesThatThePinnedSchemaDoesNotAcceptExactly() {
         Map<String, Object> valid = MediaPublicLifecycleEvent.fromInternal(
                 internal("media.job.accepted"), REDACTOR).toPayload();
@@ -186,6 +196,8 @@ class MediaPublicLifecycleEventTest {
             assertThat(schema.path("additionalProperties").booleanValue()).isFalse();
             assertThat(schema.path("properties").path("schemaVersion").path("const").textValue()).isEqualTo("1.0.0");
             assertThat(schema.path("properties").path("appendFinality").path("const").textValue()).isEqualTo("NON_FINAL_APPEND");
+            assertThat(schema.path("properties").path("aggregateVersion").path("maximum").longValue())
+                    .isEqualTo(Long.MAX_VALUE);
             assertThat(schema.path("properties").path("aggregateType").path("enum").toString())
                     .isEqualTo("[\"upload\",\"artifact\",\"job\",\"stream\"]");
             assertThat(schema.path("properties").path("classification").path("enum").toString())

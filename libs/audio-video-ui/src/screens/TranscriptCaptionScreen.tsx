@@ -17,6 +17,10 @@ export interface TranscriptCaptionProjection {
   /** Exact source identifiers for authenticated caption-version reads. */
   readonly sourceArtifactId?: string;
   readonly sourceArtifactVersionId?: string;
+  /** Exact typed parent and session-local draft revision required for edit dispatch. */
+  readonly parentVersionKind?: "TRANSCRIPT_VERSION" | "CAPTION_VERSION";
+  readonly parentVersionId?: string;
+  readonly captionDraftRevision?: number;
   readonly sourceArtifactVersion?: string;
   readonly sourceTime?: string;
   readonly language?: string;
@@ -97,6 +101,18 @@ export function hasAdmissibleCaptionTimingRange(
     && Number.isSafeInteger(startTick) && (startTick ?? -1) >= 0
     && Number.isSafeInteger(endTick) && (endTick ?? -1) > (startTick ?? Number.MAX_SAFE_INTEGER)
     && (endTick ?? Number.MAX_SAFE_INTEGER) <= (transcript.durationTicks ?? -1);
+}
+
+/** J-03 edits must be bound to one exact source, typed parent, and draft revision. */
+export function hasExactCaptionDraftIdentity(
+  transcript: Pick<TranscriptCaptionProjection,
+    "sourceArtifactId" | "sourceArtifactVersionId" | "parentVersionKind" | "parentVersionId" | "captionDraftVersion" | "captionDraftRevision">,
+): boolean {
+  return [transcript.sourceArtifactId, transcript.sourceArtifactVersionId, transcript.parentVersionId, transcript.captionDraftVersion]
+    .every((value) => typeof value === "string" && value.trim().length > 0)
+    && (transcript.parentVersionKind === "TRANSCRIPT_VERSION" || transcript.parentVersionKind === "CAPTION_VERSION")
+    && Number.isSafeInteger(transcript.captionDraftRevision)
+    && (transcript.captionDraftRevision ?? -1) >= 0;
 }
 
 function dispatchMessage(result: MediaActionDispatchResult): string {
@@ -217,9 +233,15 @@ export function TranscriptCaptionScreen({
     "correct-captions": "Correct captions",
     "compare-caption-versions": "Compare caption versions",
   }[transcript.view];
+  const exactDraftIdentityAvailable = hasExactCaptionDraftIdentity(transcript);
+  const exactDraftActionIds = new Set([
+    "media.action.correct-caption", "media.action.align-caption-timing", "media.action.save-caption-version",
+  ]);
   const availableActions = new Map(actions.map((action) => [action.id, dispatchGuard.isInFlight(action.id)
     ? { ...action, enabled: false, disabledReason: "This action awaits exact owner reconciliation before retry." }
-    : action]));
+    : exactDraftActionIds.has(action.id) && !exactDraftIdentityAvailable
+      ? { ...action, enabled: false, disabledReason: "Exact source, typed parent, and caption draft revision are required before editing or saving." }
+      : action]));
   const correctAction = availableActions.get("media.action.correct-caption");
   const canCorrect = correctAction?.enabled === true;
   const alignAction = availableActions.get("media.action.align-caption-timing");
@@ -260,9 +282,14 @@ export function TranscriptCaptionScreen({
   const flowActions = actions.filter((action) => !payloadActions.has(action.id));
   const flowSafeActionIds = nextSafeActionIds.filter((id) => !payloadActions.has(id));
   const transcriptSubjectRefs = [
-    transcript.sourceArtifactVersion,
-    transcript.transcriptVersion,
-    transcript.captionDraftVersion,
+    transcript.sourceArtifactId && `source-artifact:${transcript.sourceArtifactId}`,
+    transcript.sourceArtifactVersionId && `source-version:${transcript.sourceArtifactVersionId}`,
+    transcript.parentVersionKind && transcript.parentVersionId
+      && `parent:${transcript.parentVersionKind}:${transcript.parentVersionId}`,
+    transcript.captionDraftVersion && `caption-draft:${transcript.captionDraftVersion}`,
+    Number.isSafeInteger(transcript.captionDraftRevision)
+      ? `caption-draft-revision:${transcript.captionDraftRevision}`
+      : undefined,
   ];
   const invokePayloadAction = (
     actionId: string,

@@ -44,6 +44,11 @@ and independently verified effects.
   projection; an exception during projection returns `CONSUMPTION_UNKNOWN`
   because the effect may already be durable. Hosts must replay through the
   idempotent projection store or reconcile before reporting consumption.
+- The consumer binds the envelope timestamp (epoch milliseconds) to the
+  payload's `occurredAt` instant before authorization or projection. A broker
+  envelope with the same event ID but a different occurrence time is rejected
+  as `INVALID_ABI`; this prevents metadata and the fingerprinted payload from
+  describing different event chronology.
 - The consumer fingerprints every parsed v1 payload field before projection:
   same event ID and same fingerprint is a duplicate; reuse with a different
   fingerprint is `CONFLICTING_REPLAY` and has no projection effect. This

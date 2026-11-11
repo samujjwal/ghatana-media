@@ -89,7 +89,7 @@ function isBoundedJsonValue(root: unknown): boolean {
   return true;
 }
 
-function boundedTypedValue<T extends z.ZodTypeAny>(schema: T) {
+function boundedTypedValue<T extends z.ZodTypeAny>(schema: T): z.ZodType<z.output<T>> {
   return z.preprocess((value) => {
     try {
       return isBoundedJsonValue(value) ? value : undefined;

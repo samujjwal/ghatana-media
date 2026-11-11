@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDocument } from 'yaml';
+import { parseDocument, stringify } from 'yaml';
 import { verifyRecorderStudioDefinitions } from '../scripts/check-media-recorder-studio-definitions.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -15,6 +15,30 @@ test('PDP0–2 Recorder Studio requirements/surfaces/parity are structurally com
   assert.equal(result.stats.recorderCases, 84);
   assert.equal(result.stats.manualEditKinds, 52);
   assert.equal(result.stats.proposedPdpCells, 216);
+  assert.equal(result.stats.historicalPhysical, 26);
+  assert.equal(result.stats.activePhysicalCandidates, 28);
+});
+test('keeps historical physical denominator separate from the active manifest census', () => {
+  const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+  topology.activeManifestCandidateCount += 1;
+  const result = verifyRecorderStudioDefinitions({overrides:{topology:JSON.stringify(topology)}});
+  assert.ok(result.errors.some(error => error.includes('active physical candidate denominator differs')),
+    result.errors.join('\n'));
+});
+test('rejects duplicate active physical candidate identities against the active census', () => {
+  const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+  topology.manifestCandidates[1].surfaceId = topology.manifestCandidates[0].surfaceId;
+  const result = verifyRecorderStudioDefinitions({overrides:{topology:JSON.stringify(topology)}});
+  assert.ok(result.errors.some(error => error.includes('physical candidate identity duplicated')),
+    result.errors.join('\n'));
+});
+test('uses the nested canonical requirements list as the family denominator', () => {
+  const document = parseDocument(read('.product-experience/pdp-0-product-truth/requirements.yaml'));
+  const requirements = document.toJS();
+  requirements.requirements.pop();
+  const result = verifyRecorderStudioDefinitions({overrides:{requirements:stringify(requirements)}});
+  assert.ok(result.errors.some(error => error.includes('current requirement family denominator must be 38')),
+    result.errors.join('\n'));
 });
 test('rejects an omitted PDP2 acceptance binding', () => {
   const source = read('.product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml');

@@ -22,6 +22,57 @@ function createMediaOperationClient(
 }
 
 describe("MediaHttpTransport configured identity boundary", () => {
+  it("invokes default JSON requests with the browser fetch receiver and reaches dispatch", async () => {
+    let fetchReceiver: unknown;
+    const defaultFetch = vi.fn(function (this: unknown) {
+      fetchReceiver = this;
+      return Promise.resolve(Response.json({}, { status: 200 }));
+    }) as unknown as typeof fetch;
+    vi.stubGlobal("fetch", defaultFetch);
+    try {
+      const transport = new MediaHttpTransport({
+        baseUrl: "http://127.0.0.1:8093",
+        tenantId: "tenant-1",
+        getAccessToken: () => "test-access-token",
+      });
+      const dispatch = vi.fn();
+      const response = await transport.request("POST", "/api/v1/artifacts/uploads", {}, {
+        parse: (value) => value,
+      }, undefined, {}, dispatch);
+
+      expect(response).toEqual({});
+      expect(defaultFetch).toHaveBeenCalledTimes(1);
+      expect(fetchReceiver).toBe(globalThis);
+      expect(dispatch).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("requires HTTPS except for loopback development hosts", () => {
+    for (const baseUrl of [
+      "http://media.example.test",
+      "http://192.168.1.10",
+      "ftp://media.example.test",
+      "https://user:password@media.example.test",
+      "https://media.example.test/?token=secret",
+      "https://media.example.test/safe/%2e%2e/admin",
+    ]) {
+      expect(() => new MediaHttpTransport({ baseUrl, tenantId: "tenant-1" }), baseUrl)
+        .toThrow(/baseUrl/u);
+    }
+
+    for (const baseUrl of [
+      "https://media.example.test/api",
+      "http://localhost:8080",
+      "http://127.0.0.1:8080",
+      "http://[::1]:8080",
+    ]) {
+      expect(() => new MediaHttpTransport({ baseUrl, tenantId: "tenant-1" }), baseUrl)
+        .not.toThrow();
+    }
+  });
+
   it("keeps positive sub-millisecond request bounds above zero", () => {
     expect(boundedPositive(0.1, 30_000)).toBe(1);
     expect(boundedPositive(0, 30_000)).toBe(30_000);
@@ -287,6 +338,7 @@ function uploadSession(overrides: Record<string, unknown> = {}): CanonicalMediaU
     expectedSizeBytes: 3,
     expectedSha256: "a".repeat(64),
     classification: "INTERNAL",
+    retention: "PT24H",
     createdAt: timestamp,
     expiresAt: "2026-09-05T12:00:00.000Z",
     bytesReceived: 0,
@@ -302,7 +354,7 @@ describe("MediaOperationClient", () => {
     let captured: { url: string; init?: RequestInit } | undefined;
     const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       captured = { url: String(input), init };
-      return jsonResponse(uploadSession({ metadata: { purpose: "test", outer: { first: 1, second: 2 } } }));
+      return jsonResponse(uploadSession({ retention: "P1D", metadata: { purpose: "test", outer: { first: 1, second: 2 } } }));
     }) as unknown as typeof fetch;
     const client = createMediaOperationClient({
       baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
@@ -354,6 +406,19 @@ describe("MediaOperationClient", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it("rejects a created upload whose retained duration differs from the request", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ retention: "PT48H" }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+
+    const failure = await client.createUploadSession({ fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key" })
+      .catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects filenames that runtime stores would trim, path-normalize, or rewrite before upload dispatch", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
@@ -372,7 +437,10 @@ describe("MediaOperationClient", () => {
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
     const request = { fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
       expectedSha256: "a".repeat(64), classification: "INTERNAL" as const, retention: "PT24H", idempotencyKey: "key" };
-    for (const contentType of [" audio/wav", "audio/wav ", "audio/\twav"]) {
+    for (const contentType of [
+      " audio/wav", "audio/wav ", "audio/\twav", "audio/wav; charset=utf-8", "audio/",
+      `${"a".repeat(126)}/b`, "é/abc",
+    ]) {
       await expect(client.createUploadSession({ ...request, contentType })).rejects.toThrow(/contentType.*canonical/u);
     }
     for (const classification of [" INTERNAL", "INTERNAL ", "internal", "RESTRICTED\n", "SECRET"]) {
@@ -380,6 +448,21 @@ describe("MediaOperationClient", () => {
     }
     expect(fetchImpl).not.toHaveBeenCalled();
   });
+
+  it.each(["a/b", `${"a".repeat(125)}/b`])(
+    "accepts canonical content-type values at the declared lower and upper bounds",
+    async (contentType) => {
+      const fetchImpl = vi.fn(async (): Promise<Response> =>
+        jsonResponse(uploadSession({ contentType }))) as unknown as typeof fetch;
+      const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" } });
+      await expect(client.createUploadSession({
+        fileName: "source.wav", contentType, expectedSizeBytes: 3,
+        expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key",
+      })).resolves.toMatchObject({ contentType });
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it.each(["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"] as const)(
     "accepts the exact runtime classification %s without rewriting it",
@@ -459,6 +542,17 @@ describe("MediaOperationClient", () => {
     expect(captured?.init?.body).toBeInstanceOf(Blob);
     await expect(client.uploadPart(uploadSession(), 1, new Blob(["x"]))).rejects.toThrow(/next zero-based/u);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("binds replayed retention semantically after millisecond normalization", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({
+      retention: "P1D", bytesReceived: 3, nextChunkIndex: 1,
+    }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+
+    await expect(client.uploadPart(uploadSession(), 0, new Blob(["abc"])))
+      .resolves.toMatchObject({ retention: "P1D", bytesReceived: 3, nextChunkIndex: 1 });
   });
 
   it("rejects an append response with a classification outside the canonical enum", async () => {
@@ -571,6 +665,11 @@ describe("MediaOperationClient", () => {
     ["an unsupported status", { status: "RETRYABLE" }],
     ["an unsupported classification", { classification: "SECRET" }],
     ["an invented response alias", { id: "upload-1" }],
+    ["a missing retention duration", { retention: undefined }],
+    ["a malformed retention duration", { retention: "one day" }],
+    ["a zero retention duration", { retention: "PT0S" }],
+    ["a sub-millisecond retention duration", { retention: "PT0.000000001S" }],
+    ["a retention duration above 3650 days", { retention: "P3651D" }],
     ["an invalid expiry timestamp", { expiresAt: "not-a-date" }],
     ["a nonexistent February day", { expiresAt: "2026-02-30T12:00:00Z" }],
     ["a nonexistent April day", { expiresAt: "2026-04-31T12:00:00Z" }],
@@ -587,6 +686,16 @@ describe("MediaOperationClient", () => {
     });
     await expect(client.getUploadSession("upload-1")).rejects.toThrow(TypeError);
   });
+
+  it.each(["PT0.001S", "PT720H", "P3650D"])(
+    "accepts bounded millisecond retention duration %s",
+    async (retention) => {
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ retention }))) as unknown as typeof fetch;
+      const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" } });
+      await expect(client.getUploadSession("upload-1")).resolves.toMatchObject({ retention });
+    },
+  );
 
   it("preserves valid leap-day UTC instants at nanosecond precision", async () => {
     const createdAt = "2024-02-29T12:00:00.123456789Z";

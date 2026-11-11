@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildCrosswalk } from "../scripts/generate-media-capability-implementation-crosswalk.mjs";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse: parseYaml } = requireTools("yaml");
 
@@ -12,6 +14,14 @@ const artifact = JSON.parse(readFileSync(resolve(root, "docs/development/capabil
 const capabilities = parseYaml(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8"));
 const register = JSON.parse(readFileSync(resolve(root, "docs/development/remaining-work.json"), "utf8"));
 const taskState = new Map(register.tasks.map((task) => [task.id, task.state]));
+
+test("checked-in crosswalk matches current source and status without changing its conservative classification", () => {
+  assert.deepEqual(buildCrosswalk(root), artifact);
+  assert.equal(artifact.summary.leafCount, 469);
+  assert.equal(artifact.summary.byClassification.NOT_IMPLEMENTED, 463);
+  assert.equal(artifact.summary.byClassification.OPTIONAL_DEFERRED, 6);
+  assert.equal(artifact.summary.byClassification.IMPLEMENTED ?? 0, 0);
+});
 
 test("every authored capability leaf is classified exactly once with no unknown intents", () => {
   const leafIds = capabilities.capabilities.map((leaf) => leaf.id);
@@ -29,6 +39,7 @@ test("deferred leaves are OPTIONAL_DEFERRED and carry no fabricated blocking wor
   assert.deepEqual(deferredRecords.map((record) => record.id).sort(), deferred.sort());
   for (const record of deferredRecords) {
     assert.deepEqual(record.blockingTaskRefs, [], `${record.id} must not fake progress through unrelated tasks`);
+    assert.deepEqual(record.verifiedTaskRefs, [], `${record.id} must not carry unrelated verified task receipts`);
   }
 });
 

@@ -48,8 +48,9 @@ public final class GrpcVideoSourceCapture {
             Authorization authorization, String sourceVersion, long sourceCursor, long mediaSequence) {
         public Readback {
             Objects.requireNonNull(authorization, "authorization");
-            if (sourceCursor < 0 || mediaSequence < 0) {
-                throw new IllegalArgumentException("source and Media cursors must be nonnegative");
+            if (sourceCursor < 0 || mediaSequence < 0
+                    || mediaSequence > VideoStreamSession.MAX_FRAME_SEQUENCE) {
+                throw new IllegalArgumentException("source cursor or Media sequence is outside the supported range");
             }
             if (authorization == Authorization.AUTHORIZED) {
                 sourceVersion = versionRef(sourceVersion, "sourceVersion");

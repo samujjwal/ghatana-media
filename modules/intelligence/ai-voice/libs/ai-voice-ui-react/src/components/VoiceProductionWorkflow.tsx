@@ -17,6 +17,7 @@ import {
   type MediaTaskStep,
   type MediaTaskStepId,
 } from "@audio-video/ui";
+import type { MediaComponentValueTypes } from "@audio-video/ui";
 import { Button } from "@ghatana/design-system";
 import React, { useId, useMemo } from "react";
 import { useSemanticColors } from "./useSemanticColors";
@@ -33,6 +34,9 @@ export type VoiceCapabilityState =
   | "DENIED";
 
 export interface VoiceSourceSummary {
+  /** Exact source identity supplied by the host; presence is not authorization or owner verification. */
+  readonly artifactVersionRef?: MediaComponentValueTypes.MediaComponentValueTypes.ExactArtifactVersionRef;
+  /** Informational legacy selection hint; never sufficient to enable voice processing. */
   readonly artifactId?: string;
   readonly fileName: string;
   readonly durationSeconds?: number;
@@ -165,6 +169,17 @@ function formatDuration(seconds: number | undefined): string {
   return `${minutes}:${remainder.toString().padStart(2, "0")}`;
 }
 
+function hasExactArtifactVersionRef(
+  reference: MediaComponentValueTypes.MediaComponentValueTypes.ExactArtifactVersionRef | undefined,
+): reference is MediaComponentValueTypes.MediaComponentValueTypes.ExactArtifactVersionRef {
+  return Boolean(
+    reference &&
+      typeof reference.tenantId === "string" && reference.tenantId.trim() &&
+      typeof reference.artifactId === "string" && reference.artifactId.trim() &&
+      typeof reference.versionId === "string" && reference.versionId.trim(),
+  );
+}
+
 export function VoiceProductionWorkflow({
   projectName,
   currentStep,
@@ -189,7 +204,20 @@ export function VoiceProductionWorkflow({
   const fileInputId = useId();
   const consentReferenceId = useId();
   const completed = useMemo(() => new Set(completedSteps), [completedSteps]);
-  const sourceReady = Boolean(source?.artifactId || source?.fileName);
+  const sourceSelected = Boolean(source?.artifactId?.trim() || source?.fileName.trim());
+  // This view has no trusted workspace/tenant/source verification input. A
+  // supplied tuple is displayable identity, not proof that the current host
+  // authorized that exact source. Therefore the view cannot admit an effect.
+  const exactSourceVersionRef = source?.artifactVersionRef && hasExactArtifactVersionRef(source.artifactVersionRef)
+    ? source.artifactVersionRef
+    : undefined;
+  const sourceAuthorityAdmitted = false;
+  const sourceVersionText = exactSourceVersionRef
+    ? `${exactSourceVersionRef.tenantId} / ${exactSourceVersionRef.artifactId} / ${exactSourceVersionRef.versionId}`
+    : "Not supplied as a complete exact version reference";
+  const sourceBlockedReason = exactSourceVersionRef
+    ? "The current workspace, tenant, source version, and voice authority are not verified by this view; no voice operation can start."
+    : "Provide the exact tenant, artifact, and version identity, then have the host verify the current source and voice authority before any operation.";
   const processed =
     completed.has("process") ||
     completed.has("review") ||
@@ -207,8 +235,13 @@ export function VoiceProductionWorkflow({
   const steps: readonly MediaTaskStep[] = STEP_DEFINITIONS.map((definition) => {
     const capabilityReason = unavailableReason(capabilities[definition.id]);
     let prerequisiteReason: string | undefined;
-    if (definition.id !== "capture" && !sourceReady) {
+    if (definition.id !== "capture" && !sourceSelected) {
       prerequisiteReason = "Capture or import a source recording first.";
+    } else if (
+      ["process", "review", "refine", "approve", "export"].includes(definition.id) &&
+      !sourceAuthorityAdmitted
+    ) {
+      prerequisiteReason = sourceBlockedReason;
     } else if (
       ["review", "refine", "approve", "export"].includes(definition.id) &&
       !processed
@@ -250,9 +283,13 @@ export function VoiceProductionWorkflow({
               id: "process-source",
               label: processed ? "Process again" : "Start processing",
               onAction: onProcess,
-              disabled: !sourceReady || Boolean(unavailableReason(capabilities.process)),
+              disabled: !sourceAuthorityAdmitted || Boolean(unavailableReason(capabilities.process)),
               disabledReason:
-                (!sourceReady ? "Capture or import a source recording first." : undefined) ??
+                (!sourceAuthorityAdmitted
+                  ? sourceSelected
+                    ? sourceBlockedReason
+                    : "Capture or import a source recording first."
+                  : undefined) ??
                 unavailableReason(capabilities.process),
             }
           : undefined;
@@ -263,10 +300,12 @@ export function VoiceProductionWorkflow({
               id: "continue-approval",
               label: "Continue to approval",
               onAction: () => onStepChange("approve"),
-              disabled: !processed,
-              disabledReason: !processed
-                ? "Complete media processing before approval."
-                : undefined,
+              disabled: !sourceAuthorityAdmitted || !processed,
+              disabledReason: !sourceAuthorityAdmitted
+                ? sourceBlockedReason
+                : !processed
+                  ? "Complete media processing before approval."
+                  : undefined,
             }
           : undefined;
       case "approve":
@@ -276,11 +315,14 @@ export function VoiceProductionWorkflow({
               label: "Approve output",
               onAction: onApprove,
               disabled:
+                !sourceAuthorityAdmitted ||
                 !processed ||
                 !userAttestationRecorded ||
                 Boolean(unavailableReason(capabilities.approve)),
               disabledReason:
-                (!processed
+                (!sourceAuthorityAdmitted
+                  ? sourceBlockedReason
+                  : !processed
                   ? "Complete processing and review first."
                   : !userAttestationRecorded
                     ? "Record the user rights assertion and a consent reference before requesting approval."
@@ -293,9 +335,13 @@ export function VoiceProductionWorkflow({
               id: "export-output",
               label: "Export governed artifact",
               onAction: onExport,
-              disabled: !approved || Boolean(unavailableReason(capabilities.export)),
+              disabled: !sourceAuthorityAdmitted || !approved || Boolean(unavailableReason(capabilities.export)),
               disabledReason:
-                (!approved ? "Approve the output before export." : undefined) ??
+                (!sourceAuthorityAdmitted
+                  ? sourceBlockedReason
+                  : !approved
+                    ? "Approve the output before export."
+                    : undefined) ??
                 unavailableReason(capabilities.export),
             }
           : undefined;
@@ -313,7 +359,7 @@ export function VoiceProductionWorkflow({
     onRecordSource,
     onStepChange,
     processed,
-    sourceReady,
+    sourceAuthorityAdmitted,
   ]);
 
   const secondaryActions: readonly MediaTaskAction[] = [
@@ -360,6 +406,10 @@ export function VoiceProductionWorkflow({
             <div className="rounded-lg border p-3">
               <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source</dt>
               <dd className="mt-1 font-medium">{source.fileName}</dd>
+            </div>
+            <div className="rounded-lg border p-3">
+              <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source version reference (provided, not verified)</dt>
+              <dd className="mt-1 break-all font-medium">{sourceVersionText}</dd>
             </div>
             <div className="rounded-lg border p-3">
               <dt className="text-xs" style={{ color: colors.contentSecondary }}>Duration</dt>
@@ -515,6 +565,10 @@ export function VoiceProductionWorkflow({
           <div>
             <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source</dt>
             <dd>{source?.fileName ?? "Not selected"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source version reference (provided, not verified)</dt>
+            <dd className="break-all">{sourceVersionText}</dd>
           </div>
           <div>
             <dt className="text-xs" style={{ color: colors.contentSecondary }}>Model</dt>

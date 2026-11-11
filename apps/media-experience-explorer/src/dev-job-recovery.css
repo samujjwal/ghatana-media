@@ -1,0 +1,11 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(880px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form { display: grid; gap: .6rem; max-width: 34rem; }
+input, button { font: inherit; padding: .65rem .8rem; }
+button { width: fit-content; cursor: pointer; }
+#screen { margin-top: 1.5rem; }

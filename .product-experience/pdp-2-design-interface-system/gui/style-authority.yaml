@@ -56,7 +56,7 @@ currentConsumerBindingObservation:
     resolutionBoundary: workspace-link-to-local-source-snapshot; no-registry-publication-claim
   tokenConsumers:
     semanticRoleTypeApi:
-      importSite: libs/audio-video-ui/src/index.tsx#export*-from-@ghatana/tokens
+      importSite: libs/audio-video-ui/src/index.ts#export*-from-@ghatana/tokens
       publicExport: "@ghatana/tokens#./semantic-roles"
       tokenSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts
       meanings: semanticColorRoles.light-and-dark

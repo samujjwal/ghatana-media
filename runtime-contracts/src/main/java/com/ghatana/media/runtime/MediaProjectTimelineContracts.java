@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 
-/** Typed identities and immutable values for a revisioned Media editorial timeline. */
+/** Typed identities and immutable values for a revisioned Media project timeline set. */
 public final class MediaProjectTimelineContracts {
     private MediaProjectTimelineContracts() { }
 
@@ -186,6 +186,15 @@ public final class MediaProjectTimelineContracts {
         }
     }
 
+    /** One stable timeline's graph at an opaque immutable semantic version. */
+    public record TimelineSnapshot(String semanticVersionId, Graph graph) {
+        public TimelineSnapshot {
+            semanticVersionId = requiredOpaqueVersionId(semanticVersionId, "semanticVersionId");
+            Objects.requireNonNull(graph, "graph");
+        }
+        public String timelineId() { return graph.timelineId(); }
+    }
+
     public record Actor(String tenantId, String principalId) {
         public Actor {
             tenantId = requiredOpaqueId(tenantId, "tenantId");
@@ -206,26 +215,35 @@ public final class MediaProjectTimelineContracts {
     }
 
     public record Revision(String tenantId, String projectId, String revisionId, String parentRevisionId,
-                           Graph graph) {
+                           List<TimelineSnapshot> timelines) {
         public Revision {
             tenantId = requiredOpaqueId(tenantId, "tenantId");
             projectId = requiredOpaqueId(projectId, "projectId");
             revisionId = requiredOpaqueId(revisionId, "revisionId");
             parentRevisionId = parentRevisionId == null ? null : requiredOpaqueId(parentRevisionId, "parentRevisionId");
-            Objects.requireNonNull(graph, "graph");
+            timelines = List.copyOf(Objects.requireNonNull(timelines, "timelines"));
+            if (timelines.stream().map(TimelineSnapshot::timelineId).distinct().count() != timelines.size()) {
+                throw new IllegalArgumentException("duplicate timelineId");
+            }
+            for (TimelineSnapshot timeline : timelines) {
+                if (timeline.semanticVersionId().equals(revisionId)) {
+                    throw new IllegalArgumentException("timeline semanticVersionId must differ from project revisionId");
+                }
+            }
+            timelines = timelines.stream().sorted(java.util.Comparator.comparing(TimelineSnapshot::timelineId)).toList();
         }
     }
 
     public record Created(Project project, Revision initialRevision, boolean createdNow) { }
 
-    /** The only mutation boundary for a project timeline. Implementations must atomically compare the head. */
+    /** One-writer mutation boundary for the project revision aggregate and its timeline snapshots. */
     public interface ProjectTimelineStore {
         Created create(Actor actor, String workspaceId, String title, String requestId,
-                       String projectId, String initialRevisionId, String timelineId);
+                       String projectId, String initialRevisionId);
         Project project(Actor actor, String projectId);
         Revision revision(Actor actor, String projectId, String revisionId);
         Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
-                       String newRevisionId, Graph graph);
+                       String newRevisionId, List<TimelineSnapshot> timelines);
     }
 
     /** Host-owned live authority read. UNKNOWN or an unavailable port blocks a rights-dependent effect. */

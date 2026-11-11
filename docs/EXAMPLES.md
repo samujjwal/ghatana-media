@@ -67,9 +67,11 @@ result, accepted journey oracle, or production channel is claimed.
 ## Source upload, verification, and caption correction
 
 **Family:** source upload → verify → transcribe/correct. **Status:** J-02 and
-J-03 are proposals; J-02 has metadata-only synthetic fixtures, and J-03 is a
-selected audio-source proposal. Real byte transfer, provider execution, and the
-full video-transcription path are not established.
+J-03 remain proposals; J-02's seven PDP-3 scenario fixtures describe metadata
+only, while a separate DEV_ONLY process-restart integration test now exercises
+chunked transfer to PostgreSQL 16/LocalStack S3 with synthetic WAV bytes. That
+test does not establish an admitted production host/storage path, real-source
+rights or consent, provider execution, or the full video-transcription path.
 
 - **Trace:** [J-02 upload/import/verify](../.product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml)
   orders source selection/import, upload/job observation, and artifact

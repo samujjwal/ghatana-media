@@ -1,6 +1,6 @@
 # Executable UI source inventory
 
-The source-pinned row inventory is [`executable-ui-inventory.json`](./executable-ui-inventory.json). It contains 158 source records from the current workspace observation at Git baseline `cae6fc6bd60e48a3fe945a4a8873bb928a2d67b1`. Every entry carries a SHA-256 of observed bytes and a dirty/untracked marker so the baseline does not hide working-tree edits.
+The source-pinned row inventory is [`executable-ui-inventory.json`](./executable-ui-inventory.json). It contains 158 source records from the current workspace observation at Git baseline `0a439def32fe213aae57d64bcd7f4fc2853d5921`. Every entry carries a SHA-256 of observed bytes and a dirty/untracked marker so the baseline does not hide working-tree edits.
 
 | Source scope | Records | First disposition | Main consumers/runtime |
 |---|---:|---|---|

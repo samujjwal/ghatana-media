@@ -145,11 +145,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     statement.setString(21, fingerprint);
                     statement.executeUpdate();
                 }
+                UploadRow persisted = readUpload(connection, request.tenantId(), uploadId, false);
+                if (persisted == null) throw new SQLException("inserted Media upload is missing its persisted row");
                 connection.commit();
-                return new UploadBeginResult(new UploadSession(
-                        uploadId, request.tenantId(), request.principalId(), safeFileName(request.fileName()), request.contentType(),
-                        request.expectedSizeBytes(), request.expectedSha256(), request.classification(),
-                        now, expiresAt, 0L, 0, UploadStatus.OPEN, request.metadata()), true);
+                return new UploadBeginResult(persisted.session(), true);
             } catch (SQLException | RuntimeException failure) {
                 rollback(connection, failure);
                 if (failure instanceof SQLException sql && duplicateKey(sql)) {
@@ -329,6 +328,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         String multipartId = null;
         boolean objectCompleted = false;
         boolean scanRejected = false;
+        boolean scanCompleted = false;
         try {
             // Read and validate the complete manifest before starting any multipart S3 operation.
             // Every later GET uses this immutable local snapshot of deterministic owned keys.
@@ -396,15 +396,20 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     tenantId, claim.row().principalId(), uploadId, actualDigest, totalBytes,
                     claim.row().contentType(), "s3://" + state.bucket() + "/" + finalKey);
             ArtifactScanDecision scan = scan(quarantined);
+            scanCompleted = true;
             if (scan.verdict() != ArtifactScanVerdict.CLEAN) {
+                scanRejected = scan.verdict() == ArtifactScanVerdict.REJECT;
                 recordScanStatus(tenantId, uploadId, claim.token(), scan,
                         scan.verdict() == ArtifactScanVerdict.REJECT ? "REJECTED" : "UNAVAILABLE");
-                if (scan.verdict() == ArtifactScanVerdict.REJECT) {
-                    scanRejected = true;
+                if (scanRejected) {
                     cleanupRejectedFinalization(tenantId, uploadId, claim.token(), finalKey);
                 }
                 throw new IllegalStateException("Media artifact scan did not return a clean verdict: " + scan.verdict());
             }
+            // Persist the attestation before artifact registration. If registration later fails
+            // (for example, byte-identical content has conflicting immutable metadata), retain
+            // the actual CLEAN scanner result instead of misreporting scanner unavailability.
+            recordScanStatus(tenantId, uploadId, claim.token(), scan, "CLEAN");
             MediaArtifact artifact = persistArtifact(claim, finalKey, totalBytes, actualDigest, scan, verification);
             if (!artifact.objectReference().equals("s3://" + state.bucket() + "/" + finalKey)) {
                 deleteFinalObjectBestEffort(finalKey);
@@ -417,7 +422,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             }
             return new UploadCompletionResult(artifact, true);
         } catch (RuntimeException failure) {
-            if (objectCompleted && !scanRejected) {
+            if (objectCompleted && !scanRejected && !scanCompleted) {
                 try {
                     recordScanStatus(tenantId, uploadId, claim.token(), null, "UNAVAILABLE");
                 } catch (RuntimeException statusFailure) {
@@ -444,7 +449,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     wrapped.addSuppressed(abortFailure);
                 }
             }
-            if (objectCompleted && !scanRejected) {
+            if (objectCompleted && !scanRejected && !scanCompleted) {
                 try {
                     recordScanStatus(tenantId, uploadId, claim.token(), null, "UNAVAILABLE");
                 } catch (RuntimeException statusFailure) {
@@ -1568,7 +1573,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             Long finalizationStartedAt, String idempotencyKey, String requestFingerprint, String scanStatus) {
         UploadSession session() {
             return new UploadSession(uploadId, tenantId, principalId, fileName, contentType, expectedSizeBytes,
-                    expectedSha256, classification, Instant.ofEpochMilli(createdAt),
+                    expectedSha256, classification, java.time.Duration.ofMillis(retentionMillis), Instant.ofEpochMilli(createdAt),
                     Instant.ofEpochMilli(expiresAt), bytesReceived, nextChunkIndex, status, metadata);
         }
         UploadRow withProgress(long bytes, int next) {

@@ -20,6 +20,60 @@ const baseProps: Omit<FirstUseProjectScreenProps, "project"> = {
 };
 
 describe("FirstUseProjectScreen protected project data", () => {
+  it("associates the create action with its confirmation or unavailable explanation", () => {
+    const ready = renderToStaticMarkup(React.createElement(FirstUseProjectScreen, {
+      ...baseProps,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+        payload: { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "create-1" },
+        subjectRefs: ["workspace:workspace-1", "project-create:create-1"] }],
+      project: { view: "find-projects", accessState: "resolved", workspaceName: "Studio",
+        selectedAuthorizedWorkspaceId: "workspace-1", projectNameDraft: "Rough cut" },
+    }));
+
+    expect(ready).toContain('aria-describedby="create-project-confirmation"');
+    expect(ready).toContain('id="create-project-confirmation"');
+
+    const unavailable = renderToStaticMarkup(React.createElement(FirstUseProjectScreen, {
+      ...baseProps,
+      actions: [],
+      project: { view: "find-projects", accessState: "unknown" },
+    }));
+
+    expect(unavailable).toContain('aria-describedby="create-project-unavailable"');
+    expect(unavailable).toContain('id="create-project-unavailable"');
+    expect(unavailable).toContain('disabled=""');
+  });
+
+  it("does not evaluate accessor properties in the host create payload", () => {
+    let getterCalls = 0;
+    const payload: Record<string, string> = {
+      selectedAuthorizedWorkspaceId: "workspace-1",
+      title: "Rough cut",
+      requestId: "create-1",
+    };
+    Object.defineProperty(payload, "title", {
+      enumerable: true,
+      configurable: true,
+      get() {
+        getterCalls += 1;
+        throw new Error("host payload getter must not run during rendering");
+      },
+    });
+
+    const html = renderToStaticMarkup(React.createElement(FirstUseProjectScreen, {
+      ...baseProps,
+      actions: [{ id: "media.action.create-project", label: "Create project", enabled: true,
+        payload, subjectRefs: ["workspace:workspace-1", "project-create:create-1"] }],
+      project: { view: "find-projects", accessState: "resolved", workspaceName: "Studio",
+        selectedAuthorizedWorkspaceId: "workspace-1", projectNameDraft: "Rough cut" },
+    }));
+
+    expect(getterCalls).toBe(0);
+    expect(html).toContain('aria-describedby="create-project-unavailable"');
+    expect(html).toContain('disabled=""');
+    expect(html).not.toContain("create-project-confirmation");
+  });
+
   it.each(["denied", "unknown", "loading"] as const)("hides project details when access is %s", (accessState) => {
     const html = renderToStaticMarkup(React.createElement(FirstUseProjectScreen, {
       ...baseProps,

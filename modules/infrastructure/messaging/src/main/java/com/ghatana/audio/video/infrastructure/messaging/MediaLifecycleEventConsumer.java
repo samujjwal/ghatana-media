@@ -63,6 +63,7 @@ public final class MediaLifecycleEventConsumer {
         }
         if (!envelope.id().equals(event.eventRef()) || !event.eventRef().equals(envelope.idempotencyKey())
                 || !envelope.eventType().equals(event.eventType().wireName())
+                || envelope.getTimestamp() != event.occurredAt().toEpochMilli()
                 || !Objects.equals(envelope.correlationId(), event.correlationRef())
                 || !Objects.equals(envelope.partitionKey(), event.aggregateRef())
                 || !envelopeTenantRef.equals(event.tenantRef())) {

@@ -9,12 +9,28 @@ import com.ghatana.audio.video.vision.analysis.VideoAnalysisService;
 import com.ghatana.audio.video.vision.detection.VisionDetector;
 import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.yolo.LetterboxTransform;
+import com.ghatana.audio.video.vision.scenetext.MediaRuntimeSceneTextSource;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.CropOutcome;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.CropRequest;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.ResolvedCrop;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Roi;
+import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Evidence;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import nu.pattern.OpenCV;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +41,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,6 +169,14 @@ class VisionNativeBoundedIT {
             assertThat(timestamp.timeBaseDenominator()).isEqualTo(sourceTimeBase.denominator());
             assertThat(probedPts).contains(timestamp.pts());
         });
+
+        // Exercise the public Media source adapter over the same generated VFR artifact.
+        // Frame zero at PTS zero must be classified from trusted artifact metadata, and a
+        // nonzero ordinal must retain the extractor's exact PTS/timebase in its result binding.
+        assertExactVideoSourceFrame(extractor, vfr, temp.resolve("vfr-ordinal-zero"), 0,
+                sourceTimeBase, probedPts);
+        assertExactVideoSourceFrame(extractor, vfr, temp.resolve("vfr-ordinal-five"), 5,
+                sourceTimeBase, probedPts);
 
         VisionDetector noFindings = new VisionDetector() {
             @Override public List<com.ghatana.audio.video.vision.model.DetectedObject> detectObjects(
@@ -324,6 +350,113 @@ class VisionNativeBoundedIT {
                 .output()).contains("8.1.2");
         assertThat(runNative(List.of(FFMPEG.toString(), "-hide_banner", "-encoders"), Duration.ofSeconds(5),
                 64 * 1024).output()).contains(h264Encoder());
+    }
+
+    private static void assertExactVideoSourceFrame(VideoFrameExtractor extractor, Path video, Path frameOutput,
+                                                   int ordinal, SourceMediaTimestamp.RationalTimeBase sourceTimeBase,
+                                                   List<Long> independentlyProbedPts) throws Exception {
+        List<VideoFrameExtractor.ExtractedFrame> knownFrames = extractor.extractFrames(video, frameOutput,
+                VideoFrameExtractor.ExtractionConfig.builder().sourceFrameNumber(ordinal).format("bmp").build());
+        assertThat(knownFrames).hasSize(1);
+        VideoFrameExtractor.ExtractedFrame expected = knownFrames.getFirst();
+        assertThat(expected.getFrameNumber()).isEqualTo(ordinal);
+        SourceMediaTimestamp timestamp = expected.getSourceTimestamp();
+        assertThat(timestamp.isKnown()).isTrue();
+        assertThat(independentlyProbedPts).hasSizeGreaterThan(ordinal);
+        long independentSourcePts = independentlyProbedPts.get(ordinal);
+        assertThat(timestamp.pts()).as("extractor PTS agrees with independent ffprobe frame ordinal")
+                .isEqualTo(independentSourcePts);
+        assertThat(timestamp.timeBaseNumerator()).as("extractor timebase agrees with independent ffprobe stream")
+                .isEqualTo(sourceTimeBase.numerator());
+        assertThat(timestamp.timeBaseDenominator()).as("extractor timebase agrees with independent ffprobe stream")
+                .isEqualTo(sourceTimeBase.denominator());
+        if (ordinal > 0) {
+            assertThat(independentSourcePts).as("nonzero source ordinal is not frame zero at PTS zero")
+                    .isNotZero();
+        }
+        java.math.BigInteger ptsNumerator = java.math.BigInteger.valueOf(independentSourcePts)
+                .multiply(java.math.BigInteger.valueOf(sourceTimeBase.numerator()))
+                .multiply(java.math.BigInteger.valueOf(1_000_000L));
+        java.math.BigInteger[] exact = ptsNumerator.divideAndRemainder(
+                java.math.BigInteger.valueOf(sourceTimeBase.denominator()));
+        assertThat(exact[1]).as("fixture PTS is exactly representable in public microseconds").isZero();
+        long ptsUs = exact[0].longValueExact();
+        BufferedImage raster = ImageIO.read(expected.getPath().toFile());
+        assertThat(raster).isNotNull();
+        byte[] videoBytes = Files.readAllBytes(video);
+        String videoSha = sha256(videoBytes);
+        String tenant = "native-vfr-tenant";
+        String principal = "native-vfr-principal";
+        ArtifactVersion version = ArtifactVersion.fromSha256(videoSha);
+        AuthenticatedPrincipal auth = new AuthenticatedPrincipal(tenant, principal, Instant.now());
+        MediaProcessingRuntimePort port = new MediaProcessingRuntimePort() {
+            @Override public ProcessingJob submit(ProcessingJobRequest request) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public java.util.Optional<ProcessingJob> job(String t, String p, String id) {
+                return java.util.Optional.empty();
+            }
+            @Override public java.util.Optional<MediaArtifact> artifact(String t, String p, String id) {
+                if (!tenant.equals(t) || !principal.equals(p) || !"vfr-source".equals(id)) {
+                    return java.util.Optional.empty();
+                }
+                return java.util.Optional.of(new MediaArtifact(tenant, principal, "vfr-source", video.getFileName().toString(),
+                        "video/mp4", videoBytes.length, videoSha, "fixture-ref", "fixture",
+                        Instant.now(), Instant.now().plusSeconds(300), Map.of()));
+            }
+            @Override public java.util.Optional<ArtifactContentReadReceipt> copyArtifactContent(
+                    String t, String p, String id, ArtifactVersion requested, OutputStream target, long maxBytes)
+                    throws IOException {
+                if (!tenant.equals(t) || !principal.equals(p) || !"vfr-source".equals(id)
+                        || !version.equals(requested) || videoBytes.length > maxBytes) {
+                    return java.util.Optional.empty();
+                }
+                target.write(videoBytes);
+                return java.util.Optional.of(new ArtifactContentReadReceipt(version, videoSha, videoBytes.length));
+            }
+            @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision
+                    resolveSourceAuthorization(String t, String p, String id, ArtifactVersion requested,
+                            JobType jobType, String purpose, AuthenticatedPrincipal authenticated) {
+                if (!tenant.equals(t) || !principal.equals(p) || !tenant.equals(authenticated.tenantId())
+                        || !principal.equals(authenticated.principalId()) || !"vfr-source".equals(id)
+                        || !version.equals(requested) || !Set.of("caption", "native-vfr-purpose").contains(purpose)) {
+                    return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                            com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.DENIED, null);
+                }
+                Evidence evidence = new Evidence("native-fixture-authority", "native-fixture-decision",
+                        tenant, principal, principal, id, version, videoSha, jobType.name(), purpose,
+                        "local-frame-reader", "1",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.LOCAL,
+                        "local", com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE,
+                        Set.of(jobType.name()), Set.of("*"),
+                        Set.of(com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE),
+                        "native-fixture-rights", "native-fixture-policy", "native-fixture-policy-v1",
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                        "", "artifact-local-clock", 0, Instant.now().minusSeconds(1), Instant.now().plusSeconds(300));
+                return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                        com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, evidence);
+            }
+        };
+        CropRequest request = new CropRequest(tenant, principal, "caption", "vfr-source", version.value(),
+                Integer.toString(ordinal), ptsUs, raster.getWidth(), raster.getHeight(), new Roi(2, 2, 16, 16),
+                "image/png", auth);
+        CropOutcome outcome = new MediaRuntimeSceneTextSource(port).resolve(request);
+        assertThat(outcome).isInstanceOf(ResolvedCrop.class);
+        ResolvedCrop resolved = (ResolvedCrop) outcome;
+        assertThat(resolved.ptsUs()).isEqualTo(ptsUs);
+        assertThat(resolved.videoFrameBinding().frameNumber()).isEqualTo(ordinal);
+        assertThat(resolved.videoFrameBinding().sourcePts()).isEqualTo(timestamp.pts());
+        assertThat(resolved.videoFrameBinding().timeBaseNumerator()).isEqualTo(timestamp.timeBaseNumerator());
+        assertThat(resolved.videoFrameBinding().timeBaseDenominator()).isEqualTo(timestamp.timeBaseDenominator());
+        assertThat(resolved.videoFrameBinding().sourceStreamSelector()).isEqualTo("0:v:0");
+        assertThat(resolved.videoFrameBinding().artifactLocalEpoch()).startsWith("artifact-local:");
+        assertThat(resolved.videoFrameBinding().frameSha256()).isEqualTo(resolved.originalFrameSha256());
+        assertThat(resolved.videoFrameBinding().cropSha256()).isEqualTo(sha256(resolved.pixels()));
+
+        com.ghatana.audio.video.vision.grpc.NativeVfrGrpcTestSupport.assertRpcResolution(
+                port, tenant, principal, version.value(), videoSha, ordinal, ptsUs, raster.getWidth(),
+                raster.getHeight(), timestamp, resolved);
     }
 
     private String probe(Path source, String... options) throws Exception {
@@ -599,6 +732,10 @@ class VisionNativeBoundedIT {
             while ((read = input.read(buffer)) >= 0) digest.update(buffer, 0, read);
         }
         return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private static String sha256(byte[] bytes) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
     }
 
     private record NativeRun(int exitCode, boolean timedOut, String output, long peakRssBytes,

@@ -105,6 +105,10 @@ Pixel, byte, and attempt budgets are explicit and bounded, including aggregate
 candidate/reference bytes. Null, unsupported, or unavailable candidate ports
 produce typed non-success results without a fabricated candidate. Improvement is
 reported only when PSNR and SSIM against a lawful aligned reference both improve
-over the source. These metrics are still limited to decoded RGB8 data and do not
-qualify codecs, encoders, muxing, or general perceptual quality. Synthetic-array
-tests validate arithmetic and boundaries, not real-media behavior or rights.
+over the source. Each comparison retains the source and candidate PSNR/SSIM
+measurements against the same reference, and the deterministic report digest
+covers both pairs and the derived disposition. This makes the local two-metric
+decision reconstructible without adding a quality floor or perceptual claim.
+These metrics are still limited to decoded RGB8 data and do not qualify codecs,
+encoders, muxing, or general perceptual quality. Synthetic-array tests validate
+arithmetic and boundaries, not real-media behavior or rights.

@@ -6,6 +6,7 @@ import com.ghatana.media.common.ImageData;
 import com.ghatana.media.common.ColorSpace;
 import com.ghatana.media.common.ImageFormat;
 import com.ghatana.media.common.EngineMetrics;
+import com.ghatana.media.common.InferenceError;
 import com.ghatana.media.vision.api.DetectionResult;
 import com.ghatana.media.vision.api.DetectionOptions;
 import com.ghatana.resilience.CircuitBreaker;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.when;
  * Resilience pattern tests for the Vision circuit breaker (AV-P2-02). 
  *
  * <p>Verifies the circuit breaker open → half-open → closed lifecycle and that
- * degraded empty responses are returned when the circuit is open (cascade failure prevention). 
+ * retryable unavailability is reported without delegating when the circuit is open.
  *
  * @doc.type class
  * @doc.purpose Circuit breaker resilience tests for Vision engine cascading failure prevention (AV-P2-02) 
@@ -62,8 +64,8 @@ class VisionCircuitBreakerResilienceTest {
         circuitBreaker = CircuitBreaker.builder("vision-test-circuit")
                 .failureThreshold(3) 
                 .successThreshold(1) 
-                .resetTimeout(java.time.Duration.ofMillis(200)) // fast for tests 
-                .maxBackoff(java.time.Duration.ofSeconds(2)) 
+                .resetTimeout(java.time.Duration.ofSeconds(30))
+                .maxBackoff(java.time.Duration.ofSeconds(30))
                 .backoffMultiplier(1.0) 
                 .build(); 
 
@@ -106,8 +108,8 @@ class VisionCircuitBreakerResilienceTest {
     }
 
     @Test
-    @DisplayName("Returns degraded empty result when circuit is OPEN (cascade prevention)")
-    void shouldReturnDegradedResultWhenCircuitOpen() { 
+    @DisplayName("Reports retryable unavailability without delegation when circuit is OPEN")
+    void shouldReportRetryableUnavailableWithoutDelegatingWhenCircuitOpen() {
         when(mockEngine.detect(any(), any())) 
                 .thenThrow(new RuntimeException("service down"));
 
@@ -119,17 +121,27 @@ class VisionCircuitBreakerResilienceTest {
         }
         assertThat(protectedEngine.getCircuitBreakerState()).isEqualTo(CircuitBreaker.State.OPEN); 
 
-        // Next call should fast-fail with degraded response (not propagate exception) 
-        var result = protectedEngine.detect(DUMMY_IMAGE, DetectionOptions.defaults()); 
-
-        assertThat(result).isNotNull(); 
-        assertThat(result.objects()).isEmpty(); 
-        assertThat(result.modelId()).isEqualTo("degraded");
+        // Empty detections would look like successful provider output. The wrapper
+        // must report typed retryable unavailability and must not invoke the delegate.
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> protectedEngine.detect(DUMMY_IMAGE, DetectionOptions.defaults()))
+                .isInstanceOf(InferenceError.class)
+                .hasMessageContaining("unavailable")
+                .satisfies(error -> assertThat(((InferenceError) error).isRetryable()).isTrue());
+        verify(mockEngine, times(3)).detect(any(), any());
     }
 
     @Test
     @DisplayName("Circuit transitions to CLOSED after successful probe in HALF_OPEN")
     void shouldRecoverAfterHalfOpenProbeSucceeds() throws InterruptedException { 
+        circuitBreaker = CircuitBreaker.builder("vision-test-circuit")
+                .failureThreshold(3)
+                .successThreshold(1)
+                .resetTimeout(java.time.Duration.ofMillis(200))
+                .maxBackoff(java.time.Duration.ofMillis(200))
+                .backoffMultiplier(1.0)
+                .build();
+        protectedEngine = new CircuitBreakerVisionEngine(mockEngine, eventloop, circuitBreaker);
         when(mockEngine.detect(any(), any())) 
                 .thenThrow(new RuntimeException("down"))
                 .thenThrow(new RuntimeException("down"))
@@ -144,7 +156,7 @@ class VisionCircuitBreakerResilienceTest {
         }
         assertThat(protectedEngine.getCircuitBreakerState()).isEqualTo(CircuitBreaker.State.OPEN); 
 
-        // Wait for reset timeout to expire → circuit becomes HALF_OPEN
+        // Wait for the dedicated recovery timeout to expire → circuit becomes HALF_OPEN
         Thread.sleep(300); 
 
         // Single probe call succeeds → circuit closes
@@ -169,8 +181,12 @@ class VisionCircuitBreakerResilienceTest {
                 protectedEngine.detect(DUMMY_IMAGE, DetectionOptions.defaults()); 
             } catch (RuntimeException ignored) {} 
         }
-        // One additional call after circuit opens → rejection (returns degraded, no exception) 
-        protectedEngine.detect(DUMMY_IMAGE, DetectionOptions.defaults()); 
+        // One additional call after circuit opens → typed rejection, without delegate work.
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> protectedEngine.detect(DUMMY_IMAGE, DetectionOptions.defaults()))
+                .isInstanceOf(InferenceError.class)
+                .satisfies(error -> assertThat(((InferenceError) error).isRetryable()).isTrue());
+        verify(mockEngine, times(3)).detect(any(), any());
 
         EngineMetrics metrics = protectedEngine.getMetrics(); 
 

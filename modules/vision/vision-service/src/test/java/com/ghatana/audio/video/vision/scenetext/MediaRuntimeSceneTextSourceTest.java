@@ -50,7 +50,9 @@ class MediaRuntimeSceneTextSourceTest {
         assertThat(source.verify(check).status()).isEqualTo(SourceStatus.DENIED);
 
         port.authDecision = null;
+        port.forceNullAuth = true;
         assertThat(source.verify(check).status()).isEqualTo(SourceStatus.UNAVAILABLE);
+        port.forceNullAuth = false;
 
         port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
@@ -176,6 +178,24 @@ class MediaRuntimeSceneTextSourceTest {
     }
 
     @Test
+    void resolverRefusesTimestampedVideoFrameWithoutReadingOrTreatingItAsAStillImage() {
+        FakePort port = new FakePort();
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+        Roi roi = new Roi(0, 0, 10, 10);
+
+        assertThat(((CropRefused) source.resolve(cropRequest("a".repeat(64), "1", 33_367,
+                100, 60, roi))).status()).isEqualTo(SourceStatus.NOT_ADMITTED);
+        assertThat(((CropRefused) source.resolve(cropRequest("a".repeat(64), "0", 33_367,
+                100, 60, roi))).status()).isEqualTo(SourceStatus.NOT_ADMITTED);
+        assertThat(((CropRefused) source.resolve(cropRequest("a".repeat(64), "1", 0,
+                100, 60, roi))).status()).isEqualTo(SourceStatus.NOT_ADMITTED);
+
+        // Until a source-bound video extractor and timestamp contract are wired, video-like
+        // requests must not be read as still images or acquire fabricated frame timing.
+        assertThat(port.acceptedBytes).isZero();
+    }
+
+    @Test
     void resolverRejectsInvalidClaimedRoiBeforeReadingArtifactAndMismatchedRasterDimensions() throws Exception {
         byte[] png = image(100, 60);
         String sha = sha256(png);
@@ -204,6 +224,7 @@ class MediaRuntimeSceneTextSourceTest {
         FakePort port = new FakePort();
         port.content = new byte[] {1, 2, 3};
         port.receiptSha = "b".repeat(64);
+        port.artifactShaOverride = port.receiptSha;
         MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
         assertThat(((CropRefused) source.resolve(cropRequest("b".repeat(64), "0", 0, 100, 60, new Roi(0, 0, 10, 10)))).status())
                 .isEqualTo(SourceStatus.NOT_ADMITTED);
@@ -242,13 +263,14 @@ class MediaRuntimeSceneTextSourceTest {
 
     private static SourceCheck check(String sourceVersion) {
         return new SourceCheck(TENANT, PRINCIPAL, "caption", "artifact-1", sourceVersion, "0", "a".repeat(64),
-                "di.ocr.en", "2.4.1");
+                "di.ocr.en", "2.4.1", new AuthenticatedPrincipal(TENANT, PRINCIPAL, Instant.now()));
     }
 
     private static CropRequest cropRequest(String artifactSha, String frameId, long ptsUs,
                                            int width, int height, Roi roi) {
         return new CropRequest(TENANT, PRINCIPAL, "caption", "artifact-1", "sha256:" + artifactSha,
-                frameId, ptsUs, width, height, roi, "image/png");
+                frameId, ptsUs, width, height, roi, "image/png",
+                new AuthenticatedPrincipal(TENANT, PRINCIPAL, Instant.now()));
     }
 
     private static Evidence evidence(SourceCheck check) {
@@ -296,7 +318,9 @@ class MediaRuntimeSceneTextSourceTest {
         boolean writePastLimit;
         long acceptedBytes;
         long maxBytesObserved;
+        String artifactShaOverride;
         com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision authDecision;
+        boolean forceNullAuth;
 
         @Override public ProcessingJob submit(ProcessingJobRequest request) {
             throw new UnsupportedOperationException();
@@ -307,7 +331,14 @@ class MediaRuntimeSceneTextSourceTest {
         }
 
         @Override public Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId) {
-            return Optional.empty();
+            String digest;
+            try { digest = artifactShaOverride != null ? artifactShaOverride
+                    : content == null ? receiptSha : sha256(content); }
+            catch (Exception impossible) { throw new AssertionError(impossible); }
+            if (digest == null) digest = "a".repeat(64);
+            return Optional.of(new MediaArtifact(tenantId, principalId, artifactId, "source.png", "image/png",
+                    Math.max(1, content == null ? 1 : content.length), digest, "fixture-ref", "fixture",
+                    Instant.now(), Instant.now().plusSeconds(300), java.util.Map.of()));
         }
 
         @Override public Optional<ArtifactContentReadReceipt> copyArtifactContent(
@@ -336,7 +367,14 @@ class MediaRuntimeSceneTextSourceTest {
         @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision resolveSourceAuthorization(
                 String tenantId, String principalId, String artifactId, ArtifactVersion sourceVersion,
                 JobType jobType, String purpose, AuthenticatedPrincipal authenticated) {
-            return authDecision;
+            if (forceNullAuth) return null;
+            if (authDecision != null) return authDecision;
+            SourceCheck lookup = new SourceCheck(tenantId, principalId, purpose, artifactId,
+                    sourceVersion.value(), "0", sourceVersion.value().substring("sha256:".length()),
+                    "di.ocr.en", "2.4.1", authenticated);
+            return new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                    com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                    evidence(lookup));
         }
     }
 }

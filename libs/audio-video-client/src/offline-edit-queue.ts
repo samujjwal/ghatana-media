@@ -245,13 +245,18 @@ function isValidAadIdentity(value: string): boolean {
 }
 
 export class OfflineEditQueue {
+  private readonly options: OfflineEditQueueOptions;
   private readonly maximumEntries: number;
   private readonly maximumPayloadBytes: number;
   private readonly cryptoApi: Crypto;
 
-  public constructor(private readonly options: OfflineEditQueueOptions) {
-    this.maximumEntries = options.maximumEntries ?? DEFAULT_MAXIMUM_ENTRIES;
-    this.maximumPayloadBytes = options.maximumPayloadBytes ?? DEFAULT_MAXIMUM_PAYLOAD_BYTES;
+  public constructor(options: OfflineEditQueueOptions) {
+    // Pin the host-selected store and key. A caller-owned mutable options
+    // object must not redirect a durable replay fence between store operations.
+    const pinnedOptions = Object.freeze({ ...options });
+    this.options = pinnedOptions;
+    this.maximumEntries = pinnedOptions.maximumEntries ?? DEFAULT_MAXIMUM_ENTRIES;
+    this.maximumPayloadBytes = pinnedOptions.maximumPayloadBytes ?? DEFAULT_MAXIMUM_PAYLOAD_BYTES;
     const cryptoApi = globalThis.crypto;
     if (!cryptoApi?.subtle || !cryptoApi.getRandomValues) throw new OfflineEditQueueError("CRYPTO_UNAVAILABLE");
     this.cryptoApi = cryptoApi;
@@ -259,7 +264,7 @@ export class OfflineEditQueue {
       || !Number.isSafeInteger(this.maximumPayloadBytes) || this.maximumPayloadBytes < 1) {
       throw new RangeError("Offline edit queue bounds must be positive safe integers.");
     }
-    if (options.encryptionKey.algorithm.name !== "AES-GCM" || options.encryptionKey.extractable) {
+    if (pinnedOptions.encryptionKey.algorithm.name !== "AES-GCM" || pinnedOptions.encryptionKey.extractable) {
       throw new TypeError("Offline edit queue requires a non-extractable AES-GCM key.");
     }
   }
@@ -355,6 +360,38 @@ export class OfflineEditQueue {
       }
       if (record.state !== "PENDING") continue; // unknown, revoked, conflicts are never auto-replayed.
       const edit = freezeEdit(await this.decrypt<T>(record));
+      // Establish current access to the exact tenant/project before asking
+      // the host for its canonical revision. Version lookup is scoped data
+      // access and must not disclose project state when access is denied.
+      let lookupAuthorization: Awaited<ReturnType<typeof adapter.reauthorize>>;
+      try {
+        const read = await adapter.reauthorize(edit);
+        if (!read || typeof read !== "object") {
+          results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+          continue;
+        }
+        const authorized = read.authorized;
+        const disposition = read.disposition;
+        lookupAuthorization = { authorized, disposition };
+      } catch {
+        results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+        continue;
+      }
+      if (typeof lookupAuthorization.authorized !== "boolean"
+        || (lookupAuthorization.disposition !== undefined
+          && lookupAuthorization.disposition !== "AUTHORIZED" && lookupAuthorization.disposition !== "REVOKED"
+          && lookupAuthorization.disposition !== "UNKNOWN")
+        || (lookupAuthorization.authorized && lookupAuthorization.disposition === "REVOKED")
+        || (!lookupAuthorization.authorized && lookupAuthorization.disposition === "AUTHORIZED")
+        || lookupAuthorization.disposition === "UNKNOWN") {
+        results.push({ editId: record.editId, state: "AUTHORIZATION_UNKNOWN" });
+        continue;
+      }
+      if (!lookupAuthorization.authorized || lookupAuthorization.disposition === "REVOKED") {
+        const transitioned = await this.transition(record, "REVOKED");
+        results.push({ editId: record.editId, state: transitioned ? "REVOKED" : "OUTCOME_UNKNOWN" });
+        continue;
+      }
       let versionRead: Awaited<ReturnType<typeof adapter.readCurrentVersion>>;
       try {
         versionRead = await adapter.readCurrentVersion(stableScope);

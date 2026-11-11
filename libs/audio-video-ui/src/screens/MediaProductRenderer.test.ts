@@ -1,9 +1,11 @@
+// @vitest-environment jsdom
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MediaTaskScreen } from "./MediaTaskScreen";
 import { MediaTaskFlow } from "../components/MediaTaskFlow";
-import { MediaActionFeedback, mediaActionFeedbackForResult } from "../components/MediaActionFeedback";
+import { mediaActionFeedbackElement, mediaActionFeedbackForResult } from "../components/MediaActionFeedback";
 import { ArtifactIntakeScreen } from "./ArtifactIntakeScreen";
 import { ArtifactInspectionScreen } from "./ArtifactInspectionScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
@@ -45,23 +47,43 @@ const common = {
   context: { locale: "en-US" } satisfies MediaContextPort,
 } satisfies { data: MediaDataPort; actions: readonly MediaScreenAction[]; nextSafeActionIds: readonly string[]; actionPort: MediaActionPort; navigationPort: MediaNavigationPort; context: MediaContextPort };
 
+afterEach(cleanup);
+
 describe("MediaProductRenderer", () => {
-  it("announces typed pending, denied, and unknown action states accessibly", () => {
-    const pending = renderToStaticMarkup(React.createElement(MediaActionFeedback, {
-      value: { state: "pending", message: "Requesting action; completion remains unknown." },
+  it("does not expose host exception details in an unknown action result", async () => {
+    const invoke = vi.fn(async () => { throw new Error("Bearer secret-token; tenant=private-tenant"); });
+    render(React.createElement(MediaTaskScreen, {
+      ...common,
+      actionPort: { invoke },
+      children: React.createElement("p", null, "Job details"),
     }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Check job outcome" }));
+
+    const status = await screen.findByText(
+      "Request outcome is unknown. Reconcile with the owner before retrying.", { exact: true },
+    );
+    expect(status.getAttribute("data-state")).toBe("unknown");
+    expect(document.body.textContent).not.toContain("secret-token");
+    expect(document.body.textContent).not.toContain("private-tenant");
+  });
+
+  it("announces typed pending, denied, and unknown action states accessibly", () => {
+    const pending = renderToStaticMarkup(mediaActionFeedbackElement(
+      { state: "pending", message: "Requesting action; completion remains unknown." },
+    ));
     expect(pending).toContain('role="status" aria-live="polite" aria-atomic="true" aria-busy="true" data-state="pending"');
     expect(pending).toContain("Requesting action; completion remains unknown.");
 
     const deniedValue = mediaActionFeedbackForResult({ status: "denied", reason: "Rights approval is missing." });
     expect(deniedValue).toEqual({ state: "denied", message: "Action denied: Rights approval is missing." });
-    const denied = renderToStaticMarkup(React.createElement(MediaActionFeedback, { value: deniedValue }));
+    const denied = renderToStaticMarkup(mediaActionFeedbackElement(deniedValue));
     expect(denied).toContain('data-state="denied"');
     expect(denied).toContain("Action denied: Rights approval is missing.");
 
-    const unknown = renderToStaticMarkup(React.createElement(MediaActionFeedback, {
-      value: { state: "unknown", message: "Request outcome is unknown. Reconcile before retrying." },
-    }));
+    const unknown = renderToStaticMarkup(mediaActionFeedbackElement(
+      { state: "unknown", message: "Request outcome is unknown. Reconcile before retrying." },
+    ));
     expect(unknown).toContain('data-state="unknown"');
     expect(unknown).toContain("Reconcile before retrying.");
     expect(unknown).not.toContain('aria-busy="true"');
@@ -80,6 +102,20 @@ describe("MediaProductRenderer", () => {
     expect(counts).toEqual({ LOCAL_SIMULATION: 12, CONTRACT_PREVIEW: 35 });
     expect(dispositions.some(({ status }) => status === "LIVE_IMPLEMENTED")).toBe(false);
     expect(dispositions.some(({ status }) => status === "NOT_ADMITTED")).toBe(false);
+  });
+
+  it("keeps renderer and per-screen route dispositions immutable at runtime", () => {
+    expect(Object.isFrozen(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS)).toBe(true);
+    expect(Object.isFrozen(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["job-recovery"])).toBe(true);
+    expect(Object.isFrozen(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS)).toBe(true);
+    expect(Object.isFrozen(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS["media.view.inspect-media"])).toBe(true);
+    expect(Reflect.set(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["job-recovery"], "productRoute", "ADMITTED")).toBe(false);
+    expect(Reflect.set(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS["media.view.inspect-media"], "status", "LIVE_IMPLEMENTED")).toBe(false);
+    expect(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["job-recovery"].productRoute).toBe("NOT_ADMITTED");
+    expect(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS["media.view.inspect-media"]).toEqual({
+      status: "LOCAL_SIMULATION",
+      productRoute: "NOT_ADMITTED",
+    });
   });
 
   it.each([
@@ -275,6 +311,12 @@ describe("MediaProductRenderer", () => {
       ],
       transcript: {
         view: "correct-captions",
+        sourceArtifactId: "artifact-1",
+        sourceArtifactVersionId: "artifact-version-1",
+        parentVersionKind: "TRANSCRIPT_VERSION",
+        parentVersionId: "transcript-version-1",
+        captionDraftVersion: "caption-draft-1",
+        captionDraftRevision: 0,
         clockId: "source-clock",
         ticksPerSecond: 48_000,
         durationTicks: 100,

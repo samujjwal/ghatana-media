@@ -81,6 +81,10 @@ class MediaResourceProfileHarnessTest {
             assertThat(report.toTsv()).contains("NOT_ADMITTED", "NOT_MEASURED");
         }
 
+        assertThat(MediaResourceProfileHarness.Report.tsvHeader())
+                .contains("heap_sampled_peak_bytes", "process_rss_sampled_peak_bytes", "thread_sampled_peak")
+                .doesNotContain("heap_peak_bytes", "process_rss_bytes", "thread_peak");
+
         String artifactPath = System.getenv("MEDIA_RESOURCE_PROFILE_OUTPUT");
         if (artifactPath != null && !artifactPath.isBlank()) {
             Path output = Path.of(artifactPath).toAbsolutePath();
@@ -92,6 +96,15 @@ class MediaResourceProfileHarnessTest {
                     + "\n";
             Files.writeString(output, contents);
         }
+    }
+
+    @Test
+    void resourceColumnsIdentifyPeriodicMaximaAsSampledPeaks() {
+        String[] columns = MediaResourceProfileHarness.Report.tsvHeader().split("\\t", -1);
+
+        assertThat(columns[16]).isEqualTo("heap_sampled_peak_bytes");
+        assertThat(columns[17]).isEqualTo("process_rss_sampled_peak_bytes");
+        assertThat(columns[18]).isEqualTo("thread_sampled_peak");
     }
 
     @Test

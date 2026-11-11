@@ -464,6 +464,9 @@ export class MediaCanonicalClient {
         (id) => { dispatched = true; requestId = id; },
       );
       this.assertJobScope(job, principalId);
+      if (job.requestId !== body.requestId || job.artifactId !== body.artifactId || job.jobType !== body.jobType) {
+        throw new TypeError("Canonical Media job response does not bind the submitted request identity and operation.");
+      }
     } catch (failure) {
       // A post-dispatch abort is OUTCOME_UNKNOWN — never a clean failure that
       // invites a duplicate submit.
@@ -477,15 +480,45 @@ export class MediaCanonicalClient {
 
   /** GET /api/v1/jobs/{jobId} — scope-verified point-in-time job read. */
   public async getJob(jobId: string, signal?: AbortSignal): Promise<CanonicalProcessingJob> {
+    return this.readJob(jobId, undefined, signal);
+  }
+
+  /**
+   * GET /api/v1/jobs/{jobId}?requestId=... — exact request-bound readback for
+   * recovery when the caller has the accepted request identity. The optional
+   * query is an existing read-only route contract; it does not authorize replay.
+   */
+  public async getJobByRequest(
+    jobId: string,
+    requestId: string,
+    signal?: AbortSignal,
+  ): Promise<CanonicalProcessingJob> {
+    const requestedRequestId = safeIdentityHeader("requestId", requestId);
+    if (!requestedRequestId || requestedRequestId.length > 255) {
+      throw new Error("Canonical job requestId must contain between 1 and 255 visible characters.");
+    }
+    return this.readJob(jobId, requestedRequestId, signal);
+  }
+
+  private async readJob(
+    jobId: string,
+    requestId: string | undefined,
+    signal?: AbortSignal,
+  ): Promise<CanonicalProcessingJob> {
     const principalId = this.requirePrincipalId("job reads");
     const requested = safePathSegment("jobId", jobId);
+    const route = canonicalMediaHttpRoutes.getJob.replace("{jobId}", encodeURIComponent(requested));
+    const path = requestId === undefined ? route : `${route}?requestId=${encodeURIComponent(requestId)}`;
     const job = await this.transport.request(
-      "GET", canonicalMediaHttpRoutes.getJob.replace("{jobId}", encodeURIComponent(requested)), undefined,
+      "GET", path, undefined,
       { parse: parseCanonicalProcessingJob }, signal,
     );
     this.assertJobScope(job, principalId);
     if (job.jobId !== requested) {
       throw new TypeError("Canonical Media job response identity does not match the request.");
+    }
+    if (requestId !== undefined && job.requestId !== requestId) {
+      throw new TypeError("Canonical Media job response requestId does not match the requested reconciliation identity.");
     }
     return job;
   }
@@ -534,32 +567,12 @@ export class MediaCanonicalClient {
   }
 
   /**
-   * POST /api/v1/jobs/{jobId}/cancel — the contract declares no replay-safe
-   * idempotency, so a post-dispatch abort is OUTCOME_UNKNOWN, never retried.
+   * Cancellation stays NOT_ADMITTED until the owner request/replay contract is
+   * reconciled with the current HTTP route. The route's ProcessingJob response
+   * cannot represent the PDP cancellation-request outcome or its finality.
    */
-  public async cancelJob(jobId: string, signal?: AbortSignal): Promise<CanonicalProcessingJob> {
-    const principalId = this.requirePrincipalId("job cancel");
-    const requested = safePathSegment("jobId", jobId);
-    let job: CanonicalProcessingJob;
-    let dispatched = false;
-    let requestId: string | undefined;
-    try {
-      job = await this.transport.request(
-        "POST", canonicalMediaHttpRoutes.cancelJob.replace("{jobId}", encodeURIComponent(requested)), {},
-        { parse: parseCanonicalProcessingJob }, signal,
-        {}, (id) => { dispatched = true; requestId = id; },
-      );
-      this.assertJobScope(job, principalId);
-      if (job.jobId !== requested) {
-        throw new TypeError("Canonical Media job cancel response identity does not match the request.");
-      }
-    } catch (failure) {
-      if (dispatched && !isDefinitiveClientRejection(failure)) {
-        throw new MediaOperationAmbiguousError(`/api/v1/jobs/${requested}/cancel`, failure, { requestId });
-      }
-      throw failure;
-    }
-    return job;
+  public cancelJob(_jobId: string, _signal?: AbortSignal): Promise<never> {
+    return Promise.reject(new MediaOperationNotAdmittedError("media.operation-slice.cancel-job"));
   }
 
   /** POST /api/v1/streams — open a session and receive the one-time token. */

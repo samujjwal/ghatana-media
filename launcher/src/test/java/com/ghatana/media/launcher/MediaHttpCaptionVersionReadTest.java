@@ -3,6 +3,7 @@ package com.ghatana.media.launcher;
 import com.ghatana.media.runtime.MediaCaptionContracts.MediaCaptionStore;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
+import com.ghatana.media.runtime.MediaSourceRightsAdministration.SourceRecord;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,8 +47,13 @@ class MediaHttpCaptionVersionReadTest {
         when(captionStore.ready()).thenReturn(true);
         when(captionStore.versions(anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(List.of());
+        String maximumSourceId = "s".repeat(256);
+        String maximumVersionId = "v".repeat(256);
         MediaSourceRightsAdministration rights = mock(MediaSourceRightsAdministration.class);
         when(rights.ready()).thenReturn(true);
+        when(rights.currentRecords(anyString(), anyString())).thenReturn(List.of(
+                sourceRecord("source+one", "version+one"),
+                sourceRecord(maximumSourceId, maximumVersionId)));
         MediaCaptionRuntime captions = new MediaCaptionRuntime(captionStore, rights, null, CLOCK);
 
         try {
@@ -56,8 +63,6 @@ class MediaHttpCaptionVersionReadTest {
                     "/api/v1/caption-versions?sourceArtifactId=source+one&sourceArtifactVersionId=version+one");
             ExchangeResult escapedPlus = request(handler,
                     "/api/v1/caption-versions?sourceArtifactId=source%2Bone&sourceArtifactVersionId=version%2Bone");
-            String maximumSourceId = "s".repeat(256);
-            String maximumVersionId = "v".repeat(256);
             ExchangeResult maximumLength = request(handler,
                     "/api/v1/caption-versions?sourceArtifactId=" + maximumSourceId
                             + "&sourceArtifactVersionId=" + maximumVersionId);
@@ -221,6 +226,18 @@ class MediaHttpCaptionVersionReadTest {
 
         handler.handle(exchange);
         return new ExchangeResult(status.get(), responseBody.toString(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    private static SourceRecord sourceRecord(String artifactId, String sourceVersionId) {
+        return new SourceRecord("tenant-a", artifactId, sourceVersionId, "a".repeat(64),
+                "principal-a", "principal-a",
+                MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                "", Set.of("caption_version_write"), Set.of("captions"), Set.of("local"),
+                Set.of(com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE),
+                "test-source-clock", "test-owner-record", "principal-a",
+                Instant.parse("2026-11-01T00:00:00Z"), Instant.parse("2027-01-01T00:00:00Z"),
+                1, null);
     }
 
     private record ExchangeResult(int status, String body) { }

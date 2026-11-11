@@ -46,6 +46,8 @@ dependencies {
     api("io.grpc:grpc-protobuf:$grpcVersion")
     api("io.grpc:grpc-stub:$grpcVersion")
     compileOnly(libs.javax.annotation.api)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 }
 
 publishing {

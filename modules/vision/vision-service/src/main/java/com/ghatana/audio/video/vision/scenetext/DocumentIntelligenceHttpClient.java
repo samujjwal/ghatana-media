@@ -349,6 +349,7 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
         JsonNode providers = body.get("providers");
         if (!providers.isArray() || providers.size() > 256) throw new IllegalArgumentException("providers");
         List<ProviderEntry> entries = new ArrayList<>();
+        Set<String> providerRefs = new java.util.HashSet<>();
         for (JsonNode provider : providers) {
             if (!provider.isObject() || !provider.has("providerRef") || !provider.has("providerVersion")
                     || !provider.has("promotionStatus") || !provider.has("loaded") || !provider.has("ready")) {
@@ -360,7 +361,9 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
             Optional<String> modelRef = optionalModelRef(provider);
             Optional<String> modelVersion = optionalIdentifier(provider, "modelVersion", 128);
             if (modelRef.isPresent() != modelVersion.isPresent()) throw new IllegalArgumentException("model identity");
-            entries.add(new ProviderEntry(identifier(provider, "providerRef", 256), identifier(provider, "providerVersion", 128),
+            String providerRef = identifier(provider, "providerRef", 256);
+            if (!providerRefs.add(providerRef)) throw new IllegalArgumentException("duplicate provider identity");
+            entries.add(new ProviderEntry(providerRef, identifier(provider, "providerVersion", 128),
                     modelRef, modelVersion, strings(provider, "mediaTypes"), strings(provider, "supportedLanguages"),
                     status, provider.get("loaded").booleanValue(), provider.get("ready").booleanValue()));
         }

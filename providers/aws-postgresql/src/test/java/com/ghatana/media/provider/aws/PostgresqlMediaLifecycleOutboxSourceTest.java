@@ -93,6 +93,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             try {
                 verifyRowPayloadIdentityMismatchFailsBeforePublish();
                 verifyRowPayloadTenantMismatchFailsBeforePublish();
+                verifyRowPayloadOccurrenceMismatchFailsBeforePublish();
                 verifyConcurrentClaimFencing();
                 verifyExpiredClaimRecovery();
                 verifyExpiredOwnerCannotAcknowledgeWithoutReplacement();
@@ -204,6 +205,71 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             try (var row = query.executeQuery()) {
                 assertThat(row.next()).isTrue();
                 assertThat(row.getString("tenant_id")).isEqualTo("tenant-b");
+                assertThat(row.getInt("attempts")).isEqualTo(1);
+                assertThat(row.getObject("published_at")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyRowPayloadOccurrenceMismatchFailsBeforePublish() throws Exception {
+        String eventId = "media:test:outbox-occurrence-mismatch";
+        insertEvent(eventId);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection();
+             var select = connection.prepareStatement(
+                     "SELECT payload_json FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            select.setString(1, eventId);
+            try (var row = select.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                MediaLifecycleEvent original = state.mapper().readValue(row.getString("payload_json"),
+                        MediaLifecycleEvent.class);
+                MediaLifecycleEvent altered = new MediaLifecycleEvent(original.eventId(), original.eventType(),
+                        original.tenantId(), original.principalId(), original.correlationId(),
+                        original.causationId(), original.aggregateType(), original.aggregateId(),
+                        original.aggregateVersion(), original.classification(), original.occurredAt().plusSeconds(1),
+                        original.attributes());
+                try (var update = connection.prepareStatement(
+                        "UPDATE media_processing_lifecycle_outbox SET payload_json=? WHERE event_id=?")) {
+                    update.setString(1, state.mapper().writeValueAsString(altered));
+                    update.setString(2, eventId);
+                    assertThat(update.executeUpdate()).isEqualTo(1);
+                }
+            }
+        } finally {
+            state.release();
+        }
+
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        AtomicInteger publisherCalls = new AtomicInteger();
+        try {
+            assertThat(source.publishPending(publisher(event -> publisherCalls.incrementAndGet()), 1).failed())
+                    .isEqualTo(1);
+            assertThat(publisherCalls).hasValue(0);
+        } finally {
+            source.close();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT payload_json,created_at,attempts,published_at FROM media_processing_lifecycle_outbox "
+                        + "WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                MediaLifecycleEvent altered = state.mapper().readValue(row.getString("payload_json"),
+                        MediaLifecycleEvent.class);
+                assertThat(altered.occurredAt().toEpochMilli()).isNotEqualTo(row.getLong("created_at"));
                 assertThat(row.getInt("attempts")).isEqualTo(1);
                 assertThat(row.getObject("published_at")).isNull();
             }
@@ -554,7 +620,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 insert.setString(6, event.eventType());
                 insert.setString(7, payload);
                 insert.setString(8, event.classification());
-                insert.setLong(9, System.currentTimeMillis());
+                insert.setLong(9, event.occurredAt().toEpochMilli());
                 insert.executeUpdate();
             }
         } finally {

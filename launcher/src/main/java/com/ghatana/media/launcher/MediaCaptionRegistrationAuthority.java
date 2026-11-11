@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * {@link RegistrationAuthority} backed by the canonical Media source-rights records.
+ * {@link RegistrationAuthority} backed by the canonical Media source-rights records for
+ * both caption-version writes and reads.
  *
  * <p>Admission requires exactly one current registered source record for the requested
  * immutable source version whose registered principal equals the authenticated caller and
@@ -20,7 +21,7 @@ import java.util.Objects;
  * lookup inputs only — the registered record is the authority.</p>
  */
 final class MediaCaptionRegistrationAuthority implements RegistrationAuthority {
-    /** Canonical registered operation-scope token for caption-version writes. */
+    /** Existing owner-defined caption scope also governs reads; reads never widen it. */
     static final String OPERATION_TOKEN = "caption_version_write";
 
     private final MediaSourceRightsAdministration administration;

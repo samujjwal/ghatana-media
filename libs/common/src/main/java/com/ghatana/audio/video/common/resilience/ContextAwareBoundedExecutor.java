@@ -9,13 +9,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Submits blocking child work to a caller-owned finite executor with gRPC context propagation.
- * Cancellation interrupts the task, but does not pretend that arbitrary work stopped.
+ * Cancellation interrupts the task, but does not pretend that arbitrary work stopped. The
+ * returned result future is observation-only: executor-owned completion is the sole source of
+ * terminal values, while cancellation still routes through the submission's outcome fence.
  */
 public final class ContextAwareBoundedExecutor {
     private final Executor executor;
@@ -49,14 +53,14 @@ public final class ContextAwareBoundedExecutor {
                 T value = callable.call();
                 if (context.isCancelled() || deadlineExpired(context) || terminal.get()) {
                     terminal.set(true);
-                    result.completeExceptionally(cancellationOutcome(context, effectMayCommit));
+                    result.completeFromOwnerExceptionally(cancellationOutcome(context, effectMayCommit));
                 } else {
                     terminal.set(true);
-                    result.complete(value);
+                    result.completeFromOwner(value);
                 }
             } catch (Throwable failure) {
                 terminal.set(true);
-                result.completeExceptionally(context.isCancelled() || deadlineExpired(context)
+                result.completeFromOwnerExceptionally(context.isCancelled() || deadlineExpired(context)
                         ? cancellationOutcome(context, effectMayCommit) : failure);
             }
         });
@@ -133,6 +137,59 @@ public final class ContextAwareBoundedExecutor {
             this.cancellation = cancellation;
         }
 
+        private boolean completeFromOwner(T value) {
+            return super.complete(value);
+        }
+
+        private boolean completeFromOwnerExceptionally(Throwable failure) {
+            return super.completeExceptionally(failure);
+        }
+
+        private static UnsupportedOperationException consumerMutation() {
+            return new UnsupportedOperationException(
+                    "Submission result is owned by the executor; observe it or cancel the submission");
+        }
+
+        @Override
+        public boolean complete(T value) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public boolean completeExceptionally(Throwable failure) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public void obtrudeValue(T value) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public void obtrudeException(Throwable failure) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public CompletableFuture<T> completeAsync(Supplier<? extends T> supplier) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public CompletableFuture<T> completeAsync(Supplier<? extends T> supplier, Executor executor) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public CompletableFuture<T> orTimeout(long timeout, TimeUnit unit) {
+            throw consumerMutation();
+        }
+
+        @Override
+        public CompletableFuture<T> completeOnTimeout(T value, long timeout, TimeUnit unit) {
+            throw consumerMutation();
+        }
+
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
             Function<Boolean, Boolean> action = cancellation;
@@ -143,7 +200,7 @@ public final class ContextAwareBoundedExecutor {
 
     public static final class Submission<T> {
         private final Context context;
-        private final CompletableFuture<T> result;
+        private final SubmissionResult<T> result;
         private final AtomicBoolean started;
         private final AtomicBoolean terminal;
         private final AtomicReference<Future<?>> task;
@@ -152,7 +209,7 @@ public final class ContextAwareBoundedExecutor {
         private final Object dispatchGate = new Object();
         private volatile Context.CancellationListener listener;
 
-        private Submission(Context context, CompletableFuture<T> result, AtomicBoolean started,
+        private Submission(Context context, SubmissionResult<T> result, AtomicBoolean started,
                            AtomicBoolean terminal, AtomicReference<Future<?>> task, Executor executor,
                            boolean effectMayCommit) {
             this.context = context;
@@ -172,7 +229,7 @@ public final class ContextAwareBoundedExecutor {
                 if (terminal.get()) return false;
                 if (context.isCancelled() || deadlineExpired(context)) {
                     terminal.set(true);
-                    result.completeExceptionally(preDispatchCancellation(context));
+                    result.completeFromOwnerExceptionally(preDispatchCancellation(context));
                     return false;
                 }
                 // Linearization point: cancellation after this point is classified as a started
@@ -197,7 +254,7 @@ public final class ContextAwareBoundedExecutor {
                 if (!terminal.compareAndSet(false, true)) return false;
                 running = task.get();
                 wasStarted = started.get();
-                result.completeExceptionally(wasStarted && effectMayCommit ? unknownOutcome()
+                result.completeFromOwnerExceptionally(wasStarted && effectMayCommit ? unknownOutcome()
                         : knownNoEffectCancellation(context));
             }
             if (running != null) {
@@ -222,7 +279,7 @@ public final class ContextAwareBoundedExecutor {
         private void reject(RejectedExecutionException saturated) {
             synchronized (dispatchGate) {
                 if (!terminal.compareAndSet(false, true)) return;
-                result.completeExceptionally(Status.RESOURCE_EXHAUSTED
+                result.completeFromOwnerExceptionally(Status.RESOURCE_EXHAUSTED
                         .withDescription("Bounded modality worker queue is full")
                         .withCause(saturated).asRuntimeException());
             }

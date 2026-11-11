@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /** Verifies child fanout, finality mapping and UNKNOWN preservation of the real provider. */
 class DelegatingMultimodalProviderTest {
@@ -74,6 +75,49 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void localCompositionRemainsAvailableWithoutAProductionCapabilityProfile() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobStatus.COMPLETED, Map.of("text", "local result"));
+
+            assertThat(provider.ready()).isTrue();
+            assertThat(provider.capabilities()).containsExactly(JobType.MULTIMODAL);
+            assertThat(provider.capabilityProfiles()).isEmpty();
+            assertThat(provider.productionEligible()).isFalse();
+            assertThatCode(provider::verifyReady).doesNotThrowAnyException();
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(dispatcher.submits).hasValue(1);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void availableDelegatedChildrenDoNotQualifyMultimodalProductionAdmission() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+
+            provider.bindRuntimeCapabilities(Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION));
+
+            assertThat(provider.delegatedCapabilities())
+                    .containsExactlyInAnyOrder(JobType.SPEECH_TO_TEXT, JobType.VISION);
+            assertThat(provider.productionEligible()).isFalse();
+            assertThat(provider.capabilityProfiles()).isEmpty();
+            assertThatCode(provider::verifyReady).doesNotThrowAnyException();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void completedChildrenProduceSucceededSubmissionWithGroundedObservations() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
@@ -88,6 +132,26 @@ class DelegatingMultimodalProviderTest {
             assertThat(submission.providerReceiptId()).isNotBlank();
             assertThat(submission.provenanceDigest()).matches("[0-9a-f]{64}");
             assertThat(submission.result()).containsKey("observations");
+            assertThat(dispatcher.submits).hasValue(1);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void oversizedChildProjectionPreservesUnknownFinalityWithoutPartialSuccess() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobStatus.COMPLETED, Map.of("text", "x".repeat(8_192)));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
             assertThat(dispatcher.submits).hasValue(1);
         } finally {
             scheduler.shutdownNow();
@@ -375,6 +439,94 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void completedChildWithFailedSiblingKeepsParentUnknownWithoutPartialFailureResult() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.FAILED, Map.of())
+                    .with(JobType.VISION, JobStatus.COMPLETED,
+                            Map.of("detections", List.of(Map.of("label", "fixture-object"))));
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            // The completed child proves an effect. Keep live finality consistent with
+            // restart reconciliation and do not claim NO_EFFECT_PROVEN for the parent.
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(2);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void allCancelledChildrenResolveParentUnknownWithoutWaitingForDeadline() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.CANCELLED, Map.of())
+                    .with(JobType.VISION, JobStatus.CANCELLED, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(1, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(2);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void completedChildWithCancelledSiblingKeepsParentUnknownWithoutPartialResult() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "fixture"))
+                    .with(JobType.VISION, JobStatus.CANCELLED, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(1, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(2);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void failedChildWithCancelledSiblingKeepsParentUnknownWithoutNoEffectClaim() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.FAILED, Map.of())
+                    .with(JobType.VISION, JobStatus.CANCELLED, Map.of());
+
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(1, TimeUnit.SECONDS);
+
+            // A cancelled dispatch does not establish that its provider had no effect.
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(2);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void parentCancellationPropagatesToInflightChildren() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
@@ -429,6 +581,35 @@ class DelegatingMultimodalProviderTest {
             assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
             assertThat(dispatcher.cancelledJobIds()).containsExactlyInAnyOrder(
                     "job-req-1:stt", "job-req-1:vision");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void terminalChildReadbackAfterOperationDeadlineCannotCompleteParent() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofMillis(60), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public Optional<ProcessingJob> findJob(String jobId) {
+                    try {
+                        Thread.sleep(120);
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException("test readback interrupted", interrupted);
+                    }
+                    return super.findJob(jobId);
+                }
+            };
+            dispatcher.with(JobStatus.COMPLETED, Map.of("text", "done"));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
         } finally {
             scheduler.shutdownNow();
         }

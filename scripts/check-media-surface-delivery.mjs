@@ -18,6 +18,8 @@ export function validateSurfaceDelivery(plan, register, crosswalk) {
  for(const id of open)if(!ids.has(id))errors.push("unmapped open task "+id);
  for(const [id] of ids)if(all.get(id)?.state==="OPTIONAL_DEFERRED_NO_CORE_BLOCKER")
    errors.push("optional task on core delivery lane "+id);
+ for(const [id] of ids)if(all.has(id)&&all.get(id).state!=="OPEN")
+   errors.push("non-open task assigned to core delivery lane "+id);
  const expected=new Set(register.journeys.map(j=>j.id));
  const got=new Set(plan.journeys.map(j=>j.id));
  if(expected.size!==got.size||[...expected].some(id=>!got.has(id)))
@@ -25,6 +27,7 @@ export function validateSurfaceDelivery(plan, register, crosswalk) {
  for(const j of plan.journeys)if(ids.get(j.taskId)!==j.primaryArea)errors.push("journey area mismatch "+j.id);
  const surfaceIds=new Set(register.surfaces.map(s=>s.id));
  const planSurfaceIds=new Set(plan.surfaces.map(s=>s.id));
+ if(planSurfaceIds.size!==plan.surfaces.length)errors.push("duplicate surface ID");
  if(surfaceIds.size!==planSurfaceIds.size||[...surfaceIds].some(s=>!planSurfaceIds.has(s)))
    errors.push("surface coverage mismatch");
  for(const s of plan.surfaces)for(const id of s.openTaskIds)
@@ -32,10 +35,13 @@ export function validateSurfaceDelivery(plan, register, crosswalk) {
  const familyCounts=new Map();
  for(const leaf of crosswalk.records)familyCounts.set(leaf.familyId,(familyCounts.get(leaf.familyId)||0)+1);
  if(crosswalk.records.length!==469)errors.push("PDP0 capability denominator drift");
+ const planFamilyIds=new Set(plan.capabilityFamilies.map(family=>family.familyId));
+ if(planFamilyIds.size!==plan.capabilityFamilies.length)errors.push("duplicate capability family ID");
  for(const family of plan.capabilityFamilies)
    if(familyCounts.get(family.familyId)!==family.leafCount)
      errors.push("capability family count drift "+family.familyId);
- if(familyCounts.size!==plan.capabilityFamilies.length)errors.push("capability families omitted");
+ if(familyCounts.size!==planFamilyIds.size||[...familyCounts.keys()].some(id=>!planFamilyIds.has(id)))
+   errors.push("capability families coverage mismatch");
  if(plan.counts.open!==open.size)errors.push("source-open count changed; refresh plan routing");
  return errors;
 }

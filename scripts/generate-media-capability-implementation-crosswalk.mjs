@@ -22,8 +22,9 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse: parseYaml } = requireTools("yaml");
 
@@ -48,14 +49,16 @@ export function buildCrosswalk(repositoryRoot = root) {
     if (!family) {
       return { id, familyId, scopeStatus: leaf.scopeStatus, classification: "UNCLASSIFIED" };
     }
-    const blockingTaskRefs = [...new Set([...(familyMap.sharedBlockingTaskRefs ?? []), ...family.taskRefs])];
     const classification = deferredIds.has(id) ? "OPTIONAL_DEFERRED" : "NOT_IMPLEMENTED";
+    const blockingTaskRefs = classification === "OPTIONAL_DEFERRED"
+      ? []
+      : [...new Set([...(familyMap.sharedBlockingTaskRefs ?? []), ...family.taskRefs])];
     return {
       id,
       familyId,
       scopeStatus: leaf.scopeStatus,
       classification,
-      blockingTaskRefs: classification === "OPTIONAL_DEFERRED" ? [] : blockingTaskRefs,
+      blockingTaskRefs,
       verifiedTaskRefs: blockingTaskRefs.filter((task) => taskState.get(task) === "VERIFIED"),
       evidenceRefs: family.evidenceRefs ?? [],
       delegatedDependencies: family.delegatedDependencies ?? [],
@@ -104,4 +107,4 @@ function main() {
   }
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

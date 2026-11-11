@@ -35,21 +35,81 @@ describe("ArtifactIntakeScreen local source selection", () => {
   });
 });
 
-const uploadSession = (overrides: Partial<ArtifactUploadSession> = {}): ArtifactUploadSession => ({
+describe("ArtifactIntakeScreen protected projection", () => {
+  it.each(["loading", "denied", "unknown"] as const)("hides artifact details while workspace access is %s", (accessState) => {
+    render(React.createElement(ArtifactIntakeScreen, {
+      ...baseProps,
+      intake: {
+        view: "browse-media",
+        accessState,
+        workspaceName: "Private workspace",
+        projectName: "Private project",
+        message: "Private status detail",
+        artifacts: [{ id: "private-artifact-id", name: "Private source.wav", version: "v9", integrity: "verified" }],
+      },
+    }));
+
+    expect(screen.getByText(accessState === "loading"
+      ? "Checking current workspace access…"
+      : accessState === "denied"
+        ? "Workspace access is unavailable. Artifact data is hidden until access is granted."
+        : "Workspace access could not be confirmed. Artifact data is hidden.").getAttribute("data-state")).toBe(accessState);
+    expect(screen.queryByText("Private workspace")).toBeNull();
+    expect(screen.queryByText("Private project")).toBeNull();
+    expect(screen.queryByText("Private status detail")).toBeNull();
+    expect(screen.queryByText("Private source.wav")).toBeNull();
+    expect(screen.queryByText("private-artifact-id")).toBeNull();
+  });
+
+  it("shows protected artifact details only after the host resolves access", () => {
+    render(React.createElement(ArtifactIntakeScreen, {
+      ...baseProps,
+      intake: {
+        view: "browse-media",
+        accessState: "resolved",
+        workspaceName: "Authorized workspace",
+        projectName: "Authorized project",
+        artifacts: [{ id: "authorized-artifact-id", name: "Authorized source.wav", version: "v2", integrity: "verified" }],
+      },
+    }));
+
+    expect(screen.getByText("Authorized workspace · Authorized project")).toBeTruthy();
+    expect(screen.getByText("Authorized source.wav · v2")).toBeTruthy();
+    expect(screen.getByText("Artifact ID: authorized-artifact-id")).toBeTruthy();
+  });
+});
+
+type TestArtifactUploadSession = ArtifactUploadSession & { readonly retention: string };
+const uploadSession = (overrides: Partial<TestArtifactUploadSession> = {}): TestArtifactUploadSession => ({
   uploadId: "upload-1", tenantId: "tenant-1", principalId: "principal-1", fileName: "source.wav",
-  contentType: "audio/wav", expectedSizeBytes: 3, expectedSha256: "a".repeat(64), classification: "INTERNAL",
-  createdAt: "2026-11-07T00:00:00Z", expiresAt: "2026-11-08T00:00:00Z",
-  metadata: {}, bytesReceived: 0, nextChunkIndex: 0, status: "OPEN", ...overrides,
+  contentType: "audio/wav", expectedSizeBytes: 3, expectedSha256: "0".repeat(64), classification: "INTERNAL",
+  createdAt: new Date(Date.now() - 60_000).toISOString(),
+  expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+  retention: "PT24H", metadata: {}, bytesReceived: 0, nextChunkIndex: 0, status: "OPEN", ...overrides,
 });
 
 function admittedCapability(overrides: Partial<ArtifactUploadCapability["client"]> = {}): ArtifactUploadCapability {
   return {
-    runtimeAdmission: "ADMITTED", classification: "INTERNAL", retention: "PT24H",
+    runtimeAdmission: "ADMITTED", classification: "INTERNAL", retention: "PT24H", maxChunkBytes: 8 * 1024 * 1024,
     client: {
-      createUploadSession: vi.fn(async () => uploadSession()),
+      createUploadSession: vi.fn(async (request) => uploadSession({
+        fileName: request.fileName,
+        contentType: request.contentType,
+        expectedSizeBytes: request.expectedSizeBytes,
+        expectedSha256: request.expectedSha256,
+        classification: request.classification,
+        metadata: request.metadata ?? {},
+      })),
       getUploadSession: vi.fn(async () => uploadSession()),
-      uploadPart: vi.fn(async (_session, _index, _part) => uploadSession({ bytesReceived: 3, nextChunkIndex: 1 })),
-      completeUploadSession: vi.fn(async () => ({ artifactId: "artifact-1" })),
+      uploadPart: vi.fn(async (session, _index, part) => uploadSession({
+        ...session, bytesReceived: session.bytesReceived + part.size, nextChunkIndex: session.nextChunkIndex + 1,
+      })),
+      completeUploadSession: vi.fn(async () => ({
+        tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1",
+        fileName: "source.wav", contentType: "audio/wav", sizeBytes: 3,
+        sha256: "0".repeat(64), objectReference: "opaque-object-ref", classification: "INTERNAL" as const,
+        createdAt: "2026-11-07T00:00:00Z", expiresAt: "2026-11-08T00:00:00Z", metadata: {},
+      })),
       ...overrides,
     },
   };
@@ -62,7 +122,10 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
       randomUUID: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
     });
   });
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
 
   it("keeps upload unavailable without a host capability", () => {
     render(React.createElement(ArtifactIntakeScreen, baseProps));
@@ -72,7 +135,8 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
 
   it("uploads one selected source through the authenticated SDK and completes only the exact acknowledged session", async () => {
     const capability = admittedCapability();
-    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    const onArtifactCompleted = vi.fn();
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability, onArtifactCompleted }));
     fireEvent.change(screen.getByLabelText("Choose source media"), {
       target: { files: [new File(["abc"], "source.wav", { type: "audio/wav" })] },
     });
@@ -85,7 +149,53 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     }), expect.any(AbortSignal));
     expect(capability.client.uploadPart).toHaveBeenCalledWith(expect.objectContaining({ uploadId: "upload-1" }), 0, expect.any(Blob), { signal: expect.any(AbortSignal) });
     expect(capability.client.completeUploadSession).toHaveBeenCalledWith(expect.objectContaining({ bytesReceived: 3, nextChunkIndex: 1 }), expect.any(AbortSignal));
+    expect(onArtifactCompleted).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ artifactId: "artifact-1" }));
     expect(screen.getByText(/Availability, rights, consent, and downstream use are not established/)).toBeTruthy();
+  });
+
+  it("does not send the first chunk when the created session is already expired", async () => {
+    const createUploadSession = vi.fn(async (request) => uploadSession({
+      fileName: request.fileName, contentType: request.contentType, expectedSizeBytes: request.expectedSizeBytes,
+      expectedSha256: request.expectedSha256, classification: request.classification, metadata: request.metadata ?? {},
+      expiresAt: "2020-01-01T00:00:00Z",
+    }));
+    const capability = admittedCapability({ createUploadSession });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File(["abc"], "source.wav", { type: "audio/wav" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+
+    expect(await screen.findByText(/upload session expired before the next command/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Inspect same upload" })).toBeTruthy();
+    expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("does not finalize when the session expires after the last chunk acknowledgement", async () => {
+    let now = Date.now();
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const uploadPart = vi.fn(async (session: ArtifactUploadSession, _index: number, part: Blob) => {
+      now += 2_000;
+      return uploadSession({ ...session, bytesReceived: session.bytesReceived + part.size, nextChunkIndex: session.nextChunkIndex + 1 });
+    });
+    const createUploadSession = vi.fn(async (request) => uploadSession({
+      fileName: request.fileName, contentType: request.contentType, expectedSizeBytes: request.expectedSizeBytes,
+      expectedSha256: request.expectedSha256, classification: request.classification, metadata: request.metadata ?? {},
+      expiresAt: new Date(now + 1_000).toISOString(),
+    }));
+    const capability = admittedCapability({ createUploadSession, uploadPart });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File(["abc"], "source.wav", { type: "audio/wav" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+
+    expect(await screen.findByText(/upload session expired before the next command/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Inspect same upload" })).toBeTruthy();
+    expect(uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -193,8 +303,8 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
     expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
     expect(screen.getByText(/Inspect the same upload identity before any further command/)).toBeTruthy();
-    expect(screen.getByText("Upload ID: upload-1")).toBeTruthy();
-    expect(screen.getByText("Upload request identity: 11111111-1111-4111-8111-111111111111")).toBeTruthy();
+    expect(screen.getByText("upload-1", { selector: "code" })).toBeTruthy();
+    expect(screen.getByText("11111111-1111-4111-8111-111111111111", { selector: "code" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "replacement.wav")] } });
     expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
   });
@@ -202,7 +312,7 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
   it("inspects the same caller-scoped upload after UNKNOWN without replaying mutations", async () => {
     const capability = admittedCapability({
       uploadPart: vi.fn(async () => { throw new Error("lost acknowledgement"); }),
-      getUploadSession: vi.fn(async () => uploadSession({ status: "OPEN", bytesReceived: 3, nextChunkIndex: 1 })),
+      getUploadSession: vi.fn(async () => uploadSession({ contentType: "application/octet-stream", status: "OPEN", bytesReceived: 3, nextChunkIndex: 1 })),
     });
     render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
     fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "source.wav")] } });
@@ -219,6 +329,124 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
     expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: "Inspect same upload" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Resume from observed upload" })).toBeTruthy();
+  });
+
+  it("does not offer same-page UNKNOWN resume when persisted retention differs", async () => {
+    const capability = admittedCapability({
+      uploadPart: vi.fn(async () => { throw new Error("lost acknowledgement"); }),
+      getUploadSession: vi.fn(async () => uploadSession({
+        contentType: "application/octet-stream", retention: "P48H", status: "OPEN", bytesReceived: 3, nextChunkIndex: 1,
+      })),
+    });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "source.wav")] } });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByText(/Upload outcome is unknown/);
+    fireEvent.click(screen.getByRole("button", { name: "Inspect same upload" }));
+
+    await screen.findByText(/Upload inspection failed or was concealed/);
+    expect(capability.client.getUploadSession).toHaveBeenCalledTimes(1);
+    expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
+    expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Resume from observed upload" })).toBeNull();
+  });
+
+  it("does not offer same-page UNKNOWN resume when the inspected session is expired", async () => {
+    const capability = admittedCapability({
+      uploadPart: vi.fn(async () => { throw new Error("lost acknowledgement"); }),
+      getUploadSession: vi.fn(async () => uploadSession({
+        contentType: "application/octet-stream", expiresAt: "2020-01-01T00:00:00Z",
+        status: "OPEN", bytesReceived: 3, nextChunkIndex: 1,
+      })),
+    });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "source.wav")] } });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByText(/Upload outcome is unknown/);
+    fireEvent.click(screen.getByRole("button", { name: "Inspect same upload" }));
+
+    await screen.findByText(/Upload inspection failed or was concealed/);
+    expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Resume from observed upload" })).toBeNull();
+  });
+
+  it("rechecks expiry at same-page resume confirmation before sending another chunk", async () => {
+    const now = Date.now();
+    const dateNow = vi.spyOn(Date, "now").mockReturnValue(now);
+    const capability = admittedCapability({
+      uploadPart: vi.fn(async () => { throw new Error("lost acknowledgement"); }),
+      getUploadSession: vi.fn(async () => uploadSession({
+        contentType: "application/octet-stream", expiresAt: new Date(now + 1_000).toISOString(),
+        status: "OPEN", bytesReceived: 2, nextChunkIndex: 1,
+      })),
+    });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "source.wav")] } });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByText(/Upload outcome is unknown/);
+    fireEvent.click(screen.getByRole("button", { name: "Inspect same upload" }));
+    const resume = await screen.findByRole("button", { name: "Resume from observed upload" });
+    dateNow.mockReturnValue(now + 1_001);
+
+    fireEvent.click(resume);
+    expect(await screen.findByText(/Upload inspection failed or was concealed/)).toBeTruthy();
+    expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("resumes only after inspection and starts from the server-acknowledged next chunk", async () => {
+    const uploadPart = vi.fn(async () => { throw new Error("lost acknowledgement"); });
+    const capability = admittedCapability({
+      uploadPart,
+      getUploadSession: vi.fn(async () => uploadSession({
+        contentType: "application/octet-stream", status: "OPEN", bytesReceived: 3, nextChunkIndex: 1,
+      })),
+    });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "source.wav")] } });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByText(/Upload outcome is unknown/);
+    fireEvent.click(screen.getByRole("button", { name: "Inspect same upload" }));
+    await screen.findByRole("button", { name: "Resume from observed upload" });
+    expect(uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Resume from observed upload" }));
+    await screen.findByText(/Upload completion acknowledged for artifact artifact-1/);
+    expect(uploadPart).toHaveBeenCalledTimes(1);
+    expect(capability.client.completeUploadSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("replays only the exact retained completion session after observing COMPLETED", async () => {
+    const complete = vi.fn()
+      .mockRejectedValueOnce(new Error("lost completion acknowledgement"))
+      .mockResolvedValueOnce({
+        tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1",
+        fileName: "source.wav", contentType: "audio/wav", sizeBytes: 3,
+        sha256: "0".repeat(64), objectReference: "opaque-object-ref", classification: "INTERNAL" as const,
+        createdAt: "2026-11-07T00:00:00Z", expiresAt: "2026-11-08T00:00:00Z", metadata: {},
+      });
+    const capability = admittedCapability({
+      completeUploadSession: complete,
+      getUploadSession: vi.fn(async () => uploadSession({ status: "COMPLETED", bytesReceived: 3, nextChunkIndex: 1 })),
+    });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File(["abc"], "source.wav", { type: "audio/wav" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByText(/Upload outcome is unknown/);
+    fireEvent.click(screen.getByRole("button", { name: "Inspect same upload" }));
+    await screen.findByRole("button", { name: "Replay exact completion request" });
+    expect(complete).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Replay exact completion request" }));
+    await screen.findByText(/Upload completion acknowledged for artifact artifact-1/);
+    expect(complete).toHaveBeenCalledTimes(2);
+    expect(complete.mock.calls[1]![0]).toBe(complete.mock.calls[0]![0]);
   });
 
   it("sanitizes a concealed or failed same-upload inspection and keeps the mutation lock", async () => {
@@ -242,17 +470,48 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
 
   it("keeps ambiguous begin locked to its request identity when no upload ID was received", async () => {
     const capability = admittedCapability({ createUploadSession: vi.fn(async () => { throw new Error("lost begin acknowledgement"); }) });
-    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    const onUploadStateChange = vi.fn();
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability, onUploadStateChange }));
     fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "source.wav")] } });
     fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
     expect(await screen.findByText(/Begin-upload outcome is unknown and no upload ID was acknowledged/)).toBeTruthy();
+    expect(onUploadStateChange).toHaveBeenCalledWith("pending");
+    expect(onUploadStateChange).toHaveBeenCalledWith("reconciliation-required");
     expect(screen.queryByRole("button", { name: "Inspect same upload" })).toBeNull();
-    expect(screen.getByText("Upload request identity: 11111111-1111-4111-8111-111111111111")).toBeTruthy();
+    expect(screen.getByText("11111111-1111-4111-8111-111111111111", { selector: "code" })).toBeTruthy();
     expect(capability.client.getUploadSession).not.toHaveBeenCalled();
     expect(capability.client.uploadPart).not.toHaveBeenCalled();
     expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
     fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["abc"], "replacement.wav")] } });
     expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("reconciles an unknown begin only on explicit user action with the exact retained request and key", async () => {
+    const createUploadSession = vi.fn()
+      .mockRejectedValueOnce(new Error("lost begin acknowledgement"))
+      .mockResolvedValueOnce(uploadSession());
+    const capability = admittedCapability({ createUploadSession });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File(["abc"], "source.wav", { type: "audio/wav" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByRole("button", { name: "Reconcile begin upload with same request" });
+
+    expect(createUploadSession).toHaveBeenCalledTimes(1);
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    const originalRequest = createUploadSession.mock.calls[0]![0];
+    expect(originalRequest).toMatchObject({
+      fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "0".repeat(64), idempotencyKey: "11111111-1111-4111-8111-111111111111",
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Reconcile begin upload with same request" }));
+    await screen.findByText(/Upload completion acknowledged for artifact artifact-1/);
+    expect(createUploadSession).toHaveBeenCalledTimes(2);
+    expect(createUploadSession.mock.calls[1]![0]).toBe(originalRequest);
+    expect(createUploadSession.mock.calls[1]![0].idempotencyKey).toBe(originalRequest.idempotencyKey);
+    expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
   });
 
   it("does not report buffered bytes as acknowledged while a chunk receipt is pending", async () => {
@@ -267,7 +526,7 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
       .toHaveProperty("value", 0);
     fireEvent.change(screen.getByLabelText("Choose source media"), { target: { files: [new File(["xyz"], "replacement.wav")] } });
     expect(capability.client.createUploadSession).toHaveBeenCalledTimes(1);
-    acknowledge(uploadSession({ bytesReceived: 3, nextChunkIndex: 1 }));
+    acknowledge(uploadSession({ contentType: "application/octet-stream", bytesReceived: 3, nextChunkIndex: 1 }));
     await screen.findByText(/Upload completion acknowledged/);
     expect(screen.getByRole("progressbar", { name: "Server-acknowledged upload progress" }))
       .toHaveProperty("value", 3);
@@ -285,10 +544,263 @@ describe("ArtifactIntakeScreen admitted upload capability", () => {
     await waitFor(() => expect(capability.client.uploadPart).toHaveBeenCalledTimes(1));
 
     view.rerender(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: undefined }));
-    acknowledgeFirstChunk(uploadSession({ bytesReceived: 5 * 1024 * 1024, nextChunkIndex: 1 }));
+    acknowledgeFirstChunk(uploadSession({ fileName: "large-source.wav", expectedSizeBytes: 5 * 1024 * 1024 + 1, bytesReceived: 5 * 1024 * 1024, nextChunkIndex: 1 }));
 
     await screen.findByText(/Upload stopped because the current host no longer admits the route/);
     expect(capability.client.uploadPart).toHaveBeenCalledTimes(1);
     expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("uses the authenticated host chunk policy while keeping the five MiB client cap", async () => {
+    const partSizes: number[] = [];
+    const capability = {
+      ...admittedCapability({
+        uploadPart: vi.fn(async (session, _index, part) => {
+          partSizes.push(part.size);
+          return uploadSession({ ...session, bytesReceived: session.bytesReceived + part.size, nextChunkIndex: session.nextChunkIndex + 1 });
+        }),
+      }),
+      maxChunkBytes: 4 * 1024 * 1024,
+    };
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File([new Uint8Array(4 * 1024 * 1024 + 1)], "policy-source.bin")] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+
+    await screen.findByText(/Upload completion acknowledged for artifact artifact-1/);
+    expect(partSizes).toEqual([4 * 1024 * 1024, 1]);
+  });
+
+  it.each([0, 32 * 1024 * 1024 + 1, Number.MAX_SAFE_INTEGER])("rejects invalid injected host chunk policy %s before any upload request", async (maxChunkBytes) => {
+    const capability = { ...admittedCapability(), maxChunkBytes };
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File(["abc"], "invalid-policy.bin")] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+
+    await screen.findByText(/did not provide a valid upload chunk limit/);
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+  });
+
+  it("resumes from observed bytes and chunk index after the host chunk policy changes", async () => {
+    const fileSize = 6 * 1024 * 1024;
+    const partCalls: Array<{ index: number; size: number }> = [];
+    const uploadCapability = {
+      ...admittedCapability({
+        uploadPart: vi.fn(async (session, index, part) => {
+          partCalls.push({ index, size: part.size });
+          if (partCalls.length === 1) throw new Error("lost chunk acknowledgement");
+          return uploadSession({ ...session, bytesReceived: session.bytesReceived + part.size, nextChunkIndex: session.nextChunkIndex + 1 });
+        }),
+        getUploadSession: vi.fn(async () => uploadSession({
+          fileName: "changing-policy.bin", contentType: "application/octet-stream", expectedSizeBytes: fileSize,
+          expectedSha256: "0".repeat(64), classification: "INTERNAL", metadata: {},
+          bytesReceived: 2 * 1024 * 1024, nextChunkIndex: 1,
+        })),
+      }),
+      maxChunkBytes: 2 * 1024 * 1024,
+    };
+    const view = render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability }));
+    fireEvent.change(screen.getByLabelText("Choose source media"), {
+      target: { files: [new File([new Uint8Array(fileSize)], "changing-policy.bin")] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Upload selected source" }));
+    await screen.findByText(/Upload outcome is unknown/);
+    fireEvent.click(screen.getByRole("button", { name: "Inspect same upload" }));
+    await screen.findByRole("button", { name: "Resume from observed upload" });
+
+    view.rerender(React.createElement(ArtifactIntakeScreen, {
+      ...baseProps,
+      uploadCapability: { ...uploadCapability, maxChunkBytes: 1024 * 1024 },
+    }));
+    fireEvent.click(screen.getByRole("button", { name: "Resume from observed upload" }));
+    await screen.findByText(/Upload completion acknowledged for artifact artifact-1/);
+    expect(partCalls).toEqual([
+      { index: 0, size: 2 * 1024 * 1024 },
+      { index: 1, size: 1024 * 1024 },
+      { index: 2, size: 1024 * 1024 },
+      { index: 3, size: 1024 * 1024 },
+      { index: 4, size: 1024 * 1024 },
+    ]);
+  });
+
+  const recoveryMetadata = { purpose: "dev-recovery" };
+  const recoveryDigest = "a".repeat(64);
+  const recoverySession = (overrides: Partial<TestArtifactUploadSession> = {}): TestArtifactUploadSession => {
+    const createdAt = new Date(Date.now() - 60_000).toISOString();
+    const expiresAt = new Date(Date.now() + 3_540_000).toISOString();
+    return uploadSession({
+      fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 6,
+      expectedSha256: recoveryDigest, classification: "INTERNAL", retention: "PT1H",
+      createdAt, expiresAt, metadata: recoveryMetadata, bytesReceived: 2, nextChunkIndex: 1,
+      ...overrides,
+    });
+  };
+  const recoveryCapability = (
+    session: TestArtifactUploadSession,
+    overrides: Partial<ArtifactUploadCapability> = {},
+    clientOverrides: Partial<ArtifactUploadCapability["client"]> = {},
+  ): ArtifactUploadCapability => ({
+    ...admittedCapability({
+      getUploadSession: vi.fn(async () => session),
+      uploadPart: vi.fn(async (observed, _index, part) => uploadSession({
+        ...observed, bytesReceived: observed.bytesReceived + part.size,
+        nextChunkIndex: observed.nextChunkIndex + 1,
+      })),
+      ...clientOverrides,
+    }),
+    retention: "PT1H",
+    metadata: recoveryMetadata,
+    hashFile: vi.fn(async () => recoveryDigest),
+    ...overrides,
+  });
+  const prepareRecovery = async (capability: ArtifactUploadCapability): Promise<File> => {
+    const file = new File(["abcdef"], "source.wav", { type: "audio/wav" });
+    render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Existing upload ID to recover"), { target: { value: "upload-1" } });
+    fireEvent.change(screen.getByLabelText("Choose source file for recovery"), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: "Inspect existing upload" }));
+    return file;
+  };
+
+  it("reconciles the exact caller-scoped upload after a fresh screen and requires one explicit resume confirmation", async () => {
+    const session = recoverySession({ retention: "P1D" });
+    const getUploadSession = vi.fn(async () => session);
+    const uploadPart = vi.fn(async (observed: ArtifactUploadSession, _index: number, part: Blob) => uploadSession({
+      ...observed, bytesReceived: observed.bytesReceived + part.size,
+      nextChunkIndex: observed.nextChunkIndex + 1,
+    }));
+    const completeUploadSession = vi.fn(async () => ({
+      tenantId: "tenant-1", principalId: "principal-1", artifactId: "artifact-1",
+      fileName: "source.wav", contentType: "audio/wav", sizeBytes: 6,
+      sha256: recoveryDigest, objectReference: "opaque-object-ref", classification: "INTERNAL" as const,
+      createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 86_400_000).toISOString(), metadata: recoveryMetadata,
+    }));
+    const capability = recoveryCapability(session, { retention: "PT24H" }, {
+      getUploadSession, uploadPart, completeUploadSession,
+    });
+    const file = await prepareRecovery(capability);
+
+    await screen.findByText(/The same caller-scoped upload, file digest, metadata, retention, unexpired session/);
+    expect(getUploadSession).toHaveBeenCalledWith("upload-1", expect.any(AbortSignal));
+    expect(capability.hashFile).toHaveBeenCalledWith(file, expect.any(AbortSignal));
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(uploadPart).not.toHaveBeenCalled();
+    expect(completeUploadSession).not.toHaveBeenCalled();
+
+    const resume = screen.getByRole("button", { name: "Resume from observed upload" });
+    fireEvent.click(resume);
+    fireEvent.click(resume);
+    await screen.findByText(/Upload completion acknowledged for artifact artifact-1/);
+    expect(uploadPart).toHaveBeenCalledTimes(1);
+    expect(uploadPart).toHaveBeenCalledWith(session, 1, expect.any(Blob), { signal: expect.any(AbortSignal) });
+    expect((uploadPart.mock.calls[0]?.[2] as Blob).size).toBe(4);
+    expect(completeUploadSession).toHaveBeenCalledTimes(1);
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it.each([0, Number.NaN, 32 * 1024 * 1024 + 1])("does not inspect or resume an existing upload with invalid chunk limit %s", async (maxChunkBytes) => {
+    const getUploadSession = vi.fn(async () => recoverySession());
+    const uploadPart = vi.fn();
+    const completeUploadSession = vi.fn();
+    const capability = recoveryCapability(recoverySession(), { maxChunkBytes }, {
+      getUploadSession, uploadPart, completeUploadSession,
+    });
+
+    await prepareRecovery(capability);
+
+    await screen.findByText(/verified host did not provide a valid upload chunk limit\. No recovery request was sent/);
+    expect(getUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(uploadPart).not.toHaveBeenCalled();
+    expect(completeUploadSession).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Resume from observed upload" })).toBeNull();
+  });
+
+  it.each([
+    ["digest", recoverySession({ expectedSha256: "b".repeat(64) }), "PT1H", recoveryMetadata],
+    ["metadata", recoverySession({ metadata: { purpose: "different" } }), "PT1H", recoveryMetadata],
+    ["retention", recoverySession({ retention: "P7D" }), "PT1H", recoveryMetadata],
+  ] as const)("does not authorize recovery when the observed %s differs", async (_field, session, retention, metadata) => {
+    const capability = recoveryCapability(session, { retention, metadata });
+    await prepareRecovery(capability);
+    await screen.findByText(/No mutation is authorized/);
+    expect(capability.client.getUploadSession).toHaveBeenCalledTimes(1);
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Resume from observed upload" })).toBeNull();
+  });
+
+  it.each([
+    ["unknown read", vi.fn(async () => { throw new Error("unavailable"); })],
+    ["wrong scope", vi.fn(async () => { throw new TypeError("session is outside the authenticated tenant/principal scope"); })],
+  ] as const)("fails closed after an %s", async (_case, getUploadSession) => {
+    const capability = recoveryCapability(recoverySession(), {}, { getUploadSession });
+    await prepareRecovery(capability);
+    await screen.findByText(/outcome remains unknown; no mutation is authorized/);
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it.each(["COMPLETED", "EXPIRED", "FINALIZING"] as const)("does not offer recovery for a non-OPEN %s upload", async (status) => {
+    const capability = recoveryCapability(recoverySession({ status }));
+    await prepareRecovery(capability);
+    await screen.findByText(new RegExp(`observed upload is ${status}`));
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Resume from observed upload" })).toBeNull();
+  });
+
+  it("fails closed with the exact DTO limitation when retention is absent", async () => {
+    const { retention: _omittedRetention, ...sessionWithoutRetention } = recoverySession();
+    const capability = recoveryCapability(sessionWithoutRetention as unknown as TestArtifactUploadSession);
+    await prepareRecovery(capability);
+    await screen.findByText(/canonical session DTO must include retention; expiry is a separate upload-session limit/);
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("does not resume an upload whose separate session expiry is no longer in the future", async () => {
+    const capability = recoveryCapability(recoverySession({ expiresAt: "2020-01-01T00:00:00Z" }));
+    await prepareRecovery(capability);
+    await screen.findByText(/session has expired or has an invalid expiry/);
+    expect(capability.client.createUploadSession).not.toHaveBeenCalled();
+    expect(capability.client.uploadPart).not.toHaveBeenCalled();
+    expect(capability.client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("clears and aborts in-flight recovery inspection when the host capability changes", async () => {
+    let finishRead!: (session: TestArtifactUploadSession) => void;
+    let requestSignal!: AbortSignal;
+    const capability = recoveryCapability(recoverySession(), {}, {
+      getUploadSession: vi.fn((_uploadId: string, signal?: AbortSignal) => {
+        requestSignal = signal!;
+        return new Promise<TestArtifactUploadSession>((resolve) => { finishRead = resolve; });
+      }),
+    });
+    const view = render(React.createElement(ArtifactIntakeScreen, { ...baseProps, uploadCapability: capability }));
+    fireEvent.change(screen.getByLabelText("Existing upload ID to recover"), { target: { value: "upload-1" } });
+    fireEvent.change(screen.getByLabelText("Choose source file for recovery"), {
+      target: { files: [new File(["abcdef"], "source.wav", { type: "audio/wav" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Inspect existing upload" }));
+    await screen.findByText(/Inspecting this upload ID under current caller scope/);
+
+    view.rerender(React.createElement(ArtifactIntakeScreen, {
+      ...baseProps,
+      uploadCapability: { ...capability, maxChunkBytes: capability.maxChunkBytes - 1 },
+    }));
+
+    await screen.findByText("Enter an existing upload ID and reselect one source file before inspection is available.");
+    expect(requestSignal.aborted).toBe(true);
+    finishRead(recoverySession());
+    await waitFor(() => expect(screen.queryByText(/Inspecting this upload ID under current caller scope/)).toBeNull());
   });
 });

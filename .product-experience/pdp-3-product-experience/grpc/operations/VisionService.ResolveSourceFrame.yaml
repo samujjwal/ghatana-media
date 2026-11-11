@@ -1,0 +1,31 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.grpc.VisionService.ResolveSourceFrame
+protocolIdentity:
+  protocol: gRPC
+  package: com.ghatana.audio.video.vision.grpc
+  service: VisionService
+  fullyQualifiedService: com.ghatana.audio.video.vision.grpc.VisionService
+  method: ResolveSourceFrame
+  clientStreaming: false
+  serverStreaming: false
+sourceContract: modules/vision/vision-service/src/main/proto/vision_service.proto
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+request:
+  protobufMessage: SourceFrameResolveRequest
+  schemaRef: modules/vision/vision-service/src/main/proto/vision_service.proto#com.ghatana.audio.video.vision.grpc.SourceFrameResolveRequest
+response:
+  protobufMessage: SourceFrameResolveResponse
+  schemaRef: modules/vision/vision-service/src/main/proto/vision_service.proto#com.ghatana.audio.video.vision.grpc.SourceFrameResolveResponse
+semanticDisposition: source-identity-only; PDP-1-operation-binding-pending-owner-review
+contractStatus: identity-only-source-projection; owner-review-pending
+nonClaims:
+- PDP-1 logical operation binding
+- authentication or authorization acceptance
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees
+- runtime admission or qualification

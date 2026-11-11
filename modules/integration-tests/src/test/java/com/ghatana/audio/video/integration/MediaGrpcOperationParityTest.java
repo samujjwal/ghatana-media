@@ -52,12 +52,10 @@ class MediaGrpcOperationParityTest {
                     MultimodalServiceGrpc.class, MultimodalServiceGrpc.MultimodalServiceStub.class));
 
     @Test
-    void allFortyFourDeclaredRpcsHaveClientCallsAndActiveHandlers() throws Exception {
-        int rpcCount = 0;
+    void allDeclaredRpcsHaveClientCallsAndActiveHandlers() throws Exception {
         for (Surface surface : SURFACES) {
             assertThat(surface.proto()).as("protobuf service descriptor").isNotNull();
             for (Descriptors.MethodDescriptor protoMethod : surface.proto().getMethods()) {
-                rpcCount++;
                 String javaMethodName = lowerCamel(protoMethod.getName());
                 Class<?> requestType = messageType(surface.proto().getFile(), protoMethod.getInputType());
                 boolean clientStreaming = protoMethod.isClientStreaming();
@@ -87,7 +85,30 @@ class MediaGrpcOperationParityTest {
                 assertThat(clientCall).as("generated async client call for %s", protoMethod.getName()).isNotNull();
             }
         }
-        assertThat(rpcCount).as("four governed services expose the expected 44 named RPCs").isEqualTo(44);
+    }
+
+    @Test
+    void currentVisionSourceFrameResolverHasGeneratedCallAndActiveHandler() throws Exception {
+        Surface vision = SURFACES.stream()
+                .filter(surface -> surface.proto().getName().equals("VisionService"))
+                .findFirst().orElseThrow();
+        Descriptors.MethodDescriptor protoMethod = vision.proto().findMethodByName("ResolveSourceFrame");
+
+        assertThat(protoMethod).as("current Vision source-frame resolver descriptor").isNotNull();
+        Class<?> requestType = messageType(vision.proto().getFile(), protoMethod.getInputType());
+        Method handler = vision.activeService().getMethod("resolveSourceFrame", requestType, StreamObserver.class);
+        assertThat(handler.getDeclaringClass())
+                .as("ResolveSourceFrame must not fall through to generated UNIMPLEMENTED")
+                .isNotEqualTo(vision.serviceBase());
+
+        io.grpc.ServiceDescriptor runtimeDescriptor = (io.grpc.ServiceDescriptor) vision.generatedService()
+                .getMethod("getServiceDescriptor").invoke(null);
+        assertThat(runtimeDescriptor.getMethods().stream()
+                .map(MethodDescriptor::getBareMethodName))
+                .contains("ResolveSourceFrame");
+        assertThat(vision.asyncStub().getMethod("resolveSourceFrame", requestType, StreamObserver.class))
+                .as("generated async client call for ResolveSourceFrame")
+                .isNotNull();
     }
 
     private static MethodDescriptor.MethodType methodType(boolean clientStreaming, boolean serverStreaming) {

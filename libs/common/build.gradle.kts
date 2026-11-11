@@ -55,4 +55,21 @@ dependencies {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    dependsOn(tasks.named("jar"))
+    // Resolve dependency files at execution time: composite builds may still be
+    // evaluating included projects while this task is configured.
+    doFirst {
+        systemProperty(
+            "media.common.consumer.archive",
+            tasks.named<Jar>("jar").get().archiveFile.get().asFile.absolutePath,
+        )
+        // The installed-consumer regression receives only declared runtime artifacts.
+        // It must not inherit Gradle's project classes directories.
+        systemProperty(
+            "media.common.consumer.runtimeClasspath",
+            configurations.runtimeClasspath.get().files
+                .filter { it.isFile && it.extension == "jar" }
+                .joinToString(System.getProperty("path.separator")) { it.absolutePath },
+        )
+    }
 }

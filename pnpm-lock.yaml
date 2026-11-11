@@ -49,9 +49,15 @@ catalogs:
       specifier: ^4.3.6
       version: 4.6.5
   lifecycle:
+    '@types/node':
+      specifier: ^26.1.2
+      version: 26.6.4
     typescript:
       specifier: ^6.0.3
       version: 6.0.3
+    vitest:
+      specifier: ^4.1.10
+      version: 4.1.11
   shared:
     '@testing-library/jest-dom':
       specifier: ^7.0.0
@@ -115,6 +121,8 @@ catalogs:
       specifier: ^4.1.10
       version: 4.1.11
 
+pnpmfileChecksum: sha256-56wDJ0qJNr4ONX4ZM0kvuxG+eAR5TS7UrqenyP8cjvI=
+
 importers:
 
   .:
@@ -125,6 +133,9 @@ importers:
       '@ghatana/verification-planner':
         specifier: workspace:*
         version: link:../ghatana-lifecycle/tools/verification-planner
+      gltf-validator:
+        specifier: 2.0.0-dev.3.10
+        version: 2.0.0-dev.3.10
       playwright:
         specifier: 1.63.0
         version: 1.63.0
@@ -134,6 +145,9 @@ importers:
 
   ../ghatana-lifecycle/libs/cli-contracts:
     dependencies:
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../tool-platform-contracts
       ajv:
         specifier: ^8.17.1
         version: 8.20.0
@@ -146,34 +160,56 @@ importers:
       '@ghatana/cli-contracts':
         specifier: workspace:*
         version: link:../cli-contracts
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../tool-platform-contracts
+    devDependencies:
+      '@types/node':
+        specifier: catalog:lifecycle
+        version: 26.6.4
+      typescript:
+        specifier: catalog:lifecycle
+        version: 6.0.3
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.1
 
   ../ghatana-lifecycle/libs/evidence-contracts:
     dependencies:
-      '@ghatana/contract-governance':
+      '@ghatana/tool-platform-contracts':
         specifier: workspace:*
-        version: link:../../tools/contract-governance
+        version: link:../tool-platform-contracts
+      ajv:
+        specifier: ^8.17.1
+        version: 8.20.0
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.20.0)
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.1
     devDependencies:
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:lifecycle
         version: 26.6.4
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:lifecycle
         version: 6.0.3
       vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        specifier: catalog:lifecycle
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-lifecycle/libs/evidence-lifecycle:
     devDependencies:
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:lifecycle
         version: 26.6.4
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:lifecycle
         version: 6.0.3
       vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        specifier: catalog:lifecycle
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-lifecycle/libs/tool-platform-contracts:
     dependencies:
@@ -186,6 +222,9 @@ importers:
       '@ghatana/tool-platform-contracts':
         specifier: workspace:*
         version: link:../tool-platform-contracts
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.1
 
   ../ghatana-lifecycle/tools/closure-config-generator:
     dependencies:
@@ -201,6 +240,9 @@ importers:
       '@ghatana/surface-convergence':
         specifier: workspace:*
         version: link:../surface-convergence
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../../libs/tool-platform-contracts
       '@ghatana/verification-planner':
         specifier: workspace:*
         version: link:../verification-planner
@@ -220,12 +262,24 @@ importers:
 
   ../ghatana-lifecycle/tools/contract-governance:
     dependencies:
+      '@ghatana/cli-contracts':
+        specifier: workspace:*
+        version: link:../../libs/cli-contracts
+      '@ghatana/evidence-contracts':
+        specifier: workspace:*
+        version: link:../../libs/evidence-contracts
+      '@ghatana/execution-cache':
+        specifier: workspace:*
+        version: link:../execution-cache
       '@ghatana/tool-platform-contracts':
         specifier: workspace:*
         version: link:../../libs/tool-platform-contracts
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.20.0)
       yaml:
         specifier: ^2.9.0
         version: 2.9.1
@@ -251,7 +305,32 @@ importers:
         specifier: ^2.9.0
         version: 2.9.1
 
-  ../ghatana-lifecycle/tools/evidence-generator: {}
+  ../ghatana-lifecycle/tools/evidence-generator:
+    dependencies:
+      '@ghatana/evidence-contracts':
+        specifier: workspace:*
+        version: link:../../libs/evidence-contracts
+      '@ghatana/evidence-generator-runtime':
+        specifier: workspace:*
+        version: link:../evidence-generator-runtime
+      '@ghatana/runtime-broker':
+        specifier: workspace:*
+        version: link:../runtime-broker
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../../libs/tool-platform-contracts
+      '@ghatana/verification-planner':
+        specifier: workspace:*
+        version: link:../verification-planner
+      '@ghatana/work-planner':
+        specifier: workspace:*
+        version: link:../work-planner
+      '@ghatana/workflow-runner':
+        specifier: workspace:*
+        version: link:../workflow-runner
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.1
 
   ../ghatana-lifecycle/tools/evidence-generator-closure:
     dependencies:
@@ -298,13 +377,25 @@ importers:
         specifier: ^2.9.0
         version: 2.9.1
 
-  ../ghatana-lifecycle/tools/execution-cache: {}
+  ../ghatana-lifecycle/tools/evidence-scanner: {}
+
+  ../ghatana-lifecycle/tools/execution-cache:
+    dependencies:
+      '@ghatana/evidence-contracts':
+        specifier: workspace:*
+        version: link:../../libs/evidence-contracts
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../../libs/tool-platform-contracts
 
   ../ghatana-lifecycle/tools/gtool:
     dependencies:
       '@ghatana/cli-contracts':
         specifier: workspace:*
         version: link:../../libs/cli-contracts
+      '@ghatana/closure-config-generator':
+        specifier: workspace:*
+        version: link:../closure-config-generator
       '@ghatana/contract-governance':
         specifier: workspace:*
         version: link:../contract-governance
@@ -314,9 +405,15 @@ importers:
       '@ghatana/evidence-contracts':
         specifier: workspace:*
         version: link:../../libs/evidence-contracts
+      '@ghatana/evidence-generator-closure':
+        specifier: workspace:*
+        version: link:../evidence-generator-closure
       '@ghatana/execution-cache':
         specifier: workspace:*
         version: link:../execution-cache
+      '@ghatana/release-verifier':
+        specifier: workspace:*
+        version: link:../release-verifier
       '@ghatana/requirements':
         specifier: workspace:*
         version: link:../requirements
@@ -344,6 +441,20 @@ importers:
       ajv:
         specifier: ^8.17.1
         version: 8.20.0
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.20.0)
+      import-meta-resolve:
+        specifier: 4.2.0
+        version: 4.2.0
+      typescript:
+        specifier: catalog:lifecycle
+        version: 6.0.3
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+
+  ../ghatana-lifecycle/tools/protected-host-files: {}
 
   ../ghatana-lifecycle/tools/release-verifier:
     dependencies:
@@ -365,6 +476,9 @@ importers:
       '@ghatana/documentation-model':
         specifier: workspace:*
         version: link:../documentation-model
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../../libs/tool-platform-contracts
       ajv:
         specifier: ^8.17.1
         version: 8.20.0
@@ -372,7 +486,17 @@ importers:
         specifier: ^2.9.0
         version: 2.9.1
 
-  ../ghatana-lifecycle/tools/runtime-broker: {}
+  ../ghatana-lifecycle/tools/runtime-broker:
+    dependencies:
+      '@ghatana/evidence-contracts':
+        specifier: workspace:*
+        version: link:../../libs/evidence-contracts
+      '@ghatana/tool-platform-contracts':
+        specifier: workspace:*
+        version: link:../../libs/tool-platform-contracts
+      '@ghatana/workflow-runner':
+        specifier: workspace:*
+        version: link:../workflow-runner
 
   ../ghatana-lifecycle/tools/surface-convergence:
     dependencies:
@@ -382,6 +506,15 @@ importers:
       '@ghatana/evidence-contracts':
         specifier: workspace:*
         version: link:../../libs/evidence-contracts
+      '@ghatana/evidence-generator-runtime':
+        specifier: workspace:*
+        version: link:../evidence-generator-runtime
+      '@ghatana/execution-cache':
+        specifier: workspace:*
+        version: link:../execution-cache
+      '@ghatana/runtime-broker':
+        specifier: workspace:*
+        version: link:../runtime-broker
       '@ghatana/tool-platform-contracts':
         specifier: workspace:*
         version: link:../../libs/tool-platform-contracts
@@ -395,14 +528,18 @@ importers:
         specifier: workspace:*
         version: link:../workflow-runner
       ajv:
-        specifier: '>=8.17.1'
+        specifier: ^8.17.1
         version: 8.20.0
       ajv-formats:
-        specifier: '>=3.0.1'
+        specifier: ^3.0.1
         version: 3.0.1(ajv@8.20.0)
       yaml:
         specifier: '>=2.7.0'
         version: 2.9.1
+    devDependencies:
+      pg:
+        specifier: ^8.23.1
+        version: 8.23.1
 
   ../ghatana-lifecycle/tools/verification-planner:
     dependencies:
@@ -448,6 +585,9 @@ importers:
       '@ghatana/evidence-contracts':
         specifier: workspace:*
         version: link:../../libs/evidence-contracts
+      '@ghatana/execution-cache':
+        specifier: workspace:*
+        version: link:../execution-cache
       '@ghatana/requirements':
         specifier: workspace:*
         version: link:../requirements
@@ -489,17 +629,17 @@ importers:
         version: 4.14.0
       jsdom:
         specifier: catalog:shared
-        version: 30.1.2
+        version: 30.1.2(@noble/hashes@2.4.0)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: catalog:shared
-        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))
+        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))
       '@testing-library/react':
         specifier: catalog:shared
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@types/jsdom':
-        specifier: ^28.0.3
-        version: 28.0.3
+        specifier: ^30.0.0
+        version: 30.0.0
       '@types/node':
         specifier: catalog:shared
         version: 26.6.4
@@ -517,7 +657,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/api:
     dependencies:
@@ -533,7 +673,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/audit:
     devDependencies:
@@ -545,7 +685,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/config:
     dependencies:
@@ -561,7 +701,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/design-system:
     dependencies:
@@ -601,7 +741,7 @@ importers:
     devDependencies:
       '@testing-library/jest-dom':
         specifier: catalog:shared
-        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))
+        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))
       '@testing-library/react':
         specifier: catalog:shared
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -631,7 +771,7 @@ importers:
         version: 3.10.1(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-is@19.3.0)(react@19.2.8)(redux@5.0.1)
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/document-extraction:
     dependencies:
@@ -643,14 +783,14 @@ importers:
         specifier: catalog:shared
         version: 26.6.4
       fast-check:
-        specifier: ^3.19.0
-        version: 3.23.2
+        specifier: ^4.10.2
+        version: 4.10.2
       typescript:
         specifier: catalog:shared
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/documents:
     devDependencies:
@@ -662,7 +802,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ds-headless:
     dependencies:
@@ -693,7 +833,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ds-registry:
     dependencies:
@@ -709,7 +849,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ds-schema:
     dependencies:
@@ -725,7 +865,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/events:
     dependencies:
@@ -741,19 +881,19 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/i18n:
     dependencies:
       i18next:
-        specifier: ^26.3.6
-        version: 26.4.2(typescript@6.0.3)
+        specifier: ^26.5.11
+        version: 26.7.2(typescript@6.0.3)
       i18next-browser-languagedetector:
         specifier: ^8.2.1
         version: 8.2.1
       i18next-http-backend:
-        specifier: ^4.0.1
-        version: 4.0.2
+        specifier: ^4.0.6
+        version: 4.0.10
     devDependencies:
       '@types/react':
         specifier: catalog:shared
@@ -768,14 +908,14 @@ importers:
         specifier: catalog:shared
         version: 19.2.8(react@19.2.8)
       react-i18next:
-        specifier: ^17.0.11
-        version: 17.0.16(i18next@26.4.2(typescript@6.0.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)
+        specifier: ^17.1.9
+        version: 17.1.13(i18next@26.7.2(typescript@6.0.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)
       typescript:
         specifier: catalog:shared
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/platform-utils:
     dependencies:
@@ -793,14 +933,14 @@ importers:
         specifier: catalog:shared
         version: 26.6.4
       fast-check:
-        specifier: ^3.19.0
-        version: 3.23.2
+        specifier: ^4.10.2
+        version: 4.10.2
       typescript:
         specifier: catalog:shared
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/product-shell:
     dependencies:
@@ -831,7 +971,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/realtime:
     dependencies:
@@ -856,7 +996,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/state:
     dependencies:
@@ -865,10 +1005,10 @@ importers:
         version: link:../platform-utils
       jotai:
         specifier: catalog:shared
-        version: 2.20.3(@babel/core@7.28.6)(@babel/template@7.28.6)(@types/react@19.2.18)(react@19.2.8)
+        version: 2.20.3(@babel/core@7.28.6)(@babel/template@7.28.6)(@types/react@19.2.18)(react@19.3.1)
       react:
-        specifier: ^19.2.8
-        version: 19.2.8
+        specifier: ^19.3.1
+        version: 19.3.1
     devDependencies:
       '@types/node':
         specifier: catalog:shared
@@ -878,7 +1018,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/theme:
     dependencies:
@@ -918,7 +1058,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/tokens:
     dependencies:
@@ -934,7 +1074,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ui-mui:
     dependencies:
@@ -952,8 +1092,8 @@ importers:
         specifier: ^11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
       '@mui/material':
-        specifier: ^7.3.11
-        version: 7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^9.5.0
+        version: 9.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@testing-library/react':
         specifier: catalog:shared
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -977,7 +1117,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-shared/platform/typescript/ui-styles:
     dependencies:
@@ -993,7 +1133,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:shared
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/development-authority:
     dependencies:
@@ -1009,7 +1149,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/development-graph:
     dependencies:
@@ -1025,7 +1165,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/development-subject:
     devDependencies:
@@ -1037,7 +1177,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/development-traceability:
     dependencies:
@@ -1065,7 +1205,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/experience-explorer-contracts:
     devDependencies:
@@ -1080,7 +1220,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/experience-package:
     devDependencies:
@@ -1092,7 +1232,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/experience-specification:
     devDependencies:
@@ -1104,7 +1244,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/implementation-handoff:
     devDependencies:
@@ -1116,7 +1256,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/opportunity-model:
     devDependencies:
@@ -1128,7 +1268,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/libs/product-development/product-definition:
     devDependencies:
@@ -1140,7 +1280,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   ../ghatana-tools/tools/product-development/explorer:
     dependencies:
@@ -1165,10 +1305,13 @@ importers:
         version: 6.0.3
       vitest:
         specifier: catalog:tools
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   apps/media-experience-explorer:
     dependencies:
+      '@audio-video/client':
+        specifier: workspace:*
+        version: link:../../libs/audio-video-client
       '@audio-video/ui':
         specifier: workspace:*
         version: link:../../libs/audio-video-ui
@@ -1190,6 +1333,12 @@ importers:
       '@ghatana/product-dev-explorer':
         specifier: 0.1.0-SNAPSHOT
         version: link:../../../ghatana-tools/tools/product-development/explorer
+      '@noble/hashes':
+        specifier: 2.4.0
+        version: 2.4.0
+      lucide-react:
+        specifier: catalog:shared
+        version: 1.52.0(@types/react@19.2.18)(react@19.2.8)
       react:
         specifier: 'catalog:'
         version: 19.2.8
@@ -1203,12 +1352,24 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.4(@types/react@19.2.18)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: 'catalog:'
         version: 7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+
+  examples/media-headless-api:
+    dependencies:
+      '@audio-video/client':
+        specifier: workspace:*
+        version: link:../../libs/audio-video-client
 
   libs/audio-video-client:
     dependencies:
@@ -1224,7 +1385,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   libs/audio-video-types:
     dependencies:
@@ -1237,7 +1398,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   libs/audio-video-ui:
     dependencies:
@@ -1274,13 +1435,22 @@ importers:
         version: 19.2.4(@types/react@19.2.18)
       jsdom:
         specifier: catalog:shared
-        version: 30.1.2
+        version: 30.1.2(@noble/hashes@2.4.0)
+      lucide-react:
+        specifier: catalog:shared
+        version: 1.52.0(@types/react@19.2.18)(react@19.2.8)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vite:
+        specifier: 'catalog:'
+        version: 7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   libs/media-experience-simulation:
     dependencies:
@@ -1309,12 +1479,6 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
-      react:
-        specifier: 'catalog:'
-        version: 19.2.8
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.8(react@19.2.8)
       tailwind-merge:
         specifier: 'catalog:'
         version: 3.7.0
@@ -1334,12 +1498,18 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.4(@types/react@19.2.18)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.8(react@19.2.8)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
       vitest:
         specifier: 'catalog:'
-        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
 packages:
 
@@ -1700,16 +1870,16 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@mui/core-downloads-tracker@7.3.11':
-    resolution: {integrity: sha512-a7I/b/nBTdXYz2cOSlEmkQ9WWE1x8FHpqMhFPp+Y1VPFxcOw91G5ELOHARQAGSPy5V+UCgJua6K/1x70bAtQPw==}
+  '@mui/core-downloads-tracker@9.5.0':
+    resolution: {integrity: sha512-PErEpl3Lp+1ZqWYKI7GQU8XSiciAFmLbUAZ7IoaUL598HLy1UAFuEUMEJu8yAS1v8vkXYzWprMVZzky4UwXoOA==}
 
-  '@mui/material@7.3.11':
-    resolution: {integrity: sha512-yq8bPc3LxOwKRWpcjRgDkYFmpM6aKlARfESTmOQcvLYFeJwtHte2tw6hJDrb8sk8wcvpDprHEHVaoUU0MslIkw==}
+  '@mui/material@9.5.0':
+    resolution: {integrity: sha512-QgqvdVjZoKxP8E8SBxYY6LrdV+kw00moXweZQWBbMMdifPKZAGfUaaXhGKIca6fjKnCL6HJIe/AWWCpqNvyHVw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.5.0
       '@emotion/styled': ^11.3.0
-      '@mui/material-pigment-css': ^7.3.11
+      '@mui/material-pigment-css': ^9.5.0
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1723,8 +1893,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/private-theming@7.3.11':
-    resolution: {integrity: sha512-9B+YKms0fRHbNrqp9tOT/DNbNnU5gyvJ1o3qAGXfq8GmZcbJnE3At9x07Zr/o0pkhzg4aDdwXVqe4+AcgtOCPA==}
+  '@mui/private-theming@9.5.0':
+    resolution: {integrity: sha512-UHZKySlr4ZJeA5HEhe/Tq1fhsR5573ViKYn7JV80dCVJtgqRQIplRSer1DHPg2Yi22llX7QRhgM0Vtrx4kZHSA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1733,8 +1903,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine@7.3.10':
-    resolution: {integrity: sha512-WxE9SiF8xskAQqGjsp0poXCkCqsoXFEsSr0HBXfApmGHR+DBnXRp+z46Vsltg4gpPM4Z96DeAQRpeAOnhNg7Ng==}
+  '@mui/styled-engine@9.5.0':
+    resolution: {integrity: sha512-IX1ceHnZ0bJgzJRWO/Ayl4ME1rNmpWVYwV28yb089UAMR17rJkV1qfr7ApsWQXXPi1oi+2JapJrWQAiAnTlJHQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.4.1
@@ -1746,8 +1916,8 @@ packages:
       '@emotion/styled':
         optional: true
 
-  '@mui/system@7.3.11':
-    resolution: {integrity: sha512-7izwGWdNawAKpBKcRlx7f2gFnAAjmASBWvMcyX4YYEeLOFsbfGRbUYGInvnAcUeql3rPxI7F9Ft4oY2OLRz44g==}
+  '@mui/system@9.5.0':
+    resolution: {integrity: sha512-OZuAwvoiaaHpvn0a540VH1DUwwmojJubGfNmO2g+nb2ybNDP4/gF7t7aA6AMduELSuJ5yxwlzyFvUO3CfLv1Yg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.5.0
@@ -1762,16 +1932,16 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/types@7.4.12':
-    resolution: {integrity: sha512-iKNAF2u9PzSIj40CjvKJWxFXJo122jXVdrmdh0hMYd+FR+NuJMkr/L88XwWLCRiJ5P1j+uyac25+Kp6YC4hu6w==}
+  '@mui/types@9.5.0':
+    resolution: {integrity: sha512-O0S6xS80qEQqW2CYNrd4GlBEQ1xpMOHZ5b4zO/DaLu6NZmtthM6smEg0Gz/u9gX5vL+8NB3EiBIxmxSCcG590Q==}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
 
-  '@mui/utils@7.3.11':
-    resolution: {integrity: sha512-XTjGnifwteg71/ij+0e7Y7d+hwyntMYP5wPoA/g2drdGH+Flkvjwy0OfrVpKBbaOvofq4zU/LIyUZyKgmWu18g==}
+  '@mui/utils@9.5.0':
+    resolution: {integrity: sha512-8m0LfSgE2pj58znY3kZ+anwRKbnBkcu/7AJPA8L/77wEjN0QnpX4/zRAccyplp1VEUnMsUBADeTRin5Mkf7epA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1779,6 +1949,10 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
+    engines: {node: '>= 20.19.0'}
 
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
@@ -2019,8 +2193,8 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
-  '@types/jsdom@28.0.3':
-    resolution: {integrity: sha512-/HQ2uFoetFTXuye8vzIcHw2z6Fwi7Hi/qcgC+RoS9NCyewiqxhVGqlG+ViGB6lkax481R6dmhf1I7lIGlzJStQ==}
+  '@types/jsdom@30.0.0':
+    resolution: {integrity: sha512-uAHGxujGE0cDaKGdK28zgDotFtNA7MKq5DXl8LrfdxdCI8VHcg15oJz+amHTChPNI5JpgEPQWc2xFdrw3em/nQ==}
 
   '@types/node@26.6.4':
     resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
@@ -2290,9 +2464,9 @@ packages:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
 
-  fast-check@3.23.2:
-    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
-    engines: {node: '>=8.0.0'}
+  fast-check@4.10.2:
+    resolution: {integrity: sha512-iK2f+YrcmoeGqk6fA0ea2bptcu/itMIm4NfEozq6N25+aG6h7s5HZbB/k1aV7b5w5sFLMCbbtRUsTVR+BgC3xw==}
+    engines: {node: '>=12.17.0'}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -2324,6 +2498,9 @@ packages:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
 
+  gltf-validator@2.0.0-dev.3.10:
+    resolution: {integrity: sha512-odJ4k0tRkGXiDGn78yDBg+fBbAIvBnXxh3RwAta0emSxGtyagFE8B4xELB1oYe3S5RD8Ci3uZAsZaascH2LAEQ==}
+
   hasown@2.0.4:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
@@ -2341,12 +2518,12 @@ packages:
   i18next-browser-languagedetector@8.2.1:
     resolution: {integrity: sha512-bZg8+4bdmaOiApD7N7BPT9W8MLZG+nPTOFlLiJiT8uzKXFjhxw4v2ierCXOwB5sFDMtuA5G4kgYZ0AznZxQ/cw==}
 
-  i18next-http-backend@4.0.2:
-    resolution: {integrity: sha512-oay62dIB2kL7+WHzoUXBjWfL3+mwijD3pQkQkIEaRLhy6kjXxUhrRenV0gInwlCASAaJaDy94+XvYizK+cAGdA==}
+  i18next-http-backend@4.0.10:
+    resolution: {integrity: sha512-CfdQuwIVijbrS/fmiTAQYcYyje4nMbH9aIjKYhhm5bgVmWKWLOM1F7qrA1o63Jl1JxQcRjdtWhKlvDzyqV9aPg==}
     engines: {node: '>=18'}
 
-  i18next@26.4.2:
-    resolution: {integrity: sha512-RX+R0VLg13IbvRuJSxnqykUFS9vQZTl8wYpWPCIUDWVrSGjsQywB5Y+pjzrkboxGAuYfJZVH1InFTdgBdxq6ug==}
+  i18next@26.7.2:
+    resolution: {integrity: sha512-RsOY3BeaCDdkk52NeJSFAXELQ2rQXBO/tOub6L8ue2ICPfR/FRDWDOfEDg4xMPd1SqO5goVYQ6i72qWEUB/PPw==}
     peerDependencies:
       typescript: ^5 || ^6 || ^7
     peerDependenciesMeta:
@@ -2359,6 +2536,9 @@ packages:
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
+
+  import-meta-resolve@4.2.0:
+    resolution: {integrity: sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==}
 
   indent-string@4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
@@ -2579,6 +2759,40 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
+  pg-cloudflare@1.4.1:
+    resolution: {integrity: sha512-6PQbsFWZcp9EmJEwy5cGQ2La+AMWpP46lgbb8X+U/XsHIUweYDNCpeuKck5RxL2MdVFi7krbbEi5nX4Zh7JhrQ==}
+
+  pg-connection-string@2.14.1:
+    resolution: {integrity: sha512-qR3kGNPBLpCNtz0evbKA0Y/MRFXwSSdT+pTJvYp/bXTcReZbvX1kzF0IyTc1QnxqF7AZbOeBhNL8R5mYQZV/MA==}
+
+  pg-int8@1.0.1:
+    resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
+    engines: {node: '>=4.0.0'}
+
+  pg-pool@3.14.0:
+    resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
+    peerDependencies:
+      pg: '>=8.0'
+
+  pg-protocol@1.16.1:
+    resolution: {integrity: sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==}
+
+  pg-types@2.2.0:
+    resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
+    engines: {node: '>=4'}
+
+  pg@8.23.1:
+    resolution: {integrity: sha512-aL96AHANtWjPLDOLqnhx+ngp9+UK7ETEU8VJrDCGvsSSi/mGLcWYsS6Herg7lmaBJe4uwrfqsa7gTEFaSizDoQ==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
+  pgpass@1.0.5:
+    resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -2600,6 +2814,22 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
+  postgres-array@2.0.0:
+    resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
+    engines: {node: '>=4'}
+
+  postgres-bytea@1.0.1:
+    resolution: {integrity: sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==}
+    engines: {node: '>=0.10.0'}
+
+  postgres-date@1.0.7:
+    resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
+    engines: {node: '>=0.10.0'}
+
+  postgres-interval@1.2.0:
+    resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
+    engines: {node: '>=0.10.0'}
+
   pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -2611,16 +2841,16 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  pure-rand@6.1.0:
-    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+  pure-rand@8.4.2:
+    resolution: {integrity: sha512-vvuOGgcuPJAirlHvuQw1TrOiw7ptaIXXmIbNuiNOY6lNGJJH49PQ1Kj4nd783nPdQhQdicgOjVI2yI/9BD6/Ng==}
 
   react-dom@19.2.8:
     resolution: {integrity: sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==}
     peerDependencies:
       react: ^19.2.8
 
-  react-i18next@17.0.16:
-    resolution: {integrity: sha512-7uImVD9hG5yUOaP5KHVied1x0A004Di/KU031ULR35Ma+9e9H5GdnNZHgQEIByyAz+IAXBkRDTedNVzjPUH8ZA==}
+  react-i18next@17.1.13:
+    resolution: {integrity: sha512-ZxhOSlyKSKPtbUNPLwYMmE3w3bhoc0jaZJZ6bc7wGOT6cLbrbs//6m01HxCLtFdSjHvFpwFwoPhxxzIlHSs9cw==}
     peerDependencies:
       i18next: '>= 26.2.0'
       react: '>= 16.8.0'
@@ -2674,6 +2904,10 @@ packages:
 
   react@19.2.8:
     resolution: {integrity: sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==}
+    engines: {node: '>=0.10.0'}
+
+  react@19.3.1:
+    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
     engines: {node: '>=0.10.0'}
 
   recharts@3.10.1:
@@ -2739,6 +2973,10 @@ packages:
     resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==}
     engines: {node: '>=0.10.0'}
 
+  split2@4.2.0:
+    resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
+    engines: {node: '>= 10.x'}
+
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
@@ -2796,9 +3034,6 @@ packages:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
-
-  undici-types@7.30.0:
-    resolution: {integrity: sha512-7QjA5O+GhM27do7Id6hQZpnYEd7WzHbs7/XIS9A1k+Gat/ZVF7Jmpzt68zL/205f65FYwDNLSjQemHPS8ReM/A==}
 
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
@@ -2929,6 +3164,10 @@ packages:
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
+
+  xtend@4.0.2:
+    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
+    engines: {node: '>=0.4'}
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -3261,7 +3500,9 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
-  '@exodus/bytes@1.16.0': {}
+  '@exodus/bytes@1.16.0(@noble/hashes@2.4.0)':
+    optionalDependencies:
+      '@noble/hashes': 2.4.0
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -3283,15 +3524,15 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mui/core-downloads-tracker@7.3.11': {}
+  '@mui/core-downloads-tracker@9.5.0': {}
 
-  '@mui/material@7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@mui/material@9.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.29.10
-      '@mui/core-downloads-tracker': 7.3.11
-      '@mui/system': 7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
-      '@mui/types': 7.4.12(@types/react@19.2.18)
-      '@mui/utils': 7.3.11(@types/react@19.2.18)(react@19.2.8)
+      '@mui/core-downloads-tracker': 9.5.0
+      '@mui/system': 9.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@mui/types': 9.5.0(@types/react@19.2.18)
+      '@mui/utils': 9.5.0(@types/react@19.2.18)(react@19.2.8)
       '@popperjs/core': 2.11.8
       '@types/react-transition-group': 4.4.12(@types/react@19.2.18)
       clsx: 2.1.1
@@ -3306,16 +3547,16 @@ snapshots:
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
       '@types/react': 19.2.18
 
-  '@mui/private-theming@7.3.11(@types/react@19.2.18)(react@19.2.8)':
+  '@mui/private-theming@9.5.0(@types/react@19.2.18)(react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.29.10
-      '@mui/utils': 7.3.11(@types/react@19.2.18)(react@19.2.8)
+      '@mui/utils': 9.5.0(@types/react@19.2.18)(react@19.2.8)
       prop-types: 15.8.1
       react: 19.2.8
     optionalDependencies:
       '@types/react': 19.2.18
 
-  '@mui/styled-engine@7.3.10(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)':
+  '@mui/styled-engine@9.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.29.10
       '@emotion/cache': 11.14.0
@@ -3328,13 +3569,13 @@ snapshots:
       '@emotion/react': 11.14.0(@types/react@19.2.18)(react@19.2.8)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
 
-  '@mui/system@7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)':
+  '@mui/system@9.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.29.10
-      '@mui/private-theming': 7.3.11(@types/react@19.2.18)(react@19.2.8)
-      '@mui/styled-engine': 7.3.10(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)
-      '@mui/types': 7.4.12(@types/react@19.2.18)
-      '@mui/utils': 7.3.11(@types/react@19.2.18)(react@19.2.8)
+      '@mui/private-theming': 9.5.0(@types/react@19.2.18)(react@19.2.8)
+      '@mui/styled-engine': 9.5.0(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)
+      '@mui/types': 9.5.0(@types/react@19.2.18)
+      '@mui/utils': 9.5.0(@types/react@19.2.18)(react@19.2.8)
       clsx: 2.1.1
       csstype: 3.2.3
       prop-types: 15.8.1
@@ -3344,16 +3585,16 @@ snapshots:
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
       '@types/react': 19.2.18
 
-  '@mui/types@7.4.12(@types/react@19.2.18)':
+  '@mui/types@9.5.0(@types/react@19.2.18)':
     dependencies:
       '@babel/runtime': 7.29.10
     optionalDependencies:
       '@types/react': 19.2.18
 
-  '@mui/utils@7.3.11(@types/react@19.2.18)(react@19.2.8)':
+  '@mui/utils@9.5.0(@types/react@19.2.18)(react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.29.10
-      '@mui/types': 7.4.12(@types/react@19.2.18)
+      '@mui/types': 9.5.0(@types/react@19.2.18)
       '@types/prop-types': 15.7.15
       clsx: 2.1.1
       prop-types: 15.8.1
@@ -3361,6 +3602,8 @@ snapshots:
       react-is: 19.3.0
     optionalDependencies:
       '@types/react': 19.2.18
+
+  '@noble/hashes@2.4.0': {}
 
   '@popperjs/core@2.11.8': {}
 
@@ -3477,7 +3720,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))':
+  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)))':
     dependencies:
       '@adobe/css-tools': 4.5.0
       '@testing-library/dom': 10.4.2
@@ -3487,7 +3730,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
     optionalDependencies:
-      vitest: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+      vitest: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
@@ -3538,12 +3781,12 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
-  '@types/jsdom@28.0.3':
+  '@types/jsdom@30.0.0':
     dependencies:
       '@types/node': 26.6.4
       '@types/tough-cookie': 4.0.5
       parse5: 8.0.1
-      undici-types: 7.30.0
+      undici-types: 8.9.0
 
   '@types/node@26.6.4':
     dependencies:
@@ -3727,10 +3970,10 @@ snapshots:
 
   d3-timer@3.0.1: {}
 
-  data-urls@8.0.0:
+  data-urls@8.0.0(@noble/hashes@2.4.0):
     dependencies:
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.2.0
+      whatwg-url: 17.2.0(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - '@noble/hashes'
 
@@ -3813,9 +4056,9 @@ snapshots:
 
   expect-type@1.4.0: {}
 
-  fast-check@3.23.2:
+  fast-check@4.10.2:
     dependencies:
-      pure-rand: 6.1.0
+      pure-rand: 8.4.2
 
   fast-deep-equal@3.1.3: {}
 
@@ -3835,6 +4078,8 @@ snapshots:
   gensync@1.0.0-beta.2:
     optional: true
 
+  gltf-validator@2.0.0-dev.3.10: {}
+
   hasown@2.0.4:
     dependencies:
       function-bind: 1.1.2
@@ -3843,9 +4088,9 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  html-encoding-sniffer@7.0.0:
+  html-encoding-sniffer@7.0.0(@noble/hashes@2.4.0):
     dependencies:
-      '@exodus/bytes': 1.16.0
+      '@exodus/bytes': 1.16.0(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - '@noble/hashes'
 
@@ -3855,9 +4100,9 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.10
 
-  i18next-http-backend@4.0.2: {}
+  i18next-http-backend@4.0.10: {}
 
-  i18next@26.4.2(typescript@6.0.3):
+  i18next@26.7.2(typescript@6.0.3):
     optionalDependencies:
       typescript: 6.0.3
 
@@ -3867,6 +4112,8 @@ snapshots:
     dependencies:
       parent-module: 1.0.1
       resolve-from: 4.0.0
+
+  import-meta-resolve@4.2.0: {}
 
   indent-string@4.0.0: {}
 
@@ -3883,26 +4130,26 @@ snapshots:
   jiti@2.6.1:
     optional: true
 
-  jotai@2.20.3(@babel/core@7.28.6)(@babel/template@7.28.6)(@types/react@19.2.18)(react@19.2.8):
+  jotai@2.20.3(@babel/core@7.28.6)(@babel/template@7.28.6)(@types/react@19.2.18)(react@19.3.1):
     optionalDependencies:
       '@babel/core': 7.28.6
       '@babel/template': 7.28.6
       '@types/react': 19.2.18
-      react: 19.2.8
+      react: 19.3.1
 
   js-tokens@4.0.0: {}
 
-  jsdom@30.1.2:
+  jsdom@30.1.2(@noble/hashes@2.4.0):
     dependencies:
       '@asamuzakjp/css-color': 7.1.3
       '@asamuzakjp/dom-selector': 9.2.4
       '@bramus/specificity': 2.4.3
       '@csstools/css-syntax-patches-for-csstree': 1.1.15(css-tree@3.2.1)
-      '@exodus/bytes': 1.16.0
+      '@exodus/bytes': 1.16.0(@noble/hashes@2.4.0)
       css-tree: 3.2.1
-      data-urls: 8.0.0
+      data-urls: 8.0.0(@noble/hashes@2.4.0)
       decimal.js: 10.6.0
-      html-encoding-sniffer: 7.0.0
+      html-encoding-sniffer: 7.0.0(@noble/hashes@2.4.0)
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.3
       parse5: 8.0.1
@@ -3912,7 +4159,7 @@ snapshots:
       w3c-xmlserializer: 6.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.2.0
+      whatwg-url: 17.2.0(@noble/hashes@2.4.0)
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
@@ -4037,6 +4284,41 @@ snapshots:
 
   pathe@2.0.3: {}
 
+  pg-cloudflare@1.4.1:
+    optional: true
+
+  pg-connection-string@2.14.1: {}
+
+  pg-int8@1.0.1: {}
+
+  pg-pool@3.14.0(pg@8.23.1):
+    dependencies:
+      pg: 8.23.1
+
+  pg-protocol@1.16.1: {}
+
+  pg-types@2.2.0:
+    dependencies:
+      pg-int8: 1.0.1
+      postgres-array: 2.0.0
+      postgres-bytea: 1.0.1
+      postgres-date: 1.0.7
+      postgres-interval: 1.2.0
+
+  pg@8.23.1:
+    dependencies:
+      pg-connection-string: 2.14.1
+      pg-pool: 3.14.0(pg@8.23.1)
+      pg-protocol: 1.16.1
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.4.1
+
+  pgpass@1.0.5:
+    dependencies:
+      split2: 4.2.0
+
   picocolors@1.1.1: {}
 
   picomatch@4.0.3: {}
@@ -4053,6 +4335,16 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  postgres-array@2.0.0: {}
+
+  postgres-bytea@1.0.1: {}
+
+  postgres-date@1.0.7: {}
+
+  postgres-interval@1.2.0:
+    dependencies:
+      xtend: 4.0.2
+
   pretty-format@27.5.1:
     dependencies:
       ansi-regex: 5.0.1
@@ -4067,18 +4359,18 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pure-rand@6.1.0: {}
+  pure-rand@8.4.2: {}
 
   react-dom@19.2.8(react@19.2.8):
     dependencies:
       react: 19.2.8
       scheduler: 0.27.0
 
-  react-i18next@17.0.16(i18next@26.4.2(typescript@6.0.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3):
+  react-i18next@17.1.13(i18next@26.7.2(typescript@6.0.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.10
       html-parse-stringify: 4.0.1
-      i18next: 26.4.2(typescript@6.0.3)
+      i18next: 26.7.2(typescript@6.0.3)
       react: 19.2.8
       use-sync-external-store: 1.6.0(react@19.2.8)
     optionalDependencies:
@@ -4118,6 +4410,8 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
 
   react@19.2.8: {}
+
+  react@19.3.1: {}
 
   recharts@3.10.1(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-is@19.3.0)(react@19.2.8)(redux@5.0.1):
     dependencies:
@@ -4209,6 +4503,8 @@ snapshots:
 
   source-map@0.5.7: {}
 
+  split2@4.2.0: {}
+
   stackback@0.0.2: {}
 
   std-env@4.3.0: {}
@@ -4251,8 +4547,6 @@ snapshots:
       punycode: 2.3.1
 
   typescript@6.0.3: {}
-
-  undici-types@7.30.0: {}
 
   undici-types@8.9.0: {}
 
@@ -4301,7 +4595,7 @@ snapshots:
       lightningcss: 1.30.2
       yaml: 2.9.1
 
-  vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2)(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)):
+  vitest@4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1)):
     dependencies:
       '@vitest/expect': 4.1.11
       '@vitest/mocker': 4.1.11(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
@@ -4325,7 +4619,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.6.4
-      jsdom: 30.1.2
+      jsdom: 30.1.2(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - msw
 
@@ -4337,9 +4631,9 @@ snapshots:
 
   whatwg-mimetype@5.0.0: {}
 
-  whatwg-url@17.2.0:
+  whatwg-url@17.2.0(@noble/hashes@2.4.0):
     dependencies:
-      '@exodus/bytes': 1.16.0
+      '@exodus/bytes': 1.16.0(@noble/hashes@2.4.0)
       tr46: 7.0.0
       webidl-conversions: 8.0.1
     transitivePeerDependencies:
@@ -4353,6 +4647,8 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xmlchars@2.2.0: {}
+
+  xtend@4.0.2: {}
 
   yallist@3.1.1:
     optional: true

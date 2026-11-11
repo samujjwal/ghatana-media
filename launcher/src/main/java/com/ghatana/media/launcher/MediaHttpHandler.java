@@ -16,8 +16,30 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
+import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.IdempotencyConflictException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Revision;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Track;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.TrackKind;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clock;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.RationalTime;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddScene;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddTrack;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.Edit;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.RemoveScene;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.RemoveTrack;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.PutClip;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.RemoveClip;
+import tools.jackson.core.type.TypeReference;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import tools.jackson.core.StreamReadFeature;
@@ -66,6 +88,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaRuntime runtime;
     private final MediaConsentAdministration consentAdministration;
     private final MediaCaptionRuntime captions;
+    private final MediaDevProjectTimelineRuntime devProjectTimeline;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -82,9 +105,15 @@ public final class MediaHttpHandler implements HttpHandler {
 
     public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
                             MediaCaptionRuntime captions) {
+        this(runtime, consentAdministration, captions, null);
+    }
+
+    public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                            MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline) {
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
         this.consentAdministration = consentAdministration;
         this.captions = captions;
+        this.devProjectTimeline = devProjectTimeline;
     }
 
     @Override
@@ -117,6 +146,11 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             String tenantId = authenticated.tenantId();
             String principalId = authenticated.principalId();
+
+            if (path.startsWith("/dev/v1/")) {
+                devOnlyRoutes(exchange, path, method, tenantId, principalId);
+                return;
+            }
 
             if ("/api/v1/consents".equals(path)) {
                 if ("POST".equals(method)) grantConsent(exchange, tenantId);
@@ -236,6 +270,10 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "NOT_FOUND", "Route not found");
         } catch (MediaCapabilityNotAdmittedException failure) {
             admissionFailure(exchange, failure);
+        } catch (MediaStreamOutcomeUnknownException failure) {
+            error(exchange, 503, "UNKNOWN_OUTCOME",
+                    "Media stream frame outcome is uncertain; inspect the session before retrying",
+                    false, Map.of());
         } catch (SecurityException failure) {
             runtime.recordDeniedRequest();
             error(exchange, 403, "TENANT_FORBIDDEN", "Request tenant is not permitted");
@@ -273,6 +311,196 @@ public final class MediaHttpHandler implements HttpHandler {
                         body.biometricProcessingAllowed(),
                         body.expiresAt()));
         json(exchange, 201, record);
+    }
+
+    /**
+     * Noncanonical local-development APIs. Routes are reachable only after the security filter
+     * validates a signed DEV_ONLY token and remain absent from MediaRouteManifest/OpenAPI.
+     */
+    private void devOnlyRoutes(HttpExchange exchange, String path, String method,
+                               String tenantId, String principalId) throws IOException {
+        if (!MediaSecurityFilter.isDevOnlyIdentity(exchange)) {
+            error(exchange, 403, "DEV_ONLY_IDENTITY_REQUIRED", "A signed DEV_ONLY identity is required");
+            return;
+        }
+        try {
+            if ("/dev/v1/artifact-upload-policy".equals(path)) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
+                json(exchange, 200, Map.of(
+                        "schemaVersion", "media.dev.artifact-upload-policy.v1",
+                        "scope", "DEV_ONLY",
+                        "maxChunkBytes", runtime.config().maximumChunkBytes()));
+                return;
+            }
+            Matcher localJobCancel = Pattern.compile("^/dev/v1/jobs/([^/]+)/cancel$").matcher(path);
+            if (localJobCancel.matches()) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                if (!MediaSecurityFilter.hasDevOnlyPermission(exchange, MediaDevOnlyRoutePermissions.JOB_CANCEL)) {
+                    error(exchange, 403, "JOB_CANCEL_PERMISSION_REQUIRED",
+                            "A DEV_ONLY job cancellation permission is required");
+                    return;
+                }
+                String jobId = decodePathSegment(localJobCancel.group(1));
+                if (runtime.job(tenantId, principalId, jobId).isEmpty()) {
+                    error(exchange, 404, "JOB_NOT_FOUND", "Media job not found");
+                    return;
+                }
+                Map<String, Object> body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
+                if (body == null || body.isEmpty()
+                        || !Set.of("requestId", "expectedVersion").containsAll(body.keySet())
+                        || !body.containsKey("requestId")) {
+                    throw new IllegalArgumentException("job cancellation request fields do not match its declared shape");
+                }
+                String requestId = requiredString(body.get("requestId"), "requestId");
+                Long expectedVersion = null;
+                if (body.containsKey("expectedVersion")) {
+                    Object rawVersion = body.get("expectedVersion");
+                    if (!(rawVersion instanceof Number number)) {
+                        throw new IllegalArgumentException("expectedVersion must be an integer");
+                    }
+                    try {
+                        expectedVersion = new java.math.BigDecimal(number.toString()).longValueExact();
+                        if (expectedVersion < 1) throw new IllegalArgumentException("expectedVersion must be positive");
+                    } catch (ArithmeticException invalid) {
+                        throw new IllegalArgumentException("expectedVersion must be a positive 64-bit integer", invalid);
+                    }
+                }
+                json(exchange, 200, runtime.cancelLocalDevelopmentJob(
+                        tenantId, principalId, jobId, requestId, expectedVersion));
+                return;
+            }
+            if (devProjectTimeline == null) {
+                error(exchange, 404, "NOT_FOUND", "Local project timeline routes are not enabled");
+                return;
+            }
+            if ("/dev/v1/context".equals(path)) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
+                boolean artifactCreate = MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:create");
+                boolean artifactWrite = MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:write");
+                boolean artifactRead = MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read");
+                json(exchange, 200, Map.of(
+                        "tenantId", tenantId,
+                        "principalId", principalId,
+                        "selectedAuthorizedWorkspaceId", devProjectTimeline.workspaceId(tenantId, principalId),
+                        "workspaceName", "Private DEV_ONLY workspace",
+                        "authority", "synthetic-local-owner-scope; no Shared membership or production authority",
+                        "capabilities", Map.of(
+                                "artifactUpload", artifactCreate && artifactWrite,
+                                "artifactRead", artifactRead),
+                        "scope", "DEV_ONLY"));
+                return;
+            }
+            if ("/dev/v1/projects".equals(path)) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                DevCreateProjectBody body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), DevCreateProjectBody.class);
+                var created = devProjectTimeline.createProject(tenantId, principalId,
+                        body.selectedAuthorizedWorkspaceId(), body.title(), body.requestId());
+                json(exchange, created.createdNow() ? 201 : 200, Map.of(
+                        "project", created.project(),
+                        "initialRevision", devRevisionView(created.initialRevision()),
+                        "createdNow", created.createdNow(),
+                        "scope", "DEV_ONLY"));
+                return;
+            }
+            Matcher timelineEdits = Pattern.compile("^/dev/v1/projects/([^/]+)/timelines/([^/]+)/edits$")
+                    .matcher(path);
+            if (timelineEdits.matches()) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                Map<String, Object> body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
+                if (body == null) throw new IllegalArgumentException("timeline edit request is required");
+                requireExactKeys(body, Set.of("expectedHeadRevisionId", "edits"), "timeline edit request");
+                List<Edit> edits = toTimelineEdits(body.get("edits"));
+                List<Clip> putClips = edits.stream().filter(PutClip.class::isInstance)
+                        .map(PutClip.class::cast).map(PutClip::clip).toList();
+                if (!putClips.isEmpty()) {
+                    if (!MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read")) {
+                        error(exchange, 403, "ARTIFACT_READ_PERMISSION_REQUIRED",
+                                "A DEV_ONLY artifact read permission is required to reference a source version");
+                        return;
+                    }
+                    for (Clip clip : putClips) {
+                        MediaArtifact artifact = runtime.artifact(tenantId, principalId, clip.source().artifactId()).orElse(null);
+                        if (artifact == null || !artifact.version().value().equals(clip.source().artifactVersionId())) {
+                            error(exchange, 404, "SOURCE_VERSION_NOT_FOUND",
+                                    "The exact source artifact version is not available to this DEV_ONLY principal");
+                            return;
+                        }
+                    }
+                }
+                Revision revision = devProjectTimeline.editTimeline(tenantId, principalId,
+                        decodePathSegment(timelineEdits.group(1)), decodePathSegment(timelineEdits.group(2)),
+                        requiredString(body.get("expectedHeadRevisionId"), "expectedHeadRevisionId"), edits);
+                json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
+                return;
+            }
+            Matcher restoreProject = Pattern.compile("^/dev/v1/projects/([^/]+)/restore$").matcher(path);
+            if (restoreProject.matches()) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                DevRestoreProjectBody body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), DevRestoreProjectBody.class);
+                if (body == null) throw new IllegalArgumentException("restore body is required");
+                Revision revision = devProjectTimeline.restoreRevision(tenantId, principalId,
+                        decodePathSegment(restoreProject.group(1)), body.expectedHeadRevisionId(), body.targetRevisionId());
+                json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
+                return;
+            }
+            Matcher project = Pattern.compile("^/dev/v1/projects/([^/]+)$").matcher(path);
+            if (project.matches()) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
+                String projectId = decodePathSegment(project.group(1));
+                json(exchange, 200, Map.of(
+                        "project", devProjectTimeline.project(tenantId, principalId, projectId),
+                        "currentRevision", devRevisionView(devProjectTimeline.currentRevision(tenantId, principalId, projectId)),
+                        "scope", "DEV_ONLY"));
+                return;
+            }
+            Matcher timelines = Pattern.compile("^/dev/v1/projects/([^/]+)/timelines$").matcher(path);
+            if (timelines.matches()) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                DevCreateTimelineBody body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), DevCreateTimelineBody.class);
+                var revision = devProjectTimeline.createTimeline(tenantId, principalId,
+                        decodePathSegment(timelines.group(1)), body.expectedHeadRevisionId(), body.timelineId());
+                json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
+                return;
+            }
+            Matcher revision = Pattern.compile("^/dev/v1/projects/([^/]+)/revisions/([^/]+)$").matcher(path);
+            if (revision.matches()) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
+                json(exchange, 200, Map.of("revision", devRevisionView(devProjectTimeline.revision(tenantId, principalId,
+                        decodePathSegment(revision.group(1)), decodePathSegment(revision.group(2)))),
+                        "scope", "DEV_ONLY"));
+                return;
+            }
+            error(exchange, 404, "NOT_FOUND", "Local project timeline route not found");
+        } catch (ProjectNotFoundException failure) {
+            error(exchange, 404, "PROJECT_NOT_FOUND", "Project is not available in this tenant and owner scope");
+        } catch (ProjectAccessDeniedException failure) {
+            runtime.recordDeniedRequest();
+            error(exchange, 403, "PROJECT_ACCESS_DENIED", "Principal is not authorized to access this project");
+        } catch (IdempotencyConflictException failure) {
+            error(exchange, 409, "IDEMPOTENCY_CONFLICT", "Project create requestId was already used with another payload");
+        } catch (MediaRuntime.DevJobCancellationVersionConflictException failure) {
+            error(exchange, 409, "JOB_VERSION_CONFLICT", "Job version changed before cancellation was reserved",
+                    Map.of("expectedVersion", failure.expected(), "currentVersion", failure.actual()));
+        } catch (MediaRuntime.DevJobCancellationConflictException failure) {
+            error(exchange, 409, "CANCELLATION_REQUEST_CONFLICT",
+                    "A different cancellation request already owns this job; inspect the durable job state");
+        } catch (MediaRuntime.DevJobCancellationNotAdmittedException failure) {
+            error(exchange, 422, "JOB_CANCELLATION_NOT_ADMITTED",
+                    "Local cancellation requires the exact dev profile and an in-process LOCAL provider");
+        } catch (RevisionConflictException failure) {
+            error(exchange, 409, "REVISION_CONFLICT", "Project head changed; re-read before retrying", Map.of(
+                    "expectedHeadRevisionId", failure.expectedRevisionId(),
+                    "currentHeadRevisionId", failure.currentHeadRevisionId()));
+        } catch (IllegalArgumentException failure) {
+            error(exchange, 400, "INVALID_REQUEST", "Local project timeline request is invalid");
+        } catch (IllegalStateException failure) {
+            error(exchange, 409, "MEDIA_STATE_CONFLICT", "Project timeline state changed; re-read before retrying");
+        }
     }
 
     private void listConsents(HttpExchange exchange, String tenantId) throws IOException {
@@ -330,7 +558,8 @@ public final class MediaHttpHandler implements HttpHandler {
                 request.retention(),
                 MediaMetadataSanitizer.sanitize(request.metadata()));
         String idempotencyKey = requiredHeader(exchange, "Idempotency-Key");
-        json(exchange, 201, runtime.beginUpload(sanitized, idempotencyKey, authenticatedPrincipal(exchange)));
+        json(exchange, 201, UploadSessionObservation.from(
+                runtime.beginUpload(sanitized, idempotencyKey, authenticatedPrincipal(exchange))));
     }
 
     private void appendChunk(
@@ -340,9 +569,9 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "UPLOAD_NOT_FOUND", "Upload session not found");
             return;
         }
-        json(exchange, 200, runtime.appendUploadChunk(
+        json(exchange, 200, UploadSessionObservation.from(runtime.appendUploadChunk(
                 authenticatedPrincipal(exchange), uploadId, index,
-                boundedBody(exchange, runtime.config().maximumChunkBytes())));
+                boundedBody(exchange, runtime.config().maximumChunkBytes()))));
     }
 
     private void completeUpload(
@@ -360,7 +589,7 @@ public final class MediaHttpHandler implements HttpHandler {
         if (session == null) {
             error(exchange, 404, "UPLOAD_NOT_FOUND", "Upload session not found"); return;
         }
-        json(exchange, 200, session);
+        json(exchange, 200, UploadSessionObservation.from(session));
     }
 
     private void artifact(HttpExchange exchange, String tenantId, String principalId, String artifactId) throws IOException {
@@ -623,9 +852,10 @@ public final class MediaHttpHandler implements HttpHandler {
             json(exchange, ready ? 200 : 503, Map.of("status", ready ? "STARTED" : "STARTING"));
         } else if ("/metrics".equals(path)) {
             String accept = exchange.getRequestHeaders().getFirst("Accept");
-            if (accept != null && (accept.contains("text/plain") || accept.contains("application/openmetrics-text"))) {
-                byte[] bytes = runtime.prometheusMetrics().getBytes(StandardCharsets.UTF_8);
-                exchange.getResponseHeaders().set("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
+            String metricsContentType = metricsContentType(accept);
+            if (metricsContentType != null) {
+                byte[] bytes = runtime.prometheusMetrics(metricsContentType).getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", metricsContentType);
                 exchange.getResponseHeaders().set("Cache-Control", "no-store");
                 exchange.sendResponseHeaders(200, bytes.length);
                 try (var output = exchange.getResponseBody()) { output.write(bytes); }
@@ -644,6 +874,43 @@ public final class MediaHttpHandler implements HttpHandler {
         } else {
             json(exchange, ready ? 200 : 503, Map.of("status", ready ? "UP" : "DOWN"));
         }
+    }
+
+    private static String metricsContentType(String accept) {
+        if (accept == null) return null;
+        double openMetricsQuality = 0.0;
+        double prometheusQuality = 0.0;
+        for (String range : accept.split(",")) {
+            String[] parameters = range.trim().split(";");
+            String mediaType = parameters[0].trim().toLowerCase(java.util.Locale.ROOT);
+            double quality = acceptedQuality(parameters);
+            if (mediaType.equals("application/openmetrics-text")) {
+                openMetricsQuality = Math.max(openMetricsQuality, quality);
+            } else if (mediaType.equals("text/plain")) {
+                prometheusQuality = Math.max(prometheusQuality, quality);
+            }
+        }
+        if (openMetricsQuality <= 0.0 && prometheusQuality <= 0.0) return null;
+        if (openMetricsQuality >= prometheusQuality) {
+            return "application/openmetrics-text; version=1.0.0; charset=utf-8";
+        }
+        return "text/plain; version=0.0.4; charset=utf-8";
+    }
+
+    private static double acceptedQuality(String[] parameters) {
+        double quality = 1.0;
+        boolean sawQuality = false;
+        for (int index = 1; index < parameters.length; index++) {
+            String parameter = parameters[index].trim();
+            int equals = parameter.indexOf('=');
+            if (equals < 0 || !parameter.substring(0, equals).trim().equalsIgnoreCase("q")) continue;
+            if (sawQuality) return 0.0;
+            sawQuality = true;
+            String value = parameter.substring(equals + 1).trim();
+            if (!value.matches("(?:0(?:\\.\\d{0,3})?|1(?:\\.0{0,3})?)")) return 0.0;
+            quality = Double.parseDouble(value);
+        }
+        return quality;
     }
 
     private MediaConsentAdministration requireConsentAdministration() {
@@ -724,6 +991,10 @@ public final class MediaHttpHandler implements HttpHandler {
             throw new IllegalArgumentException(name + " header must be supplied exactly once");
         }
         String value = values.get(0);
+        if ("Idempotency-Key".equalsIgnoreCase(name)
+                && value.codePointCount(0, value.length()) > 255) {
+            throw new IllegalArgumentException("Idempotency-Key header exceeds 255 characters");
+        }
         return value.trim();
     }
 
@@ -816,6 +1087,12 @@ public final class MediaHttpHandler implements HttpHandler {
     private void error(
             HttpExchange exchange, int status, String code, String message, Map<String, ?> details)
             throws IOException {
+        error(exchange, status, code, message, isRetryable(status), details);
+    }
+
+    private void error(
+            HttpExchange exchange, int status, String code, String message,
+            boolean retryable, Map<String, ?> details) throws IOException {
         String requestId = safeIdentity(exchange.getRequestHeaders().getFirst("X-Request-ID"));
         if (requestId == null) requestId = UUID.randomUUID().toString();
         String correlationId = safeIdentity(exchange.getRequestHeaders().getFirst("X-Correlation-ID"));
@@ -825,7 +1102,7 @@ public final class MediaHttpHandler implements HttpHandler {
         Map<String, Object> error = new java.util.LinkedHashMap<>();
         error.put("code", code);
         error.put("message", message);
-        error.put("retryable", isRetryable(status));
+        error.put("retryable", retryable);
         error.put("evidenceRefs", List.of());
         error.put("actionRefs", List.of());
         if (details != null && !details.isEmpty()) error.put("details", Map.copyOf(details));
@@ -916,6 +1193,170 @@ public final class MediaHttpHandler implements HttpHandler {
             allowedRegions = Set.copyOf(allowedRegions == null ? Set.of() : allowedRegions);
         }
     }
+
+    /** Canonical HTTP projection; retention is explicit ISO-8601 text, never session expiry. */
+    private record UploadSessionObservation(
+            String uploadId,
+            String tenantId,
+            String principalId,
+            String fileName,
+            String contentType,
+            long expectedSizeBytes,
+            String expectedSha256,
+            String classification,
+            String retention,
+            Instant createdAt,
+            Instant expiresAt,
+            long bytesReceived,
+            int nextChunkIndex,
+            UploadStatus status,
+            Map<String, Object> metadata) {
+        private static UploadSessionObservation from(UploadSession session) {
+            return new UploadSessionObservation(session.uploadId(), session.tenantId(), session.principalId(),
+                    session.fileName(), session.contentType(), session.expectedSizeBytes(), session.expectedSha256(),
+                    session.classification(), session.retention().toString(), session.createdAt(), session.expiresAt(),
+                    session.bytesReceived(), session.nextChunkIndex(), session.status(), session.metadata());
+        }
+    }
+
+    private record DevCreateProjectBody(String selectedAuthorizedWorkspaceId, String title, String requestId) { }
+    private record DevCreateTimelineBody(String expectedHeadRevisionId, String timelineId) { }
+    private record DevRestoreProjectBody(String expectedHeadRevisionId, String targetRevisionId) { }
+
+    private static List<Edit> toTimelineEdits(Object rawEdits) {
+        if (!(rawEdits instanceof List<?> edits) || edits.isEmpty() || edits.size() > 10_000) {
+            throw new IllegalArgumentException("timeline edits must contain between one and 10000 operations");
+        }
+        return edits.stream().map(MediaHttpHandler::toTimelineEdit).toList();
+    }
+
+    private static Edit toTimelineEdit(Object rawEdit) {
+        Map<String, Object> edit = stringMap(rawEdit, "timeline edit");
+        String type = requiredString(edit.get("type"), "timeline edit type");
+        return switch (type) {
+            case "addScene" -> {
+                requireExactKeys(edit, Set.of("type", "sceneId", "order"), type);
+                yield new AddScene(new Scene(requiredString(edit.get("sceneId"), "sceneId"),
+                        requiredInteger(edit.get("order"), "scene order")));
+            }
+            case "removeScene" -> {
+                requireExactKeys(edit, Set.of("type", "sceneId"), type);
+                yield new RemoveScene(requiredString(edit.get("sceneId"), "sceneId"));
+            }
+            case "addTrack" -> {
+                requireExactKeys(edit, Set.of("type", "trackId", "sceneId", "trackKind", "order"), type);
+                final TrackKind kind;
+                try { kind = TrackKind.valueOf(requiredString(edit.get("trackKind"), "trackKind")); }
+                catch (RuntimeException invalidKind) { throw new IllegalArgumentException("track kind is invalid", invalidKind); }
+                yield new AddTrack(new Track(requiredString(edit.get("trackId"), "trackId"),
+                        requiredString(edit.get("sceneId"), "sceneId"), kind,
+                        requiredInteger(edit.get("order"), "track order")));
+            }
+            case "removeTrack" -> {
+                requireExactKeys(edit, Set.of("type", "trackId"), type);
+                yield new RemoveTrack(requiredString(edit.get("trackId"), "trackId"));
+            }
+            case "putClip" -> {
+                requireExactKeys(edit, Set.of("type", "clip"), type);
+                yield new PutClip(toClip(edit.get("clip")));
+            }
+            case "removeClip" -> {
+                requireExactKeys(edit, Set.of("type", "clipId"), type);
+                yield new RemoveClip(requiredString(edit.get("clipId"), "clipId"));
+            }
+            default -> throw new IllegalArgumentException("timeline edit type is not supported by this DEV_ONLY route");
+        };
+    }
+
+    private static Clip toClip(Object rawClip) {
+        Map<String, Object> clip = stringMap(rawClip, "clip");
+        requireExactKeys(clip, Set.of("clipId", "sceneId", "trackId", "source", "sourceIn", "sourceOut",
+                "storyStart", "storyDuration"), "clip");
+        Map<String, Object> source = stringMap(clip.get("source"), "clip source");
+        requireExactKeys(source, Set.of("artifactId", "artifactVersionId"), "clip source");
+        return new Clip(requiredString(clip.get("clipId"), "clipId"),
+                requiredString(clip.get("sceneId"), "sceneId"), requiredString(clip.get("trackId"), "trackId"),
+                new SourceVersion(requiredString(source.get("artifactId"), "artifactId"),
+                        requiredString(source.get("artifactVersionId"), "artifactVersionId")),
+                toRationalTime(clip.get("sourceIn"), "sourceIn"),
+                toRationalTime(clip.get("sourceOut"), "sourceOut"),
+                toRationalTime(clip.get("storyStart"), "storyStart"),
+                toRationalTime(clip.get("storyDuration"), "storyDuration"));
+    }
+
+    private static RationalTime toRationalTime(Object rawTime, String field) {
+        Map<String, Object> time = stringMap(rawTime, field);
+        requireExactKeys(time, Set.of("ticks", "rateNumerator", "rateDenominator", "clock"), field);
+        final Clock clock;
+        try { clock = Clock.valueOf(requiredString(time.get("clock"), field + ".clock")); }
+        catch (RuntimeException invalidClock) { throw new IllegalArgumentException(field + ".clock is invalid", invalidClock); }
+        return new RationalTime(requiredExactLong(time.get("ticks"), field + ".ticks"),
+                requiredExactLong(time.get("rateNumerator"), field + ".rateNumerator"),
+                requiredExactLong(time.get("rateDenominator"), field + ".rateDenominator"), clock);
+    }
+
+    private static long requiredExactLong(Object value, String field) {
+        if (!(value instanceof String text) || !text.matches("0|[1-9][0-9]*")) {
+            throw new IllegalArgumentException(field + " must be a canonical non-negative decimal string");
+        }
+        try { return Long.parseLong(text); }
+        catch (NumberFormatException outOfRange) { throw new IllegalArgumentException(field + " exceeds signed 64-bit range", outOfRange); }
+    }
+
+    private static Map<String, Object> stringMap(Object value, String field) {
+        if (!(value instanceof Map<?, ?> raw)) throw new IllegalArgumentException(field + " must be an object");
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        for (Map.Entry<?, ?> entry : raw.entrySet()) {
+            if (!(entry.getKey() instanceof String key)) throw new IllegalArgumentException(field + " has an invalid field name");
+            result.put(key, entry.getValue());
+        }
+        return result;
+    }
+
+    private static void requireExactKeys(Map<String, Object> value, Set<String> expected, String field) {
+        if (!value.keySet().equals(expected)) throw new IllegalArgumentException(field + " fields do not match its declared shape");
+    }
+
+    private static String requiredString(Object value, String field) {
+        if (!(value instanceof String text)) throw new IllegalArgumentException(field + " must be a string");
+        return text;
+    }
+
+    private static int requiredInteger(Object value, String field) {
+        if (!(value instanceof Number number)) throw new IllegalArgumentException(field + " must be an integer");
+        try {
+            int integer = new java.math.BigDecimal(number.toString()).intValueExact();
+            if (integer < 0) throw new IllegalArgumentException(field + " must be non-negative");
+            return integer;
+        } catch (ArithmeticException invalid) {
+            throw new IllegalArgumentException(field + " must be a non-negative 32-bit integer", invalid);
+        }
+    }
+
+    private static DevRevisionView devRevisionView(Revision revision) {
+        return new DevRevisionView(revision.tenantId(), revision.projectId(), revision.revisionId(),
+                revision.parentRevisionId(), revision.timelines().stream().map(snapshot -> new DevTimelineView(
+                        snapshot.semanticVersionId(), new DevTimelineGraphView(snapshot.graph().timelineId(),
+                        snapshot.graph().scenes(), snapshot.graph().tracks(), snapshot.graph().clips().stream()
+                        .map(clip -> new DevClipView(clip.clipId(), clip.sceneId(), clip.trackId(), clip.source(),
+                                devTimeView(clip.sourceIn()), devTimeView(clip.sourceOut()),
+                                devTimeView(clip.storyStart()), devTimeView(clip.storyDuration()))).toList()))).toList());
+    }
+
+    private static DevRationalTimeView devTimeView(RationalTime time) {
+        return new DevRationalTimeView(Long.toString(time.ticks()), Long.toString(time.rateNumerator()),
+                Long.toString(time.rateDenominator()), time.clock());
+    }
+
+    private record DevRevisionView(String tenantId, String projectId, String revisionId, String parentRevisionId,
+                                   List<DevTimelineView> timelines) { }
+    private record DevTimelineView(String semanticVersionId, DevTimelineGraphView graph) { }
+    private record DevTimelineGraphView(String timelineId, List<Scene> scenes, List<Track> tracks,
+                                        List<DevClipView> clips) { }
+    private record DevClipView(String clipId, String sceneId, String trackId, SourceVersion source,
+                               DevRationalTimeView sourceIn, DevRationalTimeView sourceOut,
+                               DevRationalTimeView storyStart, DevRationalTimeView storyDuration) { }
+    private record DevRationalTimeView(String ticks, String rateNumerator, String rateDenominator, Clock clock) { }
 
     private record StreamSessionRegistrationView(StreamSessionView session, String connectionToken) { }
 

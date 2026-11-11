@@ -220,14 +220,18 @@ public final class MediaDeliveryEngine {
         this.operations = Objects.requireNonNull(operations, "operations");
     }
 
-    /** Enqueue and dispatch once. A duplicate exact request reuses its state; a key collision fails. */
-    public synchronized DeliveryResult export(ExportRequest request) {
+    /**
+     * Persist an exact immutable export request without crossing the destination boundary.
+     * This lets a caller observe QUEUED and make its own scheduling decision; it does not
+     * authorize the transfer or imply that any bytes were sent.
+     */
+    public synchronized DeliveryResult enqueue(ExportRequest request) {
         Objects.requireNonNull(request, "request");
         Entry existing = loadEntry(request);
         if (existing != null) {
             assertSame(existing.request, request);
             refreshEntry(existing);
-            return existing.result.status() == Status.QUEUED ? dispatchQueued(existing) : existing.result;
+            return existing.result;
         }
         Entry entry = new Entry(request, fingerprint(request), result(request, Status.QUEUED, 0, null));
         if (!operations.insertIfAbsent(operation(entry))) {
@@ -235,10 +239,26 @@ public final class MediaDeliveryEngine {
             if (raced == null) throw new IllegalStateException("delivery operation could not be read after idempotency race");
             assertSame(raced.request, request);
             refreshEntry(raced);
-            return raced.result.status() == Status.QUEUED ? dispatchQueued(raced) : raced.result;
+            return raced.result;
         }
         entries.put(key(request), entry);
-        return dispatchQueued(entry);
+        return entry.result;
+    }
+
+    /** Dispatches a previously enqueued request once; non-queued states are only read back. */
+    public synchronized DeliveryResult dispatch(ExportRequest request) {
+        Objects.requireNonNull(request, "request");
+        Entry entry = loadEntry(request);
+        if (entry == null) throw new DeliveryException(DeliveryException.Code.INVALID_REQUEST, "unknown export request");
+        assertSame(entry.request, request);
+        refreshEntry(entry);
+        return entry.result.status() == Status.QUEUED ? dispatchQueued(entry) : entry.result;
+    }
+
+    /** Enqueue and dispatch once. A duplicate exact request reuses its state; a key collision fails. */
+    public synchronized DeliveryResult export(ExportRequest request) {
+        DeliveryResult queued = enqueue(request);
+        return queued.status() == Status.QUEUED ? dispatch(request) : queued;
     }
 
     /** Resolve uncertainty first; any resumed send uses the same idempotency identity and verified offset. */
@@ -635,7 +655,9 @@ public final class MediaDeliveryEngine {
     }
 
     private static String fingerprint(ExportRequest request) {
-        String material = String.join("\n", request.tenantId(), request.principalId(), request.requestId(),
+        // requestId is the trusted ledger key and remains a separate receipt identity;
+        // the PDP deliveryRequestFingerprint excludes it from canonical request input.
+        String material = String.join("\n", request.tenantId(), request.principalId(),
                 request.artifact().artifactId(), request.artifact().versionRef(), request.artifact().digest(),
                 request.destinationRef());
         return MediaCreationContracts.sha256(material.getBytes(java.nio.charset.StandardCharsets.UTF_8));

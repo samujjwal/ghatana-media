@@ -48,7 +48,7 @@ class PostgresqlStoryboardPlanAuthorityTest {
             StoryboardPlanner.SavedPlan saved = planner.save(OWNER, plan, null, "save-story-1", fixture.authority);
 
             fixture.projects.commit(OWNER, created.project().projectId(), created.project().headRevisionId(),
-                    "revision-moved", created.initialRevision().graph());
+                    "revision-moved", created.initialRevision().timelines());
             fixture.authority.close();
             fixture.reopenAuthority();
 
@@ -327,7 +327,10 @@ class PostgresqlStoryboardPlanAuthorityTest {
         }
 
         Created createProject(Actor actor, String requestId) {
-            return new ProjectTimelineEngine(projects).createProject(actor, "workspace-storyboard", "Storyboard project", requestId);
+            Created created = new ProjectTimelineEngine(projects)
+                    .createProject(actor, "workspace-storyboard", "Storyboard project", requestId);
+            assertThat(created.initialRevision().timelines()).isEmpty();
+            return created;
         }
 
         long sqlLong(String sql) throws Exception {

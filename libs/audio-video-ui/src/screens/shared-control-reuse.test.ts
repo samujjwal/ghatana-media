@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { EmptyState, FileUpload } from "../foundations";
@@ -9,7 +9,7 @@ import { MediaTaskScreen } from "./MediaTaskScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
 import { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 import { ArtifactIntakeScreen } from "./ArtifactIntakeScreen";
-import type { MediaActionPort, MediaDataPort } from "../ports";
+import { canonicalMediaActionRequest, type MediaActionPort, type MediaDataPort } from "../ports";
 
 const data: MediaDataPort = {
   currentProjection: {
@@ -107,6 +107,89 @@ describe("Shared control reuse in Media screens", () => {
     expect((await screen.findByText("Request outcome is unknown. Reconcile the exact project request before retrying.")).getAttribute("data-state")).toBe("unknown");
     expect(screen.queryByText("different-request")).toBeNull();
     expect((screen.getByRole("button", { name: "Waiting for project outcome…" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it.each([
+    {
+      result: { status: "intent-accepted" as const },
+      expectedFeedback: "The project request was accepted as an intent. Project creation is not confirmed.",
+      reconciliationRequestId: null,
+    },
+    {
+      result: { status: "local-applied" as const },
+      expectedFeedback: "The local action was applied. Project creation is not confirmed.",
+      reconciliationRequestId: null,
+    },
+    {
+      result: { status: "request-started" as const, requestId: "create-1" },
+      expectedFeedback: "The project request started. Completion remains unobserved.",
+      reconciliationRequestId: "create-1",
+    },
+  ])("keeps project creation unconfirmed and locked after $result.status until exact owner reconciliation", async ({
+    result,
+    expectedFeedback,
+    reconciliationRequestId,
+  }) => {
+    const actionId = "media.action.create-project";
+    const payload = { selectedAuthorizedWorkspaceId: "workspace-1", title: "Rough cut", requestId: "create-1" };
+    const subjectRefs = ["workspace:workspace-1", "project-create:create-1"];
+    const requestCanonical = canonicalMediaActionRequest(actionId, payload, { subjectRefs });
+    const invoke = vi.fn(async () => result);
+    const props = {
+      data,
+      actions: [{ id: actionId, label: "Create project", enabled: true, payload, subjectRefs }],
+      actionPort: { invoke },
+      context,
+      project: {
+        view: "find-projects" as const,
+        workspaceName: "Studio",
+        selectedAuthorizedWorkspaceId: "workspace-1",
+        accessState: "resolved" as const,
+        projects: [],
+        projectNameDraft: "Rough cut",
+      },
+    };
+    const { rerender } = render(React.createElement(FirstUseProjectScreen, props));
+
+    fireEvent.click(screen.getByRole("button", { name: "Create project" }));
+    expect(await screen.findByText(expectedFeedback)).toBeTruthy();
+    expect(screen.queryByText(/Project created/u)).toBeNull();
+    expect(invoke).toHaveBeenCalledTimes(1);
+
+    const pendingButton = screen.getByRole("button", { name: "Waiting for project outcome…" }) as HTMLButtonElement;
+    expect(pendingButton.disabled).toBe(true);
+    fireEvent.click(pendingButton);
+    expect(invoke).toHaveBeenCalledTimes(1);
+
+    const mismatchedReconciliation = {
+      actionId,
+      requestId: reconciliationRequestId,
+      requestCanonical: `${requestCanonical}-different`,
+      subjectRefs,
+      reconciliationRevision: "owner-revision-mismatched",
+      disposition: "retry-authorized" as const,
+    };
+    rerender(React.createElement(FirstUseProjectScreen, {
+      ...props,
+      data: { ...data, actionReconciliations: [mismatchedReconciliation] },
+    }));
+    await waitFor(() => expect(pendingButton.disabled).toBe(true));
+    fireEvent.click(pendingButton);
+    expect(invoke).toHaveBeenCalledTimes(1);
+
+    const exactReconciliation = {
+      ...mismatchedReconciliation,
+      requestCanonical,
+      reconciliationRevision: "owner-revision-exact",
+    };
+    rerender(React.createElement(FirstUseProjectScreen, {
+      ...props,
+      data: { ...data, actionReconciliations: [exactReconciliation] },
+    }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Create project" }).hasAttribute("disabled")).toBe(false));
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(expectedFeedback)).toBeTruthy();
+    expect(screen.queryByText(/Project created/u)).toBeNull();
   });
 
   it("keeps create disabled when the host has not supplied the exact owner request", () => {
@@ -248,7 +331,7 @@ describe("Shared control reuse in Media screens", () => {
       data,
       actionPort,
       context,
-      intake: { view: "browse-media", artifacts: [] },
+      intake: { view: "browse-media", accessState: "resolved", artifacts: [] },
     }));
     expect(projectHtml).toContain('role="status" aria-label="No authorized projects are available in this workspace yet."');
     expect(projectHtml).toContain('class="gh-empty-state gh-empty-state--panel" data-size="md" role="status"');
@@ -275,12 +358,13 @@ describe("Shared control reuse in Media screens", () => {
     const html = renderToStaticMarkup(element);
     expect(html).toContain('class="gh-file-upload"');
     expect(html).toContain('<label for="media-source-files" class="gh-file-upload__label">Choose source media</label>');
-    expect(html).toMatch(/<input[^>]*type="file"[^>]*multiple=""[^>]*id="media-source-files"/);
+    expect(html).toMatch(/<input[^>]*type="file"[^>]*id="media-source-files"/);
     expect(html).toContain('class="gh-file-upload__input"');
     expect(html).toContain('class="gh-file-upload__helper"');
     expect(html).not.toContain("style=");
 
-    expect(html).toMatch(/<input type="file"[^>]*multiple=""/u);
+    expect(html).toMatch(/<input type="file"[^>]*id="media-source-files"/u);
+    expect(html).not.toContain('multiple=""');
     expect(onSourceFilesSelected).not.toHaveBeenCalled();
   });
 

@@ -297,7 +297,7 @@ surfaces:
       getMediaProviders-is-a-source-backed-service-readiness-read-model-not-a-domain-operation-or-provider-qualification;
       runtime-and-independent-review-open
   - surface: gRPC
-    denominator: 44
+    denominator: 45
     source:
       - modules/speech/stt-service/src/main/proto/stt_service.proto
       - modules/speech/tts-service/src/main/proto/tts_service.proto
@@ -339,7 +339,7 @@ surfaces:
     unresolved:
       STTService: []
       TTSService: []
-      VisionService: []
+      VisionService: [ ResolveSourceFrame ]
       MultimodalService: []
     sourceBackedNonOperationDispositions:
       TRANSPORT_ONLY:
@@ -376,7 +376,7 @@ surfaces:
         legacyProviderProfileAdmin: 3,
         unimplementedEndpoint: 1,
         ownerAdapterRequired: 4,
-        unresolved: 0
+        unresolved: 1
       }
     bindingStatus: 18-domain-operation-candidates-remain-proposed;
       eight-source-evidenced-health-or-metrics-identities-are-transport-only;
@@ -384,7 +384,8 @@ surfaces:
       four-STT-profile-operations-have-exact-owner-definitions-but-legacy-adapters-are-required-and-wire-parity-is-not-established;
       three-TTS-profile-RPCs-are-source-backed-engine-profile-administration-not-Media-domain-operations;
       SubmitFeedback-is-explicitly-unimplemented-pending-persistence-and-learning-provider;
-      no-domain-operation-equivalence-is-inferred
+      ResolveSourceFrame-is-an-observed-source-resolution-read-with-no-owner-defined-PDP1-operation-or-query;
+      its-role-and-canonical-equivalence-remain-unresolved
   - surface: CLI fixture commands
     denominator: 11
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
@@ -882,6 +883,41 @@ surfaces:
       backend-host-identity-and-production-qualification-open
     bindingStatus: one-local-host-configured-consumer-is-bound-to-the-existing-accepted-artifact-query;
       no-runtime-host-or-release-claim
+  - surface: CLI local-development command definitions
+    denominator: 4
+    source: .product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml
+    executable: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
+    identities:
+      [
+        media.cli.local-development.artifact.upload,
+        media.cli.local-development.artifact.inspect,
+        media.cli.local-development.job.get,
+        media.cli.local-development.job.cancel
+      ]
+    exactBindings:
+      - commandId: media.cli.local-development.artifact.upload
+        operationRefs:
+          [media.operation-slice.begin-upload, media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+        httpOperationIds: [beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload]
+        bindingEvidence: explicit-local-dev-loopback; exact-existing-SDK-route-chain; scoped-upload-readback
+      - commandId: media.cli.local-development.artifact.inspect
+        operationRefs: [media.operation-slice.inspect-artifact]
+        httpOperationIds: [getMediaArtifact]
+        bindingEvidence: explicit-local-dev-loopback; exact-existing-SDK-read
+      - commandId: media.cli.local-development.job.get
+        operationRefs: [media.operation-slice.inspect-job]
+        httpOperationIds: [getMediaJob]
+        bindingEvidence: explicit-local-dev-loopback; point-in-time-scoped-read; requestId-query-is-observation-only
+      - commandId: media.cli.local-development.job.cancel
+        operationRefs: [media.operation-slice.cancel-job]
+        httpOperationIds: [cancelMediaJob]
+        bindingEvidence: existing-DEV_ONLY-POST-route;stable-requestId-body;durable-reservation-and-replay;typed-outcome-validation
+        runtimeBinding: EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION
+        canonicalOpenApiBinding: NONE;local-development-route-is-not-canonical-production-wire
+    dispositionCounts: { localDevelopmentSourceDefinitions: 4, boundToExistingRoute: 4, notAdmittedPendingWireBinding: 0 }
+    populationSeparation: production-registry-remains-one-inspect-query; fixture-registry-remains-eleven-synthetic-commands
+    productionAdmission: OPEN
+    bindingStatus: local-development-only-source-definitions; not-production-admission-or-host-qualification
 crossSurfaceRules:
   - proposedSemanticCandidates-are-source-grounded-crosswalk-inputs-not-owner-accepted-bindings
   - same-name-or-similar-name-is-not-a-binding
@@ -1018,8 +1054,8 @@ typedMethodDispositions:
       not-a-Media-domain-operation-or-provider-qualification
     basis: exact-legacy-provider-capability-array-read-with-no-matching-active-route
     openApiBindingDisposition: NOT_ADMITTED
-    bindingEvidence: operations.ts#listProviderCapabilities-GET-/api/v1/media/providers/capabilities;
-      ProviderCapabilitySchema-validates-exact-list-records;
+    bindingEvidence: operations.ts#listProviderCapabilities-declares-Promise<readonly-ProviderCapability[]>-then-throws-MediaOperationNotAdmittedError;
+      http-core.ts-guards-historical-/api/v1/media/*-path-before-credential-acquisition-or-fetch;
       active-HTTP-getMediaProviders-is-a-distinct-service-readiness-schema-and-route
     canonicalOperationRef: null
     candidateOperationRef: null
@@ -1245,7 +1281,7 @@ typedInterfaceIdentityDispositions:
         STTService.GetProfile,
         STTService.UpdateProfile
       ]
-    unresolved: []
+    unresolved: [ VisionService.ResolveSourceFrame ]
     transportOnly:
       [
         STTService.GetStatus,
@@ -1262,6 +1298,7 @@ typedInterfaceIdentityDispositions:
       four-STT-owner-operations-have-adapter-required-semantic-roles-with-wire-parity-open;
       three-TTS-profile-RPCs-are-source-backed-engine-profile-administration-not-Media-domain-operations;
       SubmitFeedback-is-explicitly-unimplemented-pending-persistence-and-learning-provider;
+      ResolveSourceFrame-remains-unresolved-pending-owner-defined-operation-meaning;
       no-wire-equivalence-is-accepted
   cliFixture:
     domainCommands:
@@ -4154,7 +4191,19 @@ typedHttpOperationContracts:
         schemas: []
         mediaTypes: []
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4173,9 +4222,8 @@ typedHttpOperationContracts:
         - $ref: "#/components/parameters/TenantHeader"
         - $ref: "#/components/parameters/PrincipalHeader"
     idempotencyContract:
-      required: true
-      payloadHashRequired: true
-      scopeTemplate: tenantId|consentId
+      required: false
+      reason: No client idempotency key or durable grant replay receipt is defined; grant retries can create a new consent record and must not be automatic.
   - identity: listMediaConsents
     sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/get
     method: GET
@@ -4205,6 +4253,18 @@ typedHttpOperationContracts:
                     $ref: "#/components/schemas/ConsentRecord"
         mediaTypes:
           - application/json
+        requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
         requiredHeaders: []
     security: *a1
     requestSchemas: []
@@ -4245,7 +4305,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4284,7 +4356,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4335,7 +4419,19 @@ typedHttpOperationContracts:
         schemas: []
         mediaTypes: []
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4381,7 +4477,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4427,7 +4535,19 @@ typedHttpOperationContracts:
         schemas: []
         mediaTypes: []
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "409"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4479,7 +4599,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "409"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4526,7 +4658,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4575,6 +4719,12 @@ typedHttpOperationContracts:
           - Location
           - Retry-After
       - status: "400"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "401"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4636,6 +4786,18 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
     security: *a1
     requestSchemas: []
     parameterContracts:
@@ -4675,7 +4837,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4689,6 +4863,14 @@ typedHttpOperationContracts:
         - $ref: "#/components/parameters/TenantHeader"
         - $ref: "#/components/parameters/PrincipalHeader"
         - $ref: "#/components/parameters/JobId"
+        - name: requestId
+          in: query
+          required: false
+          description: Optional exact request identity for reconciliation reads; a mismatch is hidden as not found.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
     idempotencyContract: null
   - identity: cancelMediaJob
     sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel/post
@@ -4714,7 +4896,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4764,7 +4958,19 @@ typedHttpOperationContracts:
         schemas: []
         mediaTypes: []
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4781,9 +4987,8 @@ typedHttpOperationContracts:
         - $ref: "#/components/parameters/TenantHeader"
         - $ref: "#/components/parameters/PrincipalHeader"
     idempotencyContract:
-      required: true
-      payloadHashRequired: true
-      scopeTemplate: tenantId|correlationId
+      required: false
+      reason: No idempotency key or durable registration and one-time-token replay receipt is defined; retries can create another session and must not be automatic.
   - identity: getMediaStream
     sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}/get
     method: GET
@@ -4808,7 +5013,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4846,6 +5063,12 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
@@ -4853,6 +5076,12 @@ typedHttpOperationContracts:
         mediaTypes: []
         requiredHeaders: []
       - status: "409"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4897,6 +5126,12 @@ typedHttpOperationContracts:
         requiredHeaders:
           - Location
           - Retry-After
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
@@ -4904,6 +5139,12 @@ typedHttpOperationContracts:
         mediaTypes: []
         requiredHeaders: []
       - status: "409"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -4962,7 +5203,19 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -5007,6 +5260,18 @@ typedHttpOperationContracts:
         mediaTypes:
           - application/json
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
     security: *a1
     requestSchemas: []
     parameterContracts:
@@ -5041,6 +5306,12 @@ typedHttpOperationContracts:
           - application/json
         requiredHeaders: []
       - status: "400"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "401"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -5117,6 +5388,12 @@ typedHttpOperationContracts:
         schemas: []
         mediaTypes: []
         requiredHeaders: []
+      - status: "401"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
       - status: "403"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
@@ -5167,6 +5444,12 @@ typedHttpOperationContracts:
           - application/json
         requiredHeaders: []
       - status: "400"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "401"
         responseRef: "#/components/responses/Error"
         schemaRefs: []
         schemas: []
@@ -5318,6 +5601,7 @@ typedGrpcMethodContracts:
       canonicalWireSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations.media.operation.transcription-submission.ownerWireSchema
       sourceImplementationRefs:
         - modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java#transcribe
+        - modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java#transcriptionOptions
         - modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/PersistentSttGrpcService.java#transcribe
       disposition: CANDIDATE_ONLY_ADAPTER_NOT_DEFINED;
         current-implementations-do-not-satisfy-canonical-submission-contract
@@ -5326,7 +5610,7 @@ typedGrpcMethodContracts:
           audio_data: consumed-as-inline-bytes; requires-nonempty-and-at-most-100-MiB
           sample_rate: zero-or-negative-is-replaced-with-16000; range-checked-after-default
           language: optional; lowercases-and-reduces-to-primary-subtag-for-support-check
-          options: ignored; SttEngine.transcribe-receives-TranscriptionOptions.defaults
+          options: consumed-via-transcriptionOptions; hasOptions reads max_alternatives, enable_punctuation, enable_word_timings; request.language also becomes TranscriptionOptions.language
           profile_id: not-read-by-transcribe-implementation
           tenant_id: not-read-by-transcribe-implementation
           artifact_id: not-read-by-transcribe-implementation
@@ -5338,8 +5622,8 @@ typedGrpcMethodContracts:
           audio_data: consumed-as-inline-bytes; requires-nonempty
           sample_rate: zero-or-negative-is-replaced-with-16000
           language: passed-to-persistent-service-without-canonical-language-intent-envelope
-          tenant_id: ignored-as-caller-field;
-            tenant-is-read-from-authenticated-server-context
+          tenant_id: optional caller claim; empty is accepted, explicit mismatch with verified identity.tenantId is rejected;
+            downstream tenantId comes from verified identity.tenantId
           profile_id: not-read-by-transcribe-implementation
           options: not-read-by-transcribe-implementation
           artifact_id: not-read-by-transcribe-implementation
@@ -8241,6 +8525,74 @@ typedGrpcMethodContracts:
           name: rejected
     inputMessageRef: modules/vision/vision-service/src/main/proto/vision_service.proto#message.SceneTextRecognizeRequest
     outputMessageRef: modules/vision/vision-service/src/main/proto/vision_service.proto#message.SceneTextRecognizeResponse
+  - identity: VisionService.ResolveSourceFrame
+    sourceRef: modules/vision/vision-service/src/main/proto/vision_service.proto#service.VisionService.rpc.ResolveSourceFrame
+    sourceFile: modules/vision/vision-service/src/main/proto/vision_service.proto
+    service: VisionService
+    method: ResolveSourceFrame
+    role: UNRESOLVED
+    bindingStatus: UNRESOLVED
+    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    canonicalFamilyCandidateRef: null
+    bindingBasis: source method resolves caller-selected immutable frame metadata and digests;
+      no owner-defined PDP-1 operation or query identity covers this effect, so semantic
+      role, canonical equivalence, and field parity remain unresolved
+    inputMessage: SourceFrameResolveRequest
+    inputStream: false
+    outputMessage: SourceFrameResolveResponse
+    outputStream: false
+    inputFieldInventory:
+      messageRef: modules/vision/vision-service/src/main/proto/vision_service.proto#message.SourceFrameResolveRequest
+      sourceMeaning: PROTO_FIELD_SHAPE_OBSERVED_ONLY;
+        canonical-semantic-equivalence-not-asserted
+      fields:
+        - number: 1
+          label: singular
+          type: string
+          name: source_artifact_id
+        - number: 2
+          label: singular
+          type: string
+          name: source_version
+        - number: 3
+          label: singular
+          type: string
+          name: frame_id
+        - number: 4
+          label: singular
+          type: int64
+          name: pts_us
+        - number: 5
+          label: singular
+          type: uint32
+          name: frame_width
+        - number: 6
+          label: singular
+          type: uint32
+          name: frame_height
+        - number: 7
+          label: singular
+          type: SceneTextRoi
+          name: roi
+        - number: 8
+          label: singular
+          type: string
+          name: purpose_ref
+    outputFieldInventory:
+      messageRef: modules/vision/vision-service/src/main/proto/vision_service.proto#message.SourceFrameResolveResponse
+      sourceMeaning: PROTO_FIELD_SHAPE_OBSERVED_ONLY;
+        canonical-semantic-equivalence-not-asserted
+      fields:
+        - number: 1
+          label: singular
+          type: SourceFrameResolution
+          name: resolved
+        - number: 2
+          label: singular
+          type: SourceFrameResolveRejected
+          name: rejected
+    inputMessageRef: modules/vision/vision-service/src/main/proto/vision_service.proto#message.SourceFrameResolveRequest
+    outputMessageRef: modules/vision/vision-service/src/main/proto/vision_service.proto#message.SourceFrameResolveResponse
 
 typedFixtureCliContracts:
   - identity: media.fixture-cli.upload-inspect
@@ -8421,9 +8773,9 @@ typedFixtureCliContracts:
 
 typedSdkMethodContracts:
   - identity: media.sdk.getStatus
-    sourceRef: libs/audio-video-client/src/operations.ts#L365
+    sourceRef: libs/audio-video-client/src/operations.ts#L368
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 365
+    sourceLine: 368
     declaringClass: MediaOperationHandle
     method: getStatus
     sourceSignature: "getStatus(signal?: AbortSignal): Promise<MediaProcessingJob>"
@@ -8437,9 +8789,9 @@ typedSdkMethodContracts:
       returns MediaProcessingJobSchema; route is absent from active manifest and
       canonical observation uses job identity route
   - identity: media.sdk.cancel
-    sourceRef: libs/audio-video-client/src/operations.ts#L369
+    sourceRef: libs/audio-video-client/src/operations.ts#L372
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 369
+    sourceLine: 372
     declaringClass: MediaOperationHandle
     method: cancel
     sourceSignature: "cancel(signal?: AbortSignal): Promise<MediaProcessingJob>"
@@ -8453,9 +8805,9 @@ typedSdkMethodContracts:
       returns MediaProcessingJobSchema; no active route or canonical
       cancellation receipt binding
   - identity: media.sdk.retry
-    sourceRef: libs/audio-video-client/src/operations.ts#L373
+    sourceRef: libs/audio-video-client/src/operations.ts#L376
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 373
+    sourceLine: 376
     declaringClass: MediaOperationHandle
     method: retry
     sourceSignature: "retry(signal?: AbortSignal): Promise<MediaOperationHandle<T>>"
@@ -8466,9 +8818,9 @@ typedSdkMethodContracts:
     semanticBinding: not-admitted-to-current-media-runtime
     bindingEvidence: MediaOperationHandle.retry-delegates-to-retryOperation-which-throws-MediaOperationNotAdmittedError-before-network
   - identity: media.sdk.getResult
-    sourceRef: libs/audio-video-client/src/operations.ts#L377
+    sourceRef: libs/audio-video-client/src/operations.ts#L380
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 377
+    sourceLine: 380
     declaringClass: MediaOperationHandle
     method: getResult
     sourceSignature: "getResult(signal?: AbortSignal): Promise<T>"
@@ -8482,9 +8834,9 @@ typedSdkMethodContracts:
       RuntimeParser<T>; raw route is not active; parser does not derive target
       output schema from trusted accepted-submit snapshot
   - identity: media.sdk.wait
-    sourceRef: libs/audio-video-client/src/operations.ts#L385
+    sourceRef: libs/audio-video-client/src/operations.ts#L388
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 385
+    sourceLine: 388
     declaringClass: MediaOperationHandle
     method: wait
     sourceSignature: "wait(milliseconds: number, signal?: AbortSignal): Promise<void>"
@@ -8495,9 +8847,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
   - identity: media.sdk.createUploadSession
-    sourceRef: libs/audio-video-client/src/operations.ts#L442
+    sourceRef: libs/audio-video-client/src/operations.ts#L445
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 442
+    sourceLine: 445
     declaringClass: MediaOperationClient
     method: createUploadSession
     sourceSignature: "createUploadSession( request: CreateUploadSessionRequest,
@@ -8511,9 +8863,9 @@ typedSdkMethodContracts:
       idempotency-is-defined-under-PXD-046;
       trusted-host-and-independent-runtime-qualification-open
   - identity: media.sdk.uploadPart
-    sourceRef: libs/audio-video-client/src/operations.ts#L503
+    sourceRef: libs/audio-video-client/src/operations.ts#L507
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 503
+    sourceLine: 507
     declaringClass: MediaOperationClient
     method: uploadPart
     sourceSignature: "uploadPart( session: CanonicalMediaUploadSessionObservation,
@@ -8529,9 +8881,9 @@ typedSdkMethodContracts:
       ordered-index-and-no-auto-replay-rules-retained;
       trusted-host-and-independent-runtime-qualification-open
   - identity: media.sdk.completeUploadSession
-    sourceRef: libs/audio-video-client/src/operations.ts#L607
+    sourceRef: libs/audio-video-client/src/operations.ts#L611
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 607
+    sourceLine: 611
     declaringClass: MediaOperationClient
     method: completeUploadSession
     sourceSignature: "completeUploadSession( session:
@@ -8546,9 +8898,9 @@ typedSdkMethodContracts:
       session-overload-binds-upload-receipt; legacy-ID-overload-remains-weaker;
       availability-not-inferred
   - identity: media.sdk.getArtifact
-    sourceRef: libs/audio-video-client/src/operations.ts#L698
+    sourceRef: libs/audio-video-client/src/operations.ts#L702
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 698
+    sourceLine: 702
     declaringClass: MediaOperationClient
     method: getArtifact
     sourceSignature: "getArtifact( artifactId: string, signal?: AbortSignal, ):
@@ -8562,9 +8914,9 @@ typedSdkMethodContracts:
       strict-scope-and-malformed-response-tests;
       no-legacy-domain-alias-or-rights-inference
   - identity: media.sdk.getUploadSession
-    sourceRef: libs/audio-video-client/src/operations.ts#L578
+    sourceRef: libs/audio-video-client/src/operations.ts#L582
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 578
+    sourceLine: 582
     declaringClass: MediaOperationClient
     method: getUploadSession
     sourceSignature: "getUploadSession( uploadId: string, signal?: AbortSignal, ):
@@ -8580,9 +8932,9 @@ typedSdkMethodContracts:
       scoped-UPLOAD_NOT_FOUND-preserved;
       no-state-mutation-rights-or-finality-inference
   - identity: media.sdk.listProviderCapabilities
-    sourceRef: libs/audio-video-client/src/operations.ts#L741
+    sourceRef: libs/audio-video-client/src/operations.ts#L745
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 741
+    sourceLine: 745
     declaringClass: MediaOperationClient
     method: listProviderCapabilities
     sourceSignature: "listProviderCapabilities( signal?: AbortSignal, ):
@@ -8593,11 +8945,11 @@ typedSdkMethodContracts:
     candidateOperationRef: null
     semanticBinding: source-backed-legacy-read-only-provider-catalog;
       not-a-Media-domain-operation-or-provider-qualification
-    bindingEvidence: operations.ts#listProviderCapabilities-GET-/api/v1/media/providers/capabilities;
-      ProviderCapabilitySchema-validates-exact-list-records;
+    bindingEvidence: operations.ts#listProviderCapabilities-declares-Promise<readonly-ProviderCapability[]>-then-throws-MediaOperationNotAdmittedError;
+      http-core.ts-guards-historical-/api/v1/media/*-path-before-credential-acquisition-or-fetch;
       active-HTTP-getMediaProviders-is-a-distinct-service-readiness-schema-and-route
-    responseSchemaRef: libs/audio-video-types/src/contracts.ts#ProviderCapabilitySchema
-    responseFields:
+    declaredResultTypeRef: libs/audio-video-types/src/contracts.ts#ProviderCapability
+    declaredResultFields:
       [
         id,
         providerId,
@@ -8617,9 +8969,9 @@ typedSdkMethodContracts:
       - this-legacy-path-is-absent-from-the-active-route-manifest
       - this-legacy-response-is-not-the-getMediaProviders-readiness-response
   - identity: media.sdk.transcribe
-    sourceRef: libs/audio-video-client/src/operations.ts#L761
+    sourceRef: libs/audio-video-client/src/operations.ts#L752
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 761
+    sourceLine: 752
     declaringClass: MediaOperationClient
     method: transcribe
     sourceSignature: "transcribe( request: TranscriptionRequest, signal?:
@@ -8635,9 +8987,9 @@ typedSdkMethodContracts:
       request identity, purpose, consent, rights, retention, and location;
       result DTO is not owner submission receipt
   - identity: media.sdk.synthesize
-    sourceRef: libs/audio-video-client/src/operations.ts#L774
+    sourceRef: libs/audio-video-client/src/operations.ts#L760
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 774
+    sourceLine: 760
     declaringClass: MediaOperationClient
     method: synthesize
     sourceSignature: "synthesize( request: SynthesisRequest, signal?: AbortSignal,
@@ -8651,9 +9003,9 @@ typedSdkMethodContracts:
     bindingEvidence: SynthesisRequestSchema-and-SynthesisResultSchema-do-not-bind-owner-synthesis-authority-context-rights-output-version-or-finality;
       exact-path-has-no-active-route; NOT_ADMITTED
   - identity: media.sdk.legacy.AudioVideoClient.transcribe
-    sourceRef: libs/audio-video-client/src/index.ts#L252
+    sourceRef: libs/audio-video-client/src/index.ts#L305
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 252
+    sourceLine: 305
     declaringClass: AudioVideoClient
     method: transcribe
     sourceSignature: "transcribe(request: STTRequest, options?: { onProgress?:
@@ -8667,9 +9019,9 @@ typedSdkMethodContracts:
     bindingEvidence: libs/audio-video-client/src/index.ts-posts-to-/api/stt/transcribe;
       no-matching-openapi-or-active-runtime-route
   - identity: media.sdk.legacy.AudioVideoClient.synthesize
-    sourceRef: libs/audio-video-client/src/index.ts#L281
+    sourceRef: libs/audio-video-client/src/index.ts#L334
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 281
+    sourceLine: 334
     declaringClass: AudioVideoClient
     method: synthesize
     sourceSignature: "synthesize(request: TTSRequest, options?: { onProgress?:
@@ -8683,9 +9035,9 @@ typedSdkMethodContracts:
     bindingEvidence: libs/audio-video-client/src/index.ts-posts-to-/api/tts/synthesize;
       no-matching-openapi-or-active-runtime-route
   - identity: media.sdk.trainVoiceModel
-    sourceRef: libs/audio-video-client/src/operations.ts#L787
+    sourceRef: libs/audio-video-client/src/operations.ts#L768
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 787
+    sourceLine: 768
     declaringClass: MediaOperationClient
     method: trainVoiceModel
     sourceSignature: "trainVoiceModel( request: VoiceTrainingRequest, signal?:
@@ -8698,9 +9050,9 @@ typedSdkMethodContracts:
     bindingEvidence: exact-owner-operation-ref-exists-but-legacy-artifactId-and-MediaArtifact-result-do-not-match-versioned-model-input-and-result-contract;
       no-active-route
   - identity: media.sdk.convertVoice
-    sourceRef: libs/audio-video-client/src/operations.ts#L800
+    sourceRef: libs/audio-video-client/src/operations.ts#L776
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 800
+    sourceLine: 776
     declaringClass: MediaOperationClient
     method: convertVoice
     sourceSignature: "convertVoice( request: VoiceConversionRequest, signal?:
@@ -8713,9 +9065,9 @@ typedSdkMethodContracts:
     bindingEvidence: exact-owner-operation-ref-exists-but-legacy-sourceArtifactId-voiceModelArtifactId-and-MediaArtifact-result-do-not-match-versioned-source-model-profile-purpose-rights-and-result-contract;
       no-active-route
   - identity: media.sdk.analyzeMultimodal
-    sourceRef: libs/audio-video-client/src/operations.ts#L817
+    sourceRef: libs/audio-video-client/src/operations.ts#L788
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 817
+    sourceLine: 788
     declaringClass: MediaOperationClient
     method: analyzeMultimodal
     sourceSignature: "analyzeMultimodal( _request: MultimodalAnalysisRequest,
@@ -8730,9 +9082,9 @@ typedSdkMethodContracts:
       method-throws-MediaOperationNotAdmittedError-before-any-dispatch;
       historical-path-absent-from-source-and-active-manifest; NOT_ADMITTED
   - identity: media.sdk.getOperation
-    sourceRef: libs/audio-video-client/src/operations.ts#L824
+    sourceRef: libs/audio-video-client/src/operations.ts#L795
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 824
+    sourceLine: 795
     declaringClass: MediaOperationClient
     method: getOperation
     sourceSignature: getOperation(this.operationId, signal)
@@ -8746,9 +9098,9 @@ typedSdkMethodContracts:
       MediaProcessingJobSchema; no active route; canonical job query uses job
       identity and distinct route
   - identity: media.sdk.cancelOperation
-    sourceRef: libs/audio-video-client/src/operations.ts#L837
+    sourceRef: libs/audio-video-client/src/operations.ts#L803
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 837
+    sourceLine: 803
     declaringClass: MediaOperationClient
     method: cancelOperation
     sourceSignature: cancelOperation(this.operationId, signal)
@@ -8762,9 +9114,9 @@ typedSdkMethodContracts:
       MediaProcessingJobSchema; route absent from manifest; no canonical
       cancellation receipt binding
   - identity: media.sdk.retryOperation
-    sourceRef: libs/audio-video-client/src/operations.ts#L849
+    sourceRef: libs/audio-video-client/src/operations.ts#L811
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 849
+    sourceLine: 811
     declaringClass: MediaOperationClient
     method: retryOperation
     sourceSignature: retryOperation(this.operationId, this.resultParser, signal)
@@ -8776,9 +9128,9 @@ typedSdkMethodContracts:
     bindingEvidence: retryOperation-throws-MediaOperationNotAdmittedError-before-network;
       OpenAPI-and-runtime-route-manifest-have-no-retry-route
   - identity: media.sdk.getOperationResult
-    sourceRef: libs/audio-video-client/src/operations.ts#L861
+    sourceRef: libs/audio-video-client/src/operations.ts#L823
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 861
+    sourceLine: 823
     declaringClass: MediaOperationClient
     method: getOperationResult
     sourceSignature: getOperationResult( this.operationId, this.resultParser, signal, )
@@ -8790,9 +9142,9 @@ typedSdkMethodContracts:
     bindingEvidence: libs/audio-video-client/src/operations.ts-gets-/api/v1/media/operations/{operationId}/result;
       exact-route-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
   - identity: media.sdk.processAIVoice
-    sourceRef: libs/audio-video-client/src/index.ts#L309
+    sourceRef: libs/audio-video-client/src/index.ts#L362
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 309
+    sourceLine: 362
     declaringClass: AudioVideoClient
     method: processAIVoice
     sourceSignature: "processAIVoice(request: AIVoiceRequest, options?: {
@@ -8805,9 +9157,9 @@ typedSdkMethodContracts:
     semanticBinding: no-current-canonical-operation-for-legacy-text-task-contract
     bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
   - identity: media.sdk.processVision
-    sourceRef: libs/audio-video-client/src/index.ts#L337
+    sourceRef: libs/audio-video-client/src/index.ts#L390
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 337
+    sourceLine: 390
     declaringClass: AudioVideoClient
     method: processVision
     sourceSignature: "processVision(request: VisionRequest, options?: { onProgress?:
@@ -8820,9 +9172,9 @@ typedSdkMethodContracts:
     semanticBinding: legacy-vision-contract-without-exact-canonical-leaf-crosswalk
     bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
   - identity: media.sdk.processMultimodal
-    sourceRef: libs/audio-video-client/src/index.ts#L366
+    sourceRef: libs/audio-video-client/src/index.ts#L419
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 366
+    sourceLine: 419
     declaringClass: AudioVideoClient
     method: processMultimodal
     sourceSignature: "processMultimodal(request: MultimodalRequest, options?: {
@@ -8835,9 +9187,9 @@ typedSdkMethodContracts:
     semanticBinding: legacy-multimodal-contract-without-exact-canonical-leaf-crosswalk
     bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
   - identity: media.sdk.getServiceStatus
-    sourceRef: libs/audio-video-client/src/index.ts#L396
+    sourceRef: libs/audio-video-client/src/index.ts#L449
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 396
+    sourceLine: 449
     declaringClass: AudioVideoClient
     method: getServiceStatus
     sourceSignature: "getServiceStatus(service: ServiceType): Promise<ServiceStatus>"
@@ -8848,9 +9200,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: service-status-uses-configured-provider-endpoint-health-port-not-the-media-api-base-path
   - identity: media.sdk.getAllServicesStatus
-    sourceRef: libs/audio-video-client/src/index.ts#L433
+    sourceRef: libs/audio-video-client/src/index.ts#L486
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 433
+    sourceLine: 486
     declaringClass: AudioVideoClient
     method: getAllServicesStatus
     sourceSignature: "getAllServicesStatus(): Promise<ServiceStatus[]>"
@@ -8861,9 +9213,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: service-status-uses-configured-provider-endpoint-health-port-not-the-media-api-base-path
   - identity: media.sdk.addEventListener
-    sourceRef: libs/audio-video-client/src/index.ts#L440
+    sourceRef: libs/audio-video-client/src/index.ts#L493
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 440
+    sourceLine: 493
     declaringClass: AudioVideoClient
     method: addEventListener
     sourceSignature: "addEventListener(event: string, callback: Function): void"
@@ -8874,9 +9226,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
   - identity: media.sdk.removeEventListener
-    sourceRef: libs/audio-video-client/src/index.ts#L447
+    sourceRef: libs/audio-video-client/src/index.ts#L500
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 447
+    sourceLine: 500
     declaringClass: AudioVideoClient
     method: removeEventListener
     sourceSignature: "removeEventListener(event: string, callback: Function): void"
@@ -8887,9 +9239,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
   - identity: media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame
-    sourceRef: libs/audio-video-client/src/scene-text-adapter.ts#L215
+    sourceRef: libs/audio-video-client/src/scene-text-adapter.ts#L234
     sourceFile: libs/audio-video-client/src/scene-text-adapter.ts
-    sourceLine: 215
+    sourceLine: 234
     declaringClass: DocumentIntelligenceSceneTextAdapter
     method: recognizeFrame
     sourceSignature: "recognizeFrame( operationId: string, frame:

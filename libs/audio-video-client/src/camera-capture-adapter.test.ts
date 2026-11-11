@@ -92,6 +92,7 @@ function harness(options: {
   pts?: (epochRef: string, index: number) => bigint | number;
   metadata?: (candidate: CaptureRequest) => CameraTrackSourceMetadata | null;
   mediaDevices?: CameraMediaDevicePort;
+  clockNow?: () => number;
   maxFrames?: number;
   invalidConsentUnsubscribe?: boolean;
 } = {}) {
@@ -101,7 +102,7 @@ function harness(options: {
   const clockIndex = new Map<string, number>();
   let epoch = 0;
   const clock: CameraFrameClockPort = {
-    nowEpochMillis: () => now,
+    nowEpochMillis: () => options.clockNow?.() ?? now,
     beginEpoch: () => `clock-epoch-${++epoch}`,
     readPtsNanos: (epochRef) => {
       const index = clockIndex.get(epochRef) ?? 0;
@@ -211,6 +212,24 @@ async function expectCode(operation: Promise<unknown>, code: string): Promise<vo
 }
 
 describe("CameraCaptureAdapter", () => {
+  it("serializes overlapping session opens and stops the prior camera before exposing the next", async () => {
+    const firstTrack = frameTrack([new Uint8Array([1])]);
+    const secondTrack = frameTrack([new Uint8Array([2])]);
+    const h = harness({ tracks: [firstTrack, secondTrack] });
+
+    const [first, second] = await Promise.all([
+      h.adapter.openSession(request),
+      h.adapter.openSession({ ...request, sourceIdentity: "camera:device-2", sourceVersionRef: "camera-device-2@v2" }),
+    ]);
+
+    expect(h.opens).toHaveLength(2);
+    expect(firstTrack.stopCalls).toBe(1);
+    expect(secondTrack.stopCalls).toBe(0);
+    await expectCode(first.nextFrame(), "SESSION_CLOSED");
+    await second.close();
+    expect(secondTrack.stopCalls).toBe(1);
+  });
+
   it("does not open a camera when live consent monitoring has no usable detach handle", async () => {
     const h = harness({ invalidConsentUnsubscribe: true });
 
@@ -354,6 +373,33 @@ describe("CameraCaptureAdapter", () => {
       await expectCode(h.adapter.openSession(request), code);
       expect(h.opens).toHaveLength(0);
     }
+  });
+
+  it("closes capture when the trusted epoch clock becomes invalid or moves backward", async () => {
+    for (const badTime of [Number.NaN, now - 100]) {
+      let reads = 0;
+      const h = harness({
+        clockNow: () => reads++ === 9 ? badTime : now,
+        decide: (candidate) => permissionFor(candidate, { checkedAtEpochMillis: now - 1_000 }),
+      });
+      const session = await h.adapter.openSession(request);
+
+      await expectCode(session.nextFrame(), "PERMISSION_STALE");
+      expect(h.tracks[0]?.stopCalls).toBe(1);
+    }
+  });
+
+  it("sanitizes a throwing trusted epoch clock before opening the camera", async () => {
+    const h = harness({ clockNow: () => { throw new Error("private host clock detail"); } });
+
+    await expect(h.adapter.openSession(request)).rejects.toMatchObject({
+      name: "CameraCaptureError",
+      code: "PERMISSION_STALE",
+      message: "trusted camera clock is unavailable",
+    });
+
+    expect(h.opens).toHaveLength(0);
+    expect(h.tracks[0]?.stopCalls).toBe(0);
   });
 
   it("captures detached bounded bytes with exact bindings and increasing PTS", async () => {
@@ -658,6 +704,31 @@ describe("CameraCaptureAdapter", () => {
     await sourceSession.nextFrame();
     await expectCode(sourceSession.nextFrame(), "PTS_INVALID");
     expect(sourceReorderedTrack.stopCalls).toBe(1);
+  });
+
+  it("bounds host capture PTS to signed int64 and closes the device on invalid clock output", async () => {
+    const maximum = (1n << 63n) - 1n;
+    const boundary = harness({ pts: () => maximum });
+    const boundarySession = await boundary.adapter.openSession(request);
+    const lastRepresentableFrame = await boundarySession.nextFrame();
+    expect(lastRepresentableFrame.ptsNanos).toBe(maximum);
+    expect(lastRepresentableFrame.cameraMetadata.hostCapturePtsNanos).toBe(maximum.toString());
+    await boundarySession.close();
+    expect(boundary.tracks[0]?.stopCalls).toBe(1);
+
+    for (const pts of [maximum + 1n, -1n]) {
+      const invalid = harness({ pts: () => pts });
+      const session = await invalid.adapter.openSession(request);
+      await expectCode(session.nextFrame(), "PTS_INVALID");
+      expect(invalid.tracks[0]?.stopCalls).toBe(1);
+      await session.close();
+      expect(invalid.tracks[0]?.stopCalls).toBe(1);
+    }
+
+    const clockFailure = harness({ pts: () => { throw new Error("private clock detail"); } });
+    const failedSession = await clockFailure.adapter.openSession(request);
+    await expectCode(failedSession.nextFrame(), "PTS_INVALID");
+    expect(clockFailure.tracks[0]?.stopCalls).toBe(1);
   });
 
   it("preserves strictly increasing signed source PTS across the int64 minimum", async () => {

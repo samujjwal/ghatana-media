@@ -20,6 +20,7 @@ service VisionService {
   // v1 gateway. Source version, frame identity, PTS, ROI and digests are required;
   // OCR execution is never performed by Media.
   rpc RecognizeSceneText(SceneTextRecognizeRequest) returns (SceneTextRecognizeResponse);
+  rpc ResolveSourceFrame(SourceFrameResolveRequest) returns (SourceFrameResolveResponse);
 
   // Analyze a complete video file (FFmpeg frame extraction + YOLOv8 detection)
   rpc AnalyzeVideoFile(VideoFileRequest) returns (VideoFileResponse);
@@ -131,6 +132,52 @@ message SceneTextRecognizeRequest {
   string language_hint = 14;
 }
 
+// Resolve one caller-selected immutable source frame without invoking Document Intelligence.
+// The result exposes source coordinates and digests only; derived crop bytes remain in Media.
+message SourceFrameResolveRequest {
+  string source_artifact_id = 1;
+  string source_version = 2;
+  string frame_id = 3;
+  int64 pts_us = 4;
+  uint32 frame_width = 5;
+  uint32 frame_height = 6;
+  SceneTextRoi roi = 7;
+  string purpose_ref = 8;
+}
+
+message SourceFrameResolution {
+  string tenant_id = 1;
+  string principal_id = 2;
+  string source_artifact_id = 3;
+  string source_version = 4;
+  string source_sha256 = 5;
+  string frame_id = 6;
+  string artifact_local_epoch = 7;
+  string source_stream_selector = 8;
+  int32 frame_number = 9;
+  int64 source_pts = 10;
+  int64 time_base_numerator = 11;
+  int64 time_base_denominator = 12;
+  int64 pts_us = 13;
+  uint32 frame_width = 14;
+  uint32 frame_height = 15;
+  SceneTextRoi roi = 16;
+  string frame_sha256 = 17;
+  string crop_sha256 = 18;
+}
+
+message SourceFrameResolveRejected {
+  string code = 1;
+  bool retryable = 2;
+}
+
+message SourceFrameResolveResponse {
+  oneof outcome {
+    SourceFrameResolution resolved = 1;
+    SourceFrameResolveRejected rejected = 2;
+  }
+}
+
 message SceneTextBox {
   double x = 1;
   double y = 2;
@@ -165,6 +212,7 @@ message SceneTextRecognized {
   string rights_decision_ref = 6;
   SceneTextProvenance provenance = 7;
   repeated SceneTextObservation observations = 8;
+  SourceFrameResolution source_frame_resolution = 9;
 }
 
 message SceneTextRejected {

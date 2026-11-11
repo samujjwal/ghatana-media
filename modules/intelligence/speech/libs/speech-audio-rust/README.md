@@ -20,11 +20,41 @@ is consumed by those capabilities.
   `NoiseProfile`, `denoise`, `declip`, and `compare_audio`.
 - File output and visualization support: `write_wav` and `extract_waveform`.
 
-The only in-repository Rust source consumer found for this crate is its
-`examples/decode-rss-probe.rs` example. The topology source coverage records
-`consumerSurfaceRefs: []` for this physical surface. The example is a local
-resource probe, not a Media runtime consumer. No Java/JNI, C ABI, provider
-adapter, STT/TTS engine, or streaming session/frame API is exported here.
+Before the local preview consumer below, the only in-repository Rust source
+consumer found for this crate was `examples/decode-rss-probe.rs`. The topology
+source coverage records `consumerSurfaceRefs: []` for this physical surface.
+These examples are local tools, not a Media runtime consumer. No Java/JNI, C
+ABI, provider adapter, STT/TTS engine, or streaming session/frame API is
+exported here.
+
+`examples/audio-repair-preview.rs` is a runnable local caller-input consumer of
+the existing bounded decode, repair, WAV, and immutable comparison APIs. It
+requires the caller to provide an explicit noise-only frame span, preserves an
+exact copy of the encoded source file, and writes denoise-only and declip-only
+WAV candidates as separate branches. It reopens every output, binds SHA-256
+file digests and descriptive PCM metrics in a JSON manifest, and does not
+produce reference-SNR values without an independent reference: both source and
+candidate SNR fields are present as JSON `null` in that case. It does not make a
+quality conclusion. It uses
+`DenoiseOptions::DEFAULT` and a 0.98 declip threshold; the two operations are
+never chained. The manifest records the effective algorithm options (including
+the caller-selected profile span and measured per-channel profile RMS), plus
+sample rate, channel count, sample format, and frame count for the source and
+each decoded candidate. Run it with:
+
+```bash
+cargo run --offline --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml \
+  --example audio-repair-preview -- INPUT_AUDIO OUTPUT_DIRECTORY NOISE_START_FRAME NOISE_END_FRAME
+```
+
+The source is limited by the existing 512 MiB encoded-input cap and the
+preview lowers the decoder's 96,000,000 default decoded-sample ceiling to the
+repair API's 6,000,000 interleaved-sample cap. Noise profiling is limited to
+2,000,000 frames. A profile span must be non-empty and
+within the decoded source. Output names are fixed within the selected directory;
+existing paths and collisions are rejected before writing. This example is
+local preview tooling only and does not establish lawful corpus/reference
+qualification, durable timeline revisions, or J-07 completion.
 
 ## Build and platform evidence
 
@@ -97,15 +127,24 @@ It also reports source/output near-full-scale
 sample counts (>=99.9%; an indicator, not proof of clipping) and the change in
 zero-lag correlation of the first two channels (a phase/polarity proxy, not a
 spectral or perceptual score). `AudioComparison` retains owned source and
-repaired buffers, provides borrowing accessors, and `undo()` returns a fresh
-copy of its stored source samples. The public fields remain for source
-compatibility; callers should treat the comparison values as snapshots because
-mutating them does not recompute metrics. These local DSP primitives are deterministic
-and bounded, but are not RNNoise, do not establish perceptual speech quality,
-and have not been qualified against representative lawful source/reference
-material or a production host performance budget. The Java comparison surface
-adds SHA-256 digests; this Rust helper does not claim a persisted revision or
-cryptographic artifact identity.
+repaired buffers and exposes read-only `source()`, `repaired()`, and `metrics()`
+accessors; `undo()` returns a fresh copy of its stored source branch. Its fields
+are private so callers cannot mutate a branch without recomputing its metrics.
+These local DSP primitives are deterministic and bounded, but are not RNNoise,
+do not establish perceptual speech quality, and have not been qualified against
+representative lawful source/reference material or a production host performance
+budget. The Java comparison surface adds SHA-256 digests; this Rust helper does
+not persist revisions. The caller-input preview example computes SHA-256 file
+digests for its local artifacts; that does not create a durable revision or
+qualify artifact provenance.
+
+Call `declip_bounded(input, clip_threshold, limits)` when the caller needs to
+set a lower resource ceiling than the crate defaults. `RepairLimits` can reduce
+the maximum interleaved samples and clipped-run frames, but cannot raise the
+crate's hard caps; `max_profile_frames` applies to bounded noise-profile
+estimation. `declip` remains the convenience form using the defaults. The
+public bounded entry point does not change the interpolation method or qualify
+its output; source truth and perceptual quality remain unverified.
 
 ## Resampler fidelity boundary
 

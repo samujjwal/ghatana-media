@@ -23,6 +23,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const checkMode = process.argv.includes("--check");
 const HISTORICAL_PREFIXES = ["docs/implementation/", "archive/", "docs/migration/"];
 const OUTPUT = "docs/implementation/historical-artifact-inventory.v1.json";
+const PRESERVATION = "docs/development/historical-content-preservation.json";
 const BINARY_EXT = /\.(mov|mp4|m4a|wav|mp3|png|jpe?g|gif|webm|zip|gz|tar|jar|class|so|dylib|bin|pdf|woff2?|ico)$/iu;
 const GENERATED_HINT = /(?:generated|projection|crosswalk|manifest|index|matrix|inventory|bridge|packages|readiness|trace)\.v?\d*\.json$/iu;
 
@@ -30,6 +31,22 @@ const tracked = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "
   .toString("utf8").split("\0").filter(Boolean).sort();
 const inventory = tracked.filter((p) => HISTORICAL_PREFIXES.some((x) => p.startsWith(x)) && p !== OUTPUT);
 const inventorySet = new Set(inventory);
+const preservation = JSON.parse(readFileSync(resolve(root, PRESERVATION), "utf8"));
+if (preservation.deletionApproved !== false || preservation.externalArchiveVerified !== false
+  || !Array.isArray(preservation.artifacts) || preservation.total !== preservation.artifacts.length) {
+  throw new Error("historical preservation decision is malformed or no longer fail-closed");
+}
+const pinnedCandidates = new Set();
+for (const item of preservation.artifacts) {
+  if (item.deleteApproved !== false || item.preservation !== "KEEP_IN_MAIN_PENDING_VERIFIED_IMMUTABLE_OFF_MAIN_COPY"
+    || typeof item.path !== "string" || !inventorySet.has(item.path)) {
+    throw new Error("historical preservation pin is not a tracked, deletion-unapproved candidate");
+  }
+  pinnedCandidates.add(item.path);
+}
+if (pinnedCandidates.size !== preservation.total) {
+  throw new Error("historical preservation pins contain duplicate paths");
+}
 const byBasename = new Map();
 for (const p of inventory) {
   const base = p.split("/").pop();
@@ -41,7 +58,9 @@ for (const p of inventory) {
 const inbound = new Map(inventory.map((p) => [p, 0]));
 const NAME_TOKEN = /[A-Za-z0-9_.-]{10,}/g;
 for (const path of tracked) {
-  if (inventorySet.has(path)) continue;          // inventory-internal refs counted separately
+  if (inventorySet.has(path) || path === PRESERVATION || path === OUTPUT) continue;
+  // The preservation manifest pins candidate identities, and this generated
+  // inventory lists every path; neither is a semantic product reference.
   let text;
   try { text = readFileSync(resolve(root, path), "utf8"); } catch { continue; }
   if (text.includes("\0")) continue;              // binary
@@ -78,6 +97,13 @@ function classify(path, size, refs) {
   else if (path.startsWith("docs/implementation/verification/")) kind = "record";
   else if (path.endsWith(".md") || path.endsWith(".json") || path.endsWith(".yaml")) kind = "source";
   else kind = "record";
+
+  if (pinnedCandidates.has(path)) {
+    return {
+      kind, disposition: "EXTERNAL_ARCHIVE",
+      reason: "exact preservation pin is an off-main archive candidate; independent immutable readback and reference migration remain required before deletion",
+    };
+  }
 
   let disposition, reason;
   if (path.startsWith("archive/")) {

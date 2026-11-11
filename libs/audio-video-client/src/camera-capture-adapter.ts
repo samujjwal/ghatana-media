@@ -313,6 +313,7 @@ const DEFAULT_FRAMES = 30_000;
 const MAX_SESSION_MILLIS = 3_600_000;
 const DEFAULT_SESSION_MILLIS = 300_000;
 const MAX_CAMERA_SESSION_BYTES = MAX_CAPTURED_FRAME_BYTES;
+const MAX_HOST_CAPTURE_PTS_NANOS = (1n << 63n) - 1n;
 /** Internal memory-safety ceiling for active plus queued frame requests. */
 const MAX_OUTSTANDING_CAMERA_FRAME_READS = 8;
 
@@ -399,7 +400,9 @@ function awaitHostOrAbort<T>(operation: Promise<T>, signal: AbortSignal): Promis
 
 function toPts(value: bigint | number): bigint {
   if (typeof value === "bigint") {
-    if (value < 0n) throw fail("PTS_INVALID", "camera PTS must be non-negative");
+    if (value < 0n || value > MAX_HOST_CAPTURE_PTS_NANOS) {
+      throw fail("PTS_INVALID", "camera PTS must fit a non-negative signed int64");
+    }
     return value;
   }
   if (!Number.isSafeInteger(value) || value < 0) {
@@ -448,6 +451,8 @@ export class CameraCaptureAdapter implements CaptureSourceAdapter {
   private readonly maxFrames: number;
   private readonly maxSessionMillis: number;
   private activeSession: CameraCaptureSession | null = null;
+  /** Ensure overlapping opens cannot both pass the prior-session close check. */
+  private sessionOpenTail: Promise<void> = Promise.resolve();
 
   public constructor(options: CameraCaptureAdapterOptions) {
     if (!options || typeof options.mediaDevices?.open !== "function"
@@ -483,6 +488,12 @@ export class CameraCaptureAdapter implements CaptureSourceAdapter {
   /** Start a bounded live session after fresh exact permission is confirmed. */
   public async openSession(request: CaptureRequest): Promise<CameraCaptureSession> {
     const bound = snapshotRequest(request);
+    const opening = this.sessionOpenTail.then(() => this.openSessionExclusive(bound));
+    this.sessionOpenTail = opening.then(() => undefined, () => undefined);
+    return opening;
+  }
+
+  private async openSessionExclusive(bound: CaptureRequest): Promise<CameraCaptureSession> {
     await this.activeSession?.close();
     const session = new CameraCaptureSession(this.options, bound, {
       maxConsentAgeMillis: this.maxConsentAgeMillis,
@@ -551,6 +562,7 @@ export class CameraCaptureSession {
   private frames = 0;
   private bytes = 0;
   private startedAt: number;
+  private lastObservedEpochMillis: number | null = null;
   private readonly seenEpochRefs = new Set<string>();
   /** Serialize reads so concurrent callers cannot overrun frame/byte/session bounds. */
   private frameReadTail: Promise<void> = Promise.resolve();
@@ -563,7 +575,7 @@ export class CameraCaptureSession {
     this.options = options;
     this.request = request;
     this.limits = limits;
-    this.startedAt = options.frameClock.nowEpochMillis();
+    this.startedAt = this.readTrustedEpochMillis();
   }
 
   public async open(): Promise<void> {
@@ -611,8 +623,14 @@ export class CameraCaptureSession {
         ? fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch")
         : fail("SESSION_CLOSED", "camera session was stopped before the frame completed");
     }
+    let nowEpochMillis: number;
+    try {
+      nowEpochMillis = this.readTrustedEpochMillis();
+    } catch (error) {
+      return this.closePreservingFailure(error);
+    }
     if (this.frames >= this.limits.maxFrames
-      || this.options.frameClock.nowEpochMillis() - this.startedAt >= this.limits.maxSessionMillis) {
+      || nowEpochMillis - this.startedAt >= this.limits.maxSessionMillis) {
       return this.closePreservingFailure(fail("FRAME_LIMIT", "camera session exceeded its bounded frame or duration limit"));
     }
     try {
@@ -702,7 +720,13 @@ export class CameraCaptureSession {
         ? fail("DEVICE_SWITCHED", "in-flight camera frame was discarded during device switch")
         : fail("SESSION_CLOSED", "camera session stopped before frame completion");
     }
-    const ptsNanos = toPts(this.options.frameClock.readPtsNanos(this.epochRef));
+    let ptsNanos: bigint;
+    try {
+      ptsNanos = toPts(this.options.frameClock.readPtsNanos(this.epochRef));
+    } catch (error) {
+      return this.closePreservingFailure(error instanceof CameraCaptureError
+        ? error : fail("PTS_INVALID", "camera frame clock returned an invalid timestamp"));
+    }
     if (this.lastPts !== null && ptsNanos <= this.lastPts) {
       return this.closePreservingFailure(fail("PTS_INVALID", "camera PTS must strictly increase within each source epoch"));
     }
@@ -714,6 +738,12 @@ export class CameraCaptureSession {
     try {
       sourcePresentationTime = this.sourcePresentationTime(frameRead);
       audioSampleTime = this.audioSampleTime(frameRead);
+    } catch (error) {
+      return this.closePreservingFailure(error);
+    }
+    let capturedAtEpochMillis: number;
+    try {
+      capturedAtEpochMillis = this.readTrustedEpochMillis();
     } catch (error) {
       return this.closePreservingFailure(error);
     }
@@ -739,7 +769,7 @@ export class CameraCaptureSession {
       audioSampleTime,
       cameraMetadata,
       bytes: detached,
-      capturedAtEpochMillis: this.options.frameClock.nowEpochMillis(),
+      capturedAtEpochMillis,
     });
   }
 
@@ -862,7 +892,7 @@ export class CameraCaptureSession {
         throw fail("PTS_INVALID", "frame clock reused a source epoch");
       }
       this.seenEpochRefs.add(this.epochRef);
-      this.startedAt = this.options.frameClock.nowEpochMillis();
+      this.startedAt = this.readTrustedEpochMillis();
     } catch (error) {
       try { await this.stopCurrentSource(); } catch { /* retain the primary open/permission failure */ }
       if (this.permissionFailure) throw this.permissionFailure;
@@ -878,10 +908,7 @@ export class CameraCaptureSession {
 
   private async checkPermission(request: CaptureRequest,
     signal?: AbortSignal): Promise<CameraPermissionDecision> {
-    const now = this.options.frameClock.nowEpochMillis();
-    if (!Number.isSafeInteger(now) || now < 0) {
-      throw fail("PERMISSION_STALE", "trusted clock did not provide a valid current time");
-    }
+    const now = this.readTrustedEpochMillis();
     let decision: CameraPermissionDecision;
     try {
       const pending = this.options.consent.checkFresh(request, now);
@@ -896,7 +923,7 @@ export class CameraCaptureSession {
 
   private async assertFreshPermission(request: CaptureRequest): Promise<CameraPermissionDecision> {
     const decision = await this.checkPermission(request, this.controller?.signal);
-    const now = this.options.frameClock.nowEpochMillis();
+    const now = this.readTrustedEpochMillis();
     this.validateDecision(request, decision, now);
     if (this.permissionFailure) throw this.permissionFailure;
     if (this.revoked || decision.disposition === "REVOKED") throw abortError();
@@ -907,6 +934,21 @@ export class CameraCaptureSession {
       throw fail("PERMISSION_DENIED", "current camera permission does not authorize capture");
     }
     return decision;
+  }
+
+  private readTrustedEpochMillis(): number {
+    let now: number;
+    try {
+      now = this.options.frameClock.nowEpochMillis();
+    } catch {
+      throw fail("PERMISSION_STALE", "trusted camera clock is unavailable");
+    }
+    if (!Number.isSafeInteger(now) || now < 0
+      || (this.lastObservedEpochMillis !== null && now < this.lastObservedEpochMillis)) {
+      throw fail("PERMISSION_STALE", "trusted camera clock is invalid or moved backwards");
+    }
+    this.lastObservedEpochMillis = now;
+    return now;
   }
 
   private validateSourceMetadata(request: CaptureRequest,

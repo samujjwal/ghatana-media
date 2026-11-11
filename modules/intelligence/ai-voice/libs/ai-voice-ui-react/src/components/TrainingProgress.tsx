@@ -8,7 +8,7 @@
  */
 import { Button } from "@ghatana/design-system";
 import { MediaProgress } from "@audio-video/ui";
-import React, { useMemo } from "react";
+import React, { useId, useMemo } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { TrainingStatus } from "../types";
@@ -50,6 +50,10 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
   className,
 }) => {
   const colors = useSemanticColors();
+  const instanceId = useId();
+  const titleId = `${instanceId}-voice-training-title`;
+  const statusId = `${instanceId}-voice-training-status`;
+  const cancelNoteId = `${instanceId}-voice-training-cancel-note`;
   const statusColors: Record<TrainingStatus, string> = {
     pending: colors.contentDisabled,
     preprocessing: colors.info,
@@ -76,15 +80,15 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
         className,
       )}
       style={{ borderColor: colors.border, backgroundColor: colors.surface, color: colors.content }}
-      aria-labelledby="voice-training-title"
-      aria-describedby="voice-training-status"
+      aria-labelledby={titleId}
+      aria-describedby={statusId}
     >
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 id="voice-training-title" className="text-lg font-medium">
+          <h3 id={titleId} className="text-lg font-medium">
             {modelName ? `Training ${modelName}` : "Training voice model"}
           </h3>
-          <p id="voice-training-status" className="text-sm" style={{ color: colors.contentSecondary }}>
+          <p id={statusId} className="text-sm" style={{ color: colors.contentSecondary }}>
             {statusLabels[status]}
           </p>
         </div>
@@ -96,7 +100,7 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
             size="sm"
             onClick={onCancel}
             disabled={cancelDisabled}
-            aria-describedby="voice-training-cancel-note"
+            aria-describedby={cancelNoteId}
           >
             Cancel training
           </Button>
@@ -104,7 +108,7 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
       </div>
 
       {active && onCancel && (
-        <p id="voice-training-cancel-note" className="sr-only">
+        <p id={cancelNoteId} className="sr-only">
           Cancelling stops the current training job. Existing source samples are
           retained according to their configured retention policy.
         </p>

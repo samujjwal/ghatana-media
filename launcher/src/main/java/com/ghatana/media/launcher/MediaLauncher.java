@@ -31,52 +31,66 @@ public final class MediaLauncher {
         MediaPrivacyMaintenanceRuntime privacyMaintenance = null;
         MediaConsentAdministrationRuntime consentAdministration = null;
         MediaCaptionRuntime captions = null;
+        MediaDevProjectTimelineRuntime devProjectTimeline = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
             captions = MediaCaptionRuntime.compose(environment);
+            devProjectTimeline = MediaDevProjectTimelineRuntime.compose(environment);
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
             MediaCaptionRuntime finalCaptions = captions;
+            MediaDevProjectTimelineRuntime finalDevProjectTimeline = devProjectTimeline;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalDevProjectTimeline != null) {
+                    try { finalDevProjectTimeline.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (finalCaptions != null) {
                     try { finalCaptions.close(); }
-                    catch (RuntimeException cleanupFailure) { failure = cleanupFailure; }
+                    catch (RuntimeException cleanupFailure) {
+                        failure = appendShutdownFailure(failure, cleanupFailure);
+                    }
                 }
                 if (finalConsentAdministration != null) {
                     try { finalConsentAdministration.close(); }
-                    catch (RuntimeException cleanupFailure) { failure = cleanupFailure; }
+                    catch (RuntimeException cleanupFailure) {
+                        failure = appendShutdownFailure(failure, cleanupFailure);
+                    }
                 }
                 if (finalPrivacyMaintenance != null) {
                     try { finalPrivacyMaintenance.close(); }
                     catch (RuntimeException cleanupFailure) {
-                        if (failure == null) failure = cleanupFailure;
-                        else failure.addSuppressed(cleanupFailure);
+                        failure = appendShutdownFailure(failure, cleanupFailure);
                     }
                 }
                 try { runtime.close(); }
                 catch (RuntimeException cleanupFailure) {
-                    if (failure == null) failure = cleanupFailure;
-                    else failure.addSuppressed(cleanupFailure);
+                    failure = appendShutdownFailure(failure, cleanupFailure);
                 }
                 if (failure != null) log.error("Media Runtime shutdown failed", failure);
             }, "media-runtime-shutdown"));
 
             MediaCaptionRuntime captionRuntime = captions;
-            MediaHttpHandler handler = new MediaHttpHandler(
-                    runtime,
-                    consentAdministration == null ? null : consentAdministration.administration(),
-                    captionRuntime);
             log.info(
-                    "Starting Media Runtime HTTP service port={} profile={} providers={} privacyMaintenance={} consentAdministration={} captionRuntime={}",
+                    "Starting Media Runtime HTTP service port={} profile={} providers={} privacyMaintenance={} consentAdministration={} captionRuntime={} devProjectTimeline={}",
                     config.httpPort(), config.profile(), runtime.providerIds(),
                     privacyMaintenance == null ? "not-configured" : privacyMaintenance.maintenanceId(),
                     consentAdministration == null ? "not-configured" : consentAdministration.administrationId(),
-                    captions == null ? "not-configured" : "ready");
+                    captions == null ? "not-configured" : "ready",
+                    devProjectTimeline == null ? "disabled" : "DEV_ONLY-ready");
             ServiceLauncherSupport.startHttpService(
-                    "Media", config.httpPort(), new MediaSecurityFilter(handler, config.profile()));
+                    "Media", config.httpPort(), new MediaSecurityFilter(
+                            new MediaHttpHandler(runtime,
+                                    consentAdministration == null ? null : consentAdministration.administration(),
+                                    captions, finalDevProjectTimeline),
+                            config.profile()));
         } catch (RuntimeException failure) {
+            if (devProjectTimeline != null) {
+                try { devProjectTimeline.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
             if (captions != null) {
                 try { captions.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
@@ -93,5 +107,12 @@ public final class MediaLauncher {
             catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
             throw failure;
         }
+    }
+
+    static RuntimeException appendShutdownFailure(RuntimeException primary, RuntimeException cleanupFailure) {
+        if (primary == null) return cleanupFailure;
+        if (primary == cleanupFailure) return primary;
+        primary.addSuppressed(cleanupFailure);
+        return primary;
     }
 }

@@ -35,6 +35,19 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void reportsInfiniteSnrWhenCandidateExactlyMatchesIndependentReference() {
+        AudioData source = pcm(100, -100, 50, -50);
+        AudioData repaired = pcm(10, -10, 5, -5);
+        AudioData independentReference = pcm(10, -10, 5, -5);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, repaired, independentReference);
+
+        assertThat(comparison.metrics().hasIndependentReference()).isTrue();
+        assertThat(comparison.metrics().changedSampleCount()).isEqualTo(4);
+        assertThat(comparison.metrics().snrDbVsReference()).isEqualTo(Double.POSITIVE_INFINITY);
+    }
+
+    @Test
     void retainsImmutableAudioValuesWhenCallerBuffersAreChanged() {
         byte[] sourceBytes = {1, 0, 2, 0};
         byte[] repairedBytes = {3, 0, 4, 0};
@@ -121,6 +134,9 @@ class AudioRepairComparisonTest {
     void metricsRejectImpossibleReferenceAndStereoStates() {
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 0.0, 0.0, 0, 0, 0, 0, 0, 0.0, 0.0, false, null, null, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
+                0.0, 0.0, 0, 0, 0, 0, 0, 0.0,
+                Double.NEGATIVE_INFINITY, true, null, null, null));
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(
                 0.0, 0.0, 0, 0, 0, 0, 0, 0.0, Double.NaN, false, 1.01, 0.5, 0.51));
         assertThatIllegalArgumentException().isThrownBy(() -> new AudioRepairComparison.Metrics(

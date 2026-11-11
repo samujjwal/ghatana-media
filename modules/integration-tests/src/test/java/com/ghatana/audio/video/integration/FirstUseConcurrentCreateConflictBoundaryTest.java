@@ -51,7 +51,7 @@ class FirstUseConcurrentCreateConflictBoundaryTest {
             assertThat(winner.createdNow()).isTrue();
             assertThat(winner.project().title()).isIn("First cut", "Second cut");
             assertThat(winner.project().headRevisionId()).isEqualTo(winner.initialRevision().revisionId());
-            assertThat(winner.initialRevision().graph().scenes()).isEmpty();
+            assertThat(winner.initialRevision().timelines()).isEmpty();
 
             Created replay = engine.createProject(actor, winner.project().workspaceId(),
                     winner.project().title(), "j01-concurrent-conflict-request");

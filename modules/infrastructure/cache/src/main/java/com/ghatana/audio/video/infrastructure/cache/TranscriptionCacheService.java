@@ -42,9 +42,34 @@ public class TranscriptionCacheService {
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
     }
 
+    /**
+     * Combined source-and-rights identity returned with a protected transcript read. The host
+     * loader must populate {@code observedScope} from immutable source/transcript records and
+     * owner-authority evidence it actually read; echoing the requested cache key is not
+     * independent readback. The cache adapter compares the complete value before storing or
+     * returning the transcript.
+     */
+    public record ScopedTranscriptionSnapshot(
+            AudioVideoCache.CacheKeyScope observedScope,
+            UUID transcriptionId,
+            TranscriptionEntity transcription) {
+        public ScopedTranscriptionSnapshot {
+            Objects.requireNonNull(observedScope, "observedScope cannot be null");
+            Objects.requireNonNull(transcriptionId, "transcriptionId cannot be null");
+            Objects.requireNonNull(transcription, "transcription cannot be null");
+        }
+    }
+
+    /** A host source reader that returns the immutable identity it observed with the entity. */
+    @FunctionalInterface
+    public interface ScopedTranscriptionLoader {
+        AsyncOperation<Optional<ScopedTranscriptionSnapshot>> load(UUID transcriptionId);
+    }
+
     private record ScopedTranscriptionEnvelope(
             int formatVersion,
             String scopedKey,
+            UUID transcriptionId,
             Long entityVersion,
             TranscriptionEntity transcription) { }
 
@@ -142,15 +167,35 @@ public class TranscriptionCacheService {
     }
 
     /**
-     * Uses a host owner-backed authority provider for exact current-scope readback before lookup
-     * and before disclosure. Fixtures may verify this gate but do not establish a production
-     * source, consent, retention, or policy authority provider.
+     * Compatibility overload retained for source compatibility. The entity-only loader cannot
+     * bind its result to the complete protected source scope, so this path now fails closed and
+     * never reads the protected cache or invokes the loader.
      */
+    @Deprecated(forRemoval = false)
     public AsyncOperation<TranscriptionEntity> getOrLoadTranscriptionWithAuthority(
             AudioVideoCache.CacheKeyScope scope,
             UUID transcriptionId,
             AudioVideoCache.ScopedAuthority authority,
             Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader) {
+        if (!isValidScopedIdentity(scope, transcriptionId)) {
+            return AsyncOperation.failure(identityMismatch());
+        }
+        Objects.requireNonNull(authority, "authority cannot be null");
+        Objects.requireNonNull(loader, "loader cannot be null");
+        return AsyncOperation.failure(new SecurityException(
+                "Protected transcript caching requires a scoped source snapshot"));
+    }
+
+    /**
+     * Uses a host owner-backed authority provider and a source snapshot for exact current-scope
+     * readback before lookup and disclosure. Fixtures may verify this boundary but do not
+     * establish a production source, consent, retention, or policy authority provider.
+     */
+    public AsyncOperation<TranscriptionEntity> getOrLoadTranscriptionWithScopedSnapshot(
+            AudioVideoCache.CacheKeyScope scope,
+            UUID transcriptionId,
+            AudioVideoCache.ScopedAuthority authority,
+            ScopedTranscriptionLoader loader) {
         if (!isValidScopedIdentity(scope, transcriptionId)) {
             return AsyncOperation.failure(identityMismatch());
         }
@@ -203,22 +248,29 @@ public class TranscriptionCacheService {
     private AsyncOperation<String> loadScopedEnvelope(
             AudioVideoCache.CacheKeyScope scope,
             UUID transcriptionId,
-            Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader) {
-        final AsyncOperation<Optional<TranscriptionEntity>> source;
+            ScopedTranscriptionLoader loader) {
+        final AsyncOperation<Optional<ScopedTranscriptionSnapshot>> source;
         try {
-            source = Objects.requireNonNull(loader.apply(transcriptionId), "loader returned null operation");
+            source = Objects.requireNonNull(loader.load(transcriptionId), "loader returned null operation");
         } catch (RuntimeException failure) {
             return AsyncOperation.failure(failure);
         }
         return source.flatMap(result -> {
-            TranscriptionEntity entity = result == null ? null : result.orElse(null);
-            if (entity != null && !matchesIdentity(entity, scope.tenantId(), transcriptionId)) {
+            ScopedTranscriptionSnapshot snapshot = result == null ? null : result.orElse(null);
+            if (snapshot == null) return AsyncOperation.success(null);
+            if (!scope.equals(snapshot.observedScope()) || !transcriptionId.equals(snapshot.transcriptionId())) {
+                return AsyncOperation.failure(new SecurityException(
+                        "Transcription source identity does not match requested cache scope"));
+            }
+            TranscriptionEntity entity = snapshot.transcription();
+            if (!matchesIdentity(entity, scope.tenantId(), transcriptionId)) {
                 return AsyncOperation.failure(identityMismatch());
             }
-            if (entity != null && entity.isDeleted()) entity = null;
-            // Do not negative-cache absence or deletion: a subsequently created
-            // revision must be visible without waiting for an optimization TTL.
-            if (entity == null) return AsyncOperation.success(null);
+            if (entity.isDeleted()) return AsyncOperation.success(null);
+            if (entity.getVersion() == null) {
+                return AsyncOperation.failure(new IllegalStateException(
+                        "A protected transcription cache entry requires a persisted entity version"));
+            }
             return AsyncOperation.success(encodeEnvelope(scope, transcriptionId, entity));
         });
     }
@@ -228,7 +280,7 @@ public class TranscriptionCacheService {
             UUID transcriptionId,
             String encoded,
             AudioVideoCache.ScopedAuthority authority,
-            Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader,
+            ScopedTranscriptionLoader loader,
             boolean refreshed) {
         // getOrLoadScoped rechecks authority after the cache/source operation and
         // before returning this encoded value. Decode only after that final check.
@@ -257,7 +309,7 @@ public class TranscriptionCacheService {
             TranscriptionEntity entity) {
         try {
             return objectMapper.writeValueAsString(new ScopedTranscriptionEnvelope(
-                    1, cache.buildScopedKey(scope, transcriptionId.toString()),
+                    2, cache.buildScopedKey(scope, transcriptionId.toString()), transcriptionId,
                     entity.getVersion(), entity));
         } catch (Exception failure) {
             throw new IllegalStateException("Unable to encode scoped transcription cache entry", failure);
@@ -277,14 +329,16 @@ public class TranscriptionCacheService {
             ScopedTranscriptionEnvelope envelope,
             AudioVideoCache.CacheKeyScope scope,
             UUID transcriptionId) {
-        if (envelope == null || envelope.formatVersion() != 1
-                || !Objects.equals(envelope.scopedKey(), cache.buildScopedKey(scope, transcriptionId.toString()))) {
+        if (envelope == null || envelope.formatVersion() != 2
+                || !Objects.equals(envelope.scopedKey(), cache.buildScopedKey(scope, transcriptionId.toString()))
+                || !transcriptionId.equals(envelope.transcriptionId())) {
             return false;
         }
         TranscriptionEntity entity = envelope.transcription();
         return entity != null
                 && matchesIdentity(entity, scope.tenantId(), transcriptionId)
                 && !entity.isDeleted()
+                && entity.getVersion() != null
                 && Objects.equals(envelope.entityVersion(), entity.getVersion());
     }
 

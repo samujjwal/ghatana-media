@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="Local DEV_ONLY artifact intake and metadata inspection." />
+    <title>Local Artifact Intake · Media</title>
+    <link rel="stylesheet" href="/src/dev-artifact-intake.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <main id="main-content" class="shell">
+      <header class="page-header">
+        <a class="back-link" href="/">← Media Experience Explorer</a>
+        <p class="eyebrow">Separate local development route</p>
+        <h1>Artifact intake and inspection</h1>
+        <p class="lede">Connect to the local Media host, verify the DEV_ONLY scope, then use only the artifact capabilities returned by that host.</p>
+      </header>
+      <aside class="scope-notice" aria-labelledby="scope-heading">
+        <h2 id="scope-heading">DEV_ONLY · local storage</h2>
+        <p>This page sends artifact requests only through this same-origin local host proxy. Upload classification and retention are request metadata; they grant no rights, consent, availability, or permission to process or deliver the media.</p>
+      </aside>
+      <section class="panel" aria-labelledby="connection-heading">
+        <div class="section-heading"><div><p class="step">01 · Connect</p><h2 id="connection-heading">Verified local host context</h2></div><span class="host-chip" id="host-origin"></span></div>
+        <p class="help">The endpoint is fixed to this page's origin. The local Vite host forwards the artifact path to loopback Media; no destination URL is accepted here.</p>
+        <form id="connect-form" class="connect-form" method="post">
+          <label for="dev-token">Short-lived DEV_ONLY bearer token</label>
+          <div class="token-row"><input id="dev-token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required aria-describedby="token-help" /><button class="button primary" type="submit">Read host context</button></div>
+          <p id="token-help" class="help">Paste a raw token. It stays in page memory only, is never saved in browser storage, and is cleared from this field after connecting.</p>
+        </form>
+        <div class="connection-actions"><button id="forget-token" class="button quiet" type="button" disabled>Forget token and disconnect</button></div>
+        <p id="disconnect-notice" class="help" role="status" aria-live="polite" hidden></p>
+        <p id="status" class="status" role="status" aria-live="polite">Not connected.</p>
+        <dl id="context-fields" class="context-grid" hidden></dl>
+      </section>
+      <section class="panel" aria-labelledby="upload-heading">
+        <div class="section-heading"><div><p class="step">02 · Intake</p><h2 id="upload-heading">Upload one source file</h2></div></div>
+        <form id="intake-form" class="form-grid">
+          <label for="classification">Source classification</label>
+          <select id="classification" name="classification" required><option value="" selected disabled>Select a classification</option><option value="INTERNAL">INTERNAL</option><option value="PUBLIC">PUBLIC</option><option value="CONFIDENTIAL">CONFIDENTIAL</option><option value="RESTRICTED">RESTRICTED</option></select>
+          <label for="retention">Storage retention</label>
+          <select id="retention" name="retention" required aria-describedby="retention-help"><option value="" selected disabled>Select a retention period</option><option value="P1D">1 day</option><option value="P7D">7 days</option><option value="P30D">30 days</option><option value="P90D">90 days</option><option value="P365D">365 days</option><option value="P3650D">3,650 days (maximum)</option></select>
+          <p id="retention-help" class="help">Choose an explicit ISO-8601 duration supported by the local runtime (up to 3,650 days). This request metadata does not establish rights or consent.</p>
+          <p id="metadata-status" role="status" aria-live="polite">Select both a source classification and a retention period before upload is available.</p>
+          <p id="capability-status" role="status" aria-live="polite">Connect to read artifact upload capability.</p>
+          <div id="intake-mount"></div>
+          <p id="upload-result" role="status" aria-live="polite" aria-atomic="true">No upload completion has been observed.</p>
+        </form>
+      </section>
+      <section class="panel" aria-labelledby="inspection-heading">
+        <div class="section-heading"><div><p class="step">03 · Inspect</p><h2 id="inspection-heading">Read canonical artifact metadata</h2></div></div>
+        <form id="inspection-form" class="form-grid">
+          <label for="artifact-id">Artifact ID</label>
+          <input id="artifact-id" name="artifactId" autocomplete="off" required />
+          <button id="inspect-button" class="button secondary" type="submit" disabled>Load artifact inspection</button>
+          <p id="inspection-capability-status" role="status" aria-live="polite">Connect to read artifact inspection capability.</p>
+          <div id="inspection-mount"></div>
+        </form>
+      </section>
+      <footer><p>Persistent notice: DEV_ONLY · local storage · token held in memory only · metadata is not rights or consent evidence.</p></footer>
+    </main>
+    <script type="module" src="/src/dev-artifact-intake.tsx"></script>
+  </body>
+</html>

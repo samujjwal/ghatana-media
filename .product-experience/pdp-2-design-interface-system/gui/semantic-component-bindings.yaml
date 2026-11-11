@@ -566,7 +566,6 @@ definitionBindings:
   - label
   publicExportEvidence:
   - libs/audio-video-ui/package.json#./components
-  - libs/audio-video-ui/src/index.tsx#export*from-components
   - libs/audio-video-ui/src/components/index.ts#MediaProgress
   rationale: Use the exact observed public contract for this role; its export and prop identity do not admit the renderer,
     host effects, external package, or independent conformance.
@@ -584,7 +583,6 @@ definitionBindings:
   - children
   publicExportEvidence:
   - libs/audio-video-ui/package.json#./components
-  - libs/audio-video-ui/src/index.tsx#export*from-components
   - libs/audio-video-ui/src/components/index.ts#MediaTaskFlow
   rationale: Use the exact observed public contract for this role; its export and prop identity do not admit the renderer,
     host effects, external package, or independent conformance.
@@ -656,6 +654,7 @@ rendererAdapterBindings:
   adapterRole: typed-read-only-value-disclosure
   scope: Generic value projection helper; not an independently reusable Media component family or screen implementation.
   admission: SOURCE_BINDING_ONLY; runtime-and-accessibility-review-pending
+
 - id: media.gui.renderer-adapter.media-family.v1
   implementationExport: MediaFamily
   implementationCandidate: libs/audio-video-ui/src/components/MediaComponentFamilies.tsx
@@ -728,3 +727,12 @@ rendererAdapterBindings:
   adapterRole: PDP-3-contract-component-projection
   scope: Candidate screen-contract renderer source; component projection and focused tests do not admit the screen population or claim all families run in production.
   admission: SOURCE_BINDING_ONLY; runtime-and-accessibility-review-pending
+
+embeddedSurfaceBindings:
+- id: media.gui.embedded-surface.interactive-demo-player.v1
+  implementationExport: InteractiveDemoPlayer
+  implementationCandidate: libs/audio-video-ui/src/player/interactiveDemoPlayer.tsx
+  surfaceId: media.surface.interactive-demo-player
+  surfaceSourceRef: .product-experience/pdp-2-design-interface-system/recorder-studio-interface.yaml#surfaceInterfaces/media.surface.interactive-demo-player
+  experienceSourceRef: .product-experience/pdp-3-product-experience/recorder-studio-experience.yaml#interactiveDemoPlayerExperience
+  status: candidate-source-observation-only; route-runtime-admission-not-recorded

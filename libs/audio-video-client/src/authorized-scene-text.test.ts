@@ -165,6 +165,48 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     }
   });
 
+  it('snapshots the provider/model policy before asynchronous digest verification', async () => {
+    const admittedPolicy = {
+      ...policy,
+      acceptedMediaTypes: [...policy.acceptedMediaTypes],
+      acceptedLanguages: [...policy.acceptedLanguages],
+      workerLimits: { ...policy.workerLimits },
+    };
+    const source = authorized();
+    const di = diClient();
+    const access = await admission();
+    let resolveDigest!: (digest: ArrayBuffer) => void;
+    const digestResult = new Promise<ArrayBuffer>(resolve => { resolveDigest = resolve; });
+    const originalDigest = crypto.subtle.digest.bind(crypto.subtle);
+    const digest = vi.spyOn(crypto.subtle, 'digest').mockImplementation(() => digestResult);
+
+    try {
+      const result = recognizeAuthorizedMediaSceneText(
+        source, di, admittedPolicy, 'op-1', frame, access);
+      expect(digest).toHaveBeenCalledTimes(1);
+      admittedPolicy.providerRef = 'di.ocr.forged';
+      admittedPolicy.providerVersion = 'forged';
+      admittedPolicy.modelRef = 'model.forged';
+      admittedPolicy.modelVersion = 'forged';
+      admittedPolicy.timeoutMs = 1;
+      admittedPolicy.acceptedMediaTypes.splice(0, 1, 'image/jpeg');
+      admittedPolicy.acceptedLanguages.splice(0, 1, 'fr');
+      admittedPolicy.workerLimits.maxPages = 99;
+      resolveDigest(await originalDigest('SHA-256', new Uint8Array(frame.bytes).buffer));
+
+      await result;
+      expect(di.parse).toHaveBeenCalledWith(expect.objectContaining({
+        providerRef: policy.providerRef,
+        timeoutMs: 3_000,
+        limits: { maxPages: 1, maxRegions: 50 },
+        mediaType: 'image/png',
+        languageHint: 'en',
+      }));
+    } finally {
+      digest.mockRestore();
+    }
+  });
+
   it('prevents any DI call on revoked consent', async () => {
     const di = diClient();
     const denied = {

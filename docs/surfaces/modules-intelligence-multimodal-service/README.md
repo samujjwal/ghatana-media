@@ -73,6 +73,14 @@ unchanged and immutable. This protects the local readback snapshot only; it
 does not establish PostgreSQL crash recovery, licensed child outputs, or
 source/rights grounding.
 
+The live child orchestrator checks the remaining parent deadline after durable
+child readback and before it evaluates terminal children. A readback that
+consumes the remaining budget leaves the parent `UNKNOWN`, even when each child
+now reads terminal; `DelegatingMultimodalProviderTest` passes 31/31. This keeps
+the child observation within its parent operation bound. It does not qualify
+real licensed child effects, source/rights grounding, or durable parent
+finality.
+
 ## Tests and commands
 
 ```bash

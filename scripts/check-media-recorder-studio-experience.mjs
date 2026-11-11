@@ -40,6 +40,20 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
       }
     } catch(error) {fail(k+': unreadable source: '+error.message);}
   }
+  const screenContractRows=[];
+  const screenContractsDirectory='.product-experience/pdp-3-product-experience/screen-contracts';
+  try {
+    const directory=path.join(root,screenContractsDirectory);
+    const files=fs.readdirSync(directory).filter(file=>file.endsWith('.yaml')).sort();
+    for(const file of files) {
+      try {
+        const parsed=parseDocument(fs.readFileSync(path.join(directory,file),'utf8'),{uniqueKeys:true,strict:true});
+        if(parsed.errors.length) {
+          for(const error of parsed.errors)fail('screen-contracts/'+file+': invalid or duplicate YAML: '+error.message);
+        } else screenContractRows.push({file,document:parsed.toJS()});
+      } catch(error) {fail('screen-contracts/'+file+': unreadable source: '+error.message);}
+    }
+  } catch(error) {fail('screen-contracts: unreadable directory: '+error.message);}
   if(errors.length)return { errors, stats:{sourceDocumentsValid:false} };
   const {p0,p1,p2,p3,req,journeys,screens,templates,layouts,recipes,identities,components,registry,topology}=sources;
   if(!p0 || !p1 || !p2 || !p3 || !req || !journeys || !screens || !templates || !layouts || !recipes || !identities || !components || !registry || !topology) {
@@ -101,10 +115,46 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
      !Array.isArray(allowedEvidence) || allowedEvidence.length<15 || !uniqueSet(allowedEvidence))
     fail('PDP3 step operation selection policy or evidence taxonomy missing');
   const allowedJourneyIds=new Set((journeys.journeys??[]).map(x=>x.id));
-  const canonicalScreenIds=(screens.screens??[]).map(x=>x.id);
+  // PDP-3 records 41 authored baseline views plus six lane-specific views;
+  // those 47 identities each have one canonical contract, while the job-family
+  // artifact is a separate specialization of the existing job-status view.
+  const baselineScreenIds=(screens.screens??[]).map(x=>x.id);
+  const laneScreenIds=(screens.laneViews??[]).map(x=>x.id);
+  const canonicalScreenIds=[...baselineScreenIds,...laneScreenIds];
+  const canonicalScreenContracts=screenContractRows
+    .filter(row=>row.file!=='artifact-verification-job-family.yaml')
+    .map(row=>row.document);
+  const canonicalScreenContractIds=canonicalScreenContracts.map(contract=>contract.screenId);
+  const jobFamilySpecializations=screenContractRows
+    .filter(row=>row.file==='artifact-verification-job-family.yaml')
+    .map(row=>row.document);
+  const screenCoverage=screens.coverage??{};
+  const currentContractObservation=screenCoverage.currentContractObservation??{};
   if(allowedJourneyIds.size!==30 || (journeys.journeys??[]).length!==30 ||
-     !uniqueSet(canonicalScreenIds) || canonicalScreenIds.length!==47)
+     !uniqueSet(baselineScreenIds) || baselineScreenIds.length!==41 ||
+     !uniqueSet(laneScreenIds) || laneScreenIds.length!==6 ||
+     laneScreenIds.some(id=>baselineScreenIds.includes(id)) ||
+     !uniqueSet(canonicalScreenIds) || canonicalScreenIds.length!==47 ||
+     !uniqueSet(canonicalScreenContractIds) || canonicalScreenContractIds.length!==47 ||
+     !sameIds(canonicalScreenContractIds,canonicalScreenIds) ||
+     canonicalScreenContracts.length!==47 || screenContractRows.length!==48 ||
+     jobFamilySpecializations.length!==1 ||
+     screenCoverage.requiredBaselineViewCount!==41 ||
+     screenCoverage.authoredBaselineViewProposalCount!==41 ||
+     screenCoverage.acceptedBaselineViewContractCount!==0 ||
+     screenCoverage.authoredLaneSpecificViewProposalCount!==6 ||
+     currentContractObservation.canonicalScreenContractCount!==47 ||
+     currentContractObservation.status!=='source-inventory-only; semantic-acceptance-pending')
     fail('historical PDP3 journey/screen inventory has drifted from the proposed successor reference');
+  const jobFamily=jobFamilySpecializations[0];
+  if(jobFamily?.schemaVersion!=='media.job-view-specialization.v1' ||
+     jobFamily?.productId!=='media' ||
+     jobFamily?.screenRef!=='media.view.job-status' ||
+     jobFamily?.specializationId!=='media.job-family.artifact-verification' ||
+     !String(jobFamily?.status??'').includes('proposal') ||
+     !String(jobFamily?.status??'').includes('verification-owner-contract-pending') ||
+     !canonicalScreenIds.includes(jobFamily?.screenRef))
+    fail('the single artifact-verification job-family specialization must remain a proposal on the canonical job-status view');
   for(const flow of flows) {
     const profile=features.find(x=>x.id===flow.sourceProfileRef);
     if(!profile)continue;
@@ -206,10 +256,10 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const p2StudioComponents=(p2.recorderStudioComponentCompositions?.surfaceContracts??[])
     .find(x=>x.surfaceId==='media.surface.production-studio')?.components??[];
   const componentIds=(components.components??[]).map(x=>x.id);
-  const existingScreenIds=(screens.screens??[]).map(x=>x.id);
+  const existingScreenIds=canonicalScreenIds;
   if(p2PageContracts.length!==13 || !sameIds(p2PageContracts.map(x=>x.workspaceKey),workspace))
     fail('PDP2 page composition inventory must match all 13 Studio workspace keys');
-  if(!uniqueSet(existingScreenIds) || existingScreenIds.length!==47)
+  if(!sameIds(canonicalScreenContractIds,existingScreenIds))
     fail('canonical screen baseline must remain unchanged until new candidate admission');
   let reusePageCount=0, newPageCount=0;
   const proposedNewIds=[];
@@ -370,7 +420,7 @@ export function verifyRecorderStudioExperience({ root=defaultRoot, overrides={} 
   const population=p3.population??{};
   for(const [name,value] of Object.entries({logicalSurfaces:4,featureProfiles:16,acceptanceCaseSteps:84,exactProposedPrimaryOperationSteps:63,explicitNonInvocationSteps:21,manualEditPaths:52,studioWorkspaceProposals:13,scopedExperienceScenarios:7,existingTopLevelJourneysPreserved:30,existingCanonicalScreensPreserved:47,physicalPackagesAdded:0}))
     if(population[name]!==value)fail('declared PDP3 population mismatch: '+name);
-  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,interactiveScreenCaseContracts:caseInteractions.length,interactiveFixtureDefinitions:authoredFixtures.length,scopedExperienceScenarios:scenarioContracts.length}};
+  return {errors,stats:{sourceDocumentsValid:true,logicalSurfaces:surfaceDefs.length,flowContracts:flows.length,acceptanceCaseSteps:allSteps.length,exactProposedPrimaryOperationSteps:exactOperationSteps,explicitNonInvocationSteps:explicitNonInvocationSteps,manualEditPaths:editPaths.length,workspaceIntents:pages.length,reusedCanonicalScreenViews:reusePageCount,unregisteredScreenCandidates:newPageCount,baselineScreenViews:baselineScreenIds.length,laneSpecificScreenViews:laneScreenIds.length,canonicalScreenContractIdentities:canonicalScreenContractIds.length,jobFamilySpecializations:jobFamilySpecializations.length,interactiveScreenCaseContracts:caseInteractions.length,interactiveFixtureDefinitions:authoredFixtures.length,scopedExperienceScenarios:scenarioContracts.length}};
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const report=verifyRecorderStudioExperience();

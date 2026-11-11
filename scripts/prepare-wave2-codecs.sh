@@ -93,9 +93,11 @@ case "$1" in
   *) echo 'Unknown platform profile' >&2; exit 2 ;;
 esac
 if [[ "$1" == linux-* ]]; then select_runtime_packages "$1"; fi
-for required in curl python3; do
-  command -v "$required" >/dev/null || { echo "Missing $required" >&2; exit 3; }
-done
+command -v python3 >/dev/null || { echo 'Missing python3' >&2; exit 3; }
+archive_source="${GHATANA_MEDIA_CODEC_ARCHIVE_SOURCE:-}"
+if [[ -z "$archive_source" || "$1" == linux-* ]]; then
+  command -v curl >/dev/null || { echo 'Missing curl' >&2; exit 3; }
+fi
 root='/tmp/ghatana-media-codecs'
 if [[ $# -eq 2 ]]; then root="$2"; fi
 mkdir -p "$root"; root="$(cd "$root" && pwd -P)"
@@ -106,8 +108,23 @@ scratch="$(mktemp -d "$root/.codec-provision.XXXXXXXX")"
 trap 'rm -rf "$scratch"' EXIT
 url="https://github.com/serversideup/ffmpeg-lgpl-builds/releases/download/v8.1.2-27/$name"
 package_manifest=''
-curl --fail --location --retry 2 --connect-timeout 15 --max-time 180 \
-  --max-filesize 65000000 --silent --show-error "$url" -o "$scratch/$name"
+archive_acquisition='PINNED_HTTPS_RELEASE'
+if [[ -n "$archive_source" ]]; then
+  [[ -f "$archive_source" ]] || { echo 'Pinned codec archive cache is not a regular file' >&2; exit 3; }
+  archive_size="$(python3 -c 'import os,sys; print(os.path.getsize(sys.argv[1]))' "$archive_source")"
+  [[ "$archive_size" =~ ^[0-9]+$ && "$archive_size" -le 65000000 ]] || {
+    echo 'Pinned codec archive cache exceeds 65 MiB' >&2
+    exit 3
+  }
+  python3 - "$archive_source" "$scratch/$name" <<'PY'
+import shutil, sys
+shutil.copyfile(sys.argv[1], sys.argv[2])
+PY
+  archive_acquisition='LOCAL_CACHE_VERIFIED_AGAINST_SOURCE_PIN'
+else
+  curl --fail --location --retry 2 --connect-timeout 15 --max-time 180 \
+    --max-filesize 65000000 --silent --show-error "$url" -o "$scratch/$name"
+fi
 if [[ "$1" == linux-* ]]; then
   mkdir -p "$scratch/runtime-packages"
   package_manifest="$scratch/runtime-packages/manifest.tsv"
@@ -126,9 +143,9 @@ if [[ "$1" == linux-* ]]; then
 fi
 python3 - "$scratch/$name" "$scratch" "$target" "$expected" "$name" "$url" \
   "$package_manifest" "$runtime_profile" "$runtime_arch" "$runtime_triplet" \
-  "$runtime_sidecar_image" "$runtime_package_count" <<'PY'
+  "$runtime_sidecar_image" "$runtime_package_count" "$archive_acquisition" <<'PY'
 import hashlib, json, os, pathlib, shutil, sys, tarfile
-archive, scratch, target, expected, name, url, package_manifest, runtime_profile, runtime_arch, runtime_triplet, runtime_sidecar_image, expected_package_count = sys.argv[1:]
+archive, scratch, target, expected, name, url, package_manifest, runtime_profile, runtime_arch, runtime_triplet, runtime_sidecar_image, expected_package_count, archive_acquisition = sys.argv[1:]
 archive = pathlib.Path(archive)
 if not archive.is_file() or archive.stat().st_size > 65_000_000:
     raise SystemExit('Pinned archive missing or oversized')
@@ -192,6 +209,7 @@ if package_manifest:
 (out/'PROVISION.json').write_text(json.dumps(dict(
     schemaVersion='ghatana.media.test-codecs.v1',release='v8.1.2-27',
     source='serversideup/ffmpeg-lgpl-builds',archiveUrl=url,
+    archiveAcquisition=archive_acquisition,
     archiveSha256=expected,binarySha256=binary,
     nativeRuntime=(dict(profile=runtime_profile,architecture=runtime_arch,
                         triplet=runtime_triplet,sidecarImage=runtime_sidecar_image,

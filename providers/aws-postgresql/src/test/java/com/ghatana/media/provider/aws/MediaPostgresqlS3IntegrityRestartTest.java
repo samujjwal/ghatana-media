@@ -145,6 +145,104 @@ class MediaPostgresqlS3IntegrityRestartTest {
     }
 
     @Test
+    void expiredMetadataConflictPurgeDeletesOnlyItsQuarantineAndChunkBytes() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-conflict-purge-" + runId;
+        String prefix = "ip06-conflict-purge/" + runId;
+        String tenant = "tenant-ip06-conflict-purge-" + runId;
+        String principal = "principal-ip06-conflict-purge-" + runId;
+        byte[] bytes = wav(("metadata-conflict-purge:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        String expiredFinalKey;
+        String expiredChunkKey;
+        String retainedFinalKey;
+        String retainedChunkKey;
+        String committedArtifactReference;
+        UploadSession originalUpload;
+        UploadSession expiredUpload;
+        UploadSession retainedUpload;
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+                originalUpload = store.begin(new UploadRequest(tenant, principal, "source.wav",
+                                "audio/wav", bytes.length, digest, "RESTRICTED", Duration.ofDays(30), Map.of()),
+                        "ip06-conflict-purge-original-" + runId);
+                store.append(tenant, principal, originalUpload.uploadId(), 0, bytes);
+                MediaArtifact committed = store.complete(tenant, principal, originalUpload.uploadId());
+                committedArtifactReference = committed.objectReference();
+
+                expiredUpload = store.begin(new UploadRequest(tenant, principal, "expired-rename.wav",
+                                "audio/wav", bytes.length, digest, "RESTRICTED", Duration.ofDays(30), Map.of()),
+                        "ip06-conflict-purge-expired-" + runId);
+                store.append(tenant, principal, expiredUpload.uploadId(), 0, bytes);
+                assertThatThrownBy(() -> store.complete(tenant, principal, expiredUpload.uploadId()))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("Media artifact byte identity conflicts with governed metadata: fileName");
+
+                retainedUpload = store.begin(new UploadRequest(tenant, principal, "retained-rename.wav",
+                                "audio/wav", bytes.length, digest, "RESTRICTED", Duration.ofDays(30), Map.of()),
+                        "ip06-conflict-purge-retained-" + runId);
+                store.append(tenant, principal, retainedUpload.uploadId(), 0, bytes);
+                assertThatThrownBy(() -> store.complete(tenant, principal, retainedUpload.uploadId()))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("Media artifact byte identity conflicts with governed metadata: fileName");
+
+                expiredFinalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                        + expiredUpload.uploadId() + "/" + digest;
+                expiredChunkKey = chunkObjectKey(tenant, expiredUpload.uploadId());
+                retainedFinalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                        + retainedUpload.uploadId() + "/" + digest;
+                retainedChunkKey = chunkObjectKey(tenant, retainedUpload.uploadId());
+                assertThat(s3Object(bucket, committedArtifactReference)).containsExactly(bytes);
+                assertThat(s3ObjectCount(bucket, expiredFinalKey)).isEqualTo(1);
+                assertThat(s3ObjectCount(bucket, expiredChunkKey)).isEqualTo(1);
+                assertThat(s3ObjectCount(bucket, retainedFinalKey)).isEqualTo(1);
+                assertThat(s3ObjectCount(bucket, retainedChunkKey)).isEqualTo(1);
+
+                try (var connection = DriverManager.getConnection(
+                        POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var expire = connection.prepareStatement(
+                             "UPDATE media_upload_sessions SET expires_at=? WHERE tenant_id=? AND upload_id=?")) {
+                    expire.setLong(1, Instant.now().minusSeconds(1).toEpochMilli());
+                    expire.setString(2, tenant);
+                    expire.setString(3, expiredUpload.uploadId());
+                    assertThat(expire.executeUpdate()).isEqualTo(1);
+                    expire.setLong(1, Instant.now().minusSeconds(1).toEpochMilli());
+                    expire.setString(2, tenant);
+                    expire.setString(3, originalUpload.uploadId());
+                    assertThat(expire.executeUpdate()).isEqualTo(1);
+                }
+            }
+
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 PostgresqlMediaPrivacyMaintenance maintenance = new PostgresqlMediaPrivacyMaintenance(environment)) {
+                var report = maintenance.purgeExpired(Instant.now());
+                assertThat(report.uploadsDeleted()).isEqualTo(2);
+                assertThat(report.chunksDeleted()).isEqualTo(2);
+                assertThat(report.artifactsDeleted()).isZero();
+            }
+
+            assertThat(s3ObjectCount(bucket, expiredFinalKey)).as("only expired upload quarantine bytes are removed")
+                    .isZero();
+            assertThat(s3ObjectCount(bucket, expiredChunkKey)).as("only expired upload chunks are removed").isZero();
+            assertThat(s3ObjectCount(bucket, retainedFinalKey)).as("unexpired quarantine object remains").isEqualTo(1);
+            assertThat(s3ObjectCount(bucket, retainedChunkKey)).as("unexpired staged chunk remains").isEqualTo(1);
+            assertThat(s3Object(bucket, committedArtifactReference))
+                    .as("cleanup preserves an artifact object even after its upload session expires")
+                    .containsExactly(bytes);
+            assertThat(artifactCountForTenant(tenant)).isEqualTo(1);
+            assertThat(chunkRowCount(tenant, expiredUpload.uploadId())).isZero();
+            assertThat(chunkRowCount(tenant, retainedUpload.uploadId())).isEqualTo(1);
+            assertThat(artifactIdForUpload(tenant, retainedUpload.uploadId())).isNull();
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
     void concurrentWorkersReclaimExpiredFinalizationLeaseWithOneScanAndArtifact() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-ip06-claim-race-" + runId;

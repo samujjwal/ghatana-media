@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { traceMetadataForArtifact } from "../apps/media-experience-explorer/src/specification.ts";
-import { parseArtifactIdentityRegistry, validateArtifactIdentities } from "../scripts/generate-media-product-manifest.mjs";
+import { parseArtifactIdentityRegistry, repositoryRootForModuleUrl, validateArtifactIdentities } from "../scripts/generate-media-product-manifest.mjs";
 
 const classes = [
   "CROSS_PHASE_GOVERNANCE", "EXPLORER_PROJECTION", "PRODUCT_TRUTH_AUTHORITY",
@@ -143,6 +143,13 @@ test("manifest projection identity cannot collide with a source artifact identit
   const source = { path: "a.yaml", artifactId: "ART-MEDIA-DUPLICATE", authorityClass: "CROSS_PHASE_GOVERNANCE" };
   const projection = { path: "manifest.yaml", artifactId: source.artifactId, authorityClass: "CROSS_PHASE_GOVERNANCE" };
   assert.throws(() => validateArtifactIdentities([source], [source.path], classes, projection), /Manifest projection artifactId collides/u);
+});
+
+test("generator repository root decodes filesystem paths containing spaces", () => {
+  assert.equal(
+    repositoryRootForModuleUrl("file:///Users/test/Audio%20Video/ghatana-media/scripts/generate-media-product-manifest.mjs"),
+    "/Users/test/Audio Video/ghatana-media",
+  );
 });
 
 test("source manifest indexes current PDP-3 candidate authorities and their screen-contract dependencies", () => {

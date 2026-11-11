@@ -32,6 +32,7 @@
     "check:contract-parity": "node scripts/check-media-contract-parity.mjs",
     "check:sdk-declaration-crosswalk": "node scripts/generate-media-sdk-declaration-crosswalk.mjs --check",
     "check:capability-implementation-crosswalk": "node scripts/generate-media-capability-implementation-crosswalk.mjs --check",
+    "test:capability-implementation-crosswalk": "node --test tests/media-capability-implementation-crosswalk.test.mjs",
     "check:design-conformance": "node scripts/check-media-design-conformance.mjs",
     "normalize:screen-design-candidates": "node scripts/normalize-media-screen-design-candidates.mjs",
     "check:presentation-architecture": "node scripts/check-media-presentation-architecture.mjs",
@@ -87,6 +88,7 @@
     "generate:build-f00-t01-observation": "node scripts/generate-media-build-f00-t01-observation.mjs",
     "test:build-f00-t01-observation": "node --test tests/media-build-f00-t01-observation.test.mjs",
     "test:backend-modality-wave2-plan": "node --test tests/media-backend-modality-wave2-plan.test.mjs",
+    "test:local-test-pass-cache": "node --test tests/local-test-pass-cache.test.mjs",
     "test:wave2-r10-owner-resolution": "node --test tests/media-wave2-r10-owner-resolution.test.mjs",
     "test:wave2-evidence-intake": "node --test tests/media-wave2-evidence-intake.test.mjs",
     "check:candidate-decision-crosswalk": "node scripts/qualification/check-media-candidate-crosswalk.mjs",
@@ -120,6 +122,8 @@
     "generate:historical-inventory": "node scripts/media-historical-artifact-inventory.mjs",
     "check:historical-inventory": "node scripts/media-historical-artifact-inventory.mjs --check",
     "test:development-work-register": "node --test tests/media-development-work-register.test.mjs",
+    "test:media-codec-provision": "node --test tests/media-codec-provision.test.mjs",
+    "test:media-dev-identity-token": "node --test tests/media-dev-identity-token.test.mjs",
     "prepare:historical-export": "node scripts/prepare-media-historical-export.mjs",
     "test:historical-export": "node --test tests/media-historical-export.test.mjs",
     "check:usable-surface-delivery": "node scripts/check-media-surface-delivery.mjs --check",
@@ -128,6 +132,7 @@
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
     "@ghatana/verification-planner": "workspace:*",
+    "gltf-validator": "2.0.0-dev.3.10",
     "playwright": "1.63.0",
     "yaml": "2.9.1"
   }

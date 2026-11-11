@@ -37,6 +37,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** M5: restart recovery of a crashed multimodal parent from durable spec + child states. */
 class MediaRuntimeMultimodalRestartTest {
 
+    private static LocalMediaRuntimeSupport.JobStore crashRecoveryJobStore() {
+        // These restart cases model a worker process that has been gone long enough for its
+        // lease to expire. Advance only the fixture recovery clock; live lease protection in
+        // production and the dedicated live-lease regression remain unchanged.
+        return new LocalMediaRuntimeSupport.JobStore(false,
+                Clock.offset(Clock.systemUTC(), Duration.ofMinutes(2)));
+    }
+
     @Test
     void reconstructedChildObservationsAreDetachedFromMutableReadbackValues() {
         Instant now = Instant.now();
@@ -200,9 +208,9 @@ class MediaRuntimeMultimodalRestartTest {
     }
 
     @Test
-    void crashedParentWithCompletedChildrenReconcilesToExactCompletedResult() throws Exception {
+    void crashedParentWithCompletedChildrenRemainsUnknownWithoutFreshAuthority() throws Exception {
         var root = Files.createTempDirectory("media-mm-restart-");
-        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var jobStore = crashRecoveryJobStore();
         var submitted = new CountDownLatch(1);
         var runtime1 = runtime(root, jobStore,
                 blockingMmProvider(submitted, Map.of("text", "grounded")),
@@ -217,31 +225,72 @@ class MediaRuntimeMultimodalRestartTest {
         awaitStatus(jobStore, "req-mm:stt", JobStatus.COMPLETED);
         runtime1.close(); // parent attempt thread dies mid-dispatch; job stays RUNNING
 
+        var restartDispatch = new CountDownLatch(1);
         var runtime2 = runtime(root, jobStore,
-                blockingMmProvider(new CountDownLatch(1), Map.of()),
+                blockingMmProvider(restartDispatch, Map.of()),
                 sttProvider(Map.of()));
         try {
-            var parent = runtime2.job("tenant-a", "principal-a",
-                    jobStore.findByRequest("tenant-a", "req-mm").orElseThrow().jobId()).orElseThrow();
-            assertThat(parent.status()).isEqualTo(JobStatus.COMPLETED);
-            assertThat(parent.result()).containsKey("observations");
-            // Exact readback: fused result rebuilt solely from the durable spec + children.
-            assertThat(String.valueOf(parent.result().get("observations"))).contains("stt");
-            // Restart grounding parity: the durable spec's source clock bound the child's
-            // declared ticks into the identical TIMESTAMP_ALIGNED entry a live attempt emits.
-            assertThat(String.valueOf(parent.result().get("observations")))
-                    .contains("TIMESTAMP_ALIGNED");
-            assertThat(parent.result().get("clockComparability"))
-                    .isEqualTo("SOURCE_CLOCK_SHARED");
+            var parentId = jobStore.findByRequest("tenant-a", "req-mm").orElseThrow().jobId();
+            var parent = runtime2.job("tenant-a", "principal-a", parentId).orElseThrow();
+            assertThat(parent.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(parent.result()).doesNotContainKey("observations");
+            assertThat(parent.result()).containsEntry("providerOutcome", "UNKNOWN");
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:stt")
+                    .orElseThrow().status()).isEqualTo(JobStatus.COMPLETED);
+
+            // No current authenticated principal or full prior Evidence is available at
+            // startup, so even completed child rows must not be replayed as parent success.
+            var replay = runtime2.submit(mmRequest(source, spec(source, childArtifact)),
+                    authenticatedPrincipal());
+            assertThat(replay.jobId()).isEqualTo(parentId);
+            assertThat(replay.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(restartDispatch.getCount()).isEqualTo(1);
         } finally {
             runtime2.close();
         }
     }
 
     @Test
+    void oversizedCompletedChildCannotCompleteParentWithoutFreshAuthority() throws Exception {
+        var root = Files.createTempDirectory("media-mm-restart-oversized-");
+        var jobStore = crashRecoveryJobStore();
+        var submitted = new CountDownLatch(1);
+        var runtime1 = runtime(root, jobStore,
+                blockingMmProvider(submitted, Map.of()),
+                sttProvider(Map.of("text", "x".repeat(8_192))));
+        try {
+            var source = artifact(runtime1);
+            var childArtifact = artifact(runtime1);
+            runtime1.submit(mmRequest(source, spec(source, childArtifact)), authenticatedPrincipal());
+            assertThat(submitted.await(10, TimeUnit.SECONDS)).isTrue();
+            awaitStatus(jobStore, "req-mm:stt", JobStatus.COMPLETED);
+            runtime1.close(); // parent attempt thread dies while the durable child has a result
+
+            var runtime2 = runtime(root, jobStore,
+                    blockingMmProvider(new CountDownLatch(1), Map.of()),
+                    sttProvider(Map.of()));
+            try {
+                // Startup refuses completed-child composition before projection because it
+                // has no fresh authenticated principal or current authority evidence. The
+                // live oversized-projection path is exercised by
+                // DelegatingMultimodalProviderTest instead.
+                var parentId = jobStore.findByRequest("tenant-a", "req-mm").orElseThrow().jobId();
+                var parent = runtime2.job("tenant-a", "principal-a", parentId).orElseThrow();
+                assertThat(parent.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(parent.result()).doesNotContainKey("observations");
+                assertThat(parent.result()).containsEntry("providerOutcome", "UNKNOWN");
+            } finally {
+                runtime2.close();
+            }
+        } finally {
+            runtime1.close();
+        }
+    }
+
+    @Test
     void crashedParentWithUnknownChildPreservesOutcomeUnknown() throws Exception {
         var root = Files.createTempDirectory("media-mm-restart-fail-");
-        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var jobStore = crashRecoveryJobStore();
         var submitted = new CountDownLatch(1);
         var runtime1 = runtime(root, jobStore,
                 blockingMmProvider(submitted, Map.of()),
@@ -270,7 +319,7 @@ class MediaRuntimeMultimodalRestartTest {
     @Test
     void crashedParentWithFailedChildAndUnresolvedSiblingPreservesOutcomeUnknown() throws Exception {
         var root = Files.createTempDirectory("media-mm-restart-sibling-");
-        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var jobStore = crashRecoveryJobStore();
         var submitted = new CountDownLatch(1);
         var providers = List.of(
                 blockingMmProvider(submitted, Map.of()), failedSttProvider(), blockingVisionProvider());
@@ -305,7 +354,7 @@ class MediaRuntimeMultimodalRestartTest {
     @Test
     void crashedParentWithFailedAndCancelledChildrenDoesNotClaimNoEffect() throws Exception {
         var root = Files.createTempDirectory("media-mm-restart-cancelled-child-");
-        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var jobStore = crashRecoveryJobStore();
         var submitted = new CountDownLatch(1);
         var providers = List.of(
                 blockingMmProvider(submitted, Map.of()), failedSttProvider(), cancellableBlockingVisionProvider());
@@ -338,7 +387,7 @@ class MediaRuntimeMultimodalRestartTest {
     @Test
     void crashedParentWithCompletedAndFailedChildrenPreservesUnknownFinality() throws Exception {
         var root = Files.createTempDirectory("media-mm-restart-mixed-terminal-");
-        var jobStore = new LocalMediaRuntimeSupport.JobStore(false);
+        var jobStore = crashRecoveryJobStore();
         var submitted = new CountDownLatch(1);
         var providers = List.of(
                 blockingMmProvider(submitted, Map.of()), failedSttProvider(),

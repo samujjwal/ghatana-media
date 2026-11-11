@@ -844,6 +844,29 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void profileOnlyStreamCannotFallThroughToConfiguredDefaultVoice() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder()
+                .setText("hello")
+                .setProfileId("profile-with-unresolved-voice")
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage("en-US").build())
+                .build(), observer);
+
+        assertStatus(observer, Status.Code.UNAVAILABLE);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .contains("TTS_PROFILE_VOICE_BINDING_NOT_ADMITTED")
+                .doesNotContain("profile-with-unresolved-voice", "hello");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).startStreaming(anyString(), any(), any());
+    }
+
+    @Test
     void streamObserverErrorCallbackExceptionRecordsResponseUnknown() {
         StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new StreamObserver<>() {
             @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {}
@@ -2304,10 +2327,32 @@ class TtsGrpcServiceTest {
         profileRejected.synthesize(SynthesizeRequest.newBuilder().setText("hello").setProfileId("profile-1").build(), profile);
         assertStatus(profile, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) profile.error).getStatus().getDescription())
-                .contains("TTS locale/voice NOT_ADMITTED", "voice=default", "language=unspecified")
+                .contains("TTS_PROFILE_VOICE_BINDING_NOT_ADMITTED")
                 .doesNotContain("hello", "profile-1");
         assertThat(profile.value).isNull();
         assertThat(profile.completed).isFalse();
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
+    }
+
+    @Test
+    void profileOnlyRequestCannotFallThroughToAdmittedConfiguredDefaultVoice() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+
+        admitted.synthesize(SynthesizeRequest.newBuilder()
+                .setText("hello")
+                .setProfileId("profile-with-unresolved-voice")
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage("en-US").build())
+                .build(), observer);
+
+        assertStatus(observer, Status.Code.UNAVAILABLE);
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .contains("TTS_PROFILE_VOICE_BINDING_NOT_ADMITTED")
+                .doesNotContain("profile-with-unresolved-voice", "hello");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
     }

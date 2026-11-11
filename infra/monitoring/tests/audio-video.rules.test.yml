@@ -945,7 +945,7 @@ tests:
   - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-a"}
     values: 1x11
   - series: media_provider_profile_checked_at_seconds{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-a"}
-    values: NaNx4 240x7
+    values: NaN NaN NaN NaN 240x7
   - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-b"}
     values: 1x11
   - series: media_provider_profile_checked_at_seconds{service="stt",modality="stt",provider_id="shared-id",provider_version="1",model_profile="speech",model_revision="r1",contract_version="v1",job="stt-service",instance="host-b"}

@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 
 /** Shared fail-closed validation for the four Media Agent Tool adapters. */
 final class AgentToolInput {

@@ -3,13 +3,15 @@ package com.ghatana.media.provider.aws;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Created;
-import com.ghatana.media.runtime.MediaProjectTimelineContracts.Graph;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Project;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectTimelineStore;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Revision;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.TimelineSnapshot;
+import com.ghatana.media.runtime.ManagedProjectTimelineStore;
+import tools.jackson.core.type.TypeReference;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,26 +20,32 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Durable tenant/principal-scoped project revisions. The V030 test migration is intentionally not launcher-wired. */
-public final class PostgresqlProjectTimelineStore implements ProjectTimelineStore, AutoCloseable {
-    private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+/** Durable tenant/principal-scoped project revisions. Canonical V030 stays test-only; dev wiring uses an isolated schema. */
+public final class PostgresqlProjectTimelineStore implements ManagedProjectTimelineStore {
+    private final ProjectTimelinePersistenceState state;
     private final AtomicBoolean closed = new AtomicBoolean();
+
+    public PostgresqlProjectTimelineStore() { this(MediaAwsPostgresqlRuntimeState.acquire()); }
+
+    PostgresqlProjectTimelineStore(ProjectTimelinePersistenceState state) {
+        this.state = Objects.requireNonNull(state, "state");
+    }
 
     @Override
     public Created create(Actor actor, String workspaceId, String title, String requestId,
-                          String projectId, String initialRevisionId, String timelineId) {
+                          String projectId, String initialRevisionId) {
         ensureOpen();
         Objects.requireNonNull(actor, "actor");
         MediaProjectTimelineContracts.requireCreateProjectRequestId(requestId);
         workspaceId = MediaProjectTimelineContracts.requireSelectedWorkspaceId(workspaceId);
         title = MediaProjectTimelineContracts.requiredProjectTitle(title);
         requestId = MediaProjectTimelineContracts.required(requestId, "requestId");
-        projectId = MediaProjectTimelineContracts.required(projectId, "projectId");
-        initialRevisionId = MediaProjectTimelineContracts.required(initialRevisionId, "initialRevisionId");
-        Graph graph = Graph.empty(timelineId);
+        projectId = MediaProjectTimelineContracts.requiredOpaqueId(projectId, "projectId");
+        initialRevisionId = MediaProjectTimelineContracts.requiredOpaqueId(initialRevisionId, "initialRevisionId");
         String fingerprint = fingerprint(workspaceId, title);
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
@@ -57,7 +65,7 @@ public final class PostgresqlProjectTimelineStore implements ProjectTimelineStor
                     project.setString(5, title); project.setString(6, initialRevisionId);
                     project.executeUpdate();
                 }
-                Revision initial = new Revision(actor.tenantId(), projectId, initialRevisionId, null, graph);
+                Revision initial = new Revision(actor.tenantId(), projectId, initialRevisionId, null, List.of());
                 insertRevision(connection, initial);
                 try (PreparedStatement receipt = connection.prepareStatement("""
                         INSERT INTO media_timeline_create_receipts
@@ -86,48 +94,44 @@ public final class PostgresqlProjectTimelineStore implements ProjectTimelineStor
 
     @Override public Project project(Actor actor, String projectId) {
         ensureOpen();
-        projectId = MediaProjectTimelineContracts.required(projectId, "projectId");
+        projectId = MediaProjectTimelineContracts.requiredOpaqueId(projectId, "projectId");
         try (Connection connection = state.connection()) { return ownedProject(connection, actor, projectId); }
         catch (SQLException failure) { throw new IllegalStateException("project readback failed", failure); }
     }
 
     @Override public Revision revision(Actor actor, String projectId, String revisionId) {
         ensureOpen();
-        projectId = MediaProjectTimelineContracts.required(projectId, "projectId");
-        revisionId = MediaProjectTimelineContracts.required(revisionId, "revisionId");
+        projectId = MediaProjectTimelineContracts.requiredOpaqueId(projectId, "projectId");
+        revisionId = MediaProjectTimelineContracts.requiredOpaqueId(revisionId, "revisionId");
         try (Connection connection = state.connection()) {
             ownedProject(connection, actor, projectId);
             try (PreparedStatement select = connection.prepareStatement("""
-                    SELECT parent_revision_id, graph_snapshot::text FROM media_timeline_revisions
+                    SELECT parent_revision_id, timeline_snapshots::text FROM media_timeline_revisions
                     WHERE tenant_id=? AND project_id=? AND revision_id=?
                     """)) {
                 select.setString(1, actor.tenantId()); select.setString(2, projectId); select.setString(3, revisionId);
                 try (ResultSet row = select.executeQuery()) {
                     if (!row.next()) throw new ProjectNotFoundException();
                     return new Revision(actor.tenantId(), projectId, revisionId, row.getString(1),
-                            graph(row.getString(2)));
+                            timelines(row.getString(2)));
                 }
             }
         } catch (SQLException failure) { throw new IllegalStateException("project revision readback failed", failure); }
     }
 
     @Override public Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
-                                     String newRevisionId, Graph graph) {
+                                     String newRevisionId, List<TimelineSnapshot> timelines) {
         ensureOpen();
-        Objects.requireNonNull(graph, "graph");
-        projectId = MediaProjectTimelineContracts.required(projectId, "projectId");
-        String expected = MediaProjectTimelineContracts.required(expectedHeadRevisionId, "expectedHeadRevisionId");
-        String revisionId = MediaProjectTimelineContracts.required(newRevisionId, "newRevisionId");
+        timelines = List.copyOf(Objects.requireNonNull(timelines, "timelines"));
+        projectId = MediaProjectTimelineContracts.requiredOpaqueId(projectId, "projectId");
+        String expected = MediaProjectTimelineContracts.requiredOpaqueId(expectedHeadRevisionId, "expectedHeadRevisionId");
+        String revisionId = MediaProjectTimelineContracts.requiredOpaqueId(newRevisionId, "newRevisionId");
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
                 Project project = ownedProject(connection, actor, projectId);
                 if (!project.headRevisionId().equals(expected)) {
                     throw new RevisionConflictException(expected, project.headRevisionId());
-                }
-                Revision parent = readRevision(connection, actor.tenantId(), projectId, expected);
-                if (!parent.graph().timelineId().equals(graph.timelineId())) {
-                    throw new IllegalArgumentException("timeline identity is immutable across project revisions");
                 }
                 try (PreparedStatement update = connection.prepareStatement("""
                         UPDATE media_timeline_projects SET head_revision_id=?
@@ -140,7 +144,7 @@ public final class PostgresqlProjectTimelineStore implements ProjectTimelineStor
                         throw new RevisionConflictException(expected, latest.headRevisionId());
                     }
                 }
-                Revision revision = new Revision(actor.tenantId(), projectId, revisionId, expected, graph);
+                Revision revision = new Revision(actor.tenantId(), projectId, revisionId, expected, timelines);
                 insertRevision(connection, revision);
                 connection.commit();
                 return revision;
@@ -200,13 +204,13 @@ public final class PostgresqlProjectTimelineStore implements ProjectTimelineStor
     private Revision readRevision(Connection connection, String tenantId, String projectId, String revisionId)
             throws SQLException {
         try (PreparedStatement select = connection.prepareStatement("""
-                SELECT parent_revision_id,graph_snapshot::text FROM media_timeline_revisions
+                SELECT parent_revision_id,timeline_snapshots::text FROM media_timeline_revisions
                 WHERE tenant_id=? AND project_id=? AND revision_id=?
                 """)) {
             select.setString(1, tenantId); select.setString(2, projectId); select.setString(3, revisionId);
             try (ResultSet row = select.executeQuery()) {
                 if (!row.next()) throw new ProjectNotFoundException();
-                return new Revision(tenantId, projectId, revisionId, row.getString(1), graph(row.getString(2)));
+                return new Revision(tenantId, projectId, revisionId, row.getString(1), timelines(row.getString(2)));
             }
         }
     }
@@ -214,24 +218,24 @@ public final class PostgresqlProjectTimelineStore implements ProjectTimelineStor
     private void insertRevision(Connection connection, Revision revision) throws SQLException {
         try (PreparedStatement insert = connection.prepareStatement("""
                 INSERT INTO media_timeline_revisions
-                  (tenant_id,project_id,revision_id,parent_revision_id,graph_snapshot)
+                  (tenant_id,project_id,revision_id,parent_revision_id,timeline_snapshots)
                 VALUES (?,?,?,?,?::jsonb)
                 """)) {
             insert.setString(1, revision.tenantId()); insert.setString(2, revision.projectId());
             insert.setString(3, revision.revisionId()); insert.setString(4, revision.parentRevisionId());
-            insert.setString(5, json(revision.graph()));
+            insert.setString(5, json(revision.timelines()));
             insert.executeUpdate();
         }
     }
 
-    private Graph graph(String json) {
-        try { return state.mapper().readValue(json, Graph.class); }
-        catch (Exception failure) { throw new IllegalStateException("stored project graph snapshot is malformed", failure); }
+    private List<TimelineSnapshot> timelines(String json) {
+        try { return state.mapper().readValue(json, new TypeReference<List<TimelineSnapshot>>() { }); }
+        catch (Exception failure) { throw new IllegalStateException("stored project timeline snapshots are malformed", failure); }
     }
 
-    private String json(Graph graph) {
-        try { return state.mapper().writeValueAsString(graph); }
-        catch (Exception failure) { throw new IllegalArgumentException("project graph snapshot is not serializable", failure); }
+    private String json(List<TimelineSnapshot> timelines) {
+        try { return state.mapper().writeValueAsString(timelines); }
+        catch (Exception failure) { throw new IllegalArgumentException("project timeline snapshots are not serializable", failure); }
     }
 
     private static String fingerprint(String workspaceId, String title) {

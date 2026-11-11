@@ -30,6 +30,15 @@ class MediaUploadRequestFingerprintTest {
     }
 
     @Test
+    void retentionFingerprintBindsNormalizedDurationRatherThanIsoTextSpelling() {
+        UploadRequest oneDay = upload(Duration.ofDays(1));
+        UploadRequest equivalentHours = upload(Duration.ofHours(24));
+
+        assertThat(MediaUploadRequestFingerprint.compute(oneDay))
+                .isEqualTo(MediaUploadRequestFingerprint.compute(equivalentHours));
+    }
+
+    @Test
     void nestedMetadataIsFrozenAndAccessorReturnsDefensiveSnapshots() {
         List<Object> nested = new java.util.ArrayList<>(List.of("before"));
         Map<String, Object> metadata = new java.util.LinkedHashMap<>();
@@ -52,11 +61,27 @@ class MediaUploadRequestFingerprintTest {
 
     @Test
     void uploadRetentionRejectsPrecisionThatStorageCannotPreserve() {
-        assertThatThrownBy(() -> new UploadRequest("tenant-a", "principal-a", "clip.bin",
-                "application/octet-stream", 4, "0".repeat(64), "RESTRICTED",
-                Duration.ofNanos(1), Map.of()))
+        for (Duration retention : List.of(Duration.ofNanos(1), Duration.ofNanos(999_999),
+                Duration.ofMillis(1).plusNanos(1))) {
+            assertThatThrownBy(() -> upload(retention))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("millisecond precision");
+        }
+    }
+
+    @Test
+    void uploadRetentionAcceptsExactMillisecondRangeEndpoints() {
+        UploadRequest minimum = upload(Duration.ofMillis(1));
+        UploadRequest maximum = upload(Duration.ofDays(3_650));
+
+        assertThat(minimum.retention()).isEqualTo(Duration.ofMillis(1));
+        assertThat(minimum.retention().toMillis()).isEqualTo(1);
+        assertThat(maximum.retention()).isEqualTo(Duration.ofDays(3_650));
+        assertThat(maximum.retention().toMillis()).isEqualTo(Duration.ofDays(3_650).toMillis());
+
+        assertThatThrownBy(() -> upload(Duration.ofDays(3_650).plusMillis(1)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("millisecond precision");
+                .hasMessageContaining("between 1 ms and 3650 days");
     }
 
     @Test
@@ -77,5 +102,10 @@ class MediaUploadRequestFingerprintTest {
     private static UploadRequest request(String fileName, String principalId, Map<String, Object> metadata) {
         return new UploadRequest("tenant-a", principalId, fileName, "application/octet-stream", 4,
                 "0".repeat(64), "RESTRICTED", Duration.ofMinutes(3), metadata);
+    }
+
+    private static UploadRequest upload(Duration retention) {
+        return new UploadRequest("tenant-a", "principal-a", "clip.bin", "application/octet-stream", 4,
+                "0".repeat(64), "RESTRICTED", retention, Map.of());
     }
 }

@@ -56,6 +56,14 @@ resolution; HTTP provider clients call configured provider endpoints.
 - Upload idempotency, finalization claims, worker leases and stream-ACK
   fencing provide crash/restart-safe semantics; lost-ack and
   process-crash recovery are covered by dedicated tests.
+- The artifact store persists the scanner's returned verdict and metadata
+  before artifact registration. If later registration fails, such as a
+  byte-identical upload conflicting on immutable filename metadata, the
+  recorded `CLEAN` result is preserved rather than relabeled scanner
+  `UNAVAILABLE`; the upload remains open and its final object stays under the
+  private quarantine key until retry or expiry. Expiry cleanup deletes only
+  that upload's deterministic quarantine key and staged chunks, while first
+  checking that no committed artifact references the object.
 - Frame reservation and acknowledgment lock the canonical stream-session row,
   validate the exact revision and lease against PostgreSQL time after lock
   acquisition, and retain a lease predicate at update. This store-level fence
@@ -109,3 +117,10 @@ fixtures), Flyway process-crash recovery, create-lost-ack crash,
 Postgres/S3 restart and missing-object recovery, tenant isolation,
 streaming close fence, job-store metrics, upload crash recovery IT,
 HTTP provider behavior, migration lineage fixtures.
+
+`S3PostgresqlMediaArtifactAdmissionTest` covers the metadata-conflict scan
+attestation and duplicate-artifact boundary using H2 PostgreSQL mode with
+LocalStack. `MediaPostgresqlS3IntegrityRestartTest` covers expiry cleanup
+against PostgreSQL and LocalStack: the expired conflict upload's quarantine
+object and chunk are removed, an unexpired upload's quarantine and chunk
+remain, and the object referenced by the committed artifact remains readable.

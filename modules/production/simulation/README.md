@@ -25,3 +25,6 @@ durable job, UI, or measurement device. `SimulationSemanticValidator` separately
 checks exact versioned pass inputs and declared invariants; successful synthetic
 solver tests do not qualify a model, validate real-world measurements, or make a
 domain-owner conclusion. The engine supports only the two declared models.
+For a validated pass, the terminal observation must match the requested
+SI-converted horizon within eight representable-double ULPs; it uses no fixed
+absolute time floor that could make very short horizons appear equivalent.

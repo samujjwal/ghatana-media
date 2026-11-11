@@ -14,6 +14,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.charset.StandardCharsets;
@@ -131,6 +132,82 @@ class S3PostgresqlMediaArtifactAdmissionTest {
                     .hasMessageContaining("immutable byte ceiling");
             assertThat(inconsistent.size()).isZero();
             assertThat(stagedReadFileCount()).isEqualTo(stagedBeforeOversizedRead);
+        });
+    }
+
+    @Test
+    void cleanScanRemainsRecordedWhenDuplicateArtifactMetadataConflicts() throws Exception {
+        withStore((store, admin, bucket, environment) -> {
+            byte[] bytes = new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10, 1, 2, 3, 4};
+            var original = upload(store, bytes, "original.png");
+            var conflictingUpload = store.begin(new UploadRequest("tenant-a", "principal-a", "renamed.png",
+                    "image/png", bytes.length, sha256(bytes), "RESTRICTED", Duration.ofDays(1), Map.of()),
+                    "begin-conflicting-duplicate");
+            store.append("tenant-a", "principal-a", conflictingUpload.uploadId(), 0, bytes);
+
+            assertThatThrownBy(() -> store.complete("tenant-a", "principal-a", conflictingUpload.uploadId()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Media artifact byte identity conflicts with governed metadata: fileName");
+
+            assertThat(store.upload("tenant-a", conflictingUpload.uploadId()).orElseThrow().status())
+                    .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.OPEN);
+            String duplicateChunkKey;
+            try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                 var query = connection.prepareStatement(
+                         "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=? AND chunk_index=0")) {
+                query.setString(1, "tenant-a");
+                query.setString(2, conflictingUpload.uploadId());
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    duplicateChunkKey = row.getString(1);
+                    assertThat(row.next()).isFalse();
+                }
+            }
+
+            try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                 var query = connection.prepareStatement(
+                         "SELECT scan_status,scan_policy_version,scanner_id,scanned_at FROM media_upload_sessions "
+                                 + "WHERE tenant_id=? AND upload_id=?")) {
+                query.setString(1, "tenant-a");
+                query.setString(2, conflictingUpload.uploadId());
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getString("scan_status")).isEqualTo("CLEAN");
+                    assertThat(row.getString("scan_policy_version"))
+                            .isEqualTo("integrity-container-eicar-candidate/v1");
+                    assertThat(row.getString("scanner_id"))
+                            .isEqualTo("media-development-integrity-candidate/0.1-development");
+                    assertThat(row.getObject("scanned_at")).isNotNull();
+                }
+            }
+
+            String expectedDuplicateFinalKey = "media-runtime/quarantine/finalized/"
+                    + MediaArtifactObjectOwnership.opaque("tenant-a") + "/" + conflictingUpload.uploadId()
+                    + "/" + sha256(bytes);
+            String originalFinalKey = original.objectReference().substring(("s3://" + bucket + "/").length());
+            assertThat(admin.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build()).contents())
+                    .extracting(software.amazon.awssdk.services.s3.model.S3Object::key)
+                    .containsExactlyInAnyOrder(originalFinalKey, expectedDuplicateFinalKey, duplicateChunkKey);
+            try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                 var query = connection.prepareStatement(
+                         "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=? AND sha256=?")) {
+                query.setString(1, "tenant-a");
+                query.setString(2, sha256(bytes));
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getInt(1)).isEqualTo(1);
+                }
+            }
+            try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                 var query = connection.prepareStatement(
+                         "SELECT COUNT(*) FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+                query.setString(1, "tenant-a");
+                query.setString(2, conflictingUpload.uploadId());
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getInt(1)).isEqualTo(1);
+                }
+            }
         });
     }
 

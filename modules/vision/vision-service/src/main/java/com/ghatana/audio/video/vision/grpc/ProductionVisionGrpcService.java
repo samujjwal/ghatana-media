@@ -85,6 +85,9 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
         this.capabilityProfile = composition.capabilityProfile();
         this.sceneText = composition.sceneText();
         this.mediaRuntimePort = mediaRuntimePort;
+        if (mediaRuntimePort != null) {
+            bindMediaRuntimeSceneTextSource(new MediaRuntimeSceneTextSource(mediaRuntimePort));
+        }
         int inferenceConcurrency = (int) boundedLong(System.getenv(),
                 "VISION_INFERENCE_MAX_CONCURRENT", 2L, 1L, 16L);
         int inferenceQueueCapacity = (int) boundedLong(System.getenv(),
