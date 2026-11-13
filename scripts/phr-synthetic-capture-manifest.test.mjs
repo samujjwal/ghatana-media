@@ -13,10 +13,10 @@ function manifest() {
     origins: REQUIRED_AUDIENCES.map((a, i) => ({
       originId: `phr-${a}`, appAudience: a, baseUrl: `https://${a.replace('.', '-')}.phr.test`, buildDigest: h('abcde'[i]),
       scenarioRef: `scenario-${a}`, fixtureIds: [`synthetic-${a}`],
-      captures: [{ sceneId: 'home', adapterKind: 'BROWSER', outcome: 'CAPTURED', sourceDigest: h('1') }],
+      captures: [{ sceneId: 'home', adapterKind: 'BROWSER', outcome: 'CAPTURED', sourceDigest: h('1'), redacted: true }],
     })),
     privacy: { dataClass: 'SYNTHETIC', containsRealPersonalData: false, redactionPolicyRef: 'redaction-v1', scanner: 'phr-synthetic-capture-manifest.mjs/privacy-scan.v1', scanResult: 'NO_FINDINGS' },
-    classification: { clinicalEvidence: false, sttAdmissionEvidence: false },
+    classification: { clinicalEvidence: false, sttAdmissionEvidence: false, demoOnly: true, safetyProof: false },
   };
 }
 
@@ -59,5 +59,34 @@ test('build digest is recomputed from the build directory (tamper detected)', ()
     assert.deepEqual(validateManifest(m, { buildDirs: { doctor: root } }), []);
     writeFileSync(path.join(root, 'assets/app.js'), 'console.log(2)');
     assert.ok(validateManifest(m, { buildDirs: { doctor: root } }).some((p) => /does not match recomputed/.test(p)));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('package must be labelled demo-only (never safety proof) and every capture redacted', () => {
+  const a = manifest(); a.classification.demoOnly = false;
+  assert.match(validateManifest(a).join('\n'), /demoOnly:true/);
+  const b = manifest(); b.classification.safetyProof = true;
+  assert.match(validateManifest(b).join('\n'), /safetyProof:false/);
+  const c = manifest(); delete c.classification.demoOnly;
+  assert.ok(validateManifest(c).length > 0);
+  const d = manifest(); d.origins[2].captures[0].redacted = false;
+  assert.match(validateManifest(d).join('\n'), /must be redacted/);
+});
+
+test('conformance by exact build digest: five real build dirs pass, one changed byte or a swapped build fails', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'cap-conf-'));
+  try {
+    const dirs = {}; const m = manifest();
+    m.origins.forEach((o, i) => {
+      const d = path.join(root, o.appAudience); mkdirSync(path.join(d, 'assets'), { recursive: true });
+      writeFileSync(path.join(d, 'index.html'), `<html>${o.appAudience}</html>`); writeFileSync(path.join(d, 'assets', 'app.js'), `// ${i}`);
+      o.buildDigest = digestDirectory(d); dirs[o.appAudience] = d;
+    });
+    assert.deepEqual(validateManifest(m, { buildDirs: dirs }), []);
+    writeFileSync(path.join(dirs.doctor, 'assets', 'app.js'), '// tampered');
+    assert.match(validateManifest(m, { buildDirs: dirs }).join('\n'), /buildDigest does not match/);
+    writeFileSync(path.join(dirs.doctor, 'assets', 'app.js'), '// 0');
+    assert.deepEqual(validateManifest(m, { buildDirs: dirs }), []);
+    assert.match(validateManifest(m, { buildDirs: { ...dirs, doctor: dirs.patient } }).join('\n'), /buildDigest does not match/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

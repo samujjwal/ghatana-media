@@ -199,3 +199,9 @@ all 10 corpus items as expected (EICAR INFECTED; three appended-EICAR polyglots 
 Async/KMS-capable signer + `rotatingSigner` + `SignerUnavailableError`, labelled `testOnlyEd25519Signer`, archive decompression ratio/budget limits, per-principal submit rate limit
 (see `providers/security-scanner/README.md` "Signing keys and resource limits"). Tests `test/hardening.test.ts` (rotation windows, async signing, key outage throws, test-only key
 production refusal, bomb/ratio/budget archives, 429 rate limit, engine and quarantine outage => UNKNOWN); package 55/55, tsc clean. Not claimed: real KMS, mTLS tested against a real CA, real isolation/cgroup limits.
+
+## MED-08/09 capture package conformance (demo only)
+`schemas/phr-synthetic-capture-manifest.v1.schema.json` + `scripts/phr-synthetic-capture-manifest.mjs validate` now also require `classification.demoOnly:true`,
+`safetyProof:false` and `captures[].redacted:true`; the five builds are matched to the manifest by recomputed directory digest (`--build-dir <audience>=<dir>`; a changed byte or a
+swapped build fails). Tests: `scripts/phr-synthetic-capture-manifest.test.mjs` 7/7 (adds demo-only/redaction and real-build-dir digest conformance). Replayable demo by exact build
+digest, never live-safety, clinical or STT admission evidence. No real capture was run (needs PHR's five builds and scenario scripts).

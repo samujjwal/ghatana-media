@@ -66,10 +66,12 @@
     "classification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["clinicalEvidence", "sttAdmissionEvidence"],
+      "required": ["clinicalEvidence", "sttAdmissionEvidence", "demoOnly", "safetyProof"],
       "properties": {
         "clinicalEvidence": { "const": false },
-        "sttAdmissionEvidence": { "const": false }
+        "sttAdmissionEvidence": { "const": false },
+        "demoOnly": { "const": true, "description": "Replayable demo by exact build digest; never live-safety, clinical or admission evidence." },
+        "safetyProof": { "const": false }
       }
     }
   }

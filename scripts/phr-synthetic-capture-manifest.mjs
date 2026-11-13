@@ -82,6 +82,7 @@ export function validateManifest(manifest, { buildDirs = {} } = {}) {
     for (const c of o?.captures ?? []) {
       need(SHA.test(c?.sourceDigest ?? ''), `${id}/${c?.sceneId}: sourceDigest must be sha256:<hex>`);
       need(['CAPTURED', 'UNAVAILABLE', 'OUTCOME_UNKNOWN', 'DENIED'].includes(c?.outcome), `${id}/${c?.sceneId}: invalid outcome`);
+      need(c?.redacted === true, `${id}/${c?.sceneId}: capture must be redacted (redacted:true) before it is part of the package`);
     }
     const dir = buildDirs[o?.appAudience];
     if (dir) need(digestDirectory(dir) === o.buildDigest, `${id}: buildDigest does not match recomputed digest of ${dir}`);
@@ -91,6 +92,8 @@ export function validateManifest(manifest, { buildDirs = {} } = {}) {
   need(p?.scanResult === 'NO_FINDINGS', 'privacy.scanResult must be NO_FINDINGS');
   need(manifest?.classification?.clinicalEvidence === false && manifest?.classification?.sttAdmissionEvidence === false,
     'manifest must not be classified as clinical or STT admission evidence');
+  need(manifest?.classification?.demoOnly === true && manifest?.classification?.safetyProof === false,
+    'manifest must be labelled demoOnly:true and safetyProof:false (replayable demo by build digest, never safety proof)');
   for (const f of privacyFindings(manifest)) problems.push(`privacy scan: ${f}`);
   return problems;
 }
