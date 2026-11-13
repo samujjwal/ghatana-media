@@ -78,8 +78,7 @@ class MediaDevDeliveryRestartIT {
             launcher = startLauncher(classpath, environment, log);
             awaitReady(launcher, port);
 
-            byte[] content = new byte[300_000];
-            new Random(42).nextBytes(content);
+            byte[] content = noisePng(); // a real PNG so canonical format verification admits it
             String artifactId = upload(port, tenant, token, run, content);
             String versionId = "sha256:" + sha256(content); // exact content-addressed artifact version
 
@@ -149,6 +148,15 @@ class MediaDevDeliveryRestartIT {
         }
     }
 
+    private static byte[] noisePng() throws Exception {
+        var image = new java.awt.image.BufferedImage(200, 150, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        Random random = new Random(42);
+        for (int y = 0; y < 150; y++) for (int x = 0; x < 200; x++) image.setRGB(x, y, random.nextInt(0x1000000));
+        var out = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(image, "png", out);
+        return out.toByteArray();
+    }
+
     private static String exportBody(String requestId, String artifactId, String versionId, String destinationId)
             throws Exception {
         return JSON.writeValueAsString(Map.of("requestId", requestId, "artifactId", artifactId,
@@ -175,8 +183,8 @@ class MediaDevDeliveryRestartIT {
 
     private static String upload(int port, String tenant, String token, String key, byte[] bytes) throws Exception {
         Map<String, Object> requestBody = Map.of(
-                "tenantId", tenant, "principalId", principalOf(token), "fileName", "export-" + key + ".bin",
-                "contentType", "application/octet-stream", "expectedSizeBytes", bytes.length,
+                "tenantId", tenant, "principalId", principalOf(token), "fileName", "export-" + key + ".png",
+                "contentType", "image/png", "expectedSizeBytes", bytes.length,
                 "expectedSha256", sha256(bytes), "classification", "INTERNAL", "retention", "P30D",
                 "metadata", Map.of("scope", "DEV_ONLY", "fixture", "synthetic-export-source"));
         HttpResponse<String> begun = HttpClient.newHttpClient().send(HttpRequest.newBuilder(

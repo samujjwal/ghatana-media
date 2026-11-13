@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
  * </ul>
  */
 final class MediaDevDeliveryRoutes {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(MediaDevDeliveryRoutes.class);
     private static final String BASE = "/dev/v1/exports";
     private static final Pattern READ = Pattern.compile("^/dev/v1/exports/([^/]+)$");
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}");
@@ -116,6 +117,7 @@ final class MediaDevDeliveryRoutes {
         } catch (IllegalArgumentException failure) {
             error(exchange, 400, "INVALID_REQUEST", "Local delivery request is invalid");
         } catch (IllegalStateException failure) {
+            LOG.warn("DEV_ONLY delivery state failure", failure);
             error(exchange, 503, "DELIVERY_STATE_UNAVAILABLE",
                     "Delivery state could not be read or updated; retry the same requestId");
         }
