@@ -33,19 +33,26 @@ public final class MediaLauncher {
         MediaCaptionRuntime captions = null;
         MediaDevProjectTimelineRuntime devProjectTimeline = null;
         MediaDevReviewRuntime devReview = null;
+        MediaDevDeliveryRuntime devDelivery = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
             captions = MediaCaptionRuntime.compose(environment);
             devProjectTimeline = MediaDevProjectTimelineRuntime.compose(environment);
             devReview = MediaDevReviewRuntime.compose(environment, runtime, devProjectTimeline);
+            devDelivery = MediaDevDeliveryRuntime.compose(environment, runtime);
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
             MediaCaptionRuntime finalCaptions = captions;
             MediaDevProjectTimelineRuntime finalDevProjectTimeline = devProjectTimeline;
             MediaDevReviewRuntime finalDevReview = devReview;
+            MediaDevDeliveryRuntime finalDevDelivery = devDelivery;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalDevDelivery != null) {
+                    try { finalDevDelivery.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (finalDevReview != null) {
                     try { finalDevReview.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
@@ -91,9 +98,13 @@ public final class MediaLauncher {
                     "Media", config.httpPort(), new MediaSecurityFilter(
                             new MediaHttpHandler(runtime,
                                     consentAdministration == null ? null : consentAdministration.administration(),
-                                    captions, finalDevProjectTimeline, finalDevReview),
+                                    captions, finalDevProjectTimeline, finalDevReview).withDevDelivery(finalDevDelivery),
                             config.profile()));
         } catch (RuntimeException failure) {
+            if (devDelivery != null) {
+                try { devDelivery.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
             if (devReview != null) {
                 try { devReview.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }

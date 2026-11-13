@@ -91,6 +91,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaDevProjectTimelineRuntime devProjectTimeline;
     private final MediaDevProjectRenderRuntime devProjectRender;
     private final MediaDevReviewRoutes devReview;
+    private MediaDevDeliveryRoutes devDelivery;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -147,6 +148,12 @@ public final class MediaHttpHandler implements HttpHandler {
         this.captions = captions;
         this.devProjectTimeline = devProjectTimeline;
         this.devProjectRender = devProjectRender;
+    }
+
+    /** Installs the optional DEV_ONLY hosted-export routes (media.dev.delivery-export-destination-ack). */
+    MediaHttpHandler withDevDelivery(MediaDevDeliveryRuntime delivery) {
+        this.devDelivery = delivery == null ? null : new MediaDevDeliveryRoutes(runtime, delivery);
+        return this;
     }
 
     @Override
@@ -354,6 +361,10 @@ public final class MediaHttpHandler implements HttpHandler {
                                String tenantId, String principalId) throws IOException {
         if (!MediaSecurityFilter.isDevOnlyIdentity(exchange)) {
             error(exchange, 403, "DEV_ONLY_IDENTITY_REQUIRED", "A signed DEV_ONLY identity is required");
+            return;
+        }
+        if (devDelivery != null && MediaDevDeliveryRoutes.handles(path)) {
+            devDelivery.handle(exchange, path, method, tenantId, principalId);
             return;
         }
         try {

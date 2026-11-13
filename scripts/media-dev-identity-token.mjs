@@ -11,6 +11,7 @@ const PERMISSION_ALLOWLIST = new Set([
   'media:stream:create', 'media:stream:read', 'media:stream:write', 'media:stream:close',
   'media:provider:read', 'media:caption-version:write', 'media:caption-version:read',
   'media:project:dev:create', 'media:project:dev:read', 'media:project:dev:write',
+  'media:delivery:dev:export', 'media:delivery:dev:read',
 ]);
 
 function fail(message) {

@@ -113,6 +113,28 @@ and stable terminal reads — **no second writer**.
   authorizes no delivery or publication. Not covered: reviewer roles,
   multi-reviewer authority, retention expiry, atomic project/review CAS and
   hosted review UI. Routes stay outside the canonical manifest/OpenAPI.
+- **Hosted export with destination acknowledgment (DEV_ONLY).**
+  `POST /dev/v1/exports` takes `{requestId, artifactId, artifactVersionId, destinationId}` and
+  requires `media:delivery:dev:export` plus `media:artifact:read`;
+  `GET /dev/v1/exports/{requestId}` requires `media:delivery:dev:read`. Opt in with
+  `MEDIA_DELIVERY_DEV_ENABLED=true` (profile `dev`, `MEDIA_DEV_IDENTITY_ENABLED=true`) and
+  `MEDIA_DELIVERY_DEV_DESTINATION_DIR=<absolute existing directory>`; enabled without the directory every
+  route is a typed `503 DELIVERY_DESTINATION_UNAVAILABLE`, a relative/`..`/missing directory fails startup.
+  `MediaDevDeliveryRuntime` reuses `MediaDeliveryEngine` and the PostgreSQL `DeliveryOperationStore`
+  (canonical ledger V031/V032, via the `MediaDevDeliveryStoreFactory` ServiceLoader SPI) and exports the
+  owner's exact registered artifact version to the single destination `dev-local-directory`. The
+  local-directory adapter writes write-once objects named only by a SHA-256 of tenant/principal/requestId
+  (no caller path text, symlinks refused), then independently re-reads the stored bytes; the operation is
+  `DESTINATION_CONFIRMED` only when the engine accepts that readback receipt (checksum = artifact digest).
+  Responses: `201` first export confirmed, `200` replay of an existing operation, `202` not yet confirmed
+  (`OUTCOME_UNKNOWN`/`SENT`, `destinationConfirmed:false`, no receipt). A retry of an unresolved request
+  reconciles by readback and resumes from the verified offset without resending accepted bytes; a tampered
+  or truncated destination object is never confirmed or overwritten. Duplicate = idempotent replay; the same
+  `requestId` with another artifact version is `409 EXPORT_REQUEST_CONFLICT`; an unknown destination is
+  `404 DESTINATION_NOT_FOUND`; a foreign principal's artifact or operation is `404`. The transfer
+  authorization is a DEV_ONLY owner-read grant, not a signed production authority. Not covered: network or
+  third-party destinations, external destination ACK, signed authorization, token revocation UI, rights
+  revocation; routes stay outside the canonical manifest/OpenAPI.
 - The DEV_ONLY artifact intake host reads `GET /dev/v1/artifact-upload-policy`
   using a signed DEV_ONLY identity with `media:artifact:create`. The exact
   response is `{schemaVersion:"media.dev.artifact-upload-policy.v1",
@@ -166,6 +188,7 @@ and stable terminal reads — **no second writer**.
 | `MediaRuntime.compose` / upload & artifact methods | Canonical runtime port |
 | `MediaHttpHandler` | HTTP request handling over `MediaRouteManifest` |
 | `MediaDevProjectTimelineRuntime` | Optional isolated owner-only DEV_ONLY project and timeline preview |
+| `MediaDevDeliveryRuntime` / `MediaDevDeliveryRoutes` | DEV_ONLY hosted export to a read-back local directory destination over `MediaDeliveryEngine` |
 | `MediaDevProjectRenderRuntime` | DEV_ONLY revision-exact storyboard render registered as an immutable artifact with lineage |
 | `vision-service` (`bin/vision-service`) | Standalone Vision gRPC server on the same packaged classpath |
 
@@ -242,6 +265,15 @@ DEV_ONLY hosted versioned review (in-process + real launcher/PostgreSQL restart)
   --tests 'com.ghatana.media.launcher.MediaDevReviewHttpTest'
 ./gradlew :services:media:integration-tests:test \
   --tests 'com.ghatana.media.integration.MediaDevReviewRestartIT'
+```
+
+Hosted export with destination acknowledgment (in-process + real launcher/PostgreSQL/S3 restart):
+
+```bash
+./gradlew :services:media:launcher:test \
+  --tests 'com.ghatana.media.launcher.MediaDevDeliveryHttpTest'
+./gradlew :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaDevDeliveryRestartIT'
 ```
 
 Focused identity and rights coverage:

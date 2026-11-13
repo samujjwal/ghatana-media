@@ -30,3 +30,11 @@ Artifacts are snapshotted and capped at 64 MiB; transfer chunks are capped at 1 
 `MediaDeliveryEngine` dispatches only through `FencedDestinationPort` and a store that advertises durable dispatch claims. Claims compare the exact stored operation state before acquisition, and stores reject illegal state regressions or decreasing acknowledged offsets. Legacy destination implementations remain source compatible but receive no calls; process-local stores also fail closed. The fenced destination contract carries the claim into each send and reconciliation call, and implementations must reject stale fences and deduplicate exact chunk identities. No real destination currently implements or qualifies that contract, so the claim ledger does not establish safe external delivery by itself.
 
 A durable job/outbox integration, signed authorization resolver, authenticated destination adapter, and production destination reconciliation remain unimplemented. The test destination and its receipts are local fixtures only; the PostgreSQL ledger proves persisted operation readback, not delivery or destination finality.
+
+## DEV_ONLY host
+
+The launcher hosts this engine for local development only (`MediaDevDeliveryRuntime`,
+`POST /dev/v1/exports`) over a read-back local-directory destination and the PostgreSQL ledger obtained
+through `MediaDevDeliveryStoreFactory`. Confirmation still comes only from a destination receipt produced by
+re-reading the stored bytes; this is not a network destination, signed authority, or external ACK. See
+`docs/surfaces/launcher/README.md`.

@@ -5,6 +5,8 @@ final class MediaDevOnlyRoutePermissions {
     static final String PROJECT_CREATE = "media:project:dev:create";
     static final String PROJECT_READ = "media:project:dev:read";
     static final String PROJECT_WRITE = "media:project:dev:write";
+    static final String DELIVERY_EXPORT = "media:delivery:dev:export";
+    static final String DELIVERY_READ = "media:delivery:dev:read";
     static final String JOB_CANCEL = "media:job:cancel";
 
     private MediaDevOnlyRoutePermissions() { }
@@ -24,6 +26,8 @@ final class MediaDevOnlyRoutePermissions {
         if ("POST".equals(method) && path.matches("^/dev/v1/reviews$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/reviews/[^/]+$")) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/reviews/[^/]+/(comments|decisions)$")) return PROJECT_WRITE;
+        if ("POST".equals(method) && "/dev/v1/exports".equals(path)) return DELIVERY_EXPORT;
+        if ("GET".equals(method) && path.matches("^/dev/v1/exports/[^/]+$")) return DELIVERY_READ;
         return null;
     }
 }

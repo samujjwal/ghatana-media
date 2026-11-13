@@ -1,0 +1,339 @@
+package com.ghatana.media.integration;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.sql.DriverManager;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.HexFormat;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static com.ghatana.media.integration.MediaLauncherProcessFixtures.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
+
+/**
+ * DEV_ONLY hosted export through a real launcher process with the PostgreSQL delivery ledger, S3 artifact
+ * storage and a real destination directory, across a launcher restart. Destination-confirmed must come from
+ * the destination readback receipt only.
+ */
+@Testcontainers(disabledWithoutDocker = true)
+@Tag("integration")
+class MediaDevDeliveryRestartIT {
+    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final String DEV_SECRET = "media-dev-delivery-restart-secret";
+
+    @Container
+    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:16-alpine"));
+    @Container
+    private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
+            DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
+
+    @Test
+    void exportIsDestinationConfirmedByReadbackAndSurvivesLauncherRestartWithoutASecondEffect() throws Exception {
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String tenant = "tenant-dev-delivery-" + run;
+        String principal = "media-dev-owner-" + run;
+        String bucket = "media-dev-delivery-" + run;
+        int port;
+        try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+        Path services = Files.createTempDirectory("media-dev-delivery-services-");
+        Path destination = Files.createTempDirectory("media-dev-delivery-destination-").toRealPath();
+        Path log = Files.createTempFile("media-dev-delivery-process-", ".log");
+        Process launcher = null;
+        try {
+            try (S3Client s3 = s3()) { s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build()); }
+            installDescriptors(services);
+            String childClasspath = System.getProperty("media.child.classpath", "");
+            assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
+            String classpath = services + java.io.File.pathSeparator + childClasspath;
+            Map<String, String> environment = environment(bucket, port, destination);
+            String token = issueDevToken(tenant, principal);
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+
+            byte[] content = new byte[300_000];
+            new Random(42).nextBytes(content);
+            String artifactId = upload(port, tenant, token, run, content);
+            String versionId = "sha256:" + sha256(content); // exact content-addressed artifact version
+
+            String exportBody = exportBody("export-" + run, artifactId, versionId, "dev-local-directory");
+            HttpResponse<String> first = send(port, tenant, token, "POST", "/dev/v1/exports", exportBody);
+            assertThat(first.statusCode()).as(first.body()).isEqualTo(201);
+            JsonNode firstBody = JSON.readTree(first.body());
+            assertThat(firstBody.path("status").asString()).isEqualTo("DESTINATION_CONFIRMED");
+            assertThat(firstBody.path("destinationConfirmed").asBoolean()).isTrue();
+            String receipt = firstBody.path("destinationReceiptRef").asString();
+            assertThat(receipt).startsWith("dev-local-directory-receipt:");
+            Path object = destination.resolve(objectName(tenant, principal, "export-" + run) + ".bin");
+            assertThat(Files.readAllBytes(object)).isEqualTo(content);
+            long modified = Files.getLastModifiedTime(object).toMillis();
+            assertThat(ledgerStatus(tenant, "export-" + run)).isEqualTo("DESTINATION_CONFIRMED");
+
+            stopLauncher(launcher);
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+
+            HttpResponse<String> reopened = send(port, tenant, token, "GET", "/dev/v1/exports/export-" + run, null);
+            assertThat(reopened.statusCode()).as(reopened.body()).isEqualTo(200);
+            JsonNode reopenedBody = JSON.readTree(reopened.body());
+            assertThat(reopenedBody.path("status").asString()).isEqualTo("DESTINATION_CONFIRMED");
+            assertThat(reopenedBody.path("destinationReceiptRef").asString()).isEqualTo(receipt);
+
+            HttpResponse<String> replay = send(port, tenant, token, "POST", "/dev/v1/exports", exportBody);
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(JSON.readTree(replay.body()).path("replayed").asBoolean()).isTrue();
+            assertThat(Files.getLastModifiedTime(object).toMillis()).isEqualTo(modified);
+
+            // Conflicting reuse of the same requestId for a different destination id is a typed non-effect.
+            HttpResponse<String> unknownDestination = send(port, tenant, token, "POST", "/dev/v1/exports",
+                    exportBody("export-" + run, artifactId, versionId, "somewhere-else"));
+            assertThat(unknownDestination.statusCode()).isEqualTo(404);
+
+            // Lost ACK window: bytes landed before any ledger record. A fresh request verifies them by
+            // readback and confirms; a foreign object at another request's path is never confirmed.
+            String lostAck = "lost-ack-" + run;
+            Files.write(destination.resolve(objectName(tenant, principal, lostAck) + ".bin"), content);
+            HttpResponse<String> recovered = send(port, tenant, token, "POST", "/dev/v1/exports",
+                    exportBody(lostAck, artifactId, versionId, "dev-local-directory"));
+            assertThat(recovered.statusCode()).as(recovered.body()).isEqualTo(201);
+            assertThat(JSON.readTree(recovered.body()).path("destinationConfirmed").asBoolean()).isTrue();
+
+            String tampered = "tampered-" + run;
+            byte[] foreign = content.clone();
+            foreign[10] ^= 0x7f;
+            Path foreignObject = destination.resolve(objectName(tenant, principal, tampered) + ".bin");
+            Files.write(foreignObject, foreign);
+            HttpResponse<String> refused = send(port, tenant, token, "POST", "/dev/v1/exports",
+                    exportBody(tampered, artifactId, versionId, "dev-local-directory"));
+            assertThat(refused.statusCode()).as(refused.body()).isEqualTo(202);
+            JsonNode refusedBody = JSON.readTree(refused.body());
+            assertThat(refusedBody.path("destinationConfirmed").asBoolean()).isFalse();
+            assertThat(refusedBody.path("status").asString()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(Files.readAllBytes(foreignObject)).isEqualTo(foreign);
+            assertThat(ledgerStatus(tenant, tampered)).isEqualTo("OUTCOME_UNKNOWN");
+
+            // Another principal in the same tenant cannot read the owner's operation.
+            String otherToken = issueDevToken(tenant, principal + "-other");
+            assertThat(send(port, tenant, otherToken, "GET", "/dev/v1/exports/export-" + run, null).statusCode())
+                    .isEqualTo(404);
+        } finally {
+            if (launcher != null) stopLauncher(launcher);
+            deleteBucket(bucket);
+        }
+    }
+
+    private static String exportBody(String requestId, String artifactId, String versionId, String destinationId)
+            throws Exception {
+        return JSON.writeValueAsString(Map.of("requestId", requestId, "artifactId", artifactId,
+                "artifactVersionId", versionId, "destinationId", destinationId));
+    }
+
+    private static String objectName(String tenant, String principal, String requestId) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(
+                (tenant + "\u0000" + principal + "\u0000" + requestId).getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static String ledgerStatus(String tenant, String requestId) throws Exception {
+        try (var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
+                POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT status FROM media_delivery_operations WHERE tenant_id=? AND request_id=?")) {
+            statement.setString(1, tenant); statement.setString(2, requestId);
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).as("delivery ledger row for " + requestId).isTrue();
+                return rows.getString(1);
+            }
+        }
+    }
+
+    private static String upload(int port, String tenant, String token, String key, byte[] bytes) throws Exception {
+        Map<String, Object> requestBody = Map.of(
+                "tenantId", tenant, "principalId", principalOf(token), "fileName", "export-" + key + ".bin",
+                "contentType", "application/octet-stream", "expectedSizeBytes", bytes.length,
+                "expectedSha256", sha256(bytes), "classification", "INTERNAL", "retention", "P30D",
+                "metadata", Map.of("scope", "DEV_ONLY", "fixture", "synthetic-export-source"));
+        HttpResponse<String> begun = HttpClient.newHttpClient().send(HttpRequest.newBuilder(
+                        URI.create("http://127.0.0.1:" + port + "/api/v1/artifacts/uploads"))
+                .header("Authorization", "Bearer " + token).header("X-Tenant-Id", tenant)
+                .header("Idempotency-Key", "export-source-" + key).header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(JSON.writeValueAsString(requestBody), StandardCharsets.UTF_8))
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(begun.statusCode()).as(begun.body()).isEqualTo(201);
+        String uploadId = JSON.readTree(begun.body()).path("uploadId").asString();
+        HttpResponse<String> chunk = HttpClient.newHttpClient().send(HttpRequest.newBuilder(URI.create(
+                        "http://127.0.0.1:" + port + "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0"))
+                .header("Authorization", "Bearer " + token).header("X-Tenant-Id", tenant)
+                .header("Content-Type", "application/octet-stream")
+                .PUT(HttpRequest.BodyPublishers.ofByteArray(bytes)).build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(chunk.statusCode()).as(chunk.body()).isEqualTo(200);
+        HttpResponse<String> completed = send(port, tenant, token, "POST",
+                "/api/v1/artifacts/uploads/" + uploadId + "/complete", "");
+        assertThat(completed.statusCode()).as(completed.body()).isEqualTo(201);
+        return JSON.readTree(completed.body()).path("artifactId").asString();
+    }
+
+    /** The JWT subject is the principal; decode it from the middle segment. */
+    private static String principalOf(String token) throws Exception {
+        String payload = new String(java.util.Base64.getUrlDecoder().decode(token.split("\\.")[1]), StandardCharsets.UTF_8);
+        return JSON.readTree(payload).path("sub").asString();
+    }
+
+    private static String issueDevToken(String tenant, String principal) throws Exception {
+        Path repoRoot = Path.of(System.getProperty("user.dir")).toAbsolutePath();
+        while (!Files.isRegularFile(repoRoot.resolve("scripts/media-dev-identity-token.mjs"))) {
+            repoRoot = repoRoot.getParent();
+            if (repoRoot == null) throw new AssertionError("Could not locate the Media DEV_ONLY token issuer");
+        }
+        ProcessBuilder builder = new ProcessBuilder("node", "scripts/media-dev-identity-token.mjs",
+                "--tenant", tenant, "--subject", principal,
+                "--permission", "media:delivery:dev:export", "--permission", "media:delivery:dev:read",
+                "--permission", "media:artifact:create", "--permission", "media:artifact:write",
+                "--permission", "media:artifact:read",
+                "--expires-in", "300");
+        builder.directory(repoRoot.toFile());
+        builder.redirectErrorStream(true);
+        builder.environment().put("MEDIA_PROFILE", "dev");
+        builder.environment().put("MEDIA_RUNTIME_ENVIRONMENT", "dev");
+        builder.environment().put("MEDIA_DEV_IDENTITY_ENABLED", "true");
+        builder.environment().put("MEDIA_DEV_JWT_HMAC_SECRET", DEV_SECRET);
+        Process issuer = builder.start();
+        byte[] outputBytes = issuer.getInputStream().readAllBytes();
+        if (!issuer.waitFor(10, TimeUnit.SECONDS)) {
+            issuer.destroyForcibly();
+            throw new AssertionError("DEV_ONLY issuer did not exit");
+        }
+        String output = new String(outputBytes, StandardCharsets.US_ASCII).trim();
+        assertThat(issuer.exitValue()).as("DEV_ONLY issuer output: " + output).isZero();
+        return output;
+    }
+
+    private static Map<String, String> environment(String bucket, int port, Path destination) {
+        Map<String, String> env = new HashMap<>();
+        env.put("MEDIA_RUNTIME_ENABLED", "true");
+        env.put("MEDIA_RUNTIME_ENVIRONMENT", "dev");
+        env.put("MEDIA_PROFILE", "dev");
+        env.put("MEDIA_DEV_IDENTITY_ENABLED", "true");
+        env.put("MEDIA_DEV_JWT_HMAC_SECRET", DEV_SECRET);
+        env.put("MEDIA_HTTP_PORT", Integer.toString(port));
+        env.put("MEDIA_LOCAL_PROVIDER_ENABLED", "true");
+        env.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl());
+        env.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
+        env.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_LAUNCHER_DB_PASSWORD");
+        env.put("MEDIA_LAUNCHER_DB_PASSWORD", POSTGRES.getPassword());
+        env.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");
+        env.put("MEDIA_POSTGRES_POOL_SIZE", "4");
+        env.put("MEDIA_S3_BUCKET", bucket);
+        env.put("MEDIA_S3_ENDPOINT", LOCALSTACK.getEndpointOverride(S3).toString());
+        env.put("MEDIA_S3_REGION", LOCALSTACK.getRegion());
+        env.put("MEDIA_S3_PATH_STYLE", "true");
+        env.put("MEDIA_S3_REQUEST_CHECKSUM_CALCULATION", "WHEN_REQUIRED");
+        env.put("MEDIA_S3_ACCESS_KEY_REFERENCE", "secret:env:MEDIA_LAUNCHER_ACCESS");
+        env.put("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:MEDIA_LAUNCHER_SECRET");
+        env.put("MEDIA_LAUNCHER_ACCESS", LOCALSTACK.getAccessKey());
+        env.put("MEDIA_LAUNCHER_SECRET", LOCALSTACK.getSecretKey());
+        env.put("MEDIA_DELIVERY_DEV_ENABLED", "true");
+        env.put("MEDIA_DELIVERY_DEV_DESTINATION_DIR", destination.toString());
+        return env;
+    }
+
+    private static void installDescriptors(Path root) throws Exception {
+        Path services = root.resolve("META-INF/services");
+        Files.createDirectories(services);
+        Files.writeString(services.resolve("com.ghatana.governance.PolicyEngine"),
+                MediaLauncherProcessFixtures.Policy.class.getName() + "\n");
+        Files.writeString(services.resolve(
+                "com.ghatana.media.runtime.MediaRuntimeContracts$MediaProcessingProvider"),
+                MediaLauncherProcessFixtures.Stt.class.getName() + "\n");
+    }
+
+    private static S3Client s3() {
+        return S3Client.builder().endpointOverride(LOCALSTACK.getEndpointOverride(S3))
+                .region(Region.of(LOCALSTACK.getRegion()))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(LOCALSTACK.getAccessKey(), LOCALSTACK.getSecretKey())))
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build()).build();
+    }
+
+    private static Process startLauncher(String classpath, Map<String, String> env, Path log) throws Exception {
+        String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+        ProcessBuilder builder = new ProcessBuilder(java, "-cp", classpath,
+                "com.ghatana.media.launcher.MediaLauncher");
+        builder.environment().putAll(env);
+        builder.redirectErrorStream(true);
+        builder.redirectOutput(log.toFile());
+        return builder.start();
+    }
+
+    private static void awaitReady(Process process, int port) throws Exception {
+        long deadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+        while (System.nanoTime() < deadline) {
+            if (!process.isAlive()) throw new AssertionError("MediaLauncher exited: " + process.exitValue());
+            try {
+                HttpResponse<String> response = HttpClient.newHttpClient().send(
+                        HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/health/ready"))
+                                .GET().build(), HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) return;
+            } catch (java.io.IOException ignored) { }
+            Thread.sleep(200);
+        }
+        throw new AssertionError("MediaLauncher did not become ready");
+    }
+
+    private static HttpResponse<String> send(int port, String tenant, String token,
+            String method, String path, String body) throws Exception {
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path))
+                .header("Authorization", "Bearer " + token)
+                .header("X-Tenant-Id", tenant);
+        if (body != null) request.header("Content-Type", "application/json");
+        request.method(method, body == null ? HttpRequest.BodyPublishers.noBody()
+                : HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8));
+        return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    private static void stopLauncher(Process process) throws Exception {
+        process.destroy();
+        if (!process.waitFor(15, TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            assertThat(process.waitFor(10, TimeUnit.SECONDS)).isTrue();
+        }
+    }
+
+    private static void deleteBucket(String bucket) {
+        try (S3Client s3 = s3()) {
+            s3.listObjectsV2(builder -> builder.bucket(bucket)).contents().forEach(object ->
+                    s3.deleteObject(builder -> builder.bucket(bucket).key(object.key())));
+            s3.deleteBucket(builder -> builder.bucket(bucket));
+        } catch (Exception ignored) { }
+    }
+
+    private static String sha256(byte[] bytes) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+    }
+}
