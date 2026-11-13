@@ -1,0 +1,154 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.10510688836104512,
+            "width": 0.4525608732157851,
+            "x": 0.04869857262804366,
+            "y": 0.052256532066508314
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.02672209026128266,
+                "width": 0.05877413937867338,
+                "x": 0.04869857262804366,
+                "y": 0.052256532066508314
+              },
+              "confidence": 0.96574501,
+              "languageTag": "en",
+              "lineId": "p1-b1-l1",
+              "text": "This"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.021971496437054632,
+                "width": 0.33753148614609574,
+                "x": 0.1200671704450042,
+                "y": 0.05463182897862233
+              },
+              "confidence": 0.96415092,
+              "languageTag": "en",
+              "lineId": "p1-b1-l2",
+              "text": "scanned"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.02672209026128266,
+                "width": 0.06717044500419815,
+                "x": 0.24937027707808565,
+                "y": 0.052256532066508314
+              },
+              "confidence": 0.95958389,
+              "languageTag": "en",
+              "lineId": "p1-b1-l3",
+              "text": "page"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.021971496437054632,
+                "width": 0.12594458438287154,
+                "x": 0.3316540722082284,
+                "y": 0.05463182897862233
+              },
+              "confidence": 0.95761787,
+              "languageTag": "en",
+              "lineId": "p1-b1-l4",
+              "text": "contains"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.0172209026128266,
+                "width": 0.14273719563392107,
+                "x": 0.051217464315701094,
+                "y": 0.09501187648456057
+              },
+              "confidence": 0.93042091,
+              "languageTag": "en",
+              "lineId": "p1-b1-l5",
+              "text": "rasterized"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.021971496437054632,
+                "width": 0.10075566750629723,
+                "x": 0.20906801007556675,
+                "y": 0.09501187648456057
+              },
+              "confidence": 0.96435257,
+              "languageTag": "en",
+              "lineId": "p1-b1-l6",
+              "text": "English"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.016033254156769598,
+                "width": 0.05709487825356843,
+                "x": 0.32157850545759864,
+                "y": 0.09619952494061758
+              },
+              "confidence": 0.96355453,
+              "languageTag": "en",
+              "lineId": "p1-b1-l7",
+              "text": "text"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.0172209026128266,
+                "width": 0.04030226700251889,
+                "x": 0.3895885810243493,
+                "y": 0.09501187648456057
+              },
+              "confidence": 0.96217056,
+              "languageTag": "en",
+              "lineId": "p1-b1-l8",
+              "text": "for"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.016033254156769598,
+                "width": 0.061293031066330814,
+                "x": 0.4399664147774979,
+                "y": 0.09619952494061758
+              },
+              "confidence": 0.96556305,
+              "languageTag": "en",
+              "lineId": "p1-b1-l9",
+              "text": "OCR"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.021971496437054632,
+                "width": 0.1855583543240974,
+                "x": 0.05037783375314862,
+                "y": 0.13539192399049882
+              },
+              "confidence": 0.8835412599999999,
+              "languageTag": "en",
+              "lineId": "p1-b1-l10",
+              "text": "qualification."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]",
+      "pdfOcrAttemptLineage:[{\"pageNumber\":1,\"region\":{\"x\":0.0,\"y\":0.0,\"width\":1.0,\"height\":1.0},\"attempts\":[\"ghatana.paddleocr\",\"ghatana.tesseractocr\"],\"selected\":\"ghatana.tesseractocr\"}]"
+    ]
+  }
+}

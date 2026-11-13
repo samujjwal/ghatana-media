@@ -1,0 +1,275 @@
+{
+  "crossChecks": {
+    "candidatesNeverSilentlyActivated": {
+      "exitCode": 0,
+      "output": {
+        "status": "PASS"
+      }
+    },
+    "deferredCapabilitiesAccounted": [],
+    "noStaleProofDeps": {
+      "implementationLock": {
+        "exitCode": 0,
+        "output": {
+          "drift": {},
+          "lockFingerprint": "sha256:14ebd1833d388bb31f75d1042e74048a2a15f7c8a22ba0e1e5421e7238b1cc9d",
+          "recomputedFingerprint": "sha256:14ebd1833d388bb31f75d1042e74048a2a15f7c8a22ba0e1e5421e7238b1cc9d",
+          "schemaVersion": "document-intelligence.implementation-lock.v1.check",
+          "status": "PASS"
+        }
+      },
+      "materialScopes": {
+        "exitCode": 0,
+        "output": {
+          "errors": [],
+          "materialScopes": "PASS",
+          "scopeFiles": {
+            "increment3": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment3-material-scope.v1.json",
+            "increment4": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment4-material-scope.v1.json",
+            "increment4a": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment4a-material-scope.v1.json",
+            "increment5": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment5-material-scope.v1.json",
+            "increment6": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment6-material-scope.v1.json"
+          },
+          "warnings": []
+        }
+      },
+      "proofGraph": {
+        "exitCode": 0,
+        "output": {
+          "leaves": 36,
+          "status": "PASS"
+        }
+      }
+    },
+    "oldDefaultUnchanged": "PASS"
+  },
+  "errors": [
+    "freeze-set.v1 check is not PASS",
+    "verify_increment6 --strict is not PASS"
+  ],
+  "extendsFreezeSetV1": {
+    "check": {
+      "exitCode": 2,
+      "output": {
+        "errors": {
+          "increment3": [
+            "increment3 strict receipt inputs do not match the current tree"
+          ],
+          "increment4": [],
+          "increment4a": [],
+          "shared": []
+        },
+        "freezeSet": "FAIL",
+        "manifest": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/document-intelligence-freeze-set.v1.json",
+        "manifestStale": true,
+        "sealState": "OPEN",
+        "sections": {
+          "crossChecks": {
+            "defaultProfileUnaffectedByI4A": "PASS",
+            "i4ConsumesExactI3Authority": "PASS",
+            "i4ProductImplementationCurrent": "PASS",
+            "i4aExtendsAcceptedI3Authority": "PASS",
+            "leafDependencyCoverage": "PASS",
+            "materialScopesDeclared": "PASS",
+            "nativeRuntimeBound": "PASS",
+            "noInScopeMaterialDrift": "FAIL",
+            "noStaleReceiptReferences": "FAIL",
+            "noUnknownOrNotRunBlockingLeaves": "FAIL",
+            "runPublicationComplete": "PASS"
+          },
+          "increment3": "FAIL",
+          "increment4": "PASS",
+          "increment4a": "PASS",
+          "shared": "PASS"
+        }
+      }
+    },
+    "path": "docs/evidence/document-intelligence-freeze-set.v1.json",
+    "sha256": "72a251c4716a92c624fc751ad5477deb744e2581c244d9934d7799db016ab440"
+  },
+  "freezeSetFingerprint": "sha256:44b78161157d9606e073ca3b98d40ca617c4a540ebae4400740d3201f653c7e8",
+  "generatedAt": "2026-09-22T21:02:39Z",
+  "implementationLock": {
+    "check": {
+      "exitCode": 0,
+      "output": {
+        "drift": {},
+        "lockFingerprint": "sha256:14ebd1833d388bb31f75d1042e74048a2a15f7c8a22ba0e1e5421e7238b1cc9d",
+        "recomputedFingerprint": "sha256:14ebd1833d388bb31f75d1042e74048a2a15f7c8a22ba0e1e5421e7238b1cc9d",
+        "schemaVersion": "document-intelligence.implementation-lock.v1.check",
+        "status": "PASS"
+      }
+    },
+    "path": "docs/evidence/document-intelligence-implementation-lock.v1.json",
+    "sha256": "6ecf5832b5de7a29721e6043022cbadd739a188cfcaadd189393be9ac06b99c5"
+  },
+  "profileAuthorities": {
+    "defaultCatalogStability": {
+      "exitCode": 0,
+      "output": {
+        "rawStderr": "",
+        "rawStdout": "default catalog is stable: manifest matches implicit runtime defaults\n"
+      }
+    },
+    "profiles": {
+      "default.yaml": "f071012ca375b0f3d8baa185c0103a2c84a11dfc2df940b3811cd1f535b34a46",
+      "increment4a-candidate.yaml": "e27120e5f10ae22b6ecff89fdab7b9762d624c57e8dd90df52e0268bd6821767",
+      "increment4a.yaml": "ed9ae6867eaeba4a6ea898370e521127d920a05b0c2f670c845c302bd2e71b08",
+      "increment5-candidate.yaml": "1cf596185b43c70875a6697f72107cfea38f9acebaf9043f80c208a85fb7df27",
+      "increment6-candidate.yaml": "86e59a7166c91a72e75ce2b4d0d3681cf0d85340597d32c36f11b17a20ab90ac",
+      "increment6.yaml": "c937695613904bbe5655700b30c19569a7eead3dbebccc67535d64c0fe032d6b"
+    }
+  },
+  "proofInventory": {
+    "path": "docs/evidence/proof-inventory.v2.json",
+    "sha256": "938f817fb3fe5172f19046ec974f475ee4b93afbd039e16c5ad6337779d5b651"
+  },
+  "schemaVersion": "document-intelligence.development-freeze-set.v2",
+  "sealState": "OPEN",
+  "sections": {
+    "increment5": {
+      "capabilityRegistrySha256": "4745ee40d33a3d0b49e123a984f7f90a6f3c676c6e4657f56833f9383d62cd83",
+      "learningPolicies": {
+        "dataset-policy.v1.yaml": "f4cacf83705abd5cc89fbf92883d7e16339fc34cbf4ccbb8ce02ea14c55d1472",
+        "eligibility.v1.yaml": "aef1ac7fd6f85f5e23dbd67fca969378b3216c4677d555663a749515211d7429",
+        "regression-budget.v1.yaml": "704544686dad4a00cefd10b717f29cb833d3a742595c0a6f54501a080c7a5888",
+        "retention.v1.yaml": "24d62f767d5b46c76cde7dbccde8cf76ab70e06892e503942398dcbbb7c271d9",
+        "tenant-scope.v1.yaml": "57028f12cc559ad437fe931d29a37f8d8fd0b2cfe225956974376e07ff85525c"
+      },
+      "learningSchemas": {
+        "active-learning-entry.v1.schema.json": "7c7611d4191f5d0637951495af68f74bef6b4dae6481ee2fada52981e7935ad4",
+        "calibration-candidate.v1.schema.json": "adb77a2223d18b133bf9fa0a73779acd92d8ab673156f105a2e0ce7222c07a09",
+        "candidate-manifest.v1.schema.json": "f33b2d23e5d4b7a71f14f767c04a16e94dc017d215592a266c32a5b22b162dfc",
+        "candidate-manifest.v2.schema.json": "3034f09079d61767cfa1734ed1a19ae113c1127d8947e77ffc46bd1fb6aeaffb",
+        "dataset-manifest.v1.schema.json": "d38cb028c5646c04b18e40e4a52dfe2ba41f95131f418e44d5afd981ba84769c",
+        "dataset-manifest.v2.schema.json": "34c166bd0c7d8a64a8c61a1be72d1b12a5ad1b11de102808144667792e7655ea",
+        "eligibility-policy.v1.schema.json": "6cc023a6e4682b110b8035bdb53bbfba2d43fb13ec3f0c6be135f865527e6acf",
+        "extraction-policy-candidate.v1.schema.json": "a59522c67add900fb516c7b63d0e03492f513978b83a2087ad80065073a71482",
+        "feedback-event.v1.schema.json": "5eb636f62ea31771b4dfadb6dbf37821ca12bd682f56f4d6dbce81ebd28efe89",
+        "feedback-event.v2.schema.json": "43dcffbe5bca1d0d55ba220c7121e3ab5b7c982c8b5a47330db45eccace541c7",
+        "promotion-receipt.v1.schema.json": "32b3df223ca9ef40eda5c5c8957151e26da6d425a44c3eb51351053644266bc7",
+        "regression-budget.v1.schema.json": "3ff946cd3b95c0745a27c06913c4a50c4914e66678f50c8ec483726cc07440a4",
+        "retention-policy.v1.schema.json": "9e11a543ffd6db7eb60a9517e15d71073d41de9c2adc28bc7e6dd7e46683d6ee",
+        "shadow-evaluation.v1.schema.json": "e9cc1362d68110c076e571f2b845302ae20a54bee596de4f23d10cbcb0af5909",
+        "state-transition-receipt.v1.schema.json": "b72b6df71c42bf9939360d7bd88c164f22273e7eb8a8a0c67f916bc30ced820d",
+        "template-candidate.v1.schema.json": "3f7c5bfd307b857c66639982863e79116383e89467f664e1fe95c3a457a1ac4a",
+        "tombstone.v1.schema.json": "7a3cddbbb0c5e2793c7f7373bf6b90aa1f6720bb5287350f8aa4d69bc00ff8d1"
+      },
+      "strictReceipt": {
+        "path": "docs/evidence/increment5-strict-receipt.json",
+        "sha256": "b09b26d75af6aa8c42e4e3f193d70950a1fcb521e6934a97a4f028291ba9e856"
+      },
+      "verify": {
+        "exitCode": 0,
+        "output": {
+          "checks": [
+            "schemas",
+            "eventRoots",
+            "datasets",
+            "registry",
+            "promotion",
+            "capabilityRegistry",
+            "noOnlineLearning"
+          ],
+          "errors": [],
+          "increment": "increment5",
+          "schemaVersion": "document-intelligence.increment5-verification.v1",
+          "status": "PASS"
+        }
+      }
+    },
+    "increment6": {
+      "acceptanceSha256": "6c070dde07cadafc653e0e9004b53001571933afd56bc4d622ea7dba7bcfb3b2",
+      "deploymentAuthorities": {
+        "activation.v1.yaml": "e49dd89d1c22d5251837831f2014b3e759a529f52e488be703fe20cfc2bf4676",
+        "deployment-gates.v1.yaml": "5123e916d4fcc1e1c11050357ee9b98a7450ca65e40416c64cb64fa68eb525e3",
+        "offline-bundle.v1.yaml": "a72d1ccf5114d0194452e88347f9f8a8cbea172805cb3c4633bc4c87b05928c1",
+        "operational-envelope.v1.yaml": "86d96eb80178fbbd4c4d5dc7c618f9cef3f9e12cbe8906b99a43c7fe8f90e1b6",
+        "sbom/offline-bundle-manifest.v1.json": "2f4e12fd359a377a1e1a458b39d7a9743f151797e44143e031864bca2a417b7f",
+        "sbom/package-receipt.v1.json": "2ae7435599fc92cb1b61afbca2c049332c3bb9ab3664ec8f3dc21c17f1e55a86",
+        "sbom/sbom.v1.json": "942aaa1712fb4526bc01ed80337801c1ab23a0769728731063a7cdc38e8e4f46",
+        "sbom/vulnerability-report.v1.json": "4b4110490e2d48e3de8896a8402aa73bbc2f6a893dd365446cb3b07feab7f973",
+        "vulnerability-policy.v1.yaml": "da7d0c35e971c2b4d103c3b43641305ced89a33ba4546da320ed464eef29efaf",
+        "vulnerability-scan.v1.json": "c9a17be185920381f18a6507359d74a4ba9bca6da9cc9af6e0439507e7344d5a"
+      },
+      "environmentSha256": "679cdec4041bac7d6e56f69da042b696081ffa6495311a0feb9d13f464d9596c",
+      "releaseReadiness": {
+        "readiness-manifest.v1.json": "4a09cef16ef7c5b33004d6558ee3f06d72a7bcbb19d535c383aa4a9c9e49a816",
+        "receipts/buildReproducible.json": "8f60a6100b685dfc9fe7f7bcb6104ceb18a6d5f6c90b87d403454e5cd55d2468",
+        "receipts/campaignEvidenceComplete.json": "078db86d6fac2df53941d3f18bf3c214f475850642c44e72ac5ec7b0e3bba624",
+        "receipts/capabilityAdmissionConsistent.json": "4468d52f328e133714e65150ef386f83bc38fc782b2832b5095371b019fe866a",
+        "receipts/rollbackPlanPresent.json": "5d2f28c56728f0d32b871ab2659ac39f3a60e354b5c3733c9fbd77d7131e9d72",
+        "receipts/sbomClean.json": "d03ec07ed5deaf296896a0d1ddbee127fd6529d7a3f746f14ae32f90f8bd0460",
+        "receipts/vulnerabilityPolicyPass.json": "d96c2fbfe611d811c0262b6e1fb071b259205cd2df62044d7a1c386c4f46349d"
+      },
+      "semanticEnvironmentSha256": "aca146300c438867696d88a5a1f5ea45f730f242143ee3b738ca3629f8521015",
+      "strictVerify": {
+        "exitCode": 2,
+        "output": {
+          "checks": [
+            "scannedPolicy",
+            "fallbackContract",
+            "protocolAuthority",
+            "corpusAuthority",
+            "fixtureClosure",
+            "runtimeModules",
+            "deployment",
+            "releaseReadiness",
+            "capabilityRegistry",
+            "performanceEvidence",
+            "sealedMaterial"
+          ],
+          "errors": [
+            "fixtureClosure: qualification: office-docx is DEFERRED_TO_FUTURE_RELEASE with NOT_RUN fixture evidence",
+            "fixtureClosure: qualification: office-pptx is DEFERRED_TO_FUTURE_RELEASE with NOT_RUN fixture evidence",
+            "fixtureClosure: qualification: office-xlsx is DEFERRED_TO_FUTURE_RELEASE with NOT_RUN fixture evidence",
+            "fixtureClosure: qualification: hi-mr-ocr is DEFERRED_TO_FUTURE_RELEASE with NOT_RUN fixture evidence",
+            "fixtureClosure: qualification: hi-mr-extraction is DEFERRED_TO_FUTURE_RELEASE with NOT_RUN fixture evidence",
+            "fixtureClosure: qualification: complex-layout is DEFERRED_TO_FUTURE_RELEASE with NOT_RUN fixture evidence"
+          ],
+          "increment": "increment6",
+          "pending": [],
+          "schemaVersion": "document-intelligence.increment6-verification.v1",
+          "status": "FAIL"
+        }
+      }
+    }
+  },
+  "status": "FAIL",
+  "verificationImplementations": {
+    "build_development_freeze_set.py": "7b0234f413cb7003cae8644a189bc92c0c5957c4bc01e3f52f0a1e6d640f6f84",
+    "build_freeze_set.py": "b5e13368dac26fc553f84b5684dee46b1c340e028c403943701a4e780b6a67a1",
+    "build_implementation_lock.py": "7b837fcc012f4fb2bfe029d5c265c69aaf52050cde1bf9b89ac642f82fcc0fff",
+    "build_increment4a_runtime_authority.py": "7c414ce69b2cf9d446f2d3a5a5bd04333d961f96652dd9365442df12f226830b",
+    "build_material_snapshot.py": "7e0bf4e7f9538f6d639730fc3982dacc5f65039f679fb4d7e4fe1190a922bcb5",
+    "build_native_runtime_supplement.py": "33ca31e8740be57a45dca710978b8b7809d0b308473b7792ce8c37070699098d",
+    "build_provider_runtime_stability.py": "95144047126dad95f38437131983726d7e718f4d80f75937476abf863dd3dc06",
+    "build_release_readiness.py": "8bbf8bafaaf6f09b424d759cbfe56529f8f18de1849a39c12bc32c5bd8961a33",
+    "build_required_inventory.py": "e4e710b98a9a9d6e29b6757f0d788d6875a040a0cfb10a6ef46d9f53562d59cc",
+    "build_run_publication.py": "ff9d769d600517d3b69db0bc9ddec71c8ad0c971f92e325a6898b1971a019a22",
+    "check_capability_registry.py": "663a3b8bdb080d98f8e90cf656e36c49c342c270bf4616b61a20ceae53510a3e",
+    "check_default_catalog_stability.py": "f1b868a2065b5b45c8979ce4c5b87854a7acf1fa3fb5a9cb6e067cecf43b379a",
+    "check_leaf_dependencies.py": "8ac697cd8ea1cced8ac2a8508c7f58dc9f9a2fe0638521ce6867e291feb35f5c",
+    "check_material_scopes.py": "c8950710eafb1bcad95ad21e753fc9fe87f6b53dc96998c02f469327c53bdcb6",
+    "check_observability_cardinality.py": "9d9109fb2a65f2569ab9d0084c24d5dca5ef3690f74234a212d45f6bd3b8544f",
+    "check_proof_graph.py": "788c227f9ae06cfb4d8d9dc5cfce7f5ec0e546df0602b2a7ca16cfc360f63e02",
+    "check_vulnerabilities.py": "ec11735aa7e09ff60d33dbe8dae00e63badd35b4c5eb6fcb535954235d1862fc",
+    "document-intelligence-proof-graph.yaml": "bedcb67edcb654b2be7d3e44e645a632c4e09464fedabd5cacb84bf20dae9e9e",
+    "fetch_models.py": "ab774ee7613b77267cec2bcc0876fbaaa66f8efaf5826098c59c6c9742162016",
+    "freeze_increment4a.py": "1ffaf174ef2d39686a0e37239e7c30e11b41d4a8d8e7a5c0dc1a3a5f31f1e165",
+    "freeze_increment5.py": "97b22c2153f2afe5d76e854e31b5a35799be03611bdfa7aad5539a1827d1e5d1",
+    "preflight_increment3.py": "18fecd28c689d793117e8c8689227390db863a11fc9240139d4881d9f5c52cd7",
+    "promote_increment4a_capabilities.py": "662b666330badc912fe867b0651e5976c99353188fd630eff915c8dc0d4fe7f1",
+    "provision_increment4a_assets.py": "004d5f03042412c0ce49e8ccbcabdd14608e77e35bd89ca8c23567132835cbac",
+    "provision_tesseract.py": "38741bec48911701db235678c0381f450777a489f119dab1bec91cea383a49f9",
+    "read_only_verify.py": "3f83fa2fd7cd2608ed199850858970d8910bda38881bedeb6b21bdffdbd39109",
+    "run_cross_profile_regression.py": "f3782b9bc193557a4332ce41b3f5fea9307827485f7f60d474a0fc8ff1bbdde4",
+    "scope_lock.py": "17281b8671123bad13a3a57bdee5f4baf6e93e2799d24aa90f8ce2f73943a841",
+    "verify_increment3.py": "1fd5a68eaa40f6b75913b25a43f9a47226ed67479bb09b343771278fbbb24a09",
+    "verify_increment4a.py": "66cd65d64a9b75e29f4bd64204060eeca7027a3140603d51fb5a2dc2e7280bc4",
+    "verify_increment5.py": "93a656a8ffc118f0839e7be52486872225596bc1dc7c3f1662a1fbef51b74079",
+    "verify_increment6.py": "1b74052b5906daa4e15c9612764ec4623cb9ba6c1def7bf4c4022eec7c92746c",
+    "verify_live_document_intelligence_authority.py": "7a62f50f1f6505ad8c11ae14be6e230d513c594ffe71652cee0dba69e7e844f0",
+    "verify_models.py": "84758c518c3eda76737b9bfd8b12ac372d6df56a6c0bc6c3d3693537bbe6865f"
+  }
+}

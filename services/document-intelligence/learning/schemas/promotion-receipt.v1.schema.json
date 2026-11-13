@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/promotion-receipt.v1",
+  "title": "Promotion Receipt v1",
+  "description": "Immutable record of an authorized promotion that publishes a new authority revision. Rollback likewise emits a receipt selecting an earlier already-qualified revision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "promotionId",
+    "candidateId",
+    "candidateFingerprint",
+    "action",
+    "authorization",
+    "evaluationReceipt",
+    "materialFingerprintAtDecision",
+    "authorityRevision",
+    "receiptFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.promotion-receipt.v1" },
+    "promotionId": { "type": "string", "minLength": 1 },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "candidateFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "action": { "enum": ["PROMOTE", "ROLLBACK"] },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorizedBy", "authorizedAt", "authorizationRef"],
+      "properties": {
+        "authorizedBy": { "type": "string", "minLength": 1 },
+        "authorizedAt": { "type": "string", "format": "date-time" },
+        "authorizationRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reference to the explicit authorization record (change ticket, approval id)."
+        }
+      }
+    },
+    "evaluationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "evaluationFingerprint"],
+      "properties": {
+        "result": { "const": "PASS" },
+        "evaluationFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "regressionBudgetRef": { "type": "string" },
+        "regressionResult": { "const": "PASS" }
+      }
+    },
+    "materialFingerprintAtDecision": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Material fingerprint at decision time; verifier requires it to still be current."
+    },
+    "authorityRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "authorityFingerprint", "supersedes"],
+      "properties": {
+        "revisionId": { "type": "string", "minLength": 1 },
+        "authorityFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "supersedes": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Fingerprint of the prior authority revision this replaces. For ROLLBACK, the fingerprint of the earlier already-qualified revision being re-selected."
+        }
+      }
+    },
+    "receiptFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

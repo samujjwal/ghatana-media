@@ -1,0 +1,40 @@
+schemaVersion: increment4a.implementation-material.v1
+sourceSets:
+  providerSemantics:
+    - src/document_intelligence/providers/
+    - src/document_intelligence/mapping/
+    - src/document_intelligence/strategies/
+    - src/document_intelligence/contracts.py
+    - src/document_intelligence/errors.py
+    - src/document_intelligence/limits.py
+    - src/document_intelligence/config.py
+    - src/document_intelligence/profile.py
+    - src/document_intelligence/health.py
+    - src/document_intelligence/observability.py
+    - src/document_intelligence/app.py
+    - src/document_intelligence/operations.py
+    - clients/typescript/src/client.ts
+    - src/document_intelligence/lifecycle.py
+    - src/document_intelligence/runtime/provider_executor.py
+    - src/document_intelligence/runtime/fallback.py
+    - src/document_intelligence/runtime/pdf_rendering.py
+    - src/document_intelligence/runtime/subprocess_runner.py
+    - src/document_intelligence/runtime/ooxml_preflight.py
+    - src/document_intelligence/runtime/deadline.py
+    - src/document_intelligence/runtime/cancellation.py
+    - src/document_intelligence/runtime/concurrency.py
+    - src/document_intelligence/runtime/model_registry.py
+    - src/document_intelligence/runtime/capability_admission.py
+    - src/document_intelligence/runtime/provider_authority.py
+    - src/document_intelligence/runtime/temporary_files.py
+    - src/document_intelligence/runtime/provider_trace.py
+  evaluationImplementation:
+    - evaluation/increment4a/run_campaign.py
+    - evaluation/increment4a/run_qualification.py
+    - evaluation/increment4a/metrics.py
+    - evaluation/increment4a/implementation_material.py
+    - scripts/verify_increment4a.py
+    - scripts/verify_models.py
+    - scripts/freeze_increment4a.py
+    - scripts/promote_increment4a_capabilities.py
+    - scripts/build_increment4a_runtime_authority.py

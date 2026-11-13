@@ -1,0 +1,29 @@
+{
+  "different": [
+    [
+      "template-a",
+      "unrelated"
+    ]
+  ],
+  "phrases": [
+    "template-a",
+    "template-a-variant",
+    "unrelated"
+  ],
+  "retrieval": {
+    "expected": [
+      [
+        "template-a-variant"
+      ]
+    ],
+    "queries": [
+      "template-a"
+    ]
+  },
+  "same": [
+    [
+      "template-a",
+      "template-a-variant"
+    ]
+  ]
+}

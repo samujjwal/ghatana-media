@@ -1,0 +1,230 @@
+# document-intelligence.capabilities.v1
+#
+# Canonical capability-state authority (P0-05, P0-06). Every known capability
+# records its development state, consumer-admission disposition, owning
+# increment, profiles, and — for anything not qualified — the future owner
+# that must qualify it.
+#
+# developmentState:
+#   QUALIFIED       frozen qualification evidence exists and is current
+#   NOT_QUALIFIED   evaluated or implemented but below acceptance authority
+#   UNSUPPORTED     deliberately not supported by design
+#   NOT_APPLICABLE  out of domain for this program
+#
+# consumerAdmission:
+#   ALLOWED         may be advertised/admitted to product consumers
+#   DENIED          never advertised/admitted regardless of developmentState
+#
+# futureOwner (required unless developmentState == QUALIFIED):
+#   DEFERRED_TO_INCREMENT_5 | DEFERRED_TO_INCREMENT_6 |
+#   DEFERRED_TO_RELEASE_READINESS | DEFERRED_TO_EXTERNAL_CERTIFICATION |
+#   UNSUPPORTED_BY_DESIGN | NONE
+schemaVersion: document-intelligence.capabilities.v1
+
+profiles:
+  default:      # frozen Increment-3 canonical profile
+    description: Canonical Increment-3 runtime; unchanged by 4A/5/6 work.
+  increment4a:  # frozen Increment-4A extended profile
+    description: Cumulative I3 base + accepted I4A extensions.
+  increment5:   # learning pipeline (no runtime admission)
+    description: Governed learning; produces candidates only.
+  increment6:   # experimental production-breadth profile (I6-02)
+    description: Candidate/experimental; not consumer-admissible until qualified.
+
+capabilities:
+
+  # ---- Increment 3 canonical base (QUALIFIED, consumer-admitted) ----
+  parser.pdf.text.en:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.docling
+    futureOwner: NONE
+  parser.pdf.text.ne:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.docling
+    futureOwner: NONE
+  parser.image.text.en:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.paddleocr
+    futureOwner: NONE
+  parser.image.text.ne:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.paddleocr
+    futureOwner: NONE
+  extraction.schema-guided.en:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.gliner
+    futureOwner: NONE
+  extraction.schema-guided.ne:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.gliner
+    futureOwner: NONE
+  embedding.structure.minilm:
+    ownerIncrement: increment3
+    developmentState: QUALIFIED
+    consumerAdmission: ALLOWED
+    profiles: [default, increment4a]
+    providerRef: ghatana.minilm
+    futureOwner: NONE
+
+  # ---- Increment 4A extensions (QUALIFIED under increment4a profile) ----
+  parser.pdf.hybrid.text.en:  { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.hybrid-pdf, futureOwner: NONE }
+  parser.pdf.hybrid.text.ne:  { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.hybrid-pdf, futureOwner: NONE }
+  parser.pdf.hybrid.text.hi:  { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.hybrid-pdf, futureOwner: NONE }
+  parser.pdf.hybrid.text.mr:  { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.hybrid-pdf, futureOwner: NONE }
+  parser.docx.text.en:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-docx, futureOwner: NONE }
+  parser.docx.text.ne:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-docx, futureOwner: NONE }
+  parser.docx.text.hi:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-docx, futureOwner: NONE }
+  parser.docx.text.mr:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-docx, futureOwner: NONE }
+  parser.pptx.text.en:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-pptx, futureOwner: NONE }
+  parser.pptx.text.ne:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-pptx, futureOwner: NONE }
+  parser.pptx.text.hi:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-pptx, futureOwner: NONE }
+  parser.pptx.text.mr:        { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-pptx, futureOwner: NONE }
+  parser.xlsx.tables.en:      { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-xlsx, futureOwner: NONE }
+  parser.xlsx.tables.ne:      { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-xlsx, futureOwner: NONE }
+  parser.xlsx.tables.hi:      { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-xlsx, futureOwner: NONE }
+  parser.xlsx.tables.mr:      { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.docling-xlsx, futureOwner: NONE }
+  ocr.paddle.en:              { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.paddleocr, futureOwner: NONE }
+  ocr.paddle.ne:              { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.paddleocr, futureOwner: NONE }
+  ocr.paddle.hi:              { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.paddleocr, futureOwner: NONE }
+  ocr.paddle.mr:              { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.paddleocr, futureOwner: NONE }
+  fallback.image.paddle-to-tesseract.en: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.image.paddle-to-tesseract.ne: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.image.paddle-to-tesseract.hi: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.image.paddle-to-tesseract.mr: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.pdf-ocr-region.paddle-to-tesseract.en: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.pdf-ocr-region.paddle-to-tesseract.ne: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.pdf-ocr-region.paddle-to-tesseract.hi: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+  fallback.pdf-ocr-region.paddle-to-tesseract.mr: { ownerIncrement: increment4a, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment4a], providerRef: ghatana.resilient-parser, futureOwner: NONE }
+
+  # ---- Increment 4A negative capability states (I4A-08) ----
+  extraction.schema-guided.hi:
+    ownerIncrement: increment4a
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: []
+    providerRef: ghatana.gliner
+    futureOwner: DEFERRED_TO_INCREMENT_6
+    reason: QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD
+  extraction.schema-guided.mr:
+    ownerIncrement: increment4a
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: []
+    providerRef: ghatana.gliner
+    futureOwner: DEFERRED_TO_INCREMENT_6
+    reason: QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD
+  parser.pdf.hybrid.tables.scanned.en:
+    ownerIncrement: increment4a
+    developmentState: UNSUPPORTED
+    consumerAdmission: DENIED
+    profiles: []
+    providerRef: ghatana.hybrid-pdf
+    futureOwner: UNSUPPORTED_BY_DESIGN
+    reason: SCANNED_TABLE_RECONSTRUCTION_NOT_QUALIFIED
+  parser.pdf.hybrid.tables.scanned.ne:
+    ownerIncrement: increment4a
+    developmentState: UNSUPPORTED
+    consumerAdmission: DENIED
+    profiles: []
+    providerRef: ghatana.hybrid-pdf
+    futureOwner: UNSUPPORTED_BY_DESIGN
+    reason: SCANNED_TABLE_RECONSTRUCTION_NOT_QUALIFIED
+  parser.pdf.hybrid.tables.scanned.hi:
+    ownerIncrement: increment4a
+    developmentState: UNSUPPORTED
+    consumerAdmission: DENIED
+    profiles: []
+    providerRef: ghatana.hybrid-pdf
+    futureOwner: UNSUPPORTED_BY_DESIGN
+    reason: SCANNED_TABLE_RECONSTRUCTION_NOT_QUALIFIED
+  parser.pdf.hybrid.tables.scanned.mr:
+    ownerIncrement: increment4a
+    developmentState: UNSUPPORTED
+    consumerAdmission: DENIED
+    profiles: []
+    providerRef: ghatana.hybrid-pdf
+    futureOwner: UNSUPPORTED_BY_DESIGN
+    reason: SCANNED_TABLE_RECONSTRUCTION_NOT_QUALIFIED
+
+  # ---- Increment 5 learning capabilities (I5-32) ----
+  learning.feedback-projection:
+    ownerIncrement: increment5
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: [increment5]
+    futureOwner: DEFERRED_TO_RELEASE_READINESS
+    reason: IMPLEMENTED_AWAITING_INCREMENT5_VERIFICATION
+  learning.dataset-materialization:
+    ownerIncrement: increment5
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: [increment5]
+    futureOwner: DEFERRED_TO_RELEASE_READINESS
+    reason: IMPLEMENTED_AWAITING_INCREMENT5_VERIFICATION
+  learning.calibration-candidates:
+    ownerIncrement: increment5
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: [increment5]
+    futureOwner: DEFERRED_TO_RELEASE_READINESS
+    reason: IMPLEMENTED_AWAITING_INCREMENT5_VERIFICATION
+  learning.template-candidates:
+    ownerIncrement: increment5
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: [increment5]
+    futureOwner: DEFERRED_TO_RELEASE_READINESS
+    reason: IMPLEMENTED_AWAITING_INCREMENT5_VERIFICATION
+  learning.active-learning-queue:
+    ownerIncrement: increment5
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: [increment5]
+    futureOwner: DEFERRED_TO_RELEASE_READINESS
+    reason: IMPLEMENTED_AWAITING_INCREMENT5_VERIFICATION
+  learning.promotion-governance:
+    ownerIncrement: increment5
+    developmentState: NOT_QUALIFIED
+    consumerAdmission: DENIED
+    profiles: [increment5]
+    futureOwner: DEFERRED_TO_RELEASE_READINESS
+    reason: IMPLEMENTED_AWAITING_INCREMENT5_VERIFICATION
+
+  # ---- Increment 6 breadth/resilience (I6 authority backlog) ----
+  parser.pdf.scanned.classify.en:      { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.scanned-pdf-classifier, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.scanned.classify.ne:      { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.scanned-pdf-classifier, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.scanned.classify.hi:      { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.scanned-pdf-classifier, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.scanned.classify.mr:      { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.scanned-pdf-classifier, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.hybrid.provenance.en:     { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.hybrid-pdf, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.hybrid.provenance.ne:     { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.hybrid-pdf, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.hybrid.provenance.hi:     { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.hybrid-pdf, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  parser.pdf.hybrid.provenance.mr:     { ownerIncrement: increment6, developmentState: QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], providerRef: ghatana.hybrid-pdf, futureOwner: NONE, qualificationEvidence: evaluation/increment6/results/20260921T223921Z-48ef0d5e }
+  extraction.schema-guided.hi.v2:   { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], futureOwner: DEFERRED_TO_RELEASE_READINESS, reason: EXTERNAL_CERTIFICATION_RELEASE_READINESS_GATE }
+  extraction.schema-guided.mr.v2:   { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [increment6], futureOwner: DEFERRED_TO_RELEASE_READINESS, reason: EXTERNAL_CERTIFICATION_RELEASE_READINESS_GATE }
+  runtime.scheduler.bounded:        { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  runtime.model-residency:          { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  runtime.memory-pressure:          { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  runtime.crash-recovery:           { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  runtime.provider-fallback-explicit: { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  deployment.offline-bundle:        { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  deployment.progressive-activation: { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  deployment.rollback:              { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_INCREMENT_6 }
+  release.external-certification:   { ownerIncrement: increment6, developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, profiles: [], futureOwner: DEFERRED_TO_EXTERNAL_CERTIFICATION }

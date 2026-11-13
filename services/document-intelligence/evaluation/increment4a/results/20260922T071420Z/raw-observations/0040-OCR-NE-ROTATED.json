@@ -1,0 +1,169 @@
+{
+  "languageTag": "ne",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.05303030303030303,
+            "width": 0.4869281045751634,
+            "x": 0.012254901960784314,
+            "y": 0.04482323232323232
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.05303030303030303,
+                "width": 0.4869281045751634,
+                "x": 0.012254901960784314,
+                "y": 0.04482323232323232
+              },
+              "confidence": 0.8818879450068753,
+              "languageTag": "ne",
+              "lineId": "p1-b1-l1",
+              "text": "यो घना अनुच्छेदमा धैरे छोटा लाइनहरू छन्।"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.054292929292929296,
+            "width": 0.47875816993464054,
+            "x": 0.014705882352941176,
+            "y": 0.08585858585858586
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.054292929292929296,
+                "width": 0.47875816993464054,
+                "x": 0.014705882352941176,
+                "y": 0.08585858585858586
+              },
+              "confidence": 0.9021555357119617,
+              "languageTag": "ne",
+              "lineId": "p1-b2-l1",
+              "text": "प्रत्येक लाइन सानो आकारमा छापिएको छ।"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b3",
+          "boundingRegion": {
+            "height": 0.03977272727272727,
+            "width": 0.20098039215686275,
+            "x": 0.01715686274509804,
+            "y": 0.14015151515151514
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03977272727272727,
+                "width": 0.20098039215686275,
+                "x": 0.01715686274509804,
+                "y": 0.14015151515151514
+              },
+              "confidence": 0.9094103846479864,
+              "languageTag": "ne",
+              "lineId": "p1-b3-l1",
+              "text": "घना पाठले"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b4",
+          "boundingRegion": {
+            "height": 0.0422979797979798,
+            "width": 0.28431372549019607,
+            "x": 0.20098039215686275,
+            "y": 0.13320707070707072
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.0422979797979798,
+                "width": 0.28431372549019607,
+                "x": 0.20098039215686275,
+                "y": 0.13320707070707072
+              },
+              "confidence": 0.9862084984779358,
+              "languageTag": "ne",
+              "lineId": "p1-b4-l1",
+              "text": "लाइन छुट्ट्याउन जॉच्छ।"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b5",
+          "boundingRegion": {
+            "height": 0.03535353535353535,
+            "width": 0.18137254901960784,
+            "x": 0.02369281045751634,
+            "y": 0.18434343434343434
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03535353535353535,
+                "width": 0.18137254901960784,
+                "x": 0.02369281045751634,
+                "y": 0.18434343434343434
+              },
+              "confidence": 0.9995993971824646,
+              "languageTag": "ne",
+              "lineId": "p1-b5-l1",
+              "text": "अन्तिम लाइनले"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b6",
+          "boundingRegion": {
+            "height": 0.04671717171717172,
+            "width": 0.24101307189542484,
+            "x": 0.18872549019607843,
+            "y": 0.17234848484848486
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.04671717171717172,
+                "width": 0.24101307189542484,
+                "x": 0.18872549019607843,
+                "y": 0.17234848484848486
+              },
+              "confidence": 0.8873684910290381,
+              "languageTag": "ne",
+              "lineId": "p1-b6-l1",
+              "text": " घना नमूना पूरा ग्छ।"
+            }
+          ]
+        }
+      ],
+      "languageTag": "ne",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-devanagari-shared",
+    "modelVersion": "PP-OCRv5-local-devanagari-shared",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

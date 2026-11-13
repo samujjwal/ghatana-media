@@ -1,0 +1,60 @@
+{
+  "allowProviderSourceChangesAfterThisPoint": false,
+  "boundArtifacts": {
+    "canonicalProviderAuthority": {
+      "path": "evaluation/results/20260919T022904Z-cf9e659f/capabilities.json",
+      "sha256": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab"
+    },
+    "increment3ModelManifest": {
+      "path": "models/model-manifest.yaml",
+      "sha256": "df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4"
+    },
+    "increment4aAcceptedCapabilities": {
+      "path": "capabilities/increment4a.accepted.json",
+      "sha256": "02485f6605c8ee8e63e8557a351469fd04e2c240c4011e45470019ec99dcd845"
+    },
+    "increment4aModelManifest": {
+      "path": "models/increment4a/model-manifest.yaml",
+      "sha256": "582bba88c331c54d0bf51c31b84a8965c179fbb03f751f1135762c7211d12a70"
+    },
+    "increment4aRuntimeAuthority": {
+      "path": "capabilities/increment4a.runtime-authority.json",
+      "sha256": "a97c6791a0bb9f10890facaae7c50bce17edbf9db1235bcef71b608c84d54638"
+    },
+    "uvLock": {
+      "path": "uv.lock",
+      "sha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960"
+    }
+  },
+  "canonicalProviderFingerprint": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+  "declaredAt": "2026-09-22T16:01:21Z",
+  "increment4aProviderFingerprint": "a97c6791a0bb9f10890facaae7c50bce17edbf9db1235bcef71b608c84d54638",
+  "invalidationContract": "After providerRuntimeState=STABLE, any change under protectedSourcePaths changes a bound fingerprint, marks this receipt STALE under --check, and routes back through the affected Increment-3/4A leaves; it never auto-repairs frozen evidence.",
+  "modelAssetFingerprint": "756092c5c0aabb3234f64f69ba6144ef86de6757a33c432e22bbe6d905b3b317",
+  "packageRootFingerprint": "f1cec676c240c9b9f5cc04fbdcae01172924fa4d4bd2836bee58af8b12b4bb7a",
+  "protectedSourcePaths": [
+    "src/document_intelligence/",
+    "clients/typescript/",
+    "routing/",
+    "profiles/",
+    "models/",
+    "capabilities/increment4a.accepted.json",
+    "capabilities/increment4a.runtime-authority.json",
+    "uv.lock",
+    "pyproject.toml"
+  ],
+  "providerRuntimeState": "STABLE",
+  "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+  "routeBackLeaves": [
+    "increment3.strictGate",
+    "increment4a.campaign.<canonical>",
+    "increment4a.testReceipt.*",
+    "increment4.liveWorkerIdentity",
+    "increment4.livePostgres"
+  ],
+  "routingProfilesFingerprint": "2edb71ff3910f77b307200df991ef0d753288d7de6485581c24808d1a213dde5",
+  "runtimeDependencyFingerprint": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+  "schemaVersion": "document-intelligence.provider-runtime-stability.v1",
+  "workerClientFingerprint": "3731fc76bc4adef312e39aa34d9fbfc023f8d5c723957fce7ae95b19c1244aa6",
+  "workerLifecycleFingerprint": "7825904c4ca132de42caf73672fd3c6a635888981407f2c530b4421211685a85"
+}

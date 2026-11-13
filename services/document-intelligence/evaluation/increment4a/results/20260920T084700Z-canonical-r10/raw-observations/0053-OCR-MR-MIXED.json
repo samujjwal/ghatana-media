@@ -1,0 +1,69 @@
+{
+  "languageTag": "mr",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.03535353535353535,
+            "width": 0.5612745098039216,
+            "x": 0.041666666666666664,
+            "y": 0.04482323232323232
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03535353535353535,
+                "width": 0.5612745098039216,
+                "x": 0.041666666666666664,
+                "y": 0.04482323232323232
+              },
+              "confidence": 0.9136871099472046,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l1",
+              "text": "पावती -२०२4-००४२ एकण १२५०.५० रुपये."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.03156565656565657,
+            "width": 0.5424836601307189,
+            "x": 0.04493464052287582,
+            "y": 0.08901515151515152
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03156565656565657,
+                "width": 0.5424836601307189,
+                "x": 0.04493464052287582,
+                "y": 0.08901515151515152
+              },
+              "confidence": 0.9257965087890625,
+              "languageTag": "mr",
+              "lineId": "p1-b2-l1",
+              "text": "अहवाल दिनांक: 20२4-01-15, संदर्भ -77."
+            }
+          ]
+        }
+      ],
+      "languageTag": "mr",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-devanagari-shared",
+    "modelVersion": "PP-OCRv5-local-devanagari-shared",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

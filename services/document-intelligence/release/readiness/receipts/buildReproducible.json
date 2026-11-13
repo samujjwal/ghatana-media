@@ -1,0 +1,12 @@
+{
+  "detail": "Two build_package.py runs over identical inputs produced identical packageFingerprint.",
+  "evidence": {
+    "packageFingerprint": "sha256:339e1774b34f9fc3c0ef5ca238c126107092141a7bc20dde227ebc75a490f6be",
+    "receipt": "deployment/sbom/package-receipt.v1.json"
+  },
+  "evidenceKind": "package-receipt",
+  "gateId": "buildReproducible",
+  "issuedAt": "2026-09-21T22:19:39Z",
+  "schemaVersion": "document-intelligence.gate-receipt.v1",
+  "status": "PASS"
+}

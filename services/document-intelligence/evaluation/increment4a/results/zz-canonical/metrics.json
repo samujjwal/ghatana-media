@@ -1,0 +1,13 @@
+{
+  "fallback.eligibleAccuracy": 1.0,
+  "fallback.ineligibleRejectionRate": 1.0,
+  "fallback.successRate": 1.0,
+  "language.accuracy": 1.0,
+  "layout.iou": 0.9429999390941285,
+  "office.structureAccuracy": 1.0,
+  "runtime.cancellationCheckMs": 0.0013660028344020247,
+  "runtime.p95LatencyMs": 24770.087842392964,
+  "runtime.peakRssDeltaMb": 1238.1484375,
+  "text.cer": 0.040602206790723724,
+  "text.wer": 0.0952291186731369
+}

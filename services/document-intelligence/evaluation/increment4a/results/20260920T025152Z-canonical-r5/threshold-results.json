@@ -1,0 +1,68 @@
+{
+  "fallback.eligibleAccuracy": {
+    "operator": "gte",
+    "status": "PASS",
+    "threshold": 1.0,
+    "value": 1.0
+  },
+  "fallback.ineligibleRejectionRate": {
+    "operator": "gte",
+    "status": "PASS",
+    "threshold": 1.0,
+    "value": 1.0
+  },
+  "fallback.successRate": {
+    "operator": "gte",
+    "status": "PASS",
+    "threshold": 0.9,
+    "value": 1.0
+  },
+  "language.accuracy": {
+    "operator": "gte",
+    "status": "PASS",
+    "threshold": 0.95,
+    "value": 1.0
+  },
+  "layout.iou": {
+    "operator": "gte",
+    "status": "PASS",
+    "threshold": 0.7,
+    "value": 0.9429999390941285
+  },
+  "office.structureAccuracy": {
+    "operator": "gte",
+    "status": "PASS",
+    "threshold": 0.9,
+    "value": 1.0
+  },
+  "runtime.cancellationCheckMs": {
+    "operator": "lte",
+    "status": "PASS",
+    "threshold": 1000,
+    "value": 0.0018080027075484395
+  },
+  "runtime.p95LatencyMs": {
+    "operator": "lte",
+    "status": "PASS",
+    "threshold": 120000,
+    "value": 31168.09735901188
+  },
+  "runtime.peakRssDeltaMb": {
+    "operator": "lte",
+    "status": "PASS",
+    "threshold": 2048,
+    "value": 1285.31640625
+  },
+  "text.cer": {
+    "operator": "lte",
+    "status": "PASS",
+    "threshold": 0.15,
+    "value": 0.05575372194223888
+  },
+  "text.wer": {
+    "operator": "lte",
+    "status": "PASS",
+    "threshold": 0.25,
+    "value": 0.10977457321859145
+  }
+}

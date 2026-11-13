@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence.performance-evidence.v1.schema.json",
+  "title": "document-intelligence.performance-evidence.v1",
+  "description": "Performance evidence emitted by the Increment-6 load, soak, and chaos runners (I6-36..I6-38). resultFingerprint is the SHA-256 of the canonical JSON encoding of the evidence object with the resultFingerprint field omitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "producerVersion",
+    "runnerRef",
+    "runId",
+    "startedAt",
+    "completedAt",
+    "configFingerprint",
+    "workload",
+    "metrics",
+    "providerInvocations",
+    "operationalRun",
+    "resultFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "document-intelligence.performance-evidence.v1"
+    },
+    "producerVersion": { "type": "string", "minLength": 1 },
+    "runnerRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "configFingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixtureCount", "concurrency", "durationSeconds"],
+      "properties": {
+        "fixtureCount": {"type": "integer", "minimum": 0},
+        "concurrency": {"type": "integer", "minimum": 1},
+        "durationSeconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["throughputPerSecond", "p50Ms", "p95Ms", "p99Ms", "errorRate", "rssPeakBytes"],
+      "properties": {
+        "throughputPerSecond": {"type": "number", "minimum": 0},
+        "p50Ms": {"type": "number", "minimum": 0},
+        "p95Ms": {"type": "number", "minimum": 0},
+        "p99Ms": {"type": "number", "minimum": 0},
+        "errorRate": {"type": "number", "minimum": 0, "maximum": 1},
+        "rssPeakBytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "providerInvocations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempted", "completed", "cancelled", "timedOut", "failed"],
+      "properties": {
+        "attempted": {"type": "integer", "minimum": 0},
+        "completed": {"type": "integer", "minimum": 0},
+        "cancelled": {"type": "integer", "minimum": 0},
+        "timedOut": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0}
+      }
+    },
+    "operationalRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "startedAt", "completedAt", "workerGeneration", "materialFingerprint", "interruptions", "measurementContinuity", "continuationPolicy"],
+      "properties": {
+        "runId": {"type": "string", "minLength": 1},
+        "startedAt": {"type": "string", "format": "date-time"},
+        "completedAt": {"type": "string", "format": "date-time"},
+        "workerGeneration": {"type": "string", "minLength": 1},
+        "materialFingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "interruptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["startedAt", "completedAt", "reason"],
+            "properties": {
+              "startedAt": {"type": "string", "format": "date-time"},
+              "completedAt": {"type": "string", "format": "date-time"},
+              "reason": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "measurementContinuity": {"const": true},
+        "continuationPolicy": {"enum": ["SINGLE_INTERVAL", "CHECKPOINT_AUTHORIZED"]}
+      }
+    },
+    "leakBaseline": {
+      "type": "array",
+      "description": "I6-62 start-vs-end resource baselines for soak evidence: one entry per tracked resource with a bounded delta.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["metric", "start", "end", "delta", "ceiling", "status"],
+        "properties": {
+          "metric": {"type": "string", "minLength": 1},
+          "start": {"type": "number", "minimum": 0},
+          "end": {"type": "number", "minimum": 0},
+          "delta": {"type": "number"},
+          "ceiling": {"type": "number", "minimum": 0},
+          "status": {"enum": ["PASS", "FAIL"]},
+          "unit": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "failureTaxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "observed"],
+      "properties": {
+        "expected": {
+          "type": "object",
+          "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}
+        },
+        "observed": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "resultFingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

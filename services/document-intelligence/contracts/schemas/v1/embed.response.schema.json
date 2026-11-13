@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/embed.response.schema.json",
+  "title": "POST /v1/embed response (document-intelligence.v1)",
+  "description": "Embedding envelope emitted by embedding providers and validated by validate_provider_output. Exact key set; dimensions is fixed at 384 and values must carry exactly 384 finite numbers; model.providerRef must equal the envelope providerRef.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "operationId", "providerRef", "model", "dimensions", "values"],
+  "properties": {
+    "protocolVersion": { "const": "document-intelligence.v1" },
+    "operationId": { "$ref": "#/$defs/identifier" },
+    "providerRef": { "$ref": "#/$defs/identifier" },
+    "model": { "$ref": "#/$defs/identity" },
+    "dimensions": { "const": 384 },
+    "values": {
+      "type": "array",
+      "minItems": 384,
+      "maxItems": 384,
+      "items": { "type": "number" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "modelRef": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}(/[A-Za-z0-9][A-Za-z0-9_.:-]{0,127})?$"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerRef", "providerVersion"],
+      "dependentRequired": {
+        "modelRef": ["modelVersion"],
+        "modelVersion": ["modelRef"]
+      },
+      "properties": {
+        "providerRef": { "$ref": "#/$defs/identifier" },
+        "providerVersion": { "$ref": "#/$defs/identifier" },
+        "modelRef": { "$ref": "#/$defs/modelRef" },
+        "modelVersion": { "$ref": "#/$defs/identifier" }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "increment4a.runtime-latency-calibration.v1",
+  "sourceRunId": "zz-canonical",
+  "sourceMaterialFingerprint": "34cb4e7c0e3c77f4dd62f54c3f6372bae26492936682e24a9e571ed7d4ff77e6",
+  "environment": {
+    "architecture": "x86_64",
+    "executionClass": "CPU",
+    "runtimeAuthority": "evaluation/increment4a/environment.yaml"
+  },
+  "fixtureFamilies": [
+    {"provider": "ghatana.hybrid-pdf", "language": "en", "rawLatenciesMs": [135.9932, 23423.5762, 22957.0704, 32121.7491, 287.4095, 25169.4726, 23475.1781, 23773.8892], "p50Ms": 23449.3772, "p95Ms": 32121.7491, "maxMs": 32121.7491},
+    {"provider": "ghatana.hybrid-pdf", "language": "ne", "rawLatenciesMs": [23460.0977], "p50Ms": 23460.0977, "p95Ms": 23460.0977, "maxMs": 23460.0977},
+    {"provider": "ghatana.hybrid-pdf", "language": "hi", "rawLatenciesMs": [23265.2524], "p50Ms": 23265.2524, "p95Ms": 23265.2524, "maxMs": 23265.2524},
+    {"provider": "ghatana.hybrid-pdf", "language": "mr", "rawLatenciesMs": [23180.0828], "p50Ms": 23180.0828, "p95Ms": 23180.0828, "maxMs": 23180.0828},
+    {"provider": "ghatana.paddleocr", "language": "en", "rawLatenciesMs": [22158.4056, 23071.6343, 23849.9789, 24541.4737, 24080.594, 24389.8783], "p50Ms": 23965.2864, "p95Ms": 24541.4737, "maxMs": 24541.4737},
+    {"provider": "ghatana.paddleocr", "language": "ne", "rawLatenciesMs": [23874.1412, 24368.6443, 23435.8395, 22591.9706, 21094.5184, 21690.2174], "p50Ms": 23013.9051, "p95Ms": 24368.6443, "maxMs": 24368.6443},
+    {"provider": "ghatana.paddleocr", "language": "hi", "rawLatenciesMs": [21742.3792, 23260.3268, 22857.8116, 23031.4494, 22857.5237, 22371.4745], "p50Ms": 22857.6676, "p95Ms": 23260.3268, "maxMs": 23260.3268},
+    {"provider": "ghatana.paddleocr", "language": "mr", "rawLatenciesMs": [22094.7699, 22327.9538, 21840.6759, 22957.2248, 24670.2417, 27543.3514], "p50Ms": 22642.5893, "p95Ms": 27543.3514, "maxMs": 27543.3514}
+  ],
+  "selectedThresholdMs": 120000,
+  "rationale": "Observed CPU p95 is below 33 seconds. The 120 second ceiling provides bounded headroom for host contention, multilingual model variance, and hybrid render-plus-OCR composition; it is not derived from a single worst fixture."
+}

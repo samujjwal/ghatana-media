@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/regression-budget.v1",
+  "title": "Regression Budget v1",
+  "description": "Promotion-time bounds on acceptable quality, latency, memory, and review-rate movement. A promotion must declare a budget and pass it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "budgetRef", "version", "bounds"],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.regression-budget.v1" },
+    "budgetRef": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "minQualityImprovement": {
+          "type": "number",
+          "description": "Minimum improvement on the primary quality metric required for promotion (e.g. F1 delta). Omit when promotion is allowed without improvement."
+        },
+        "maxQualityRegression": { "type": "number", "minimum": 0 },
+        "maxLatencyRegressionRatio": { "type": "number", "exclusiveMinimum": 0 },
+        "maxMemoryRegressionBytes": { "type": "integer", "minimum": 0 },
+        "maxReviewRateIncrease": { "type": "number", "minimum": 0 },
+        "perLanguage": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "maxQualityRegression": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

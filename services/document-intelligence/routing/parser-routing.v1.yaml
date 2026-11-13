@@ -1,0 +1,37 @@
+schemaVersion: document-intelligence.parser-routing.v1
+routes:
+  application/pdf: [ghatana.hybrid-pdf, ghatana.docling]
+  image/png: [ghatana.paddleocr, ghatana.tesseractocr]
+  # JPEG direct PaddleOCR is admitted. JPEG fallback remains NOT_EVALUATED and
+  # is omitted from the route until separately qualified.
+  image/jpeg: [ghatana.paddleocr]
+  application/vnd.openxmlformats-officedocument.wordprocessingml.document: [ghatana.docling-docx]
+  application/vnd.openxmlformats-officedocument.presentationml.presentation: [ghatana.docling-pptx]
+  application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: [ghatana.docling-xlsx]
+fallback:
+  # TIMEOUT is terminal: an expired request budget may not be re-spent on the
+  # next provider.  This list must stay inside the code-level retryable set.
+  eligibleErrors: [PROVIDER_BUSY, PROVIDER_UNAVAILABLE, PROVIDER_FAILED]
+  maxAttempts: 2
+  minimumRemainingBudgetMs: 1000
+retry:
+  # Same-provider retry (I6-57) is distinct from the cross-provider fallback
+  # above: a retry repeats the same providerRef under a transient-failure
+  # policy, consumes no route position, and requires no declared (from,to)
+  # contract chain.  The retry attempt shares the original request deadline —
+  # the budget is never reset.
+  #
+  # maxAttempts: 1 preserves the sealed default path exactly (no same-provider
+  # retry); raising it bounds the retries a provider gets before the fallback
+  # chain advances.
+  maxAttempts: 1
+  retryableFailureCategories: [PROVIDER_BUSY, PROVIDER_UNAVAILABLE, PROVIDER_FAILED]
+  deadlineBudget: shared
+  minimumRemainingBudgetMs: 1000
+# Optional runtime fallback-contract binding (I6-57): when declared, every
+# cross-provider hop is admitted by routing/fallback-contract.v1.yaml at
+# runtime and a contract rejection surfaces as terminal
+# FALLBACK_NOT_IN_CONTRACT.  The default route intentionally does not bind
+# the contract — its declared chains live under resilient-parser refs, and
+# binding them here would change sealed default behavior.
+# fallbackContract: fallback-contract.v1.yaml

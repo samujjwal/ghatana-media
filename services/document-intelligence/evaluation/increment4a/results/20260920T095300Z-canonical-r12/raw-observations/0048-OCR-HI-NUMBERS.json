@@ -1,0 +1,69 @@
+{
+  "languageTag": "hi",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.030934343434343436,
+            "width": 0.6633986928104575,
+            "x": 0.0457516339869281,
+            "y": 0.04671717171717172
+          },
+          "kind": "TEXT",
+          "languageTag": "hi",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.030934343434343436,
+                "width": 0.6633986928104575,
+                "x": 0.0457516339869281,
+                "y": 0.04671717171717172
+              },
+              "confidence": 0.9775394797325134,
+              "languageTag": "hi",
+              "lineId": "p1-b1-l1",
+              "text": "पहचान ९८४१००१२३४ तिथ १५-०१-२०२४ राश ९९९.७५।"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.029671717171717172,
+            "width": 0.42892156862745096,
+            "x": 0.04656862745098039,
+            "y": 0.08964646464646464
+          },
+          "kind": "TEXT",
+          "languageTag": "hi",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.029671717171717172,
+                "width": 0.42892156862745096,
+                "x": 0.04656862745098039,
+                "y": 0.08964646464646464
+              },
+              "confidence": 0.9638544917106628,
+              "languageTag": "hi",
+              "lineId": "p1-b2-l1",
+              "text": "बैच ४२ कुल १००, अंक ९८.५ प्रतिशत।"
+            }
+          ]
+        }
+      ],
+      "languageTag": "hi",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-devanagari-shared",
+    "modelVersion": "PP-OCRv5-local-devanagari-shared",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/request-metadata.schema.json",
+  "title": "document-intelligence.v1 request metadata",
+  "description": "Frozen request-metadata grammar shared by POST /v1/parse (JSON string in the multipart `metadata` field), POST /v1/extract and POST /v1/embed (inlined into the JSON body next to `payload`/`projection`). Mirrors RequestMetadata.parse in src/document_intelligence/contracts.py: unknown keys and missing required keys fail closed with INVALID_REQUEST. `mediaType` is required only for /v1/parse; `languageHint` values outside the admitted language catalog fail with UNSUPPORTED_LANGUAGE; `operationGeneration` must equal the X-Operation-Generation header when both are present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "operationId", "providerRef", "timeoutMs", "limits"],
+  "properties": {
+    "protocolVersion": {
+      "const": "document-intelligence.v1"
+    },
+    "operationId": {
+      "$ref": "#/$defs/identifier"
+    },
+    "operationGeneration": {
+      "$ref": "#/$defs/operationGeneration",
+      "description": "Optional caller-supplied cancellation token. When the X-Operation-Generation header is also present, the two values must be identical."
+    },
+    "providerRef": {
+      "$ref": "#/$defs/identifier"
+    },
+    "mediaType": {
+      "type": "string",
+      "description": "Required by /v1/parse; the admitted set is capability-driven (default catalog: application/pdf, image/png, image/jpeg). Optional and advisory on /v1/extract and /v1/embed."
+    },
+    "languageHint": {
+      "type": "string",
+      "description": "Optional canonical lowercase language tag. Rejected with UNSUPPORTED_LANGUAGE when not in the admitted language catalog (default: en, ne)."
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Upper bound is the configured limit (default max_operation_timeout_ms = 120000)."
+    },
+    "limits": {
+      "type": "object",
+      "description": "String-keyed map of request-scoped integer limits. Unknown keys are tolerated; values must be JSON integers.",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "operationGeneration": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    }
+  }
+}

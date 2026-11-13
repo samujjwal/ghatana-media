@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/state-transition-receipt.v1",
+  "title": "Candidate State Transition Receipt v1",
+  "description": "Immutable receipt for one candidate-registry state transition. Every transition — including REJECTED and SUPERSEDED — requires a receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "candidateFingerprint",
+    "fromState",
+    "toState",
+    "at",
+    "dependencyFingerprints",
+    "receiptFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.state-transition-receipt.v1" },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "candidateFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "fromState": { "enum": ["NONE", "CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"] },
+    "toState": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"] },
+    "at": { "type": "string", "format": "date-time" },
+    "actorRef": { "type": "string" },
+    "reason": { "type": "string" },
+    "dependencyFingerprints": {
+      "type": "object",
+      "description": "Dependency graph snapshot at transition time — a change to any of these afterwards creates a new candidate identity.",
+      "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+    },
+    "receiptFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

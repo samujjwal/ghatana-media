@@ -1,0 +1,27 @@
+schemaVersion: document-intelligence.profile.v1
+profileId: increment4a-candidate
+enabledProviders:
+  - ghatana.docling
+  - ghatana.paddleocr
+  - ghatana.gliner
+  - ghatana.minilm
+  - ghatana.docling-docx
+  - ghatana.docling-pptx
+  - ghatana.docling-xlsx
+  - ghatana.tesseractocr
+  - ghatana.hybrid-pdf
+  - ghatana.resilient-parser
+mediaTypes:
+  - application/pdf
+  - image/png
+  - image/jpeg
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+candidateLanguages:
+  - en
+  - ne
+  - hi
+  - mr
+modelManifest: models/increment4a/model-manifest.yaml
+routingPolicy: routing/parser-routing.v1.yaml

@@ -1,0 +1,119 @@
+{
+  "languageTag": "mr",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.03156565656565657,
+            "width": 0.5024509803921569,
+            "x": 0.04411764705882353,
+            "y": 0.046085858585858584
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03156565656565657,
+                "width": 0.5024509803921569,
+                "x": 0.04411764705882353,
+                "y": 0.046085858585858584
+              },
+              "confidence": 0.9423604011535645,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l1",
+              "text": "या दाट परिच्छेदात अनेक छोट्या ओळी आहेत"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.029671717171717172,
+            "width": 0.46405228758169936,
+            "x": 0.0457516339869281,
+            "y": 0.08901515151515152
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.029671717171717172,
+                "width": 0.46405228758169936,
+                "x": 0.0457516339869281,
+                "y": 0.08901515151515152
+              },
+              "confidence": 0.9651561975479126,
+              "languageTag": "mr",
+              "lineId": "p1-b2-l1",
+              "text": "प्रत्येक ओळ लहान आकारात छापली आहे."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b3",
+          "boundingRegion": {
+            "height": 0.03535353535353535,
+            "width": 0.4665032679738562,
+            "x": 0.04411764705882353,
+            "y": 0.12815656565656566
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03535353535353535,
+                "width": 0.4665032679738562,
+                "x": 0.04411764705882353,
+                "y": 0.12815656565656566
+              },
+              "confidence": 0.9714373350143433,
+              "languageTag": "mr",
+              "lineId": "p1-b3-l1",
+              "text": "दाट मजकूरओळ वेगळेपण तपासतो"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b4",
+          "boundingRegion": {
+            "height": 0.032196969696969696,
+            "width": 0.38235294117647056,
+            "x": 0.0457516339869281,
+            "y": 0.1710858585858586
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.032196969696969696,
+                "width": 0.38235294117647056,
+                "x": 0.0457516339869281,
+                "y": 0.1710858585858586
+              },
+              "confidence": 0.9547239542007446,
+              "languageTag": "mr",
+              "lineId": "p1-b4-l1",
+              "text": "शेवटची ओळ दाट नमूना पूर्ण करते."
+            }
+          ]
+        }
+      ],
+      "languageTag": "mr",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-devanagari-shared",
+    "modelVersion": "PP-OCRv5-local-devanagari-shared",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

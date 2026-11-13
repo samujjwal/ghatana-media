@@ -1,0 +1,120 @@
+{
+  "image-en-clean": {
+    "expectedRegions": [
+      {
+        "height": 0.146875,
+        "width": 0.8588888888888889,
+        "x": 0.044444444444444446,
+        "y": 0.175
+      }
+    ],
+    "expectedText": "Synthetic English invoice INV-1001"
+  },
+  "image-en-dense": {
+    "expectedRegions": [
+      {
+        "height": 1.10625,
+        "width": 0.2288888888888889,
+        "x": 0.044444444444444446,
+        "y": 0.18125
+      }
+    ],
+    "expectedText": "Dense\nEnglish\nstructure\nwith\nmultiple\nlines"
+  },
+  "image-en-no-text": {
+    "expectedRegions": [],
+    "expectedText": ""
+  },
+  "image-en-noisy": {
+    "expectedRegions": [
+      {
+        "height": 0.146875,
+        "width": 0.6811111111111111,
+        "x": 0.044444444444444446,
+        "y": 0.175
+      }
+    ],
+    "expectedText": "Synthetic English noisy text"
+  },
+  "image-en-rotated": {
+    "expectedRegions": [
+      {
+        "height": 0.146875,
+        "width": 0.7333333333333333,
+        "x": 0.044444444444444446,
+        "y": 0.175
+      }
+    ],
+    "expectedText": "Synthetic English rotated text"
+  },
+  "image-en-sparse": {
+    "expectedRegions": [
+      {
+        "height": 0.14375,
+        "width": 0.17,
+        "x": 0.044444444444444446,
+        "y": 0.178125
+      }
+    ],
+    "expectedText": "Sparse"
+  },
+  "image-ne-clean": {
+    "expectedRegions": [
+      {
+        "height": 0.153125,
+        "width": 0.43777777777777777,
+        "x": 0.044444444444444446,
+        "y": 0.125
+      }
+    ],
+    "expectedText": "नेपाली कागजात १००१"
+  },
+  "image-ne-dense": {
+    "expectedRegions": [
+      {
+        "height": 0.7375,
+        "width": 0.14444444444444443,
+        "x": 0.044444444444444446,
+        "y": 0.125
+      }
+    ],
+    "expectedText": "नेपाली\nसंरचना\nपरीक्षण\nपाठ"
+  },
+  "image-ne-no-text": {
+    "expectedRegions": [],
+    "expectedText": ""
+  },
+  "image-ne-noisy": {
+    "expectedRegions": [
+      {
+        "height": 0.159375,
+        "width": 0.33,
+        "x": 0.044444444444444446,
+        "y": 0.125
+      }
+    ],
+    "expectedText": "नेपाली हल्ला पाठ"
+  },
+  "image-ne-rotated": {
+    "expectedRegions": [
+      {
+        "height": 0.18125,
+        "width": 0.41555555555555557,
+        "x": 0.044444444444444446,
+        "y": 0.125
+      }
+    ],
+    "expectedText": "नेपाली घुमाइएको पाठ"
+  },
+  "image-ne-sparse": {
+    "expectedRegions": [
+      {
+        "height": 0.1375,
+        "width": 0.12333333333333334,
+        "x": 0.044444444444444446,
+        "y": 0.128125
+      }
+    ],
+    "expectedText": "शीर्षक"
+  }
+}

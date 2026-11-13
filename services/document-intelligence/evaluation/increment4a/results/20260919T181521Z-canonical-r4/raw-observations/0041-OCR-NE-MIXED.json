@@ -1,0 +1,69 @@
+{
+  "languageTag": "ne",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.030934343434343436,
+            "width": 0.5694444444444444,
+            "x": 0.04411764705882353,
+            "y": 0.046085858585858584
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.030934343434343436,
+                "width": 0.5694444444444444,
+                "x": 0.04411764705882353,
+                "y": 0.046085858585858584
+              },
+              "confidence": 0.9347831606864929,
+              "languageTag": "ne",
+              "lineId": "p1-b1-l1",
+              "text": "चलानी -2०24-0042 जम्मा १२५०.५० रुपैयाँ।"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.030934343434343436,
+            "width": 0.505718954248366,
+            "x": 0.04411764705882353,
+            "y": 0.08775252525252525
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.030934343434343436,
+                "width": 0.505718954248366,
+                "x": 0.04411764705882353,
+                "y": 0.08775252525252525
+              },
+              "confidence": 0.935189425945282,
+              "languageTag": "ne",
+              "lineId": "p1-b2-l1",
+              "text": "रिपोर्ट मिति: २०२4-01-15, सन्दर्भ -77."
+            }
+          ]
+        }
+      ],
+      "languageTag": "ne",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-devanagari-shared",
+    "modelVersion": "PP-OCRv5-local-devanagari-shared",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

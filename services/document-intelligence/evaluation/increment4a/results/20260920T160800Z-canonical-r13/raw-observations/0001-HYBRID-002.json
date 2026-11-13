@@ -1,0 +1,70 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.10926365795724466,
+            "width": 0.46179680940386225,
+            "x": 0.042821158690176324,
+            "y": 0.04928741092636579
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.027315914489311165,
+                "width": 0.417296389588581,
+                "x": 0.042821158690176324,
+                "y": 0.04928741092636579
+              },
+              "confidence": 0.9995915293693542,
+              "languageTag": "en",
+              "lineId": "p1-b1-l1",
+              "text": "This scanned page contains"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.02553444180522565,
+                "width": 0.45927791771620485,
+                "x": 0.04534005037783375,
+                "y": 0.09144893111638955
+              },
+              "confidence": 0.9835935235023499,
+              "languageTag": "en",
+              "lineId": "p1-b1-l2",
+              "text": "rasterized English text for OCR"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.027909738717339667,
+                "width": 0.1964735516372796,
+                "x": 0.04450041981528128,
+                "y": 0.13064133016627077
+              },
+              "confidence": 0.9706442952156067,
+              "languageTag": "en",
+              "lineId": "p1-b1-l3",
+              "text": "qualification."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]",
+      "pdfOcrAttemptLineage:[{\"pageNumber\":1,\"region\":{\"x\":0.0,\"y\":0.0,\"width\":1.0,\"height\":1.0},\"attempts\":[\"ghatana.paddleocr\"],\"selected\":\"ghatana.paddleocr\"}]"
+    ]
+  }
+}

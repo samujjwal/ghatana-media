@@ -1,0 +1,19 @@
+{
+  "command": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/.venv/bin/python -m pytest tests/integration/test_profile_isolation.py::test_increment4a_profile_does_not_mutate_default_authority --junitxml=/tmp/cross-profile-regression-yn0o0ncx/junit.xml -q -p no:cacheprovider",
+  "completedAt": "2026-09-22T08:21:42Z",
+  "fingerprints": {
+    "canonicalProviderAuthoritySha256": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+    "increment4aRuntimeAuthoritySha256": "a97c6791a0bb9f10890facaae7c50bce17edbf9db1235bcef71b608c84d54638",
+    "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+    "testSpecSha256": "85080a54a260f454b8a2adc92b6e5d62ab4abce29cf57492ac00cf1cd5f162bd",
+    "workerLifecycleFingerprint": "7825904c4ca132de42caf73672fd3c6a635888981407f2c530b4421211685a85"
+  },
+  "junitSha256": "76b31620f39b9cbe70da2597021ad845be99c7cbf51bdadf3febdf26cc1a63b1",
+  "outputTail": ".                                                                        [100%]\n----- generated xml file: /tmp/cross-profile-regression-yn0o0ncx/junit.xml -----\n1 passed in 194.32s (0:03:14)\n",
+  "runId": "20260922T082142Z",
+  "schemaVersion": "document-intelligence.cross-profile-regression.v1",
+  "status": "PASS",
+  "testNodeIds": [
+    "tests/integration/test_profile_isolation.py::test_increment4a_profile_does_not_mutate_default_authority"
+  ]
+}

@@ -1,0 +1,68 @@
+# document-intelligence.scanned-pdf.v1
+#
+# Scanned-PDF classification + provenance + routing policy (I6-03..I6-07).
+# Every PDF page is classified from real per-page facts — text-layer length,
+# raster object count/coverage, injected OCR-layer presence — never from a
+# whole-document heuristic. Provenance receipts bind this policy's sha256
+# fingerprint, so a threshold or routing change is visible in every emitted
+# record and can never drift silently.
+schemaVersion: document-intelligence.scanned-pdf.v1
+# increment6 experimental profile: candidate authority, consumerAdmission
+# stays DENIED until the I6 functional qualification wave promotes it.
+status: CANDIDATE
+
+# Canonical provider ref for this classifier (see
+# evaluation/increment6/qualification.yaml provider scanned-pdf-classifier).
+classifierRef: ghatana.scanned-pdf-classifier
+
+thresholds:
+  # A text layer shorter than this is not usable native-text evidence; scanned
+  # pages may carry a sparse or injected text layer.
+  textLayerMinChars: 32
+  # Page-area fraction covered by raster content at or above which a page with
+  # no usable native text layer is recorded as IMAGE_DOMINANT.
+  rasterDominanceFraction: 0.5
+  # Raster coverage at or above which a page with a usable native text layer
+  # is HYBRID rather than TEXT_NATIVE; smaller raster content is decorative.
+  # Must be <= rasterDominanceFraction.
+  hybridRasterMinFraction: 0.05
+
+# Stable per-page decision codes recorded in every provenance receipt. The
+# classifier refuses to emit a code not declared here.
+reasonCodes:
+  - NO_TEXT_LAYER     # no usable native text layer; raster content present
+  - IMAGE_DOMINANT    # raster coverage dominates a page without usable native text
+  - TEXT_AND_IMAGE    # usable native text layer and significant raster coexist
+  - TEXT_DOMINANT     # usable native text layer; raster absent or decorative
+  - EMPTY_PAGE        # neither usable text nor raster content
+
+# Routing decision per document class. Exhaustive: every document class must
+# be declared. EMPTY documents are rejected, never silently parsed.
+routing:
+  TEXT_NATIVE:
+    pipeline: text
+    providerRef: ghatana.docling
+  SCANNED:
+    pipeline: ocr
+    providerRef: ghatana.resilient-parser
+    # Pages are rendered to PNG; PDF bytes are never sent to an OCR provider.
+    inputMediaType: image/png
+  HYBRID:
+    pipeline: hybrid
+    providerRef: ghatana.hybrid-pdf
+    # Hybrid output must carry per-page/per-region evidence so consumers can
+    # distinguish native text from OCR-recovered raster text.
+    requirePageRegionEvidence: true
+  MIXED:
+    pipeline: hybrid
+    providerRef: ghatana.hybrid-pdf
+    requirePageRegionEvidence: true
+  EMPTY:
+    pipeline: reject
+    reasonCode: EMPTY_DOCUMENT
+
+# Scanned-table reconstruction is not attempted; scanned tables route to
+# review, never reconstructed silently. Mirrors capability
+# parser.pdf.hybrid.tables.scanned.en (UNSUPPORTED / UNSUPPORTED_BY_DESIGN)
+# and the fallback-contract prohibition on scanned-table-reconstruction.
+scannedTableDisposition: UNSUPPORTED_BY_DESIGN

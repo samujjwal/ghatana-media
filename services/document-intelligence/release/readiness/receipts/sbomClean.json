@@ -1,0 +1,12 @@
+{
+  "detail": "deployment/sbom.py --check regenerated identical content minus generatedAt.",
+  "evidence": {
+    "sbom": "deployment/sbom/sbom.v1.json",
+    "sbomSha256": "sha256:942aaa1712fb4526bc01ed80337801c1ab23a0769728731063a7cdc38e8e4f46"
+  },
+  "evidenceKind": "sbom-manifest",
+  "gateId": "sbomClean",
+  "issuedAt": "2026-09-21T22:19:39Z",
+  "schemaVersion": "document-intelligence.gate-receipt.v1",
+  "status": "PASS"
+}

@@ -1,0 +1,38 @@
+{
+  "OCR-EN-CLEAN": {
+    "expectedText": "The ministry issued a new policy in 2024. All regional offices received the notice.",
+    "file": "en-clean.png",
+    "language": "en",
+    "variant": "clean"
+  },
+  "OCR-EN-DENSE": {
+    "expectedText": "This dense paragraph contains several short lines. Each line is rendered at a smaller size. Dense text exercises OCR line separation. The final line completes the dense fixture.",
+    "file": "en-dense.png",
+    "language": "en",
+    "variant": "dense"
+  },
+  "OCR-EN-MIXED": {
+    "expectedText": "Invoice INV-2024-0042 totals 1250.50 rupees. Report date: 2024-01-15, reference DOC-77.",
+    "file": "en-mixed.png",
+    "language": "en",
+    "variant": "mixed"
+  },
+  "OCR-EN-NOISY": {
+    "expectedText": "This dense paragraph contains several short lines. Each line is rendered at a smaller size. Dense text exercises OCR line separation. The final line completes the dense fixture.",
+    "file": "en-noisy.png",
+    "language": "en",
+    "variant": "noisy"
+  },
+  "OCR-EN-NUMBERS": {
+    "expectedText": "ID 9841001234 date 15-01-2024 amount 999.75. Batch 42 of 100, score 98.5 percent.",
+    "file": "en-numbers.png",
+    "language": "en",
+    "variant": "numbers"
+  },
+  "OCR-EN-ROTATED": {
+    "expectedText": "This dense paragraph contains several short lines. Each line is rendered at a smaller size. Dense text exercises OCR line separation. The final line completes the dense fixture.",
+    "file": "en-rotated.png",
+    "language": "en",
+    "variant": "rotated"
+  }
+}

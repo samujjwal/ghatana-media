@@ -1,0 +1,27 @@
+# document-intelligence.retention-policy.v1
+# Independent retention per learning artifact class (I5-31).
+schemaVersion: document-intelligence.retention-policy.v1
+policyRef: learning.retention.v1
+version: 1
+classes:
+  feedbackEvents:
+    retention: INDEFINITE
+    legalHoldHonored: true
+    revocationPropagates: true
+  datasetSnapshots:
+    retention: INDEFINITE
+    legalHoldHonored: true
+    revocationPropagates: true
+  candidateArtifacts:
+    retention: INDEFINITE
+    legalHoldHonored: true
+    revocationPropagates: false
+  rejectedCandidates:
+    retention:
+      days: 1095
+    legalHoldHonored: true
+    revocationPropagates: false
+  promotionEvidence:
+    retention: INDEFINITE
+    legalHoldHonored: true
+    revocationPropagates: false

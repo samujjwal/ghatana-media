@@ -1,0 +1,15 @@
+{
+  "id": "parse-generation-malformed-invalid",
+  "endpoint": "parse",
+  "description": "operationGeneration must be a 32-character lowercase hexadecimal token.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-bad-generation",
+    "operationGeneration": "not-a-token",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/pdf",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "metadata" }
+}

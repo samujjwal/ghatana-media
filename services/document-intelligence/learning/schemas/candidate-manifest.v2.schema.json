@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/candidate-manifest.v2",
+  "title": "Learning Candidate Manifest v2",
+  "description": "Canonical registry record for a governed learning candidate. v2 adds the tenant-scope declaration (I5-34/I5-38) and the MODEL reproducibility binding (I5-41): every MODEL candidate carries the complete fingerprint set needed to reproduce and to prove evaluated == promoted. Any dependency change produces a new candidate identity — never a mutation in place. Reader note: consumers must accept schemaVersion v2; the sealed increment-5 verifier only understands candidate-manifest.v1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "candidateKind",
+    "state",
+    "createdAt",
+    "tenantScope",
+    "dependencies",
+    "transitions",
+    "candidateFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.candidate-manifest.v2" },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "candidateKind": {
+      "enum": ["CONFIDENCE_CALIBRATION", "TEMPLATE_DISCOVERY", "EXTRACTION_POLICY", "MODEL"]
+    },
+    "state": {
+      "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"]
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "tenantScope": {
+      "enum": ["TENANT_LOCAL", "MULTI_TENANT_EXPLICITLY_AUTHORIZED", "SYNTHETIC_PUBLIC"],
+      "description": "Declared tenancy of the candidate's training/evaluation inputs (I5-38). A TENANT_LOCAL candidate may only promote to a tenant-scoped authority."
+    },
+    "scopeAuthorizationRef": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Authorization reference required when tenantScope is MULTI_TENANT_EXPLICITLY_AUTHORIZED (enforced by registry/promotion)."
+    },
+    "tenantRef": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Tenant partition identity for TENANT_LOCAL candidates."
+    },
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactFingerprint"],
+      "properties": {
+        "artifactFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "artifactPath": { "type": "string" },
+        "artifactKind": { "type": "string" }
+      }
+    },
+    "model": {
+      "type": "object",
+      "description": "External candidate-model hook: present only for candidateKind MODEL. v2 requires the complete reproducibility binding (I5-41).",
+      "additionalProperties": false,
+      "required": [
+        "baseModel",
+        "modelAssetHashes",
+        "trainingCodeFingerprint",
+        "datasetFingerprint",
+        "baseModelFingerprint",
+        "dependencyLockFingerprint",
+        "tokenizerFingerprint",
+        "seed",
+        "hyperparameters",
+        "runtime",
+        "nativeLibraries",
+        "deterministic"
+      ],
+      "properties": {
+        "baseModel": { "type": "string", "minLength": 1 },
+        "modelAssetHashes": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "trainingCodeFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Fingerprint of the training implementation/code that produced the candidate."
+        },
+        "datasetFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Fingerprint of the governed dataset the model was trained on; must equal dependencies.datasetFingerprint."
+        },
+        "baseModelFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Fingerprint of the base model the candidate was trained/fine-tuned from."
+        },
+        "dependencyLockFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Fingerprint of the resolved dependency lock used for training."
+        },
+        "tokenizerFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Fingerprint of the tokenizer assets/configuration used for training."
+        },
+        "seed": { "type": "integer", "description": "Training seed authority." },
+        "hyperparameters": {
+          "type": "object",
+          "description": "Complete declared hyperparameter set for the training run."
+        },
+        "runtime": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Training runtime identity (e.g. python/torch versions) as declared by the trainer."
+        },
+        "nativeLibraries": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Native libraries materially affecting the trained artifact (e.g. BLAS/CUDA builds)."
+        },
+        "deterministic": {
+          "type": "boolean",
+          "description": "Explicit reproducibility flag: true only when the trainer asserts bit-reproducible output under the declared binding; false records known nondeterminism instead of hiding it."
+        },
+        "licenseProvenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Model/data licensing and redistribution authority (I5-52).",
+          "properties": {
+            "modelLicenses": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "dataUseRestrictions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "redistributionConstraints": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "generatedArtifactRestrictions": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          }
+        },
+        "trainingDatasetFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "v1 alias of datasetFingerprint retained for older manifests."
+        },
+        "trainingImplementationFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "v1 alias of trainingCodeFingerprint retained for older manifests."
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseAuthorityFingerprint", "evaluatorImplementationFingerprint"],
+      "properties": {
+        "baseAuthorityFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "datasetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "evaluatorImplementationFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "trainingImplementationFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "modelAssetFingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "templateAssetFingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "policyAssetFingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evaluationSetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "baselineResultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "candidateResultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "evaluatedArtifactFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Artifact fingerprint the evaluation was actually run against (I5-41); promotion requires it to equal artifactRef.artifactFingerprint."
+        },
+        "regressionBudgetRef": { "type": "string" },
+        "regressionResult": { "enum": ["PASS", "FAIL"] },
+        "evaluatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "description": "Immutable receipts for every state transition, in order.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fromState", "toState", "at", "receiptFingerprint"],
+        "properties": {
+          "fromState": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED", "NONE"] },
+          "toState": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"] },
+          "at": { "type": "string", "format": "date-time" },
+          "actorRef": { "type": "string" },
+          "reason": { "type": "string" },
+          "receiptFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "candidateFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 over canonical manifest excluding candidateFingerprint and transitions[].receiptFingerprint."
+    }
+  }
+}

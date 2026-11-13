@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/candidate-manifest.v1",
+  "title": "Learning Candidate Manifest v1",
+  "description": "Canonical registry record for a governed learning candidate. Any dependency change produces a new candidate identity — never a mutation in place. Includes the external candidate-model hook contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "candidateKind",
+    "state",
+    "createdAt",
+    "dependencies",
+    "transitions",
+    "candidateFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.candidate-manifest.v1" },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "candidateKind": {
+      "enum": ["CONFIDENCE_CALIBRATION", "TEMPLATE_DISCOVERY", "EXTRACTION_POLICY", "MODEL"]
+    },
+    "state": {
+      "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"]
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactFingerprint"],
+      "properties": {
+        "artifactFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "artifactPath": { "type": "string" },
+        "artifactKind": { "type": "string" }
+      }
+    },
+    "model": {
+      "type": "object",
+      "description": "External candidate-model hook: present only for candidateKind MODEL.",
+      "additionalProperties": false,
+      "required": ["baseModel", "modelAssetHashes"],
+      "properties": {
+        "baseModel": { "type": "string", "minLength": 1 },
+        "trainingDatasetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "trainingImplementationFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "modelAssetHashes": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseAuthorityFingerprint", "evaluatorImplementationFingerprint"],
+      "properties": {
+        "baseAuthorityFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "datasetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "evaluatorImplementationFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "trainingImplementationFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "modelAssetFingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "templateAssetFingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "policyAssetFingerprints": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evaluationSetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "baselineResultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "candidateResultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "regressionBudgetRef": { "type": "string" },
+        "regressionResult": { "enum": ["PASS", "FAIL"] },
+        "evaluatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "description": "Immutable receipts for every state transition, in order.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fromState", "toState", "at", "receiptFingerprint"],
+        "properties": {
+          "fromState": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED", "NONE"] },
+          "toState": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"] },
+          "at": { "type": "string", "format": "date-time" },
+          "actorRef": { "type": "string" },
+          "reason": { "type": "string" },
+          "receiptFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "candidateFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 over canonical manifest excluding candidateFingerprint and transitions[].receiptFingerprint."
+    }
+  }
+}

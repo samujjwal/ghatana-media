@@ -1,0 +1,128 @@
+{
+  "capturedAt": "2026-09-22T09:59:52Z",
+  "fingerprints": {
+    "i3EvaluationImplementationFingerprint": "3155819f54c00a4dec89be267a1d9c1e3e681b2e3c14ef2ed2097f9232f00532",
+    "increment4AcceptanceFingerprint": "sha256:367dd350f3da492710bd133c645cc367a10e9a27af3fb90a8fc78b36bc3d1476",
+    "increment4aEvaluatorFingerprint": "f9c6cad69637ad03a80741ea5637473c08c8d15a9d9b608a6950d7bd57dc1f1a",
+    "increment4aModelManifestFingerprint": "582bba88c331c54d0bf51c31b84a8965c179fbb03f751f1135762c7211d12a70",
+    "increment4aObservationMaterialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+    "modelManifestFingerprint": "df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+    "providerImplementationFingerprints": {
+      "docling": "057420d1eee74f3e0fd60cde3b47c862cef634464cbaf3f000aef8fa65b5091f",
+      "gliner": "ad6fd55592c7a9208e12663a66b8f405efeca863a8ef539a756a59f4f243a752",
+      "minilm": "f933ffacbe486bbff17f65f4b5d559597bcdfa86c2c07ba37c86038cec5db609",
+      "paddle": "421d8dccd25694850b2bec08c76409c2aed1387bea5b2bbc1ac76f7bbd8b1768"
+    },
+    "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+    "sharedContractFingerprint": "457c3b51e49752285d272adbc963f3a6651a9fe2f8cac4488db857b02f317cca",
+    "sharedContractLockSha256": "2c88b84977540555599c0f46acf0841cb8368b60bb40ef618d92b41ce2844e80",
+    "uvLockSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+    "workerClientFingerprint": "9b83f36659221fbdfd1eae1d831b8ef6f38b210f6d37e6685aca752463f48436",
+    "workerLifecycleFingerprint": "7825904c4ca132de42caf73672fd3c6a635888981407f2c530b4421211685a85"
+  },
+  "increment3": {
+    "latestEvaluationDir": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/evaluation/results/20260922T001622Z-26884d8e",
+    "latestEvaluationRunId": "20260922T001622Z-26884d8e",
+    "providerCatalogFingerprint": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab"
+  },
+  "increment4": {
+    "acceptancePack": {
+      "fingerprints": {
+        "acceptanceManifestFingerprint": "sha256:367dd350f3da492710bd133c645cc367a10e9a27af3fb90a8fc78b36bc3d1476",
+        "acceptanceSha256": "sha256:c6dc2b87c7e67286471cdca0e3442bf8b278d41209d250d770b914bc7a8bdd6a",
+        "evaluatorSemanticFingerprint": "sha256:29f7821c93bcf6a81215e7b6389f86fa3e3e8c7edfba9935770be31d4808ff36",
+        "expectedMaterialFingerprint": "sha256:e38a33f8e78c91b69feda19a22a01e5b921fdec7960daf69df367e279f691607",
+        "fixtureMaterialFingerprint": "sha256:ee144dcfd21bbcbfbd153012d3b412c5eecf9dbd72416cd08a634c7240447582",
+        "increment3ModelManifestFingerprint": "sha256:df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+        "increment3ProviderCatalogFingerprint": "sha256:2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+        "manifestSha256": "sha256:8fbda09a4123b7e1236781ad7c0d7e8be3707d1a860d81464d0da9b0348f7968",
+        "normalizerFingerprint": "sha256:04df6e6b0e772771adfed3deafdd9eae3723ecc173ba4e77beba634e4204753b",
+        "sharedContractFingerprint": "sha256:457c3b51e49752285d272adbc963f3a6651a9fe2f8cac4488db857b02f317cca"
+      },
+      "status": "OK"
+    }
+  },
+  "increment4a": {
+    "latestRunDir": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/evaluation/increment4a/results/zz-canonical",
+    "latestRunId": null,
+    "modelVerificationReport": {
+      "manifestSha256": "582bba88c331c54d0bf51c31b84a8965c179fbb03f751f1135762c7211d12a70",
+      "status": "PASS"
+    }
+  },
+  "schemaVersion": "document-intelligence.material-snapshot.v1",
+  "sourceState": {
+    "gharbatai": {
+      "clean": false,
+      "dirtyEntries": [
+        " M .ghatana/verification/projection-freshness.json",
+        " M docs/requirements/CLOSURE-SURFACE-REQUIREMENTS.md",
+        " M docs/verification/org-wave1-current-head-reconciliation.v1.json",
+        " M docs/verification/org-wave1-feature-inventory.v1.json",
+        " M packages/gharbatai/persistence/src/host-coordination-lock.spec.ts",
+        " M packages/gharbatai/persistence/src/index.spec.ts",
+        " M packages/gharbatai/platform-contracts/src/market-data-endpoints.ts",
+        " M packages/gharbatai/platform-contracts/src/market-data.ts",
+        " M packages/gharbatai/platform-control-persistence/src/platform-control-product-catalog.ts",
+        " M products/event-booking/apps/mobile/test-groups.v1.yaml",
+        " M products/org/apps/platform-api/e2e/platform-control-plane-resilience.e2e.spec.ts",
+        " M products/org/apps/platform-api/src/catalog/platform-product-catalog.module.ts",
+        " M products/org/docs/document-extraction/evaluation/consumer-admission.v2.json",
+        " M products/org/docs/document-extraction/evaluation/increment4-closure-status.json",
+        " M products/org/docs/document-extraction/evaluation/results/audit-atomicity.json",
+        " M products/org/docs/document-extraction/evaluation/results/authenticated-browser-journey.json",
+        " M products/org/docs/document-extraction/evaluation/results/campaign-manifest.json",
+        " M products/org/docs/document-extraction/evaluation/results/consumer-admission-v2-reconciliation.json",
+        " M products/org/docs/document-extraction/evaluation/results/image-consumer.json",
+        " M products/org/docs/document-extraction/evaluation/results/increment4-strict-report.json",
+        " M products/org/docs/document-extraction/evaluation/results/live-postgres.json",
+        " M products/org/docs/document-extraction/evaluation/results/live-worker-identity.json",
+        " M products/org/docs/document-extraction/evaluation/results/pdf-consumer.json",
+        " M products/org/docs/document-extraction/evaluation/results/product-acceptance-run-index.json",
+        " M products/org/docs/document-extraction/evaluation/results/product-acceptance-run.json",
+        " M products/org/docs/document-extraction/evaluation/results/product-acceptance.json",
+        " M products/org/docs/document-extraction/evaluation/results/reprocess-durability.json",
+        " M products/org/docs/document-extraction/evaluation/results/reprocess-lifecycle-run.json",
+        " M products/org/packages/contracts/src/auth/staff-auth.ts",
+        " M products/org/packages/contracts/src/client-onboarding/http.spec.ts",
+        " M products/org/packages/contracts/src/client-onboarding/http.ts",
+        " M products/org/packages/contracts/src/document-extraction/index.ts",
+        " M products/org/packages/contracts/test-groups.v1.yaml",
+        " M products/rental/apps/web/test-groups.v1.yaml",
+        " M test-groups.v1.yaml",
+        " M tooling/architecture/guard-registry.v1.yaml",
+        " M tooling/architecture/lib.mjs",
+        " M tooling/architecture/run-guards.mjs",
+        " M tooling/execution/local-resource-broker.mjs",
+        " M tooling/execution/local-state.mjs",
+        " M tooling/requirements/check-derived-projection-freshness.mjs",
+        " M tooling/testing/closure/surfaces/org.mutual-fund.nav-finalization/criteria/finalization-api-contract.yaml",
+        " M tooling/testing/closure/surfaces/org.suite.party/criteria/suite-party-001.yaml",
+        " M tooling/testing/closure/surfaces/org.suite.party/criteria/suite-party-002.yaml",
+        " M tooling/testing/closure/surfaces/org.suite.party/criteria/suite-party-003.yaml",
+        " M tooling/testing/closure/surfaces/org.suite.reference-data/criteria/suite-ref-004.yaml",
+        " M tooling/testing/closure/surfaces/platform.bootstrap-composition/surface.yaml",
+        " M tooling/testing/closure/surfaces/platform.commercial-catalog/surface.yaml",
+        " M tooling/testing/closure/surfaces/platform.entitlements/surface.yaml",
+        " M tooling/testing/closure/surfaces/platform.installation-activation/surface.yaml"
+      ],
+      "headSha": "fbfde07dc1578536fe2055dffe0acf59d451768e",
+      "present": true,
+      "repository": "/home/samujjwal/Developments/gharbatai"
+    },
+    "ghatanaShared": {
+      "clean": true,
+      "dirtyEntries": [],
+      "headSha": "1776324e3c711e1da6a6490cb65b39913696efac",
+      "present": true,
+      "repository": "/home/samujjwal/Developments/ghatana-shared"
+    },
+    "worker": {
+      "clean": true,
+      "dirtyEntries": [],
+      "headSha": "930aaceacf075aff995f64e1691bdacdb5029aa8",
+      "present": true,
+      "repository": "/home/samujjwal/Developments/ghatana"
+    }
+  }
+}

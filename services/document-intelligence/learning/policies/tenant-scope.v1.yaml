@@ -1,0 +1,34 @@
+# document-intelligence.tenant-scope-policy.v1
+# Tenant partition + scope authority for learning artifacts (I5-34..I5-40).
+schemaVersion: document-intelligence.tenant-scope-policy.v1
+policyRef: learning.tenant-scope.v1
+version: 1
+partitionByTenant: true
+defaultScope: TENANT_LOCAL
+scopes:
+  - TENANT_LOCAL
+  - MULTI_TENANT_EXPLICITLY_AUTHORIZED
+  - SYNTHETIC_PUBLIC
+rules:
+  # File-authority RLS equivalent: tenant-local feedback events, dataset
+  # snapshots, candidates, and promotion requests live under a tenant
+  # partition (<tenantRef>/<name>/); cross-tenant reads are impossible by
+  # construction because a consumer resolves exactly one partition.
+  - id: partition-by-tenant
+    statement: tenant-local roots are addressed as <base>/<tenantRef>/<name>
+  - id: default-tenant-local
+    statement: an artifact without an explicit scope declaration is TENANT_LOCAL
+  - id: multi-tenant-requires-authorization
+    statement: MULTI_TENANT_EXPLICITLY_AUTHORIZED requires scopeAuthorizationRef
+  - id: tenant-local-never-global
+    statement: a TENANT_LOCAL candidate/dataset may not promote or export to a
+      non-tenant-scoped authority without reclassification plus authorization
+  - id: revocation-propagates
+    statement: revoked feedback events are excluded from future snapshots and
+      recorded via supersedes; candidates bound to revoked inputs are marked
+      ineligible, never silently reused
+notes:
+  - v1 readers (scripts/verify_increment5.py) understand dataset-manifest.v1
+    and candidate-manifest.v1 only; v2 manifests materialized under
+    learning/datasets/out or learning/registry are verified by the v2-aware
+    increment-6 authority path — this is a declared delta, not a bypass.

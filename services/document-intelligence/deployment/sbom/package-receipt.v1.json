@@ -1,0 +1,63 @@
+{
+  "buildReproducibility": "NOT_VERIFIED",
+  "builtAt": "2026-09-22T00:00:00Z",
+  "contentAddressed": true,
+  "entries": [
+    {
+      "bytes": 2674,
+      "path": "deployment/activation.v1.yaml",
+      "sha256": "e49dd89d1c22d5251837831f2014b3e759a529f52e488be703fe20cfc2bf4676",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 13242,
+      "path": "deployment/build_offline_bundle.py",
+      "sha256": "2f3a59ff1223056bc2d18be229cc8900bcda2cae613a98cb851078e3304150a5",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 7101,
+      "path": "deployment/build_package.py",
+      "sha256": "9ff91c1a6d1bcfbfdbbf65b6cdc60d9faffcfeaaf1d64c90242bed232ac2f1be",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 1743,
+      "path": "deployment/deployment-gates.v1.yaml",
+      "sha256": "5123e916d4fcc1e1c11050357ee9b98a7450ca65e40416c64cb64fa68eb525e3",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 5499,
+      "path": "deployment/offline-bundle.v1.yaml",
+      "sha256": "a72d1ccf5114d0194452e88347f9f8a8cbea172805cb3c4633bc4c87b05928c1",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 1624,
+      "path": "deployment/operational-envelope.v1.yaml",
+      "sha256": "86d96eb80178fbbd4c4d5dc7c618f9cef3f9e12cbe8906b99a43c7fe8f90e1b6",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 9295,
+      "path": "deployment/sbom.py",
+      "sha256": "70cfe63bfd17cfdd867ba714c24cc970b35c58eab9279d76c4ce969cf2870b2f",
+      "version": "1.0.0"
+    },
+    {
+      "bytes": 829,
+      "path": "deployment/vulnerability-policy.v1.yaml",
+      "sha256": "da7d0c35e971c2b4d103c3b43641305ced89a33ba4546da320ed464eef29efaf",
+      "version": "1.0.0"
+    }
+  ],
+  "packageFingerprint": "sha256:f3f0122fa0b838dfb40120a308998b8ca4f2003541aaec3ca481810e44d15e7a",
+  "producerVersion": "document-intelligence.package-builder/1",
+  "pythonRuntime": {
+    "uvLockSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+    "version": "3.12.3"
+  },
+  "receiptFingerprint": "sha256:28371be82ec7ba44a514bdabdfdf3303b8648139bf437f47e81bb9f3d69de245",
+  "schemaVersion": "document-intelligence.package-receipt.v1"
+}

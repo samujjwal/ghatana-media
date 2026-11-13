@@ -1,0 +1,58 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.07719714964370544,
+            "width": 0.3492863140218304,
+            "x": 0.04030226700251889,
+            "y": 0.04453681710213777
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.0344418052256532,
+                "width": 0.34844668345927793,
+                "x": 0.04114189756507137,
+                "y": 0.04453681710213777
+              },
+              "confidence": 0.9565544128417969,
+              "languageTag": "ne",
+              "lineId": "p1-b1-l1",
+              "text": "यो स्क्यान गरिएको पृष्मा नेपाली"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.03622327790973872,
+                "width": 0.3064651553316541,
+                "x": 0.04030226700251889,
+                "y": 0.0855106888361045
+              },
+              "confidence": 0.9270503608619465,
+              "languageTag": "ne",
+              "lineId": "p1-b1-l2",
+              "text": "पाठ छ र  द्वारा पढिन्छ।"
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]",
+      "pdfOcrAttemptLineage:[{\"pageNumber\":1,\"region\":{\"x\":0.0,\"y\":0.0,\"width\":1.0,\"height\":1.0},\"attempts\":[\"ghatana.paddleocr\"],\"selected\":\"ghatana.paddleocr\"}]"
+    ]
+  }
+}

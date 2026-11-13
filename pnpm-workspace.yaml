@@ -19,6 +19,7 @@ packages:
   - "modules/**/libs/*"
   - "modules/**/clients/*"
   - "libs/*"
+  - "services/document-intelligence/clients/*"
 
 catalog:
   "@testing-library/jest-dom": "^6.9.1"

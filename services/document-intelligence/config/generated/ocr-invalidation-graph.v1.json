@@ -1,0 +1,79 @@
+{
+  "edges": [
+    {
+      "affectedProofClasses": [
+        "provider_execution",
+        "mapping_projection",
+        "profile_material"
+      ],
+      "mappingId": "provider.docling",
+      "producerAuthority": "ghatana.docling",
+      "runtimeInputIds": [
+        "offline-policy",
+        "model-cache",
+        "model-manifest",
+        "python-runtime"
+      ]
+    },
+    {
+      "affectedProofClasses": [
+        "provider_execution",
+        "mapping_projection",
+        "profile_material"
+      ],
+      "mappingId": "provider.paddleocr",
+      "producerAuthority": "ghatana.paddleocr",
+      "runtimeInputIds": [
+        "offline-policy",
+        "model-cache",
+        "model-manifest",
+        "python-runtime"
+      ]
+    },
+    {
+      "affectedProofClasses": [
+        "provider_execution",
+        "mapping_projection",
+        "profile_material"
+      ],
+      "mappingId": "provider.gliner",
+      "producerAuthority": "ghatana.gliner",
+      "runtimeInputIds": [
+        "offline-policy",
+        "model-cache",
+        "model-manifest",
+        "python-runtime"
+      ]
+    },
+    {
+      "affectedProofClasses": [
+        "provider_execution",
+        "mapping_projection",
+        "profile_material"
+      ],
+      "mappingId": "provider.minilm",
+      "producerAuthority": "ghatana.minilm",
+      "runtimeInputIds": [
+        "offline-policy",
+        "model-cache",
+        "model-manifest",
+        "python-runtime"
+      ]
+    },
+    {
+      "affectedProofClasses": [
+        "focused_conformance",
+        "runtime_safety"
+      ],
+      "mappingId": "runtime.native-process-boundary",
+      "producerAuthority": "ghatana.provider-runtime",
+      "runtimeInputIds": [
+        "path-policy",
+        "tesseract-binary"
+      ]
+    }
+  ],
+  "mappingFingerprint": "sha256:b787811463c3b25c77e06b8016adbf0594d1fb0b13ebeb9265d39ae7b5f8b1a5",
+  "producerVersion": "document-intelligence-ocr-mapping/1",
+  "schemaVersion": "document-intelligence.ocr-invalidation-graph.v1"
+}

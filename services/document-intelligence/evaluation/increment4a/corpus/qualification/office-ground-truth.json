@@ -1,0 +1,90 @@
+{
+  "docx": {
+    "DOCX-EN-001": {
+      "expectedText": "The regional office published the annual compliance report. Second paragraph for structural coverage. Key Value Amount 1250",
+      "file": "docx/en/en-simple.docx",
+      "language": "en"
+    },
+    "DOCX-HI-001": {
+      "expectedText": "क्षेत्रीय कार्यालय ने वार्षिक अनुपालन रिपोर्ट प्रकाशित की। Second paragraph for structural coverage. Key Value Amount 1250",
+      "file": "docx/hi/hi-simple.docx",
+      "language": "hi"
+    },
+    "DOCX-MR-001": {
+      "expectedText": "प्रादेशिक कार्यालयाने वार्षिक अनुपालन अहवाल प्रकाशित केला. Second paragraph for structural coverage. Key Value Amount 1250",
+      "file": "docx/mr/mr-simple.docx",
+      "language": "mr"
+    },
+    "DOCX-MR-002": {
+      "expectedCells": 6,
+      "expectedText": "बीजक क्रमांक १००१ एकूण १२५० मर्ज शीर्षक पङ्क्ति-विस्तार घर 1-1 घर 1-2 घर 2-1 घर 2-2",
+      "file": "docx/mr-merged-table.docx",
+      "language": "mr"
+    },
+    "DOCX-NE-001": {
+      "expectedText": "क्षेत्रीय कार्यालयले वार्षिक अनुपालन प्रतिवेदन प्रकाशित गर्‍यो। Second paragraph for structural coverage. Key Value Amount 1250",
+      "file": "docx/ne/ne-simple.docx",
+      "language": "ne"
+    }
+  },
+  "pptx": {
+    "PPTX-EN-001": {
+      "expectedText": "The regional office published the annual compliance report.",
+      "file": "pptx/en/en-simple.pptx",
+      "language": "en"
+    },
+    "PPTX-HI-001": {
+      "expectedText": "क्षेत्रीय कार्यालय ने वार्षिक अनुपालन रिपोर्ट प्रकाशित की।",
+      "file": "pptx/hi/hi-simple.pptx",
+      "language": "hi"
+    },
+    "PPTX-MR-001": {
+      "expectedText": "प्रादेशिक कार्यालयाने वार्षिक अनुपालन अहवाल प्रकाशित केला.",
+      "file": "pptx/mr/mr-simple.pptx",
+      "language": "mr"
+    },
+    "PPTX-NE-001": {
+      "expectedText": "क्षेत्रीय कार्यालयले वार्षिक अनुपालन प्रतिवेदन प्रकाशित गर्‍यो।",
+      "file": "pptx/ne/ne-simple.pptx",
+      "language": "ne"
+    },
+    "PPTX-NE-002": {
+      "excludedText": "DO NOT EMIT THIS SPEAKER NOTE",
+      "expectedText": "बीजक नम्बर १००१ कुल १२५०",
+      "file": "pptx/ne-table-with-notes.pptx",
+      "language": "ne"
+    }
+  },
+  "xlsx": {
+    "XLSX-EN-001": {
+      "expectedCells": 4,
+      "expectedText": "Key Value The regional office published the annual compliance report. 1250",
+      "file": "xlsx/en/en-simple.xlsx",
+      "language": "en"
+    },
+    "XLSX-HI-001": {
+      "expectedCells": 4,
+      "expectedText": "Key Value क्षेत्रीय कार्यालय ने वार्षिक अनुपालन रिपोर्ट प्रकाशित की। 1250",
+      "file": "xlsx/hi/hi-simple.xlsx",
+      "language": "hi"
+    },
+    "XLSX-HI-002": {
+      "expectedCells": 3,
+      "expectedText": "चालान संख्या १००१ कुल १२५०",
+      "file": "xlsx/hi-sparse-merged.xlsx",
+      "language": "hi"
+    },
+    "XLSX-MR-001": {
+      "expectedCells": 4,
+      "expectedText": "Key Value प्रादेशिक कार्यालयाने वार्षिक अनुपालन अहवाल प्रकाशित केला. 1250",
+      "file": "xlsx/mr/mr-simple.xlsx",
+      "language": "mr"
+    },
+    "XLSX-NE-001": {
+      "expectedCells": 4,
+      "expectedText": "Key Value क्षेत्रीय कार्यालयले वार्षिक अनुपालन प्रतिवेदन प्रकाशित गर्‍यो। 1250",
+      "file": "xlsx/ne/ne-simple.xlsx",
+      "language": "ne"
+    }
+  }
+}

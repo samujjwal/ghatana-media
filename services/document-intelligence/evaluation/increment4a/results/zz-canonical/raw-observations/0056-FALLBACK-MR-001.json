@@ -1,0 +1,348 @@
+{
+  "languageTag": "mr",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b5",
+          "boundingRegion": {
+            "height": 0.020202020202020204,
+            "width": 0.08251633986928104,
+            "x": 0.049019607843137254,
+            "y": 0.05744949494949495
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.020202020202020204,
+                "width": 0.08251633986928104,
+                "x": 0.049019607843137254,
+                "y": 0.05744949494949495
+              },
+              "confidence": 0.95519791,
+              "languageTag": "mr",
+              "lineId": "p1-b5-l1",
+              "text": "महाराष्ट्र"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b6",
+          "boundingRegion": {
+            "height": 0.022095959595959596,
+            "width": 0.0923202614379085,
+            "x": 0.14052287581699346,
+            "y": 0.050505050505050504
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022095959595959596,
+                "width": 0.0923202614379085,
+                "x": 0.14052287581699346,
+                "y": 0.050505050505050504
+              },
+              "confidence": 0.9583148199999999,
+              "languageTag": "mr",
+              "lineId": "p1-b6-l1",
+              "text": "शासनाने"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b7",
+          "boundingRegion": {
+            "height": 0.015782828282828284,
+            "width": 0.04738562091503268,
+            "x": 0.2589869281045752,
+            "y": 0.05744949494949495
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.015782828282828284,
+                "width": 0.04738562091503268,
+                "x": 0.2589869281045752,
+                "y": 0.05744949494949495
+              },
+              "confidence": 0.96903992,
+              "languageTag": "mr",
+              "lineId": "p1-b7-l1",
+              "text": "२०२४"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b8",
+          "boundingRegion": {
+            "height": 0.022095959595959596,
+            "width": 0.049019607843137254,
+            "x": 0.3161764705882353,
+            "y": 0.050505050505050504
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022095959595959596,
+                "width": 0.049019607843137254,
+                "x": 0.3161764705882353,
+                "y": 0.050505050505050504
+              },
+              "confidence": 0.9612262699999999,
+              "languageTag": "mr",
+              "lineId": "p1-b8-l1",
+              "text": "मध्ये"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b9",
+          "boundingRegion": {
+            "height": 0.022095959595959596,
+            "width": 0.061274509803921566,
+            "x": 0.37173202614379086,
+            "y": 0.050505050505050504
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022095959595959596,
+                "width": 0.061274509803921566,
+                "x": 0.37173202614379086,
+                "y": 0.050505050505050504
+              },
+              "confidence": 0.96329758,
+              "languageTag": "mr",
+              "lineId": "p1-b9-l1",
+              "text": "नवीन"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b10",
+          "boundingRegion": {
+            "height": 0.022095959595959596,
+            "width": 0.06045751633986928,
+            "x": 0.44199346405228757,
+            "y": 0.050505050505050504
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022095959595959596,
+                "width": 0.06045751633986928,
+                "x": 0.44199346405228757,
+                "y": 0.050505050505050504
+              },
+              "confidence": 0.9678653,
+              "languageTag": "mr",
+              "lineId": "p1-b10-l1",
+              "text": "धोरण"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b11",
+          "boundingRegion": {
+            "height": 0.025252525252525252,
+            "width": 0.06862745098039216,
+            "x": 0.5106209150326797,
+            "y": 0.050505050505050504
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.025252525252525252,
+                "width": 0.06862745098039216,
+                "x": 0.5106209150326797,
+                "y": 0.050505050505050504
+              },
+              "confidence": 0.9669606000000001,
+              "languageTag": "mr",
+              "lineId": "p1-b11-l1",
+              "text": "जाहीर"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b12",
+          "boundingRegion": {
+            "height": 0.022727272727272728,
+            "width": 0.05065359477124183,
+            "x": 0.5866013071895425,
+            "y": 0.050505050505050504
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022727272727272728,
+                "width": 0.05065359477124183,
+                "x": 0.5866013071895425,
+                "y": 0.050505050505050504
+              },
+              "confidence": 0.96510284,
+              "languageTag": "mr",
+              "lineId": "p1-b12-l1",
+              "text": "केले."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b14",
+          "boundingRegion": {
+            "height": 0.022095959595959596,
+            "width": 0.0392156862745098,
+            "x": 0.049019607843137254,
+            "y": 0.09217171717171717
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022095959595959596,
+                "width": 0.0392156862745098,
+                "x": 0.049019607843137254,
+                "y": 0.09217171717171717
+              },
+              "confidence": 0.9674844400000001,
+              "languageTag": "mr",
+              "lineId": "p1-b14-l1",
+              "text": "सर्व"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b15",
+          "boundingRegion": {
+            "height": 0.02335858585858586,
+            "width": 0.09558823529411764,
+            "x": 0.09558823529411764,
+            "y": 0.09217171717171717
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.02335858585858586,
+                "width": 0.09558823529411764,
+                "x": 0.09558823529411764,
+                "y": 0.09217171717171717
+              },
+              "confidence": 0.9526922600000001,
+              "languageTag": "mr",
+              "lineId": "p1-b15-l1",
+              "text": "प्रादेशिक"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b16",
+          "boundingRegion": {
+            "height": 0.022095959595959596,
+            "width": 0.13071895424836602,
+            "x": 0.1977124183006536,
+            "y": 0.09217171717171717
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022095959595959596,
+                "width": 0.13071895424836602,
+                "x": 0.1977124183006536,
+                "y": 0.09217171717171717
+              },
+              "confidence": 0.9615934,
+              "languageTag": "mr",
+              "lineId": "p1-b16-l1",
+              "text": "कार्यालयांना"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b17",
+          "boundingRegion": {
+            "height": 0.021464646464646464,
+            "width": 0.06535947712418301,
+            "x": 0.3366013071895425,
+            "y": 0.09911616161616162
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.021464646464646464,
+                "width": 0.06535947712418301,
+                "x": 0.3366013071895425,
+                "y": 0.09911616161616162
+              },
+              "confidence": 0.96778809,
+              "languageTag": "mr",
+              "lineId": "p1-b17-l1",
+              "text": "सूचना"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b18",
+          "boundingRegion": {
+            "height": 0.022727272727272728,
+            "width": 0.09640522875816994,
+            "x": 0.41013071895424835,
+            "y": 0.09217171717171717
+          },
+          "kind": "TEXT",
+          "languageTag": "mr",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.022727272727272728,
+                "width": 0.09640522875816994,
+                "x": 0.41013071895424835,
+                "y": 0.09217171717171717
+              },
+              "confidence": 0.96604958,
+              "languageTag": "mr",
+              "lineId": "p1-b18-l1",
+              "text": "पाठवली."
+            }
+          ]
+        }
+      ],
+      "languageTag": "mr",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "governed-fallback",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.resilient-parser",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "selectedProviderRef:ghatana.tesseractocr"
+    ]
+  }
+}

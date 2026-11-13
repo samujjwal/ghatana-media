@@ -1,0 +1,473 @@
+# document-intelligence.proof-graph.v1
+#
+# Executable invalidation graph for the document-intelligence proof program
+# (P0-02). Each leaf declares:
+#
+#   owns:        repo-relative path globs whose content this leaf's proof covers
+#   dependsOn:   upstream leaf ids whose PASS this leaf consumes
+#   invalidates: leaf ids this leaf's owned material invalidates when changed
+#                (must equal the reverse closure of dependsOn)
+#   expensive:   true when the leaf requires provider/runtime/DB/browser work
+#
+# `scripts/check_proof_graph.py impact --changed <path>...` returns:
+#   changed material -> affected leaves -> downstream leaves -> preserved leaves
+#
+# The sealed docs/evidence/leaf-dependencies.v1.json remains the Increment-3/4/4A
+# closure record; this graph is the executable invalidation authority and must
+# stay leaf-compatible with it.
+schemaVersion: document-intelligence.proof-graph.v1
+extends: docs/evidence/leaf-dependencies.v1.json
+
+repos:
+  worker: .
+  product: ../../../../gharbatai
+  shared: ../../../../ghatana-shared
+
+leaves:
+  increment3.evaluation.*:
+    owns:
+      - worker:evaluation/manifest.yaml
+      - worker:evaluation/acceptance.yaml
+      - worker:evaluation/corpus/**
+      - worker:evaluation/run_evaluation.py
+      - worker:evaluation/metrics.py
+      - worker:evaluation/generate_corpus.py
+      - worker:evaluation/environment.yaml
+      - worker:models/model-manifest.yaml
+      - worker:src/document_intelligence/providers/**
+    dependsOn: []
+    invalidates: [increment3.strictGate]
+    expensive: true
+
+  increment3.strictGate:
+    owns:
+      - worker:scripts/verify_increment3.py
+      - worker:scripts/preflight_increment3.py
+      - worker:scripts/verify_models.py
+      - worker:tests/**
+      - worker:contracts/shared-contract.lock.json
+      - worker:contracts/protocol-v1.md
+      - worker:pyproject.toml
+    dependsOn: [increment3.evaluation.*, increment3.modelVerification]
+    invalidates:
+      - increment4.liveWorkerIdentity
+      - increment4a.materialLock
+      - increment6.protocolCompatibility
+    expensive: false
+
+  increment3.modelVerification:
+    owns:
+      - worker:models/model-manifest.yaml
+      - worker:models/**
+    dependsOn: []
+    invalidates: [increment3.strictGate]
+    expensive: false
+
+  increment4a.materialLock:
+    owns:
+      - worker:evaluation/increment4a/manifest.yaml
+      - worker:evaluation/increment4a/qualification.yaml
+      - worker:evaluation/increment4a/acceptance.yaml
+      - worker:evaluation/increment4a/corpus/**
+      - worker:evaluation/increment4a/implementation-material.yaml
+      - worker:evaluation/increment4a/environment.yaml
+      - worker:evaluation/increment4a/calibration/runtime-latency.json
+      - worker:models/increment4a/model-manifest.yaml
+      - worker:models/increment4a/language-registry.yaml
+      - worker:routing/**
+      - worker:profiles/increment4a.yaml
+      - worker:profiles/increment4a-candidate.yaml
+      - worker:uv.lock
+      - worker:pyproject.toml
+    dependsOn: [increment3.strictGate]
+    invalidates:
+      - increment4a.campaign.*
+      - increment4a.testReceipt.pytest.*
+      - increment4a.testReceipt.vitest.*
+    expensive: false
+
+  increment4a.campaign.*:
+    owns:
+      - worker:evaluation/increment4a/run_campaign.py
+      - worker:evaluation/increment4a/run_qualification.py
+      - worker:evaluation/increment4a/metrics.py
+      - worker:evaluation/increment4a/implementation_material.py
+      - worker:src/document_intelligence/providers/**
+      - worker:src/document_intelligence/strategies/**
+      - worker:src/document_intelligence/mapping/**
+      - worker:src/document_intelligence/runtime/**
+    ownsExcludes:
+      - worker:src/document_intelligence/runtime/scheduler.py
+      - worker:src/document_intelligence/runtime/model_residency.py
+      - worker:src/document_intelligence/runtime/memory.py
+      - worker:src/document_intelligence/runtime/drain.py
+      - worker:src/document_intelligence/runtime/crash_recovery.py
+      - worker:src/document_intelligence/runtime/temp_space.py
+      - worker:src/document_intelligence/runtime/asset_verification.py
+      - worker:src/document_intelligence/runtime/fallback_contract.py
+      - worker:src/document_intelligence/runtime/asset_provenance.py
+      - worker:src/document_intelligence/runtime/concurrency_authority.py
+      - worker:src/document_intelligence/runtime/migration_policy.py
+      - worker:src/document_intelligence/runtime/performance_protocol.py
+      - worker:src/document_intelligence/runtime/version_skew.py
+    dependsOn: [increment4a.materialLock]
+    invalidates: [increment4a.canonicalPointer]
+    expensive: true
+
+  increment4a.canonicalPointer:
+    owns: []
+    dependsOn: [increment4a.campaign.*]
+    invalidates: []
+    expensive: false
+
+  increment4a.modelVerification:
+    owns:
+      - worker:models/**
+      - worker:uv.lock
+      - worker:evaluation/increment4a/environment.yaml
+    dependsOn: []
+    invalidates: [increment4a.testReceipt.pytest.*]
+    expensive: false
+
+  increment4a.testReceipt.pytest.*:
+    owns:
+      - worker:tests/**
+      - worker:evaluation/increment4a/required-tests.yaml
+      - worker:src/document_intelligence/**
+    ownsExcludes:
+      - worker:tests/increment6/**
+      - worker:tests/learning/**
+      - worker:src/document_intelligence/scanned/**
+      - worker:src/document_intelligence/runtime/scheduler.py
+      - worker:src/document_intelligence/runtime/model_residency.py
+      - worker:src/document_intelligence/runtime/memory.py
+      - worker:src/document_intelligence/runtime/drain.py
+      - worker:src/document_intelligence/runtime/crash_recovery.py
+      - worker:src/document_intelligence/runtime/temp_space.py
+      - worker:src/document_intelligence/runtime/asset_verification.py
+      - worker:src/document_intelligence/runtime/fallback_contract.py
+      - worker:src/document_intelligence/runtime/asset_provenance.py
+      - worker:src/document_intelligence/runtime/concurrency_authority.py
+      - worker:src/document_intelligence/runtime/migration_policy.py
+      - worker:src/document_intelligence/runtime/performance_protocol.py
+      - worker:src/document_intelligence/runtime/version_skew.py
+    dependsOn: [increment4a.materialLock, increment4a.modelVerification]
+    invalidates: []
+    expensive: false
+
+  increment4a.testReceipt.vitest.*:
+    owns:
+      - worker:clients/typescript/**
+      - worker:evaluation/increment4a/required-tests.yaml
+    dependsOn: [increment4a.materialLock]
+    invalidates: []
+    expensive: false
+
+  increment4.livePostgres:
+    owns:
+      - product:products/org/packages/db/prisma/document-extraction.prisma
+      - product:products/org/packages/db/prisma/migrations/**document_extraction*/**
+      - product:products/org/scripts/document-extraction/run-increment4-acceptance.mjs
+    dependsOn: []
+    invalidates:
+      - increment4.productAcceptance
+      - increment4.reprocessDurability
+      - increment4.reprocessLifecycleRun
+      - increment4.authenticatedBrowserJourney
+      - increment4.auditAtomicity
+    expensive: true
+
+  increment4.liveWorkerIdentity:
+    owns:
+      - worker:src/document_intelligence/**
+      - worker:models/model-manifest.yaml
+    ownsExcludes:
+      - worker:src/document_intelligence/scanned/**
+      - worker:src/document_intelligence/runtime/scheduler.py
+      - worker:src/document_intelligence/runtime/model_residency.py
+      - worker:src/document_intelligence/runtime/memory.py
+      - worker:src/document_intelligence/runtime/drain.py
+      - worker:src/document_intelligence/runtime/crash_recovery.py
+      - worker:src/document_intelligence/runtime/temp_space.py
+      - worker:src/document_intelligence/runtime/asset_verification.py
+      - worker:src/document_intelligence/runtime/fallback_contract.py
+      - worker:src/document_intelligence/runtime/asset_provenance.py
+      - worker:src/document_intelligence/runtime/concurrency_authority.py
+      - worker:src/document_intelligence/runtime/migration_policy.py
+      - worker:src/document_intelligence/runtime/performance_protocol.py
+      - worker:src/document_intelligence/runtime/version_skew.py
+    dependsOn: [increment3.strictGate]
+    invalidates:
+      - increment4.productAcceptance
+      - increment4.pdfConsumer
+      - increment4.imageConsumer
+      - increment4.authenticatedBrowserJourney
+    expensive: true
+
+  increment4.productAcceptance:
+    owns:
+      - product:products/org/apps/api/src/modules/document-extraction/**
+      - product:products/org/docs/document-extraction/evaluation/acceptance.yaml
+      - product:products/org/docs/document-extraction/evaluation/manifest.yaml
+      - product:products/org/docs/document-extraction/evaluation/fixtures/**
+      - product:products/org/docs/document-extraction/evaluation/expected/**
+      - product:products/org/scripts/document-extraction/**
+    dependsOn: [increment4.livePostgres, increment4.liveWorkerIdentity]
+    invalidates: [increment4.productAcceptanceRun]
+    expensive: true
+
+  increment4.productAcceptanceRun:
+    owns: []
+    dependsOn: [increment4.productAcceptance]
+    invalidates: [increment4.campaignManifest, increment4.consumerAdmissionV2]
+    expensive: true
+
+  increment4.reprocessDurability:
+    owns:
+      - product:products/org/apps/api/src/modules/document-extraction/**
+      - product:products/org/packages/db/prisma/document-extraction.prisma
+    dependsOn: [increment4.livePostgres]
+    invalidates: [increment4.campaignManifest]
+    expensive: true
+
+  increment4.reprocessLifecycleRun:
+    owns:
+      - product:products/org/apps/api/src/modules/document-extraction/**
+    dependsOn: [increment4.livePostgres]
+    invalidates: [increment4.campaignManifest]
+    expensive: true
+
+  increment4.pdfConsumer:
+    owns:
+      - product:products/org/docs/document-extraction/consumer-scope.v1.json
+    dependsOn: [increment4.liveWorkerIdentity]
+    invalidates: [increment4.campaignManifest, increment4.consumerAdmissionV2]
+    expensive: true
+
+  increment4.imageConsumer:
+    owns:
+      - product:products/org/docs/document-extraction/consumer-scope.v1.json
+    dependsOn: [increment4.liveWorkerIdentity]
+    invalidates: [increment4.campaignManifest, increment4.consumerAdmissionV2]
+    expensive: true
+
+  increment4.authenticatedBrowserJourney:
+    owns:
+      - product:products/org/apps/org-web/src/api/document-extraction.ts
+      - product:products/org/apps/org-web/src/routes/onboarding/DocumentExtractionReviewWorkspace.tsx
+      - product:products/org/apps/org-web/src/routes/onboarding/ClientOnboardingReviewWorkspace.tsx
+    dependsOn: [increment4.liveWorkerIdentity, increment4.livePostgres]
+    invalidates: [increment4.campaignManifest, increment4.consumerAdmissionV2]
+    expensive: true
+
+  increment4.auditAtomicity:
+    owns:
+      - product:products/org/apps/api/src/modules/document-extraction/document-extraction-audit.handler.ts
+    dependsOn: [increment4.livePostgres]
+    invalidates: [increment4.campaignManifest, increment4.consumerAdmissionV2]
+    expensive: true
+
+  increment4.consumerAdmissionV2:
+    owns:
+      - product:products/org/scripts/document-extraction/generate-consumer-admission-v2.mjs
+    dependsOn:
+      - increment4.productAcceptanceRun
+      - increment4.authenticatedBrowserJourney
+      - increment4.auditAtomicity
+      - increment4.pdfConsumer
+      - increment4.imageConsumer
+    invalidates: [increment4.closureStatus]
+    expensive: false
+
+  increment4.campaignManifest:
+    owns:
+      - product:products/org/scripts/document-extraction/build-campaign-manifest.mjs
+    dependsOn:
+      - increment4.productAcceptanceRun
+      - increment4.reprocessDurability
+      - increment4.reprocessLifecycleRun
+      - increment4.authenticatedBrowserJourney
+      - increment4.auditAtomicity
+      - increment4.pdfConsumer
+      - increment4.imageConsumer
+    invalidates: [increment4.closureStatus]
+    expensive: false
+
+  increment4.closureStatus:
+    owns:
+      - product:products/org/scripts/document-extraction/verify-increment4.mjs
+    dependsOn: [increment4.consumerAdmissionV2, increment4.campaignManifest]
+    invalidates: []
+    expensive: false
+
+  # ---- Increment 5 governed-learning leaves (additive; catalog stays sealed) ----
+  increment5.feedbackProjection:
+    owns:
+      - product:products/org/apps/api/src/modules/document-extraction-learning/**
+    dependsOn: []
+    invalidates: [increment5.datasets, increment5.activeLearning, increment5.strictGate]
+    expensive: false
+
+  increment5.datasets:
+    owns:
+      - worker:learning/datasets/**
+      - worker:learning/policies/dataset-policy.v1.yaml
+      - worker:learning/schemas/dataset-manifest.v1.schema.json
+      - worker:learning/schemas/feedback-event.v1.schema.json
+      - worker:learning/schemas/eligibility-policy.v1.schema.json
+    dependsOn: [increment5.feedbackProjection]
+    invalidates: [increment5.candidates, increment5.strictGate]
+    expensive: false
+
+  increment5.candidates:
+    owns:
+      - worker:learning/calibration/**
+      - worker:learning/templates/**
+      - worker:learning/policy/**
+      - worker:learning/models/**
+      - worker:learning/candidates/**
+      - worker:learning/promotion/**
+      - worker:learning/schemas/calibration-candidate.v1.schema.json
+      - worker:learning/schemas/template-candidate.v1.schema.json
+      - worker:learning/schemas/extraction-policy-candidate.v1.schema.json
+      - worker:learning/schemas/candidate-manifest.v1.schema.json
+      - worker:learning/schemas/promotion-receipt.v1.schema.json
+      - worker:learning/schemas/shadow-evaluation.v1.schema.json
+      - worker:learning/schemas/regression-budget.v1.schema.json
+      - worker:learning/schemas/state-transition-receipt.v1.schema.json
+    dependsOn: [increment5.datasets]
+    invalidates: [increment5.strictGate]
+    expensive: false
+
+  increment5.activeLearning:
+    owns:
+      - worker:learning/active_learning/**
+      - worker:learning/schemas/active-learning-entry.v1.schema.json
+    dependsOn: [increment5.feedbackProjection]
+    invalidates: [increment5.strictGate]
+    expensive: false
+
+  increment5.strictGate:
+    owns:
+      - worker:scripts/verify_increment5.py
+      - worker:tests/learning/**
+      - worker:learning/util.py
+      - worker:learning/audit.py
+      - worker:learning/retention.py
+      - worker:learning/policies/**
+      - worker:learning/schemas/**
+      - worker:capabilities/document-intelligence-capabilities.yaml
+    dependsOn:
+      - increment5.feedbackProjection
+      - increment5.datasets
+      - increment5.candidates
+      - increment5.activeLearning
+    invalidates: []
+    expensive: false
+
+  # ---- Increment 6 breadth/readiness leaves (additive) ----
+  increment6.scannedPdf:
+    owns:
+      - worker:src/document_intelligence/scanned/**
+      - worker:routing/scanned-pdf.v1.yaml
+    dependsOn: []
+    invalidates: [increment6.officeQualification, increment6.strictGate]
+    expensive: false
+
+  increment6.fallbackContract:
+    owns:
+      - worker:routing/fallback-contract.v1.yaml
+      - worker:src/document_intelligence/runtime/fallback_contract.py
+    dependsOn: []
+    invalidates: [increment6.strictGate]
+    expensive: false
+
+  increment6.protocolCompatibility:
+    owns:
+      - worker:evaluation/increment6/manifest.yaml
+      - worker:contracts/protocol-v1.md
+      - worker:contracts/protocol-extensions.v1.md
+      - worker:contracts/schemas/v1/**
+      - worker:contracts/fixtures/i3-canonical/**
+      - worker:clients/typescript/src/protocol.ts
+      - worker:clients/typescript/src/client.ts
+      - worker:clients/typescript/src/validators.ts
+      - worker:clients/typescript/tests/protocol.test.ts
+      - worker:clients/typescript/tests/providers-catalog.test.ts
+      - worker:tests/contract/test_protocol_v1.py
+      - worker:tests/contract/test_i3_canonical_requests.py
+      - worker:tests/contract/test_increment6_protocol_authority.py
+      - worker:src/document_intelligence/app.py
+      - worker:scripts/verify_increment6.py
+      - worker:docs/INCREMENT-6-PROTOCOL-AUTHORITY.md
+    dependsOn: [increment3.strictGate]
+    invalidates: [increment6.strictGate]
+    expensive: false
+
+  increment6.officeQualification:
+    owns:
+      - worker:evaluation/increment6/**
+    dependsOn: [increment6.scannedPdf]
+    invalidates: [increment6.hiMrBreadth, increment6.loadSoakChaos, increment6.strictGate]
+    expensive: true
+
+  increment6.hiMrBreadth:
+    owns:
+      - worker:evaluation/increment6/**
+    dependsOn: [increment6.officeQualification]
+    invalidates: [increment6.strictGate]
+    expensive: true
+
+  increment6.runtimeResilience:
+    owns:
+      - worker:src/document_intelligence/runtime/scheduler.py
+      - worker:src/document_intelligence/runtime/model_residency.py
+      - worker:src/document_intelligence/runtime/memory.py
+      - worker:src/document_intelligence/runtime/drain.py
+      - worker:src/document_intelligence/runtime/crash_recovery.py
+      - worker:src/document_intelligence/runtime/temp_space.py
+      - worker:src/document_intelligence/runtime/asset_verification.py
+      - worker:src/document_intelligence/runtime/asset_provenance.py
+      - worker:src/document_intelligence/runtime/concurrency_authority.py
+      - worker:src/document_intelligence/runtime/migration_policy.py
+      - worker:src/document_intelligence/runtime/performance_protocol.py
+      - worker:src/document_intelligence/runtime/version_skew.py
+    dependsOn: []
+    invalidates: [increment6.loadSoakChaos, increment6.strictGate]
+    expensive: false
+
+  increment6.loadSoakChaos:
+    owns:
+      - worker:evaluation/increment6/runners/**
+      - worker:evaluation/increment6/schemas/performance-evidence.v1.schema.json
+    dependsOn: [increment6.runtimeResilience, increment6.officeQualification]
+    invalidates: [increment6.deploymentReadiness, increment6.strictGate]
+    expensive: true
+
+  increment6.deploymentReadiness:
+    owns:
+      - worker:deployment/**
+      - worker:release/**
+      - worker:scripts/build_release_readiness.py
+      - worker:scripts/check_vulnerabilities.py
+    dependsOn: [increment6.loadSoakChaos]
+    invalidates: [increment6.strictGate]
+    expensive: false
+
+  increment6.strictGate:
+    owns:
+      - worker:scripts/verify_increment6.py
+      - worker:tests/increment6/**
+      - worker:profiles/increment6.yaml
+      - worker:capabilities/document-intelligence-capabilities.yaml
+    dependsOn:
+      - increment6.scannedPdf
+      - increment6.fallbackContract
+      - increment6.protocolCompatibility
+      - increment6.officeQualification
+      - increment6.hiMrBreadth
+      - increment6.runtimeResilience
+      - increment6.loadSoakChaos
+      - increment6.deploymentReadiness
+    invalidates: []
+    expensive: false

@@ -1,0 +1,22 @@
+# ENV-01: deterministic semantic environment authority for all campaigns.
+# Declared values bind locale/timezone/unicode/clock/seed semantics so evidence
+# is reproducible across hosts. Material-fingerprinted into run manifests.
+schemaVersion: semantic-environment.v1
+timezone: UTC
+locale: C.UTF-8
+unicodeNormalization: NFC
+dateRendering:
+  format: ISO-8601
+  timezone: UTC
+  policy: RENDER_UTC_ONLY
+clock:
+  source: FIXED_TEST_CLOCK
+  fixedEpoch: "1970-01-01T00:00:00Z"
+  policy: NO_WALL_CLOCK_IN_EVIDENCE
+seedAuthority:
+  source: CAMPAIGN_CONFIG
+  policy: DECLARED_SEED_REQUIRED
+environmentVariables:
+  TZ: UTC
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8

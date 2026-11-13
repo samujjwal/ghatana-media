@@ -1,0 +1,38 @@
+{
+  "OCR-MR-CLEAN": {
+    "expectedText": "महाराष्ट्र शासनाने २०२४ मध्ये नवीन धोरण जाहीर केले. सर्व प्रादेशिक कार्यालयांना सूचना पाठवली.",
+    "file": "mr-clean.png",
+    "language": "mr",
+    "variant": "clean"
+  },
+  "OCR-MR-DENSE": {
+    "expectedText": "या दाट परिच्छेदात अनेक छोट्या ओळी आहेत. प्रत्येक ओळ लहान आकारात छापली आहे. दाट मजकूर OCR ओळ वेगळेपण तपासतो. शेवटची ओळ दाट नमूना पूर्ण करते.",
+    "file": "mr-dense.png",
+    "language": "mr",
+    "variant": "dense"
+  },
+  "OCR-MR-MIXED": {
+    "expectedText": "पावती INV-2024-0042 एकूण १२५०.५० रुपये. अहवाल दिनांक: 2024-01-15, संदर्भ DOC-77.",
+    "file": "mr-mixed.png",
+    "language": "mr",
+    "variant": "mixed"
+  },
+  "OCR-MR-NOISY": {
+    "expectedText": "या दाट परिच्छेदात अनेक छोट्या ओळी आहेत. प्रत्येक ओळ लहान आकारात छापली आहे. दाट मजकूर OCR ओळ वेगळेपण तपासतो. शेवटची ओळ दाट नमूना पूर्ण करते.",
+    "file": "mr-noisy.png",
+    "language": "mr",
+    "variant": "noisy"
+  },
+  "OCR-MR-NUMBERS": {
+    "expectedText": "ओळख ९८४१००१२३४ दिनांक १५-०१-२०२४ रकम ९९९.७५. बॅच ४२ एकूण १००, गुण ९८.५ टक्के.",
+    "file": "mr-numbers.png",
+    "language": "mr",
+    "variant": "numbers"
+  },
+  "OCR-MR-ROTATED": {
+    "expectedText": "या दाट परिच्छेदात अनेक छोट्या ओळी आहेत. प्रत्येक ओळ लहान आकारात छापली आहे. दाट मजकूर OCR ओळ वेगळेपण तपासतो. शेवटची ओळ दाट नमूना पूर्ण करते.",
+    "file": "mr-rotated.png",
+    "language": "mr",
+    "variant": "rotated"
+  }
+}

@@ -1,0 +1,18 @@
+schemaVersion: increment4a.hybrid-pdf-fixtures.v1
+groundTruth:
+  source: fixture-construction
+  reviewed: true
+  reviewVersion: 1
+fixtures:
+  - {fixtureId: HYBRID-001, file: HYBRID-001.pdf, pages: 1, classification: [NATIVE], language: en, expectedText: "native English paragraph", readingOrder: [native-1], regions: [native-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-002, file: HYBRID-002.pdf, pages: 1, classification: [SCANNED], language: en, expectedText: "scanned English paragraph", readingOrder: [scan-1], regions: [scan-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-003, file: HYBRID-003.pdf, pages: 1, classification: [SCANNED], language: ne, expectedText: "scanned Nepali paragraph", readingOrder: [scan-1], regions: [scan-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-004, file: HYBRID-004.pdf, pages: 1, classification: [SCANNED], language: hi, expectedText: "scanned Hindi paragraph", readingOrder: [scan-1], regions: [scan-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-005, file: HYBRID-005.pdf, pages: 1, classification: [SCANNED], language: mr, expectedText: "scanned Marathi paragraph", readingOrder: [scan-1], regions: [scan-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-006, file: HYBRID-006.pdf, pages: 2, classification: [NATIVE, SCANNED], language: en, expectedText: "native page one scanned page two", readingOrder: [native-1, scan-2], regions: [native-1, scan-2], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-007, file: HYBRID-007.pdf, pages: 1, classification: [MIXED], language: en, expectedText: "native and scanned region", readingOrder: [native-1, scan-1], regions: [native-1, scan-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-008, file: HYBRID-008.pdf, pages: 1, classification: [NATIVE], language: en, expectedText: "surrounding text", readingOrder: [text-1, table-1, text-2], regions: [text-1, table-1, text-2], tables: [table-1], structuredTableSupportExpected: true}
+  - {fixtureId: HYBRID-009, file: HYBRID-009.pdf, pages: 1, classification: [SCANNED], language: en, expectedText: "scanned table", readingOrder: [scan-table-1], regions: [scan-table-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-010, file: HYBRID-010.pdf, pages: 1, classification: [SCANNED], language: en, expectedText: "rotated noisy scan", readingOrder: [scan-1], regions: [scan-1], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-011, file: HYBRID-011.pdf, pages: 3, classification: [BLANK, NATIVE, SCANNED], language: en, expectedText: "native scanned", readingOrder: [native-2, scan-3], regions: [native-2, scan-3], tables: [], structuredTableSupportExpected: false}
+  - {fixtureId: HYBRID-012, file: HYBRID-012.pdf, pages: 1, classification: [MIXED], language: en, expectedText: "overlapping native image text", readingOrder: [native-1], regions: [native-1], tables: [], structuredTableSupportExpected: false}

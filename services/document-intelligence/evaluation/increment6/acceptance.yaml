@@ -1,0 +1,248 @@
+schemaVersion: increment6.acceptance.v1
+state: CANDIDATE
+# I6-61: declared qualification context. These are authoritative placeholders —
+# a qualification run must re-declare the hardware class and workload
+# fingerprint it was executed under; thresholds below are calibrated for them.
+hardwareClass: REFERENCE_CI_X86_64
+workloadFingerprint: DECLARED_AT_QUALIFICATION
+metrics:
+  classification.accuracy:
+    operator: gte
+    value: 0.95
+  provenance.completeness:
+    operator: gte
+    value: 1.0
+  text.cer:
+    operator: lte
+    value: 0.2
+  text.wer:
+    operator: lte
+    value: 0.3
+  layout.iou:
+    operator: gte
+    value: 0.7
+  office.structureAccuracy:
+    operator: gte
+    value: 0.9
+  language.accuracy:
+    operator: gte
+    value: 0.95
+  fallback.successRate:
+    operator: gte
+    value: 0.9
+  negativeLane.unsupportedRate:
+    operator: gte
+    value: 1.0
+  runtime.p95LatencyMs:
+    operator: lte
+    value: 120000
+  runtime.peakRssDeltaMb:
+    operator: lte
+    value: 2048
+  runtime.cancellationCheckMs:
+    operator: lte
+    value: 1000
+  # I6-61: runtime tail-latency / throughput / error-rate bounds.
+  runtime.p99LatencyMs:
+    operator: lte
+    value: 180000
+  runtime.throughputPerSecond:
+    operator: gte
+    value: 0.05
+  runtime.errorRate:
+    operator: lte
+    value: 0.01
+  # Queue-limit behavior: a full queue must reject promptly, not block.
+  runtime.queueRejectionLatencyMs:
+    operator: lte
+    value: 50
+  runtime.queueLimitRejections:
+    operator: lte
+    value: 0
+  # I6-61/I6-62: soak leak tolerances — bounded start-vs-end deltas per
+  # resource, not RSS alone.
+  soak.peakRssDeltaMb:
+    operator: lte
+    value: 2048
+  soak.fdDelta:
+    operator: lte
+    value: 64
+  soak.tempFileDelta:
+    operator: lte
+    value: 32
+  soak.threadDelta:
+    operator: lte
+    value: 8
+  soak.nativeProcessDelta:
+    operator: lte
+    value: 0
+  soak.modelInstanceDelta:
+    operator: lte
+    value: 0
+  soak.queueEntryDelta:
+    operator: lte
+    value: 0
+  soak.dbHandleDelta:
+    operator: lte
+    value: 0
+  # I6-61: bounded recovery after induced failure.
+  recovery.restartSeconds:
+    operator: lte
+    value: 30
+requirements:
+  minimumFixturesPerLane: 3
+  requireEveryDeclaredFixture: true
+  requireMeasuredRuntime: true
+  requireNoExecutionErrors: true
+  # Negative lanes assert a disposition, not a quality score: every declared
+  # fixture in scanned-table-regression must yield UNSUPPORTED_BY_DESIGN.
+  negativeLaneAssertions:
+    scanned-table-regression: UNSUPPORTED_BY_DESIGN
+# OCR and schema extraction are separately calibrated lanes (backlog split):
+# hi-mr-ocr owns text fidelity on image input; hi-mr-extraction scores entity /
+# evidence quality over parsed text, which compounds upstream OCR error, so the
+# extraction thresholds are intentionally LOWER than the canonical Increment-4A
+# extraction bar (0.80) and each rule carries an explicit reason.
+laneThresholdPolicy:
+  hi-mr-ocr:
+    metrics: [text.cer, language.accuracy]
+    note: text-fidelity lane; canonical OCR thresholds retained
+  hi-mr-extraction:
+    metrics: [gliner.entityF1, gliner.evidenceAccuracy]
+    reason: schema-guided thresholds calibrated separately from OCR text fidelity;
+      extraction runs over text that already carries OCR error, so the canonical
+      0.80 bar is relaxed pending schema-lane calibration data
+capabilityMetrics:
+  parser.pdf.scanned.classify.en:
+    classification.accuracy:
+      operator: gte
+      value: 0.95
+  parser.pdf.scanned.classify.ne:
+    classification.accuracy:
+      operator: gte
+      value: 0.95
+  parser.pdf.scanned.classify.hi:
+    classification.accuracy:
+      operator: gte
+      value: 0.95
+  parser.pdf.scanned.classify.mr:
+    classification.accuracy:
+      operator: gte
+      value: 0.95
+  parser.pdf.hybrid.provenance.en:
+    provenance.completeness:
+      operator: gte
+      value: 1.0
+  parser.pdf.hybrid.provenance.ne:
+    provenance.completeness:
+      operator: gte
+      value: 1.0
+  parser.pdf.hybrid.provenance.hi:
+    provenance.completeness:
+      operator: gte
+      value: 1.0
+  parser.pdf.hybrid.provenance.mr:
+    provenance.completeness:
+      operator: gte
+      value: 1.0
+  # Office lanes reuse I4A-qualified providers; thresholds mirror increment4a.
+  parser.docx.text.en:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.docx.text.ne:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.docx.text.hi:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.docx.text.mr:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.pptx.text.en:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.pptx.text.ne:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.pptx.text.hi:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.pptx.text.mr:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.xlsx.tables.en:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.xlsx.tables.ne:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.xlsx.tables.hi:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  parser.xlsx.tables.mr:
+    office.structureAccuracy:
+      operator: gte
+      value: 0.9
+  ocr.paddle.hi:
+    text.cer:
+      operator: lte
+      value: 0.2
+    language.accuracy:
+      operator: gte
+      value: 0.95
+  ocr.paddle.mr:
+    text.cer:
+      operator: lte
+      value: 0.2
+    language.accuracy:
+      operator: gte
+      value: 0.95
+  extraction.schema-guided.hi.v2:
+    gliner.entityF1:
+      operator: gte
+      value: 0.6
+      reason: LOWER_THAN_CANONICAL — separate OCR-vs-schema threshold; extraction
+        scores over text that compounds upstream OCR error, so the I4A canonical
+        0.80 bar is relaxed pending schema-lane calibration
+    gliner.evidenceAccuracy:
+      operator: gte
+      value: 0.6
+      reason: LOWER_THAN_CANONICAL — separate OCR-vs-schema threshold; extraction
+        scores over text that compounds upstream OCR error, so the I4A canonical
+        0.80 bar is relaxed pending schema-lane calibration
+  extraction.schema-guided.mr.v2:
+    gliner.entityF1:
+      operator: gte
+      value: 0.6
+      reason: LOWER_THAN_CANONICAL — separate OCR-vs-schema threshold; extraction
+        scores over text that compounds upstream OCR error, so the I4A canonical
+        0.80 bar is relaxed pending schema-lane calibration
+    gliner.evidenceAccuracy:
+      operator: gte
+      value: 0.6
+      reason: LOWER_THAN_CANONICAL — separate OCR-vs-schema threshold; extraction
+        scores over text that compounds upstream OCR error, so the I4A canonical
+        0.80 bar is relaxed pending schema-lane calibration
+  parser.pdf.complex-layout.en:
+    layout.iou:
+      operator: gte
+      value: 0.7
+  parser.pdf.complex-layout.hi:
+    layout.iou:
+      operator: gte
+      value: 0.7
+  parser.pdf.complex-layout.mr:
+    layout.iou:
+      operator: gte
+      value: 0.7

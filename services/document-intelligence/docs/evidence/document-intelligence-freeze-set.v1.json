@@ -1,0 +1,214 @@
+{
+  "closureIntegrity": {
+    "leafDependenciesCatalogSha256": "297133f85d40fbe6df838b1a41e802c13d33e4966f10dc998a327ff187ca8f4e",
+    "materialScopeFiles": {
+      "increment3": "665f87d964fabc8c9f7bbc6154246dc851490a21aa527d7e4daa57b8998e4350",
+      "increment4": "a31e2ee3b6228fb68aa13a0f8d3a1e96a56d063072b79665faa5f38a3ed14c45",
+      "increment4a": "6b1194c2c2bad701b2208fb4bae78146fef18beafd9382392819027ad050a2b5",
+      "increment5": "8b363b20fe53aba11a594c53df3d9b023d041ecad1f920e3f967f577df5eb63d",
+      "increment6": "e3e536edbdc95d8cd05b70ae043b8b982050df0ade982109132d0ddd6d3a2c13"
+    },
+    "nativeRuntimeSupplementSha256": "7fc8491cb03d00c286c4ddda8215dc539ee5a04288bc1849548d94ffdce61e07",
+    "runManifestSha256": {
+      "increment3.authority": "sha256:5e8631c1fa54814b3e5f1b1f40e085e419a385b47e779d603c55162911b603a2",
+      "increment3.canonical": "sha256:6816e418437219250aec71d7bc1eda1f46dc42a3c5b252be3847e8a655e95139",
+      "increment4a.canonical": "sha256:81ee85c01c2673012ee262762d2473275fb0b89207899f649783ce7090c8cf9e"
+    }
+  },
+  "crossChecks": {
+    "defaultProfileUnaffectedByI4A": {
+      "detail": "cross-profile regression receipt must be PASS and bound to current provider/model authority",
+      "receipt": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/cross-profile-regression.v1.json",
+      "receiptStatus": "PASS",
+      "status": "PASS"
+    },
+    "i4ConsumesExactI3Authority": {
+      "bound": {
+        "increment3ModelManifestFingerprint": "sha256:df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+        "increment3ProviderCatalogFingerprint": "sha256:2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+        "liveEnvironmentFingerprint": "sha256:de0e8e7c40d92635e6bc458be94b1a5bbf29b94f7aa73c7e553a701a82afd96a",
+        "sharedContractFingerprint": "sha256:457c3b51e49752285d272adbc963f3a6651a9fe2f8cac4488db857b02f317cca"
+      },
+      "status": "PASS"
+    },
+    "i4ProductImplementationCurrent": {
+      "detail": "the product implementation bound by the Increment-4 campaign must equal the current source; post-campaign drift stales the dependent leaves",
+      "driftedAreas": [],
+      "staleLeaves": [],
+      "status": "PASS"
+    },
+    "i4aExtendsAcceptedI3Authority": {
+      "detail": "runtime-authority baselineAuthoritySha256, profile pins, canonical binding verified in the increment4a section",
+      "status": "PASS"
+    },
+    "leafDependencyCoverage": {
+      "detail": "every seal-counted leaf must bind its declared dependsOn set and exclude doesNotDependOn keys",
+      "errors": [],
+      "evaluatedLeaves": 108,
+      "status": "PASS"
+    },
+    "materialScopesDeclared": {
+      "detail": "semantic/environment/evidence scopes must be disjoint and cover every fingerprinted file",
+      "errors": [],
+      "status": "PASS"
+    },
+    "nativeRuntimeBound": {
+      "detail": "wheel-bundled native libraries and system executables must match recorded identities",
+      "staleIdentities": [],
+      "status": "PASS"
+    },
+    "noInScopeMaterialDrift": {
+      "note": "fingerprinted sources are covered by the stability/material-lock checks; git scope covers residual path drift",
+      "status": "PASS",
+      "unexpectedDirtyPaths": []
+    },
+    "noStaleReceiptReferences": {
+      "stale": [],
+      "status": "PASS"
+    },
+    "noUnknownOrNotRunBlockingLeaves": {
+      "blocking": [],
+      "status": "PASS"
+    },
+    "runPublicationComplete": {
+      "detail": "canonical run directories must carry a COMPLETE manifest whose digests match disk",
+      "failingRuns": [],
+      "status": "PASS"
+    }
+  },
+  "generatedAt": "2026-09-22T17:34:06Z",
+  "increments": {
+    "increment3": {
+      "authorityFingerprint": "f5f80c20a6a3493d3bbf165d7b9861c7ceaf16a6da70c2b4b11c5dfd818b17f0",
+      "canonicalRun": "20260922T001622Z-26884d8e",
+      "developmentState": "DEVELOPMENT_COMPLETE",
+      "errors": [],
+      "providerCatalogSha256": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+      "state": "FROZEN",
+      "status": "PASS",
+      "strictReceipt": {
+        "path": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment3-strict-receipt.json",
+        "receiptInputsCurrent": true,
+        "runId": "20260922T160910Z",
+        "sha256": "daf60efb00a749e001391b21ef2e72674749c5a32e5498c6a38ef1bdd44de93a",
+        "status": "PASS"
+      }
+    },
+    "increment4": {
+      "authorityFingerprint": "e39f6a5212c86a54f754370c0a4a1dfdca4b9a74a9143539e34973daa0d3a4ad",
+      "boundFingerprints": {
+        "increment3ModelManifestFingerprint": "sha256:df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+        "increment3ProviderCatalogFingerprint": "sha256:2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+        "liveEnvironmentFingerprint": "sha256:de0e8e7c40d92635e6bc458be94b1a5bbf29b94f7aa73c7e553a701a82afd96a",
+        "sharedContractFingerprint": "sha256:457c3b51e49752285d272adbc963f3a6651a9fe2f8cac4488db857b02f317cca"
+      },
+      "campaignManifest": {
+        "path": "/home/samujjwal/Developments/gharbatai/products/org/docs/document-extraction/evaluation/results/campaign-manifest.json",
+        "sha256": "e7d4d2294cb44b9e25f1099b70dcce1fec57d4e08829d78d9851d4eb6ebc71b2"
+      },
+      "campaignRunId": "increment4-3260309-1790069806488",
+      "consumerAdmission": {
+        "path": "/home/samujjwal/Developments/gharbatai/products/org/docs/document-extraction/evaluation/consumer-admission.v2.json",
+        "result": "ADMITTED",
+        "sha256": "9fd9ab11f49f11e365905a54d4a1bb2a4bed66434f24dbc2f3da1396a1cecf29"
+      },
+      "developmentState": "DEVELOPMENT_COMPLETE",
+      "errors": [],
+      "state": "FROZEN",
+      "status": "PASS",
+      "strictReport": {
+        "summary": {
+          "blockedOrNotRun": 0,
+          "failed": 0,
+          "passed": 55,
+          "skipped": 0,
+          "total": 55,
+          "unmappedFailures": 0
+        }
+      }
+    },
+    "increment4a": {
+      "authorityFingerprint": "1a69d966c5b187c0764499f49d83c3c5e2f0d8b1f3f2ff71a668a6f60bf2eb8e",
+      "canonicalRun": "20260922T071420Z",
+      "developmentState": "DEVELOPMENT_COMPLETE",
+      "errors": [],
+      "evaluationImplementationFingerprint": "f9c6cad69637ad03a80741ea5637473c08c8d15a9d9b608a6950d7bd57dc1f1a",
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "receiptCount": 45,
+      "releaseActivationState": "NOT_ACTIVATED",
+      "state": "FROZEN",
+      "status": "PASS"
+    }
+  },
+  "releaseActivation": "NOT_ACTIVATED",
+  "schemaVersion": "document-intelligence.freeze-set.v1",
+  "seal": {
+    "blocking": {
+      "authorityMismatch": 0,
+      "fail": 0,
+      "requiredNotRun": 0,
+      "staleReceipts": 0,
+      "unknown": 0
+    },
+    "state": "SEALED"
+  },
+  "sealArtifacts": {
+    "gharbatai": [
+      "products/org/docs/document-extraction/evaluation/increment4-closure-status.json",
+      "products/org/docs/document-extraction/evaluation/results/README.md",
+      "products/org/docs/document-extraction/evaluation/results/campaign-manifest.json",
+      "products/org/docs/document-extraction/evaluation/results/increment4-strict-report.json",
+      "products/org/scripts/document-extraction/build-campaign-manifest.mjs",
+      "products/org/scripts/document-extraction/product-implementation.mjs",
+      "products/org/scripts/document-extraction/run-increment4-acceptance.mjs",
+      "products/org/scripts/document-extraction/verify-increment4.mjs",
+      "products/org/scripts/document-extraction/verify-live-document-intelligence-authority.mjs"
+    ],
+    "worker": [
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/cross-profile-regression.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/document-intelligence-development-freeze-set.v2.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/document-intelligence-freeze-set.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/document-intelligence-implementation-lock.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment3-current-runtime-reconciliation.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment3-material-scope.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment4-material-scope.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/increment4a-material-scope.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/leaf-dependencies.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/material-snapshot.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/native-runtime-supplement.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/proof-inventory.v1.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/proof-inventory.v2.json",
+      "services/media/modules/intelligence/document-intelligence-worker/docs/evidence/provider-runtime-stability.json",
+      "services/media/modules/intelligence/document-intelligence-worker/evaluation/increment4a/results/20260922T071420Z/run-manifest.json",
+      "services/media/modules/intelligence/document-intelligence-worker/evaluation/results/20260919T022904Z-cf9e659f/run-manifest.json",
+      "services/media/modules/intelligence/document-intelligence-worker/evaluation/results/20260922T001622Z-26884d8e/run-manifest.json",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/build_freeze_set.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/build_material_snapshot.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/build_native_runtime_supplement.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/build_provider_runtime_stability.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/build_run_publication.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/check_leaf_dependencies.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/check_material_scopes.py",
+      "services/media/modules/intelligence/document-intelligence-worker/scripts/run_cross_profile_regression.py",
+      "services/media/modules/intelligence/document-intelligence-worker/tests/integration/test_profile_isolation.py"
+    ]
+  },
+  "shared": {
+    "canonicalProviderFingerprint": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+    "errors": [],
+    "modelAuthorityFingerprint": {
+      "increment3": "df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+      "increment4a": "582bba88c331c54d0bf51c31b84a8965c179fbb03f751f1135762c7211d12a70"
+    },
+    "providerRuntimeStability": {
+      "path": "/home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/docs/evidence/provider-runtime-stability.json",
+      "sha256": "534bc67f56c2820c4c4940a327eb70afddcc91085c4efd87e9b2e56897396431",
+      "state": "STABLE"
+    },
+    "runtimeDependencyFingerprint": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+    "sharedContractFingerprint": "457c3b51e49752285d272adbc963f3a6651a9fe2f8cac4488db857b02f317cca",
+    "sharedContractLockSha256": "2c88b84977540555599c0f46acf0841cb8368b60bb40ef618d92b41ce2844e80",
+    "status": "PASS"
+  }
+}

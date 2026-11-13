@@ -1,0 +1,16 @@
+{
+  "id": "parse-generation-header-mismatch-invalid",
+  "endpoint": "parse",
+  "description": "Metadata operationGeneration disagrees with the X-Operation-Generation header; the binding fails closed.",
+  "headerGeneration": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-gen-mismatch",
+    "operationGeneration": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/pdf",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "metadata" }
+}

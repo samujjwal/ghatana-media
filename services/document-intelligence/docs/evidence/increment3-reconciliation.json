@@ -1,0 +1,103 @@
+{
+ "affectedAuthorityState": "RECONCILED",
+ "authorityComparison": {
+  "classification": "FROZEN_AUTHORITY_STALE_SEMANTIC_IDENTITY",
+  "physicalArtifactDigest": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8",
+  "prior": {
+   "capabilitiesFingerprint": "70673ee505bf5527de26aadb4d564bb370ce0712950db21f97663ccf80c4aec2",
+   "modelManifestFingerprint": "18632d616f3aa35726fca5e66de17359c240a86b5bbf516cdf848d2fb371c595",
+   "neModelRef": "PP-OCRv5-ne",
+   "neModelVersion": "PP-OCRv5-local-ne",
+   "providerRef": "ghatana.paddleocr",
+   "runId": "20260918T175824Z-26eb639a"
+  },
+  "successor": {
+   "capabilitiesFingerprint": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+   "modelManifestFingerprint": "df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+   "neModelRef": "PP-OCRv5-devanagari-shared",
+   "neModelVersion": "PP-OCRv5-local-devanagari-shared",
+   "providerRef": "ghatana.paddleocr",
+   "runId": "20260919T022904Z-cf9e659f"
+  }
+ },
+ "execution": {
+  "hardFailures": 0,
+  "measuredAcceptanceThresholds": "PASS",
+  "modelAssets": "PASS",
+  "preflight": "PASS",
+  "realPaddleEnglish": "PASS",
+  "realPaddleNepali": "PASS",
+  "strictReconciler": {
+   "checks": {
+    "capabilityPromotion": "PASS",
+    "environmentPreflight": "PASS",
+    "evaluation": "PASS",
+    "increment3": "PASS",
+    "modelAssets": "PASS",
+    "offlineRuntime": "PASS",
+    "paddleEnglish": "PASS",
+    "paddleNepali": "PASS",
+    "pythonTests": "PASS",
+    "sharedContract": "PASS",
+    "sharedEngineConformance": "PASS",
+    "typescriptBuild": "PASS",
+    "typescriptTests": "PASS"
+   },
+   "receipt": "docs/evidence/increment3-strict-receipt.json",
+   "receiptRunId": "20260922T014630Z",
+   "status": "PASS",
+   "summary": {
+    "pythonTests": "124 passed",
+    "typescriptBuild": "PASS",
+    "typescriptTests": "PASS"
+   },
+   "verifiedAt": "2026-09-22"
+  },
+  "successorStatus": "PASS"
+ },
+ "frozenInputs": {
+  "acceptanceFingerprint": "0dd78eb41720a5c0278faec8309b0eae5771fc31508273d99839e7d4ea9ad4c9",
+  "corpusFingerprint": "0eeb0efb1fafb435a3cf5beffb5d78d27180d5dec1df6cca939191447a9c26be",
+  "environmentFingerprint": "d6cac6eaff3fcd8c473354332a52f0da53cf1b57d182c00bf8613158c2a996e9",
+  "evaluationImplementationFingerprint": "3155819f54c00a4dec89be267a1d9c1e3e681b2e3c14ef2ed2097f9232f00532",
+  "manifestFingerprint": "0be76defc0ab7c95f69a17b5478a8d6f87e471f67ac40961a4b7d7ae29cdd906",
+  "modelManifestFingerprint": "df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+  "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac"
+ },
+ "historicalIncrement3State": "CLOSED",
+ "nextGate": "Increment-3 strict reconciliation is PASS; regenerate Increment-4 live evidence against the unchanged successor provider catalog (2c8abd11\u2026).",
+ "nonSemanticPathChanges": "No path-only identity change was used; the semantic Nepali model identity was corrected to match measured provisioned material.",
+ "preservedAuthority": {
+  "historicalEvidence": [
+   "docs/evidence/increment3-final.md",
+   "evaluation/results/20260918T175824Z-26eb639a/summary.json",
+   "evaluation/results/20260918T175824Z-26eb639a/capabilities.json",
+   "evaluation/results/20260918T175824Z-26eb639a/lineage.json"
+  ],
+  "historicalEvidenceDisposition": "SUPERSEDED_NON_PROMOTABLE_FOR_PADDLE_AUTHORITY_ONLY",
+  "unrelatedLeaves": [
+   "Docling",
+   "GLiNER",
+   "MiniLM",
+   "Shared contract"
+  ]
+ },
+ "providerRequalification": {
+  "catalogPreserved": "capabilities.json byte-identical to the frozen Increment-3 provider authority; default-profile worker pins still resolve",
+  "priorSuccessorRunId": "20260920T213604Z-a5f2c729",
+  "providerChanges": [
+   "implementation epoch: scheduler/tenant-fair dispatch, retry/fallback contract, language resolution, office projection authority, hostile-input limits landed before the verification epoch"
+  ],
+  "reason": "Increment 4A/5/6 implementation epoch changed provider/runtime source (scheduler, routing, limits, office projection) after the 20260920T213604Z-a5f2c729 successor run; the measured Increment-3 lane was requalified against the final post-implementation source before the verification epoch freeze.",
+  "sourceState": {
+   "evaluationImplementationFingerprint": "3155819f54c00a4dec89be267a1d9c1e3e681b2e3c14ef2ed2097f9232f00532",
+   "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac"
+  },
+  "successorCapabilitiesFingerprint": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+  "successorRunId": "20260922T001622Z-26884d8e",
+  "successorStatus": "PASS"
+ },
+ "reconciliationReason": "The provisioned Nepali Paddle material was the shared Devanagari model, while the prior authority recorded PP-OCRv5-ne.",
+ "schemaVersion": "document-intelligence.increment3.authority-reconciliation.v1",
+ "status": "RECONCILED"
+}

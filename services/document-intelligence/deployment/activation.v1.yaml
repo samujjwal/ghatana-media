@@ -1,0 +1,78 @@
+# document-intelligence.activation-plan.v1 (I6-41)
+#
+# Progressive activation plan. Traffic expands only when the promotion
+# criteria (deployment gate ids from deployment-gates.v1.yaml) hold; crossing
+# any rollbackTrigger threshold reverts authority to an earlier qualified
+# revision — never an improvised state.
+schemaVersion: document-intelligence.activation-plan.v1
+increment: increment6
+profile: increment6
+
+stages:
+  - stage: CANARY
+    trafficFraction: 0.05
+    promotionCriteria:
+      - buildReproducible
+      - sbomClean
+      - vulnerabilityPolicyPass
+      - capabilityAdmissionConsistent
+      - rollbackPlanPresent
+    rollbackTrigger:
+      errorRateFraction: 0.01        # >1% failed requests at canary traffic
+      p95LatencyMs: 8000             # sustained p95 above envelope
+      admissionViolations: 0         # any DENIED capability served -> rollback
+      crashCount: 1                  # any unrecovered worker crash
+  - stage: EXPAND
+    trafficFraction: 0.25
+    promotionCriteria:
+      - buildReproducible
+      - sbomClean
+      - vulnerabilityPolicyPass
+      - capabilityAdmissionConsistent
+      - campaignEvidenceComplete
+      - rollbackPlanPresent
+    rollbackTrigger:
+      errorRateFraction: 0.01
+      p95LatencyMs: 8000
+      admissionViolations: 0
+      crashCount: 1
+  - stage: HALF
+    trafficFraction: 0.50
+    promotionCriteria:
+      - buildReproducible
+      - sbomClean
+      - vulnerabilityPolicyPass
+      - capabilityAdmissionConsistent
+      - campaignEvidenceComplete
+      - rollbackPlanPresent
+    rollbackTrigger:
+      errorRateFraction: 0.005
+      p95LatencyMs: 6000
+      admissionViolations: 0
+      crashCount: 1
+  - stage: FULL
+    trafficFraction: 1.00
+    promotionCriteria:
+      - buildReproducible
+      - sbomClean
+      - vulnerabilityPolicyPass
+      - capabilityAdmissionConsistent
+      - campaignEvidenceComplete
+      - rollbackPlanPresent
+    rollbackTrigger:
+      errorRateFraction: 0.005
+      p95LatencyMs: 6000
+      admissionViolations: 0
+      crashCount: 2
+
+rollbackPlan:
+  # Rollback is authority reselection: the deployment reverts to the most
+  # recent earlier qualified authority revision (increment4a frozen profile),
+  # never to hand-edited state.
+  authorityRevisions: reselect-earlier-qualified-revision
+  preserveEvidence: true             # rollback never deletes campaign evidence or receipts
+  steps:
+    - halt traffic expansion at the current stage
+    - reselect the earlier qualified authority revision (increment4a profile)
+    - re-pin model/native assets to that revision's bundle manifest
+    - record the rollback event + triggering metrics as release evidence

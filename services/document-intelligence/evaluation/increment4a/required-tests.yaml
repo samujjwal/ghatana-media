@@ -1,0 +1,150 @@
+schemaVersion: increment4a.required-tests.v1
+pytest:
+  hybridPdfDigitalRegression:
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_native_page_uses_docling_only
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_native_table_fixture_keeps_primary_only
+  hybridPdfScanned:
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-002-en-scanned]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-003-ne-पाठ]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-004-hi-पाठ]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-005-mr-मजकूर]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_noisy_rotated_scan_still_routes_ocr
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_table_fixture_extracts_text
+  pdfRegionFallbackReal:
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-002-en]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-003-ne]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-004-hi]
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-005-mr]
+  hybridPdfMixed:
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_mixed_multipage_preserves_page_order_and_both_lanes
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_mixed_page_recovers_text_from_image_region
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_blank_native_scanned_document
+  hybridPdfDedup:
+  - tests/integration/test_hybrid_pdf_real.py::test_hybrid_deduplicates_native_overlapping_ocr
+  docxReal:
+  - tests/integration/test_office_parsers_real.py::test_rendered_docx_real[en]
+  - tests/integration/test_office_parsers_real.py::test_rendered_docx_real[ne]
+  - tests/integration/test_office_parsers_real.py::test_rendered_docx_real[hi]
+  - tests/integration/test_office_parsers_real.py::test_rendered_docx_real[mr]
+  - tests/integration/test_office_parsers_real.py::test_rendered_docx_merged_table_fixture_real
+  - tests/integration/test_docx_real.py::test_ooxml_docx_reader_preserves_text_merges_and_layout
+  pptxReal:
+  - tests/integration/test_office_parsers_real.py::test_docling_pptx_real[en]
+  - tests/integration/test_office_parsers_real.py::test_docling_pptx_real[ne]
+  - tests/integration/test_office_parsers_real.py::test_docling_pptx_real[hi]
+  - tests/integration/test_office_parsers_real.py::test_docling_pptx_real[mr]
+  - tests/integration/test_pptx_real.py::test_ooxml_pptx_reader_uses_slide_geometry_and_excludes_notes
+  xlsxReal:
+  - tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[en]
+  - tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[ne]
+  - tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[hi]
+  - tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[mr]
+  - tests/integration/test_xlsx_real.py::test_ooxml_xlsx_reader_preserves_sparse_cells_merges_and_geometry
+  paddleEnReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[en]
+  paddleNeReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[ne]
+  paddleHiReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[hi]
+  - tests/integration/test_language_provider_qualification.py::test_real_paddle_language_lane_measures_cer[hi]
+  - tests/providers/test_paddle_qualification.py::test_paddle_hi_real
+  paddleMrReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[mr]
+  - tests/integration/test_language_provider_qualification.py::test_real_paddle_language_lane_measures_cer[mr]
+  - tests/providers/test_paddle_qualification.py::test_paddle_mr_real
+  glinerHiReal:
+  - tests/integration/test_language_provider_qualification.py::test_real_gliner_hi_mr_lane_records_metrics_without_promoting_failures
+  glinerMrReal:
+  - tests/integration/test_language_provider_qualification.py::test_real_gliner_hi_mr_lane_records_metrics_without_promoting_failures
+  tesseractEnReal:
+  - tests/integration/test_tesseract_real.py::test_tesseract_en_real
+  tesseractNeReal:
+  - tests/integration/test_tesseract_real.py::test_tesseract_ne_real
+  tesseractHiReal:
+  - tests/integration/test_tesseract_real.py::test_tesseract_hi_real
+  tesseractMrReal:
+  - tests/integration/test_tesseract_real.py::test_tesseract_mr_real
+  fallbackEnReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[en]
+  fallbackNeReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[ne]
+  fallbackHiReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[hi]
+  fallbackMrReal:
+  - tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[mr]
+  fallbackEligibility:
+  - tests/integration/test_resilient_fallback_real.py::test_retryable_error_falls_back_to_next_provider
+  - tests/integration/test_resilient_fallback_real.py::test_terminal_error_never_reaches_next_provider
+  - tests/integration/test_resilient_fallback_real.py::test_timeout_is_terminal_and_never_falls_back
+  fallbackDeadline:
+  - tests/integration/test_resilient_fallback_real.py::test_remaining_budget_below_minimum_blocks_fallback
+  - tests/integration/test_resilient_fallback_real.py::test_zero_budget_blocks_all_attempts
+  fallbackCancellation:
+  - tests/integration/test_resilient_fallback_real.py::test_cancellation_propagates_without_fallback
+  fallbackCycleSafety:
+  - tests/integration/test_resilient_fallback_real.py::test_route_cycle_is_rejected
+  fallbackLineage:
+  - tests/integration/test_resilient_fallback_real.py::test_fallback_lineage_records_ordered_attempts
+  - tests/integration/test_resilient_fallback_real.py::test_resilient_routing_loads_worker_authority
+  officeSecurity:
+  - tests/adversarial/test_ooxml_security.py
+  - tests/adversarial/test_xlsx_limits.py
+  - tests/runtime/test_ooxml_preflight.py
+  pdfSecurity:
+  - tests/adversarial/test_provider_output_attacks.py
+  - tests/adversarial/test_fail_closed.py
+  - tests/adversarial/test_fail_closed_transport.py
+  diagnosticSafety:
+  - tests/adversarial/test_resource_and_unicode.py
+  - tests/runtime/test_logging.py
+  cleanup:
+  - tests/runtime/test_temporary_files.py
+  - tests/runtime/test_shutdown.py
+  offlineRuntime:
+  - tests/integration/test_offline_runtime.py::test_providers_execute_with_outbound_network_disabled
+  transitiveRuntimeDependencies:
+  - tests/runtime/test_runtime_dependencies.py
+  runtimeDependencyReadiness:
+  - tests/runtime/test_runtime_dependencies.py
+  - tests/integration/test_promoted_runtime_real.py::test_increment4a_missing_fallback_dependency_is_not_ready
+  internalFallbackDependencyReady:
+  - tests/integration/test_promoted_runtime_real.py::test_increment4a_missing_fallback_dependency_is_not_ready
+  - tests/integration/test_promoted_runtime_real.py::test_increment4a_profile_admits_cumulative_authority_real
+  profileAuthorityReadiness:
+  - tests/runtime/test_app_authority.py
+  - tests/integration/test_promoted_runtime_real.py::test_increment4a_profile_admits_cumulative_authority_real
+  legacyOperationAdmission:
+  - tests/runtime/test_capability_admission.py
+  runtimeAssetProjection:
+  - tests/runtime/test_runtime_assets.py
+  officeRendererAssetPinning:
+  - tests/providers/test_office_renderer_fonts.py
+  runtimeOperationGeneration:
+  - tests/contract/test_protocol_v1.py
+  - tests/runtime/test_operations.py
+  - tests/runtime/test_operation_api.py
+  runtimeProviderDrain:
+  - tests/runtime/test_provider_executor.py::test_task_cancellation_retains_native_future_and_lane_until_completion
+  - tests/runtime/test_concurrency.py::test_lane_remains_occupied_until_cancelled_native_work_finishes
+  - tests/runtime/test_concurrency.py::test_cancelled_native_work_flood_never_exceeds_configured_concurrency
+  qualificationEvaluation:
+  - tests/evaluation/test_increment4a_evaluation.py
+  qualificationVerifierAndPromotion:
+  - tests/evaluation/test_increment4a_verifier.py
+  verificationReceiptFreshness:
+  - tests/evaluation/test_verification_receipts.py
+  modelAuthorityRegression:
+  - tests/evaluation/test_model_authority.py
+vitest:
+  sharedHelperConformance:
+    tests/engine-conformance.test.ts: []
+    tests/shared-provider-conformance.test.ts: []
+    tests/shared-contract-lock.test.ts: []
+  publicParserSelection:
+    tests/policy-selection.test.ts: []
+    tests/resilient-adapter.test.ts: []
+    tests/increment4a-conformance.test.ts: []
+  liveEngineConformance:
+    tests/increment4a-engine.integration.test.ts: []
+  runtimeOperationGeneration:
+    tests/client.test.ts: []

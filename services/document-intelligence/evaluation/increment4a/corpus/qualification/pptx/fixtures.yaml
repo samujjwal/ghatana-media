@@ -1,0 +1,17 @@
+schemaVersion: increment4a.office-qualification-fixtures.v1
+provider: office-pptx
+reviewed: true
+fixtureConstruction:
+  provenance: independently-authored-native-ooxml-package
+  generatedProviderGroundTruth: false
+  referenceStatus: independently-reviewed-text-slide-geometry-and-note-exclusion
+fixtures:
+  - fixtureId: ne-table-with-notes
+    file: ne-table-with-notes.pptx
+    mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+    language: ne
+    pages: 1
+    expectedText: "बीजक नम्बर १००१ कुल १२५०"
+    excludedText: "DO NOT EMIT THIS SPEAKER NOTE"
+    expectedTables: [{rows: 2, columns: 2}]
+    structuralCases: [slide-extents, table-cells, speaker-notes-excluded]

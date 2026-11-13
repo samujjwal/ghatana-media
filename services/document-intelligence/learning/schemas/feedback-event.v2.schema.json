@@ -1,0 +1,469 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/feedback-event.v2",
+  "title": "Learning Feedback Event v2",
+  "description": "Immutable projection of a governed review/correction decision into learning input. v2 is additive over v1: it adds optional tenant/ownership metadata (tenantRef, organizationId, ownership.ownerRef/storageProfileRef/learningScopeRef) so dataset builders can assert the declared tenant scope (I5-34/I5-36). Once published an event is never mutated \u2014 eligibility changes are expressed by tombstones, not edits.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "projectionVersion",
+    "projectedAt",
+    "source",
+    "review",
+    "authority",
+    "privacy",
+    "eligibility",
+    "eventFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "document-intelligence.feedback-event.v2"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Deterministic event identity derived from the canonical event content excluding eventFingerprint."
+    },
+    "projectionVersion": {
+      "type": "string",
+      "description": "Version of the projector implementation semantics that produced this event."
+    },
+    "projectedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executionId",
+        "resultRef",
+        "reviewRef"
+      ],
+      "properties": {
+        "executionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resultRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "executionId",
+            "revision",
+            "contentDigest"
+          ],
+          "properties": {
+            "executionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "contentDigest": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "reviewRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reviewId",
+            "executionId"
+          ],
+          "properties": {
+            "reviewId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "executionId": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "sourceContentFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Digest of the governed source content version that was extracted. Never the content itself."
+        },
+        "nearDuplicateFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Optional governed similarity-family digest; never source text."
+        },
+        "contentSimilarityFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Optional normalized-content family digest used for leakage checks."
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "terminalAction",
+        "reviewReasons",
+        "reviewRevision",
+        "correctionRevision",
+        "correctionSetFingerprint",
+        "corrections",
+        "finalizedAt"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "COMPLETED",
+            "SUPERSEDED",
+            "REJECTED"
+          ]
+        },
+        "terminalAction": {
+          "enum": [
+            "ACCEPT",
+            "REPROCESS",
+            "REJECT"
+          ]
+        },
+        "reviewReasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "correctionRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "correctionSetFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "corrections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "correctionId",
+              "target",
+              "correctedValue"
+            ],
+            "properties": {
+              "correctionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "target": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "fieldId"
+                ],
+                "properties": {
+                  "fieldId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "occurrence": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "valuePath": {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "string",
+                        "integer"
+                      ]
+                    }
+                  }
+                }
+              },
+              "priorSelectedValue": {
+                "description": "Minimized prior value per privacy policy."
+              },
+              "correctedValue": {
+                "description": "Minimized corrected value per privacy policy."
+              },
+              "reasonRef": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "reprocessLineage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "handoffId",
+            "parentExecutionId"
+          ],
+          "properties": {
+            "handoffId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parentExecutionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "childExecutionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "childOutcome": {
+              "enum": [
+                "COMPLETED",
+                "FAILED",
+                "CANCELLED",
+                "REJECTED"
+              ]
+            }
+          }
+        },
+        "finalizedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewerAuthority": { "$ref": "#/$defs/reviewerAuthority" },
+        "conflictResolution": { "$ref": "#/$defs/conflictResolution" },
+        "poisoningAssessment": { "$ref": "#/$defs/poisoningAssessment" }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaRef",
+        "schemaFingerprint",
+        "templateCatalogFingerprint",
+        "routingPolicyFingerprint",
+        "materialFingerprint",
+        "providerCatalogFingerprint",
+        "modelManifestFingerprint"
+      ],
+      "properties": {
+        "schemaRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schemaId",
+            "version"
+          ],
+          "properties": {
+            "schemaId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "schemaFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "templateCatalogFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "selectedTemplateRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "templateId",
+            "version"
+          ],
+          "properties": {
+            "templateId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "normalizerVersion": {
+          "type": "string"
+        },
+        "routingPolicyFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "materialFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "providerCatalogFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "modelManifestFingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "languageHint": {
+          "type": "string"
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pseudonymScheme",
+        "minimized"
+      ],
+      "properties": {
+        "pseudonymScheme": {
+          "type": "string",
+          "description": "Identifier of the stable pseudonymization scheme applied to actor and subject references."
+        },
+        "minimized": {
+          "const": true,
+          "description": "Asserted by the projector: event carries only the minimum necessary spans."
+        },
+        "actorPseudonym": {
+          "type": "string"
+        },
+        "subjectPseudonym": {
+          "type": "string"
+        }
+      }
+    },
+    "eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "policyRef"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "PENDING",
+            "ACCEPTED",
+            "EXCLUDED",
+            "REDACTED",
+            "REVOKED",
+            "EXPIRED",
+            "QUARANTINED"
+          ]
+        },
+        "policyRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reasonCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "eventFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 over the canonical JSON of this event excluding eventFingerprint."
+    },
+    "tenantRef": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Tenant partition identity asserted by the projector (I5-36)."
+    },
+    "organizationId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Owning organization identity from the product projection; tenantRef is the canonical partition key."
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownerRef"
+      ],
+      "description": "Extraction ownership context carried from the product projection.",
+      "properties": {
+        "ownerRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storageProfileRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "learningScopeRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organizationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tenantRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "reviewerAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewerRef", "authorizationClass", "authorizationRef"],
+      "properties": {
+        "reviewerRef": { "type": "string", "minLength": 1 },
+        "authorizationClass": { "type": "string", "minLength": 1 },
+        "authorizationRef": { "type": "string", "minLength": 1 },
+        "authorityRank": { "type": "number" },
+        "reviewRevision": { "type": "integer", "minimum": 0 },
+        "correctionRevision": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "conflictResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCode"],
+      "properties": {
+        "state": { "enum": ["RESOLVED", "QUARANTINED"] },
+        "reasonCode": { "type": "string", "minLength": 1 },
+        "selectedReviewRef": { "type": "string", "minLength": 1 },
+        "authorityRank": { "type": "number" },
+        "reviewerFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "poisoningAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes"],
+      "properties": {
+        "state": { "enum": ["CLEAR", "QUARANTINED"] },
+        "reasonCodes": { "type": "array", "items": { "type": "string" } },
+        "policyRef": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

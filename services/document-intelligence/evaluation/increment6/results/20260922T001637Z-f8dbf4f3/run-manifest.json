@@ -1,0 +1,42 @@
+{
+  "actualPort": "NOT_APPLICABLE_IN_PROCESS_EXECUTION",
+  "artifacts": {
+    "campaign-attestation.json": "sha256:c447d5619aef2f895663b00004cc2b137696933a525ad5d7c109d3131973fdc3",
+    "capabilities.json": "sha256:3d0adfc3c0df0d9a771bdb801ea90f1a20b36a55cbc3dedbe1d8a2a7872f947a",
+    "lineage.json": "sha256:1a000bdb53efb7e049fc6aa892639033e26ea8c2abbd55e58986eabcb72de476",
+    "observations.json": "sha256:4cfd25da7305a9cebcf6efbb46cade735a44bb928ddb9a37429c069c3688f31f",
+    "raw-observations.json": "sha256:20ef42c0fdba098d879d1266a4d6ba1614dd7132c2b6d3d1d6f5952bd39fac18",
+    "summary.json": "sha256:7ea7efd841943e3a6a7a3bd8eb6863fa501dad36e62d791f457a59d28f7f220c"
+  },
+  "fileCount": 6,
+  "manifestFingerprint": "sha256:c4d4b5f1fba5090b58b6ab8a66b1943db9c14ff886be0073f646c6c52c3d0592",
+  "publicationContract": "status COMPLETE is written only after every required artifact digest is recorded; a run directory without a COMPLETE manifest is unpublished and may not feed authority.",
+  "requiredArtifacts": [
+    "summary.json",
+    "capabilities.json",
+    "observations.json",
+    "campaign-attestation.json"
+  ],
+  "run": "20260922T001637Z-f8dbf4f3",
+  "runDir": "evaluation/increment6/results/20260922T001637Z-f8dbf4f3",
+  "schemaVersion": "document-intelligence.run-publication.v1",
+  "sealedAt": "2026-09-22T00:16:39Z",
+  "status": "COMPLETE",
+  "teardownProof": {
+    "dbSessionsClosed": {
+      "reason": "NOT_APPLICABLE_FILE_AUTHORITY: learning and evaluation authority is file-backed; the campaign owns no DB sessions",
+      "status": "NOT_APPLICABLE"
+    },
+    "nativeWorkDrained": {
+      "reason": "no native work queue registered for this run",
+      "status": "NOT_APPLICABLE"
+    },
+    "tempFilesCleaned": {
+      "status": "PASS"
+    },
+    "workerStopped": {
+      "reason": "no worker subprocess or closable resource registered",
+      "status": "NOT_APPLICABLE"
+    }
+  }
+}

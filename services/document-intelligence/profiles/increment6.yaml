@@ -1,0 +1,28 @@
+# document-intelligence.increment6-profile.v1
+#
+# Experimental qualification profile for Increment 6 breadth. This profile is
+# NOT consumer-admissible: it exists so I6 campaigns can exercise new
+# capabilities against frozen authority without implying production admission.
+schemaVersion: document-intelligence.profile.v1
+profile: increment6
+extends: increment4a
+
+admission:
+  consumerAdmission: DENIED   # every I6 surface until its capability is QUALIFIED
+  reason: EXPERIMENTAL_INCREMENT6_QUALIFICATION
+
+providers:
+  # Inherits the increment4a provider set plus the I6 experimental surfaces.
+  scannedPdfClassifier: true   # routing/scanned-pdf.v1.yaml
+  explicitFallbackContract: true  # routing/fallback-contract.v1.yaml
+  hiMrCorpora: true            # evaluation/increment6 corpus lanes
+  complexLayoutCorpus: true
+
+runtime:
+  scheduler: bounded          # runtime/scheduler.py — bounded queue, no unbounded enqueue
+  modelResidency: declared    # runtime/model_residency.py
+  memoryPressure: guarded     # runtime/memory.py
+  drain: graceful             # runtime/drain.py
+  crashRecovery: bounded      # runtime/crash_recovery.py
+  tempSpace: bounded          # runtime/temp_space.py
+  assetVerification: required # runtime/asset_verification.py

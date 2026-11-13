@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "document-intelligence.gate-receipt.v1",
+  "gateId": "campaignEvidenceComplete",
+  "status": "PASS",
+  "evidenceKind": "campaign-attestation",
+  "issuedAt": "2026-09-21T22:42:00Z",
+  "detail": "Increment-6 campaign 20260921T223921Z-48ef0d5e executed: scanned-pdf classification and hybrid-provenance lanes QUALIFIED (8/8 capabilities PASS), scanned-table regression lane held UNSUPPORTED_BY_DESIGN for every fixture; office/hi-mr/complex-layout lanes are honestly NOT_RUN because fixture binaries are DECLARED_NOT_PRESENT. Previously admitted capabilities carry sealed campaign evidence (I3 canonical run 20260919T022904Z-cf9e659f, I4A canonical run 20260921T123710Z-canonical).",
+  "evidence": {
+    "campaignAttestationFingerprint": "sha256:ebb4fc6edfcf9823e7de5ff7a230dd5ba519ea3667ff807920c9ded208e8ae6f",
+    "campaignRunId": "20260921T223921Z-48ef0d5e",
+    "increment3CampaignRunId": "20260919T022904Z-cf9e659f",
+    "increment4aCampaignRunId": "20260921T123710Z-canonical"
+  }
+}

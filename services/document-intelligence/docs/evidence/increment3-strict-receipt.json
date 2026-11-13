@@ -1,0 +1,48 @@
+{
+  "completedAt": "2026-09-22T16:09:10Z",
+  "conformanceFailureStaging": {
+    "failures": [],
+    "schemaVersion": "increment3.conformance-failure-staging.v1",
+    "status": "PASS"
+  },
+  "executedLeaves": {
+    "cancellation": "PASS",
+    "cleanup": "PASS",
+    "diagnosticSafety": "PASS",
+    "docling": "PASS",
+    "glinerEnglish": "PASS",
+    "glinerNepali": "PASS",
+    "minilm": "PASS",
+    "offlineRuntime": "PASS",
+    "paddleEnglish": "PASS",
+    "paddleNepali": "PASS",
+    "pythonTests": "PASS",
+    "sharedEngineConformance": "PASS",
+    "timeouts": "PASS",
+    "typescriptBuild": "PASS",
+    "typescriptTests": "PASS",
+    "workerContract": "PASS"
+  },
+  "inputFingerprints": {
+    "acceptanceFingerprint": "0dd78eb41720a5c0278faec8309b0eae5771fc31508273d99839e7d4ea9ad4c9",
+    "corpusFingerprint": "0eeb0efb1fafb435a3cf5beffb5d78d27180d5dec1df6cca939191447a9c26be",
+    "environmentFingerprint": "d6cac6eaff3fcd8c473354332a52f0da53cf1b57d182c00bf8613158c2a996e9",
+    "evaluationImplementationFingerprint": "3155819f54c00a4dec89be267a1d9c1e3e681b2e3c14ef2ed2097f9232f00532",
+    "manifestFingerprint": "0be76defc0ab7c95f69a17b5478a8d6f87e471f67ac40961a4b7d7ae29cdd906",
+    "modelManifestFingerprint": "df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4",
+    "nodeVersion": "v22.23.2",
+    "pnpmVersion": "10.33.0",
+    "profileId": "default",
+    "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+    "pytestVersion": "8.4.2",
+    "pythonVersion": "3.12.3",
+    "sharedContractLockSha256": "2c88b84977540555599c0f46acf0841cb8368b60bb40ef618d92b41ce2844e80",
+    "sharedContractSnapshotSha256": "150e4d6d3b1f454b9ceedd226ec71ab3396a29733bfaba82b8b2903680df179b",
+    "testSpecFingerprint": "48e4a925f6a3cb7f8dc2d52d84dd5c4ee71f9ac5abae476d93558ed888424379",
+    "uvLockSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+    "workerClientFingerprint": "8aad79d532988dbf59040dcdb398a8c613dfa71496f462b7266d930be1eef2cb"
+  },
+  "runId": "20260922T160910Z",
+  "schemaVersion": "increment3.strict-receipt.v1",
+  "status": "PASS"
+}

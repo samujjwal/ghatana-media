@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/template-candidate.v1",
+  "title": "Template Candidate v1",
+  "description": "Proposed template discovery output: new template, merge, split, or alias change. All output remains CANDIDATE until governed promotion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "kind",
+    "state",
+    "operation",
+    "proposal",
+    "provenance",
+    "candidateFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.template-candidate.v1" },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "kind": { "const": "TEMPLATE_DISCOVERY" },
+    "state": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"] },
+    "operation": { "enum": ["NEW_TEMPLATE", "MERGE", "SPLIT", "ALIAS_CHANGE"] },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["documentClass"],
+      "properties": {
+        "documentClass": { "type": "string", "minLength": 1 },
+        "structureDescriptorFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "fieldAliases": { "type": "object", "additionalProperties": { "type": "string" } },
+        "mergeSources": { "type": "array", "items": { "type": "string" } },
+        "splitSource": { "type": "string" },
+        "aliasChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fieldId", "alias"],
+            "properties": {
+              "fieldId": { "type": "string" },
+              "alias": { "type": "string" },
+              "action": { "enum": ["ADD", "REMOVE"] }
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supportingFeedbackEventIds", "embeddingModelIdentity", "structureDescriptorFingerprints"],
+      "properties": {
+        "supportingFeedbackEventIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "embeddingModelIdentity": { "type": "string", "minLength": 1 },
+        "structureDescriptorFingerprints": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "datasetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "matchRateDelta": { "type": "number" },
+        "ambiguityDelta": { "type": "number" },
+        "evaluationSetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "candidateFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

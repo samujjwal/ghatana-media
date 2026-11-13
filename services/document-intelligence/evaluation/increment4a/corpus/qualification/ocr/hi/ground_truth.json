@@ -1,0 +1,38 @@
+{
+  "OCR-HI-CLEAN": {
+    "expectedText": "भारत सरकार ने २०२४ में नई शिक्षा नीति लागू की। सभी क्षेत्रीय कार्यालयों को सूचना भेजी गई।",
+    "file": "hi-clean.png",
+    "language": "hi",
+    "variant": "clean"
+  },
+  "OCR-HI-DENSE": {
+    "expectedText": "इस घने अनुच्छेद में कई छोटी पंक्तियाँ हैं। प्रत्येक पंक्ति छोटे आकार में छपी है। घना पाठ OCR पंक्ति पृथक्करण की जाँच करता है। अंतिम पंक्ति घना नमूना पूरा करती है।",
+    "file": "hi-dense.png",
+    "language": "hi",
+    "variant": "dense"
+  },
+  "OCR-HI-MIXED": {
+    "expectedText": "चालान INV-2024-0042 कुल १२५०.५० रुपये। रिपोर्ट तिथि: 2024-01-15, संदर्भ DOC-77.",
+    "file": "hi-mixed.png",
+    "language": "hi",
+    "variant": "mixed"
+  },
+  "OCR-HI-NOISY": {
+    "expectedText": "इस घने अनुच्छेद में कई छोटी पंक्तियाँ हैं। प्रत्येक पंक्ति छोटे आकार में छपी है। घना पाठ OCR पंक्ति पृथक्करण की जाँच करता है। अंतिम पंक्ति घना नमूना पूरा करती है।",
+    "file": "hi-noisy.png",
+    "language": "hi",
+    "variant": "noisy"
+  },
+  "OCR-HI-NUMBERS": {
+    "expectedText": "पहचान ९८४१००१२३४ तिथि १५-०१-२०२४ राशि ९९९.७५। बैच ४२ कुल १००, अंक ९८.५ प्रतिशत।",
+    "file": "hi-numbers.png",
+    "language": "hi",
+    "variant": "numbers"
+  },
+  "OCR-HI-ROTATED": {
+    "expectedText": "इस घने अनुच्छेद में कई छोटी पंक्तियाँ हैं। प्रत्येक पंक्ति छोटे आकार में छपी है। घना पाठ OCR पंक्ति पृथक्करण की जाँच करता है। अंतिम पंक्ति घना नमूना पूरा करती है।",
+    "file": "hi-rotated.png",
+    "language": "hi",
+    "variant": "rotated"
+  }
+}

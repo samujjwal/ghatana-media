@@ -1,0 +1,43 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.046086791881787936,
+            "width": 0.8097627384693743,
+            "x": 0.1209523790325019,
+            "y": 0.15489176849511654
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.046086791881787936,
+                "width": 0.8097627384693743,
+                "x": 0.1209523790325019,
+                "y": 0.15489176849511654
+              },
+              "lineId": "p1-b1-l1",
+              "text": "This native page contains a clean paragraph of English text used for hybrid qualification."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"NATIVE\",\"textCharacters\":91,\"imageRegions\":0}]"
+    ]
+  }
+}

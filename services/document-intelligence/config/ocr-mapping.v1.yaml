@@ -1,0 +1,124 @@
+schemaVersion: document-intelligence.ocr-mapping.v1
+producerVersion: document-intelligence-ocr-mapping/1
+# The Increment-6 implementation-material registry remains the native source
+# for the material families; this file is the single semantic relationship
+# authority projected into profiles, proofs, invalidation, and diagnostics.
+canonicalSource: evaluation/increment6/implementation-material.yaml
+projectionTargets:
+  profileMaterial: config/generated/ocr-profile-material.v1.json
+  proofInputs: config/generated/ocr-proof-inputs.v1.json
+  invalidationGraph: config/generated/ocr-invalidation-graph.v1.json
+  diagnostics: config/generated/ocr-diagnostics.v1.json
+mappings:
+  - mappingId: provider.docling
+    producerAuthority: ghatana.docling
+    semanticClass: parsed_document
+    sourceSelectors:
+      - src/document_intelligence/providers/docling_parser.py
+      - src/document_intelligence/mapping/
+    runtimeInputs:
+      - inputId: offline-policy
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_OFFLINE
+        required: true
+      - inputId: model-cache
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_MODEL_CACHE
+        required: true
+      - inputId: model-manifest
+        kind: model_asset
+        path: models/model-manifest.yaml
+        required: true
+      - inputId: python-runtime
+        kind: native_dependency
+        name: python
+        required: true
+    affectedProofClasses: [provider_execution, mapping_projection, profile_material]
+  - mappingId: provider.paddleocr
+    producerAuthority: ghatana.paddleocr
+    semanticClass: ocr_text
+    sourceSelectors:
+      - src/document_intelligence/providers/paddle_ocr_parser.py
+      - src/document_intelligence/runtime/model_registry.py
+    runtimeInputs:
+      - inputId: offline-policy
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_OFFLINE
+        required: true
+      - inputId: model-cache
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_MODEL_CACHE
+        required: true
+      - inputId: model-manifest
+        kind: model_asset
+        path: models/model-manifest.yaml
+        required: true
+      - inputId: python-runtime
+        kind: native_dependency
+        name: python
+        required: true
+    affectedProofClasses: [provider_execution, mapping_projection, profile_material]
+  - mappingId: provider.gliner
+    producerAuthority: ghatana.gliner
+    semanticClass: extraction_candidates
+    sourceSelectors:
+      - src/document_intelligence/providers/gliner_extractor.py
+      - src/document_intelligence/mapping/candidates.py
+    runtimeInputs:
+      - inputId: offline-policy
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_OFFLINE
+        required: true
+      - inputId: model-cache
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_MODEL_CACHE
+        required: true
+      - inputId: model-manifest
+        kind: model_asset
+        path: models/model-manifest.yaml
+        required: true
+      - inputId: python-runtime
+        kind: native_dependency
+        name: python
+        required: true
+    affectedProofClasses: [provider_execution, mapping_projection, profile_material]
+  - mappingId: provider.minilm
+    producerAuthority: ghatana.minilm
+    semanticClass: embeddings
+    sourceSelectors:
+      - src/document_intelligence/providers/minilm_embedder.py
+      - src/document_intelligence/mapping/embeddings.py
+    runtimeInputs:
+      - inputId: offline-policy
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_OFFLINE
+        required: true
+      - inputId: model-cache
+        kind: environment
+        name: DOCUMENT_INTELLIGENCE_MODEL_CACHE
+        required: true
+      - inputId: model-manifest
+        kind: model_asset
+        path: models/model-manifest.yaml
+        required: true
+      - inputId: python-runtime
+        kind: native_dependency
+        name: python
+        required: true
+    affectedProofClasses: [provider_execution, mapping_projection, profile_material]
+  - mappingId: runtime.native-process-boundary
+    producerAuthority: ghatana.provider-runtime
+    semanticClass: bounded_native_execution
+    sourceSelectors:
+      - src/document_intelligence/runtime/subprocess_runner.py
+      - src/document_intelligence/runtime/cancellation.py
+    runtimeInputs:
+      - inputId: path-policy
+        kind: environment
+        name: PATH
+        required: true
+      - inputId: tesseract-binary
+        kind: native_dependency
+        name: tesseract
+        required: false
+    affectedProofClasses: [focused_conformance, runtime_safety]

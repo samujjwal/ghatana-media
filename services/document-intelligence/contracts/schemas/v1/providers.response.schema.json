@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/providers.response.schema.json",
+  "title": "GET /v1/providers response (document-intelligence.v1)",
+  "description": "Provider catalog emitted by GET /v1/providers. Strict-subset grammar: unknown top-level or per-entry keys fail closed. `workerCapabilityVersion` is the only declared additive extension key (see contracts/protocol-extensions.v1.md); when absent the consumer treats the worker as 'document-intelligence.v1-legacy'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "providers"],
+  "properties": {
+    "protocolVersion": { "const": "document-intelligence.v1" },
+    "workerCapabilityVersion": {
+      "type": "string",
+      "description": "Optional additive extension (PROTO-03 registry). Consumers validate it against their supported set; absence denotes the legacy pre-capability worker."
+    },
+    "providers": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/catalogEntry" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "modelRef": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}(/[A-Za-z0-9][A-Za-z0-9_.:-]{0,127})?$"
+    },
+    "catalogEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerRef", "providerVersion", "promotionStatus", "loaded", "ready"],
+      "dependentRequired": {
+        "modelRef": ["modelVersion"],
+        "modelVersion": ["modelRef"]
+      },
+      "properties": {
+        "providerRef": { "$ref": "#/$defs/identifier" },
+        "providerVersion": { "$ref": "#/$defs/identifier" },
+        "modelRef": { "$ref": "#/$defs/modelRef" },
+        "modelVersion": { "$ref": "#/$defs/identifier" },
+        "mediaTypes": { "type": "array", "items": { "type": "string" } },
+        "supportedLanguages": { "type": "array", "items": { "type": "string" } },
+        "supportedValueTypes": { "type": "array", "items": { "type": "string" } },
+        "capabilityIds": { "type": "array", "items": { "type": "string" } },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "languageModelIdentities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["language", "modelRef", "modelVersion"],
+            "properties": {
+              "language": { "type": "string", "pattern": "^[a-z]{2,3}$" },
+              "modelRef": { "$ref": "#/$defs/modelRef" },
+              "modelVersion": { "$ref": "#/$defs/identifier" }
+            }
+          }
+        },
+        "maxDimensions": { "type": "integer", "minimum": 1 },
+        "supportsTables": { "type": "boolean" },
+        "supportsCoordinates": { "type": "boolean" },
+        "supportsLanguages": { "type": "boolean" },
+        "supportsConfidenceScores": { "type": "boolean" },
+        "supportsMultipleCardinality": { "type": "boolean" },
+        "promotionStatus": { "enum": ["ACCEPTED", "UNPROMOTED"] },
+        "loaded": { "type": "boolean" },
+        "ready": { "type": "boolean" }
+      }
+    }
+  }
+}

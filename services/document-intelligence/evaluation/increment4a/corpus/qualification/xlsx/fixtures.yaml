@@ -1,0 +1,16 @@
+schemaVersion: increment4a.office-qualification-fixtures.v1
+provider: office-xlsx
+reviewed: true
+fixtureConstruction:
+  provenance: independently-authored-native-ooxml-package
+  generatedProviderGroundTruth: false
+  referenceStatus: independently-reviewed-cell-coordinate-and-grid-geometry
+fixtures:
+  - fixtureId: hi-sparse-merged
+    file: hi-sparse-merged.xlsx
+    mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    language: hi
+    pages: 1
+    expectedText: "चालान संख्या १००१ कुल चालू १२५०"
+    expectedTables: [{rows: 5, columns: 4}]
+    structuralCases: [sparse-cells, horizontal-merge, row-column-geometry, cached-formula-value]

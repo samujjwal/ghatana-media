@@ -1,0 +1,15 @@
+{
+  "id": "parse-png-ne-valid",
+  "endpoint": "parse",
+  "description": "Canonical I3 parse envelope: Nepali PNG routed to paddleocr, no caller generation (server mints one).",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-ne-1",
+    "providerRef": "ghatana.paddleocr",
+    "mediaType": "image/png",
+    "languageHint": "ne",
+    "timeoutMs": 60000,
+    "limits": { "maxPages": 10 }
+  },
+  "expected": { "accepted": true }
+}

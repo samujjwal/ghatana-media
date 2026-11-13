@@ -1,0 +1,68 @@
+# document-intelligence.fallback-contract.v1
+#
+# Explicit provider-fallback contract (I6-16, I6-17). A fallback is only
+# admissible when:
+#   - the (from,to) pair is declared below,
+#   - the triggering condition matches a declared trigger,
+#   - the fallback observation records reasonCode + providerProvenance.
+# Anything else is silent fallback and must be rejected.
+schemaVersion: document-intelligence.fallback-contract.v1
+
+rules:
+  implicitFallback: REJECT        # undeclared (from,to) pairs are never allowed
+  requireProvenance: true
+  requireReasonCode: true
+
+# I6-57: same-provider retry is NOT a fallback.  A retry re-invokes the same
+# providerRef under the parser-routing `retry:` policy; it consumes no route
+# position, requires no declared (from,to) chain below, and is not admitted
+# by this contract.  Cross-provider hops remain contract-enforced.
+retry:
+  semantics: SAME_PROVIDER
+  deadline: shared        # retry and fallback both spend the original request deadline; it is never reset
+  contractAdmission: NOT_REQUIRED
+
+chains:
+  - id: image-ocr-resilience
+    from: ghatana.paddleocr
+    to: ghatana.resilient-parser.tesseract
+    mediaTypes: [image/png, image/jpeg]
+    triggers:
+      - PROVIDER_TIMEOUT
+      - PROVIDER_CRASH
+      - LOW_TEXT_COVERAGE
+    record: [reasonCode, fromProviderRef, toProviderRef, sourceRegionRefs]
+    capabilities:
+      - fallback.image.paddle-to-tesseract.en
+      - fallback.image.paddle-to-tesseract.ne
+      - fallback.image.paddle-to-tesseract.hi
+      - fallback.image.paddle-to-tesseract.mr
+
+  - id: pdf-region-ocr
+    from: ghatana.docling
+    to: ghatana.resilient-parser.tesseract
+    mediaTypes: [application/pdf]
+    appliesTo: SCANNED_OR_HYBRID_REGIONS_ONLY
+    triggers:
+      - EMPTY_TEXT_LAYER
+      - LOW_TEXT_COVERAGE
+    record: [reasonCode, fromProviderRef, toProviderRef, sourceRegionRefs]
+    capabilities:
+      - fallback.pdf-ocr-region.paddle-to-tesseract.en
+      - fallback.pdf-ocr-region.paddle-to-tesseract.ne
+      - fallback.pdf-ocr-region.paddle-to-tesseract.hi
+      - fallback.pdf-ocr-region.paddle-to-tesseract.mr
+
+  - id: schema-extraction-low-confidence
+    from: ghatana.gliner
+    to: review-queue
+    mediaTypes: [application/pdf, image/png, image/jpeg]
+    triggers:
+      - LOW_CONFIDENCE_FIELD
+      - REQUIRED_FIELD_MISSING
+    record: [reasonCode, fieldIds]
+    note: extraction never silently degrades to a weaker extractor; it escalates to review
+
+prohibited:
+  - id: scanned-table-reconstruction
+    reason: UNSUPPORTED_BY_DESIGN — scanned tables route to review, never reconstructed silently

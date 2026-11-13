@@ -1,0 +1,12 @@
+{
+  "detail": "activation.v1.yaml rollbackPlan declares authority-revision reselection with evidence preservation.",
+  "evidence": {
+    "plan": "deployment/activation.v1.yaml",
+    "planSha256": "sha256:e49dd89d1c22d5251837831f2014b3e759a529f52e488be703fe20cfc2bf4676"
+  },
+  "evidenceKind": "activation-plan",
+  "gateId": "rollbackPlanPresent",
+  "issuedAt": "2026-09-21T22:19:39Z",
+  "schemaVersion": "document-intelligence.gate-receipt.v1",
+  "status": "PASS"
+}

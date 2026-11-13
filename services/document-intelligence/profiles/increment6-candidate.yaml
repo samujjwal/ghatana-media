@@ -1,0 +1,31 @@
+# document-intelligence.increment6-candidate-profile.v1
+#
+# DOCUMENTARY manifest. Semantics are identical to profiles/increment6.yaml;
+# this file exists under the *-candidate naming convention so candidate
+# manifests are distinguishable from runtime-loadable profiles at a glance.
+# aliasOf records the equivalence — keep the two in lockstep.
+schemaVersion: document-intelligence.profile.v1
+profile: increment6-candidate
+aliasOf: increment6
+extends: increment4a
+runtimeLoadable: false
+
+admission:
+  consumerAdmission: DENIED   # every I6 surface until its capability is QUALIFIED
+  reason: EXPERIMENTAL_INCREMENT6_QUALIFICATION
+
+providers:
+  # Inherits the increment4a provider set plus the I6 experimental surfaces.
+  scannedPdfClassifier: true   # routing/scanned-pdf.v1.yaml
+  explicitFallbackContract: true  # routing/fallback-contract.v1.yaml
+  hiMrCorpora: true            # evaluation/increment6 corpus lanes
+  complexLayoutCorpus: true
+
+runtime:
+  scheduler: bounded          # runtime/scheduler.py — bounded queue, no unbounded enqueue
+  modelResidency: declared    # runtime/model_residency.py
+  memoryPressure: guarded     # runtime/memory.py
+  drain: graceful             # runtime/drain.py
+  crashRecovery: bounded      # runtime/crash_recovery.py
+  tempSpace: bounded          # runtime/temp_space.py
+  assetVerification: required # runtime/asset_verification.py

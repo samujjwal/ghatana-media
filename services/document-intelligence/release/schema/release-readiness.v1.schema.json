@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/release-readiness.v1.schema.json",
+  "title": "document-intelligence.release-readiness.v1",
+  "description": "Release-readiness manifest binding gate receipts, capability admission, and deployment fingerprints. manifestFingerprint is computed over the document with the manifestFingerprint field omitted (omitted-field convention, same as run-publication manifests).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "readinessId",
+    "increment",
+    "gates",
+    "capabilityAdmission",
+    "sbomFingerprint",
+    "offlineBundleFingerprint",
+    "operationalEnvelopeFingerprint",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "document-intelligence.release-readiness.v1"
+    },
+    "readinessId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "increment": {
+      "const": "increment6"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": ["READY", "NOT_READY"]
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gateId", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "gateId": {"type": "string", "minLength": 1},
+          "status": {"enum": ["PASS", "FAIL", "NOT_RUN"]},
+          "required": {"type": "boolean"},
+          "receiptFingerprint": {
+            "type": ["string", "null"],
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "receiptPath": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "capabilityAdmission": {
+      "type": "object",
+      "required": ["qualifiedIds", "deniedIds"],
+      "additionalProperties": false,
+      "properties": {
+        "qualifiedIds": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "deniedIds": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "registryCheck": {"enum": ["PASS", "FAIL"]},
+        "registryErrors": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "sbomFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "offlineBundleFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "operationalEnvelopeFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "manifestFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 of canonical JSON of this document with manifestFingerprint omitted"
+    }
+  }
+}

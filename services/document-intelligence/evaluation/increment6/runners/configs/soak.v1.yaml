@@ -1,0 +1,51 @@
+# I6-37: long-duration soak simulation with RSS drift model
+# I6-62: start-vs-end leak baselines for every tracked resource (bounded deltas)
+durationSeconds: 7200
+ratePerSecond: 0.5
+concurrency: 4
+seed: 7
+baseLatencyMs: 120.0
+jitterMs: 40.0
+baseRssBytes: 536870912
+rssGrowthBytesPerSecond: 1024
+leakBaselines:
+  rssBytes:
+    start: 536870912
+    growthPerSecond: 1024
+    ceiling: 8388608
+    unit: bytes
+  fileDescriptors:
+    start: 64
+    growthPerSecond: 0
+    ceiling: 64
+    unit: count
+  tempFiles:
+    start: 0
+    growthPerSecond: 0
+    ceiling: 32
+    unit: count
+  threads:
+    start: 12
+    growthPerSecond: 0
+    ceiling: 8
+    unit: count
+  nativeProcesses:
+    start: 1
+    growthPerSecond: 0
+    ceiling: 0
+    unit: count
+  modelInstances:
+    start: 3
+    growthPerSecond: 0
+    ceiling: 0
+    unit: count
+  queueEntries:
+    start: 0
+    growthPerSecond: 0
+    ceiling: 0
+    unit: count
+  dbHandles:
+    start: 0
+    growthPerSecond: 0
+    ceiling: 0
+    unit: count

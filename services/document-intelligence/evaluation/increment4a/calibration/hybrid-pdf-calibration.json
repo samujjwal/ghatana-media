@@ -1,0 +1,49 @@
+{
+  "classificationConfusionMatrix": {
+    "BLANK": {
+      "BLANK": 1,
+      "MISSING": 0,
+      "MIXED": 0,
+      "NATIVE": 0,
+      "SCANNED": 0
+    },
+    "MIXED": {
+      "BLANK": 0,
+      "MISSING": 0,
+      "MIXED": 2,
+      "NATIVE": 0,
+      "SCANNED": 0
+    },
+    "NATIVE": {
+      "BLANK": 0,
+      "MISSING": 0,
+      "MIXED": 0,
+      "NATIVE": 2,
+      "SCANNED": 0
+    },
+    "SCANNED": {
+      "BLANK": 0,
+      "MISSING": 0,
+      "MIXED": 0,
+      "NATIVE": 0,
+      "SCANNED": 2
+    }
+  },
+  "deduplication": {
+    "deduplicatedTextPresent": true,
+    "duplicateOccurrences": 1,
+    "falseNegativeRate": 0.0,
+    "falsePositiveRate": 0.0
+  },
+  "evidenceSource": "evaluation/increment4a/results/zz-canonical/observations.json",
+  "inputCorpus": "corpus/calibration/hybrid-pdf/fixtures.yaml",
+  "missingFixtures": [],
+  "schemaVersion": "increment4a.hybrid-pdf-calibration.v1",
+  "selectedThresholds": {
+    "bboxOverlap": 0.5,
+    "nativeTextCharacters": 32,
+    "ocrImageAreaFraction": 0.05,
+    "textSimilarity": 0.85
+  },
+  "status": "COMPLETE"
+}

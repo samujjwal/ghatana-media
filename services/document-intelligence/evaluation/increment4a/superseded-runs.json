@@ -1,0 +1,167 @@
+{
+  "runs": [
+    {
+      "reasonCodes": [
+        "REQUIRED_CAPABILITY_CLOSURE_INCOMPLETE",
+        "HI_MR_SCHEMA_GUIDED_EXTRACTION_DEFERRED_TO_FUTURE_RELEASE"
+      ],
+      "runId": "20260919T150600Z-canonical-r2",
+      "state": "SUPERSEDED"
+    },
+    {
+      "reasonCodes": [
+        "HISTORICAL_PROVIDER_SEMANTICS_UNRECORDED",
+        "PROVIDER_OBSERVATIONS_REUSED",
+        "FRESH_PROVIDER_EVIDENCE_RECOLLECTED"
+      ],
+      "runId": "20260920T025152Z-canonical-r5",
+      "state": "SUPERSEDED"
+    },
+    {
+      "reasonCodes": [
+        "OPERATION_GENERATION_SEMANTICS_UPDATED",
+        "FRESH_PROVIDER_EVIDENCE_RECOLLECTED"
+      ],
+      "runId": "20260920T041919Z-canonical-r6",
+      "state": "SUPERSEDED"
+    },
+    {
+      "reasonCodes": [
+        "OPERATION_API_GENERATION_HEADER_CONTRACT",
+        "FRESH_PROVIDER_EVIDENCE_RECOLLECTED"
+      ],
+      "runId": "20260920T053233Z-canonical-r7",
+      "state": "SUPERSEDED"
+    },
+    {
+      "reasonCodes": [
+        "PPTX_NOTE_GROUND_TRUTH_INVALID",
+        "RUNTIME_PROMOTION_NOT_BOUND",
+        "REQUIRED_CAPABILITY_CLOSURE_INCOMPLETE"
+      ],
+      "runId": "zz-canonical",
+      "state": "SUPERSEDED"
+    },
+    {
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "ROUTING_COMMENT_JPEG_DIRECT_ONLY",
+        "OBSERVATIONS_REPROJECTED_FROM_CANONICAL_R8"
+      ],
+      "runId": "20260920T065400Z-canonical-r8",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "9941550d2aed8088b008d1b9fc04f835a086a169539086ac4dffc50b9a11d7fb"
+    },
+    {
+      "evaluationImplementationFingerprint": "197cba9975370e4a12e4d7b38bd479d19de8de96385e9cc45bb341cc45ee0452",
+      "materialFingerprint": "d3a2d6cfbca788301204ee6815a1babab3457924ea6c4e58358e1ddb417f2076",
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "SOURCE_SUMMARY_SHA_BINDING_REQUIRED",
+        "DIRECT_CAMPAIGN_ATTESTATION_REQUIRED",
+        "EVALUATOR_AND_PROMOTION_IMPLEMENTATION_PINNED",
+        "OBSERVATIONS_REPROJECTED_FROM_CANONICAL_R8"
+      ],
+      "runId": "20260920T075500Z-canonical-r9",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "62df677384770c30ad056abe324d67e76d90d4333babd3f3fec8d89657bc0c72"
+    },
+    {
+      "evaluationImplementationFingerprint": "595b78f9ac192cb2b81a817032f2f08f6eb8225340e5d10dea38653df19909a6",
+      "materialFingerprint": "ff6dc36f2deaec2daa0b1673d92ca15710e9f11636af311e1201ca411026c5ed",
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "STRICT_PYTEST_EVALUATOR_MODULE_IMPORT_COLLISION",
+        "EVALUATOR_IMPLEMENTATION_REVISED",
+        "OBSERVATIONS_REPROJECTED_FROM_CANONICAL_R8"
+      ],
+      "runId": "20260920T084700Z-canonical-r10",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "0d296c5e64fccb675802a8a3c37a3b07f9eb4fc18a0182f5958cddb18f780e88"
+    },
+    {
+      "evaluationImplementationFingerprint": "d8518a8d07b234a81f0ebb1f489c5f7d2949ba6a2ba2c3b6903c6f027399b41a",
+      "materialFingerprint": "1860d4d645f5cd62ead94c518303b69d5d3f2c6e14ce640636fcc06274a3b2d4",
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "LIVE_MODEL_RUNTIME_PIN_ALIAS_CORRECTION",
+        "EVALUATOR_IMPLEMENTATION_REVISED",
+        "OBSERVATIONS_REPROJECTED_FROM_CANONICAL_R8"
+      ],
+      "runId": "20260920T090651Z-canonical-r11",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "12013a615ec4268f00b22725c17cdc77fa67d28b53c1fae452c0f9ad8627ed57"
+    },
+    {
+      "evaluationImplementationFingerprint": "5576862ca9160520e7acc47b814f52599706bc2d13c08b862748a0adfabf298a",
+      "materialFingerprint": "dc5b2c475de1965fa50e31297035b2368c717a348025c2a018754c8ddf5492b2",
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "RUNTIME_UV_LOCK_HASH_RECONCILIATION",
+        "OBSERVATIONS_REPROJECTED_FROM_CANONICAL_R8"
+      ],
+      "runId": "20260920T095300Z-canonical-r12",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "ca2d728b91fc98229af0dbaf61fb9f77fb998b84ba9184b039a59550218efb74"
+    },
+    {
+      "evaluationImplementationFingerprint": "3c2f28e670f0a0623eecae5c52524433b92c796b6ac7a6df3dd9ea4912a4a526",
+      "materialFingerprint": "e131b9be9f832f0ec6180b0444d830658c20a672e8652e8169b70f6e4ea6758f",
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "EVALUATOR_TEST_RECEIPT_ENVIRONMENT_SCOPE_CORRECTION",
+        "OBSERVATIONS_REPROJECTED_FROM_CANONICAL_R8"
+      ],
+      "runId": "20260920T160800Z-canonical-r13",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "933edf9a18f2811175da669506e7ac9a338b3eaeab8f87331c8998a04f603869"
+    },
+    {
+      "evaluationImplementationFingerprint": "17b50481c44c87eaf30f7beb7c5889957322580c9e9b21e85c19675196347534",
+      "materialFingerprint": "d97310ba708ce3ecdefefabb10bb10eb47d6988841834aa3dfb651a61fe192f8",
+      "observationsFingerprint": "3d34bdf96e9c08737c4e9389a03dfad397435563fcf1f2c8120b5957c22cf1e1",
+      "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+      "reasonCodes": [
+        "PROVIDER_SEMANTICS_SOURCE_DRIFT",
+        "FRESH_PROVIDER_EVIDENCE_RECOLLECTED"
+      ],
+      "runId": "20260920T181900Z-canonical-r14",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "a27ccbf33c9daa8c09fb1fe6d3019021002411905fbc7f6516902dac61625be3"
+    },
+    {
+      "evaluationImplementationFingerprint": "17b50481c44c87eaf30f7beb7c5889957322580c9e9b21e85c19675196347534",
+      "materialFingerprint": "dca401a06444bbda066367ed05d31880b4fab1a4599a9ad375bcfd5d3f381c5a",
+      "observationsFingerprint": "bcae885a90b2eb102a7493b445159c270b7e2ab804995c249facc046a60c6278",
+      "providerSemanticsFingerprint": "772f9dfc11c67d481d4eef8b789baca5996f21d4aa8e163c4cd9613fcd599077",
+      "reasonCodes": [
+        "PROVIDER_SEMANTICS_SOURCE_DRIFT",
+        "FRESH_PROVIDER_EVIDENCE_RECOLLECTED"
+      ],
+      "runId": "20260921T123710Z-canonical",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "4bf1d405e0f63e455604c49c4640cee13ad1cdafef920ea425153548b8da486d"
+    },
+    {
+      "evaluationImplementationFingerprint": "17b50481c44c87eaf30f7beb7c5889957322580c9e9b21e85c19675196347534",
+      "materialFingerprint": "e5994e5021996e3778789b62b7cbf52896afeeaf78b25038d9d435829345cb40",
+      "observationsFingerprint": "3a79b1e7f39daf6aeb6bc27d17c8ff1593a124c4caa7cb056a1b57f0e271ab80",
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "reasonCodes": [
+        "REQUIRED_PYTEST_SWEEP_TIMEOUT_EXCEEDED",
+        "EVALUATOR_IMPLEMENTATION_REVISED",
+        "OBSERVATIONS_REPROJECTED_FROM_20260922T010529Z"
+      ],
+      "runId": "20260922T010529Z-canonical",
+      "state": "SUPERSEDED",
+      "summaryFingerprint": "9f9456a978676edc2dc513db86e57a6ce94566c97e6c79c4c812a8eb98797256"
+    }
+  ],
+  "schemaVersion": "increment4a.superseded-runs.v1"
+}

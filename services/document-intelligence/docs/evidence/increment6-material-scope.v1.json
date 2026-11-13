@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "document-intelligence.material-scope.v1",
+  "increment": "increment6",
+  "note": "Increment 6 is additive: new src/document_intelligence/scanned/ and runtime/ modules, routing extensions, evaluation/increment6/, deployment/, release/, and verification authority. Sealed I3/I4/I4A fingerprints bind individually-listed files, so additive modules do not disturb them; the worker-side liveWorkerIdentity leaf owns the whole src tree only for files present at seal time (proof-graph ownsExcludes carve out I6 additions).",
+  "rule": "Only semanticMaterial and executionEnvironment may invalidate behavioral evidence; evidenceAndStatus never participates in the material hash it records.",
+  "scopes": {
+    "semanticMaterial": {
+      "includes": [
+        "src/document_intelligence/scanned/",
+        "src/document_intelligence/increment6/",
+        "src/document_intelligence/runtime/scheduler.py",
+        "src/document_intelligence/runtime/model_residency.py",
+        "src/document_intelligence/runtime/memory.py",
+        "src/document_intelligence/runtime/drain.py",
+        "src/document_intelligence/runtime/crash_recovery.py",
+        "src/document_intelligence/runtime/temp_space.py",
+        "src/document_intelligence/runtime/asset_verification.py",
+        "src/document_intelligence/runtime/fallback_contract.py",
+        "routing/scanned-pdf.v1.yaml",
+        "routing/fallback-contract.v1.yaml",
+        "evaluation/increment6/",
+        "evaluation/runner_harness.py",
+        "evaluation/semantic-environment.v1.yaml",
+        "deployment/",
+        "release/",
+        "profiles/increment6.yaml",
+        "profiles/default.yaml",
+        "profiles/increment5-candidate.yaml",
+        "profiles/increment6-candidate.yaml",
+        "profiles/README.md",
+        "contracts/schemas/",
+        "contracts/fixtures/",
+        "contracts/protocol-extensions.v1.md",
+        "routing/language-resolution.v1.yaml",
+        "routing/office-projection.v1.yaml",
+        "config/observability-labels.v1.yaml",
+        "scripts/verify_increment6.py",
+        "scripts/build_release_readiness.py",
+        "scripts/check_vulnerabilities.py",
+        "scripts/check_observability_cardinality.py",
+        "scripts/check_default_catalog_stability.py",
+        "scripts/build_implementation_lock.py",
+        "tests/increment6/",
+        "tests/adversarial/"
+      ],
+      "excludes": [
+        "**/__pycache__/",
+        "**/.pytest_cache/",
+        "evaluation/increment6/results/",
+        "deployment/sbom/",
+        "release/readiness/",
+        "evaluation/increment6/corpus/**/generated/"
+      ]
+    },
+    "executionEnvironment": {
+      "includes": [
+        "uv.lock",
+        "pyproject.toml",
+        "runtime:python",
+        "runtime:uv",
+        "deployment/offline-bundle.v1.yaml"
+      ],
+      "excludes": [
+        "docs/evidence/",
+        "evaluation/results/"
+      ]
+    },
+    "evidenceAndStatus": {
+      "includes": [
+        "docs/evidence/increment6-material-scope.v1.json",
+        "docs/INCREMENT-6.md",
+        "evaluation/increment6/results/",
+        "deployment/sbom/",
+        "release/readiness/",
+        "test-results/"
+      ]
+    }
+  }
+}

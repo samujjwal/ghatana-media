@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "document-intelligence.material-scope.v1",
+  "increment": "increment4",
+  "note": "Increment 4 is product-side; paths below are relative to the gharbatai repository root unless prefixed worker:. Worker-prefixed entries resolve against the ghatana document-intelligence-worker module.",
+  "rule": "Only semanticMaterial and executionEnvironment may invalidate behavioral evidence; evidenceAndStatus never invalidates the behavior it records.",
+  "scopes": {
+    "semanticMaterial": {
+      "includes": [
+        "products/org/apps/api/src/modules/document-extraction/",
+        "products/org/apps/org-web/src/api/document-extraction.ts",
+        "products/org/apps/org-web/src/routes/onboarding/DocumentExtractionReviewWorkspace.tsx",
+        "products/org/apps/org-web/src/routes/onboarding/ClientOnboardingReviewWorkspace.tsx",
+        "products/org/packages/db/prisma/document-extraction.prisma",
+        "products/org/packages/db/prisma/migrations/20260918120000_document_extraction_foundation/",
+        "products/org/packages/db/prisma/migrations/20260919160000_document_extraction_template_authority/",
+        "products/org/docs/document-extraction/consumer-scope.v1.json",
+        "products/org/docs/document-extraction/evaluation/acceptance.yaml",
+        "products/org/docs/document-extraction/evaluation/manifest.yaml",
+        "products/org/docs/document-extraction/evaluation/validator-contract.md",
+        "products/org/docs/document-extraction/evaluation/fixtures/",
+        "products/org/docs/document-extraction/evaluation/expected/",
+        "products/org/scripts/document-extraction/",
+        "worker:src/document_intelligence/",
+        "worker:contracts/shared-contract.lock.json",
+        "worker:evaluation/results/20260919T022904Z-cf9e659f/capabilities.json",
+        "worker:models/model-manifest.yaml"
+      ],
+      "excludes": [
+        "products/org/docs/document-extraction/evaluation/results/",
+        "products/org/apps/org-web/e2e/",
+        "**/node_modules/",
+        "**/dist/"
+      ]
+    },
+    "executionEnvironment": {
+      "includes": [
+        "worker:uv.lock",
+        "worker:evaluation/environment.yaml",
+        "worker:models/",
+        "products/org/apps/api runtime (node)",
+        "products/org database (postgresql serverVersion)",
+        "pnpm-lock.yaml"
+      ],
+      "excludes": [
+        "products/org/docs/document-extraction/evaluation/results/"
+      ]
+    },
+    "evidenceAndStatus": {
+      "includes": [
+        "products/org/docs/document-extraction/evaluation/results/",
+        "products/org/docs/document-extraction/evaluation/consumer-admission.v1.json",
+        "products/org/docs/document-extraction/evaluation/consumer-admission.v2.json",
+        "products/org/docs/document-extraction/evaluation/increment4-closure-status.json",
+        "products/org/docs/document-extraction/INCREMENT-4.md",
+        "worker:docs/evidence/"
+      ],
+      "excludes": []
+    }
+  }
+}

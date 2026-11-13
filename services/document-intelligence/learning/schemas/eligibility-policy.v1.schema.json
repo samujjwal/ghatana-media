@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/eligibility-policy.v1",
+  "title": "Feedback Eligibility Policy v1",
+  "description": "Explicit policy deciding whether a feedback event may become learning data. Review acceptance never implies learning eligibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "policyRef", "version", "defaultDisposition", "rules"],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.eligibility-policy.v1" },
+    "policyRef": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "defaultDisposition": { "enum": ["ACCEPTED", "EXCLUDED"] },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ruleId", "disposition", "reasonCode"],
+        "properties": {
+          "ruleId": { "type": "string", "minLength": 1 },
+          "disposition": { "enum": ["ACCEPTED", "EXCLUDED", "REDACTED", "REVOKED", "EXPIRED"] },
+          "reasonCode": { "type": "string", "minLength": 1 },
+          "match": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "terminalAction": { "type": "array", "items": { "enum": ["ACCEPT", "REPROCESS", "REJECT"] } },
+              "reviewReasons": { "type": "array", "items": { "type": "string" } },
+              "documentClasses": { "type": "array", "items": { "type": "string" } },
+              "languages": { "type": "array", "items": { "type": "string" } },
+              "fieldIds": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "expiresAfterDays": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  }
+}

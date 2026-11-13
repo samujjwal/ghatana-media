@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "increment4a.extraction-failure-analysis.v1",
+  "providerRef": "ghatana.gliner",
+  "modelRef": "urchade/gliner_multi-v2.1",
+  "modelVersion": "443d26d",
+  "labelPolicy": "language-local aliases, neutral field ID, then remaining aliases",
+  "qualificationThresholds": {
+    "entityF1": 0.8,
+    "evidenceAccuracy": 0.8
+  },
+  "languages": {
+    "hi": {
+      "entityF1": 0.3333333333333333,
+      "evidenceAccuracy": 0.611111111111111,
+      "state": "NOT_QUALIFIED",
+      "diagnostics": [
+        {"caseId": "positive", "expected": [["document_number", "HI-1001"], ["total", "1250"]], "actual": [["document_number", "1250"], ["total", "क"]], "classifications": ["MODEL_LANGUAGE_FAILURE", "VALUE_SPAN"]},
+        {"caseId": "positive-multi", "expected": [["document_number", "HI-2042"], ["total", "4321"], ["date", "2024-02-15"]], "actual": [["document_number", "4321"], ["total", "य"], ["date", "2024-02-15"]], "classifications": ["MODEL_LANGUAGE_FAILURE", "VALUE_SPAN"]},
+        {"caseId": "negative", "expected": [], "actual": [["document_number", "चालान"]], "classifications": ["NEGATIVE_FALSE_POSITIVE", "ALIAS_AMBIGUITY"]},
+        {"caseId": "ambiguous-alias", "expected": [], "actual": [["document_number", "चालान"], ["total", "दस"]], "classifications": ["NEGATIVE_FALSE_POSITIVE", "ALIAS_AMBIGUITY"]},
+        {"caseId": "unicode-evidence", "expected": [["document_number", "HI-7777"], ["total", "9999"], ["date", "2024-03-01"]], "actual": [["document_number", "HI-7777"], ["total", "दिनांक"], ["date", "2024-03-01"]], "classifications": ["MODEL_LANGUAGE_FAILURE", "VALUE_SPAN"]}
+      ]
+    },
+    "mr": {
+      "entityF1": 0.611111111111111,
+      "evidenceAccuracy": 0.7222222222222222,
+      "state": "NOT_QUALIFIED",
+      "diagnostics": [
+        {"caseId": "positive", "expected": [["document_number", "MR-1001"], ["total", "1250"]], "actual": [["document_number", "MR-1001"], ["total", "एकूण"]], "classifications": ["VALUE_SPAN"]},
+        {"caseId": "positive-multi", "expected": [["document_number", "MR-2042"], ["total", "4321"], ["date", "2024-02-15"]], "actual": [["document_number", "4321"], ["total", "एकूण"], ["date", "2024-02-15"]], "classifications": ["MODEL_LANGUAGE_FAILURE", "VALUE_SPAN"]},
+        {"caseId": "negative", "expected": [], "actual": [["document_number", "ही सामान"]], "classifications": ["NEGATIVE_FALSE_POSITIVE"]},
+        {"caseId": "ambiguous-alias", "expected": [], "actual": [["document_number", "दस"], ["total", "रकम"]], "classifications": ["NEGATIVE_FALSE_POSITIVE", "ALIAS_AMBIGUITY"]},
+        {"caseId": "unicode-evidence", "expected": [["document_number", "MR-7777"], ["total", "9999"], ["date", "2024-03-01"]], "actual": [["document_number", "MR-7777"], ["total", "9999"], ["date", "2024-03-01"]], "classifications": []}
+      ]
+    }
+  },
+  "conclusion": "Language-local label ordering improves Marathi but neither required language reaches the frozen 0.80 thresholds. Remaining errors are primarily model span/language failures and negative false positives, not field mapping failures. No replacement provider is promoted."
+}

@@ -1,0 +1,16 @@
+# document-intelligence.dataset-policy.v1
+# Deterministic dataset materialization authority (I5-08..I5-10).
+datasetPolicyRef: learning.dataset-policy.v1
+eligibilityPolicyRef: org.learning-eligibility.v1
+dedupPolicy:
+  version: dedup.v1
+  canonicalKeys:
+    - sourceContentFingerprint
+    - fieldSchemaIdentity
+    - reviewLineage
+splitPolicy:
+  version: split.v1
+  strategy: stable-group-hash
+  groupKey: sourceContentFingerprint
+  evalFraction: 0.2
+  seed: 42

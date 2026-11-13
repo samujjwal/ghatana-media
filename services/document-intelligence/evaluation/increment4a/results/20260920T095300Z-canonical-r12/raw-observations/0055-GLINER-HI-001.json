@@ -1,0 +1,124 @@
+{
+  "cases": [
+    {
+      "actual": [
+        [
+          "document_number",
+          "1250"
+        ],
+        [
+          "total",
+          "क"
+        ]
+      ],
+      "caseId": "positive",
+      "expected": [
+        [
+          "document_number",
+          "HI-1001"
+        ],
+        [
+          "total",
+          "1250"
+        ]
+      ],
+      "f1": 0.0
+    },
+    {
+      "actual": [
+        [
+          "date",
+          "2024-02-15"
+        ],
+        [
+          "document_number",
+          "4321"
+        ],
+        [
+          "total",
+          "य"
+        ]
+      ],
+      "caseId": "positive-multi",
+      "expected": [
+        [
+          "date",
+          "2024-02-15"
+        ],
+        [
+          "document_number",
+          "HI-2042"
+        ],
+        [
+          "total",
+          "4321"
+        ]
+      ],
+      "f1": 0.3333333333333333
+    },
+    {
+      "actual": [
+        [
+          "document_number",
+          "चालान"
+        ]
+      ],
+      "caseId": "negative",
+      "expected": [],
+      "f1": 0.0
+    },
+    {
+      "actual": [
+        [
+          "document_number",
+          "चालान"
+        ],
+        [
+          "total",
+          "दस"
+        ]
+      ],
+      "caseId": "ambiguous-alias",
+      "expected": [],
+      "f1": 0.0
+    },
+    {
+      "actual": [
+        [
+          "date",
+          "2024-03-01"
+        ],
+        [
+          "document_number",
+          "HI-7777"
+        ],
+        [
+          "total",
+          "दिनांक"
+        ]
+      ],
+      "caseId": "unicode-evidence",
+      "expected": [
+        [
+          "date",
+          "2024-03-01"
+        ],
+        [
+          "document_number",
+          "HI-7777"
+        ],
+        [
+          "total",
+          "9999"
+        ]
+      ],
+      "f1": 0.6666666666666666
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "urchade/gliner_multi-v2.1",
+    "modelVersion": "443d26d",
+    "providerRef": "ghatana.gliner",
+    "providerVersion": "0.1.0"
+  }
+}

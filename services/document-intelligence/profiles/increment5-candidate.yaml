@@ -1,0 +1,42 @@
+# document-intelligence.increment5-candidate-profile.v1
+#
+# DOCUMENTARY manifest for the Increment-5 governed-learning surface. This
+# profile is NOT consumer-admissible and NOT runtime-loadable: I5 produces
+# candidates only and never mutates active authority. Keys below are recorded
+# for qualification review; the runtime profile loader would fail closed on
+# the non-runtime keys.
+schemaVersion: document-intelligence.profile.v1
+profile: increment5-candidate
+extends: increment4a
+runtimeLoadable: false
+
+admission:
+  consumerAdmission: DENIED   # every I5 surface until its capability is QUALIFIED
+  reason: LEARNING_PRODUCES_CANDIDATES_ONLY
+
+# Capability states mirrored from capabilities/document-intelligence-capabilities.yaml
+# (I5-32). All are NOT_QUALIFIED / consumerAdmission DENIED, deferred to
+# release readiness.
+learning:
+  feedback:        { capability: learning.feedback-projection,      developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/feedback }
+  datasets:        { capability: learning.dataset-materialization,  developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/datasets }
+  calibration:     { capability: learning.calibration-candidates,   developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/calibration }
+  templates:       { capability: learning.template-candidates,      developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/templates }
+  activeLearning:  { capability: learning.active-learning-queue,    developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/active_learning }
+  promotion:       { capability: learning.promotion-governance,     developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/promotion }
+  candidates:      { developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/candidates + learning/registry }
+  policy:          { developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/policy + learning/policies }
+  models:          { developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/models }
+  audit:           { developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/audit.py + learning/audit-trail }
+  retention:       { developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/retention.py }
+  schemas:         { developmentState: NOT_QUALIFIED, consumerAdmission: DENIED, surface: learning/schemas }
+
+persistence:
+  # I5 authority is file-based, append-only, inside the worker repository.
+  # No product DB tables are added for learning artifacts.
+  authority: FILE_AUTHORITY
+  artifactRoots:
+  - learning/feedback/events
+  - learning/datasets/out
+  - learning/registry/candidates
+  - learning/authority/revisions

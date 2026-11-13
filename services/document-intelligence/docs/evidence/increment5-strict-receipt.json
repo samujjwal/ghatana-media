@@ -1,0 +1,38 @@
+{
+  "completedAt": "2026-09-22T00:14:40Z",
+  "executedLeaves": {
+    "activeLearning": "PASS",
+    "candidates": "PASS",
+    "datasets": "PASS",
+    "feedbackProjection": "PASS",
+    "learningTests": "PASS",
+    "strictGate": "PASS"
+  },
+  "inputFingerprints": {
+    "capabilityRegistryFingerprint": "sha256:1ce6c5a7cd394d7638bbcfea6325cc925b82515706eaaf3cb20ac7bdd45a9f3a",
+    "increment5MaterialFingerprint": "sha256:a5974c6faaacb961f7255f90503069fff9852a7ecf98737e38c2b8b89f24fb51",
+    "learningSchemaFingerprint": "sha256:9ba8d01d009c722de59601c8206e9a9cb84716f3f98580974055a0134974234d",
+    "proofGraphFingerprint": "sha256:eeaed69d58f0062cb98c6b878986c7704703dc22bb8dd799e6736c106921c809",
+    "requiredLeafInventoryFingerprint": "sha256:3d12fd7c7688889a1ad12c4d526174020a92e5e6e80b25bdfdbfa4cc1cd962f7",
+    "testCatalogFingerprint": "sha256:4d69f4a644a9062f37b3dcee2bf894d777bc32c36306a77629a635cb63341471",
+    "testSummary": "52 passed in 0.86s",
+    "verifierReport": {
+      "checks": [
+        "schemas",
+        "eventRoots",
+        "datasets",
+        "registry",
+        "promotion",
+        "capabilityRegistry",
+        "noOnlineLearning"
+      ],
+      "errors": [],
+      "increment": "increment5",
+      "schemaVersion": "document-intelligence.increment5-verification.v1",
+      "status": "PASS"
+    }
+  },
+  "runId": "20260922T001440Z",
+  "schemaVersion": "increment5.strict-receipt.v1",
+  "status": "PASS"
+}

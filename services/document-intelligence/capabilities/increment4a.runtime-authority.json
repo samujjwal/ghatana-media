@@ -1,0 +1,393 @@
+{
+  "accepted": [
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "parser.pdf.text.en",
+          "parser.pdf.text.ne"
+        ],
+        "features": [
+          "text"
+        ],
+        "mediaTypes": [
+          "application/pdf"
+        ],
+        "supportedLanguages": [
+          "en",
+          "ne"
+        ],
+        "supportsCoordinates": true,
+        "supportsLanguages": true,
+        "supportsTables": true
+      },
+      "providerRef": "ghatana.docling"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "parser.docx.text.en",
+          "parser.docx.text.hi",
+          "parser.docx.text.mr",
+          "parser.docx.text.ne"
+        ],
+        "features": [
+          "text"
+        ],
+        "mediaTypes": [
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ],
+        "supportedLanguages": [
+          "en",
+          "hi",
+          "mr",
+          "ne"
+        ],
+        "supportsCoordinates": true,
+        "supportsLanguages": true,
+        "supportsTables": true
+      },
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "parser.pptx.text.en",
+          "parser.pptx.text.hi",
+          "parser.pptx.text.mr",
+          "parser.pptx.text.ne"
+        ],
+        "features": [
+          "text"
+        ],
+        "mediaTypes": [
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ],
+        "supportedLanguages": [
+          "en",
+          "hi",
+          "mr",
+          "ne"
+        ],
+        "supportsCoordinates": true,
+        "supportsLanguages": true,
+        "supportsTables": true
+      },
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "parser.xlsx.tables.en",
+          "parser.xlsx.tables.hi",
+          "parser.xlsx.tables.mr",
+          "parser.xlsx.tables.ne"
+        ],
+        "features": [
+          "tables"
+        ],
+        "mediaTypes": [
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ],
+        "supportedLanguages": [
+          "en",
+          "hi",
+          "mr",
+          "ne"
+        ],
+        "supportsCoordinates": true,
+        "supportsLanguages": true,
+        "supportsTables": true
+      },
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "extraction.schema-guided.en",
+          "extraction.schema-guided.ne"
+        ],
+        "features": [
+          "extraction"
+        ],
+        "mediaTypes": [
+          "application/vnd.ghatana.parsed-document+json"
+        ],
+        "supportedLanguages": [
+          "en",
+          "ne"
+        ],
+        "supportedValueTypes": [
+          "TEXT",
+          "IDENTIFIER"
+        ],
+        "supportsConfidenceScores": true,
+        "supportsLanguages": true,
+        "supportsMultipleCardinality": true
+      },
+      "providerRef": "ghatana.gliner"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+          "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+          "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+          "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+          "parser.pdf.hybrid.text.en",
+          "parser.pdf.hybrid.text.hi",
+          "parser.pdf.hybrid.text.mr",
+          "parser.pdf.hybrid.text.ne"
+        ],
+        "features": [
+          "pdf-ocr-region-fallback",
+          "text"
+        ],
+        "mediaTypes": [
+          "application/pdf"
+        ],
+        "supportedLanguages": [
+          "en",
+          "hi",
+          "mr",
+          "ne"
+        ],
+        "supportsCoordinates": true,
+        "supportsTables": true
+      },
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "embedding.document-structure"
+        ],
+        "features": [
+          "embedding"
+        ],
+        "maxDimensions": 384,
+        "modelRef": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "providerRef": "ghatana.minilm"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "ocr.paddle.en",
+          "ocr.paddle.hi",
+          "ocr.paddle.mr",
+          "ocr.paddle.ne"
+        ],
+        "features": [
+          "text"
+        ],
+        "mediaTypes": [
+          "image/jpeg",
+          "image/png"
+        ],
+        "supportedLanguages": [
+          "en",
+          "hi",
+          "mr",
+          "ne"
+        ],
+        "supportsCoordinates": true,
+        "supportsLanguages": true,
+        "supportsTables": false
+      },
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capabilities": {
+        "capabilityIds": [
+          "fallback.image.paddle-to-tesseract.en",
+          "fallback.image.paddle-to-tesseract.hi",
+          "fallback.image.paddle-to-tesseract.mr",
+          "fallback.image.paddle-to-tesseract.ne"
+        ],
+        "features": [
+          "fallback"
+        ],
+        "mediaTypes": [
+          "image/png"
+        ],
+        "supportedLanguages": [
+          "en",
+          "hi",
+          "mr",
+          "ne"
+        ]
+      },
+      "providerRef": "ghatana.resilient-parser"
+    }
+  ],
+  "baselineAuthoritySha256": "2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab",
+  "declared": {
+    "manifestVersion": "document-intelligence.models.v1",
+    "models": [
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252",
+        "downloadSource": "local-package-cache",
+        "language": "und",
+        "licenseRef": "docling-project-license",
+        "modelRef": "docling-standard-pdf-pipeline",
+        "modelRevision": "pinned-docling-runtime",
+        "providerRef": "ghatana.docling",
+        "providerVersion": "0.1.0",
+        "runtime": "python"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b",
+        "downloadSource": "local-package-cache",
+        "language": "en",
+        "licenseRef": "paddleocr-license",
+        "modelRef": "PP-OCRv5-en",
+        "modelRevision": "PP-OCRv5-local-en",
+        "providerRef": "ghatana.paddleocr",
+        "providerVersion": "0.1.0",
+        "runtime": "paddlepaddle"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8",
+        "downloadSource": "local-package-cache",
+        "language": "ne",
+        "licenseRef": "paddleocr-license",
+        "modelRef": "PP-OCRv5-devanagari-shared",
+        "modelRevision": "PP-OCRv5-local-devanagari-shared",
+        "providerRef": "ghatana.paddleocr",
+        "providerVersion": "0.1.0",
+        "runtime": "paddlepaddle"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a",
+        "downloadSource": "local-package-cache",
+        "language": "multilingual-en-ne",
+        "licenseRef": "gliner-license",
+        "modelRef": "urchade/gliner_multi-v2.1",
+        "modelRevision": "443d26d",
+        "providerRef": "ghatana.gliner",
+        "providerVersion": "0.1.0",
+        "runtime": "transformers"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18",
+        "downloadSource": "local-package-cache",
+        "expectedDimensions": 384,
+        "language": "und",
+        "licenseRef": "apache-2.0",
+        "modelRef": "sentence-transformers/all-MiniLM-L6-v2",
+        "modelRevision": "1110a24",
+        "providerRef": "ghatana.minilm",
+        "providerVersion": "0.1.0",
+        "runtime": "sentence-transformers"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8",
+        "downloadSource": "local-package-cache",
+        "language": "hi",
+        "licenseRef": "paddleocr-license",
+        "modelRef": "PP-OCRv5-devanagari-shared",
+        "modelRevision": "PP-OCRv5-local-devanagari-shared",
+        "providerRef": "ghatana.paddleocr",
+        "providerVersion": "0.1.0",
+        "runtime": "paddlepaddle"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "artifactSha256": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8",
+        "downloadSource": "local-package-cache",
+        "language": "mr",
+        "licenseRef": "paddleocr-license",
+        "modelRef": "PP-OCRv5-devanagari-shared",
+        "modelRevision": "PP-OCRv5-local-devanagari-shared",
+        "providerRef": "ghatana.paddleocr",
+        "providerVersion": "0.1.0",
+        "runtime": "paddlepaddle"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "downloadSource": "worker-runtime",
+        "language": "und",
+        "licenseRef": "apache-2.0",
+        "modelRef": "docling-rendered-docx-pipeline",
+        "modelRevision": "pinned-docling-runtime",
+        "providerRef": "ghatana.docling-docx",
+        "providerVersion": "0.1.0",
+        "runtime": "python"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "downloadSource": "worker-runtime",
+        "language": "und",
+        "licenseRef": "apache-2.0",
+        "modelRef": "docling-standard-pptx-pipeline",
+        "modelRevision": "pinned-docling-runtime",
+        "providerRef": "ghatana.docling-pptx",
+        "providerVersion": "0.1.0",
+        "runtime": "python"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "downloadSource": "worker-runtime",
+        "language": "und",
+        "licenseRef": "apache-2.0",
+        "modelRef": "docling-standard-xlsx-pipeline",
+        "modelRevision": "pinned-docling-runtime",
+        "providerRef": "ghatana.docling-xlsx",
+        "providerVersion": "0.1.0",
+        "runtime": "python"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "downloadSource": "worker-runtime",
+        "language": "und",
+        "licenseRef": "apache-2.0",
+        "modelRef": "hybrid-pdf-v1",
+        "modelRevision": "policy-v1",
+        "providerRef": "ghatana.hybrid-pdf",
+        "providerVersion": "0.1.0",
+        "runtime": "python"
+      },
+      {
+        "artifact": "declared-by-lock",
+        "downloadSource": "worker-runtime",
+        "language": "und",
+        "licenseRef": "apache-2.0",
+        "modelRef": "governed-fallback",
+        "modelRevision": "policy-v1",
+        "providerRef": "ghatana.resilient-parser",
+        "providerVersion": "0.1.0",
+        "runtime": "python"
+      }
+    ],
+    "offlineByDefault": true
+  },
+  "excluded": [
+    {
+      "capabilityId": "extraction.schema-guided.hi",
+      "closureDisposition": "DEFERRED_TO_FUTURE_RELEASE",
+      "state": "NOT_QUALIFIED"
+    },
+    {
+      "capabilityId": "extraction.schema-guided.mr",
+      "closureDisposition": "DEFERRED_TO_FUTURE_RELEASE",
+      "state": "NOT_QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pdf.hybrid.tables.scanned.en",
+      "closureDisposition": "UNSUPPORTED_BY_DESIGN",
+      "state": "UNSUPPORTED_BY_DESIGN"
+    }
+  ],
+  "increment4aAcceptedFingerprint": "9fb0c52d56793032073f542f44f5a22fd60fed3805cb236d70b667d993c5e245",
+  "schemaVersion": "increment4a.runtime-authority.v1",
+  "sources": {
+    "increment3Authority": "evaluation/results/20260919T022904Z-cf9e659f/capabilities.json",
+    "increment4aCapabilities": "canonical-run capabilities.json"
+  }
+}

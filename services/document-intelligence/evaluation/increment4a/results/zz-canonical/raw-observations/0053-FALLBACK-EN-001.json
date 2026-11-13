@@ -1,0 +1,373 @@
+{
+  "languageTag": "en",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b5",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.05555555555555555,
+            "x": 0.049019607843137254,
+            "y": 0.054924242424242424
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.05555555555555555,
+                "x": 0.049019607843137254,
+                "y": 0.054924242424242424
+              },
+              "confidence": 0.9682556200000001,
+              "languageTag": "en",
+              "lineId": "p1-b5-l1",
+              "text": "The"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b6",
+          "boundingRegion": {
+            "height": 0.02335858585858586,
+            "width": 0.12254901960784313,
+            "x": 0.119281045751634,
+            "y": 0.054924242424242424
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.02335858585858586,
+                "width": 0.12254901960784313,
+                "x": 0.119281045751634,
+                "y": 0.054924242424242424
+              },
+              "confidence": 0.96551689,
+              "languageTag": "en",
+              "lineId": "p1-b6-l1",
+              "text": "ministry"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b7",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.09313725490196079,
+            "x": 0.2565359477124183,
+            "y": 0.054924242424242424
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.09313725490196079,
+                "x": 0.2565359477124183,
+                "y": 0.054924242424242424
+              },
+              "confidence": 0.9656540699999999,
+              "languageTag": "en",
+              "lineId": "p1-b7-l1",
+              "text": "issued"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b8",
+          "boundingRegion": {
+            "height": 0.013888888888888888,
+            "width": 0.014705882352941176,
+            "x": 0.36437908496732024,
+            "y": 0.059343434343434344
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.013888888888888888,
+                "width": 0.014705882352941176,
+                "x": 0.36437908496732024,
+                "y": 0.059343434343434344
+              },
+              "confidence": 0.9692150900000001,
+              "languageTag": "en",
+              "lineId": "p1-b8-l1",
+              "text": "a"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b9",
+          "boundingRegion": {
+            "height": 0.013888888888888888,
+            "width": 0.059640522875817,
+            "x": 0.3937908496732026,
+            "y": 0.059343434343434344
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.013888888888888888,
+                "width": 0.059640522875817,
+                "x": 0.3937908496732026,
+                "y": 0.059343434343434344
+              },
+              "confidence": 0.9665570099999999,
+              "languageTag": "en",
+              "lineId": "p1-b9-l1",
+              "text": "new"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b10",
+          "boundingRegion": {
+            "height": 0.02335858585858586,
+            "width": 0.08741830065359477,
+            "x": 0.4681372549019608,
+            "y": 0.054924242424242424
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.02335858585858586,
+                "width": 0.08741830065359477,
+                "x": 0.4681372549019608,
+                "y": 0.054924242424242424
+              },
+              "confidence": 0.96547775,
+              "languageTag": "en",
+              "lineId": "p1-b10-l1",
+              "text": "policy"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b11",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.022058823529411766,
+            "x": 0.5702614379084967,
+            "y": 0.054924242424242424
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.022058823529411766,
+                "x": 0.5702614379084967,
+                "y": 0.054924242424242424
+              },
+              "confidence": 0.9569388600000001,
+              "languageTag": "en",
+              "lineId": "p1-b11-l1",
+              "text": "in"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b12",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.08333333333333333,
+            "x": 0.6070261437908496,
+            "y": 0.054924242424242424
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.08333333333333333,
+                "x": 0.6070261437908496,
+                "y": 0.054924242424242424
+              },
+              "confidence": 0.9644729599999999,
+              "languageTag": "en",
+              "lineId": "p1-b12-l1",
+              "text": "2024."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b14",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.03594771241830065,
+            "x": 0.049019607843137254,
+            "y": 0.09659090909090909
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.03594771241830065,
+                "x": 0.049019607843137254,
+                "y": 0.09659090909090909
+              },
+              "confidence": 0.9609515399999999,
+              "languageTag": "en",
+              "lineId": "p1-b14-l1",
+              "text": "All"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b15",
+          "boundingRegion": {
+            "height": 0.02335858585858586,
+            "width": 0.12091503267973856,
+            "x": 0.09967320261437909,
+            "y": 0.09659090909090909
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.02335858585858586,
+                "width": 0.12091503267973856,
+                "x": 0.09967320261437909,
+                "y": 0.09659090909090909
+              },
+              "confidence": 0.9609515399999999,
+              "languageTag": "en",
+              "lineId": "p1-b15-l1",
+              "text": "regional"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b16",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.0988562091503268,
+            "x": 0.23447712418300654,
+            "y": 0.09659090909090909
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.0988562091503268,
+                "x": 0.23447712418300654,
+                "y": 0.09659090909090909
+              },
+              "confidence": 0.96385307,
+              "languageTag": "en",
+              "lineId": "p1-b16-l1",
+              "text": "offices"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b17",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.12826797385620914,
+            "x": 0.3464052287581699,
+            "y": 0.09659090909090909
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.12826797385620914,
+                "x": 0.3464052287581699,
+                "y": 0.09659090909090909
+              },
+              "confidence": 0.96480835,
+              "languageTag": "en",
+              "lineId": "p1-b17-l1",
+              "text": "received"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b18",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.04738562091503268,
+            "x": 0.48856209150326796,
+            "y": 0.09659090909090909
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.04738562091503268,
+                "x": 0.48856209150326796,
+                "y": 0.09659090909090909
+              },
+              "confidence": 0.9599339299999999,
+              "languageTag": "en",
+              "lineId": "p1-b18-l1",
+              "text": "the"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b19",
+          "boundingRegion": {
+            "height": 0.018308080808080808,
+            "width": 0.09967320261437909,
+            "x": 0.5506535947712419,
+            "y": 0.09659090909090909
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018308080808080808,
+                "width": 0.09967320261437909,
+                "x": 0.5506535947712419,
+                "y": 0.09659090909090909
+              },
+              "confidence": 0.9599339299999999,
+              "languageTag": "en",
+              "lineId": "p1-b19-l1",
+              "text": "notice."
+            }
+          ]
+        }
+      ],
+      "languageTag": "en",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "governed-fallback",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.resilient-parser",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "selectedProviderRef:ghatana.tesseractocr"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "artifacts": {
+    "campaign-attestation.json": "sha256:e9e849792da8dbdb7d0fb22b2356dad7590e8562734de03fb4374761291e1e39",
+    "capabilities.json": "sha256:a3e3f9a96cf72b10fc1983985d0206ba065d924d0a23de89dc7faa22fa4be976",
+    "lineage.json": "sha256:323b54d6c44b0f07bfcddb5ec2de34960aa62f923421c37fd7143d43c1662dbd",
+    "observations.json": "sha256:c53e0543281db5c7033a5d673999215f0829e16435ad974ff7f14d7ac8593664",
+    "raw-observations.json": "sha256:8ca09ec8fc0556ade9b9bc852deac77584ae3e823311244855150da207f93901",
+    "summary.json": "sha256:f6d2beba99e941dcb8d6ec4120e5db768ac9b7ae7213ddbe1bc219257fcc5346"
+  },
+  "fileCount": 6,
+  "manifestFingerprint": "sha256:f246fd254420695c70839b7d55d693b40c919aefdeb77dce39bd3afda4044736",
+  "publicationContract": "status COMPLETE is written only after every required artifact digest is recorded; a run directory without a COMPLETE manifest is unpublished and may not feed authority.",
+  "requiredArtifacts": [
+    "summary.json",
+    "capabilities.json",
+    "observations.json",
+    "campaign-attestation.json"
+  ],
+  "run": "20260921T223756Z-bd8352ec",
+  "runDir": "evaluation/increment6/results/20260921T223756Z-bd8352ec",
+  "schemaVersion": "document-intelligence.run-publication.v1",
+  "sealedAt": "2026-09-21T22:37:57Z",
+  "status": "COMPLETE"
+}

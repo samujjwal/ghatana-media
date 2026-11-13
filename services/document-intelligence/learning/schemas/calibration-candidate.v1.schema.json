@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/calibration-candidate.v1",
+  "title": "Calibration Candidate v1",
+  "description": "Candidate confidence-calibration curves/thresholds derived from reviewed truth. Never mutates live policy; activation requires promotion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "kind",
+    "state",
+    "parentAuthority",
+    "datasetFingerprint",
+    "algorithm",
+    "candidateThresholds",
+    "metrics",
+    "limitations",
+    "candidateFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.calibration-candidate.v1" },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "kind": { "const": "CONFIDENCE_CALIBRATION" },
+    "state": { "enum": ["CANDIDATE", "EVALUATED", "REJECTED", "APPROVED_FOR_SHADOW", "PROMOTED", "SUPERSEDED"] },
+    "parentAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["activeAuthorityFingerprint", "policyRef"],
+      "properties": {
+        "activeAuthorityFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "policyRef": { "type": "string", "minLength": 1 }
+      }
+    },
+    "datasetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "algorithm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object" }
+      }
+    },
+    "candidateThresholds": {
+      "type": "object",
+      "description": "Proposed thresholds keyed by policy dimension (e.g. lowConfidenceReviewFloor, templateAmbiguityDelta).",
+      "additionalProperties": { "type": "number" }
+    },
+    "reliabilityCurve": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["binLower", "binUpper", "count", "meanConfidence", "empiricalAccuracy"],
+        "properties": {
+          "binLower": { "type": "number" },
+          "binUpper": { "type": "number" },
+          "count": { "type": "integer", "minimum": 0 },
+          "meanConfidence": { "type": "number" },
+          "empiricalAccuracy": { "type": "number" }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expectedCalibrationError"],
+      "properties": {
+        "expectedCalibrationError": { "type": "number" },
+        "brierScore": { "type": "number" },
+        "perLanguage": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["expectedCalibrationError"],
+            "properties": {
+              "expectedCalibrationError": { "type": "number" },
+              "count": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "candidateFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

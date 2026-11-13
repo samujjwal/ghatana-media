@@ -1,0 +1,65 @@
+schemaVersion: increment6.fixtures.v1
+lane: scanned-pdf
+# Fixture binaries are declared-not-present until the qualification wave lands
+# them; this manifest is metadata authority only. Classification qualification
+# executes against the declared page facts in page-facts.yaml — the classifier
+# contract is page facts -> document class, so declared facts are honest truth
+# for this lane. Binary-level qualification remains a separate later gate.
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-SCAN-EN-001
+  file: I6-SCAN-EN-001.pdf
+  mediaType: application/pdf
+  language: en
+  expectedDocumentClass: SCANNED
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-EN-002
+  file: I6-SCAN-EN-002.pdf
+  mediaType: application/pdf
+  language: en
+  expectedDocumentClass: TEXT_NATIVE
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-NE-001
+  file: I6-SCAN-NE-001.pdf
+  mediaType: application/pdf
+  language: ne
+  expectedDocumentClass: HYBRID
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-NE-002
+  file: I6-SCAN-NE-002.pdf
+  mediaType: application/pdf
+  language: ne
+  expectedDocumentClass: TEXT_NATIVE
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-HI-001
+  file: I6-SCAN-HI-001.pdf
+  mediaType: application/pdf
+  language: hi
+  expectedDocumentClass: SCANNED
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-HI-002
+  file: I6-SCAN-HI-002.pdf
+  mediaType: application/pdf
+  language: hi
+  expectedDocumentClass: MIXED
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-MR-001
+  file: I6-SCAN-MR-001.pdf
+  mediaType: application/pdf
+  language: mr
+  expectedDocumentClass: SCANNED
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-SCAN-MR-002
+  file: I6-SCAN-MR-002.pdf
+  mediaType: application/pdf
+  language: mr
+  expectedDocumentClass: HYBRID
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT

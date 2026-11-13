@@ -1,0 +1,193 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.03147510158006281,
+            "width": 0.4246824071068928,
+            "x": 0.13103174395187706,
+            "y": 0.09400756657911913
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.01519561085685591,
+                "width": 0.058633345425093325,
+                "x": 0.13103174395187706,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l1",
+              "text": "क्षेत्रीय"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.011707016840453763,
+                "width": 0.010514462016496013,
+                "x": 0.26627834684564067,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l2",
+              "text": "ने"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.01519561085685591,
+                "width": 0.05244293957174783,
+                "x": 0.2823919091990227,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l3",
+              "text": "वार्षिक"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.01519561085685591,
+                "width": 0.04477424429410301,
+                "x": 0.4087132028766381,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l4",
+              "text": "रिपोर्ट"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.01519561085685591,
+                "width": 0.06506395953206905,
+                "x": 0.4590680403729434,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l5",
+              "text": "प्रकाशित"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.011707016840453763,
+                "width": 0.023948591144825393,
+                "x": 0.5297311002418984,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l6",
+              "text": "की।"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.011746238148909157,
+                "width": 0.062162799554919386,
+                "x": 0.3409513286179833,
+                "y": 0.09745693928706588
+              },
+              "lineId": "p1-b1-l7",
+              "text": "अनुपालन"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.011615524619990348,
+                "width": 0.06545204543111523,
+                "x": 0.19524570821232318,
+                "y": 0.09758765281598468
+              },
+              "lineId": "p1-b1-l8",
+              "text": "कार्यालय"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.01263462615965296,
+                "width": 0.3903284152204169,
+                "x": 0.13225134362101298,
+                "y": 0.11241381489670624
+              },
+              "lineId": "p1-b1-l9",
+              "text": "Second paragraph for structural coverage."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.0499909371491566,
+            "width": 0.7413311132648647,
+            "x": 0.12902683539678586,
+            "y": 0.12439502163341094
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.03442224576313896,
+                "x": 0.14111110887125222,
+                "y": 0.13260949164605634
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Key"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.052179251929694415,
+                "x": 0.5100793649193751,
+                "y": 0.13260949164605634
+              },
+              "cellId": "p1-t1-c0-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Value"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.07261604960794629,
+                "x": 0.14111110887125222,
+                "y": 0.15636556993563772
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "Amount"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.04702719547046781,
+                "x": 0.5100793649193751,
+                "y": 0.15636556993563772
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "1250"
+            }
+          ],
+          "columnCount": 2,
+          "rowCount": 2,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-rendered-docx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-docx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "officeRenderer:reportlab"
+    ]
+  }
+}

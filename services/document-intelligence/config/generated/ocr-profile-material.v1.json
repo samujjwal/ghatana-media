@@ -1,0 +1,26 @@
+{
+  "mappingFingerprint": "sha256:b787811463c3b25c77e06b8016adbf0594d1fb0b13ebeb9265d39ae7b5f8b1a5",
+  "producerVersion": "document-intelligence-ocr-mapping/1",
+  "profiles": {
+    "default": [
+      "provider.docling",
+      "provider.paddleocr",
+      "provider.gliner",
+      "provider.minilm"
+    ],
+    "increment4a": [
+      "provider.docling",
+      "provider.paddleocr",
+      "provider.gliner",
+      "provider.minilm"
+    ],
+    "increment6": [
+      "provider.docling",
+      "provider.paddleocr",
+      "provider.gliner",
+      "provider.minilm",
+      "runtime.native-process-boundary"
+    ]
+  },
+  "schemaVersion": "document-intelligence.ocr-profile-material.v1"
+}

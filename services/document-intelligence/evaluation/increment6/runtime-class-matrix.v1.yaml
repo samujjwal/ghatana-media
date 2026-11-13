@@ -1,0 +1,28 @@
+schemaVersion: document-intelligence.runtime-class-qualification.v1
+# Portability is not inferred from Python source compatibility.  A capability
+# is runtime-admissible only when both dimensions are qualified for the exact
+# class on which it will run.
+classes:
+  CPU_X86_64:
+    architecture: x86_64
+    accelerator: none
+  GPU_CUDA:
+    architecture: x86_64
+    accelerator: cuda
+qualifications:
+  - capabilityId: parser.pdf.scanned.classify
+    runtimeClass: CPU_X86_64
+    functionalState: NOT_QUALIFIED
+    performanceState: NOT_QUALIFIED
+  - capabilityId: parser.pdf.hybrid.provenance
+    runtimeClass: CPU_X86_64
+    functionalState: NOT_QUALIFIED
+    performanceState: NOT_QUALIFIED
+  - capabilityId: ocr.paddle
+    runtimeClass: CPU_X86_64
+    functionalState: NOT_QUALIFIED
+    performanceState: NOT_QUALIFIED
+  - capabilityId: extraction.schema-guided.v2
+    runtimeClass: CPU_X86_64
+    functionalState: NOT_QUALIFIED
+    performanceState: NOT_QUALIFIED

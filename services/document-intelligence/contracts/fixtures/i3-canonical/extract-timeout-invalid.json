@@ -1,0 +1,17 @@
+{
+  "id": "extract-timeout-invalid",
+  "endpoint": "extract",
+  "description": "timeoutMs must be a positive integer within the configured ceiling.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-extract-bad-timeout",
+    "providerRef": "ghatana.gliner",
+    "timeoutMs": 0,
+    "limits": {},
+    "payload": {
+      "fields": [],
+      "parsed": { "pages": [] }
+    }
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "metadata" }
+}

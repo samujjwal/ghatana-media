@@ -1,0 +1,32 @@
+schemaVersion: increment6.fixtures.v1
+lane: office-xlsx
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-XLSX-EN-001
+  file: I6-XLSX-EN-001.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: en
+  expectedCapability: parser.xlsx.tables.en
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-XLSX-NE-001
+  file: I6-XLSX-NE-001.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: ne
+  expectedCapability: parser.xlsx.tables.ne
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-XLSX-HI-001
+  file: I6-XLSX-HI-001.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: hi
+  expectedCapability: parser.xlsx.tables.hi
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-XLSX-MR-001
+  file: I6-XLSX-MR-001.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: mr
+  expectedCapability: parser.xlsx.tables.mr
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT

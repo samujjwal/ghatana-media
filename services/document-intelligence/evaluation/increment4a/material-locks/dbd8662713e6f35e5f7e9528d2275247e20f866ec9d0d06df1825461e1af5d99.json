@@ -1,0 +1,27 @@
+{
+  "evaluationImplementationFingerprint": "72f3ac59708b44843291420e2e323f16a06f9f77e5ceec4649a486a6a5040705",
+  "frozenAt": "2026-09-20T08:21:29Z",
+  "materialFingerprints": {
+    "acceptance": "773942dad8420655087f710e9bdce9f633e1b137f5fdb244fc55a3962796bb47",
+    "corpus": "2cfba9324723d1a5f436a95003c715a6d86b8d8cbfd02616d208bcc8c8698574",
+    "environment": "2bd0036d8f6a8a383c924c2230132d3fa88e588c7c0a57dda6d756b3ee03308a",
+    "hybridRouting": "3b6afa95c920dc89bd85281851b4f378556bbeb5e271022026fc5875e145e342",
+    "implementationMaterial": "d4c2b9455c43729c94d90b5020b8bbf15173a1539e2c372ddb050a86b8c3979e",
+    "languageRegistry": "c32afb308dba90464673a78979e3ccb0ab3f5bd4a987de188cf6740a45d7cd46",
+    "manifest": "4c150b3fab2d21aa2707ac51b7c6078ce1e5cf6784e29b9204cf588701630ddc",
+    "modelManifest": "afa3dc3f561340b973b841843d502b737ec362646dd9cf289d363b6a0b63cc57",
+    "parserRouting": "c4b64b5a1ca8874fbb6b2ecfb08a882816820ae57af6c89d9e41026cf94aed46",
+    "requiredTests": "8d90a3966e4f5cb3fa9366d182c69034f5799a042db7a245c2cb7c9dc951e013",
+    "runtimeCalibration": "641b6bbe55ff039a8847e00e4beda3c3e31109b5800c9a6213ee8d698684742a",
+    "workerProfile": "bfbdfd3ccae57176e0baa46a5910744e7f42dd9adc025826a3cf5339593ca2a8"
+  },
+  "parentMaterialFingerprint": "d3a2d6cfbca788301204ee6815a1babab3457924ea6c4e58358e1ddb417f2076",
+  "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+  "reason": [
+    "SOURCE_SUMMARY_SHA_AND_REUSE_LINEAGE_BINDING",
+    "RUNTIME_MODEL_EVIDENCE_RECEIPT_FRESHNESS",
+    "REQUIRED_REGRESSION_TESTS_ADDED"
+  ],
+  "schemaVersion": "increment4a.material-lock.v4",
+  "state": "FROZEN"
+}

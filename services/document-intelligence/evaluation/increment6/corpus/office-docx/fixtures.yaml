@@ -1,0 +1,32 @@
+schemaVersion: increment6.fixtures.v1
+lane: office-docx
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-DOCX-EN-001
+  file: I6-DOCX-EN-001.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: en
+  expectedCapability: parser.docx.text.en
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-DOCX-NE-001
+  file: I6-DOCX-NE-001.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: ne
+  expectedCapability: parser.docx.text.ne
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-DOCX-HI-001
+  file: I6-DOCX-HI-001.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: hi
+  expectedCapability: parser.docx.text.hi
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-DOCX-MR-001
+  file: I6-DOCX-MR-001.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: mr
+  expectedCapability: parser.docx.text.mr
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT

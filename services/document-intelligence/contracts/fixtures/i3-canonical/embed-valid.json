@@ -1,0 +1,21 @@
+{
+  "id": "embed-valid",
+  "endpoint": "embed",
+  "description": "Canonical I3 embed envelope: canonical document-structure-embedding.v1 projection for minilm.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-embed-1",
+    "providerRef": "ghatana.minilm",
+    "timeoutMs": 30000,
+    "limits": {},
+    "projection": {
+      "projectionVersion": "document-structure-embedding.v1",
+      "pageCount": 1,
+      "blockCount": 1,
+      "tableCount": 0,
+      "lineCount": 1,
+      "textDigest": "sha256:039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+    }
+  },
+  "expected": { "accepted": true }
+}

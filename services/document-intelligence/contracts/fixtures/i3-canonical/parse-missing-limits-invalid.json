@@ -1,0 +1,13 @@
+{
+  "id": "parse-missing-limits-invalid",
+  "endpoint": "parse",
+  "description": "limits is a required metadata field even when empty.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-no-limits",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/pdf",
+    "timeoutMs": 30000
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "metadata" }
+}

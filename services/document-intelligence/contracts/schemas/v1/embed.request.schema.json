@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/embed.request.schema.json",
+  "title": "POST /v1/embed request (document-intelligence.v1)",
+  "description": "application/json body: request-metadata keys plus a required `projection` object carrying only the canonical document-structure-embedding.v1 projection. The optional X-Operation-Generation header must equal operationGeneration when both are present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "operationId", "providerRef", "timeoutMs", "limits", "projection"],
+  "properties": {
+    "protocolVersion": { "const": "document-intelligence.v1" },
+    "operationId": { "$ref": "#/$defs/identifier" },
+    "operationGeneration": { "$ref": "#/$defs/operationGeneration" },
+    "providerRef": { "$ref": "#/$defs/identifier" },
+    "mediaType": {
+      "type": "string",
+      "description": "Optional on embedding; capability admission still gates the effective media catalog."
+    },
+    "languageHint": {
+      "type": "string",
+      "description": "Optional; must be in the admitted language catalog (default en, ne)."
+    },
+    "timeoutMs": { "type": "integer", "minimum": 1 },
+    "limits": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "projection": {
+      "type": "object",
+      "description": "Canonical document-structure-embedding.v1 projection; opaque to the envelope grammar."
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "operationGeneration": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    }
+  }
+}

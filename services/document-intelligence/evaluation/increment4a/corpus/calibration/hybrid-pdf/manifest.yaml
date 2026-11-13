@@ -1,0 +1,106 @@
+schemaVersion: increment4a.hybrid-pdf-fixtures.v1
+lane: calibration
+reviewed: true
+promotionEligible: false
+fixtureConstruction:
+  reviewed: true
+  provenance: >-
+    Independently authored routing cases derived from the existing synthetic
+    document-intelligence corpus and explicit strategy boundary specifications.
+  independentGrounding: synthetic-public-corpus-plus-hand-authored-routing-cases
+  generatedProviderGroundTruth: false
+  groundTruthStatus: route-and-merge-expectations-only
+  reviewerRole: document-intelligence-maintainer
+thresholdAuthority:
+  path: routing/hybrid-pdf.v1.yaml
+  field: classification.minimumTextCharacters
+  duplicateThresholdsForbidden: true
+fixtures:
+  - fixtureId: HYBRID-001
+    reviewed: true
+    fixtureConstructionProvenance: existing synthetic digital PDF; text length is independently counted from the authored reference string.
+    sourceAsset:
+      path: evaluation/corpus/pdf-en-simple.pdf
+      status: present
+      sha256: 05412db8c7064c6cf6c5c894b1bffcf69096432a6617e71f74f318974ddc8c5e
+    mediaType: application/pdf
+    language: en
+    mode: native
+    expectedRoute: primary
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedTextSource: authored-corpus-reference
+  - fixtureId: HYBRID-002
+    reviewed: true
+    fixtureConstructionProvenance: hand-authored threshold boundary case; the reference text is exactly the routing minimum and is not provider output.
+    sourceAsset:
+      path: null
+      status: metadata-only
+    mediaType: application/pdf
+    language: en
+    mode: native
+    expectedRoute: primary-at-threshold
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedTextCharacterRelation: equal-to-routing-threshold
+  - fixtureId: HYBRID-003
+    reviewed: true
+    fixtureConstructionProvenance: existing synthetic sparse digital PDF; sparse primary extraction is expected to exercise OCR fallback.
+    sourceAsset:
+      path: evaluation/corpus/pdf-en-sparse.pdf
+      status: present
+      sha256: 466d37e202d31266e874db70d9bd7bfd11bb9a007dfbc2c67284e5c2b19bbe37
+    mediaType: application/pdf
+    language: en
+    mode: scanned-like-sparse
+    expectedRoute: primary-then-ocr
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedTextSource: authored-corpus-reference
+  - fixtureId: HYBRID-004
+    reviewed: true
+    fixtureConstructionProvenance: existing synthetic table PDF plus an independently authored duplicate-line merge expectation.
+    sourceAsset:
+      path: evaluation/corpus/pdf-en-table.pdf
+      status: present
+      sha256: 84377308f838b29dd984beffbf8cc7f81d97626def41f747d426689fc78e0cd0
+    mediaType: application/pdf
+    language: en
+    mode: mixed-overlap
+    expectedRoute: primary-then-ocr-deduplicate
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedMergePrecedence: primary
+  - fixtureId: HYBRID-005
+    reviewed: true
+    fixtureConstructionProvenance: hand-authored multi-page ordering case; page ordering and duplicate keys are specified independently of provider output.
+    sourceAsset:
+      path: null
+      status: metadata-only
+    mediaType: application/pdf
+    language: en
+    mode: mixed-multipage
+    expectedRoute: primary-then-ocr-page-order-preserved
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedPageOrder: ascending-page-number
+  - fixtureId: HYBRID-006
+    reviewed: true
+    fixtureConstructionProvenance: existing synthetic blank-text PDF; empty primary output is an independently specified OCR trigger.
+    sourceAsset:
+      path: evaluation/corpus/pdf-en-no-text.pdf
+      status: present
+      sha256: 30de176ffe6068120f11040cdadba388dd6a61115662e8312494700115e174
+    mediaType: application/pdf
+    language: en
+    mode: scanned-like-empty-primary
+    expectedRoute: primary-then-ocr
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedTextSource: empty-authored-corpus-reference

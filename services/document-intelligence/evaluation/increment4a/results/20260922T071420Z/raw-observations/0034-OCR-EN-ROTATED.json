@@ -1,0 +1,119 @@
+{
+  "languageTag": "en",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.06060606060606061,
+            "width": 0.7916666666666666,
+            "x": 0.013888888888888888,
+            "y": 0.036616161616161616
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.06060606060606061,
+                "width": 0.7916666666666666,
+                "x": 0.013888888888888888,
+                "y": 0.036616161616161616
+              },
+              "confidence": 0.7535184613045522,
+              "languageTag": "en",
+              "lineId": "p1-b1-l1",
+              "text": "This dense paragraph contains several short lines."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.04861111111111111,
+            "width": 0.6045751633986928,
+            "x": 0.0196078431372549,
+            "y": 0.08712121212121213
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.04861111111111111,
+                "width": 0.6045751633986928,
+                "x": 0.0196078431372549,
+                "y": 0.08712121212121213
+              },
+              "confidence": 0.8590671045815242,
+              "languageTag": "en",
+              "lineId": "p1-b2-l1",
+              "text": "Each line is rendered at a smaller size."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b3",
+          "boundingRegion": {
+            "height": 0.05366161616161616,
+            "width": 0.6560457516339869,
+            "x": 0.021241830065359478,
+            "y": 0.12563131313131312
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.05366161616161616,
+                "width": 0.6560457516339869,
+                "x": 0.021241830065359478,
+                "y": 0.12563131313131312
+              },
+              "confidence": 0.8588406964259988,
+              "languageTag": "en",
+              "lineId": "p1-b3-l1",
+              "text": "Dense text exercises OcR line separation."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b4",
+          "boundingRegion": {
+            "height": 0.05366161616161616,
+            "width": 0.6633986928104575,
+            "x": 0.022058823529411766,
+            "y": 0.1672979797979798
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.05366161616161616,
+                "width": 0.6633986928104575,
+                "x": 0.022058823529411766,
+                "y": 0.1672979797979798
+              },
+              "confidence": 0.854060578609214,
+              "languageTag": "en",
+              "lineId": "p1-b4-l1",
+              "text": "The final line completes the dense fixture."
+            }
+          ]
+        }
+      ],
+      "languageTag": "en",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-en",
+    "modelVersion": "PP-OCRv5-local-en",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

@@ -1,0 +1,204 @@
+{
+  "HYBRID-001": {
+    "expectedRegions": [
+      {
+        "height": 0.047512158623269726,
+        "width": 0.8097627513227512,
+        "x": 0.12095238095238094,
+        "y": 0.15485372240927808
+      }
+    ],
+    "expectedText": "This native page contains a clean paragraph of English text used for hybrid qualification.",
+    "file": "HYBRID-001.pdf",
+    "language": "en",
+    "mode": "native",
+    "pages": [
+      {
+        "classification": "NATIVE"
+      }
+    ]
+  },
+  "HYBRID-002": {
+    "expectedText": "This scanned page contains rasterized English text for OCR qualification.",
+    "file": "HYBRID-002.pdf",
+    "language": "en",
+    "mode": "scanned",
+    "pages": [
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-003": {
+    "expectedText": "यो स्क्यान गरिएको पृष्ठमा नेपाली पाठ छ र OCR द्वारा पढिन्छ।",
+    "file": "HYBRID-003.pdf",
+    "language": "ne",
+    "mode": "scanned",
+    "pages": [
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-004": {
+    "expectedText": "इस स्कैन किए गए पृष्ठ में हिंदी पाठ है जिसे OCR पढ़ेगा।",
+    "file": "HYBRID-004.pdf",
+    "language": "hi",
+    "mode": "scanned",
+    "pages": [
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-005": {
+    "expectedText": "या स्कॅन केलेल्या पानावर मराठी मजकूर आहे जो OCR वाचेल.",
+    "file": "HYBRID-005.pdf",
+    "language": "mr",
+    "mode": "scanned",
+    "pages": [
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-006": {
+    "expectedRegions": [
+      {
+        "height": 0.01900486344930789,
+        "width": 0.584119365079365,
+        "x": 0.12095238095238094,
+        "y": 0.15485372240927808
+      }
+    ],
+    "expectedText": "This is the native first page of a mixed document. This is the scanned second page of a mixed document.",
+    "file": "HYBRID-006.pdf",
+    "language": "en",
+    "mode": "mixed",
+    "pages": [
+      {
+        "classification": "NATIVE"
+      },
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-007": {
+    "expectedRegions": [
+      {
+        "height": 0.01900486344930789,
+        "width": 0.5632617989417988,
+        "x": 0.12095238095238094,
+        "y": 0.13109764309764327
+      }
+    ],
+    "expectedText": "Native text appears above the embedded scan. Embedded scan text for region OCR.",
+    "file": "HYBRID-007.pdf",
+    "language": "en",
+    "mode": "mixed",
+    "pages": [
+      {
+        "classification": "MIXED",
+        "ocrRegions": 1
+      }
+    ]
+  },
+  "HYBRID-008": {
+    "expectedCells": 6,
+    "expectedRegions": [
+      {
+        "height": 0.047512158623269726,
+        "width": 0.8097627513227512,
+        "x": 0.12095238095238094,
+        "y": 0.13109764309764327
+      }
+    ],
+    "expectedText": "This native page contains a clean paragraph of English text used for hybrid qualification.",
+    "file": "HYBRID-008.pdf",
+    "language": "en",
+    "mode": "native",
+    "pages": [
+      {
+        "classification": "NATIVE"
+      }
+    ],
+    "structuredTableDisposition": "tables",
+    "table": [
+      [
+        "Item",
+        "Amount"
+      ],
+      [
+        "Invoice 1001",
+        "1250"
+      ],
+      [
+        "Invoice 1002",
+        "980"
+      ]
+    ]
+  },
+  "HYBRID-009": {
+    "expectedText": "Item Amount Invoice 1001 1250 Invoice 1002 980",
+    "file": "HYBRID-009.pdf",
+    "language": "en",
+    "mode": "scanned",
+    "pages": [
+      {
+        "classification": "SCANNED"
+      }
+    ],
+    "structuredTableDisposition": "scanned"
+  },
+  "HYBRID-010": {
+    "degradation": "gaussian-noise+3deg-rotation",
+    "expectedText": "This scanned page contains rasterized English text for OCR qualification.",
+    "file": "HYBRID-010.pdf",
+    "language": "en",
+    "mode": "scanned",
+    "pages": [
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-011": {
+    "expectedRegions": [
+      {
+        "height": 0.01900486344930789,
+        "width": 0.584119365079365,
+        "x": 0.12095238095238094,
+        "y": 0.15485372240927808
+      }
+    ],
+    "expectedText": "This is the native first page of a mixed document. This is the scanned second page of a mixed document.",
+    "file": "HYBRID-011.pdf",
+    "language": "en",
+    "mode": "mixed",
+    "pages": [
+      {
+        "classification": "BLANK"
+      },
+      {
+        "classification": "NATIVE"
+      },
+      {
+        "classification": "SCANNED"
+      }
+    ]
+  },
+  "HYBRID-012": {
+    "deduplicatedText": "Repeated heading text for deduplication check.",
+    "expectedText": "Repeated heading text for deduplication check. Repeated heading text for deduplication check. Unique OCR content below the duplicate region.",
+    "file": "HYBRID-012.pdf",
+    "language": "en",
+    "mode": "mixed",
+    "pages": [
+      {
+        "classification": "MIXED",
+        "ocrRegions": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "mappingFingerprint": "sha256:b787811463c3b25c77e06b8016adbf0594d1fb0b13ebeb9265d39ae7b5f8b1a5",
+  "producerVersion": "document-intelligence-ocr-mapping/1",
+  "producers": {
+    "provider.docling": {
+      "producerAuthority": "ghatana.docling",
+      "runtimeInputs": [
+        {
+          "inputId": "offline-policy",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_OFFLINE",
+          "required": true
+        },
+        {
+          "inputId": "model-cache",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_MODEL_CACHE",
+          "required": true
+        },
+        {
+          "inputId": "model-manifest",
+          "kind": "model_asset",
+          "path": "models/model-manifest.yaml",
+          "required": true
+        },
+        {
+          "inputId": "python-runtime",
+          "kind": "native_dependency",
+          "name": "python",
+          "required": true
+        }
+      ],
+      "semanticClass": "parsed_document",
+      "sourceSelectors": [
+        "src/document_intelligence/providers/docling_parser.py",
+        "src/document_intelligence/mapping/"
+      ]
+    },
+    "provider.gliner": {
+      "producerAuthority": "ghatana.gliner",
+      "runtimeInputs": [
+        {
+          "inputId": "offline-policy",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_OFFLINE",
+          "required": true
+        },
+        {
+          "inputId": "model-cache",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_MODEL_CACHE",
+          "required": true
+        },
+        {
+          "inputId": "model-manifest",
+          "kind": "model_asset",
+          "path": "models/model-manifest.yaml",
+          "required": true
+        },
+        {
+          "inputId": "python-runtime",
+          "kind": "native_dependency",
+          "name": "python",
+          "required": true
+        }
+      ],
+      "semanticClass": "extraction_candidates",
+      "sourceSelectors": [
+        "src/document_intelligence/providers/gliner_extractor.py",
+        "src/document_intelligence/mapping/candidates.py"
+      ]
+    },
+    "provider.minilm": {
+      "producerAuthority": "ghatana.minilm",
+      "runtimeInputs": [
+        {
+          "inputId": "offline-policy",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_OFFLINE",
+          "required": true
+        },
+        {
+          "inputId": "model-cache",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_MODEL_CACHE",
+          "required": true
+        },
+        {
+          "inputId": "model-manifest",
+          "kind": "model_asset",
+          "path": "models/model-manifest.yaml",
+          "required": true
+        },
+        {
+          "inputId": "python-runtime",
+          "kind": "native_dependency",
+          "name": "python",
+          "required": true
+        }
+      ],
+      "semanticClass": "embeddings",
+      "sourceSelectors": [
+        "src/document_intelligence/providers/minilm_embedder.py",
+        "src/document_intelligence/mapping/embeddings.py"
+      ]
+    },
+    "provider.paddleocr": {
+      "producerAuthority": "ghatana.paddleocr",
+      "runtimeInputs": [
+        {
+          "inputId": "offline-policy",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_OFFLINE",
+          "required": true
+        },
+        {
+          "inputId": "model-cache",
+          "kind": "environment",
+          "name": "DOCUMENT_INTELLIGENCE_MODEL_CACHE",
+          "required": true
+        },
+        {
+          "inputId": "model-manifest",
+          "kind": "model_asset",
+          "path": "models/model-manifest.yaml",
+          "required": true
+        },
+        {
+          "inputId": "python-runtime",
+          "kind": "native_dependency",
+          "name": "python",
+          "required": true
+        }
+      ],
+      "semanticClass": "ocr_text",
+      "sourceSelectors": [
+        "src/document_intelligence/providers/paddle_ocr_parser.py",
+        "src/document_intelligence/runtime/model_registry.py"
+      ]
+    },
+    "runtime.native-process-boundary": {
+      "producerAuthority": "ghatana.provider-runtime",
+      "runtimeInputs": [
+        {
+          "inputId": "path-policy",
+          "kind": "environment",
+          "name": "PATH",
+          "required": true
+        },
+        {
+          "inputId": "tesseract-binary",
+          "kind": "native_dependency",
+          "name": "tesseract",
+          "required": false
+        }
+      ],
+      "semanticClass": "bounded_native_execution",
+      "sourceSelectors": [
+        "src/document_intelligence/runtime/subprocess_runner.py",
+        "src/document_intelligence/runtime/cancellation.py"
+      ]
+    }
+  },
+  "schemaVersion": "document-intelligence.ocr-proof-inputs.v1"
+}

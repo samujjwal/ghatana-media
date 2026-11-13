@@ -1,0 +1,90 @@
+{
+  "pages": [
+    {
+      "blocks": [],
+      "pageNumber": 1,
+      "tables": []
+    },
+    {
+      "blocks": [
+        {
+          "blockId": "p2-b1",
+          "boundingRegion": {
+            "height": 0.017579497934290294,
+            "width": 0.5841193558076294,
+            "x": 0.1209523790325019,
+            "y": 0.15489176849511654
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.017579497934290294,
+                "width": 0.5841193558076294,
+                "x": 0.1209523790325019,
+                "y": 0.15489176849511654
+              },
+              "lineId": "p2-b1-l1",
+              "text": "This is the native first page of a mixed document."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 2,
+      "tables": []
+    },
+    {
+      "blocks": [
+        {
+          "blockId": "p3-b1",
+          "boundingRegion": {
+            "height": 0.06472684085510688,
+            "width": 0.5272879932829555,
+            "x": 0.0436607892527288,
+            "y": 0.050475059382422804
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.02553444180522565,
+                "width": 0.5272879932829555,
+                "x": 0.0436607892527288,
+                "y": 0.050475059382422804
+              },
+              "confidence": 0.9928850531578064,
+              "languageTag": "en",
+              "lineId": "p3-b1-l1",
+              "text": "This is the scanned second page of"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.022565320665083134,
+                "width": 0.28547439126784213,
+                "x": 0.047019311502938706,
+                "y": 0.09263657957244656
+              },
+              "confidence": 0.9998644590377808,
+              "languageTag": "en",
+              "lineId": "p3-b1-l2",
+              "text": "a mixed document."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 3,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"BLANK\",\"textCharacters\":0,\"imageRegions\":0},{\"pageNumber\":2,\"classification\":\"NATIVE\",\"textCharacters\":50,\"imageRegions\":0},{\"pageNumber\":3,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]"
+    ]
+  }
+}

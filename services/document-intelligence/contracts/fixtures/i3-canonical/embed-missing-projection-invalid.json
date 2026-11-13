@@ -1,0 +1,13 @@
+{
+  "id": "embed-missing-projection-invalid",
+  "endpoint": "embed",
+  "description": "Metadata parses but the endpoint gate requires a projection object; the app rejects with INVALID_REQUEST.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-embed-no-projection",
+    "providerRef": "ghatana.minilm",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "payload" }
+}

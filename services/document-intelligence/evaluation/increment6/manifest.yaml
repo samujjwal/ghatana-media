@@ -1,0 +1,627 @@
+schemaVersion: increment6.manifest.v1
+state: CANDIDATE
+required: true
+protocolAuthority:
+  schemaVersion: document-intelligence.increment6-protocol-authority.v1
+  status: CANDIDATE
+  protocolVersion: document-intelligence.v1
+  endpoints:
+    - GET /v1/providers
+    - POST /v1/parse
+    - POST /v1/extract
+    - POST /v1/embed
+    - DELETE /v1/operations/{operationId}
+  coreSchemas:
+    - embed.request.schema.json
+    - embed.response.schema.json
+    - error.schema.json
+    - extract.request.schema.json
+    - extract.response.schema.json
+    - operations-delete.schema.json
+    - parse.request.schema.json
+    - parse.response.schema.json
+    - providers.response.schema.json
+    - request-metadata.schema.json
+  mappings:
+    - taskId: I6-03
+      authority: PROTOCOL_FREEZE
+      executableCheck: protocolFreeze
+    - taskId: I6-04
+      authority: BACKWARD_COMPATIBILITY
+      executableCheck: backwardCompatibility
+    - taskId: I6-05
+      authority: ADDITIVE_VERSIONED_EXTENSIONS
+      executableCheck: additiveVersionedExtensions
+    - taskId: I6-06
+      authority: NEGOTIATION
+      executableCheck: negotiation
+  protocolDocument: contracts/protocol-v1.md
+  extensionPolicy: contracts/protocol-extensions.v1.md
+  schemaDirectory: contracts/schemas/v1
+  canonicalCompatibilityFixtures: contracts/fixtures/i3-canonical
+  focusedTests:
+    backwardCompatibility: tests/contract/test_i3_canonical_requests.py
+    wireGrammar: tests/contract/test_protocol_v1.py
+    negotiation: clients/typescript/tests/providers-catalog.test.ts
+  supportedWorkerCapabilityVersions:
+    - document-intelligence-worker.v1
+  legacyWorkerCapabilityVersion: document-intelligence.v1-legacy
+  negotiationEndpoint: GET /v1/providers
+groundTruth:
+  reviewed: true
+  reviewVersion: increment6-r1
+  supersededMaterialAllowed: false
+authorities:
+  qualification: qualification.yaml
+  acceptance: acceptance.yaml
+  environment: environment.yaml
+  modelManifest: models/increment4a/model-manifest.yaml
+  languageRegistry: models/increment4a/language-registry.yaml
+  corpus: corpus
+  routing:
+  - routing/scanned-pdf.v1.yaml
+  - routing/fallback-contract.v1.yaml
+  profile: profiles/increment6.yaml
+  performanceEvidenceSchema: schemas/performance-evidence.v1.schema.json
+lanes:
+- id: scanned-pdf
+  corpusDir: corpus/scanned-pdf
+  fixturesManifest: corpus/scanned-pdf/fixtures.yaml
+  purpose: scanned-PDF page classification with hybrid provenance (I6-06..I6-08)
+  qualificationInput: PAGE_FACTS_CONTRACT
+  fixtureBinaryDependent: false
+  ownerCapabilityIds:
+  - parser.pdf.scanned.classify.en
+  - parser.pdf.scanned.classify.ne
+  - parser.pdf.scanned.classify.hi
+  - parser.pdf.scanned.classify.mr
+  - parser.pdf.hybrid.provenance.en
+  - parser.pdf.hybrid.provenance.ne
+  - parser.pdf.hybrid.provenance.hi
+  - parser.pdf.hybrid.provenance.mr
+- id: hybrid-provenance
+  corpusDir: corpus/hybrid-provenance
+  fixturesManifest: corpus/hybrid-provenance/fixtures.yaml
+  purpose: per-page hybrid provenance receipts — every page carries class + reasonCode
+    (I6-07)
+  qualificationInput: PAGE_FACTS_CONTRACT
+  fixtureBinaryDependent: false
+  ownerCapabilityIds:
+  - parser.pdf.hybrid.provenance.en
+  - parser.pdf.hybrid.provenance.ne
+  - parser.pdf.hybrid.provenance.hi
+  - parser.pdf.hybrid.provenance.mr
+- id: office-docx
+  corpusDir: corpus/office-docx
+  fixturesManifest: corpus/office-docx/fixtures.yaml
+  purpose: DOCX text/structure breadth over the I4A-qualified provider (I6-09)
+  qualificationInput: FIXTURE_BINARY
+  fixtureBinaryDependent: true
+  ownerCapabilityIds:
+  - parser.docx.text.en
+  - parser.docx.text.ne
+  - parser.docx.text.hi
+  - parser.docx.text.mr
+- id: office-pptx
+  corpusDir: corpus/office-pptx
+  fixturesManifest: corpus/office-pptx/fixtures.yaml
+  purpose: PPTX text/structure breadth over the I4A-qualified provider (I6-10)
+  qualificationInput: FIXTURE_BINARY
+  fixtureBinaryDependent: true
+  ownerCapabilityIds:
+  - parser.pptx.text.en
+  - parser.pptx.text.ne
+  - parser.pptx.text.hi
+  - parser.pptx.text.mr
+- id: office-xlsx
+  corpusDir: corpus/office-xlsx
+  fixturesManifest: corpus/office-xlsx/fixtures.yaml
+  purpose: XLSX table breadth over the I4A-qualified provider (I6-11)
+  qualificationInput: FIXTURE_BINARY
+  fixtureBinaryDependent: true
+  ownerCapabilityIds:
+  - parser.xlsx.tables.en
+  - parser.xlsx.tables.ne
+  - parser.xlsx.tables.hi
+  - parser.xlsx.tables.mr
+- id: hi-mr-ocr
+  corpusDir: corpus/hi-mr-ocr
+  fixturesManifest: corpus/hi-mr-ocr/fixtures.yaml
+  purpose: Hindi/Marathi OCR text-fidelity lane; text quality only, no schema extraction
+    (I6-12)
+  qualificationInput: FIXTURE_BINARY
+  fixtureBinaryDependent: true
+  ownerCapabilityIds:
+  - ocr.paddle.hi
+  - ocr.paddle.mr
+- id: hi-mr-extraction
+  corpusDir: corpus/hi-mr-extraction
+  fixturesManifest: corpus/hi-mr-extraction/fixtures.yaml
+  purpose: schema-guided extraction over hi/mr text; separately calibrated threshold
+    (I6-13..I6-14)
+  qualificationInput: FIXTURE_BINARY
+  fixtureBinaryDependent: true
+  ownerCapabilityIds:
+  - extraction.schema-guided.hi.v2
+  - extraction.schema-guided.mr.v2
+- id: complex-layout
+  corpusDir: corpus/complex-layout
+  fixturesManifest: corpus/complex-layout/fixtures.yaml
+  purpose: multi-column / complex-layout PDF layout fidelity (I6-15)
+  qualificationInput: FIXTURE_BINARY
+  fixtureBinaryDependent: true
+  ownerCapabilityIds:
+  - parser.pdf.complex-layout.en
+  - parser.pdf.complex-layout.hi
+  - parser.pdf.complex-layout.mr
+- id: scanned-table-regression
+  corpusDir: corpus/scanned-table-regression
+  fixturesManifest: corpus/scanned-table-regression/fixtures.yaml
+  purpose: negative lane — every fixture must yield UNSUPPORTED_BY_DESIGN (I6-18..I6-20)
+  negativeLane: true
+  expectedDisposition: UNSUPPORTED_BY_DESIGN
+  qualificationInput: DECLARED_NEGATIVE_DISPOSITION
+  fixtureBinaryDependent: false
+  ownerCapabilityIds:
+  - parser.pdf.hybrid.tables.scanned.en
+  - parser.pdf.hybrid.tables.scanned.ne
+  - parser.pdf.hybrid.tables.scanned.hi
+  - parser.pdf.hybrid.tables.scanned.mr
+capabilityDimensions:
+- capabilityId: parser.pdf.scanned.classify.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.scanned-pdf-classifier
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics:
+  - classification.accuracy
+  inputFormat: pdf
+  operation: classify
+  providerRoute: scanned-pdf
+  feature: scanned-classification
+- capabilityId: parser.pdf.scanned.classify.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.scanned-pdf-classifier
+  mediaTypes:
+  - application/pdf
+  languages:
+  - ne
+  requiredMetrics:
+  - classification.accuracy
+  inputFormat: pdf
+  operation: classify
+  providerRoute: scanned-pdf
+  feature: scanned-classification
+- capabilityId: parser.pdf.scanned.classify.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.scanned-pdf-classifier
+  mediaTypes:
+  - application/pdf
+  languages:
+  - hi
+  requiredMetrics:
+  - classification.accuracy
+  inputFormat: pdf
+  operation: classify
+  providerRoute: scanned-pdf
+  feature: scanned-classification
+- capabilityId: parser.pdf.scanned.classify.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.scanned-pdf-classifier
+  mediaTypes:
+  - application/pdf
+  languages:
+  - mr
+  requiredMetrics:
+  - classification.accuracy
+  inputFormat: pdf
+  operation: classify
+  providerRoute: scanned-pdf
+  feature: scanned-classification
+- capabilityId: parser.pdf.hybrid.provenance.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics:
+  - provenance.completeness
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: hybrid-provenance
+- capabilityId: parser.pdf.hybrid.provenance.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - ne
+  requiredMetrics:
+  - provenance.completeness
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: hybrid-provenance
+- capabilityId: parser.pdf.hybrid.provenance.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - hi
+  requiredMetrics:
+  - provenance.completeness
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: hybrid-provenance
+- capabilityId: parser.pdf.hybrid.provenance.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - mr
+  requiredMetrics:
+  - provenance.completeness
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: hybrid-provenance
+- capabilityId: parser.docx.text.en
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.docx.text.ne
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.docx.text.hi
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.docx.text.mr
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.pptx.text.en
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.pptx.text.ne
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.pptx.text.hi
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.pptx.text.mr
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.xlsx.tables.en
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: parser.xlsx.tables.ne
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: parser.xlsx.tables.hi
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: parser.xlsx.tables.mr
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: ocr.paddle.hi
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.paddleocr
+  mediaTypes:
+  - image/png
+  languages:
+  - hi
+  requiredMetrics:
+  - text.cer
+  - language.accuracy
+  inputFormat: image
+  operation: parse
+  providerRoute: paddle
+  feature: text
+- capabilityId: ocr.paddle.mr
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.paddleocr
+  mediaTypes:
+  - image/png
+  languages:
+  - mr
+  requiredMetrics:
+  - text.cer
+  - language.accuracy
+  inputFormat: image
+  operation: parse
+  providerRoute: paddle
+  feature: text
+- capabilityId: extraction.schema-guided.hi.v2
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT_AND_EXTERNAL_GATE
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: RELEASE_READINESS_EXTERNAL_CERTIFICATION_EVIDENCE
+  providerRef: ghatana.gliner
+  mediaTypes:
+  - application/vnd.ghatana.parsed-document+json
+  languages:
+  - hi
+  requiredMetrics:
+  - gliner.entityF1
+  - gliner.evidenceAccuracy
+  inputFormat: parsed-document
+  operation: extract
+  providerRoute: gliner
+  feature: extraction
+- capabilityId: extraction.schema-guided.mr.v2
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT_AND_EXTERNAL_GATE
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: RELEASE_READINESS_EXTERNAL_CERTIFICATION_EVIDENCE
+  providerRef: ghatana.gliner
+  mediaTypes:
+  - application/vnd.ghatana.parsed-document+json
+  languages:
+  - mr
+  requiredMetrics:
+  - gliner.entityF1
+  - gliner.evidenceAccuracy
+  inputFormat: parsed-document
+  operation: extract
+  providerRoute: gliner
+  feature: extraction
+- capabilityId: parser.pdf.complex-layout.en
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics:
+  - layout.iou
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: complex-layout
+- capabilityId: parser.pdf.complex-layout.hi
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - hi
+  requiredMetrics:
+  - layout.iou
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: complex-layout
+- capabilityId: parser.pdf.complex-layout.mr
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: FIXTURE_BINARY_DECLARED_NOT_PRESENT
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: FIXTURE_BINARY_AUTHORITY_AVAILABLE
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - mr
+  requiredMetrics:
+  - layout.iou
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: complex-layout
+- capabilityId: parser.pdf.hybrid.tables.scanned.en
+  closureDisposition: UNSUPPORTED_BY_DESIGN
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics:
+  - structureAccuracy
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: scanned-tables
+  disposition: UNSUPPORTED_BY_DESIGN
+- capabilityId: parser.pdf.hybrid.tables.scanned.ne
+  closureDisposition: UNSUPPORTED_BY_DESIGN
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - ne
+  requiredMetrics:
+  - structureAccuracy
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: scanned-tables
+  disposition: UNSUPPORTED_BY_DESIGN
+- capabilityId: parser.pdf.hybrid.tables.scanned.hi
+  closureDisposition: UNSUPPORTED_BY_DESIGN
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - hi
+  requiredMetrics:
+  - structureAccuracy
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: scanned-tables
+  disposition: UNSUPPORTED_BY_DESIGN
+- capabilityId: parser.pdf.hybrid.tables.scanned.mr
+  closureDisposition: UNSUPPORTED_BY_DESIGN
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - mr
+  requiredMetrics:
+  - structureAccuracy
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: scanned-tables
+  disposition: UNSUPPORTED_BY_DESIGN
+fixturesManifest: per-lane

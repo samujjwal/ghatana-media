@@ -1,0 +1,68 @@
+schemaVersion: increment4a.environment.v1
+state: FROZEN
+network: offline
+requiredEnvironment:
+  DOCUMENT_INTELLIGENCE_OFFLINE: 'true'
+  HF_HUB_OFFLINE: '1'
+  TRANSFORMERS_OFFLINE: '1'
+runtime:
+  python: 3.12.3
+  pythonExecutable: /home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/.venv/bin/python
+  uv: 0.12.16
+  uvLockSha256: fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960
+  pyprojectSha256: 8a2bd5d6dddc695ab3f9374ec87fd5f9d4f65434d1db4a641029b5b80775f34c
+  packagesFingerprint: 38df448a6f3b8712a6270899f9ff6ec44837f12529a3e9d79346ff48de329c2c
+  packages:
+    PyYAML: 6.0.2
+    docling: 2.128.0
+    gliner: 0.2.29
+    huggingface-hub: 0.36.2
+    numpy: 2.3.5
+    paddleocr: 3.7.0
+    paddlepaddle: 3.3.1
+    psutil: 7.2.2
+    pytest: 8.4.2
+    reportlab: 4.5.1
+    safetensors: 0.8.0
+    sentence-transformers: 5.7.0
+    tokenizers: 0.22.2
+    torch: 2.14.0
+    transformers: 4.57.6
+  platformFingerprint: ebdd51da8bf4c5f7a4d77501d3897c9a9dd9221f3159283444c0b7b50082960e
+  hardwareFingerprint: ef5fadbe14c27fb0a4fab802920caa0822fcd37b73c47ba494bf329eaf622c1f
+  platform:
+    system: Linux
+    release: 7.0.0-31-generic
+    machine: x86_64
+    platform: Linux-7.0.0-31-generic-x86_64-with-glibc2.39
+    pythonImplementation: CPython
+    distribution: Ubuntu 24.04.4 LTS
+    libc:
+    - glibc
+    - '2.39'
+  hardware:
+    architecture: x86_64
+    cpuModel: Intel(R) Xeon(R) W-10855M CPU @ 2.80GHz
+    logicalCpus: 12
+  clock: monotonic
+  latencyUnit: ms
+  memoryUnit: MiB
+authorityFingerprints:
+  modelManifestSha256: 582bba88c331c54d0bf51c31b84a8965c179fbb03f751f1135762c7211d12a70
+  increment3ModelManifestSha256: df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4
+  increment3AcceptanceSha256: 0dd78eb41720a5c0278faec8309b0eae5771fc31508273d99839e7d4ea9ad4c9
+  increment3EnvironmentSha256: d6cac6eaff3fcd8c473354332a52f0da53cf1b57d182c00bf8613158c2a996e9
+  increment3CorpusManifestSha256: 0be76defc0ab7c95f69a17b5478a8d6f87e471f67ac40961a4b7d7ae29cdd906
+  increment4aQualificationSha256: 80c6545ff3c4d9374c8400c1d8e9bf315a81cb1a54664f8be5537cad173e65d0
+  increment4aAcceptanceSha256: 94d4cced55016c834d176b8456ebe8eb5e9832ab2947355b745f46d474b3f693
+  increment4aLanguageRegistrySha256: 99537614368569b89993048ba7bcd70bc87a5f9fc1563e997e9530dce4d275c0
+  uvLockSha256: fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960
+  pyprojectSha256: 8a2bd5d6dddc695ab3f9374ec87fd5f9d4f65434d1db4a641029b5b80775f34c
+capture:
+  platform: Linux
+  platformRelease: 7.0.0-31-generic
+  distribution: Ubuntu 24.04.4 LTS
+  machine: x86_64
+  pythonVersion: 3.12.3
+  cpuCount: 12
+  cpuModel: Intel(R) Xeon(R) W-10855M CPU @ 2.80GHz

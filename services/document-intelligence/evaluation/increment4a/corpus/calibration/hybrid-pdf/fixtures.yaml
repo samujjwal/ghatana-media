@@ -1,0 +1,14 @@
+schemaVersion: increment4a.hybrid-pdf-calibration.v1
+groundTruth:
+  source: fixture-construction
+  reviewed: true
+  reviewVersion: 1
+purpose: routing-threshold-calibration-only
+candidateThresholds:
+  nativeTextCharacters: [16, 24, 32, 48, 64]
+  imageAreaRatio: [0.05, 0.1, 0.2, 0.35]
+  mixedClassificationRatio: [0.1, 0.2, 0.3]
+  ocrRegionRatio: [0.05, 0.1, 0.2]
+  nativeOcrOverlap: [0.5, 0.7, 0.85]
+  deduplicationIoU: [0.5, 0.7, 0.9]
+fixtures: [HYBRID-006, HYBRID-007, HYBRID-011, HYBRID-012]

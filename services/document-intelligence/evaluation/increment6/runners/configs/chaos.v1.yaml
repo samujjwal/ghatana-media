@@ -1,0 +1,11 @@
+# I6-38: failure-injection chaos simulation — expected vs observed taxonomy
+fixtureCount: 512
+concurrency: 8
+seed: 13
+baseLatencyMs: 120.0
+jitterMs: 60.0
+injection:
+  PROVIDER_TIMEOUT: 0.02
+  PROVIDER_CRASH: 0.01
+  CANCELLED: 0.01
+  TEMP_SPACE_EXHAUSTED: 0.005

@@ -1,0 +1,105 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.16805225653206649,
+            "width": 0.5759865659109993,
+            "x": 0.07304785894206549,
+            "y": 0.14370546318289787
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.030285035629453682,
+                "width": 0.08648194794290512,
+                "x": 0.07304785894206549,
+                "y": 0.14370546318289787
+              },
+              "confidence": 0.9988601207733154,
+              "languageTag": "en",
+              "lineId": "p1-b1-l1",
+              "text": "Item"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.02672209026128266,
+                "width": 0.14021830394626364,
+                "x": 0.5088161209068011,
+                "y": 0.14489311163895488
+              },
+              "confidence": 0.9999127388000488,
+              "languageTag": "en",
+              "lineId": "p1-b1-l2",
+              "text": "Amount"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.028503562945368172,
+                "width": 0.2174643157010915,
+                "x": 0.07472712006717044,
+                "y": 0.21318289786223277
+              },
+              "confidence": 0.9998588562011719,
+              "languageTag": "en",
+              "lineId": "p1-b1-l3",
+              "text": "Invoice 1001"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.030878859857482184,
+                "width": 0.0948782535684299,
+                "x": 0.5088161209068011,
+                "y": 0.21258907363420426
+              },
+              "confidence": 0.9999579191207886,
+              "languageTag": "en",
+              "lineId": "p1-b1-l4",
+              "text": "1250"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.028503562945368172,
+                "width": 0.21662468513853905,
+                "x": 0.07556675062972293,
+                "y": 0.2826603325415677
+              },
+              "confidence": 0.9999444484710693,
+              "languageTag": "en",
+              "lineId": "p1-b1-l5",
+              "text": "Invoice 1002"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.029097387173396674,
+                "width": 0.07472712006717044,
+                "x": 0.5079764903442485,
+                "y": 0.2826603325415677
+              },
+              "confidence": 0.9999697804450989,
+              "languageTag": "en",
+              "lineId": "p1-b1-l6",
+              "text": "980"
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+schemaVersion: increment4a.office-qualification-fixtures.v1
+provider: office-docx
+reviewed: true
+fixtureConstruction:
+  provenance: independently-authored-native-ooxml-package
+  generatedProviderGroundTruth: false
+  referenceStatus: independently-reviewed-text-structure-and-flow-geometry
+fixtures:
+  - fixtureId: mr-merged-table
+    file: mr-merged-table.docx
+    mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    language: mr
+    pages: 1
+    expectedText: "बीजक क्रमांक १००१ एकूण १२५०"
+    expectedTables: [{rows: 3, columns: 3}]
+    structuralCases: [horizontal-merge, vertical-merge, nonzero-flow-geometry]

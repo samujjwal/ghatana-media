@@ -1,0 +1,119 @@
+# document-intelligence.office-projection.v1
+#
+# Provider-neutral OOXML -> ParsedDocument projection authority (I6-59).
+# This file codifies the canonical mapping implemented by
+# src/document_intelligence/providers/native_office_parser.py — it documents
+# ACTUAL behavior and is fingerprinted material for campaigns.  Any change
+# to the projection must update this authority in the same commit.
+schemaVersion: document-intelligence.office-projection.v1
+status: CANDIDATE
+
+# Page extent/geometry notes are internal layout inputs: page `width`/`height`
+# are consumed during projection and stripped before output, never emitted.
+outputContract:
+  pageKeysStripped: [width, height]
+
+pptx:
+  source: native_office_parser._ppt_pages
+  slideToPage:
+    # Slides map to pages in presentation order, resolved through the
+    # package relationship graph — never by filename ordering.
+    order: sldIdLst
+    resolution: ppt/_rels/presentation.xml.rels   # r:id -> target, normalized under ppt/
+    acceptedTargets: ppt/slides/
+    fallbackWhenNoSlideList: numericSlideFilenameOrder   # ppt/slides/slide<N>.xml
+    pageSize: sldSz.cx x sldSz.cy EMU   # missing/non-positive -> PROVIDER_FAILED
+  textRegions:
+    shapeKinds: [sp]            # only sp shapes with a txBody produce text
+    geometry: a:xfrm off/ext (EMU), normalized to slide extent and clamped
+    degenerateOrOffSlide: SKIPPED
+    blockIdentity: "p{page}-b{seq}"        # seq = order of projected blocks on the page
+    lineIdentity: "p{page}-b{seq}-l{par}"  # one line per non-empty paragraph split
+    ordering: spTree document order
+  tables:
+    source: graphicFrame containing a:tbl
+    tableIdentity: "p{page}-t{seq}"
+    cellIdentity: "p{page}-t{seq}-c{rowIndex}-{columnIndex}"   # 0-based
+    columnSpan: gridSpan
+    rowSizing: frame height divided evenly across rows
+    nonTableGraphicFrames: IGNORED
+  speakerNotes:
+    policy: EXCLUDED              # notesSlide parts are never opened
+  hiddenContent:
+    policy: included              # no hidden-slide/show attribute filtering
+
+xlsx:
+  source: native_office_parser._xlsx_page
+  sheetToPage:
+    order: workbook.xml sheets document order     # workbook order, not file order
+    resolution: xl/_rels/workbook.xml.rels        # r:id -> target
+    targetRule: absolute targets are package-root-relative; relative resolve under xl/
+    missingTarget: PROVIDER_FAILED
+    onePagePerSheet: true
+  cellIdentity: "p{page}-t1-c{row-1}-{column-1}"   # 0-based row/column
+  tableIdentity: "p{page}-t1"                      # one projected table per sheet
+  dimensions:
+    rowCount: max populated row index
+    columnCount: max populated column index
+    rowHeight: row/@ht else 15.0
+    columnWidth: cols/col/@width else 8.43
+    tableRegion: bounding box of populated cells, normalized to used extent
+  valueMapping:
+    sharedString: 't="s" -> sharedStrings.xml si[index]'
+    inlineString: 't="inlineStr" -> is text'
+    boolean: 't="b" -> TRUE when v=1 else FALSE'
+    numberOrOther: 'raw <v> text'
+    formula:
+      policy: CACHED_VALUE_THEN_FORMULA_TEXT   # <v> preferred; <f> text only when no cached value
+      execution: NEVER                         # formulas are never evaluated
+      emptyValueWithFormula: RETAINED          # cell kept even when text is empty
+  mergedCells:
+    policy: ANCHOR_ONLY
+    anchorCarries: [rowSpan, columnSpan]
+    coveredCells: SKIPPED
+    anchorSynthesizedWhenAbsent: true          # merge anchor emitted even with empty text
+  hiddenContent:
+    # Sheet state, row hidden, and column hidden attributes are not
+    # consulted: hidden sheets/rows/columns ARE projected.  Declared
+    # `included` to match implemented behavior — preserve output for
+    # existing qualified fixtures.
+    policy: included
+  emptySheet: EMITS_EMPTY_PAGE
+
+docx:
+  source: native_office_parser._word_pages
+  bodyOrder: document order of w:body children; trailing sectPr ignored
+  pageGeometry:
+    pageSize: last sectPr pgSz @w/@h twips (defaults 12240x15840)
+    margins: pgMar (defaults 1440 twips each side)
+  pagination:
+    model: SIMULATED_FLOW               # no rendered pagination; flow-based
+    lineHeightTwips: 240
+    paragraphSpacingTwips: 120
+    rowHeightTwips: 360
+    overflowRule: new page when cursor+height exceeds page-bottom and page has blocks
+    pageBreakBefore: NEW_PAGE
+    explicitBreak: 'w:br @type="page" -> NEW_PAGE'
+  paragraphs:
+    textExtraction: 'w:t/w:text nodes; w:tab -> \t; w:br|w:cr|w:lineBreak -> \n'
+    emptyParagraph: no block emitted
+    blockIdentity: "p{page}-b{seq}"
+    lineIdentity: "p{page}-b{seq}-l{splitIndex}"   # splitlines order
+  tables:
+    tableIdentity: "p{page}-t{seq}"
+    cellIdentity: "p{page}-t{seq}-c{rowIndex}-{columnIndex}"   # 0-based
+    columnWidths: tblGrid gridCol/@w scaled to usable width; equal split when absent
+    columnSpan: gridSpan
+    verticalMerge: 'vMerge restart anchors; continue extends origin rowSpan; covered cells suppressed'
+  headersFooters:
+    policy: EXCLUDED                # header/footer parts are never opened
+  hiddenContent:
+    policy: included                # w:vanish/run hidden flags not consulted
+
+renderedRemediation:
+  # The rendered fallback (office_rendered_parser.py, provider
+  # ghatana.docling-docx) rasterizes via the office renderer then delegates
+  # to the qualified Docling PDF pipeline.  Provenance names the render step
+  # — remediation is always attributable, never silent.
+  provenanceWarningPrefix: "officeRenderer:"
+  recordedIn: quality.warnings

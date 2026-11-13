@@ -1,0 +1,154 @@
+{
+  "applicationSources": {
+    "clients/": {
+      "digest": "sha256:5ce8e499d52ee3a5087fe039a48f1f5c5d692bd44feb731a80505134d47af9ad",
+      "fileCount": 126
+    },
+    "contracts/": {
+      "digest": "sha256:439884c363e5dd410b19c1525da3c1eaafbae3cb084fd943dba822b919c4d8e7",
+      "fileCount": 2
+    },
+    "profiles/": {
+      "digest": "sha256:e92a2293615e4e3025ce56a3ee764709b131cf192408ab9cb32aeaacb38988bb",
+      "fileCount": 3
+    },
+    "routing/": {
+      "digest": "sha256:a6c33a338b307c51c7863daa426a52db3a9d21ad82bf41cab0e493833f3b1d61",
+      "fileCount": 4
+    },
+    "scripts/": {
+      "digest": "sha256:daff747a6ac5ae7f70d5caca3df4e4ea62df20534f33830424d3addf2f784470",
+      "fileCount": 28
+    },
+    "src/document_intelligence/": {
+      "digest": "sha256:686d94f1c424d3f8381f897c78ee3024a4db8c4fa0cdeaa65e989fc0aaaa464c",
+      "fileCount": 57
+    }
+  },
+  "bundleId": "document-intelligence-worker.offline-bundle",
+  "descriptorSha256": "sha256:a72d1ccf5114d0194452e88347f9f8a8cbea172805cb3c4633bc4c87b05928c1",
+  "generatedAt": "2026-09-21T22:18:28Z",
+  "increment": "increment6",
+  "manifestFingerprint": "sha256:50ac6fd9eb9f98aa4f1059156b997127638758d61d1ee8a934b6b1d010c69600",
+  "modelAssets": [
+    {
+      "cachePath": ".models/ghatana.docling__docling-standard-pdf-pipeline__pinned-docling-runtime",
+      "ref": "ghatana.docling/docling-standard-pdf-pipeline@pinned-docling-runtime",
+      "sha256": "39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252",
+      "source": "models/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252"
+    },
+    {
+      "cachePath": ".models/ghatana.paddleocr__PP-OCRv5-en__PP-OCRv5-local-en",
+      "ref": "ghatana.paddleocr/PP-OCRv5-en@PP-OCRv5-local-en",
+      "sha256": "5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b",
+      "source": "models/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b"
+    },
+    {
+      "cachePath": ".models/ghatana.paddleocr__PP-OCRv5-devanagari-shared__PP-OCRv5-local-devanagari-shared",
+      "ref": "ghatana.paddleocr/PP-OCRv5-devanagari-shared@PP-OCRv5-local-devanagari-shared",
+      "sha256": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8",
+      "source": "models/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8"
+    },
+    {
+      "cachePath": ".models/ghatana.gliner__urchade_gliner_multi-v2.1__443d26d",
+      "ref": "ghatana.gliner/urchade/gliner_multi-v2.1@443d26d",
+      "sha256": "9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a",
+      "source": "models/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a"
+    },
+    {
+      "cachePath": ".models/ghatana.minilm__sentence-transformers_all-MiniLM-L6-v2__1110a24",
+      "ref": "ghatana.minilm/sentence-transformers/all-MiniLM-L6-v2@1110a24",
+      "sha256": "55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18",
+      "source": "models/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18"
+    },
+    {
+      "cachePath": ".models/office-renderer",
+      "ref": "office-renderer.fonts",
+      "sha256": "ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b"
+    }
+  ],
+  "nativeAssets": [
+    {
+      "cachePath": ".models/tesseract-runtime",
+      "kind": "runtime-tree",
+      "ref": "ghatana.tesseractocr/tesseract-5@local-traineddata",
+      "sha256": "0f34d40a8c32cb9d73a8e0c51667df049e35c58a8fd740a2b6eecadfadc96ffb",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "0f34d40a8c32cb9d73a8e0c51667df049e35c58a8fd740a2b6eecadfadc96ffb"
+    },
+    {
+      "kind": "executable",
+      "path": ".models/tesseract-runtime/usr/bin/tesseract",
+      "ref": "ghatana.tesseractocr/tesseract-5@local-traineddata:executable",
+      "sha256": "9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5"
+    },
+    {
+      "kind": "traineddata",
+      "path": ".models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/eng.traineddata",
+      "ref": "ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.eng",
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+    },
+    {
+      "kind": "traineddata",
+      "path": ".models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/nep.traineddata",
+      "ref": "ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.nep",
+      "sha256": "280ba9450b4f21afbf5985e0de87857b75a972577c50ef0603c141ddde4f1cb8",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "280ba9450b4f21afbf5985e0de87857b75a972577c50ef0603c141ddde4f1cb8"
+    },
+    {
+      "kind": "traineddata",
+      "path": ".models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/hin.traineddata",
+      "ref": "ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.hin",
+      "sha256": "4c73ffc59d497c186b19d1e90f5d721d678ea6b2e277b719bee4e2af12271825",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "4c73ffc59d497c186b19d1e90f5d721d678ea6b2e277b719bee4e2af12271825"
+    },
+    {
+      "kind": "traineddata",
+      "path": ".models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/mar.traineddata",
+      "ref": "ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.mar",
+      "sha256": "0ba3f2d116972e72fe9e176bc84c38e81dfb6670f4ed1f7f6c8e16a27da7cb61",
+      "source": "models/increment4a/model-manifest.yaml",
+      "status": "VERIFIED",
+      "verifiedDigest": "0ba3f2d116972e72fe9e176bc84c38e81dfb6670f4ed1f7f6c8e16a27da7cb61"
+    }
+  ],
+  "networkMode": "offline",
+  "policyRefs": {
+    "capabilities/document-intelligence-capabilities.yaml": "sha256:7e89e124814109bd3aae7ab38d2b37974ebe646fb8935f195b9e43ff1332cf0e",
+    "deployment/activation.v1.yaml": "sha256:e49dd89d1c22d5251837831f2014b3e759a529f52e488be703fe20cfc2bf4676",
+    "deployment/deployment-gates.v1.yaml": "sha256:5123e916d4fcc1e1c11050357ee9b98a7450ca65e40416c64cb64fa68eb525e3",
+    "deployment/operational-envelope.v1.yaml": "sha256:86d96eb80178fbbd4c4d5dc7c618f9cef3f9e12cbe8906b99a43c7fe8f90e1b6",
+    "deployment/vulnerability-policy.v1.yaml": "sha256:da7d0c35e971c2b4d103c3b43641305ced89a33ba4546da320ed464eef29efaf"
+  },
+  "pythonRuntime": {
+    "status": "VERIFIED",
+    "uvLockSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+    "version": "3.12.3"
+  },
+  "remoteFetchCount": 0,
+  "schemaVersion": "document-intelligence.offline-bundle-manifest.v1"
+}

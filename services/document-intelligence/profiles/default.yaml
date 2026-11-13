@@ -1,0 +1,72 @@
+# document-intelligence.profile.v1 — DOCUMENTARY manifest for the implicit
+# default runtime.
+#
+# The default runtime has no file profile by design: it is the configuration
+# reached when DOCUMENT_INTELLIGENCE_PROFILE_PATH is unset, and
+# WorkerSettings.from_env rejects profileId "default" when loaded from a file.
+# This manifest only enumerates the implicit defaults so drift between the
+# file and code is detectable (scripts/check_default_catalog_stability.py).
+# runtimeLoadable: false marks the intent; the extra keys below also make the
+# file fail closed if it is ever pointed at the runtime profile loader.
+schemaVersion: document-intelligence.profile.v1
+profileId: default
+runtimeLoadable: false
+description: Canonical Increment-3 runtime; unchanged by 4A/5/6 candidate work.
+
+enabledProviders:
+- ghatana.docling
+- ghatana.paddleocr
+- ghatana.gliner
+- ghatana.minilm
+mediaTypes:
+- application/pdf
+- image/png
+- image/jpeg
+languages:
+- en
+- ne
+modelManifest: models/model-manifest.yaml
+modelManifestSha256: df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4
+providerAuthority: evaluation/results/20260919T022904Z-cf9e659f/capabilities.json
+providerAuthoritySha256: 2c8abd115056526510def605099a1aead08ab28071d4928e4619875534a455ab
+routingPolicy: routing/parser-routing.v1.yaml
+
+limits:
+  maxUploadBytes: 52428800
+  maxOperationTimeoutMs: 120000
+  maxMetadataBytes: 65536
+  maxPages: 500
+  maxBlocks: 100000
+  maxLines: 200000
+  maxTextCharacters: 2000000
+  maxCandidates: 16000
+  maxEvidence: 32
+  maxEmbeddingDimensions: 16384
+  maxQueue: 32
+  maxOfficeArchiveMembers: 10000
+  maxOfficeUncompressedBytes: 268435456
+  maxOfficeMemberBytes: 67108864
+  maxOfficeCompressionRatio: 100
+  maxPdfObjects: 200000
+  maxPdfStreams: 100000
+  maxPdfPageDimensionPt: 14400
+  maxImageDimensionPx: 16000
+  maxImageFrames: 4
+  maxDecodedImageBytes: 536870912
+
+admission:
+  # Only canonical I3 providers/languages/media are admitted; I4A extensions
+  # require the increment4a file profile.
+  consumerAdmission: ALLOWED
+  scope: CANONICAL_INCREMENT3_ONLY
+
+fallbacks:
+  # The default catalog enables no composite or resilient providers, so no
+  # declared fallback chain can execute: parser-routing.v1.yaml routes degrade
+  # to their enabled entries only (e.g. pdf -> ghatana.docling alone), and
+  # fallback-contract.v1.yaml targets providers outside this catalog. The
+  # routing retry: policy sits at maxAttempts 1, preserving the sealed default
+  # (no same-provider retry); the default route binds no fallback contract.
+  declaredChains: []
+  implicitFallback: REJECT
+  retryMaxAttempts: 1

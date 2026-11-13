@@ -1,0 +1,33 @@
+schemaVersion: increment6.fixtures.v1
+lane: scanned-table-regression
+# Negative lane: every fixture asserts UNSUPPORTED_BY_DESIGN. A PASS for this
+# lane means each executed fixture produced the declared unsupported
+# disposition, not a successful table extraction.
+negativeLane: true
+expectedDisposition: UNSUPPORTED_BY_DESIGN
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-REG-EN-001
+  file: I6-REG-EN-001.pdf
+  mediaType: application/pdf
+  language: en
+  expectedCapability: parser.pdf.hybrid.tables.scanned.en
+  expectedDisposition: UNSUPPORTED_BY_DESIGN
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-REG-HI-001
+  file: I6-REG-HI-001.pdf
+  mediaType: application/pdf
+  language: hi
+  expectedCapability: parser.pdf.hybrid.tables.scanned.hi
+  expectedDisposition: UNSUPPORTED_BY_DESIGN
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-REG-MR-001
+  file: I6-REG-MR-001.pdf
+  mediaType: application/pdf
+  language: mr
+  expectedCapability: parser.pdf.hybrid.tables.scanned.mr
+  expectedDisposition: UNSUPPORTED_BY_DESIGN
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT

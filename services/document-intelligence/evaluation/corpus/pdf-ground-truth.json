@@ -1,0 +1,329 @@
+{
+  "pdf-en-dense": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.10606060606060605,
+        "width": 0.7557254901960785,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": "Synthetic English dense paragraph for layout evaluation. Synthetic English dense\nparagraph for layout evaluation. Synthetic English dense paragraph for layout\nevaluation. Synthetic English dense paragraph for layout evaluation. Synthetic\nEnglish dense paragraph for layout evaluation. Synthetic English dense paragraph\nfor layout evaluation."
+  },
+  "pdf-en-no-text": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.015151515151515152,
+        "width": 0.005098039215686273,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": ""
+  },
+  "pdf-en-simple": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.015151515151515152,
+        "width": 0.3945882352941176,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": "Synthetic English invoice number INV-1001"
+  },
+  "pdf-en-sparse": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.015151515151515152,
+        "width": 0.23135294117647057,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": "Synthetic sparse heading"
+  },
+  "pdf-en-table": {
+    "expectedCells": [
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.11764705882352941,
+          "y": 0.09090909090909091
+        },
+        "columnIndex": 0,
+        "rowIndex": 0,
+        "text": "Item"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.37254901960784315,
+          "y": 0.09090909090909091
+        },
+        "columnIndex": 1,
+        "rowIndex": 0,
+        "text": "Quantity"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.6274509803921569,
+          "y": 0.09090909090909091
+        },
+        "columnIndex": 2,
+        "rowIndex": 0,
+        "text": "Price"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.11764705882352941,
+          "y": 0.13636363636363635
+        },
+        "columnIndex": 0,
+        "rowIndex": 1,
+        "text": "Widget"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.37254901960784315,
+          "y": 0.13636363636363635
+        },
+        "columnIndex": 1,
+        "rowIndex": 1,
+        "text": "2"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.6274509803921569,
+          "y": 0.13636363636363635
+        },
+        "columnIndex": 2,
+        "rowIndex": 1,
+        "text": "10.00"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.11764705882352941,
+          "y": 0.18181818181818182
+        },
+        "columnIndex": 0,
+        "rowIndex": 2,
+        "text": "Gadget"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.37254901960784315,
+          "y": 0.18181818181818182
+        },
+        "columnIndex": 1,
+        "rowIndex": 2,
+        "text": "1"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.6274509803921569,
+          "y": 0.18181818181818182
+        },
+        "columnIndex": 2,
+        "rowIndex": 2,
+        "text": "20.00"
+      }
+    ],
+    "expectedRegions": [
+      {
+        "height": 0.13636363636363635,
+        "width": 0.7647058823529411,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [
+      {
+        "columns": 3,
+        "rows": 3
+      }
+    ],
+    "expectedText": "Item Quantity Price\nWidget 2 10.00\nGadget 1 20.00"
+  },
+  "pdf-ne-dense": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.03787878787878787,
+        "width": 0.7462352941176471,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": "नेपाली संरचना परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना\nपरीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ।"
+  },
+  "pdf-ne-multiline": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.015151515151515152,
+        "width": 0.4664117647058823,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": "पहिलो नेपाली पङ्क्ति दोस्रो नेपाली पङ्क्ति तेस्रो नेपाली पङ्क्ति"
+  },
+  "pdf-ne-simple": {
+    "expectedCells": [],
+    "expectedRegions": [
+      {
+        "height": 0.015151515151515152,
+        "width": 0.2774509803921569,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [],
+    "expectedText": "नेपाली परीक्षण कागजात नम्बर १००१"
+  },
+  "pdf-ne-table": {
+    "expectedCells": [
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.11764705882352941,
+          "y": 0.09090909090909091
+        },
+        "columnIndex": 0,
+        "rowIndex": 0,
+        "text": "वस्तु"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.37254901960784315,
+          "y": 0.09090909090909091
+        },
+        "columnIndex": 1,
+        "rowIndex": 0,
+        "text": "संख्या"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.6274509803921569,
+          "y": 0.09090909090909091
+        },
+        "columnIndex": 2,
+        "rowIndex": 0,
+        "text": "मूल्य"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.11764705882352941,
+          "y": 0.13636363636363635
+        },
+        "columnIndex": 0,
+        "rowIndex": 1,
+        "text": "कलम"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.37254901960784315,
+          "y": 0.13636363636363635
+        },
+        "columnIndex": 1,
+        "rowIndex": 1,
+        "text": "२"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.6274509803921569,
+          "y": 0.13636363636363635
+        },
+        "columnIndex": 2,
+        "rowIndex": 1,
+        "text": "१०.००"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.11764705882352941,
+          "y": 0.18181818181818182
+        },
+        "columnIndex": 0,
+        "rowIndex": 2,
+        "text": "कापी"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.37254901960784315,
+          "y": 0.18181818181818182
+        },
+        "columnIndex": 1,
+        "rowIndex": 2,
+        "text": "१"
+      },
+      {
+        "boundingRegion": {
+          "height": 0.045454545454545456,
+          "width": 0.2549019607843137,
+          "x": 0.6274509803921569,
+          "y": 0.18181818181818182
+        },
+        "columnIndex": 2,
+        "rowIndex": 2,
+        "text": "२०.००"
+      }
+    ],
+    "expectedRegions": [
+      {
+        "height": 0.13636363636363635,
+        "width": 0.7647058823529411,
+        "x": 0.11764705882352941,
+        "y": 0.09090909090909091
+      }
+    ],
+    "expectedTables": [
+      {
+        "columns": 3,
+        "rows": 3
+      }
+    ],
+    "expectedText": "वस्तु संख्या मूल्य\nकलम २ १०.००\nकापी १ २०.००"
+  }
+}

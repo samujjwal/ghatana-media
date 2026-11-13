@@ -1,0 +1,53 @@
+{
+  "id": "extract-en-valid",
+  "endpoint": "extract",
+  "description": "Canonical I3 extract envelope: requested field descriptors plus bounded parsed material for gliner.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-extract-en-1",
+    "operationGeneration": "fedcba9876543210fedcba9876543210",
+    "providerRef": "ghatana.gliner",
+    "languageHint": "en",
+    "timeoutMs": 30000,
+    "limits": {},
+    "payload": {
+      "fields": [
+        {
+          "fieldId": "name",
+          "aliases": ["Name"],
+          "valueType": "TEXT",
+          "cardinality": "SINGLE"
+        }
+      ],
+      "parsed": {
+        "pages": [
+          {
+            "pageNumber": 1,
+            "blocks": [
+              {
+                "blockId": "b1",
+                "kind": "TEXT",
+                "boundingRegion": { "x": 0, "y": 0, "width": 1, "height": 1 },
+                "lines": [
+                  {
+                    "lineId": "l1",
+                    "text": "Name: Alice",
+                    "boundingRegion": { "x": 0, "y": 0, "width": 1, "height": 1 }
+                  }
+                ]
+              }
+            ],
+            "tables": []
+          }
+        ],
+        "providerProvenance": {
+          "providerRef": "ghatana.docling",
+          "providerVersion": "0.1.0"
+        },
+        "quality": {},
+        "languageTag": "en"
+      }
+    }
+  },
+  "expected": { "accepted": true }
+}

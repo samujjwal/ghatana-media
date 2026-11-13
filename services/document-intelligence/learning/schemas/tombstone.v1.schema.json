@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/tombstone.v1",
+  "title": "Learning Feedback Tombstone v1",
+  "description": "Formalizes the append-only tombstone artifact written beside feedback events (I5-40). A tombstone excludes an event from every future dataset build while preserving it for audit; it never erases or rewrites the event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "kind",
+    "reasonCode",
+    "tombstonedAt",
+    "tombstoneFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.feedback-tombstone.v1" },
+    "eventId": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Identity of the tombstoned feedback event."
+    },
+    "kind": { "enum": ["REVOKED", "EXPIRED", "REDACTED"] },
+    "reasonCode": { "type": "string", "minLength": 1 },
+    "tombstonedAt": { "type": "string", "format": "date-time" },
+    "tombstoneFingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 over the canonical tombstone content excluding nothing (producer-computed)."
+    }
+  }
+}

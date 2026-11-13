@@ -1,0 +1,26 @@
+{
+  "frozenAt": "2026-09-19T15:05:36Z",
+  "materialFingerprints": {
+    "acceptance": "773942dad8420655087f710e9bdce9f633e1b137f5fdb244fc55a3962796bb47",
+    "corpus": "2cfba9324723d1a5f436a95003c715a6d86b8d8cbfd02616d208bcc8c8698574",
+    "environment": "5cb4ddfbe1a6ffc7a7dac7dcba74f756a58459d37d54af0da55731537b842f43",
+    "hybridRouting": "3b6afa95c920dc89bd85281851b4f378556bbeb5e271022026fc5875e145e342",
+    "languageRegistry": "c32afb308dba90464673a78979e3ccb0ab3f5bd4a987de188cf6740a45d7cd46",
+    "manifest": "1debe2f33f5ecf33f7a2dc1612860e2a684f4a1ef925c24e6c00c64493ce62a0",
+    "modelManifest": "b57380cd5724ad6ec19e4d31a7d3e96c0e5ff0e91a3a2be635b5e0890ca1e694",
+    "parserRouting": "692b4e9867a16213a63b104d84f1a4e47bb7ec1ad2e152a1d538e36113bb754f",
+    "requiredTests": "fdb46b17f4ab340dfa626487234680736baad6adef47d6ce2f35c66a44e71b21",
+    "runtimeCalibration": "641b6bbe55ff039a8847e00e4beda3c3e31109b5800c9a6213ee8d698684742a",
+    "workerProfile": "b8b6d697080e154d9f99d9f9a50e19d83e45aa550c80285e515d9b9f01c25e53"
+  },
+  "parentMaterialFingerprint": "34cb4e7c0e3c77f4dd62f54c3f6372bae26492936682e24a9e571ed7d4ff77e6",
+  "reason": [
+    "PPTX_NOTE_SEMANTIC_CORRECTION",
+    "PROMOTED_RUNTIME_BINDING",
+    "CAPABILITY_CLOSURE_RECONCILIATION",
+    "HYBRID_LANGUAGE_DIMENSIONS",
+    "DOCX_RENDER_ASSET_PINNING"
+  ],
+  "schemaVersion": "increment4a.material-lock.v2",
+  "state": "FROZEN"
+}

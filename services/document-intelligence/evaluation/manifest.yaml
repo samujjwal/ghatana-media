@@ -1,0 +1,180 @@
+manifestVersion: document-intelligence.corpus.v1
+fixtures:
+- fixtureId: pdf-en-simple
+  sha256: 05412db8c7064c6cf6c5c894b1bffcf69096432a6617e71f74f318974ddc8c5e
+  mediaType: application/pdf
+  language: en
+  documentClass: digital-pdf
+  pageCount: 1
+  expectedText: Synthetic English invoice number INV-1001
+- fixtureId: pdf-en-dense
+  sha256: 05c17b3f7e3abb40a9fd802763be617267a51740409fb768242938bc36a5429b
+  mediaType: application/pdf
+  language: en
+  documentClass: dense-digital-pdf
+  pageCount: 1
+  expectedText: 'Synthetic English dense paragraph for layout evaluation. Synthetic
+    English dense paragraph for layout evaluation. Synthetic English dense paragraph
+    for layout evaluation. Synthetic English dense paragraph for layout evaluation.
+    Synthetic English dense paragraph for layout evaluation. Synthetic English dense
+    paragraph for layout evaluation. Synthetic English dense paragraph for layout
+    evaluation. Synthetic English dense paragraph for layout evaluation. '
+- fixtureId: pdf-en-table
+  sha256: 84377308f838b29dd984beffbf8cc7f81d97626def41f747d426689fc78e0cd0
+  mediaType: application/pdf
+  language: en
+  documentClass: table
+  pageCount: 1
+  expectedText: 'Item Quantity Price
+
+    Widget 2 10.00
+
+    Gadget 1 20.00'
+  expectedTables:
+  - rows: 3
+    columns: 3
+- fixtureId: pdf-en-sparse
+  sha256: 466d37e202d31266e874db70d9bd7bfd11bb9a007dfbc2c67284e5c2b19bbe37
+  mediaType: application/pdf
+  language: en
+  documentClass: sparse
+  pageCount: 1
+  expectedText: Synthetic sparse heading
+- fixtureId: pdf-en-no-text
+  sha256: 30de176ffe6068120f0e11040cdadba388dd6a61115662e8312494700115e174
+  mediaType: application/pdf
+  language: en
+  documentClass: no-text
+  pageCount: 1
+  expectedText: ''
+- fixtureId: pdf-ne-simple
+  sha256: 95a5312a4cc24f239e7f5f40d0e66e1071ea0090c78fa54561b8132edf878c75
+  mediaType: application/pdf
+  language: ne
+  documentClass: digital-pdf
+  pageCount: 1
+  expectedText: नेपाली परीक्षण कागजात नम्बर १००१
+- fixtureId: pdf-ne-dense
+  sha256: ff057d4c1274373c9680dc630bf347d42e4263b56724df538445ca38d90887f0
+  mediaType: application/pdf
+  language: ne
+  documentClass: dense-digital-pdf
+  pageCount: 1
+  expectedText: 'नेपाली संरचना परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना
+    परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना
+    परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। नेपाली संरचना परीक्षण पाठ। '
+- fixtureId: pdf-ne-table
+  sha256: 94f573729693a2c13d9842c3f233108a6799991476e4869b7ec7d9c8cc75dc64
+  mediaType: application/pdf
+  language: ne
+  documentClass: table
+  pageCount: 1
+  expectedText: 'वस्तु संख्या मूल्य
+
+    कलम २ १०.००
+
+    कापी १ २०.००'
+  expectedTables:
+  - rows: 3
+    columns: 3
+- fixtureId: pdf-ne-multiline
+  sha256: 73d2149bcc01cb9d80d8a68dbcb53673ddf877a38ec1cc62bfbb5a83bb402cec
+  mediaType: application/pdf
+  language: ne
+  documentClass: multiline
+  pageCount: 1
+  expectedText: 'पहिलो नेपाली पङ्क्ति
+
+    दोस्रो नेपाली पङ्क्ति
+
+    तेस्रो नेपाली पङ्क्ति'
+- fixtureId: image-en-clean
+  sha256: 4414394f3478ee778a0fdc5998cfd523e1fab82515db2c7164b3e4d03736b82f
+  mediaType: image/png
+  language: en
+  documentClass: image
+  pageCount: 1
+- fixtureId: image-en-noisy
+  sha256: 522ab873ed8943032341545281788b8cc23121bcf85f989bd0fadf1706eaa6bd
+  mediaType: image/png
+  language: en
+  documentClass: noisy-image
+  pageCount: 1
+- fixtureId: image-en-rotated
+  sha256: 3bb3addbf3135c4f18979cc00081b357069218a221104817095e99b17a4c3060
+  mediaType: image/jpeg
+  language: en
+  documentClass: rotated-image
+  pageCount: 1
+- fixtureId: image-en-sparse
+  sha256: c46c145b0446446d24705fd628cb4087e7bd861f1323f082cecbad9c2951f58d
+  mediaType: image/png
+  language: en
+  documentClass: sparse-image
+  pageCount: 1
+- fixtureId: image-en-dense
+  sha256: 0749349474223f9e5aa0e368e56250e8249db71eae9acd8700caa9f89e995c29
+  mediaType: image/jpeg
+  language: en
+  documentClass: dense-image
+  pageCount: 1
+- fixtureId: image-en-no-text
+  sha256: 56679dd7da2afb8b48b9697617cec1c1889b5a1b223fa823003049b008bfcd58
+  mediaType: image/png
+  language: en
+  documentClass: no-text-image
+  pageCount: 1
+- fixtureId: image-ne-clean
+  sha256: 33f7fab5e7c97c528452e8600e4168b82d63dbaf6ed489782aa7c87df1e23cdd
+  mediaType: image/png
+  language: ne
+  documentClass: image
+  pageCount: 1
+- fixtureId: image-ne-noisy
+  sha256: fa078f6c0eb34ffee8401fc0a52f3584bb42fdb9acb4db95090e946c89941b37
+  mediaType: image/png
+  language: ne
+  documentClass: noisy-image
+  pageCount: 1
+- fixtureId: image-ne-rotated
+  sha256: 6ea87b2bdb71fb0dc9c0c5764f9250385bd86258b549981ed38484920e330cda
+  mediaType: image/jpeg
+  language: ne
+  documentClass: rotated-image
+  pageCount: 1
+- fixtureId: image-ne-sparse
+  sha256: 92ff400494f5d10d8af33d057ea702c87105319895b92fef23b41ad69758f856
+  mediaType: image/png
+  language: ne
+  documentClass: sparse-image
+  pageCount: 1
+- fixtureId: image-ne-dense
+  sha256: 4cd46bc8a22d972e1a2ffbaa1bb19f3e5c4a7b1ac655d9357c5118ac8965a0fd
+  mediaType: image/jpeg
+  language: ne
+  documentClass: dense-image
+  pageCount: 1
+- fixtureId: image-ne-no-text
+  sha256: 56679dd7da2afb8b48b9697617cec1c1889b5a1b223fa823003049b008bfcd58
+  mediaType: image/png
+  language: ne
+  documentClass: no-text-image
+  pageCount: 1
+- fixtureId: boundary-corrupt-pdf
+  sha256: 07c5645f33693441592d266a8e0a5fde233d050bc7f6cd019a17e37e1486bf05
+  mediaType: application/pdf
+  language: und
+  documentClass: malformed
+  pageCount: 0
+- fixtureId: boundary-corrupt-image
+  sha256: f2e2c6db1745cc40df646dc40c385487c36e4ceb3f1d5c8d6ad1f7620af1ebae
+  mediaType: image/png
+  language: und
+  documentClass: malformed
+  pageCount: 0
+- fixtureId: boundary-zero-byte
+  sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  mediaType: application/octet-stream
+  language: und
+  documentClass: unsupported
+  pageCount: 0

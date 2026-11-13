@@ -1,0 +1,62 @@
+# document-intelligence.language-resolution.v1
+#
+# Language-resolution authority (I6-58).  Every parse/extract request resolves
+# its working language through this ordered policy; the selected language and
+# its reason code are recorded per request.  The wire enum and the request
+# hint validation in contracts.py are frozen — this authority governs only
+# resolution *after* hint validation, never weakens it.
+schemaVersion: document-intelligence.language-resolution.v1
+status: CANDIDATE
+
+# Resolution order — first stage that produces a language wins.
+resolutionOrder:
+  - validatedRequestHint   # RequestMetadata.parse already admitted the hint
+  - profileDefault         # configured profile/settings default language
+  - detection              # DISABLED by default; never selects on script alone
+  - fallbackOrError        # unresolved → language stays absent; providers reject None
+
+# Unicode normalization applied to language/hint string inputs (input level
+# only — never to document text).
+unicodeNormalization: NFC
+
+# Detection stage policy.  Detection is disabled unless a profile explicitly
+# enables it; a script-level guess may never choose among the shared-
+# Devanagari family on script identity alone.
+detection:
+  enabledByDefault: false
+  # ne/hi/mr share Devanagari script identity: script detection cannot
+  # distinguish them, so a hint or explicit policy is REQUIRED to select one.
+  devanagariAmbiguity:
+    languages: [ne, hi, mr]
+    rule: SCRIPT_IDENTITY_NEVER_SELECTS   # hint or explicit policy required
+  # A detection result is admissible only when it names a candidate language
+  # and is not produced by script identity for the Devanagari family.
+  requiresAdmittedLanguage: true
+
+languages:
+  en:
+    candidates: [en]
+    note: latin-script default candidate
+  ne:
+    candidates: [ne]
+    script: Devanagari
+    ambiguityGroup: devanagari
+  hi:
+    candidates: [hi]
+    script: Devanagari
+    ambiguityGroup: devanagari
+  mr:
+    candidates: [mr]
+    script: Devanagari
+    ambiguityGroup: devanagari
+
+# Reason codes recorded on every resolution outcome.
+reasonCodes:
+  - REQUEST_HINT            # validated request hint selected (source HINT)
+  - PROFILE_DEFAULT         # configured default selected (source PROFILE)
+  - DETECTION_UNRESOLVED    # detection stage produced no admissible language
+  - HINT_NOT_CANDIDATE      # hint present but outside candidates (defensive)
+  - DEFAULT_NOT_CANDIDATE   # configured default outside candidates (defensive)
+  - NO_LANGUAGE             # no stage produced a language (source NONE)
+
+sources: [HINT, PROFILE, DETECTION, DEFAULT, NONE]

@@ -1,0 +1,11 @@
+schemaVersion: document-intelligence.language-registry.v1
+languages:
+  en:
+    targetState: CANDIDATE
+  ne:
+    targetState: CANDIDATE
+  hi:
+    targetState: CANDIDATE
+  mr:
+    targetState: CANDIDATE
+defaultState: NOT_EVALUATED

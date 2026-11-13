@@ -1,0 +1,869 @@
+schemaVersion: increment4a.manifest.v2
+state: FROZEN
+required: true
+groundTruth:
+  reviewed: true
+  reviewVersion: increment4a-r2
+  supersededMaterialAllowed: false
+authorities:
+  qualification: qualification.yaml
+  acceptance: acceptance.yaml
+  environment: environment.yaml
+  modelManifest: models/increment4a/model-manifest.yaml
+  languageRegistry: models/increment4a/language-registry.yaml
+  corpus: corpus/qualification
+  routing:
+  - routing/hybrid-pdf.v1.yaml
+  - routing/parser-routing.v1.yaml
+  profile: profiles/increment4a.yaml
+  typescriptClient: clients/typescript
+capabilityDimensions:
+- capabilityId: parser.pdf.hybrid.text.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: text
+- capabilityId: parser.pdf.hybrid.text.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: text
+- capabilityId: parser.pdf.hybrid.text.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: text
+- capabilityId: parser.pdf.hybrid.text.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: text
+- capabilityId: parser.pdf.hybrid.tables.scanned.en
+  closureDisposition: UNSUPPORTED_BY_DESIGN
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics:
+  - structureAccuracy
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid
+  feature: scanned-tables
+  disposition: UNSUPPORTED_BY_DESIGN
+- capabilityId: parser.docx.text.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.docx.text.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.docx.text.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.docx.text.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-docx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: docx
+  operation: parse
+  providerRoute: docling-docx
+  feature: text
+- capabilityId: parser.pptx.text.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.pptx.text.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.pptx.text.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.pptx.text.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-pptx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.presentationml.presentation
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: pptx
+  operation: parse
+  providerRoute: docling-pptx
+  feature: text
+- capabilityId: parser.xlsx.tables.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - en
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: parser.xlsx.tables.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - ne
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: parser.xlsx.tables.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - hi
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: parser.xlsx.tables.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.docling-xlsx
+  mediaTypes:
+  - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages:
+  - mr
+  requiredMetrics: []
+  inputFormat: xlsx
+  operation: parse
+  providerRoute: docling-xlsx
+  feature: tables
+- capabilityId: ocr.paddle.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.paddleocr
+  mediaTypes:
+  - image/png
+  languages:
+  - en
+  requiredMetrics:
+  - text.cer
+  - language.accuracy
+  inputFormat: image
+  operation: parse
+  providerRoute: paddle
+  feature: text
+- capabilityId: ocr.paddle.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.paddleocr
+  mediaTypes:
+  - image/png
+  languages:
+  - ne
+  requiredMetrics:
+  - text.cer
+  - language.accuracy
+  inputFormat: image
+  operation: parse
+  providerRoute: paddle
+  feature: text
+- capabilityId: ocr.paddle.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.paddleocr
+  mediaTypes:
+  - image/png
+  languages:
+  - hi
+  requiredMetrics:
+  - text.cer
+  - language.accuracy
+  inputFormat: image
+  operation: parse
+  providerRoute: paddle
+  feature: text
+- capabilityId: ocr.paddle.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.paddleocr
+  mediaTypes:
+  - image/png
+  languages:
+  - mr
+  requiredMetrics:
+  - text.cer
+  - language.accuracy
+  inputFormat: image
+  operation: parse
+  providerRoute: paddle
+  feature: text
+- capabilityId: extraction.schema-guided.hi
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: EXPLICIT_PRODUCT_REQUIREMENT
+  providerRef: ghatana.gliner
+  mediaTypes:
+  - application/vnd.ghatana.parsed-document+json
+  languages:
+  - hi
+  requiredMetrics:
+  - gliner.entityF1
+  - gliner.evidenceAccuracy
+  inputFormat: parsed-document
+  operation: extract
+  providerRoute: gliner
+  feature: extraction
+- capabilityId: extraction.schema-guided.mr
+  closureDisposition: DEFERRED_TO_FUTURE_RELEASE
+  deferredReason: QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD
+  deferredTarget: FUTURE_RELEASE
+  revisitTrigger: EXPLICIT_PRODUCT_REQUIREMENT
+  providerRef: ghatana.gliner
+  mediaTypes:
+  - application/vnd.ghatana.parsed-document+json
+  languages:
+  - mr
+  requiredMetrics:
+  - gliner.entityF1
+  - gliner.evidenceAccuracy
+  inputFormat: parsed-document
+  operation: extract
+  providerRoute: gliner
+  feature: extraction
+- capabilityId: fallback.image.paddle-to-tesseract.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.resilient-parser
+  mediaTypes:
+  - image/png
+  languages:
+  - en
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: image
+  operation: parse
+  providerRoute: resilient-fallback
+  feature: fallback
+- capabilityId: fallback.image.paddle-to-tesseract.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.resilient-parser
+  mediaTypes:
+  - image/png
+  languages:
+  - ne
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: image
+  operation: parse
+  providerRoute: resilient-fallback
+  feature: fallback
+- capabilityId: fallback.image.paddle-to-tesseract.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.resilient-parser
+  mediaTypes:
+  - image/png
+  languages:
+  - hi
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: image
+  operation: parse
+  providerRoute: resilient-fallback
+  feature: fallback
+- capabilityId: fallback.image.paddle-to-tesseract.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.resilient-parser
+  mediaTypes:
+  - image/png
+  languages:
+  - mr
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: image
+  operation: parse
+  providerRoute: resilient-fallback
+  feature: fallback
+- capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.en
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - en
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid-resilient-fallback
+  feature: pdf-ocr-region-fallback
+- capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.ne
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - ne
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid-resilient-fallback
+  feature: pdf-ocr-region-fallback
+- capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.hi
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - hi
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid-resilient-fallback
+  feature: pdf-ocr-region-fallback
+- capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.mr
+  closureDisposition: REQUIRED
+  providerRef: ghatana.hybrid-pdf
+  mediaTypes:
+  - application/pdf
+  languages:
+  - mr
+  requiredMetrics:
+  - fallback.successRate
+  inputFormat: pdf
+  operation: parse
+  providerRoute: hybrid-resilient-fallback
+  feature: pdf-ocr-region-fallback
+fixtures:
+- fixtureId: HYBRID-001
+  file: corpus/qualification/hybrid-pdf/HYBRID-001.pdf
+  mediaType: application/pdf
+  language: en
+  mode: native
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-002
+  file: corpus/qualification/hybrid-pdf/HYBRID-002.pdf
+  mediaType: application/pdf
+  language: en
+  mode: scanned
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-003
+  file: corpus/qualification/hybrid-pdf/HYBRID-003.pdf
+  mediaType: application/pdf
+  language: ne
+  mode: scanned
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.ne
+- fixtureId: HYBRID-004
+  file: corpus/qualification/hybrid-pdf/HYBRID-004.pdf
+  mediaType: application/pdf
+  language: hi
+  mode: scanned
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.hi
+- fixtureId: HYBRID-005
+  file: corpus/qualification/hybrid-pdf/HYBRID-005.pdf
+  mediaType: application/pdf
+  language: mr
+  mode: scanned
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.mr
+- fixtureId: PDF-FALLBACK-EN-001
+  file: corpus/qualification/hybrid-pdf/HYBRID-002.pdf
+  mediaType: application/pdf
+  language: en
+  mode: pdf-region-fallback
+  corpus: hybrid-pdf-fallback
+  capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.en
+  structuralOnlyRationale: qualifies rendered PDF OCR routing, fallback lineage, and
+    transformed page coordinates
+- fixtureId: PDF-FALLBACK-NE-001
+  file: corpus/qualification/hybrid-pdf/HYBRID-003.pdf
+  mediaType: application/pdf
+  language: ne
+  mode: pdf-region-fallback
+  corpus: hybrid-pdf-fallback
+  capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.ne
+  structuralOnlyRationale: qualifies rendered PDF OCR routing, fallback lineage, and
+    transformed page coordinates
+- fixtureId: PDF-FALLBACK-HI-001
+  file: corpus/qualification/hybrid-pdf/HYBRID-004.pdf
+  mediaType: application/pdf
+  language: hi
+  mode: pdf-region-fallback
+  corpus: hybrid-pdf-fallback
+  capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.hi
+  structuralOnlyRationale: qualifies rendered PDF OCR routing, fallback lineage, and
+    transformed page coordinates
+- fixtureId: PDF-FALLBACK-MR-001
+  file: corpus/qualification/hybrid-pdf/HYBRID-005.pdf
+  mediaType: application/pdf
+  language: mr
+  mode: pdf-region-fallback
+  corpus: hybrid-pdf-fallback
+  capabilityId: fallback.pdf-ocr-region.paddle-to-tesseract.mr
+  structuralOnlyRationale: qualifies rendered PDF OCR routing, fallback lineage, and
+    transformed page coordinates
+- fixtureId: HYBRID-006
+  file: corpus/qualification/hybrid-pdf/HYBRID-006.pdf
+  mediaType: application/pdf
+  language: en
+  mode: mixed
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-007
+  file: corpus/qualification/hybrid-pdf/HYBRID-007.pdf
+  mediaType: application/pdf
+  language: en
+  mode: mixed
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-008
+  file: corpus/qualification/hybrid-pdf/HYBRID-008.pdf
+  mediaType: application/pdf
+  language: en
+  mode: native
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-009
+  file: corpus/qualification/hybrid-pdf/HYBRID-009.pdf
+  mediaType: application/pdf
+  language: en
+  mode: scanned
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.tables.scanned.en
+- fixtureId: HYBRID-010
+  file: corpus/qualification/hybrid-pdf/HYBRID-010.pdf
+  mediaType: application/pdf
+  language: en
+  mode: scanned
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-011
+  file: corpus/qualification/hybrid-pdf/HYBRID-011.pdf
+  mediaType: application/pdf
+  language: en
+  mode: mixed
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: HYBRID-012
+  file: corpus/qualification/hybrid-pdf/HYBRID-012.pdf
+  mediaType: application/pdf
+  language: en
+  mode: mixed
+  corpus: hybrid-pdf
+  capabilityId: parser.pdf.hybrid.text.en
+- fixtureId: DOCX-EN-001
+  file: corpus/qualification/docx/en/en-simple.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: en
+  mode: office
+  corpus: docx
+  capabilityId: parser.docx.text.en
+- fixtureId: DOCX-NE-001
+  file: corpus/qualification/docx/ne/ne-simple.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: ne
+  mode: office
+  corpus: docx
+  capabilityId: parser.docx.text.ne
+- fixtureId: DOCX-HI-001
+  file: corpus/qualification/docx/hi/hi-simple.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: hi
+  mode: office
+  corpus: docx
+  capabilityId: parser.docx.text.hi
+- fixtureId: DOCX-MR-001
+  file: corpus/qualification/docx/mr/mr-simple.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: mr
+  mode: office
+  corpus: docx
+  capabilityId: parser.docx.text.mr
+- fixtureId: DOCX-MR-002
+  file: corpus/qualification/docx/mr-merged-table.docx
+  mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  language: mr
+  mode: office
+  corpus: docx
+  capabilityId: parser.docx.text.mr
+- fixtureId: PPTX-EN-001
+  file: corpus/qualification/pptx/en/en-simple.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: en
+  mode: office
+  corpus: pptx
+  capabilityId: parser.pptx.text.en
+- fixtureId: PPTX-NE-001
+  file: corpus/qualification/pptx/ne/ne-simple.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: ne
+  mode: office
+  corpus: pptx
+  capabilityId: parser.pptx.text.ne
+- fixtureId: PPTX-NE-002
+  file: corpus/qualification/pptx/ne-table-with-notes.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: ne
+  mode: office
+  corpus: pptx
+  capabilityId: parser.pptx.text.ne
+- fixtureId: PPTX-HI-001
+  file: corpus/qualification/pptx/hi/hi-simple.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: hi
+  mode: office
+  corpus: pptx
+  capabilityId: parser.pptx.text.hi
+- fixtureId: PPTX-MR-001
+  file: corpus/qualification/pptx/mr/mr-simple.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: mr
+  mode: office
+  corpus: pptx
+  capabilityId: parser.pptx.text.mr
+- fixtureId: XLSX-EN-001
+  file: corpus/qualification/xlsx/en/en-simple.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: en
+  mode: office
+  corpus: xlsx
+  capabilityId: parser.xlsx.tables.en
+- fixtureId: XLSX-NE-001
+  file: corpus/qualification/xlsx/ne/ne-simple.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: ne
+  mode: office
+  corpus: xlsx
+  capabilityId: parser.xlsx.tables.ne
+- fixtureId: XLSX-HI-001
+  file: corpus/qualification/xlsx/hi/hi-simple.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: hi
+  mode: office
+  corpus: xlsx
+  capabilityId: parser.xlsx.tables.hi
+- fixtureId: XLSX-HI-002
+  file: corpus/qualification/xlsx/hi-sparse-merged.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: hi
+  mode: office
+  corpus: xlsx
+  capabilityId: parser.xlsx.tables.hi
+- fixtureId: XLSX-MR-001
+  file: corpus/qualification/xlsx/mr/mr-simple.xlsx
+  mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  language: mr
+  mode: office
+  corpus: xlsx
+  capabilityId: parser.xlsx.tables.mr
+- fixtureId: OCR-EN-CLEAN
+  file: corpus/qualification/ocr/en/en-clean.png
+  mediaType: image/png
+  language: en
+  mode: ocr
+  corpus: ocr/en
+  capabilityId: ocr.paddle.en
+- fixtureId: OCR-EN-DENSE
+  file: corpus/qualification/ocr/en/en-dense.png
+  mediaType: image/png
+  language: en
+  mode: ocr
+  corpus: ocr/en
+  capabilityId: ocr.paddle.en
+- fixtureId: OCR-EN-NOISY
+  file: corpus/qualification/ocr/en/en-noisy.png
+  mediaType: image/png
+  language: en
+  mode: ocr
+  corpus: ocr/en
+  capabilityId: ocr.paddle.en
+- fixtureId: OCR-EN-ROTATED
+  file: corpus/qualification/ocr/en/en-rotated.png
+  mediaType: image/png
+  language: en
+  mode: ocr
+  corpus: ocr/en
+  capabilityId: ocr.paddle.en
+- fixtureId: OCR-EN-MIXED
+  file: corpus/qualification/ocr/en/en-mixed.png
+  mediaType: image/png
+  language: en
+  mode: ocr
+  corpus: ocr/en
+  capabilityId: ocr.paddle.en
+- fixtureId: OCR-EN-NUMBERS
+  file: corpus/qualification/ocr/en/en-numbers.png
+  mediaType: image/png
+  language: en
+  mode: ocr
+  corpus: ocr/en
+  capabilityId: ocr.paddle.en
+- fixtureId: OCR-NE-CLEAN
+  file: corpus/qualification/ocr/ne/ne-clean.png
+  mediaType: image/png
+  language: ne
+  mode: ocr
+  corpus: ocr/ne
+  capabilityId: ocr.paddle.ne
+- fixtureId: OCR-NE-DENSE
+  file: corpus/qualification/ocr/ne/ne-dense.png
+  mediaType: image/png
+  language: ne
+  mode: ocr
+  corpus: ocr/ne
+  capabilityId: ocr.paddle.ne
+- fixtureId: OCR-NE-NOISY
+  file: corpus/qualification/ocr/ne/ne-noisy.png
+  mediaType: image/png
+  language: ne
+  mode: ocr
+  corpus: ocr/ne
+  capabilityId: ocr.paddle.ne
+- fixtureId: OCR-NE-ROTATED
+  file: corpus/qualification/ocr/ne/ne-rotated.png
+  mediaType: image/png
+  language: ne
+  mode: ocr
+  corpus: ocr/ne
+  capabilityId: ocr.paddle.ne
+- fixtureId: OCR-NE-MIXED
+  file: corpus/qualification/ocr/ne/ne-mixed.png
+  mediaType: image/png
+  language: ne
+  mode: ocr
+  corpus: ocr/ne
+  capabilityId: ocr.paddle.ne
+- fixtureId: OCR-NE-NUMBERS
+  file: corpus/qualification/ocr/ne/ne-numbers.png
+  mediaType: image/png
+  language: ne
+  mode: ocr
+  corpus: ocr/ne
+  capabilityId: ocr.paddle.ne
+- fixtureId: OCR-HI-CLEAN
+  file: corpus/qualification/ocr/hi/hi-clean.png
+  mediaType: image/png
+  language: hi
+  mode: ocr
+  corpus: ocr/hi
+  capabilityId: ocr.paddle.hi
+- fixtureId: OCR-HI-DENSE
+  file: corpus/qualification/ocr/hi/hi-dense.png
+  mediaType: image/png
+  language: hi
+  mode: ocr
+  corpus: ocr/hi
+  capabilityId: ocr.paddle.hi
+- fixtureId: OCR-HI-NOISY
+  file: corpus/qualification/ocr/hi/hi-noisy.png
+  mediaType: image/png
+  language: hi
+  mode: ocr
+  corpus: ocr/hi
+  capabilityId: ocr.paddle.hi
+- fixtureId: OCR-HI-ROTATED
+  file: corpus/qualification/ocr/hi/hi-rotated.png
+  mediaType: image/png
+  language: hi
+  mode: ocr
+  corpus: ocr/hi
+  capabilityId: ocr.paddle.hi
+- fixtureId: OCR-HI-MIXED
+  file: corpus/qualification/ocr/hi/hi-mixed.png
+  mediaType: image/png
+  language: hi
+  mode: ocr
+  corpus: ocr/hi
+  capabilityId: ocr.paddle.hi
+- fixtureId: OCR-HI-NUMBERS
+  file: corpus/qualification/ocr/hi/hi-numbers.png
+  mediaType: image/png
+  language: hi
+  mode: ocr
+  corpus: ocr/hi
+  capabilityId: ocr.paddle.hi
+- fixtureId: OCR-MR-CLEAN
+  file: corpus/qualification/ocr/mr/mr-clean.png
+  mediaType: image/png
+  language: mr
+  mode: ocr
+  corpus: ocr/mr
+  capabilityId: ocr.paddle.mr
+- fixtureId: OCR-MR-DENSE
+  file: corpus/qualification/ocr/mr/mr-dense.png
+  mediaType: image/png
+  language: mr
+  mode: ocr
+  corpus: ocr/mr
+  capabilityId: ocr.paddle.mr
+- fixtureId: OCR-MR-NOISY
+  file: corpus/qualification/ocr/mr/mr-noisy.png
+  mediaType: image/png
+  language: mr
+  mode: ocr
+  corpus: ocr/mr
+  capabilityId: ocr.paddle.mr
+- fixtureId: OCR-MR-ROTATED
+  file: corpus/qualification/ocr/mr/mr-rotated.png
+  mediaType: image/png
+  language: mr
+  mode: ocr
+  corpus: ocr/mr
+  capabilityId: ocr.paddle.mr
+- fixtureId: OCR-MR-MIXED
+  file: corpus/qualification/ocr/mr/mr-mixed.png
+  mediaType: image/png
+  language: mr
+  mode: ocr
+  corpus: ocr/mr
+  capabilityId: ocr.paddle.mr
+- fixtureId: OCR-MR-NUMBERS
+  file: corpus/qualification/ocr/mr/mr-numbers.png
+  mediaType: image/png
+  language: mr
+  mode: ocr
+  corpus: ocr/mr
+  capabilityId: ocr.paddle.mr
+- fixtureId: GLINER-HI-001
+  file: corpus/qualification/extraction/hi/fixtures.json
+  mediaType: application/vnd.ghatana.parsed-document+json
+  language: hi
+  mode: extraction
+  structuralOnlyRationale: source JSON contains reviewed case-level expected entities
+    and evidence spans
+  corpus: extraction/hi
+  capabilityId: extraction.schema-guided.hi
+- fixtureId: GLINER-MR-001
+  file: corpus/qualification/extraction/mr/fixtures.json
+  mediaType: application/vnd.ghatana.parsed-document+json
+  language: mr
+  mode: extraction
+  structuralOnlyRationale: source JSON contains reviewed case-level expected entities
+    and evidence spans
+  corpus: extraction/mr
+  capabilityId: extraction.schema-guided.mr
+- fixtureId: FALLBACK-EN-001
+  file: corpus/qualification/ocr/en/en-clean.png
+  mediaType: image/png
+  language: en
+  mode: fallback
+  structuralOnlyRationale: reuses reviewed OCR ground truth while qualifying fallback
+    routing and lineage
+  corpus: ocr/en
+  capabilityId: fallback.image.paddle-to-tesseract.en
+- fixtureId: FALLBACK-NE-001
+  file: corpus/qualification/ocr/ne/ne-clean.png
+  mediaType: image/png
+  language: ne
+  mode: fallback
+  structuralOnlyRationale: reuses reviewed OCR ground truth while qualifying fallback
+    routing and lineage
+  corpus: ocr/ne
+  capabilityId: fallback.image.paddle-to-tesseract.ne
+- fixtureId: FALLBACK-HI-001
+  file: corpus/qualification/ocr/hi/hi-clean.png
+  mediaType: image/png
+  language: hi
+  mode: fallback
+  structuralOnlyRationale: reuses reviewed OCR ground truth while qualifying fallback
+    routing and lineage
+  corpus: ocr/hi
+  capabilityId: fallback.image.paddle-to-tesseract.hi
+- fixtureId: FALLBACK-MR-001
+  file: corpus/qualification/ocr/mr/mr-clean.png
+  mediaType: image/png
+  language: mr
+  mode: fallback
+  structuralOnlyRationale: reuses reviewed OCR ground truth while qualifying fallback
+    routing and lineage
+  corpus: ocr/mr
+  capabilityId: fallback.image.paddle-to-tesseract.mr
+providerVersion: 0.1.0

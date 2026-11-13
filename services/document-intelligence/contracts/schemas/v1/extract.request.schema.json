@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/extract.request.schema.json",
+  "title": "POST /v1/extract request (document-intelligence.v1)",
+  "description": "application/json body: request-metadata keys plus a required `payload` object. The payload is exactly {fields, parsed}: `fields` carries only the requested field descriptors (exactly fieldId, aliases, valueType, cardinality per entry, count bounded by max_candidates) and `parsed` carries bounded parsed page/block/line material ({pages, providerProvenance?, quality?, languageTag?}; pages is required and bounded by max_pages, with aggregate block/line/text ceilings enforced). The optional X-Operation-Generation header must equal operationGeneration when both are present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "operationId", "providerRef", "timeoutMs", "limits", "payload"],
+  "properties": {
+    "protocolVersion": { "const": "document-intelligence.v1" },
+    "operationId": { "$ref": "#/$defs/identifier" },
+    "operationGeneration": { "$ref": "#/$defs/operationGeneration" },
+    "providerRef": { "$ref": "#/$defs/identifier" },
+    "mediaType": {
+      "type": "string",
+      "description": "Optional on extraction; capability admission still gates the effective media catalog."
+    },
+    "languageHint": {
+      "type": "string",
+      "description": "Optional; must be in the admitted language catalog (default en, ne)."
+    },
+    "timeoutMs": { "type": "integer", "minimum": 1 },
+    "limits": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields", "parsed"],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "maxItems": 16000,
+          "description": "Requested field descriptors; bounded by the configured max_candidates limit (default 16000).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fieldId", "aliases", "valueType", "cardinality"],
+            "properties": {
+              "fieldId": { "type": "string" },
+              "aliases": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "valueType": { "type": "string" },
+              "cardinality": { "type": "string" }
+            }
+          }
+        },
+        "parsed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pages"],
+          "properties": {
+            "pages": {
+              "type": "array",
+              "maxItems": 500,
+              "description": "Bounded parsed page material; bounded by max_pages with aggregate block/line/text ceilings enforced at admission.",
+              "items": {
+                "type": "object",
+                "required": ["blocks"],
+                "properties": {
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["lines"],
+                      "properties": {
+                        "lines": {
+                          "type": "array",
+                          "items": { "type": "object" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "providerProvenance": { "type": "object" },
+            "quality": { "type": "object" },
+            "languageTag": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "operationGeneration": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    }
+  }
+}

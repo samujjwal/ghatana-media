@@ -1,0 +1,14 @@
+{
+  "id": "parse-office-media-invalid",
+  "endpoint": "parse",
+  "description": "OOXML media types are capability-driven additions; the canonical I3 catalog admits only pdf/png/jpeg.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-docx",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": false, "code": "UNSUPPORTED_MEDIA_TYPE", "stage": "metadata" }
+}

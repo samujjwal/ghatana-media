@@ -1,0 +1,104 @@
+{
+  "completedAt": "2026-01-01T02:00:00+00:00",
+  "configFingerprint": "50cf49896ebbddd497dd0c61de19fe00489d83b3ee23a89a42704a8b22c479d7",
+  "leakBaseline": [
+    {
+      "ceiling": 8388608,
+      "delta": 7372800,
+      "end": 544243712,
+      "metric": "rssBytes",
+      "start": 536870912,
+      "status": "PASS",
+      "unit": "bytes"
+    },
+    {
+      "ceiling": 64,
+      "delta": 0,
+      "end": 64,
+      "metric": "fileDescriptors",
+      "start": 64,
+      "status": "PASS",
+      "unit": "count"
+    },
+    {
+      "ceiling": 32,
+      "delta": 0,
+      "end": 0,
+      "metric": "tempFiles",
+      "start": 0,
+      "status": "PASS",
+      "unit": "count"
+    },
+    {
+      "ceiling": 8,
+      "delta": 0,
+      "end": 12,
+      "metric": "threads",
+      "start": 12,
+      "status": "PASS",
+      "unit": "count"
+    },
+    {
+      "ceiling": 0,
+      "delta": 0,
+      "end": 1,
+      "metric": "nativeProcesses",
+      "start": 1,
+      "status": "PASS",
+      "unit": "count"
+    },
+    {
+      "ceiling": 0,
+      "delta": 0,
+      "end": 3,
+      "metric": "modelInstances",
+      "start": 3,
+      "status": "PASS",
+      "unit": "count"
+    },
+    {
+      "ceiling": 0,
+      "delta": 0,
+      "end": 0,
+      "metric": "queueEntries",
+      "start": 0,
+      "status": "PASS",
+      "unit": "count"
+    },
+    {
+      "ceiling": 0,
+      "delta": 0,
+      "end": 0,
+      "metric": "dbHandles",
+      "start": 0,
+      "status": "PASS",
+      "unit": "count"
+    }
+  ],
+  "metrics": {
+    "errorRate": 0.0,
+    "p50Ms": 139.56080083753233,
+    "p95Ms": 157.88921037507603,
+    "p99Ms": 159.54208283004476,
+    "rssPeakBytes": 544243712,
+    "throughputPerSecond": 0.5
+  },
+  "providerInvocations": {
+    "attempted": 3600,
+    "cancelled": 0,
+    "completed": 3600,
+    "failed": 0,
+    "timedOut": 0
+  },
+  "resultFingerprint": "45489ee88017e48febb2e0cb88240e283553b4a771183defbc4dc26d6854e19b",
+  "runId": "d7193789510bc971071bea2c9c7e413d",
+  "runnerRef": "evaluation/increment6/runners/soak_runner.py",
+  "schemaVersion": "document-intelligence.performance-evidence.v1",
+  "seed": 7,
+  "startedAt": "2026-01-01T00:00:00+00:00",
+  "workload": {
+    "concurrency": 4,
+    "durationSeconds": 7200.0,
+    "fixtureCount": 3600
+  }
+}

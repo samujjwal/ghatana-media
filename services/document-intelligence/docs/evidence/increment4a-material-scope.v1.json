@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "document-intelligence.material-scope.v1",
+  "increment": "increment4a",
+  "rule": "Only semanticMaterial and executionEnvironment may invalidate behavioral evidence; evidenceAndStatus never invalidates the behavior it records.",
+  "scopes": {
+    "semanticMaterial": {
+      "includes": [
+        "src/document_intelligence/providers/",
+        "src/document_intelligence/mapping/",
+        "src/document_intelligence/strategies/",
+        "src/document_intelligence/runtime/",
+        "src/document_intelligence/app.py",
+        "src/document_intelligence/config.py",
+        "src/document_intelligence/contracts.py",
+        "src/document_intelligence/errors.py",
+        "src/document_intelligence/health.py",
+        "src/document_intelligence/lifecycle.py",
+        "src/document_intelligence/limits.py",
+        "src/document_intelligence/observability.py",
+        "src/document_intelligence/operations.py",
+        "src/document_intelligence/profile.py",
+        "clients/typescript/src/client.ts",
+        "evaluation/increment4a/manifest.yaml",
+        "evaluation/increment4a/qualification.yaml",
+        "evaluation/increment4a/acceptance.yaml",
+        "evaluation/increment4a/corpus/",
+        "evaluation/increment4a/calibration/runtime-latency.json",
+        "evaluation/increment4a/required-tests.yaml",
+        "evaluation/increment4a/implementation-material.yaml",
+        "evaluation/increment4a/implementation_material.py",
+        "evaluation/increment4a/run_campaign.py",
+        "evaluation/increment4a/run_qualification.py",
+        "evaluation/increment4a/metrics.py",
+        "routing/",
+        "scripts/verify_increment4a.py",
+        "scripts/verify_models.py",
+        "scripts/freeze_increment4a.py",
+        "scripts/promote_increment4a_capabilities.py",
+        "scripts/build_increment4a_runtime_authority.py",
+        "tests/"
+      ],
+      "excludes": [
+        "evaluation/increment4a/results/",
+        "evaluation/increment4a/material-locks/",
+        "docs/evidence/",
+        "**/__pycache__/",
+        "**/.pytest_cache/"
+      ]
+    },
+    "executionEnvironment": {
+      "includes": [
+        "uv.lock",
+        "pyproject.toml",
+        "evaluation/increment4a/environment.yaml",
+        "models/",
+        "profiles/increment4a.yaml",
+        "profiles/increment4a-candidate.yaml",
+        "runtime:python",
+        "runtime:uv",
+        "runtime:tesseract",
+        "runtime:pypdfium2"
+      ],
+      "excludes": [
+        "docs/evidence/",
+        "evaluation/increment4a/results/",
+        "models/increment4a/model-verification.json"
+      ]
+    },
+    "evidenceAndStatus": {
+      "includes": [
+        "docs/evidence/",
+        "docs/INCREMENT-4A.md",
+        "evaluation/increment4a/results/",
+        "evaluation/increment4a/material-locks/",
+        "evaluation/increment4a/material-lock.json",
+        "evaluation/increment4a/canonical-run.json",
+        "evaluation/increment4a/test-receipts.json",
+        "evaluation/increment4a/superseded-runs.json",
+        "capabilities/",
+        "models/increment4a/model-verification.json"
+      ],
+      "excludes": []
+    }
+  }
+}

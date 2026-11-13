@@ -1,0 +1,15 @@
+{
+  "id": "parse-unknown-key-invalid",
+  "endpoint": "parse",
+  "description": "Strict-subset grammar: an undeclared metadata key fails closed.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-unknown-key",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/pdf",
+    "timeoutMs": 30000,
+    "limits": {},
+    "tenantId": "tenant-1"
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "metadata" }
+}

@@ -1,0 +1,69 @@
+{
+  "languageTag": "en",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.030934343434343436,
+            "width": 0.7189542483660131,
+            "x": 0.0457516339869281,
+            "y": 0.047979797979797977
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.030934343434343436,
+                "width": 0.7189542483660131,
+                "x": 0.0457516339869281,
+                "y": 0.047979797979797977
+              },
+              "confidence": 0.9908750653266907,
+              "languageTag": "en",
+              "lineId": "p1-b1-l1",
+              "text": "Invoice INv-2024-0042 totals 1250.50 rupees."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.028409090909090908,
+            "width": 0.696078431372549,
+            "x": 0.0457516339869281,
+            "y": 0.09154040404040405
+          },
+          "kind": "TEXT",
+          "languageTag": "en",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.028409090909090908,
+                "width": 0.696078431372549,
+                "x": 0.0457516339869281,
+                "y": 0.09154040404040405
+              },
+              "confidence": 0.9792777299880981,
+              "languageTag": "en",
+              "lineId": "p1-b2-l1",
+              "text": "Report date: 2024-01-15, reference D0C-77."
+            }
+          ]
+        }
+      ],
+      "languageTag": "en",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-en",
+    "modelVersion": "PP-OCRv5-local-en",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

@@ -1,0 +1,305 @@
+schemaVersion: document-intelligence.model-manifest.v1
+increment: 4A
+authority:
+  state: FROZEN
+  verification: fail-closed
+  environmentFile: evaluation/increment4a/environment.yaml
+  inheritedIncrement3:
+    modelManifest: models/model-manifest.yaml
+    modelManifestSha256: df2c11968b21c4cfe5c7ae6e8be8eb1764a950a12e5be355f475b9ba4511e2c4
+  fingerprints:
+    uvLockSha256: fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960
+    pyprojectSha256: 8a2bd5d6dddc695ab3f9374ec87fd5f9d4f65434d1db4a641029b5b80775f34c
+    qualificationSha256: 80c6545ff3c4d9374c8400c1d8e9bf315a81cb1a54664f8be5537cad173e65d0
+    acceptanceSha256: 94d4cced55016c834d176b8456ebe8eb5e9832ab2947355b745f46d474b3f693
+    languageRegistrySha256: 99537614368569b89993048ba7bcd70bc87a5f9fc1563e997e9530dce4d275c0
+runtime:
+  pythonVersion: 3.12.3
+  pythonExecutable: /home/samujjwal/Developments/ghatana/services/media/modules/intelligence/document-intelligence-worker/.venv/bin/python
+  uvVersion: 0.12.16
+  uvLockSha256: fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960
+  packagesFingerprint: 38df448a6f3b8712a6270899f9ff6ec44837f12529a3e9d79346ff48de329c2c
+  packages:
+    PyYAML: 6.0.2
+    docling: 2.128.0
+    gliner: 0.2.29
+    huggingface-hub: 0.36.2
+    numpy: 2.3.5
+    paddleocr: 3.7.0
+    paddlepaddle: 3.3.1
+    psutil: 7.2.2
+    pytest: 8.4.2
+    reportlab: 4.5.1
+    safetensors: 0.8.0
+    sentence-transformers: 5.7.0
+    tokenizers: 0.22.2
+    torch: 2.14.0
+    transformers: 4.57.6
+  platformFingerprint: ebdd51da8bf4c5f7a4d77501d3897c9a9dd9221f3159283444c0b7b50082960e
+  hardwareFingerprint: ef5fadbe14c27fb0a4fab802920caa0822fcd37b73c47ba494bf329eaf622c1f
+  platform:
+    system: Linux
+    release: 7.0.0-31-generic
+    machine: x86_64
+    platform: Linux-7.0.0-31-generic-x86_64-with-glibc2.39
+    pythonImplementation: CPython
+    libc:
+    - glibc
+    - '2.39'
+    distribution: Ubuntu 24.04.4 LTS
+  hardware:
+    architecture: x86_64
+    cpuModel: Intel(R) Xeon(R) W-10855M CPU @ 2.80GHz
+    logicalCpus: 12
+artifacts:
+- artifactId: docling.pdf.local
+  providerRef: ghatana.docling
+  modelRef: docling-standard-pdf-pipeline
+  modelRevision: pinned-docling-runtime
+  cacheKey: ghatana.docling__docling-standard-pdf-pipeline__pinned-docling-runtime
+  availability: AVAILABLE
+  verification: VERIFIED
+  artifactSha256: 39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252
+  fileCount: 60
+  contentBytes: 701226317
+- artifactId: paddleocr.english.local
+  providerRef: ghatana.paddleocr
+  modelRef: PP-OCRv5-en
+  modelRevision: PP-OCRv5-local-en
+  cacheKey: ghatana.paddleocr__PP-OCRv5-en__PP-OCRv5-local-en
+  availability: AVAILABLE
+  verification: VERIFIED
+  artifactSha256: 5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b
+  fileCount: 38
+  contentBytes: 96370817
+- artifactId: paddleocr.devanagari.shared
+  providerRef: ghatana.paddleocr
+  modelRef: PP-OCRv5-devanagari-shared
+  modelRevision: PP-OCRv5-local-devanagari-shared
+  cacheKey: ghatana.paddleocr__PP-OCRv5-devanagari-shared__PP-OCRv5-local-devanagari-shared
+  sharedLanguages:
+  - ne
+  - hi
+  - mr
+  availability: AVAILABLE
+  verification: VERIFIED
+  artifactSha256: 2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8
+  fileCount: 38
+  contentBytes: 96440699
+  sharedFiles:
+    detection/inference.pdiparams:
+      bytes: 87932887
+      sha256: 183146fe9d9910352f68482f623bcbbb9fa7b9e8fa1463b9ad288cef00524d2d
+    recognition/inference.pdiparams:
+      bytes: 7836203
+      sha256: 719be7d20bfe9530e2deae324c999e9911087496bce5e70846767c448d023a01
+- artifactId: gliner.multilingual.local
+  providerRef: ghatana.gliner
+  modelRef: urchade/gliner_multi-v2.1
+  modelRevision: 443d26d
+  cacheKey: ghatana.gliner__urchade_gliner_multi-v2.1__443d26d
+  availability: AVAILABLE
+  verification: VERIFIED
+  artifactSha256: 9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a
+  fileCount: 35
+  contentBytes: 5711294790
+  revisionEvidence:
+    modelRevision: 443d26d
+    encoderModel: microsoft/mdeberta-v3-base
+    encoderRevision: a0484667b22365f84929a935b5e50a51f71f159d
+    encoderRefPath: hf-cache/models--microsoft--mdeberta-v3-base/refs/main
+    glinerConfigSha256: e25f61d91620df84aae8076811ee592e926e94d341b82e7bc1be359718f83017
+    runtime: gliner==0.2.29, transformers==4.57.6, torch==2.14.0
+- artifactId: minilm.increment3.inherited
+  providerRef: ghatana.minilm
+  modelRef: sentence-transformers/all-MiniLM-L6-v2
+  modelRevision: 1110a24
+  cacheKey: ghatana.minilm__sentence-transformers_all-MiniLM-L6-v2__1110a24
+  availability: AVAILABLE
+  verification: VERIFIED
+  inheritedFrom: Increment-3
+  artifactSha256: 55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18
+  fileCount: 91
+  contentBytes: 976952103
+- artifactId: office-renderer.fonts
+  providerRef: ghatana.docling-docx
+  modelRef: docling-rendered-docx-pipeline
+  modelRevision: pinned-docling-runtime
+  cacheKey: office-renderer
+  availability: AVAILABLE
+  verification: VERIFIED
+  artifactSha256: ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b
+  fileCount: 2
+  contentBytes: 989056
+models:
+- providerRef: ghatana.docling
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: docling-standard-pdf-pipeline
+  modelVersion: pinned-docling-runtime
+  modelRevision: pinned-docling-runtime
+  artifactId: docling.pdf.local
+  artifactSha256: 39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252
+  status: VERIFIED
+  runtimeProfile: docling==2.128.0
+- providerRef: ghatana.paddleocr
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: PP-OCRv5-en
+  modelVersion: PP-OCRv5-local-en
+  modelRevision: PP-OCRv5-local-en
+  language: en
+  artifactId: paddleocr.english.local
+  artifactSha256: 5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b
+  status: VERIFIED
+  runtimeProfile: paddleocr==3.7.0, paddlepaddle==3.3.1
+- providerRef: ghatana.paddleocr
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: PP-OCRv5-devanagari-shared
+  modelVersion: PP-OCRv5-local-devanagari-shared
+  modelRevision: PP-OCRv5-local-devanagari-shared
+  language: ne
+  artifactId: paddleocr.devanagari.shared
+  artifactSha256: 2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8
+  status: VERIFIED
+  runtimeProfile: paddleocr==3.7.0, paddlepaddle==3.3.1
+- providerRef: ghatana.paddleocr
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: PP-OCRv5-devanagari-shared
+  modelVersion: PP-OCRv5-local-devanagari-shared
+  modelRevision: PP-OCRv5-local-devanagari-shared
+  language: hi
+  artifactId: paddleocr.devanagari.shared
+  artifactSha256: 2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8
+  status: VERIFIED
+  runtimeProfile: paddleocr==3.7.0, paddlepaddle==3.3.1
+- providerRef: ghatana.paddleocr
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: PP-OCRv5-devanagari-shared
+  modelVersion: PP-OCRv5-local-devanagari-shared
+  modelRevision: PP-OCRv5-local-devanagari-shared
+  language: mr
+  artifactId: paddleocr.devanagari.shared
+  artifactSha256: 2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8
+  status: VERIFIED
+  runtimeProfile: paddleocr==3.7.0, paddlepaddle==3.3.1
+- providerRef: ghatana.gliner
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: urchade/gliner_multi-v2.1
+  modelVersion: 443d26d
+  modelRevision: 443d26d
+  artifactId: gliner.multilingual.local
+  artifactSha256: 9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a
+  status: VERIFIED
+  runtimeProfile: gliner==0.2.29, transformers==4.57.6, torch==2.14.0
+- providerRef: ghatana.minilm
+  providerVersion: 0.1.0
+  requirement: MODEL_ARTIFACT
+  modelRef: sentence-transformers/all-MiniLM-L6-v2
+  modelVersion: 1110a24
+  modelRevision: 1110a24
+  artifactId: minilm.increment3.inherited
+  artifactSha256: 55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18
+  status: VERIFIED
+  runtimeProfile: sentence-transformers==5.7.0, torch==2.14.0
+- providerRef: ghatana.docling-docx
+  providerVersion: 0.1.0
+  requirement: RUNTIME_BACKEND
+  modelRef: docling-rendered-docx-pipeline
+  modelVersion: pinned-docling-runtime
+  modelRevision: pinned-docling-runtime
+  runtimeDependency: docling==2.128.0
+  runtimeProfile: reportlab==4.5.1
+  artifactId: office-renderer.fonts
+  artifactSha256: ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b
+  status: VERIFIED
+  provisioning:
+    script: scripts/provision_increment4a_assets.py
+  fontAssets:
+    latin:
+      path: .models/office-renderer/fonts/DejaVuSans.ttf
+      sha256: ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280
+    devanagari:
+      path: .models/office-renderer/fonts/NotoSansDevanagari-Regular.ttf
+      sha256: 79a470365ccb210fa3c7d8d8ff2e005ef9d983cfd067f735a0caf7e15070ca9f
+  availabilityReason: DOCX is remediated by the bounded reportlab renderer (pinned
+    in runtime packages) with provisioned Latin/Devanagari fonts under .models/office-renderer;
+    no soffice renderer is provisioned
+- providerRef: ghatana.docling-pptx
+  providerVersion: 0.1.0
+  requirement: RUNTIME_BACKEND
+  modelRef: docling-standard-pptx-pipeline
+  modelVersion: pinned-docling-runtime
+  modelRevision: pinned-docling-runtime
+  runtimeDependency: docling==2.128.0
+  artifactSha256: null
+  status: VERIFIED
+- providerRef: ghatana.docling-xlsx
+  providerVersion: 0.1.0
+  requirement: RUNTIME_BACKEND
+  modelRef: docling-standard-xlsx-pipeline
+  modelVersion: pinned-docling-runtime
+  modelRevision: pinned-docling-runtime
+  runtimeDependency: docling==2.128.0
+  artifactSha256: null
+  status: VERIFIED
+- providerRef: ghatana.tesseractocr
+  providerVersion: 0.1.0
+  requirement: RUNTIME_ASSET
+  modelRef: tesseract-5
+  modelVersion: local-traineddata
+  modelRevision: local-traineddata
+  artifactSha256: 0f34d40a8c32cb9d73a8e0c51667df049e35c58a8fd740a2b6eecadfadc96ffb
+  status: VERIFIED
+  cacheKey: tesseract-runtime
+  provisioning:
+    script: scripts/provision_tesseract.py
+    packages:
+      liblept5:
+        version: 1.82.0-3build4
+        sha256: c2bb81d58f032b09917c0d50994cce905287a1596304a4e99681a03601456ea8
+      libtesseract5:
+        version: 5.3.4-1build5
+        sha256: a38438115dc203b5abc1e6a6b24eb5273ba82161a11faa2f619bf5f7622efb14
+      tesseract-ocr:
+        version: 5.3.4-1build5
+        sha256: 2dfac382d77215aee0c3de4a2a2205505d5f2195e72e79b54ad32154fc08da77
+      tesseract-ocr-eng:
+        version: 1:4.1.0-2
+        sha256: b1996b3113c78663f4dd16cf18aa1f288b07e9624f8d4a0ddbd7d9b52a234ba7
+      tesseract-ocr-hin:
+        version: 1:4.1.0-2
+        sha256: e981cbcdbc396e054e512659d7b91cbe1a717e0f2add5f99f574739319e4dc5b
+      tesseract-ocr-mar:
+        version: 1:4.1.0-2
+        sha256: f320c783bfc9bcba8d3730f68bffaba9b313a514a599f8b313071169f26780f5
+      tesseract-ocr-nep:
+        version: 1:4.1.0-2
+        sha256: 5883941462c4026bd467b1baa090fd4be781e6ac39091268b3757c9e4ceef28b
+  executable:
+    command: tesseract
+    available: true
+    path: .models/tesseract-runtime/usr/bin/tesseract
+    version: 5.3.4
+    sha256: 9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5
+  traineddata:
+    eng:
+      available: true
+      path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/eng.traineddata
+      sha256: 7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2
+    nep:
+      available: true
+      path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/nep.traineddata
+      sha256: 280ba9450b4f21afbf5985e0de87857b75a972577c50ef0603c141ddde4f1cb8
+    hin:
+      available: true
+      path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/hin.traineddata
+      sha256: 4c73ffc59d497c186b19d1e90f5d721d678ea6b2e277b719bee4e2af12271825
+    mar:
+      available: true
+      path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/mar.traineddata
+      sha256: 0ba3f2d116972e72fe9e176bc84c38e81dfb6670f4ed1f7f6c8e16a27da7cb61

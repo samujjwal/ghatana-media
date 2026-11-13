@@ -1,0 +1,54 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.04639090564280206,
+            "width": 0.8097627384693743,
+            "x": 0.1209523790325019,
+            "y": 0.15470170768917
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.017997650730794873,
+                "width": 0.8093593456832221,
+                "x": 0.12132867368230361,
+                "y": 0.15470170768917
+              },
+              "lineId": "p1-b1-l1",
+              "text": "This native page contains a clean paragraph of English text used for"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.01788361169530442,
+                "width": 0.22596589844906895,
+                "x": 0.1226994704898493,
+                "y": 0.18320900163666762
+              },
+              "lineId": "p1-b1-l2",
+              "text": "hybrid qualification."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"NATIVE\",\"textCharacters\":91,\"imageRegions\":0}]",
+      "pdfOcrAttemptLineage:[]"
+    ]
+  }
+}

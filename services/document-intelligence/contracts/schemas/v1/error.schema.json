@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/error.schema.json",
+  "title": "document-intelligence.v1 error envelope",
+  "description": "Exact sanitized error envelope emitted by every /v1 endpoint on failure (WorkerError.envelope / sanitized_error). No other keys are ever present; internal exception detail never crosses the process boundary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "operationId", "code", "retryable"],
+  "properties": {
+    "protocolVersion": { "const": "document-intelligence.v1" },
+    "operationId": {
+      "type": "string",
+      "description": "The request operationId when known, else the literal 'invalid-request' for envelopes emitted before metadata validation completes."
+    },
+    "code": {
+      "enum": [
+        "INVALID_REQUEST",
+        "LIMIT_EXCEEDED",
+        "UNSUPPORTED_MEDIA_TYPE",
+        "UNSUPPORTED_LANGUAGE",
+        "PROVIDER_BUSY",
+        "PROVIDER_UNAVAILABLE",
+        "PROVIDER_FAILED",
+        "TIMEOUT",
+        "CANCELLED",
+        "INVALID_PROVIDER_OUTPUT"
+      ]
+    },
+    "retryable": { "type": "boolean" },
+    "providerRef": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    }
+  }
+}

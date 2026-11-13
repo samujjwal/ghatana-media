@@ -1,0 +1,28 @@
+schemaVersion: increment6.fixtures.v1
+lane: hi-mr-extraction
+# Schema-guided extraction lane over parsed documents. Thresholds are
+# calibrated separately from the OCR lane (see acceptance.yaml
+# laneThresholdPolicy).
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-EXT-HI-001
+  file: I6-EXT-HI-001.parsed.json
+  mediaType: application/vnd.ghatana.parsed-document+json
+  language: hi
+  expectedCapability: extraction.schema-guided.hi.v2
+  truthSource: schema-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-EXT-HI-002
+  file: I6-EXT-HI-002.parsed.json
+  mediaType: application/vnd.ghatana.parsed-document+json
+  language: hi
+  expectedCapability: extraction.schema-guided.hi.v2
+  truthSource: schema-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-EXT-MR-001
+  file: I6-EXT-MR-001.parsed.json
+  mediaType: application/vnd.ghatana.parsed-document+json
+  language: mr
+  expectedCapability: extraction.schema-guided.mr.v2
+  truthSource: schema-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT

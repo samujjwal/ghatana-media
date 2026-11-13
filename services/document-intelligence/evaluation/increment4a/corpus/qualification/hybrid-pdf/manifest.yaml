@@ -1,0 +1,114 @@
+schemaVersion: increment4a.hybrid-pdf-fixtures.v1
+lane: qualification
+reviewed: true
+# External scanned/mixed assets are intentionally absent in this checkout;
+# keep the reviewed construction specification visible without allowing it to
+# be mistaken for a promotable provider corpus.
+promotionEligible: false
+fixtureConstruction:
+  reviewed: true
+  provenance: >-
+    Independently authored qualification metadata using synthetic public
+    digital PDFs where available and explicitly reviewed external-fixture
+    requirements for scanned, mixed, and fallback modes.
+  independentGrounding: synthetic-public-corpus-plus-reviewed-fixture-specifications
+  generatedProviderGroundTruth: false
+  groundTruthStatus: independent-reference-required-before-provider-scoring
+  reviewerRole: document-intelligence-maintainer
+thresholdAuthority:
+  path: routing/hybrid-pdf.v1.yaml
+  field: classification.minimumTextCharacters
+  duplicateThresholdsForbidden: true
+fixtures:
+  - fixtureId: HYBRID-007
+    reviewed: true
+    fixtureConstructionProvenance: existing synthetic dense English digital PDF with an authored text/layout reference.
+    sourceAsset:
+      path: evaluation/corpus/pdf-en-dense.pdf
+      status: present
+      sha256: 05c17b3f7e3abb40a9fd802763be617267a51740409fb768242938bc36a5429b
+    mediaType: application/pdf
+    language: en
+    mode: native
+    expectedRoute: primary
+    qualificationRequired: true
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedTextSource: authored-corpus-reference
+  - fixtureId: HYBRID-008
+    reviewed: true
+    fixtureConstructionProvenance: existing synthetic dense Nepali digital PDF with an authored Unicode reference.
+    sourceAsset:
+      path: evaluation/corpus/pdf-ne-simple.pdf
+      status: present
+      sha256: 95a5312a4cc24f239e7f5f40d0e66e1071ea0090c78fa54561b8132edf878c75
+    mediaType: application/pdf
+    language: ne
+    mode: native
+    expectedRoute: primary
+    qualificationRequired: true
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      expectedTextSource: authored-corpus-reference
+  - fixtureId: HYBRID-009
+    reviewed: true
+    fixtureConstructionProvenance: reviewed construction specification for a Nepali mixed PDF with a selectable-text page and a scanned page; provider output is intentionally absent.
+    sourceAsset:
+      path: null
+      status: externalFixtureRequired
+    mediaType: application/pdf
+    language: ne
+    mode: mixed
+    expectedRoute: page-selective-primary-then-ocr
+    qualificationRequired: true
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      status: independent-transcription-and-layout-review-required
+  - fixtureId: HYBRID-010
+    reviewed: true
+    fixtureConstructionProvenance: reviewed construction specification for an English scanned PDF with no selectable text and a human-authored transcription requirement.
+    sourceAsset:
+      path: null
+      status: externalFixtureRequired
+    mediaType: application/pdf
+    language: hi
+    mode: scanned
+    expectedRoute: primary-then-ocr
+    qualificationRequired: true
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      status: independent-transcription-and-layout-review-required
+  - fixtureId: HYBRID-011
+    reviewed: true
+    fixtureConstructionProvenance: reviewed construction specification for a Marathi OCR-fallback PDF with a separately reviewed text and region reference.
+    sourceAsset:
+      path: null
+      status: externalFixtureRequired
+    mediaType: application/pdf
+    language: mr
+    mode: ocr-fallback
+    expectedRoute: primary-then-ocr
+    qualificationRequired: true
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      status: independent-transcription-and-layout-review-required
+  - fixtureId: HYBRID-012
+    reviewed: true
+    fixtureConstructionProvenance: reviewed bilingual mixed-PDF construction specification covering page ordering, duplicate suppression, and language preservation.
+    sourceAsset:
+      path: null
+      status: externalFixtureRequired
+    mediaType: application/pdf
+    language: en-ne
+    mode: mixed
+    expectedRoute: primary-then-ocr-deduplicate
+    qualificationRequired: true
+    reference:
+      type: independent-fixture-spec
+      generatedProviderGroundTruth: false
+      status: independent-transcription-and-layout-review-required

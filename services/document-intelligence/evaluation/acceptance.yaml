@@ -1,0 +1,26 @@
+acceptanceVersion: document-intelligence.acceptance.v1
+# Reporting-only configuration for informational metrics (not threshold gates).
+# gliner.abstentionFloor: on negative fixtures a provider abstains only when
+# every emitted candidate scores below this confidence floor.
+reporting:
+  gliner:
+    abstentionFloor: 0.5
+hard:
+  contractAdmissionFailures: 0
+  sensitiveDiagnosticLeaks: 0
+  temporaryFileResidue: 0
+  wrongProviderIdentities: 0
+  invalidEmbeddingValues: 0
+  undeclaredFallbacks: 0
+thresholds:
+  docling:
+    en: { cer: 0.20, wer: 0.30, layoutIoU: 0.50, tableStructureAccuracy: 1.0, cellTextAccuracy: 1.0, cellCoordinateAgreement: 0.03, cellStructureAccuracy: 1.0 }
+    ne: { cer: 0.30, wer: 0.45, layoutIoU: 0.45, tableStructureAccuracy: 1.0, cellTextAccuracy: 1.0, cellCoordinateAgreement: 0.03, cellStructureAccuracy: 1.0 }
+  paddle:
+    en: { cer: 0.25, wer: 0.35, layoutIoU: 0.45 }
+    ne: { cer: 0.35, wer: 0.50, layoutIoU: 0.40 }
+  gliner:
+    en: { entityF1: 0.50, evidenceAccuracy: 0.50 }
+    ne: { entityF1: 0.40, evidenceAccuracy: 0.40 }
+  minilm:
+    und: { recallAt1: 0.50, recallAt5: 0.80, stability: 0.99 }

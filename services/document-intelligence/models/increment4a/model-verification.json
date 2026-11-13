@@ -1,0 +1,168 @@
+{
+  "artifacts": [
+    {
+      "artifactId": "docling.pdf.local",
+      "cacheKey": "ghatana.docling__docling-standard-pdf-pipeline__pinned-docling-runtime",
+      "status": "VERIFIED"
+    },
+    {
+      "artifactId": "paddleocr.english.local",
+      "cacheKey": "ghatana.paddleocr__PP-OCRv5-en__PP-OCRv5-local-en",
+      "status": "VERIFIED"
+    },
+    {
+      "artifactId": "paddleocr.devanagari.shared",
+      "cacheKey": "ghatana.paddleocr__PP-OCRv5-devanagari-shared__PP-OCRv5-local-devanagari-shared",
+      "status": "VERIFIED"
+    },
+    {
+      "artifactId": "gliner.multilingual.local",
+      "cacheKey": "ghatana.gliner__urchade_gliner_multi-v2.1__443d26d",
+      "status": "VERIFIED"
+    },
+    {
+      "artifactId": "minilm.increment3.inherited",
+      "cacheKey": "ghatana.minilm__sentence-transformers_all-MiniLM-L6-v2__1110a24",
+      "status": "VERIFIED"
+    },
+    {
+      "artifactId": "office-renderer.fonts",
+      "cacheKey": "office-renderer",
+      "status": "VERIFIED"
+    }
+  ],
+  "assetFingerprints": {
+    "cacheTrees": {
+      "ghatana.docling__docling-standard-pdf-pipeline__pinned-docling-runtime": "39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252",
+      "ghatana.gliner__urchade_gliner_multi-v2.1__443d26d": "9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a",
+      "ghatana.minilm__sentence-transformers_all-MiniLM-L6-v2__1110a24": "55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18",
+      "ghatana.paddleocr__PP-OCRv5-devanagari-shared__PP-OCRv5-local-devanagari-shared": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8",
+      "ghatana.paddleocr__PP-OCRv5-en__PP-OCRv5-local-en": "5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b",
+      "office-renderer": "ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b",
+      "tesseract-runtime": "0f34d40a8c32cb9d73a8e0c51667df049e35c58a8fd740a2b6eecadfadc96ffb"
+    },
+    "executables": {
+      "ghatana.tesseractocr": "9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5"
+    },
+    "fontAssets": {
+      "ghatana.docling-docx:devanagari": "79a470365ccb210fa3c7d8d8ff2e005ef9d983cfd067f735a0caf7e15070ca9f",
+      "ghatana.docling-docx:latin": "ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280"
+    },
+    "traineddata": {
+      "ghatana.tesseractocr:eng": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "ghatana.tesseractocr:hin": "4c73ffc59d497c186b19d1e90f5d721d678ea6b2e277b719bee4e2af12271825",
+      "ghatana.tesseractocr:mar": "0ba3f2d116972e72fe9e176bc84c38e81dfb6670f4ed1f7f6c8e16a27da7cb61",
+      "ghatana.tesseractocr:nep": "280ba9450b4f21afbf5985e0de87857b75a972577c50ef0603c141ddde4f1cb8"
+    }
+  },
+  "cacheRoot": ".models",
+  "issues": [],
+  "manifest": "models/increment4a/model-manifest.yaml",
+  "manifestSha256": "582bba88c331c54d0bf51c31b84a8965c179fbb03f751f1135762c7211d12a70",
+  "models": [
+    {
+      "language": null,
+      "modelRef": "docling-standard-pdf-pipeline",
+      "providerRef": "ghatana.docling",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": "en",
+      "modelRef": "PP-OCRv5-en",
+      "providerRef": "ghatana.paddleocr",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": "ne",
+      "modelRef": "PP-OCRv5-devanagari-shared",
+      "providerRef": "ghatana.paddleocr",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": "hi",
+      "modelRef": "PP-OCRv5-devanagari-shared",
+      "providerRef": "ghatana.paddleocr",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": "mr",
+      "modelRef": "PP-OCRv5-devanagari-shared",
+      "providerRef": "ghatana.paddleocr",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": null,
+      "modelRef": "urchade/gliner_multi-v2.1",
+      "providerRef": "ghatana.gliner",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": null,
+      "modelRef": "sentence-transformers/all-MiniLM-L6-v2",
+      "providerRef": "ghatana.minilm",
+      "requirement": "MODEL_ARTIFACT",
+      "status": "VERIFIED"
+    },
+    {
+      "language": null,
+      "modelRef": "docling-rendered-docx-pipeline",
+      "providerRef": "ghatana.docling-docx",
+      "requirement": "RUNTIME_BACKEND",
+      "status": "VERIFIED"
+    },
+    {
+      "language": null,
+      "modelRef": "docling-standard-pptx-pipeline",
+      "providerRef": "ghatana.docling-pptx",
+      "requirement": "RUNTIME_BACKEND",
+      "status": "VERIFIED"
+    },
+    {
+      "language": null,
+      "modelRef": "docling-standard-xlsx-pipeline",
+      "providerRef": "ghatana.docling-xlsx",
+      "requirement": "RUNTIME_BACKEND",
+      "status": "VERIFIED"
+    },
+    {
+      "language": null,
+      "modelRef": "tesseract-5",
+      "providerRef": "ghatana.tesseractocr",
+      "requirement": "RUNTIME_ASSET",
+      "status": "VERIFIED"
+    }
+  ],
+  "runtimeEvidence": {
+    "hardwareFingerprint": "ef5fadbe14c27fb0a4fab802920caa0822fcd37b73c47ba494bf329eaf622c1f",
+    "packages": {
+      "PyYAML": "6.0.2",
+      "docling": "2.128.0",
+      "gliner": "0.2.29",
+      "huggingface-hub": "0.36.2",
+      "numpy": "2.3.5",
+      "paddleocr": "3.7.0",
+      "paddlepaddle": "3.3.1",
+      "psutil": "7.2.2",
+      "pytest": "8.4.2",
+      "reportlab": "4.5.1",
+      "safetensors": "0.8.0",
+      "sentence-transformers": "5.7.0",
+      "tokenizers": "0.22.2",
+      "torch": "2.14.0",
+      "transformers": "4.57.6"
+    },
+    "packagesFingerprint": "38df448a6f3b8712a6270899f9ff6ec44837f12529a3e9d79346ff48de329c2c",
+    "platformFingerprint": "ebdd51da8bf4c5f7a4d77501d3897c9a9dd9221f3159283444c0b7b50082960e",
+    "pythonVersion": "3.12.3",
+    "uvLockSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
+    "uvVersion": "0.12.16"
+  },
+  "schemaVersion": "document-intelligence.model-verification.v2",
+  "status": "PASS"
+}

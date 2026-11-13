@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/operations-delete.schema.json",
+  "title": "DELETE /v1/operations/{operationId} (document-intelligence.v1)",
+  "description": "Generation-bound operation cancellation. There is no list/get operation endpoint in v1: the only operation surface is this DELETE. The X-Operation-Generation header is required and must carry the 32-character lowercase hexadecimal generation token bound to the operation at submission. Cancellation is idempotent for that generation and wins over a late provider result; a stale token cannot cancel a newer operation that reused the same operation ID.",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "operationGeneration": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "operationGeneration"],
+      "description": "Logical request shape: operationId arrives as the path parameter, operationGeneration as the required X-Operation-Generation header. A missing or malformed header fails closed with INVALID_REQUEST.",
+      "properties": {
+        "operationId": { "$ref": "#/$defs/identifier" },
+        "operationGeneration": { "$ref": "#/$defs/operationGeneration" }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocolVersion", "operationId", "operationGeneration", "cancelled"],
+      "properties": {
+        "protocolVersion": { "const": "document-intelligence.v1" },
+        "operationId": { "type": "string" },
+        "operationGeneration": { "$ref": "#/$defs/operationGeneration" },
+        "cancelled": { "type": "boolean" }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" }
+  ]
+}

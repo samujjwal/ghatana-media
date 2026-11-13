@@ -1,0 +1,28 @@
+schemaVersion: increment6.fixtures.v1
+lane: complex-layout
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-LAYOUT-EN-001
+  file: I6-LAYOUT-EN-001.pdf
+  mediaType: application/pdf
+  language: en
+  expectedDocumentClass: complex-layout
+  expectedCapability: parser.pdf.complex-layout.en
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-LAYOUT-HI-001
+  file: I6-LAYOUT-HI-001.pdf
+  mediaType: application/pdf
+  language: hi
+  expectedDocumentClass: complex-layout
+  expectedCapability: parser.pdf.complex-layout.hi
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-LAYOUT-MR-001
+  file: I6-LAYOUT-MR-001.pdf
+  mediaType: application/pdf
+  language: mr
+  expectedDocumentClass: complex-layout
+  expectedCapability: parser.pdf.complex-layout.mr
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT

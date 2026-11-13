@@ -1,0 +1,6 @@
+{
+  "findings": [],
+  "mappingFingerprint": "sha256:b787811463c3b25c77e06b8016adbf0594d1fb0b13ebeb9265d39ae7b5f8b1a5",
+  "producerVersion": "document-intelligence-ocr-mapping/1",
+  "schemaVersion": "document-intelligence.ocr-mapping-diagnostics.v1"
+}

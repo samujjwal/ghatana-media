@@ -1,0 +1,69 @@
+{
+  "languageTag": "ne",
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.03156565656565657,
+            "width": 0.6911764705882353,
+            "x": 0.0457516339869281,
+            "y": 0.045454545454545456
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03156565656565657,
+                "width": 0.6911764705882353,
+                "x": 0.0457516339869281,
+                "y": 0.045454545454545456
+              },
+              "confidence": 0.9659377932548523,
+              "languageTag": "ne",
+              "lineId": "p1-b1-l1",
+              "text": "नेपाल सरकारको मन्रिपरिषद कार्यालयले नयाँ नीति जारी गस्यो।"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.03345959595959596,
+            "width": 0.48937908496732024,
+            "x": 0.04330065359477124,
+            "y": 0.08775252525252525
+          },
+          "kind": "TEXT",
+          "languageTag": "ne",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.03345959595959596,
+                "width": 0.48937908496732024,
+                "x": 0.04330065359477124,
+                "y": 0.08775252525252525
+              },
+              "confidence": 0.9554150104522705,
+              "languageTag": "ne",
+              "lineId": "p1-b2-l1",
+              "text": "सबे कषेत्रीय कार्यालयहरूलाई सूचना पठाइयो।"
+            }
+          ]
+        }
+      ],
+      "languageTag": "ne",
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "PP-OCRv5-devanagari-shared",
+    "modelVersion": "PP-OCRv5-local-devanagari-shared",
+    "providerRef": "ghatana.paddleocr",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

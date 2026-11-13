@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/shadow-evaluation.v1",
+  "title": "Shadow Evaluation v1",
+  "description": "Receipt for a candidate shadow run: candidate output recorded and compared against the active authority without touching user-visible product state.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "shadowRunId",
+    "candidateId",
+    "candidateFingerprint",
+    "evaluationSetFingerprint",
+    "activeAuthorityFingerprint",
+    "comparisons",
+    "constraints",
+    "executedAt",
+    "resultFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.shadow-evaluation.v1" },
+    "shadowRunId": { "type": "string", "minLength": 1 },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "candidateFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "evaluationSetFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "activeAuthorityFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "comparisons": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseCount"],
+      "properties": {
+        "caseCount": { "type": "integer", "minimum": 1 },
+        "agreementRate": { "type": "number" },
+        "candidateResultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "activeResultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "perCase": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["caseId", "agrees"],
+            "properties": {
+              "caseId": { "type": "string" },
+              "agrees": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["userVisibleUnchanged", "businessStateUnchanged", "activeAuthorityUnchanged"],
+      "properties": {
+        "userVisibleUnchanged": { "const": true },
+        "businessStateUnchanged": { "const": true },
+        "activeAuthorityUnchanged": { "const": true }
+      }
+    },
+    "executedAt": { "type": "string", "format": "date-time" },
+    "resultFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

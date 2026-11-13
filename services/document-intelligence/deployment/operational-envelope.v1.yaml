@@ -1,0 +1,33 @@
+# document-intelligence.operational-envelope.v1 (I6-35)
+#
+# Declared operational envelope for the worker. Runtime bounds are hard
+# limits enforced by the bounded scheduler/residency/memory/temp-space
+# modules; degradedMode declares what partial readiness means so a DEGRADED
+# worker can never silently serve unqualified surfaces.
+schemaVersion: document-intelligence.operational-envelope.v1
+increment: increment6
+
+envelope:
+  maxConcurrency: 4                  # simultaneous in-flight provider invocations
+  maxQueueDepth: 64                  # bounded scheduler queue; beyond -> explicit rejection
+  memoryLimitBytes: 17179869184      # 16 GiB worker memory ceiling
+  tempSpaceLimitBytes: 10737418240   # 10 GiB scratch/render temp space ceiling
+  supportedMediaTypes:
+    - application/pdf
+    - image/png
+    - image/jpeg
+    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    - application/vnd.openxmlformats-officedocument.presentationml.presentation
+    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages: [en, ne, hi, mr]
+
+degradedMode:
+  readinessStates: [READY, DEGRADED, NOT_READY]
+  # DEGRADED serves only capability surfaces whose registry state is
+  # QUALIFIED + consumerAdmission ALLOWED; learning, shadow, and
+  # experimental increment6 surfaces are disabled.
+  degradedMeans: 'qualified surfaces only, learning/shadow disabled'
+  transitions:
+    READY_TO_DEGRADED: 'any bound exceeded or required asset unverified'
+    DEGRADED_TO_NOT_READY: 'no qualified surface serviceable'
+    DEGRADED_TO_READY: 'all bounds restored and assets re-verified'

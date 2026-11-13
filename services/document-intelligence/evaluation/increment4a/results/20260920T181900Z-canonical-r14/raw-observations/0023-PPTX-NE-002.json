@@ -1,0 +1,109 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.13333333333333333,
+            "width": 0.6,
+            "x": 0.1,
+            "y": 0.8
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.13333333333333333,
+                "width": 0.6,
+                "x": 0.1,
+                "y": 0.8
+              },
+              "lineId": "p1-b1-l1",
+              "text": "बीजक नम्बर १००१ कुल १२५०"
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.13333333333333333,
+            "width": 0.4,
+            "x": 0.1,
+            "y": 0.6
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.06666666666666667,
+                "width": 0.2,
+                "x": 0.1,
+                "y": 0.6
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "कुञ्जी"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.06666666666666667,
+                "width": 0.2,
+                "x": 0.3,
+                "y": 0.6
+              },
+              "cellId": "p1-t1-c0-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "मान"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.06666666666666667,
+                "width": 0.2,
+                "x": 0.1,
+                "y": 0.6666666666666666
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "रकम"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.06666666666666667,
+                "width": 0.2,
+                "x": 0.3,
+                "y": 0.6666666666666666
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "१२५०"
+            }
+          ],
+          "columnCount": 2,
+          "rowCount": 2,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-standard-pptx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-pptx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

@@ -1,0 +1,17 @@
+# document-intelligence.regression-budget.v1
+# Promotion-time bounds (I5-24). A promotion must declare a budget and pass it.
+schemaVersion: document-intelligence.regression-budget.v1
+budgetRef: learning.regression-budget.v1
+version: 1
+bounds:
+  maxQualityRegression: 0.0
+  maxLatencyRegressionRatio: 1.10
+  maxMemoryRegressionBytes: 268435456
+  maxReviewRateIncrease: 0.05
+  perLanguage:
+    ne:
+      maxQualityRegression: 0.0
+    hi:
+      maxQualityRegression: 0.0
+    mr:
+      maxQualityRegression: 0.0

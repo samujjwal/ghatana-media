@@ -1,0 +1,35 @@
+schemaVersion: increment6.fixtures.v1
+lane: hybrid-provenance
+# Provenance fixtures execute over declared page facts (same facts the PDF
+# rendering layer emits); every fixture must produce a complete per-page
+# provenance receipt. Binaries remain declared-not-present.
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-PROV-EN-001
+  file: I6-PROV-EN-001.pdf
+  mediaType: application/pdf
+  language: en
+  expectedCapability: parser.pdf.hybrid.provenance.en
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-PROV-NE-001
+  file: I6-PROV-NE-001.pdf
+  mediaType: application/pdf
+  language: ne
+  expectedCapability: parser.pdf.hybrid.provenance.ne
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-PROV-HI-001
+  file: I6-PROV-HI-001.pdf
+  mediaType: application/pdf
+  language: hi
+  expectedCapability: parser.pdf.hybrid.provenance.hi
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-PROV-MR-001
+  file: I6-PROV-MR-001.pdf
+  mediaType: application/pdf
+  language: mr
+  expectedCapability: parser.pdf.hybrid.provenance.mr
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT

@@ -1,0 +1,116 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.017579497934290294,
+            "width": 0.563261790001136,
+            "x": 0.1209523790325019,
+            "y": 0.13113569020553517
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.017560489011781887,
+                "width": 0.5588805038306521,
+                "x": 0.12299513606465433,
+                "y": 0.13113571862467188
+              },
+              "lineId": "p1-b1-l1",
+              "text": "Native text appears above the embedded scan."
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.06037674594073417,
+            "width": 0.47037038366163414,
+            "x": 0.1696693169636609,
+            "y": 0.5140263880652675
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.018349795334929003,
+                "width": 0.16294974005420898,
+                "x": 0.17218915830470538,
+                "y": 0.5158021747105832
+              },
+              "confidence": 0.9999501705169678,
+              "languageTag": "en",
+              "lineId": "p1-b2-l1",
+              "text": "Embedded"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.0177578664531571,
+                "width": 0.07391534600397108,
+                "x": 0.3401785810410033,
+                "y": 0.5158021747105832
+              },
+              "confidence": 0.9999343156814575,
+              "languageTag": "en",
+              "lineId": "p1-b2-l2",
+              "text": "scan"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.018349795334929003,
+                "width": 0.0638359806397932,
+                "x": 0.42165345106810775,
+                "y": 0.5158021747105832
+              },
+              "confidence": 0.9999673366546631,
+              "languageTag": "en",
+              "lineId": "p1-b2-l3",
+              "text": "text"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.024269084152648036,
+                "width": 0.1520304275763496,
+                "x": 0.4880092730489454,
+                "y": 0.5140263880652675
+              },
+              "confidence": 0.9998598098754883,
+              "languageTag": "en",
+              "lineId": "p1-b2-l4",
+              "text": "for region"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.021901368625560424,
+                "width": 0.07643518734501555,
+                "x": 0.1696693169636609,
+                "y": 0.5525017653804412
+              },
+              "confidence": 0.9997368454933167,
+              "languageTag": "en",
+              "lineId": "p1-b2-l5",
+              "text": "OCR."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"MIXED\",\"textCharacters\":44,\"imageRegions\":1}]",
+      "pdfOcrAttemptLineage:[{\"pageNumber\":1,\"region\":{\"x\":0.1209523843701345,\"y\":0.4654882197599714,\"width\":0.7559524023133406,\"height\":0.1781705934133429},\"attempts\":[\"ghatana.paddleocr\"],\"selected\":\"ghatana.paddleocr\"}]"
+    ]
+  }
+}

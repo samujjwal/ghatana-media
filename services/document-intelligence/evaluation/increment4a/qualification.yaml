@@ -1,0 +1,48 @@
+schemaVersion: increment4a.qualification.v1
+# Legacy development inventory only.  manifest.yaml is the sole canonical
+# fixture/capability authority for Increment-4A closure; nothing in this file
+# (including externalFixtureRequired records) may block the canonical run.
+state: SUPERSEDED
+supersededBy: manifest.yaml
+candidateScope:
+  mediaTypes:
+    - application/pdf
+    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    - application/vnd.openxmlformats-officedocument.presentationml.presentation
+    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  languages: [en, ne, hi, mr]
+  modes: [native, scanned, mixed, ocr-fallback]
+providers:
+  hybrid-pdf:
+    mediaTypes: [application/pdf]
+    requiredModes: [native, scanned, mixed]
+  office:
+    mediaTypes:
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  ocr-fallback:
+    mediaTypes: [application/pdf]
+    requiredModes: [ocr-fallback]
+capabilityDimensions:
+  # These are independent qualification leaves.  A provider/language result
+  # must never be widened to another provider or language by projection.
+  - capabilityId: ocr
+    providerRef: ghatana.paddleocr
+    mediaTypes: [image/png, image/jpeg, application/pdf]
+    languages: [en, ne, hi, mr]
+    requiredMetrics: [text.cer, language.accuracy]
+  - capabilityId: gliner
+    providerRef: ghatana.gliner
+    mediaTypes: [application/pdf, image/png, image/jpeg]
+    languages: [en, ne, hi, mr]
+    requiredMetrics: [gliner.entityF1]
+fixtures:
+  - {fixtureId: en-docx, mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document, language: en, mode: native}
+  - {fixtureId: ne-pptx, mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation, language: ne, mode: native}
+  - {fixtureId: hi-xlsx, mediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, language: hi, mode: native}
+  - {fixtureId: mr-docx, mediaType: application/vnd.openxmlformats-officedocument.wordprocessingml.document, language: mr, mode: native}
+  - {fixtureId: en-scanned-pdf, mediaType: application/pdf, language: en, mode: scanned, externalFixtureRequired: true}
+  - {fixtureId: ne-mixed-pdf, mediaType: application/pdf, language: ne, mode: mixed, externalFixtureRequired: true}
+  - {fixtureId: hi-fallback-pdf, mediaType: application/pdf, language: hi, mode: ocr-fallback, externalFixtureRequired: true}
+  - {fixtureId: mr-fallback-pdf, mediaType: application/pdf, language: mr, mode: ocr-fallback, externalFixtureRequired: true}

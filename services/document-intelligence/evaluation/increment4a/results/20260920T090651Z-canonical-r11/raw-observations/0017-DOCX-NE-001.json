@@ -1,0 +1,113 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.027895074153410613,
+            "width": 0.454694418182099,
+            "x": 0.13103174395187706,
+            "y": 0.09758759400577131
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.027895074153410613,
+                "width": 0.454694418182099,
+                "x": 0.13103174395187706,
+                "y": 0.09758759400577131
+              },
+              "lineId": "p1-b1-l1",
+              "text": "क्षेत्रीय कार्यालयले वार्षिक अनुपालन प्रतिवेदन प्रकाशित गर् यो। Second paragraph for structural coverage."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.049954085905025224,
+            "width": 0.7412964225615429,
+            "x": 0.12898963569794725,
+            "y": 0.1243848642091004
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.03442224576313896,
+                "x": 0.14111110887125222,
+                "y": 0.13260949164605634
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Key"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.052179251929694415,
+                "x": 0.5100793649193751,
+                "y": 0.13260949164605634
+              },
+              "cellId": "p1-t1-c0-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Value"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.07261604960794629,
+                "x": 0.14111110887125222,
+                "y": 0.15636556993563772
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "Amount"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.04702719547046781,
+                "x": 0.5100793649193751,
+                "y": 0.15636556993563772
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "1250"
+            }
+          ],
+          "columnCount": 2,
+          "rowCount": 2,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-rendered-docx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-docx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "officeRenderer:reportlab"
+    ]
+  }
+}

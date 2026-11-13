@@ -1,0 +1,116 @@
+schemaVersion: increment4a.acceptance.v1
+state: FROZEN
+metrics:
+  text.cer:
+    operator: lte
+    value: 0.15
+  text.wer:
+    operator: lte
+    value: 0.25
+  layout.iou:
+    operator: gte
+    value: 0.7
+  office.structureAccuracy:
+    operator: gte
+    value: 0.9
+  language.accuracy:
+    operator: gte
+    value: 0.95
+  fallback.eligibleAccuracy:
+    operator: gte
+    value: 1.0
+  fallback.ineligibleRejectionRate:
+    operator: gte
+    value: 1.0
+  fallback.successRate:
+    operator: gte
+    value: 0.9
+  runtime.p95LatencyMs:
+    operator: lte
+    value: 120000
+  runtime.peakRssDeltaMb:
+    operator: lte
+    value: 2048
+  runtime.cancellationCheckMs:
+    operator: lte
+    value: 1000
+requirements:
+  minimumFixturesPerLanguage: 1
+  requireEveryDeclaredFixture: true
+  requireMeasuredRuntime: true
+  requireNoExecutionErrors: true
+capabilityMetrics:
+  ocr.paddle.en:
+    text.cer:
+      operator: lte
+      value: 0.15
+    language.accuracy:
+      operator: gte
+      value: 0.95
+  ocr.paddle.ne:
+    text.cer:
+      operator: lte
+      value: 0.2
+    language.accuracy:
+      operator: gte
+      value: 0.95
+  ocr.paddle.hi:
+    text.cer:
+      operator: lte
+      value: 0.2
+    language.accuracy:
+      operator: gte
+      value: 0.95
+  ocr.paddle.mr:
+    text.cer:
+      operator: lte
+      value: 0.2
+    language.accuracy:
+      operator: gte
+      value: 0.95
+  extraction.schema-guided.hi:
+    gliner.entityF1:
+      operator: gte
+      value: 0.8
+    gliner.evidenceAccuracy:
+      operator: gte
+      value: 0.8
+  extraction.schema-guided.mr:
+    gliner.entityF1:
+      operator: gte
+      value: 0.8
+    gliner.evidenceAccuracy:
+      operator: gte
+      value: 0.8
+  fallback.image.paddle-to-tesseract.en:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.image.paddle-to-tesseract.ne:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.image.paddle-to-tesseract.hi:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.image.paddle-to-tesseract.mr:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.pdf-ocr-region.paddle-to-tesseract.en:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.pdf-ocr-region.paddle-to-tesseract.ne:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.pdf-ocr-region.paddle-to-tesseract.hi:
+    fallback.successRate:
+      operator: gte
+      value: 0.9
+  fallback.pdf-ocr-region.paddle-to-tesseract.mr:
+    fallback.successRate:
+      operator: gte
+      value: 0.9

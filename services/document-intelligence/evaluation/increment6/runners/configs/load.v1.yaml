@@ -1,0 +1,7 @@
+# I6-36: sustained-throughput load simulation (deterministic given seed)
+fixtureCount: 256
+concurrency: 8
+seed: 42
+baseLatencyMs: 120.0
+jitterMs: 60.0
+baseRssBytes: 536870912

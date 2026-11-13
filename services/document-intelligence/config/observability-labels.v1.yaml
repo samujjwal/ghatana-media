@@ -1,0 +1,46 @@
+# document-intelligence.observability-labels.v1
+#
+# Metrics cardinality policy (I6-60).  Metric labels are a bounded authority:
+# every emitted label must be one of `allowed`; every name in `forbidden` is
+# unbounded or sensitive and must never appear as a metric label or in the
+# log safe-field set.  Correlation identifiers ride in log/trace context
+# only — never as metric labels.
+schemaVersion: document-intelligence.observability-labels.v1
+
+metricLabels:
+  # Bounded, enumerated-by-policy label names.  Values for each name must
+  # come from a finite domain (provider catalog, capability ids, admitted
+  # media types/languages, status enums, failure codes, profile ids).
+  allowed:
+    - provider
+    - capability
+    - mediaType
+    - language
+    - status
+    - failureCategory
+    - profile
+
+  # Unbounded or sensitive names — forbidden as metric labels AND forbidden
+  # inside the log safe-field set.
+  forbidden:
+    - documentId
+    - userId
+    - fieldValue
+    - tenantName
+    - filename
+    - rawTenantId
+
+  # Correlation context: permitted in log/trace fields only.  Asserted never
+  # present as a metric label; operationId may stay in SAFE_FIELDS because
+  # SAFE_FIELDS governs log lines, not metric emission.
+  correlationOnly:
+    - operationId
+    - correlationId
+
+rules:
+  - rule: LABELS_BOUNDED_BY_ALLOWED
+    detail: a metric emission site may only use label names listed in `allowed`
+  - rule: FORBIDDEN_NEVER_EMITTED
+    detail: forbidden names must not appear in metric calls or SAFE_FIELDS
+  - rule: CORRELATION_NOT_LABELS
+    detail: operationId/correlationId are log/trace context, never metric labels

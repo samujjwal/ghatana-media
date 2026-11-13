@@ -1,0 +1,54 @@
+manifestVersion: document-intelligence.models.v1
+offlineByDefault: true
+models:
+  - providerRef: ghatana.docling
+    providerVersion: 0.1.0
+    modelRef: docling-standard-pdf-pipeline
+    modelRevision: pinned-docling-runtime
+    runtime: python
+    language: und
+    downloadSource: local-package-cache
+    artifact: declared-by-lock
+    artifactSha256: 39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252
+    licenseRef: docling-project-license
+  - providerRef: ghatana.paddleocr
+    providerVersion: 0.1.0
+    modelRef: PP-OCRv5-en
+    modelRevision: PP-OCRv5-local-en
+    runtime: paddlepaddle
+    language: en
+    downloadSource: local-package-cache
+    artifact: declared-by-lock
+    artifactSha256: 5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b
+    licenseRef: paddleocr-license
+  - providerRef: ghatana.paddleocr
+    providerVersion: 0.1.0
+    modelRef: PP-OCRv5-devanagari-shared
+    modelRevision: PP-OCRv5-local-devanagari-shared
+    runtime: paddlepaddle
+    language: ne
+    downloadSource: local-package-cache
+    artifact: declared-by-lock
+    artifactSha256: 2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8
+    licenseRef: paddleocr-license
+  - providerRef: ghatana.gliner
+    providerVersion: 0.1.0
+    modelRef: urchade/gliner_multi-v2.1
+    modelRevision: 443d26d
+    runtime: transformers
+    language: multilingual-en-ne
+    downloadSource: local-package-cache
+    artifact: declared-by-lock
+    artifactSha256: 9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a
+    licenseRef: gliner-license
+  - providerRef: ghatana.minilm
+    providerVersion: 0.1.0
+    modelRef: sentence-transformers/all-MiniLM-L6-v2
+    modelRevision: 1110a24
+    runtime: sentence-transformers
+    language: und
+    expectedDimensions: 384
+    downloadSource: local-package-cache
+    artifact: declared-by-lock
+    artifactSha256: 55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18
+    licenseRef: apache-2.0

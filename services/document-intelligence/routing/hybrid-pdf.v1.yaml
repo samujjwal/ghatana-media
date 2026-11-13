@@ -1,0 +1,27 @@
+schemaVersion: document-intelligence.hybrid-pdf.v1
+status: FROZEN
+classification:
+  # Per-page native-text gate read from the real PDF text layer; never a
+  # whole-document character count.
+  minimumTextCharacters: 32
+  primary: ghatana.docling
+  # Image regions covering at least this page-area fraction are OCR candidates
+  # on MIXED pages; smaller regions are treated as decorative.
+  ocrImageAreaFraction: 0.05
+ocr:
+  # Scanned pages and mixed-page raster regions are rendered to this media type
+  # and sent through the worker's resilient OCR route (Paddle primary,
+  # Tesseract fallback).  PDF bytes are never sent to an OCR provider.
+  route: ghatana.resilient-parser
+  inputMediaType: image/png
+deduplication:
+  key: [text, boundingRegion]
+  precedence: primary
+  # Calibrated from the calibration corpus: OCR lines overlapping a native line
+  # by at least bboxOverlap with text similarity at or above textSimilarity are
+  # suppressed in favour of the native provider output.
+  textSimilarity: 0.85
+  bboxOverlap: 0.5
+render:
+  scale: 2.0
+  maxPixels: 16777216

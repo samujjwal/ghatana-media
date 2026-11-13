@@ -1,0 +1,273 @@
+{
+  "schemaVersion": "document-intelligence.leaf-dependencies.v1",
+  "rule": "REUSE requires every dependency declared by the leaf to be recorded and current, the proof schema to remain compatible, and the recorded result to be PASS. A dependency satisfied only at seal level (bound current by another authoritative artifact) is reported as satisfiedViaSealAuthority, not as missing.",
+  "leaves": {
+    "increment3.evaluation.*": {
+      "dependsOn": [
+        "manifestFingerprint",
+        "corpusFingerprint",
+        "acceptanceFingerprint",
+        "environmentFingerprint",
+        "modelManifestFingerprint",
+        "providerSemanticsFingerprint",
+        "evaluationImplementationFingerprint"
+      ],
+      "doesNotDependOn": [
+        "workerClientFingerprint",
+        "nodeVersion",
+        "pnpmVersion",
+        "hardwareFingerprint",
+        "sharedContractSnapshotSha256"
+      ]
+    },
+    "increment3.strictGate": {
+      "dependsOn": [
+        "manifestFingerprint",
+        "corpusFingerprint",
+        "acceptanceFingerprint",
+        "environmentFingerprint",
+        "modelManifestFingerprint",
+        "providerSemanticsFingerprint",
+        "evaluationImplementationFingerprint",
+        "sharedContractLockSha256",
+        "sharedContractSnapshotSha256",
+        "workerClientFingerprint",
+        "testSpecFingerprint",
+        "uvLockSha256",
+        "pythonVersion",
+        "pytestVersion",
+        "nodeVersion",
+        "pnpmVersion"
+      ],
+      "doesNotDependOn": [
+        "hardwareFingerprint"
+      ]
+    },
+    "increment3.modelVerification": {
+      "dependsOn": [
+        "modelManifestFingerprint"
+      ],
+      "doesNotDependOn": [],
+      "note": "NOT_RUN by design; model-authority coverage is carried by increment4a.modelVerification for the sealed set."
+    },
+    "increment4a.campaign.*": {
+      "dependsOn": [
+        "materialFingerprint",
+        "providerSemanticsFingerprint",
+        "evaluationImplementationFingerprint"
+      ],
+      "doesNotDependOn": [
+        "workerClientFingerprint",
+        "nodeVersion",
+        "pnpmVersion",
+        "hardwareFingerprint"
+      ],
+      "note": "uv.lock and installed dependency identities are covered transitively: environment.yaml is inside materialFingerprint."
+    },
+    "increment4a.materialLock": {
+      "dependsOn": [
+        "materialFingerprints",
+        "providerSemanticsFingerprint",
+        "evaluationImplementationFingerprint"
+      ],
+      "doesNotDependOn": [
+        "hardwareFingerprint",
+        "nodeVersion"
+      ]
+    },
+    "increment4a.canonicalPointer": {
+      "dependsOn": [
+        "observationsFingerprint",
+        "providerSemanticsFingerprint",
+        "evaluationImplementationFingerprint"
+      ],
+      "doesNotDependOn": [
+        "hardwareFingerprint"
+      ]
+    },
+    "increment4a.modelVerification": {
+      "dependsOn": [
+        "manifestSha256"
+      ],
+      "doesNotDependOn": [
+        "nodeVersion",
+        "pnpmVersion",
+        "workerClientFingerprint"
+      ],
+      "note": "runtime/python/uv and native executable identities are verified live by verify_models.py at strict-gate time."
+    },
+    "increment4a.testReceipt.pytest.*": {
+      "dependsOn": [
+        "materialFingerprint",
+        "providerSemanticsFingerprint",
+        "requiredTestSpecFingerprint"
+      ],
+      "doesNotDependOn": [
+        "hardwareFingerprint",
+        "nodeVersion",
+        "pnpmVersion",
+        "workerClientFingerprint",
+        "sharedContractFingerprint"
+      ]
+    },
+    "increment4a.testReceipt.vitest.*": {
+      "dependsOn": [
+        "materialFingerprint",
+        "providerSemanticsFingerprint",
+        "requiredTestSpecFingerprint",
+        "workerClientFingerprint"
+      ],
+      "doesNotDependOn": [
+        "hardwareFingerprint",
+        "pythonVersion",
+        "pytestVersion"
+      ],
+      "note": "workerClientFingerprint is not bound per-receipt; it is bound current at seal level by the increment3 strictGate input fingerprint, so client drift routes through that leaf."
+    },
+    "increment4.livePostgres": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "persistenceSchemaFingerprint",
+        "liveEnvironmentFingerprint",
+        "documentExtractionModuleFingerprint",
+        "dbMigrationsFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.liveWorkerIdentity": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "increment3ProviderCatalogFingerprint",
+        "increment3ModelManifestFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.productAcceptance": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "sharedContractFingerprint",
+        "acceptanceManifestFingerprint",
+        "evaluatorSemanticFingerprint",
+        "documentExtractionModuleFingerprint",
+        "persistenceSchemaFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.productAcceptanceRun": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "sharedContractFingerprint",
+        "acceptanceManifestFingerprint",
+        "evaluatorSemanticFingerprint",
+        "documentExtractionModuleFingerprint",
+        "persistenceSchemaFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.reprocessDurability": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "documentExtractionModuleFingerprint",
+        "persistenceSchemaFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.reprocessLifecycleRun": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "documentExtractionModuleFingerprint",
+        "persistenceSchemaFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.pdfConsumer": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "consumerSchemaFingerprint",
+        "documentExtractionModuleFingerprint",
+        "acceptanceManifestFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.imageConsumer": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "consumerSchemaFingerprint",
+        "documentExtractionModuleFingerprint",
+        "acceptanceManifestFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.authenticatedBrowserJourney": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "documentExtractionModuleFingerprint",
+        "orgWebReviewSurfaceFingerprint",
+        "sharedContractFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": []
+    },
+    "increment4.auditAtomicity": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "documentExtractionModuleFingerprint",
+        "persistenceSchemaFingerprint",
+        "liveEnvironmentFingerprint"
+      ],
+      "doesNotDependOn": [
+        "orgWebReviewSurfaceFingerprint"
+      ]
+    },
+    "increment4.consumerAdmissionV2": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "documentExtractionModuleFingerprint",
+        "orgWebReviewSurfaceFingerprint",
+        "persistenceSchemaFingerprint",
+        "leafInventoryFingerprint",
+        "sharedContractFingerprint",
+        "acceptanceManifestFingerprint"
+      ],
+      "doesNotDependOn": []
+    },
+    "increment4.campaignManifest": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "leafInventoryFingerprint"
+      ],
+      "doesNotDependOn": [],
+      "note": "Derived authority; binds every campaign artifact by content digest."
+    },
+    "increment4.closureStatus": {
+      "evidence": "campaignManifest",
+      "dependsOn": [
+        "leafInventoryFingerprint"
+      ],
+      "doesNotDependOn": []
+    }
+  }
+}

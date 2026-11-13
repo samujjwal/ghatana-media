@@ -1,0 +1,32 @@
+schemaVersion: increment6.fixtures.v1
+lane: office-pptx
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-PPTX-EN-001
+  file: I6-PPTX-EN-001.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: en
+  expectedCapability: parser.pptx.text.en
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-PPTX-NE-001
+  file: I6-PPTX-NE-001.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: ne
+  expectedCapability: parser.pptx.text.ne
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-PPTX-HI-001
+  file: I6-PPTX-HI-001.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: hi
+  expectedCapability: parser.pptx.text.hi
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-PPTX-MR-001
+  file: I6-PPTX-MR-001.pptx
+  mediaType: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  language: mr
+  expectedCapability: parser.pptx.text.mr
+  truthSource: office-ground-truth-increment6
+  binaryState: DECLARED_NOT_PRESENT

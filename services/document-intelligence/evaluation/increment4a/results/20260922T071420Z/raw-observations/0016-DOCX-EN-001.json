@@ -1,0 +1,123 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.029698108065182652,
+            "width": 0.5536711845300364,
+            "x": 0.1309947809488107,
+            "y": 0.09578456009399927
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.01263462615965296,
+                "width": 0.5509834428149226,
+                "x": 0.1309947809488107,
+                "y": 0.09578456009399927
+              },
+              "lineId": "p1-b1-l1",
+              "text": "The regional office published the annual compliance report."
+            },
+            {
+              "boundingRegion": {
+                "height": 0.01263462615965296,
+                "width": 0.3903284152204169,
+                "x": 0.13225134362101298,
+                "y": 0.11241381489670624
+              },
+              "lineId": "p1-b1-l2",
+              "text": "Second paragraph for structural coverage."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.04981418346849018,
+            "width": 0.7412692332427774,
+            "x": 0.12906157730409762,
+            "y": 0.12465379583580766
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.03442224576313896,
+                "x": 0.14111110887125222,
+                "y": 0.13260949164605634
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Key"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.052179251929694415,
+                "x": 0.5100793649193751,
+                "y": 0.13260949164605634
+              },
+              "cellId": "p1-t1-c0-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Value"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.07261604960794629,
+                "x": 0.14111110887125222,
+                "y": 0.15636556993563772
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "Amount"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013065843059269751,
+                "width": 0.04702719547046781,
+                "x": 0.5100793649193751,
+                "y": 0.15636556993563772
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "1250"
+            }
+          ],
+          "columnCount": 2,
+          "rowCount": 2,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-rendered-docx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-docx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "officeRenderer:reportlab"
+    ]
+  }
+}

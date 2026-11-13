@@ -1,0 +1,85 @@
+schemaVersion: increment6.qualification.v1
+# Increment-6 qualification inventory. manifest.yaml plus the per-lane
+# corpus/<lane>/fixtures.yaml manifests are the canonical fixture/capability
+# authority for Increment-6 closure; this file scopes the candidate surface.
+state: CANDIDATE
+candidateScope:
+  mediaTypes:
+    - application/pdf
+    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    - application/vnd.openxmlformats-officedocument.presentationml.presentation
+    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    - image/png
+    - application/vnd.ghatana.parsed-document+json
+  languages: [en, ne, hi, mr]
+  modes: [scanned-classification, office, ocr, schema-extraction, complex-layout, negative-regression]
+providers:
+  scanned-pdf-classifier:
+    mediaTypes: [application/pdf]
+    requiredModes: [scanned-classification]
+    routingAuthority: routing/scanned-pdf.v1.yaml
+  office:
+    # I4A-qualified providers reused unchanged; thresholds mirror increment4a.
+    mediaTypes:
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    qualificationReuse: increment4a
+  paddle-ocr:
+    mediaTypes: [image/png]
+    languages: [hi, mr]
+  gliner-extraction:
+    mediaTypes: [application/vnd.ghatana.parsed-document+json]
+    languages: [hi, mr]
+capabilityDimensions:
+  # Independent qualification leaves. A provider/language result must never be
+  # widened to another provider or language by projection.
+  - capabilityId: parser.pdf.scanned.classify
+    providerRef: ghatana.scanned-pdf-classifier
+    mediaTypes: [application/pdf]
+    languages: [en, ne, hi, mr]
+    requiredMetrics: [classification.accuracy]
+  - capabilityId: parser.pdf.hybrid.provenance
+    providerRef: ghatana.hybrid-pdf
+    mediaTypes: [application/pdf]
+    languages: [en, ne, hi, mr]
+    requiredMetrics: [provenance.completeness]
+  - capabilityId: ocr.paddle
+    providerRef: ghatana.paddleocr
+    mediaTypes: [image/png]
+    languages: [hi, mr]
+    requiredMetrics: [text.cer, language.accuracy]
+  - capabilityId: extraction.schema-guided.v2
+    providerRef: ghatana.gliner
+    mediaTypes: [application/vnd.ghatana.parsed-document+json]
+    languages: [hi, mr]
+    requiredMetrics: [gliner.entityF1, gliner.evidenceAccuracy]
+  - capabilityId: parser.pdf.complex-layout
+    providerRef: ghatana.hybrid-pdf
+    mediaTypes: [application/pdf]
+    languages: [en, hi, mr]
+    requiredMetrics: [layout.iou]
+  - capabilityId: parser.pdf.hybrid.tables.scanned
+    providerRef: ghatana.hybrid-pdf
+    mediaTypes: [application/pdf]
+    languages: [en, ne, hi, mr]
+    disposition: UNSUPPORTED_BY_DESIGN
+lanes:
+  - id: scanned-pdf
+    fixturesManifest: corpus/scanned-pdf/fixtures.yaml
+  - id: office-docx
+    fixturesManifest: corpus/office-docx/fixtures.yaml
+  - id: office-pptx
+    fixturesManifest: corpus/office-pptx/fixtures.yaml
+  - id: office-xlsx
+    fixturesManifest: corpus/office-xlsx/fixtures.yaml
+  - id: hi-mr-ocr
+    fixturesManifest: corpus/hi-mr-ocr/fixtures.yaml
+  - id: hi-mr-extraction
+    fixturesManifest: corpus/hi-mr-extraction/fixtures.yaml
+  - id: complex-layout
+    fixturesManifest: corpus/complex-layout/fixtures.yaml
+  - id: scanned-table-regression
+    fixturesManifest: corpus/scanned-table-regression/fixtures.yaml
+    negativeLane: true
+    expectedDisposition: UNSUPPORTED_BY_DESIGN

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/learning/schemas/retention-policy.v1",
+  "title": "Learning Retention Policy v1",
+  "description": "Retention authority for learning artifacts, defined independently per artifact class.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "policyRef", "version", "classes"],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.retention-policy.v1" },
+    "policyRef": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "classes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feedbackEvents",
+        "datasetSnapshots",
+        "candidateArtifacts",
+        "rejectedCandidates",
+        "promotionEvidence"
+      ],
+      "properties": {
+        "feedbackEvents": { "$ref": "#/$defs/retentionClass" },
+        "datasetSnapshots": { "$ref": "#/$defs/retentionClass" },
+        "candidateArtifacts": { "$ref": "#/$defs/retentionClass" },
+        "rejectedCandidates": { "$ref": "#/$defs/retentionClass" },
+        "promotionEvidence": { "$ref": "#/$defs/retentionClass" }
+      }
+    }
+  },
+  "$defs": {
+    "retentionClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retention"],
+      "properties": {
+        "retention": {
+          "oneOf": [
+            { "const": "INDEFINITE" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["days"],
+              "properties": { "days": { "type": "integer", "minimum": 1 } }
+            }
+          ]
+        },
+        "legalHoldHonored": { "type": "boolean" },
+        "revocationPropagates": { "type": "boolean" }
+      }
+    }
+  }
+}

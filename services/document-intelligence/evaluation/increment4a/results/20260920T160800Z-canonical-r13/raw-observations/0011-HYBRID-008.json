@@ -1,0 +1,142 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.046086791881787936,
+            "width": 0.8097627384693743,
+            "x": 0.1209523790325019,
+            "y": 0.13113569020553517
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.046086791881787936,
+                "width": 0.8097627384693743,
+                "x": 0.1209523790325019,
+                "y": 0.13113569020553517
+              },
+              "lineId": "p1-b1-l1",
+              "text": "This native page contains a clean paragraph of English text used for hybrid qualification."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.10892821830695153,
+            "width": 0.7611927698122575,
+            "x": 0.11889782847974124,
+            "y": 0.3335349112395153
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.012085904829824601,
+                "width": 0.035941335408338604,
+                "x": 0.13103174395187706,
+                "y": 0.34920461086474736
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Item"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.012085904829824601,
+                "width": 0.06367806777230571,
+                "x": 0.5100793649193751,
+                "y": 0.34920461086474736
+              },
+              "cellId": "p1-t1-c0-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Amount"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.012085904829824533,
+                "width": 0.10477499833690483,
+                "x": 0.13103174395187706,
+                "y": 0.3848387282991194
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "Invoice 1001"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.012085904829824533,
+                "width": 0.041096930564598885,
+                "x": 0.5100793649193751,
+                "y": 0.3848387282991194
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "1250"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.012085904829824533,
+                "width": 0.10477499833690483,
+                "x": 0.13103174395187706,
+                "y": 0.4204728457334915
+              },
+              "cellId": "p1-t1-c2-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 2,
+              "rowSpan": 1,
+              "text": "Invoice 1002"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.012085904829824533,
+                "width": 0.030822697923449164,
+                "x": 0.5100793649193751,
+                "y": 0.4204728457334915
+              },
+              "cellId": "p1-t1-c2-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 2,
+              "rowSpan": 1,
+              "text": "980"
+            }
+          ],
+          "columnCount": 2,
+          "rowCount": 3,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"NATIVE\",\"textCharacters\":141,\"imageRegions\":0}]",
+      "pdfOcrAttemptLineage:[]"
+    ]
+  }
+}

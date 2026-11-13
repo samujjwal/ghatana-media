@@ -1,0 +1,14 @@
+{
+  "id": "parse-wrong-protocol-invalid",
+  "endpoint": "parse",
+  "description": "protocolVersion is a constant; any other value fails closed.",
+  "request": {
+    "protocolVersion": "document-intelligence.v0",
+    "operationId": "i3-parse-wrong-version",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/pdf",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": false, "code": "INVALID_REQUEST", "stage": "metadata" }
+}

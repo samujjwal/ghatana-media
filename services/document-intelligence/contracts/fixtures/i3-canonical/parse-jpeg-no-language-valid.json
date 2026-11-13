@@ -1,0 +1,14 @@
+{
+  "id": "parse-jpeg-no-language-valid",
+  "endpoint": "parse",
+  "description": "Canonical I3 parse envelope: JPEG without a language hint is admissible.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-jpeg-1",
+    "providerRef": "ghatana.paddleocr",
+    "mediaType": "image/jpeg",
+    "timeoutMs": 60000,
+    "limits": {}
+  },
+  "expected": { "accepted": true }
+}

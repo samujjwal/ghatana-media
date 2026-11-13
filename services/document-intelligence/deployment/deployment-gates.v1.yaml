@@ -1,0 +1,33 @@
+# document-intelligence.deployment-gates.v1 (I6-40)
+#
+# Required release gates. Every gate binds an evidenceKind: the release
+# readiness manifest records a receipt fingerprint per gate, and a gate may
+# only report PASS when a receipt of its evidenceKind exists and verifies.
+schemaVersion: document-intelligence.deployment-gates.v1
+increment: increment6
+
+gates:
+  - id: buildReproducible
+    required: true
+    evidenceKind: package-receipt          # deployment/sbom/package-receipt.v1.json
+    description: Two builds over identical inputs must produce identical packageFingerprints.
+  - id: sbomClean
+    required: true
+    evidenceKind: sbom-manifest            # deployment/sbom/sbom.v1.json passes sbom.py --check
+    description: The recorded SBOM must regenerate byte-identical (minus generatedAt).
+  - id: vulnerabilityPolicyPass
+    required: true
+    evidenceKind: vulnerability-report     # scripts/check_vulnerabilities.py report PASS
+    description: Vulnerability scan evaluated against deployment/vulnerability-policy.v1.yaml.
+  - id: capabilityAdmissionConsistent
+    required: true
+    evidenceKind: capability-registry-check  # scripts/check_capability_registry.py PASS
+    description: Registry states must be internally consistent; nothing DENIED may be advertised.
+  - id: campaignEvidenceComplete
+    required: true
+    evidenceKind: campaign-attestation     # increment6 campaign authority receipts
+    description: Qualification campaign receipts exist for every capability the release admits.
+  - id: rollbackPlanPresent
+    required: true
+    evidenceKind: activation-plan          # deployment/activation.v1.yaml rollbackPlan present
+    description: Progressive activation plan carries an explicit rollbackPlan.

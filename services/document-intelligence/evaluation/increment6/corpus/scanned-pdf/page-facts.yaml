@@ -1,0 +1,55 @@
+schemaVersion: increment6.page-facts.v1
+lane: scanned-pdf
+# Declared page facts per fixture — the classifier contract input. These are
+# the same facts the PDF rendering layer emits: textLength, imageCount,
+# imageCoverage, ocrLayerDetected.
+facts:
+  I6-SCAN-EN-001:
+    pages:
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.98, ocrLayerDetected: false}
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.97, ocrLayerDetected: false}
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.99, ocrLayerDetected: false}
+  I6-SCAN-EN-002:
+    pages:
+      - {textLength: 1450, imageCount: 0, imageCoverage: 0.0, ocrLayerDetected: false}
+      - {textLength: 1320, imageCount: 0, imageCoverage: 0.0, ocrLayerDetected: false}
+  I6-SCAN-NE-001:
+    pages:
+      - {textLength: 800, imageCount: 1, imageCoverage: 0.55, ocrLayerDetected: false}
+      - {textLength: 620, imageCount: 1, imageCoverage: 0.60, ocrLayerDetected: false}
+      - {textLength: 900, imageCount: 1, imageCoverage: 0.40, ocrLayerDetected: false}
+  I6-SCAN-NE-002:
+    pages:
+      - {textLength: 1100, imageCount: 0, imageCoverage: 0.0, ocrLayerDetected: false}
+  I6-SCAN-HI-001:
+    pages:
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.96, ocrLayerDetected: true}
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.95, ocrLayerDetected: true}
+  I6-SCAN-HI-002:
+    pages:
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.97, ocrLayerDetected: false}
+      - {textLength: 1240, imageCount: 0, imageCoverage: 0.0, ocrLayerDetected: false}
+      - {textLength: 700, imageCount: 1, imageCoverage: 0.58, ocrLayerDetected: false}
+  I6-SCAN-MR-001:
+    pages:
+      - {textLength: 0, imageCount: 2, imageCoverage: 0.99, ocrLayerDetected: false}
+  I6-SCAN-MR-002:
+    pages:
+      - {textLength: 950, imageCount: 1, imageCoverage: 0.52, ocrLayerDetected: false}
+      - {textLength: 0, imageCount: 0, imageCoverage: 0.0, ocrLayerDetected: false}
+  I6-PROV-EN-001:
+    pages:
+      - {textLength: 900, imageCount: 1, imageCoverage: 0.45, ocrLayerDetected: false}
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.96, ocrLayerDetected: false}
+  I6-PROV-NE-001:
+    pages:
+      - {textLength: 0, imageCount: 1, imageCoverage: 0.98, ocrLayerDetected: false}
+      - {textLength: 640, imageCount: 1, imageCoverage: 0.55, ocrLayerDetected: false}
+  I6-PROV-HI-001:
+    pages:
+      - {textLength: 1200, imageCount: 1, imageCoverage: 0.30, ocrLayerDetected: false}
+      - {textLength: 0, imageCount: 0, imageCoverage: 0.0, ocrLayerDetected: false}
+  I6-PROV-MR-001:
+    pages:
+      - {textLength: 0, imageCount: 2, imageCoverage: 0.97, ocrLayerDetected: false}
+      - {textLength: 500, imageCount: 1, imageCoverage: 0.50, ocrLayerDetected: false}

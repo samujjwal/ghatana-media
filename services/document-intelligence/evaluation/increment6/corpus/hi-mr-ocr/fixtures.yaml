@@ -1,0 +1,34 @@
+schemaVersion: increment6.fixtures.v1
+lane: hi-mr-ocr
+# OCR lane: text fidelity only. Schema extraction is a separate lane with its
+# own thresholds; this lane never carries entity/evidence expectations.
+fixtureBinaryPolicy: DECLARED_NOT_PRESENT
+fixtures:
+- fixtureId: I6-OCR-HI-001
+  file: I6-OCR-HI-001.png
+  mediaType: image/png
+  language: hi
+  expectedCapability: ocr.paddle.hi
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-OCR-HI-002
+  file: I6-OCR-HI-002.png
+  mediaType: image/png
+  language: hi
+  expectedCapability: ocr.paddle.hi
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-OCR-MR-001
+  file: I6-OCR-MR-001.png
+  mediaType: image/png
+  language: mr
+  expectedCapability: ocr.paddle.mr
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT
+- fixtureId: I6-OCR-MR-002
+  file: I6-OCR-MR-002.png
+  mediaType: image/png
+  language: mr
+  expectedCapability: ocr.paddle.mr
+  truthSource: manual-review-increment6
+  binaryState: DECLARED_NOT_PRESENT

@@ -1,0 +1,27 @@
+{
+  "artifacts": {
+    "campaign-attestation.json": "sha256:ba757677b5d8fb1be69edc7eedbd8bc2dd11b1faf5b414f316b8dbb12b5ce935",
+    "capabilities.json": "sha256:796ecf557b25063efaf81f82edbc001470492ed35f339fe2a854fda9709762c5",
+    "lineage.json": "sha256:6c3de9eaf04bc438ecb9f1c13ea8895613e80983f53372d6b464098d08351bac",
+    "observations.json": "sha256:19c06944a4d20e5cac49f9b7653b7766928d86e39f18b829f260b1e36a4a1fd2",
+    "raw-observation-artifacts.json": "sha256:4c2a12f88f73f332fb8d80916e79cfdad333a2a91bc10be2e4598ad125c61dd3",
+    "raw-observations.json": "sha256:7bbe5a00d19c7310f91402b871aa7e73100e33d837b757fb4e286cb8a5fd3b5e",
+    "summary.json": "sha256:4bf1d405e0f63e455604c49c4640cee13ad1cdafef920ea425153548b8da486d"
+  },
+  "fileCount": 7,
+  "publicationContract": "status COMPLETE is written only after every required artifact digest is recorded; a run directory without a COMPLETE manifest is unpublished and may not feed authority.",
+  "requiredArtifacts": [
+    "summary.json",
+    "capabilities.json",
+    "lineage.json",
+    "observations.json",
+    "raw-observations.json",
+    "raw-observation-artifacts.json",
+    "campaign-attestation.json"
+  ],
+  "run": "increment4a.canonical",
+  "runDir": "evaluation/increment4a/results/20260921T123710Z-canonical",
+  "schemaVersion": "document-intelligence.run-publication.v1",
+  "sealedAt": "2026-09-21T20:05:53Z",
+  "status": "COMPLETE"
+}

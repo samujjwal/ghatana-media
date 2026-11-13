@@ -1,0 +1,38 @@
+{
+  "OCR-NE-CLEAN": {
+    "expectedText": "नेपाल सरकारको मन्त्रिपरिषद् कार्यालयले नयाँ नीति जारी गर्‍यो। सबै क्षेत्रीय कार्यालयहरूलाई सूचना पठाइयो।",
+    "file": "ne-clean.png",
+    "language": "ne",
+    "variant": "clean"
+  },
+  "OCR-NE-DENSE": {
+    "expectedText": "यो घना अनुच्छेदमा धेरै छोटा लाइनहरू छन्। प्रत्येक लाइन सानो आकारमा छापिएको छ। घना पाठले OCR लाइन छुट्ट्याउन जाँच्छ। अन्तिम लाइनले घना नमूना पूरा गर्छ।",
+    "file": "ne-dense.png",
+    "language": "ne",
+    "variant": "dense"
+  },
+  "OCR-NE-MIXED": {
+    "expectedText": "चलानी INV-2024-0042 जम्मा १२५०.५० रुपैयाँ। रिपोर्ट मिति: 2024-01-15, सन्दर्भ DOC-77.",
+    "file": "ne-mixed.png",
+    "language": "ne",
+    "variant": "mixed"
+  },
+  "OCR-NE-NOISY": {
+    "expectedText": "यो घना अनुच्छेदमा धेरै छोटा लाइनहरू छन्। प्रत्येक लाइन सानो आकारमा छापिएको छ। घना पाठले OCR लाइन छुट्ट्याउन जाँच्छ। अन्तिम लाइनले घना नमूना पूरा गर्छ।",
+    "file": "ne-noisy.png",
+    "language": "ne",
+    "variant": "noisy"
+  },
+  "OCR-NE-NUMBERS": {
+    "expectedText": "परिचय ९८४१००१२३४ मिति १५-०१-२०२४ रकम ९९९.७५। ब्याच ४२ कुल १००, अंक ९८.५ प्रतिशत।",
+    "file": "ne-numbers.png",
+    "language": "ne",
+    "variant": "numbers"
+  },
+  "OCR-NE-ROTATED": {
+    "expectedText": "यो घना अनुच्छेदमा धेरै छोटा लाइनहरू छन्। प्रत्येक लाइन सानो आकारमा छापिएको छ। घना पाठले OCR लाइन छुट्ट्याउन जाँच्छ। अन्तिम लाइनले घना नमूना पूरा गर्छ।",
+    "file": "ne-rotated.png",
+    "language": "ne",
+    "variant": "rotated"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "frozenAt": "2026-09-19T06:50:15Z",
+  "materialFingerprints": {
+    "acceptance": "d835ead9f433566228d2ed60c755e660f264cbb41dcf0225f6c61f6b61a80e01",
+    "corpus": "2d0e7657408401a71b193de6ad2f2693f5fa1db99a6a8dee88716defb2b065e8",
+    "environment": "1941f6ae00ad13f8541b4f0cf1a5bafe8e968d3b1a49c6d9f53c78dfa6adb48f",
+    "hybridRouting": "3b6afa95c920dc89bd85281851b4f378556bbeb5e271022026fc5875e145e342",
+    "languageRegistry": "c32afb308dba90464673a78979e3ccb0ab3f5bd4a987de188cf6740a45d7cd46",
+    "manifest": "072efeb4c053c1ca40d752e205e3a832b2b9052ed0f86a64ec86b52185724fc0",
+    "modelManifest": "52cffd35b84d1879b84639ab75f6cc2545e53d0d812cb75e892bd73797259b10",
+    "parserRouting": "692b4e9867a16213a63b104d84f1a4e47bb7ec1ad2e152a1d538e36113bb754f",
+    "workerProfile": "1a9689a93c3197af9b602dfe07e3964ec16c5450a9214e8d096335b5f8ed6803"
+  },
+  "schemaVersion": "increment4a.material-lock.v1",
+  "state": "FROZEN"
+}

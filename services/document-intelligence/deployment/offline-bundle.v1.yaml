@@ -1,0 +1,105 @@
+# document-intelligence.offline-bundle.v1 (I6-28)
+#
+# Declarative descriptor for the offline deployment bundle. Every asset is
+# pinned by sha256 and resolved against the frozen model manifests; every
+# file-backed asset is re-digested from real bytes at bundle-build time.
+# scripts/../deployment/build_offline_bundle.py resolves this descriptor and
+# emits deployment/sbom/offline-bundle-manifest.v1.json (atomic write).
+# The build fails closed on any unresolved or corrupt asset.
+schemaVersion: document-intelligence.offline-bundle.v1
+bundleId: document-intelligence-worker.offline-bundle
+increment: increment6
+networkMode: offline
+remoteFetchCount: 0
+
+# Model artifacts. ref resolves inside `source` as artifactId, cacheKey, or
+# "providerRef/modelRef@modelRevision"; sha256 must equal the manifest's
+# declared artifactSha256. cachePath (when present) is re-digested with the
+# canonical asset tree digest (sorted relative paths + bytes, excluding
+# PROVISIONING_REQUIRED and .artifact.sha256 markers) and must match sha256.
+modelAssets:
+  - ref: ghatana.docling/docling-standard-pdf-pipeline@pinned-docling-runtime
+    sha256: 39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252
+    source: models/model-manifest.yaml
+    cachePath: .models/ghatana.docling__docling-standard-pdf-pipeline__pinned-docling-runtime
+  - ref: ghatana.paddleocr/PP-OCRv5-en@PP-OCRv5-local-en
+    sha256: 5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b
+    source: models/model-manifest.yaml
+    cachePath: .models/ghatana.paddleocr__PP-OCRv5-en__PP-OCRv5-local-en
+  - ref: ghatana.paddleocr/PP-OCRv5-devanagari-shared@PP-OCRv5-local-devanagari-shared
+    sha256: 2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8
+    source: models/model-manifest.yaml
+    cachePath: .models/ghatana.paddleocr__PP-OCRv5-devanagari-shared__PP-OCRv5-local-devanagari-shared
+  - ref: ghatana.gliner/urchade/gliner_multi-v2.1@443d26d
+    sha256: 9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a
+    source: models/model-manifest.yaml
+    cachePath: .models/ghatana.gliner__urchade_gliner_multi-v2.1__443d26d
+  - ref: ghatana.minilm/sentence-transformers/all-MiniLM-L6-v2@1110a24
+    sha256: 55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18
+    source: models/model-manifest.yaml
+    cachePath: .models/ghatana.minilm__sentence-transformers_all-MiniLM-L6-v2__1110a24
+  - ref: office-renderer.fonts
+    sha256: ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b
+    source: models/increment4a/model-manifest.yaml
+    cachePath: .models/office-renderer
+
+# Native/runtime assets. `cachePath` entries are verified by tree digest;
+# `path` entries are single files verified by content sha256. A ref may carry
+# a `:selector` suffix addressing a sub-record of the manifest entry
+# (executable, traineddata.<lang>, fontAssets.<role>).
+nativeAssets:
+  - ref: ghatana.tesseractocr/tesseract-5@local-traineddata
+    sha256: 0f34d40a8c32cb9d73a8e0c51667df049e35c58a8fd740a2b6eecadfadc96ffb
+    source: models/increment4a/model-manifest.yaml
+    cachePath: .models/tesseract-runtime
+    kind: runtime-tree
+  - ref: ghatana.tesseractocr/tesseract-5@local-traineddata:executable
+    sha256: 9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5
+    source: models/increment4a/model-manifest.yaml
+    path: .models/tesseract-runtime/usr/bin/tesseract
+    kind: executable
+  - ref: ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.eng
+    sha256: 7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2
+    source: models/increment4a/model-manifest.yaml
+    path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/eng.traineddata
+    kind: traineddata
+  - ref: ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.nep
+    sha256: 280ba9450b4f21afbf5985e0de87857b75a972577c50ef0603c141ddde4f1cb8
+    source: models/increment4a/model-manifest.yaml
+    path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/nep.traineddata
+    kind: traineddata
+  - ref: ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.hin
+    sha256: 4c73ffc59d497c186b19d1e90f5d721d678ea6b2e277b719bee4e2af12271825
+    source: models/increment4a/model-manifest.yaml
+    path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/hin.traineddata
+    kind: traineddata
+  - ref: ghatana.tesseractocr/tesseract-5@local-traineddata:traineddata.mar
+    sha256: 0ba3f2d116972e72fe9e176bc84c38e81dfb6670f4ed1f7f6c8e16a27da7cb61
+    source: models/increment4a/model-manifest.yaml
+    path: .models/tesseract-runtime/usr/share/tesseract-ocr/5/tessdata/mar.traineddata
+    kind: traineddata
+
+# Python runtime identity. uvLockSha256 is verified against the real uv.lock
+# bytes; version must equal the interpreter running the build.
+pythonRuntime:
+  version: "3.12.3"
+  uvLockSha256: fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960
+
+# Application source trees bundled with the worker. Each path is digested as
+# sorted (root-relative path, content sha256) pairs and recorded in the
+# emitted manifest.
+applicationSources:
+  - src/document_intelligence/
+  - clients/
+  - contracts/
+  - routing/
+  - profiles/
+  - scripts/
+
+# Policies governing deployment of this bundle.
+policyRefs:
+  - deployment/deployment-gates.v1.yaml
+  - deployment/vulnerability-policy.v1.yaml
+  - deployment/activation.v1.yaml
+  - deployment/operational-envelope.v1.yaml
+  - capabilities/document-intelligence-capabilities.yaml

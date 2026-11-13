@@ -1,0 +1,39 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.2,
+            "width": 0.6,
+            "x": 0.1,
+            "y": 0.6666666666666666
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.2,
+                "width": 0.6,
+                "x": 0.1,
+                "y": 0.6666666666666666
+              },
+              "lineId": "p1-b1-l1",
+              "text": "प्रादेशिक कार्यालयाने वार्षिक अनुपालन अहवाल प्रकाशित केला."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-standard-pptx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-pptx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

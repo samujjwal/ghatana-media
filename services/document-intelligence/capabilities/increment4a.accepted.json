@@ -1,0 +1,334 @@
+{
+  "accepted": [
+    {
+      "capability": "parser.pdf.hybrid.text.en",
+      "capabilityId": "parser.pdf.hybrid.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.ne",
+      "capabilityId": "parser.pdf.hybrid.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.hi",
+      "capabilityId": "parser.pdf.hybrid.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.mr",
+      "capabilityId": "parser.pdf.hybrid.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.docx.text.en",
+      "capabilityId": "parser.docx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.ne",
+      "capabilityId": "parser.docx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.hi",
+      "capabilityId": "parser.docx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.mr",
+      "capabilityId": "parser.docx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.pptx.text.en",
+      "capabilityId": "parser.pptx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.ne",
+      "capabilityId": "parser.pptx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.hi",
+      "capabilityId": "parser.pptx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.mr",
+      "capabilityId": "parser.pptx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.xlsx.tables.en",
+      "capabilityId": "parser.xlsx.tables.en",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.ne",
+      "capabilityId": "parser.xlsx.tables.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.hi",
+      "capabilityId": "parser.xlsx.tables.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.mr",
+      "capabilityId": "parser.xlsx.tables.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "ocr.paddle.en",
+      "capabilityId": "ocr.paddle.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.ne",
+      "capabilityId": "ocr.paddle.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.hi",
+      "capabilityId": "ocr.paddle.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.mr",
+      "capabilityId": "ocr.paddle.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.en",
+      "capabilityId": "fallback.image.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    }
+  ],
+  "promotable": true,
+  "qualificationStatus": "PASS",
+  "schemaVersion": "increment4a.promoted-capabilities.v1",
+  "sourceCapabilitiesFingerprint": "f90a6fa96729550a568646ca105af74d808040062c56fa55e34e12eb1f1d021c",
+  "sourceEvaluationImplementationFingerprint": "f9c6cad69637ad03a80741ea5637473c08c8d15a9d9b608a6950d7bd57dc1f1a",
+  "sourceMaterialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+  "sourceObservationReuse": {
+    "expectedProviderSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+    "historicalProviderSemanticsBinding": "RECORDED",
+    "observationReuseReason": "EXPLICIT_IMPLEMENTATION_FINGERPRINT_REPROJECTION",
+    "observationSourceRunId": "20260922T010529Z-canonical",
+    "providerExecutionReused": true,
+    "providerSemanticsBindingStatus": "PASS",
+    "sourceEvaluationImplementationFingerprint": "17b50481c44c87eaf30f7beb7c5889957322580c9e9b21e85c19675196347534",
+    "sourceObservationsFingerprint": "3a79b1e7f39daf6aeb6bc27d17c8ff1593a124c4caa7cb056a1b57f0e271ab80",
+    "sourceProviderSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+    "sourceSummaryFingerprint": "9f9456a978676edc2dc513db86e57a6ce94566c97e6c79c4c812a8eb98797256"
+  },
+  "sourceObservationsFingerprint": "3a79b1e7f39daf6aeb6bc27d17c8ff1593a124c4caa7cb056a1b57f0e271ab80",
+  "sourceProviderSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+  "sourceRunId": "20260922T071420Z",
+  "sourceSummaryFingerprint": "6678a98641e860539e8b275e1aad1ba9314e473548b9d8a596c5daea6edef927"
+}

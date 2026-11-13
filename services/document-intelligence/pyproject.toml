@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ghatana-document-intelligence"
+version = "0.1.0"
+description = "Bounded local Docling, PaddleOCR, GLiNER and MiniLM provider worker"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+runtime = [
+  "fastapi>=0.115,<1",
+  "uvicorn[standard]>=0.30,<1",
+  "pydantic>=2.8,<3",
+  "pillow>=10.4,<12",
+  "psutil>=6,<8",
+  "python-multipart>=0.0.9,<1",
+  "pyyaml>=6,<7",
+]
+providers = [
+  "docling>=2.0,<3",
+  "paddleocr>=3.0,<4",
+  "paddlepaddle>=3.0,<4",
+  "gliner>=0.2,<1",
+  "transformers>=4.45,<5",
+  "sentence-transformers>=3,<6",
+  "safetensors>=0.4,<1",
+]
+test = ["pytest>=8,<9", "pytest-asyncio>=0.24,<2", "httpx>=0.27,<1"]
+evaluation = [
+    "pyyaml>=6,<7",
+    "numpy>=1.26,<3",
+    "psutil>=6,<8",
+    "reportlab>=4.2,<5",
+]
+
+[project.scripts]
+document-intelligence-worker = "document_intelligence.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/document_intelligence"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+asyncio_mode = "auto"
+markers = ["integration: opt-in real local provider/model execution"]

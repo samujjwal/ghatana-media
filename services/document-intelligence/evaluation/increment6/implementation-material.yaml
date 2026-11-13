@@ -1,0 +1,45 @@
+schemaVersion: increment6.implementation-material.v1
+# Declared-but-absent sources are tolerated: I6 surfaces
+# (src/document_intelligence/scanned/, the new runtime/* modules, and
+# routing/scanned-pdf.v1.yaml) land in later waves. implementation_material.py
+# records each missing source as a digest marker rather than failing.
+toleratesMissingSources: true
+sourceSets:
+  providerSemantics:
+    - src/document_intelligence/providers/
+    - src/document_intelligence/mapping/
+    - src/document_intelligence/strategies/
+    - src/document_intelligence/scanned/
+    - src/document_intelligence/increment6/
+    - src/document_intelligence/contracts.py
+    - src/document_intelligence/errors.py
+    - src/document_intelligence/limits.py
+    - src/document_intelligence/config.py
+    - src/document_intelligence/profile.py
+    - src/document_intelligence/runtime/provider_executor.py
+    - src/document_intelligence/runtime/fallback.py
+    - src/document_intelligence/runtime/fallback_contract.py
+    - src/document_intelligence/runtime/deadline.py
+    - src/document_intelligence/runtime/cancellation.py
+    - src/document_intelligence/runtime/concurrency.py
+    - src/document_intelligence/runtime/pdf_rendering.py
+    - src/document_intelligence/runtime/scheduler.py
+    - src/document_intelligence/runtime/model_residency.py
+    - src/document_intelligence/runtime/memory.py
+    - src/document_intelligence/runtime/drain.py
+    - src/document_intelligence/runtime/crash_recovery.py
+    - src/document_intelligence/runtime/temp_space.py
+    - src/document_intelligence/runtime/asset_verification.py
+    - src/document_intelligence/runtime/asset_provenance.py
+    - src/document_intelligence/runtime/concurrency_authority.py
+    - src/document_intelligence/runtime/migration_policy.py
+    - src/document_intelligence/runtime/performance_protocol.py
+    - src/document_intelligence/runtime/version_skew.py
+    - routing/scanned-pdf.v1.yaml
+    - routing/fallback-contract.v1.yaml
+    - profiles/increment6.yaml
+  evaluationImplementation:
+    - evaluation/increment6/run_qualification.py
+    - evaluation/increment6/implementation_material.py
+    - evaluation/increment6/runners/
+    - evaluation/increment6/schemas/

@@ -1,0 +1,85 @@
+{
+  "pages": [
+    {
+      "blocks": [],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.2,
+            "width": 0.75,
+            "x": 0.25,
+            "y": 0.2
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.2,
+                "width": 0.5,
+                "x": 0.25,
+                "y": 0.2
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 2,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "चालान संख्या १००१"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.2,
+                "width": 0.25,
+                "x": 0.75,
+                "y": 0.2
+              },
+              "cellId": "p1-t1-c0-2",
+              "columnIndex": 2,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "कुल"
+            }
+          ],
+          "columnCount": 3,
+          "rowCount": 1,
+          "tableId": "p1-t1"
+        },
+        {
+          "boundingRegion": {
+            "height": 0.2,
+            "width": 0.25,
+            "x": 0.75,
+            "y": 0.8
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.2,
+                "width": 0.25,
+                "x": 0.75,
+                "y": 0.8
+              },
+              "cellId": "p1-t2-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "१२५०"
+            }
+          ],
+          "columnCount": 1,
+          "rowCount": 1,
+          "tableId": "p1-t2"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-standard-xlsx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-xlsx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

@@ -1,0 +1,61 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.13333333333333333,
+            "width": 0.6,
+            "x": 0.1,
+            "y": 0.8
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.13333333333333333,
+                "width": 0.6,
+                "x": 0.1,
+                "y": 0.8
+              },
+              "lineId": "p1-b1-l1",
+              "text": "बीजक नम्बर १००१ कुल १२५०"
+            }
+          ]
+        },
+        {
+          "blockId": "p1-b2",
+          "boundingRegion": {
+            "height": 0.0,
+            "width": 0.0,
+            "x": 0.0,
+            "y": 1.0
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.0,
+                "width": 0.0,
+                "x": 0.0,
+                "y": 1.0
+              },
+              "lineId": "p1-b2-l1",
+              "text": "DO NOT EMIT THIS SPEAKER NOTE"
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-standard-pptx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-pptx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

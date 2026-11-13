@@ -1,0 +1,25 @@
+{
+  "evaluationImplementationFingerprint": "197cba9975370e4a12e4d7b38bd479d19de8de96385e9cc45bb341cc45ee0452",
+  "frozenAt": "2026-09-20T07:54:26Z",
+  "materialFingerprints": {
+    "acceptance": "773942dad8420655087f710e9bdce9f633e1b137f5fdb244fc55a3962796bb47",
+    "corpus": "2cfba9324723d1a5f436a95003c715a6d86b8d8cbfd02616d208bcc8c8698574",
+    "environment": "2bd0036d8f6a8a383c924c2230132d3fa88e588c7c0a57dda6d756b3ee03308a",
+    "hybridRouting": "3b6afa95c920dc89bd85281851b4f378556bbeb5e271022026fc5875e145e342",
+    "implementationMaterial": "d4c2b9455c43729c94d90b5020b8bbf15173a1539e2c372ddb050a86b8c3979e",
+    "languageRegistry": "c32afb308dba90464673a78979e3ccb0ab3f5bd4a987de188cf6740a45d7cd46",
+    "manifest": "4c150b3fab2d21aa2707ac51b7c6078ce1e5cf6784e29b9204cf588701630ddc",
+    "modelManifest": "afa3dc3f561340b973b841843d502b737ec362646dd9cf289d363b6a0b63cc57",
+    "parserRouting": "c4b64b5a1ca8874fbb6b2ecfb08a882816820ae57af6c89d9e41026cf94aed46",
+    "requiredTests": "1ad2bb8b2197a3d415e8481beb3c700db43e3c5765ca40f12df72458473bf960",
+    "runtimeCalibration": "641b6bbe55ff039a8847e00e4beda3c3e31109b5800c9a6213ee8d698684742a",
+    "workerProfile": "bfbdfd3ccae57176e0baa46a5910744e7f42dd9adc025826a3cf5339593ca2a8"
+  },
+  "parentMaterialFingerprint": "8b068cc01345c6b892685d8b7b22385d3719e246f1ce26743bccd1320ba452e3",
+  "providerSemanticsFingerprint": "2871ea2ec73e3cd437a9213d086efe110fdf5f19862d5f7fc150ba14a957ef11",
+  "reason": [
+    "ROUTING_COMMENT_JPEG_DIRECT_ONLY"
+  ],
+  "schemaVersion": "increment4a.material-lock.v4",
+  "state": "FROZEN"
+}

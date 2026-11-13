@@ -1,0 +1,51 @@
+{
+  "name": "@ghatana/document-intelligence-client",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "capture-shared-contract": "node scripts/capture-shared-contract.mjs",
+    "link-shared-dev": "node scripts/link-shared-dev.mjs"
+  },
+  "peerDependencies": {
+    "@ghatana/document-extraction": "0.1.0-SNAPSHOT"
+  },
+  "devDependencies": {
+    "@ghatana/document-extraction": "workspace:*",
+    "@types/node": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "ghatana": {
+    "documentIntelligence": {
+      "contractVersion": "document-intelligence.v1",
+      "role": "only-ocr-gateway-client",
+      "sourceMigration": "services/document-intelligence/MIGRATION-MANIFEST.json"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samujjwal/ghatana-media.git",
+    "directory": "services/document-intelligence/clients/typescript"
+  }
+}

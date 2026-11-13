@@ -1,0 +1,1247 @@
+{
+  "accepted": [],
+  "capabilities": [
+    {
+      "capabilityId": "parser.pdf.hybrid.text.en",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 8,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pdf.hybrid.tables.scanned.en",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 0,
+        "realProviderEvidence": false,
+        "status": "UNSUPPORTED_BY_DESIGN"
+      },
+      "feature": "scanned-tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "UNSUPPORTED_BY_DESIGN"
+    },
+    {
+      "capabilityId": "parser.docx.text.en",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.docx.text.ne",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.docx.text.hi",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.docx.text.mr",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 2,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.en",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.ne",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 2,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.hi",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.mr",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.en",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.ne",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.hi",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 2,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.mr",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.en",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.15,
+            "value": 0.005714656795895837
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.ne",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05883699633699633
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.hi",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.04792152097735308
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.mr",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05976761322404164
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "extraction.gliner.hi",
+      "evidence": {
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.3
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.3
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "FAIL"
+      },
+      "feature": "extraction",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.ghatana.parsed-document+json"
+      ],
+      "providerRef": "ghatana.gliner",
+      "state": "NOT_QUALIFIED"
+    },
+    {
+      "capabilityId": "extraction.gliner.mr",
+      "evidence": {
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "FAIL"
+      },
+      "feature": "extraction",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.ghatana.parsed-document+json"
+      ],
+      "providerRef": "ghatana.gliner",
+      "state": "NOT_QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.en",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    }
+  ],
+  "dimensions": {
+    "extraction.gliner.hi": {
+      "hi": {
+        "capabilityId": "extraction.gliner.hi",
+        "language": "hi",
+        "measuredStatus": "FAIL",
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.3
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.3
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.gliner",
+        "rawObservationFingerprints": [
+          "56389058351e3082ac44a739828a79d756317c0b44bf27c4a367f9c659a1f3d3"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "FAIL"
+      }
+    },
+    "extraction.gliner.mr": {
+      "mr": {
+        "capabilityId": "extraction.gliner.mr",
+        "language": "mr",
+        "measuredStatus": "FAIL",
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.gliner",
+        "rawObservationFingerprints": [
+          "7f4c9455b26ac3098eef0d3372d895edc8c979d0d93ba0a878450e3a388f4a08"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "FAIL"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.en": {
+      "en": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "93086b5148718805ca6ef8e57e0cad991382a5d18ac985db691fb1b24b93eb85"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.hi": {
+      "hi": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "c3b93dafe4a9e34ef4292390d2c0902e1975c25872a3b8da91cf0e1761179554"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.mr": {
+      "mr": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "ec3ca8cf8e886eeac6df05fda56db28ced0c9a468a298f547da8463a0931fdb7"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.ne": {
+      "ne": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "481c391a53c91a81c9e571108498c5db7de8560ac20da7f9ff474971d5547bb8"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.en": {
+      "en": {
+        "capabilityId": "ocr.paddle.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.15,
+            "value": 0.005714656795895837
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "0af2a2ba897ac2aafadf7da580ee3f23e1cc942bccbc84b5f67d1458ee7e0812",
+          "b97355cc76c9c33158ec89aa5671505338cb689bdf107d88b0041be42f549538",
+          "726cd8222d36175cc96162052fee2444e62a3b652c8d002eaf0443005c02f6d9",
+          "7a3645b29fc84e23bc48f4b7eccc6ded7ecb10e17bedee71be7f202287bf0306",
+          "3b21bf7bef9b1d5425c0c3188553c49c21aa1619e7b890eca98b6261ae1ad09b",
+          "0707da18b8cb7f6ac8315f369cbc767c25241f82bef403abb7ccc7b91c9f66dd"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.hi": {
+      "hi": {
+        "capabilityId": "ocr.paddle.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.04792152097735308
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "2519618f1554a4bddd906f6ee0b64fd6dcbafc82c6a03221bf0d59b8fc85d7ee",
+          "5f2ca1f294a97ef96e153ce54b42aac3a8748d85fd2e2c8cdc0fcd2762586e51",
+          "6063146a80658a855a5e1b0f47c40b670e602d2c0190d4e2129dd2279b483460",
+          "ae96a73021f47d5d1f0763ca50ae8080cdb2f34488a78c9b28f1e071b6128692",
+          "bb6cf6034a96aa529028207daf4a0d5a20a3138daaa3304244dd73072cc520f2",
+          "f865d6826402d850d4f768955fae9100a2a32e72b2d8914f6f5b4fa5bd5adcbb"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.mr": {
+      "mr": {
+        "capabilityId": "ocr.paddle.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05976761322404164
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "abc089ac51e5eaa4c03237efe794a936c1a045423832c2aac986acbc81cd186e",
+          "84b6fd1de793b329439377aaa3cf0acf6dec6e6a97161cd5af47752549dce195",
+          "07223607ef32b5e234b7c5d361a3c9dcac9d7772135e880df553250d1b1f495d",
+          "7413cdbf13df46dfdd7048f4aec4011676c36e0baeda17d0ccba9c7580be0b96",
+          "33a3b5e07ce9c4bac9335b424d6d9f7b1d8271aee7925bc1f99326622dbddbea",
+          "5cc41e58b285267d62b11482f5abe5376b7c4c14a744ecd7bb6c8abb9b0562d9"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.ne": {
+      "ne": {
+        "capabilityId": "ocr.paddle.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05883699633699633
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "f59434bab48385bb3bd781fa11c93aa369cb7c2015dcad9d98cafc79c1165021",
+          "37a6e48f7fb753cde7e173473266a16601481e29812734ca8b8d0ed18feebb89",
+          "44d18aff7226e322828deb43bbbfb9eee50cd694f042b227085e4d835c11928f",
+          "962f51bf71ae3027afa6d4ddbba82ab4eacdace8d200032fca0188aff9023dc9",
+          "09c2ab4cfc88fddb6e6844c5fbff18b6042e836bc3f3589ce6d8a0e07d408e23",
+          "67808c7a1f9f510a0c87adc5d2b3cfa778d9841804e2f63c62a5b19bab5c157a"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.en": {
+      "en": {
+        "capabilityId": "parser.docx.text.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "e8cfe6d6a7182618d122fbdc80699c17b4c9b6bcf23fccdc869747650360a8f1"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.hi": {
+      "hi": {
+        "capabilityId": "parser.docx.text.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "4ed1db98b9971de267a8085cac2f389086c6689691e241c7a7de8fe0bc89a4d8"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.mr": {
+      "mr": {
+        "capabilityId": "parser.docx.text.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 2,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "bdca9ffd1df0084b14303edc525816f1705f76b7a504d4a117144e8d23ac367f",
+          "1d7a73549a6cf5a789d1277e39e2d777160bb76a8a1b23621f4281ecfc1a696d"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.ne": {
+      "ne": {
+        "capabilityId": "parser.docx.text.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "d82571e38129bd0f24affbc70468131f57ffadfc20090b23f91d914782726e97"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pdf.hybrid.tables.scanned.en": {
+      "en": {
+        "capabilityId": "parser.pdf.hybrid.tables.scanned.en",
+        "language": "en",
+        "reason": "dimension is not reconstructible by the qualified providers",
+        "status": "UNSUPPORTED_BY_DESIGN"
+      }
+    },
+    "parser.pdf.hybrid.text.en": {
+      "en": {
+        "capabilityId": "parser.pdf.hybrid.text.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 8,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "e7c4377c671e1d008aaba67feaf347f39fadb8549d963c344d19643c897789c9",
+          "c6a9129145d02fde1f8c5f23bffba07647c060e08677d191cf92ff6af21dad90",
+          "b08aa00307dc57bf595e42101b74f7fca5b0637eaf3d2be70e5e1e0beb700574",
+          "22cabc9a3b9b2cd7f7f4319b467ae1d45422b84d3392c0910ec0f79878fe6b2f",
+          "87e18557ae44713a18c735d4a7387fa7f8fb11daa2c02bf1c6a51cf2f183ba0c",
+          "1e1f11324c546f90a8220b4cc26077808f3389aefce01cd59be4c6e2894dff82",
+          "377dddd5f188f848aeeba724bb7917f2151f6f5fa6798ba480636f84c25b29fc",
+          "4285d53e09f970377dbbc2c97523c7d9c238ec577632a5d793bbf502ae56888f"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.en": {
+      "en": {
+        "capabilityId": "parser.pptx.text.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "40389f064e45310413a0f8b3acab02770c3ec0b437f2ebbf3a6135ec60d229c9"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.hi": {
+      "hi": {
+        "capabilityId": "parser.pptx.text.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "273e346d5f876ced6c47d1944f28e515548d37d4855fae26f3b1353ebc73a986"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.mr": {
+      "mr": {
+        "capabilityId": "parser.pptx.text.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "a924a8abd595bb0a35e8d1d5441f17140a7c474fb3060830d2cfdad3368492c4"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.ne": {
+      "ne": {
+        "capabilityId": "parser.pptx.text.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 2,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "88eb90198f8b4a97a3195d575bf2a02ffe7046f4969d3647eb1470edcbeb1243",
+          "cc7a8fa017c37ad12f0eff89a66e089f091253210580e3c78a5209c89ef7bbe2"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.en": {
+      "en": {
+        "capabilityId": "parser.xlsx.tables.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "2e70b4d90b7209f258b67a65414870cb20aff980afa0390cfa1d9560179613ee"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.hi": {
+      "hi": {
+        "capabilityId": "parser.xlsx.tables.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 2,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "77c4b893b38584eb77c8d3ba685ddc210e3c7e3b027343c0760bc262e868918d",
+          "f92e13eebaf976a0d00acb0e1bcc59b3462dd699e9034e8f9153fa9576b5f71a"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.mr": {
+      "mr": {
+        "capabilityId": "parser.xlsx.tables.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "9ac6919b35e10fdf93aa4410622af84e3e437e94412a67582247f8ba21266901"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.ne": {
+      "ne": {
+        "capabilityId": "parser.xlsx.tables.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "e5c90c230e25d37b8bd9d5f185033df8f79b40740c5c7c93e8eb038c400e5b12"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    }
+  },
+  "materialFingerprint": "92fd72d090e5ed2a9f4886e0d6ff05b35eb33aed0c454662730d59fd9f172fc0",
+  "projected": [
+    {
+      "capability": "parser.pdf.hybrid.text.en",
+      "capabilityId": "parser.pdf.hybrid.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.docx.text.en",
+      "capabilityId": "parser.docx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.ne",
+      "capabilityId": "parser.docx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.hi",
+      "capabilityId": "parser.docx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.mr",
+      "capabilityId": "parser.docx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.pptx.text.en",
+      "capabilityId": "parser.pptx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.ne",
+      "capabilityId": "parser.pptx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.hi",
+      "capabilityId": "parser.pptx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.mr",
+      "capabilityId": "parser.pptx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.xlsx.tables.en",
+      "capabilityId": "parser.xlsx.tables.en",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.ne",
+      "capabilityId": "parser.xlsx.tables.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.hi",
+      "capabilityId": "parser.xlsx.tables.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.mr",
+      "capabilityId": "parser.xlsx.tables.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "ocr.paddle.en",
+      "capabilityId": "ocr.paddle.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.ne",
+      "capabilityId": "ocr.paddle.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.hi",
+      "capabilityId": "ocr.paddle.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.mr",
+      "capabilityId": "ocr.paddle.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.en",
+      "capabilityId": "fallback.image.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    }
+  ],
+  "projectionRule": "capabilities contains one independently evaluated provider/language leaf; accepted contains only independently PASS leaves; no language widening",
+  "promotable": false,
+  "qualificationStatus": "FAIL",
+  "schemaVersion": "increment4a.capabilities.v2"
+}

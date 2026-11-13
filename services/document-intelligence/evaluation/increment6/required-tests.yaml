@@ -1,0 +1,26 @@
+schemaVersion: increment6.required-tests.v1
+pytest:
+  evaluationHarness:
+  - tests/increment6/test_evaluation_harness.py
+  performanceEvidenceSchema:
+  - tests/increment6/test_evaluation_harness.py
+  runnerDeterminism:
+  - tests/increment6/test_evaluation_harness.py
+  chaosFailureTaxonomy:
+  - tests/increment6/test_evaluation_harness.py
+  # Sealed I4A regression lanes must remain green; they are read-only inputs.
+  increment4aSealedEvaluation:
+  - tests/evaluation/test_increment4a_evaluation.py
+  increment4aSealedVerifier:
+  - tests/evaluation/test_increment4a_verifier.py
+  hybridPdfRegression:
+  - tests/integration/test_hybrid_pdf_real.py
+  officeRealRegression:
+  - tests/integration/test_office_parsers_real.py
+  fallbackEligibility:
+  - tests/integration/test_resilient_fallback_real.py
+  profileAuthorityReadiness:
+  - tests/runtime/test_app_authority.py
+  runtimeOperationGeneration:
+  - tests/contract/test_protocol_v1.py
+  - tests/runtime/test_operations.py

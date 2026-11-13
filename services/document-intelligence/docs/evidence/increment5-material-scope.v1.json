@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "document-intelligence.material-scope.v1",
+  "increment": "increment5",
+  "note": "Increment 5 spans the worker learning/ tree and the product-side document-extraction-learning module (product paths are gharbatai-relative, matching the Increment-4 convention). The sealed I3/I4/I4A scopes are unchanged.",
+  "rule": "Only semanticMaterial and executionEnvironment may invalidate behavioral evidence; evidenceAndStatus never participates in the material hash it records.",
+  "scopes": {
+    "semanticMaterial": {
+      "includes": [
+        "learning/",
+        "scripts/verify_increment5.py",
+        "scripts/check_capability_registry.py",
+        "scripts/check_proof_graph.py",
+        "scripts/build_required_inventory.py",
+        "scripts/scope_lock.py",
+        "scripts/read_only_verify.py",
+        "evaluation/campaign_guards.py",
+        "capabilities/document-intelligence-capabilities.yaml",
+        "verification/document-intelligence-proof-graph.yaml",
+        "tests/learning/",
+        "products/org/apps/api/src/modules/document-extraction-learning/"
+      ],
+      "excludes": [
+        "learning/registry/",
+        "learning/authority/",
+        "learning/datasets/out/",
+        "learning/feedback/events/",
+        "learning/audit-trail/",
+        "**/__pycache__/",
+        "**/.pytest_cache/",
+        "**/node_modules/",
+        "**/dist/"
+      ]
+    },
+    "executionEnvironment": {
+      "includes": [
+        "uv.lock",
+        "pyproject.toml",
+        "runtime:python",
+        "runtime:uv",
+        "runtime:node",
+        "runtime:pnpm",
+        "pnpm-lock.yaml"
+      ],
+      "excludes": [
+        "docs/evidence/",
+        "evaluation/results/"
+      ]
+    },
+    "evidenceAndStatus": {
+      "includes": [
+        "docs/evidence/increment5-material-scope.v1.json",
+        "docs/evidence/required-inventory.v1.json",
+        "docs/INCREMENT-5.md",
+        "learning/registry/",
+        "learning/authority/",
+        "learning/datasets/out/",
+        "learning/feedback/events/",
+        "learning/audit-trail/",
+        "test-results/"
+      ]
+    }
+  }
+}

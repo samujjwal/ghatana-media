@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/document-intelligence/v1/parse.request.schema.json",
+  "title": "POST /v1/parse request (document-intelligence.v1)",
+  "description": "Wire encoding is multipart/form-data with exactly two parts: `metadata`, a JSON string (UTF-8, bounded by max_metadata_bytes) conforming to the request-metadata grammar with `mediaType` required and drawn from the admitted media catalog; and `file`, the opaque binary upload bounded by max_upload_bytes. The optional X-Operation-Generation header carries a 32-character lowercase hex token that must equal metadata.operationGeneration when both are present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "file"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocolVersion", "operationId", "providerRef", "mediaType", "timeoutMs", "limits"],
+      "properties": {
+        "protocolVersion": { "const": "document-intelligence.v1" },
+        "operationId": { "$ref": "#/$defs/identifier" },
+        "operationGeneration": { "$ref": "#/$defs/operationGeneration" },
+        "providerRef": { "$ref": "#/$defs/identifier" },
+        "mediaType": {
+          "type": "string",
+          "enum": ["application/pdf", "image/png", "image/jpeg"],
+          "description": "Enum lists the canonical Increment-3 catalog. Profiles may admit additional capability-driven media types; the validator enforces the admitted set, not this literal list."
+        },
+        "languageHint": {
+          "type": "string",
+          "enum": ["en", "ne"],
+          "description": "Enum lists the canonical Increment-3 languages; profiles may admit additional candidate languages."
+        },
+        "timeoutMs": { "type": "integer", "minimum": 1 },
+        "limits": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    },
+    "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "description": "Opaque binary upload part. Maximum size is the configured max_upload_bytes limit (default 52428800)."
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$"
+    },
+    "operationGeneration": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    }
+  }
+}

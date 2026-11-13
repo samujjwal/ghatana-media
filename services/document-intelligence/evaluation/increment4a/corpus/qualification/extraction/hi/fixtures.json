@@ -1,0 +1,207 @@
+{
+  "schemaVersion": "increment4a.language-extraction-fixtures.v1",
+  "fixtureId": "qualification-extraction-hi",
+  "language": "hi",
+  "cases": [
+    {
+      "caseId": "positive",
+      "text": "चालान संख्या HI-1001 कुल 1250",
+      "fields": [
+        {
+          "fieldId": "document_number",
+          "aliases": [
+            "document number",
+            "invoice number",
+            "चालान संख्या"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        },
+        {
+          "fieldId": "total",
+          "aliases": [
+            "total",
+            "कुल"
+          ],
+          "valueType": "TEXT",
+          "cardinality": "SINGLE"
+        }
+      ],
+      "entities": [
+        {
+          "fieldId": "document_number",
+          "value": "HI-1001",
+          "lineId": "p1-b1-l1",
+          "start": 13,
+          "end": 20
+        },
+        {
+          "fieldId": "total",
+          "value": "1250",
+          "lineId": "p1-b1-l1",
+          "start": 25,
+          "end": 29
+        }
+      ]
+    },
+    {
+      "caseId": "positive-multi",
+      "text": "चालान संख्या HI-2042 कुल 4321 दिनांक 2024-02-15",
+      "fields": [
+        {
+          "fieldId": "document_number",
+          "aliases": [
+            "document number",
+            "invoice number",
+            "चालान संख्या"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        },
+        {
+          "fieldId": "total",
+          "aliases": [
+            "total",
+            "कुल"
+          ],
+          "valueType": "TEXT",
+          "cardinality": "SINGLE"
+        },
+        {
+          "fieldId": "date",
+          "aliases": [
+            "date",
+            "दिनांक",
+            "तिथि"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        }
+      ],
+      "entities": [
+        {
+          "fieldId": "document_number",
+          "value": "HI-2042",
+          "lineId": "p1-b1-l1",
+          "start": 13,
+          "end": 20
+        },
+        {
+          "fieldId": "total",
+          "value": "4321",
+          "lineId": "p1-b1-l1",
+          "start": 25,
+          "end": 29
+        },
+        {
+          "fieldId": "date",
+          "value": "2024-02-15",
+          "lineId": "p1-b1-l1",
+          "start": 37,
+          "end": 47
+        }
+      ]
+    },
+    {
+      "caseId": "negative",
+      "text": "यह सामान्य हिंदी सूचना है और इसमें कोई चालान पहचानकर्ता नहीं है।",
+      "fields": [
+        {
+          "fieldId": "document_number",
+          "aliases": [
+            "document number",
+            "invoice number",
+            "चालान संख्या"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        }
+      ],
+      "entities": []
+    },
+    {
+      "caseId": "ambiguous-alias",
+      "text": "दस्तावेज़ में चालान संख्या और कुल राशि का उल्लेख है परंतु वास्तविक मूल्य दर्ज नहीं है।",
+      "fields": [
+        {
+          "fieldId": "document_number",
+          "aliases": [
+            "document number",
+            "invoice number",
+            "चालान संख्या"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        },
+        {
+          "fieldId": "total",
+          "aliases": [
+            "total",
+            "कुल"
+          ],
+          "valueType": "TEXT",
+          "cardinality": "SINGLE"
+        }
+      ],
+      "entities": []
+    },
+    {
+      "caseId": "unicode-evidence",
+      "text": "कर विभाग ने सूचना जारी की कि चालान संख्या HI-7777 की कुल राशि 9999 है और दिनांक 2024-03-01 तक जमा करना है।",
+      "fields": [
+        {
+          "fieldId": "document_number",
+          "aliases": [
+            "document number",
+            "invoice number",
+            "चालान संख्या"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        },
+        {
+          "fieldId": "total",
+          "aliases": [
+            "total",
+            "कुल"
+          ],
+          "valueType": "TEXT",
+          "cardinality": "SINGLE"
+        },
+        {
+          "fieldId": "date",
+          "aliases": [
+            "date",
+            "दिनांक",
+            "तिथि"
+          ],
+          "valueType": "IDENTIFIER",
+          "cardinality": "SINGLE"
+        }
+      ],
+      "entities": [
+        {
+          "fieldId": "document_number",
+          "value": "HI-7777",
+          "lineId": "p1-b1-l1",
+          "start": 42,
+          "end": 49
+        },
+        {
+          "fieldId": "total",
+          "value": "9999",
+          "lineId": "p1-b1-l1",
+          "start": 62,
+          "end": 66
+        },
+        {
+          "fieldId": "date",
+          "value": "2024-03-01",
+          "lineId": "p1-b1-l1",
+          "start": 80,
+          "end": 90
+        }
+      ]
+    }
+  ]
+}

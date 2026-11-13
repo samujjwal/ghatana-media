@@ -1,0 +1,86 @@
+{
+  "pages": [
+    {
+      "blocks": [],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 1.0,
+            "width": 1.0,
+            "x": 0.0,
+            "y": 0.0
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.5,
+                "width": 0.5,
+                "x": 0.0,
+                "y": 0.0
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Key"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.5,
+                "width": 0.5,
+                "x": 0.5,
+                "y": 0.0
+              },
+              "cellId": "p1-t1-c0-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "Value"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.5,
+                "width": 0.5,
+                "x": 0.0,
+                "y": 0.5
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "प्रादेशिक कार्यालयाने वार्षिक अनुपालन अहवाल प्रकाशित केला."
+            },
+            {
+              "boundingRegion": {
+                "height": 0.5,
+                "width": 0.5,
+                "x": 0.5,
+                "y": 0.5
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "1250"
+            }
+          ],
+          "columnCount": 2,
+          "rowCount": 2,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-standard-xlsx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-xlsx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {}
+}

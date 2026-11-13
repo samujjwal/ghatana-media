@@ -1,0 +1,11 @@
+os: recorded-at-run
+python: ">=3.10"
+executionMode: cpu
+threading:
+  concurrency: 1
+  providerConcurrency: 1
+providers:
+  docling: pinned-by-model-manifest
+  paddleocr: PP-OCRv5-local
+  gliner: urchade/gliner_multi-v2.1-pinned
+  minilm: sentence-transformers/all-MiniLM-L6-v2-pinned

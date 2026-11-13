@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "document-intelligence.material-scope.v1",
+  "increment": "increment3",
+  "rule": "Only semanticMaterial and executionEnvironment may invalidate behavioral evidence; evidenceAndStatus never invalidates the behavior it records.",
+  "scopes": {
+    "semanticMaterial": {
+      "includes": [
+        "src/document_intelligence/",
+        "clients/typescript/",
+        "contracts/shared-contract.lock.json",
+        "contracts/protocol-v1.md",
+        "evaluation/manifest.yaml",
+        "evaluation/acceptance.yaml",
+        "evaluation/corpus/",
+        "evaluation/run_evaluation.py",
+        "evaluation/metrics.py",
+        "evaluation/generate_corpus.py",
+        "evaluation/increment4a/implementation-material.yaml",
+        "scripts/verify_increment3.py",
+        "scripts/preflight_increment3.py",
+        "scripts/verify_models.py",
+        "tests/",
+        "pyproject.toml"
+      ],
+      "excludes": [
+        "evaluation/results/",
+        "docs/evidence/",
+        "**/__pycache__/",
+        "**/.pytest_cache/",
+        "clients/typescript/node_modules/",
+        "clients/typescript/dist/"
+      ]
+    },
+    "executionEnvironment": {
+      "includes": [
+        "uv.lock",
+        "evaluation/environment.yaml",
+        "models/",
+        "runtime:python",
+        "runtime:uv",
+        "runtime:node",
+        "runtime:pnpm",
+        "runtime:pytest"
+      ],
+      "excludes": [
+        "docs/evidence/",
+        "evaluation/results/"
+      ]
+    },
+    "evidenceAndStatus": {
+      "includes": [
+        "docs/evidence/",
+        "docs/INCREMENT-3.md",
+        "docs/INCREMENT-4-HANDOFF.md",
+        "evaluation/results/",
+        "capabilities/",
+        "test-results/",
+        "evaluation/increment4a/results/",
+        "evaluation/increment4a/test-receipts.json",
+        "evaluation/increment4a/material-lock.json",
+        "evaluation/increment4a/canonical-run.json",
+        "evaluation/increment4a/superseded-runs.json"
+      ],
+      "excludes": []
+    }
+  }
+}

@@ -1,0 +1,23 @@
+# document-intelligence.eligibility-policy.v1
+# Explicit learning-eligibility authority (I5-05). A review outcome never
+# implies eligibility on its own; unmatched shapes default to EXCLUDED.
+schemaVersion: document-intelligence.eligibility-policy.v1
+policyRef: org.learning-eligibility.v1
+version: 1
+defaultDisposition: EXCLUDED
+rules:
+  - ruleId: reject-not-a-label
+    disposition: EXCLUDED
+    reasonCode: REVIEW_REJECTED
+    match:
+      terminalAction: [REJECT]
+  - ruleId: accepted-review-eligible
+    disposition: ACCEPTED
+    reasonCode: REVIEW_ACCEPTED
+    match:
+      terminalAction: [ACCEPT]
+  - ruleId: completed-reprocess-eligible
+    disposition: ACCEPTED
+    reasonCode: REPROCESS_COMPLETED
+    match:
+      terminalAction: [REPROCESS]

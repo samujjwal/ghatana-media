@@ -1,0 +1,17 @@
+{
+  "id": "parse-pdf-en-valid",
+  "endpoint": "parse",
+  "description": "Canonical I3 parse envelope: English PDF routed to docling with caller-supplied generation bound to the header.",
+  "headerGeneration": "0123456789abcdef0123456789abcdef",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-en-1",
+    "operationGeneration": "0123456789abcdef0123456789abcdef",
+    "providerRef": "ghatana.docling",
+    "mediaType": "application/pdf",
+    "languageHint": "en",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": true }
+}

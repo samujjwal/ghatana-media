@@ -1,0 +1,12 @@
+{
+  "detail": "check_capability_registry.py PASS: no DENIED capability advertised.",
+  "evidence": {
+    "registry": "capabilities/document-intelligence-capabilities.yaml",
+    "registrySha256": "sha256:7e89e124814109bd3aae7ab38d2b37974ebe646fb8935f195b9e43ff1332cf0e"
+  },
+  "evidenceKind": "capability-registry-check",
+  "gateId": "capabilityAdmissionConsistent",
+  "issuedAt": "2026-09-21T22:19:39Z",
+  "schemaVersion": "document-intelligence.gate-receipt.v1",
+  "status": "PASS"
+}

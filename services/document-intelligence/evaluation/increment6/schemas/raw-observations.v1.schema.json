@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ghatana://document-intelligence/evaluation/increment6/raw-observations.v1",
+  "title": "Document Intelligence Raw Observation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "producerVersion",
+    "observationId",
+    "capturedAt",
+    "producerAuthority",
+    "providerRef",
+    "modelIdentity",
+    "payload",
+    "rescoreability",
+    "observationFingerprint"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "document-intelligence.raw-observation.v1" },
+    "producerVersion": { "type": "string", "minLength": 1 },
+    "observationId": { "type": "string", "minLength": 1 },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "producerAuthority": { "type": "string", "minLength": 1 },
+    "providerRef": { "type": "string", "minLength": 1 },
+    "modelIdentity": { "type": "object", "additionalProperties": true },
+    "payload": { "type": "object", "additionalProperties": true },
+    "rescoreability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canRescoreWithEvaluatorChange",
+        "canReevaluateAcceptanceChange",
+        "requiredObservationSchemaVersion"
+      ],
+      "properties": {
+        "canRescoreWithEvaluatorChange": { "type": "boolean" },
+        "canReevaluateAcceptanceChange": { "type": "boolean" },
+        "requiredObservationSchemaVersion": {
+          "const": "document-intelligence.raw-observation.v1"
+        }
+      }
+    },
+    "observationFingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}

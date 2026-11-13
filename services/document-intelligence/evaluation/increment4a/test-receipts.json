@@ -1,0 +1,500 @@
+{
+  "receipts": {
+    "cleanup": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_temporary_files.py",
+        "tests/runtime/test_shutdown.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "063f66e24b991ba780660bfb19c32893dd51952b129b474c726a9cde1aa87cd3",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "diagnosticSafety": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/adversarial/test_resource_and_unicode.py",
+        "tests/runtime/test_logging.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "b7b400f56e7087a8ceeb30a69d2d1dcffe82e4b9fd9b02dd6c8bd98af9548eba",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "docxReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_office_parsers_real.py::test_rendered_docx_real[en]",
+        "tests/integration/test_office_parsers_real.py::test_rendered_docx_real[ne]",
+        "tests/integration/test_office_parsers_real.py::test_rendered_docx_real[hi]",
+        "tests/integration/test_office_parsers_real.py::test_rendered_docx_real[mr]",
+        "tests/integration/test_office_parsers_real.py::test_rendered_docx_merged_table_fixture_real",
+        "tests/integration/test_docx_real.py::test_ooxml_docx_reader_preserves_text_merges_and_layout"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "989727a383bb4126abf59b18b770e09681a4bba00df04a830c0fe8fefac74612",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackCancellation": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_cancellation_propagates_without_fallback"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "2cb125f9ccb91d44b9cfd2985a6fc4ee7b63287f5406052100b1e0a077cbbc49",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackCycleSafety": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_route_cycle_is_rejected"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "61d914ccadbf0edabb7ea9ff637dc9fc9ce6b57c0a5793b91fc7bdc811d0808f",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackDeadline": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_remaining_budget_below_minimum_blocks_fallback",
+        "tests/integration/test_resilient_fallback_real.py::test_zero_budget_blocks_all_attempts"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "f7aa43ebf9659abc3e739bcc2636c4cc0d5f255850a88326ca73f259d5e13a2d",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackEligibility": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_retryable_error_falls_back_to_next_provider",
+        "tests/integration/test_resilient_fallback_real.py::test_terminal_error_never_reaches_next_provider",
+        "tests/integration/test_resilient_fallback_real.py::test_timeout_is_terminal_and_never_falls_back"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "a7e4179c2e02689d7603be983449502333af9ea419e6fab7af2a1c804d8b1d9d",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackEnReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[en]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "dcd5f395ec3712511e0c62b272f0dc7bdc31a7ac6127db7099d5c6c701b5827e",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackHiReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[hi]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "66663c120afd083bab00f108a8c2dd91cb22eb04b6132236d6f9b58b3906541a",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackLineage": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_fallback_lineage_records_ordered_attempts",
+        "tests/integration/test_resilient_fallback_real.py::test_resilient_routing_loads_worker_authority"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "4db2cc93c2bebfcbef901e67ef80bf01401cee92be95d0e47d1beb34c04875ee",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackMrReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[mr]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "a3e56ccaa3895924c63cae24d5c579108015632720c32b1c81bb1f6719595b2f",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "fallbackNeReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_executes_tesseract_when_primary_unavailable[ne]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "646a2e813163aba7c2971f60070cf86f83ec8722a8fa8ec0de49f593d306cf6a",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "glinerHiReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_language_provider_qualification.py::test_real_gliner_hi_mr_lane_records_metrics_without_promoting_failures"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "cafe2fa3d5e21b14d76b0e2812197db5b1baf9a4a7198c0dce3e1e6976cb8b54",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "glinerMrReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_language_provider_qualification.py::test_real_gliner_hi_mr_lane_records_metrics_without_promoting_failures"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "50fa6bfe42d80cde3731fed487ecb5509eb12f6ca35b6b858341757557121b97",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "hybridPdfDedup": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_deduplicates_native_overlapping_ocr"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "f7e58bab08ae019aff7a70354d900ce65d51a9e387334a06a3e0ed1630155b40",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "hybridPdfDigitalRegression": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_native_page_uses_docling_only",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_native_table_fixture_keeps_primary_only"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "ead87e30fa2294882b1028f9dc0c800d60dc6ea6e456a7d753a1e6572ad69ba7",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "hybridPdfMixed": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_mixed_multipage_preserves_page_order_and_both_lanes",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_mixed_page_recovers_text_from_image_region",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_blank_native_scanned_document"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "9ade6c720e8c4021d23275d2d79db96f8c9b072ae48719337dad48cac9bec99e",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "hybridPdfScanned": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-002-en-scanned]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-003-ne-पाठ]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-004-hi-पाठ]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_pages_route_through_ocr[HYBRID-005-mr-मजकूर]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_noisy_rotated_scan_still_routes_ocr",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_scanned_table_fixture_extracts_text"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "6036c30072ec80af79b1f5f70b1ebbaa8d9862b482f08f1be53d6d220358ed40",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "internalFallbackDependencyReady": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_promoted_runtime_real.py::test_increment4a_missing_fallback_dependency_is_not_ready",
+        "tests/integration/test_promoted_runtime_real.py::test_increment4a_profile_admits_cumulative_authority_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "c95252e1e17ce6f88c35d1b2b951c05b64228863a0a0c4da8ad1f67063813fd9",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "legacyOperationAdmission": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_capability_admission.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "71ffa455b41e69685d7ef7983c146fa532f2ae3ae04164abcfd649b21e214062",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "modelAuthorityRegression": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/evaluation/test_model_authority.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "a440b7b7181f7bf06f9bb8aa06869e7f082e955ba1c2504588cf4dbf037a4eb6",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "officeRendererAssetPinning": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/providers/test_office_renderer_fonts.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "c73244a43699e33c3e112986cb0ed5085fd63cacc07dc9a105c539c9206dd197",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "officeSecurity": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/adversarial/test_ooxml_security.py",
+        "tests/adversarial/test_xlsx_limits.py",
+        "tests/runtime/test_ooxml_preflight.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "6da2055a5332cd975c01f99b69c3c9ab14e2ed6867bd3ba177b03b2f4c2c3ed0",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "offlineRuntime": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_offline_runtime.py::test_providers_execute_with_outbound_network_disabled"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "888560f6e5cf307c80686484df7e23913831c7a4249dd15e8322cfcaaa057267",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "paddleEnReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[en]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "0d35244a8d4da25c1ab809ccbb2c33179db7d3c1c974331d89dce32a781a3f3e",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "paddleHiReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[hi]",
+        "tests/integration/test_language_provider_qualification.py::test_real_paddle_language_lane_measures_cer[hi]",
+        "tests/providers/test_paddle_qualification.py::test_paddle_hi_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "4cdb19a5eb725d489e638344e03a95ba78a5bb68357d514bb8e7425308a89374",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "paddleMrReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[mr]",
+        "tests/integration/test_language_provider_qualification.py::test_real_paddle_language_lane_measures_cer[mr]",
+        "tests/providers/test_paddle_qualification.py::test_paddle_mr_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "10054f7d8e0d3322c8eb6514e7d02e966a8c5bb643abad0139f4030f78ded73e",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "paddleNeReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_resilient_fallback_real.py::test_real_fallback_lane_uses_paddle_when_available[ne]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "32d25eff931c8d48ae906d8ddae4692ac51c46ea198c9929f30fabd714395af1",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "pdfRegionFallbackReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-002-en]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-003-ne]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-004-hi]",
+        "tests/integration/test_hybrid_pdf_real.py::test_hybrid_pdf_region_uses_real_tesseract_fallback[HYBRID-005-mr]"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "e569601968fe1923f39ef455c92c0c3b0c1324f63495443e0751de21db6d6287",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "pdfSecurity": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/adversarial/test_provider_output_attacks.py",
+        "tests/adversarial/test_fail_closed.py",
+        "tests/adversarial/test_fail_closed_transport.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "d63730417e1e7a8eef4e3c30073aa43c1385eac86bd2953420be094afcedc38c",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "pptxReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_office_parsers_real.py::test_docling_pptx_real[en]",
+        "tests/integration/test_office_parsers_real.py::test_docling_pptx_real[ne]",
+        "tests/integration/test_office_parsers_real.py::test_docling_pptx_real[hi]",
+        "tests/integration/test_office_parsers_real.py::test_docling_pptx_real[mr]",
+        "tests/integration/test_pptx_real.py::test_ooxml_pptx_reader_uses_slide_geometry_and_excludes_notes"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "c6d1773062a3dd08f239779b46d5ea91015ce250f47e4b8aff01f550329ad6c7",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "profileAuthorityReadiness": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_app_authority.py",
+        "tests/integration/test_promoted_runtime_real.py::test_increment4a_profile_admits_cumulative_authority_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "953900675e2e252dc23b90163fb75ca2fb045b013531fd64518aea95315fe368",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "qualificationEvaluation": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/evaluation/test_increment4a_evaluation.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "2cfa041752bb6d5780f7cc43c0f94db996d15027194aaf30d1cdf406af48eb45",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "qualificationVerifierAndPromotion": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/evaluation/test_increment4a_verifier.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "4239d972e247f4e8b120b5ad66fcb7e871ea311c09b8956e8eb52df4d906f606",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "runtimeAssetProjection": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_runtime_assets.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "c7a14fdeef7d16c6c082d3930a1528bb14c5bedb9f0d399ac07b64e841d99e5c",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "runtimeDependencyReadiness": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_runtime_dependencies.py",
+        "tests/integration/test_promoted_runtime_real.py::test_increment4a_missing_fallback_dependency_is_not_ready"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "1ec09f1686c5be1e576701cce49c3e9ddcab1c5049d65ac98920b53cbdc485b6",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "runtimeOperationGeneration": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/contract/test_protocol_v1.py",
+        "tests/runtime/test_operations.py",
+        "tests/runtime/test_operation_api.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "3f0d757498689c643f6c00a7ca0b94fee4af19a110936b37e11d29e2d3fb0914",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "runtimeProviderDrain": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_provider_executor.py::test_task_cancellation_retains_native_future_and_lane_until_completion",
+        "tests/runtime/test_concurrency.py::test_lane_remains_occupied_until_cancelled_native_work_finishes",
+        "tests/runtime/test_concurrency.py::test_cancelled_native_work_flood_never_exceeds_configured_concurrency"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "37c222fd48985f365e8d5ffe93ef75488af8f3ea6ce3ec3f7faaf8d4b57034e2",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "tesseractEnReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_tesseract_real.py::test_tesseract_en_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "56ede5902adcb33231a1752c3e346c6bfafd01f844e1070a64a23b6d28504e56",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "tesseractHiReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_tesseract_real.py::test_tesseract_hi_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "07509754e2e6702ac72052e7ac23d6b166a8b2041f6b1d13dbac20788a1a5909",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "tesseractMrReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_tesseract_real.py::test_tesseract_mr_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "a5431ddc61a227fc54dac18cf4f729bdac6a3b549f42fc9843c6237cc3e3f96d",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "tesseractNeReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_tesseract_real.py::test_tesseract_ne_real"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "493cbebd4b730f97b8177ef6ba73909a9140708e05e40b13bb65b491227f6d64",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "transitiveRuntimeDependencies": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/runtime/test_runtime_dependencies.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "508792f935d12665d66889b0acaa9f29c214dcc5af291bd7ad247bd469305607",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "verificationReceiptFreshness": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/evaluation/test_verification_receipts.py"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "eda0a7b6609f09ab51a4dda9b71447bdd736ccb3a133995b1977ce4d23eb0a2b",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    },
+    "xlsxReal": {
+      "materialFingerprint": "75cc92d9bb6ff8c2b93ec3160f5d8f18c7f66097a7563dc3de6b9d67eaab02f4",
+      "nodeIds": [
+        "tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[en]",
+        "tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[ne]",
+        "tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[hi]",
+        "tests/integration/test_office_parsers_real.py::test_docling_xlsx_real[mr]",
+        "tests/integration/test_xlsx_real.py::test_ooxml_xlsx_reader_preserves_sparse_cells_merges_and_geometry"
+      ],
+      "providerSemanticsFingerprint": "d6eaba84697b3fc5df9ccaa59ad3a1e1bb7eeca2e44bacc12b6343a6a2fea4ac",
+      "requiredTestSpecFingerprint": "9b0c44d0972453906a78f28fa9907ba6c8dc30b3419dafd26eedcc21ab53e61b",
+      "status": "PASS",
+      "verifiedAt": "2026-09-22T08:06:52Z"
+    }
+  },
+  "schemaVersion": "increment4a.test-receipts.v1"
+}

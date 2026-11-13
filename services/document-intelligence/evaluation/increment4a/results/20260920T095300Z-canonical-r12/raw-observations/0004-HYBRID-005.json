@@ -1,0 +1,58 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.07244655581947744,
+            "width": 0.33249370277078083,
+            "x": 0.04450041981528128,
+            "y": 0.045724465558194774
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.028503562945368172,
+                "width": 0.33249370277078083,
+                "x": 0.04450041981528128,
+                "y": 0.045724465558194774
+              },
+              "confidence": 0.9466007947921753,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l1",
+              "text": "या स्कन केलेल्या पानावर मराठी"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.032066508313539195,
+                "width": 0.31066330814441645,
+                "x": 0.04450041981528128,
+                "y": 0.08610451306413301
+              },
+              "confidence": 0.9460239410400391,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l2",
+              "text": "मजकूर आहे जो वाचेल."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]",
+      "pdfOcrAttemptLineage:[{\"pageNumber\":1,\"region\":{\"x\":0.0,\"y\":0.0,\"width\":1.0,\"height\":1.0},\"attempts\":[\"ghatana.paddleocr\"],\"selected\":\"ghatana.paddleocr\"}]"
+    ]
+  }
+}

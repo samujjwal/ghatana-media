@@ -1,0 +1,30 @@
+{
+  "completedAt": "2026-01-01T00:00:04.789946+00:00",
+  "configFingerprint": "b224c7238be50a86cf0972d256c9e55a709e34465e7484500520624b87524425",
+  "metrics": {
+    "errorRate": 0.0,
+    "p50Ms": 149.14894766301995,
+    "p95Ms": 178.1268652828834,
+    "p99Ms": 179.80552092329117,
+    "rssPeakBytes": 536870912,
+    "throughputPerSecond": 53.445276658377466
+  },
+  "providerInvocations": {
+    "attempted": 256,
+    "cancelled": 0,
+    "completed": 256,
+    "failed": 0,
+    "timedOut": 0
+  },
+  "resultFingerprint": "31ab240db7463f6ce6756c0d0a806fb9e8c601d9c9689d7338b7bb936a795edd",
+  "runId": "85937de8dc11dda81c9314b4bcf93ee7",
+  "runnerRef": "evaluation/increment6/runners/load_runner.py",
+  "schemaVersion": "document-intelligence.performance-evidence.v1",
+  "seed": 42,
+  "startedAt": "2026-01-01T00:00:00+00:00",
+  "workload": {
+    "concurrency": 8,
+    "durationSeconds": 4.789946203035931,
+    "fixtureCount": 256
+  }
+}

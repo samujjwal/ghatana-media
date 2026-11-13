@@ -1,0 +1,15 @@
+{
+  "id": "parse-candidate-language-invalid",
+  "endpoint": "parse",
+  "description": "hi is a candidate (I4A+) language; the canonical I3 catalog admits only en and ne.",
+  "request": {
+    "protocolVersion": "document-intelligence.v1",
+    "operationId": "i3-parse-hi",
+    "providerRef": "ghatana.paddleocr",
+    "mediaType": "image/png",
+    "languageHint": "hi",
+    "timeoutMs": 30000,
+    "limits": {}
+  },
+  "expected": { "accepted": false, "code": "UNSUPPORTED_LANGUAGE", "stage": "metadata" }
+}

@@ -1,0 +1,154 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.06769596199524941,
+            "width": 0.32577665827036106,
+            "x": 0.04869857262804366,
+            "y": 0.050475059382422804
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.014251781472684086,
+                "width": 0.026028547439126783,
+                "x": 0.04869857262804366,
+                "y": 0.057007125890736345
+              },
+              "confidence": 0.96997383,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l1",
+              "text": "या"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.020783847980997625,
+                "width": 0.05037783375314862,
+                "x": 0.08144416456759027,
+                "y": 0.050475059382422804
+              },
+              "confidence": 0.96945679,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l2",
+              "text": "स्कॅन"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.020783847980997625,
+                "width": 0.08228379513014274,
+                "x": 0.1385390428211587,
+                "y": 0.050475059382422804
+              },
+              "confidence": 0.9643428799999999,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l3",
+              "text": "केलेल्या"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.014251781472684086,
+                "width": 0.07724601175482787,
+                "x": 0.22670025188916876,
+                "y": 0.057007125890736345
+              },
+              "confidence": 0.96098595,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l4",
+              "text": "पानावर"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.020783847980997625,
+                "width": 0.06297229219143577,
+                "x": 0.31150293870696893,
+                "y": 0.050475059382422804
+              },
+              "confidence": 0.96863731,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l5",
+              "text": "मराठी"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.020783847980997625,
+                "width": 0.07472712006717044,
+                "x": 0.04869857262804366,
+                "y": 0.09738717339667459
+              },
+              "confidence": 0.96492844,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l6",
+              "text": "मजकूर"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.023752969121140142,
+                "width": 0.04534005037783375,
+                "x": 0.13182199832073888,
+                "y": 0.09085510688836104
+              },
+              "confidence": 0.96818413,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l7",
+              "text": "आहे"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.020783847980997625,
+                "width": 0.030226700251889168,
+                "x": 0.18387909319899245,
+                "y": 0.09085510688836104
+              },
+              "confidence": 0.96657196,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l8",
+              "text": "जो"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.016033254156769598,
+                "width": 0.04785894206549118,
+                "x": 0.22334172963895885,
+                "y": 0.09560570071258907
+              },
+              "confidence": 0.6799633799999999,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l9",
+              "text": "[111]"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.020783847980997625,
+                "width": 0.06801007556675064,
+                "x": 0.28211586901763225,
+                "y": 0.09085510688836104
+              },
+              "confidence": 0.96799088,
+              "languageTag": "mr",
+              "lineId": "p1-b1-l10",
+              "text": "वाचेल."
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]",
+      "pdfOcrAttemptLineage:[{\"pageNumber\":1,\"region\":{\"x\":0.0,\"y\":0.0,\"width\":1.0,\"height\":1.0},\"attempts\":[\"ghatana.paddleocr\",\"ghatana.tesseractocr\"],\"selected\":\"ghatana.tesseractocr\"}]"
+    ]
+  }
+}

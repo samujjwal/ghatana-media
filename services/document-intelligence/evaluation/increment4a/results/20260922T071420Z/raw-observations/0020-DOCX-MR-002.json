@@ -1,0 +1,181 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.01540764853743005,
+            "width": 0.23729568018578293,
+            "x": 0.13103174395187706,
+            "y": 0.09400756657911913
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.011707016840453763,
+                "width": 0.04340679261270168,
+                "x": 0.13103174395187706,
+                "y": 0.09400756657911913
+              },
+              "lineId": "p1-b1-l1",
+              "text": "बीजक"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.014333249555419841,
+                "width": 0.05183312692060461,
+                "x": 0.180019129766781,
+                "y": 0.09486992788055519
+              },
+              "lineId": "p1-b1-l2",
+              "text": "क्रमांक"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.009276745672169623,
+                "width": 0.03618155083925097,
+                "x": 0.2397981744880281,
+                "y": 0.09745693928706588
+              },
+              "lineId": "p1-b1-l3",
+              "text": "१००१"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.009276745672169623,
+                "width": 0.03697615287257543,
+                "x": 0.32990097995647677,
+                "y": 0.09745693928706588
+              },
+              "lineId": "p1-b1-l4",
+              "text": "१२५०"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.011615524619990348,
+                "width": 0.03791858128501477,
+                "x": 0.2840180250024369,
+                "y": 0.09758765281598468
+              },
+              "lineId": "p1-b1-l5",
+              "text": "एकूण"
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": [
+        {
+          "boundingRegion": {
+            "height": 0.0731265777080472,
+            "width": 0.7414225251882669,
+            "x": 0.12883475642876338,
+            "y": 0.10793383274395507
+          },
+          "cells": [
+            {
+              "boundingRegion": {
+                "height": 0.011827621110777857,
+                "width": 0.08786448176273308,
+                "x": 0.14111110887125222,
+                "y": 0.11778026055191548
+              },
+              "cellId": "p1-t1-c0-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 0,
+              "rowSpan": 1,
+              "text": "मर्ज शीर्षक"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013627644819343952,
+                "width": 0.10894825489235577,
+                "x": 0.14111110887125222,
+                "y": 0.13973631513293075
+              },
+              "cellId": "p1-t1-c1-0",
+              "columnIndex": 0,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "पङ्क्ति - विस्तार"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013627644819343952,
+                "width": 0.05453422061982721,
+                "x": 0.3870899462366675,
+                "y": 0.13973631513293075
+              },
+              "cellId": "p1-t1-c1-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "घर 1-1"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013627644819343952,
+                "width": 0.05453422061982716,
+                "x": 0.6330687836020827,
+                "y": 0.13973631513293075
+              },
+              "cellId": "p1-t1-c1-2",
+              "columnIndex": 2,
+              "columnSpan": 1,
+              "rowIndex": 1,
+              "rowSpan": 1,
+              "text": "घर 1-2"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013627644819343952,
+                "width": 0.05453422061982721,
+                "x": 0.3870899462366675,
+                "y": 0.16349239342251212
+              },
+              "cellId": "p1-t1-c2-1",
+              "columnIndex": 1,
+              "columnSpan": 1,
+              "rowIndex": 2,
+              "rowSpan": 1,
+              "text": "घर 2-1"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.013627644819343952,
+                "width": 0.05453422061982716,
+                "x": 0.6330687836020827,
+                "y": 0.16349239342251212
+              },
+              "cellId": "p1-t1-c2-2",
+              "columnIndex": 2,
+              "columnSpan": 1,
+              "rowIndex": 2,
+              "rowSpan": 1,
+              "text": "घर 2-2"
+            }
+          ],
+          "columnCount": 3,
+          "rowCount": 3,
+          "tableId": "p1-t1"
+        }
+      ]
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "docling-rendered-docx-pipeline",
+    "modelVersion": "pinned-docling-runtime",
+    "providerRef": "ghatana.docling-docx",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "officeRenderer:reportlab"
+    ]
+  }
+}

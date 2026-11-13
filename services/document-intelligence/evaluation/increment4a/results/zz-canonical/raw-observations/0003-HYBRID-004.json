@@ -1,0 +1,57 @@
+{
+  "pages": [
+    {
+      "blocks": [
+        {
+          "blockId": "p1-b1",
+          "boundingRegion": {
+            "height": 0.07244655581947744,
+            "width": 0.31738035264483627,
+            "x": 0.0436607892527288,
+            "y": 0.04513064133016627
+          },
+          "kind": "TEXT",
+          "lines": [
+            {
+              "boundingRegion": {
+                "height": 0.0332541567695962,
+                "width": 0.31738035264483627,
+                "x": 0.0436607892527288,
+                "y": 0.04513064133016627
+              },
+              "confidence": 0.9481803178787231,
+              "languageTag": "hi",
+              "lineId": "p1-b1-l1",
+              "text": "इस स्कैन किए गए पृ् में हिंदी"
+            },
+            {
+              "boundingRegion": {
+                "height": 0.030878859857482184,
+                "width": 0.2653232577665827,
+                "x": 0.04450041981528128,
+                "y": 0.08669833729216152
+              },
+              "confidence": 0.9573001861572266,
+              "languageTag": "hi",
+              "lineId": "p1-b1-l2",
+              "text": "पाठ है जिसे  पढ़ेगा।"
+            }
+          ]
+        }
+      ],
+      "pageNumber": 1,
+      "tables": []
+    }
+  ],
+  "providerProvenance": {
+    "modelRef": "hybrid-pdf-v1",
+    "modelVersion": "policy-v1",
+    "providerRef": "ghatana.hybrid-pdf",
+    "providerVersion": "0.1.0"
+  },
+  "quality": {
+    "warnings": [
+      "pageClassifications:[{\"pageNumber\":1,\"classification\":\"SCANNED\",\"textCharacters\":0,\"imageRegions\":1}]"
+    ]
+  }
+}

@@ -1,0 +1,1526 @@
+{
+  "bomFormat": "CycloneDX",
+  "componentCount": 203,
+  "components": [
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5"
+        }
+      ],
+      "name": "tesseract",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "application",
+      "version": "5.3.4"
+    },
+    {
+      "name": "accelerate",
+      "purl": "pkg:pypi/accelerate@1.15.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.15.0"
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "purl": "pkg:pypi/aiohappyeyeballs@2.7.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.7.1"
+    },
+    {
+      "name": "aiohttp",
+      "purl": "pkg:pypi/aiohttp@3.14.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.14.3"
+    },
+    {
+      "name": "aiosignal",
+      "purl": "pkg:pypi/aiosignal@1.4.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.4.0"
+    },
+    {
+      "name": "aistudio-sdk",
+      "purl": "pkg:pypi/aistudio-sdk@0.3.9",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.3.9"
+    },
+    {
+      "name": "annotated-doc",
+      "purl": "pkg:pypi/annotated-doc@0.0.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.0.5"
+    },
+    {
+      "name": "annotated-types",
+      "purl": "pkg:pypi/annotated-types@0.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.8.0"
+    },
+    {
+      "name": "antlr4-python3-runtime",
+      "purl": "pkg:pypi/antlr4-python3-runtime@4.9.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.9.3"
+    },
+    {
+      "name": "anyio",
+      "purl": "pkg:pypi/anyio@4.15.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.15.1"
+    },
+    {
+      "name": "async-timeout",
+      "purl": "pkg:pypi/async-timeout@5.0.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "5.0.1"
+    },
+    {
+      "name": "attrs",
+      "purl": "pkg:pypi/attrs@26.1.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "26.1.0"
+    },
+    {
+      "name": "backports-asyncio-runner",
+      "purl": "pkg:pypi/backports-asyncio-runner@1.2.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.2.0"
+    },
+    {
+      "name": "bce-python-sdk",
+      "purl": "pkg:pypi/bce-python-sdk@0.9.79",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.9.79"
+    },
+    {
+      "name": "beautifulsoup4",
+      "purl": "pkg:pypi/beautifulsoup4@4.15.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.15.0"
+    },
+    {
+      "name": "certifi",
+      "purl": "pkg:pypi/certifi@2026.7.22",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2026.7.22"
+    },
+    {
+      "name": "cffi",
+      "purl": "pkg:pypi/cffi@2.1.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.1.1"
+    },
+    {
+      "name": "chardet",
+      "purl": "pkg:pypi/chardet@7.6.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "7.6.0"
+    },
+    {
+      "name": "charset-normalizer",
+      "purl": "pkg:pypi/charset-normalizer@3.5.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.5.1"
+    },
+    {
+      "name": "click",
+      "purl": "pkg:pypi/click@8.5.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "8.5.0"
+    },
+    {
+      "name": "cloudpickle",
+      "purl": "pkg:pypi/cloudpickle@3.1.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.1.2"
+    },
+    {
+      "name": "colorama",
+      "purl": "pkg:pypi/colorama@0.4.6",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.4.6"
+    },
+    {
+      "name": "colorlog",
+      "purl": "pkg:pypi/colorlog@6.12.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "6.12.0"
+    },
+    {
+      "name": "crc32c",
+      "purl": "pkg:pypi/crc32c@2.9.post0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.9.post0"
+    },
+    {
+      "name": "cryptography",
+      "purl": "pkg:pypi/cryptography@50.0.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "50.0.1"
+    },
+    {
+      "name": "cuda-bindings",
+      "purl": "pkg:pypi/cuda-bindings@13.4.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.4.2"
+    },
+    {
+      "name": "cuda-pathfinder",
+      "purl": "pkg:pypi/cuda-pathfinder@1.8.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.8.2"
+    },
+    {
+      "name": "cuda-toolkit",
+      "purl": "pkg:pypi/cuda-toolkit@13.0.3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.0.3.0"
+    },
+    {
+      "name": "defusedxml",
+      "purl": "pkg:pypi/defusedxml@0.7.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.7.1"
+    },
+    {
+      "name": "dill",
+      "purl": "pkg:pypi/dill@0.4.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.4.1"
+    },
+    {
+      "name": "doclang",
+      "purl": "pkg:pypi/doclang@0.7.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.7.3"
+    },
+    {
+      "name": "docling",
+      "purl": "pkg:pypi/docling@2.128.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.128.0"
+    },
+    {
+      "name": "docling-core",
+      "purl": "pkg:pypi/docling-core@2.97.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.97.0"
+    },
+    {
+      "name": "docling-ibm-models",
+      "purl": "pkg:pypi/docling-ibm-models@4.0.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.0.2"
+    },
+    {
+      "name": "docling-parse",
+      "purl": "pkg:pypi/docling-parse@7.20.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "7.20.0"
+    },
+    {
+      "name": "docling-slim",
+      "purl": "pkg:pypi/docling-slim@2.128.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.128.0"
+    },
+    {
+      "name": "et-xmlfile",
+      "purl": "pkg:pypi/et-xmlfile@2.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.0.0"
+    },
+    {
+      "name": "exceptiongroup",
+      "purl": "pkg:pypi/exceptiongroup@1.3.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.3.1"
+    },
+    {
+      "name": "faker",
+      "purl": "pkg:pypi/faker@40.39.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "40.39.0"
+    },
+    {
+      "name": "fastapi",
+      "purl": "pkg:pypi/fastapi@0.141.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.141.1"
+    },
+    {
+      "name": "filelock",
+      "purl": "pkg:pypi/filelock@4.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.0.0"
+    },
+    {
+      "name": "filetype",
+      "purl": "pkg:pypi/filetype@1.2.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.2.0"
+    },
+    {
+      "name": "frozenlist",
+      "purl": "pkg:pypi/frozenlist@1.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.8.0"
+    },
+    {
+      "name": "fsspec",
+      "purl": "pkg:pypi/fsspec@2026.7.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2026.7.0"
+    },
+    {
+      "name": "future",
+      "purl": "pkg:pypi/future@1.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.0.0"
+    },
+    {
+      "name": "ghatana-document-intelligence",
+      "purl": "pkg:pypi/ghatana-document-intelligence@0.1.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.1.0"
+    },
+    {
+      "name": "gliner",
+      "purl": "pkg:pypi/gliner@0.2.29",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.2.29"
+    },
+    {
+      "name": "h11",
+      "purl": "pkg:pypi/h11@0.16.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.16.0"
+    },
+    {
+      "name": "hf-xet",
+      "purl": "pkg:pypi/hf-xet@1.6.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.6.0"
+    },
+    {
+      "name": "httpcore",
+      "purl": "pkg:pypi/httpcore@1.0.9",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httptools",
+      "purl": "pkg:pypi/httptools@0.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.8.0"
+    },
+    {
+      "name": "httpx",
+      "purl": "pkg:pypi/httpx@0.28.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.28.1"
+    },
+    {
+      "name": "huggingface-hub",
+      "purl": "pkg:pypi/huggingface-hub@0.36.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.36.2"
+    },
+    {
+      "name": "idna",
+      "purl": "pkg:pypi/idna@3.20",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.20"
+    },
+    {
+      "name": "imagesize",
+      "purl": "pkg:pypi/imagesize@2.0.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.0.1"
+    },
+    {
+      "name": "iniconfig",
+      "purl": "pkg:pypi/iniconfig@2.3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.3.0"
+    },
+    {
+      "name": "jinja2",
+      "purl": "pkg:pypi/jinja2@3.1.6",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.1.6"
+    },
+    {
+      "name": "joblib",
+      "purl": "pkg:pypi/joblib@1.6.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.6.0"
+    },
+    {
+      "name": "jsonref",
+      "purl": "pkg:pypi/jsonref@1.1.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.1.0"
+    },
+    {
+      "name": "jsonschema",
+      "purl": "pkg:pypi/jsonschema@4.26.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.26.0"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "purl": "pkg:pypi/jsonschema-specifications@2025.9.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2025.9.1"
+    },
+    {
+      "name": "langcodes",
+      "purl": "pkg:pypi/langcodes@3.5.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.5.1"
+    },
+    {
+      "name": "latex2mathml",
+      "purl": "pkg:pypi/latex2mathml@3.81.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.81.1"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c2bb81d58f032b09917c0d50994cce905287a1596304a4e99681a03601456ea8"
+        }
+      ],
+      "name": "liblept5",
+      "purl": "pkg:deb/ubuntu/liblept5@1.82.0-3build4",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "1.82.0-3build4"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a38438115dc203b5abc1e6a6b24eb5273ba82161a11faa2f619bf5f7622efb14"
+        }
+      ],
+      "name": "libtesseract5",
+      "purl": "pkg:deb/ubuntu/libtesseract5@5.3.4-1build5",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "5.3.4-1build5"
+    },
+    {
+      "name": "lxml",
+      "purl": "pkg:pypi/lxml@6.1.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "6.1.3"
+    },
+    {
+      "name": "mail-parser",
+      "purl": "pkg:pypi/mail-parser@4.6.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.6.5"
+    },
+    {
+      "name": "markdown-it-py",
+      "purl": "pkg:pypi/markdown-it-py@4.2.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.2.0"
+    },
+    {
+      "name": "marko",
+      "purl": "pkg:pypi/marko@2.2.4",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.2.4"
+    },
+    {
+      "name": "markupsafe",
+      "purl": "pkg:pypi/markupsafe@3.0.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.0.3"
+    },
+    {
+      "name": "mdurl",
+      "purl": "pkg:pypi/mdurl@0.1.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.1.2"
+    },
+    {
+      "name": "modelscope",
+      "purl": "pkg:pypi/modelscope@1.40.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.40.1"
+    },
+    {
+      "name": "modelscope-hub",
+      "purl": "pkg:pypi/modelscope-hub@0.4.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.4.3"
+    },
+    {
+      "name": "mpire",
+      "purl": "pkg:pypi/mpire@2.10.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.10.2"
+    },
+    {
+      "name": "mpmath",
+      "purl": "pkg:pypi/mpmath@1.3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.3.0"
+    },
+    {
+      "name": "multidict",
+      "purl": "pkg:pypi/multidict@6.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "6.8.0"
+    },
+    {
+      "name": "multiprocess",
+      "purl": "pkg:pypi/multiprocess@0.70.19",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.70.19"
+    },
+    {
+      "name": "narwhals",
+      "purl": "pkg:pypi/narwhals@2.26.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.26.0"
+    },
+    {
+      "name": "networkx",
+      "purl": "pkg:pypi/networkx@3.4.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.4.2"
+    },
+    {
+      "name": "networkx",
+      "purl": "pkg:pypi/networkx@3.6.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.6.1"
+    },
+    {
+      "name": "numpy",
+      "purl": "pkg:pypi/numpy@2.2.6",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.2.6"
+    },
+    {
+      "name": "numpy",
+      "purl": "pkg:pypi/numpy@2.3.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.3.5"
+    },
+    {
+      "name": "nvidia-cublas",
+      "purl": "pkg:pypi/nvidia-cublas@13.1.1.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.1.1.3"
+    },
+    {
+      "name": "nvidia-cuda-cupti",
+      "purl": "pkg:pypi/nvidia-cuda-cupti@13.0.85",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.0.85"
+    },
+    {
+      "name": "nvidia-cuda-nvrtc",
+      "purl": "pkg:pypi/nvidia-cuda-nvrtc@13.0.88",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.0.88"
+    },
+    {
+      "name": "nvidia-cuda-runtime",
+      "purl": "pkg:pypi/nvidia-cuda-runtime@13.0.96",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.0.96"
+    },
+    {
+      "name": "nvidia-cudnn-cu13",
+      "purl": "pkg:pypi/nvidia-cudnn-cu13@9.24.0.43",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "9.24.0.43"
+    },
+    {
+      "name": "nvidia-cufft",
+      "purl": "pkg:pypi/nvidia-cufft@12.0.0.61",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "12.0.0.61"
+    },
+    {
+      "name": "nvidia-cufile",
+      "purl": "pkg:pypi/nvidia-cufile@1.15.1.6",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.15.1.6"
+    },
+    {
+      "name": "nvidia-curand",
+      "purl": "pkg:pypi/nvidia-curand@10.4.0.35",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "10.4.0.35"
+    },
+    {
+      "name": "nvidia-cusolver",
+      "purl": "pkg:pypi/nvidia-cusolver@12.0.4.66",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "12.0.4.66"
+    },
+    {
+      "name": "nvidia-cusparse",
+      "purl": "pkg:pypi/nvidia-cusparse@12.6.3.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "12.6.3.3"
+    },
+    {
+      "name": "nvidia-cusparselt-cu13",
+      "purl": "pkg:pypi/nvidia-cusparselt-cu13@0.8.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.8.1"
+    },
+    {
+      "name": "nvidia-nccl-cu13",
+      "purl": "pkg:pypi/nvidia-nccl-cu13@2.30.7",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.30.7"
+    },
+    {
+      "name": "nvidia-nvjitlink",
+      "purl": "pkg:pypi/nvidia-nvjitlink@13.4.92",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.4.92"
+    },
+    {
+      "name": "nvidia-nvshmem-cu13",
+      "purl": "pkg:pypi/nvidia-nvshmem-cu13@3.4.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.4.5"
+    },
+    {
+      "name": "nvidia-nvtx",
+      "purl": "pkg:pypi/nvidia-nvtx@13.0.85",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "13.0.85"
+    },
+    {
+      "name": "olefile",
+      "purl": "pkg:pypi/olefile@0.47",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.47"
+    },
+    {
+      "name": "omegaconf",
+      "purl": "pkg:pypi/omegaconf@2.3.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.3.1"
+    },
+    {
+      "name": "opencv-contrib-python",
+      "purl": "pkg:pypi/opencv-contrib-python@4.10.0.84",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.10.0.84"
+    },
+    {
+      "name": "opencv-python",
+      "purl": "pkg:pypi/opencv-python@5.0.0.93",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "5.0.0.93"
+    },
+    {
+      "name": "openpyxl",
+      "purl": "pkg:pypi/openpyxl@3.1.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.1.5"
+    },
+    {
+      "name": "opt-einsum",
+      "purl": "pkg:pypi/opt-einsum@3.3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.3.0"
+    },
+    {
+      "name": "packaging",
+      "purl": "pkg:pypi/packaging@26.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "26.3"
+    },
+    {
+      "name": "paddleocr",
+      "purl": "pkg:pypi/paddleocr@3.7.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.7.0"
+    },
+    {
+      "name": "paddlepaddle",
+      "purl": "pkg:pypi/paddlepaddle@3.3.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.3.1"
+    },
+    {
+      "name": "paddlex",
+      "purl": "pkg:pypi/paddlex@3.7.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.7.2"
+    },
+    {
+      "name": "pandas",
+      "purl": "pkg:pypi/pandas@2.3.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.3.3"
+    },
+    {
+      "name": "pandas",
+      "purl": "pkg:pypi/pandas@3.0.6",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.0.6"
+    },
+    {
+      "name": "pillow",
+      "purl": "pkg:pypi/pillow@11.3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "11.3.0"
+    },
+    {
+      "name": "pluggy",
+      "purl": "pkg:pypi/pluggy@1.6.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.6.0"
+    },
+    {
+      "name": "polyfactory",
+      "purl": "pkg:pypi/polyfactory@3.3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.3.0"
+    },
+    {
+      "name": "prettytable",
+      "purl": "pkg:pypi/prettytable@3.18.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.18.0"
+    },
+    {
+      "name": "propcache",
+      "purl": "pkg:pypi/propcache@0.5.4",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.5.4"
+    },
+    {
+      "name": "protobuf",
+      "purl": "pkg:pypi/protobuf@7.36.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "7.36.2"
+    },
+    {
+      "name": "psutil",
+      "purl": "pkg:pypi/psutil@7.2.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "7.2.2"
+    },
+    {
+      "name": "py-cpuinfo",
+      "purl": "pkg:pypi/py-cpuinfo@9.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "9.0.0"
+    },
+    {
+      "name": "pyclipper",
+      "purl": "pkg:pypi/pyclipper@1.4.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.4.0"
+    },
+    {
+      "name": "pycparser",
+      "purl": "pkg:pypi/pycparser@3.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.0"
+    },
+    {
+      "name": "pycryptodome",
+      "purl": "pkg:pypi/pycryptodome@3.23.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.23.0"
+    },
+    {
+      "name": "pydantic",
+      "purl": "pkg:pypi/pydantic@2.13.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.13.5"
+    },
+    {
+      "name": "pydantic-core",
+      "purl": "pkg:pypi/pydantic-core@2.46.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.46.5"
+    },
+    {
+      "name": "pydantic-settings",
+      "purl": "pkg:pypi/pydantic-settings@2.15.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.15.0"
+    },
+    {
+      "name": "pygments",
+      "purl": "pkg:pypi/pygments@2.21.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.21.0"
+    },
+    {
+      "name": "pylatexenc",
+      "purl": "pkg:pypi/pylatexenc@2.11",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.11"
+    },
+    {
+      "name": "pypdfium2",
+      "purl": "pkg:pypi/pypdfium2@5.13.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "5.13.0"
+    },
+    {
+      "name": "pytest",
+      "purl": "pkg:pypi/pytest@8.4.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "8.4.2"
+    },
+    {
+      "name": "pytest-asyncio",
+      "purl": "pkg:pypi/pytest-asyncio@1.4.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.4.0"
+    },
+    {
+      "name": "python-bidi",
+      "purl": "pkg:pypi/python-bidi@0.6.11",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.6.11"
+    },
+    {
+      "name": "python-dateutil",
+      "purl": "pkg:pypi/python-dateutil@2.9.0.post0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.9.0.post0"
+    },
+    {
+      "name": "python-docx",
+      "purl": "pkg:pypi/python-docx@1.2.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.2.0"
+    },
+    {
+      "name": "python-dotenv",
+      "purl": "pkg:pypi/python-dotenv@1.2.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.2.3"
+    },
+    {
+      "name": "python-multipart",
+      "purl": "pkg:pypi/python-multipart@0.0.32",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.0.32"
+    },
+    {
+      "name": "python-oxmsg",
+      "purl": "pkg:pypi/python-oxmsg@0.0.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.0.2"
+    },
+    {
+      "name": "python-pptx",
+      "purl": "pkg:pypi/python-pptx@1.0.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.0.2"
+    },
+    {
+      "name": "pytz",
+      "purl": "pkg:pypi/pytz@2026.3.post1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2026.3.post1"
+    },
+    {
+      "name": "pywin32",
+      "purl": "pkg:pypi/pywin32@312",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "312"
+    },
+    {
+      "name": "pyyaml",
+      "purl": "pkg:pypi/pyyaml@6.0.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "6.0.2"
+    },
+    {
+      "name": "rapidocr",
+      "purl": "pkg:pypi/rapidocr@3.9.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.9.2"
+    },
+    {
+      "name": "referencing",
+      "purl": "pkg:pypi/referencing@0.37.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.37.0"
+    },
+    {
+      "name": "regex",
+      "purl": "pkg:pypi/regex@2026.9.10",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2026.9.10"
+    },
+    {
+      "name": "reportlab",
+      "purl": "pkg:pypi/reportlab@4.5.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.5.1"
+    },
+    {
+      "name": "requests",
+      "purl": "pkg:pypi/requests@2.34.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.34.2"
+    },
+    {
+      "name": "rich",
+      "purl": "pkg:pypi/rich@15.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "15.0.0"
+    },
+    {
+      "name": "rpds-py",
+      "purl": "pkg:pypi/rpds-py@0.30.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.30.0"
+    },
+    {
+      "name": "rpds-py",
+      "purl": "pkg:pypi/rpds-py@2026.6.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2026.6.3"
+    },
+    {
+      "name": "rtree",
+      "purl": "pkg:pypi/rtree@1.4.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.4.1"
+    },
+    {
+      "name": "ruamel-yaml",
+      "purl": "pkg:pypi/ruamel-yaml@0.19.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.19.1"
+    },
+    {
+      "name": "safetensors",
+      "purl": "pkg:pypi/safetensors@0.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.8.0"
+    },
+    {
+      "name": "scikit-learn",
+      "purl": "pkg:pypi/scikit-learn@1.7.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.7.2"
+    },
+    {
+      "name": "scikit-learn",
+      "purl": "pkg:pypi/scikit-learn@1.9.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.9.1"
+    },
+    {
+      "name": "scipy",
+      "purl": "pkg:pypi/scipy@1.15.3",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.15.3"
+    },
+    {
+      "name": "scipy",
+      "purl": "pkg:pypi/scipy@1.17.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.17.1"
+    },
+    {
+      "name": "scipy",
+      "purl": "pkg:pypi/scipy@1.18.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.18.1"
+    },
+    {
+      "name": "semchunk",
+      "purl": "pkg:pypi/semchunk@3.2.5",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.2.5"
+    },
+    {
+      "name": "sentence-transformers",
+      "purl": "pkg:pypi/sentence-transformers@5.7.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "5.7.0"
+    },
+    {
+      "name": "sentencepiece",
+      "purl": "pkg:pypi/sentencepiece@0.2.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.2.2"
+    },
+    {
+      "name": "setuptools",
+      "purl": "pkg:pypi/setuptools@84.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "84.0.0"
+    },
+    {
+      "name": "shapely",
+      "purl": "pkg:pypi/shapely@2.1.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.1.2"
+    },
+    {
+      "name": "shellingham",
+      "purl": "pkg:pypi/shellingham@1.5.4",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.5.4"
+    },
+    {
+      "name": "six",
+      "purl": "pkg:pypi/six@1.17.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.17.0"
+    },
+    {
+      "name": "soupsieve",
+      "purl": "pkg:pypi/soupsieve@2.9.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.9.2"
+    },
+    {
+      "name": "starlette",
+      "purl": "pkg:pypi/starlette@1.6.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.6.0"
+    },
+    {
+      "name": "sympy",
+      "purl": "pkg:pypi/sympy@1.14.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.14.0"
+    },
+    {
+      "name": "tabulate",
+      "purl": "pkg:pypi/tabulate@0.10.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.10.0"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2dfac382d77215aee0c3de4a2a2205505d5f2195e72e79b54ad32154fc08da77"
+        }
+      ],
+      "name": "tesseract-ocr",
+      "purl": "pkg:deb/ubuntu/tesseract-ocr@5.3.4-1build5",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "5.3.4-1build5"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b1996b3113c78663f4dd16cf18aa1f288b07e9624f8d4a0ddbd7d9b52a234ba7"
+        }
+      ],
+      "name": "tesseract-ocr-eng",
+      "purl": "pkg:deb/ubuntu/tesseract-ocr-eng@1:4.1.0-2",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "1:4.1.0-2"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e981cbcdbc396e054e512659d7b91cbe1a717e0f2add5f99f574739319e4dc5b"
+        }
+      ],
+      "name": "tesseract-ocr-hin",
+      "purl": "pkg:deb/ubuntu/tesseract-ocr-hin@1:4.1.0-2",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "1:4.1.0-2"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f320c783bfc9bcba8d3730f68bffaba9b313a514a599f8b313071169f26780f5"
+        }
+      ],
+      "name": "tesseract-ocr-mar",
+      "purl": "pkg:deb/ubuntu/tesseract-ocr-mar@1:4.1.0-2",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "1:4.1.0-2"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5883941462c4026bd467b1baa090fd4be781e6ac39091268b3757c9e4ceef28b"
+        }
+      ],
+      "name": "tesseract-ocr-nep",
+      "purl": "pkg:deb/ubuntu/tesseract-ocr-nep@1:4.1.0-2",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "library",
+      "version": "1:4.1.0-2"
+    },
+    {
+      "name": "threadpoolctl",
+      "purl": "pkg:pypi/threadpoolctl@3.7.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.7.0"
+    },
+    {
+      "name": "tokenizers",
+      "purl": "pkg:pypi/tokenizers@0.22.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.22.2"
+    },
+    {
+      "name": "tomli",
+      "purl": "pkg:pypi/tomli@2.4.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.4.1"
+    },
+    {
+      "name": "torch",
+      "purl": "pkg:pypi/torch@2.14.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.14.0"
+    },
+    {
+      "name": "torchvision",
+      "purl": "pkg:pypi/torchvision@0.29.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.29.0"
+    },
+    {
+      "name": "tqdm",
+      "purl": "pkg:pypi/tqdm@4.70.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.70.1"
+    },
+    {
+      "name": "transformers",
+      "purl": "pkg:pypi/transformers@4.57.6",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.57.6"
+    },
+    {
+      "name": "tree-sitter",
+      "purl": "pkg:pypi/tree-sitter@0.26.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.26.0"
+    },
+    {
+      "name": "tree-sitter-c",
+      "purl": "pkg:pypi/tree-sitter-c@0.24.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.24.2"
+    },
+    {
+      "name": "tree-sitter-javascript",
+      "purl": "pkg:pypi/tree-sitter-javascript@0.25.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.25.0"
+    },
+    {
+      "name": "tree-sitter-python",
+      "purl": "pkg:pypi/tree-sitter-python@0.25.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.25.0"
+    },
+    {
+      "name": "tree-sitter-typescript",
+      "purl": "pkg:pypi/tree-sitter-typescript@0.23.2",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.23.2"
+    },
+    {
+      "name": "triton",
+      "purl": "pkg:pypi/triton@3.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.8.0"
+    },
+    {
+      "name": "typer",
+      "purl": "pkg:pypi/typer@0.26.8",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.26.8"
+    },
+    {
+      "name": "typing-extensions",
+      "purl": "pkg:pypi/typing-extensions@4.16.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "4.16.0"
+    },
+    {
+      "name": "typing-inspection",
+      "purl": "pkg:pypi/typing-inspection@0.4.4",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.4.4"
+    },
+    {
+      "name": "tzdata",
+      "purl": "pkg:pypi/tzdata@2026.4",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2026.4"
+    },
+    {
+      "name": "ujson",
+      "purl": "pkg:pypi/ujson@6.0.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "6.0.0"
+    },
+    {
+      "name": "urllib3",
+      "purl": "pkg:pypi/urllib3@2.8.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "2.8.0"
+    },
+    {
+      "name": "uvicorn",
+      "purl": "pkg:pypi/uvicorn@0.53.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.53.0"
+    },
+    {
+      "name": "uvloop",
+      "purl": "pkg:pypi/uvloop@0.22.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.22.1"
+    },
+    {
+      "name": "watchfiles",
+      "purl": "pkg:pypi/watchfiles@1.2.0",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.2.0"
+    },
+    {
+      "name": "wcwidth",
+      "purl": "pkg:pypi/wcwidth@0.8.4",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "0.8.4"
+    },
+    {
+      "name": "websockets",
+      "purl": "pkg:pypi/websockets@16.1.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "16.1.1"
+    },
+    {
+      "name": "xlsxwriter",
+      "purl": "pkg:pypi/xlsxwriter@3.2.9",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "3.2.9"
+    },
+    {
+      "name": "yarl",
+      "purl": "pkg:pypi/yarl@1.25.1",
+      "source": "uv.lock",
+      "type": "library",
+      "version": "1.25.1"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2f7f7060e78121136f87373c5b3108358cc8aacb2a84e2c837ff4c3f9d9eeee8"
+        }
+      ],
+      "name": "PP-OCRv5-devanagari-shared",
+      "providerRef": "ghatana.paddleocr",
+      "source": "models/model-manifest.yaml,models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "PP-OCRv5-local-devanagari-shared"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5745e7f5afce63a1d2aff5958b242def00ae863fe0a421c32818463fe0d0e49b"
+        }
+      ],
+      "name": "PP-OCRv5-en",
+      "providerRef": "ghatana.paddleocr",
+      "source": "models/model-manifest.yaml,models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "PP-OCRv5-local-en"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ff87d681c8bba8ae7f68ccbdb385bebc81d5971f84714e0f5edc6c3eca24be3b"
+        }
+      ],
+      "name": "docling-rendered-docx-pipeline",
+      "providerRef": "ghatana.docling-docx",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "pinned-docling-runtime"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "39f90e17360993fd709a091b27281a677c7a190c3b51e79dc81bda661d854252"
+        }
+      ],
+      "name": "docling-standard-pdf-pipeline",
+      "providerRef": "ghatana.docling",
+      "source": "models/model-manifest.yaml,models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "pinned-docling-runtime"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "55abab6d885dc4bf0103aaae1faf046c15793bdcc2555ca7cd0cfd8803842f18"
+        }
+      ],
+      "name": "sentence-transformers/all-MiniLM-L6-v2",
+      "providerRef": "ghatana.minilm",
+      "source": "models/model-manifest.yaml,models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "1110a24"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0f34d40a8c32cb9d73a8e0c51667df049e35c58a8fd740a2b6eecadfadc96ffb"
+        }
+      ],
+      "name": "tesseract-5",
+      "providerRef": "ghatana.tesseractocr",
+      "source": "models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "local-traineddata"
+    },
+    {
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9189d9ca6306f4eebed71045999eed850e23bfe69788468d7b5321e419cbd18a"
+        }
+      ],
+      "name": "urchade/gliner_multi-v2.1",
+      "providerRef": "ghatana.gliner",
+      "source": "models/model-manifest.yaml,models/increment4a/model-manifest.yaml",
+      "type": "machine-learning-model",
+      "version": "443d26d"
+    }
+  ],
+  "generatedAt": "2026-09-21T22:17:49Z",
+  "metadata": {
+    "component": {
+      "name": "ghatana-document-intelligence",
+      "type": "application",
+      "version": "0.1.0"
+    }
+  },
+  "schemaVersion": "document-intelligence.sbom.v1",
+  "specVersion": "1.5"
+}

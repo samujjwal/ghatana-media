@@ -1,0 +1,2180 @@
+{
+  "accepted": [
+    {
+      "capability": "parser.pdf.hybrid.text.en",
+      "capabilityId": "parser.pdf.hybrid.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.ne",
+      "capabilityId": "parser.pdf.hybrid.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.hi",
+      "capabilityId": "parser.pdf.hybrid.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.mr",
+      "capabilityId": "parser.pdf.hybrid.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.docx.text.en",
+      "capabilityId": "parser.docx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.ne",
+      "capabilityId": "parser.docx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.hi",
+      "capabilityId": "parser.docx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.mr",
+      "capabilityId": "parser.docx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.pptx.text.en",
+      "capabilityId": "parser.pptx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.ne",
+      "capabilityId": "parser.pptx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.hi",
+      "capabilityId": "parser.pptx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.mr",
+      "capabilityId": "parser.pptx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.xlsx.tables.en",
+      "capabilityId": "parser.xlsx.tables.en",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.ne",
+      "capabilityId": "parser.xlsx.tables.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.hi",
+      "capabilityId": "parser.xlsx.tables.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.mr",
+      "capabilityId": "parser.xlsx.tables.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "ocr.paddle.en",
+      "capabilityId": "ocr.paddle.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.ne",
+      "capabilityId": "ocr.paddle.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.hi",
+      "capabilityId": "ocr.paddle.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.mr",
+      "capabilityId": "ocr.paddle.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.en",
+      "capabilityId": "fallback.image.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    }
+  ],
+  "capabilities": [
+    {
+      "capabilityId": "parser.pdf.hybrid.text.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 8,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pdf.hybrid.text.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pdf.hybrid.text.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pdf.hybrid.text.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pdf.hybrid.tables.scanned.en",
+      "closureDisposition": "UNSUPPORTED_BY_DESIGN",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 0,
+        "realProviderEvidence": false,
+        "status": "UNSUPPORTED_BY_DESIGN"
+      },
+      "feature": "scanned-tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "UNSUPPORTED_BY_DESIGN"
+    },
+    {
+      "capabilityId": "parser.docx.text.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.docx.text.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.docx.text.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.docx.text.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 2,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 2,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.pptx.text.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 2,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "parser.xlsx.tables.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {},
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "tables",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.15,
+            "value": 0.005714656795895837
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05883699633699633
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.04792152097735308
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "ocr.paddle.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05976761322404164
+          }
+        },
+        "observationCount": 6,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "extraction.schema-guided.hi",
+      "closureDisposition": "DEFERRED_TO_FUTURE_RELEASE",
+      "closureStatus": "PASS",
+      "deferredReason": "QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD",
+      "deferredTarget": "FUTURE_RELEASE",
+      "evidence": {
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.2
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.2
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "FAIL"
+      },
+      "feature": "extraction",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.ghatana.parsed-document+json"
+      ],
+      "providerRef": "ghatana.gliner",
+      "revisitTrigger": "EXPLICIT_PRODUCT_REQUIREMENT",
+      "state": "NOT_QUALIFIED"
+    },
+    {
+      "capabilityId": "extraction.schema-guided.mr",
+      "closureDisposition": "DEFERRED_TO_FUTURE_RELEASE",
+      "closureStatus": "PASS",
+      "deferredReason": "QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD",
+      "deferredTarget": "FUTURE_RELEASE",
+      "evidence": {
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "FAIL"
+      },
+      "feature": "extraction",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.ghatana.parsed-document+json"
+      ],
+      "providerRef": "ghatana.gliner",
+      "revisitTrigger": "EXPLICIT_PRODUCT_REQUIREMENT",
+      "state": "NOT_QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "pdf-ocr-region-fallback",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "pdf-ocr-region-fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "pdf-ocr-region-fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    },
+    {
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "evidence": {
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "realProviderEvidence": true,
+        "status": "PASS"
+      },
+      "feature": "pdf-ocr-region-fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf",
+      "state": "QUALIFIED"
+    }
+  ],
+  "deferredCapabilityLeaves": {
+    "extraction.schema-guided.hi:hi": {
+      "capabilityState": "NOT_QUALIFIED",
+      "closureDisposition": "DEFERRED_TO_FUTURE_RELEASE",
+      "closureStatus": "PASS",
+      "deferredReason": "QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD",
+      "deferredTarget": "FUTURE_RELEASE",
+      "revisitTrigger": "EXPLICIT_PRODUCT_REQUIREMENT",
+      "status": "FAIL"
+    },
+    "extraction.schema-guided.mr:mr": {
+      "capabilityState": "NOT_QUALIFIED",
+      "closureDisposition": "DEFERRED_TO_FUTURE_RELEASE",
+      "closureStatus": "PASS",
+      "deferredReason": "QUALITY_BELOW_FROZEN_ACCEPTANCE_THRESHOLD",
+      "deferredTarget": "FUTURE_RELEASE",
+      "revisitTrigger": "EXPLICIT_PRODUCT_REQUIREMENT",
+      "status": "FAIL"
+    }
+  },
+  "dimensions": {
+    "extraction.schema-guided.hi": {
+      "hi": {
+        "capabilityId": "extraction.schema-guided.hi",
+        "language": "hi",
+        "measuredStatus": "FAIL",
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.2
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.2
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.gliner",
+        "rawObservationFingerprints": [
+          "3cad436d26cbfb8ea926922e23f1a05da92bd3dcae4bb4471ec21420907ffd1e"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "FAIL"
+      }
+    },
+    "extraction.schema-guided.mr": {
+      "mr": {
+        "capabilityId": "extraction.schema-guided.mr",
+        "language": "mr",
+        "measuredStatus": "FAIL",
+        "metrics": {
+          "gliner.entityF1": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          },
+          "gliner.evidenceAccuracy": {
+            "operator": "gte",
+            "status": "FAIL",
+            "threshold": 0.8,
+            "value": 0.36666666666666664
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.gliner",
+        "rawObservationFingerprints": [
+          "7f4c9455b26ac3098eef0d3372d895edc8c979d0d93ba0a878450e3a388f4a08"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "FAIL"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.en": {
+      "en": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "13246388220a72473e60c3851757f7025c627b6fd969fa4a4f3a18a119b117d9"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.hi": {
+      "hi": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "cb8ecc43b8695fa7ea2bc029575580d0a0e59a8026ef1ca62349ab37befed644"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.mr": {
+      "mr": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "ff466f914d2e347d31e26cccbec9a70a027e3d12c8c04722b7b026d0ea3505d4"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.image.paddle-to-tesseract.ne": {
+      "ne": {
+        "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.resilient-parser",
+        "rawObservationFingerprints": [
+          "fa99e2c274155b655a5149a391bc1e6b5475a82077480b581d44790939ca282a"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.en": {
+      "en": {
+        "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "a06d3a4d5199fe445c01f828e6e6270f0648585ac3416f778df61a6b3f8b9cc5"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.hi": {
+      "hi": {
+        "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "5b5e2397e53e9415861402b179e83e570097096ba629f557a9b9fd22e2b9205b"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.mr": {
+      "mr": {
+        "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "72c330de50c0bf280e207872fcd8fd907e3ffa352f887c719beb4db7f9c3033f"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.ne": {
+      "ne": {
+        "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "fallback.successRate": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.9,
+            "value": 1.0
+          }
+        },
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "5eab739234d06a177dc025923607a767c061275e143693a939e831f55becd8da"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.en": {
+      "en": {
+        "capabilityId": "ocr.paddle.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.15,
+            "value": 0.005714656795895837
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "0af2a2ba897ac2aafadf7da580ee3f23e1cc942bccbc84b5f67d1458ee7e0812",
+          "b97355cc76c9c33158ec89aa5671505338cb689bdf107d88b0041be42f549538",
+          "726cd8222d36175cc96162052fee2444e62a3b652c8d002eaf0443005c02f6d9",
+          "7a3645b29fc84e23bc48f4b7eccc6ded7ecb10e17bedee71be7f202287bf0306",
+          "3b21bf7bef9b1d5425c0c3188553c49c21aa1619e7b890eca98b6261ae1ad09b",
+          "0707da18b8cb7f6ac8315f369cbc767c25241f82bef403abb7ccc7b91c9f66dd"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.hi": {
+      "hi": {
+        "capabilityId": "ocr.paddle.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.04792152097735308
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "2519618f1554a4bddd906f6ee0b64fd6dcbafc82c6a03221bf0d59b8fc85d7ee",
+          "5f2ca1f294a97ef96e153ce54b42aac3a8748d85fd2e2c8cdc0fcd2762586e51",
+          "6063146a80658a855a5e1b0f47c40b670e602d2c0190d4e2129dd2279b483460",
+          "ae96a73021f47d5d1f0763ca50ae8080cdb2f34488a78c9b28f1e071b6128692",
+          "bb6cf6034a96aa529028207daf4a0d5a20a3138daaa3304244dd73072cc520f2",
+          "f865d6826402d850d4f768955fae9100a2a32e72b2d8914f6f5b4fa5bd5adcbb"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.mr": {
+      "mr": {
+        "capabilityId": "ocr.paddle.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05976761322404164
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "abc089ac51e5eaa4c03237efe794a936c1a045423832c2aac986acbc81cd186e",
+          "84b6fd1de793b329439377aaa3cf0acf6dec6e6a97161cd5af47752549dce195",
+          "07223607ef32b5e234b7c5d361a3c9dcac9d7772135e880df553250d1b1f495d",
+          "7413cdbf13df46dfdd7048f4aec4011676c36e0baeda17d0ccba9c7580be0b96",
+          "33a3b5e07ce9c4bac9335b424d6d9f7b1d8271aee7925bc1f99326622dbddbea",
+          "5cc41e58b285267d62b11482f5abe5376b7c4c14a744ecd7bb6c8abb9b0562d9"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "ocr.paddle.ne": {
+      "ne": {
+        "capabilityId": "ocr.paddle.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {
+          "language.accuracy": {
+            "operator": "gte",
+            "status": "PASS",
+            "threshold": 0.95,
+            "value": 1.0
+          },
+          "text.cer": {
+            "operator": "lte",
+            "status": "PASS",
+            "threshold": 0.2,
+            "value": 0.05883699633699633
+          }
+        },
+        "observationCount": 6,
+        "providerRef": "ghatana.paddleocr",
+        "rawObservationFingerprints": [
+          "f59434bab48385bb3bd781fa11c93aa369cb7c2015dcad9d98cafc79c1165021",
+          "37a6e48f7fb753cde7e173473266a16601481e29812734ca8b8d0ed18feebb89",
+          "44d18aff7226e322828deb43bbbfb9eee50cd694f042b227085e4d835c11928f",
+          "962f51bf71ae3027afa6d4ddbba82ab4eacdace8d200032fca0188aff9023dc9",
+          "09c2ab4cfc88fddb6e6844c5fbff18b6042e836bc3f3589ce6d8a0e07d408e23",
+          "67808c7a1f9f510a0c87adc5d2b3cfa778d9841804e2f63c62a5b19bab5c157a"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.en": {
+      "en": {
+        "capabilityId": "parser.docx.text.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "50d1a7bbaba8bae020ba2157e4fe22992bef7e70c2ef52b59b0a4a896247ef0b"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.hi": {
+      "hi": {
+        "capabilityId": "parser.docx.text.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "1b5abefe5bb2249fcc0375520563ece2946421e2de480aaac2ca21bf55908403"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.mr": {
+      "mr": {
+        "capabilityId": "parser.docx.text.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 2,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "311ef1726248a1d97250ccbc169414ec6819266fe869dca7e9958f608e299f03",
+          "f32f994d153824595e33e9ed9df6b49817dd5bb15b849f4fcace6617ff7d046e"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.docx.text.ne": {
+      "ne": {
+        "capabilityId": "parser.docx.text.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-docx",
+        "rawObservationFingerprints": [
+          "c9a9e747db7ac8c0f20520cb65213a10a74ad938543b79c6e69ee362444fe5ad"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pdf.hybrid.tables.scanned.en": {
+      "en": {
+        "capabilityId": "parser.pdf.hybrid.tables.scanned.en",
+        "language": "en",
+        "reason": "dimension is not reconstructible by the qualified providers",
+        "status": "UNSUPPORTED_BY_DESIGN"
+      }
+    },
+    "parser.pdf.hybrid.text.en": {
+      "en": {
+        "capabilityId": "parser.pdf.hybrid.text.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 8,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "d3297556f8163d0b79a26fe9f9d5bb7a64eac5522e3d6078a0196ddc4e921c54",
+          "4989e43ceb6bd535efa3e9bb0dc41fa87cdf1452c4ad9815f0eea3b09616dc9e",
+          "d7e864e3e673e1c905ec76ed1b14f24850bf3149090934df4a906ffb1421486b",
+          "bd21434bc62da6c1631e2f0e3a95cc90686f111cd118e0274d366759a3d3e734",
+          "c5618b15fdba01c45af69de9565e8b61b09d7c091c60aa645bb50dae2a4345c8",
+          "40d0bfa00a55bd8c05e671ff67104bda5441e5b821a6cd9b986c5974eca9236e",
+          "01818589567ec92f7e927ecfa2087798c375dd81097fc330ff9ff88f28681024",
+          "a54902762d6d161569b78906965da26cc15362a42ad646509971a28a94e7c4fc"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pdf.hybrid.text.hi": {
+      "hi": {
+        "capabilityId": "parser.pdf.hybrid.text.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "e43081b03ee6df9a9373b0ab223e8c98fddc791208e307c67ae9c5cf4ee8fbcd"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pdf.hybrid.text.mr": {
+      "mr": {
+        "capabilityId": "parser.pdf.hybrid.text.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "db23299ae38bab47be603cde81d227ac943748aece233667e7d2e1498c3274c7"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pdf.hybrid.text.ne": {
+      "ne": {
+        "capabilityId": "parser.pdf.hybrid.text.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.hybrid-pdf",
+        "rawObservationFingerprints": [
+          "bfe6389bc3398463fafe415a8387c7986dcff813167bd04e5a434010f0097845"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.en": {
+      "en": {
+        "capabilityId": "parser.pptx.text.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "d82878dba96f55cb8e0523d7e95cb5f332271298513552fa3ff2f4bcdea8f913"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.hi": {
+      "hi": {
+        "capabilityId": "parser.pptx.text.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "5efb4be2ff2e50c1c8ccd87a0cb3b84c9ea0ef66d89a965ad6fc5e268cd401f0"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.mr": {
+      "mr": {
+        "capabilityId": "parser.pptx.text.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "f580ace1143b4f0ad2742696321a9f44918df86d24f17d40c178f1c96a125887"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.pptx.text.ne": {
+      "ne": {
+        "capabilityId": "parser.pptx.text.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 2,
+        "providerRef": "ghatana.docling-pptx",
+        "rawObservationFingerprints": [
+          "3b2d5e3d29c4e0b23228bc0b0d4c5e0efc57eb85a44362285fe0a8e88ce4a061",
+          "ba216534039a1fc564e751d1838f3520afb2ad350e498222d4420a59e6669819"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.en": {
+      "en": {
+        "capabilityId": "parser.xlsx.tables.en",
+        "language": "en",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "2e70b4d90b7209f258b67a65414870cb20aff980afa0390cfa1d9560179613ee"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.hi": {
+      "hi": {
+        "capabilityId": "parser.xlsx.tables.hi",
+        "language": "hi",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 2,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "77c4b893b38584eb77c8d3ba685ddc210e3c7e3b027343c0760bc262e868918d",
+          "f94adb9ca0b68c9e171a6a469216905efcd7ea8178dbfcf57bd439ccdb038577"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.mr": {
+      "mr": {
+        "capabilityId": "parser.xlsx.tables.mr",
+        "language": "mr",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "9ac6919b35e10fdf93aa4410622af84e3e437e94412a67582247f8ba21266901"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    },
+    "parser.xlsx.tables.ne": {
+      "ne": {
+        "capabilityId": "parser.xlsx.tables.ne",
+        "language": "ne",
+        "measuredStatus": "PASS",
+        "metrics": {},
+        "observationCount": 1,
+        "providerRef": "ghatana.docling-xlsx",
+        "rawObservationFingerprints": [
+          "e5c90c230e25d37b8bd9d5f185033df8f79b40740c5c7c93e8eb038c400e5b12"
+        ],
+        "realProviderEvidence": true,
+        "reason": null,
+        "status": "PASS"
+      }
+    }
+  },
+  "materialFingerprint": "ff6dc36f2deaec2daa0b1673d92ca15710e9f11636af311e1201ca411026c5ed",
+  "projected": [
+    {
+      "capability": "parser.pdf.hybrid.text.en",
+      "capabilityId": "parser.pdf.hybrid.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.ne",
+      "capabilityId": "parser.pdf.hybrid.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.hi",
+      "capabilityId": "parser.pdf.hybrid.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.pdf.hybrid.text.mr",
+      "capabilityId": "parser.pdf.hybrid.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "parser.docx.text.en",
+      "capabilityId": "parser.docx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.ne",
+      "capabilityId": "parser.docx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.hi",
+      "capabilityId": "parser.docx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.docx.text.mr",
+      "capabilityId": "parser.docx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ],
+      "providerRef": "ghatana.docling-docx"
+    },
+    {
+      "capability": "parser.pptx.text.en",
+      "capabilityId": "parser.pptx.text.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.ne",
+      "capabilityId": "parser.pptx.text.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.hi",
+      "capabilityId": "parser.pptx.text.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.pptx.text.mr",
+      "capabilityId": "parser.pptx.text.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ],
+      "providerRef": "ghatana.docling-pptx"
+    },
+    {
+      "capability": "parser.xlsx.tables.en",
+      "capabilityId": "parser.xlsx.tables.en",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "en",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.ne",
+      "capabilityId": "parser.xlsx.tables.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "ne",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.hi",
+      "capabilityId": "parser.xlsx.tables.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "hi",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "parser.xlsx.tables.mr",
+      "capabilityId": "parser.xlsx.tables.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "tables",
+      "language": "mr",
+      "mediaTypes": [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ],
+      "providerRef": "ghatana.docling-xlsx"
+    },
+    {
+      "capability": "ocr.paddle.en",
+      "capabilityId": "ocr.paddle.en",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.ne",
+      "capabilityId": "ocr.paddle.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.hi",
+      "capabilityId": "ocr.paddle.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "ocr.paddle.mr",
+      "capabilityId": "ocr.paddle.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "text",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.paddleocr"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.en",
+      "capabilityId": "fallback.image.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "en",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.image.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.image.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.image.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.image.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "image/png"
+      ],
+      "providerRef": "ghatana.resilient-parser"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.en",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "en",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.ne",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "ne",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.hi",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "hi",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    },
+    {
+      "capability": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "capabilityId": "fallback.pdf-ocr-region.paddle-to-tesseract.mr",
+      "evidence": "raw-provider-observation",
+      "feature": "pdf-ocr-region-fallback",
+      "language": "mr",
+      "mediaTypes": [
+        "application/pdf"
+      ],
+      "providerRef": "ghatana.hybrid-pdf"
+    }
+  ],
+  "projectionRule": "capabilities contains one independently evaluated provider/language leaf; accepted contains only independently PASS leaves; no language widening",
+  "promotable": true,
+  "providerSemanticsBindingStatus": "PASS",
+  "qualificationStatus": "PASS",
+  "requiredCapabilityLeaves": {
+    "fallback.image.paddle-to-tesseract.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.image.paddle-to-tesseract.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.image.paddle-to-tesseract.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.image.paddle-to-tesseract.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "fallback.pdf-ocr-region.paddle-to-tesseract.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "ocr.paddle.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "ocr.paddle.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "ocr.paddle.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "ocr.paddle.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.docx.text.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.docx.text.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.docx.text.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.docx.text.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pdf.hybrid.text.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pdf.hybrid.text.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pdf.hybrid.text.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pdf.hybrid.text.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pptx.text.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pptx.text.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pptx.text.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.pptx.text.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.xlsx.tables.en:en": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.xlsx.tables.hi:hi": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.xlsx.tables.mr:mr": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    },
+    "parser.xlsx.tables.ne:ne": {
+      "capabilityState": "QUALIFIED",
+      "closureDisposition": "REQUIRED",
+      "closureStatus": "PASS",
+      "status": "PASS"
+    }
+  },
+  "schemaVersion": "increment4a.capabilities.v2",
+  "unsupportedCapabilityLeaves": {
+    "parser.pdf.hybrid.tables.scanned.en:en": {
+      "capabilityState": "UNSUPPORTED_BY_DESIGN",
+      "closureDisposition": "UNSUPPORTED_BY_DESIGN",
+      "closureStatus": "PASS",
+      "status": "UNSUPPORTED_BY_DESIGN"
+    }
+  }
+}
