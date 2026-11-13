@@ -1,0 +1,1557 @@
+{
+  "schemaVersion": "media.feature-acceptance-overlay.v1",
+  "baseline": "November 13 2026 main; status inherited from original register",
+  "sourceOfTruth": {
+    "requirements": ".product-experience/",
+    "tasks": "docs/development/remaining-work.json",
+    "areas": "docs/development/surface-delivery.json",
+    "capabilities": "docs/development/capability-implementation-crosswalk.v1.json",
+    "configuration": "config/closure/consumer.json"
+  },
+  "intent": "Features and tests only; no gtool or evidence/closure",
+  "recordedSummary": {
+    "VERIFIED": 30,
+    "OPEN": 72,
+    "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1
+  },
+  "areas": [
+    {
+      "id": "creative-preview",
+      "title": "Playable creative preview libraries",
+      "source": [
+        "modules/production/animation",
+        "modules/production/audio-mixing",
+        "modules/production/simulation",
+        "modules/production/spatial",
+        "libs/audio-video-ui/src/player",
+        "modules/production/rendering"
+      ],
+      "taskIds": [
+        "media.dev.audio-repair-and-comparison",
+        "media.dev.foley-stems-mix-master",
+        "media.dev.spatial-and-interactive-export",
+        "media.dev.interactive-demo-player",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-spatial-interactive-delivery"
+      ],
+      "checks": [
+        {
+          "label": "creative-core",
+          "command": "./gradlew :services:media:modules:production:animation:test :services:media:modules:production:simulation:test :services:media:modules:production:spatial:test :services:media:modules:production:audio-mixing:test",
+          "scope": "Change-affected modules only; run relevant task selectors rather than every test after each edit"
+        },
+        {
+          "label": "preview-player",
+          "command": "pnpm --filter @audio-video/ui exec vitest run src/player/interactiveDemoPlayer.test.ts",
+          "scope": "Run only when player inputs or dependencies change"
+        }
+      ],
+      "usable": "One documented, runnable local consumer produces decoded PNG/GIF frame animation, valid WAV from original PCM, supported GLB and numeric simulation output; all labeled as local preview, not a hosted Media product.",
+      "integration": "Bind exact artifact/project source versions and registered output lineage. Complete J07/J12/J13/J14/J15/J17/J28 at their real stated scopes without invented quality or scientific measurements."
+    },
+    {
+      "id": "headless-media",
+      "title": "Usable headless artifact and job API",
+      "source": [
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+        "runtime-contracts",
+        "providers/aws-postgresql",
+        "modules/infrastructure/messaging",
+        "modules/infrastructure/cache",
+        "audio-video-observability",
+        "libs/audio-video-client/src/cli.ts",
+        "integration-tests",
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-client/src/canonical-operations.ts"
+      ],
+      "taskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.rights-aware-cache",
+        "media.dev.service-observability",
+        "media.dev.http-operation-parity",
+        "media.dev.structured-cli",
+        "media.dev.public-events",
+        "media.dev.cross-surface-integration-harness",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-provider-outage-safe-path"
+      ],
+      "checks": [
+        {
+          "label": "artifact-restart",
+          "command": "./gradlew :services:media:integration-tests:test --tests com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT",
+          "scope": "PostgreSQL/S3 integration only after artifact/storage/launcher change or host qualification"
+        },
+        {
+          "label": "sdk-cli",
+          "command": "pnpm --filter @audio-video/client exec vitest run src/operations.test.ts src/cli.test.ts",
+          "scope": "Run when canonical SDK, CLI, route or type contract changes"
+        }
+      ],
+      "usable": "Authenticated development-host workflow: begin upload -> send chunks -> complete -> inspect immutable artifact -> submit supported processing job -> poll/read canonical outcome -> restart and read back the same state; CLI exposes real supported commands.",
+      "integration": "J02/J20/J24/J27 complete with real installed source-free client, PostgreSQL/object storage, source policy, cancellation/UNKNOWN, Event Plane outbox when used, crash recovery and no duplicate effects."
+    },
+    {
+      "id": "workspace-project",
+      "title": "Project, timeline, review and usable browser shell",
+      "source": [
+        "modules/production/timeline",
+        "modules/production/review",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlProjectTimelineStore.java",
+        "libs/audio-video-ui/src/screens",
+        "libs/audio-video-client/src/offline-reconnect.ts",
+        "runtime-contracts"
+      ],
+      "taskIds": [
+        "media.dev.web-host",
+        "media.dev.project-timeline-engine",
+        "media.dev.storyboard-and-shot-plan",
+        "media.dev.versioned-review-and-approval",
+        "media.dev.offline-reconnect",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-offline-conflict-reconnect"
+      ],
+      "checks": [
+        {
+          "label": "timeline-revision",
+          "command": "./gradlew :services:media:modules:production:timeline:test :services:media:modules:production:review:test",
+          "scope": "Only changed relevant modules, then project data migration integration"
+        },
+        {
+          "label": "browser-screen",
+          "command": "pnpm --filter @audio-video/ui exec vitest run src/screens/FirstUseProjectScreen.test.ts src/screens/ArtifactIntakeScreen.test.ts src/screens/JobRecoveryScreen.test.ts",
+          "scope": "UI affected tests and real host E2E after wiring"
+        }
+      ],
+      "usable": "A development-host browser can create a tenant-scoped owner project, persist an exact timeline revision, reopen it, display durable artifacts and job progress, and recover an edit conflict. No false shared-workspace or human-approval claims.",
+      "integration": "J01/J21/J23 complete after public Shared identity/workspace membership, a durable one-writer project/review CAS, authentic reviewer authority, offline key custody and installed host/browser tests."
+    },
+    {
+      "id": "recorder-live",
+      "title": "Actual capture, live streams and playable narrated recording",
+      "source": [
+        "libs/audio-video-client/src/recorder-orchestrator.ts",
+        "libs/audio-video-client/src/scene-captions.ts",
+        "libs/audio-video-client/src/camera-capture-adapter.ts",
+        "modules/audio-streaming",
+        "modules/video-streaming",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java",
+        "modules/production/rendering"
+      ],
+      "taskIds": [
+        "media.dev.stream-session-authority",
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture",
+        "media.dev.recorder-mux-and-final-artifact",
+        "media.dev.outcome-live-session-recovery"
+      ],
+      "checks": [
+        {
+          "label": "capture",
+          "command": "pnpm --filter @audio-video/client exec vitest run src/recorder-orchestrator.test.ts src/camera-capture-adapter.test.ts src/scene-captions.test.ts",
+          "scope": "Focused component and real dev-host byte tests"
+        },
+        {
+          "label": "stream",
+          "command": "./gradlew :services:media:modules:audio-streaming:test :services:media:modules:video-streaming:test",
+          "scope": "Changed stream owner modules only; 1/16/64 actual transport later"
+        }
+      ],
+      "usable": "A source-authorized recording from browser/file/terminal/desktop/camera or gRPC yields actual frame bytes, approved narration, timed VTT/TTML, a decoder-playable media file and inspectable immutable source lineage.",
+      "integration": "Recorder and J29 complete with canonical stream lease/cursor/PTS, permission revocation, actual host transport, bounded source failure/reconnect and persisted registered output version."
+    },
+    {
+      "id": "speech-voice",
+      "title": "Real speech, captions, voice and translation",
+      "source": [
+        "modules/speech/stt-service",
+        "modules/speech/tts-service",
+        "libs/java/common/src/main/java/com/ghatana/media/stt",
+        "libs/java/common/src/main/java/com/ghatana/media/tts",
+        "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+        "modules/production/dubbing",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionRuntime.java"
+      ],
+      "taskIds": [
+        "media.dev.shared-engine-consolidation",
+        "media.dev.stt-model-and-quality",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.tts-model-and-rights",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.voice-workflow-ui",
+        "media.dev.dubbing-and-translation",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-translated-dubbed-video"
+      ],
+      "checks": [
+        {
+          "label": "stt-contract",
+          "command": "./gradlew :services:media:modules:speech:stt-service:test",
+          "scope": "Changed STT/runtimes only; real inference requires pinned licensed fixture"
+        },
+        {
+          "label": "tts-contract",
+          "command": "./gradlew :services:media:modules:speech:tts-service:test",
+          "scope": "Changed TTS/voice inputs only; model-quality tests are separate noncached gate"
+        }
+      ],
+      "usable": "A source-free client can transcribe lawful supported audio into an immutable transcript/caption version and synthesize actual playable lawful voice output; missing profile/rights is typed NOT_ADMITTED.",
+      "integration": "J03/J04/J16 complete with verified model/license/export lineage, independent reference gold, source/word clock, consent and revocation, gRPC streaming, durable job/result restart and accurate language quality."
+    },
+    {
+      "id": "vision-multimodal",
+      "title": "Source-grounded Vision, DI OCR and multimodal",
+      "source": [
+        "modules/vision/vision-service",
+        "modules/intelligence/multimodal-service",
+        "modules/video-streaming",
+        "launcher",
+        "libs/audio-video-client/src/authorized-scene-text.ts",
+        "runtime-contracts"
+      ],
+      "taskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.vision-model-and-geometry",
+        "media.dev.vision-document-intelligence",
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.multimodal-grounding-and-quality",
+        "media.dev.load-and-quality-profiles",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "checks": [
+        {
+          "label": "vision-source",
+          "command": "./gradlew :services:media:modules:vision:vision-service:test",
+          "scope": "Run modified Vision/ROI contract tests; real worker positives only when owned gold/model ready"
+        },
+        {
+          "label": "multimodal-parent",
+          "command": "./gradlew :services:media:modules:intelligence:multimodal-service:test",
+          "scope": "Changed parent/child mapping and restart tests"
+        }
+      ],
+      "usable": "Qualified still-image/ROI analysis and DI OCR return real typed boxes/text/provenance; a grounded multimodal request uses admitted child results and source clocks, not guessed fusion.",
+      "integration": "J05/J06/J30 complete with selected detector/DI worker, rights-cleared gold, actual video-frame timebase, precise child/parent attempt receipts, capacity and request-scoped identity, UNKNOWN under fault."
+    },
+    {
+      "id": "studio-video",
+      "title": "Production Studio and real video composition",
+      "source": [
+        "modules/production/timeline",
+        "modules/production/rendering",
+        "modules/production/review",
+        "libs/audio-video-ui/src/screens",
+        "libs/audio-video-ui/src/player",
+        "launcher"
+      ],
+      "taskIds": [
+        "media.dev.video-restoration-and-comparison",
+        "media.dev.reference-guided-generation",
+        "media.dev.tracked-region-reversible-edits",
+        "media.dev.multitrack-composition-render",
+        "media.dev.quality-comparison-and-optimization",
+        "media.dev.production-studio-host",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement"
+      ],
+      "checks": [
+        {
+          "label": "render-timeline",
+          "command": "./gradlew :services:media:modules:production:rendering:test :services:media:modules:production:timeline:test",
+          "scope": "Affected modules only; actual mux decode acceptance is separate"
+        },
+        {
+          "label": "studio-ui",
+          "command": "pnpm --filter @audio-video/ui exec vitest run src/screens/MediaProductRenderer.test.ts",
+          "scope": "UI change smoke and browser E2E on actual routes"
+        }
+      ],
+      "usable": "A developer-host Studio edits an exact project revision, previews supported tracked region/video/audio effects, renders a playable master and shows source-bound quality/review state without fixture success.",
+      "integration": "J08/J09/J10/J11/J18/J19 complete with real clip/frame/audio/caption/color mux output, immutable timeline/render/undo, reference-conditioned generation only when lawful and aligned references, durable readback and version-specific review."
+    },
+    {
+      "id": "delivery-agents",
+      "title": "Durable delivery, authorized actions and retention",
+      "source": [
+        "modules/production/delivery",
+        "adapters/agent-tools-media",
+        "modules/infrastructure/messaging",
+        "providers/aws-postgresql",
+        "runtime-contracts",
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-client/src/canonical-operations.ts"
+      ],
+      "taskIds": [
+        "media.dev.authorized-agent-delegation",
+        "media.dev.delivery-export-destination-ack",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure"
+      ],
+      "checks": [
+        {
+          "label": "delivery-state",
+          "command": "./gradlew :services:media:modules:production:delivery:test",
+          "scope": "Changed delivery engine/stores only"
+        },
+        {
+          "label": "agent-tools",
+          "command": "./gradlew :services:media:adapters:agent-tools-media:test",
+          "scope": "Changed Tools/source rights/delegation only; effect positives after verified identity"
+        }
+      ],
+      "usable": "A source-free client or agent can perform an authorized Media operation exactly once and reconcile an ambiguous result; a destination upload reports its actual authenticated acknowledgment; retention/revocation prevents disclosure.",
+      "integration": "J22/J25/J26 complete with durable destination CAS, project/artifact rights and currentness, exact authenticated tool mappings, destination readback and copy inventory/erasure constraints."
+    },
+    {
+      "id": "history-retention",
+      "title": "Nonblocking historical cleanup and naming",
+      "source": [
+        "docs/implementation",
+        "docs/development/historical-content-preservation.json",
+        "scripts/media-historical-artifact-inventory.mjs",
+        "docs/README.md",
+        "AGENTS.md"
+      ],
+      "taskIds": [
+        "media.dev.historical-artifact-retirement"
+      ],
+      "checks": [
+        {
+          "label": "docs",
+          "command": "pnpm check:surface-docs",
+          "scope": "Run only on source/README changes; reclassification only when historical inputs change"
+        }
+      ],
+      "usable": "A clean active documentation navigation and unchanged canonical source behavior; historical records classified and pinned without deleting retention-required assets.",
+      "integration": "The 42 protected artifacts are copied into an authenticated immutable off-main store, independently restored/hash-checked and references migrated before exact deletion. No functional Media surface waits for that deletion."
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "media.physical.adapters-agent-tools-media",
+      "type": "physical",
+      "source": "adapters/agent-tools-media",
+      "behavior": "Four authenticated Tools actions -> canonical Media jobs, durable invocation CAS and current-rights replay",
+      "openTaskIds": [
+        "media.dev.public-events",
+        "media.dev.authorized-agent-delegation"
+      ],
+      "areas": [
+        "headless-media",
+        "delivery-agents"
+      ],
+      "permanentDoc": "docs/surfaces/adapters-agent-tools-media/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.adapters-data-cloud-media",
+      "type": "physical",
+      "source": "adapters/data-cloud-media",
+      "behavior": "Optional downstream metadata-only integration; no Media job writer or OCR engine",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/adapters-data-cloud-media/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.adapters-ledger",
+      "type": "physical",
+      "source": "adapters/ledger",
+      "behavior": "Optional RunLedger projection, one-writer CAS, stale/unknown/lost ACK readback",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/adapters-ledger/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.apps-media-experience-explorer",
+      "type": "physical",
+      "source": "apps/media-experience-explorer",
+      "behavior": "Curated 47-screen/PDP3 journeys with narration, CSP/a11y, and explicit simulation labels",
+      "openTaskIds": [
+        "media.dev.cross-surface-integration-harness"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/apps-media-experience-explorer/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.audio-video-observability",
+      "type": "physical",
+      "source": "audio-video-observability",
+      "behavior": "Real provider readiness, timestamp freshness, Prometheus metrics and 1/16/64 bounded host checks",
+      "openTaskIds": [
+        "media.dev.service-observability",
+        "media.dev.load-and-quality-profiles",
+        "media.dev.quality-comparison-and-optimization"
+      ],
+      "areas": [
+        "headless-media",
+        "vision-multimodal",
+        "studio-video"
+      ],
+      "permanentDoc": "docs/surfaces/audio-video-observability/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.integration-tests",
+      "type": "physical",
+      "source": "integration-tests",
+      "behavior": "Actual source-free process+PostgreSQL/object-store+scanner/provider/media output and 30 journey/fault suites",
+      "openTaskIds": [
+        "media.dev.load-and-quality-profiles",
+        "media.dev.cross-surface-integration-harness",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-translated-dubbed-video",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-offline-conflict-reconnect",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure",
+        "media.dev.outcome-provider-outage-safe-path",
+        "media.dev.outcome-spatial-interactive-delivery",
+        "media.dev.outcome-live-session-recovery",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "areas": [
+        "vision-multimodal",
+        "headless-media",
+        "workspace-project",
+        "speech-voice",
+        "creative-preview",
+        "studio-video",
+        "delivery-agents",
+        "recorder-live"
+      ],
+      "permanentDoc": "docs/surfaces/integration-tests/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.launcher",
+      "type": "physical",
+      "source": "launcher",
+      "behavior": "Canonical authenticated runtime HTTP host: upload, scan, artifact, job, project, stream, cancel and recovery",
+      "openTaskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.rights-aware-cache",
+        "media.dev.stream-session-authority",
+        "media.dev.service-observability",
+        "media.dev.http-operation-parity",
+        "media.dev.authorized-agent-delegation",
+        "media.dev.web-host",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.delivery-export-destination-ack",
+        "media.dev.production-studio-host"
+      ],
+      "areas": [
+        "headless-media",
+        "recorder-live",
+        "delivery-agents",
+        "workspace-project",
+        "speech-voice",
+        "vision-multimodal",
+        "studio-video"
+      ],
+      "permanentDoc": "docs/surfaces/launcher/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.libs-audio-video-client",
+      "type": "physical",
+      "source": "libs/audio-video-client",
+      "behavior": "Published ESM/CJS SDK, real CLI, capture adapters, narration/captions and actual decoded recording",
+      "openTaskIds": [
+        "media.dev.structured-cli",
+        "media.dev.web-host",
+        "media.dev.vision-document-intelligence",
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture",
+        "media.dev.recorder-mux-and-final-artifact",
+        "media.dev.offline-reconnect",
+        "media.dev.interactive-demo-player"
+      ],
+      "areas": [
+        "headless-media",
+        "workspace-project",
+        "vision-multimodal",
+        "recorder-live",
+        "creative-preview"
+      ],
+      "permanentDoc": "docs/surfaces/libs-audio-video-client/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.libs-audio-video-types",
+      "type": "physical",
+      "source": "libs/audio-video-types",
+      "behavior": "Strict TS schema/ABI and wire/project/clock parity with Java/OpenAPI/proto",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/libs-audio-video-types/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.libs-audio-video-ui",
+      "type": "physical",
+      "source": "libs/audio-video-ui",
+      "behavior": "All applicable screens with actual host actions, typed denial/UNKNOWN, WCAG and responsive behavior",
+      "openTaskIds": [
+        "media.dev.web-host",
+        "media.dev.voice-workflow-ui",
+        "media.dev.project-timeline-engine",
+        "media.dev.storyboard-and-shot-plan",
+        "media.dev.tracked-region-reversible-edits",
+        "media.dev.multitrack-composition-render",
+        "media.dev.quality-comparison-and-optimization",
+        "media.dev.versioned-review-and-approval",
+        "media.dev.offline-reconnect",
+        "media.dev.spatial-and-interactive-export",
+        "media.dev.interactive-demo-player",
+        "media.dev.production-studio-host",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-translated-dubbed-video",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-offline-conflict-reconnect",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure",
+        "media.dev.outcome-provider-outage-safe-path",
+        "media.dev.outcome-spatial-interactive-delivery",
+        "media.dev.outcome-live-session-recovery",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "areas": [
+        "workspace-project",
+        "speech-voice",
+        "studio-video",
+        "creative-preview",
+        "headless-media",
+        "vision-multimodal",
+        "delivery-agents",
+        "recorder-live"
+      ],
+      "permanentDoc": "docs/surfaces/libs-audio-video-ui/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.libs-common",
+      "type": "physical",
+      "source": "libs/common",
+      "behavior": "Bounded shared transport, TLS/authorization/deadline and stable consumer ABI",
+      "openTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.shared-engine-consolidation"
+      ],
+      "areas": [
+        "vision-multimodal",
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/libs-common/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.libs-java-common",
+      "type": "physical",
+      "source": "libs/java/common",
+      "behavior": "Reusable model/codec/native host primitives, no duplicate processing pipeline",
+      "openTaskIds": [
+        "media.dev.shared-engine-consolidation",
+        "media.dev.stt-model-and-quality",
+        "media.dev.tts-model-and-rights",
+        "media.dev.vision-model-and-geometry"
+      ],
+      "areas": [
+        "speech-voice",
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/libs-java-common/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.libs-media-experience-simulation",
+      "type": "physical",
+      "source": "libs/media-experience-simulation",
+      "behavior": "Reproducible authored fixtures, explicit simulated status; never count as real provider effect",
+      "openTaskIds": [
+        "media.dev.structured-cli",
+        "media.dev.interactive-demo-player"
+      ],
+      "areas": [
+        "headless-media",
+        "creative-preview"
+      ],
+      "permanentDoc": "docs/surfaces/libs-media-experience-simulation/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-audio-streaming",
+      "type": "physical",
+      "source": "modules/audio-streaming",
+      "behavior": "Authenticated frames, clock/cursor/lease/ACK/backpressure/revoke/restart",
+      "openTaskIds": [
+        "media.dev.stream-session-authority",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.grpc-source-capture"
+      ],
+      "areas": [
+        "recorder-live",
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/modules-audio-streaming/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-infrastructure-cache",
+      "type": "physical",
+      "source": "modules/infrastructure/cache",
+      "behavior": "SourceVersion+tenant+policyEpoch cache, immediate revocation/erasure safe invalidation",
+      "openTaskIds": [
+        "media.dev.rights-aware-cache"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/modules-infrastructure-cache/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-infrastructure-messaging",
+      "type": "physical",
+      "source": "modules/infrastructure/messaging",
+      "behavior": "Transactional event outbox, append/consumer/destination ACK separate from job finality",
+      "openTaskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.public-events"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/modules-infrastructure-messaging/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-infrastructure-persistence",
+      "type": "physical",
+      "source": "modules/infrastructure/persistence",
+      "behavior": "One database authority, immutable revisions, atomic CAS and migration/restart",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/modules-infrastructure-persistence/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-infrastructure-security",
+      "type": "physical",
+      "source": "modules/infrastructure/security",
+      "behavior": "Trusted current principal/rights/consent/retention and zero effect on unknown",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/modules-infrastructure-security/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-integration-tests",
+      "type": "physical",
+      "source": "modules/integration-tests",
+      "behavior": "Cross-module contract and source-free positive/negative/restart consumer coverage",
+      "openTaskIds": [
+        "media.dev.cross-surface-integration-harness",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-translated-dubbed-video",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-offline-conflict-reconnect",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure",
+        "media.dev.outcome-provider-outage-safe-path",
+        "media.dev.outcome-spatial-interactive-delivery",
+        "media.dev.outcome-live-session-recovery",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "areas": [
+        "headless-media",
+        "workspace-project",
+        "speech-voice",
+        "vision-multimodal",
+        "creative-preview",
+        "studio-video",
+        "delivery-agents",
+        "recorder-live"
+      ],
+      "permanentDoc": "docs/surfaces/modules-integration-tests/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "type": "physical",
+      "source": "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+      "behavior": "Lawful accessible voice/phrase UI connected to approved TTS outputs",
+      "openTaskIds": [
+        "media.dev.voice-workflow-ui"
+      ],
+      "areas": [
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/modules-intelligence-ai-voice-libs-ai-voice-ui-react/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-intelligence-multimodal-service",
+      "type": "physical",
+      "source": "modules/intelligence/multimodal-service",
+      "behavior": "Grounded source+time+rights child joins with durable parent and uncertainty",
+      "openTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.multimodal-grounding-and-quality"
+      ],
+      "areas": [
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/modules-intelligence-multimodal-service/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "type": "physical",
+      "source": "modules/intelligence/speech/libs/speech-audio-rust",
+      "behavior": "Native DSP/codec bounds, alias/cancellation/memory/JNI lifecycle",
+      "openTaskIds": [
+        "media.dev.audio-repair-and-comparison",
+        "media.dev.foley-stems-mix-master"
+      ],
+      "areas": [
+        "creative-preview"
+      ],
+      "permanentDoc": "docs/surfaces/modules-intelligence-speech-libs-speech-audio-rust/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-speech-stt-service",
+      "type": "physical",
+      "source": "modules/speech/stt-service",
+      "behavior": "Real lawful Whisper output, immutable word-clock transcript/caption and WER/CER",
+      "openTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.stt-model-and-quality",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.dubbing-and-translation"
+      ],
+      "areas": [
+        "vision-multimodal",
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/modules-speech-stt-service/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-speech-tts-service",
+      "type": "physical",
+      "source": "modules/speech/tts-service",
+      "behavior": "Real lawful Piper voice PCM/stream/audio artifact with rights/finality",
+      "openTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.tts-model-and-rights",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.dubbing-and-translation"
+      ],
+      "areas": [
+        "vision-multimodal",
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/modules-speech-tts-service/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-video-streaming",
+      "type": "physical",
+      "source": "modules/video-streaming",
+      "behavior": "Immutable video frame/sourceVersion/PTS/ROI/epoch stream readback",
+      "openTaskIds": [
+        "media.dev.stream-session-authority",
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture"
+      ],
+      "areas": [
+        "recorder-live"
+      ],
+      "permanentDoc": "docs/surfaces/modules-video-streaming/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.modules-vision-vision-service",
+      "type": "physical",
+      "source": "modules/vision/vision-service",
+      "behavior": "Real OCI Vision detector/tracker and DI-only scene OCR with authenticated frame source",
+      "openTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.vision-model-and-geometry",
+        "media.dev.vision-document-intelligence",
+        "media.dev.video-restoration-and-comparison",
+        "media.dev.tracked-region-reversible-edits"
+      ],
+      "areas": [
+        "vision-multimodal",
+        "studio-video"
+      ],
+      "permanentDoc": "docs/surfaces/modules-vision-vision-service/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.providers-aws-postgresql",
+      "type": "physical",
+      "source": "providers/aws-postgresql",
+      "behavior": "Durable artifacts/job/captions/project/review/delivery schemas and clean migration",
+      "openTaskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.delivery-export-destination-ack"
+      ],
+      "areas": [
+        "headless-media",
+        "speech-voice",
+        "delivery-agents"
+      ],
+      "permanentDoc": "docs/surfaces/providers-aws-postgresql/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.physical.runtime-contracts",
+      "type": "physical",
+      "source": "runtime-contracts",
+      "behavior": "Single Java domain/rights/version/clock/job/scan/project operation contracts",
+      "openTaskIds": [
+        "media.dev.public-events",
+        "media.dev.authorized-agent-delegation",
+        "media.dev.project-timeline-engine",
+        "media.dev.storyboard-and-shot-plan",
+        "media.dev.versioned-review-and-approval"
+      ],
+      "areas": [
+        "headless-media",
+        "delivery-agents",
+        "workspace-project"
+      ],
+      "permanentDoc": "docs/surfaces/runtime-contracts/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.repository-root",
+      "type": "composition",
+      "source": null,
+      "behavior": "All advertised user/API/agent experiences and 469 leaf requirements are source-grounded and runnable",
+      "openTaskIds": [
+        "media.dev.cross-surface-integration-harness"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/composition-repository-root/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.ingestion-and-versioned-artifacts",
+      "type": "composition",
+      "source": null,
+      "behavior": "Source-bound upload -> scanner -> immutable version -> authorized read/range and restart",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/composition-ingestion-and-versioned-artifacts/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.governed-job-execution",
+      "type": "composition",
+      "source": null,
+      "behavior": "Authenticated request -> durable attempt -> provider receipt -> UNKNOWN/reconcile -> finality and outbox",
+      "openTaskIds": [
+        "media.dev.transactional-event-outbox"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/composition-governed-job-execution/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.speech-and-caption-workflows",
+      "type": "composition",
+      "source": null,
+      "behavior": "Lawful audio -> STT transcript -> corrected caption version, real TTS output",
+      "openTaskIds": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.tts-streaming-and-finality"
+      ],
+      "areas": [
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/composition-speech-and-caption-workflows/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.vision-and-multimodal-analysis",
+      "type": "composition",
+      "source": null,
+      "behavior": "Verified frame/ROI/PTS -> detector/DI OCR -> source-grounded child fusion",
+      "openTaskIds": [
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.vision-document-intelligence"
+      ],
+      "areas": [
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/composition-vision-and-multimodal-analysis/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.creation-composition-and-delivery",
+      "type": "composition",
+      "source": null,
+      "behavior": "Project timeline -> render/mix/animation/simulation -> review -> delivered checksum receipt",
+      "openTaskIds": [
+        "media.dev.project-timeline-engine",
+        "media.dev.delivery-export-destination-ack"
+      ],
+      "areas": [
+        "workspace-project",
+        "delivery-agents"
+      ],
+      "permanentDoc": "docs/surfaces/composition-creation-composition-and-delivery/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.composition.client-and-machine-interfaces",
+      "type": "composition",
+      "source": null,
+      "behavior": "Same semantic meaning across HTTP/gRPC/SDK/CLI/UI/Tools/events, no bypass or invented route",
+      "openTaskIds": [
+        "media.dev.http-operation-parity",
+        "media.dev.grpc-operation-parity"
+      ],
+      "areas": [
+        "headless-media",
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/composition-client-and-machine-interfaces/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.web",
+      "type": "logical",
+      "source": null,
+      "behavior": "Real browser product project, artifact, job, edit/review/render and delivery operations",
+      "openTaskIds": [
+        "media.dev.web-host",
+        "media.dev.production-studio-host"
+      ],
+      "areas": [
+        "workspace-project",
+        "studio-video"
+      ],
+      "permanentDoc": "docs/surfaces/surface-web/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.embedded",
+      "type": "logical",
+      "source": null,
+      "behavior": "Sandboxed origin-bound hosted playback, captions, branch/seek/replay and no privilege leak",
+      "openTaskIds": [
+        "media.dev.interactive-demo-player"
+      ],
+      "areas": [
+        "creative-preview"
+      ],
+      "permanentDoc": "docs/surfaces/surface-embedded/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.public-http",
+      "type": "logical",
+      "source": null,
+      "behavior": "OpenAPI/route/implementation exact parity including authenticated errors",
+      "openTaskIds": [
+        "media.dev.http-operation-parity"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/surface-public-http/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.service-grpc",
+      "type": "logical",
+      "source": null,
+      "behavior": "Current descriptor RPC inventory, method authorization, deadlines and streaming finality",
+      "openTaskIds": [
+        "media.dev.grpc-operation-parity"
+      ],
+      "areas": [
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/surface-service-grpc/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.grpc.stt",
+      "type": "logical",
+      "source": null,
+      "behavior": "Real STT, streaming, language/model source/version and safe cancellation",
+      "openTaskIds": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.grpc-operation-parity"
+      ],
+      "areas": [
+        "speech-voice",
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/surface-grpc-stt/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.grpc.tts",
+      "type": "logical",
+      "source": null,
+      "behavior": "Real TTS, voice scope, decoded audio and stream lifecycle",
+      "openTaskIds": [
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.grpc-operation-parity"
+      ],
+      "areas": [
+        "speech-voice",
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/surface-grpc-tts/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.grpc.vision",
+      "type": "logical",
+      "source": null,
+      "behavior": "Real source-bound detection, video frame tracking and DI ROI",
+      "openTaskIds": [
+        "media.dev.vision-model-and-geometry",
+        "media.dev.grpc-operation-parity"
+      ],
+      "areas": [
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/surface-grpc-vision/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.grpc.multimodal",
+      "type": "logical",
+      "source": null,
+      "behavior": "Grounded child/parent orchestration and provenance",
+      "openTaskIds": [
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.grpc-operation-parity"
+      ],
+      "areas": [
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/surface-grpc-multimodal/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.sdk",
+      "type": "logical",
+      "source": null,
+      "behavior": "Packaged ESM/CJS exact canonical routes, unsupported legacy calls fail closed",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/surface-sdk/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.cli",
+      "type": "logical",
+      "source": null,
+      "behavior": "Real artifact/job/capture/record commands, JSON errors and exit codes",
+      "openTaskIds": [
+        "media.dev.structured-cli"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/surface-cli/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.agent-tools",
+      "type": "logical",
+      "source": null,
+      "behavior": "Four delegated rights-bound, once-fenced tool actions",
+      "openTaskIds": [
+        "media.dev.authorized-agent-delegation"
+      ],
+      "areas": [
+        "delivery-agents"
+      ],
+      "permanentDoc": "docs/surfaces/surface-agent-tools/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.events",
+      "type": "logical",
+      "source": null,
+      "behavior": "Versioned lifecycle event identity and source state/currentness",
+      "openTaskIds": [
+        "media.dev.public-events"
+      ],
+      "areas": [
+        "headless-media"
+      ],
+      "permanentDoc": "docs/surfaces/surface-events/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.integrations",
+      "type": "logical",
+      "source": null,
+      "behavior": "Shared public identity, DI-only OCR, optional Data Cloud",
+      "openTaskIds": [
+        "media.dev.vision-document-intelligence"
+      ],
+      "areas": [
+        "vision-multimodal"
+      ],
+      "permanentDoc": "docs/surfaces/surface-integrations/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.types-library",
+      "type": "logical",
+      "source": null,
+      "behavior": "Typed TS source parity and invalid/overflow test paths",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/surface-types-library/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.ui-library",
+      "type": "logical",
+      "source": null,
+      "behavior": "Accessible reusable screen/Studio widgets and action ports",
+      "openTaskIds": [
+        "media.dev.web-host",
+        "media.dev.voice-workflow-ui"
+      ],
+      "areas": [
+        "workspace-project",
+        "speech-voice"
+      ],
+      "permanentDoc": "docs/surfaces/surface-ui-library/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.explorer",
+      "type": "logical",
+      "source": null,
+      "behavior": "Authored deterministic scenario and labeled preview, not backend execution",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/surface-explorer/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.desktop-archive",
+      "type": "logical",
+      "source": null,
+      "behavior": "No active production imports; compatibility-only archived source",
+      "openTaskIds": [],
+      "areas": [],
+      "permanentDoc": "docs/surfaces/surface-desktop-archive/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.recorder-orchestrator",
+      "type": "logical",
+      "source": null,
+      "behavior": "Unattended real recapture+approved narration+captions+playable output",
+      "openTaskIds": [
+        "media.dev.recorder-mux-and-final-artifact"
+      ],
+      "areas": [
+        "recorder-live"
+      ],
+      "permanentDoc": "docs/surfaces/surface-recorder-orchestrator/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.capture-adapters",
+      "type": "logical",
+      "source": null,
+      "behavior": "Real browser/desktop/mobile/terminal/file/API/gRPC/camera capture with permissions",
+      "openTaskIds": [
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture"
+      ],
+      "areas": [
+        "recorder-live"
+      ],
+      "permanentDoc": "docs/surfaces/surface-capture-adapters/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.production-studio",
+      "type": "logical",
+      "source": null,
+      "behavior": "Actual revision editor, timeline, color, mix, render, review, export and accessibility",
+      "openTaskIds": [
+        "media.dev.production-studio-host"
+      ],
+      "areas": [
+        "studio-video"
+      ],
+      "permanentDoc": "docs/surfaces/surface-production-studio/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    },
+    {
+      "id": "media.surface.interactive-demo-player",
+      "type": "logical",
+      "source": null,
+      "behavior": "Safe branching replay with exact source time, caption and origin policy",
+      "openTaskIds": [
+        "media.dev.interactive-demo-player"
+      ],
+      "areas": [
+        "creative-preview"
+      ],
+      "permanentDoc": "docs/surfaces/surface-interactive-demo-player/README.md",
+      "acceptance": "Actual consumer-visible working behavior; exact identity/version/rights/time/output; positive permitted case and denial, unknown, replay, cancel, restart and resource limits; source docs and focused suites pass."
+    }
+  ],
+  "additionalImplementationModules": [
+    {
+      "path": "modules/production/animation",
+      "objective": "Actual decoded 2D PNG/GIF with exact frame clock, bounded assets and persistent artifact later",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/timeline",
+      "objective": "Canonical ProjectRevision head + Timeline/Scene/Track/Clip mapping, one durable CAS writer",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/simulation",
+      "objective": "Bounded SI unit solver, deterministic output; do not call simulated data measurement",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/spatial",
+      "objective": "Valid GLB with versioned coordinate conversion and disclosed float32 losses",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/audio-mixing",
+      "objective": "Decoded WAV/stem mixer, actual peaks and sourced A/B comparison",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/rendering",
+      "objective": "Real decodable video+audio+caption mux, exact PTS/digest and durable output",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/review",
+      "objective": "Issued reviewer case/version CAS; ACCEPT statement is not human approval",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/delivery",
+      "objective": "Authenticated actual destination checksum/ACK, durable lost ACK reconciliation",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/production/dubbing",
+      "objective": "Rights-scoped translation, lawful voice, alignment and playable final audio",
+      "owner": "Media"
+    },
+    {
+      "path": "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext",
+      "objective": "Trusted Media frame/ROI/PTS reader and public DI-only OCR",
+      "owner": "Media"
+    },
+    {
+      "path": "providers/aws-postgresql",
+      "objective": "Scanner+artifact release decision, version-bound verified attestation and no untrusted release",
+      "owner": "Media"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "J-01",
+      "taskId": "media.dev.outcome-first-use-project",
+      "area": "workspace-project",
+      "behavior": "Real sign-in/workspace/project revision; wrong tenant, duplicate create."
+    },
+    {
+      "id": "J-02",
+      "taskId": "media.dev.outcome-resumable-artifact-intake",
+      "area": "headless-media",
+      "behavior": "Real chunked upload/versioned artifact and corrupt/resume/restart."
+    },
+    {
+      "id": "J-03",
+      "taskId": "media.dev.outcome-transcript-to-reviewed-captions",
+      "area": "speech-voice",
+      "behavior": "Real licensed audio -> transcript revision -> corrected caption; revoke/UNKNOWN/restart."
+    },
+    {
+      "id": "J-04",
+      "taskId": "media.dev.outcome-authorized-voice-synthesis",
+      "area": "speech-voice",
+      "behavior": "Lawful voice -> real decoded audio; denied locale/profile/revoke."
+    },
+    {
+      "id": "J-05",
+      "taskId": "media.dev.outcome-vision-detection-and-tracking",
+      "area": "vision-multimodal",
+      "behavior": "Actual image/video geometry+track source PTS; malformed ROI."
+    },
+    {
+      "id": "J-06",
+      "taskId": "media.dev.outcome-grounded-cross-modal-result",
+      "area": "vision-multimodal",
+      "behavior": "Real STT/Vision+DI child -> grounded typed response; wrong clock/rights."
+    },
+    {
+      "id": "J-07",
+      "taskId": "media.dev.outcome-audio-restoration",
+      "area": "creative-preview",
+      "behavior": "Real denoise/declip measured A/B with source preservation."
+    },
+    {
+      "id": "J-08",
+      "taskId": "media.dev.outcome-video-enhancement",
+      "area": "studio-video",
+      "behavior": "Real codec/frame repair and independent measured comparison."
+    },
+    {
+      "id": "J-09",
+      "taskId": "media.dev.outcome-brief-to-reviewed-media",
+      "area": "studio-video",
+      "behavior": "Versioned brief/storyboard -> render -> review output."
+    },
+    {
+      "id": "J-10",
+      "taskId": "media.dev.outcome-reference-continuity",
+      "area": "studio-video",
+      "behavior": "Rights-checked conditioned output, continuity metrics and typed unavailability."
+    },
+    {
+      "id": "J-11",
+      "taskId": "media.dev.outcome-reversible-tracked-edit",
+      "area": "studio-video",
+      "behavior": "Real tracked ROI mask edit with precise version CAS and undo."
+    },
+    {
+      "id": "J-12",
+      "taskId": "media.dev.outcome-two-dimensional-animation",
+      "area": "creative-preview",
+      "behavior": "Deterministic 2D animation renders decodable frames and golden curves."
+    },
+    {
+      "id": "J-13",
+      "taskId": "media.dev.outcome-three-dimensional-animation",
+      "area": "creative-preview",
+      "behavior": "Rig/3D spatial render with coordinate/kinematic correctness."
+    },
+    {
+      "id": "J-14",
+      "taskId": "media.dev.outcome-scientific-simulation",
+      "area": "creative-preview",
+      "behavior": "Unit-correct dynamics and instrument values; solver negatives."
+    },
+    {
+      "id": "J-15",
+      "taskId": "media.dev.outcome-validated-simulation-pass",
+      "area": "creative-preview",
+      "behavior": "Executable constrained pass with semantic validity and abstention."
+    },
+    {
+      "id": "J-16",
+      "taskId": "media.dev.outcome-translated-dubbed-video",
+      "area": "speech-voice",
+      "behavior": "Actual translation+legal dubbing, lip/timing metadata and source rights."
+    },
+    {
+      "id": "J-17",
+      "taskId": "media.dev.outcome-music-effects-master",
+      "area": "creative-preview",
+      "behavior": "Playable stems/foley/mix master with lawful input and peak caps."
+    },
+    {
+      "id": "J-18",
+      "taskId": "media.dev.outcome-multitrack-finished-master",
+      "area": "studio-video",
+      "behavior": "Combined video+audio+caption+graphic color render with checksum."
+    },
+    {
+      "id": "J-19",
+      "taskId": "media.dev.outcome-bounded-quality-improvement",
+      "area": "studio-video",
+      "behavior": "Real quality metric and bounded optimization/reversible comparison."
+    },
+    {
+      "id": "J-20",
+      "taskId": "media.dev.outcome-durable-job-recovery",
+      "area": "headless-media",
+      "behavior": "Job pending/running/UNKNOWN/terminal across real process restart."
+    },
+    {
+      "id": "J-21",
+      "taskId": "media.dev.outcome-version-specific-review",
+      "area": "workspace-project",
+      "behavior": "Immutable-review approval invalidated by changed source revision."
+    },
+    {
+      "id": "J-22",
+      "taskId": "media.dev.outcome-acknowledged-delivery",
+      "area": "delivery-agents",
+      "behavior": "Actual export/publish destination ACK, lost-ACK reconciliation."
+    },
+    {
+      "id": "J-23",
+      "taskId": "media.dev.outcome-offline-conflict-reconnect",
+      "area": "workspace-project",
+      "behavior": "Encrypted offline edits, fresh-rights reconnect, version conflict handling."
+    },
+    {
+      "id": "J-24",
+      "taskId": "media.dev.outcome-structured-command-batch",
+      "area": "headless-media",
+      "behavior": "Authenticated CLI JSON batch with true finality and typed failures."
+    },
+    {
+      "id": "J-25",
+      "taskId": "media.dev.outcome-authorized-agent-outcome",
+      "area": "delivery-agents",
+      "behavior": "Four agent handlers authorized delegate, no duplicate side effects."
+    },
+    {
+      "id": "J-26",
+      "taskId": "media.dev.outcome-retention-and-erasure",
+      "area": "delivery-agents",
+      "behavior": "Real revoke/hold/deletion and no post-erasure disclosure."
+    },
+    {
+      "id": "J-27",
+      "taskId": "media.dev.outcome-provider-outage-safe-path",
+      "area": "headless-media",
+      "behavior": "Unavailable/degraded/no-fallback/UNKNOWN behavior without fake success."
+    },
+    {
+      "id": "J-28",
+      "taskId": "media.dev.outcome-spatial-interactive-delivery",
+      "area": "creative-preview",
+      "behavior": "Real 360/spatial/interactive export and viewer fidelity."
+    },
+    {
+      "id": "J-29",
+      "taskId": "media.dev.outcome-live-session-recovery",
+      "area": "recorder-live",
+      "behavior": "Real media loss/reconnect/consent revoke and bounded stream recovery."
+    },
+    {
+      "id": "J-30",
+      "taskId": "media.dev.outcome-eligible-provider-catalog",
+      "area": "vision-multimodal",
+      "behavior": "Real qualified model/voice/host readiness with unavailable cases."
+    }
+  ],
+  "criteria": {
+    "library": "source-free caller+actual decoded or deterministic output with bounds and adverse cases",
+    "feature": "authenticated real transport, source+rights+version+durable finality/restart, relevant host consumer",
+    "devComplete": "every applicable PDP feature and supported journey true positive/adverse, accurate config/docs and no fake admission"
+  },
+  "configPreservation": [
+    ".product-experience/surface-registry.yaml",
+    "config/closure/consumer.json",
+    "config/closure/media-product-definition/surface.json",
+    "config/closure/media-product-definition/phase-program.json",
+    "config/closure/media-product-definition/phase-binding.json",
+    "config/closure/media-product-definition/obligations.json"
+  ],
+  "testReuse": "Use existing scripts/local-test-pass-cache.mjs and scripts/check-media-surface-delivery.mjs; pass replay only when all source, environment, fixtures, tools and rights inputs unchanged; no --rerun-tasks by default."
+}

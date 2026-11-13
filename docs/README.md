@@ -2,6 +2,8 @@
 
 ## Current feature-development execution
 
+[Feature-Complete Development Execution](development/FEATURE-COMPLETE-EXECUTION.md) is the current feature-only acceptance overlay across all 56 registered surfaces, 30 business journeys and existing production modules. It retains the original task statuses and is **gtool-ready by source/config consistency only**; no gtool execution, closure or evidence is part of the development plan.
+
 The [Per-Surface Feature Acceptance annex](development/SURFACE-FEATURE-ACCEPTANCE.md) and its [development configuration](../config/development/media-feature-surface-acceptance.v1.json) specify functionality, implementation steps and validation for each stable canonical surface and the newer support components. The static checker is `pnpm check:media-feature-acceptance`; it does **not** run gtool or formal closure.
 
 

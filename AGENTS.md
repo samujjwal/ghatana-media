@@ -1,5 +1,7 @@
 # Ghatana Media — agent instructions for backend engineering
 
+> **FEATURE DEV-COMPLETE (November 13, 2026):** Read [Feature-Complete Development Execution](docs/development/FEATURE-COMPLETE-EXECUTION.md) before planning a Media feature. Ship a real usable API/library/app output with source/rights/version and positive+negative/restart tests; do not duplicate previous completed work. Use existing local test cache/change-impact selection. Keep stable PDP/surface IDs and declarative gtool inputs coherent without running gtool, closure, formal evidence or release.
+
 > **SURFACE FEATURE COMPLETENESS (November 13, 2026):** [Per-surface feature acceptance](docs/development/SURFACE-FEATURE-ACCEPTANCE.md) and [development-only surface configuration](config/development/media-feature-surface-acceptance.v1.json) specify concrete behavior, remaining implementation and test oracles for all 56 canonical surfaces plus 11 newer supporting units. Use the existing usable-increment plan; do not run gtool, repeat unchanged suites, treat local preview as final product completion or self-admit models. The observed protocol inventory is 30 HTTP/45 gRPC, distinct from PDP1's named 27/43. MDI-002 is PROPOSED and the Media DI copy is not an active writer.
 
 
