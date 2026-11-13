@@ -132,3 +132,33 @@ decisions:
     implementationNotes: >-
       This clarifies the existing MDI-001 ownership rather than creating
       a new contract or claiming a completed DI runtime/public release.
+  - id: PDP0-003-D5
+    decision: >-
+      PROPOSED (not accepted; no independent architectural review claimed): re-home the existing single Document Intelligence
+      worker and its Java/TypeScript clients, without redesign, to services/document-intelligence/ in ghatana-media as an
+      independently packageable, product-neutral module. This supersedes only the packaging/location clause of MDI-001.
+      PDP0-003-D1..D4 are unchanged: one DI public gateway, Media remains a scene/frame/time/ROI consumer, no Media OCR
+      engine, no second contract version, no invented status endpoint. The existing Ghatana deployment remains the only active
+      writer until source, data, consumer and endpoint cutover are proven; the Media copy is not an active writer.
+    state: proposed
+    authority: docs/migration/decisions/MDI-002-document-intelligence-media-packaging.md
+    qualificationStatus: PENDING_EXTERNAL_DI
+packagingSupersession:
+  record: docs/migration/decisions/MDI-002-document-intelligence-media-packaging.md
+  supersedes: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+  scope: packaging-and-source-location-only
+  state: PROPOSED
+  architecturalReview: NOT_PERFORMED
+  sourceCopy:
+    path: services/document-intelligence/
+    manifest: services/document-intelligence/MIGRATION-MANIFEST.json
+    sourceRepository: samujjwal/ghatana
+    sourceCommit: 7d81f267bc7fe1149557d827e029a0dfd09bc6ab
+  deploymentWriter:
+    active: ghatana/services/document-intelligence
+    mediaCopy: INACTIVE_PENDING_CUTOVER
+  gateway:
+    protocol: document-intelligence.v1
+    additionalGateways: none
+    statusEndpoint: none-in-v1
+  nonAdmission: no provider, model, document format, rights position or release readiness is admitted by this record
