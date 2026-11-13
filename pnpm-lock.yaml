@@ -1511,6 +1511,18 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
 
+  services/document-intelligence/clients/typescript:
+    devDependencies:
+      '@ghatana/document-extraction':
+        specifier: workspace:*
+        version: link:../../../../../ghatana-shared/platform/typescript/document-extraction
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.4
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@26.6.4)(jsdom@30.1.2(@noble/hashes@2.4.0))(vite@7.3.1(@types/node@26.6.4)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.9.1))
+
 packages:
 
   '@adobe/css-tools@4.5.0':
