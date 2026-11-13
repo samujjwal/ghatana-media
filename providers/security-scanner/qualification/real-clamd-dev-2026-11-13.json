@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "ghatana.media.scanner-dev-qualification.v1",
+  "classification": "DEV_ONLY_NOT_QUALIFICATION",
+  "admission": "NOT_ADMITTED",
+  "verification": "ABSENT",
+  "engine": {
+    "identity": {
+      "name": "ClamAV",
+      "version": "ClamAV 1.5.4",
+      "definitionsVersion": "28182",
+      "definitionsDate": "2026-11-13T06:24:28.000Z"
+    },
+    "image": "clamav/clamav@sha256:45fe5149fbee5a46509c9848ef20d0c354b7b2323c9369f285939a37cf33422a",
+    "definitions": "freshclam at container start"
+  },
+  "signing": "ephemeral in-process Ed25519 key; no KMS custody, no trust root",
+  "corpus": "generated: EICAR + clean PDFs/PNG/text + EICAR polyglot/zip (no rights clearance needed)",
+  "results": [
+    {
+      "id": "clean-pdf-1",
+      "sha256": "88943fd61a36a73dd53c6645af25952d0c5fadf10babea881d4c5be0b8bcf0a1",
+      "expect": "CLEAN",
+      "status": "CLEAN",
+      "verdict": "CLEAN",
+      "reasonCode": "OK",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "clean-pdf-2",
+      "sha256": "2ac9465f077f302dedd98f0aac1f13f6bf80f14d32d61fd1e0c87684730dda64",
+      "expect": "CLEAN",
+      "status": "CLEAN",
+      "verdict": "CLEAN",
+      "reasonCode": "OK",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "clean-png",
+      "sha256": "b6a6f3c97f49c939ee516f71b73bb72afbaf4ee9dd86f97c17d977abf187482f",
+      "expect": "CLEAN",
+      "status": "CLEAN",
+      "verdict": "CLEAN",
+      "reasonCode": "OK",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "clean-text",
+      "sha256": "10f71685e500934a65e12b173f4bad2884f44297253652eec5310f3c87705746",
+      "expect": "CLEAN",
+      "status": "CLEAN",
+      "verdict": "CLEAN",
+      "reasonCode": "OK",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "eicar",
+      "sha256": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+      "expect": "INFECTED",
+      "status": "INFECTED",
+      "verdict": "INFECTED",
+      "reasonCode": "SIGNATURE_MATCH",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "eicar-pdf-polyglot",
+      "sha256": "408b9d959cbfa52de83a4c99090b231360c0f527ded1eff4938c2089935a18e0",
+      "expect": "INFECTED",
+      "status": "CLEAN",
+      "verdict": "CLEAN",
+      "reasonCode": "OK",
+      "signed": true,
+      "correct": false
+    },
+    {
+      "id": "eicar-in-zip",
+      "sha256": "fdd06385ee9e0627d9ceb060ac37aad919c45c39239b12160533302d2394423e",
+      "expect": "INFECTED",
+      "status": "INFECTED",
+      "verdict": "INFECTED",
+      "reasonCode": "SIGNATURE_MATCH",
+      "signed": true,
+      "correct": true
+    }
+  ],
+  "falseNegativesOnEicarVariants": 1,
+  "findings": [
+    "eicar-pdf-polyglot: real clamd reported CLEAN (no signature matched). The EICAR signature is file-anchored, so an appended payload after %%EOF is not detected; CLEAN only ever means 'no signature matched', never 'safe'. Needs a false-negative policy and a real polyglot/obfuscation corpus before any admission."
+  ],
+  "crashDrill": {
+    "midScanAttempts": [
+      {
+        "verdict": "UNKNOWN",
+        "status": "FAILED",
+        "reasonCode": "ENGINE_CONNECTION_DROPPED"
+      }
+    ],
+    "killedWhileDown": {
+      "verdict": "UNKNOWN",
+      "status": "FAILED",
+      "reasonCode": "ENGINE_UNAVAILABLE"
+    },
+    "afterRestart": {
+      "verdict": "CLEAN",
+      "status": "CLEAN"
+    }
+  },
+  "invariants": {
+    "noInfectedEverClean": false,
+    "midScanKillNeverClean": true,
+    "downIsNotClean": true,
+    "recoversClean": true
+  }
+}

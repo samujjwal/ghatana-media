@@ -165,3 +165,12 @@ dedupe is intentionally absent from the worker (cross-tenant dedupe hazard); it 
 refuses re-dispatch. (b) the drill shows `ResourceWarning: unclosed file` for subprocess pipes on cancel/kill paths in `subprocess_runner.py`
 (closed at GC, low severity) — a candidate fd-hygiene fix for the DI owner. (c) The FastAPI service-level path and the Kernel->DI service end-to-end need the
 DI runtime Python deps, which are not installed and not in the uv cache; installing them needs a PyPI download (approval pending).
+
+## Real ClamAV dev qualification run (user-approved download; NOT_ADMITTED)
+Image `clamav/clamav@sha256:45fe5149fbee5a46509c9848ef20d0c354b7b2323c9369f285939a37cf33422a` (ClamAV 1.5.4, definitions 28182 via freshclam).
+`providers/security-scanner/scripts/qualify-real-clamd.mjs` runs the scanner provider against real clamd over a generated corpus; result
+`providers/security-scanner/qualification/real-clamd-dev-2026-11-13.json`. Clean PDFs/PNG/text => signed CLEAN; EICAR and EICAR-in-zip => INFECTED.
+**Finding: real clamd reported CLEAN for an EICAR payload appended after a PDF's %%EOF (file-anchored signature).** CLEAN means only "no signature matched";
+a false-negative policy and real polyglot/obfuscation corpus are required before admission. Crash drill: `docker kill` mid-scan and while down => UNKNOWN/ENGINE_UNAVAILABLE
+(never CLEAN); after restart => CLEAN. Signing key was an ephemeral in-process Ed25519 key (no KMS custody). Evidence record
+`config/provider-qualification/evidence/security-scanner.dev-clamav.json` is unverified; gate test confirms NOT_ADMITTED (missing signing-key-custody, no verifier).

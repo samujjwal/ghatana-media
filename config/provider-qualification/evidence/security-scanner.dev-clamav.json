@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "ghatana.media.qualification-evidence-dev.v1",
+  "provider": "security-scanner",
+  "devOnly": true,
+  "verification": {
+    "status": "ABSENT",
+    "note": "no independent verifier; never admits"
+  },
+  "image": "clamav/clamav@sha256:45fe5149fbee5a46509c9848ef20d0c354b7b2323c9369f285939a37cf33422a",
+  "evidence": [
+    {
+      "kind": "engine-pin",
+      "subjectIdentity": "clamav-1.5.4+defs-28182@sha256:45fe5149fbee",
+      "expiresAt": "2026-12-13T00:00:00Z",
+      "status": "RECORDED_UNVERIFIED",
+      "detail": "official clamav/clamav image pinned by digest; ClamAV 1.5.4, definitions 28182 (freshclam at start); no cadence/monitoring recorded"
+    },
+    {
+      "kind": "corpus-result",
+      "subjectIdentity": "clamav-1.5.4+defs-28182@sha256:45fe5149fbee",
+      "expiresAt": "2026-12-13T00:00:00Z",
+      "status": "RECORDED_UNVERIFIED",
+      "insufficient": "generated EICAR/clean corpus only (7 items); real clamd MISSED the appended-payload EICAR polyglot (CLEAN); no false-negative policy, no rights-cleared malware corpus",
+      "detail": "providers/security-scanner/qualification/real-clamd-dev-2026-11-13.json"
+    },
+    {
+      "kind": "crash-drill",
+      "subjectIdentity": "clamav-1.5.4+defs-28182@sha256:45fe5149fbee",
+      "expiresAt": "2026-12-13T00:00:00Z",
+      "status": "RECORDED_UNVERIFIED",
+      "detail": "docker kill mid-scan and while down => UNKNOWN/ENGINE_UNAVAILABLE, never CLEAN; after restart => CLEAN. Single container, loopback only; no isolation/resource-limit drill"
+    }
+  ],
+  "missing": [
+    "signing-key-custody (ephemeral in-process key only)"
+  ]
+}

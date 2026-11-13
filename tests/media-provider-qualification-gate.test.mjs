@@ -76,3 +76,13 @@ test('recorded STT candidate (Whisper tiny) evidence cannot admit English or Nep
     assert.deepEqual(r.missing, ['corpus-result', 'language-qualification']);
   }
 });
+
+test('recorded real-ClamAV dev evidence cannot admit the scanner (key custody missing, no verifier)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const rec = JSON.parse(readFileSync(new URL('../config/provider-qualification/evidence/security-scanner.dev-clamav.json', import.meta.url), 'utf8'));
+  assert.match(rec.image, /@sha256:[0-9a-f]{64}$/);
+  const probe = { reachable: true, identity: rec.evidence[0].subjectIdentity, devOnly: false };
+  const r = evaluateQualification({ provider: 'security-scanner', requirements, probe, evidence: rec.evidence, verifyEvidence: () => true });
+  assert.equal(r.status, STATUS.NOT_ADMITTED); assert.deepEqual(r.missing, ['signing-key-custody']);
+  assert.equal(evaluateQualification({ provider: 'security-scanner', requirements, probe, evidence: rec.evidence }).reasonCode, 'NO_INDEPENDENT_VERIFIER');
+});
