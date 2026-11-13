@@ -408,7 +408,24 @@ public final class MediaRuntimeContracts {
             String scannerId, String scannerVersion, String policyId, String policyVersion,
             String tenantId, String principalId, String uploadId, String sourceSha256,
             long sizeBytes, String contentType, ArtifactScanVerdict verdict,
-            Instant evaluatedAt, Instant expiresAt) {
+            Instant evaluatedAt, Instant expiresAt, ScanAttestationBinding attestation) {
+        /** Additive: a decision without a signature binding is representable but never signed-admitted. */
+        public ArtifactScanDecision(
+                String scannerId, String scannerVersion, String policyId, String policyVersion,
+                String tenantId, String principalId, String uploadId, String sourceSha256,
+                long sizeBytes, String contentType, ArtifactScanVerdict verdict,
+                Instant evaluatedAt, Instant expiresAt) {
+            this(scannerId, scannerVersion, policyId, policyVersion, tenantId, principalId, uploadId,
+                    sourceSha256, sizeBytes, contentType, verdict, evaluatedAt, expiresAt, null);
+        }
+
+        /** Returns a copy bound to the scanner's signed attestation. */
+        public ArtifactScanDecision withAttestation(ScanAttestationBinding binding) {
+            return new ArtifactScanDecision(scannerId, scannerVersion, policyId, policyVersion, tenantId,
+                    principalId, uploadId, sourceSha256, sizeBytes, contentType, verdict, evaluatedAt,
+                    expiresAt, binding);
+        }
+
         public ArtifactScanDecision {
             scannerId = required(scannerId, "scannerId");
             scannerVersion = required(scannerVersion, "scannerVersion");
@@ -442,6 +459,51 @@ public final class MediaRuntimeContracts {
             return decision != null && decision.verdict == ArtifactScanVerdict.CLEAN
                     && decision.matches(artifact, now);
         }
+
+        /**
+         * Signed release gate (MED-06): in addition to {@link #admitsRelease(ArtifactScanDecision,
+         * QuarantinedArtifact, Instant)}, the decision must carry a signature binding and the injected
+         * verifier must affirm it. A missing binding, missing verifier, verifier rejection or verifier
+         * failure all keep the artifact quarantined (fail closed).
+         */
+        public static boolean admitsSignedRelease(
+                ArtifactScanDecision decision, QuarantinedArtifact artifact, Instant now,
+                ScanAttestationVerifier verifier) {
+            if (verifier == null || !admitsRelease(decision, artifact, now) || decision.attestation() == null) {
+                return false;
+            }
+            try {
+                return verifier.verify(decision, decision.attestation(), now);
+            } catch (RuntimeException failure) {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Reference to the scanner's signed attestation (TS provider {@code SignedScanAttestation}):
+     * opaque attestation ref, signing algorithm/key id, base64url signature, and SHA-256 of the
+     * canonical signed payload so a verifier can fetch/recompute exactly what was signed.
+     */
+    public record ScanAttestationBinding(
+            String attestationRef, String algorithm, String keyId, String signature, String payloadSha256) {
+        public ScanAttestationBinding {
+            attestationRef = required(attestationRef, "attestationRef");
+            algorithm = required(algorithm, "algorithm");
+            keyId = required(keyId, "keyId");
+            signature = required(signature, "signature");
+            payloadSha256 = requireSha256(payloadSha256);
+        }
+    }
+
+    /**
+     * Host-injected verification hook. Implementations must check the signature against a trusted key
+     * for {@code binding.keyId()}, that the signed payload hashes to {@code payloadSha256}, and that the
+     * signed tenant/digest/size/verdict/expiry equal the decision. Contracts holds no key material.
+     */
+    @FunctionalInterface
+    public interface ScanAttestationVerifier {
+        boolean verify(ArtifactScanDecision decision, ScanAttestationBinding binding, Instant now);
     }
 
     public interface MediaArtifactScanner extends AutoCloseable {
