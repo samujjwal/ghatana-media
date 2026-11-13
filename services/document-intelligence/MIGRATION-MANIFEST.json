@@ -28,15 +28,15 @@
   "note": "The Media copy must not be started against the Ghatana worker state, models cache, queue or endpoint. Cutover requires source, data, consumer and endpoint proof."
  },
  "summary": {
-  "COPIED_VERBATIM": 1478,
-  "ADAPTED": 8,
+  "COPIED_VERBATIM": 1477,
+  "ADAPTED": 9,
   "ADDED": 2
  },
  "buildPathAdaptations": {
   "workspace": "pnpm-workspace.yaml gains \"services/document-intelligence/clients/*\" (outside this directory).",
   "java": "clients/java build.gradle.kts and settings.gradle.kts (see per-file notes).",
   "typescript": "clients/typescript package.json (exports/engines/repository metadata) and additive client.ts hardening.",
-  "python": "none; worker source, pyproject.toml, uv.lock and Dockerfile are byte-identical."
+  "python": "pyproject.toml gains jsonschema in the test extra and uv.lock is regenerated additively for it (2 lines); worker source and Dockerfile are byte-identical."
  },
  "referencedNotCopied": [
   {
@@ -65,7 +65,7 @@
    "result": "556 passed, 57 skipped, 35 failed",
    "baseline": "identical result (556/57/35) on a pristine git-archive extraction of the source commit",
    "failureClasses": "18 missing git-ignored evaluation/results; remaining environmental: optional provider libs (docling/gliner/fitz) and tsc not installed, office fonts and PDF tooling absent",
-   "mediaCopyHygiene": "2026-11-12 follow-up: skip-guard + jsonschema declaration are syntax-checked (py_compile) only; pytest was NOT re-run (no Python test environment resolvable offline). The 556/57/35 baseline above predates these two edits and the re-included test_runtime_resilience.py non-temp-space tests are unmeasured."
+   "mediaCopyHygiene": "2026-11-12 follow-up: skip-guard + jsonschema declaration are syntax-checked (py_compile) only; pytest was NOT re-run (no Python test environment resolvable offline). The 556/57/35 baseline above predates these two edits and the re-included test_runtime_resilience.py non-temp-space tests are unmeasured. | 2026-11-12 re-run with network (uv sync --extra runtime --extra test --extra evaluation; providers extra not installed): 577 passed / 60 skipped / 35 failed; the 35 failures are environmental (missing evaluation/results data files, docling/gliner/pypdfium2 not installed, provisioned fonts and tsc absent, frozen-authority tests depending on those)."
   },
   "java": {
    "command": "./gradlew -p services/document-intelligence/clients/java test",
@@ -9023,7 +9023,7 @@
    "destinationSha256": "eb981c671bf8839a791b3311e32696a856554a714809e21f4de5098a1cb76293",
    "bytes": 1190,
    "disposition": "ADAPTED",
-   "note": "Declares jsonschema in the `test` extra (undeclared source dependency of tests/increment6/test_evaluation_harness.py). uv.lock NOT regenerated (offline; needs `uv lock` with network); worker source and Dockerfile untouched."
+   "note": "Declares jsonschema in the `test` extra (undeclared source dependency of tests/increment6/test_evaluation_harness.py). uv.lock regenerated (see uv.lock entry); worker source and Dockerfile untouched."
   },
   {
    "path": "release/external-certification.md",
@@ -10492,9 +10492,10 @@
   {
    "path": "uv.lock",
    "sourceSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
-   "destinationSha256": "fd4ef3f9291f5b281cf7372cbdc771f1882396d55993ea59e2ea1b9230993960",
-   "bytes": 1273012,
-   "disposition": "COPIED_VERBATIM"
+   "destinationSha256": "7b70ae7c1f3306f8875cf4419bf01b9fb95c9820e3f8d80d642dbcb52e3fbc56",
+   "bytes": 1273120,
+   "disposition": "ADAPTED",
+   "note": "Regenerated additively by `uv sync --extra test` (network): only adds jsonschema to the test extra (2 lines) to match the ADAPTED pyproject.toml; no package version changed."
   },
   {
    "path": "verification/document-intelligence-proof-graph.yaml",

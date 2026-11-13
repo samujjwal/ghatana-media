@@ -1360,6 +1360,7 @@ runtime = [
 ]
 test = [
     { name = "httpx" },
+    { name = "jsonschema" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
 ]
@@ -1370,6 +1371,7 @@ requires-dist = [
     { name = "fastapi", marker = "extra == 'runtime'", specifier = ">=0.115,<1" },
     { name = "gliner", marker = "extra == 'providers'", specifier = ">=0.2,<1" },
     { name = "httpx", marker = "extra == 'test'", specifier = ">=0.27,<1" },
+    { name = "jsonschema", marker = "extra == 'test'", specifier = ">=4,<5" },
     { name = "numpy", marker = "extra == 'evaluation'", specifier = ">=1.26,<3" },
     { name = "paddleocr", marker = "extra == 'providers'", specifier = ">=3.0,<4" },
     { name = "paddlepaddle", marker = "extra == 'providers'", specifier = ">=3.0,<4" },
