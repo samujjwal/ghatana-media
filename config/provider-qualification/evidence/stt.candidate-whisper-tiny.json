@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "ghatana.media.qualification-evidence-dev.v1",
+  "provider": "stt",
+  "devOnly": true,
+  "verification": {
+    "status": "ABSENT",
+    "note": "no independent verifier; never admits"
+  },
+  "candidate": {
+    "id": "stt-whisper-tiny-multilingual",
+    "license": "MIT (per pinned upstream README)",
+    "sha256": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
+    "upstream": "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt"
+  },
+  "languages": {
+    "en": {
+      "evidence": [
+        {
+          "kind": "model-rights",
+          "subjectIdentity": "whisper-tiny-multilingual:65147644a518",
+          "expiresAt": "2026-12-13T00:00:00Z",
+          "status": "RECORDED_UNVERIFIED",
+          "detail": "Candidate stt-whisper-tiny-multilingual (config/qualification/wave2-reference-candidates.v1.json, REVIEW_ONLY, LOCAL_EVALUATION). Official OpenAI tiny.pt, sha256 65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9; pinned upstream README states code and weights MIT (HF mirror labelled Apache-2.0 has no provenance link to this digest). Rights remain an owner/legal decision."
+        }
+      ],
+      "missing": [
+        "corpus-result",
+        "language-qualification"
+      ],
+      "qualityClaim": "NONE"
+    },
+    "ne": {
+      "evidence": [
+        {
+          "kind": "model-rights",
+          "subjectIdentity": "whisper-tiny-multilingual:65147644a518",
+          "expiresAt": "2026-12-13T00:00:00Z",
+          "status": "RECORDED_UNVERIFIED",
+          "detail": "Candidate stt-whisper-tiny-multilingual (config/qualification/wave2-reference-candidates.v1.json, REVIEW_ONLY, LOCAL_EVALUATION). Official OpenAI tiny.pt, sha256 65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9; pinned upstream README states code and weights MIT (HF mirror labelled Apache-2.0 has no provenance link to this digest). Rights remain an owner/legal decision."
+        }
+      ],
+      "missing": [
+        "corpus-result",
+        "language-qualification"
+      ],
+      "qualityClaim": "NONE: Nepali quality needs independent reference transcripts (Common Voice v27 pilot is private/unchecked-in); the tiny multilingual checkpoint is not claimed usable for Nepali"
+    }
+  }
+}

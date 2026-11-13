@@ -63,3 +63,16 @@ test('recorded dev Tesseract evidence is unverified: still NOT_ADMITTED, never A
   assert.equal(evaluateQualification({ provider: 'document-intelligence', requirements, probe, evidence: rec.evidence, verifyEvidence: (e) => e.status === 'VERIFIED' }).status, STATUS.NOT_ADMITTED);
   assert.equal(evaluateQualification({ provider: 'document-intelligence', requirements, probe: { ...probe, devOnly: true }, evidence: rec.evidence, verifyEvidence: () => true }).reasonCode, 'DEV_ONLY_ADAPTER');
 });
+
+test('recorded STT candidate (Whisper tiny) evidence cannot admit English or Nepali', async () => {
+  const { readFileSync } = await import('node:fs');
+  const rec = JSON.parse(readFileSync(new URL('../config/provider-qualification/evidence/stt.candidate-whisper-tiny.json', import.meta.url), 'utf8'));
+  assert.match(rec.candidate.sha256, /^[0-9a-f]{64}$/);
+  for (const lang of ['en', 'ne']) {
+    const l = rec.languages[lang];
+    assert.match(l.qualityClaim, /^NONE/);
+    const r = evaluateQualification({ provider: `stt:${lang}`, requirements, probe: { reachable: true, identity: l.evidence[0].subjectIdentity, devOnly: false }, evidence: l.evidence, verifyEvidence: () => true });
+    assert.equal(r.status, STATUS.NOT_ADMITTED);
+    assert.deepEqual(r.missing, ['corpus-result', 'language-qualification']);
+  }
+});

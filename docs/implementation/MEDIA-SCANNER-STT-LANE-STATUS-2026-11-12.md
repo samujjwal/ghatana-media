@@ -143,3 +143,13 @@ node_modules install was not attempted.
   compiled and passed in a scratch Gradle build resolving `runtime-contracts` / DI client only from the install set
   (`bd8aada67`) and Kernel API/runtime from `d61b72913`: empty registry admits nothing and never reaches Media; DI provider never
   reports READY, no admission => PROVIDER_NOT_ADMITTED, lost ack => UNKNOWN.
+
+## Local real engines (dev only, NOT_ADMITTED)
+* DI OCR: DI's own `TesseractOcrParser` (Tesseract 5.3.4, Apache-2.0, provisioned runtime via `DOCUMENT_INTELLIGENCE_TESSERACT_RUNTIME`;
+  binary/eng/nep digests in the result) run over a generated synthetic non-PHI corpus (6 sentences per language/condition):
+  `services/document-intelligence/evaluation/dev-tesseract/run_dev_eval.py`, results `.../results/dev-eval-2026-11-13.json`.
+  CER/WER: en clean 0/0, en noisy 0.0036/0.0208, ne clean 0.0061/0.0385, ne noisy 0.0061/0.0385. Same writer (no second OCR path). Tiny, self-generated
+  and non-independent: not qualification. Unverified evidence: `config/provider-qualification/evidence/document-intelligence.dev-tesseract.json`.
+* STT: candidate recorded only (`config/provider-qualification/evidence/stt.candidate-whisper-tiny.json`): official OpenAI Whisper tiny.pt
+  sha256 65147644…22b9, MIT per pinned upstream README, REVIEW_ONLY. No English or Nepali quality claim; corpus-result and language-qualification stay missing.
+* Scanner: real ClamAV NOT run here. Neither clamd nor an image is installed; pulling a third-party image plus freshclam definitions needs the user's explicit approval.
