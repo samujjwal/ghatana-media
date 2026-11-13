@@ -19,7 +19,7 @@
  * `--check` verifies the checked-in artifact is current; unknown or stale
  * classification fails the development audit.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +32,37 @@ const CAPABILITIES_PATH = ".product-experience/pdp-0-product-truth/capabilities.
 const FAMILY_MAP_PATH = "docs/development/capability-family-implementation-map.yaml";
 const REGISTER_PATH = "docs/development/remaining-work.json";
 const ARTIFACT_PATH = "docs/development/capability-implementation-crosswalk.v1.json";
+const LOCAL_EVIDENCE_PATH = "docs/development/capability-local-evidence.v1.json";
+
+/**
+ * Validates the optional per-leaf local-evidence overlay. Evidence is attached
+ * beside the conservative classification and never changes it.
+ */
+export function loadLocalEvidence(repositoryRoot, leafIds) {
+  const path = join(repositoryRoot, LOCAL_EVIDENCE_PATH);
+  if (!existsSync(path)) return new Map();
+  const overlay = JSON.parse(readFileSync(path, "utf8"));
+  const statuses = new Set(Object.keys(overlay.statusVocabulary ?? {}));
+  const known = new Set(leafIds);
+  const byLeaf = new Map();
+  for (const entry of overlay.entries ?? []) {
+    const id = entry.capabilityId;
+    if (!known.has(id)) throw new Error(`local evidence names unknown capability leaf: ${id}`);
+    if (byLeaf.has(id)) throw new Error(`duplicate local evidence entry: ${id}`);
+    if (!statuses.has(entry.status)) throw new Error(`local evidence ${id} has unknown status ${entry.status}`);
+    if (!Array.isArray(entry.tests) || entry.tests.length === 0) throw new Error(`local evidence ${id} cites no tests`);
+    for (const test of entry.tests) {
+      if (!existsSync(join(repositoryRoot, test))) throw new Error(`local evidence ${id} cites missing test ${test}`);
+    }
+    if (!Array.isArray(entry.operations) || entry.operations.length === 0) throw new Error(`local evidence ${id} names no operation`);
+    if (!Array.isArray(entry.gaps)) throw new Error(`local evidence ${id} must list gaps (possibly empty)`);
+    if (entry.status === "LOCAL_DEV_ONLY_PARTIAL" && entry.gaps.length === 0) {
+      throw new Error(`partial local evidence ${id} must name its gaps`);
+    }
+    byLeaf.set(id, { status: entry.status, operations: entry.operations, tests: entry.tests, gaps: entry.gaps });
+  }
+  return byLeaf;
+}
 
 export function buildCrosswalk(repositoryRoot = root) {
   const capabilities = parseYaml(readFileSync(join(repositoryRoot, CAPABILITIES_PATH), "utf8"));
@@ -40,6 +71,7 @@ export function buildCrosswalk(repositoryRoot = root) {
   const taskState = new Map(register.tasks.map((task) => [task.id, task.state]));
 
   const leafIds = capabilities.capabilities.map((leaf) => leaf.id);
+  const localEvidence = loadLocalEvidence(repositoryRoot, leafIds);
   const deferredIds = new Set(capabilities.capabilities.filter((leaf) => leaf.scopeStatus === "DEFERRED").map((leaf) => leaf.id));
 
   const records = leafIds.map((id) => {
@@ -62,6 +94,7 @@ export function buildCrosswalk(repositoryRoot = root) {
       verifiedTaskRefs: blockingTaskRefs.filter((task) => taskState.get(task) === "VERIFIED"),
       evidenceRefs: family.evidenceRefs ?? [],
       delegatedDependencies: family.delegatedDependencies ?? [],
+      ...(localEvidence.has(id) ? { localEvidence: localEvidence.get(id) } : {}),
     };
   });
 
@@ -70,13 +103,19 @@ export function buildCrosswalk(repositoryRoot = root) {
   return {
     schemaVersion: "media.capability-implementation-crosswalk.v1",
     purpose: "Per-leaf implementation inventory for every authored PDP-0 capability intent; classifications cite exact task/source links and never fabricate success.",
-    sources: { capabilities: CAPABILITIES_PATH, familyMap: FAMILY_MAP_PATH, register: REGISTER_PATH },
+    sources: { capabilities: CAPABILITIES_PATH, familyMap: FAMILY_MAP_PATH, register: REGISTER_PATH, localEvidence: LOCAL_EVIDENCE_PATH },
     policy: {
       implemented: "requires a VERIFIED register task bound to the capability family",
       delegated: "reserved for wholly externally executed intents; Media leaves consuming platform dependencies use delegatedDependencies",
       unknownFailsAudit: "any leaf without a classification, or any family missing from the reviewed map, fails --check",
+      localEvidence: "optional per-leaf test-backed DEV_ONLY evidence; never changes classification; unknown leaves, missing tests or partial entries without gaps fail generation",
     },
-    summary: { leafCount: records.length, byClassification: summary },
+    summary: {
+      leafCount: records.length,
+      byClassification: summary,
+      localEvidence: Object.fromEntries([...localEvidence.values()].reduce((counts, entry) =>
+        counts.set(entry.status, (counts.get(entry.status) ?? 0) + 1), new Map())),
+    },
     externalOwnedDependencies: familyMap.externalOwnedDependencies,
     records,
   };

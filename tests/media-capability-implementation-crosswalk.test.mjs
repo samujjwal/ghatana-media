@@ -72,3 +72,33 @@ test("external dependency attribution stays delegated-consumption, never a hidde
   assert.ok(Object.keys(artifact.externalOwnedDependencies).includes("data-cloud-optional-downstream"),
     "Data Cloud remains an explicitly optional downstream dependency, not a core task");
 });
+
+test("local evidence is test-backed, never changes classification, and partial entries name their gaps", () => {
+  const withEvidence = artifact.records.filter((record) => record.localEvidence);
+  assert.ok(withEvidence.length > 0, "expected at least one local evidence entry");
+  for (const record of withEvidence) {
+    assert.notEqual(record.classification, "IMPLEMENTED", `${record.id} local evidence must not promote classification`);
+    assert.ok(record.localEvidence.tests.length > 0);
+    if (record.localEvidence.status === "LOCAL_DEV_ONLY_PARTIAL") assert.ok(record.localEvidence.gaps.length > 0);
+  }
+});
+
+test("local evidence overlay rejects unknown leaves and missing tests", async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { loadLocalEvidence } = await import("../scripts/generate-media-capability-implementation-crosswalk.mjs");
+  const fixture = mkdtempSync(resolve(tmpdir(), "crosswalk-evidence-"));
+  mkdirSync(resolve(fixture, "docs/development"), { recursive: true });
+  const write = (entries) => writeFileSync(resolve(fixture, "docs/development/capability-local-evidence.v1.json"),
+    JSON.stringify({ statusVocabulary: { LOCAL_DEV_ONLY_TESTED: "x", LOCAL_DEV_ONLY_PARTIAL: "y" }, entries }));
+  writeFileSync(resolve(fixture, "real.test"), "");
+  const base = { status: "LOCAL_DEV_ONLY_TESTED", operations: ["op"], tests: ["real.test"], gaps: [] };
+  write([{ ...base, capabilityId: "leaf.unknown" }]);
+  assert.throws(() => loadLocalEvidence(fixture, ["leaf.a"]), /unknown capability leaf/);
+  write([{ ...base, capabilityId: "leaf.a", tests: ["missing.test"] }]);
+  assert.throws(() => loadLocalEvidence(fixture, ["leaf.a"]), /missing test/);
+  write([{ ...base, capabilityId: "leaf.a", status: "LOCAL_DEV_ONLY_PARTIAL" }]);
+  assert.throws(() => loadLocalEvidence(fixture, ["leaf.a"]), /must name its gaps/);
+  write([{ ...base, capabilityId: "leaf.a" }]);
+  assert.equal(loadLocalEvidence(fixture, ["leaf.a"]).get("leaf.a").status, "LOCAL_DEV_ONLY_TESTED");
+});
