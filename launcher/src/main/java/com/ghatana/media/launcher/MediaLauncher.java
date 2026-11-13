@@ -98,7 +98,8 @@ public final class MediaLauncher {
                     "Media", config.httpPort(), new MediaSecurityFilter(
                             new MediaHttpHandler(runtime,
                                     consentAdministration == null ? null : consentAdministration.administration(),
-                                    captions, finalDevProjectTimeline, finalDevReview).withDevDelivery(finalDevDelivery),
+                                    captions, finalDevProjectTimeline, finalDevReview,
+                                    finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devDelivery != null) {

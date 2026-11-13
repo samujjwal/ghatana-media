@@ -28,6 +28,8 @@ final class MediaDevOnlyRoutePermissions {
         if ("POST".equals(method) && path.matches("^/dev/v1/reviews/[^/]+/(comments|decisions)$")) return PROJECT_WRITE;
         if ("POST".equals(method) && "/dev/v1/exports".equals(path)) return DELIVERY_EXPORT;
         if ("GET".equals(method) && path.matches("^/dev/v1/exports/[^/]+$")) return DELIVERY_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/creative-outputs/(audio-repairs|simulations)$")) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/creative-outputs/[^/]+$")) return PROJECT_READ;
         return null;
     }
 }

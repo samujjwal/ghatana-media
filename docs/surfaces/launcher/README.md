@@ -276,6 +276,26 @@ Hosted export with destination acknowledgment (in-process + real launcher/Postgr
   --tests 'com.ghatana.media.integration.MediaDevDeliveryRestartIT'
 ```
 
+DEV_ONLY creative outputs (in-process HTTP; outside the canonical manifest/OpenAPI):
+
+- `POST /dev/v1/creative-outputs/audio-repairs` runs `BoundedPcmDeclipper` on one exact owner artifact version
+  (16-bit PCM WAV) and registers the repaired candidate as a NEW artifact. Lineage names the exact source version,
+  engine/profile and the `AudioRepairComparison` metrics as the engine reports them (sample statistics only, no
+  quality claim); the source version is never modified. No clipped samples is a typed 422, not an empty success.
+- `POST /dev/v1/creative-outputs/simulations` runs `PhysicalSimulation` on an explicit bounded scenario and
+  registers the JSON output (with units) only when `SimulationSemanticValidator` returns VALID. The output is labelled
+  simulated model output, never a measurement; REJECTED/ABSTAIN/solver abstention is a typed 422 with no artifact.
+  Input references are content-addressed to the request payload only (no external owner currentness authority).
+- `GET /dev/v1/creative-outputs/{outputId}` reopens the output and its lineage from the artifact after restart.
+- Both engines are deterministic, so a duplicate `requestId` replays the same artifact (200, `replayed:true`), a
+  divergent reuse is 409, and a failed registration is a typed 502 that resumes with the same `requestId`.
+- Spatial (GLB) export is not hosted yet.
+
+```bash
+./gradlew :services:media:launcher:test \
+  --tests 'com.ghatana.media.launcher.MediaDevCreativeOutputHttpTest'
+```
+
 Focused identity and rights coverage:
 
 ```bash

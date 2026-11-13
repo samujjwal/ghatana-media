@@ -92,6 +92,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaDevProjectRenderRuntime devProjectRender;
     private final MediaDevReviewRoutes devReview;
     private MediaDevDeliveryRoutes devDelivery;
+    private final MediaDevCreativeOutputRoutes devCreative;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -139,9 +140,24 @@ public final class MediaHttpHandler implements HttpHandler {
         this(runtime, consentAdministration, captions, devProjectTimeline, devProjectRender, null);
     }
 
+    public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                            MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
+                            MediaDevReviewRuntime devReview, MediaDevCreativeOutputRuntime devCreative) {
+        this(runtime, consentAdministration, captions, devProjectTimeline,
+                defaultRender(runtime, devProjectTimeline), devReview, devCreative);
+    }
+
     MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
                      MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
                      MediaDevProjectRenderRuntime devProjectRender, MediaDevReviewRuntime devReview) {
+        this(runtime, consentAdministration, captions, devProjectTimeline, devProjectRender, devReview, null);
+    }
+
+    MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                     MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
+                     MediaDevProjectRenderRuntime devProjectRender, MediaDevReviewRuntime devReview,
+                     MediaDevCreativeOutputRuntime devCreative) {
+        this.devCreative = devCreative == null ? null : new MediaDevCreativeOutputRoutes(devCreative, runtime);
         this.devReview = devReview == null ? null : new MediaDevReviewRoutes(devReview);
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
         this.consentAdministration = consentAdministration;
@@ -421,6 +437,19 @@ public final class MediaHttpHandler implements HttpHandler {
             if (devReview != null && MediaDevReviewRoutes.handles(path)) {
                 devReview.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
                         new MediaDevReviewRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
+                return;
+            }
+            if (devCreative != null && MediaDevCreativeOutputRoutes.handles(path)) {
+                devCreative.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
                             @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                                 MediaHttpHandler.this.json(e, status, body);
                             }
