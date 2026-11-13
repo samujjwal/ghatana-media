@@ -9,17 +9,23 @@
     {
       "capabilityId": "media.project.create",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["POST /dev/v1/projects"],
+      "operations": [
+        "POST /dev/v1/projects"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
       ],
-      "gaps": ["Shared workspace membership is synthetic owner scope only"]
+      "gaps": [
+        "Shared workspace membership is synthetic owner scope only"
+      ]
     },
     {
       "capabilityId": "media.project.inspect",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["GET /dev/v1/projects/{projectId}"],
+      "operations": [
+        "GET /dev/v1/projects/{projectId}"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
@@ -29,7 +35,10 @@
     {
       "capabilityId": "media.project.version",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["POST /dev/v1/projects/{projectId}/timelines/{timelineId}/edits", "GET /dev/v1/projects/{projectId}/revisions/{revisionId}"],
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/timelines/{timelineId}/edits",
+        "GET /dev/v1/projects/{projectId}/revisions/{revisionId}"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
@@ -39,41 +48,63 @@
     {
       "capabilityId": "media.project.restore",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["POST /dev/v1/projects/{projectId}/restore"],
-      "tests": ["launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java"],
-      "gaps": ["current access policy is owner-only DEV_ONLY scope"]
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/restore"
+      ],
+      "tests": [
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java"
+      ],
+      "gaps": [
+        "current access policy is owner-only DEV_ONLY scope"
+      ]
     },
     {
       "capabilityId": "media.project.source-asset.attach",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["POST /dev/v1/projects/{projectId}/timelines/{timelineId}/edits (putClip with exact artifactVersionId)"],
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/timelines/{timelineId}/edits (putClip with exact artifactVersionId)"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
       ],
-      "gaps": ["current-rights revocation is not re-checked after attachment"]
+      "gaps": [
+        "current-rights revocation is not re-checked after attachment"
+      ]
     },
     {
       "capabilityId": "media.artifact.upload",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["POST /api/v1/artifacts/uploads", "PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{index}", "POST /api/v1/artifacts/uploads/{uploadId}/complete"],
+      "operations": [
+        "POST /api/v1/artifacts/uploads",
+        "PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{index}",
+        "POST /api/v1/artifacts/uploads/{uploadId}/complete"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaHttpUploadJourneyTest.java",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java"
       ],
-      "gaps": ["qualified scanner release is not admitted"]
+      "gaps": [
+        "qualified scanner release is not admitted"
+      ]
     },
     {
       "capabilityId": "media.artifact.upload.resume",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{index} after launcher restart"],
-      "tests": ["integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java"],
+      "operations": [
+        "PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{index} after launcher restart"
+      ],
+      "tests": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java"
+      ],
       "gaps": []
     },
     {
       "capabilityId": "media.artifact.inspect",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["GET /api/v1/artifacts/{artifactId}"],
+      "operations": [
+        "GET /api/v1/artifacts/{artifactId}"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaHttpUploadJourneyTest.java",
         "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectTimelineHttpTest.java"
@@ -83,22 +114,94 @@
     {
       "capabilityId": "media.artifact.output.register",
       "status": "LOCAL_DEV_ONLY_TESTED",
-      "operations": ["POST /dev/v1/projects/{projectId}/renders", "GET /dev/v1/projects/{projectId}/renders/{renderId}"],
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/renders",
+        "GET /dev/v1/projects/{projectId}/renders/{renderId}"
+      ],
       "tests": [
         "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java",
         "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
       ],
-      "gaps": ["policy decision is DEV_ONLY owner scope; registration does not attach the output to the project or deliver it"]
+      "gaps": [
+        "policy decision is DEV_ONLY owner scope; registration does not attach the output to the project or deliver it"
+      ]
     },
     {
       "capabilityId": "media.artifact.derive",
       "status": "LOCAL_DEV_ONLY_PARTIAL",
-      "operations": ["POST /dev/v1/projects/{projectId}/renders"],
-      "tests": ["launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"],
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/renders"
+      ],
+      "tests": [
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+      ],
       "gaps": [
         "only still-image storyboard GIF derivation; no explicit transformation-profile identity/version/configuration digest",
         "no rights decision is bound to the derivation",
         "no queued-job observation; derivation runs synchronously"
+      ]
+    },
+    {
+      "capabilityId": "media.project.review",
+      "status": "LOCAL_DEV_ONLY_PARTIAL",
+      "operations": [
+        "POST /dev/v1/reviews",
+        "GET /dev/v1/reviews/{caseId}",
+        "POST /dev/v1/reviews/{caseId}/comments",
+        "POST /dev/v1/reviews/{caseId}/decisions"
+      ],
+      "tests": [
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevReviewHttpTest.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevReviewRestartIT.java"
+      ],
+      "gaps": [
+        "reviewer is the DEV_ONLY synthetic owner, not current assigned reviewer authority; establishesApproval stays false",
+        "no explicit review purpose/scope selection (quality, rights, provenance, approval) or expiry disposition",
+        "retention is always ACTIVE"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.render-manifest",
+      "status": "LOCAL_DEV_ONLY_TESTED",
+      "operations": [
+        "MultitrackRenderPlanner.plan (canonical manifest + manifestSha256)",
+        "POST /dev/v1/projects/{projectId}/renders with format mp4 (manifest digest in lineage)"
+      ],
+      "tests": [
+        "modules/production/rendering/src/test/java/com/ghatana/media/production/rendering/MultitrackRenderPlannerTest.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+      ],
+      "gaps": [
+        "the manifest is recorded by digest in render lineage, not stored as its own reviewable draft"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.track.video-audio-caption-overlay",
+      "status": "LOCAL_DEV_ONLY_PARTIAL",
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/renders with format mp4",
+        "FfmpegMultitrackRenderer.render"
+      ],
+      "tests": [
+        "modules/production/rendering/src/test/java/com/ghatana/media/production/rendering/FfmpegMultitrackRendererTest.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+      ],
+      "gaps": [
+        "project-hosted path arranges VIDEO still clips and one AUDIO WAV clip only; captions are renderer-only (no timeline caption-text source)",
+        "overlay tracks, gaps/overlaps, multiple audio clips and transitions are typed UNSUPPORTED"
+      ]
+    },
+    {
+      "capabilityId": "media.compose.scene-storyboard-assemble",
+      "status": "LOCAL_DEV_ONLY_PARTIAL",
+      "operations": [
+        "POST /dev/v1/projects/{projectId}/renders (GIF storyboard)"
+      ],
+      "tests": [
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+      ],
+      "gaps": [
+        "storyboard order is the revision's scene/track/story-time order; there is no separate storyboard/shot-plan edition or scene arrangement operation"
       ]
     }
   ]

@@ -20,8 +20,8 @@
       "OPTIONAL_DEFERRED": 6
     },
     "localEvidence": {
-      "LOCAL_DEV_ONLY_TESTED": 9,
-      "LOCAL_DEV_ONLY_PARTIAL": 1
+      "LOCAL_DEV_ONLY_TESTED": 10,
+      "LOCAL_DEV_ONLY_PARTIAL": 4
     }
   },
   "externalOwnedDependencies": {
@@ -406,7 +406,25 @@
         "modules/infrastructure/persistence",
         "runtime-contracts"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/reviews",
+          "GET /dev/v1/reviews/{caseId}",
+          "POST /dev/v1/reviews/{caseId}/comments",
+          "POST /dev/v1/reviews/{caseId}/decisions"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevReviewHttpTest.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevReviewRestartIT.java"
+        ],
+        "gaps": [
+          "reviewer is the DEV_ONLY synthetic owner, not current assigned reviewer authority; establishesApproval stays false",
+          "no explicit review purpose/scope selection (quality, rights, provenance, approval) or expiry disposition",
+          "retention is always ACTIVE"
+        ]
+      }
     },
     {
       "id": "media.project.restore",
@@ -9047,7 +9065,19 @@
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/projects/{projectId}/renders (GIF storyboard)"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+        ],
+        "gaps": [
+          "storyboard order is the revision's scene/track/story-time order; there is no separate storyboard/shot-plan edition or scene arrangement operation"
+        ]
+      }
     },
     {
       "id": "media.compose.track.video-audio-caption-overlay",
@@ -9069,7 +9099,22 @@
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/projects/{projectId}/renders with format mp4",
+          "FfmpegMultitrackRenderer.render"
+        ],
+        "tests": [
+          "modules/production/rendering/src/test/java/com/ghatana/media/production/rendering/FfmpegMultitrackRendererTest.java",
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+        ],
+        "gaps": [
+          "project-hosted path arranges VIDEO still clips and one AUDIO WAV clip only; captions are renderer-only (no timeline caption-text source)",
+          "overlay tracks, gaps/overlaps, multiple audio clips and transitions are typed UNSUPPORTED"
+        ]
+      }
     },
     {
       "id": "media.compose.transition",
@@ -9201,7 +9246,21 @@
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_TESTED",
+        "operations": [
+          "MultitrackRenderPlanner.plan (canonical manifest + manifestSha256)",
+          "POST /dev/v1/projects/{projectId}/renders with format mp4 (manifest digest in lineage)"
+        ],
+        "tests": [
+          "modules/production/rendering/src/test/java/com/ghatana/media/production/rendering/MultitrackRenderPlannerTest.java",
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+        ],
+        "gaps": [
+          "the manifest is recorded by digest in render lineage, not stored as its own reviewable draft"
+        ]
+      }
     },
     {
       "id": "media.color.white-balance",
