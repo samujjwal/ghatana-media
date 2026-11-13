@@ -1,0 +1,25 @@
+{
+  "name": "@ghatana-media/security-scanner-provider",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "Optional, independently versioned malware-scanner provider adapter implementing the Shared DocumentContentScanPort over a ClamAV (clamd) engine. Not a Media core dependency.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" }
+  },
+  "files": ["dist"],
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --experimental-strip-types test/*.test.ts",
+    "test:installed-consumer": "node scripts/test-installed-consumer.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "typescript": "^6.0.3"
+  }
+}
