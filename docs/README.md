@@ -2,14 +2,14 @@
 
 ## Current feature-development execution
 
-[Feature-Complete Development Execution](development/FEATURE-COMPLETE-EXECUTION.md) is the current feature-only acceptance overlay across all 56 registered surfaces, 30 business journeys and existing production modules. It retains the original task statuses and is **gtool-ready by source/config consistency only**; no gtool execution, closure or evidence is part of the development plan.
+**Use this hierarchy:** [Feature-Complete Development Execution](development/FEATURE-COMPLETE-EXECUTION.md) defines the overall development increments and completion standard; [Per-Surface Feature Acceptance](development/SURFACE-FEATURE-ACCEPTANCE.md) supplies the unique source-specific work and falsifiable oracle; [Usable Surface Delivery](development/USABLE-SURFACE-DELIVERY.md) routes the original task IDs by area. [The existing task register](development/remaining-work.json) alone owns task status. All are feature-only and keep later gtool metadata declaratively compatible without running gtool, formal evidence or closure.
 
 The [Per-Surface Feature Acceptance annex](development/SURFACE-FEATURE-ACCEPTANCE.md) and its [development configuration](../config/development/media-feature-surface-acceptance.v1.json) specify functionality, implementation steps and validation for each stable canonical surface and the newer support components. The static checker is `pnpm check:media-feature-acceptance`; it does **not** run gtool or formal closure.
 
 
 For source-composite pnpm installs, see [pnpm source-composite manifest authority](development/PNPM-SOURCE-COMPOSITE-MANIFEST-AUTHORITY.md); sibling `package.json` files remain npm dependency truth when temporary Kernel `package.yaml` projections are present.
 
-**Start with [Usable Surface Delivery](development/USABLE-SURFACE-DELIVERY.md)** and its [structured area/task map](development/surface-delivery.json). It prioritizes functioning libraries, headless APIs and actual host flows, assigns all currently open work exactly once, and requires selective testing without repeated unchanged suites. The older dated November 8 handoff is a status snapshot, not another task universe.
+The [area/task map](development/surface-delivery.json) retains stable original task IDs without duplicate definitions. The historical November 8 handoff is a status snapshot, not another execution source. Selective changed-input testing is the default; completed feature work should not be repeated.
 
 The [Engineering Contract and Work-Start Decisions](development/ENGINEERING-DECISIONS.md) clarify semantic boundaries, independent work start, and [historical content preservation](development/historical-content-preservation.json). The [Remaining Media Development Work](development/REMAINING-WORK.md) and its [structured register](development/remaining-work.json) contain the current owner decisions, fixes and ordered implementation-only tasks. They take precedence over older dated execution packets for feature work.
 

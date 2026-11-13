@@ -12,7 +12,7 @@ const docFor=id=>id.startsWith("media.physical.")
   ?"docs/surfaces/composition-"+id.slice("media.composition.".length).replaceAll(".","-")+"/README.md":
   id.startsWith("media.surface.")
   ?"docs/surfaces/surface-"+id.slice("media.surface.".length).replaceAll(".","-")+"/README.md":null;
-export function validateAcceptance(config,roster,delivery,capabilities) {
+export function validateAcceptance(config,roster,delivery,capabilities,overlay=null) {
  const issues=[],check=(ok,message)=>{if(!ok)issues.push(message)};
  const ids=new Set(roster.map(r=>r.id));
  check(roster.length===56&&config.surfaces.length===56&&new Set(config.surfaces.map(r=>r.id)).size===56,
@@ -50,6 +50,18 @@ export function validateAcceptance(config,roster,delivery,capabilities) {
  }
  check(capabilities.records.length===config.census.pdp0CapabilityLeaves,"PDP0 capability denominator drift");
  check(delivery.journeys.length===config.census.productJourneys,"journey denominator drift");
+ if(overlay){
+  check(overlay.surfaces.length===config.surfaces.length&&overlay.areas.length===delivery.areas.length&&
+    overlay.journeys.length===delivery.journeys.length,"feature execution overlay census drift");
+  for(const row of overlay.surfaces){
+    const detailed=config.surfaces.find(s=>s.id===row.id);
+    check(Boolean(detailed)&&row.permanentDoc===detailed?.descriptionSource&&
+      JSON.stringify(row.openTaskIds)===JSON.stringify(detailed?.relatedOpenTaskIds),
+      "feature overlay/detail source drift "+row.id);
+  }
+  check(overlay.additionalImplementationModules.length===config.components.length,
+    "feature overlay support-component census drift");
+ }
  const routes=json("config/route-manifest.json");
  const openapi=readFileSync(join(root,"contracts/openapi/media.yaml"),"utf8");
  const openapiOps=[...openapi.matchAll(/^      operationId: /gm)].length;
@@ -71,7 +83,8 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const errors=validateAcceptance(json("config/development/media-feature-surface-acceptance.v1.json"),
   json("docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json").roster,
   json("docs/development/surface-delivery.json"),
-  json("docs/development/capability-implementation-crosswalk.v1.json"));
+  json("docs/development/capability-implementation-crosswalk.v1.json"),
+  json("docs/development/feature-complete-map.json"));
  if(errors.length){console.error(errors.join("\n"));process.exitCode=1}
  else console.log("MEDIA_FEATURE_ACCEPTANCE_OK canonical=56 support=11 journeys=30 capabilities=469 HTTP=30 gRPC=45");
 }
