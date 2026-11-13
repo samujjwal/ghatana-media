@@ -108,3 +108,13 @@ describe('provider: a "no signature matched" engine answer cannot make polyglots
     assert.equal(r.verdict, 'UNKNOWN'); assert.equal(r.reasonCode, 'STRUCTURE_UNSUPPORTED_TYPE');
   });
 });
+
+describe('cross-language vector', () => {
+  it('committed REJECTED_STRUCTURE vector has the documented triple and a self-consistent binding', async () => {
+    const { readFileSync } = await import('node:fs');
+    const v = JSON.parse(readFileSync(new URL('./fixtures/rejected-structure-vector.json', import.meta.url), 'utf8'));
+    assert.deepEqual(v.expectedTriple, { verdict: 'REJECTED_STRUCTURE', status: 'FAILED', finalityVerdict: 'QUARANTINED', reasonCode: 'STRUCTURE_TRAILING_BYTES' });
+    assert.equal(createHash('sha256').update(v.canonicalPayload).digest('hex'), v.binding.payloadSha256);
+    assert.equal(v.binding.keyId, v.keyId);
+  });
+});

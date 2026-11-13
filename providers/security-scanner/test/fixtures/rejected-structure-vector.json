@@ -1,0 +1,64 @@
+{
+  "note": "TEST-ONLY vector produced by providers/security-scanner (real provider, deterministic seed). Not a production key.",
+  "expectedTriple": {
+    "verdict": "REJECTED_STRUCTURE",
+    "status": "FAILED",
+    "finalityVerdict": "QUARANTINED",
+    "reasonCode": "STRUCTURE_TRAILING_BYTES"
+  },
+  "publicKeySpkiBase64": "MCowBQYDK2VwAyEAvTQfHwQ21idW40w+XBijXEA0aSewBBsEtsQyneN6l6Y=",
+  "keyId": "interop-key-1",
+  "attestation": {
+    "scannerRef": "clamd-interop-fixture",
+    "scannerVersion": "ClamAV 1.4.0",
+    "status": "FAILED",
+    "verdict": "REJECTED_STRUCTURE",
+    "reasonCode": "STRUCTURE_TRAILING_BYTES",
+    "scannedAt": "2026-11-12T12:00:00.000Z",
+    "checksum": {
+      "algorithm": "SHA-256",
+      "value": "b6b9dd849e4c5865eb04a9ae182b0b3ca2dcad7151baa8624ab5b0620e593678"
+    },
+    "tenantId": "tenant-a",
+    "documentId": "upload-a",
+    "documentVersion": 1,
+    "scannedDigest": {
+      "algorithm": "SHA-256",
+      "value": "b6b9dd849e4c5865eb04a9ae182b0b3ca2dcad7151baa8624ab5b0620e593678"
+    },
+    "scannedSizeBytes": 95,
+    "engine": {
+      "name": "ClamAV",
+      "version": "ClamAV 1.4.0",
+      "definitionsVersion": "27000",
+      "definitionsDate": "2026-11-12T00:00:00.000Z"
+    },
+    "verifiedAt": "2026-11-12T12:00:00.000Z",
+    "expiresAt": "2026-11-12T12:10:00.000Z",
+    "attestationRef": "att-rejected-0001",
+    "finality": {
+      "verdict": "QUARANTINED",
+      "tenantRef": "tenant-a",
+      "sourceRef": "quarantine:tenant-a/upload-a/1",
+      "verifiedAt": "2026-11-12T12:00:00.000Z",
+      "expiresAt": "2026-11-12T12:10:00.000Z",
+      "statusRef": "scan-status:att-rejected-0001",
+      "attestationRef": "att-rejected-0001",
+      "signatureRef": "Ed25519:interop-key-1:att-rejected-0001",
+      "errorCode": "STRUCTURE_TRAILING_BYTES"
+    },
+    "attestation": {
+      "algorithm": "Ed25519",
+      "keyId": "interop-key-1",
+      "signature": "t-3QBlcD3HdImJGs6BB0nzwI2fIxmobG-jZpqKOBLSRViAzuuEg-9MvjBvLj9TrDwtz0vXBwUtI9TzGf9ZFaCQ"
+    }
+  },
+  "canonicalPayload": "{\"attestationRef\":\"att-rejected-0001\",\"checksum\":{\"algorithm\":\"SHA-256\",\"value\":\"b6b9dd849e4c5865eb04a9ae182b0b3ca2dcad7151baa8624ab5b0620e593678\"},\"documentId\":\"upload-a\",\"documentVersion\":1,\"engine\":{\"definitionsDate\":\"2026-11-12T00:00:00.000Z\",\"definitionsVersion\":\"27000\",\"name\":\"ClamAV\",\"version\":\"ClamAV 1.4.0\"},\"expiresAt\":\"2026-11-12T12:10:00.000Z\",\"finality\":{\"attestationRef\":\"att-rejected-0001\",\"errorCode\":\"STRUCTURE_TRAILING_BYTES\",\"expiresAt\":\"2026-11-12T12:10:00.000Z\",\"signatureRef\":\"Ed25519:interop-key-1:att-rejected-0001\",\"sourceRef\":\"quarantine:tenant-a/upload-a/1\",\"statusRef\":\"scan-status:att-rejected-0001\",\"tenantRef\":\"tenant-a\",\"verdict\":\"QUARANTINED\",\"verifiedAt\":\"2026-11-12T12:00:00.000Z\"},\"reasonCode\":\"STRUCTURE_TRAILING_BYTES\",\"scannedAt\":\"2026-11-12T12:00:00.000Z\",\"scannedDigest\":{\"algorithm\":\"SHA-256\",\"value\":\"b6b9dd849e4c5865eb04a9ae182b0b3ca2dcad7151baa8624ab5b0620e593678\"},\"scannedSizeBytes\":95,\"scannerRef\":\"clamd-interop-fixture\",\"scannerVersion\":\"ClamAV 1.4.0\",\"status\":\"FAILED\",\"tenantId\":\"tenant-a\",\"verdict\":\"REJECTED_STRUCTURE\",\"verifiedAt\":\"2026-11-12T12:00:00.000Z\"}",
+  "binding": {
+    "attestationRef": "att-rejected-0001",
+    "algorithm": "Ed25519",
+    "keyId": "interop-key-1",
+    "signature": "t-3QBlcD3HdImJGs6BB0nzwI2fIxmobG-jZpqKOBLSRViAzuuEg-9MvjBvLj9TrDwtz0vXBwUtI9TzGf9ZFaCQ",
+    "payloadSha256": "18216e70bfefe48664a835bd791fd007fa98a2aa2c02ee39e1f8b5149cf468a0"
+  }
+}
