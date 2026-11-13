@@ -33,6 +33,7 @@ import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -167,6 +168,195 @@ class MediaDevProjectTimelineRestartIT {
                 });
             }
         }
+    }
+
+    @Test
+    void projectRevisionRendersRegisteredArtifactThatReopensAfterLauncherRestart() throws Exception {
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String tenant = "tenant-dev-render-" + run;
+        String principal = "media-dev-render-" + run;
+        String bucket = "media-dev-render-" + run;
+        String schema = "media_dev_render_" + run;
+        int port;
+        try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+        Path services = Files.createTempDirectory("media-dev-render-services-");
+        Path log = Files.createTempFile("media-dev-render-process-", ".log");
+        Process launcher = null;
+        try {
+            try (S3Client s3 = s3()) {
+                s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+            }
+            installDescriptors(services);
+            String childClasspath = System.getProperty("media.child.classpath", "");
+            assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
+            String classpath = services + java.io.File.pathSeparator + childClasspath;
+            Map<String, String> environment = environment(bucket, port, schema);
+            String token = issueDevToken(tenant, principal, true);
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+
+            byte[] red = solidPng(0xffff0000);
+            byte[] blue = solidPng(0xff0000ff);
+            String redId = uploadOwnedImageArtifact(port, tenant, principal, token, run + "-red", red);
+            String blueId = uploadOwnedImageArtifact(port, tenant, principal, token, run + "-blue", blue);
+
+            String workspaceId = JSON.readTree(send(port, tenant, token, "GET", "/dev/v1/context", null).body())
+                    .path("selectedAuthorizedWorkspaceId").asString();
+            HttpResponse<String> created = send(port, tenant, token, "POST", "/dev/v1/projects",
+                    JSON.writeValueAsString(Map.of("selectedAuthorizedWorkspaceId", workspaceId,
+                            "title", "Render restart project", "requestId", "render-project-" + run)));
+            assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            JsonNode createdBody = JSON.readTree(created.body());
+            String projectId = createdBody.path("project").path("projectId").asString();
+            String head = createdBody.path("initialRevision").path("revisionId").asString();
+            HttpResponse<String> timeline = send(port, tenant, token, "POST",
+                    "/dev/v1/projects/" + projectId + "/timelines",
+                    JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "timelineId", "timeline-main")));
+            assertThat(timeline.statusCode()).as(timeline.body()).isEqualTo(201);
+            head = JSON.readTree(timeline.body()).path("revision").path("revisionId").asString();
+            String editPath = "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits";
+            HttpResponse<String> edited = send(port, tenant, token, "POST", editPath, JSON.writeValueAsString(Map.of(
+                    "expectedHeadRevisionId", head, "edits", List.of(
+                            Map.of("type", "addScene", "sceneId", "scene-main", "order", 0),
+                            Map.of("type", "addTrack", "trackId", "video-main", "sceneId", "scene-main",
+                                    "trackKind", "VIDEO", "order", 0),
+                            renderClip("clip-red", redId, sha256(red), 0),
+                            renderClip("clip-blue", blueId, sha256(blue), 24)))));
+            assertThat(edited.statusCode()).as(edited.body()).isEqualTo(201);
+            String revisionId = JSON.readTree(edited.body()).path("revision").path("revisionId").asString();
+
+            String renderBody = JSON.writeValueAsString(Map.of("requestId", "render-" + run,
+                    "revisionId", revisionId, "timelineId", "timeline-main",
+                    "width", 32, "height", 24, "framesPerSecond", 10));
+            HttpResponse<String> rendered = send(port, tenant, token, "POST",
+                    "/dev/v1/projects/" + projectId + "/renders", renderBody);
+            assertThat(rendered.statusCode()).as(rendered.body()).isEqualTo(201);
+            JsonNode render = JSON.readTree(rendered.body());
+            String renderId = render.path("renderId").asString();
+            String renderSha = render.path("artifact").path("sha256").asString();
+            assertThat(render.path("lineage").path("revisionId").asString()).isEqualTo(revisionId);
+            assertThat(render.path("lineage").path("sources").get(0).path("artifactVersionId").asString())
+                    .isEqualTo("sha256:" + sha256(red));
+
+            // Kill and restart the real launcher process; the same media reopens from PostgreSQL + S3.
+            stopLauncher(launcher);
+            launcher = null;
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+
+            HttpResponse<String> reopened = send(port, tenant, token, "GET",
+                    "/dev/v1/projects/" + projectId + "/renders/" + renderId, null);
+            assertThat(reopened.statusCode()).as(reopened.body()).isEqualTo(200);
+            JsonNode reopenedBody = JSON.readTree(reopened.body());
+            assertThat(reopenedBody.path("artifact").path("sha256").asString()).isEqualTo(renderSha);
+            assertThat(reopenedBody.path("lineage")).isEqualTo(render.path("lineage"));
+
+            HttpResponse<String> replay = send(port, tenant, token, "POST",
+                    "/dev/v1/projects/" + projectId + "/renders", renderBody);
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(JSON.readTree(replay.body()).path("renderId").asString()).isEqualTo(renderId);
+            assertThat(JSON.readTree(replay.body()).path("replayed").asBoolean()).isTrue();
+
+            // Independent decode of the durable object bytes.
+            String objectReference;
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                    var statement = connection.prepareStatement(
+                            "SELECT object_reference, content_type, sha256 FROM media_artifacts "
+                                    + "WHERE tenant_id=? AND artifact_id=? AND principal_id=?")) {
+                statement.setString(1, tenant);
+                statement.setString(2, renderId);
+                statement.setString(3, principal);
+                try (var row = statement.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getString("content_type")).isEqualTo("image/gif");
+                    assertThat(row.getString("sha256")).isEqualTo(renderSha);
+                    objectReference = row.getString("object_reference");
+                    assertThat(row.next()).as("exactly one durable render artifact").isFalse();
+                }
+            }
+            String key = objectReference.substring(("s3://" + bucket + "/").length());
+            byte[] gif;
+            try (S3Client s3 = s3()) {
+                gif = s3.getObjectAsBytes(software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                        .bucket(bucket).key(key).build()).asByteArray();
+            }
+            assertThat(sha256(gif)).isEqualTo(renderSha);
+            try (var input = javax.imageio.ImageIO.createImageInputStream(new java.io.ByteArrayInputStream(gif))) {
+                var reader = javax.imageio.ImageIO.getImageReadersByFormatName("gif").next();
+                reader.setInput(input);
+                assertThat(reader.getNumImages(true)).isEqualTo(20);
+                assertThat(reader.read(5).getRGB(16, 12)).isEqualTo(0xffff0000);
+                assertThat(reader.read(15).getRGB(16, 12)).isEqualTo(0xff0000ff);
+                reader.dispose();
+            }
+
+            String otherToken = issueDevToken(tenant, "media-dev-render-other-" + run, true);
+            HttpResponse<String> foreign = send(port, tenant, otherToken, "GET",
+                    "/dev/v1/projects/" + projectId + "/renders/" + renderId, null);
+            assertThat(foreign.statusCode()).as(foreign.body()).isIn(403, 404);
+            assertThat(foreign.body()).doesNotContain(renderSha);
+        } finally {
+            if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
+            dropSchema(schema);
+            deleteBucket(bucket);
+            Files.deleteIfExists(log);
+            if (Files.exists(services)) try (var paths = Files.walk(services)) {
+                paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                    try { Files.deleteIfExists(path); } catch (Exception ignored) { }
+                });
+            }
+        }
+    }
+
+    private static Map<String, Object> renderClip(String clipId, String artifactId, String digest, long startTicks) {
+        Map<String, Object> time0 = Map.of("ticks", "0", "rateNumerator", "24", "rateDenominator", "1",
+                "clock", "SOURCE_PRESENTATION");
+        Map<String, Object> time1 = Map.of("ticks", "1", "rateNumerator", "24", "rateDenominator", "1",
+                "clock", "SOURCE_PRESENTATION");
+        return Map.of("type", "putClip", "clip", Map.of(
+                "clipId", clipId, "sceneId", "scene-main", "trackId", "video-main",
+                "source", Map.of("artifactId", artifactId, "artifactVersionId", "sha256:" + digest),
+                "sourceIn", time0, "sourceOut", time1,
+                "storyStart", Map.of("ticks", Long.toString(startTicks), "rateNumerator", "24",
+                        "rateDenominator", "1", "clock", "STORY"),
+                "storyDuration", Map.of("ticks", "24", "rateNumerator", "24", "rateDenominator", "1",
+                        "clock", "STORY")));
+    }
+
+    private static byte[] solidPng(int argb) throws Exception {
+        var image = new java.awt.image.BufferedImage(8, 6, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < 6; y++) for (int x = 0; x < 8; x++) image.setRGB(x, y, argb);
+        var out = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(image, "png", out);
+        return out.toByteArray();
+    }
+
+    private static String uploadOwnedImageArtifact(int port, String tenant, String principal, String token,
+            String key, byte[] bytes) throws Exception {
+        Map<String, Object> requestBody = Map.of(
+                "tenantId", tenant, "principalId", principal, "fileName", "frame-" + key + ".png",
+                "contentType", "image/png", "expectedSizeBytes", bytes.length, "expectedSha256", sha256(bytes),
+                "classification", "INTERNAL", "retention", "P30D",
+                "metadata", Map.of("scope", "DEV_ONLY", "fixture", "synthetic-render-source"));
+        HttpResponse<String> begun = HttpClient.newHttpClient().send(HttpRequest.newBuilder(
+                        URI.create("http://127.0.0.1:" + port + "/api/v1/artifacts/uploads"))
+                .header("Authorization", "Bearer " + token).header("X-Tenant-Id", tenant)
+                .header("Idempotency-Key", "render-source-" + key).header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(JSON.writeValueAsString(requestBody), StandardCharsets.UTF_8))
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(begun.statusCode()).as(begun.body()).isEqualTo(201);
+        String uploadId = JSON.readTree(begun.body()).path("uploadId").asString();
+        HttpResponse<String> chunk = HttpClient.newHttpClient().send(HttpRequest.newBuilder(URI.create(
+                        "http://127.0.0.1:" + port + "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0"))
+                .header("Authorization", "Bearer " + token).header("X-Tenant-Id", tenant)
+                .header("Content-Type", "application/octet-stream")
+                .PUT(HttpRequest.BodyPublishers.ofByteArray(bytes)).build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(chunk.statusCode()).as(chunk.body()).isEqualTo(200);
+        HttpResponse<String> completed = send(port, tenant, token, "POST",
+                "/api/v1/artifacts/uploads/" + uploadId + "/complete", "");
+        assertThat(completed.statusCode()).as(completed.body()).isEqualTo(201);
+        return JSON.readTree(completed.body()).path("artifactId").asString();
     }
 
     @Test

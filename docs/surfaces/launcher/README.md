@@ -51,6 +51,33 @@ and stable terminal reads — **no second writer**.
   establish current rights/revocation, decoder-clock verification, overlap
   semantics, rendering, Shared membership, or production authority; canonical
   production routes and CLI admission are unchanged.
+- **Project → source → render → artifact → reopen (DEV_ONLY).**
+  `POST /dev/v1/projects/{projectId}/renders` takes
+  `{requestId, revisionId, timelineId, width, height, framesPerSecond}` and
+  requires `media:project:dev:write` plus `media:artifact:{read,create}`.
+  `MediaDevProjectRenderRuntime` reads that exact immutable revision (owner
+  scope), resolves every clip's source at its exact artifact version (missing,
+  foreign or changed version → `404 SOURCE_VERSION_NOT_FOUND`), decodes PNG/GIF/
+  JPEG stills under a header-checked 2048px/4 MP ceiling, renders a
+  storyboard GIF with the existing `production/animation` `AnimationRenderer`
+  (exact rational story-time → frame mapping, ≤240 frames, FPS must divide 100
+  so the GIF clock is exact), and registers the bytes through the canonical
+  idempotent upload path with lineage metadata (project, revision, timeline
+  semantic version, per-clip source versions and frame windows). The render is
+  deterministic, so a duplicate `requestId` replays the same artifact (`200`,
+  `replayed:true`); reusing it for a different payload is `409`. A crash
+  between durable chunk append and completion leaves an open upload that the
+  same `requestId` resumes (verified chunk replay) instead of duplicating.
+  Registration failure is `502 RENDER_REGISTRATION_FAILED` with no output.
+  Audio/caption tracks, non-image sources, empty timelines and ceiling
+  overruns are typed `422` (`TRACK_KIND_NOT_SUPPORTED`,
+  `SOURCE_FORMAT_NOT_SUPPORTED`, `RENDER_EMPTY_TIMELINE`,
+  `RENDER_LIMIT_EXCEEDED`). `GET /dev/v1/projects/{projectId}/renders/{renderId}`
+  reopens the registered artifact and its lineage after a restart; artifacts
+  that are not this project's render are `404`. Not covered: time-based video
+  sources, audio mix, captions, current-rights revocation, scanner release,
+  or any production admission — these routes stay outside the canonical
+  manifest/OpenAPI.
 - The DEV_ONLY artifact intake host reads `GET /dev/v1/artifact-upload-policy`
   using a signed DEV_ONLY identity with `media:artifact:create`. The exact
   response is `{schemaVersion:"media.dev.artifact-upload-policy.v1",
@@ -104,6 +131,7 @@ and stable terminal reads — **no second writer**.
 | `MediaRuntime.compose` / upload & artifact methods | Canonical runtime port |
 | `MediaHttpHandler` | HTTP request handling over `MediaRouteManifest` |
 | `MediaDevProjectTimelineRuntime` | Optional isolated owner-only DEV_ONLY project and timeline preview |
+| `MediaDevProjectRenderRuntime` | DEV_ONLY revision-exact storyboard render registered as an immutable artifact with lineage |
 | `vision-service` (`bin/vision-service`) | Standalone Vision gRPC server on the same packaged classpath |
 
 ## States and invariants
@@ -163,6 +191,15 @@ an older slow failure preserves a newer published observation.
 Executable completion targets (plan §07): J01/J02/J20/J03 integration,
 process-kill before/after commit, stale tenant, idempotency,
 cancel/late response, startup readiness, bounded threads and memory.
+Project-to-media-output workflow (in-process + real launcher/PostgreSQL/S3 restart):
+
+```bash
+./gradlew :services:media:launcher:test \
+  --tests 'com.ghatana.media.launcher.MediaDevProjectRenderHttpTest'
+./gradlew :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaDevProjectTimelineRestartIT'
+```
+
 Focused identity and rights coverage:
 
 ```bash

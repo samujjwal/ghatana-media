@@ -89,6 +89,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaConsentAdministration consentAdministration;
     private final MediaCaptionRuntime captions;
     private final MediaDevProjectTimelineRuntime devProjectTimeline;
+    private final MediaDevProjectRenderRuntime devProjectRender;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -110,10 +111,18 @@ public final class MediaHttpHandler implements HttpHandler {
 
     public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
                             MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline) {
+        this(runtime, consentAdministration, captions, devProjectTimeline,
+                devProjectTimeline == null ? null : new MediaDevProjectRenderRuntime(runtime, devProjectTimeline));
+    }
+
+    MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                     MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
+                     MediaDevProjectRenderRuntime devProjectRender) {
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
         this.consentAdministration = consentAdministration;
         this.captions = captions;
         this.devProjectTimeline = devProjectTimeline;
+        this.devProjectRender = devProjectRender;
     }
 
     @Override
@@ -467,6 +476,44 @@ public final class MediaHttpHandler implements HttpHandler {
                 json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
                 return;
             }
+            Matcher renders = Pattern.compile("^/dev/v1/projects/([^/]+)/renders$").matcher(path);
+            if (renders.matches()) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                if (!MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read")
+                        || !MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:create")) {
+                    runtime.recordDeniedRequest();
+                    error(exchange, 403, "ARTIFACT_PERMISSION_REQUIRED",
+                            "DEV_ONLY artifact read and create permissions are required to render a project");
+                    return;
+                }
+                Map<String, Object> body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
+                if (body == null) throw new IllegalArgumentException("render request is required");
+                requireExactKeys(body, Set.of("requestId", "revisionId", "timelineId", "width", "height",
+                        "framesPerSecond"), "render request");
+                var request = new MediaDevProjectRenderRuntime.RenderRequest(
+                        requiredString(body.get("requestId"), "requestId"),
+                        requiredString(body.get("revisionId"), "revisionId"),
+                        requiredString(body.get("timelineId"), "timelineId"),
+                        boundedInt(body.get("width"), "width"), boundedInt(body.get("height"), "height"),
+                        boundedInt(body.get("framesPerSecond"), "framesPerSecond"));
+                var result = devProjectRender.render(tenantId, principalId,
+                        decodePathSegment(renders.group(1)), request);
+                json(exchange, result.replayed() ? 200 : 201, devRenderView(result));
+                return;
+            }
+            Matcher renderRead = Pattern.compile("^/dev/v1/projects/([^/]+)/renders/([^/]+)$").matcher(path);
+            if (renderRead.matches()) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
+                var result = devProjectRender.reopen(tenantId, principalId,
+                        decodePathSegment(renderRead.group(1)), decodePathSegment(renderRead.group(2)));
+                if (result.isEmpty()) {
+                    error(exchange, 404, "RENDER_NOT_FOUND", "Render is not available in this project and owner scope");
+                    return;
+                }
+                json(exchange, 200, devRenderView(result.get()));
+                return;
+            }
             Matcher revision = Pattern.compile("^/dev/v1/projects/([^/]+)/revisions/([^/]+)$").matcher(path);
             if (revision.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
@@ -478,6 +525,15 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "NOT_FOUND", "Local project timeline route not found");
         } catch (ProjectNotFoundException failure) {
             error(exchange, 404, "PROJECT_NOT_FOUND", "Project is not available in this tenant and owner scope");
+        } catch (MediaDevProjectRenderRuntime.SourceVersionUnavailableException failure) {
+            runtime.recordDeniedRequest();
+            error(exchange, 404, "SOURCE_VERSION_NOT_FOUND",
+                    "The exact source artifact version is not available to this DEV_ONLY principal");
+        } catch (MediaDevProjectRenderRuntime.RenderNotSupportedException failure) {
+            error(exchange, 422, failure.code(), failure.getMessage());
+        } catch (MediaDevProjectRenderRuntime.RenderRegistrationFailedException failure) {
+            error(exchange, 502, "RENDER_REGISTRATION_FAILED",
+                    "Rendered output was not registered; retry with the same requestId to resume");
         } catch (ProjectAccessDeniedException failure) {
             runtime.recordDeniedRequest();
             error(exchange, 403, "PROJECT_ACCESS_DENIED", "Principal is not authorized to access this project");
@@ -1220,6 +1276,32 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private record DevCreateProjectBody(String selectedAuthorizedWorkspaceId, String title, String requestId) { }
+    private static int boundedInt(Object value, String name) {
+        if (!(value instanceof Integer || value instanceof Long || value instanceof Short)) {
+            throw new IllegalArgumentException(name + " must be an integer");
+        }
+        long number = ((Number) value).longValue();
+        if (number < 1 || number > 1_000_000) throw new IllegalArgumentException(name + " is out of range");
+        return (int) number;
+    }
+
+    private static Map<String, Object> devRenderView(MediaDevProjectRenderRuntime.RenderResult result) {
+        MediaArtifact artifact = result.artifact();
+        Map<String, Object> view = new java.util.LinkedHashMap<>();
+        view.put("renderId", artifact.artifactId());
+        view.put("artifact", Map.of(
+                "artifactId", artifact.artifactId(),
+                "artifactVersionId", artifact.version().value(),
+                "contentType", artifact.contentType(),
+                "sizeBytes", artifact.sizeBytes(),
+                "sha256", artifact.sha256(),
+                "artifactPath", "/api/v1/artifacts/" + artifact.artifactId()));
+        view.put("lineage", result.lineage());
+        view.put("replayed", result.replayed());
+        view.put("scope", "DEV_ONLY");
+        return view;
+    }
+
     private record DevCreateTimelineBody(String expectedHeadRevisionId, String timelineId) { }
     private record DevRestoreProjectBody(String expectedHeadRevisionId, String targetRevisionId) { }
 
