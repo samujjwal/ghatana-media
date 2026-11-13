@@ -5,7 +5,7 @@
  "source": {
   "repository": "samujjwal/ghatana",
   "ref": "origin/main",
-  "commit": "7d81f267bc7fe1149557d827e029a0dfd09bc6ab",
+  "commit": "60c803da7184b1cdbf4c886ae3fb7d4953c3d363",
   "path": "services/document-intelligence",
   "readOnly": true,
   "sourceFileCount": 1486
@@ -9377,9 +9377,9 @@
   },
   {
    "path": "src/document_intelligence/app.py",
-   "sourceSha256": "e8a775ed8f8a3862df68b8bb4359172aacf6abe654a8bacdc4a58951de619547",
-   "destinationSha256": "e8a775ed8f8a3862df68b8bb4359172aacf6abe654a8bacdc4a58951de619547",
-   "bytes": 19414,
+   "sourceSha256": "50697e4c6be508483b89dabf29aa938e4d0ebceae310c34d03933759ee5f26ae",
+   "destinationSha256": "50697e4c6be508483b89dabf29aa938e4d0ebceae310c34d03933759ee5f26ae",
+   "bytes": 19454,
    "disposition": "COPIED_VERBATIM"
   },
   {
@@ -9573,9 +9573,9 @@
   },
   {
    "path": "src/document_intelligence/providers/paddle_ocr_parser.py",
-   "sourceSha256": "421d8dccd25694850b2bec08c76409c2aed1387bea5b2bbc1ac76f7bbd8b1768",
-   "destinationSha256": "421d8dccd25694850b2bec08c76409c2aed1387bea5b2bbc1ac76f7bbd8b1768",
-   "bytes": 13864,
+   "sourceSha256": "64b426a5f96527e0d8a39f8d0d2f95f4e47bdbf237ac79eae6d056bc35ddc6c9",
+   "destinationSha256": "64b426a5f96527e0d8a39f8d0d2f95f4e47bdbf237ac79eae6d056bc35ddc6c9",
+   "bytes": 14118,
    "disposition": "COPIED_VERBATIM"
   },
   {

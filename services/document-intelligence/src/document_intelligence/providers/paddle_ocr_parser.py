@@ -7,7 +7,6 @@ from typing import Any, Callable
 
 from PIL import Image, UnidentifiedImageError
 import io
-import numpy as np
 
 from ..errors import WorkerError
 from ..mapping.parsed_document import normalized_box
@@ -125,6 +124,10 @@ def _legibility_factor(image: Any, polygon: Any) -> float:
     background luminance separation of the region's pixels into the emitted
     confidence so faded or low-contrast strokes honestly read lower.
     """
+    # numpy ships with the `providers` extra (paddle requires it); import lazily like `paddleocr` so the base
+    # runtime imports without it (`python -m document_intelligence.app` / `main()` on a runtime-only install).
+    import numpy as np
+
     try:
         points = np.asarray(polygon, dtype=np.float64)
         if points.ndim != 2 or points.shape[0] != 4:
@@ -241,6 +244,8 @@ class PaddleOcrParser:
             raise WorkerError("PROVIDER_FAILED", provider_ref=self.provider_ref) from exc
         token.raise_if_cancelled()
         deadline.require_remaining()
+        import numpy as np
+
         try:
             image_array = np.asarray(image)
             raw = self._model(language).predict(image_array)
