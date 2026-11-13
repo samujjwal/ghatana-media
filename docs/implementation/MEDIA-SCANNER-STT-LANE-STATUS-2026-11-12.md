@@ -153,3 +153,15 @@ node_modules install was not attempted.
 * STT: candidate recorded only (`config/provider-qualification/evidence/stt.candidate-whisper-tiny.json`): official OpenAI Whisper tiny.pt
   sha256 65147644…22b9, MIT per pinned upstream README, REVIEW_ONLY. No English or Nepali quality claim; corpus-result and language-qualification stay missing.
 * Scanner: real ClamAV NOT run here. Neither clamd nor an image is installed; pulling a third-party image plus freshclam definitions needs the user's explicit approval.
+
+## DI operational drill on real Tesseract (single writer, no source change)
+`services/document-intelligence/tests/integration/test_tesseract_operational_drill.py` (opt-in `DOCUMENT_INTELLIGENCE_RUN_REAL_PROVIDERS=1`, stdlib
+unittest, 7/7 pass, ~6 s): in-flight cancel kills the engine (no orphan, typed CANCELLED); deadline => retryable TIMEOUT, no result; SIGKILL of
+the engine mid-job => PROVIDER_FAILED, no text; worker crash/restart through `FileOutcomeStore` => no outcome (UNKNOWN to the caller) and
+the same operation generation is refused (DUPLICATE_OPERATION), never silently re-executed; a published result replays byte-identically after restart;
+cancel-before-publish blocks late result resurrection; OCR text is absent from log events (`safe_event` allow-list).
+Findings, not changed (DI source stays byte-compatible with the Ghatana writer): (a) idempotency is per operationId+generation. Content-digest
+dedupe is intentionally absent from the worker (cross-tenant dedupe hazard); it belongs to the Kernel adapter's idempotencyKey+fingerprint, which already
+refuses re-dispatch. (b) the drill shows `ResourceWarning: unclosed file` for subprocess pipes on cancel/kill paths in `subprocess_runner.py`
+(closed at GC, low severity) — a candidate fd-hygiene fix for the DI owner. (c) The FastAPI service-level path and the Kernel->DI service end-to-end need the
+DI runtime Python deps, which are not installed and not in the uv cache; installing them needs a PyPI download (approval pending).
