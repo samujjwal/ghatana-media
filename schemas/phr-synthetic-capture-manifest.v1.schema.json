@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghatana.dev/schemas/phr-synthetic-capture-manifest.v1.schema.json",
+  "title": "Synthetic five-origin PHR Web capture manifest (MED-08)",
+  "description": "Records what the Media recorder-orchestrator/capture adapters captured from the five synthetic PHR Web origins. It is demo evidence only: never clinical evidence, never STT admission. Semantic checks beyond this schema (distinct origins, privacy scan, build-digest recomputation) are enforced by scripts/phr-synthetic-capture-manifest.mjs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "manifestId", "generatedAt", "engine", "origins", "privacy", "classification"],
+  "properties": {
+    "schemaVersion": { "const": "media.phr-synthetic-capture-manifest.v1" },
+    "manifestId": { "type": "string", "minLength": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "packageVersion", "recorderOrchestratorRef", "captureAdapterKinds"],
+      "properties": {
+        "package": { "const": "@audio-video/client" },
+        "packageVersion": { "type": "string", "minLength": 1 },
+        "recorderOrchestratorRef": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "captureAdapterKinds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["HTTP_API", "BROWSER", "FILE", "DESKTOP", "TERMINAL", "MOBILE", "CAMERA"] } }
+      }
+    },
+    "origins": {
+      "type": "array", "minItems": 5, "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["originId", "appAudience", "baseUrl", "buildDigest", "scenarioRef", "fixtureIds", "captures"],
+        "properties": {
+          "originId": { "type": "string", "minLength": 1 },
+          "appAudience": { "enum": ["doctor", "patient", "facility", "pharmacy", "phr.coordination"] },
+          "baseUrl": { "type": "string", "pattern": "^https?://" },
+          "buildDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "scenarioRef": { "type": "string", "minLength": 1 },
+          "fixtureIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+          "captures": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["sceneId", "adapterKind", "outcome", "sourceDigest"],
+              "properties": {
+                "sceneId": { "type": "string", "minLength": 1 },
+                "adapterKind": { "enum": ["HTTP_API", "BROWSER", "FILE", "DESKTOP", "TERMINAL", "MOBILE", "CAMERA"] },
+                "outcome": { "enum": ["CAPTURED", "UNAVAILABLE", "OUTCOME_UNKNOWN", "DENIED"] },
+                "sourceDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataClass", "containsRealPersonalData", "redactionPolicyRef", "scanner", "scanResult"],
+      "properties": {
+        "dataClass": { "const": "SYNTHETIC" },
+        "containsRealPersonalData": { "const": false },
+        "redactionPolicyRef": { "type": "string", "minLength": 1 },
+        "scanner": { "const": "phr-synthetic-capture-manifest.mjs/privacy-scan.v1" },
+        "scanResult": { "const": "NO_FINDINGS" }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clinicalEvidence", "sttAdmissionEvidence"],
+      "properties": {
+        "clinicalEvidence": { "const": false },
+        "sttAdmissionEvidence": { "const": false }
+      }
+    }
+  }
+}
