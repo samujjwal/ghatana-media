@@ -1,0 +1,1708 @@
+{
+  "schemaVersion": "media.feature-surface-acceptance.v1",
+  "sourceReviewCommit": "4c3442510549a93a62212e81ce2185811b9fdc00",
+  "scope": "DEV_FEATURES_APIS_TESTS_CONFIG_NOT_LIFECYCLE_PROOF",
+  "authorities": {
+    "productMeaning": ".product-experience/",
+    "canonicalSurfaces": "docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json",
+    "tasks": "docs/development/remaining-work.json",
+    "delivery": "docs/development/surface-delivery.json",
+    "capabilityLeaves": "docs/development/capability-implementation-crosswalk.v1.json"
+  },
+  "census": {
+    "canonicalSurfaces": 56,
+    "physical": 28,
+    "logical": 21,
+    "compositions": 7,
+    "otherImplementationUnits": 11,
+    "pdp0CapabilityLeaves": 469,
+    "productJourneys": 30,
+    "actualHttpRoutes": 30,
+    "actualGrpcRpcs": 45,
+    "namedPdp1Http": 27,
+    "namedPdp1Grpc": 43
+  },
+  "surfaces": [
+    {
+      "id": "media.physical.adapters-agent-tools-media",
+      "type": "physical",
+      "sourcePath": "adapters/agent-tools-media",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/adapters-agent-tools-media/README.md",
+      "featureOutcome": "Four governed STT/TTS/Vision/Multimodal actions",
+      "implementationToFinish": "Bind verified agent identity, exact operation/source rights, durable receipt",
+      "acceptanceOracle": "No duplicate effect or cross-tenant/revoked replay; timeouts UNKNOWN",
+      "deliveryAreas": [
+        "headless-media",
+        "delivery-agents"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.public-events",
+        "media.dev.authorized-agent-delegation"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.adapters-data-cloud-media",
+      "type": "physical",
+      "sourcePath": "adapters/data-cloud-media",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/adapters-data-cloud-media/README.md",
+      "featureOutcome": "Optional metadata read model, no Media state ownership",
+      "implementationToFinish": "Keep legacy MediaProcessorPort unavailable; publication only via approved public consumer",
+      "acceptanceOracle": "Data Cloud outage changes no Media artifact/job finality",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.adapters-ledger",
+      "type": "physical",
+      "sourcePath": "adapters/ledger",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/adapters-ledger/README.md",
+      "featureOutcome": "Optional ordered durable projection",
+      "implementationToFinish": "Keep pre-dispatch UNKNOWN and real downstream readback CAS",
+      "acceptanceOracle": "Crash/lost ACK and concurrency never duplicate or fake terminal",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.apps-media-experience-explorer",
+      "type": "physical",
+      "sourcePath": "apps/media-experience-explorer",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/apps-media-experience-explorer/README.md",
+      "featureOutcome": "47-screen deterministic Explorer",
+      "implementationToFinish": "Match PDP3 scenario, captions and simulation labels",
+      "acceptanceOracle": "CSP, keyboard, deterministic replay and zero live effects",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.cross-surface-integration-harness"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.audio-video-observability",
+      "type": "physical",
+      "sourcePath": "audio-video-observability",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/audio-video-observability/README.md",
+      "featureOutcome": "True workflow and provider health",
+      "implementationToFinish": "Wire real readiness/quality metrics, alerts and capacity probes",
+      "acceptanceOracle": "UNKNOWN/NaN for missing data, real fire-clear, bounded labels",
+      "deliveryAreas": [
+        "headless-media",
+        "vision-multimodal",
+        "studio-video"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.service-observability",
+        "media.dev.load-and-quality-profiles",
+        "media.dev.quality-comparison-and-optimization"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.integration-tests",
+      "type": "physical",
+      "sourcePath": "integration-tests",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/integration-tests/README.md",
+      "featureOutcome": "Source-free launcher and host journey tests",
+      "implementationToFinish": "Run actual SDK through Postgres/S3, restart and failures",
+      "acceptanceOracle": "Real output bytes/finality and actor isolation, no fixture promotion",
+      "deliveryAreas": [
+        "vision-multimodal",
+        "headless-media",
+        "workspace-project",
+        "speech-voice",
+        "creative-preview",
+        "studio-video",
+        "delivery-agents",
+        "recorder-live"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.load-and-quality-profiles",
+        "media.dev.cross-surface-integration-harness",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-translated-dubbed-video",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-offline-conflict-reconnect",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure",
+        "media.dev.outcome-provider-outage-safe-path",
+        "media.dev.outcome-spatial-interactive-delivery",
+        "media.dev.outcome-live-session-recovery",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.launcher",
+      "type": "physical",
+      "sourcePath": "launcher",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/launcher/README.md",
+      "featureOutcome": "One authenticated canonical Media runtime",
+      "implementationToFinish": "Compose upload/jobs/stream/cancel/project and trusted rights",
+      "acceptanceOracle": "Wrong principal denies, restart stable, no second writer",
+      "deliveryAreas": [
+        "headless-media",
+        "recorder-live",
+        "delivery-agents",
+        "workspace-project",
+        "speech-voice",
+        "vision-multimodal",
+        "studio-video"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.rights-aware-cache",
+        "media.dev.stream-session-authority",
+        "media.dev.service-observability",
+        "media.dev.http-operation-parity",
+        "media.dev.authorized-agent-delegation",
+        "media.dev.web-host",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.delivery-export-destination-ack",
+        "media.dev.production-studio-host"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.libs-audio-video-client",
+      "type": "physical",
+      "sourcePath": "libs/audio-video-client",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/libs-audio-video-client/README.md",
+      "featureOutcome": "Working ESM/CJS SDK, CLI and recorder",
+      "implementationToFinish": "Real admitted commands, finished recorded output/readback",
+      "acceptanceOracle": "Installed consumer, captured bytes and no fictional retry",
+      "deliveryAreas": [
+        "headless-media",
+        "workspace-project",
+        "vision-multimodal",
+        "recorder-live",
+        "creative-preview"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.structured-cli",
+        "media.dev.web-host",
+        "media.dev.vision-document-intelligence",
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture",
+        "media.dev.recorder-mux-and-final-artifact",
+        "media.dev.offline-reconnect",
+        "media.dev.interactive-demo-player"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.libs-audio-video-types",
+      "type": "physical",
+      "sourcePath": "libs/audio-video-types",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/libs-audio-video-types/README.md",
+      "featureOutcome": "Strict, compatible typed Media wire DTOs",
+      "implementationToFinish": "Preserve legacy distinction, keep current RPC/HTTP source parity",
+      "acceptanceOracle": "Safe-int/time/sha/typed errors and ABI tests",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.libs-audio-video-ui",
+      "type": "physical",
+      "sourcePath": "libs/audio-video-ui",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/libs-audio-video-ui/README.md",
+      "featureOutcome": "Accessible actual product web controls",
+      "implementationToFinish": "Bind remaining screens to live SDK jobs/Studio/player",
+      "acceptanceOracle": "Browser a11y, CSP, real result and explicit denied/UNKNOWN",
+      "deliveryAreas": [
+        "workspace-project",
+        "speech-voice",
+        "studio-video",
+        "creative-preview",
+        "headless-media",
+        "vision-multimodal",
+        "delivery-agents",
+        "recorder-live"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.web-host",
+        "media.dev.voice-workflow-ui",
+        "media.dev.project-timeline-engine",
+        "media.dev.storyboard-and-shot-plan",
+        "media.dev.tracked-region-reversible-edits",
+        "media.dev.multitrack-composition-render",
+        "media.dev.quality-comparison-and-optimization",
+        "media.dev.versioned-review-and-approval",
+        "media.dev.offline-reconnect",
+        "media.dev.spatial-and-interactive-export",
+        "media.dev.interactive-demo-player",
+        "media.dev.production-studio-host",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-translated-dubbed-video",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-offline-conflict-reconnect",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure",
+        "media.dev.outcome-provider-outage-safe-path",
+        "media.dev.outcome-spatial-interactive-delivery",
+        "media.dev.outcome-live-session-recovery",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.libs-common",
+      "type": "physical",
+      "sourcePath": "libs/common",
+      "topologyDisposition": "SUBSUMED",
+      "lifecycleState": "SUBSUMED",
+      "descriptionSource": "docs/surfaces/libs-common/README.md",
+      "featureOutcome": "Common transport compatibility package",
+      "implementationToFinish": "Keep only reused gRPC security/deadline helpers",
+      "acceptanceOracle": "TLS/JWT/timeout/ABI parity, no duplicate Shared auth",
+      "deliveryAreas": [
+        "vision-multimodal",
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.shared-engine-consolidation"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.libs-java-common",
+      "type": "physical",
+      "sourcePath": "libs/java/common",
+      "topologyDisposition": "SUBSUMED",
+      "lifecycleState": "SUBSUMED",
+      "descriptionSource": "docs/surfaces/libs-java-common/README.md",
+      "featureOutcome": "Reusable JVM modality/codec engines",
+      "implementationToFinish": "Reuse Whisper/Piper/Vision/native bindings and resource lifecycle",
+      "acceptanceOracle": "No leak, correct clock/PCM, model-absence refusal",
+      "deliveryAreas": [
+        "speech-voice",
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.shared-engine-consolidation",
+        "media.dev.stt-model-and-quality",
+        "media.dev.tts-model-and-rights",
+        "media.dev.vision-model-and-geometry"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.libs-media-experience-simulation",
+      "type": "physical",
+      "sourcePath": "libs/media-experience-simulation",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/libs-media-experience-simulation/README.md",
+      "featureOutcome": "Curated synthetic experience content",
+      "implementationToFinish": "Maintain deterministic authored data distinct from engine output",
+      "acceptanceOracle": "Same seed/screen result, never claimed as live operation",
+      "deliveryAreas": [
+        "headless-media",
+        "creative-preview"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.structured-cli",
+        "media.dev.interactive-demo-player"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-audio-streaming",
+      "type": "physical",
+      "sourcePath": "modules/audio-streaming",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-audio-streaming/README.md",
+      "featureOutcome": "Ordered authorized audio frames and lease",
+      "implementationToFinish": "Bind consent/source clock, cursor/ACK and reconnect",
+      "acceptanceOracle": "Duplicate/gap/revoke/backpressure/restart and load negatives",
+      "deliveryAreas": [
+        "recorder-live",
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.stream-session-authority",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.grpc-source-capture"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-infrastructure-cache",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/cache",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-infrastructure-cache/README.md",
+      "featureOutcome": "Rights-scoped immutable cache",
+      "implementationToFinish": "Key tenant/version/revocation epoch, invalidate on policy change",
+      "acceptanceOracle": "No stale rights or cross-tenant disclosure, bounded cache",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.rights-aware-cache"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-infrastructure-messaging",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/messaging",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-infrastructure-messaging/README.md",
+      "featureOutcome": "Transactional lifecycle outbox",
+      "implementationToFinish": "Bind event identity and eventual consumer ACK to canonical writer",
+      "acceptanceOracle": "No job success from HTTP 201, dedupe and restart",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.public-events"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-infrastructure-persistence",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/persistence",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-infrastructure-persistence/README.md",
+      "featureOutcome": "Persistence helpers without second writer",
+      "implementationToFinish": "Verify transaction/migration/rollback against authoritative store",
+      "acceptanceOracle": "Atomic CAS/restart, no independent JPA finality",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-infrastructure-security",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/security",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-infrastructure-security/README.md",
+      "featureOutcome": "Trusted security boundary distinct from metadata",
+      "implementationToFinish": "Bind current verified principal, purpose and source rights",
+      "acceptanceOracle": "Forged role/consent fails before effect, no secret leakage",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-integration-tests",
+      "type": "physical",
+      "sourcePath": "modules/integration-tests",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-integration-tests/README.md",
+      "featureOutcome": "Wire protocol and composition regression",
+      "implementationToFinish": "Verify all real HTTP/RPC methods and source extra disposition",
+      "acceptanceOracle": "30 HTTP, 45 gRPC, 27/43 named intent split, auth/status tests",
+      "deliveryAreas": [
+        "headless-media",
+        "workspace-project",
+        "speech-voice",
+        "vision-multimodal",
+        "creative-preview",
+        "studio-video",
+        "delivery-agents",
+        "recorder-live"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.cross-surface-integration-harness",
+        "media.dev.outcome-first-use-project",
+        "media.dev.outcome-resumable-artifact-intake",
+        "media.dev.outcome-transcript-to-reviewed-captions",
+        "media.dev.outcome-authorized-voice-synthesis",
+        "media.dev.outcome-vision-detection-and-tracking",
+        "media.dev.outcome-grounded-cross-modal-result",
+        "media.dev.outcome-audio-restoration",
+        "media.dev.outcome-video-enhancement",
+        "media.dev.outcome-brief-to-reviewed-media",
+        "media.dev.outcome-reference-continuity",
+        "media.dev.outcome-reversible-tracked-edit",
+        "media.dev.outcome-two-dimensional-animation",
+        "media.dev.outcome-three-dimensional-animation",
+        "media.dev.outcome-scientific-simulation",
+        "media.dev.outcome-validated-simulation-pass",
+        "media.dev.outcome-translated-dubbed-video",
+        "media.dev.outcome-music-effects-master",
+        "media.dev.outcome-multitrack-finished-master",
+        "media.dev.outcome-bounded-quality-improvement",
+        "media.dev.outcome-durable-job-recovery",
+        "media.dev.outcome-version-specific-review",
+        "media.dev.outcome-acknowledged-delivery",
+        "media.dev.outcome-offline-conflict-reconnect",
+        "media.dev.outcome-structured-command-batch",
+        "media.dev.outcome-authorized-agent-outcome",
+        "media.dev.outcome-retention-and-erasure",
+        "media.dev.outcome-provider-outage-safe-path",
+        "media.dev.outcome-spatial-interactive-delivery",
+        "media.dev.outcome-live-session-recovery",
+        "media.dev.outcome-eligible-provider-catalog"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "type": "physical",
+      "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/modules-intelligence-ai-voice-libs-ai-voice-ui-react/README.md",
+      "featureOutcome": "Lawful voice/phrase controls",
+      "implementationToFinish": "Use qualified TTS rights, actual output and safe unavailable actions",
+      "acceptanceOracle": "Real playable audio, keyboard, revoke/unsupported clone refusal",
+      "deliveryAreas": [
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.voice-workflow-ui"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-intelligence-multimodal-service",
+      "type": "physical",
+      "sourcePath": "modules/intelligence/multimodal-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/modules-intelligence-multimodal-service/README.md",
+      "featureOutcome": "Grounded cross-modal parent result",
+      "implementationToFinish": "Bind matched child versions/clocks/rights and durable parent state",
+      "acceptanceOracle": "No false complete from missing/wrong-clock child; restart",
+      "deliveryAreas": [
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.multimodal-grounding-and-quality"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "type": "physical",
+      "sourcePath": "modules/intelligence/speech/libs/speech-audio-rust",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-intelligence-speech-libs-speech-audio-rust/README.md",
+      "featureOutcome": "Correct bounded native DSP",
+      "implementationToFinish": "Reuse resampler/decode/repair with exact sample clocks",
+      "acceptanceOracle": "Alias/golden audio, native lifecycle, cancel and leak",
+      "deliveryAreas": [
+        "creative-preview"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.audio-repair-and-comparison",
+        "media.dev.foley-stems-mix-master"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-speech-stt-service",
+      "type": "physical",
+      "sourcePath": "modules/speech/stt-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/modules-speech-stt-service/README.md",
+      "featureOutcome": "Lawful source-bound speech transcript",
+      "implementationToFinish": "Qualify English/Nepali model/export/gold, store revisions",
+      "acceptanceOracle": "Actual WER/CER/timing, revoke, UNKNOWN and restart",
+      "deliveryAreas": [
+        "vision-multimodal",
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.stt-model-and-quality",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.dubbing-and-translation"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-speech-tts-service",
+      "type": "physical",
+      "sourcePath": "modules/speech/tts-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/modules-speech-tts-service/README.md",
+      "featureOutcome": "Lawful playable voice output",
+      "implementationToFinish": "Qualify selected voice/phoneme and consent, persist audio",
+      "acceptanceOracle": "Decoded PCM/duration, revoked voice, unsupported control",
+      "deliveryAreas": [
+        "vision-multimodal",
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.tts-model-and-rights",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.dubbing-and-translation"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-video-streaming",
+      "type": "physical",
+      "sourcePath": "modules/video-streaming",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "descriptionSource": "docs/surfaces/modules-video-streaming/README.md",
+      "featureOutcome": "Video frame lease, source epoch and PTS",
+      "implementationToFinish": "Trusted decoder/cursor/timebase and ROI binding",
+      "acceptanceOracle": "VFR/reorder/revoke/restart and correct frame digest",
+      "deliveryAreas": [
+        "recorder-live"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.stream-session-authority",
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.modules-vision-vision-service",
+      "type": "physical",
+      "sourcePath": "modules/vision/vision-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/modules-vision-vision-service/README.md",
+      "featureOutcome": "Real Vision and DI scene text",
+      "implementationToFinish": "Qualify detector, versioned frame resolver and DI-only OCR",
+      "acceptanceOracle": "Real boxes, wrong ROI/digest/tenant fail, OCI faults",
+      "deliveryAreas": [
+        "vision-multimodal",
+        "studio-video"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-operation-parity",
+        "media.dev.vision-model-and-geometry",
+        "media.dev.vision-document-intelligence",
+        "media.dev.video-restoration-and-comparison",
+        "media.dev.tracked-region-reversible-edits"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.providers-aws-postgresql",
+      "type": "physical",
+      "sourcePath": "providers/aws-postgresql",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/providers-aws-postgresql/README.md",
+      "featureOutcome": "Authoritative durable Media store",
+      "implementationToFinish": "Wire signed scanner release, project/job/stream/caption/review records",
+      "acceptanceOracle": "Postgres/S3 crash, CAS, quarantine, no second writer",
+      "deliveryAreas": [
+        "headless-media",
+        "speech-voice",
+        "delivery-agents"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.transactional-event-outbox",
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.delivery-export-destination-ack"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.physical.runtime-contracts",
+      "type": "physical",
+      "sourcePath": "runtime-contracts",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/runtime-contracts/README.md",
+      "featureOutcome": "Single Java version/rights/operation contract",
+      "implementationToFinish": "Bind exact source/frame/time/status across channels",
+      "acceptanceOracle": "Cross-language DTO/overflow/finality and role rejection",
+      "deliveryAreas": [
+        "headless-media",
+        "delivery-agents",
+        "workspace-project"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.public-events",
+        "media.dev.authorized-agent-delegation",
+        "media.dev.project-timeline-engine",
+        "media.dev.storyboard-and-shot-plan",
+        "media.dev.versioned-review-and-approval"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.repository-root",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "REPOSITORY_ROOT",
+      "lifecycleState": "ROOT",
+      "descriptionSource": "docs/surfaces/composition-repository-root/README.md",
+      "featureOutcome": "Complete coherent Media product/libraries",
+      "implementationToFinish": "Build from public packages and authoritative sources only",
+      "acceptanceOracle": "All applicable capabilities and customer journeys run",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.cross-surface-integration-harness"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.ingestion-and-versioned-artifacts",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/composition-ingestion-and-versioned-artifacts/README.md",
+      "featureOutcome": "Upload to scanned immutable artifact",
+      "implementationToFinish": "Join checksum, rights, quarantine and exact registration",
+      "acceptanceOracle": "Unsigned/UNKNOWN scanner blocks release; bytes survive restart",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.governed-job-execution",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/composition-governed-job-execution/README.md",
+      "featureOutcome": "Authorized job to durable terminal result",
+      "implementationToFinish": "Use claimed attempt/provider receipt/cancel/reconcile",
+      "acceptanceOracle": "Timeout UNKNOWN, no duplicate work or fabricated finality",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.transactional-event-outbox"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.speech-and-caption-workflows",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/composition-speech-and-caption-workflows/README.md",
+      "featureOutcome": "Transcript, corrected captions and legal voice",
+      "implementationToFinish": "Join STT/TTS, source clock and immutable revisions",
+      "acceptanceOracle": "J03/J04/J16 real decoded outputs with revoke/restart",
+      "deliveryAreas": [
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.tts-streaming-and-finality"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.vision-and-multimodal-analysis",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/composition-vision-and-multimodal-analysis/README.md",
+      "featureOutcome": "Time-grounded detection, OCR and fusion",
+      "implementationToFinish": "Join video frame PTS/ROI, DI worker and child sources",
+      "acceptanceOracle": "J05/J06 accurate source provenance, failure isolation",
+      "deliveryAreas": [
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.vision-document-intelligence"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.creation-composition-and-delivery",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/composition-creation-composition-and-delivery/README.md",
+      "featureOutcome": "Project authored media through review/export",
+      "implementationToFinish": "Link timeline/2D/3D/simulation/render/mix/review to one revision",
+      "acceptanceOracle": "Playable master, edit/review CAS, real destination receipt",
+      "deliveryAreas": [
+        "workspace-project",
+        "delivery-agents"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.project-timeline-engine",
+        "media.dev.delivery-export-destination-ack"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.composition.client-and-machine-interfaces",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/composition-client-and-machine-interfaces/README.md",
+      "featureOutcome": "Consistent public Media operations in all clients",
+      "implementationToFinish": "Bind HTTP/gRPC/SDK/CLI/Tools/UI/Events to same source truth",
+      "acceptanceOracle": "Typed scope/UNKNOWN and no invented legacy route",
+      "deliveryAreas": [
+        "headless-media",
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.http-operation-parity",
+        "media.dev.grpc-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.web",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-web/README.md",
+      "featureOutcome": "Real accessible Media browser app",
+      "implementationToFinish": "Wire all applicable screens to backed projects/jobs/Studio",
+      "acceptanceOracle": "47-screen navigation, browser auth/a11y and saved result",
+      "deliveryAreas": [
+        "workspace-project",
+        "studio-video"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.web-host",
+        "media.dev.production-studio-host"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.embedded",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-embedded/README.md",
+      "featureOutcome": "Origin-bound safe playback/embed",
+      "implementationToFinish": "Versioned media, captions, explicit simulation and host permissions",
+      "acceptanceOracle": "No cross-origin privilege, deterministic seek/replay",
+      "deliveryAreas": [
+        "creative-preview"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.interactive-demo-player"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.public-http",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-public-http/README.md",
+      "featureOutcome": "Correct canonical Media HTTP",
+      "implementationToFinish": "Bind 30 observed routes to admitted handlers and wire shapes",
+      "acceptanceOracle": "Wrong actor/body/timeout/idempotency and exact readback",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.http-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.service-grpc",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-service-grpc/README.md",
+      "featureOutcome": "Four authenticated modality RPC services",
+      "implementationToFinish": "Track 45 proto methods, two unbound Vision extras vs named 43",
+      "acceptanceOracle": "Generated descriptor parity, auth/deadline and no stub SUCCESS",
+      "deliveryAreas": [
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.grpc.stt",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-grpc-stt/README.md",
+      "featureOutcome": "STT transcribe/stream/correction RPCs",
+      "implementationToFinish": "Complete 12 methods with lawful engine or typed unavailable",
+      "acceptanceOracle": "Language/profile, cancellation/word PTS, source readback",
+      "deliveryAreas": [
+        "speech-voice",
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.grpc-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.grpc.tts",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-grpc-tts/README.md",
+      "featureOutcome": "TTS synthesis/profile/voice RPCs",
+      "implementationToFinish": "Complete 11 methods with qualified voice or typed refusal",
+      "acceptanceOracle": "True PCM stream, revoke and no unadmitted cloning",
+      "deliveryAreas": [
+        "speech-voice",
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.grpc-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.grpc.vision",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-grpc-vision/README.md",
+      "featureOutcome": "Vision detection/video/frame/scene-text RPCs",
+      "implementationToFinish": "Complete 12 methods incl two unbound source observations",
+      "acceptanceOracle": "VFR/ROI/source rights, DI-only, no fake OCR result",
+      "deliveryAreas": [
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.vision-model-and-geometry",
+        "media.dev.grpc-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.grpc.multimodal",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-grpc-multimodal/README.md",
+      "featureOutcome": "10 multimodal analysis/model RPCs",
+      "implementationToFinish": "Bind child/parent versioned operations and unsupported cases",
+      "acceptanceOracle": "Temporal mismatch, partial child, restart UNKNOWN",
+      "deliveryAreas": [
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.multimodal-child-orchestration",
+        "media.dev.grpc-operation-parity"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.sdk",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-sdk/README.md",
+      "featureOutcome": "Installed consumer-facing canonical SDK",
+      "implementationToFinish": "Preserve ABI, no invented endpoint, strict source DTO mapping",
+      "acceptanceOracle": "Source-free ESM/CJS, retry/finality/error tests",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.cli",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-cli/README.md",
+      "featureOutcome": "Usable authenticated headless commands",
+      "implementationToFinish": "Expand artifact inspect with only admitted job/capture/batch routes",
+      "acceptanceOracle": "Actual process JSON outputs, source rights and exit codes",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.structured-cli"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.agent-tools",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-agent-tools/README.md",
+      "featureOutcome": "Four delegated action interfaces",
+      "implementationToFinish": "Bind verified Tools principal to exact Media operations",
+      "acceptanceOracle": "One claim/effect, no direct provider bypass, redaction",
+      "deliveryAreas": [
+        "delivery-agents"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.authorized-agent-delegation"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.events",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-events/README.md",
+      "featureOutcome": "Versioned lifecycle event subscription",
+      "implementationToFinish": "Outbox identity and consumer ACK separate from job result",
+      "acceptanceOracle": "201 append vs consumed status, replay/order/tenant tests",
+      "deliveryAreas": [
+        "headless-media"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.public-events"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.integrations",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-integrations/README.md",
+      "featureOutcome": "Public DI/Shared/Tools; optional Data Cloud",
+      "implementationToFinish": "Keep DI single OCR gateway and immutable client peer",
+      "acceptanceOracle": "No OCR fork, core survives Data Cloud or DI outage",
+      "deliveryAreas": [
+        "vision-multimodal"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.vision-document-intelligence"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.types-library",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-types-library/README.md",
+      "featureOutcome": "One strict shared contract catalog",
+      "implementationToFinish": "Map source Java/TS/OpenAPI/protobuf fields and errors",
+      "acceptanceOracle": "Source enum/ABI/overflow/protocol parity",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.ui-library",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-ui-library/README.md",
+      "featureOutcome": "Reusable accessible Media component families",
+      "implementationToFinish": "Bind SDK real state and distinguish fixture previews",
+      "acceptanceOracle": "Keyboard/zoom/CSP, denied/UNKNOWN UI, no fake success",
+      "deliveryAreas": [
+        "workspace-project",
+        "speech-voice"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.web-host",
+        "media.dev.voice-workflow-ui"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.explorer",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-explorer/README.md",
+      "featureOutcome": "PDP3 curated product simulation",
+      "implementationToFinish": "Keep narration/screen/caption and identity consistent",
+      "acceptanceOracle": "Stable seed, labeled simulated scenarios, no effects",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.desktop-archive",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "ARCHIVED",
+      "lifecycleState": "ARCHIVED",
+      "descriptionSource": "docs/surfaces/surface-desktop-archive/README.md",
+      "featureOutcome": "Read-only desktop compatibility",
+      "implementationToFinish": "No new active desktop/backend, preserve required public ABI",
+      "acceptanceOracle": "No duplicate writer or active desktop route",
+      "deliveryAreas": [],
+      "relatedOpenTaskIds": [],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.recorder-orchestrator",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-recorder-orchestrator/README.md",
+      "featureOutcome": "Finished unattended recording",
+      "implementationToFinish": "Bind real sources/narration/mux and registered artifact version",
+      "acceptanceOracle": "Decoder-playable A/V+caption, PTS/digests, restart",
+      "deliveryAreas": [
+        "recorder-live"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.recorder-mux-and-final-artifact"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.capture-adapters",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-capture-adapters/README.md",
+      "featureOutcome": "Eight permissioned capture sources",
+      "implementationToFinish": "Qualify GRPC_API/CAMERA; preserve other bounded adapters",
+      "acceptanceOracle": "No bytes after revoke, frame/cursor/clock validated",
+      "deliveryAreas": [
+        "recorder-live"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.grpc-source-capture",
+        "media.dev.camera-source-capture"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.production-studio",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-production-studio/README.md",
+      "featureOutcome": "Professional revisioned editing and export",
+      "implementationToFinish": "Connect project, effects, preview, review and delivery to host",
+      "acceptanceOracle": "Real edits/undo, playable export, source rights/a11y",
+      "deliveryAreas": [
+        "studio-video"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.production-studio-host"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    },
+    {
+      "id": "media.surface.interactive-demo-player",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "descriptionSource": "docs/surfaces/surface-interactive-demo-player/README.md",
+      "featureOutcome": "Safe branching interactive demo playback",
+      "implementationToFinish": "Bind authored/real media manifests, captions and viewer",
+      "acceptanceOracle": "Origin denial, deterministic seek/replay and keyboard access",
+      "deliveryAreas": [
+        "creative-preview"
+      ],
+      "relatedOpenTaskIds": [
+        "media.dev.interactive-demo-player"
+      ],
+      "applicablePdpSourceRoots": [
+        ".product-experience/pdp-0-product-truth",
+        ".product-experience/pdp-1-domain-data",
+        ".product-experience/pdp-2-design-interface-system",
+        ".product-experience/pdp-3-product-experience"
+      ],
+      "developmentFeatureComplete": "NOT_ASSESSED",
+      "gtoolPreparation": "CANONICAL_SOURCE_METADATA_ONLY_NOT_PHASE_PROOF"
+    }
+  ],
+  "components": [
+    {
+      "path": "modules/production/timeline",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/timeline/README.md",
+      "feature": "Project/scene/timeline source CAS and persistent revisions",
+      "oracle": "Exact version reopen, concurrent writer and rollback",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/animation",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/animation/README.md",
+      "feature": "Real PNG/GIF bounded animation candidate",
+      "oracle": "Independent decode, keyframe, raster and rational clock",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/spatial",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/spatial/README.md",
+      "feature": "GLB rig and narrow coordinate profile",
+      "oracle": "glTF validation, float32 loss and actual viewer",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/simulation",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/simulation/README.md",
+      "feature": "Typed deterministic physical solver",
+      "oracle": "SI unit, convergence, reference model, abstain",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/rendering",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/rendering/README.md",
+      "feature": "Multitrack plan and RGB candidate codec pipeline",
+      "oracle": "Real mux/independent decode with source PTS",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/audio-mixing",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/audio-mixing/README.md",
+      "feature": "PCM repair/stems and playable WAV",
+      "oracle": "Independent WAV decode, immutable A/B, lawful source",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/dubbing",
+      "parentSurfaceId": "media.composition.speech-and-caption-workflows",
+      "doc": "modules/production/dubbing/README.md",
+      "feature": "Versioned translate/voice/align orchestration",
+      "oracle": "Real authorized translated output and sync",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/review",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/review/README.md",
+      "feature": "Case/revision-bound review statements",
+      "oracle": "Shared project CAS, owner approval authority, stale deny",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "modules/production/delivery",
+      "parentSurfaceId": "media.composition.creation-composition-and-delivery",
+      "doc": "modules/production/delivery/README.md",
+      "feature": "Fenced destination effects and receipt",
+      "oracle": "Real destination readback, no double send",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "providers/security-scanner",
+      "parentSurfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "doc": "providers/security-scanner/README.md",
+      "feature": "Signed scanner adapter, dev-only before actual ClamAV qualification",
+      "oracle": "Ed25519 authentic CLEAN, quarantine, real corpus",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    },
+    {
+      "path": "services/document-intelligence",
+      "parentSurfaceId": "media.surface.integrations",
+      "doc": "services/document-intelligence/README.md",
+      "feature": "MDI-002 PROPOSED DI v1 relocation only, inactive writer",
+      "oracle": "Single active DI, public installed package, real OCR/rights",
+      "kind": "SUPPORT_IMPLEMENTATION_UNIT_NOT_CANONICAL_SURFACE",
+      "independentGtoolPhase": "NOT_CREATED"
+    }
+  ],
+  "auxiliarySurfaceDocs": [
+    "docs/surfaces/modules-production-audio-mixing/README.md",
+    "docs/surfaces/modules-production-rendering/README.md",
+    "docs/surfaces/modules-production-review/README.md"
+  ],
+  "claimPolicy": "Only intended feature contracts are described. No task status, provider admission, release, deployment, or gtool phase/closure is inferred."
+}
