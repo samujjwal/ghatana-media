@@ -118,3 +118,14 @@ describe('cross-language vector', () => {
     assert.equal(v.binding.keyId, v.keyId);
   });
 });
+
+describe('signed inconsistent negatives in the vector', () => {
+  it('REJECTED_STRUCTURE with status CLEAN or finality CLEAN is validly signed but internally inconsistent', async () => {
+    const { readFileSync } = await import('node:fs');
+    const v = JSON.parse(readFileSync(new URL('./fixtures/rejected-structure-vector.json', import.meta.url), 'utf8'));
+    const a = v.signedInconsistentNegatives.rejectedStructureWithStatusClean.attestation, b = v.signedInconsistentNegatives.rejectedStructureWithFinalityClean.attestation;
+    assert.deepEqual([a.verdict, a.status, a.finality.verdict], ['REJECTED_STRUCTURE', 'CLEAN', 'QUARANTINED']);
+    assert.deepEqual([b.verdict, b.status, b.finality.verdict], ['REJECTED_STRUCTURE', 'FAILED', 'CLEAN']);
+    assert.notEqual(a.attestation.signature, v.attestation.attestation.signature); // re-signed, not copied
+  });
+});

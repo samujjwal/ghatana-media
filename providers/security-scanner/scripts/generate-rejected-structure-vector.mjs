@@ -5,7 +5,7 @@ import { createHash, createPrivateKey, createPublicKey } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import { SecurityScannerProvider, ed25519Signer } from '../src/index.ts';
 import { attestationBinding } from '../src/service.ts';
-import { canonicalPayload } from '../src/attestation.ts';
+import { canonicalPayload, signAttestation } from '../src/attestation.ts';
 
 const out = process.argv[2];
 if (!out) throw new Error('output path required');
@@ -22,6 +22,17 @@ const provider = new SecurityScannerProvider({
 });
 const signed = await provider.scanSigned({ documentId: 'upload-a', version: 1, tenantId: 'tenant-a', checksum: { algorithm: 'SHA-256', value: createHash('sha256').update(content).digest('hex') }, sizeBytes: content.length, mimeType: 'application/pdf' });
 const { attestation: _a, ...rest } = signed;
+// Properly SIGNED but internally inconsistent negatives (only this signer could emit them); a trust mapper must refuse both.
+const signer = ed25519Signer('interop-key-1', privateKey);
+const negative = (mutate) => {
+  const s2 = signAttestation(mutate(structuredClone(rest)), signer);
+  const { attestation: _b, ...r2 } = s2;
+  return { attestation: s2, canonicalPayload: Buffer.from(canonicalPayload(r2)).toString('utf8'), binding: attestationBinding(s2) };
+};
+const negatives = {
+  rejectedStructureWithStatusClean: negative((u) => ({ ...u, status: 'CLEAN' })),
+  rejectedStructureWithFinalityClean: negative((u) => ({ ...u, finality: { ...u.finality, verdict: 'CLEAN' } })),
+};
 writeFileSync(out, JSON.stringify({
   note: 'TEST-ONLY vector produced by providers/security-scanner (real provider, deterministic seed). Not a production key.',
   expectedTriple: { verdict: signed.verdict, status: signed.status, finalityVerdict: signed.finality?.verdict, reasonCode: signed.reasonCode },
@@ -30,4 +41,5 @@ writeFileSync(out, JSON.stringify({
   attestation: signed,
   canonicalPayload: Buffer.from(canonicalPayload(rest)).toString('utf8'),
   binding: attestationBinding(signed),
+  signedInconsistentNegatives: negatives,
 }, null, 2) + '\n');
