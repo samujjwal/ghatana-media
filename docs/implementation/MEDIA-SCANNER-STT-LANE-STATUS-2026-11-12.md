@@ -131,3 +131,15 @@ node_modules install was not attempted.
   dev-only deterministic adapter => NOT_ADMITTED, English and Nepali separate. `guardSuccessfulOutcome` withholds CLEAN/SUCCEEDED.
 * Exact external blockers (owner): scanner — real pinned ClamAV, rights-cleared corpus, KMS signing key, crash drill; DI — OCR
   engine/model rights, document corpus; STT en/ne — model rights, independent transcripts, reviewed language qualification.
+
+## Range read + adapter end-to-end (F5-028 Media side, PHR-K-04..07)
+* `MediaArtifactStore.copyContentRange(...)` (additive default over `copyContent`): the whole object is verified (tenant, owner, version, digest,
+  size) before any byte reaches the target, only the slice (<= maxRangeBytes) is retained, end is clipped, offset at/after the end =>
+  MEDIA_ARTIFACT_RANGE_NOT_SATISFIABLE, invalid/over-limit => RANGE_INVALID/RANGE_LIMIT, wrong principal/tenant/stale version =>
+  empty on every call (authority is never cached). Receipt `ArtifactContentRangeReceipt` carries the whole-object SHA-256.
+  Test: `MediaArtifactContentReadTest` 7/7 (local file store). S3 store inherits the default (verified staging in `copyContent`).
+  Not covered here: HTTP `Range` header mapping and Kernel object-grant revocation (Kernel-owned `artifacts.object-grants`).
+* Kernel adapters against this channel: copies of Kernel's `document-intelligence` (12 tests) and `media-stt` (8 tests) conformance tests
+  compiled and passed in a scratch Gradle build resolving `runtime-contracts` / DI client only from the install set
+  (`bd8aada67`) and Kernel API/runtime from `d61b72913`: empty registry admits nothing and never reaches Media; DI provider never
+  reports READY, no admission => PROVIDER_NOT_ADMITTED, lost ack => UNKNOWN.

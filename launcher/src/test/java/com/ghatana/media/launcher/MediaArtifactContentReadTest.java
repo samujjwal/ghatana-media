@@ -75,6 +75,62 @@ class MediaArtifactContentReadTest {
         store.close();
     }
 
+    @Test
+    void rangeReadPublishesOnlyVerifiedSliceAndRechecksAuthorityEveryCall() throws Exception {
+        var root = Files.createTempDirectory("media-artifact-range-");
+        var store = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+        byte[] source = "0123456789abcdefghij".getBytes(StandardCharsets.UTF_8);
+        var upload = store.begin(new UploadRequest("tenant-a", "principal-a", "clip.bin",
+                "application/octet-stream", source.length, sha256(source), "CONFIDENTIAL",
+                Duration.ofMinutes(5), Map.of()), "range-upload");
+        store.append("tenant-a", "principal-a", upload.uploadId(), 0, source);
+        var artifact = store.complete("tenant-a", "principal-a", upload.uploadId());
+
+        ByteArrayOutputStream slice = new ByteArrayOutputStream();
+        var receipt = store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), 5, 5, slice, 1024, 1024).orElseThrow();
+        assertThat(slice.toString(StandardCharsets.UTF_8)).isEqualTo("56789");
+        assertThat(receipt.offset()).isEqualTo(5);
+        assertThat(receipt.bytesCopied()).isEqualTo(5);
+        assertThat(receipt.totalSize()).isEqualTo(source.length);
+        assertThat(receipt.sha256()).isEqualTo(artifact.sha256());
+
+        ByteArrayOutputStream clipped = new ByteArrayOutputStream();
+        assertThat(store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), 15, 100, clipped, 1024, 1024).orElseThrow().bytesCopied()).isEqualTo(5);
+        assertThat(clipped.toString(StandardCharsets.UTF_8)).isEqualTo("fghij");
+
+        // Not satisfiable / invalid / over-limit ranges publish nothing.
+        ByteArrayOutputStream none = new ByteArrayOutputStream();
+        assertThatThrownBy(() -> store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), source.length, 1, none, 1024, 1024))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("RANGE_NOT_SATISFIABLE");
+        assertThatThrownBy(() -> store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), -1, 1, none, 1024, 1024))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("RANGE_INVALID");
+        assertThatThrownBy(() -> store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), 0, 10, none, 1024, 9))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("RANGE_LIMIT");
+        assertThatThrownBy(() -> store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                artifact.version(), 0, 1, none, source.length - 1, 1024))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("MEDIA_ARTIFACT_READ_LIMIT");
+        assertThat(none.size()).isZero();
+
+        // Another principal, another tenant or a stale version (lost authority) get nothing, every time.
+        for (var denied : List.of(
+                new String[] {"tenant-a", "principal-b"}, new String[] {"tenant-b", "principal-a"})) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            assertThat(store.copyContentRange(denied[0], denied[1], artifact.artifactId(),
+                    artifact.version(), 0, 4, out, 1024, 1024)).isEmpty();
+            assertThat(out.size()).isZero();
+        }
+        ByteArrayOutputStream stale = new ByteArrayOutputStream();
+        assertThat(store.copyContentRange("tenant-a", "principal-a", artifact.artifactId(),
+                ArtifactVersion.fromSha256("0".repeat(64)), 0, 4, stale, 1024, 1024)).isEmpty();
+        assertThat(stale.size()).isZero();
+        store.close();
+    }
+
 
     @Test
     void closeWaitsForRegisteredArtifactCopyAndReadRemovesItsStage() throws Exception {

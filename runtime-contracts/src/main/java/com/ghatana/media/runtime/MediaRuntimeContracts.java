@@ -577,6 +577,21 @@ public final class MediaRuntimeContracts {
         }
     }
 
+    /** Receipt for a range read; the digest covers the whole verified object, never just the slice. */
+    public record ArtifactContentRangeReceipt(
+            ArtifactVersion version, String sha256, long totalSize, long offset, long bytesCopied) {
+        public ArtifactContentRangeReceipt {
+            version = java.util.Objects.requireNonNull(version, "version");
+            sha256 = requireSha256(sha256);
+            if (!version.equals(ArtifactVersion.fromSha256(sha256))) {
+                throw new IllegalArgumentException("range receipt version must match its SHA-256");
+            }
+            if (offset < 0 || bytesCopied < 1 || offset + bytesCopied > totalSize) {
+                throw new IllegalArgumentException("range receipt must lie inside the verified object");
+            }
+        }
+    }
+
     /** Narrow source-byte capability bound to the principal, artifact, and version of one admitted job. */
     @FunctionalInterface
     public interface MediaArtifactContentReader {
@@ -2105,6 +2120,50 @@ public final class MediaRuntimeContracts {
                 String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
                 java.io.OutputStream target, long maxBytes) throws java.io.IOException {
             throw new UnsupportedOperationException("Verified artifact content reads are not supported by this store");
+        }
+        /**
+         * Bounded, principal-scoped read of one byte range of exact immutable source bytes. The whole object is
+         * verified through {@link #copyContent} (tenant, owner, version, digest, size) <em>before</em> any byte reaches
+         * {@code target}; only the requested slice is retained (at most {@code maxRangeBytes}), so an unverified or
+         * out-of-range request publishes nothing. Authority is re-evaluated on every call: ownership/version loss
+         * (revocation, erasure, replacement) yields {@code Optional.empty()}, never a cached prefix. An end beyond the
+         * object is clipped; an offset at or past the end fails with MEDIA_ARTIFACT_RANGE_NOT_SATISFIABLE.
+         */
+        default Optional<ArtifactContentRangeReceipt> copyContentRange(
+                String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+                long offset, long length, java.io.OutputStream target, long maxSourceBytes, long maxRangeBytes)
+                throws java.io.IOException {
+            java.util.Objects.requireNonNull(target, "target");
+            if (offset < 0 || length < 1 || maxRangeBytes < 1) {
+                throw new IllegalArgumentException("MEDIA_ARTIFACT_RANGE_INVALID: offset must be >= 0 and length positive");
+            }
+            if (length > maxRangeBytes) {
+                throw new IllegalArgumentException("MEDIA_ARTIFACT_RANGE_LIMIT: range exceeds the requested byte ceiling");
+            }
+            java.io.ByteArrayOutputStream slice = new java.io.ByteArrayOutputStream((int) Math.min(length, 8192));
+            long[] seen = {0};
+            java.io.OutputStream window = new java.io.OutputStream() {
+                @Override public void write(int b) { write(new byte[] {(byte) b}, 0, 1); }
+                @Override public void write(byte[] buffer, int from, int count) {
+                    long start = seen[0];
+                    long end = start + count;
+                    long lo = Math.max(start, offset);
+                    long hi = Math.min(end, offset + length);
+                    if (hi > lo) slice.write(buffer, from + (int) (lo - start), (int) (hi - lo));
+                    seen[0] = end;
+                }
+            };
+            Optional<ArtifactContentReadReceipt> receipt =
+                    copyContent(tenantId, principalId, artifactId, expectedVersion, window, maxSourceBytes);
+            if (receipt.isEmpty()) return Optional.empty();
+            long total = receipt.get().bytesCopied();
+            if (offset >= total) {
+                throw new IllegalArgumentException("MEDIA_ARTIFACT_RANGE_NOT_SATISFIABLE: offset is at or past the end");
+            }
+            byte[] bytes = slice.toByteArray();
+            target.write(bytes);
+            return Optional.of(new ArtifactContentRangeReceipt(
+                    receipt.get().version(), receipt.get().sha256(), total, offset, bytes.length));
         }
         /** Atomically register a new immutable derived artifact and its exact source lineage. */
         default MediaArtifact registerDerived(
