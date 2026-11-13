@@ -133,7 +133,9 @@
     "prepare:historical-export": "node scripts/prepare-media-historical-export.mjs",
     "test:historical-export": "node --test tests/media-historical-export.test.mjs",
     "check:usable-surface-delivery": "node scripts/check-media-surface-delivery.mjs --check",
-    "test:usable-surface-delivery": "node --test tests/media-surface-delivery.test.mjs"
+    "test:usable-surface-delivery": "node --test tests/media-surface-delivery.test.mjs",
+    "check:media-feature-acceptance": "node scripts/check-media-feature-acceptance.mjs",
+    "test:media-feature-acceptance": "node --test tests/media-feature-acceptance.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",

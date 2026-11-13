@@ -2,6 +2,9 @@
 
 ## Current feature-development execution
 
+The [Per-Surface Feature Acceptance annex](development/SURFACE-FEATURE-ACCEPTANCE.md) and its [development configuration](../config/development/media-feature-surface-acceptance.v1.json) specify functionality, implementation steps and validation for each stable canonical surface and the newer support components. The static checker is `pnpm check:media-feature-acceptance`; it does **not** run gtool or formal closure.
+
+
 For source-composite pnpm installs, see [pnpm source-composite manifest authority](development/PNPM-SOURCE-COMPOSITE-MANIFEST-AUTHORITY.md); sibling `package.json` files remain npm dependency truth when temporary Kernel `package.yaml` projections are present.
 
 **Start with [Usable Surface Delivery](development/USABLE-SURFACE-DELIVERY.md)** and its [structured area/task map](development/surface-delivery.json). It prioritizes functioning libraries, headless APIs and actual host flows, assigns all currently open work exactly once, and requires selective testing without repeated unchanged suites. The older dated November 8 handoff is a status snapshot, not another task universe.
