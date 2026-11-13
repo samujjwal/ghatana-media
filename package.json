@@ -135,7 +135,9 @@
     "check:usable-surface-delivery": "node scripts/check-media-surface-delivery.mjs --check",
     "test:usable-surface-delivery": "node --test tests/media-surface-delivery.test.mjs",
     "check:media-feature-acceptance": "node scripts/check-media-feature-acceptance.mjs",
-    "test:media-feature-acceptance": "node --test tests/media-feature-acceptance.test.mjs"
+    "test:media-feature-acceptance": "node --test tests/media-feature-acceptance.test.mjs",
+    "check:feature-completeness": "node scripts/check-media-feature-completeness.mjs",
+    "test:feature-completeness": "node --test tests/media-feature-completeness.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
