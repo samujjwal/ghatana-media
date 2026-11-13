@@ -19,7 +19,7 @@ import { ScanEngineError } from './errors.ts';
  */
 export interface QuarantineSource {
   read(
-    request: { tenantId: string; documentId: string; version: number; maxBytes: number },
+    request: { tenantId: string; documentId: string; version: number; maxBytes: number; sourceRef?: string },
     signal: AbortSignal,
   ): Promise<{ tenantId: string; content: Uint8Array } | undefined>;
 }
@@ -79,7 +79,10 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
   }
 
   /** Same as {@link scan} but typed with the extended attestation fields. */
-  async scanSigned(input: DocumentContentScanInput): Promise<SignedScanAttestation> {
+  async scanSigned(
+    input: DocumentContentScanInput,
+    options: { readonly signal?: AbortSignal } = {},
+  ): Promise<SignedScanAttestation> {
     const o = this.#o;
     const now = o.now ?? (() => new Date());
     const tenantId = input.tenantRef ?? input.tenantId ?? '';
@@ -155,12 +158,19 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
     } catch {
       return finish('UNKNOWN', 'SCANNER_BUSY', nothing);
     }
-    const signal = AbortSignal.timeout(o.scanTimeoutMs ?? 60_000);
+    const timeout = AbortSignal.timeout(o.scanTimeoutMs ?? 60_000);
+    const signal = options.signal ? AbortSignal.any([timeout, options.signal]) : timeout;
     try {
       let fetched: { tenantId: string; content: Uint8Array } | undefined;
       try {
         fetched = await o.source.read(
-          { tenantId, documentId: input.documentId, version: input.version, maxBytes: o.maxBytes },
+          {
+            tenantId,
+            documentId: input.documentId,
+            version: input.version,
+            maxBytes: o.maxBytes,
+            ...(input.sourceRef ? { sourceRef: input.sourceRef } : {}),
+          },
           signal,
         );
       } catch {

@@ -39,6 +39,24 @@ pinned list; definitions date known and not older than `maxDefinitionsAgeMs`. IN
 reported. Everything else (timeout, drop, oversize, ambiguous reply, unavailable, stale, unpinned,
 busy) is UNKNOWN and carries a signed `reasonCode`.
 
+## HTTP service (language-neutral endpoint for Kernel)
+
+`ScannerHttpService` (node:http, `src/service.ts`; runnable via `npm run build && node dist/service-main.js`, env-configured,
+fails closed) exposes the provider over typed JSON. Authentication is mandatory (constructor refuses to start without an
+`authenticate` hook; `bearerTokenAuthenticator` provided, mTLS via the `tls` option + hook receiving the verified peer certificate).
+
+| Route | Behaviour |
+| --- | --- |
+| `POST /v1/scans` | `{tenantId, documentId, version, objectRef, checksum:{SHA-256,hex}, sizeBytes, mimeType, scopeRef?}` -> `202 {scanId,state}`. `objectRef` names a quarantined object resolved by the host `QuarantineSource` (`FilesystemQuarantineSource`: `<root>/<tenant>/<ref>`, no traversal/symlinks) |
+| `GET /v1/scans/{id}` | `QUEUED/RUNNING/COMPLETED/CANCELLED`; COMPLETED carries the signed attestation + `attestationBinding` (`attestationRef, algorithm, keyId, signature, payloadSha256`) matching Java `ScanAttestationBinding` |
+| `DELETE /v1/scans/{id}` | cancel (idempotent, aborts clamd I/O, result discarded; `409` after completion) |
+| `GET /v1/health` | authenticated: engine + definitions version, pinned/fresh, `admissionState: NOT_ADMITTED`, `productionEligible: false`; `503` DEGRADED when engine unreachable/unpinned/stale |
+| `GET /healthz` | unauthenticated liveness only |
+
+Bounds: 16 KiB request body, strict field allow-list and identifier patterns, max active scans (429), bounded retained
+results with TTL, header/request timeouts, principal-to-tenant allow-list (other principals see 404). No TLS termination,
+rate limiting by caller, or deployment hardening is claimed; that is host work.
+
 ## Tests
 
 ```
