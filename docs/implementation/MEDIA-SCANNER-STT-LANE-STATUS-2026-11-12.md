@@ -174,3 +174,16 @@ Image `clamav/clamav@sha256:45fe5149fbee5a46509c9848ef20d0c354b7b2323c9369f28593
 a false-negative policy and real polyglot/obfuscation corpus are required before admission. Crash drill: `docker kill` mid-scan and while down => UNKNOWN/ENGINE_UNAVAILABLE
 (never CLEAN); after restart => CLEAN. Signing key was an ephemeral in-process Ed25519 key (no KMS custody). Evidence record
 `config/provider-qualification/evidence/security-scanner.dev-clamav.json` is unverified; gate test confirms NOT_ADMITTED (missing signing-key-custody, no verifier).
+
+## DI FastAPI service-level path (user-approved PyPI install; NOT ready by design)
+Venv outside the repo: `~/.local/share/ghatana-media-di-venv`, `uv sync --frozen --extra runtime --extra test --extra evaluation` from `services/document-intelligence/uv.lock`
+(sha256 `7b70ae7c1f3306f8875cf4419bf01b9fb95c9820e3f8d80d642dbcb52e3fbc56`; the `providers` ML extra was NOT installed). The FastAPI app starts and serves, but
+`/readyz` stays `not_ready`, fail closed, so `/v1/parse` is refused (503) and the Kernel -> DI service -> Tesseract end-to-end could not run:
+1. Default runtime: `MODEL_UNAVAILABLE` (docling/GLiNER/MiniLM/PaddleOCR assets not provisioned; ML downloads are outside the approved scope).
+2. Frozen authority `evaluation/results/20260919T022904Z-cf9e659f/capabilities.json` is absent from the Media copy (git-ignored; known) -> `PROVIDER_AUTHORITY_UNAVAILABLE`.
+   The legacy-tree copy matches the pinned sha256 (2c8abd11…); restoring it is a migration-owner decision, not done here.
+3. A Tesseract-only profile cannot be made ready: Tesseract is deliberately absent from the public admitted catalog (`lifecycle.py`: only a PaddleOCR->Tesseract fallback),
+   and an authority listing it would be self-attested, so none was authored.
+Source defects found in the Media copy (not changed; DI owner): `python -m document_intelligence.app` exits immediately (no `__main__` guard; use `main()` / the
+`document-intelligence-worker` script); `numpy` is imported at package import (`paddle_ocr_parser.py`) but is only in the `evaluation` extra, not `runtime`.
+Real Tesseract behaviour remains evidenced by the parser-level eval and the operational drill above.
