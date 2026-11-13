@@ -3,12 +3,12 @@
 Service-to-service gRPC channel. Physical owners: `libs/common` (shared
 gRPC transport/security) and the four modality services (STT, TTS,
 Vision, Multimodal). Contract source: per-service `*.proto` files
-(44 declared RPCs).
+(45 observed RPCs; 43 named PDP-1 plus two unbound Vision source extras).
 
 ## Supported operations
 
-44 declared RPCs across `stt_service.proto`, TTS proto,
-`vision_service.proto` (10 methods) and the multimodal proto — model
+45 source-declared RPCs across `stt_service.proto`, TTS proto,
+`vision_service.proto` (12 methods) and the multimodal proto — model
 state, transcribe/synthesize, streaming, correction, profile, image/
 video inference, tracking, readiness, fused analysis.
 

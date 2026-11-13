@@ -287,10 +287,10 @@ const grpc = rpcIds.map((id) => {
 const actualRpcIds = protos.flatMap((proto) => proto.rpcs.map((rpc) => `${rpc.service}.${rpc.method}`)).sort();
 const extraRpcIds = actualRpcIds.filter((id) => !rpcIds.includes(id));
 const missingRpcIds = rpcIds.filter((id) => !actualRpcIds.includes(id)).sort();
-assert.equal(actualRpcIds.length, 44, "current proto RPC population changed; review denominator/source gap explicitly");
+assert.equal(actualRpcIds.length, 45, "current proto RPC population changed; review denominator/source gap explicitly");
 assert.deepEqual(missingRpcIds, [], "named gRPC denominator contains identities missing from proto descriptors");
-assert.deepEqual(extraRpcIds, ["VisionService.RecognizeSceneText"], "gRPC operations outside the named denominator changed");
-assert.equal(grpcRows.length, 44, "PDP-3 gRPC observation population changed; review source extras explicitly");
+assert.deepEqual(extraRpcIds, ["VisionService.RecognizeSceneText", "VisionService.ResolveSourceFrame"], "gRPC operations outside the named denominator changed");
+assert.equal(grpcRows.length, 45, "PDP-3 gRPC observation population changed; review source extras explicitly");
 const grpcSourceIds = grpcRows.map((row) => row.operationId?.replace(/^media\.grpc\./u, ""));
 assert.equal(new Set(grpcSourceIds).size, grpcSourceIds.length, "PDP-3 gRPC identities must be unique");
 for (const id of rpcIds) assert.ok(byRpcId.has(id), `named gRPC identity ${id} missing from PDP-3 records`);
@@ -319,6 +319,9 @@ assert.ok(fieldNames("MultimodalService.AnalyzeVideoWithAudio", "request").inclu
 assert.ok(fieldNames("MultimodalService.AnalyzeVideoWithAudio", "response").includes("synchronization_status"), "AnalyzeVideoWithAudio response fields must remain captured");
 const sceneTextExtra = grpcSourceExtras.find((row) => row.id === "VisionService.RecognizeSceneText");
 assert.deepEqual(sceneTextExtra?.response.fields.map((field) => field.name), ["recognized", "rejected"], "protobuf oneof response fields must remain captured even for an unbound source extra");
+const sourceFrameExtra = grpcSourceExtras.find((row) => row.id === "VisionService.ResolveSourceFrame");
+assert.deepEqual(sourceFrameExtra?.response.fields.map((field) => field.name), ["resolved", "rejected"], "source-frame oneof response fields must remain captured as unbound source-extra semantics");
+assert.ok(sourceFrameExtra?.request.fields.some((field) => field.name === "source_version"), "source frame request must retain exact version identity");
 const snapshot = {
   schemaVersion: "media.audio-video-types.protocol-projection-observation.v1",
   disposition: "OBSERVED_SOURCE_FIELDS_ONLY; NOT_ADMITTED; no semantic equivalence claimed",
@@ -337,7 +340,7 @@ if (process.argv.includes("--write")) {
   assert.equal(http.length, 27);
   assert.equal(grpc.length, 43);
   assert.equal(extraHttpIds.length, 3, "HTTP additions outside the named 27 must stay visible");
-  assert.equal(extraRpcIds.length, 1, "gRPC additions outside the named 43 must stay visible");
+  assert.equal(extraRpcIds.length, 2, "gRPC additions outside the named 43 must stay visible");
   assert.equal(grpc.filter((row) => row.pdpBinding === "UNBOUND/NOT_ADMITTED").length, 26);
   writeFileSync(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
 } else {
@@ -346,7 +349,7 @@ if (process.argv.includes("--write")) {
   assert.equal(http.length, 27);
   assert.equal(grpc.length, 43);
   assert.equal(extraHttpIds.length, 3, "HTTP additions outside the named 27 must stay visible");
-  assert.ok(extraRpcIds.includes("VisionService.RecognizeSceneText"), "extra scene-text RPC must stay unbound outside the named 43");
+  assert.deepEqual(extraRpcIds, ["VisionService.RecognizeSceneText", "VisionService.ResolveSourceFrame"], "both Vision source extras must remain unbound outside the named 43");
   assert.equal(grpc.filter((row) => row.pdpBinding === "UNBOUND/NOT_ADMITTED").length, 26);
-  console.log("Protocol projection snapshot: 30 HTTP routes and 44 gRPC RPCs checked; PDP-1 names 27/43, with 3 HTTP and 1 gRPC source extras retained as unbound gaps.");
+  console.log("Protocol projection snapshot: 30 HTTP routes and 45 gRPC RPCs checked; PDP-1 names 27/43, with 3 HTTP and 2 gRPC source extras retained as unbound gaps.");
 }

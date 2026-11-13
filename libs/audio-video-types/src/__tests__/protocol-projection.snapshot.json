@@ -12,7 +12,8 @@
       "registerMediaCaptionVersion"
     ],
     "grpcRpcsOutsideNamedDenominator": [
-      "VisionService.RecognizeSceneText"
+      "VisionService.RecognizeSceneText",
+      "VisionService.ResolveSourceFrame"
     ]
   },
   "httpSourceExtras": [
@@ -312,6 +313,70 @@
           {
             "name": "rejected",
             "type": "SceneTextRejected",
+            "number": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "VisionService.ResolveSourceFrame",
+      "disposition": "UNBOUND/NOT_ADMITTED: outside the named PDP-1 denominator",
+      "request": {
+        "message": "SourceFrameResolveRequest",
+        "fields": [
+          {
+            "name": "source_artifact_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "source_version",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "frame_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "pts_us",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "frame_width",
+            "type": "uint32",
+            "number": 5
+          },
+          {
+            "name": "frame_height",
+            "type": "uint32",
+            "number": 6
+          },
+          {
+            "name": "roi",
+            "type": "SceneTextRoi",
+            "number": 7
+          },
+          {
+            "name": "purpose_ref",
+            "type": "string",
+            "number": 8
+          }
+        ]
+      },
+      "response": {
+        "message": "SourceFrameResolveResponse",
+        "fields": [
+          {
+            "name": "resolved",
+            "type": "SourceFrameResolution",
+            "number": 1
+          },
+          {
+            "name": "rejected",
+            "type": "SourceFrameResolveRejected",
             "number": 2
           }
         ]
