@@ -46,7 +46,9 @@ public final class MediaSpeechToTextAdmission {
         RIGHTS_DECISION_STALE,
         RIGHTS_DECISION_MISMATCH,
         POLICY_DECISION_UNAVAILABLE,
-        TRANSCRIPT_VERSION_STORE_NOT_ADMITTED
+        TRANSCRIPT_VERSION_STORE_NOT_ADMITTED,
+        /** Language lacks its own current, evidence-backed qualification (MED-07). */
+        LANGUAGE_NOT_INDIVIDUALLY_QUALIFIED
     }
 
     public enum LanguageMode { EXPLICIT, AUTO_REQUESTED }
@@ -279,6 +281,46 @@ public final class MediaSpeechToTextAdmission {
         return blockers.isEmpty()
                 ? new Decision(Disposition.ADMITTED, List.of())
                 : new Decision(Disposition.NOT_ADMITTED, blockers);
+    }
+
+    /**
+     * Same checks as the evidence-bearing overload plus per-language qualification: the requested
+     * language (or, for auto-detection, every language the profile may emit) must have its own
+     * current QUALIFIED entry. English and Nepali are therefore admitted independently.
+     */
+    public static Decision evaluate(
+            Request request,
+            MediaArtifact artifact,
+            Profile profile,
+            ConsentDecision consentDecision,
+            MediaSourceAuthorizationContracts.Request authorizationRequest,
+            MediaSourceAuthorizationContracts.Decision sourceAuthorization,
+            boolean exactSourceClockMetadataAvailable,
+            boolean transcriptVersionStoreReady,
+            Clock clock,
+            MediaSttLanguageQualification.Registry languageQualifications) {
+        Decision base = evaluate(request, artifact, profile, consentDecision, authorizationRequest,
+                sourceAuthorization, exactSourceClockMetadataAvailable, transcriptVersionStoreReady, clock);
+        if (request.languageMode() == null) return base;
+        MediaSttLanguageQualification.Registry registry = languageQualifications == null
+                ? MediaSttLanguageQualification.Registry.empty() : languageQualifications;
+        Instant now = clock.instant();
+        boolean qualified;
+        if (profile == null) {
+            qualified = false;
+        } else if (request.languageMode() == LanguageMode.EXPLICIT) {
+            qualified = !request.languageTag().isBlank()
+                    && registry.admits(profile, request.languageTag(), now);
+        } else {
+            qualified = !profile.supportedLanguageTags().isEmpty()
+                    && profile.supportedLanguageTags().stream().allMatch(tag -> registry.admits(profile, tag, now));
+        }
+        if (qualified) return base;
+        List<Reason> reasons = new ArrayList<>(base.reasons());
+        if (!reasons.contains(Reason.LANGUAGE_NOT_INDIVIDUALLY_QUALIFIED)) {
+            reasons.add(Reason.LANGUAGE_NOT_INDIVIDUALLY_QUALIFIED);
+        }
+        return new Decision(Disposition.NOT_ADMITTED, reasons);
     }
 
     private static boolean consentAdmitted(
