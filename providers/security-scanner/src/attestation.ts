@@ -1,4 +1,4 @@
-import { createHmac, createPublicKey, sign as edSign, verify as edVerify, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, createPrivateKey, createPublicKey, sign as edSign, verify as edVerify, timingSafeEqual } from 'node:crypto';
 import type { KeyObject } from 'node:crypto';
 import type { SignedScanAttestation } from './contract.ts';
 
@@ -6,7 +6,53 @@ import type { SignedScanAttestation } from './contract.ts';
 export interface AttestationSigner {
   readonly algorithm: 'HMAC-SHA256' | 'Ed25519';
   readonly keyId: string;
-  sign(payload: Uint8Array): Uint8Array;
+  /** May be asynchronous so an external KMS/HSM can sign remotely; private key material never enters this package. */
+  sign(payload: Uint8Array): Uint8Array | Promise<Uint8Array>;
+}
+
+/** Picks the signer valid at `now` (key rotation). The KMS stays external: implementations wrap its sign API. */
+export interface SigningKeyResolver {
+  resolve(now: Date): AttestationSigner | Promise<AttestationSigner>;
+}
+export type SignerSource = AttestationSigner | SigningKeyResolver;
+
+export class SignerUnavailableError extends Error {
+  constructor(message: string) { super(message); this.name = 'SignerUnavailableError'; }
+}
+
+export async function resolveSigner(source: SignerSource, now: Date): Promise<AttestationSigner> {
+  return 'resolve' in source ? source.resolve(now) : source;
+}
+
+/**
+ * Key-rotation-capable resolver over externally held signers. A key signs only inside [notBefore, notAfter);
+ * when several are valid the latest notBefore wins (so a new key takes over at its notBefore while the old one stays
+ * valid for verification elsewhere). No valid key => SignerUnavailableError (never a fallback to an expired/unknown key).
+ */
+export function rotatingSigner(keys: ReadonlyArray<{ signer: AttestationSigner; notBefore: Date; notAfter?: Date }>): SigningKeyResolver {
+  if (keys.length === 0) throw new RangeError('at least one signing key is required');
+  const ids = new Set(keys.map((k) => k.signer.keyId));
+  if (ids.size !== keys.length) throw new RangeError('signing keyIds must be unique');
+  return {
+    resolve(now) {
+      const active = keys
+        .filter((k) => k.notBefore.getTime() <= now.getTime() && (!k.notAfter || now.getTime() < k.notAfter.getTime()))
+        .sort((a, b) => b.notBefore.getTime() - a.notBefore.getTime())[0];
+      if (!active) throw new SignerUnavailableError('no signing key is valid at this time');
+      return active.signer;
+    },
+  };
+}
+
+/**
+ * DEVELOPMENT/TEST ONLY Ed25519 signer from a public label: anyone can derive this key, so its keyId carries the
+ * `TEST-ONLY-` prefix (trust roots must never include it) and it refuses to exist when NODE_ENV=production.
+ */
+export function testOnlyEd25519Signer(label = 'default'): AttestationSigner & { readonly publicKey: KeyObject } {
+  if (process.env.NODE_ENV === 'production') throw new Error('test-only signer is forbidden in production');
+  const seed = createHash('sha256').update(`ghatana-media/scanner/TEST-ONLY/${label}`).digest();
+  const privateKey = createPrivateKey({ key: Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), seed]), format: 'der', type: 'pkcs8' });
+  return { ...ed25519Signer(`TEST-ONLY-${label}`, privateKey), publicKey: createPublicKey(privateKey) };
 }
 
 export interface AttestationVerifier {
@@ -74,8 +120,14 @@ function canonicalJson(value: unknown): string {
 }
 
 export function signAttestation(att: UnsignedAttestation, signer: AttestationSigner): SignedScanAttestation {
-  const signature = Buffer.from(signer.sign(canonicalPayload(att))).toString('base64url');
-  return { ...att, attestation: { algorithm: signer.algorithm, keyId: signer.keyId, signature } };
+  const raw = signer.sign(canonicalPayload(att));
+  if (raw instanceof Promise) throw new TypeError('asynchronous signer: use signAttestationAsync');
+  return { ...att, attestation: { algorithm: signer.algorithm, keyId: signer.keyId, signature: Buffer.from(raw).toString('base64url') } };
+}
+
+export async function signAttestationAsync(att: UnsignedAttestation, signer: AttestationSigner): Promise<SignedScanAttestation> {
+  const raw = await signer.sign(canonicalPayload(att));
+  return { ...att, attestation: { algorithm: signer.algorithm, keyId: signer.keyId, signature: Buffer.from(raw).toString('base64url') } };
 }
 
 export interface AttestationExpectation {

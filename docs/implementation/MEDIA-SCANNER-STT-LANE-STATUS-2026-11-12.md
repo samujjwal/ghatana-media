@@ -194,3 +194,8 @@ Bytes after PDF `%%EOF` / PNG IEND / JPEG EOI / ZIP end-of-central-directory, ma
 nesting beyond the bound => `REJECTED_STRUCTURE` (base status FAILED, finality QUARANTINED); unsupported declared types or uninspectable structure => UNKNOWN. Never CLEAN.
 Tests: `test/structure.test.ts` (EICAR-after-%%EOF, PNG/JPEG trailers, mismatches, nested zips, hostile input) + full package 46/46. Re-run against real clamd:
 all 10 corpus items as expected (EICAR INFECTED; three appended-EICAR polyglots and PNG-as-PDF REJECTED_STRUCTURE; clean PDF/PNG/JPEG CLEAN), invariants all true.
+
+## MED-06 scanner hardening increment
+Async/KMS-capable signer + `rotatingSigner` + `SignerUnavailableError`, labelled `testOnlyEd25519Signer`, archive decompression ratio/budget limits, per-principal submit rate limit
+(see `providers/security-scanner/README.md` "Signing keys and resource limits"). Tests `test/hardening.test.ts` (rotation windows, async signing, key outage throws, test-only key
+production refusal, bomb/ratio/budget archives, 429 rate limit, engine and quarantine outage => UNKNOWN); package 55/55, tsc clean. Not claimed: real KMS, mTLS tested against a real CA, real isolation/cgroup limits.

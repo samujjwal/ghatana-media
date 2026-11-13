@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { signAttestation, type AttestationSigner, type UnsignedAttestation } from './attestation.ts';
+import { resolveSigner, signAttestationAsync, type SignerSource, type UnsignedAttestation } from './attestation.ts';
 import type {
   ContentChecksum,
   ContentScanAttestation,
@@ -28,7 +28,8 @@ export interface QuarantineSource {
 export interface SecurityScannerProviderOptions {
   readonly engine: ScanEngine;
   readonly source: QuarantineSource;
-  readonly signer: AttestationSigner;
+  /** A signer, or a key-rotation resolver. Keys live outside this package (KMS/secret manager). */
+  readonly signer: SignerSource;
   /** Stable provider identity reported as `scannerRef`. */
   readonly scannerRef: string;
   /**
@@ -99,14 +100,15 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
       input.sizeBytes > 0 &&
       input.mimeType !== '';
     const requested: ContentChecksum = validShape ? input.checksum : { algorithm: 'SHA-256', value: '0'.repeat(64) };
-    const finish = (
+    const finish = async (
       verdict: ScanVerdict,
       reasonCode: ScanReasonCode,
       scanned: { digest: ContentChecksum; size: number },
       engine?: EngineIdentity,
       signatureName?: string,
-    ): SignedScanAttestation => {
+    ): Promise<SignedScanAttestation> => {
       const at = now();
+      const signer = await resolveSigner(o.signer, at);
       const attestationRef = (o.newAttestationRef ?? randomUUID)();
       const unsigned: UnsignedAttestation = {
         scannerRef: o.scannerRef,
@@ -144,22 +146,22 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
           expiresAt: new Date(at.getTime() + o.attestationTtlMs).toISOString(),
           statusRef: `scan-status:${attestationRef}`,
           attestationRef,
-          signatureRef: `${o.signer.algorithm}:${o.signer.keyId}:${attestationRef}`,
+          signatureRef: `${signer.algorithm}:${signer.keyId}:${attestationRef}`,
           ...(verdict === 'UNKNOWN' || verdict === 'REJECTED_STRUCTURE' ? { errorCode: reasonCode } : {}),
         },
       };
-      return signAttestation(unsigned, o.signer);
+      return signAttestationAsync(unsigned, signer);
     };
     const nothing = { digest: requested, size: 0 };
 
-    if (!validShape) return finish('UNKNOWN', 'INVALID_REQUEST', nothing);
-    if (input.sizeBytes > o.maxBytes) return finish('UNKNOWN', 'OVERSIZED', nothing);
+    if (!validShape) return await finish('UNKNOWN', 'INVALID_REQUEST', nothing);
+    if (input.sizeBytes > o.maxBytes) return await finish('UNKNOWN', 'OVERSIZED', nothing);
 
     let release: (() => void) | undefined;
     try {
       release = await this.#acquire();
     } catch {
-      return finish('UNKNOWN', 'SCANNER_BUSY', nothing);
+      return await finish('UNKNOWN', 'SCANNER_BUSY', nothing);
     }
     const timeout = AbortSignal.timeout(o.scanTimeoutMs ?? 60_000);
     const signal = options.signal ? AbortSignal.any([timeout, options.signal]) : timeout;
@@ -177,19 +179,19 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
           signal,
         );
       } catch {
-        return finish('UNKNOWN', 'SOURCE_UNAVAILABLE', nothing);
+        return await finish('UNKNOWN', 'SOURCE_UNAVAILABLE', nothing);
       }
-      if (!fetched) return finish('UNKNOWN', 'SOURCE_UNAVAILABLE', nothing);
-      if (fetched.tenantId !== tenantId) return finish('UNKNOWN', 'TENANT_MISMATCH', nothing);
+      if (!fetched) return await finish('UNKNOWN', 'SOURCE_UNAVAILABLE', nothing);
+      if (fetched.tenantId !== tenantId) return await finish('UNKNOWN', 'TENANT_MISMATCH', nothing);
       const content = fetched.content;
-      if (content.byteLength > o.maxBytes) return finish('UNKNOWN', 'OVERSIZED', nothing);
+      if (content.byteLength > o.maxBytes) return await finish('UNKNOWN', 'OVERSIZED', nothing);
       const actual: ContentChecksum = {
         algorithm: 'SHA-256',
         value: createHash('sha256').update(content).digest('hex'),
       };
       const scanned = { digest: actual, size: content.byteLength };
-      if (actual.value !== requested.value) return finish('UNKNOWN', 'DIGEST_MISMATCH', scanned);
-      if (content.byteLength !== input.sizeBytes) return finish('UNKNOWN', 'SIZE_MISMATCH', scanned);
+      if (actual.value !== requested.value) return await finish('UNKNOWN', 'DIGEST_MISMATCH', scanned);
+      if (content.byteLength !== input.sizeBytes) return await finish('UNKNOWN', 'SIZE_MISMATCH', scanned);
 
       let identity: EngineIdentity | undefined;
       let identityFailure: ScanReasonCode | undefined;
@@ -203,27 +205,27 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
       try {
         outcome = await o.engine.scan(content, signal);
       } catch (error) {
-        return finish('UNKNOWN', reasonOf(error), scanned, identity);
+        return await finish('UNKNOWN', reasonOf(error), scanned, identity);
       }
       // A malware hit is always reported, even if identity or freshness checks would block CLEAN.
       if (outcome.kind === 'INFECTED') {
-        return finish('INFECTED', 'SIGNATURE_MATCH', scanned, identity, outcome.signatureName);
+        return await finish('INFECTED', 'SIGNATURE_MATCH', scanned, identity, outcome.signatureName);
       }
       // False-negative policy: "no signature matched" is not "safe". Structure that contradicts the declared type
       // (appended payloads, magic mismatch, excessive archive nesting) can never be CLEAN.
       const structure = inspectStructure(content, input.mimeType, o.structure);
-      if (structure.kind === 'REJECTED') return finish('REJECTED_STRUCTURE', structure.reason, scanned, identity);
-      if (structure.kind === 'UNDETERMINED') return finish('UNKNOWN', structure.reason, scanned, identity);
-      if (!identity) return finish('UNKNOWN', identityFailure ?? 'ENGINE_UNAVAILABLE', scanned);
+      if (structure.kind === 'REJECTED') return await finish('REJECTED_STRUCTURE', structure.reason, scanned, identity);
+      if (structure.kind === 'UNDETERMINED') return await finish('UNKNOWN', structure.reason, scanned, identity);
+      if (!identity) return await finish('UNKNOWN', identityFailure ?? 'ENGINE_UNAVAILABLE', scanned);
       if (!o.pinnedEngineVersions.includes(identity.version)) {
-        return finish('UNKNOWN', 'ENGINE_VERSION_NOT_PINNED', scanned, identity);
+        return await finish('UNKNOWN', 'ENGINE_VERSION_NOT_PINNED', scanned, identity);
       }
-      if (!identity.definitionsDate) return finish('UNKNOWN', 'DEFINITIONS_UNKNOWN', scanned, identity);
+      if (!identity.definitionsDate) return await finish('UNKNOWN', 'DEFINITIONS_UNKNOWN', scanned, identity);
       const age = now().getTime() - identity.definitionsDate.getTime();
       if (age > o.maxDefinitionsAgeMs || age < -5 * 60_000) {
-        return finish('UNKNOWN', 'DEFINITIONS_STALE', scanned, identity);
+        return await finish('UNKNOWN', 'DEFINITIONS_STALE', scanned, identity);
       }
-      return finish('CLEAN', 'OK', scanned, identity);
+      return await finish('CLEAN', 'OK', scanned, identity);
     } finally {
       release();
     }

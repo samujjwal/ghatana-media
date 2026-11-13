@@ -14,6 +14,7 @@ export type StructureReason =
   | 'STRUCTURE_TRAILING_BYTES'
   | 'STRUCTURE_TERMINATOR_MISSING'
   | 'STRUCTURE_NESTED_ARCHIVE_DEPTH'
+  | 'STRUCTURE_DECOMPRESSION_LIMIT'
   | 'STRUCTURE_UNDETERMINED'
   | 'STRUCTURE_UNSUPPORTED_TYPE';
 
@@ -29,6 +30,10 @@ export interface StructureOptions {
   readonly unstructuredTypes?: readonly string[];
   readonly maxEntries?: number;
   readonly maxInflatedBytes?: number;
+  /** Maximum uncompressed/compressed ratio for any archive entry (default 100). */
+  readonly maxCompressionRatio?: number;
+  /** Maximum total declared+actual uncompressed bytes across one archive tree (default 64 MiB). */
+  readonly maxTotalInflatedBytes?: number;
 }
 
 const OK: StructureResult = { kind: 'OK' };
@@ -69,7 +74,7 @@ export function inspectStructure(content: Uint8Array, declaredMimeType: string, 
   const actual = sniff(content);
   const expectZip = family === 'ZIP' || family === 'OOXML';
   if (expectZip ? actual !== 'ZIP' : actual !== family) return reject('STRUCTURE_MAGIC_MISMATCH');
-  const o = { maxNestingDepth: options.maxNestingDepth ?? 1, maxEntries: options.maxEntries ?? 10_000, maxInflatedBytes: options.maxInflatedBytes ?? 16 * 1024 * 1024 };
+  const o = { maxNestingDepth: options.maxNestingDepth ?? 1, maxEntries: options.maxEntries ?? 10_000, maxInflatedBytes: options.maxInflatedBytes ?? 16 * 1024 * 1024, maxRatio: options.maxCompressionRatio ?? 100, budget: { remaining: options.maxTotalInflatedBytes ?? 64 * 1024 * 1024 } };
   try {
     switch (family) {
       case 'PDF': return inspectPdf(content);
@@ -129,7 +134,7 @@ function inspectJpeg(b: Uint8Array): StructureResult {
   return reject('STRUCTURE_TERMINATOR_MISSING');
 }
 
-interface ZipLimits { maxNestingDepth: number; maxEntries: number; maxInflatedBytes: number }
+interface ZipLimits { maxNestingDepth: number; maxEntries: number; maxInflatedBytes: number; maxRatio: number; budget: { remaining: number } }
 
 function inspectZip(b: Uint8Array, depth: number, o: ZipLimits, ooxml: boolean): StructureResult {
   const buf = Buffer.from(b.buffer, b.byteOffset, b.byteLength);
@@ -165,6 +170,10 @@ function inspectZip(b: Uint8Array, depth: number, o: ZipLimits, ooxml: boolean):
     if (lho + 30 > cdOffset || buf.readUInt32LE(lho) !== 0x04034b50) return reject('STRUCTURE_TERMINATOR_MISSING');
     const dataStart = lho + 30 + buf.readUInt16LE(lho + 26) + buf.readUInt16LE(lho + 28);
     if (dataStart + csize > cdOffset) return reject('STRUCTURE_TERMINATOR_MISSING');
+    // Decompression-bomb limits: declared ratio and a shared tree-wide uncompressed-byte budget.
+    if (csize > 0 && usize / csize > o.maxRatio && usize > 1024) return reject('STRUCTURE_DECOMPRESSION_LIMIT');
+    o.budget.remaining -= usize;
+    if (o.budget.remaining < 0) return reject('STRUCTURE_DECOMPRESSION_LIMIT');
     const nestedByName = /\.(zip|jar|docx|xlsx|pptx|apk|7z|rar|gz|tgz|war)$/iu.test(name);
     let nested = nestedByName;
     let data: Buffer | undefined;
@@ -172,6 +181,7 @@ function inspectZip(b: Uint8Array, depth: number, o: ZipLimits, ooxml: boolean):
       try {
         const raw = buf.subarray(dataStart, dataStart + csize);
         data = method === 0 ? raw : inflateRawSync(raw, { maxOutputLength: o.maxInflatedBytes });
+        if (csize > 0 && data.length / csize > o.maxRatio && data.length > 1024) return reject('STRUCTURE_DECOMPRESSION_LIMIT'); // declared sizes can lie
         if (sniff(data) === 'ZIP') nested = true;
       } catch { return undetermined('STRUCTURE_UNDETERMINED'); }
     } else if (usize > o.maxInflatedBytes) {

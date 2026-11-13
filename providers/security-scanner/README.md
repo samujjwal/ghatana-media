@@ -52,6 +52,18 @@ nested archives). Known cost: legitimate files with trailing data (e.g. multi-pi
 (`structure.unstructuredTypes`). Intake UIs must present CLEAN as "no signature matched", not "safe". The structural
 check complements, never replaces, a rights-cleared malware/obfuscation corpus and a measured false-negative rate.
 
+### Signing keys and resource limits (MED-06)
+
+`signer` accepts an `AttestationSigner` (its `sign` may be async, so a remote KMS/HSM can sign) or a `SigningKeyResolver`.
+`rotatingSigner([{signer, notBefore, notAfter?}])` signs with the latest-`notBefore` key valid at the attestation time; no valid key
+throws `SignerUnavailableError` (the service then discards the job: no unsigned or CLEAN result). Verifiers (Kernel/Media trust roots)
+must hold every key that may still verify unexpired attestations. Key material and rotation schedules stay in the external KMS; this
+package never stores a private key. `testOnlyEd25519Signer(label)` is derivable by anyone: keyId `TEST-ONLY-*`, refuses `NODE_ENV=production`,
+and must never be a trust root. Limits: `maxBytes` (size), `scanTimeoutMs` (time), `structure.maxCompressionRatio` (default 100) and
+`maxTotalInflatedBytes` (default 64 MiB) for archive decompression (`STRUCTURE_DECOMPRESSION_LIMIT`), per-principal `maxSubmitsPerWindow`
+(default 600/60 s, 429 `RATE_LIMITED`) besides the active-scan cap. Quarantine: the scanner only reads; an engine or quarantine-object
+outage yields UNKNOWN (never CLEAN), and release stays the caller's decision after a verified CLEAN attestation.
+
 ## HTTP service (language-neutral endpoint for Kernel)
 
 `ScannerHttpService` (node:http, `src/service.ts`; runnable via `npm run build && node dist/service-main.js`, env-configured,

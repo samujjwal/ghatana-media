@@ -47,6 +47,9 @@ export interface ScannerHttpServiceOptions {
   readonly maxActiveScans?: number; // queued + running, default 64
   readonly maxRetainedScans?: number; // finished jobs kept for status polling, default 1024
   readonly retentionMs?: number; // default 10 min
+  /** Per-principal submit rate limit (fixed window). Defaults: 600 submits per 60 s. */
+  readonly maxSubmitsPerWindow?: number;
+  readonly rateWindowMs?: number;
   readonly healthTimeoutMs?: number; // default 2 s
   readonly now?: () => Date;
 }
@@ -258,6 +261,10 @@ export class ScannerHttpService {
     if (!principal.tenantIds.includes(parsed.tenantId)) {
       return void send(res, 403, err('TENANT_FORBIDDEN', 'principal is not authorized for this tenant'));
     }
+    if (!this.#admitRate(principal.principalId)) {
+      res.setHeader('retry-after', '10');
+      return void send(res, 429, err('RATE_LIMITED', 'principal exceeded its submit rate'));
+    }
     this.#prune();
     let active = 0;
     for (const j of this.#jobs.values()) if (j.state === 'QUEUED' || j.state === 'RUNNING') active++;
@@ -273,6 +280,21 @@ export class ScannerHttpService {
     void this.#run(job, parsed.input);
     res.setHeader('location', `/v1/scans/${job.id}`);
     send(res, 202, view(job));
+  }
+
+  readonly #rate = new Map<string, { windowStart: number; count: number }>();
+  #admitRate(principalId: string): boolean {
+    const now = Date.now();
+    const window = this.#o.rateWindowMs ?? 60_000;
+    const max = this.#o.maxSubmitsPerWindow ?? 600;
+    const cur = this.#rate.get(principalId);
+    if (!cur || now - cur.windowStart >= window) {
+      if (this.#rate.size >= 10_000) this.#rate.clear(); // bounded memory; a flood of principals only resets counters
+      this.#rate.set(principalId, { windowStart: now, count: 1 });
+      return true;
+    }
+    cur.count++;
+    return cur.count <= max;
   }
 
   async #run(job: Job, input: DocumentContentScanInput): Promise<void> {
