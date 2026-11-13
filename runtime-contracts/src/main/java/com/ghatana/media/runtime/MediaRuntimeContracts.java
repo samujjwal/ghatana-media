@@ -432,6 +432,16 @@ public final class MediaRuntimeContracts {
                     && uploadId.equals(artifact.uploadId()) && sourceSha256.equals(artifact.sha256())
                     && sizeBytes == artifact.sizeBytes() && contentType.equals(artifact.contentType());
         }
+
+        /**
+         * Release gate: only a present, unexpired, exact-identity CLEAN decision admits quarantined
+         * bytes. An absent, stale, mismatched, REJECT or UNAVAILABLE decision keeps the artifact
+         * quarantined. MIME/container-signature agreement is never an input to this decision.
+         */
+        public static boolean admitsRelease(ArtifactScanDecision decision, QuarantinedArtifact artifact, Instant now) {
+            return decision != null && decision.verdict == ArtifactScanVerdict.CLEAN
+                    && decision.matches(artifact, now);
+        }
     }
 
     public interface MediaArtifactScanner extends AutoCloseable {
