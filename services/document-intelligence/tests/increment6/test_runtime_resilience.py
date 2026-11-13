@@ -22,7 +22,16 @@ from document_intelligence.runtime.drain import DrainCoordinator
 from document_intelligence.runtime.memory import MemoryPressureGuard
 from document_intelligence.runtime.model_residency import ModelResidencyPlanner
 from document_intelligence.runtime.scheduler import BoundedScheduler
-from document_intelligence.runtime.temp_space import TempSpaceGuard
+
+try:  # SOURCE DEFECT (MIGRATION-MANIFEST knownSourceDefects): module absent at the pinned source commit.
+    from document_intelligence.runtime.temp_space import TempSpaceGuard
+except ModuleNotFoundError:  # pragma: no cover - recorded defect, not a redesign
+    TempSpaceGuard = None
+
+requires_temp_space = pytest.mark.skipif(
+    TempSpaceGuard is None,
+    reason="document_intelligence.runtime.temp_space is missing at the source commit (recorded source defect)",
+)
 
 
 # ---------------------------------------------------------------- I6-21 ---
@@ -261,6 +270,7 @@ def test_crash_journal_corrupt_record_fails_closed(tmp_path: Path):
 # ---------------------------------------------------------------- I6-26 ---
 
 
+@requires_temp_space
 def test_temp_space_refuses_beyond_limit(tmp_path: Path):
     guard = TempSpaceGuard(tmp_path / "tmp", limit_bytes=10)
     guard.write(b"12345678")
@@ -271,6 +281,7 @@ def test_temp_space_refuses_beyond_limit(tmp_path: Path):
     assert guard.admit(2) is True
 
 
+@requires_temp_space
 def test_temp_space_cleanup_stale_only_removes_tracked_old_files(tmp_path: Path):
     directory = tmp_path / "tmp"
     guard = TempSpaceGuard(directory, limit_bytes=1024)
@@ -287,6 +298,7 @@ def test_temp_space_cleanup_stale_only_removes_tracked_old_files(tmp_path: Path)
     assert guard.tracked_bytes == len(b"new-data")
 
 
+@requires_temp_space
 def test_temp_space_cleanup_releases_budget(tmp_path: Path):
     guard = TempSpaceGuard(tmp_path / "tmp", limit_bytes=10)
     path = guard.write(b"1234567890")

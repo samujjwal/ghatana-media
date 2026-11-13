@@ -28,8 +28,8 @@
   "note": "The Media copy must not be started against the Ghatana worker state, models cache, queue or endpoint. Cutover requires source, data, consumer and endpoint proof."
  },
  "summary": {
-  "COPIED_VERBATIM": 1480,
-  "ADAPTED": 6,
+  "COPIED_VERBATIM": 1478,
+  "ADAPTED": 8,
   "ADDED": 2
  },
  "buildPathAdaptations": {
@@ -56,15 +56,16 @@
   }
  ],
  "knownSourceDefects": [
-  "tests/increment6/test_runtime_resilience.py imports document_intelligence.runtime.temp_space, which does not exist at the source commit (module is temporary_files.py). Not modified (no redesign).",
-  "tests/increment6/test_evaluation_harness.py imports jsonschema, which is not declared in pyproject.toml extras. Not modified."
+  "tests/increment6/test_runtime_resilience.py imports document_intelligence.runtime.temp_space (TempSpaceGuard), which does not exist at the source commit (the module is temporary_files.py with a different API; evaluation/increment6/implementation-material.yaml, profiles/increment6*.yaml and scripts/verify_increment6.py also reference temp_space). A history search in the read-only ghatana checkout for a deleted module timed out; not found. Media copy: import guarded and the three TempSpaceGuard tests skipped (reason recorded in the test). The module is not reinvented here; the defect must be fixed at the source.",
+  "tests/increment6/test_evaluation_harness.py imports jsonschema, which was not declared in pyproject.toml extras. Media copy: declared in the `test` extra (adapted); uv.lock not regenerated (requires network `uv lock`)."
  ],
  "verification": {
   "python": {
    "command": "pytest -q -p no:cacheprovider --ignore=tests/increment6/test_runtime_resilience.py (uv sync --extra runtime --extra test --extra evaluation, plus jsonschema)",
    "result": "556 passed, 57 skipped, 35 failed",
    "baseline": "identical result (556/57/35) on a pristine git-archive extraction of the source commit",
-   "failureClasses": "18 missing git-ignored evaluation/results; remaining environmental: optional provider libs (docling/gliner/fitz) and tsc not installed, office fonts and PDF tooling absent"
+   "failureClasses": "18 missing git-ignored evaluation/results; remaining environmental: optional provider libs (docling/gliner/fitz) and tsc not installed, office fonts and PDF tooling absent",
+   "mediaCopyHygiene": "2026-11-12 follow-up: skip-guard + jsonschema declaration are syntax-checked (py_compile) only; pytest was NOT re-run (no Python test environment resolvable offline). The 556/57/35 baseline above predates these two edits and the re-included test_runtime_resilience.py non-temp-space tests are unmeasured."
   },
   "java": {
    "command": "./gradlew -p services/document-intelligence/clients/java test",
@@ -9019,9 +9020,10 @@
   {
    "path": "pyproject.toml",
    "sourceSha256": "8a2bd5d6dddc695ab3f9374ec87fd5f9d4f65434d1db4a641029b5b80775f34c",
-   "destinationSha256": "8a2bd5d6dddc695ab3f9374ec87fd5f9d4f65434d1db4a641029b5b80775f34c",
-   "bytes": 1170,
-   "disposition": "COPIED_VERBATIM"
+   "destinationSha256": "eb981c671bf8839a791b3311e32696a856554a714809e21f4de5098a1cb76293",
+   "bytes": 1190,
+   "disposition": "ADAPTED",
+   "note": "Declares jsonschema in the `test` extra (undeclared source dependency of tests/increment6/test_evaluation_harness.py). uv.lock NOT regenerated (offline; needs `uv lock` with network); worker source and Dockerfile untouched."
   },
   {
    "path": "release/external-certification.md",
@@ -10097,9 +10099,10 @@
   {
    "path": "tests/increment6/test_runtime_resilience.py",
    "sourceSha256": "7f29e136e2cdc5bf96327bf73fe774aa8104e45389f3365f454068c1272a09d2",
-   "destinationSha256": "7f29e136e2cdc5bf96327bf73fe774aa8104e45389f3365f454068c1272a09d2",
-   "bytes": 11602,
-   "disposition": "COPIED_VERBATIM"
+   "destinationSha256": "08f23642a7b1d6defd16d342d8dc321400b870274b2eec087c0d7672dc0937a7",
+   "bytes": 12069,
+   "disposition": "ADAPTED",
+   "note": "Guarded import of the absent runtime.temp_space module; the three temp-space tests are skipped (recorded source defect) so the other increment-6 resilience tests are collected. No module invented."
   },
   {
    "path": "tests/increment6/test_scanned.py",
