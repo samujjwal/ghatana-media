@@ -1588,6 +1588,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         throw new SecurityException("Authenticated principal is required to cancel a Media job");
     }
 
+    @Override
+    public JobCancellation cancelJob(String tenantId, String principalId, String jobId) {
+        ensureOpen();
+        requirePrincipal(principalId);
+        if (jobStore.find(tenantId, jobId).filter(value -> value.principalId().equals(principalId)).isEmpty()) {
+            return new JobCancellation(CancelOutcome.NOT_FOUND, Optional.empty());
+        }
+        final ProcessingJob stored = cancelOwnedJob(tenantId, principalId, jobId);
+        CancelOutcome outcome = switch (stored.status()) {
+            case CANCELLED -> CancelOutcome.CANCELLED;
+            case COMPLETED, FAILED -> CancelOutcome.ALREADY_TERMINAL;
+            default -> CancelOutcome.UNKNOWN;
+        };
+        return new JobCancellation(outcome, Optional.of(stored));
+    }
+
     public ProcessingJob cancel(String tenantId, String principalId, String jobId) {
         ensureOpen();
         requirePrincipal(principalId);

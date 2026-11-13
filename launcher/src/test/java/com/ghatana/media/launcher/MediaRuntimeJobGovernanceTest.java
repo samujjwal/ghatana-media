@@ -636,6 +636,76 @@ class MediaRuntimeJobGovernanceTest {
     }
 
     @Test
+    void portCancelJobReportsCancelledOnlyWhenStateIsCancelledAndScopesByOwner() throws Exception {
+        var provider = provider("remote", 0, new AtomicInteger(), new CompletableFuture<>(), CancellationOutcome.CONFIRMED);
+        var runtime = runtime(Files.createTempDirectory("media-port-cancel-confirmed-"), List.of(provider));
+        try {
+            var artifact = artifact(runtime);
+            var accepted = runtime.submit(new ProcessingJobRequest(
+                    "request-port-cancel", "tenant-a", "principal-a", "correlation-a",
+                    artifact.artifactId(), JobType.VISION, "remote", Map.of()));
+
+            assertThat(runtime.cancelJob("tenant-b", "principal-a", accepted.jobId()).outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.NOT_FOUND);
+            assertThat(runtime.cancelJob("tenant-a", "principal-b", accepted.jobId()).outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.NOT_FOUND);
+            assertThat(runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow().status())
+                    .isNotEqualTo(JobStatus.CANCELLED);
+
+            var cancelled = runtime.cancelJob("tenant-a", "principal-a", accepted.jobId());
+            assertThat(cancelled.outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.CANCELLED);
+            assertThat(cancelled.job().orElseThrow().status()).isEqualTo(JobStatus.CANCELLED);
+            // idempotent repeat stays CANCELLED
+            assertThat(runtime.cancelJob("tenant-a", "principal-a", accepted.jobId()).outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.CANCELLED);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void portCancelJobIsUnknownWhenProviderCannotConfirmAndNotFoundForUnknownJob() throws Exception {
+        var provider = provider("remote", 0, new AtomicInteger(), new CompletableFuture<>(), CancellationOutcome.UNSUPPORTED);
+        var runtime = runtime(Files.createTempDirectory("media-port-cancel-unknown-"), List.of(provider));
+        try {
+            var artifact = artifact(runtime);
+            var accepted = runtime.submit(new ProcessingJobRequest(
+                    "request-port-cancel-unknown", "tenant-a", "principal-a", "correlation-a",
+                    artifact.artifactId(), JobType.VISION, "remote", Map.of()));
+            var result = runtime.cancelJob("tenant-a", "principal-a", accepted.jobId());
+            assertThat(result.outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.UNKNOWN);
+            assertThat(result.job().orElseThrow().status()).isNotEqualTo(JobStatus.CANCELLED);
+            assertThat(runtime.cancelJob("tenant-a", "principal-a", "no-such-job").outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.NOT_FOUND);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void portCancelJobOnCompletedJobReportsAlreadyTerminalNotCancelled() throws Exception {
+        CompletableFuture<Map<String, Object>> done = CompletableFuture.completedFuture(Map.of("labels", List.of("safe")));
+        var provider = provider("remote", 0, new AtomicInteger(), done, CancellationOutcome.CONFIRMED);
+        var runtime = runtime(Files.createTempDirectory("media-port-cancel-completed-"), List.of(provider));
+        try {
+            var artifact = artifact(runtime);
+            var accepted = runtime.submit(new ProcessingJobRequest(
+                    "request-port-cancel-done", "tenant-a", "principal-a", "correlation-a",
+                    artifact.artifactId(), JobType.VISION, "remote", Map.of()));
+            var terminal = awaitTerminal(runtime, accepted.jobId());
+            assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
+            var result = runtime.cancelJob("tenant-a", "principal-a", accepted.jobId());
+            assertThat(result.outcome())
+                    .isEqualTo(com.ghatana.media.runtime.MediaProcessingRuntimePort.CancelOutcome.ALREADY_TERMINAL);
+            assertThat(result.job().orElseThrow().status()).isEqualTo(JobStatus.COMPLETED);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void submissionDigestAndProviderObserveTheSameDeepParameterSnapshot() throws Exception {
         var root = Files.createTempDirectory("media-runtime-request-snapshot-");
         AtomicReference<Map<String, Object>> observed = new AtomicReference<>();

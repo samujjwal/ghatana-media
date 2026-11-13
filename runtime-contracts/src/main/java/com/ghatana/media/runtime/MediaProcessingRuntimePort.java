@@ -68,6 +68,47 @@ public interface MediaProcessingRuntimePort {
 
     Optional<ProcessingJob> job(String tenantId, String principalId, String jobId);
 
+    /**
+     * Outcome of a principal-scoped cancel request. {@link #CANCELLED} is reported only when the
+     * durable job state is actually CANCELLED; a request the provider could not confirm is
+     * {@link #UNKNOWN} and the job may still be running or have an unresolved effect.
+     */
+    enum CancelOutcome {
+        /** The durable job state is CANCELLED (confirmed now, or already cancelled earlier). */
+        CANCELLED,
+        /** The job had already finished (COMPLETED or FAILED); nothing was cancelled. */
+        ALREADY_TERMINAL,
+        /** Cancellation was requested or unsupported but the job is not CANCELLED. */
+        UNKNOWN,
+        /** No such job for this tenant and principal (wrong tenant/principal is indistinguishable). */
+        NOT_FOUND
+    }
+
+    /** Typed cancel result; {@code job} is the stored job after the request, empty for NOT_FOUND. */
+    record JobCancellation(CancelOutcome outcome, Optional<ProcessingJob> job) {
+        public JobCancellation {
+            java.util.Objects.requireNonNull(outcome, "outcome");
+            java.util.Objects.requireNonNull(job, "job");
+            if (outcome == CancelOutcome.CANCELLED
+                    && job.map(value -> value.status() != MediaRuntimeContracts.JobStatus.CANCELLED).orElse(true)) {
+                throw new IllegalArgumentException("CANCELLED requires a job in CANCELLED state");
+            }
+            if ((outcome == CancelOutcome.NOT_FOUND) != job.isEmpty()) {
+                throw new IllegalArgumentException("job is present exactly when the job exists");
+            }
+        }
+    }
+
+    /**
+     * Principal-scoped cancel for one job. Tenant and principal must own the job; otherwise the
+     * result is NOT_FOUND. The default fails closed (no cancellation path on this port).
+     */
+    default JobCancellation cancelJob(String tenantId, String principalId, String jobId) {
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "Media job cancellation is not supported by this runtime port");
+    }
+
     Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId);
 
     /**
