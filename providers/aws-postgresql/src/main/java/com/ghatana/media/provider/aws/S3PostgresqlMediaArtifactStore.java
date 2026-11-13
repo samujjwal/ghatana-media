@@ -9,6 +9,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactLineage;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanDecision;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanVerdict;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactScanner;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ScanAttestationVerifier;
 import com.ghatana.media.runtime.MediaRuntimeContracts.QuarantinedArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadBeginResult;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadCompletionResult;
@@ -81,12 +82,48 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
 
     private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
     private final MediaArtifactScanner scannerOverride;
+    private final ScanAttestationVerifier attestationVerifier;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public S3PostgresqlMediaArtifactStore() { this(null); }
+    public S3PostgresqlMediaArtifactStore() { this(null, discoverVerifier()); }
 
     S3PostgresqlMediaArtifactStore(MediaArtifactScanner scannerOverride) {
+        this(scannerOverride, discoverVerifier());
+    }
+
+    /** Host-injected signed-release verifier; {@code null} keeps every production-grade release quarantined. */
+    S3PostgresqlMediaArtifactStore(MediaArtifactScanner scannerOverride, ScanAttestationVerifier verifier) {
         this.scannerOverride = scannerOverride;
+        this.attestationVerifier = verifier;
+    }
+
+    /** At most one host verifier may be published through ServiceLoader; zero or several => none (fail closed). */
+    private static ScanAttestationVerifier discoverVerifier() {
+        List<ScanAttestationVerifier> found = ServiceLoader.load(ScanAttestationVerifier.class).stream()
+                .map(ServiceLoader.Provider::get).toList();
+        return found.size() == 1 ? found.getFirst() : null;
+    }
+
+    /**
+     * MED-06 release gate. A production-eligible store or scanner admits only a signed, verifier-affirmed
+     * CLEAN decision; an absent verifier or unsigned decision stays quarantined. Only the explicitly
+     * non-production development scanner in a non-production store keeps the legacy identity check.
+     */
+    private boolean releaseAdmitted(
+            ArtifactScanDecision decision, QuarantinedArtifact artifact, boolean scannerProductionEligible) {
+        return releaseAdmitted(decision, artifact, Instant.now(),
+                state.productionEligible() || scannerProductionEligible, attestationVerifier);
+    }
+
+    static boolean releaseAdmitted(
+            ArtifactScanDecision decision, QuarantinedArtifact artifact, Instant now,
+            boolean signedReleaseRequired, ScanAttestationVerifier verifier) {
+        if (decision == null) return false;
+        if (signedReleaseRequired) {
+            return ArtifactScanDecision.admitsSignedRelease(decision, artifact, now, verifier)
+                    || (decision.verdict() != ArtifactScanVerdict.CLEAN && decision.matches(artifact, now));
+        }
+        return decision.matches(artifact, now);
     }
 
     @Override public String storeId() { return "s3-postgresql"; }
@@ -1018,8 +1055,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 throw new IllegalStateException("Injected Media artifact scanner is not admitted");
             }
             ArtifactScanDecision decision = scannerOverride.scan(artifact);
-            if (decision == null || !decision.matches(artifact, Instant.now())) {
-                throw new SecurityException("Media artifact scanner returned an expired or mismatched attestation");
+            if (!releaseAdmitted(decision, artifact, scannerOverride.productionEligible())) {
+                throw new SecurityException("Media artifact scanner returned an expired, mismatched or unverified attestation");
             }
             return decision;
         }
@@ -1048,8 +1085,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         } finally {
             scanner.close();
         }
-        if (decision == null || !decision.matches(artifact, Instant.now())) {
-            throw new SecurityException("Media artifact scanner returned an expired or mismatched attestation");
+        if (!releaseAdmitted(decision, artifact, scanner.productionEligible())) {
+            throw new SecurityException("Media artifact scanner returned an expired, mismatched or unverified attestation");
         }
         return decision;
     }

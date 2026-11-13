@@ -1,0 +1,20 @@
+{
+  "note": "TEST-ONLY cross-language vector produced by providers/security-scanner (ed25519Signer). Not a production key.",
+  "publicKeySpkiBase64": "MCowBQYDK2VwAyEAB0mC3IEc56kQYRnbxFH+eil2+UlCxkoUbd/Q8jM8sQY=",
+  "canonicalPayload": "{\"attestationRef\":\"att-interop-0001\",\"checksum\":{\"algorithm\":\"SHA-256\",\"value\":\"abababababababababababababababababababababababababababababababab\"},\"documentId\":\"upload-a\",\"documentVersion\":1,\"engine\":{\"definitionsDate\":\"2026-11-12T00:00:00.000Z\",\"definitionsVersion\":\"27000\",\"name\":\"ClamAV\",\"version\":\"1.4.0\"},\"expiresAt\":\"2026-11-12T12:10:00.000Z\",\"reasonCode\":\"OK\",\"scannedAt\":\"2026-11-12T12:00:00.000Z\",\"scannedDigest\":{\"algorithm\":\"SHA-256\",\"value\":\"abababababababababababababababababababababababababababababababab\"},\"scannedSizeBytes\":4096,\"scannerRef\":\"clamd-interop-fixture\",\"scannerVersion\":\"ClamAV 1.4.0\",\"status\":\"CLEAN\",\"tenantId\":\"tenant-a\",\"verdict\":\"CLEAN\",\"verifiedAt\":\"2026-11-12T12:00:00.000Z\"}",
+  "binding": {
+    "attestationRef": "att-interop-0001",
+    "algorithm": "Ed25519",
+    "keyId": "interop-key-1",
+    "signature": "ElA76SED-V_3IZ5D5rIARyg6ZO3zlcaKipmmGgIH8IenO28Q11KFMuijOebC_6xmj1_eA7jljezYpfK5M6jlDw",
+    "payloadSha256": "f990a57f98f22e6dd736b50ea4de5bbdf413bd3597dcc7c04aaabb2632fd66fb"
+  },
+  "facts": {
+    "tenantId": "tenant-a",
+    "uploadId": "upload-a",
+    "sha256": "abababababababababababababababababababababababababababababababab",
+    "sizeBytes": 4096,
+    "verifiedAt": "2026-11-12T12:00:00.000Z",
+    "expiresAt": "2026-11-12T12:10:00.000Z"
+  }
+}
