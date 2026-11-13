@@ -20,7 +20,7 @@
       "subjectIdentity": "clamav-1.5.4+defs-28182@sha256:45fe5149fbee",
       "expiresAt": "2026-12-13T00:00:00Z",
       "status": "RECORDED_UNVERIFIED",
-      "insufficient": "generated EICAR/clean corpus only (7 items); real clamd MISSED the appended-payload EICAR polyglot (CLEAN); no false-negative policy, no rights-cleared malware corpus",
+      "insufficient": "generated EICAR/clean corpus only (10 items); real clamd still answers CLEAN for appended-payload polyglots, which the structural pre-scan (REJECTED_STRUCTURE) now refuses; no rights-cleared malware corpus, no measured false-negative rate",
       "detail": "providers/security-scanner/qualification/real-clamd-dev-2026-11-13.json"
     },
     {

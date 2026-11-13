@@ -24,8 +24,8 @@ Optional, independently versioned malware-scanner provider adapter. It implement
 ### Result mapping (forward compatible with the Shared generic scan-result fields)
 
 Base: `scannerRef`, `status` (`CLEAN|INFECTED|FAILED`), `scannedAt`, `checksum`, `scannerVersion`.
-Extra optional fields on the same object: `verdict` (`CLEAN|INFECTED|UNKNOWN`; UNKNOWN projects to
-`FAILED`), `reasonCode`, `tenantId`, `documentId/documentVersion`, `scannedDigest`/`scannedSizeBytes`
+Extra optional fields on the same object: `verdict` (`CLEAN|INFECTED|UNKNOWN|REJECTED_STRUCTURE`; UNKNOWN and REJECTED_STRUCTURE project to
+`FAILED`; REJECTED_STRUCTURE finality is `QUARANTINED`), `reasonCode`, `tenantId`, `documentId/documentVersion`, `scannedDigest`/`scannedSizeBytes`
 (exact SHA-256 of the bytes actually scanned), `engine{name,version,definitionsVersion,definitionsDate}`,
 `signatureName`, `verifiedAt`, `expiresAt`, `attestationRef`, `attestation{algorithm,keyId,signature}`.
 New Shared optional fields map field-for-field (digest, scannerRef/version, verdict, verifiedAt,
@@ -35,9 +35,22 @@ expiresAt, attestation ref).
 
 CLEAN requires: valid request incl. tenant; size within bound; source bytes belong to the requesting
 tenant; SHA-256 and size equal the request; engine affirmatively says OK; engine version in the
-pinned list; definitions date known and not older than `maxDefinitionsAgeMs`. INFECTED is always
-reported. Everything else (timeout, drop, oversize, ambiguous reply, unavailable, stale, unpinned,
+pinned list; definitions date known and not older than `maxDefinitionsAgeMs`; and the bytes are
+structurally valid for the declared type (below). INFECTED is always reported. Everything else (timeout, drop, oversize, ambiguous reply, unavailable, stale, unpinned,
 busy) is UNKNOWN and carries a signed `reasonCode`.
+
+### False-negative policy (structural pre-scan, `src/structure.ts`)
+
+**CLEAN means only "the pinned engine matched no signature" — never "safe".** Verified against real ClamAV 1.5.4: an EICAR
+payload appended after a PDF's `%%EOF` is reported CLEAN by the engine (file-anchored signature). So CLEAN additionally
+requires structure consistent with the declared MIME type (PDF, PNG, JPEG, ZIP, DOCX/XLSX/PPTX):
+`REJECTED_STRUCTURE` (`STRUCTURE_TRAILING_BYTES` after `%%EOF`/IEND/EOI/ZIP end-of-central-directory,
+`STRUCTURE_MAGIC_MISMATCH` incl. an OOXML zip without `[Content_Types].xml`, `STRUCTURE_TERMINATOR_MISSING`,
+`STRUCTURE_NESTED_ARCHIVE_DEPTH` beyond `maxNestingDepth`, default 1, checked recursively inside archives) or `UNKNOWN`
+(`STRUCTURE_UNSUPPORTED_TYPE` for any other declared type, `STRUCTURE_UNDETERMINED` for ZIP64/over-limit/uninspectable
+nested archives). Known cost: legitimate files with trailing data (e.g. multi-picture JPEG) are refused; the opt-out is explicit
+(`structure.unstructuredTypes`). Intake UIs must present CLEAN as "no signature matched", not "safe". The structural
+check complements, never replaces, a rights-cleared malware/obfuscation corpus and a measured false-negative rate.
 
 ## HTTP service (language-neutral endpoint for Kernel)
 

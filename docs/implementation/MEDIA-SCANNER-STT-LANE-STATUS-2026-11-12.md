@@ -187,3 +187,10 @@ Venv outside the repo: `~/.local/share/ghatana-media-di-venv`, `uv sync --frozen
 Source defects found in the Media copy (not changed; DI owner): `python -m document_intelligence.app` exits immediately (no `__main__` guard; use `main()` / the
 `document-intelligence-worker` script); `numpy` is imported at package import (`paddle_ocr_parser.py`) but is only in the `evaluation` extra, not `runtime`.
 Real Tesseract behaviour remains evidenced by the parser-level eval and the operational drill above.
+
+## Scanner false-negative policy: structural pre-scan (follow-up to the polyglot finding)
+`providers/security-scanner/src/structure.ts` + provider wiring (policy text lives in `providers/security-scanner/README.md` "False-negative policy").
+Bytes after PDF `%%EOF` / PNG IEND / JPEG EOI / ZIP end-of-central-directory, magic mismatch vs declared type, missing terminator, and archive
+nesting beyond the bound => `REJECTED_STRUCTURE` (base status FAILED, finality QUARANTINED); unsupported declared types or uninspectable structure => UNKNOWN. Never CLEAN.
+Tests: `test/structure.test.ts` (EICAR-after-%%EOF, PNG/JPEG trailers, mismatches, nested zips, hostile input) + full package 46/46. Re-run against real clamd:
+all 10 corpus items as expected (EICAR INFECTED; three appended-EICAR polyglots and PNG-as-PDF REJECTED_STRUCTURE; clean PDF/PNG/JPEG CLEAN), invariants all true.

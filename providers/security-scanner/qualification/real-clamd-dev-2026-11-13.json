@@ -47,8 +47,8 @@
       "correct": true
     },
     {
-      "id": "clean-text",
-      "sha256": "10f71685e500934a65e12b173f4bad2884f44297253652eec5310f3c87705746",
+      "id": "clean-jpeg",
+      "sha256": "df6a18521b344f6dd311df5c28f68b65e3df14a47f1352235030f3d7cc909462",
       "expect": "CLEAN",
       "status": "CLEAN",
       "verdict": "CLEAN",
@@ -67,16 +67,6 @@
       "correct": true
     },
     {
-      "id": "eicar-pdf-polyglot",
-      "sha256": "408b9d959cbfa52de83a4c99090b231360c0f527ded1eff4938c2089935a18e0",
-      "expect": "INFECTED",
-      "status": "CLEAN",
-      "verdict": "CLEAN",
-      "reasonCode": "OK",
-      "signed": true,
-      "correct": false
-    },
-    {
       "id": "eicar-in-zip",
       "sha256": "fdd06385ee9e0627d9ceb060ac37aad919c45c39239b12160533302d2394423e",
       "expect": "INFECTED",
@@ -85,12 +75,50 @@
       "reasonCode": "SIGNATURE_MATCH",
       "signed": true,
       "correct": true
+    },
+    {
+      "id": "eicar-after-pdf-eof",
+      "sha256": "408b9d959cbfa52de83a4c99090b231360c0f527ded1eff4938c2089935a18e0",
+      "expect": "REJECTED_STRUCTURE",
+      "status": "FAILED",
+      "verdict": "REJECTED_STRUCTURE",
+      "reasonCode": "STRUCTURE_TRAILING_BYTES",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "eicar-after-png-iend",
+      "sha256": "061b92adcb79b274253f4acf6377bf04e41801954e288146d65127dfd71f8759",
+      "expect": "REJECTED_STRUCTURE",
+      "status": "FAILED",
+      "verdict": "REJECTED_STRUCTURE",
+      "reasonCode": "STRUCTURE_TRAILING_BYTES",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "eicar-after-jpeg-eoi",
+      "sha256": "e1fd3252df88c6a3fbbd321fb4e9f16fe7f8c4fb654ebc41735d227c61a47cac",
+      "expect": "REJECTED_STRUCTURE",
+      "status": "FAILED",
+      "verdict": "REJECTED_STRUCTURE",
+      "reasonCode": "STRUCTURE_TRAILING_BYTES",
+      "signed": true,
+      "correct": true
+    },
+    {
+      "id": "png-declared-as-pdf",
+      "sha256": "a21f800a9606b1aa5522893bcf452a5a35b4ec70010be5979801e697f7526312",
+      "expect": "REJECTED_STRUCTURE",
+      "status": "FAILED",
+      "verdict": "REJECTED_STRUCTURE",
+      "reasonCode": "STRUCTURE_MAGIC_MISMATCH",
+      "signed": true,
+      "correct": true
     }
   ],
-  "falseNegativesOnEicarVariants": 1,
-  "findings": [
-    "eicar-pdf-polyglot: real clamd reported CLEAN (no signature matched). The EICAR signature is file-anchored, so an appended payload after %%EOF is not detected; CLEAN only ever means 'no signature matched', never 'safe'. Needs a false-negative policy and a real polyglot/obfuscation corpus before any admission."
-  ],
+  "falseNegativesOnEicarVariants": 0,
+  "findings": [],
   "crashDrill": {
     "midScanAttempts": [
       {
@@ -110,7 +138,7 @@
     }
   },
   "invariants": {
-    "noInfectedEverClean": false,
+    "noInfectedEverClean": true,
     "midScanKillNeverClean": true,
     "downIsNotClean": true,
     "recoversClean": true

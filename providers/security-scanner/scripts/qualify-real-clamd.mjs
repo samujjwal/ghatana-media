@@ -38,14 +38,19 @@ const zipStored = (name, data) => {
   const end = Buffer.alloc(22); end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(1, 8); end.writeUInt16LE(1, 10); end.writeUInt32LE(cdr.length, 12); end.writeUInt32LE(body.length, 16);
   return Buffer.concat([body, cdr, end]);
 };
+const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x4a, 0x46, 0xff, 0xdb, 0x00, 0x04, 0x01, 0x02, 0xff, 0xda, 0x00, 0x04, 0x00, 0x00, 0x11, 0x22, 0xff, 0xd9]);
 const corpus = [
-  { id: 'clean-pdf-1', expect: 'CLEAN', bytes: pdf('Synthetic clean document one') },
-  { id: 'clean-pdf-2', expect: 'CLEAN', bytes: pdf('Synthetic clean document two') },
-  { id: 'clean-png', expect: 'CLEAN', bytes: png(64, 48) },
-  { id: 'clean-text', expect: 'CLEAN', bytes: Buffer.from('plain synthetic text\n'.repeat(50)) },
-  { id: 'eicar', expect: 'INFECTED', bytes: eicar },
-  { id: 'eicar-pdf-polyglot', expect: 'INFECTED', bytes: Buffer.concat([pdf('polyglot'), Buffer.from('\n'), eicar]) },
-  { id: 'eicar-in-zip', expect: 'INFECTED', bytes: zipStored('payload.com', eicar) },
+  { id: 'clean-pdf-1', mime: 'application/pdf', expect: 'CLEAN', bytes: pdf('Synthetic clean document one') },
+  { id: 'clean-pdf-2', mime: 'application/pdf', expect: 'CLEAN', bytes: pdf('Synthetic clean document two') },
+  { id: 'clean-png', mime: 'image/png', expect: 'CLEAN', bytes: png(64, 48) },
+  { id: 'clean-jpeg', mime: 'image/jpeg', expect: 'CLEAN', bytes: jpeg },
+  { id: 'eicar', mime: 'application/pdf', expect: 'INFECTED', bytes: eicar },
+  { id: 'eicar-in-zip', mime: 'application/zip', expect: 'INFECTED', bytes: zipStored('payload.com', eicar) },
+  // Appended-payload polyglots: real clamd answers CLEAN; the structural pre-scan must refuse them.
+  { id: 'eicar-after-pdf-eof', mime: 'application/pdf', expect: 'REJECTED_STRUCTURE', bytes: Buffer.concat([pdf('polyglot'), Buffer.from('\n'), eicar]) },
+  { id: 'eicar-after-png-iend', mime: 'image/png', expect: 'REJECTED_STRUCTURE', bytes: Buffer.concat([png(8, 8), eicar]) },
+  { id: 'eicar-after-jpeg-eoi', mime: 'image/jpeg', expect: 'REJECTED_STRUCTURE', bytes: Buffer.concat([jpeg, eicar]) },
+  { id: 'png-declared-as-pdf', mime: 'application/pdf', expect: 'REJECTED_STRUCTURE', bytes: png(8, 8) },
 ];
 
 const MAX = 90 * 1024 * 1024;
@@ -59,20 +64,20 @@ const mk = (content) => new SecurityScannerProvider({
   pinnedEngineVersions: [ident.engineVersion ?? ident.version ?? String(ident.engine ?? '')].filter(Boolean),
   maxBytes: MAX, maxDefinitionsAgeMs: 7 * 86_400_000, attestationTtlMs: 120_000,
 });
-const reqOf = (b) => ({ documentId: 'd', version: 1, tenantId: 't1', checksum: { algorithm: 'SHA-256', value: sha(b) }, sizeBytes: b.length, mimeType: 'application/octet-stream' });
+const reqOf = (b, mimeType = 'application/pdf') => ({ documentId: 'd', version: 1, tenantId: 't1', checksum: { algorithm: 'SHA-256', value: sha(b) }, sizeBytes: b.length, mimeType });
 const results = [];
 for (const c of corpus) {
-  const r = await mk(c.bytes).scan(reqOf(c.bytes));
-  results.push({ id: c.id, sha256: sha(c.bytes), expect: c.expect, status: r.status, verdict: r.verdict, reasonCode: r.reasonCode ?? null, signed: Boolean(r.attestation ?? r.signature ?? r.attestationBinding), correct: (c.expect === 'CLEAN') === (r.verdict === 'CLEAN') && (c.expect === 'CLEAN' || r.verdict !== 'CLEAN') });
+  const r = await mk(c.bytes).scan(reqOf(c.bytes, c.mime));
+  results.push({ id: c.id, sha256: sha(c.bytes), expect: c.expect, status: r.status, verdict: r.verdict, reasonCode: r.reasonCode ?? null, signed: Boolean(r.attestation ?? r.signature ?? r.attestationBinding), correct: r.verdict === c.expect });
 }
 // Safety invariant: nothing expected INFECTED may ever be CLEAN.
-const falseNegatives = results.filter((r) => r.expect === 'INFECTED' && r.verdict === 'CLEAN').length;
+const falseNegatives = results.filter((r) => r.expect !== 'CLEAN' && r.verdict === 'CLEAN').length;
 
 // ---- crash/restart drill: kill clamd mid-scan, then while down, then restart
 const big = randomBytes(80 * 1024 * 1024);
 const drill = { midScanAttempts: [], killedWhileDown: null, afterRestart: null };
 for (let i = 0; i < 3; i++) {
-  const p = mk(big).scan(reqOf(big));
+  const p = mk(big).scan(reqOf(big, 'application/pdf'));
   await new Promise((r) => setTimeout(r, 150));
   execFileSync('docker', ['kill', container], { stdio: 'ignore' });
   const r = await p;
@@ -82,11 +87,11 @@ for (let i = 0; i < 3; i++) {
   execFileSync('docker', ['start', container], { stdio: 'ignore' });
   await waitReady();
 }
-const down = await mk(corpus[0].bytes).scan(reqOf(corpus[0].bytes));
+const down = await mk(corpus[0].bytes).scan(reqOf(corpus[0].bytes, 'application/pdf'));
 drill.killedWhileDown = { verdict: down.verdict, status: down.status, reasonCode: down.reasonCode ?? null };
 execFileSync('docker', ['start', container], { stdio: 'ignore' });
 await waitReady();
-const back = await mk(corpus[0].bytes).scan(reqOf(corpus[0].bytes));
+const back = await mk(corpus[0].bytes).scan(reqOf(corpus[0].bytes, 'application/pdf'));
 drill.afterRestart = { verdict: back.verdict, status: back.status };
 async function waitReady() { for (let i = 0; i < 120; i++) { try { await engine.identity(); return; } catch { await new Promise((r) => setTimeout(r, 2000)); } } throw new Error('clamd did not come back'); }
 
@@ -95,7 +100,7 @@ const report = {
   engine: { identity: ident, image: `clamav/clamav@${process.env.IMAGE_DIGEST}`, definitions: 'freshclam at container start' },
   signing: 'ephemeral in-process Ed25519 key; no KMS custody, no trust root', corpus: 'generated: EICAR + clean PDFs/PNG/text + EICAR polyglot/zip (no rights clearance needed)',
   results, falseNegativesOnEicarVariants: falseNegatives,
-  findings: results.filter((r) => r.expect === 'INFECTED' && r.verdict === 'CLEAN').map((r) => `${r.id}: real clamd reported CLEAN (no signature matched). The EICAR signature is file-anchored, so an appended payload after %%EOF is not detected; CLEAN only ever means 'no signature matched', never 'safe'. Needs a false-negative policy and a real polyglot/obfuscation corpus before any admission.`), crashDrill: drill,
+  findings: results.filter((r) => r.expect !== 'CLEAN' && r.verdict === 'CLEAN').map((r) => `${r.id}: real clamd reported CLEAN (no signature matched). The EICAR signature is file-anchored, so an appended payload after %%EOF is not detected; CLEAN only ever means 'no signature matched', never 'safe'. Needs a false-negative policy and a real polyglot/obfuscation corpus before any admission.`), crashDrill: drill,
   invariants: { noInfectedEverClean: falseNegatives === 0, midScanKillNeverClean: drill.midScanAttempts.some((a) => a.verdict !== 'CLEAN') && drill.midScanAttempts.every((a) => a.verdict !== 'CLEAN' || a === drill.midScanAttempts.at(-1)), downIsNotClean: down.verdict !== 'CLEAN', recoversClean: back.verdict === 'CLEAN' },
 };
 writeFileSync(out, JSON.stringify(report, null, 2) + '\n');

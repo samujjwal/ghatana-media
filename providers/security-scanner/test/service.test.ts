@@ -10,6 +10,7 @@ import {
   type SignedScanAttestation,
 } from '../src/index.ts';
 import { EICAR, startFakeClamd, type FakeClamd } from './fake-clamd.ts';
+const pdf = (label: string) => Buffer.from(`%PDF-1.7 ${label}\n%%EOF\n`); // structurally valid PDF for CLEAN-path tests
 
 const TOKEN_A = 'a'.repeat(40);
 const TOKEN_B = 'b'.repeat(40);
@@ -92,7 +93,7 @@ describe('scanner HTTP service (fake clamd)', () => {
   });
 
   it('submit -> status -> signed CLEAN attestation verifiable with the public-binding fields', async () => {
-    const content = Buffer.from('%PDF-1.7 harmless');
+    const content = pdf('harmless');
     put('tenant-a', 'obj-1', content);
     const sub = await call('POST', '/v1/scans', { body: submitBody(content) });
     assert.equal(sub.status, 202);
@@ -115,7 +116,7 @@ describe('scanner HTTP service (fake clamd)', () => {
     const inf = await poll((await call('POST', '/v1/scans', { body: submitBody(bad) })).body.scanId);
     assert.equal(inf.body.attestation.verdict, 'INFECTED');
 
-    const ok = Buffer.from('plain');
+    const ok = pdf('plain');
     put('tenant-a', 'obj-2', ok);
     const mism = await poll((await call('POST', '/v1/scans', { body: submitBody(ok, { objectRef: 'obj-2', checksum: { algorithm: 'SHA-256', value: 'f'.repeat(64) } }) })).body.scanId);
     assert.equal(mism.body.attestation.verdict, 'UNKNOWN');
@@ -126,7 +127,7 @@ describe('scanner HTTP service (fake clamd)', () => {
   });
 
   it('engine outage yields a signed UNKNOWN, never CLEAN, and health reports DEGRADED + NOT_ADMITTED', async () => {
-    const content = Buffer.from('some bytes');
+    const content = pdf('some bytes');
     put('tenant-a', 'obj-1', content);
     await clamd.close();
     const r = await poll((await call('POST', '/v1/scans', { body: submitBody(content) })).body.scanId);

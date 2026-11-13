@@ -16,6 +16,7 @@ import {
   type SignedScanAttestation,
 } from '../src/index.ts';
 import { EICAR, startFakeClamd, type FakeClamd } from './fake-clamd.ts';
+const pdf = (label: string) => Buffer.from(`%PDF-1.7 ${label}\n%%EOF\n`); // structurally valid PDF for CLEAN-path tests
 
 const KEY = Buffer.alloc(32, 7); // test-only key material, generated here, never a product key
 const T0 = new Date('2026-11-12T12:00:00Z');
@@ -58,7 +59,7 @@ describe('SecurityScannerProvider over a fake clamd', () => {
   beforeEach(() => { clock = new Date('2025-11-12T12:00:00Z'); });
 
   it('implements the Shared port shape and issues a signed CLEAN with exact digest + engine identity', async () => {
-    const content = Buffer.from('%PDF-1.7 harmless');
+    const content = pdf('harmless');
     const port: DocumentContentScanPort = make(content);
     const att = (await port.scan(req(content))) as SignedScanAttestation;
     assert.equal(att.status, 'CLEAN');
@@ -104,7 +105,7 @@ describe('SecurityScannerProvider over a fake clamd', () => {
   });
 
   it('crash then recovery: a retry after a dropped first connection can still return CLEAN', async () => {
-    const content = Buffer.from('hello');
+    const content = pdf('hello');
     const engine = new ClamdEngine({ endpoint: clamd.endpoint, maxBytes: 1024, retryBackoffMs: 1, maxAttempts: 3 });
     clamd.dropNext = 2;
     const outcome = await engine.scan(content);
@@ -166,7 +167,7 @@ describe('SecurityScannerProvider over a fake clamd', () => {
   });
 
   it('unpinned engine version and stale or unknown definitions cannot produce CLEAN', async () => {
-    const content = Buffer.from('x');
+    const content = pdf('x');
     clamd.version = 'ClamAV 1.9.9/27500/Tue Nov 11 08:30:12 2025';
     assert.equal((await make(content).scanSigned(req(content))).reasonCode, 'ENGINE_VERSION_NOT_PINNED');
     clamd.version = 'ClamAV 1.4.2/27500/Tue Nov 11 08:30:12 2025';
@@ -206,7 +207,7 @@ describe('SecurityScannerProvider over a fake clamd', () => {
   it('works over a unix socket', async () => {
     await clamd.close();
     clamd = await startFakeClamd({ unix: true });
-    const content = Buffer.from('unix');
+    const content = pdf('unix');
     assert.equal((await make(content).scanSigned(req(content))).verdict, 'CLEAN');
   });
 });
@@ -218,13 +219,13 @@ describe('attestation verification', () => {
   beforeEach(async () => { clamd = await startFakeClamd(); });
   afterEach(async () => clamd.close());
 
-  async function clean(content = Buffer.from('doc'), ttl = 60_000, s: AttestationSigner = signer) {
+  async function clean(content = pdf('doc'), ttl = 60_000, s: AttestationSigner = signer) {
     const p = new SecurityScannerProvider({
       engine: new ClamdEngine({ endpoint: clamd.endpoint, maxBytes: 4096 }),
       source: sourceOf(content), signer: s, scannerRef: 'scanner', pinnedEngineVersions: ['ClamAV 1.4.2'],
       maxBytes: 4096, maxDefinitionsAgeMs: 86_400_000 * 3, attestationTtlMs: ttl, now: () => now,
     });
-    return p.scanSigned({ documentId: 'd', version: 1, tenantId: 'tenant-a', checksum: { algorithm: 'SHA-256', value: sha(content) }, sizeBytes: content.byteLength, mimeType: 'text/plain' });
+    return p.scanSigned({ documentId: 'd', version: 1, tenantId: 'tenant-a', checksum: { algorithm: 'SHA-256', value: sha(content) }, sizeBytes: content.byteLength, mimeType: 'application/pdf' });
   }
   const exp = (att: SignedScanAttestation, over = {}) => ({ tenantId: 'tenant-a', checksum: att.checksum, now, ...over });
 
@@ -264,7 +265,7 @@ describe('attestation verification', () => {
   });
   it('supports Ed25519 injected keys', async () => {
     const { privateKey, publicKey } = generateKeyPairSync('ed25519');
-    const att = await clean(Buffer.from('doc'), 60_000, ed25519Signer('ed1', privateKey));
+    const att = await clean(pdf('doc'), 60_000, ed25519Signer('ed1', privateKey));
     assert.equal(att.attestation.algorithm, 'Ed25519');
     assert.equal(verifyCleanAttestation(att, [ed25519Verifier('ed1', publicKey)], exp(att)).ok, true);
     const { publicKey: other } = generateKeyPairSync('ed25519');

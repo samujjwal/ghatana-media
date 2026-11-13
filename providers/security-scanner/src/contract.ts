@@ -16,7 +16,7 @@ export interface ContentChecksum {
 
 export type BaseScanStatus = 'CLEAN' | 'INFECTED' | 'FAILED';
 /** Provider-level verdict vocabulary. UNKNOWN projects onto the base status FAILED. */
-export type ScanVerdict = 'CLEAN' | 'INFECTED' | 'UNKNOWN';
+export type ScanVerdict = 'CLEAN' | 'INFECTED' | 'UNKNOWN' | 'REJECTED_STRUCTURE';
 
 export type ScanReasonCode =
   | 'OK'
@@ -34,7 +34,13 @@ export type ScanReasonCode =
   | 'ENGINE_VERSION_NOT_PINNED'
   | 'DEFINITIONS_STALE'
   | 'DEFINITIONS_UNKNOWN'
-  | 'SCANNER_BUSY';
+  | 'SCANNER_BUSY'
+  | 'STRUCTURE_MAGIC_MISMATCH'
+  | 'STRUCTURE_TRAILING_BYTES'
+  | 'STRUCTURE_TERMINATOR_MISSING'
+  | 'STRUCTURE_NESTED_ARCHIVE_DEPTH'
+  | 'STRUCTURE_UNDETERMINED'
+  | 'STRUCTURE_UNSUPPORTED_TYPE';
 
 export interface ContentScanAttestation {
   readonly scannerRef: string;

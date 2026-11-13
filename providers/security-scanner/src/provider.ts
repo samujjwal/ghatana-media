@@ -11,6 +11,7 @@ import type {
 } from './contract.ts';
 import type { EngineIdentity, ScanEngine } from './engine.ts';
 import { ScanEngineError } from './errors.ts';
+import { inspectStructure, type StructureOptions } from './structure.ts';
 
 /**
  * Bounded read access to quarantined bytes. The host maps (tenant, document, version) to an
@@ -39,6 +40,8 @@ export interface SecurityScannerProviderOptions {
   /** Signature database older than this cannot produce CLEAN (stale-definition policy). */
   readonly maxDefinitionsAgeMs: number;
   readonly attestationTtlMs: number;
+  /** Structural pre-scan policy. Enforced by default; CLEAN additionally requires a structurally valid declared type. */
+  readonly structure?: StructureOptions;
   readonly scanTimeoutMs?: number;
   readonly maxConcurrentScans?: number;
   readonly maxQueuedScans?: number;
@@ -52,8 +55,8 @@ const SHA256 = /^[a-f0-9]{64}$/u;
  * Implements the Shared `DocumentContentScanPort`. Policy: CLEAN is issued only when the engine
  * affirmatively reports clean for bytes whose SHA-256 and size exactly match the request, the
  * engine version is pinned, definitions are known and fresh, and the quarantine source belongs
- * to the requesting tenant. Every other outcome is INFECTED or UNKNOWN (projected to the base
- * status FAILED). This adapter never throws for scan-level problems: callers get a signed
+ * to the requesting tenant, and the bytes are structurally valid for the declared type (see structure.ts). Every other
+ * outcome is INFECTED, REJECTED_STRUCTURE or UNKNOWN (the latter two projected to the base status FAILED). This adapter never throws for scan-level problems: callers get a signed
  * non-CLEAN attestation they can persist.
  */
 export class SecurityScannerProvider implements DocumentContentScanPort {
@@ -108,7 +111,7 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
       const unsigned: UnsignedAttestation = {
         scannerRef: o.scannerRef,
         scannerVersion: engine ? `${engine.version}` : 'unavailable',
-        status: verdict === 'CLEAN' ? 'CLEAN' : verdict === 'INFECTED' ? 'INFECTED' : 'FAILED',
+        status: verdict === 'CLEAN' ? 'CLEAN' : verdict === 'INFECTED' ? 'INFECTED' : 'FAILED', // UNKNOWN and REJECTED_STRUCTURE project to FAILED
         verdict,
         reasonCode,
         scannedAt: at.toISOString(),
@@ -133,7 +136,7 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
         expiresAt: new Date(at.getTime() + o.attestationTtlMs).toISOString(),
         attestationRef,
         finality: {
-          verdict: verdict === 'INFECTED' ? 'QUARANTINED' : verdict,
+          verdict: verdict === 'INFECTED' || verdict === 'REJECTED_STRUCTURE' ? 'QUARANTINED' : verdict,
           tenantRef: tenantId,
           ...(input.scopeRef ? { scopeRef: input.scopeRef } : {}),
           sourceRef: input.sourceRef ?? `quarantine:${tenantId}/${input.documentId ?? ''}/${input.version}`,
@@ -142,7 +145,7 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
           statusRef: `scan-status:${attestationRef}`,
           attestationRef,
           signatureRef: `${o.signer.algorithm}:${o.signer.keyId}:${attestationRef}`,
-          ...(verdict === 'UNKNOWN' ? { errorCode: reasonCode } : {}),
+          ...(verdict === 'UNKNOWN' || verdict === 'REJECTED_STRUCTURE' ? { errorCode: reasonCode } : {}),
         },
       };
       return signAttestation(unsigned, o.signer);
@@ -206,6 +209,11 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
       if (outcome.kind === 'INFECTED') {
         return finish('INFECTED', 'SIGNATURE_MATCH', scanned, identity, outcome.signatureName);
       }
+      // False-negative policy: "no signature matched" is not "safe". Structure that contradicts the declared type
+      // (appended payloads, magic mismatch, excessive archive nesting) can never be CLEAN.
+      const structure = inspectStructure(content, input.mimeType, o.structure);
+      if (structure.kind === 'REJECTED') return finish('REJECTED_STRUCTURE', structure.reason, scanned, identity);
+      if (structure.kind === 'UNDETERMINED') return finish('UNKNOWN', structure.reason, scanned, identity);
       if (!identity) return finish('UNKNOWN', identityFailure ?? 'ENGINE_UNAVAILABLE', scanned);
       if (!o.pinnedEngineVersions.includes(identity.version)) {
         return finish('UNKNOWN', 'ENGINE_VERSION_NOT_PINNED', scanned, identity);
