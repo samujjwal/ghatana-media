@@ -52,3 +52,14 @@ test('successful outcomes are withheld unless admitted', () => {
   assert.equal(guardSuccessfulOutcome(undefined, 'x').outcomeWithheld, true);
   assert.deepEqual(guardSuccessfulOutcome({ status: 'ADMITTED', clinicalOutcomeAllowed: true }, { verdict: 'CLEAN' }), { verdict: 'CLEAN' });
 });
+
+test('recorded dev Tesseract evidence is unverified: still NOT_ADMITTED, never ADMITTED without an independent verifier', async () => {
+  const { readFileSync } = await import('node:fs');
+  const rec = JSON.parse(readFileSync(new URL('../config/provider-qualification/evidence/document-intelligence.dev-tesseract.json', import.meta.url), 'utf8'));
+  assert.equal(rec.verification.status, 'ABSENT');
+  const id = rec.evidence[0].subjectIdentity;
+  const probe = { reachable: true, identity: id, devOnly: false };
+  assert.equal(evaluateQualification({ provider: 'document-intelligence', requirements, probe, evidence: rec.evidence }).status, STATUS.NOT_ADMITTED);
+  assert.equal(evaluateQualification({ provider: 'document-intelligence', requirements, probe, evidence: rec.evidence, verifyEvidence: (e) => e.status === 'VERIFIED' }).status, STATUS.NOT_ADMITTED);
+  assert.equal(evaluateQualification({ provider: 'document-intelligence', requirements, probe: { ...probe, devOnly: true }, evidence: rec.evidence, verifyEvidence: () => true }).reasonCode, 'DEV_ONLY_ADAPTER');
+});

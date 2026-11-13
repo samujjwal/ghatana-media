@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "ghatana.media.di-dev-ocr-eval.v1",
+  "classification": "DEV_ONLY_SYNTHETIC_NOT_QUALIFICATION",
+  "admission": "NOT_ADMITTED",
+  "verification": "ABSENT",
+  "corpus": {
+    "kind": "generated-synthetic-non-PHI",
+    "fonts": {
+      "en": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+      "ne": "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf"
+    },
+    "sentences": {
+      "en": 6,
+      "ne": 6
+    }
+  },
+  "engine": {
+    "providerRef": "ghatana.tesseractocr",
+    "tesseract": "tesseract 5.3.4",
+    "binarySha256": "9f831cab7525c3dab04af41bda35182af7ea1df9dceeaaa2f3bf207ac45c06a5",
+    "engTraineddataSha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+    "nepTraineddataSha256": "280ba9450b4f21afbf5985e0de87857b75a972577c50ef0603c141ddde4f1cb8",
+    "license": "Apache-2.0 (tesseract, tessdata)"
+  },
+  "host": {
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+    "python": "3.14.4",
+    "cpus": 12,
+    "loadavg": [
+      31.3837890625,
+      36.6416015625,
+      36.2177734375
+    ]
+  },
+  "aggregate": {
+    "en/clean": {
+      "samples": 6,
+      "cer": 0.0,
+      "wer": 0.0
+    },
+    "en/noisy": {
+      "samples": 6,
+      "cer": 0.0036,
+      "wer": 0.0208
+    },
+    "ne/clean": {
+      "samples": 6,
+      "cer": 0.0061,
+      "wer": 0.0385
+    },
+    "ne/noisy": {
+      "samples": 6,
+      "cer": 0.0061,
+      "wer": 0.0385
+    }
+  },
+  "rows": [
+    {
+      "language": "en",
+      "condition": "clean",
+      "referenceSha256": "ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c",
+      "hypothesis": "The quick brown fox jumps over the lazy dog.",
+      "ms": 392.3
+    },
+    {
+      "language": "en",
+      "condition": "clean",
+      "referenceSha256": "dffa002b299f63d4743345fb49aa49bf07b03877b00861879b69c369d65402a7",
+      "hypothesis": "Please keep this document in a safe place.",
+      "ms": 368.5
+    },
+    {
+      "language": "en",
+      "condition": "clean",
+      "referenceSha256": "7c418cf7b30d5d9799c8b5e72f6ce7428979262d5b6528a5e713c23422e462eb",
+      "hypothesis": "Synthetic test sentence number three for recognition.",
+      "ms": 574.5
+    },
+    {
+      "language": "en",
+      "condition": "clean",
+      "referenceSha256": "0beb37bfaebff40387e4aeac9a423a05d5d69e578350183b6d09db5bbace95bb",
+      "hypothesis": "Water is important for good health every day.",
+      "ms": 417.1
+    },
+    {
+      "language": "en",
+      "condition": "clean",
+      "referenceSha256": "a5c8ae18d214cbffad977ca974330e5de7be0e141a7ce76021d69a1e99f03006",
+      "hypothesis": "The meeting starts at nine in the morning.",
+      "ms": 460.2
+    },
+    {
+      "language": "en",
+      "condition": "clean",
+      "referenceSha256": "064b0aef7475deb065f4d9215699abb981e9330e262877cebc40c08503ee6cae",
+      "hypothesis": "Invoice total is one hundred and twenty dollars.",
+      "ms": 404.7
+    },
+    {
+      "language": "en",
+      "condition": "noisy",
+      "referenceSha256": "ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c",
+      "hypothesis": "The quick brown fox jumps over the lazy dog.",
+      "ms": 332.7
+    },
+    {
+      "language": "en",
+      "condition": "noisy",
+      "referenceSha256": "dffa002b299f63d4743345fb49aa49bf07b03877b00861879b69c369d65402a7",
+      "hypothesis": "Please keep this document in a Safe place.",
+      "ms": 544.6
+    },
+    {
+      "language": "en",
+      "condition": "noisy",
+      "referenceSha256": "7c418cf7b30d5d9799c8b5e72f6ce7428979262d5b6528a5e713c23422e462eb",
+      "hypothesis": "Synthetic test sentence number three for recognition.",
+      "ms": 343.8
+    },
+    {
+      "language": "en",
+      "condition": "noisy",
+      "referenceSha256": "0beb37bfaebff40387e4aeac9a423a05d5d69e578350183b6d09db5bbace95bb",
+      "hypothesis": "Water is important for good health every day.",
+      "ms": 431.1
+    },
+    {
+      "language": "en",
+      "condition": "noisy",
+      "referenceSha256": "a5c8ae18d214cbffad977ca974330e5de7be0e141a7ce76021d69a1e99f03006",
+      "hypothesis": "The meeting starts at nine in the morning.",
+      "ms": 357.7
+    },
+    {
+      "language": "en",
+      "condition": "noisy",
+      "referenceSha256": "064b0aef7475deb065f4d9215699abb981e9330e262877cebc40c08503ee6cae",
+      "hypothesis": "Invoice total is one hundred and twenty dollars.",
+      "ms": 429.9
+    },
+    {
+      "language": "ne",
+      "condition": "clean",
+      "referenceSha256": "8bb122ea6aac911b4970b31f7411e8103c9d57e972be9e8bc330cc183297baf3",
+      "hypothesis": "यो एउटा परीक्षण वाक्य हो।",
+      "ms": 87.9
+    },
+    {
+      "language": "ne",
+      "condition": "clean",
+      "referenceSha256": "8e5536fffd829d59052f713c6ee78c8738f6db2fff68b4ce16253e89bd0b669f",
+      "hypothesis": "नेपालको राजधानी काठमाडौँ हो।",
+      "ms": 135.2
+    },
+    {
+      "language": "ne",
+      "condition": "clean",
+      "referenceSha256": "e82f62519ee1944f17c95a0b636fde78bab4448d364beacbe5672393164fd2a8",
+      "hypothesis": "आज मौसम राम्रो छ।",
+      "ms": 217.0
+    },
+    {
+      "language": "ne",
+      "condition": "clean",
+      "referenceSha256": "e1ed7322e7eb8fe6fefb2e1ff3452737fa566ed5948cbd99194e25a65b4294a8",
+      "hypothesis": "कृपया कागजात सुरक्षित राख्नुहोस्‌।",
+      "ms": 124.8
+    },
+    {
+      "language": "ne",
+      "condition": "clean",
+      "referenceSha256": "b99a7b6bdc5f9ba4068df0aa9e9ffcb8189fa150c917826f0fe2717fa6260f38",
+      "hypothesis": "हामी पुस्तक पढ्छौँ।",
+      "ms": 66.1
+    },
+    {
+      "language": "ne",
+      "condition": "clean",
+      "referenceSha256": "9cb8a63159c75b4736db14dd188cdc6a212ebd8191bdf378b5ba13a55c69a549",
+      "hypothesis": "पानी पिउनु स्वास्थ्यका लागि राम्रो हुन्छ।",
+      "ms": 129.3
+    },
+    {
+      "language": "ne",
+      "condition": "noisy",
+      "referenceSha256": "8bb122ea6aac911b4970b31f7411e8103c9d57e972be9e8bc330cc183297baf3",
+      "hypothesis": "यो एउटा परीक्षण वाक्य हो।",
+      "ms": 97.3
+    },
+    {
+      "language": "ne",
+      "condition": "noisy",
+      "referenceSha256": "8e5536fffd829d59052f713c6ee78c8738f6db2fff68b4ce16253e89bd0b669f",
+      "hypothesis": "नेपालको राजधानी काठमाडौँ हो।",
+      "ms": 158.5
+    },
+    {
+      "language": "ne",
+      "condition": "noisy",
+      "referenceSha256": "e82f62519ee1944f17c95a0b636fde78bab4448d364beacbe5672393164fd2a8",
+      "hypothesis": "आज मौसम राम्रो छ।",
+      "ms": 232.1
+    },
+    {
+      "language": "ne",
+      "condition": "noisy",
+      "referenceSha256": "e1ed7322e7eb8fe6fefb2e1ff3452737fa566ed5948cbd99194e25a65b4294a8",
+      "hypothesis": "कृपया कागजात सुरक्षित राख्नुहोस्‌।",
+      "ms": 217.5
+    },
+    {
+      "language": "ne",
+      "condition": "noisy",
+      "referenceSha256": "b99a7b6bdc5f9ba4068df0aa9e9ffcb8189fa150c917826f0fe2717fa6260f38",
+      "hypothesis": "हामी पुस्तक पढ्छौँ।",
+      "ms": 223.8
+    },
+    {
+      "language": "ne",
+      "condition": "noisy",
+      "referenceSha256": "9cb8a63159c75b4736db14dd188cdc6a212ebd8191bdf378b5ba13a55c69a549",
+      "hypothesis": "पानी पिउनु स्वास्थ्यका लागि राम्रो हुन्छ।",
+      "ms": 216.8
+    }
+  ]
+}
