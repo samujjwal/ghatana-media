@@ -74,7 +74,7 @@ node scripts/test-installed-consumer.mjs                # build + npm pack + ins
 3. Production key custody (KMS/HSM) for the signer and key rotation; Kernel provider admission.
 4. Real crash/restart of clamd under load; quarantine storage isolation proof.
 
-## Shared contract binding (@ghatana/documents 0.2.0-SNAPSHOT, unpublished)
+## Shared contract binding (@ghatana/documents 0.1.0-SNAPSHOT, development, unpublished)
 
 `finality` (`verdict`, `tenantRef`, `scopeRef`, `sourceRef`, `verifiedAt`, `expiresAt`, `statusRef`,
 `attestationRef`, `signatureRef`, `errorCode`) is emitted on every result; INFECTED maps to
