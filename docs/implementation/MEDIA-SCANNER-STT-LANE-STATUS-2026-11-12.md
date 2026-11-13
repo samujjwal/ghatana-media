@@ -119,3 +119,15 @@ authority/capability tests that depend on those. No Media-copy defect was found;
 `services/document-intelligence/clients/typescript` importer (12 lines); `--frozen-lockfile --lockfile-only` re-validates. The
 earlier blocker did not reproduce lockfile-only (it was `--offline` metadata missing for an unrelated package). A full
 node_modules install was not attempted.
+
+## Install set + fail-closed qualification gate (MED-05/07/09, PHR-K-04..07)
+* Install set: `node scripts/package-media-install-set.mjs --out <empty dir>` builds the digest-pinned local-file channel
+  (`runtime-contracts`, DI Java client, scanner npm tarball, all 0.1.0-SNAPSHOT) with `media-install-manifest.json`;
+  `node scripts/verify-media-install-set.mjs <dir>` / `npm run test:media-install-set` is the source-free consumer check
+  (refuses missing, wrong-version, tampered, re-sealed-wrong-digest, traversal). Packaging is not provider admission.
+* Gate: `scripts/optional-providers/qualification-gate.mjs` + `config/provider-qualification/requirements.json`
+  (`npm run test:provider-qualification-gate`, `npm run qualify:providers`). ADMITTED needs every required evidence kind,
+  unexpired, identity-bound and accepted by an injected independent verifier (none exists here); unreachable => UNKNOWN,
+  dev-only deterministic adapter => NOT_ADMITTED, English and Nepali separate. `guardSuccessfulOutcome` withholds CLEAN/SUCCEEDED.
+* Exact external blockers (owner): scanner — real pinned ClamAV, rights-cleared corpus, KMS signing key, crash drill; DI — OCR
+  engine/model rights, document corpus; STT en/ne — model rights, independent transcripts, reviewed language qualification.

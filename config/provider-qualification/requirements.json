@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "ghatana.media.provider-qualification-requirements.v1",
+  "note": "Exact evidence an external party must supply before a provider may be ADMITTED. This file records blockers; it never grants admission.",
+  "providers": {
+    "security-scanner": {
+      "task": "MED-05",
+      "required": [
+        { "kind": "engine-pin", "blockerOwner": "ops/security", "detail": "pinned real ClamAV build + freshclam cadence" },
+        { "kind": "corpus-result", "blockerOwner": "security + rights owner", "detail": "rights-cleared malicious/safe/polyglot/archive-bomb corpus with false-negative policy result" },
+        { "kind": "signing-key-custody", "blockerOwner": "security/KMS owner", "detail": "KMS-custody Ed25519 signing key, rotation and trust-root registration" },
+        { "kind": "crash-drill", "blockerOwner": "ops", "detail": "isolation + real clamd crash drill result" }
+      ]
+    },
+    "document-intelligence": {
+      "task": "MED-09",
+      "required": [
+        { "kind": "engine-pin", "blockerOwner": "DI owner", "detail": "pinned OCR engine/model artifact with redistribution rights" },
+        { "kind": "corpus-result", "blockerOwner": "DI owner + rights owner", "detail": "rights-cleared document corpus with per-document-class accuracy thresholds and recorded host" }
+      ]
+    },
+    "stt:en": {
+      "task": "MED-07",
+      "required": [
+        { "kind": "model-rights", "blockerOwner": "rights owner", "detail": "pinned model artifact + export rights" },
+        { "kind": "corpus-result", "blockerOwner": "speech owner", "detail": "independent English reference transcripts, WER/CER thresholds, recorded host/latency, adverse-condition results" },
+        { "kind": "language-qualification", "blockerOwner": "independent reviewer", "detail": "reviewed MediaSttLanguageQualification entry bound to the profile digest" }
+      ]
+    },
+    "stt:ne": {
+      "task": "MED-07",
+      "required": [
+        { "kind": "model-rights", "blockerOwner": "rights owner", "detail": "pinned model artifact + export rights for Nepali" },
+        { "kind": "corpus-result", "blockerOwner": "speech owner", "detail": "independent Nepali reference transcripts (Common Voice v27 pilot is private/unchecked-in), WER/CER thresholds, host/latency, adverse conditions" },
+        { "kind": "language-qualification", "blockerOwner": "independent reviewer", "detail": "reviewed MediaSttLanguageQualification entry bound to the profile digest" }
+      ]
+    }
+  }
+}
