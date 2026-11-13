@@ -2,6 +2,8 @@ package com.ghatana.media.provider.aws;
 
 import static com.ghatana.media.production.review.ReviewContracts.*;
 
+import com.ghatana.media.production.review.ManagedReviewStore;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,8 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /** Durable append-only review records for exact externally issued case references. */
-public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
-    private final MediaAwsPostgresqlRuntimeState state;
+public final class PostgresqlReviewStore implements ManagedReviewStore {
+    private final ProjectTimelinePersistenceState state;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     /** Registers only externally supplied case references; conflicting references fail closed. */
@@ -38,6 +40,33 @@ public final class PostgresqlReviewStore implements ReviewStore, AutoCloseable {
             acquired.release();
             throw failure;
         }
+    }
+
+    /** Dev-lane composition over an isolated persistence state that already owns the review tables. */
+    PostgresqlReviewStore(ProjectTimelinePersistenceState state) {
+        this.state = Objects.requireNonNull(state, "state");
+    }
+
+    @Override public void registerCase(ReviewCaseRef reviewCase) {
+        ensureOpen();
+        registerExactCase(Objects.requireNonNull(reviewCase, "reviewCase"));
+    }
+
+    @Override public java.util.Optional<ReviewCaseRef> findCase(String tenantId, String reviewCaseId) {
+        ensureOpen();
+        try (Connection c = state.connection();
+             PreparedStatement q = c.prepareStatement("""
+                SELECT exact_target_ref,subject_kind,subject_object_id,subject_version_id,scope_ref
+                FROM media_review_cases WHERE tenant_id=? AND review_case_id=?
+                """)) {
+            q.setString(1, tenantId); q.setString(2, reviewCaseId);
+            try (ResultSet r = q.executeQuery()) {
+                if (!r.next()) return java.util.Optional.empty();
+                return java.util.Optional.of(new ReviewCaseRef(tenantId, reviewCaseId, r.getString(1),
+                        new ExactVersionRef(SubjectKind.valueOf(r.getString(2)), r.getString(3), r.getString(4)),
+                        r.getString(5)));
+            }
+        } catch (SQLException failure) { throw persistence("review case read", failure); }
     }
 
     private void registerExactCase(ReviewCaseRef ref) {

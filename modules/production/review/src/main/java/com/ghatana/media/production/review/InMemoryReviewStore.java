@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /** Single-process development/test store. It is not a canonical or multi-host review writer. */
-public final class InMemoryReviewStore implements ReviewStore {
+public final class InMemoryReviewStore implements ManagedReviewStore {
     private final Map<CaseKey, CaseState> cases = new HashMap<>();
     private final Map<IdempotencyKey, IdempotencyEntry> idempotency = new HashMap<>();
 
@@ -85,6 +85,22 @@ public final class InMemoryReviewStore implements ReviewStore {
         if (state == null || !state.ref.equals(reviewCase)) throw new ReviewCaseMismatchException();
         return List.copyOf(state.records);
     }
+
+    @Override
+    public synchronized void registerCase(ReviewCaseRef reviewCase) {
+        Objects.requireNonNull(reviewCase, "reviewCase");
+        CaseState existing = cases.putIfAbsent(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()),
+                new CaseState(reviewCase));
+        if (existing != null && !existing.ref.equals(reviewCase)) throw new ReviewCaseMismatchException();
+    }
+
+    @Override
+    public synchronized java.util.Optional<ReviewCaseRef> findCase(String tenantId, String reviewCaseId) {
+        CaseState state = cases.get(new CaseKey(tenantId, reviewCaseId));
+        return state == null ? java.util.Optional.empty() : java.util.Optional.of(state.ref);
+    }
+
+    @Override public void close() { }
 
     private record CaseKey(String tenantId, String caseId) { }
     private record IdempotencyKey(String tenantId, String principalId, String requestId) { }

@@ -90,6 +90,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaCaptionRuntime captions;
     private final MediaDevProjectTimelineRuntime devProjectTimeline;
     private final MediaDevProjectRenderRuntime devProjectRender;
+    private final MediaDevReviewRoutes devReview;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -112,14 +113,35 @@ public final class MediaHttpHandler implements HttpHandler {
     public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
                             MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline) {
         this(runtime, consentAdministration, captions, devProjectTimeline,
-                devProjectTimeline == null ? null : new MediaDevProjectRenderRuntime(runtime, devProjectTimeline,
-                        MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
-                        MediaDevProjectRenderRuntime.mp4RendererFrom(System.getenv())));
+                defaultRender(runtime, devProjectTimeline));
+    }
+
+    public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                            MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
+                            MediaDevReviewRuntime devReview) {
+        this(runtime, consentAdministration, captions, devProjectTimeline,
+                defaultRender(runtime, devProjectTimeline),
+                devReview);
+    }
+
+    /** Host composition of the DEV_ONLY render lane; MP4 tools come only from explicit environment paths. */
+    private static MediaDevProjectRenderRuntime defaultRender(
+            MediaRuntime runtime, MediaDevProjectTimelineRuntime devProjectTimeline) {
+        return devProjectTimeline == null ? null : new MediaDevProjectRenderRuntime(runtime, devProjectTimeline,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
+                MediaDevProjectRenderRuntime.mp4RendererFrom(System.getenv()));
     }
 
     MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
                      MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
                      MediaDevProjectRenderRuntime devProjectRender) {
+        this(runtime, consentAdministration, captions, devProjectTimeline, devProjectRender, null);
+    }
+
+    MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                     MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
+                     MediaDevProjectRenderRuntime devProjectRender, MediaDevReviewRuntime devReview) {
+        this.devReview = devReview == null ? null : new MediaDevReviewRoutes(devReview);
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
         this.consentAdministration = consentAdministration;
         this.captions = captions;
@@ -383,6 +405,19 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             if (devProjectTimeline == null) {
                 error(exchange, 404, "NOT_FOUND", "Local project timeline routes are not enabled");
+                return;
+            }
+            if (devReview != null && MediaDevReviewRoutes.handles(path)) {
+                devReview.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevReviewRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
                 return;
             }
             if ("/dev/v1/context".equals(path)) {

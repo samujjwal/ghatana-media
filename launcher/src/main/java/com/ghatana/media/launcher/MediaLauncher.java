@@ -32,17 +32,24 @@ public final class MediaLauncher {
         MediaConsentAdministrationRuntime consentAdministration = null;
         MediaCaptionRuntime captions = null;
         MediaDevProjectTimelineRuntime devProjectTimeline = null;
+        MediaDevReviewRuntime devReview = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
             captions = MediaCaptionRuntime.compose(environment);
             devProjectTimeline = MediaDevProjectTimelineRuntime.compose(environment);
+            devReview = MediaDevReviewRuntime.compose(environment, runtime, devProjectTimeline);
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
             MediaCaptionRuntime finalCaptions = captions;
             MediaDevProjectTimelineRuntime finalDevProjectTimeline = devProjectTimeline;
+            MediaDevReviewRuntime finalDevReview = devReview;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalDevReview != null) {
+                    try { finalDevReview.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (finalDevProjectTimeline != null) {
                     try { finalDevProjectTimeline.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
@@ -84,9 +91,13 @@ public final class MediaLauncher {
                     "Media", config.httpPort(), new MediaSecurityFilter(
                             new MediaHttpHandler(runtime,
                                     consentAdministration == null ? null : consentAdministration.administration(),
-                                    captions, finalDevProjectTimeline),
+                                    captions, finalDevProjectTimeline, finalDevReview),
                             config.profile()));
         } catch (RuntimeException failure) {
+            if (devReview != null) {
+                try { devReview.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
             if (devProjectTimeline != null) {
                 try { devProjectTimeline.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
