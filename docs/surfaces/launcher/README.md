@@ -91,6 +91,28 @@ and stable terminal reads — **no second writer**.
   current-rights revocation, scanner release,
   or any production admission — these routes stay outside the canonical
   manifest/OpenAPI.
+- DEV_ONLY hosted versioned review (`MEDIA_DEV_REVIEW_ENABLED=true`, requires
+  the project timeline lane; reuses the existing `VersionedReviewEngine` over
+  the durable `PostgresqlReviewStore` in the isolated `media_dev_` schema via
+  new migration `media-project-timeline-dev/V002`). `POST /dev/v1/reviews`
+  opens (idempotently, `201` then `200`) a case on one exact immutable subject
+  `{kind:"PROJECT_REVISION",projectId,revisionId}` or
+  `{kind:"ARTIFACT_VERSION",artifactId,artifactVersionId}` (e.g. a render
+  artifact; needs `media:artifact:read`). `GET /dev/v1/reviews/{caseId}` reads
+  records and `currentness`; `POST .../comments` (text, disposition, optional
+  time range/ROI) and `POST .../decisions` (ACCEPT/REJECT/REQUEST_CHANGES/DEFER,
+  `confirmed:true`) append under `expectedCaseRevision` CAS and a per-owner
+  `requestId` (replay `200`, divergent reuse `409 REVIEW_REQUEST_ID_REUSED`,
+  CAS miss `409 REVIEW_CASE_REVISION_CONFLICT`). Currentness is re-derived from
+  the live project head / artifact version on every call, so any later change
+  makes earlier decisions `STALE` and new decisions `409 REVIEW_SUBJECT_STALE`.
+  Text is redacted (control characters, e-mail addresses) before storage and
+  disclosure. Honesty: the authority is the DEV_ONLY synthetic owner, not an
+  issued human reviewer; every response carries `establishesApproval:false`,
+  `humanReviewApproval:false` and scope `DEV_ONLY`, and a recorded ACCEPT
+  authorizes no delivery or publication. Not covered: reviewer roles,
+  multi-reviewer authority, retention expiry, atomic project/review CAS and
+  hosted review UI. Routes stay outside the canonical manifest/OpenAPI.
 - The DEV_ONLY artifact intake host reads `GET /dev/v1/artifact-upload-policy`
   using a signed DEV_ONLY identity with `media:artifact:create`. The exact
   response is `{schemaVersion:"media.dev.artifact-upload-policy.v1",
@@ -211,6 +233,15 @@ Project-to-media-output workflow (in-process + real launcher/PostgreSQL/S3 resta
   --tests 'com.ghatana.media.launcher.MediaDevProjectRenderHttpTest'
 ./gradlew :services:media:integration-tests:test \
   --tests 'com.ghatana.media.integration.MediaDevProjectTimelineRestartIT'
+```
+
+DEV_ONLY hosted versioned review (in-process + real launcher/PostgreSQL restart):
+
+```bash
+./gradlew :services:media:launcher:test \
+  --tests 'com.ghatana.media.launcher.MediaDevReviewHttpTest'
+./gradlew :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaDevReviewRestartIT'
 ```
 
 Focused identity and rights coverage:
