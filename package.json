@@ -115,7 +115,7 @@
     "check:monitoring-rules": "bash infra/monitoring/tests/promtool-rules.sh",
     "test:backend-terminal-qualification": "node --test tests/media-backend-terminal-qualification-plan.test.mjs",
     "test:media-core-independence": "node --test tests/media-core-independence.test.mjs",
-    "test:ocr-single-authority": "node --test tests/media-ocr-ownership-hygiene.test.mjs tests/media-core-independence.test.mjs tests/media-ocr-consumer-inventory.test.mjs",
+    "test:ocr-single-authority": "node --test tests/media-ocr-ownership-hygiene.test.mjs tests/media-core-independence.test.mjs tests/media-ocr-consumer-inventory.test.mjs tests/media-di-gateway-consumer.test.mjs",
     "test:interactive-demo-player-state": "node --experimental-strip-types --test tests/interactive-demo-state.test.mjs",
     "check:ocr-consumer-inventory": "node scripts/check-media-ocr-consumer-inventory.mjs",
     "check:surface-docs": "node scripts/check-surface-docs.mjs",
