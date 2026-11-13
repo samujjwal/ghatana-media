@@ -44,4 +44,8 @@ publishing {
             from(components["java"])
         }
     }
+    // Local-file channel used by scripts/package-media-install-set.mjs (-PmediaInstallRepository=<dir>).
+    findProperty("mediaInstallRepository")?.toString()?.takeIf { it.isNotBlank() }?.let { dir ->
+        repositories { maven { name = "mediaInstall"; url = uri(file(dir)) } }
+    }
 }
