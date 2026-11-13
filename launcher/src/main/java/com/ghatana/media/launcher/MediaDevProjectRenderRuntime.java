@@ -2,6 +2,8 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.production.AnimationSpecCompiler;
 import com.ghatana.media.production.animation.AnimationRenderer;
+import com.ghatana.media.production.rendering.FfmpegMultitrackRenderer;
+import com.ghatana.media.production.rendering.MultitrackRenderPlanner;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Revision;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.TimelineSnapshot;
@@ -50,6 +52,7 @@ import java.util.Set;
 public final class MediaDevProjectRenderRuntime {
     public static final String RENDER_SCHEMA = "media.dev.project-render.v1";
     public static final String ENGINE = "production.animation.AnimationRenderer/gif";
+    public static final String MP4_ENGINE = "production.rendering.FfmpegMultitrackRenderer/mp4";
     static final int MAX_SOURCE_BYTES = 8 * 1024 * 1024;
     static final int MAX_SOURCE_DIMENSION = 2_048;
     static final int MAX_CLIPS = 64;
@@ -57,7 +60,7 @@ public final class MediaDevProjectRenderRuntime {
     /** Lineage fields; store-added artifact metadata (classification, retention, ...) is not lineage. */
     private static final List<String> LINEAGE_KEYS = List.of("renderSchema", "scope", "engine", "projectId",
             "revisionId", "timelineId", "timelineSemanticVersionId", "requestId", "width", "height",
-            "framesPerSecond", "frameCount", "sources");
+            "framesPerSecond", "frameCount", "sources", "format", "encoding");
     private static final Set<TrackKind> VISUAL_TRACKS = Set.of(TrackKind.VIDEO, TrackKind.OVERLAY);
 
     /** Port onto the canonical artifact registration path; replaceable only for failure-injection tests. */
@@ -71,10 +74,19 @@ public final class MediaDevProjectRenderRuntime {
         Registered { Objects.requireNonNull(artifact, "artifact"); }
     }
 
+    /** Output container: deterministic GIF storyboard, or a verified H.264/AAC MP4 through FFmpeg. */
+    public enum Format { GIF, MP4 }
+
     /** Request for one render of one timeline at one exact revision. */
     public record RenderRequest(String requestId, String revisionId, String timelineId,
-                                int width, int height, int framesPerSecond) {
+                                int width, int height, int framesPerSecond, Format format) {
+        public RenderRequest(String requestId, String revisionId, String timelineId,
+                             int width, int height, int framesPerSecond) {
+            this(requestId, revisionId, timelineId, width, height, framesPerSecond, Format.GIF);
+        }
+
         public RenderRequest {
+            Objects.requireNonNull(format, "format");
             requestId = boundedId(requestId, "requestId");
             revisionId = boundedId(revisionId, "revisionId");
             timelineId = boundedId(timelineId, "timelineId");
@@ -108,19 +120,64 @@ public final class MediaDevProjectRenderRuntime {
         }
     }
 
+    /** The configured MP4 codec pipeline is absent, not admitted or its tools are not runnable. */
+    public static final class RenderCodecUnavailableException extends IllegalStateException {
+        RenderCodecUnavailableException(String message) { super(message); }
+    }
+
+    /** The codec process ran but produced no verified output (timeout, crash, verification failure). */
+    public static final class RenderExecutionFailedException extends IllegalStateException {
+        private final String reason;
+        RenderExecutionFailedException(String reason) {
+            super("render execution did not produce a verified output: " + reason);
+            this.reason = reason;
+        }
+        public String reason() { return reason; }
+    }
+
+    public static final String FFMPEG_ENV = "MEDIA_DEV_RENDER_FFMPEG";
+    public static final String FFPROBE_ENV = "MEDIA_DEV_RENDER_FFPROBE";
+    static final long MAX_MP4_OUTPUT_BYTES = 64L * 1024 * 1024;
+    static final int MAX_AUDIO_SOURCE_BYTES = 64 * 1024 * 1024;
+
     private final MediaRuntime runtime;
     private final MediaDevProjectTimelineRuntime projects;
     private final OutputRegistrar registrar;
+    private final FfmpegMultitrackRenderer mp4Renderer;
 
     MediaDevProjectRenderRuntime(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects) {
-        this(runtime, projects, canonicalRegistrar(runtime));
+        this(runtime, projects, canonicalRegistrar(runtime), null);
     }
 
     MediaDevProjectRenderRuntime(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
                                  OutputRegistrar registrar) {
+        this(runtime, projects, registrar, null);
+    }
+
+    MediaDevProjectRenderRuntime(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
+                                 OutputRegistrar registrar, FfmpegMultitrackRenderer mp4Renderer) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.projects = Objects.requireNonNull(projects, "projects");
         this.registrar = Objects.requireNonNull(registrar, "registrar");
+        this.mp4Renderer = mp4Renderer;
+    }
+
+    /**
+     * Builds the DEV_ONLY MP4 pipeline from explicit absolute tool paths. Absent configuration yields null so MP4
+     * requests return a typed unavailable result; tool paths are never resolved through PATH.
+     */
+    static FfmpegMultitrackRenderer mp4RendererFrom(Map<String, String> environment) {
+        String ffmpeg = environment.get(FFMPEG_ENV);
+        String ffprobe = environment.get(FFPROBE_ENV);
+        if (ffmpeg == null || ffmpeg.isBlank() || ffprobe == null || ffprobe.isBlank()) return null;
+        java.nio.file.Path ffmpegPath = java.nio.file.Path.of(ffmpeg);
+        java.nio.file.Path ffprobePath = java.nio.file.Path.of(ffprobe);
+        if (!ffmpegPath.isAbsolute() || !ffprobePath.isAbsolute()) {
+            throw new IllegalArgumentException(FFMPEG_ENV + " and " + FFPROBE_ENV + " must be absolute paths");
+        }
+        java.nio.file.Path tempRoot = java.nio.file.Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath();
+        return new FfmpegMultitrackRenderer(new FfmpegMultitrackRenderer.Config(ffmpegPath, ffprobePath, tempRoot,
+                Map.of(), Duration.ofSeconds(10), Duration.ofMinutes(2), true));
     }
 
     public RenderResult render(String tenantId, String principalId, String projectId, RenderRequest request) {
@@ -140,6 +197,9 @@ public final class MediaDevProjectRenderRuntime {
         }
         if (clips.size() > MAX_CLIPS) {
             throw new RenderNotSupportedException("RENDER_LIMIT_EXCEEDED", "timeline exceeds the clip ceiling");
+        }
+        if (request.format() == Format.MP4) {
+            return renderMp4(tenantId, principalId, projectId, revision, timeline, tracks, clips, request);
         }
         for (Clip clip : clips) {
             if (!VISUAL_TRACKS.contains(tracks.get(clip.trackId()).kind())) {
@@ -216,10 +276,21 @@ public final class MediaDevProjectRenderRuntime {
                         "GIF encoding is unavailable: " + export.status()));
         byte[] bytes = encoded.bytes();
 
+        Map<String, Object> lineage = baseLineage(projectId, revision, timeline, request);
+        lineage.put("framesPerSecond", fps);
+        lineage.put("frameCount", frameCount);
+        lineage.put("sources", sources);
+        lineage.put("format", "gif");
+        return registerOutput(tenantId, principalId, projectId, revision, request, bytes, encoded.sha256(),
+                "image/gif", "gif", lineage);
+    }
+
+    private static Map<String, Object> baseLineage(String projectId, Revision revision, TimelineSnapshot timeline,
+                                                   RenderRequest request) {
         Map<String, Object> lineage = new LinkedHashMap<>();
         lineage.put("renderSchema", RENDER_SCHEMA);
         lineage.put("scope", "DEV_ONLY");
-        lineage.put("engine", ENGINE);
+        lineage.put("engine", request.format() == Format.MP4 ? MP4_ENGINE : ENGINE);
         lineage.put("projectId", projectId);
         lineage.put("revisionId", revision.revisionId());
         lineage.put("timelineId", timeline.timelineId());
@@ -227,15 +298,17 @@ public final class MediaDevProjectRenderRuntime {
         lineage.put("requestId", request.requestId());
         lineage.put("width", request.width());
         lineage.put("height", request.height());
-        lineage.put("framesPerSecond", fps);
-        lineage.put("frameCount", frameCount);
-        lineage.put("sources", sources);
+        return lineage;
+    }
+
+    private RenderResult registerOutput(String tenantId, String principalId, String projectId, Revision revision,
+                                        RenderRequest request, byte[] bytes, String sha256, String contentType,
+                                        String extension, Map<String, Object> lineage) {
         Map<String, Object> metadata = new LinkedHashMap<>(lineage);
         metadata.put("purpose", "project-render");
-
         UploadRequest upload = new UploadRequest(tenantId, principalId,
-                "render-" + revision.revisionId().replaceAll("[^A-Za-z0-9._-]", "_") + ".gif",
-                "image/gif", bytes.length, encoded.sha256(), "INTERNAL", Duration.ofDays(30), metadata);
+                "render-" + revision.revisionId().replaceAll("[^A-Za-z0-9._-]", "_") + "." + extension,
+                contentType, bytes.length, sha256, "INTERNAL", Duration.ofDays(30), metadata);
         String idempotencyKey = "dev-render:" + sha256Hex(
                 tenantId + "\u0000" + principalId + "\u0000" + projectId + "\u0000" + request.requestId());
         Registered registered;
@@ -250,11 +323,194 @@ public final class MediaDevProjectRenderRuntime {
             throw new RenderRegistrationFailedException(failure);
         }
         MediaArtifact artifact = registered.artifact();
-        if (!artifact.sha256().equals(encoded.sha256())) {
+        if (!artifact.sha256().equals(sha256)) {
             throw new RenderRegistrationFailedException(
                     new IllegalStateException("registered artifact digest does not match rendered bytes"));
         }
         return new RenderResult(artifact, lineage, registered.replayed());
+    }
+
+    /**
+     * MP4 path: each VIDEO still clip becomes exactly one frame held for its story duration (normalized to the
+     * requested even geometry), an optional single WAV clip on an AUDIO track starting at story time 0 becomes the
+     * AAC track. The bounded FFmpeg renderer verifies the result with ffprobe before any registration.
+     */
+    private RenderResult renderMp4(String tenantId, String principalId, String projectId, Revision revision,
+                                   TimelineSnapshot timeline, Map<String, Track> tracks, List<Clip> clips,
+                                   RenderRequest request) {
+        if (mp4Renderer == null) {
+            throw new RenderCodecUnavailableException("MP4 rendering requires " + FFMPEG_ENV + " and " + FFPROBE_ENV);
+        }
+        if (request.width() % 2 != 0 || request.height() % 2 != 0) {
+            throw new RenderNotSupportedException("RENDER_UNSUPPORTED_FRAME_GEOMETRY",
+                    "MP4 rendering requires even width and height");
+        }
+        List<MultitrackRenderPlanner.Clip> planClips = new ArrayList<>();
+        Map<String, byte[]> videoFrames = new LinkedHashMap<>();
+        Map<String, byte[]> audio = new LinkedHashMap<>();
+        List<Map<String, Object>> sources = new ArrayList<>();
+        for (Clip clip : clips) {
+            TrackKind kind = tracks.get(clip.trackId()).kind();
+            MultitrackRenderPlanner.Time timelineStart = seconds(clip.storyStart());
+            MultitrackRenderPlanner.Time duration = seconds(clip.storyDuration());
+            Map<String, Object> source = new LinkedHashMap<>();
+            source.put("clipId", clip.clipId());
+            source.put("trackId", clip.trackId());
+            source.put("trackKind", kind.name());
+            source.put("artifactId", clip.source().artifactId());
+            source.put("artifactVersionId", clip.source().artifactVersionId());
+            if (kind == TrackKind.VIDEO) {
+                byte[] frame = normalizedFrame(tenantId, principalId, clip, request.width(), request.height());
+                String digest = sha256Hex(frame);
+                videoFrames.put(clip.clipId(), frame);
+                MultitrackRenderPlanner.Time zero = new MultitrackRenderPlanner.Time(0, 1);
+                planClips.add(new MultitrackRenderPlanner.Clip(clip.clipId(), MultitrackRenderPlanner.Modality.VIDEO,
+                        clip.source().artifactId(), clip.source().artifactVersionId(), digest, timelineStart,
+                        zero, duration, List.of(zero)));
+                source.put("normalizedFrameSha256", digest);
+            } else if (kind == TrackKind.AUDIO) {
+                MediaArtifact artifact = exactSource(tenantId, principalId, clip);
+                String contentType = artifact.contentType().toLowerCase(Locale.ROOT);
+                if (!Set.of("audio/wav", "audio/x-wav", "audio/wave").contains(contentType)) {
+                    throw new RenderNotSupportedException("SOURCE_FORMAT_NOT_SUPPORTED",
+                            "only 16-bit PCM WAV audio sources are supported for MP4 rendering");
+                }
+                MultitrackRenderPlanner.Time sourceStart = seconds(clip.sourceIn());
+                MultitrackRenderPlanner.Time sourceEnd = seconds(clip.sourceOut());
+                if (sourceEnd.minus(sourceStart).compareTo(duration) != 0) {
+                    throw new RenderNotSupportedException("RENDER_UNSUPPORTED_AUDIO_LAYOUT",
+                            "audio clips must not be retimed: source interval must equal story duration");
+                }
+                audio.put(clip.clipId(), readExact(tenantId, principalId, artifact, MAX_AUDIO_SOURCE_BYTES));
+                planClips.add(new MultitrackRenderPlanner.Clip(clip.clipId(), MultitrackRenderPlanner.Modality.AUDIO,
+                        clip.source().artifactId(), clip.source().artifactVersionId(), artifact.sha256(),
+                        timelineStart, sourceStart, sourceEnd, List.of(sourceStart)));
+            } else {
+                throw new RenderNotSupportedException("TRACK_KIND_NOT_SUPPORTED",
+                        "MP4 rendering supports VIDEO still-image and AUDIO WAV clips only");
+            }
+            sources.add(source);
+        }
+        MultitrackRenderPlanner.PlanResult planned;
+        try {
+            planned = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
+                    planClips, List.of(), List.of(), MAX_MP4_OUTPUT_BYTES));
+        } catch (IllegalArgumentException invalid) {
+            throw new RenderNotSupportedException("RENDER_UNSUPPORTED_TIMELINE", "timeline is not a valid render graph");
+        }
+        if (planned.outcome() != MultitrackRenderPlanner.Outcome.PLAN_READY) {
+            throw new RenderNotSupportedException("RENDER_UNSUPPORTED_TIMELINE", "render plan was not produced");
+        }
+        FfmpegMultitrackRenderer.SourceProvider provider = new FfmpegMultitrackRenderer.SourceProvider() {
+            @Override public List<byte[]> readVideoFrames(FfmpegMultitrackRenderer.ClipSource clip) throws IOException {
+                byte[] frame = videoFrames.get(clip.clipId());
+                if (frame == null) throw new IOException("unknown video clip");
+                return List.of(frame);
+            }
+            @Override public byte[] readAudio(FfmpegMultitrackRenderer.ClipSource clip) throws IOException {
+                byte[] bytes = audio.get(clip.clipId());
+                if (bytes == null) throw new IOException("unknown audio clip");
+                return bytes;
+            }
+        };
+        java.nio.file.Path outputDirectory = null;
+        try {
+            outputDirectory = java.nio.file.Files.createTempDirectory("media-dev-render-");
+            FfmpegMultitrackRenderer.Result result = mp4Renderer.render(planned.plan(), provider, outputDirectory, null);
+            switch (result.outcome()) {
+                case COMPLETED -> { }
+                case UNSUPPORTED -> throw new RenderNotSupportedException("RENDER_" + result.reason().name(),
+                        "timeline uses a feature the MP4 renderer does not support exactly");
+                case NOT_ADMITTED, UNAVAILABLE -> throw new RenderCodecUnavailableException(
+                        "MP4 codec pipeline is unavailable: " + result.reason());
+                default -> throw new RenderExecutionFailedException(String.valueOf(result.reason()));
+            }
+            byte[] bytes = java.nio.file.Files.readAllBytes(result.outputPath());
+            if (!sha256Hex(bytes).equals(result.outputSha256())) {
+                throw new RenderExecutionFailedException("OUTPUT_DIGEST_CHANGED");
+            }
+            FfmpegMultitrackRenderer.Verification verification = result.verification();
+            Map<String, Object> encoding = new LinkedHashMap<>();
+            encoding.put("manifestSha256", planned.plan().manifestSha256());
+            encoding.put("videoCodec", verification.videoCodec());
+            encoding.put("audioCodec", verification.audioCodec() == null ? "none" : verification.audioCodec());
+            encoding.put("videoFrameCount", verification.videoFrameCount());
+            encoding.put("videoPtsExact", verification.videoPtsExact());
+            encoding.put("streamCount", verification.streamCount());
+            encoding.put("expectedDurationSeconds", verification.expectedDurationSeconds());
+            encoding.put("ffmpegVersion", result.ffmpegVersion());
+            encoding.put("ffprobeVersion", result.ffprobeVersion());
+            Map<String, Object> lineage = baseLineage(projectId, revision, timeline, request);
+            lineage.put("sources", sources);
+            lineage.put("format", "mp4");
+            lineage.put("encoding", encoding);
+            return registerOutput(tenantId, principalId, projectId, revision, request, bytes, result.outputSha256(),
+                    "video/mp4", "mp4", lineage);
+        } catch (IOException failure) {
+            throw new RenderExecutionFailedException("IO_ERROR");
+        } finally {
+            deleteQuietly(outputDirectory);
+        }
+    }
+
+    private static MultitrackRenderPlanner.Time seconds(
+            com.ghatana.media.runtime.MediaProjectTimelineContracts.RationalTime time) {
+        // seconds = ticks * rateDenominator / rateNumerator
+        return new MultitrackRenderPlanner.Time(
+                Math.multiplyExact(time.ticks(), time.rateDenominator()), time.rateNumerator());
+    }
+
+    private byte[] normalizedFrame(String tenantId, String principalId, Clip clip, int width, int height) {
+        AnimationRenderer.RasterAsset asset = decodeSource(tenantId, principalId, clip, "frame");
+        BufferedImage source = new BufferedImage(asset.width(), asset.height(), BufferedImage.TYPE_INT_ARGB);
+        source.setRGB(0, 0, asset.width(), asset.height(), asset.argbPixels(), 0, asset.width());
+        BufferedImage frame = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D graphics = frame.createGraphics();
+        try {
+            graphics.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+                    java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            graphics.drawImage(source, 0, 0, width, height, null);
+        } finally {
+            graphics.dispose();
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            if (!ImageIO.write(frame, "png", out)) throw new IOException("PNG encoder unavailable");
+        } catch (IOException failure) {
+            throw new RenderExecutionFailedException("FRAME_ENCODING_FAILED");
+        }
+        return out.toByteArray();
+    }
+
+    private MediaArtifact exactSource(String tenantId, String principalId, Clip clip) {
+        return runtime.artifact(tenantId, principalId, clip.source().artifactId())
+                .filter(found -> found.version().value().equals(clip.source().artifactVersionId()))
+                .orElseThrow(SourceVersionUnavailableException::new);
+    }
+
+    private byte[] readExact(String tenantId, String principalId, MediaArtifact artifact, int maxBytes) {
+        if (artifact.sizeBytes() > maxBytes) {
+            throw new RenderNotSupportedException("RENDER_LIMIT_EXCEEDED", "source exceeds the byte ceiling");
+        }
+        ByteArrayOutputStream staged = new ByteArrayOutputStream((int) artifact.sizeBytes());
+        try {
+            runtime.copyArtifactContent(tenantId, principalId, artifact.artifactId(), artifact.version(),
+                    staged, maxBytes).orElseThrow(SourceVersionUnavailableException::new);
+        } catch (IOException failure) {
+            throw new IllegalStateException("source artifact content could not be read", failure);
+        }
+        return staged.toByteArray();
+    }
+
+    private static void deleteQuietly(java.nio.file.Path directory) {
+        if (directory == null) return;
+        try (var paths = java.nio.file.Files.walk(directory)) {
+            paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                try { java.nio.file.Files.deleteIfExists(path); } catch (IOException ignored) { }
+            });
+        } catch (IOException ignored) {
+            // best effort: the renderer's own private temp directory is already cleaned
+        }
     }
 
     /** Reopens a registered render for its owner; anything that is not this project's render is absent. */
@@ -273,9 +529,7 @@ public final class MediaDevProjectRenderRuntime {
     }
 
     private AnimationRenderer.RasterAsset decodeSource(String tenantId, String principalId, Clip clip, String assetId) {
-        MediaArtifact artifact = runtime.artifact(tenantId, principalId, clip.source().artifactId())
-                .filter(found -> found.version().value().equals(clip.source().artifactVersionId()))
-                .orElseThrow(SourceVersionUnavailableException::new);
+        MediaArtifact artifact = exactSource(tenantId, principalId, clip);
         String contentType = artifact.contentType().toLowerCase(Locale.ROOT);
         if (!SUPPORTED_SOURCE_TYPES.contains(contentType)) {
             throw new RenderNotSupportedException("SOURCE_FORMAT_NOT_SUPPORTED",
@@ -394,6 +648,14 @@ public final class MediaDevProjectRenderRuntime {
             throw new IllegalArgumentException(name + " must be a 1-128 character opaque id");
         }
         return value;
+    }
+
+    static String sha256Hex(byte[] value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
     }
 
     static String sha256Hex(String value) {

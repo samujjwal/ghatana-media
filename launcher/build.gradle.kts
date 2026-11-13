@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":services:media:runtime-contracts"))
     implementation(project(":services:media:modules:production:timeline"))
     implementation(project(":services:media:modules:production:animation"))
+    implementation(project(":services:media:modules:production:rendering"))
     implementation(project(":services:media:audio-video-observability"))
     runtimeOnly(project(":services:media:providers:aws-postgresql"))
 

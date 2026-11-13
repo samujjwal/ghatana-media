@@ -112,7 +112,9 @@ public final class MediaHttpHandler implements HttpHandler {
     public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
                             MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline) {
         this(runtime, consentAdministration, captions, devProjectTimeline,
-                devProjectTimeline == null ? null : new MediaDevProjectRenderRuntime(runtime, devProjectTimeline));
+                devProjectTimeline == null ? null : new MediaDevProjectRenderRuntime(runtime, devProjectTimeline,
+                        MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
+                        MediaDevProjectRenderRuntime.mp4RendererFrom(System.getenv())));
     }
 
     MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
@@ -489,14 +491,22 @@ public final class MediaHttpHandler implements HttpHandler {
                 Map<String, Object> body = mapper.readValue(
                         boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
                 if (body == null) throw new IllegalArgumentException("render request is required");
-                requireExactKeys(body, Set.of("requestId", "revisionId", "timelineId", "width", "height",
-                        "framesPerSecond"), "render request");
+                Set<String> renderKeys = new java.util.HashSet<>(Set.of("requestId", "revisionId", "timelineId",
+                        "width", "height", "framesPerSecond"));
+                if (body.containsKey("format")) renderKeys.add("format");
+                requireExactKeys(body, renderKeys, "render request");
+                MediaDevProjectRenderRuntime.Format format = MediaDevProjectRenderRuntime.Format.GIF;
+                if (body.containsKey("format")) {
+                    String requested = requiredString(body.get("format"), "format");
+                    if ("mp4".equals(requested)) format = MediaDevProjectRenderRuntime.Format.MP4;
+                    else if (!"gif".equals(requested)) throw new IllegalArgumentException("format must be gif or mp4");
+                }
                 var request = new MediaDevProjectRenderRuntime.RenderRequest(
                         requiredString(body.get("requestId"), "requestId"),
                         requiredString(body.get("revisionId"), "revisionId"),
                         requiredString(body.get("timelineId"), "timelineId"),
                         boundedInt(body.get("width"), "width"), boundedInt(body.get("height"), "height"),
-                        boundedInt(body.get("framesPerSecond"), "framesPerSecond"));
+                        boundedInt(body.get("framesPerSecond"), "framesPerSecond"), format);
                 var result = devProjectRender.render(tenantId, principalId,
                         decodePathSegment(renders.group(1)), request);
                 json(exchange, result.replayed() ? 200 : 201, devRenderView(result));
@@ -531,6 +541,12 @@ public final class MediaHttpHandler implements HttpHandler {
                     "The exact source artifact version is not available to this DEV_ONLY principal");
         } catch (MediaDevProjectRenderRuntime.RenderNotSupportedException failure) {
             error(exchange, 422, failure.code(), failure.getMessage());
+        } catch (MediaDevProjectRenderRuntime.RenderCodecUnavailableException failure) {
+            error(exchange, 503, "RENDER_CODEC_UNAVAILABLE",
+                    "The DEV_ONLY MP4 codec pipeline is not configured or not runnable on this host");
+        } catch (MediaDevProjectRenderRuntime.RenderExecutionFailedException failure) {
+            error(exchange, 502, "RENDER_EXECUTION_FAILED", "Render did not produce a verified output",
+                    Map.of("reason", failure.reason()));
         } catch (MediaDevProjectRenderRuntime.RenderRegistrationFailedException failure) {
             error(exchange, 502, "RENDER_REGISTRATION_FAILED",
                     "Rendered output was not registered; retry with the same requestId to resume");

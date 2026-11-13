@@ -286,6 +286,168 @@ class MediaDevProjectRenderHttpTest {
     }
 
     @Test
+    void mp4RenderMuxesStillsAndNarrationVerifiesWithFfprobeAndReplaysDeterministically() throws Exception {
+        String ffmpeg = tool("GHATANA_MEDIA_FFMPEG");
+        String ffprobe = tool("GHATANA_MEDIA_FFPROBE");
+        org.junit.jupiter.api.Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
+                "set GHATANA_MEDIA_FFMPEG and GHATANA_MEDIA_FFPROBE to runnable absolute tool paths");
+        Path root = Files.createTempDirectory("media-dev-render-mp4-");
+        MediaRuntime runtime = runtime(root);
+        MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        var renderer = MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of(
+                MediaDevProjectRenderRuntime.FFMPEG_ENV, ffmpeg, MediaDevProjectRenderRuntime.FFPROBE_ENV, ffprobe));
+        HttpServer server = server(runtime, projects, new MediaDevProjectRenderRuntime(runtime, projects,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), renderer));
+        try {
+            String base = base(server);
+            Fixture fixture = twoClipProject(base, runtime, "mp4-project");
+            MediaArtifact narration = upload(runtime, "narration.wav", "audio/wav", toneWav(48_000, 2), "mp4-narration");
+            String head = edit(base, fixture.projectId(), "timeline-main", fixture.revisionId(), List.of(
+                    Map.of("type", "addTrack", "trackId", "audio-main", "sceneId", "scene-main",
+                            "trackKind", "AUDIO", "order", 1),
+                    Map.of("type", "putClip", "clip", Map.of(
+                            "clipId", "clip-narration", "sceneId", "scene-main", "trackId", "audio-main",
+                            "source", Map.of("artifactId", narration.artifactId(),
+                                    "artifactVersionId", narration.version().value()),
+                            "sourceIn", time(0, "SOURCE_PRESENTATION"), "sourceOut", time(48, "SOURCE_PRESENTATION"),
+                            "storyStart", time(0, "STORY"), "storyDuration", time(48, "STORY")))), false);
+            String body = JSON.writeValueAsString(Map.of("requestId", "mp4-1", "revisionId", head,
+                    "timelineId", "timeline-main", "width", 32, "height", 24, "framesPerSecond", 10, "format", "mp4"));
+            HttpResponse<String> rendered = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    body, PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(rendered.statusCode()).as(rendered.body()).isEqualTo(201);
+            Map<String, Object> view = read(rendered.body());
+            assertThat(object(view.get("artifact"))).containsEntry("contentType", "video/mp4");
+            Map<String, Object> lineage = object(view.get("lineage"));
+            assertThat(lineage).containsEntry("format", "mp4")
+                    .containsEntry("engine", MediaDevProjectRenderRuntime.MP4_ENGINE);
+            assertThat(object(lineage.get("encoding"))).containsEntry("videoCodec", "h264")
+                    .containsEntry("audioCodec", "aac").containsEntry("videoPtsExact", true);
+            assertThat((List<?>) lineage.get("sources")).hasSize(3);
+
+            // Independent verification of the registered bytes with ffprobe/ffmpeg.
+            String renderId = (String) view.get("renderId");
+            Path mp4 = Files.createTempFile(root, "render-", ".mp4");
+            Files.write(mp4, artifactBytes(runtime, renderId));
+            String probe = run(ffprobe, "-v", "error", "-show_entries", "stream=codec_name:format=duration",
+                    "-of", "default=nw=1", mp4.toString());
+            assertThat(probe).contains("codec_name=h264", "codec_name=aac");
+            double duration = Double.parseDouble(probe.lines().filter(l -> l.startsWith("duration="))
+                    .findFirst().orElseThrow().substring("duration=".length()));
+            assertThat(duration).isBetween(1.9, 2.1);
+            // Each still is exactly one held frame: PTS 0 (red) then PTS 1 s (blue).
+            String pts = run(ffprobe, "-v", "error", "-select_streams", "v:0", "-show_entries", "frame=pts_time",
+                    "-of", "csv=p=0", mp4.toString());
+            assertThat(pts.lines().map(l -> l.strip().replaceAll(",+$", "")).filter(l -> !l.isEmpty()).map(Double::parseDouble).toList())
+                    .containsExactly(0.0, 1.0);
+            assertThat(decodedFrameColors(ffmpeg, mp4, root)).containsExactly("red", "blue");
+
+            HttpResponse<String> replay = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    body, PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(read(replay.body())).containsEntry("renderId", renderId).containsEntry("replayed", true);
+
+            HttpResponse<String> odd = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    JSON.writeValueAsString(Map.of("requestId", "mp4-odd", "revisionId", head,
+                            "timelineId", "timeline-main", "width", 33, "height", 24, "framesPerSecond", 10,
+                            "format", "mp4")), PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(odd.statusCode()).isEqualTo(422);
+            assertThat(odd.body()).contains("RENDER_UNSUPPORTED_FRAME_GEOMETRY");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
+    void mp4WithoutConfiguredCodecIsTypedUnavailableAndUnknownFormatIsRejected() throws Exception {
+        Path root = Files.createTempDirectory("media-dev-render-mp4-off-");
+        MediaRuntime runtime = runtime(root);
+        MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        HttpServer server = server(runtime, projects, new MediaDevProjectRenderRuntime(runtime, projects,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), null));
+        try {
+            String base = base(server);
+            Fixture fixture = twoClipProject(base, runtime, "mp4-off-project");
+            HttpResponse<String> unavailable = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    JSON.writeValueAsString(Map.of("requestId", "mp4-off", "revisionId", fixture.revisionId(),
+                            "timelineId", "timeline-main", "width", 32, "height", 24, "framesPerSecond", 10,
+                            "format", "mp4")), PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(unavailable.statusCode()).as(unavailable.body()).isEqualTo(503);
+            assertThat(unavailable.body()).contains("RENDER_CODEC_UNAVAILABLE");
+            HttpResponse<String> unknown = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    JSON.writeValueAsString(Map.of("requestId", "webm", "revisionId", fixture.revisionId(),
+                            "timelineId", "timeline-main", "width", 32, "height", 24, "framesPerSecond", 10,
+                            "format", "webm")), PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(unknown.statusCode()).isEqualTo(400);
+            assertThatThrownBy(() -> MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of(
+                    MediaDevProjectRenderRuntime.FFMPEG_ENV, "ffmpeg", MediaDevProjectRenderRuntime.FFPROBE_ENV, "ffprobe")))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("absolute");
+            assertThat(MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of())).isNull();
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    private static String tool(String name) {
+        String value = System.getenv(name);
+        if (value == null || value.isBlank()) value = System.getProperty(name.toLowerCase(java.util.Locale.ROOT)
+                .replace('_', '.'));
+        if (value == null || value.isBlank() || !Path.of(value).isAbsolute() || !Files.isExecutable(Path.of(value))) {
+            return null;
+        }
+        try {
+            new ProcessBuilder(value, "-version").redirectErrorStream(true).start().waitFor();
+            Process check = new ProcessBuilder(value, "-version").redirectErrorStream(true).start();
+            check.getInputStream().readAllBytes();
+            return check.waitFor() == 0 ? value : null;
+        } catch (Exception unavailable) {
+            return null;
+        }
+    }
+
+    private static String run(String... command) throws Exception {
+        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        assertThat(process.waitFor()).as(output).isZero();
+        return output;
+    }
+
+    private static List<String> decodedFrameColors(String ffmpeg, Path mp4, Path root) throws Exception {
+        Path frames = Files.createDirectories(root.resolve("frames"));
+        run(ffmpeg, "-v", "error", "-y", "-i", mp4.toString(), "-fps_mode", "passthrough",
+                frames.resolve("f-%03d.png").toString());
+        try (var files = Files.list(frames)) {
+            return files.sorted().map(path -> {
+                try {
+                    BufferedImage frame = ImageIO.read(path.toFile());
+                    int rgb = frame.getRGB(frame.getWidth() / 2, frame.getHeight() / 2);
+                    int r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = rgb & 0xff;
+                    if (r > 180 && g < 80 && b < 80) return "red";
+                    if (b > 180 && r < 80 && g < 80) return "blue";
+                    return String.format("rgb(%d,%d,%d)", r, g, b);
+                } catch (java.io.IOException failure) {
+                    throw new java.io.UncheckedIOException(failure);
+                }
+            }).toList();
+        }
+    }
+
+    private static byte[] toneWav(int sampleRate, int seconds) {
+        int samples = sampleRate * seconds;
+        java.nio.ByteBuffer wav = java.nio.ByteBuffer.allocate(44 + samples * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        wav.put("RIFF".getBytes(StandardCharsets.US_ASCII)).putInt(36 + samples * 2)
+                .put("WAVEfmt ".getBytes(StandardCharsets.US_ASCII)).putInt(16).putShort((short) 1).putShort((short) 1)
+                .putInt(sampleRate).putInt(sampleRate * 2).putShort((short) 2).putShort((short) 16)
+                .put("data".getBytes(StandardCharsets.US_ASCII)).putInt(samples * 2);
+        for (int i = 0; i < samples; i++) {
+            wav.putShort((short) Math.round(8_000 * Math.sin(2 * Math.PI * 440 * i / (double) sampleRate)));
+        }
+        return wav.array();
+    }
+
+    @Test
     void exactFrameMathVisibilityAndDecodeCeilings() throws Exception {
         assertThat(MediaDevProjectRenderRuntime.frameFloor(new RationalTime(24, 24, 1, Clock.STORY), 10)).isEqualTo(10);
         assertThat(MediaDevProjectRenderRuntime.frameCeil(new RationalTime(25, 24, 1, Clock.STORY), 10)).isEqualTo(11);
@@ -381,7 +543,11 @@ class MediaDevProjectRenderHttpTest {
         String digest = HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
         var session = runtime.beginUpload(new UploadRequest(TENANT, PRINCIPAL, name, contentType, bytes.length,
                 digest, "INTERNAL", Duration.ofMinutes(30), Map.of()), key);
-        runtime.appendChunk(TENANT, PRINCIPAL, session.uploadId(), 0, bytes);
+        int chunk = runtime.config().maximumChunkBytes();
+        for (int offset = 0, index = 0; offset < bytes.length; offset += chunk, index++) {
+            runtime.appendChunk(TENANT, PRINCIPAL, session.uploadId(), index,
+                    java.util.Arrays.copyOfRange(bytes, offset, Math.min(bytes.length, offset + chunk)));
+        }
         return runtime.completeUpload(TENANT, PRINCIPAL, session.uploadId());
     }
 

@@ -73,9 +73,22 @@ and stable terminal reads — **no second writer**.
   overruns are typed `422` (`TRACK_KIND_NOT_SUPPORTED`,
   `SOURCE_FORMAT_NOT_SUPPORTED`, `RENDER_EMPTY_TIMELINE`,
   `RENDER_LIMIT_EXCEEDED`). `GET /dev/v1/projects/{projectId}/renders/{renderId}`
-  reopens the registered artifact and its lineage after a restart; artifacts
+  reopens the registered artifact and its lineage after a restart. An optional
+  `"format":"mp4"` routes the same exact revision through the rendering
+  module's `FfmpegMultitrackRenderer`: each VIDEO still clip becomes one frame
+  held for its exact story duration (normalized to the requested even size),
+  one optional 16-bit PCM WAV clip on an AUDIO track starting at story time 0
+  becomes AAC, and ffprobe verification (codecs, frame count, exact PTS,
+  duration) must pass before the `video/mp4` artifact is registered with
+  encoding lineage and tool versions. Tools come only from absolute
+  `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE`; absent or unrunnable
+  tools are `503 RENDER_CODEC_UNAVAILABLE`, unsupported timelines are typed
+  `422 RENDER_UNSUPPORTED_*`, and a failed codec run is
+  `502 RENDER_EXECUTION_FAILED`. Artifacts
   that are not this project's render are `404`. Not covered: time-based video
-  sources, audio mix, captions, current-rights revocation, scanner release,
+  sources, multi-clip audio mixing, timeline captions (the renderer supports
+  them but the project timeline has no caption-text source yet),
+  current-rights revocation, scanner release,
   or any production admission — these routes stay outside the canonical
   manifest/OpenAPI.
 - The DEV_ONLY artifact intake host reads `GET /dev/v1/artifact-upload-policy`
