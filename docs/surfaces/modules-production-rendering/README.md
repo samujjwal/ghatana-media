@@ -21,9 +21,39 @@ candidate comparison in `modules/production/rendering`.
   revisions, compares them with an independently supplied authorized reference
   when available, and supports restoring the exact source revision.
 - `BoundedRenderOutput` provides a byte-limited output stream for callers.
+- `FfmpegMultitrackRenderer` (a `MultitrackRenderPlanner.CodecPipeline`) renders
+  the supported subset of a `Plan` to MP4 with a configured, absolute
+  `ffmpeg`/`ffprobe` path, then independently verifies the file with ffprobe and
+  returns its exact SHA-256. `render(plan, sourceProvider, outputDirectory,
+  cancellation)` returns `COMPLETED`, `NOT_ADMITTED`, `UNSUPPORTED`,
+  `UNAVAILABLE`, `CANCELLED`, or `FAILED` with a typed `Reason`.
+  `BoundedProcessRunner` runs the tools with argument arrays only, a cleared
+  environment, bounded stdout/stderr (stderr is exposed only as a byte count and
+  SHA-256), a wall-clock deadline, cancellation, a watched output-size ceiling and
+  process-tree kill.
 
-This module does not persist Media artifacts, mutate jobs or timelines, provide
-a production video codec/muxer, or qualify a renderer/provider. It does not
+Supported renderer scope: VIDEO clips from PNG stills (even-sized, one geometry,
+contiguous from timeline 0, frame boundaries exact to one microsecond, variable
+frame durations preserved), at most one 16-bit PCM WAV audio clip starting at
+timeline 0 (AAC), and non-overlapping millisecond-exact captions (embedded
+`mov_text` plus a sidecar WebVTT). Video codec is H.264/yuv420p. The output byte
+budget is `plan.declaredOutputBudgetBytes` (MP4 plus sidecar). Transitions,
+GRAPHIC clips, overlapping or gapped video, multiple audio clips, and times not
+representable at the stated precision return `UNSUPPORTED`; nothing is
+approximated. The source digest for a VIDEO clip is the SHA-256 of its PNG bytes
+concatenated in frame order; for AUDIO it is the WAV file digest. The host
+`SourceProvider` owns authorization and exact-version reads. The planner's own
+`execute(plan, pipeline)` is unchanged and still does not render; callers use
+`FfmpegMultitrackRenderer.render` directly. Verification covers stream count,
+codecs, geometry, exact video PTS and frame count, caption cue count and
+duration within one frame (or one AAC frame); it is not a perceptual-quality or
+rights/provenance qualification. Tests require a real FFmpeg (set
+`GHATANA_MEDIA_FFMPEG`/`GHATANA_MEDIA_FFPROBE` or `-Dghatana.media.ffmpeg`/
+`-Dghatana.media.ffprobe`) and skip with a reason when none works.
+
+This module does not persist Media artifacts, mutate jobs or timelines,
+or qualify a renderer/provider; the FFmpeg renderer is a DEV capability
+(`media.dev.multitrack-composition-render`) that is not release-admitted. It does not
 establish lawful source/reference rights itself: injected authorities and host
 adapters own those decisions and exact-byte reads.
 
