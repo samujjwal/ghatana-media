@@ -82,7 +82,7 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
   async scanSigned(input: DocumentContentScanInput): Promise<SignedScanAttestation> {
     const o = this.#o;
     const now = o.now ?? (() => new Date());
-    const tenantId = input.tenantId ?? '';
+    const tenantId = input.tenantRef ?? input.tenantId ?? '';
     const validShape =
       tenantId !== '' &&
       input.documentId !== '' &&
@@ -101,6 +101,7 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
       signatureName?: string,
     ): SignedScanAttestation => {
       const at = now();
+      const attestationRef = (o.newAttestationRef ?? randomUUID)();
       const unsigned: UnsignedAttestation = {
         scannerRef: o.scannerRef,
         scannerVersion: engine ? `${engine.version}` : 'unavailable',
@@ -127,7 +128,19 @@ export class SecurityScannerProvider implements DocumentContentScanPort {
         ...(signatureName ? { signatureName } : {}),
         verifiedAt: at.toISOString(),
         expiresAt: new Date(at.getTime() + o.attestationTtlMs).toISOString(),
-        attestationRef: (o.newAttestationRef ?? randomUUID)(),
+        attestationRef,
+        finality: {
+          verdict: verdict === 'INFECTED' ? 'QUARANTINED' : verdict,
+          tenantRef: tenantId,
+          ...(input.scopeRef ? { scopeRef: input.scopeRef } : {}),
+          sourceRef: input.sourceRef ?? `quarantine:${tenantId}/${input.documentId ?? ''}/${input.version}`,
+          verifiedAt: at.toISOString(),
+          expiresAt: new Date(at.getTime() + o.attestationTtlMs).toISOString(),
+          statusRef: `scan-status:${attestationRef}`,
+          attestationRef,
+          signatureRef: `${o.signer.algorithm}:${o.signer.keyId}:${attestationRef}`,
+          ...(verdict === 'UNKNOWN' ? { errorCode: reasonCode } : {}),
+        },
       };
       return signAttestation(unsigned, o.signer);
     };

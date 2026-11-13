@@ -43,6 +43,7 @@ export interface ContentScanAttestation {
   readonly scannedAt: string;
   readonly checksum: ContentChecksum;
   readonly scannerVersion?: string;
+  readonly finality?: DocumentScanResultFinality;
 }
 
 export interface DocumentContentScanInput {
@@ -51,8 +52,26 @@ export interface DocumentContentScanInput {
   readonly checksum: ContentChecksum;
   readonly sizeBytes: number;
   readonly mimeType: string;
-  /** Optional extension: tenant scope of the quarantined source. Required by this provider. */
+  /** Shared optional binding facts (echoed into `finality`). `tenantRef` is required by this provider. */
+  readonly tenantRef?: string;
+  readonly scopeRef?: string;
+  readonly sourceRef?: string;
+  /** Deprecated alias of `tenantRef` kept for early adopters. */
   readonly tenantId?: string;
+}
+
+/** Mirror of Shared `DocumentScanResultFinality` (@ghatana/documents >= 0.2.0). */
+export interface DocumentScanResultFinality {
+  readonly verdict: 'CLEAN' | 'QUARANTINED' | 'ERROR' | 'UNKNOWN';
+  readonly tenantRef: string;
+  readonly scopeRef?: string;
+  readonly sourceRef: string;
+  readonly verifiedAt: string;
+  readonly expiresAt: string;
+  readonly statusRef?: string;
+  readonly attestationRef?: string;
+  readonly signatureRef?: string;
+  readonly errorCode?: string;
 }
 
 export interface DocumentContentScanPort {
