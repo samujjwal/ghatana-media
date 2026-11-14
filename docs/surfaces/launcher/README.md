@@ -319,12 +319,16 @@ greedy and the registered JSON carries no timestamps, so a replay re-derives ide
 `404 SOURCE_VERSION_NOT_FOUND` (stale/foreign/unknown version), `403 ARTIFACT_PERMISSION_REQUIRED`,
 `422 SOURCE_FORMAT_NOT_SUPPORTED | FRAME_EXTRACTION_UNAVAILABLE | FRAME_EXTRACTION_FAILED`,
 `503 LOCAL_MODEL_NOT_ADMITTED` (manifest missing or digest/licence/identity mismatch; nothing is dispatched) and
-`503 LOCAL_VISION_UNAVAILABLE` (sidecar unreachable or timed out). Honesty: the rights decision is the DEV_ONLY
-owner-scope one (`productionGrant:false`); it does not establish current rights or consent and the canonical VISION job
-admission is unchanged. The same provider is registered as `local-open-vision` (VISION job type, LOCAL boundary, no
-retention) when configured: it is `productionEligible` only when both models are digest-qualified and a real
-`LocalVisionRightsAuthority` is ready, and the default authority reports `RIGHTS_AUTHORITY_UNAVAILABLE`, so
-production-like profiles never use it. Florence-2 scene text is its own OCR task, not the Document Intelligence OCR
+`503 LOCAL_VISION_UNAVAILABLE` (sidecar unreachable or timed out). Rights: before any byte is read, the exact source version and content digest are resolved for
+`Scope.PROCESSING` through the injectable `MediaRightsConsentContracts.RightsConsentResolver` (enabled with
+`MEDIA_RIGHTS_DEV_ENABLED`; an attestation for that exact version is created through `/dev/v1/rights/attestations`).
+Anything not ADMITTED is refused with nothing dispatched: `503 RIGHTS_AUTHORITY_UNAVAILABLE` (no authority configured or
+failing) or `403 RIGHTS_DENIED | RIGHTS_REVOKED | RIGHTS_STALE | RIGHTS_MISMATCH`. Lineage records the verdict and the
+admitting attestation ids (`productionGrant:false`). No face or person identification is offered, so
+`VOICE_OR_LIKENESS_USE` is never needed. The canonical VISION job admission is unchanged. The same provider is registered as `local-open-vision` (VISION job type, LOCAL boundary, no
+retention) when configured: it is `productionEligible` only when both models are digest-qualified and a production-eligible
+`LocalVisionRightsAuthority` is ready; the default reports `RIGHTS_AUTHORITY_UNAVAILABLE` (the DEV attestation store is
+not production eligible), so production-like profiles never use it. Florence-2 scene text is its own OCR task, not the Document Intelligence OCR
 gateway, and no quality or accuracy claim is made.
 
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process

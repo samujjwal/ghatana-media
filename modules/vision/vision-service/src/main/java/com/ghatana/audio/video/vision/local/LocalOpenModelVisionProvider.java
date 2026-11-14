@@ -209,27 +209,38 @@ public final class LocalOpenModelVisionProvider implements MediaProcessingProvid
      * The canonical VISION result contract requires grounded top-level fields (caption, objects, labels,
      * description); the full bound documents stay nested under {@code analysis} and {@code question}.
      */
-    @SuppressWarnings("unchecked")
     private static void groundedTopLevel(Map<String, Object> result) {
-        if (result.get("analysis") instanceof Map<?, ?> analysis
-                && analysis.get("results") instanceof Map<?, ?> results) {
-            if (results.get("caption") != null) result.put("caption", results.get("caption"));
-            if (results.get("objects") != null) result.put("objects", results.get("objects"));
-            if (results.get("sceneText") instanceof Map<?, ?> text) {
-                result.put("sceneText", text);
-                List<String> labels = new ArrayList<>();
-                if (text.get("regions") instanceof List<?> regions) {
-                    for (Object region : regions) {
-                        if (region instanceof Map<?, ?> m && m.get("text") != null) labels.add(String.valueOf(m.get("text")));
+        List<Object> models = new ArrayList<>();
+        Object analysisDoc = result.remove("analysis");
+        Object questionDoc = result.remove("question");
+        if (analysisDoc instanceof Map<?, ?> analysis) {
+            models.add(analysis.get("model"));
+            result.put("input", analysis.get("input"));
+            if (analysis.get("results") instanceof Map<?, ?> results) {
+                if (results.get("caption") != null) result.put("caption", results.get("caption"));
+                if (results.get("objects") != null) result.put("objects", results.get("objects"));
+                if (results.get("sceneText") instanceof Map<?, ?> text) {
+                    result.put("sceneText", text);
+                    List<String> labels = new ArrayList<>();
+                    if (text.get("regions") instanceof List<?> regions) {
+                        for (Object region : regions) {
+                            if (region instanceof Map<?, ?> m && m.get("text") != null) {
+                                labels.add(String.valueOf(m.get("text")));
+                            }
+                        }
                     }
+                    result.put("labels", labels);
                 }
-                result.put("labels", labels);
             }
         }
-        if (result.get("question") instanceof Map<?, ?> question && question.get("answer") != null) {
+        if (questionDoc instanceof Map<?, ?> question && question.get("answer") != null) {
+            models.add(question.get("model"));
+            result.putIfAbsent("input", question.get("input"));
+            result.put("question", question.get("question"));
             result.put("answer", question.get("answer"));
             result.put("description", question.get("answer"));
         }
+        result.put("models", models);
     }
 
     private static String zeroDigest() { return "0".repeat(64); }

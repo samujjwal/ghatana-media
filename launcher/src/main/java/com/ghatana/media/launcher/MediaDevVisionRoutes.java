@@ -156,6 +156,11 @@ final class MediaDevVisionRoutes {
                 "artifactPath", "/api/v1/artifacts/" + artifact.artifactId()));
         view.put("lineage", result.lineage());
         view.put("replayed", result.replayed());
+        if (result.admission() != null) {
+            view.put("admission", Map.of("scope", "PROCESSING", "verdict", result.admission().verdict().name(),
+                    "attestationIds", result.admission().attestationIds(),
+                    "resolverId", result.admission().resolverId()));
+        }
         view.put("scope", "DEV_ONLY");
         view.put("note", "DEV_ONLY local open-model output; not a production, quality, rights or approval claim");
         return view;

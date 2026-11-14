@@ -133,7 +133,7 @@ class MediaDevVisionRestartIT {
 
             // ---- analyze (Florence-2) ----
             JsonNode analysis = post(port, tenant, token, ANALYSES, analyzeBody, 201);
-            assertThat(analysis.path("lineage").path("rightsDecision").path("attestationIds").get(0).asString())
+            assertThat(analysis.path("admission").path("attestationIds").get(0).asString())
                     .isEqualTo(attestationId);
             String analysisId = analysis.path("outputId").asString();
             assertThat(analysisId).isNotEqualTo(sourceId);

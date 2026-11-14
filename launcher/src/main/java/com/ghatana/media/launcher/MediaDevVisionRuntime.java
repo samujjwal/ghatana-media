@@ -87,7 +87,8 @@ public final class MediaDevVisionRuntime {
     }
 
     /** Durable view of a registered vision output, reconstructible from the artifact alone. */
-    public record VisionResult(MediaArtifact artifact, Map<String, Object> lineage, boolean replayed)
+    public record VisionResult(MediaArtifact artifact, Map<String, Object> lineage, boolean replayed,
+                               Resolution admission)
             implements MediaDevRenderAdmission.ReplayAware {
         @Override public boolean replayedResult() { return replayed; }
     }
@@ -303,16 +304,17 @@ public final class MediaDevVisionRuntime {
         rightsDecision.put("kind", "RIGHTS_CONSENT_ATTESTATION");
         rightsDecision.put("scope", Scope.PROCESSING.name());
         rightsDecision.put("verdict", resolution.verdict().name());
-        rightsDecision.put("attestationIds", resolution.attestationIds());
+        // Attestation ids are deliberately NOT part of the registered (idempotency-fingerprinted) lineage: a
+        // re-attestation must not turn a replay into a divergent request. They are reported live as `admission`.
         rightsDecision.put("resolverId", resolution.resolverId());
         rightsDecision.put("productionGrant", false);
         lineage.put("rightsDecision", rightsDecision);
         lineage.put("resultSha256", MediaDevProjectRenderRuntime.sha256Hex(bytes));
-        return register(tenantId, principalId, kind, requestId, bytes, lineage);
+        return register(tenantId, principalId, kind, requestId, bytes, lineage, resolution);
     }
 
     private VisionResult register(String tenantId, String principalId, String kind, String requestId, byte[] bytes,
-                                  Map<String, Object> lineage) {
+                                  Map<String, Object> lineage, Resolution resolution) {
         String sha256 = MediaDevProjectRenderRuntime.sha256Hex(bytes);
         Map<String, Object> metadata = new LinkedHashMap<>(lineage);
         metadata.put("purpose", "vision-output");
@@ -337,7 +339,7 @@ public final class MediaDevVisionRuntime {
             throw new VisionRegistrationFailedException(
                     new IllegalStateException("registered artifact digest does not match produced bytes"));
         }
-        return new VisionResult(artifact, lineage, registered.replayed());
+        return new VisionResult(artifact, lineage, registered.replayed(), resolution);
     }
 
     /** Reopens a registered vision output for its owner (with its content) or returns empty. */
@@ -349,7 +351,7 @@ public final class MediaDevVisionRuntime {
                     for (String key : LINEAGE_KEYS) {
                         if (artifact.metadata().containsKey(key)) lineage.put(key, artifact.metadata().get(key));
                     }
-                    return new VisionResult(artifact, lineage, true);
+                    return new VisionResult(artifact, lineage, true, null);
                 });
     }
 

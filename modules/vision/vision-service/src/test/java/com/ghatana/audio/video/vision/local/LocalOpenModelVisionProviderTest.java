@@ -76,7 +76,7 @@ class LocalOpenModelVisionProviderTest {
                     "analysisTypes", List.of("OBJECT_DETECTION", "SCENE_CLASSIFICATION")), true), attempt()).get();
             assertThat(submission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
             assertThat(submission.provenanceDigest()).isEqualTo(LocalVisionTestFixtures.sha256(png));
-            assertThat(submission.result()).containsKey("analysis").containsEntry("sourceArtifactSha256",
+            assertThat(submission.result()).containsKeys("caption", "objects", "models").containsEntry("sourceArtifactSha256",
                     LocalVisionTestFixtures.sha256(png));
         }
     }
@@ -89,8 +89,8 @@ class LocalOpenModelVisionProviderTest {
             var submission = provider.processAttempt(context(png, "image/png",
                     Map.of("question", "What color is the square?"), true), attempt()).get();
             assertThat(submission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
-            @SuppressWarnings("unchecked") var question = (Map<String, Object>) submission.result().get("question");
-            assertThat(question).containsEntry("answer", "Red.");
+            assertThat(submission.result()).containsEntry("answer", "Red.").containsEntry("description", "Red.")
+                    .containsEntry("question", "What color is the square?");
         }
     }
 
@@ -164,7 +164,7 @@ class LocalOpenModelVisionProviderTest {
             byte[] png = LocalVisionTestFixtures.testImagePng();
             var result = provider.process(context(png, "image/png",
                     Map.of("analysisTypes", List.of("OCR")), true)).get();
-            assertThat(result).containsKey("analysis").containsEntry("sourceArtifactSha256",
+            assertThat(result).containsKeys("labels", "sceneText", "models").containsEntry("sourceArtifactSha256",
                     LocalVisionTestFixtures.sha256(png));
             assertThatThrownBy(() -> provider.process(context(png, "image/png",
                     Map.of("analysisTypes", List.of("FACE_DETECTION")), true)).join())

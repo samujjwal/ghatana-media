@@ -133,11 +133,9 @@ final class MediaToolLocalVisionJourneyTest extends EventloopTestBase {
             assertThat(job.providerId()).isEqualTo(LocalOpenModelVisionProvider.PROVIDER_ID);
             assertThat(job.expectedArtifactVersion()).isEqualTo(source.version().value());
             assertThat(job.result()).containsEntry("sourceArtifactSha256", source.sha256());
-            @SuppressWarnings("unchecked") var analysis = (Map<String, Object>) job.result().get("analysis");
-            @SuppressWarnings("unchecked") var results = (Map<String, Object>) analysis.get("results");
-            @SuppressWarnings("unchecked") var sceneText = (Map<String, Object>) results.get("sceneText");
+            @SuppressWarnings("unchecked") var sceneText = (Map<String, Object>) job.result().get("sceneText");
             assertThat(((String) sceneText.get("fullText")).toUpperCase()).contains("GHATANA");
-            assertThat(results).containsKeys("caption", "objects");
+            assertThat(job.result()).containsKeys("caption", "objects", "models");
         } finally {
             runtime.close();
         }

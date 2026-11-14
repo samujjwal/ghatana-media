@@ -133,7 +133,7 @@ class MediaDevVisionHttpTest {
             assertThat(rightsDecision).containsEntry("kind", "RIGHTS_CONSENT_ATTESTATION")
                     .containsEntry("scope", "PROCESSING").containsEntry("verdict", "ADMITTED")
                     .containsEntry("productionGrant", false);
-            assertThat(rightsDecision.get("attestationIds")).isEqualTo(List.of("fixture-attestation-1"));
+            assertThat(map(created).get("admission").toString()).contains("fixture-attestation-1");
 
             // The registered artifact's own bytes hold the structured result.
             MediaArtifact output = runtime.artifact(TENANT, PRINCIPAL, (String) view.get("outputId")).orElseThrow();
