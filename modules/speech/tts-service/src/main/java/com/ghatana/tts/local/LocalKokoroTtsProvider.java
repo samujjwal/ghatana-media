@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -182,7 +181,7 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
         value.put("durationMillis", result.durationMillis());
         value.put("sizeBytes", wav.length);
         value.put("audioSha256", audioSha);
-        value.put("audioBase64", Base64.getEncoder().encodeToString(wav));
+        value.put("audioBytes", wav);
         value.put("voice", result.voice());
         value.put("modelId", install.manifest().modelId());
         value.put("modelSha256", result.modelSha256());

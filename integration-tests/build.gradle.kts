@@ -21,6 +21,8 @@ dependencies {
     // MultimodalGrpcServer extends the shared gRPC server base used by this test.
     testImplementation(project(":services:media:libs:common"))
     testImplementation(project(":services:media:modules:speech:stt-service"))
+    testImplementation(project(":services:media:modules:speech:tts-service"))
+    testImplementation(project(":services:media:modules:production:rendering"))
     testImplementation(project(":services:media:modules:audio-streaming"))
     testImplementation(project(":services:media:modules:video-streaming"))
 

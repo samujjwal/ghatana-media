@@ -479,4 +479,27 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
         assertThat(result.status()).isEqualTo(ToolExecutionStatus.OUTCOME_UNKNOWN);
         assertThat(result.sideEffectSummary()).containsEntry("reasonCode", "MEDIA_JOB_RUNNING");
     }
+
+    @Test
+    void serverOwnedGovernanceContextIsAppliedPerJobTypeAndOthersKeepTheConservativeDefault() {
+        var stt = new com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext("", "transcription",
+                com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification.CONFIDENTIAL, "local",
+                Set.of("local"), false, "short-lived-media", false, false, "",
+                com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity.NONE,
+                com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk.ASSISTIVE);
+        for (Case c : cases()) {
+            TestOnlyPort port = new TestOnlyPort();
+            port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
+            MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test", PIN, java.time.Duration.ZERO,
+                    Map.of(JobType.SPEECH_TO_TEXT, stt));
+            var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+            run(factory, c, envelope(c, c.input()), principal());
+            var governance = port.submitted.get(0).governanceContext();
+            if (c.jobType() == JobType.SPEECH_TO_TEXT) {
+                assertThat(governance).isEqualTo(stt);
+            } else {
+                assertThat(governance.purpose()).isEqualTo("unspecified");
+            }
+        }
+    }
 }

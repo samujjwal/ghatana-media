@@ -10,6 +10,7 @@ import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
@@ -75,6 +76,7 @@ public final class MediaToolJobBridge {
     private final String deploymentProfile;
     private final SpeechProfilePin speechProfilePin;
     private final Duration awaitTerminal;
+    private final Map<JobType, MediaGovernanceContext> governance;
 
     public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile) {
         this(port, deploymentProfile, null, Duration.ZERO);
@@ -89,6 +91,19 @@ public final class MediaToolJobBridge {
      */
     public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile,
             SpeechProfilePin speechProfilePin, Duration awaitTerminal) {
+        this(port, deploymentProfile, speechProfilePin, awaitTerminal, Map.of());
+    }
+
+    /**
+     * @param governance server-owned governance context per job type (for example the purpose a tool is defined for).
+     *                   It is host configuration, never caller input, and the runtime's rights authority still has to
+     *                   find a registered, current source record that allows exactly this purpose. A job type without
+     *                   an entry keeps the runtime's conservative compatibility default.
+     */
+    public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile,
+            SpeechProfilePin speechProfilePin, Duration awaitTerminal,
+            Map<JobType, MediaGovernanceContext> governance) {
+        this.governance = Map.copyOf(Objects.requireNonNull(governance, "governance"));
         this.port = Objects.requireNonNull(port, "port");
         this.deploymentProfile = MediaDeploymentProfiles.canonical(deploymentProfile);
         this.speechProfilePin = speechProfilePin;
@@ -151,9 +166,14 @@ public final class MediaToolJobBridge {
                         ? java.util.Locale.forLanguageTag(text).getLanguage() : "en";
                 jobParameters.put("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", tag));
             }
-            request = new ProcessingJobRequest(requestIdFor(envelope.invocationId()), envelope.tenantId(),
-                    authenticated.principalId(), envelope.invocationId(), artifactId, sourceVersion,
-                    jobType, "", jobParameters);
+            MediaGovernanceContext context = governance.get(jobType);
+            request = context == null
+                    ? new ProcessingJobRequest(requestIdFor(envelope.invocationId()), envelope.tenantId(),
+                            authenticated.principalId(), envelope.invocationId(), artifactId, sourceVersion,
+                            jobType, "", jobParameters)
+                    : new ProcessingJobRequest(requestIdFor(envelope.invocationId()), envelope.tenantId(),
+                            authenticated.principalId(), envelope.invocationId(), artifactId, sourceVersion,
+                            jobType, "", jobParameters, context);
         } catch (IllegalArgumentException invalid) {
             return Promise.of(validationFailure(envelope, "SOURCE_VERSION_INVALID", start));
         }
