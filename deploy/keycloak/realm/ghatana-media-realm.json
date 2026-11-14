@@ -1,0 +1,220 @@
+{
+  "realm": "ghatana-media",
+  "displayName": "Ghatana Media",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "accessCodeLifespan": 60,
+  "roles": {
+    "realm": [
+      {
+        "name": "media:artifact:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:artifact:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:artifact:write",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:caption-version:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:caption-version:write",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:consent:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:consent:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:consent:revoke",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:job:cancel",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:job:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:job:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:provider:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:close",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:write",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:delivery:dev:export",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:delivery:dev:read",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:project:dev:create",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:project:dev:read",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:project:dev:write",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media-operator",
+        "description": "All canonical Media permissions",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "media:artifact:create",
+            "media:artifact:read",
+            "media:artifact:write",
+            "media:caption-version:read",
+            "media:caption-version:write",
+            "media:consent:create",
+            "media:consent:read",
+            "media:consent:revoke",
+            "media:job:cancel",
+            "media:job:create",
+            "media:job:read",
+            "media:provider:read",
+            "media:stream:close",
+            "media:stream:create",
+            "media:stream:read",
+            "media:stream:write"
+          ]
+        }
+      },
+      {
+        "name": "media-dev-workspace",
+        "description": "DEV_ONLY project, review and delivery routes plus artifact and job permissions",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "media:delivery:dev:export",
+            "media:delivery:dev:read",
+            "media:project:dev:create",
+            "media:project:dev:read",
+            "media:project:dev:write",
+            "media:artifact:create",
+            "media:artifact:read",
+            "media:artifact:write",
+            "media:job:read",
+            "media:job:cancel"
+          ]
+        }
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "ghatana-media-explorer",
+      "name": "Ghatana Media launcher and Experience Explorer",
+      "description": "Browser client using authorization code with PKCE (S256); no client secret",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "redirectUris": [
+        "http://127.0.0.1:4178/*",
+        "http://localhost:4178/*"
+      ],
+      "webOrigins": [
+        "http://127.0.0.1:4178",
+        "http://localhost:4178"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://127.0.0.1:4178/*##http://localhost:4178/*",
+        "access.token.lifespan": "300"
+      },
+      "protocolMappers": [
+        {
+          "name": "media-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "ghatana-media",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "media-tenant-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "subComponents": {},
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"tenant_id\",\"displayName\":\"Media tenant\",\"validations\":{\"length\":{\"min\":1,\"max\":128},\"pattern\":{\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"error-message\":\"invalid tenant id\"}},\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false}]}"
+          ]
+        }
+      }
+    ]
+  }
+}

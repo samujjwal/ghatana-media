@@ -1,0 +1,21 @@
+# Self-hosted Keycloak for local Media development and tests (Apache-2.0).
+# Development mode only: embedded H2 store, HTTP on loopback. Not a production topology.
+#
+#   export KEYCLOAK_ADMIN_PASSWORD="$(openssl rand -base64 24)"   # kept in your shell, never committed
+#   docker compose -f deploy/keycloak/docker-compose.yml up -d
+#
+# The realm "ghatana-media" is imported from ./realm on first start. It contains no users and no passwords.
+services:
+  keycloak:
+    # Exact tag, never "latest": a provider upgrade must be a reviewed change.
+    image: quay.io/keycloak/keycloak:26.8.2
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-media-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?export KEYCLOAK_ADMIN_PASSWORD with a generated value before starting}
+      KC_HTTP_PORT: "8080"
+    ports:
+      # Loopback only. The issuer Media must be configured with is http://127.0.0.1:8180/realms/ghatana-media
+      - "127.0.0.1:8180:8080"
+    volumes:
+      - ./realm:/opt/keycloak/data/import:ro

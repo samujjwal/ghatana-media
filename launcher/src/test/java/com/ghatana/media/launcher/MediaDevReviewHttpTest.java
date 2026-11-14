@@ -89,9 +89,19 @@ class MediaDevReviewHttpTest {
     private ManagedReviewStore reviewStore;
     private HttpServer server;
     private String base;
+    private com.nimbusds.jose.jwk.RSAKey oidcKey;
+    private com.ghatana.media.launcher.oidc.OidcAccessTokenVerifier oidcVerifier;
 
     @org.junit.jupiter.api.BeforeEach
     void start() throws Exception {
+        oidcKey = com.ghatana.media.launcher.oidc.OidcTestSupport.rsa("review-it-key");
+        var config = com.ghatana.media.launcher.oidc.OidcConfig.of(
+                com.ghatana.media.launcher.oidc.OidcTestSupport.ISSUER,
+                com.ghatana.media.launcher.oidc.OidcTestSupport.AUDIENCE, null);
+        var idp = new com.ghatana.media.launcher.oidc.OidcTestSupport.FakeIdp(
+                com.ghatana.media.launcher.oidc.OidcTestSupport.jwks(oidcKey.toPublicJWK()));
+        oidcVerifier = new com.ghatana.media.launcher.oidc.OidcAccessTokenVerifier(config,
+                new com.ghatana.media.launcher.oidc.OidcJwksCache(config, idp, CLOCK), CLOCK);
         root = Files.createTempDirectory("media-dev-review-http-");
         projectStore = new InMemoryManagedStore();
         reviewStore = new InMemoryReviewStore(List.of());
@@ -110,7 +120,7 @@ class MediaDevReviewHttpTest {
         MediaDevReviewRuntime reviews = new MediaDevReviewRuntime(reviewStore, runtime, projects, REVIEW_CLOCK);
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", new MediaSecurityFilter(
-                new MediaHttpHandler(runtime, null, null, projects, reviews), "dev", devEnvironment(), CLOCK));
+                new MediaHttpHandler(runtime, null, null, projects, reviews), "dev", devEnvironment(), CLOCK, oidcVerifier));
         server.start();
         base = "http://127.0.0.1:" + server.getAddress().getPort();
     }
@@ -173,6 +183,70 @@ class MediaDevReviewHttpTest {
                 .containsEntry("scope", "QUALITY").containsEntry("principalId", REVIEWER);
         assertThat(((List<?>) view.get("assignments"))).hasSize(1);
         assertThat((String) view.get("note")).contains("not an issued human reviewer authority");
+    }
+
+    @Test
+    void anOidcVerifiedAssignedReviewerDecisionIsRecordedAsIdentityBackedButStillEstablishesNoApproval()
+            throws Exception {
+        Proj project = projectWithClip("review-oidc");
+        String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+        String subject = "keycloak-subject-1";
+        String oidcPrincipal = com.ghatana.media.runtime.MediaVerifiedIdentityContracts.oidcPrincipalId(
+                com.ghatana.media.launcher.oidc.OidcTestSupport.ISSUER, subject);
+        assign(caseId, oidcPrincipal, List.of("QUALITY"), EXPIRES, 0, "a-oidc", 201);
+
+        String idpToken = com.ghatana.media.launcher.oidc.OidcTestSupport.signRs256(oidcKey,
+                com.ghatana.media.launcher.oidc.OidcTestSupport.claims(CLOCK.instant())
+                        .subject(subject).claim("tenant_id", TENANT)
+                        .claim("realm_access", Map.of("roles", List.of(
+                                "media:project:dev:read", "media:project:dev:write"))).build());
+        HttpResponse<String> decision = sendBearer("POST", "/dev/v1/reviews/" + caseId + "/decisions", idpToken,
+                JSON.writeValueAsString(Map.of("requestId", "d-oidc", "expectedCaseRevision", 0, "decision", "ACCEPT",
+                        "reason", "Verified reviewer", "scope", "QUALITY", "confirmed", true)));
+        assertThat(decision.statusCode()).as(decision.body()).isEqualTo(201);
+        assertThat(read(decision.body())).containsEntry("establishesApproval", false);
+
+        Map<String, Object> view = read(sendBearer("GET", "/dev/v1/reviews/" + caseId, idpToken, null).body());
+        assertThat(object(view.get("reviewState")))
+                .containsEntry("status", "IDP_VERIFIED_REVIEWER_ACCEPT_CURRENT")
+                .containsEntry("identityAssurance", "OIDC_VERIFIED")
+                .containsEntry("establishesApproval", false).containsEntry("humanReviewApproval", false);
+        Map<String, Object> record = object(((List<?>) view.get("records")).get(0));
+        assertThat(record).containsEntry("recordedAs", "IDP_VERIFIED_REVIEWER_ACCEPT")
+                .containsEntry("identityAssurance", "OIDC_VERIFIED")
+                .containsEntry("identityBackedHumanDecision", true)
+                .containsEntry("principalId", oidcPrincipal).containsEntry("scope", "QUALITY");
+        assertThat((String) record.get("authorityVersion")).startsWith(MediaDevReviewRuntime.IDP_ASSIGNED_AUTHORITY_PREFIX);
+        assertThat((String) record.get("identityNote")).contains("not an approval");
+    }
+
+    @Test
+    void aDevIssuedReviewerStaysADevAssignedDecisionAndCannotImpersonateAnOidcPrincipal() throws Exception {
+        Proj project = projectWithClip("review-dev-vs-oidc");
+        String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+        assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 0, "a-dev", 201);
+        assertThat(post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
+                "requestId", "d-dev", "expectedCaseRevision", 0, "decision", "ACCEPT", "reason", "ok",
+                "scope", "QUALITY", "confirmed", true)), REVIEWER).statusCode()).isEqualTo(201);
+        Map<String, Object> record = object(((List<?>) read(get("/dev/v1/reviews/" + caseId, REVIEWER).body())
+                .get("records")).get(0));
+        assertThat(record).containsEntry("recordedAs", "DEV_ASSIGNED_REVIEWER_ACCEPT")
+                .containsEntry("identityAssurance", "NOT_IDP_VERIFIED")
+                .containsEntry("identityBackedHumanDecision", false);
+
+        // A DEV token cannot take a principal id in the reserved identity-provider space.
+        String victim = com.ghatana.media.runtime.MediaVerifiedIdentityContracts.oidcPrincipalId(
+                com.ghatana.media.launcher.oidc.OidcTestSupport.ISSUER, "keycloak-subject-1");
+        assertThat(get("/dev/v1/reviews/" + caseId, victim).statusCode()).isEqualTo(401);
+    }
+
+    private HttpResponse<String> sendBearer(String method, String path, String bearer, String body) throws Exception {
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(base + path))
+                .header("Authorization", "Bearer " + bearer);
+        if (body != null) request.header("Content-Type", "application/json");
+        request.method(method, body == null ? HttpRequest.BodyPublishers.noBody()
+                : HttpRequest.BodyPublishers.ofString(body));
+        return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     @Test

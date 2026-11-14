@@ -361,11 +361,13 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
             TestOnlyPort port = new TestOnlyPort();
             port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
             MediaToolJobBridge bridge = new MediaToolJobBridge(port, profile);
-            var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+            // The host maps the verified invoking principal to the envelope's agent: here, same tenant and verified.
+            var factory = new AudioVideoToolHandlerFactory(new MediaToolExecutionBinder(new TestLedger(),
+                    bridge.readback(), (p, id) -> p.idpVerified() && p.tenantId().equals(id.tenantId())), bridge);
 
             ToolExecutionResult result = run(factory, c, envelope(c, c.input()), verified);
 
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCEEDED);
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
             assertThat(port.principals).containsExactly(verified);
             assertThat(port.submitted).singleElement().satisfies(request -> {
                 assertThat(request.principalId()).isEqualTo(verified.principalId());
@@ -387,7 +389,8 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
         // An unknown profile never admits, even with a verified identity.
         TestOnlyPort port = new TestOnlyPort();
         MediaToolJobBridge bridge = new MediaToolJobBridge(port, "bogus");
-        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+        var factory = new AudioVideoToolHandlerFactory(new MediaToolExecutionBinder(new TestLedger(),
+                bridge.readback(), (p, id) -> p.idpVerified() && p.tenantId().equals(id.tenantId())), bridge);
         Case c = cases().get(0);
         assertThat(run(factory, c, envelope(c, c.input()), verified).failure().code())
                 .isEqualTo(MediaToolJobBridge.IDENTITY_CONTRACT_UNAVAILABLE);

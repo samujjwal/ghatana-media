@@ -86,6 +86,10 @@ public final class MediaLauncher {
                 if (failure != null) log.error("Media Runtime shutdown failed", failure);
             }, "media-runtime-shutdown"));
 
+            log.info("Media identity: OIDC {}",
+                    com.ghatana.media.launcher.oidc.OidcConfig.fromEnvironment(environment)
+                            .map(oidc -> "enabled issuer=" + oidc.issuer() + " audience=" + oidc.audience())
+                            .orElse("not configured (DEV_ONLY/legacy mechanisms only)"));
             MediaCaptionRuntime captionRuntime = captions;
             log.info(
                     "Starting Media Runtime HTTP service port={} profile={} providers={} privacyMaintenance={} consentAdministration={} captionRuntime={} devProjectTimeline={}",
