@@ -115,6 +115,8 @@ public final class MediaLauncher {
                                     .withDevSpeech(finalDevProjectTimeline == null ? null
                                             : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
                                                     finalDevRights == null ? null : finalDevRights.resolver()))
+                                    .withDevGrounded(MediaDevGroundedComposition.compose(runtime, environment,
+                                            System.getenv(), finalDevRights == null ? null : finalDevRights.resolver()))
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> new MediaDevVisionRuntime(runtime, engine,
                                                     MediaDevFfmpegFrameExtractor.from(environment),
