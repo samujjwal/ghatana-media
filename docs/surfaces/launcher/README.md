@@ -430,7 +430,12 @@ render: with `MEDIA_DEV_CAPTION_REVIEW_REQUIRED=true` (default false) a timeline
 exact artifact version is a DEV_ONLY caption version with a current ACCEPT from an assigned reviewer and its source
 rights are still admitted; otherwise `422 CAPTION_NOT_REVIEWED | CAPTION_RIGHTS_NOT_ADMITTED`. Recognizer worker
 failures on `POST /dev/v1/speech/transcriptions` (process killed, crashed or no valid output) are `503
-SPEECH_OUTCOME_UNKNOWN` (never success, nothing registered, `retrySafe:true`); retrying the same requestId is idempotent.
+SPEECH_OUTCOME_UNKNOWN` (never success, nothing registered, `retrySafe:true`); retrying the same requestId registers the
+outputs exactly once. Known limit: a retry AFTER a completed registration re-runs the recognizer and registers through the
+same idempotency key, so it replays the first outputs (`200`) only when the new recognizer bytes are identical; real
+Whisper output was observed to differ intermittently under GPU contention, and then the host answers `409
+SPEECH_REQUEST_ID_REUSED` (never a second output; the first outputs stay readable by id). A durable requestId-to-output
+index would remove this and is not implemented.
 A correction is a statement by a DEV_ONLY principal, not a verified human, a quality claim or an approval. The Explorer
 page is `/dev-caption-correction.html`. Tests: `MediaDevCaptionCorrectionHttpTest`, `MediaDevCaptionJourneyIT` (real
 launcher, real Whisper, faults), `MediaDevExplorerCaptionCorrectionLiveIT` (real Chromium).

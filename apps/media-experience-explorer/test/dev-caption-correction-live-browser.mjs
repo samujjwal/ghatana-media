@@ -60,11 +60,12 @@ function positivePort(value) {
   return port;
 }
 
-const vitePort = 4181;
+// Distinct from the other live pages (4179-4181 are taken by sibling journeys); strictPort fails instead of drifting.
+const vitePort = 4187;
 const viteEnvironment = { ...process.env, MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT: String(proxyPort) };
 delete viteEnvironment.MEDIA_DEV_CAPTION_BROWSER_TOKEN;
 delete viteEnvironment.MEDIA_DEV_CAPTION_BROWSER_REVIEWER_TOKEN;
-const viteProcess = spawn(process.execPath, [viteBinary, "--config", "vite.config.mjs", "--host", "127.0.0.1", "--port", String(vitePort)], {
+const viteProcess = spawn(process.execPath, [viteBinary, "--config", "vite.config.mjs", "--host", "127.0.0.1", "--port", String(vitePort), "--strictPort"], {
   cwd: appRoot, env: viteEnvironment, stdio: ["ignore", "pipe", "pipe"],
 });
 let viteOutput = "";

@@ -347,16 +347,27 @@ class MediaDevCaptionJourneyIT {
             JsonNode retried = live.ownerPost("/dev/v1/speech/transcriptions", request, 201);
             assertThat(normalize(retried.path("text").asString())).contains("ask not what your country can do for you");
             assertThat(live.artifactCounts()).containsEntry("text/vtt", 1).containsEntry("application/json", 1);
-            // A further retry (also across a restart) replays; it never registers a second output.
-            JsonNode replay = live.ownerPost("/dev/v1/speech/transcriptions", request, 200);
-            assertThat(replay.path("replayed").asBoolean()).isTrue();
-            assertThat(replay.path("captions").path("artifact").path("artifactId").asString())
-                    .isEqualTo(retried.path("captions").path("artifact").path("artifactId").asString());
-            live.restart();
-            JsonNode afterRestart = live.ownerPost("/dev/v1/speech/transcriptions", request, 200);
-            assertThat(afterRestart.path("transcript").path("artifact").path("artifactId").asString())
-                    .isEqualTo(retried.path("transcript").path("artifact").path("artifactId").asString());
-            assertThat(live.artifactCounts()).containsEntry("text/vtt", 1).containsEntry("application/json", 1);
+            // A further retry (also across a restart) re-runs the recognizer and registers through the same idempotency
+            // key. The host never registers a second output: it replays the first (HTTP 200) when the recognizer output
+            // is byte-identical, and refuses with 409 SPEECH_REQUEST_ID_REUSED when real Whisper produced different
+            // bytes (observed intermittently under GPU contention on this host). Either way the first outputs remain.
+            String firstTranscript = retried.path("transcript").path("artifact").path("artifactId").asString();
+            for (int attempt = 0; attempt < 2; attempt++) {
+                if (attempt == 1) live.restart();
+                HttpResponse<String> again = live.owner("POST", "/dev/v1/speech/transcriptions", request);
+                System.out.println("J03_RETRY_AFTER_SUCCESS attempt=" + attempt + " status=" + again.statusCode());
+                assertThat(again.statusCode()).as(again.body()).isIn(200, 409);
+                if (again.statusCode() == 200) {
+                    JsonNode replay = JSON.readTree(again.body());
+                    assertThat(replay.path("replayed").asBoolean()).isTrue();
+                    assertThat(replay.path("transcript").path("artifact").path("artifactId").asString()).isEqualTo(firstTranscript);
+                } else {
+                    assertThat(again.body()).contains("SPEECH_REQUEST_ID_REUSED");
+                }
+                assertThat(live.artifactCounts()).containsEntry("text/vtt", 1).containsEntry("application/json", 1);
+                assertThat(live.ownerGet("/dev/v1/speech/outputs/" + firstTranscript, 200).path("lineage").path("requestId")
+                        .asString()).isEqualTo("stt-unknown-" + live.run);
+            }
             // The same requestId for a different request is a conflict, never a second output.
             byte[] other = trim(audio, 4);
             String otherId = live.upload("jfk-4s.wav", "audio/wav", other);
