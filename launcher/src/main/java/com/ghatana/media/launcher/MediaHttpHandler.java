@@ -93,6 +93,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaDevReviewRoutes devReview;
     private MediaDevDeliveryRoutes devDelivery;
     private final MediaDevCreativeOutputRoutes devCreative;
+    private MediaDevArtifactContentRoutes devArtifactContent;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -157,6 +158,8 @@ public final class MediaHttpHandler implements HttpHandler {
                      MediaCaptionRuntime captions, MediaDevProjectTimelineRuntime devProjectTimeline,
                      MediaDevProjectRenderRuntime devProjectRender, MediaDevReviewRuntime devReview,
                      MediaDevCreativeOutputRuntime devCreative) {
+        this.devArtifactContent = new MediaDevArtifactContentRoutes(runtime,
+                MediaDevArtifactContentRoutes.ceilingFrom(System.getenv()));
         this.devCreative = devCreative == null ? null : new MediaDevCreativeOutputRoutes(devCreative, runtime);
         this.devReview = devReview == null ? null : new MediaDevReviewRoutes(devReview);
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
@@ -164,6 +167,12 @@ public final class MediaHttpHandler implements HttpHandler {
         this.captions = captions;
         this.devProjectTimeline = devProjectTimeline;
         this.devProjectRender = devProjectRender;
+    }
+
+    /** Overrides the DEV_ONLY artifact content read ceiling (default from MEDIA_DEV_ARTIFACT_CONTENT_MAX_BYTES). */
+    MediaHttpHandler withDevArtifactContentCeiling(long maxBytes) {
+        this.devArtifactContent = new MediaDevArtifactContentRoutes(runtime, maxBytes);
+        return this;
     }
 
     /** Installs the optional DEV_ONLY hosted-export routes (media.dev.delivery-export-destination-ack). */
@@ -390,6 +399,19 @@ public final class MediaHttpHandler implements HttpHandler {
                         "schemaVersion", "media.dev.artifact-upload-policy.v1",
                         "scope", "DEV_ONLY",
                         "maxChunkBytes", runtime.config().maximumChunkBytes()));
+                return;
+            }
+            if (MediaDevArtifactContentRoutes.handles(path)) {
+                devArtifactContent.handle(exchange, path, method, tenantId, principalId,
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
                 return;
             }
             Matcher localJobCancel = Pattern.compile("^/dev/v1/jobs/([^/]+)/cancel$").matcher(path);

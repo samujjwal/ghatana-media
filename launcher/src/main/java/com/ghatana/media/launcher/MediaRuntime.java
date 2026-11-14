@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
 import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
+import com.ghatana.media.runtime.MediaRuntimeContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk;
@@ -714,6 +715,56 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     "authoritative source rights resolver is unavailable");
         }
         return copyVerifiedArtifactContent(tenantId, principalId, artifactId, expectedVersion, target, maxBytes);
+    }
+
+    /**
+     * Range read of exact immutable bytes. The whole object is verified (owner, version, size, SHA-256) in private
+     * staging before any byte is exposed; only the requested slice (at most {@code maxRangeBytes}) is retained and
+     * written to {@code target}. An offset at or past the end fails with MEDIA_ARTIFACT_RANGE_NOT_SATISFIABLE and
+     * publishes nothing; an end beyond the object is clipped.
+     */
+    public Optional<MediaRuntimeContracts.ArtifactContentRangeReceipt> copyArtifactContentRange(
+            String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
+            long offset, long length, java.io.OutputStream target, long maxRangeBytes) throws java.io.IOException {
+        ensureOpen();
+        requirePrincipal(principalId);
+        java.util.Objects.requireNonNull(expectedVersion, "expectedVersion");
+        java.util.Objects.requireNonNull(target, "target");
+        if (offset < 0 || length < 1 || maxRangeBytes < 1) {
+            throw new IllegalArgumentException("MEDIA_ARTIFACT_RANGE_INVALID: offset must be >= 0 and length positive");
+        }
+        if (length > maxRangeBytes) {
+            throw new IllegalArgumentException("MEDIA_ARTIFACT_RANGE_LIMIT: range exceeds the requested byte ceiling");
+        }
+        if (config.productionLike()) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SOURCE_ARTIFACT",
+                    "authoritative source rights resolver is unavailable");
+        }
+        java.io.ByteArrayOutputStream slice = new java.io.ByteArrayOutputStream((int) Math.min(length, 8192));
+        long[] seen = {0};
+        java.io.OutputStream window = new java.io.OutputStream() {
+            @Override public void write(int b) { write(new byte[] {(byte) b}, 0, 1); }
+            @Override public void write(byte[] buffer, int from, int count) {
+                long start = seen[0];
+                long end = start + count;
+                long lo = Math.max(start, offset);
+                long hi = Math.min(end, offset + length);
+                if (hi > lo) slice.write(buffer, from + (int) (lo - start), (int) (hi - lo));
+                seen[0] = end;
+            }
+        };
+        Optional<ArtifactContentReadReceipt> receipt = copyVerifiedArtifactContent(
+                tenantId, principalId, artifactId, expectedVersion, window, config.maximumArtifactBytes());
+        if (receipt.isEmpty()) return Optional.empty();
+        long total = receipt.get().bytesCopied();
+        if (offset >= total) {
+            throw new IllegalArgumentException("MEDIA_ARTIFACT_RANGE_NOT_SATISFIABLE: offset is at or past the end");
+        }
+        byte[] bytes = slice.toByteArray();
+        target.write(bytes);
+        return Optional.of(new MediaRuntimeContracts.ArtifactContentRangeReceipt(
+                receipt.get().version(), receipt.get().sha256(), total, offset, bytes.length));
     }
 
     private Optional<ArtifactContentReadReceipt> copyVerifiedArtifactContent(

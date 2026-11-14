@@ -202,6 +202,7 @@ handlers additionally require the artifact permissions noted, so access is never
 | --- | --- | --- | --- | --- |
 | GET | `/dev/v1/artifact-upload-policy` | `media:artifact:create` | — | always (dev) |
 | POST | `/dev/v1/jobs/{jobId}/cancel` | `media:job:cancel` | — | always (dev) |
+| GET | `/dev/v1/artifacts/{artifactId}/content` | `media:project:dev:read` | `media:artifact:read` | always (dev); read ceiling `MEDIA_DEV_ARTIFACT_CONTENT_MAX_BYTES` (default 8388608, max 268435456) |
 | GET | `/dev/v1/context` | `media:project:dev:read` | — | `MEDIA_PROJECT_TIMELINE_DEV_ENABLED` |
 | POST | `/dev/v1/projects` | `media:project:dev:create` | — | timeline |
 | GET | `/dev/v1/projects/{projectId}` | `media:project:dev:read` | — | timeline |
@@ -221,6 +222,22 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/creative-outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | timeline |
 | POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
 | GET | `/dev/v1/exports/{requestId}` | `media:delivery:dev:read` | — | delivery |
+
+DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
+PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable
+version with `?version=sha256:<hex>` and/or `If-Match` (quoted or bare strong ETag; if both are present they must
+agree); a missing version is `400 ARTIFACT_VERSION_REQUIRED`, a malformed one `400 ARTIFACT_VERSION_INVALID`, a
+mismatch `412 ARTIFACT_VERSION_MISMATCH`, and an unknown or non-owner artifact `404 ARTIFACT_NOT_FOUND` without
+disclosure. A single `Range: bytes=a-b | a- | -n` returns `206` with `Content-Range`; multi-range, malformed or
+unsatisfiable ranges are `416` with `Content-Range: bytes */<total>`. Full reads and each range are bounded by
+`MEDIA_DEV_ARTIFACT_CONTENT_MAX_BYTES`; larger requests are `413 ARTIFACT_CONTENT_TOO_LARGE` and clients must use
+ranges. The whole object is verified (owner, version, size, SHA-256) before any byte is released
+(`MediaRuntime.copyArtifactContentRange` / `copyArtifactContent`); a verification failure is a typed
+`409/500 ARTIFACT_CONTENT_INTEGRITY_FAILED` with no content. Responses carry the artifact's exact `Content-Type`,
+`Content-Length`, `ETag: "<version>"`, `Accept-Ranges: bytes`, `Cache-Control: private, no-store`,
+`X-Content-Type-Options: nosniff` and a sandboxing `Content-Security-Policy`; `Content-Disposition` is `inline` only
+for `image/png|gif|jpeg`, `video/mp4` and `audio/wav` and `attachment` for every other type (conservative: SVG, HTML,
+PDF, JSON and GLB are never rendered inline). Only GET is supported (no HEAD).
 
 ## Public operations
 
