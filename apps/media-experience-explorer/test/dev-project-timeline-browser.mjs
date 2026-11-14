@@ -843,6 +843,79 @@ try {
   assert.equal(fixture.exportReads, 1);
   assert.equal(fixture.exportRequests.length, 2, "Check again must read back, never re-export");
 
+  // Offline drafts: browser-held non-extractable key, encrypted inert drafts, explicit review, CAS replay, no auto-replay.
+  const draftPanel = page.getByRole("region", { name: "Offline drafts" });
+  const linkState = page.getByTestId("offline-link-state");
+  const draftStatus = page.getByTestId("offline-draft-status");
+  await draftPanel.waitFor();
+  const baseHeadBeforeOffline = fixture.project.headRevisionId;
+  const postsBeforeOffline = fixture.graphEditPostAttempts;
+  await page.context().setOffline(true);
+  await linkState.filter({ hasText: "Offline" }).waitFor();
+  await keyboardFill(page, draftPanel.getByLabel("Scene id"), "offline-secret-scene");
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Save as offline draft" }));
+  await draftStatus.filter({ hasText: /Saved offline draft .* against base revision .*Nothing was sent\./u }).waitFor();
+  assert.equal(fixture.graphEditPostAttempts, postsBeforeOffline, "an offline draft must never reach the host");
+  const custody = await page.evaluate(async () => {
+    const open = (name) => new Promise((resolve, reject) => { const r = indexedDB.open(name); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
+    const rows = (db, store) => new Promise((resolve) => { const r = db.transaction(store).objectStore(store).getAll(); r.onsuccess = () => resolve(r.result); });
+    const keyDb = await open("ghatana-media-offline-draft-keys-v1");
+    const keys = await rows(keyDb, "keys");
+    const names = (await indexedDB.databases()).map((d) => d.name).filter((n) => n?.startsWith("ghatana-media-offline-drafts-v1:"));
+    let raw = ""; let draftRows = 0;
+    for (const name of names) {
+      const db = await open(name);
+      for (const store of db.objectStoreNames) for (const row of await rows(db, store)) {
+        draftRows += 1;
+        raw += JSON.stringify(row, (_k, v) => v instanceof ArrayBuffer ? Array.from(new Uint8Array(v)).map((b) => String.fromCharCode(b)).join("") : v);
+      }
+    }
+    return { keyCount: keys.length, extractable: keys.map((k) => k.key.extractable), algorithm: keys.map((k) => k.key.algorithm.name),
+      keyScope: keys.map((k) => [k.tenantId, k.principalId, k.projectId]), draftRows, plaintextLeaked: raw.includes("offline-secret-scene") };
+  });
+  assert.equal(custody.keyCount, 1);
+  assert.deepEqual(custody.extractable, [false], "the offline key must be non-extractable");
+  assert.deepEqual(custody.algorithm, ["AES-GCM"]);
+  assert.deepEqual(custody.keyScope[0].slice(0, 2), [context.tenantId, context.principalId], "the key is scoped to the verified tenant and principal");
+  assert.equal(custody.draftRows, 1);
+  assert.equal(custody.plaintextLeaked, false, "drafts must be encrypted at rest");
+  await page.context().setOffline(false);
+  await linkState.filter({ hasText: "Online" }).waitFor();
+  await delay(300);
+  assert.equal(fixture.graphEditPostAttempts, postsBeforeOffline, "reconnecting must not auto-replay a draft");
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Review and replay" }));
+  await draftPanel.getByLabel("Draft review").waitFor();
+  assert.equal(fixture.graphEditPostAttempts, postsBeforeOffline, "review must not send the edit");
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Confirm replay" }));
+  await draftPanel.getByText(/APPLIED \(201\)/u).first().waitFor();
+  assert.equal(fixture.graphEditPostAttempts, postsBeforeOffline + 1);
+  const replayed = fixture.graphEditRequests.at(-1);
+  assert.equal(replayed.expectedHeadRevisionId, baseHeadBeforeOffline, "replay is a CAS on the draft's exact base revision");
+  assert.deepEqual(replayed.edits, [{ type: "addScene", sceneId: "offline-secret-scene", order: 0 }]);
+  assert.notEqual(fixture.project.headRevisionId, baseHeadBeforeOffline);
+
+  // A head that moved while offline yields a visible REVISION_CONFLICT and is never merged or sent.
+  await page.context().setOffline(true);
+  await linkState.filter({ hasText: "Offline" }).waitFor();
+  await keyboardFill(page, draftPanel.getByLabel("Scene id"), "stale-offline-scene");
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Save as offline draft" }));
+  await draftStatus.filter({ hasText: /Saved offline draft/u }).waitFor();
+  await page.context().setOffline(false);
+  await linkState.filter({ hasText: "Online" }).waitFor();
+  const staleBase = fixture.project.headRevisionId;
+  const movedHead = nextRevisionId();
+  fixture.revision = { ...fixture.revision, revisionId: movedHead, parentRevisionId: staleBase };
+  fixture.project = { ...fixture.project, headRevisionId: movedHead };
+  fixture.revisions.set(movedHead, fixture.revision);
+  const postsBeforeConflict = fixture.graphEditPostAttempts;
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Review and replay" }));
+  await draftPanel.getByLabel("Draft review").getByText(movedHead).waitFor();
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Confirm replay" }));
+  await draftPanel.getByText(new RegExp(`REVISION_CONFLICT: this draft was authored on ${staleBase} but the project head is ${movedHead}`, "u")).first().waitFor();
+  assert.equal(fixture.graphEditPostAttempts, postsBeforeConflict, "a stale draft must not be sent or merged");
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Discard draft" }));
+  await draftPanel.getByText("No offline drafts.").waitFor();
+
   await keyboardActivate(page, page.getByRole("button", { name: "Forget token and disconnect" }));
   assert.equal(await page.locator("#dev-token").inputValue(), "");
   assert.equal(await page.locator("#dev-token").isEnabled(), true);

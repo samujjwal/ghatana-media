@@ -75,6 +75,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "fake-indexeddb": "6.0.1",
     "jsdom": "catalog:shared",
     "lucide-react": "catalog:shared",
     "playwright": "1.63.0",

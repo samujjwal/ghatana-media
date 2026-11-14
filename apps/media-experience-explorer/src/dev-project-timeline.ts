@@ -18,7 +18,7 @@ const byId = <T extends HTMLElement>(id: string): T => {
 };
 
 type ProjectRequest = { selectedAuthorizedWorkspaceId: string; title: string; requestId: string };
-type WorkspaceDetail = { readonly client: MediaDevProjectTimelineClient; readonly project: DevProjectRead["project"]; readonly revision: DevProjectRevision; readonly outputs: DevProjectOutputsPort };
+type WorkspaceDetail = { readonly client: MediaDevProjectTimelineClient; readonly project: DevProjectRead["project"]; readonly revision: DevProjectRevision; readonly outputs: DevProjectOutputsPort; readonly principalId: string };
 const origin = window.location.origin;
 const hostChip = byId<HTMLSpanElement>("host-origin");
 const tokenInput = byId<HTMLInputElement>("dev-token");
@@ -133,7 +133,7 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
     renderJson(projectResult, projectJson, result);
     workspacePanel.hidden = false;
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
-      detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }) },
+      detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }), principalId: context?.principalId ?? "" },
     }));
     announce(`${result.createdNow ? "Created" : "Replayed"} DEV_ONLY project ${result.project.projectId}; exact initial revision ${exactRevision.revision.revisionId} reopened.`, "success");
   } catch (error) {
@@ -157,7 +157,7 @@ openProjectForm.addEventListener("submit", async (event) => {
     renderJson(projectResult, projectJson, result.read);
     workspacePanel.hidden = false;
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
-      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }) },
+      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }), principalId: context?.principalId ?? "" },
     }));
     announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} read from the host.`, "success");
   } finally { setBusy(false); }

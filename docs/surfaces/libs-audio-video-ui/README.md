@@ -42,6 +42,25 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   actions, transcript generation, or a deployed product route.
 - Foundations/hooks/styles consumed by product hosts and sibling UI
   packages (`ai-voice-ui-react` consumes `@audio-video/ui`).
+- `DevOfflineDraftsPanel` (`offlineTimelineDrafts.ts`, `offlineDraftKeyCustody.ts`)
+  adds offline drafts to the DEV_ONLY timeline workspace by reusing the client
+  `OfflineEditQueue`, `IndexedDbOfflineEditStore` and `OfflineReconnectCoordinator`.
+  Owner-delegated decision, recorded verbatim: "Offline key custody is browser-held: each (tenant, principal, project) gets a non-extractable AES-GCM CryptoKey generated with WebCrypto and stored only as a CryptoKey object in IndexedDB; it never leaves the browser and is never derived from the bearer token. Offline edits are inert encrypted drafts bound to the exact base head revision; nothing is replayed automatically. On reconnect the user must explicitly review each draft; replay first re-reads the project head and current authorization, sends the edit with expectedHeadRevisionId (CAS) and the draft's own requestId, and on REVISION_CONFLICT shows the conflict without auto-merging. A revoked or changed principal/tenant discards access to the drafts (key scope mismatch). Clearing site data loses drafts by design."
+  Drafts are encrypted at rest (AES-GCM, key stored only as a non-extractable
+  `CryptoKey` in IndexedDB; the drafts database is per tenant and principal).
+  Offline is detected from `navigator.onLine`/online-offline events and failed
+  no-response requests. Capture sends nothing; each draft needs "Review and
+  replay" (fresh head read, nothing sent) then "Confirm replay" (authorization
+  and head re-read, CAS with `expectedHeadRevisionId`, one draft only). Typed
+  outcomes: APPLIED (201), REPLAYED (same requestId re-sent after an unknown
+  outcome), REVISION_CONFLICT (shown with the current head, never merged;
+  explicit rebase gives a new requestId), DISCARDED on 403/404 with an
+  explanation, OUTCOME_UNKNOWN (fenced; re-armed with the same requestId only
+  when the head still equals the base), and retryable authorization/head read
+  failures. The DEV_ONLY edit route carries no requestId on the wire; the
+  requestId is the local idempotency key and the host CAS gives at-most-once.
+  This is `LOCAL_PREVIEW_ONLY` evidence: no canonical project-edit operation,
+  production rights authority or authoritative receipt is claimed.
 - `DevProjectTimelineWorkspaceScreen` supports owner artifact inspection,
   exact-version clip attachment/removal, and exact-revision reopen in the
   isolated DEV_ONLY workspace. It requires `media:artifact:read` only when
@@ -211,7 +230,8 @@ Vitest suites colocated with components/screens
 (`MediaProductRenderer.test`, `MediaContractScreen.test`,
 `TranscriptCaptionScreen.test`, `MediaProgress.test`,
 `MediaFamilyAccessibility.test`, `styles.test`,
-`shared-control-reuse.test`). Run via the pnpm scripts above.
+`shared-control-reuse.test`, `offlineTimelineDrafts.test`, `DevOfflineDraftsPanel.test`;
+the latter two use the `fake-indexeddb` dev dependency and Node WebCrypto). Run via the pnpm scripts above.
 The source-scope binding helper also has a dependency-free Node selector:
 `node --experimental-strip-types --test src/screens/captionVersionReadBinding.test.mjs`.
 The current UI Vitest suite passes 181/181 using the strict pinned TypeScript

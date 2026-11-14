@@ -88,6 +88,16 @@ owner-head reconciliation without duplicate mutation, track commit, exact
 revision readback, undo/redo, immutable history, and disconnect. It does not
 invoke a live Media backend.
 
+Offline drafts: below the timeline workspace, the "Offline drafts" panel
+(`@audio-video/ui` `DevOfflineDraftsPanel`) saves timeline edits as inert drafts
+when the page is offline. Decision, recorded verbatim: "Offline key custody is browser-held: each (tenant, principal, project) gets a non-extractable AES-GCM CryptoKey generated with WebCrypto and stored only as a CryptoKey object in IndexedDB; it never leaves the browser and is never derived from the bearer token. Offline edits are inert encrypted drafts bound to the exact base head revision; nothing is replayed automatically. On reconnect the user must explicitly review each draft; replay first re-reads the project head and current authorization, sends the edit with expectedHeadRevisionId (CAS) and the draft's own requestId, and on REVISION_CONFLICT shows the conflict without auto-merging. A revoked or changed principal/tenant discards access to the drafts (key scope mismatch). Clearing site data loses drafts by design."
+The browser selector above also simulates this with Playwright
+`context.setOffline`: draft saved offline (no host request, ciphertext at rest,
+non-extractable key scoped to the verified tenant and principal), no replay on
+reconnect, explicit "Review and replay" then "Confirm replay" sending the CAS
+request, and a REVISION_CONFLICT for a head that moved while offline. The
+principal comes from the verified host context, never from the token.
+
 "Open existing project" (step 02b, `src/dev-open-project.ts`) reads
 `GET /dev/v1/projects/{id}` in the connected owner scope and loads the project
 and its current head into the workspace, so a reloaded page can resume a prior
