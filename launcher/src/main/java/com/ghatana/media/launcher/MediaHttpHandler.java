@@ -98,6 +98,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevSpeechRoutes devSpeech;
     private MediaDevVisionRoutes devVision;
     private MediaDevGroundedRoutes devGrounded;
+    private MediaDevCaptionRoutes devCaptions;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -194,6 +195,18 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY grounded cross-modal answer routes. */
     MediaHttpHandler withDevGrounded(MediaDevGroundedAnswerRuntime grounded) {
         this.devGrounded = grounded == null ? null : new MediaDevGroundedRoutes(grounded, runtime);
+        return this;
+    }
+
+    /**
+     * Installs the optional DEV_ONLY caption-correction routes; when {@code requireReviewedCaptions} is set, a timeline
+     * render accepts a caption clip only for an exact version with a current assigned-reviewer ACCEPT.
+     */
+    MediaHttpHandler withDevCaptions(MediaDevCaptionRuntime captionRuntime, boolean requireReviewedCaptions) {
+        this.devCaptions = captionRuntime == null ? null : new MediaDevCaptionRoutes(captionRuntime, runtime);
+        if (captionRuntime != null && requireReviewedCaptions && devProjectRender != null) {
+            devProjectRender.requireReviewedCaptions(captionRuntime.captionUseGate());
+        }
         return this;
     }
 
@@ -422,6 +435,19 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         if (devDelivery != null && MediaDevDeliveryRoutes.handles(path)) {
             devDelivery.handle(exchange, path, method, tenantId, principalId);
+            return;
+        }
+        if (devCaptions != null && MediaDevCaptionRoutes.handles(path)) {
+            devCaptions.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                    new MediaDevCreativeOutputRoutes.Responder() {
+                        @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                            MediaHttpHandler.this.json(e, status, body);
+                        }
+                        @Override public void error(HttpExchange e, int status, String code, String message,
+                                                    Map<String, ?> details) throws IOException {
+                            MediaHttpHandler.this.error(e, status, code, message, details);
+                        }
+                    });
             return;
         }
         if (devSpeech != null && MediaDevSpeechRoutes.handles(path)) {

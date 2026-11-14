@@ -127,6 +127,35 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
         return new OpenedCase(reviewCase, created);
     }
 
+    /**
+     * Whether the owner's review case for one exact artifact version currently carries an ACCEPT from an assigned
+     * reviewer. The latest decision wins, so a later REJECT/REQUEST_CHANGES clears it; a changed subject makes the
+     * decision STALE. Never an approval: it only says an assigned DEV_ONLY reviewer accepted this exact version.
+     */
+    public record SubjectReviewStatus(String reviewCaseId, boolean caseExists, boolean acceptedByAssignedReviewer,
+                                      String latestDecision, String currentness) { }
+
+    public SubjectReviewStatus artifactReviewStatus(String tenantId, String ownerPrincipalId, String artifactId,
+                                                    String versionId) {
+        ensureOpen();
+        ExactVersionRef subject = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, artifactId, versionId);
+        String caseId = caseId(tenantId, ownerPrincipalId, subject);
+        Optional<ReviewCaseRef> registered = store.findCase(tenantId, caseId);
+        if (registered.isEmpty()) return new SubjectReviewStatus(caseId, false, false, "NONE", "NONE");
+        ReviewSnapshot snapshot = engine.inspect(new Actor(tenantId, ownerPrincipalId), registered.get());
+        RecordObservation latest = null;
+        for (RecordObservation observation : snapshot.records()) {
+            if (observation.record().payload() instanceof DecisionRecord) latest = observation;
+        }
+        if (latest == null) return new SubjectReviewStatus(caseId, true, false, "NONE", snapshot.currentness().name());
+        DecisionRecord decision = (DecisionRecord) latest.record().payload();
+        boolean accepted = decision.decision() == Decision.ACCEPT && latest.currentness() == Currentness.CURRENT
+                && snapshot.currentness() == Currentness.CURRENT
+                && isAssignedAuthority(latest.record().authorityVersion());
+        return new SubjectReviewStatus(caseId, true, accepted, decision.decision().name(),
+                latest.currentness().name());
+    }
+
     /** The exact registered case reference for this owner, or empty (also for another owner's case). */
     public Optional<ReviewCaseRef> find(String tenantId, String principalId, String reviewCaseId) {
         ensureOpen();

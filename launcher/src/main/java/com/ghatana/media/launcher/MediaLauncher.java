@@ -117,6 +117,12 @@ public final class MediaLauncher {
                                                     finalDevRights == null ? null : finalDevRights.resolver()))
                                     .withDevGrounded(MediaDevGroundedComposition.compose(runtime, environment,
                                             System.getenv(), finalDevRights == null ? null : finalDevRights.resolver()))
+                                    .withDevCaptions(finalDevProjectTimeline == null ? null
+                                            : MediaDevCaptionRuntime.compose(runtime,
+                                                    finalDevRights == null ? null : finalDevRights.resolver(),
+                                                    finalDevReview),
+                                            "true".equalsIgnoreCase(environment.getOrDefault(
+                                                    MediaDevCaptionRuntime.REVIEW_REQUIRED_ENV, "false")))
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> new MediaDevVisionRuntime(runtime, engine,
                                                     MediaDevFfmpegFrameExtractor.from(environment),

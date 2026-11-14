@@ -381,7 +381,7 @@ public final class MediaDevSpeechRuntime {
             result = runner.transcribe(mono16k, request.language(), Duration.ofMinutes(5),
                     BoundedProcessRunner.CancellationToken.NEVER);
         } catch (LocalSpeechException failure) {
-            throw speechFailure(failure);
+            throw speechFailure(failure, request.requestId());
         }
         if (!stt.install().stillCurrent()) {
             throw new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE",
@@ -608,6 +608,21 @@ public final class MediaDevSpeechRuntime {
             case CANCELLED -> new SpeechRefusedException(503, "SPEECH_CANCELLED", "local inference was cancelled");
             case OUTPUT_TOO_LARGE -> new SpeechRefusedException(422, "SPEECH_LIMIT_EXCEEDED", "output exceeded its ceiling");
             default -> new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE", "local inference failed");
+        };
+    }
+
+    /**
+     * A recognizer worker that ended abnormally (killed, crashed, no valid output) leaves the provider run's outcome
+     * unknown: it is reported as SPEECH_OUTCOME_UNKNOWN (never success), nothing is registered, and retrying the same
+     * requestId is idempotent because registration is keyed by it.
+     */
+    private static SpeechRefusedException speechFailure(LocalSpeechException failure, String requestId) {
+        return switch (failure.code()) {
+            case PROCESS_FAILED, OUTPUT_INVALID -> new SpeechRefusedException(503, "SPEECH_OUTCOME_UNKNOWN",
+                    "the local recognizer worker ended abnormally; whether it completed is unknown and nothing was "
+                            + "registered. Retry the same requestId: registration is idempotent by requestId",
+                    Map.of("requestId", requestId, "registered", false, "retrySafe", true));
+            default -> speechFailure(failure);
         };
     }
 

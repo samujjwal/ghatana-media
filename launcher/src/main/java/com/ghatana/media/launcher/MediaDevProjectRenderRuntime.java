@@ -146,6 +146,7 @@ public final class MediaDevProjectRenderRuntime {
     private final MediaRuntime runtime;
     private final MediaDevProjectTimelineRuntime projects;
     private final OutputRegistrar registrar;
+    private volatile MediaDevCaptionRuntime.CaptionUseGate captionUseGate;
     private final FfmpegMultitrackRenderer mp4Renderer;
 
     MediaDevProjectRenderRuntime(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects) {
@@ -163,6 +164,11 @@ public final class MediaDevProjectRenderRuntime {
         this.projects = Objects.requireNonNull(projects, "projects");
         this.registrar = Objects.requireNonNull(registrar, "registrar");
         this.mp4Renderer = mp4Renderer;
+    }
+
+    /** Requires every CAPTION clip's exact version to pass the gate (reviewed, rights still admitted). */
+    void requireReviewedCaptions(MediaDevCaptionRuntime.CaptionUseGate gate) {
+        this.captionUseGate = gate;
     }
 
     /**
@@ -519,6 +525,8 @@ public final class MediaDevProjectRenderRuntime {
             throw new RenderNotSupportedException("SOURCE_FORMAT_NOT_SUPPORTED",
                     "caption clips must reference a text/vtt (WebVTT) artifact");
         }
+        MediaDevCaptionRuntime.CaptionUseGate gate = captionUseGate;
+        if (gate != null) gate.requireReviewed(tenantId, principalId, artifact);
         MultitrackRenderPlanner.Time sourceIn = seconds(clip.sourceIn());
         MultitrackRenderPlanner.Time sourceOut = seconds(clip.sourceOut());
         if (sourceOut.minus(sourceIn).compareTo(duration) != 0) {
