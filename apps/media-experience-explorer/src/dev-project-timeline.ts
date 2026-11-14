@@ -38,6 +38,8 @@ const openProjectIdInput = byId<HTMLInputElement>("open-project-id");
 const openProjectButton = byId<HTMLButtonElement>("open-project");
 const workspacePanel = byId<HTMLElement>("timeline-workspace-panel");
 const workspaceRoot = byId<HTMLDivElement>("timeline-workspace-root");
+const reviewerPanel = byId<HTMLElement>("reviewer-panel");
+const reviewerRoot = byId<HTMLDivElement>("review-workspace-root");
 if (!connectButton) throw new Error("Missing connect button.");
 
 let bearerToken: string | null = null;
@@ -64,6 +66,10 @@ connectForm.addEventListener("submit", async (event) => {
     context = await client.getContext();
     renderContext(context);
     setConnected(true);
+    reviewerPanel.hidden = false;
+    reviewerRoot.dispatchEvent(new CustomEvent<DevProjectOutputsPort | null>("media-dev-reviewer", {
+      detail: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context.principalId }),
+    }));
     announce(`Connected to the local host. Scope: ${context.scope}.`, "success");
     projectTitleInput.focus();
   } catch (error) { announce(errorMessage(error), "error"); }
@@ -78,6 +84,8 @@ forgetButton.addEventListener("click", () => {
   openProjectIdInput.value = "";
   workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail | null>("media-dev-project-timeline", { detail: null }));
   workspacePanel.hidden = true;
+  reviewerPanel.hidden = true;
+  reviewerRoot.dispatchEvent(new CustomEvent<DevProjectOutputsPort | null>("media-dev-reviewer", { detail: null }));
   tokenInput.value = "";
   tokenInput.disabled = false;
   connectButton.disabled = false;
@@ -132,8 +140,9 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
     unresolvedProjectCreate = false;
     renderJson(projectResult, projectJson, result);
     workspacePanel.hidden = false;
+    hideReviewerPanel();
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
-      detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }), principalId: context?.principalId ?? "" },
+      detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context?.principalId }), principalId: context?.principalId ?? "" },
     }));
     announce(`${result.createdNow ? "Created" : "Replayed"} DEV_ONLY project ${result.project.projectId}; exact initial revision ${exactRevision.revision.revisionId} reopened.`, "success");
   } catch (error) {
@@ -156,8 +165,9 @@ openProjectForm.addEventListener("submit", async (event) => {
     const { project, currentRevision } = result.read;
     renderJson(projectResult, projectJson, result.read);
     workspacePanel.hidden = false;
+    hideReviewerPanel();
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
-      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }), principalId: context?.principalId ?? "" },
+      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context?.principalId }), principalId: context?.principalId ?? "" },
     }));
     announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} read from the host.`, "success");
   } finally { setBusy(false); }
@@ -180,6 +190,12 @@ function renderContext(value: DevProjectContext): void {
 function renderJson(container: HTMLElement, output: HTMLPreElement, value: unknown): void {
   output.textContent = JSON.stringify(value, null, 2);
   container.hidden = false;
+}
+
+/** The project workspace already carries the review section; never mount two (duplicate ids and controls). */
+function hideReviewerPanel(): void {
+  reviewerPanel.hidden = true;
+  reviewerRoot.dispatchEvent(new CustomEvent<DevProjectOutputsPort | null>("media-dev-reviewer", { detail: null }));
 }
 
 function setConnected(connected: boolean): void {

@@ -69,6 +69,12 @@
         </form>
       </section>
 
+      <section id="reviewer-panel" class="panel" aria-labelledby="reviewer-heading" hidden>
+        <div class="section-heading"><div><p class="step">02c · Review</p><h2 id="reviewer-heading">Review a case as an assigned reviewer</h2></div></div>
+        <p class="help">A reviewer connects with their own DEV_ONLY token (forget the owner's token first, or use another browser profile) and opens the owner's review case by its id. The reviewer needs no access to the project. The decision form is enabled only when this connected identity is an assigned, unexpired reviewer for the chosen scope; the owner cannot decide. A DEV_ONLY decision is not human approval.</p>
+        <div id="review-workspace-root"></div>
+      </section>
+
       <section id="timeline-workspace-panel" class="panel" aria-labelledby="timeline-heading" hidden>
         <div class="section-heading"><div><p class="step">03 · Edit and reconcile</p><h2 id="timeline-heading">Project timeline workspace</h2></div></div>
         <p class="help">The reusable Media UI screen operates through this loopback DEV_ONLY client. Project creation stays in the host flow above; timeline edits and restores commit as successor project revisions.</p>

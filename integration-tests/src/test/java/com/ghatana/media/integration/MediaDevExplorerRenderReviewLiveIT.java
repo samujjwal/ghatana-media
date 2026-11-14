@@ -46,10 +46,11 @@ class MediaDevExplorerRenderReviewLiveIT {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     @Test
-    void explorerRendersReviewsGoesStaleAndReadsBackAcrossLauncherRestart() throws Exception {
+    void explorerRendersAssignsReviewerDecidesAsReviewerGoesStaleAndReadsBackAcrossLauncherRestart() throws Exception {
         String run = UUID.randomUUID().toString().replace("-", "");
         String tenant = "tenant-dev-explorer-rr-" + run;
         String principal = "media-dev-explorer-rr-" + run;
+        String reviewer = "media-dev-explorer-reviewer-" + run;
         String bucket = "media-dev-explorer-rr-" + run;
         String schema = "media_dev_explorer_rr_" + run;
         int port;
@@ -80,6 +81,8 @@ class MediaDevExplorerRenderReviewLiveIT {
                 environment.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe);
             }
             String token = issueDevToken(tenant, principal, "media:delivery:dev:export", "media:delivery:dev:read");
+            // A second DEV_ONLY identity: the owner assigns it for APPROVAL and it acts in its own browser context.
+            String reviewerToken = issueDevToken(tenant, reviewer);
             launcher = startLauncher(classpath, environment, log);
             awaitReady(launcher, port);
 
@@ -101,6 +104,8 @@ class MediaDevExplorerRenderReviewLiveIT {
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_TOKEN", token);
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_TENANT", tenant);
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_PRINCIPAL", principal);
+            env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_REVIEWER_TOKEN", reviewerToken);
+            env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_REVIEWER_PRINCIPAL", reviewer);
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_ID", sourceId);
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_SHA256", pngSha);
             env.put("MEDIA_DEV_RENDER_REVIEW_FORMAT", mp4 ? "mp4" : "gif");
@@ -163,6 +168,26 @@ class MediaDevExplorerRenderReviewLiveIT {
                 JsonNode reviewCase = get(port, tenant, token, "/dev/v1/reviews/" + caseId, 200);
                 assertThat(reviewCase.toString()).contains("STALE");
                 assertThat(reviewCase.toString()).contains("COMMENT").contains("ACCEPT");
+                assertThat(reviewCase.path("reviewState").path("status").asString())
+                        .isEqualTo("DEV_ASSIGNED_REVIEWER_ACCEPT_STALE");
+                assertThat(reviewCase.path("reviewState").path("establishesApproval").asBoolean()).isFalse();
+                assertThat(reviewCase.path("reviewState").path("humanReviewApproval").asBoolean()).isFalse();
+                assertThat(reviewCase.path("assignments")).hasSize(1);
+                JsonNode assignment = reviewCase.path("assignments").get(0);
+                assertThat(assignment.path("reviewerPrincipalId").asString()).isEqualTo(reviewer);
+                assertThat(assignment.path("assignedByPrincipalId").asString()).isEqualTo(principal);
+                assertThat(assignment.path("scopes")).hasSize(1);
+                assertThat(assignment.path("scopes").get(0).asString()).isEqualTo("APPROVAL");
+                boolean reviewerDecision = false;
+                for (JsonNode record : reviewCase.path("records")) {
+                    if ("DECISION".equals(record.path("kind").asString())) {
+                        assertThat(record.path("recordedAs").asString()).isEqualTo("DEV_ASSIGNED_REVIEWER_ACCEPT");
+                        assertThat(record.path("scope").asString()).isEqualTo("APPROVAL");
+                        assertThat(record.path("principalId").asString()).isEqualTo(reviewer);
+                        reviewerDecision = true;
+                    }
+                }
+                assertThat(reviewerDecision).as("the only decision was recorded by the assigned reviewer").isTrue();
 
                 // Exactly one durable render artifact row and matching S3 object.
                 StoredArtifact after = storedArtifact(POSTGRES, tenant, principal, renderId);

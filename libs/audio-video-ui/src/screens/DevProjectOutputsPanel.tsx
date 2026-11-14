@@ -6,6 +6,7 @@ import {
   type DevCommentDisposition, type ExportView, type DevProjectOutputsPort, type DevRenderFormat, type DevReviewDecision,
   type DevReviewSubject, type Outcome, type RenderView, type ReviewView,
 } from "./devProjectOutputs";
+import { DevReviewSection } from "./DevReviewSection";
 import { DevVerifiedContent } from "./DevVerifiedContent";
 import type { DevArtifactContentReader } from "./devArtifactContent";
 
@@ -148,22 +149,10 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
   const [pending, setPending] = React.useState<Pending>(null);
   const renderAttempt = React.useRef<Attempt | null>(null);
   const [knownRenderId, setKnownRenderId] = React.useState("");
-  const [knownReviewId, setKnownReviewId] = React.useState("");
 
-  const [subjectChoice, setSubjectChoice] = React.useState<"revision" | "render">("revision");
-  const [review, setReview] = React.useState<ReviewView | null>(null);
-  const [reviewOutcome, setReviewOutcome] = React.useState<Outcome | null>(null);
-  const [reviewMessage, setReviewMessage] = React.useState("No review case opened.");
-  const [commentText, setCommentText] = React.useState("");
-  const [disposition, setDisposition] = React.useState<DevCommentDisposition>("OPEN");
-  const [decision, setDecision] = React.useState<DevReviewDecision>("ACCEPT");
-  const [reason, setReason] = React.useState("");
-  const [confirmed, setConfirmed] = React.useState(false);
-  const commentAttempt = React.useRef<Attempt | null>(null);
-  const decisionAttempt = React.useRef<Attempt | null>(null);
-
+  const [reviewBusy, setReviewBusy] = React.useState(false);
   const isHead = project.headRevisionId === revision.revisionId;
-  const busy = pending !== null;
+  const busy = pending !== null || reviewBusy;
   const widthN = POSITIVE.test(width) ? Number(width) : 0;
   const heightN = POSITIVE.test(height) ? Number(height) : 0;
   const fpsN = POSITIVE.test(fps) ? Number(fps) : 0;
@@ -246,137 +235,9 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
     } finally { setPending(null); }
   };
 
-  const subject = (): DevReviewSubject | null => subjectChoice === "render"
-    ? shown ? { kind: "ARTIFACT_VERSION", artifactId: shown.view.artifactId, artifactVersionId: shown.view.artifactVersionId } : null
-    : { kind: "PROJECT_REVISION", projectId: project.projectId, revisionId: revision.revisionId };
-
-  const failReview = (error: unknown): Outcome => {
-    const outcome = describeReviewFailure(error);
-    setReviewOutcome(outcome);
-    setReviewMessage(`${outcome.code}: ${outcome.text}`);
-    return outcome;
-  };
-  const readCase = async (caseId: string): Promise<ReviewView> => {
-    const response = await outputs.getReview(caseId);
-    if (response.status !== 200) throw new DevOutputsHostError("INVALID_RESPONSE", response.status, "Unexpected status.");
-    const view = parseReviewView(response.body);
-    if (view.reviewCaseId !== caseId) throw new DevOutputsHostError("INVALID_RESPONSE", 200, "Review case identity mismatch.");
-    return view;
-  };
-
-  const openReview = async (): Promise<void> => {
-    const target = subject();
-    if (!target || busy || locked) return;
-    setPending("open-review"); setReviewOutcome(null);
-    setReviewMessage("Opening a DEV_ONLY review case on the exact version…");
-    try {
-      const response = await outputs.openReview(target);
-      if (response.status !== 200 && response.status !== 201) throw new DevOutputsHostError("INVALID_RESPONSE", response.status, "Unexpected status.");
-      const view = parseReviewView(response.body);
-      const wanted = target.kind === "PROJECT_REVISION"
-        ? `project_revision:${target.projectId}@${target.revisionId}` : null;
-      if (view.subjectKind !== target.kind || (wanted !== null && view.subjectReference !== wanted)) {
-        throw new DevOutputsHostError("INVALID_RESPONSE", response.status, "Review subject does not match the requested exact version.");
-      }
-      commentAttempt.current = null; decisionAttempt.current = null; setConfirmed(false);
-      setReview(view);
-      setReviewMessage(`${response.status === 201 ? "Opened" : "Reopened existing"} DEV_ONLY review case ${view.reviewCaseId} (${view.currentness}). No approval exists.`);
-    } catch (error) { failReview(asHost(error)); } finally { setPending(null); }
-  };
-
-  const reopenKnownReview = async (): Promise<void> => {
-    const caseId = knownReviewId.trim();
-    if (busy || !OPAQUE_ID.test(caseId)) return;
-    setPending("refresh-review"); setReviewOutcome(null);
-    setReviewMessage(`Reopening known review case ${caseId}…`);
-    try {
-      const view = await readCase(caseId);
-      if (view.subjectKind === "PROJECT_REVISION" && !view.subjectReference.startsWith(`project_revision:${project.projectId}@`)) {
-        throw new DevOutputsHostError("INVALID_RESPONSE", 200, "Review case belongs to a different project.");
-      }
-      commentAttempt.current = null; decisionAttempt.current = null; setConfirmed(false);
-      setReview(view); setKnownReviewId("");
-      setReviewMessage(`Reopened review case ${view.reviewCaseId}: ${view.currentness}, case revision ${view.caseRevision}. No approval exists.`);
-    } catch (error) { failReview(asHost(error)); } finally { setPending(null); }
-  };
-
-  const refreshReview = async (): Promise<void> => {
-    if (!review || busy) return;
-    setPending("refresh-review");
-    try {
-      const view = await readCase(review.reviewCaseId);
-      setReview(view);
-      setReviewOutcome(null);
-      setReviewMessage(`Re-read review case ${view.reviewCaseId}: ${view.currentness}, case revision ${view.caseRevision}.`);
-    } catch (error) { failReview(asHost(error)); } finally { setPending(null); }
-  };
-
-  // Currentness is host-derived; re-read when the displayed project head moves so STALE is surfaced.
-  const reviewCaseId = review?.reviewCaseId ?? null;
-  const watchedCase = React.useRef<string | null>(null);
-  React.useEffect(() => {
-    if (!reviewCaseId) { watchedCase.current = null; return; }
-    // The open/reopen action just read this case; only a later head change needs a re-read.
-    if (watchedCase.current !== reviewCaseId) { watchedCase.current = reviewCaseId; return; }
-    let cancelled = false;
-    readCase(reviewCaseId).then((view) => {
-      if (cancelled) return;
-      setReview(view);
-      setReviewMessage(`Re-read review case ${view.reviewCaseId} after a project head change: ${view.currentness}.`);
-    }).catch((error) => { if (!cancelled) failReview(asHost(error)); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project.headRevisionId, reviewCaseId]);
-
-  const submitComment = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
-    if (!review || busy || commentText.trim() === "") return;
-    const attempt = attemptFor(commentAttempt, `${review.reviewCaseId}|${review.caseRevision}|${disposition}|${commentText}`);
-    setPending("comment"); setReviewOutcome(null);
-    setReviewMessage("Recording comment…");
-    try {
-      const response = await outputs.addReviewComment(review.reviewCaseId, {
-        requestId: attempt.requestId, expectedCaseRevision: review.caseRevision, text: commentText, disposition,
-      });
-      if (response.status !== 200 && response.status !== 201) throw new DevOutputsHostError("INVALID_RESPONSE", response.status, "Unexpected status.");
-      const receipt = parseReviewReceipt(response.body, review.reviewCaseId);
-      const view = await readCase(review.reviewCaseId);
-      setReview(view); commentAttempt.current = null; setCommentText("");
-      setReviewMessage(`${receipt.replayed ? "Replayed (HTTP 200): comment already recorded" : "Recorded comment (HTTP 201)"} at case revision ${receipt.caseRevision}; subject is ${receipt.currentness}.`);
-    } catch (error) {
-      const outcome = failReview(asHost(error));
-      if (outcome.discardRequest) { commentAttempt.current = null; void readCase(review.reviewCaseId).then(setReview).catch(() => undefined); }
-    } finally { setPending(null); }
-  };
-
-  const submitDecision = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
-    if (!review || busy || !confirmed || reason.trim() === "" || review.currentness !== "CURRENT") return;
-    const attempt = attemptFor(decisionAttempt, `${review.reviewCaseId}|${review.caseRevision}|${decision}|${reason}`);
-    setPending("decision"); setReviewOutcome(null);
-    setReviewMessage(`Recording DEV_ONLY ${decision} decision…`);
-    try {
-      const response = await outputs.recordReviewDecision(review.reviewCaseId, {
-        requestId: attempt.requestId, expectedCaseRevision: review.caseRevision, decision, reason, confirmed: true,
-      });
-      if (response.status !== 200 && response.status !== 201) throw new DevOutputsHostError("INVALID_RESPONSE", response.status, "Unexpected status.");
-      const receipt = parseReviewReceipt(response.body, review.reviewCaseId);
-      const view = await readCase(review.reviewCaseId);
-      setReview(view); decisionAttempt.current = null; setConfirmed(false); setReason("");
-      setReviewMessage(`${receipt.replayed ? "Replayed (HTTP 200): decision already recorded" : "Recorded DEV_ONLY decision (HTTP 201)"} at case revision ${receipt.caseRevision}; subject is ${receipt.currentness}. This is not human approval (establishesApproval=false).`);
-    } catch (error) {
-      const outcome = failReview(asHost(error));
-      if (outcome.discardRequest || outcome.code === "REVIEW_SUBJECT_STALE") {
-        decisionAttempt.current = null;
-        void readCase(review.reviewCaseId).then(setReview).catch(() => undefined);
-      }
-    } finally { setPending(null); }
-  };
-
   const contentReader: DevArtifactContentReader | undefined = outputs.readArtifactContent
     ? { readArtifactContent: (request) => outputs.readArtifactContent!(request) } : undefined;
   const retryRender = renderOutcome?.retrySameRequest && renderAttempt.current !== null;
-  const stale = review?.currentness === "STALE";
   const renderIsOldHead = shown !== null && shown.view.revisionId !== project.headRevisionId;
 
   return <section id="dev-project-outputs" aria-labelledby="dev-outputs-title" data-outputs="DEV_ONLY">
@@ -446,69 +307,14 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
       </form>
     </section>
 
-    <section aria-labelledby="review-title">
-      <h4 id="review-title">DEV_ONLY review</h4>
-      <aside role="note" aria-label="Review approval disclaimer" data-approval="false">
-        <strong>A DEV_ONLY ACCEPT is not human approval.</strong> The reviewer is a synthetic local owner. Every review record carries establishesApproval=false and humanReviewApproval=false and authorizes no delivery or publication.
-      </aside>
-      <form id="review-open-form" onSubmit={(event) => { event.preventDefault(); void openReview(); }}>
-        <fieldset aria-labelledby="review-subject-legend">
-          <legend id="review-subject-legend">Exact version to review</legend>
-          <label><input type="radio" name="review-subject" value="revision" checked={subjectChoice === "revision"} onChange={() => setSubjectChoice("revision")} disabled={locked || busy} />
-            Project revision <code>{revision.revisionId}</code></label>
-          <label><input type="radio" name="review-subject" value="render" checked={subjectChoice === "render"} onChange={() => setSubjectChoice("render")} disabled={locked || busy || !shown} />
-            {shown ? <>Render artifact version <code>{shown.view.artifactVersionId}</code></> : "Render artifact version (render first)"}</label>
-        </fieldset>
-        <button type="submit" disabled={locked || busy || subject() === null}>Open review case</button>
-      </form>
-      <p id="review-status" role="status" aria-live="polite" aria-atomic="true" aria-busy={pending === "open-review" || pending === "refresh-review" || pending === "comment" || pending === "decision"}
-        data-state={reviewOutcome ? reviewOutcome.tone : review ? review.currentness : "idle"}>{reviewMessage}</p>
-      {reviewOutcome && <p role="alert" data-outcome={reviewOutcome.tone}><strong>{reviewOutcome.tone === "unknown" ? "Outcome unknown" : reviewOutcome.tone === "denied" ? "Denied" : reviewOutcome.tone === "unavailable" ? "Unavailable" : "Not recorded"} · <code>{reviewOutcome.code}</code></strong></p>}
-      <form id="review-known-form" onSubmit={(event) => { event.preventDefault(); void reopenKnownReview(); }}>
-        <label htmlFor="known-review-id">Known review case ID</label>
-        <input id="known-review-id" value={knownReviewId} onChange={(event) => setKnownReviewId(event.currentTarget.value)} disabled={busy} autoComplete="off" spellCheck={false} />
-        <button type="submit" disabled={busy || !OPAQUE_ID.test(knownReviewId.trim())}>Reopen known review case</button>
-      </form>
-      {review && <article aria-labelledby="review-case-title" data-review-case={review.reviewCaseId}>
-        <h5 id="review-case-title">Review case <code>{review.reviewCaseId}</code></h5>
-        <dl>
-          <div><dt>Exact subject</dt><dd><code>{review.subjectReference}</code></dd></div>
-          <div><dt>Currentness</dt><dd data-currentness={review.currentness}>{review.currentness === "CURRENT" ? "CURRENT · subject is still the exact reviewed version"
-            : review.currentness === "STALE" ? "STALE · the reviewed version has changed; earlier decisions no longer apply and new decisions are refused"
-              : "UNKNOWN · currentness could not be established; do not rely on earlier decisions"}</dd></div>
-          <div><dt>Case revision</dt><dd>{review.caseRevision}</dd></div>
-          <div><dt>Decision state</dt><dd><code>{review.status}</code></dd></div>
-          <div><dt>Establishes approval</dt><dd>No · establishesApproval=false · humanReviewApproval=false</dd></div>
-          <div><dt>Authority</dt><dd>{review.authority}</dd></div>
-        </dl>
-        {review.note && <p>{review.note}</p>}
-        {review.records.length === 0 ? <p>No comments or decisions yet.</p> : <ol aria-label="Review records">{review.records.map((record) => <li key={record.appendRecordId}>
-          #{record.caseRevision} · {record.kind === "COMMENT" ? `comment (${record.disposition ?? "OPEN"})` : `DEV_ONLY decision ${record.decision ?? ""}`} · {record.currentness}
-          {record.kind === "COMMENT" ? ` · ${record.text ?? ""}` : record.reason ? ` · ${record.reason}` : ""}
-        </li>)}</ol>}
-        <button type="button" onClick={() => void refreshReview()} disabled={busy}>Re-read review case</button>
-        <form id="review-comment-form" onSubmit={(event) => void submitComment(event)}>
-          <label htmlFor="review-comment-text">Comment</label>
-          <textarea id="review-comment-text" value={commentText} onChange={(event) => setCommentText(event.currentTarget.value)} disabled={busy} required />
-          <label htmlFor="review-comment-disposition">Disposition</label>
-          <select id="review-comment-disposition" value={disposition} onChange={(event) => setDisposition(event.currentTarget.value as DevCommentDisposition)} disabled={busy}>
-            {DISPOSITIONS.map((value) => <option key={value} value={value}>{value}</option>)}
-          </select>
-          <button type="submit" disabled={busy || commentText.trim() === ""}>Add comment</button>
-        </form>
-        <form id="review-decision-form" onSubmit={(event) => void submitDecision(event)}>
-          <label htmlFor="review-decision">Decision</label>
-          <select id="review-decision" value={decision} onChange={(event) => { setDecision(event.currentTarget.value as DevReviewDecision); setConfirmed(false); }} disabled={busy || stale}>
-            {DECISIONS.map((value) => <option key={value} value={value}>{value}</option>)}
-          </select>
-          <label htmlFor="review-reason">Reason</label>
-          <input id="review-reason" value={reason} onChange={(event) => setReason(event.currentTarget.value)} disabled={busy || stale} required />
-          <label htmlFor="review-confirm"><input id="review-confirm" type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.currentTarget.checked)} disabled={busy || stale} />
-            I confirm this records a DEV_ONLY {decision} decision on this exact version only. It is not human approval.</label>
-          {stale && <p role="note">Decisions are disabled because this case is STALE. Open a review case on the new exact version.</p>}
-          <button type="submit" disabled={busy || stale || !confirmed || reason.trim() === "" || review.currentness !== "CURRENT"}>Record DEV_ONLY decision</button>
-        </form>
-      </article>}
-    </section>
+    <DevReviewSection outputs={outputs} locked={locked} newRequestId={newRequestId} projectId={project.projectId} headKey={project.headRevisionId}
+      onBusyChange={setReviewBusy} subjectChoices={[
+        { id: "revision", subject: { kind: "PROJECT_REVISION", projectId: project.projectId, revisionId: revision.revisionId },
+          wantedReference: `project_revision:${project.projectId}@${revision.revisionId}`,
+          label: <>Project revision <code>{revision.revisionId}</code></> },
+        { id: "render", subject: shown ? { kind: "ARTIFACT_VERSION", artifactId: shown.view.artifactId, artifactVersionId: shown.view.artifactVersionId } : null,
+          wantedReference: null, disabled: !shown,
+          label: shown ? <>Render artifact version <code>{shown.view.artifactVersionId}</code></> : "Render artifact version (render first)" },
+      ]} />
   </section>;
 }

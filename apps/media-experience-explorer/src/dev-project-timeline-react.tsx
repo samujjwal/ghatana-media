@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import type { DevProject, DevProjectRevision, MediaDevProjectTimelineClient } from "@audio-video/client/dev-project-timeline";
-import { DevOfflineDraftsPanel, MediaProductRenderer } from "@audio-video/ui/screens";
+import { DevOfflineDraftsPanel, DevReviewSection, MediaProductRenderer } from "@audio-video/ui/screens";
 import type { DevProjectOutputsPort } from "@audio-video/ui/screens";
 
 type WorkspaceDetail = {
@@ -34,3 +34,17 @@ rootElement.addEventListener("media-dev-project-timeline", ((event: CustomEvent<
       principalId: detail.principalId,
     })));
 }) as EventListener);
+
+// Standalone assigned-reviewer view: opens an existing case by id; needs no project access.
+const reviewRootElement = document.getElementById("review-workspace-root");
+if (reviewRootElement) {
+  const reviewRoot = createRoot(reviewRootElement);
+  reviewRootElement.addEventListener("media-dev-reviewer", ((event: CustomEvent<DevProjectOutputsPort | null>) => {
+    const outputs = event.detail;
+    if (!outputs) { reviewRoot.render(null); return; }
+    reviewRoot.render(React.createElement(DevReviewSection, {
+      key: outputs.principalId ?? "unknown", outputs, locked: false, newRequestId: () => `ui-${crypto.randomUUID()}`,
+      projectId: null, headKey: null, subjectChoices: [],
+    }));
+  }) as EventListener);
+}

@@ -11,6 +11,8 @@ import type { DevHostResponse, DevProjectOutputsPort } from "@audio-video/ui/scr
 export function createDevProjectOutputsClient(options: {
   readonly origin: string;
   readonly bearerToken: () => string;
+  /** Verified principal id from /dev/v1/context; lets the review UI derive reviewer eligibility. */
+  readonly principalId?: string;
   readonly fetch?: typeof fetch;
 }): DevProjectOutputsPort {
   const fetcher = options.fetch ?? fetch;
@@ -40,12 +42,15 @@ export function createDevProjectOutputsClient(options: {
     throw new DevOutputsHostError(code, response.status, message, details);
   }
   return {
+    ...(options.principalId ? { principalId: options.principalId } : {}),
     requestRender: (projectId, request) => call("POST", `/dev/v1/projects/${seg(projectId)}/renders`, request, true),
     getRender: (projectId, renderId) => call("GET", `/dev/v1/projects/${seg(projectId)}/renders/${seg(renderId)}`, undefined, false),
     openReview: (subject) => call("POST", "/dev/v1/reviews", { subject }, true),
     getReview: (caseId) => call("GET", `/dev/v1/reviews/${seg(caseId)}`, undefined, false),
     addReviewComment: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/comments`, request, true),
     recordReviewDecision: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/decisions`, request, true),
+    assignReviewer: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/assignments`, request, true),
+    revokeReviewAssignment: (caseId, assignmentId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/assignments/${seg(assignmentId)}/revoke`, request, true),
     requestExport: (request) => call("POST", "/dev/v1/exports", request, true),
     getExport: (requestId) => call("GET", `/dev/v1/exports/${seg(requestId)}`, undefined, false),
     readArtifactContent: createDevArtifactContentClient(options),

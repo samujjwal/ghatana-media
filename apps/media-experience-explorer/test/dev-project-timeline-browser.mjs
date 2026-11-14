@@ -451,6 +451,10 @@ try {
   }
   assert.match(await page.locator("#status").textContent(), /Connected to the local host/u,
     `context read did not connect; status=${await page.locator("#status").textContent()}; fixture requests=${JSON.stringify(fixture.requests)}; network=${JSON.stringify(networkRequests)} / ${JSON.stringify(networkResponses)} / ${JSON.stringify(networkFailures)}; console=${JSON.stringify(consoleErrors)}; page=${JSON.stringify(pageErrors)}; vite=${viteOutput}`);
+  // A reviewer can open the owner's case by id without any project; the panel yields to the workspace once a project opens.
+  await page.getByRole("heading", { name: "Review a case as an assigned reviewer" }).waitFor();
+  assert.equal(await page.locator("#reviewer-panel #known-review-id").count(), 1, "connected page must offer a known review case id");
+  assert.equal(await page.getByRole("button", { name: "Open review case" }).count(), 0, "the reviewer view must not open cases on a project");
   await page.getByText("local-owner-workspace").waitFor();
   assert.equal(await page.locator("#dev-token").inputValue(), "", "token input must be cleared after context read");
 
@@ -489,6 +493,7 @@ try {
   await keyboardActivate(page, page.getByRole("button", { name: "Replay same create request" }));
   await page.getByText(/exact initial revision revision-1 reopened/u).waitFor();
   await page.getByRole("heading", { name: "Render and review · DEV_ONLY" }).waitFor();
+  assert.equal(await page.locator("#reviewer-panel").isHidden(), true, "the standalone reviewer panel must not duplicate the workspace review section");
   assert.match(await page.getByRole("note", { name: "Review approval disclaimer" }).textContent(), /DEV_ONLY ACCEPT is not human approval/u,
     "the DEV_ONLY workspace must always disclose that a DEV_ONLY review is not human approval");
   assert.equal(await page.getByRole("button", { name: "Render exact revision" }).isEnabled(), false,

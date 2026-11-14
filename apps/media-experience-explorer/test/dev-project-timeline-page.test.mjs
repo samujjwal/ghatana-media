@@ -84,10 +84,11 @@ test("DEV_ONLY page wires exact render and review routes through a loopback, mem
   const source = await read("src/dev-project-timeline.ts");
   const reactMount = await read("src/dev-project-timeline-react.tsx");
   const adapter = await read("src/dev-project-outputs-client.ts");
-  const panel = await read("../../libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx");
-  assert.match(source, /createDevProjectOutputsClient\(\{ origin, bearerToken: \(\) => bearerToken \?\? "" \}\)/u);
+  const panel = await read("../../libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx")
+    + await read("../../libs/audio-video-ui/src/screens/DevReviewSection.tsx");
+  assert.match(source, /createDevProjectOutputsClient\(\{ origin, bearerToken: \(\) => bearerToken \?\? "", principalId: context\?\.principalId \}\)/u);
   assert.match(reactMount, /outputs:\s*detail\.outputs/u);
-  for (const route of ["/renders`", "/renders/${seg(renderId)}`", "\"/dev/v1/reviews\"", "/comments`", "/decisions`"]) {
+  for (const route of ["/renders`", "/renders/${seg(renderId)}`", "\"/dev/v1/reviews\"", "/comments`", "/decisions`", "/assignments`", "/revoke`"]) {
     assert.ok(adapter.includes(route), `adapter must call ${route}`);
   }
   assert.match(adapter, /credentials:\s*"omit"/u);
@@ -95,7 +96,7 @@ test("DEV_ONLY page wires exact render and review routes through a loopback, mem
   assert.match(adapter, /OUTCOME_UNKNOWN/u);
   assert.doesNotMatch(adapter, /localStorage|sessionStorage|indexedDB/u);
   for (const control of ["Render exact revision", "Retry with the same request identity", "Reopen render from the host",
-    "Open review case", "Add comment", "Record DEV_ONLY decision", "Re-read review case"]) {
+    "Open review case", "Add comment", "Record DEV_ONLY decision", "Re-read review case", "Assign reviewer", "Reopen known review case"]) {
     assert.ok(panel.includes(control), `missing outputs control: ${control}`);
   }
   assert.match(panel, /DEV_ONLY ACCEPT is not human approval/u);
@@ -110,7 +111,8 @@ test("DEV_ONLY page exports a render only through the receipt-gated export lane 
   const source = await read("src/dev-project-timeline.ts");
   const opener = await read("src/dev-open-project.ts");
   const adapter = await read("src/dev-project-outputs-client.ts");
-  const panel = await read("../../libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx");
+  const panel = await read("../../libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx")
+    + await read("../../libs/audio-video-ui/src/screens/DevReviewSection.tsx");
   assert.ok(adapter.includes('"/dev/v1/exports"') && adapter.includes("/dev/v1/exports/${seg(requestId)}"), "adapter must call both export routes");
   for (const control of ["Export render artifact", "Check again", "Retry export with the same request identity", "Reopen known render", "Reopen known review case"]) {
     assert.ok(panel.includes(control), `missing export or reopen control: ${control}`);

@@ -119,15 +119,22 @@ Chromium scenario (`test/dev-render-review-live-browser.mjs`, driven by
 `MediaDevExplorerRenderReviewLiveIT`; Docker, `MEDIA_DEV_REVIEW_ENABLED=true`,
 GIF or MP4 when `GHATANA_MEDIA_FFMPEG`/`FFPROBE` are set) renders the exact
 revision through the page (Created HTTP 201, then Replayed HTTP 200, then
-reopen), opens a review case, comments, confirms and records a DEV_ONLY
-decision with the approval disclaimer visible, edits the timeline to show the
-case STALE with decisions disabled, then re-reads render and case after a
+reopen), opens a review case, comments, then (as owner) assigns a second DEV_ONLY
+principal for APPROVAL: the owner's decision form is disabled ("owner cannot
+decide") and a direct owner decision is refused `403 REVIEWER_NOT_ASSIGNED`. A
+second browser context connects with the reviewer's own token, opens the case by
+id in the standalone "Review a case as an assigned reviewer" panel (no project
+access needed; it yields to the workspace review section once a project is
+opened, to avoid duplicate controls), comments and records ACCEPT with scope
+APPROVAL (shown as `DEV_ASSIGNED_REVIEWER_ACCEPT`, approval disclaimer visible).
+Editing the timeline then shows the case STALE with decisions disabled for
+both (a direct reviewer decision is `409 REVIEW_SUBJECT_STALE`), then re-reads render and case after a
 launcher restart and checks the single durable render artifact in
 PostgreSQL/S3. The PNG source is uploaded over HTTP (this page only inspects
 artifacts; it has no upload path). The page cannot open an existing project by
 id, so after a full reload the render/review panel is verified to start clean
 and the durable readback is asserted over HTTP. The Vite DEV_ONLY allow-list
-(`artifact-proxy-guard.mjs`) admits the render, review, export and
+(`artifact-proxy-guard.mjs`) admits the render, review (including assignments and revoke), export and
 `GET /dev/v1/artifacts/{id}/content` routes. After a render is registered or
 reopened the panel offers a verified preview (`<img>` for GIF, `<video controls>`
 for MP4) and Download: the bytes are fetched as a blob through the

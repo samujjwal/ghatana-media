@@ -130,7 +130,22 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   moves, STALE disables new decisions, and every view states that a DEV_ONLY
   ACCEPT is **not** human approval (`establishesApproval=false`,
   `humanReviewApproval=false`); a host body claiming approval is rejected.
-  Status regions are `aria-live="polite"`; outcomes are conveyed in text.
+  Reviewer assignment (owner-delegated design): the review section (the
+  reusable `DevReviewSection`, also mounted standalone) lets the owner assign a
+  reviewer principal with QUALITY/RIGHTS/PROVENANCE/APPROVAL scopes and an expiry
+  of 1 to 30 days (`POST .../assignments`, expiry computed once per attempt, stable
+  requestId) and revoke an active assignment (`POST .../assignments/{id}/revoke`);
+  the case view lists assignments and each decision's `recordedAs`
+  (`DEV_ASSIGNED_REVIEWER_ACCEPT` is DEV-only evidence, never approval), scope and
+  principal. The decision form requires a scope and is enabled only when the page
+  identity (`DevProjectOutputsPort.principalId`, from `/dev/v1/context`) is an
+  assigned, unexpired, unrevoked reviewer; otherwise it explains why (owner cannot
+  decide, not assigned, expired, revoked, identity unknown) and offers only the
+  assigned scopes. Typed refusals: `REVIEWER_NOT_ASSIGNED`,
+  `REVIEW_SCOPE_NOT_ASSIGNED`, `REVIEW_ASSIGNMENT_EXPIRED`,
+  `REVIEW_AUTHORITY_CHANGED`, `REVIEW_SELF_ASSIGNMENT_REFUSED`,
+  `REVIEW_ASSIGNMENT_ALREADY_ACTIVE`/`_REVOKED`/`_NOT_FOUND`. The host stays the
+  authority; the gate only explains. Status regions are `aria-live="polite"`; outcomes are conveyed in text.
   Export (advances `media.dev.delivery-export-destination-ack` and
   `media.dev.outcome-acknowledged-delivery` at the UI edge): once a render is registered (created or reopened by id), the panel
   exports that exact artifact version to a destination id through
@@ -146,8 +161,8 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   DELIVERY_DESTINATION_UNAVAILABLE` and 502/transport loss (outcome unknown,
   retry with the same request identity) never show delivery. The panel can
   also reopen a known render id or review case id (project-scoped) so a
-  reloaded page can resume prior work. Not covered: preview playback of the render, reviewer
-  roles or multi-reviewer authority, time-range/ROI annotations in the UI,
+  reloaded page can resume prior work. Not covered: preview playback of the render, trusted human reviewer identity
+  (the DEV_ONLY token is not one), time-range/ROI annotations in the UI,
   and any product-route admission. Evidence is jsdom unit tests with a fake
   host port; the live-launcher browser journey is driven by the Explorer scripts.
 

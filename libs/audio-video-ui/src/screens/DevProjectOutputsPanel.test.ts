@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DevProject, DevProjectRevision } from "@audio-video/client/dev-project-timeline";
 import { DevProjectOutputsPanel } from "./DevProjectOutputsPanel";
+import { DevReviewSection } from "./DevReviewSection";
 import { DevOutputsHostError, type DevHostResponse, type DevProjectOutputsPort } from "./devProjectOutputs";
 import { DevContentError, sha256Hex } from "./devArtifactContent";
 import { DevProjectTimelineWorkspaceScreen, type DevProjectTimelineWorkspacePort } from "./DevProjectTimelineWorkspaceScreen";
@@ -31,12 +32,20 @@ function renderBody(over: { format?: "gif" | "mp4"; replayed?: boolean; revision
     },
   };
 }
+const assignment = (over: Record<string, unknown> = {}): Record<string, unknown> => ({
+  assignmentId: "asg-1", reviewerPrincipalId: "reviewer-1", assignedByPrincipalId: "owner-1", scopes: ["APPROVAL", "QUALITY"],
+  expiresAt: "2026-01-08T00:00:00Z", status: "ACTIVE", assignmentVersion: 1, ...over,
+});
 const reviewBody = (over: Record<string, unknown> = {}): unknown => ({
   schema: "x", reviewCaseId: "devreview.1", scope: "DEV_ONLY", currentness: "CURRENT", caseRevision: 0, created: true,
   subject: { kind: "PROJECT_REVISION", projectId: "project-1", revisionId: "rev-5", reference: "project_revision:project-1@rev-5" },
-  records: [], reviewState: { status: "NO_DECISION", latestDecision: null, establishesApproval: false, humanReviewApproval: false },
+  records: [], observedAt: "2026-01-01T00:00:00Z", assignments: [assignment()],
+  reviewState: { status: "NO_DECISION", latestDecision: null, establishesApproval: false, humanReviewApproval: false },
   authority: "DEV_ONLY synthetic owner of the exact subject; not an issued human reviewer authority",
   note: "DEV_ONLY synthetic-owner statement; not an issued human reviewer authority", ...over,
+});
+const assignmentReceipt = (over: Record<string, unknown> = {}): unknown => ({
+  schema: "x", reviewCaseId: "devreview.1", assignment: assignment(), replayed: false, establishesApproval: false, humanReviewApproval: false, scope: "DEV_ONLY", ...over,
 });
 const receipt = (over: Record<string, unknown> = {}): unknown => ({
   schema: "x", requestId: "r", reviewCaseId: "devreview.1", appendRecordId: "rec-1", caseRevision: 1, currentness: "CURRENT",
@@ -56,6 +65,9 @@ const fail = (status: number, code: string): Promise<never> => Promise.reject(ne
 
 function fakePort(over: Partial<DevProjectOutputsPort> = {}): { [K in keyof DevProjectOutputsPort]: ReturnType<typeof vi.fn> } {
   return {
+    principalId: "reviewer-1",
+    assignReviewer: vi.fn(() => ok(201, assignmentReceipt())),
+    revokeReviewAssignment: vi.fn(() => ok(200, assignmentReceipt({ assignment: assignment({ status: "REVOKED", assignmentVersion: 2 }) }))),
     requestRender: vi.fn(() => ok(201, renderBody())),
     getRender: vi.fn(() => ok(200, renderBody({ replayed: true }))),
     openReview: vi.fn(() => ok(201, reviewBody())),
@@ -231,6 +243,7 @@ describe("DevProjectOutputsPanel review", () => {
     expect(port.addReviewComment).toHaveBeenCalledWith("devreview.1", expect.objectContaining({ expectedCaseRevision: 0, text: "Tighten the cut", disposition: "OPEN" }));
 
     fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "Looks right" } });
+    fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "APPROVAL" } });
     const submit = screen.getByRole("button", { name: "Record DEV_ONLY decision" }) as HTMLButtonElement;
     expect(submit.disabled).toBe(true); // no explicit confirmation yet
     fireEvent.click(screen.getByLabelText(/I confirm this records a DEV_ONLY ACCEPT decision/u));
@@ -239,7 +252,7 @@ describe("DevProjectOutputsPanel review", () => {
     port.recordReviewDecision.mockImplementation(() => ok(201, receipt({ caseRevision: 2 })));
     fireEvent.click(submit);
     await waitFor(() => expect(status("review-status")).toContain("not human approval"));
-    expect(port.recordReviewDecision).toHaveBeenCalledWith("devreview.1", expect.objectContaining({ expectedCaseRevision: 1, decision: "ACCEPT", reason: "Looks right", confirmed: true }));
+    expect(port.recordReviewDecision).toHaveBeenCalledWith("devreview.1", expect.objectContaining({ expectedCaseRevision: 1, decision: "ACCEPT", scope: "APPROVAL", reason: "Looks right", confirmed: true }));
     const caseView = screen.getByRole("article", { name: /Review case/u }).textContent ?? "";
     expect(caseView).toContain("DEV_ONLY_ACCEPT_CURRENT");
     expect(caseView).toContain("establishesApproval=false");
@@ -248,6 +261,7 @@ describe("DevProjectOutputsPanel review", () => {
   it("shows replayed decisions as replays, not a new decision", async () => {
     const port = fakePort({ recordReviewDecision: vi.fn(() => ok(200, receipt({ replayed: true }))) }); await openCase(port);
     fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "ok" } });
+    fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "APPROVAL" } });
     fireEvent.click(screen.getByLabelText(/I confirm/u));
     click("Record DEV_ONLY decision");
     await waitFor(() => expect(status("review-status")).toContain("Replayed (HTTP 200): decision already recorded"));
@@ -256,6 +270,7 @@ describe("DevProjectOutputsPanel review", () => {
   it("surfaces STALE after a later edit, disables decisions, and refuses a stale decision with a typed 409", async () => {
     const port = fakePort(); await openCase(port);
     fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "ok" } });
+    fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "APPROVAL" } });
     fireEvent.click(screen.getByLabelText(/I confirm/u));
     port.getReview.mockImplementation(() => ok(200, reviewBody({ currentness: "STALE", reviewState: { status: "DEV_ONLY_ACCEPT_STALE", latestDecision: null, establishesApproval: false, humanReviewApproval: false } })));
     port.recordReviewDecision.mockImplementation(() => fail(409, "REVIEW_SUBJECT_STALE"));
@@ -287,6 +302,7 @@ describe("DevProjectOutputsPanel review", () => {
   ])("shows %i %s for a decision and records nothing", async (statusCode, code, text) => {
     const port = fakePort(); await openCase(port);
     fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "ok" } });
+    fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "APPROVAL" } });
     fireEvent.click(screen.getByLabelText(/I confirm/u));
     port.recordReviewDecision.mockImplementation(() => fail(statusCode, code));
     click("Record DEV_ONLY decision");
@@ -599,5 +615,134 @@ describe("DevProjectOutputsPanel verified preview and download", () => {
     cleanup();
     mount(fakePort()); click("Render exact revision");
     await waitFor(() => expect(document.body.textContent).toContain("no DEV_ONLY content route"));
+  });
+});
+
+describe("DevProjectOutputsPanel reviewer assignment", () => {
+  const openAs = async (principalId: string, body: Record<string, unknown> = {}, over: Partial<DevProjectOutputsPort> = {}) => {
+    const port = fakePort({ principalId, openReview: vi.fn(() => ok(201, reviewBody(body))), ...over } as never);
+    mount(port);
+    click("Open review case");
+    await waitFor(() => expect(screen.getByRole("article", { name: /Review case/u })).toBeTruthy());
+    return port;
+  };
+  const submitDisabled = (): boolean => (screen.getByRole("button", { name: "Record DEV_ONLY decision" }) as HTMLButtonElement).disabled;
+
+  it("disables decisions for the owner and explains that the owner cannot decide", async () => {
+    await openAs("owner-1");
+    expect(submitDisabled()).toBe(true);
+    expect((screen.getByLabelText("Scope") as HTMLSelectElement).disabled).toBe(true);
+    expect(document.querySelector("[data-decision-gate='OWNER']")?.textContent).toMatch(/owner cannot decide/u);
+    expect(screen.getByRole("button", { name: "Assign reviewer" })).toBeTruthy();
+  });
+
+  it.each([
+    ["stranger-9", {}, "NOT_ASSIGNED", /no reviewer assignment/u],
+    ["reviewer-1", { assignments: [assignment({ status: "REVOKED", assignmentVersion: 2 })] }, "REVOKED", /revoked/u],
+    ["reviewer-1", { assignments: [assignment({ status: "EXPIRED" })] }, "EXPIRED", /expired/u],
+    ["reviewer-1", { assignments: [assignment({ expiresAt: "2025-12-31T00:00:00Z" })] }, "EXPIRED", /expired/u],
+  ])("explains %s cannot decide (%s)", async (principal, body, gate, text) => {
+    await openAs(principal, body);
+    expect(submitDisabled()).toBe(true);
+    expect(document.querySelector(`[data-decision-gate='${gate}']`)?.textContent).toMatch(text);
+    expect(screen.queryByRole("button", { name: "Assign reviewer" })).toBeNull();
+  });
+
+  it("lets an assigned reviewer pick only an assigned scope and records DEV_ASSIGNED_REVIEWER_ACCEPT without approval", async () => {
+    const port = await openAs("reviewer-1");
+    const options = Array.from((screen.getByLabelText("Scope") as HTMLSelectElement).options).map((o) => o.value);
+    expect(options).toEqual(["", "QUALITY", "APPROVAL"]);
+    expect(submitDisabled()).toBe(true);
+    fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "APPROVAL" } });
+    fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "Reviewed" } });
+    fireEvent.click(screen.getByLabelText(/I confirm/u));
+    port.getReview.mockImplementation(() => ok(200, reviewBody({ caseRevision: 2,
+      records: [{ appendRecordId: "rec-2", caseRevision: 2, kind: "DECISION", decision: "ACCEPT", reason: "Reviewed", currentness: "CURRENT", recordedAs: "DEV_ASSIGNED_REVIEWER_ACCEPT", scope: "APPROVAL", principalId: "reviewer-1" }],
+      reviewState: { status: "DEV_ASSIGNED_REVIEWER_ACCEPT_CURRENT", latestDecision: { decision: "ACCEPT" }, establishesApproval: false, humanReviewApproval: false } })));
+    port.recordReviewDecision.mockImplementation(() => ok(201, receipt({ caseRevision: 2 })));
+    click("Record DEV_ONLY decision");
+    await waitFor(() => expect(status("review-status")).toContain("not human approval"));
+    expect(port.recordReviewDecision).toHaveBeenCalledWith("devreview.1", expect.objectContaining({ decision: "ACCEPT", scope: "APPROVAL" }));
+    const text = screen.getByRole("article", { name: /Review case/u }).textContent ?? "";
+    expect(text).toContain("DEV_ASSIGNED_REVIEWER_ACCEPT");
+    expect(text).toContain("scope APPROVAL");
+    expect(text).toContain("by reviewer-1");
+    expect(text).toContain("establishesApproval=false");
+    expect(screen.getByRole("note", { name: "Review approval disclaimer" }).textContent).toMatch(/not human approval/u);
+  });
+
+  it("assigns a reviewer with scopes and an expiry within 30 days, then revokes", async () => {
+    const port = await openAs("owner-1", { assignments: [] });
+    const assign = screen.getByRole("button", { name: "Assign reviewer" }) as HTMLButtonElement;
+    expect(assign.disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText("Reviewer principal ID"), { target: { value: "reviewer-1" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "APPROVAL" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "QUALITY" }));
+    fireEvent.change(screen.getByLabelText(/Expires in days/u), { target: { value: "31" } });
+    expect(assign.disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText(/Expires in days/u), { target: { value: "30" } });
+    expect(assign.disabled).toBe(false);
+    port.getReview.mockImplementation(() => ok(200, reviewBody({ caseRevision: 1 })));
+    const before = Date.now();
+    fireEvent.click(assign);
+    await waitFor(() => expect(status("review-status")).toContain("Assigned (HTTP 201)"));
+    const request = port.assignReviewer.mock.calls[0]![1] as { reviewerPrincipalId: string; scopes: string[]; expiresAt: string; expectedCaseRevision: number };
+    expect(request).toMatchObject({ reviewerPrincipalId: "reviewer-1", scopes: ["APPROVAL", "QUALITY"], expectedCaseRevision: 0 });
+    expect(Date.parse(request.expiresAt) - before).toBeLessThanOrEqual(30 * 86_400_000);
+    expect(Date.parse(request.expiresAt)).toBeGreaterThan(before);
+    expect(screen.getByLabelText("Reviewer assignments", { selector: "ul" }).textContent).toContain("reviewer-1");
+    port.getReview.mockImplementation(() => ok(200, reviewBody({ caseRevision: 2, assignments: [assignment({ status: "REVOKED", assignmentVersion: 2 })] })));
+    fireEvent.click(screen.getByRole("button", { name: "Revoke reviewer-1 assignment" }));
+    await waitFor(() => expect(status("review-status")).toContain("Revoked reviewer-1"));
+    expect(port.revokeReviewAssignment).toHaveBeenCalledWith("devreview.1", "asg-1", expect.objectContaining({ expectedCaseRevision: 1 }));
+    expect(screen.queryByRole("button", { name: /Revoke/u })).toBeNull();
+  });
+
+  it.each([
+    [403, "REVIEWER_NOT_ASSIGNED", /case owner cannot decide/u],
+    [403, "REVIEW_SCOPE_NOT_ASSIGNED", /does not include the chosen scope/u],
+    [403, "REVIEW_ASSIGNMENT_EXPIRED", /assignment has expired/u],
+    [409, "REVIEW_AUTHORITY_CHANGED", /authority changed/u],
+  ])("shows %i %s for a decision as a typed refusal", async (statusCode, code, text) => {
+    const port = await openAs("reviewer-1");
+    fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "APPROVAL" } });
+    fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "x" } });
+    fireEvent.click(screen.getByLabelText(/I confirm/u));
+    port.recordReviewDecision.mockImplementation(() => fail(statusCode, code));
+    click("Record DEV_ONLY decision");
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain(code));
+    expect(status("review-status")).toMatch(text);
+  });
+
+  it.each([
+    [422, "REVIEW_SELF_ASSIGNMENT_REFUSED", /cannot assign themselves/u],
+    [409, "REVIEW_ASSIGNMENT_ALREADY_ACTIVE", /already holds an active assignment/u],
+    [409, "REVIEW_ASSIGNMENT_ALREADY_REVOKED", /already revoked/u],
+    [404, "REVIEW_ASSIGNMENT_NOT_FOUND", /not on this review case/u],
+    [400, "INVALID_REQUEST", /within 30 days/u],
+  ])("shows %i %s for an assignment", async (statusCode, code, text) => {
+    const port = await openAs("owner-1", { assignments: [] });
+    port.assignReviewer.mockImplementation(() => fail(statusCode, code));
+    fireEvent.change(screen.getByLabelText("Reviewer principal ID"), { target: { value: "reviewer-1" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "APPROVAL" }));
+    click("Assign reviewer");
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain(code));
+    expect(status("review-status")).toMatch(text);
+  });
+
+  it("lets a reviewer reopen the owner's case by id without any project and comment", async () => {
+    const port = fakePort({ principalId: "reviewer-1" } as never);
+    render(React.createElement(DevReviewSection, { outputs: port as unknown as DevProjectOutputsPort, locked: false, newRequestId: nextId, projectId: null, headKey: null, subjectChoices: [] }));
+    expect(screen.queryByRole("button", { name: "Open review case" })).toBeNull();
+    fireEvent.change(screen.getByLabelText("Known review case ID"), { target: { value: "devreview.1" } });
+    click("Reopen known review case");
+    await waitFor(() => expect(document.querySelector("[data-review-case='devreview.1']")).not.toBeNull());
+    expect(port.getReview).toHaveBeenCalledWith("devreview.1");
+    expect(screen.queryByRole("button", { name: "Assign reviewer" })).toBeNull();
+    expect((screen.getByLabelText("Scope") as HTMLSelectElement).disabled).toBe(false);
+    fireEvent.change(screen.getByLabelText("Comment"), { target: { value: "From the reviewer" } });
+    port.getReview.mockImplementation(() => ok(200, reviewBody({ caseRevision: 1 })));
+    click("Add comment");
+    await waitFor(() => expect(status("review-status")).toContain("Recorded comment"));
   });
 });

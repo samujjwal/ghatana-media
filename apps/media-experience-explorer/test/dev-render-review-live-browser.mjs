@@ -13,6 +13,8 @@ const execFile = promisify(execFileCallback);
 const token = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_TOKEN");
 const expectedTenant = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_TENANT");
 const expectedPrincipal = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_PRINCIPAL");
+const reviewerToken = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_REVIEWER_TOKEN");
+const reviewerPrincipal = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_REVIEWER_PRINCIPAL");
 const expectedArtifactId = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_ID");
 const expectedArtifactSha256 = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_SHA256");
 // Optional: a destination configured on the live host. When set, the reloaded page also exports the render to it.
@@ -77,6 +79,7 @@ const renderFormat = process.env.MEDIA_DEV_RENDER_REVIEW_FORMAT === "mp4" ? "mp4
 const vitePort = 4178;
 const viteEnvironment = { ...process.env, MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT: String(proxyPort) };
 delete viteEnvironment.MEDIA_DEV_RENDER_REVIEW_BROWSER_TOKEN;
+delete viteEnvironment.MEDIA_DEV_RENDER_REVIEW_BROWSER_REVIEWER_TOKEN;
 const viteProcess = spawn(process.execPath, [viteBinary, "--config", "vite.config.mjs", "--host", "127.0.0.1", "--port", String(vitePort)], {
   cwd: appRoot,
   env: viteEnvironment,
@@ -265,15 +268,81 @@ try {
   await page.locator("#review-status").filter({ hasText: /Recorded comment \(HTTP 201\)/u }).waitFor();
   await page.getByLabel("Review records").getByText(/comment \(OPEN\).*Looks right/u).waitFor();
 
-  await page.locator("#review-reason").fill("Matches the intended storyboard.");
-  const decideButton = page.getByRole("button", { name: "Record DEV_ONLY decision" });
-  assert.equal(await decideButton.isDisabled(), true, "decision must stay disabled until the explicit confirmation");
-  await page.locator("#review-confirm").check();
-  assert.equal(await decideButton.isEnabled(), true);
-  await decideButton.click();
-  await page.locator("#review-status").filter({ hasText: /Recorded DEV_ONLY decision \(HTTP 201\).*establishesApproval=false/u }).waitFor();
-  await page.getByLabel("Review records").getByText(/DEV_ONLY decision ACCEPT.*CURRENT/u).waitFor();
-  assert.equal(await page.locator("#review-confirm").isChecked(), false, "confirmation must reset after a decision");
+  // Before any assignment nobody holds reviewer authority: the owner's decision form is disabled and says why.
+  assert.equal(await page.getByRole("button", { name: "Record DEV_ONLY decision" }).isDisabled(), true, "no assignment means no decision");
+  assert.equal(await page.locator("#review-scope").isDisabled(), true);
+
+  // The owner assigns a second principal for APPROVAL only, through the page.
+  await page.getByLabel("Reviewer principal ID").fill(reviewerPrincipal);
+  await page.getByRole("checkbox", { name: "APPROVAL", exact: true }).check();
+  await page.getByLabel(/Expires in days/u).fill("7");
+  await page.getByRole("button", { name: "Assign reviewer" }).click();
+  await page.locator("#review-status").filter({ hasText: /Assigned \(HTTP 201\).*not human approval/u }).waitFor();
+  const assignmentList = page.getByLabel("Reviewer assignments", { exact: false }).locator("li");
+  await assignmentList.filter({ hasText: reviewerPrincipal }).filter({ hasText: "APPROVAL" }).filter({ hasText: "ACTIVE" }).waitFor();
+  const assignPost = apiRequests.find(({ method, path }) => method === "POST" && path === `/dev/v1/reviews/${reviewCaseId}/assignments`);
+  assert.ok(assignPost, "the assignment must go through the assignments route");
+  assert.deepEqual(JSON.parse(assignPost.body).scopes, ["APPROVAL"]);
+
+  // The owner cannot decide: the UI explains it, and the host independently refuses with REVIEWER_NOT_ASSIGNED.
+  assert.equal(await page.getByRole("button", { name: "Record DEV_ONLY decision" }).isDisabled(), true);
+  await page.locator("[data-decision-gate='OWNER']").getByText(/owner cannot decide/u).waitFor();
+  const ownerCaseRevision = Number((await page.locator("[data-review-case] dt", { hasText: "Case revision" })
+    .locator("xpath=following-sibling::dd").textContent()).trim());
+  const ownerAttempt = await page.request.post(`${baseUrl}/dev/v1/reviews/${reviewCaseId}/decisions`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { requestId: `owner-attempt-${crypto.randomUUID()}`, expectedCaseRevision: ownerCaseRevision, decision: "ACCEPT", scope: "APPROVAL",
+      reason: "owner must not decide", confirmed: true },
+  });
+  assert.equal(ownerAttempt.status(), 403);
+  assert.equal((await ownerAttempt.json()).error.code, "REVIEWER_NOT_ASSIGNED");
+
+  // The assigned reviewer acts under their own DEV_ONLY identity in a separate browser context.
+  const reviewerContext = await browser.newContext();
+  const reviewerPage = await reviewerContext.newPage();
+  const reviewerErrors = [];
+  reviewerPage.on("pageerror", (error) => reviewerErrors.push(error.message));
+  reviewerPage.on("console", (message) => { if (message.type() === "error") reviewerErrors.push(message.text()); });
+  await reviewerPage.goto(`${baseUrl}/dev-project-timeline.html`);
+  await reviewerPage.getByLabel("Short-lived DEV_ONLY bearer token").fill(reviewerToken);
+  await reviewerPage.getByRole("button", { name: "Read host context" }).click();
+  await reviewerPage.getByText(reviewerPrincipal, { exact: true }).waitFor({ timeout: 10_000 });
+  const reviewerRegion = reviewerPage.locator("#reviewer-panel");
+  await reviewerRegion.getByRole("heading", { name: "Review a case as an assigned reviewer" }).waitFor();
+  assert.equal(await reviewerPage.locator("#dev-project-outputs").count(), 0, "the reviewer has no project workspace");
+  await reviewerRegion.getByLabel("Known review case ID").fill(reviewCaseId);
+  await reviewerRegion.getByRole("button", { name: "Reopen known review case" }).click();
+  await reviewerPage.locator("#review-status").filter({ hasText: /Reopened review case .*: CURRENT/u }).waitFor();
+  assert.equal(await reviewerPage.locator("[data-identity]").getAttribute("data-identity"), reviewerPrincipal);
+  assert.equal(await reviewerPage.getByRole("button", { name: "Assign reviewer" }).count(), 0, "a reviewer cannot assign");
+  assert.equal(await reviewerPage.locator("[data-decision-gate]").count(), 0, "an assigned reviewer has no decision gate");
+  const scopeOptions = await reviewerPage.locator("#review-scope option").evaluateAll((options) => options.map((option) => option.value));
+  assert.deepEqual(scopeOptions, ["", "APPROVAL"], "only the assigned scope may be chosen");
+
+  await reviewerPage.locator("#review-comment-text").fill("Reviewer comment on the exact revision.");
+  await reviewerPage.locator("#review-comment-form").getByRole("button", { name: "Add comment" }).click();
+  await reviewerPage.locator("#review-status").filter({ hasText: /Recorded comment \(HTTP 201\)/u }).waitFor();
+
+  await reviewerPage.locator("#review-scope").selectOption("APPROVAL");
+  await reviewerPage.locator("#review-reason").fill("Matches the intended storyboard.");
+  const reviewerDecide = reviewerPage.getByRole("button", { name: "Record DEV_ONLY decision" });
+  assert.equal(await reviewerDecide.isDisabled(), true, "decision must stay disabled until the explicit confirmation");
+  await reviewerPage.locator("#review-confirm").check();
+  assert.equal(await reviewerDecide.isEnabled(), true);
+  await reviewerDecide.click();
+  await reviewerPage.locator("#review-status").filter({ hasText: /Recorded DEV_ONLY decision \(HTTP 201\).*establishesApproval=false/u }).waitFor();
+  const reviewerRecords = reviewerPage.getByLabel("Review records");
+  await reviewerRecords.getByText(/DEV_ONLY decision ACCEPT.*CURRENT/u).waitFor();
+  await reviewerRecords.getByText("DEV_ASSIGNED_REVIEWER_ACCEPT", { exact: true }).waitFor();
+  assert.match(await reviewerRecords.textContent(), new RegExp(`scope APPROVAL · by ${reviewerPrincipal}`, "u"));
+  assert.ok((await reviewerPage.locator("[data-review-case]").textContent()).includes("DEV_ASSIGNED_REVIEWER_ACCEPT_CURRENT"));
+  assert.ok((await reviewerPage.locator("[data-review-case]").textContent()).includes("humanReviewApproval=false"));
+  await reviewerPage.getByRole("note", { name: "Review approval disclaimer" }).getByText("A DEV_ONLY ACCEPT is not human approval.").waitFor();
+  assert.equal(await reviewerPage.locator("#review-confirm").isChecked(), false, "confirmation must reset after a decision");
+
+  // The owner re-reads and sees the reviewer's records as DEV-only assigned-reviewer evidence.
+  await page.getByRole("button", { name: "Re-read review case" }).click();
+  await page.getByLabel("Review records").getByText("DEV_ASSIGNED_REVIEWER_ACCEPT", { exact: true }).waitFor();
   await disclaimer.getByText("A DEV_ONLY ACCEPT is not human approval.").waitFor();
   assert.ok((await page.locator("[data-review-case]").textContent()).includes("humanReviewApproval=false"));
 
@@ -292,6 +361,20 @@ try {
   assert.equal(await page.locator("#review-decision").isDisabled(), true);
   assert.equal(await page.getByRole("button", { name: "Record DEV_ONLY decision" }).isDisabled(), true);
   await disclaimer.getByText("A DEV_ONLY ACCEPT is not human approval.").waitFor();
+  // The reviewer is blocked too: STALE disables the decision, and the host refuses a direct attempt.
+  await reviewerPage.getByRole("button", { name: "Re-read review case" }).click();
+  await reviewerPage.locator('[data-currentness="STALE"]').waitFor({ timeout: 15_000 });
+  await reviewerPage.getByRole("note").filter({ hasText: "Decisions are disabled because this case is STALE." }).waitFor();
+  assert.equal(await reviewerPage.getByRole("button", { name: "Record DEV_ONLY decision" }).isDisabled(), true);
+  const reviewerRevision = Number((await reviewerPage.locator("[data-review-case] dt", { hasText: "Case revision" })
+    .locator("xpath=following-sibling::dd").textContent()).trim());
+  const staleAttempt = await reviewerPage.request.post(`${baseUrl}/dev/v1/reviews/${reviewCaseId}/decisions`, {
+    headers: { Authorization: `Bearer ${reviewerToken}` },
+    data: { requestId: `stale-attempt-${crypto.randomUUID()}`, expectedCaseRevision: reviewerRevision, decision: "ACCEPT", scope: "APPROVAL",
+      reason: "stale must be refused", confirmed: true },
+  });
+  assert.equal(staleAttempt.status(), 409);
+  assert.equal((await staleAttempt.json()).error.code, "REVIEW_SUBJECT_STALE");
   // The previously shown render is flagged as no longer the head.
   await page.getByText("Not the current head:").waitFor();
   const staleCaseRevision = await page.locator("[data-review-case] dt", { hasText: "Case revision" })
@@ -329,7 +412,11 @@ try {
   const records = await page.getByLabel("Review records").textContent();
   assert.match(records, /comment \(OPEN\)/u);
   assert.match(records, /DEV_ONLY decision ACCEPT/u);
+  assert.match(records, /DEV_ASSIGNED_REVIEWER_ACCEPT/u);
   assert.equal(await page.getByRole("button", { name: "Record DEV_ONLY decision" }).isDisabled(), true);
+  await reviewerPage.getByRole("button", { name: "Re-read review case" }).click();
+  await reviewerPage.locator("#review-status").filter({ hasText: /Re-read review case .*: STALE, case revision/u }).waitFor();
+  assert.match(await reviewerPage.getByLabel("Review records").textContent(), /DEV_ASSIGNED_REVIEWER_ACCEPT.*scope APPROVAL/u);
   assert.equal(apiRequests.filter(({ method }) => method === "POST").length, postsBefore,
     "post-restart readback must not mutate");
 
@@ -369,6 +456,9 @@ try {
   const reopenedRecords = await page.getByLabel("Review records").textContent();
   assert.match(reopenedRecords, /comment \(OPEN\)/u);
   assert.match(reopenedRecords, /DEV_ONLY decision ACCEPT/u);
+  assert.match(reopenedRecords, /DEV_ASSIGNED_REVIEWER_ACCEPT/u);
+  assert.equal(await page.locator("[data-review-case] li[data-assignment-status='ACTIVE']").count(), 1, "the assignment reads back durably");
+  assert.deepEqual(reviewerErrors.filter((text) => !/status of 409/u.test(text)), [], `reviewer page errors: ${JSON.stringify(reviewerErrors)}`);
 
   let exportReceipt = null;
   if (exportDestinationId) {

@@ -35,10 +35,28 @@ export interface DevReviewCommentRequest {
   readonly disposition: DevCommentDisposition;
 }
 
+export type DevReviewScope = "QUALITY" | "RIGHTS" | "PROVENANCE" | "APPROVAL";
+export const DEV_REVIEW_SCOPES: readonly DevReviewScope[] = ["QUALITY", "RIGHTS", "PROVENANCE", "APPROVAL"];
+
+export interface DevReviewAssignRequest {
+  readonly requestId: string;
+  readonly expectedCaseRevision: number;
+  readonly reviewerPrincipalId: string;
+  readonly scopes: readonly DevReviewScope[];
+  /** ISO-8601 UTC instant, in the future and at most 30 days ahead. */
+  readonly expiresAt: string;
+}
+
+export interface DevReviewRevokeRequest {
+  readonly requestId: string;
+  readonly expectedCaseRevision: number;
+}
+
 export interface DevReviewDecisionRequest {
   readonly requestId: string;
   readonly expectedCaseRevision: number;
   readonly decision: DevReviewDecision;
+  readonly scope: DevReviewScope;
   readonly reason: string;
   readonly confirmed: true;
 }
@@ -49,12 +67,21 @@ export interface DevHostResponse {
 }
 
 export interface DevProjectOutputsPort {
+  /**
+   * The verified principal id of the page's DEV_ONLY identity (from /dev/v1/context), when known. Review
+   * decision eligibility is derived from it plus the case's assignments; unknown means decisions stay disabled.
+   */
+  readonly principalId?: string;
   requestRender(projectId: string, request: DevRenderRequest): Promise<DevHostResponse>;
   getRender(projectId: string, renderId: string): Promise<DevHostResponse>;
   openReview(subject: DevReviewSubject): Promise<DevHostResponse>;
   getReview(reviewCaseId: string): Promise<DevHostResponse>;
   addReviewComment(reviewCaseId: string, request: DevReviewCommentRequest): Promise<DevHostResponse>;
   recordReviewDecision(reviewCaseId: string, request: DevReviewDecisionRequest): Promise<DevHostResponse>;
+  /** POST /dev/v1/reviews/{caseId}/assignments (owner only). */
+  assignReviewer(reviewCaseId: string, request: DevReviewAssignRequest): Promise<DevHostResponse>;
+  /** POST /dev/v1/reviews/{caseId}/assignments/{assignmentId}/revoke (owner only). */
+  revokeReviewAssignment(reviewCaseId: string, assignmentId: string, request: DevReviewRevokeRequest): Promise<DevHostResponse>;
   /** POST /dev/v1/exports. Resolves 200/201/202 with the exact status; everything else rejects. */
   requestExport(request: DevExportRequest): Promise<DevHostResponse>;
   /** GET /dev/v1/exports/{requestId}. */
@@ -192,6 +219,20 @@ export interface ReviewRecord {
   readonly decision: string | null;
   readonly reason: string | null;
   readonly currentness: Currentness;
+  /** DEV_ONLY_ACCEPT (synthetic owner, legacy) or DEV_ASSIGNED_REVIEWER_ACCEPT; both are DEV-only and never approval. */
+  readonly recordedAs: string | null;
+  readonly scope: DevReviewScope | null;
+  readonly principalId: string | null;
+}
+export type AssignmentStatus = "ACTIVE" | "REVOKED" | "EXPIRED";
+export interface ReviewAssignmentView {
+  readonly assignmentId: string;
+  readonly reviewerPrincipalId: string;
+  readonly assignedByPrincipalId: string;
+  readonly scopes: readonly DevReviewScope[];
+  readonly expiresAt: string;
+  readonly status: AssignmentStatus;
+  readonly assignmentVersion: number;
 }
 export interface ReviewView {
   readonly reviewCaseId: string;
@@ -202,6 +243,9 @@ export interface ReviewView {
   readonly caseRevision: number;
   readonly status: string;
   readonly records: readonly ReviewRecord[];
+  readonly assignments: readonly ReviewAssignmentView[];
+  /** Host observation time (ms since epoch) used to judge expiry; null when absent. */
+  readonly observedAtMs: number | null;
   readonly establishesApproval: false;
   readonly humanReviewApproval: false;
   readonly authority: string;
@@ -219,6 +263,62 @@ export interface ReviewReceipt {
 const currentnessOf = (value: unknown): Currentness => value === "CURRENT" || value === "STALE" || value === "UNKNOWN" ? value : "UNKNOWN";
 const nonNegInt = (value: unknown): number | null => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : null;
 
+export function parseAssignment(entry: unknown): ReviewAssignmentView {
+  if (!isRecord(entry)) throw new Error("Review assignment is malformed.");
+  const assignmentId = str(entry.assignmentId); const reviewer = str(entry.reviewerPrincipalId);
+  const by = str(entry.assignedByPrincipalId); const expiresAt = str(entry.expiresAt);
+  const version = nonNegInt(entry.assignmentVersion);
+  const status = entry.status === "ACTIVE" || entry.status === "REVOKED" || entry.status === "EXPIRED" ? entry.status : null;
+  if (!assignmentId || !reviewer || !by || !expiresAt || version === null || !status || !Array.isArray(entry.scopes)) {
+    throw new Error("Review assignment is malformed.");
+  }
+  const scopes = entry.scopes.map((scope) => {
+    const found = DEV_REVIEW_SCOPES.find((candidate) => candidate === scope);
+    if (!found) throw new Error("Review assignment has an unknown scope.");
+    return found;
+  });
+  return { assignmentId, reviewerPrincipalId: reviewer, assignedByPrincipalId: by, scopes, expiresAt, status, assignmentVersion: version };
+}
+
+/** Receipt of an assignment or revocation; never approval. */
+export function parseAssignmentChange(raw: unknown, reviewCaseId: string): { readonly assignment: ReviewAssignmentView; readonly replayed: boolean } {
+  if (!isRecord(raw) || raw.scope !== "DEV_ONLY" || raw.establishesApproval !== false || raw.humanReviewApproval !== false
+    || raw.reviewCaseId !== reviewCaseId || typeof raw.replayed !== "boolean") {
+    throw new Error("Assignment response is not a DEV_ONLY non-approval receipt for this review case.");
+  }
+  return { assignment: parseAssignment(raw.assignment), replayed: raw.replayed };
+}
+
+export type DecisionGate =
+  | { readonly allowed: true; readonly scopes: readonly DevReviewScope[] }
+  | { readonly allowed: false; readonly reason: "UNKNOWN_IDENTITY" | "OWNER" | "NOT_ASSIGNED" | "REVOKED" | "EXPIRED"; readonly text: string };
+
+/**
+ * Derive whether the CURRENT page identity may record decisions, from the host-observed assignments only.
+ * The host remains the authority (it re-checks); this just explains why a control is disabled instead of
+ * letting the user discover a 403.
+ */
+export function decisionGate(view: ReviewView, principalId: string | undefined, nowMs: number = Date.now()): DecisionGate {
+  if (!principalId) return { allowed: false, reason: "UNKNOWN_IDENTITY",
+    text: "Decisions are disabled: this page's DEV_ONLY identity is not known, so assigned-reviewer authority cannot be shown." };
+  if (view.assignments.some((assignment) => assignment.assignedByPrincipalId === principalId)) {
+    return { allowed: false, reason: "OWNER",
+      text: "Decisions are disabled: the case owner cannot decide. The owner may comment and assign or revoke a reviewer; an assigned reviewer connects with their own DEV_ONLY token to decide." };
+  }
+  const mine = view.assignments.filter((assignment) => assignment.reviewerPrincipalId === principalId);
+  if (mine.length === 0) return { allowed: false, reason: "NOT_ASSIGNED",
+    text: "Decisions are disabled: this identity holds no reviewer assignment on this case (REVIEWER_NOT_ASSIGNED). The case owner cannot decide either; the owner must assign a different principal." };
+  const now = view.observedAtMs ?? nowMs;
+  const live = mine.filter((assignment) => assignment.status === "ACTIVE" && Date.parse(assignment.expiresAt) > now);
+  if (live.length === 0) {
+    return mine.some((assignment) => assignment.status === "EXPIRED" || (assignment.status === "ACTIVE" && Date.parse(assignment.expiresAt) <= now))
+      ? { allowed: false, reason: "EXPIRED", text: "Decisions are disabled: your reviewer assignment has expired (REVIEW_ASSIGNMENT_EXPIRED). Ask the owner to assign you again." }
+      : { allowed: false, reason: "REVOKED", text: "Decisions are disabled: your reviewer assignment was revoked by the owner (REVIEWER_NOT_ASSIGNED)." };
+  }
+  const scopes = DEV_REVIEW_SCOPES.filter((scope) => live.some((assignment) => assignment.scopes.includes(scope)));
+  return { allowed: true, scopes };
+}
+
 /** A host body that claims approval is rejected outright: DEV_ONLY review can never establish it. */
 export function parseReviewView(raw: unknown): ReviewView {
   if (!isRecord(raw) || raw.scope !== "DEV_ONLY") throw new Error("Review response is not a DEV_ONLY body.");
@@ -235,11 +335,16 @@ export function parseReviewView(raw: unknown): ReviewView {
     if (!isRecord(entry)) throw new Error("Review record is malformed.");
     const appendRecordId = str(entry.appendRecordId); const revision = nonNegInt(entry.caseRevision);
     if (!appendRecordId || revision === null || (entry.kind !== "COMMENT" && entry.kind !== "DECISION")) throw new Error("Review record is malformed.");
+    const scope = DEV_REVIEW_SCOPES.find((candidate) => candidate === entry.scope) ?? null;
     return { appendRecordId, caseRevision: revision, kind: entry.kind, text: str(entry.text), disposition: str(entry.disposition),
-      decision: str(entry.decision), reason: str(entry.reason), currentness: currentnessOf(entry.currentness) };
+      decision: str(entry.decision), reason: str(entry.reason), currentness: currentnessOf(entry.currentness),
+      recordedAs: str(entry.recordedAs), scope, principalId: str(entry.principalId) };
   });
+  const assignments = (Array.isArray(raw.assignments) ? raw.assignments : []).map(parseAssignment);
+  const observed = typeof raw.observedAt === "string" ? Date.parse(raw.observedAt) : Number.NaN;
   return { reviewCaseId, created: typeof raw.created === "boolean" ? raw.created : null, subjectReference: reference,
     subjectKind: kind, currentness: currentnessOf(raw.currentness), caseRevision, status, records,
+    assignments, observedAtMs: Number.isFinite(observed) ? observed : null,
     establishesApproval: false, humanReviewApproval: false,
     authority: str(raw.authority) ?? "DEV_ONLY synthetic owner; not an issued human reviewer authority",
     note: str(raw.note) ?? "" };
@@ -338,6 +443,16 @@ export function describeReviewFailure(error: unknown): Outcome {
   if (code === "REVIEW_CASE_REVISION_CONFLICT") return make("error", "The review case changed. It was re-read; submit again against the current case revision.", { discardRequest: true });
   if (code === "REVIEW_REQUEST_ID_REUSED") return make("error", "This request identity was already used with different content. The next submission uses a new identity.", { discardRequest: true });
   if (code === "REVIEW_CONFIRMATION_REQUIRED") return make("error", "Explicit confirmation is required to record a decision. Nothing was recorded.");
+  if (code === "REVIEWER_NOT_ASSIGNED") return make("denied", "Denied: this identity holds no active reviewer assignment on this case. The case owner cannot decide; the owner must assign a different DEV_ONLY principal. Nothing was recorded.");
+  if (code === "REVIEW_SCOPE_NOT_ASSIGNED") return make("denied", "Denied: your reviewer assignment does not include the chosen scope. Choose an assigned scope or ask the owner to widen it. Nothing was recorded.");
+  if (code === "REVIEW_ASSIGNMENT_EXPIRED") return make("denied", "Denied: your reviewer assignment has expired. Ask the owner to assign you again. Nothing was recorded.");
+  if (code === "REVIEW_AUTHORITY_CHANGED") return make("error", "Reviewer authority changed while recording. The case was re-read; check your assignment and submit again. Nothing was recorded.", { discardRequest: true });
+  if (code === "REVIEW_SELF_ASSIGNMENT_REFUSED") return make("error", "The owner cannot assign themselves as reviewer; assign a different DEV_ONLY principal. Nothing was changed.");
+  if (code === "REVIEW_ASSIGNMENT_ALREADY_ACTIVE") return make("error", "That reviewer already holds an active assignment on this case; revoke it first. Nothing was changed.");
+  if (code === "REVIEW_ASSIGNMENT_ALREADY_REVOKED") return make("error", "That assignment is already revoked. Nothing was changed.");
+  if (code === "REVIEW_ASSIGNMENT_NOT_FOUND") return make("error", "That assignment is not on this review case. Nothing was changed.");
+  if (code === "REVIEW_REVISION_EXHAUSTED") return make("error", "This review case cannot advance any further. Nothing was changed.");
+  if (status === 400) return make("error", `The host refused the request as invalid (${code}); for an assignment, check the principal id, scopes and an expiry within 30 days. Nothing was changed.`);
   if (status === 403) return make("denied", "Denied: this DEV_ONLY principal may not use this review case or its exact subject. Nothing was recorded.");
   if (status === 404) return make("error", code === "REVIEW_SUBJECT_NOT_FOUND"
     ? "The exact subject version is not available to this DEV_ONLY owner. No review case was opened."
