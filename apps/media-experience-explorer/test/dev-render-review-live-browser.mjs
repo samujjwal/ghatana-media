@@ -105,7 +105,15 @@ try {
   const consoleErrors = [];
   const apiRequests = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
-  page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
+  // Console errors carry the resource URL so the one deliberate PROJECT_NOT_FOUND probe can be told apart.
+  const expectedNotFoundPaths = new Set();
+  page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    const url = message.location()?.url ?? "";
+    let pathname = "";
+    try { pathname = new URL(url).pathname; } catch { pathname = ""; }
+    consoleErrors.push({ text: message.text(), pathname });
+  });
   const diagnostics = [];
   page.on("requestfailed", (request) => diagnostics.push(`FAILED ${request.method()} ${request.url()} ${request.failure()?.errorText ?? ""}`));
   page.on("response", (response) => { if (response.url().includes("/dev/v1/")) diagnostics.push(`${response.status()} ${response.request().method()} ${new URL(response.url()).pathname}`); });
@@ -295,6 +303,7 @@ try {
 
   // Resume after the reload: open the existing project by id, then reopen the render and review case by id.
   const missing = `missing-${crypto.randomUUID()}`;
+  expectedNotFoundPaths.add(`/dev/v1/projects/${missing}`);
   await page.getByLabel("Project ID", { exact: true }).fill(missing);
   await page.getByRole("button", { name: "Open existing project", exact: true }).click();
   await page.getByText(/PROJECT_NOT_FOUND: no project with that id exists in this tenant and owner scope/u).waitFor();
@@ -350,7 +359,10 @@ try {
   }
 
   assert.deepEqual(pageErrors, [], `browser page errors: ${JSON.stringify(pageErrors)}`);
-  assert.deepEqual(consoleErrors, [], `browser console errors: ${JSON.stringify(consoleErrors)}`);
+  // Only the deliberate missing-project probe may log a 404; any other console error fails the journey.
+  const unexpectedConsoleErrors = consoleErrors.filter(({ text, pathname }) =>
+    !(expectedNotFoundPaths.has(pathname) && /status of 404/u.test(text)));
+  assert.deepEqual(unexpectedConsoleErrors, [], `browser console errors: ${JSON.stringify(consoleErrors)}`);
   process.stdout.write(`${JSON.stringify({ event: "readback", exportReceipt, exportDestinationId, projectId, renderId, reviewCaseId, renderSha })}\n`);
 } finally {
   if (browser) await browser.close();
