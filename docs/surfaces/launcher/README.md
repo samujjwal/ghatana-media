@@ -97,9 +97,24 @@ and stable terminal reads — **no second writer**.
   tools are `503 RENDER_CODEC_UNAVAILABLE`, unsupported timelines are typed
   `422 RENDER_UNSUPPORTED_*`, and a failed codec run is
   `502 RENDER_EXECUTION_FAILED`. Artifacts
-  that are not this project's render are `404`. Not covered: time-based video
-  sources, per-clip gain/pan or transitions, timeline captions (the renderer supports
-  them but the project timeline has no caption-text source yet),
+  that are not this project's render are `404`.
+  **Caption clips (MP4 only).** Conservative assumption (owner-delegated design decision): "A project timeline
+  CAPTION-track clip references the exact immutable version of an owner WebVTT artifact (content type text/vtt).
+  The clip's sourceIn/sourceOut select cues on the WebVTT file's own clock; cues are clipped to that interval and
+  shifted so sourceIn maps to the clip's storyStart (no retiming: sourceOut-sourceIn must equal storyDuration).
+  Overlapping caption clips are refused. Caption text is rendered verbatim; no translation, no speaker inference."
+  The cues become the renderer's embedded `mov_text` stream (verified by ffprobe, cue count included). Lineage
+  `sources[]` for a caption clip adds `sourceSha256`, `sourceCueCount` (cues in the file) and `cueCount` (cues
+  emitted after clipping). `MediaDevWebVtt` is a strict bounded parser: UTF-8 without NUL/control characters,
+  `WEBVTT` signature (optional BOM), `[hh:]mm:ss.ttt --> [hh:]mm:ss.ttt` timings, `NOTE`/`STYLE`/`REGION`
+  blocks ignored, caps of 1 MiB, 5000 cues, 4096 characters per cue and per line. Markup policy: cue text is
+  plain text and any `<` (tags, voice spans, timestamps) is rejected, never stripped or interpreted; `&` is kept
+  literally; cue settings (position/align) are rejected. Typed `422`s: `SOURCE_FORMAT_NOT_SUPPORTED` (not
+  `text/vtt`), `CAPTION_WEBVTT_MALFORMED`, `CAPTION_MARKUP_NOT_SUPPORTED`, `CAPTION_CUE_SETTINGS_NOT_SUPPORTED`,
+  `CAPTION_CUES_OVERLAP` (within the file), `CAPTION_RETIMING_NOT_SUPPORTED`, `CAPTION_CLIPS_OVERLAP`,
+  `CAPTION_TIME_NOT_MS_EXACT` (a mapped time is not whole milliseconds), `RENDER_LIMIT_EXCEEDED`. A GIF render with
+  a caption clip stays `422 TRACK_KIND_NOT_SUPPORTED`. Not covered: time-based video
+  sources, per-clip gain/pan or transitions, caption styling/positioning/translation,
   current-rights revocation, scanner release,
   or any production admission — these routes stay outside the canonical
   manifest/OpenAPI.
@@ -249,6 +264,7 @@ PDF, JSON and GLB are never rendered inline). Only GET is supported (no HEAD).
 | `MediaDevProjectTimelineRuntime` | Optional isolated owner-only DEV_ONLY project and timeline preview |
 | `MediaDevDeliveryRuntime` / `MediaDevDeliveryRoutes` | DEV_ONLY hosted export to a read-back local directory destination over `MediaDeliveryEngine` |
 | `MediaDevProjectRenderRuntime` | DEV_ONLY revision-exact storyboard render registered as an immutable artifact with lineage |
+| `MediaDevWebVtt` | Strict bounded WebVTT cue parser for MP4 caption clips (plain text only) |
 | `vision-service` (`bin/vision-service`) | Standalone Vision gRPC server on the same packaged classpath |
 
 ## States and invariants

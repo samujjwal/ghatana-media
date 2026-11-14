@@ -95,6 +95,12 @@ class MediaDevProductionJourneyIT {
             String narrationId = mp4
                     ? upload(port, tenant, principal, token, run + "-wav", "narration.wav", "audio/wav", narration)
                     : null;
+            // text/vtt must pass the durable store's format verification (signature + UTF-8 without NUL).
+            byte[] captions = ("WEBVTT\n\n00:00.250 --> 00:00.750\nHello caption\n\n"
+                    + "00:01.000 --> 00:01.500\nSecond cue\n").getBytes(StandardCharsets.UTF_8);
+            String captionsId = mp4
+                    ? upload(port, tenant, principal, token, run + "-vtt", "captions.vtt", "text/vtt", captions)
+                    : null;
 
             // 2. Project, timeline, scene, tracks, clips.
             String workspaceId = get(port, tenant, token, "/dev/v1/context", 200)
@@ -122,6 +128,13 @@ class MediaDevProductionJourneyIT {
                         "source", Map.of("artifactId", narrationId, "artifactVersionId", "sha256:" + sha256(narration)),
                         "sourceIn", time(0, "SOURCE_PRESENTATION"), "sourceOut", time(48, "SOURCE_PRESENTATION"),
                         "storyStart", time(0, "STORY"), "storyDuration", time(48, "STORY"))));
+                edits.add(Map.of("type", "addTrack", "trackId", "caption-main", "sceneId", "scene-main",
+                        "trackKind", "CAPTION", "order", 2));
+                edits.add(Map.of("type", "putClip", "clip", Map.of(
+                        "clipId", "clip-captions", "sceneId", "scene-main", "trackId", "caption-main",
+                        "source", Map.of("artifactId", captionsId, "artifactVersionId", "sha256:" + sha256(captions)),
+                        "sourceIn", time(0, "SOURCE_PRESENTATION"), "sourceOut", time(48, "SOURCE_PRESENTATION"),
+                        "storyStart", time(0, "STORY"), "storyDuration", time(48, "STORY"))));
             }
             String revisionId = post(port, tenant, token, editPath, Map.of(
                     "expectedHeadRevisionId", head, "edits", edits), 201)
@@ -139,6 +152,16 @@ class MediaDevProductionJourneyIT {
             String renderSha = render.path("artifact").path("sha256").asString();
             assertThat(render.path("artifact").path("contentType").asString()).isEqualTo(contentType);
             assertThat(render.path("lineage").path("revisionId").asString()).isEqualTo(revisionId);
+            if (mp4) {
+                JsonNode captionSource = null;
+                for (JsonNode source : render.path("lineage").path("sources")) {
+                    if ("CAPTION".equals(source.path("trackKind").asString())) captionSource = source;
+                }
+                assertThat(captionSource).as("caption clip lineage").isNotNull();
+                assertThat(captionSource.path("artifactId").asString()).isEqualTo(captionsId);
+                assertThat(captionSource.path("artifactVersionId").asString()).isEqualTo("sha256:" + sha256(captions));
+                assertThat(captionSource.path("cueCount").asInt()).isEqualTo(2);
+            }
 
             // 4. Review: a case on the project revision and one on the render artifact version.
             String revisionCase = post(port, tenant, token, "/dev/v1/reviews", Map.of("subject", Map.of(

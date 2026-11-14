@@ -83,6 +83,45 @@ class MediaArtifactFormatVerifierTest {
                 .isEqualTo("SIGNATURE_MISMATCH");
     }
 
+    @Test
+    void acceptsWebVttOnlyWithSignatureAndValidUtf8WithoutNul() {
+        byte[] vtt = bytes("WEBVTT\n\n00:00.000 --> 00:01.000\nhello\n");
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", vtt)).isTrue();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt; charset=utf-8", vtt)).isTrue();
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "text/vtt", vtt).state()).isEqualTo("SIGNATURE_MATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("cues.bin", "text/vtt", vtt).state()).isEqualTo("SIGNATURE_MATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "text/vtt", vtt).detectedFormat()).isEqualTo("webvtt");
+        byte[] bom = new byte[] {(byte) 0xef, (byte) 0xbb, (byte) 0xbf, 'W', 'E', 'B', 'V', 'T', 'T', '\n'};
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bom)).isTrue();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("WEBVTT"))).isTrue();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("WEBVTT - title\n"))).isTrue();
+        // Multi-byte text is accepted; a prefix cut mid-sequence is tolerated by the prefix check only.
+        byte[] utf8 = "WEBVTT\n\n00:00.000 --> 00:01.000\ncaf\u00e9\n".getBytes(StandardCharsets.UTF_8);
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", utf8)).isTrue();
+        byte[] cut = java.util.Arrays.copyOf(utf8, utf8.length - 2);
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "text/vtt", cut).state()).isEqualTo("SIGNATURE_MATCH");
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", cut)).isFalse();
+    }
+
+    @Test
+    void rejectsWebVttWithoutSignatureWithNulOrInvalidUtf8() {
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("hello"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("WEBVTTX\n"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("webvtt\n"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("\nWEBVTT\n"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", new byte[] {'W', 'E', 'B', 'V', 'T', 'T', '\n', 0})).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", new byte[] {'W', 'E', 'B', 'V', 'T', 'T', '\n', (byte) 0xff})).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("text/vtt", bytes("RIFFxxxxWAVE"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "text/vtt", bytes("RIFFxxxxWAVE")).state())
+                .isEqualTo("SIGNATURE_MISMATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "text/vtt",
+                new byte[] {'W', 'E', 'B', 'V', 'T', 'T', '\n', 0}).state()).isEqualTo("SIGNATURE_MISMATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "audio/wav", bytes("WEBVTT\n")).state())
+                .isEqualTo("SIGNATURE_MISMATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("cues.vtt", "application/json", bytes("WEBVTT\n")).state())
+                .isEqualTo("SIGNATURE_MISMATCH");
+    }
+
     private static byte[] bytes(String value) {
         return value.getBytes(StandardCharsets.ISO_8859_1);
     }

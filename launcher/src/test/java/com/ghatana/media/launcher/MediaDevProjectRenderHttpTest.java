@@ -445,6 +445,180 @@ class MediaDevProjectRenderHttpTest {
         return 2 * Math.sqrt(re * re + im * im) / Math.max(1, z - a);
     }
 
+    private static Map<String, Object> captionClip(String clipId, String trackId, MediaArtifact vtt,
+                                                   long sourceInTicks, long sourceOutTicks, long startTicks,
+                                                   long durationTicks) {
+        return Map.of("type", "putClip", "clip", Map.of(
+                "clipId", clipId, "sceneId", "scene-main", "trackId", trackId,
+                "source", Map.of("artifactId", vtt.artifactId(), "artifactVersionId", vtt.version().value()),
+                "sourceIn", time(sourceInTicks, "SOURCE_PRESENTATION"),
+                "sourceOut", time(sourceOutTicks, "SOURCE_PRESENTATION"),
+                "storyStart", time(startTicks, "STORY"), "storyDuration", time(durationTicks, "STORY")));
+    }
+
+    private static String captionHead(String base, Fixture fixture, int captionTracks,
+                                      List<Map<String, Object>> clipEdits) throws Exception {
+        List<Map<String, Object>> edits = new java.util.ArrayList<>();
+        for (int i = 0; i < captionTracks; i++) {
+            edits.add(Map.of("type", "addTrack", "trackId", "caption-" + i, "sceneId", "scene-main",
+                    "trackKind", "CAPTION", "order", i + 1));
+        }
+        String head = edit(base, fixture.projectId(), "timeline-main", fixture.revisionId(), edits, false);
+        return edit(base, fixture.projectId(), "timeline-main", head, clipEdits, false);
+    }
+
+    private static final String CUES = "\uFEFFWEBVTT - fixture\n\nNOTE not a cue\nstill the note\n\n"
+            + "STYLE\n::cue { color: red }\n\n"
+            + "00:00.000 --> 00:00.200\nbefore\n\n"
+            + "straddle\n00:00.300 --> 00:00.600\nstraddles in\n\n"
+            + "00:00.700 --> 00:00.900\nearly\n\n"
+            + "00:01.000 --> 00:01.600\nTom & Jerry\nsecond line\n\n"
+            + "00:02.000 --> 00:02.400\ntail\n";
+
+    /** Independent extraction of the first subtitle stream as SRT: [startMs, endMs, text] per cue. */
+    private static List<Object[]> extractedCues(String ffmpeg, Path mp4, Path root) throws Exception {
+        Path srt = root.resolve("extracted.srt");
+        run(ffmpeg, "-v", "error", "-y", "-i", mp4.toString(), "-map", "0:s:0", "-f", "srt", srt.toString());
+        List<Object[]> cues = new java.util.ArrayList<>();
+        for (String block : Files.readString(srt).replace("\r\n", "\n").trim().split("\n\n")) {
+            String[] lines = block.split("\n", 3);
+            var m = java.util.regex.Pattern.compile(
+                    "(\\d+):(\\d+):(\\d+),(\\d+) --> (\\d+):(\\d+):(\\d+),(\\d+)").matcher(lines[1]);
+            assertThat(m.matches()).as(lines[1]).isTrue();
+            long start = ((Long.parseLong(m.group(1)) * 60 + Long.parseLong(m.group(2))) * 60
+                    + Long.parseLong(m.group(3))) * 1000 + Long.parseLong(m.group(4));
+            long end = ((Long.parseLong(m.group(5)) * 60 + Long.parseLong(m.group(6))) * 60
+                    + Long.parseLong(m.group(7))) * 1000 + Long.parseLong(m.group(8));
+            cues.add(new Object[] {start, end, lines[2]});
+        }
+        return cues;
+    }
+
+    @Test
+    void mp4RendersCaptionClipAsMovTextWithShiftedClippedCuesAndLineage() throws Exception {
+        String ffmpeg = tool("GHATANA_MEDIA_FFMPEG");
+        String ffprobe = tool("GHATANA_MEDIA_FFPROBE");
+        org.junit.jupiter.api.Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
+                "set GHATANA_MEDIA_FFMPEG and GHATANA_MEDIA_FFPROBE to runnable absolute tool paths");
+        Path root = Files.createTempDirectory("media-dev-render-captions-");
+        MediaRuntime runtime = runtime(root);
+        MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        var renderer = MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of(
+                MediaDevProjectRenderRuntime.FFMPEG_ENV, ffmpeg, MediaDevProjectRenderRuntime.FFPROBE_ENV, ffprobe));
+        HttpServer server = server(runtime, projects, new MediaDevProjectRenderRuntime(runtime, projects,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), renderer));
+        try {
+            String base = base(server);
+            Fixture fixture = twoClipProject(base, runtime, "caption-project");
+            MediaArtifact vtt = upload(runtime, "cues.vtt", "text/vtt", CUES.getBytes(StandardCharsets.UTF_8), "cap-vtt");
+            // Source window [0.5s, 1.5s) of the file lands at story [1.0s, 2.0s) of a 2 s timeline.
+            String head = captionHead(base, fixture, 1, List.of(captionClip("clip-cap", "caption-0", vtt, 12, 36, 24, 24)));
+            String body = mp4Body("caption-1", head);
+            HttpResponse<String> rendered = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    body, PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(rendered.statusCode()).as(rendered.body()).isEqualTo(201);
+            Map<String, Object> view = read(rendered.body());
+            Map<String, Object> lineage = object(view.get("lineage"));
+            List<?> sources = (List<?>) lineage.get("sources");
+            assertThat(sources).hasSize(3);
+            Map<String, Object> captionSource = object(sources.get(2));
+            assertThat(captionSource).containsEntry("clipId", "clip-cap").containsEntry("trackKind", "CAPTION")
+                    .containsEntry("artifactId", vtt.artifactId()).containsEntry("artifactVersionId", vtt.version().value())
+                    .containsEntry("sourceSha256", vtt.sha256()).containsEntry("sourceCueCount", 5)
+                    .containsEntry("cueCount", 3);
+
+            Path mp4 = Files.createTempFile(root, "caption-", ".mp4");
+            Files.write(mp4, artifactBytes(runtime, (String) view.get("renderId")));
+            assertThat(run(ffprobe, "-v", "error", "-select_streams", "s", "-show_entries", "stream=codec_name",
+                    "-of", "csv=p=0", mp4.toString()).trim()).isEqualTo("mov_text");
+            List<Object[]> cues = extractedCues(ffmpeg, mp4, root);
+            assertThat(cues).hasSize(3);
+            assertThat(cues.get(0)).containsExactly(1_000L, 1_100L, "straddles in");
+            assertThat(cues.get(1)).containsExactly(1_200L, 1_400L, "early");
+            assertThat(cues.get(2)).containsExactly(1_500L, 2_000L, "Tom & Jerry\nsecond line");
+
+            HttpResponse<String> replay = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    body, PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(read(replay.body())).containsEntry("renderId", view.get("renderId"));
+
+            // GIF has no caption support: typed, unchanged.
+            HttpResponse<String> gif = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    renderRequest("caption-gif", head), PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(gif.statusCode()).isEqualTo(422);
+            assertThat(gif.body()).contains("TRACK_KIND_NOT_SUPPORTED");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
+    void mp4CaptionInputsThatDoNotFitAreTyped422WithoutApproximation() throws Exception {
+        String ffmpeg = tool("GHATANA_MEDIA_FFMPEG");
+        String ffprobe = tool("GHATANA_MEDIA_FFPROBE");
+        org.junit.jupiter.api.Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
+                "set GHATANA_MEDIA_FFMPEG and GHATANA_MEDIA_FFPROBE to runnable absolute tool paths");
+        Path root = Files.createTempDirectory("media-dev-render-captions-bad-");
+        MediaRuntime runtime = runtime(root);
+        MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        var renderer = MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of(
+                MediaDevProjectRenderRuntime.FFMPEG_ENV, ffmpeg, MediaDevProjectRenderRuntime.FFPROBE_ENV, ffprobe));
+        HttpServer server = server(runtime, projects, new MediaDevProjectRenderRuntime(runtime, projects,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), renderer));
+        try {
+            String base = base(server);
+            MediaArtifact good = upload(runtime, "good.vtt", "text/vtt",
+                    "WEBVTT\n\n00:00.000 --> 00:00.500\nhello\n".getBytes(StandardCharsets.UTF_8), "bad-good");
+            MediaArtifact plain = upload(runtime, "notes.txt", "text/plain",
+                    "WEBVTT\n\n00:00.000 --> 00:00.500\nhello\n".getBytes(StandardCharsets.UTF_8), "bad-plain");
+            MediaArtifact inverted = upload(runtime, "inverted.vtt", "text/vtt",
+                    "WEBVTT\n\n00:00.500 --> 00:00.500\nhello\n".getBytes(StandardCharsets.UTF_8), "bad-inverted");
+            MediaArtifact badTiming = upload(runtime, "timing.vtt", "text/vtt",
+                    "WEBVTT\n\n00:0.000 --> 00:00.500\nhello\n".getBytes(StandardCharsets.UTF_8), "bad-timing");
+            MediaArtifact markup = upload(runtime, "markup.vtt", "text/vtt",
+                    "WEBVTT\n\n00:00.000 --> 00:00.500\n<b>hello</b>\n".getBytes(StandardCharsets.UTF_8), "bad-markup");
+
+            expectCaptionRefusal(base, runtime, "plain", List.of(captionClip("c", "caption-0", plain, 0, 12, 0, 12)),
+                    1, "SOURCE_FORMAT_NOT_SUPPORTED");
+            expectCaptionRefusal(base, runtime, "inverted", List.of(captionClip("c", "caption-0", inverted, 0, 12, 0, 12)),
+                    1, "CAPTION_WEBVTT_MALFORMED");
+            expectCaptionRefusal(base, runtime, "timing", List.of(captionClip("c", "caption-0", badTiming, 0, 12, 0, 12)),
+                    1, "CAPTION_WEBVTT_MALFORMED");
+            expectCaptionRefusal(base, runtime, "markup", List.of(captionClip("c", "caption-0", markup, 0, 12, 0, 12)),
+                    1, "CAPTION_MARKUP_NOT_SUPPORTED");
+            expectCaptionRefusal(base, runtime, "retime", List.of(captionClip("c", "caption-0", good, 0, 24, 0, 12)),
+                    1, "CAPTION_RETIMING_NOT_SUPPORTED");
+            expectCaptionRefusal(base, runtime, "overlap", List.of(
+                    captionClip("c1", "caption-0", good, 0, 12, 0, 12),
+                    captionClip("c2", "caption-1", good, 0, 12, 6, 12)), 2, "CAPTION_CLIPS_OVERLAP");
+            // storyStart 1 tick (1/24 s) with sourceIn 0: every mapped cue time is 1/24 s + whole ms.
+            expectCaptionRefusal(base, runtime, "msexact", List.of(captionClip("c", "caption-0", good, 0, 12, 1, 12)),
+                    1, "CAPTION_TIME_NOT_MS_EXACT");
+            // Adjacent (touching) caption clips are not overlapping.
+            Fixture adjacentFixture = twoClipProject(base, runtime, "cap-adjacent");
+            String adjacent = captionHead(base, adjacentFixture, 2, List.of(
+                    captionClip("a1", "caption-0", good, 0, 12, 0, 12),
+                    captionClip("a2", "caption-1", good, 0, 12, 12, 12)));
+            HttpResponse<String> ok = send(base, "POST", "/dev/v1/projects/" + adjacentFixture.projectId() + "/renders",
+                    mp4Body("adjacent", adjacent), PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(ok.statusCode()).as(ok.body()).isEqualTo(201);
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    private static void expectCaptionRefusal(String base, MediaRuntime runtime, String name,
+                                             List<Map<String, Object>> clips, int tracks, String code) throws Exception {
+        Fixture fixture = twoClipProject(base, runtime, "cap-refuse-" + name);
+        String head = captionHead(base, fixture, tracks, clips);
+        HttpResponse<String> response = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                mp4Body("refuse-" + name, head), PRINCIPAL, RENDER_PERMISSIONS);
+        assertThat(response.statusCode()).as(name + ": " + response.body()).isEqualTo(422);
+        assertThat(response.body()).as(name).contains(code);
+    }
+
     private String mp4Head(String base, Fixture fixture, List<Map<String, Object>> clipEdits, int audioTracks)
             throws Exception {
         List<Map<String, Object>> edits = new java.util.ArrayList<>();

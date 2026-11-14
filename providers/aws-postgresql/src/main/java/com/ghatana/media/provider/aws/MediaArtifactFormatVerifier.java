@@ -21,7 +21,7 @@ public final class MediaArtifactFormatVerifier {
             Map.entry("webm", "webm"), Map.entry("mkv", "webm"),
             Map.entry("ogg", "ogg"), Map.entry("ogv", "ogg"),
             Map.entry("mp3", "mp3"), Map.entry("wav", "wav"), Map.entry("pdf", "pdf"),
-            Map.entry("glb", "glb"), Map.entry("json", "json"));
+            Map.entry("glb", "glb"), Map.entry("json", "json"), Map.entry("vtt", "webvtt"));
     private static final Map<String, String> CONTENT_TYPE_FORMATS = Map.ofEntries(
             Map.entry("image/png", "png"), Map.entry("image/jpeg", "jpeg"),
             Map.entry("image/gif", "gif"), Map.entry("image/webp", "webp"),
@@ -31,7 +31,8 @@ public final class MediaArtifactFormatVerifier {
             Map.entry("audio/ogg", "ogg"), Map.entry("video/ogg", "ogg"),
             Map.entry("audio/mpeg", "mp3"), Map.entry("audio/wav", "wav"),
             Map.entry("audio/x-wav", "wav"), Map.entry("application/pdf", "pdf"),
-            Map.entry("model/gltf-binary", "glb"), Map.entry("application/json", "json"));
+            Map.entry("model/gltf-binary", "glb"), Map.entry("application/json", "json"),
+            Map.entry("text/vtt", "webvtt"));
 
     private MediaArtifactFormatVerifier() { }
 
@@ -50,6 +51,7 @@ public final class MediaArtifactFormatVerifier {
             case "video/webm", "audio/webm" -> starts(bytes, new byte[] {0x1a, 0x45, (byte) 0xdf, (byte) 0xa3});
             case "model/gltf-binary" -> isGlbHeader(bytes);
             case "application/json" -> startsJsonContainer(bytes) && validUtf8Text(bytes);
+            case "text/vtt" -> startsWebVtt(bytes) && validUtf8Text(bytes);
             case "image/png" -> starts(bytes, new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10});
             case "image/jpeg", "image/jpg" -> starts(bytes, new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff});
             case "image/gif" -> ascii(bytes, 0, "GIF87a") || ascii(bytes, 0, "GIF89a");
@@ -69,6 +71,30 @@ public final class MediaArtifactFormatVerifier {
         } catch (java.nio.charset.CharacterCodingException invalid) {
             return false;
         }
+    }
+
+    /**
+     * UTF-8 validity of a possibly truncated prefix: an incomplete trailing sequence is tolerated, any malformed
+     * sequence or NUL byte is not.
+     */
+    private static boolean validUtf8Prefix(byte[] bytes) {
+        for (byte value : bytes) if (value == 0) return false;
+        var decoder = StandardCharsets.UTF_8.newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+        var result = decoder.decode(java.nio.ByteBuffer.wrap(bytes),
+                java.nio.CharBuffer.allocate(bytes.length + 1), false);
+        return !result.isError();
+    }
+
+    /** WebVTT signature: optional UTF-8 BOM, then "WEBVTT" followed by end of data, space, tab, LF or CR. */
+    private static boolean startsWebVtt(byte[] bytes) {
+        int offset = starts(bytes, new byte[] {(byte) 0xef, (byte) 0xbb, (byte) 0xbf}) ? 3 : 0;
+        if (!ascii(bytes, offset, "WEBVTT")) return false;
+        int next = offset + 6;
+        if (next == bytes.length) return true;
+        byte value = bytes[next];
+        return value == ' ' || value == '\t' || value == '\n' || value == '\r';
     }
 
     static Verification verify(String fileName, String contentType, byte[] prefix) {
@@ -110,6 +136,7 @@ public final class MediaArtifactFormatVerifier {
         if (ascii(bytes, 0, "%PDF-")) return "pdf";
         if (isGlbHeader(bytes)) return "glb";
         if (startsJsonContainer(bytes)) return "json";
+        if (startsWebVtt(bytes) && validUtf8Prefix(bytes)) return "webvtt";
         if (ascii(bytes, 0, "ID3") || isMpegAudioFrame(bytes)) return "mp3";
         if (bytes.length >= 8 && ascii(bytes, 4, "ftyp")) return "iso-bmff";
         return "unknown";

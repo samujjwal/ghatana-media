@@ -368,6 +368,8 @@ public final class MediaDevProjectRenderRuntime {
         List<MediaDevProjectAudioMix.Input> audioInputs = new ArrayList<>();
         List<MultitrackRenderPlanner.Clip> audioPlanClips = new ArrayList<>();
         List<Map<String, Object>> sources = new ArrayList<>();
+        List<MultitrackRenderPlanner.Caption> captions = new ArrayList<>();
+        List<MultitrackRenderPlanner.Time[]> captionWindows = new ArrayList<>();
         for (Clip clip : clips) {
             TrackKind kind = tracks.get(clip.trackId()).kind();
             MultitrackRenderPlanner.Time timelineStart = seconds(clip.storyStart());
@@ -408,9 +410,12 @@ public final class MediaDevProjectRenderRuntime {
                 audioPlanClips.add(new MultitrackRenderPlanner.Clip(clip.clipId(), MultitrackRenderPlanner.Modality.AUDIO,
                         clip.source().artifactId(), clip.source().artifactVersionId(), artifact.sha256(),
                         timelineStart, sourceStart, sourceEnd, List.of(sourceStart)));
+            } else if (kind == TrackKind.CAPTION) {
+                source.putAll(captionClip(tenantId, principalId, clip, timelineStart, duration,
+                        captionWindows, captions));
             } else {
                 throw new RenderNotSupportedException("TRACK_KIND_NOT_SUPPORTED",
-                        "MP4 rendering supports VIDEO still-image and AUDIO WAV clips only");
+                        "MP4 rendering supports VIDEO still-image, AUDIO WAV and CAPTION WebVTT clips only");
             }
             sources.add(source);
         }
@@ -437,7 +442,7 @@ public final class MediaDevProjectRenderRuntime {
         MultitrackRenderPlanner.PlanResult planned;
         try {
             planned = MultitrackRenderPlanner.plan(new MultitrackRenderPlanner.Graph(
-                    planClips, List.of(), List.of(), MAX_MP4_OUTPUT_BYTES));
+                    planClips, captions, List.of(), MAX_MP4_OUTPUT_BYTES));
         } catch (IllegalArgumentException invalid) {
             throw new RenderNotSupportedException("RENDER_UNSUPPORTED_TIMELINE", "timeline is not a valid render graph");
         }
@@ -495,6 +500,74 @@ public final class MediaDevProjectRenderRuntime {
         } finally {
             deleteQuietly(outputDirectory);
         }
+    }
+
+    /**
+     * Maps one CAPTION clip to renderer captions. The clip references the exact version of a text/vtt artifact; its
+     * source interval selects cues on the file's own clock, cues are clipped to that interval and shifted by
+     * (storyStart - sourceIn). No retiming, no overlapping clips, every mapped time exactly whole milliseconds.
+     * Returns the per-clip lineage entry.
+     */
+    private Map<String, Object> captionClip(String tenantId, String principalId, Clip clip,
+                                            MultitrackRenderPlanner.Time storyStart, MultitrackRenderPlanner.Time duration,
+                                            List<MultitrackRenderPlanner.Time[]> windows,
+                                            List<MultitrackRenderPlanner.Caption> captions) {
+        MediaArtifact artifact = exactSource(tenantId, principalId, clip);
+        String contentType = artifact.contentType().toLowerCase(Locale.ROOT);
+        int parameters = contentType.indexOf(';');
+        if (!(parameters < 0 ? contentType : contentType.substring(0, parameters)).trim().equals("text/vtt")) {
+            throw new RenderNotSupportedException("SOURCE_FORMAT_NOT_SUPPORTED",
+                    "caption clips must reference a text/vtt (WebVTT) artifact");
+        }
+        MultitrackRenderPlanner.Time sourceIn = seconds(clip.sourceIn());
+        MultitrackRenderPlanner.Time sourceOut = seconds(clip.sourceOut());
+        if (sourceOut.minus(sourceIn).compareTo(duration) != 0) {
+            throw new RenderNotSupportedException("CAPTION_RETIMING_NOT_SUPPORTED",
+                    "caption clips must not be retimed: source interval must equal story duration");
+        }
+        MultitrackRenderPlanner.Time storyEnd = storyStart.plus(duration);
+        for (MultitrackRenderPlanner.Time[] other : windows) {
+            if (storyStart.compareTo(other[1]) < 0 && other[0].compareTo(storyEnd) < 0) {
+                throw new RenderNotSupportedException("CAPTION_CLIPS_OVERLAP",
+                        "overlapping caption clips are not supported");
+            }
+        }
+        windows.add(new MultitrackRenderPlanner.Time[] {storyStart, storyEnd});
+        byte[] bytes = readExact(tenantId, principalId, artifact, MediaDevWebVtt.MAX_BYTES);
+        List<MediaDevWebVtt.Cue> cues;
+        try {
+            cues = MediaDevWebVtt.parse(bytes);
+        } catch (MediaDevWebVtt.WebVttException refused) {
+            throw new RenderNotSupportedException(refused.code(), refused.getMessage());
+        }
+        MultitrackRenderPlanner.Time shift = storyStart.minus(sourceIn);
+        int emitted = 0;
+        for (MediaDevWebVtt.Cue cue : cues) {
+            MultitrackRenderPlanner.Time cueStart = new MultitrackRenderPlanner.Time(cue.startMillis(), 1000);
+            MultitrackRenderPlanner.Time cueEnd = new MultitrackRenderPlanner.Time(cue.endMillis(), 1000);
+            MultitrackRenderPlanner.Time from = cueStart.compareTo(sourceIn) < 0 ? sourceIn : cueStart;
+            MultitrackRenderPlanner.Time to = cueEnd.compareTo(sourceOut) > 0 ? sourceOut : cueEnd;
+            if (to.compareTo(from) <= 0) continue;
+            MultitrackRenderPlanner.Time mappedStart = from.plus(shift);
+            MultitrackRenderPlanner.Time mappedEnd = to.plus(shift);
+            if (!wholeMillis(mappedStart) || !wholeMillis(mappedEnd)) {
+                throw new RenderNotSupportedException("CAPTION_TIME_NOT_MS_EXACT",
+                        "mapped caption times are not whole milliseconds");
+            }
+            captions.add(new MultitrackRenderPlanner.Caption("cap-" + captions.size(), mappedStart, mappedEnd,
+                    cue.text()));
+            emitted++;
+        }
+        Map<String, Object> lineage = new LinkedHashMap<>();
+        lineage.put("sourceSha256", artifact.sha256());
+        lineage.put("sourceCueCount", cues.size());
+        lineage.put("cueCount", emitted);
+        return lineage;
+    }
+
+    private static boolean wholeMillis(MultitrackRenderPlanner.Time time) {
+        return BigInteger.valueOf(time.numerator()).multiply(BigInteger.valueOf(1000))
+                .mod(BigInteger.valueOf(time.denominator())).signum() == 0;
     }
 
     private static MultitrackRenderPlanner.Time seconds(
