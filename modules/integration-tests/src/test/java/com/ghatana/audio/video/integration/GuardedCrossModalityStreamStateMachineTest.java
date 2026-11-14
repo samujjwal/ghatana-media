@@ -101,13 +101,14 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThat(audio.attachment()).isEqualTo(GuardedAudioStreamSession.Attachment.DETACHED);
         assertThat(audio.generation()).isZero();
         assertThat(audio.nextAck()).isZero();
-        // Denied audio reconnect discards its gap-held frame; video resume denial preserves its in-memory frame.
+        // Revoked consent fails closed on both modalities: the denied audio reconnect and the denied
+        // video resume each purge their gap-held in-memory frame payloads.
         assertThat(audio.pendingCount()).isZero();
         assertThat(video.detached()).isTrue();
         assertThat(video.claimToken()).isEqualTo(2L);
         assertThat(video.leaseHolder()).isEqualTo("worker-b");
         assertThat(video.nextAck("worker-b", 2L)).isZero();
-        assertThat(video.pendingCount()).isEqualTo(1);
+        assertThat(video.pendingCount()).isZero();
 
         assertThatThrownBy(() -> audio.submitFrame(
                 new AudioStreamSession.DecodedFrame(1, 20L, new byte[]{0x55})))
@@ -137,8 +138,8 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThatThrownBy(() -> video.takeDelivered("worker-a", 1L))
                 .isInstanceOf(GuardedVideoStreamSession.StaleLeaseException.class);
 
-        // Denied audio reconnect discarded its held frame. Neither denied video
-        // resume nor stale-worker replay delivered another frame or reached a sink.
+        // Denied audio reconnect and denied video resume both purged their held frames. Neither
+        // denied resume nor stale-worker replay delivered another frame or reached a sink.
         assertThat(audioDelivered).containsExactly(0);
         assertThat(videoDelivered).containsExactly(0);
         assertThat(providerEffects).hasValue(0);
@@ -147,7 +148,7 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThat(audio.generation()).isZero();
         assertThat(audio.attachment()).isEqualTo(GuardedAudioStreamSession.Attachment.DETACHED);
         assertThat(video.nextAck("worker-b", 2L)).isZero();
-        assertThat(video.pendingCount()).isEqualTo(1);
+        assertThat(video.pendingCount()).isZero();
         assertThat(video.detached()).isTrue();
     }
 
