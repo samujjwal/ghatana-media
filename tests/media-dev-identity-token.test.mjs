@@ -108,7 +108,7 @@ test('script permission allowlist exactly matches canonical and DEV_ONLY route p
   const devRouteText = readFileSync(devRoutePath, 'utf8');
   const allowlist = scriptText.match(/const PERMISSION_ALLOWLIST = new Set\(\[([\s\S]*?)\n\]\);/u)?.[1];
   const requiredPermission = manifestText.match(/public static String requiredPermission\([\s\S]*?\n    \}/u)?.[0];
-  const devPermission = devRouteText.match(/static final String PROJECT_[A-Z]+ = "media:project:dev:[a-z]+";/gu)?.join('\n');
+  const devPermission = devRouteText.match(/static final String [A-Z_]+ = "media:[a-z-]+:dev:[a-z]+";/gu)?.join('\n');
   assert.ok(allowlist, 'script allowlist should remain statically inspectable');
   assert.ok(requiredPermission, 'manifest permission method should remain statically inspectable');
   assert.ok(devPermission, 'development-only route permissions should remain statically inspectable');
