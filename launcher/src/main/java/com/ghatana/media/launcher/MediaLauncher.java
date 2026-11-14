@@ -113,7 +113,8 @@ public final class MediaLauncher {
                                     captions, finalDevProjectTimeline, finalDevReview,
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
                                     .withDevSpeech(finalDevProjectTimeline == null ? null
-                                            : MediaDevSpeechRuntime.compose(runtime, System.getenv())),
+                                            : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
+                                                    finalDevRights == null ? null : finalDevRights.resolver())),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devDelivery != null) {

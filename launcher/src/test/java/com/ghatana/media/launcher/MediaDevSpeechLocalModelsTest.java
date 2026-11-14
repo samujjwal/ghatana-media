@@ -253,6 +253,54 @@ class MediaDevSpeechLocalModelsTest {
                 .isEqualTo("RIGHTS_AUTHORITY_UNAVAILABLE");
     }
 
+    @Test
+    void rightsConsentResolverVerdictsMapToProcessingScopeDecisionsAndUnavailableIsTheDefault() {
+        MediaArtifact artifact = new MediaArtifact(TENANT, PRINCIPAL, "artifact-x", "a.wav", "audio/wav", 4,
+                "a".repeat(64), "local://x", "INTERNAL", Instant.now(), Instant.now().plusSeconds(60), Map.of());
+        var seen = new java.util.ArrayList<com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest>();
+        for (var verdict : com.ghatana.media.runtime.MediaRightsConsentContracts.Verdict.values()) {
+            // TEST FIXTURE resolver returning a fixed verdict.
+            var resolver = (com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver)
+                    new FixtureResolver(verdict, seen);
+            var decision = MediaDevSpeechRuntime.resolverGate(resolver).authorize(TENANT, PRINCIPAL,
+                    MediaDevSpeechRuntime.Operation.SPEECH_TO_TEXT, artifact);
+            switch (verdict) {
+                case ADMITTED -> assertThat(decision.outcome())
+                        .isEqualTo(MediaDevSpeechRuntime.SpeechRightsGate.Outcome.ALLOWED);
+                case UNAVAILABLE -> assertThat(decision.code()).isEqualTo("RIGHTS_AUTHORITY_UNAVAILABLE");
+                default -> {
+                    assertThat(decision.outcome()).isEqualTo(MediaDevSpeechRuntime.SpeechRightsGate.Outcome.DENIED);
+                    assertThat(decision.code()).isEqualTo("RIGHTS_DECISION_" + verdict.name());
+                }
+            }
+        }
+        assertThat(seen).allSatisfy(request -> {
+            assertThat(request.scope()).isEqualTo(com.ghatana.media.runtime.MediaRightsConsentContracts.Scope.PROCESSING);
+            assertThat(request.artifactVersion()).isEqualTo(artifact.version().value());
+            assertThat(request.contentSha256()).isEqualTo(artifact.sha256());
+        });
+        // The unconfigured default resolver and a throwing resolver both stay fail-closed.
+        assertThat(MediaDevSpeechRuntime.resolverGate(
+                com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver.unavailable())
+                .authorize(TENANT, PRINCIPAL, MediaDevSpeechRuntime.Operation.SPEECH_TO_TEXT, artifact).code())
+                .isEqualTo("RIGHTS_AUTHORITY_UNAVAILABLE");
+    }
+
+    /** TEST FIXTURE: fixed verdict, records the exact requests it was asked about. */
+    private record FixtureResolver(com.ghatana.media.runtime.MediaRightsConsentContracts.Verdict verdict,
+            java.util.List<com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest> seen)
+            implements com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver {
+        @Override public String resolverId() { return "test-fixture-resolver"; }
+        @Override public boolean ready() { return true; }
+        @Override public com.ghatana.media.runtime.MediaRightsConsentContracts.Resolution resolve(
+                com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest request) {
+            seen.add(request);
+            return new com.ghatana.media.runtime.MediaRightsConsentContracts.Resolution(verdict, java.util.Set.of(),
+                    verdict == com.ghatana.media.runtime.MediaRightsConsentContracts.Verdict.ADMITTED
+                            ? java.util.List.of("attestation-1") : java.util.List.of(), "test-fixture-resolver");
+        }
+    }
+
     // ---- helpers ----
 
     private static MediaDevSpeechRuntime speechRuntime(MediaRuntime runtime, FixtureSpeechRightsGate gate) {

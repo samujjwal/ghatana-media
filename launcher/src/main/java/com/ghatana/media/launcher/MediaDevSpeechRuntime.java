@@ -4,6 +4,8 @@ import com.ghatana.media.production.rendering.BoundedProcessRunner;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaRightsConsentContracts;
+import com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.localmodel.LocalModelInstall;
 import com.ghatana.stt.local.LocalSpeechException;
@@ -37,7 +39,7 @@ import java.util.Set;
  * digest and runtime. The source artifact is never modified.
  *
  * <ul>
- *   <li>transcription: one exact owner-visible PCM16 WAV artifact version becomes a transcript text artifact and a
+ *   <li>transcription: one exact owner-visible PCM16 WAV artifact version becomes a transcript JSON artifact and a
  *       derived WebVTT artifact. The WebVTT is an unreviewed rendering of the recognizer segments, not a caption
  *       authority;</li>
  *   <li>synthesis: text becomes a mono 24 kHz PCM16 WAV artifact using a manifest-listed Kokoro voice pack.</li>
@@ -142,6 +144,8 @@ public final class MediaDevSpeechRuntime {
         }
     }
 
+    private static final tools.jackson.databind.ObjectMapper JSON = tools.jackson.databind.json.JsonMapper.builder().build();
+
     private final MediaRuntime runtime;
     private final MediaDevProjectRenderRuntime.OutputRegistrar registrar;
     private final LocalWhisperCppSttProvider stt;
@@ -161,14 +165,63 @@ public final class MediaDevSpeechRuntime {
     }
 
     /**
-     * Production-shaped composition from the server-owned environment: verified providers from the manifests, the
-     * runtime's own source-authorization authority for STT, and the canonical-job-lane rule for TTS.
+     * Server-owned composition: verified providers from the manifests, the rights-and-consent resolver (the DEV_ONLY
+     * attestation authority when enabled with MEDIA_RIGHTS_DEV_ENABLED, otherwise the fail-closed
+     * {@code RightsConsentResolver.unavailable()}) for STT, and the canonical-job-lane rule for TTS.
+     *
+     * <p>Rights decision for synthesis: this lane accepts only request text and a stock Kokoro voice pack. It has no
+     * reference-audio, voice-sample or embedding input (such fields are rejected as unknown), so no media-rights
+     * statement exists to require. Any future reference or voice-sample input must be gated by
+     * {@code Scope.VOICE_OR_LIKENESS_USE}.</p>
      */
-    static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment) {
+    static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment,
+                                         RightsConsentResolver resolver) {
         return new MediaDevSpeechRuntime(runtime, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
                 LocalWhisperCppSttProvider.fromEnvironment(environment),
                 LocalKokoroTtsProvider.fromEnvironment(environment),
-                runtimeAuthorityGate(runtime), canonicalJobLaneTtsGate(runtime));
+                resolverGate(resolver == null ? RightsConsentResolver.unavailable() : resolver),
+                canonicalJobLaneTtsGate(runtime));
+    }
+
+    static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment) {
+        return compose(runtime, environment, null);
+    }
+
+    /**
+     * STT on one exact source artifact version needs a {@code Scope.PROCESSING} admission from the rights-and-consent
+     * resolver. UNAVAILABLE (including an unconfigured authority) maps to RIGHTS_AUTHORITY_UNAVAILABLE and every
+     * other non-ADMITTED verdict to its matching admission reason; nothing is inferred as allowed.
+     */
+    static SpeechRightsGate resolverGate(RightsConsentResolver resolver) {
+        return (tenantId, principalId, operation, source) -> {
+            if (operation != Operation.SPEECH_TO_TEXT || source == null) return SpeechRightsGate.Decision.unavailable();
+            try {
+                var resolution = resolver.resolve(new ResolutionRequestBuilder(tenantId, source).build());
+                return switch (resolution.verdict()) {
+                    case ADMITTED -> new SpeechRightsGate.Decision(SpeechRightsGate.Outcome.ALLOWED, "",
+                            "rights-attestation:" + String.join(",", resolution.attestationIds()));
+                    case UNAVAILABLE -> SpeechRightsGate.Decision.unavailable();
+                    case DENIED -> denied("RIGHTS_DECISION_DENIED");
+                    case REVOKED -> denied("RIGHTS_DECISION_REVOKED");
+                    case STALE -> denied("RIGHTS_DECISION_STALE");
+                    case MISMATCH -> denied("RIGHTS_DECISION_MISMATCH");
+                };
+            } catch (RuntimeException unavailable) {
+                return SpeechRightsGate.Decision.unavailable();
+            }
+        };
+    }
+
+    private static SpeechRightsGate.Decision denied(String code) {
+        return new SpeechRightsGate.Decision(SpeechRightsGate.Outcome.DENIED, code, "");
+    }
+
+    /** Builds the exact-identity resolution request; digest and version come from the real artifact record. */
+    private record ResolutionRequestBuilder(String tenantId, MediaArtifact source) {
+        MediaRightsConsentContracts.ResolutionRequest build() {
+            return new MediaRightsConsentContracts.ResolutionRequest(tenantId, source.artifactId(),
+                    source.version().value(), source.sha256(), MediaRightsConsentContracts.Scope.PROCESSING);
+        }
     }
 
     /** Asks the runtime's configured source-authorization authority (the same one canonical STT admission uses). */
@@ -309,9 +362,25 @@ public final class MediaDevSpeechRuntime {
         transcriptLineage.put("cueCount", result.segments().size());
         transcriptLineage.put("note", "Recognizer output for the exact source version; unreviewed and not a quality, "
                 + "measurement or approval claim. The source artifact version is unchanged.");
-        byte[] transcriptBytes = (result.text() + "\n").getBytes(StandardCharsets.UTF_8);
+        Map<String, Object> transcriptDocument = new LinkedHashMap<>();
+        transcriptDocument.put("schema", "media.dev.speech-transcript.v1");
+        transcriptDocument.put("language", request.language());
+        transcriptDocument.put("text", result.text());
+        List<Map<String, Object>> documentCues = new ArrayList<>();
+        for (LocalWhisperCppRunner.Segment segment : result.segments()) {
+            documentCues.add(Map.of("startMillis", segment.startMillis(), "endMillis", segment.endMillis(),
+                    "text", segment.text()));
+        }
+        transcriptDocument.put("segments", documentCues);
+        transcriptDocument.put("segmentTimeBase", "milliseconds from the start of the decoded audio; unqualified");
+        final byte[] transcriptBytes;
+        try {
+            transcriptBytes = JSON.writeValueAsBytes(transcriptDocument);
+        } catch (RuntimeException failure) {
+            throw new SpeechRegistrationFailedException(failure);
+        }
         SpeechOutput transcript = register(tenantId, principalId, source.classification(), "stt-transcript",
-                request.requestId(), transcriptBytes, "text/plain", "txt",
+                request.requestId(), transcriptBytes, "application/json", "json",
                 "transcript-" + safeName(source.artifactId()), transcriptLineage);
 
         List<WebVttWriter.Cue> cues = new ArrayList<>();
