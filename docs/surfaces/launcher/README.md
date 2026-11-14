@@ -310,6 +310,8 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/rights/attestations/{attestationId}/confirm` | `media:project:dev:write` | a principal other than the attester | rights |
 | POST | `/dev/v1/rights/attestations/{attestationId}/revoke` | `media:project:dev:write` | attester or confirmer | rights |
 | GET | `/dev/v1/rights/artifacts/{artifactId}/versions/{versionId}/attestations` | `media:project:dev:read` | caller owns the exact version | rights |
+| POST | `/dev/v1/captions/corrections` | `media:project:dev:write` | `media:artifact:{read,create}` (caller owns the exact base version) | timeline (rights/review: `MEDIA_RIGHTS_DEV_ENABLED`, `MEDIA_DEV_REVIEW_ENABLED`) |
+| GET | `/dev/v1/captions/{captionId}` | `media:project:dev:read` | `media:artifact:read` (caller owns the version) | timeline |
 | POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
 | GET | `/dev/v1/exports/{requestId}` | `media:delivery:dev:read` | — | delivery |
 | GET | `/dev/v1/speech/capabilities` | `media:project:dev:read` | — | local speech (`MEDIA_LOCAL_MODEL_ROOT`); lists only manifest-verified voices, `verifiedLanguages`, `voiceCloning` and the licence attribution notice |
@@ -404,6 +406,34 @@ registration, so a revocation during the run leaves no artifact. The typed docum
 restart. The Document Intelligence child is always reported `UNAVAILABLE` (no DI v1 gateway client is wired here;
 on-screen text is the local Florence-2 reader, not DI). Evidence beyond the prompt budget is not citable
 (`evidenceOmittedForPromptBudget`). Local open-model output: no quality, entailment, rights or production claim.
+
+DEV_ONLY human caption correction (J-03; `MediaDevCaptionRuntime`, outside the canonical manifest/OpenAPI):
+`POST /dev/v1/captions/corrections` takes `{requestId, baseArtifactId, expectedVersionId, cues:[{startMillis, endMillis,
+text}]}` and registers the edited cues as a NEW immutable `text/vtt` artifact on top of one exact owner-visible caption
+version (the unreviewed Whisper WebVTT from `POST /dev/v1/speech/transcriptions`, or an earlier correction). The base is
+never overwritten. `201` (replay of the same requestId and cues `200`); the lineage records the exact parent version and
+digest, the machine version the chain started from, `correctionNumber`, `correctedByPrincipalId` (the authenticated
+caller; no body field names a principal), the source audio and the admitting rights evidence, plus a per-cue edit
+summary. Optimistic concurrency: `expectedVersionId` must equal the base's current version or `409
+CAPTION_VERSION_CONFLICT` (the response names the current version); each parent version has at most one child because
+the child is registered under an idempotency key derived from the parent, so two correctors of the same parent collide in
+the durable idempotency store (`409 CAPTION_VERSION_CONFLICT`; the same requestId with different cues is also `409`).
+Rights are re-resolved for the exact source audio (`Scope.PROCESSING`) on every correction: `403
+RIGHTS_DECISION_DENIED | REVOKED | STALE | MISMATCH` or `422 RIGHTS_AUTHORITY_UNAVAILABLE`, with nothing registered. Other
+refusals: `404 SOURCE_VERSION_NOT_FOUND` (not the owner or unknown; no text disclosed), `403 ARTIFACT_PERMISSION_REQUIRED`,
+`422 CAPTION_BASE_NOT_SUPPORTED | CAPTION_UNCHANGED | CAPTION_DRAFT_EMPTY | CAPTION_TIMING_INVALID | CAPTION_TEXT_EMPTY |
+CAPTION_MARKUP_NOT_SUPPORTED | CAPTION_TEXT_INVALID | CAPTION_LIMIT_EXCEEDED` (cues are never repaired or reordered).
+`GET /dev/v1/captions/{captionId}` returns the parsed cues, lineage and the review use of that exact version
+(`review.acceptedByAssignedReviewer`, `establishesApproval:false`). Review of a caption uses the existing
+`ARTIFACT_VERSION` review subject (owner opens a case and assigns a different reviewer; the owner cannot decide). Use in a
+render: with `MEDIA_DEV_CAPTION_REVIEW_REQUIRED=true` (default false) a timeline CAPTION clip is rendered only when its
+exact artifact version is a DEV_ONLY caption version with a current ACCEPT from an assigned reviewer and its source
+rights are still admitted; otherwise `422 CAPTION_NOT_REVIEWED | CAPTION_RIGHTS_NOT_ADMITTED`. Recognizer worker
+failures on `POST /dev/v1/speech/transcriptions` (process killed, crashed or no valid output) are `503
+SPEECH_OUTCOME_UNKNOWN` (never success, nothing registered, `retrySafe:true`); retrying the same requestId is idempotent.
+A correction is a statement by a DEV_ONLY principal, not a verified human, a quality claim or an approval. The Explorer
+page is `/dev-caption-correction.html`. Tests: `MediaDevCaptionCorrectionHttpTest`, `MediaDevCaptionJourneyIT` (real
+launcher, real Whisper, faults), `MediaDevExplorerCaptionCorrectionLiveIT` (real Chromium).
 
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
 PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable
