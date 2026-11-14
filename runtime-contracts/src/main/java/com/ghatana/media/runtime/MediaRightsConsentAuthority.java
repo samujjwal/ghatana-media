@@ -1,5 +1,6 @@
 package com.ghatana.media.runtime;
 
+import com.ghatana.media.runtime.MediaRightsConsentContracts.AssurancePolicy;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.Attestation;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.AttestationRecord;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.AttestationStore;
@@ -48,7 +49,7 @@ public final class MediaRightsConsentAuthority implements RightsConsentResolver 
     /** Typed refusal; the code is stable and the message never echoes statement content. */
     public enum Code {
         INVALID, NOT_FOUND, SELF_CONFIRMATION_REFUSED, NOT_DESIGNATED_CONFIRMER, ALREADY_CONFIRMED, REVOKED,
-        EXPIRED, CONFIRMATION_NOT_REQUIRED, NOT_PERMITTED_TO_REVOKE, ALREADY_REVOKED
+        EXPIRED, CONFIRMATION_NOT_REQUIRED, NOT_PERMITTED_TO_REVOKE, ALREADY_REVOKED, IDENTITY_ASSURANCE_INSUFFICIENT
     }
 
     public static final class RightsConsentException extends RuntimeException {
@@ -77,15 +78,34 @@ public final class MediaRightsConsentAuthority implements RightsConsentResolver 
     private final AttestationStore store;
     private final Clock clock;
     private final Function<String, String> idSupplier;
+    private final AssurancePolicy assurancePolicy;
 
+    /** Any transport-authenticated principal may act: for non-production and DEV_ONLY compositions. */
     public MediaRightsConsentAuthority(AttestationStore store, Clock clock) {
-        this(store, clock, ignored -> "att-" + UUID.randomUUID());
+        this(store, clock, AssurancePolicy.ANY_AUTHENTICATED);
+    }
+
+    public MediaRightsConsentAuthority(AttestationStore store, Clock clock, AssurancePolicy assurancePolicy) {
+        this(store, clock, ignored -> "att-" + UUID.randomUUID(), assurancePolicy);
     }
 
     MediaRightsConsentAuthority(AttestationStore store, Clock clock, Function<String, String> idSupplier) {
+        this(store, clock, idSupplier, AssurancePolicy.ANY_AUTHENTICATED);
+    }
+
+    MediaRightsConsentAuthority(AttestationStore store, Clock clock, Function<String, String> idSupplier,
+                                AssurancePolicy assurancePolicy) {
         this.store = Objects.requireNonNull(store, "store");
         this.clock = Objects.requireNonNull(clock, "clock");
         this.idSupplier = Objects.requireNonNull(idSupplier, "idSupplier");
+        this.assurancePolicy = Objects.requireNonNull(assurancePolicy, "assurancePolicy");
+    }
+
+    private void requireAssurance(AuthenticatedPrincipal caller) {
+        if (!assurancePolicy.permits(caller.assurance())) {
+            throw new RightsConsentException(Code.IDENTITY_ASSURANCE_INSUFFICIENT,
+                    "this profile requires an identity-provider verified principal to give, confirm or revoke a statement");
+        }
     }
 
     @Override public String resolverId() { return RESOLVER_ID; }
@@ -96,6 +116,7 @@ public final class MediaRightsConsentAuthority implements RightsConsentResolver 
     public AttestationRecord attest(AuthenticatedPrincipal caller, AttestRequest request) {
         Objects.requireNonNull(caller, "caller");
         Objects.requireNonNull(request, "request");
+        requireAssurance(caller);
         Instant now = clock.instant();
         if (request.expiresAt() != null && !request.expiresAt().isAfter(now)) {
             throw new RightsConsentException(Code.INVALID, "expiresAt must be in the future");
@@ -116,6 +137,7 @@ public final class MediaRightsConsentAuthority implements RightsConsentResolver 
     /** A different principal confirms. Self-confirmation, a revoked or expired attestation and repeats are refused. */
     public AttestationRecord confirm(AuthenticatedPrincipal caller, String attestationId, String note) {
         Objects.requireNonNull(caller, "caller");
+        requireAssurance(caller);
         AttestationRecord current = store.find(caller.tenantId(), attestationId)
                 .orElseThrow(() -> new RightsConsentException(Code.NOT_FOUND, "attestation not found"));
         Attestation attestation = current.attestation();
@@ -157,6 +179,7 @@ public final class MediaRightsConsentAuthority implements RightsConsentResolver 
     /** The attesting principal or the confirming principal may revoke, with a reason. */
     public AttestationRecord revoke(AuthenticatedPrincipal caller, String attestationId, String reason) {
         Objects.requireNonNull(caller, "caller");
+        requireAssurance(caller);
         AttestationRecord current = store.find(caller.tenantId(), attestationId)
                 .orElseThrow(() -> new RightsConsentException(Code.NOT_FOUND, "attestation not found"));
         boolean party = current.attestation().attestingPrincipalId().equals(caller.principalId())

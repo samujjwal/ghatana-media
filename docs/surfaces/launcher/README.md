@@ -256,6 +256,25 @@ and stable terminal reads — **no second writer**.
   `MediaSourceAuthorizationContracts.Authority` so ALLOWED requires both the policy authority and an admitted
   attestation (policy evidence is never synthesised).
 
+- **Rights and consent authority in the canonical composition.** `MEDIA_RIGHTS_AUTHORITY=postgresql` selects the
+  PostgreSQL attestation store (`PostgresqlRightsStoreFactory`, over the canonical runtime datasource; no second
+  connection config). `MediaRuntime.compose` wraps the canonically selected source-authorization `Authority` with
+  `MediaRightsConsentAuthority.gate(...)`: the delegate's Shared-policy evidence is returned unchanged and only
+  when the resolver ADMITS the exact artifact version and digest. In production-like profiles an unset selector, an
+  unconfigured datasource or a missing factory leaves the authority not ready (`UNAVAILABLE`,
+  `RIGHTS_AUTHORITY_UNAVAILABLE` for STT); non-production profiles without the selector keep the previous
+  behaviour. Scope mapping: STT, VISION, MULTIMODAL and analysis jobs on a source version use `PROCESSING`; a job
+  whose parameters carry a voice or likeness reference (`voiceReference`, `likenessReference`, ...) uses
+  `VOICE_OR_LIKENESS_USE`; delivery, export and publish operations use `EXTERNAL_DELIVERY` (the hosted DEV delivery
+  lane already enforces it). Migration `V037` (append-only triggers on both attestation tables, truncate refusal and
+  a revoked-then-confirm guard) is PostgreSQL only: it lives in `db/media-runtime-vendor/postgresql` (Flyway
+  `{vendor}` location); `db/media-runtime-vendor/h2` carries a no-op at the same version so the H2 lineage fixture
+  records the identical version sequence. **Known gaps:** no canonical HTTP route creates, confirms or revokes
+  statements (the canonical route manifest and OpenAPI are PDP-owned, so none was added; the routes stay DEV_ONLY).
+  The internal `MediaRuntime.rightsConsentAdministration()` already enforces `AssurancePolicy`: production-like
+  profiles accept an `OIDC_VERIFIED` caller only, DEV-issued identities only in non-production profiles. Binding the
+  referenced voice or likeness artifact itself (rather than the source version) to its own statement is not done.
+
 ### DEV_ONLY route inventory
 
 All `/dev/v1` routes require exact profile `dev`, `MEDIA_DEV_IDENTITY_ENABLED=true` and a signed DEV_ONLY

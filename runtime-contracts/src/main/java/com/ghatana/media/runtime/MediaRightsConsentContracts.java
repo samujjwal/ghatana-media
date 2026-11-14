@@ -260,11 +260,44 @@ public final class MediaRightsConsentContracts {
         @Override default void close() { }
     }
 
-    /** ServiceLoader SPI for an explicitly enabled DEV_ONLY durable attestation store. */
+    /**
+     * ServiceLoader SPI for durable attestation stores. {@link #createDevOnly} serves an explicitly enabled
+     * DEV_ONLY lane; {@link #createCanonical} serves the canonical runtime composition when the operator selects
+     * the factory by id (for example {@code MEDIA_RIGHTS_AUTHORITY=postgresql}). A factory implements the one it
+     * supports; the other refuses, so a DEV_ONLY factory can never be selected canonically or vice versa.
+     */
     public interface AttestationStoreFactory {
         String factoryId();
 
-        AttestationStore createDevOnly(Map<String, String> environment);
+        default AttestationStore createDevOnly(Map<String, String> environment) {
+            throw new UnsupportedOperationException("factory " + factoryId() + " has no DEV_ONLY store");
+        }
+
+        /** A production-capable store over the canonical runtime persistence; unconfigured storage is not ready. */
+        default AttestationStore createCanonical(Map<String, String> environment) {
+            throw new UnsupportedOperationException("factory " + factoryId() + " has no canonical store");
+        }
+    }
+
+    /**
+     * Which authenticated identities may create, confirm or revoke statements. A statement is only as strong as
+     * the identity behind it, so production-like profiles accept an identity-provider backed principal only
+     * ({@link MediaVerifiedIdentityContracts.AssuranceSource#OIDC_VERIFIED}); DEV-issued, shared-secret,
+     * bootstrap and unspecified identities may act only in non-production profiles.
+     */
+    public enum AssurancePolicy {
+        /** Non-production profiles (dev, local, test, ci): any transport-authenticated principal. */
+        ANY_AUTHENTICATED,
+        /** Production-like profiles: only an OIDC identity-provider verified principal. */
+        OIDC_VERIFIED_ONLY;
+
+        public static AssurancePolicy forProfile(String profile) {
+            return MediaDeploymentProfiles.productionLike(profile) ? OIDC_VERIFIED_ONLY : ANY_AUTHENTICATED;
+        }
+
+        public boolean permits(MediaVerifiedIdentityContracts.AssuranceSource assurance) {
+            return this == ANY_AUTHENTICATED || assurance != null && assurance.idpVerified();
+        }
     }
 
     static String required(String value, String field) { return required(value, field, 512); }

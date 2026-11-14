@@ -1,1 +1,2 @@
 com.ghatana.media.provider.aws.PostgresqlDevRightsStoreFactory
+com.ghatana.media.provider.aws.PostgresqlRightsStoreFactory

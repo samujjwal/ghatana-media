@@ -160,6 +160,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private final MediaStreamSessionStore streamStore;
     private final MediaConsentAuthority consentAuthority;
     private final MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority;
+    /** Statement-recording authority over the selected durable attestation store; internal composition only. */
+    private final com.ghatana.media.runtime.MediaRightsConsentAuthority rightsConsentAdministration;
     private final MediaTranscriptStore transcriptStore;
     private final Clock clock;
     private final MediaSemanticRedactionRuntime semanticRedaction;
@@ -250,6 +252,27 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority,
             MediaTranscriptStore transcriptStore,
             Clock clock) {
+        this(config, artifactStore, jobStore, streamStore, consentAuthority, semanticRedaction,
+                lifecyclePublisher, processingProviders, streamingProviders, lifecycleOutboxSources,
+                sourceAuthorizationAuthority, transcriptStore, clock, null);
+    }
+
+    MediaRuntime(
+            MediaRuntimeConfig config,
+            MediaArtifactStore artifactStore,
+            MediaJobStore jobStore,
+            MediaStreamSessionStore streamStore,
+            MediaConsentAuthority consentAuthority,
+            MediaSemanticRedactionRuntime semanticRedaction,
+            MediaLifecycleEventPublisher lifecyclePublisher,
+            List<MediaProcessingProvider> processingProviders,
+            List<MediaStreamingProvider> streamingProviders,
+            List<MediaLifecycleOutboxSource> lifecycleOutboxSources,
+            MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority,
+            MediaTranscriptStore transcriptStore,
+            Clock clock,
+            com.ghatana.media.runtime.MediaRightsConsentAuthority rightsConsentAdministration) {
+        this.rightsConsentAdministration = rightsConsentAdministration;
         this.config = java.util.Objects.requireNonNull(config, "config");
         this.artifactStore = java.util.Objects.requireNonNull(artifactStore, "artifactStore");
         this.jobStore = java.util.Objects.requireNonNull(jobStore, "jobStore");
@@ -297,6 +320,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         MediaStreamSessionStore streamStore = null;
         MediaConsentAuthority consentAuthority = null;
         MediaSourceAuthorizationContracts.Authority sourceAuthorizationAuthority = null;
+        MediaSourceAuthorizationContracts.Authority selectedSourceAuthorizationAuthority = null;
+        com.ghatana.media.runtime.MediaRightsConsentAuthority rightsConsentAdministration = null;
         MediaTranscriptStore transcriptStore = null;
         MediaSemanticRedactionRuntime semanticRedaction = null;
         MediaLifecyclePublisher lifecyclePublisher = null;
@@ -372,9 +397,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     canonicalOptional(environment.getOrDefault("MEDIA_CONSENT_AUTHORITY_ID", "")),
                     config.productionLike(),
                     externalProcessingReady);
-            sourceAuthorizationAuthority = selectOptionalSourceAuthorizationAuthority(
+            selectedSourceAuthorizationAuthority = selectOptionalSourceAuthorizationAuthority(
                     sourceAuthorizationAuthorities,
                     canonicalOptional(environment.getOrDefault("MEDIA_SOURCE_AUTHORIZATION_AUTHORITY_ID", "")));
+            // The selected source-rights/policy authority is gated by the rights and consent attestation
+            // authority: production-like profiles without a resolver fail closed (UNAVAILABLE).
+            MediaRightsConsentComposition.Composed rights = MediaRightsConsentComposition.compose(
+                    selectedSourceAuthorizationAuthority, environment, config.productionLike(), Clock.systemUTC());
+            sourceAuthorizationAuthority = rights.authority();
+            rightsConsentAdministration = rights.administration().orElse(null);
             transcriptStore = selectOptionalTranscriptStore(transcriptStores);
             semanticRedaction = MediaSemanticRedactionRuntime.compose(
                     environment, config.productionLike(), config.jobTimeout());
@@ -388,25 +419,26 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             closeUnselected(jobStores, jobStore);
             closeUnselected(streamStores, streamStore);
             closeUnselected(consentAuthorities, consentAuthority);
-            closeUnselected(sourceAuthorizationAuthorities, sourceAuthorizationAuthority);
+            closeUnselected(sourceAuthorizationAuthorities, selectedSourceAuthorizationAuthority);
             closeUnselected(transcriptStores, transcriptStore);
 
             MediaRuntime runtime = new MediaRuntime(
                     config, artifactStore, jobStore, streamStore, consentAuthority, semanticRedaction,
                     lifecyclePublisher, processing, streaming, lifecycleOutboxSources,
-                    sourceAuthorizationAuthority, transcriptStore, Clock.systemUTC());
+                    sourceAuthorizationAuthority, transcriptStore, Clock.systemUTC(), rightsConsentAdministration);
             if (!runtime.ready()) throw new IllegalStateException("Media Runtime dependencies are not ready");
             return runtime;
         } catch (RuntimeException failure) {
             safeClose(lifecyclePublisher, failure);
             safeClose(semanticRedaction, failure);
-            safeClose(sourceAuthorizationAuthority, failure);
+            safeClose(sourceAuthorizationAuthority != null
+                    ? sourceAuthorizationAuthority : selectedSourceAuthorizationAuthority, failure);
             safeClose(transcriptStore, failure);
             streaming.forEach(provider -> safeClose(provider, failure));
             processing.forEach(provider -> safeClose(provider, failure));
             consentAuthorities.forEach(authority -> safeClose(authority, failure));
             for (MediaSourceAuthorizationContracts.Authority authority : sourceAuthorizationAuthorities) {
-                if (authority != sourceAuthorizationAuthority) safeClose(authority, failure);
+                if (authority != selectedSourceAuthorizationAuthority) safeClose(authority, failure);
             }
             for (MediaTranscriptStore store : transcriptStores) {
                 if (store != transcriptStore) safeClose(store, failure);
@@ -610,6 +642,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
      * source, or unusable provider resolves to a non-ALLOWED decision, never an
      * exception that could be mistaken for approval.
      */
+    /**
+     * Statement-recording rights and consent authority over the selected durable attestation store, present only
+     * when {@code MEDIA_RIGHTS_AUTHORITY} selected one. Internal composition: no canonical route exposes it.
+     */
+    java.util.Optional<com.ghatana.media.runtime.MediaRightsConsentAuthority> rightsConsentAdministration() {
+        return java.util.Optional.ofNullable(rightsConsentAdministration);
+    }
+
     @Override
     public MediaSourceAuthorizationContracts.Decision resolveSourceAuthorization(
             String tenantId,
@@ -1126,8 +1166,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             try {
                 authorizationRequest = sourceAuthorizationRequest(request, artifact, provider);
                 if (sourceAuthorizationAuthority != null && sourceAuthorizationAuthority.ready()) {
-                    authorizationDecision = sourceAuthorizationAuthority.resolve(
-                            authorizationRequest, authenticated);
+                    final MediaSourceAuthorizationContracts.Request resolving = authorizationRequest;
+                    authorizationDecision = MediaRightsConsentComposition.withJobParameters(
+                            request.parameters(),
+                            () -> sourceAuthorizationAuthority.resolve(resolving, authenticated));
                 }
             } catch (RuntimeException unavailable) {
                 authorizationDecision = new MediaSourceAuthorizationContracts.Decision(
@@ -1188,7 +1230,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         try {
             authorizationDecision = sourceAuthorizationAuthority != null
                     && sourceAuthorizationAuthority.ready()
-                    ? sourceAuthorizationAuthority.resolve(authorizationRequest, authenticated)
+                    ? MediaRightsConsentComposition.withJobParameters(request.parameters(),
+                            () -> sourceAuthorizationAuthority.resolve(authorizationRequest, authenticated))
                     : new MediaSourceAuthorizationContracts.Decision(
                             MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
         } catch (RuntimeException unavailable) {
@@ -1454,8 +1497,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         "source rights evidence is mismatched or expired");
             }
             MediaSourceAuthorizationContracts.Decision refreshed =
-                    sourceAuthorizationAuthority.revalidate(
-                            authorizationRequest, expectedEvidence, authenticated);
+                    MediaRightsConsentComposition.withJobParameters(request.parameters(),
+                            () -> sourceAuthorizationAuthority.revalidate(
+                                    authorizationRequest, expectedEvidence, authenticated));
             if (refreshed == null
                     || refreshed.status() != MediaSourceAuthorizationContracts.Status.ALLOWED
                     || !sameAuthorityBinding(expectedEvidence, refreshed.evidence())

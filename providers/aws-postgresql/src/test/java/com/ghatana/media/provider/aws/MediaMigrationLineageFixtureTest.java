@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * A09 historical-lineage fixture: a database built at the Media pre-V010 lineage (V001–V009)
- * must migrate forward through V010–V029, V031–V033 and V035 without checksum conflicts, row loss or phantom state;
+ * must migrate forward through V010–V029, V031–V033, V035, V036 and V037 (an H2 vendor no-op; the PostgreSQL guard is proven on PostgreSQL) without checksum conflicts, row loss or phantom state;
  * a repeated migrate pass must be a no-op and the V009-era column surface must remain readable.
  */
 class MediaMigrationLineageFixtureTest {
@@ -37,7 +37,7 @@ class MediaMigrationLineageFixtureTest {
     private static Flyway flyway(JdbcDataSource ds, String target) {
         var configured = Flyway.configure()
                 .dataSource(ds)
-                .locations("classpath:db/media-runtime")
+                .locations(MediaRuntimeMigrations.locations(MediaRuntimeMigrations.H2))
                 .validateMigrationNaming(true);
         if (target != null) configured = configured.target(target);
         return configured.load();
@@ -46,7 +46,8 @@ class MediaMigrationLineageFixtureTest {
     private static Flyway flywayWithExtraLocation(JdbcDataSource ds, String target, Path extraLocation) {
         var configured = Flyway.configure()
                 .dataSource(ds)
-                .locations("classpath:db/media-runtime", "filesystem:" + extraLocation.toAbsolutePath())
+                .locations(MediaRuntimeMigrations.COMMON_LOCATION, MediaRuntimeMigrations.vendorLocation(MediaRuntimeMigrations.H2),
+                        "filesystem:" + extraLocation.toAbsolutePath())
                 .validateMigrationNaming(true);
         if (target != null) configured = configured.target(target);
         return configured.load();
@@ -73,7 +74,7 @@ class MediaMigrationLineageFixtureTest {
         }
 
         MigrateResult forward = flyway(ds, null).migrate();
-        assertThat(forward.migrationsExecuted).isEqualTo(25); // V010..V029 plus additive V031..V033, V035 and V036
+        assertThat(forward.migrationsExecuted).isEqualTo(26); // V010..V029 plus additive V031..V033, V035, V036 and V037 (H2 vendor no-op)
 
         try (Connection connection = ds.getConnection()) {
             assertThat(count(connection, "media_processing_jobs")).isEqualTo(3);
@@ -127,7 +128,7 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(34);
+                assertThat(history.getLong(1)).isEqualTo(35); // includes V037 (H2 vendor counterpart)
                 assertThat(history.getLong(2)).isZero();
             }
             assertThat(tableExists(connection, "media_delivery_operations")).isTrue();

@@ -130,7 +130,7 @@ final class MediaAwsPostgresqlRuntimeState implements ProjectTimelinePersistence
         try {
             Flyway.configure()
                     .dataSource(dataSource)
-                    .locations("classpath:db/media-runtime")
+                    .locations(MediaRuntimeMigrations.locationsFor(jdbcUrl))
                     .validateMigrationNaming(true)
                     .load()
                     .migrate();

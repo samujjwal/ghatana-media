@@ -161,6 +161,86 @@ class PostgresqlMediaRightsAttestationStoreTest {
     }
 
     @Test
+    void databaseRejectsUpdateDeleteTruncateAndConfirmAfterRevocation() throws Exception {
+        try (Fixture fixture = openFixture();
+             PostgresqlMediaRightsAttestationStore store = new PostgresqlMediaRightsAttestationStore()) {
+            String tenant = "tenant-" + UUID.randomUUID();
+            String artifact = "artifact-" + UUID.randomUUID();
+            MediaRightsConsentAuthority authority = new MediaRightsConsentAuthority(store, Clock.systemUTC());
+            String id = authority.attest(who(tenant, UPLOADER), delivery(artifact)).attestation().attestationId();
+            assertThat(store.confirm(tenant, id, new Confirmation(REVIEWER, Instant.now(), "ok")))
+                    .isEqualTo(ConfirmResult.CONFIRMED);
+            // Direct SQL sessions, bypassing the store, are refused by the database itself.
+            for (String sql : new String[] {
+                    "UPDATE media_rights_attestations SET basis='rewritten' WHERE tenant_id=? AND attestation_id=?",
+                    "DELETE FROM media_rights_attestations WHERE tenant_id=? AND attestation_id=?",
+                    "UPDATE media_rights_attestation_events SET detail='rewritten' WHERE tenant_id=? AND attestation_id=?",
+                    "DELETE FROM media_rights_attestation_events WHERE tenant_id=? AND attestation_id=?"}) {
+                try (var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
+                        POSTGRES.getPassword());
+                     var statement = connection.prepareStatement(sql)) {
+                    statement.setString(1, tenant);
+                    statement.setString(2, id);
+                    assertThatThrownBy(statement::executeUpdate)
+                            .isInstanceOfSatisfying(java.sql.SQLException.class, failure -> {
+                                assertThat(failure.getSQLState()).isEqualTo("23001");
+                                assertThat(failure.getMessage()).contains("append-only");
+                            });
+                }
+            }
+            for (String table : new String[] {"media_rights_attestations", "media_rights_attestation_events"}) {
+                try (var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
+                        POSTGRES.getPassword());
+                     var statement = connection.createStatement()) {
+                    assertThatThrownBy(() -> statement.execute("TRUNCATE " + table + " CASCADE"))
+                            .hasMessageContaining("append-only");
+                }
+            }
+            // Nothing was altered by the refused statements.
+            AttestationRecord record = store.find(tenant, id).orElseThrow();
+            assertThat(record.attestation().basis()).isEqualTo("TEST basis for a synthetic fixture");
+            assertThat(record.confirmation()).isNotNull();
+
+            // Revocation is final: a revoked attestation cannot be confirmed, not even by direct SQL.
+            String revoked = authority.attest(who(tenant, UPLOADER), delivery(artifact)).attestation().attestationId();
+            assertThat(store.revoke(tenant, revoked, new Revocation(UPLOADER, Instant.now(), "TEST revoke")))
+                    .isEqualTo(RevokeResult.REVOKED);
+            try (var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
+                    POSTGRES.getPassword());
+                 var insert = connection.prepareStatement("""
+                         INSERT INTO media_rights_attestation_events
+                           (tenant_id,attestation_id,event_kind,principal_id,attesting_principal_id,occurred_at,detail)
+                         VALUES (?,?,'CONFIRMED',?,?,CURRENT_TIMESTAMP,'')""")) {
+                insert.setString(1, tenant); insert.setString(2, revoked);
+                insert.setString(3, REVIEWER); insert.setString(4, UPLOADER);
+                assertThatThrownBy(insert::executeUpdate).hasMessageContaining("revoked and cannot be confirmed");
+            }
+            assertThat(store.confirm(tenant, revoked, new Confirmation(REVIEWER, Instant.now(), "late")))
+                    .isEqualTo(ConfirmResult.REVOKED);
+            assertThat(store.find(tenant, revoked).orElseThrow().confirmation()).isNull();
+        }
+    }
+
+    @Test
+    void canonicalFactoryRequiresExplicitSelectionAndReusesTheSharedDatasource() throws Exception {
+        PostgresqlRightsStoreFactory factory = new PostgresqlRightsStoreFactory();
+        assertThatThrownBy(() -> factory.createCanonical(Map.of()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> factory.createDevOnly(Map.of()))
+                .isInstanceOf(UnsupportedOperationException.class);
+        try (Fixture fixture = openFixture();
+             var store = factory.createCanonical(Map.of("MEDIA_RIGHTS_AUTHORITY", "postgresql"))) {
+            assertThat(store.ready()).isTrue();
+            String tenant = "tenant-" + UUID.randomUUID();
+            String artifact = "artifact-" + UUID.randomUUID();
+            MediaRightsConsentAuthority authority = new MediaRightsConsentAuthority(store, Clock.systemUTC());
+            authority.attest(who(tenant, UPLOADER), delivery(artifact));
+            assertThat(authority.resolve(new ResolutionRequest(tenant, artifact, VERSION, DIGEST, Scope.PROCESSING))
+                    .verdict()).isEqualTo(Verdict.ADMITTED);
+        }
+    }
+
+    @Test
     void concurrentConfirmationsRecordExactlyOneConfirmation() throws Exception {
         try (Fixture fixture = openFixture();
              PostgresqlMediaRightsAttestationStore left = new PostgresqlMediaRightsAttestationStore();
