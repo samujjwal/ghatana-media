@@ -21,7 +21,7 @@ public final class MediaArtifactFormatVerifier {
             Map.entry("webm", "webm"), Map.entry("mkv", "webm"),
             Map.entry("ogg", "ogg"), Map.entry("ogv", "ogg"),
             Map.entry("mp3", "mp3"), Map.entry("wav", "wav"), Map.entry("pdf", "pdf"),
-            Map.entry("glb", "glb"));
+            Map.entry("glb", "glb"), Map.entry("json", "json"));
     private static final Map<String, String> CONTENT_TYPE_FORMATS = Map.ofEntries(
             Map.entry("image/png", "png"), Map.entry("image/jpeg", "jpeg"),
             Map.entry("image/gif", "gif"), Map.entry("image/webp", "webp"),
@@ -31,7 +31,7 @@ public final class MediaArtifactFormatVerifier {
             Map.entry("audio/ogg", "ogg"), Map.entry("video/ogg", "ogg"),
             Map.entry("audio/mpeg", "mp3"), Map.entry("audio/wav", "wav"),
             Map.entry("audio/x-wav", "wav"), Map.entry("application/pdf", "pdf"),
-            Map.entry("model/gltf-binary", "glb"));
+            Map.entry("model/gltf-binary", "glb"), Map.entry("application/json", "json"));
 
     private MediaArtifactFormatVerifier() { }
 
@@ -49,6 +49,7 @@ public final class MediaArtifactFormatVerifier {
             case "video/mp4", "audio/mp4", "application/mp4" -> ascii(bytes, 4, "ftyp");
             case "video/webm", "audio/webm" -> starts(bytes, new byte[] {0x1a, 0x45, (byte) 0xdf, (byte) 0xa3});
             case "model/gltf-binary" -> isGlbHeader(bytes);
+            case "application/json" -> startsJsonContainer(bytes) && validUtf8Text(bytes);
             case "image/png" -> starts(bytes, new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10});
             case "image/jpeg", "image/jpg" -> starts(bytes, new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff});
             case "image/gif" -> ascii(bytes, 0, "GIF87a") || ascii(bytes, 0, "GIF89a");
@@ -108,6 +109,7 @@ public final class MediaArtifactFormatVerifier {
         if (starts(bytes, new byte[] {0x1a, 0x45, (byte) 0xdf, (byte) 0xa3})) return "webm";
         if (ascii(bytes, 0, "%PDF-")) return "pdf";
         if (isGlbHeader(bytes)) return "glb";
+        if (startsJsonContainer(bytes)) return "json";
         if (ascii(bytes, 0, "ID3") || isMpegAudioFrame(bytes)) return "mp3";
         if (bytes.length >= 8 && ascii(bytes, 4, "ftyp")) return "iso-bmff";
         return "unknown";
@@ -117,6 +119,15 @@ public final class MediaArtifactFormatVerifier {
     private static boolean isGlbHeader(byte[] bytes) {
         return bytes.length >= 12 && ascii(bytes, 0, "glTF")
                 && (bytes[4] & 0xff) == 2 && bytes[5] == 0 && bytes[6] == 0 && bytes[7] == 0;
+    }
+
+    /** JSON object/array document: first non-whitespace byte is '{' or '[' (full syntax is not parsed here). */
+    private static boolean startsJsonContainer(byte[] bytes) {
+        for (byte value : bytes) {
+            if (value == ' ' || value == '\t' || value == '\n' || value == '\r') continue;
+            return value == '{' || value == '[';
+        }
+        return false;
     }
 
     private static boolean isMpegAudioFrame(byte[] bytes) {

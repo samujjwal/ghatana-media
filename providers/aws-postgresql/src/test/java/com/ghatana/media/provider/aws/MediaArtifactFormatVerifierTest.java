@@ -65,6 +65,24 @@ class MediaArtifactFormatVerifierTest {
                     .isEqualTo("SIGNATURE_MISMATCH");
         }
 
+    @Test
+    void acceptsJsonOnlyWhenItStartsAsAnObjectOrArrayOfValidUtf8() {
+        byte[] document = bytes("{\"outputKind\":\"SIMULATED_OUTPUT_NOT_MEASUREMENT\"}");
+        assertThat(MediaArtifactFormatVerifier.matches("application/json", document)).isTrue();
+        assertThat(MediaArtifactFormatVerifier.matches("application/json", bytes(" \n[1,2]"))).isTrue();
+        assertThat(MediaArtifactFormatVerifier.verify("sim.json", "application/json", document).state())
+                .isEqualTo("SIGNATURE_MATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("sim.bin", "application/json", document).state())
+                .isEqualTo("SIGNATURE_MATCH");
+        assertThat(MediaArtifactFormatVerifier.matches("application/json", bytes("not json"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("application/json", new byte[] {'{', 0, '}'})).isFalse();
+        assertThat(MediaArtifactFormatVerifier.matches("application/json", bytes("RIFFxxxxWAVE"))).isFalse();
+        assertThat(MediaArtifactFormatVerifier.verify("sim.json", "application/json", bytes("RIFFxxxxWAVE")).state())
+                .isEqualTo("SIGNATURE_MISMATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("clip.wav", "audio/wav", document).state())
+                .isEqualTo("SIGNATURE_MISMATCH");
+    }
+
     private static byte[] bytes(String value) {
         return value.getBytes(StandardCharsets.ISO_8859_1);
     }

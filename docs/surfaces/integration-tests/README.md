@@ -31,6 +31,18 @@ Test classes under `com.ghatana.media.integration`,
 
 ## States and invariants
 
+- DEV_ONLY real-process journeys (`MediaDevProductionJourneyIT`,
+  `MediaDevCreativeOutputRestartIT`): one launcher process over Testcontainers
+  PostgreSQL + LocalStack S3 with the timeline, review, delivery and (when
+  `GHATANA_MEDIA_FFMPEG`/`GHATANA_MEDIA_FFPROBE` are set) MP4 render lanes
+  enabled. The journey runs upload, project, exact-revision render, review of
+  the render, export to a read-back local directory, launcher restart/reopen
+  with no destination rewrite, a stale revision review after an edit and
+  foreign-principal denial; the creative IT registers audio repair, simulation
+  and spatial GLB outputs through the durable store and reopens them after a
+  restart. DEV_ONLY synthetic owner only: not approval, release, rights or
+  production admission evidence.
+
 - `:services:media:integration-tests:test` includes **only** JUnit tests
   tagged `integration`; a class selector does not include untagged or
   `@Disabled` scaffolds.
@@ -79,6 +91,10 @@ immutable digests are absent rather than fabricating a pass.
   --tests com.ghatana.media.launcher.MediaMultimodalParentChildRestartPostgresIT \
   --tests com.ghatana.media.launcher.MediaProviderPolicyDeniedFinalityPostgresIT \
   --tests com.ghatana.media.launcher.MediaSttTranscriptCommitFenceIT
+
+# DEV_ONLY real-process journeys (Docker; set the FFMPEG/FFPROBE env vars to include MP4)
+./gradlew :services:media:integration-tests:test \
+  --tests '*MediaDevProductionJourneyIT' --tests '*MediaDevCreativeOutputRestartIT'
 ```
 
 See the module README for the full census-driven selector list and
