@@ -185,7 +185,7 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
     @Override public int priority() { return 7; }
 
     @Override public boolean ready() {
-        return runner != null && install.stillCurrent();
+        return runner != null && runner.executableMatchesPin() && install.stillCurrent();
     }
 
     /** Production use needs the owner to flip the manifest's own admission switch after real quality evidence. */

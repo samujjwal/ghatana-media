@@ -77,7 +77,7 @@ class LocalWhisperCppSttProviderTest {
 
     @Test
     void unsupportedLanguageIsRefusedEvenWithAQualifiedProfile() throws Exception {
-        var profile = provider(false).speechToTextProfile().orElseThrow();
+        var profile = provider(true).speechToTextProfile().orElseThrow();
         var hindi = new MediaSpeechToTextAdmission.Request(artifact().version().value(), profile.profileId(),
                 profile.profileVersion(), profile.configurationDigest(),
                 MediaSpeechToTextAdmission.LanguageMode.EXPLICIT, "hi");
@@ -92,7 +92,7 @@ class LocalWhisperCppSttProviderTest {
 
     @Test
     void weightsSwappedAfterStartupWithdrawTheProfile() throws Exception {
-        var provider = provider(false);
+        var provider = provider(true);
         assertThat(provider.speechToTextProfile()).isPresent();
         Files.write(dir.resolve("whisper-large-v3-turbo/weights.bin"), "x".getBytes(),
                 StandardOpenOption.APPEND);
@@ -110,6 +110,32 @@ class LocalWhisperCppSttProviderTest {
                         LocalModelManifest.Modality.SPEECH_TO_TEXT), cli, 1);
         assertThat(provider.ready()).isFalse();
         assertThat(provider.speechToTextProfile()).isEmpty();
+    }
+
+    @Test
+    void executablePinIsRequiredAndReplacementWithdrawsLiveAndRestartedProfiles() throws Exception {
+        var unpinned = provider(false);
+        assertThat(unpinned.ready()).isFalse();
+        assertThat(unpinned.speechToTextProfile()).isEmpty();
+
+        Path cli = LocalSpeechTestSupport.fakeCli(dir, "{}", 0, "");
+        Path modelDir = LocalSpeechTestSupport.syntheticWhisperInstall(dir, cli, true);
+        var install = LocalModelInstall.inspect(modelDir, LocalWhisperCppSttProvider.MODEL_KEY,
+                LocalModelManifest.Modality.SPEECH_TO_TEXT);
+        var running = new LocalWhisperCppSttProvider(install, cli, 1);
+        assertThat(running.ready()).isTrue();
+        Files.writeString(cli, "#!/bin/bash\necho replaced-runtime\n");
+
+        assertThat(running.ready()).isFalse();
+        assertThat(running.speechToTextProfile()).isEmpty();
+        var restarted = new LocalWhisperCppSttProvider(
+                LocalModelInstall.inspect(modelDir, LocalWhisperCppSttProvider.MODEL_KEY,
+                        LocalModelManifest.Modality.SPEECH_TO_TEXT), cli, 1);
+        assertThat(restarted.ready()).isFalse();
+        assertThat(restarted.speechToTextProfile()).isEmpty();
+        running.close();
+        restarted.close();
+        unpinned.close();
     }
 
     @Test

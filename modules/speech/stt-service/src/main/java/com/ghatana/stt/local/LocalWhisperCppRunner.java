@@ -44,14 +44,23 @@ public final class LocalWhisperCppRunner {
                                 long elapsedMillis) { }
 
     private final Config config;
+    private final String executableSha256;
 
     public LocalWhisperCppRunner(Config config) {
+        this(config, digestExecutable(Objects.requireNonNull(config, "config").executable()));
+    }
+
+    private LocalWhisperCppRunner(Config config, String executableSha256) {
         this.config = Objects.requireNonNull(config, "config");
+        if (executableSha256 == null || !executableSha256.matches("[0-9a-f]{64}")) {
+            throw new IllegalArgumentException("executable must have an exact SHA-256 pin");
+        }
+        this.executableSha256 = executableSha256;
     }
 
     /**
      * Builds a runner only when the executable exists, is executable, and matches the manifest's pinned
-     * executable digest when the manifest declares one. Returns null when the runtime is not usable.
+     * executable digest. Returns null when the runtime is not usable.
      */
     public static LocalWhisperCppRunner forVerified(LocalModelManifest manifest, Path modelFile, Path executable,
                                                     int threads, Duration maxTimeout) {
@@ -62,15 +71,29 @@ public final class LocalWhisperCppRunner {
         LocalModelManifest.RuntimeBinding binding = manifest.runtime();
         if (binding == null || !"whisper.cpp".equals(binding.name())) return null;
         try {
-            if (!binding.executableSha256().isEmpty()
-                    && !binding.executableSha256().equals(LocalModelManifest.sha256(executable))) {
+            if (binding.executableSha256() == null
+                    || !binding.executableSha256().matches("[0-9a-f]{64}")
+                    || !binding.executableSha256().equals(LocalModelManifest.sha256(executable))) {
                 return null;
             }
         } catch (IOException unreadable) {
             return null;
         }
         return new LocalWhisperCppRunner(new Config(executable.toAbsolutePath().normalize(), modelFile,
-                manifest.first(LocalModelManifest.FileRole.WEIGHTS).sha256(), threads, maxTimeout));
+                manifest.first(LocalModelManifest.FileRole.WEIGHTS).sha256(), threads, maxTimeout),
+                binding.executableSha256());
+    }
+
+    /** Revalidate the local binary against the captured owner pin before advertising or dispatching inference. */
+    public boolean executableMatchesPin() {
+        Path executable = config.executable();
+        if (!executable.isAbsolute() || !Files.isRegularFile(executable, LinkOption.NOFOLLOW_LINKS)
+                || !Files.isExecutable(executable)) return false;
+        try {
+            return executableSha256.equals(LocalModelManifest.sha256(executable));
+        } catch (IOException unreadable) {
+            return false;
+        }
     }
 
     public Transcription transcribe(byte[] wav, String language, Duration budget,
@@ -87,6 +110,10 @@ public final class LocalWhisperCppRunner {
         if (budget.isNegative() || budget.isZero()) {
             throw new LocalSpeechException(LocalSpeechException.Code.TIMEOUT, "no time budget remains");
         }
+        if (!executableMatchesPin()) {
+            throw new LocalSpeechException(LocalSpeechException.Code.RUNTIME_UNAVAILABLE,
+                    "whisper.cpp executable no longer matches its pin");
+        }
         Duration timeout = budget.compareTo(config.maxTimeout()) < 0 ? budget : config.maxTimeout();
         Path work = null;
         long started = System.nanoTime();
@@ -100,6 +127,10 @@ public final class LocalWhisperCppRunner {
                     "-m", config.modelFile().toString(), "-f", input.toString(),
                     "-l", language, "-t", Integer.toString(config.threads()),
                     "-np", "-oj", "-of", outputBase.toString());
+            if (!executableMatchesPin()) {
+                throw new LocalSpeechException(LocalSpeechException.Code.RUNTIME_UNAVAILABLE,
+                        "whisper.cpp executable changed before dispatch");
+            }
             BoundedProcessRunner.Result result = BoundedProcessRunner.run(command, work,
                     Map.of("PATH", "/usr/bin:/bin", "LC_ALL", "C.UTF-8",
                             "LD_LIBRARY_PATH", config.executable().getParent().toString()),
@@ -127,6 +158,14 @@ public final class LocalWhisperCppRunner {
                     "whisper.cpp could not be started or staged");
         } finally {
             if (work != null) deleteTree(work);
+        }
+    }
+
+    private static String digestExecutable(Path executable) {
+        try {
+            return LocalModelManifest.sha256(executable);
+        } catch (IOException unreadable) {
+            throw new IllegalArgumentException("executable cannot be pinned", unreadable);
         }
     }
 

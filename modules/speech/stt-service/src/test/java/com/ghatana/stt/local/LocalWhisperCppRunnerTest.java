@@ -95,4 +95,20 @@ class LocalWhisperCppRunnerTest {
                 BoundedProcessRunner.CancellationToken.NEVER).text()).isEqualTo("Hello there. General Kenobi.");
         assertThat(dir.resolve("pwned")).doesNotExist();
     }
+
+    @Test
+    void executableReplacementAfterRunnerCreationIsRefusedBeforeProcessDispatch() throws Exception {
+        Path marker = dir.resolve("replaced-runtime-ran");
+        Path cli = LocalSpeechTestSupport.fakeCli(dir, GOOD, 0, "touch " + marker);
+        LocalWhisperCppRunner runner = runner(cli);
+        assertThat(runner.executableMatchesPin()).isTrue();
+
+        Files.writeString(cli, "#!/bin/bash\ntouch '" + marker + "'\necho replaced-runtime\n");
+        assertThat(runner.executableMatchesPin()).isFalse();
+        assertThatThrownBy(() -> runner.transcribe(LocalSpeechTestSupport.tinyWav16k(), "en",
+                Duration.ofSeconds(5), BoundedProcessRunner.CancellationToken.NEVER))
+                .isInstanceOfSatisfying(LocalSpeechException.class,
+                        error -> assertThat(error.code()).isEqualTo(LocalSpeechException.Code.RUNTIME_UNAVAILABLE));
+        assertThat(marker).doesNotExist();
+    }
 }
