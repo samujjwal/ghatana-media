@@ -315,6 +315,8 @@ remaining owner reviews.
 Run `pnpm check:product-experience-local` from the repository root for the
 read-only local invariant check that backs the closure matrix.
 
+Explorer typecheck (`pnpm --filter @ghatana/media-experience-explorer typecheck`, whose `pretypecheck` builds `@audio-video/client` for the type-only imports resolved from its `dist/`) and unit tests: `pnpm --filter @ghatana/media-experience-explorer test` (its `pretest` builds `@ghatana/media-experience-simulation` first, because `test/explorer-fidelity.test.mjs` imports that package's built `dist/`, which is not committed). To run `node --test test/*.test.mjs` directly, first run `pnpm --filter @ghatana/media-experience-simulation build`.
+
 Run `pnpm test:experience-browser` with the Vite preview active on port 4179 to
 exercise 31 scenarios, 376 specification artifacts, 47 Product routes, 282
 legacy proposal URLs, keyboard navigation, accessibility/layout checks, and
