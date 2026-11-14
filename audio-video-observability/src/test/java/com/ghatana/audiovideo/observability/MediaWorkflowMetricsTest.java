@@ -500,6 +500,7 @@ class MediaWorkflowMetricsTest {
                 "ASIA1234567890EXAMPLE",
                 "ya29.a0AfH6SMB-example-token",
                 "AIzaSyD-example-google-api-key",
+                "hf_example-huggingface-access-token",
                 "glpat-test-only",
                 "xoxb-test-only",
                 "github_pat_11AA22BB33CC44DD_example-token",

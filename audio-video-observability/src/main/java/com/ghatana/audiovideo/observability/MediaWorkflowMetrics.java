@@ -769,6 +769,7 @@ public final class MediaWorkflowMetrics {
                 // metric-token characters, so reject their recognizable prefixes explicitly.
                 || normalized.startsWith("asia") || normalized.startsWith("ya29.")
                 || normalized.startsWith("aiza")
+                || normalized.startsWith("hf_")
                 || normalized.startsWith("glpat-") || normalized.startsWith("xoxb-")
                 || normalized.startsWith("xoxp-") || normalized.startsWith("xoxa-")
                 || normalized.startsWith("xoxr-") || normalized.startsWith("xoxs-")
