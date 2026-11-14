@@ -1,0 +1,51 @@
+{
+  "schema": "ghatana.media.local-model-manifest.v1",
+  "modelKey": "<model-key>",
+  "modality": "SPEECH_TO_TEXT | TEXT_TO_SPEECH",
+  "modelId": "<upstream model id>",
+  "source": {
+    "url": "<official source URL>",
+    "revision": "<commit / revision pinned>"
+  },
+  "files": [
+    {
+      "role": "WEIGHTS",
+      "path": "<relative path>",
+      "sha256": "<64 lowercase hex>",
+      "sizeBytes": 0
+    },
+    {
+      "role": "LICENSE",
+      "path": "<relative licence file>",
+      "sha256": "<64 lowercase hex>",
+      "sizeBytes": 0
+    }
+  ],
+  "license": {
+    "spdx": "MIT (speech-to-text) | Apache-2.0 (text-to-speech)",
+    "licenseSourceUrl": "<URL of the licence text actually read>",
+    "verifiedOn": "YYYY-MM-DD"
+  },
+  "ownerDecision": {
+    "date": "2026-11-14",
+    "quote": "<verbatim owner decision; see LocalModelManifest.OWNER_DECISION_QUOTE>",
+    "licenseStatement": "we will abide by all license requirements."
+  },
+  "attribution": {
+    "noticeRequired": true,
+    "notice": "<attribution / NOTICE text that must accompany redistribution>"
+  },
+  "admission": {
+    "scope": "ARTIFACT_IDENTITY_AND_LICENSE_ONLY",
+    "productionEligible": false
+  },
+  "verifiedLanguages": [
+    "en"
+  ],
+  "runtime": {
+    "name": "whisper.cpp | kokoro",
+    "version": "<version>",
+    "revision": "<commit>",
+    "executableSha256": "<optional; enforced when present>"
+  }
+}

@@ -36,6 +36,7 @@ dependencies {
 
     // Persistence layer
     implementation(project(":services:media:modules:infrastructure:persistence"))
+    implementation(project(":services:media:modules:production:rendering"))
 
     // Protobuf
     implementation(libs.protobuf.java)

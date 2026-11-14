@@ -1,0 +1,77 @@
+{
+  "_note": "Example recorded on one development host on 2026-11-14 from the files named here. It shows only that these SHA-256 digests were observed for those files; it is not quality, rights, consent or production-eligibility evidence. runtime.executableSha256 is host-specific (a local build or the checked-in sidecar script) and must be regenerated with tools/model-runtimes/install-local-manifests.sh.",
+  "schema": "ghatana.media.local-model-manifest.v1",
+  "modelKey": "kokoro-82m",
+  "modality": "TEXT_TO_SPEECH",
+  "modelId": "hexgrad/Kokoro-82M",
+  "source": {
+    "url": "https://huggingface.co/hexgrad/Kokoro-82M",
+    "revision": "f3ff3571791e39611d31c381e3a41a3af07b4987"
+  },
+  "files": [
+    {
+      "role": "WEIGHTS",
+      "path": "kokoro-v1_0.pth",
+      "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+      "sizeBytes": 327212226
+    },
+    {
+      "role": "CONFIG",
+      "path": "config.json",
+      "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
+      "sizeBytes": 2351
+    },
+    {
+      "role": "VOICE",
+      "path": "voices/af_heart.pt",
+      "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+      "sizeBytes": 523425
+    },
+    {
+      "role": "VOICE",
+      "path": "voices/am_michael.pt",
+      "sha256": "9a443b79a4b22489a5b0ab7c651a0bcd1a30bef675c28333f06971abbd47bd37",
+      "sizeBytes": 523435
+    },
+    {
+      "role": "LICENSE",
+      "path": "LICENSE-Apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "sizeBytes": 11358
+    },
+    {
+      "role": "MODEL_CARD",
+      "path": "README.md",
+      "sha256": "91dcabced89db6f109b8786642f50402d3ee87450e8189589b6f85520e7f4d78",
+      "sizeBytes": 6348
+    }
+  ],
+  "license": {
+    "spdx": "Apache-2.0",
+    "licenseSourceUrl": "https://huggingface.co/hexgrad/Kokoro-82M/blob/f3ff3571791e39611d31c381e3a41a3af07b4987/README.md",
+    "verifiedOn": "2026-11-14"
+  },
+  "ownerDecision": {
+    "date": "2026-11-14",
+    "quote": "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for speech-to-text (MIT). Kokoro-82M for text-to-speech (Apache-2.0, no voice cloning). Florence-2 for vision (MIT). Qwen2.5-VL-7B for multimodal (Apache-2.0). Media stays on this machine, with no per-use cost.",
+    "licenseStatement": "we will abide by all license requirements."
+  },
+  "attribution": {
+    "noticeRequired": true,
+    "notice": "Kokoro-82M (c) hexgrad, licensed under the Apache License 2.0; the model repository ships no LICENSE file, the licence is declared in the model-card metadata at the pinned revision and LICENSE-Apache-2.0.txt is the canonical text from apache.org. Apache-2.0 attribution and licence copy must accompany redistribution. The kokoro/misaki Python packages are Apache-2.0; their English phonemizer fallback pulls GPL-3.0+ components (phonemizer-fork, espeak-ng) which are installed locally and must not be redistributed with this product without GPL compliance."
+  },
+  "admission": {
+    "scope": "ARTIFACT_IDENTITY_AND_LICENSE_ONLY",
+    "productionEligible": false
+  },
+  "verifiedLanguages": [
+    "en"
+  ],
+  "voiceCloning": "NOT_SUPPORTED",
+  "runtime": {
+    "name": "kokoro",
+    "version": "kokoro 0.9.4 / misaki 0.9.4 / torch 2.15.0",
+    "revision": "",
+    "executableSha256": "f55e4fdef11c6096936fb135bb79c89d7e3b1df30891e4567e92f466c0663ee1"
+  }
+}

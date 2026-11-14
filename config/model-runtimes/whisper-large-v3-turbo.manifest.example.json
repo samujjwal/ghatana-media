@@ -1,0 +1,64 @@
+{
+  "_note": "Example recorded on one development host on 2026-11-14 from the files named here. It shows only that these SHA-256 digests were observed for those files; it is not quality, rights, consent or production-eligibility evidence. runtime.executableSha256 is host-specific (a local build or the checked-in sidecar script) and must be regenerated with tools/model-runtimes/install-local-manifests.sh.",
+  "schema": "ghatana.media.local-model-manifest.v1",
+  "modelKey": "whisper-large-v3-turbo",
+  "modality": "SPEECH_TO_TEXT",
+  "modelId": "openai/whisper-large-v3-turbo (ggml conversion distributed by ggerganov/whisper.cpp)",
+  "source": {
+    "url": "https://huggingface.co/ggerganov/whisper.cpp",
+    "revision": "5359861c739e955e79d9a303bcbc70fb988958b1"
+  },
+  "files": [
+    {
+      "role": "WEIGHTS",
+      "path": "ggml-large-v3-turbo.bin",
+      "sha256": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
+      "sizeBytes": 1624555275
+    },
+    {
+      "role": "LICENSE",
+      "path": "LICENSE-openai-whisper.txt",
+      "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d",
+      "sizeBytes": 1063
+    },
+    {
+      "role": "LICENSE",
+      "path": "LICENSE-whisper.cpp.txt",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "sizeBytes": 1078
+    },
+    {
+      "role": "MODEL_CARD",
+      "path": "MODEL_CARD_README.md",
+      "sha256": "21fd967098804f33fc84e803fb0e5ab7666d71801f4027cf28a65e7af09c1758",
+      "sizeBytes": 3196
+    }
+  ],
+  "license": {
+    "spdx": "MIT",
+    "licenseSourceUrl": "https://raw.githubusercontent.com/openai/whisper/main/LICENSE",
+    "verifiedOn": "2026-11-14"
+  },
+  "ownerDecision": {
+    "date": "2026-11-14",
+    "quote": "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for speech-to-text (MIT). Kokoro-82M for text-to-speech (Apache-2.0, no voice cloning). Florence-2 for vision (MIT). Qwen2.5-VL-7B for multimodal (Apache-2.0). Media stays on this machine, with no per-use cost.",
+    "licenseStatement": "we will abide by all license requirements."
+  },
+  "attribution": {
+    "noticeRequired": true,
+    "notice": "Whisper model weights (c) 2022 OpenAI, MIT License; whisper.cpp / ggml (c) 2023-2026 The ggml authors, MIT License. The MIT copyright and permission notice must be preserved in copies or substantial portions."
+  },
+  "admission": {
+    "scope": "ARTIFACT_IDENTITY_AND_LICENSE_ONLY",
+    "productionEligible": false
+  },
+  "verifiedLanguages": [
+    "en"
+  ],
+  "runtime": {
+    "name": "whisper.cpp",
+    "version": "v1.9.5",
+    "revision": "d1be6fde11ac6e0407606b4e42fe72d34add8037",
+    "executableSha256": "317a49f84b54d5bca8a55095bbc017496da557837d39c664178663f32bef1e5f"
+  }
+}

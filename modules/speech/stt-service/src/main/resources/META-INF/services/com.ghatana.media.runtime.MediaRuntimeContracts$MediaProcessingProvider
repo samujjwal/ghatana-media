@@ -1,1 +1,2 @@
 com.ghatana.stt.provider.WhisperBrokerSttProvider
+com.ghatana.stt.provider.LocalWhisperCppSttProvider

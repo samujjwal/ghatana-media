@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ghatana:media:local-model-manifest:v1",
+  "title": "Local open-model manifest (server-owned, kept outside the repository next to the weights)",
+  "description": "Schema documentation for LocalModelManifest. The Java verifier is authoritative: it re-hashes every listed file, requires MIT for SPEECH_TO_TEXT and Apache-2.0 for TEXT_TO_SPEECH, and requires the verbatim owner decision. Verification proves artifact identity and licence provenance only; it is not quality, rights or consent evidence and never grants production eligibility.",
+  "type": "object",
+  "required": ["schema", "modelKey", "modality", "modelId", "source", "files", "license", "ownerDecision", "attribution", "admission"],
+  "properties": {
+    "schema": { "const": "ghatana.media.local-model-manifest.v1" },
+    "modelKey": { "type": "string", "description": "Install directory name: <root>/models/<modelKey>/manifest.json" },
+    "modality": { "enum": ["SPEECH_TO_TEXT", "TEXT_TO_SPEECH"] },
+    "modelId": { "type": "string" },
+    "source": {
+      "type": "object", "required": ["url", "revision"],
+      "properties": { "url": { "type": "string" }, "revision": { "type": "string" } }
+    },
+    "files": {
+      "type": "array", "minItems": 1, "maxItems": 64,
+      "description": "Must contain at least one WEIGHTS and one LICENSE entry. Paths are relative, unique, without traversal; symlinks are refused.",
+      "items": {
+        "type": "object", "required": ["role", "path", "sha256", "sizeBytes"],
+        "properties": {
+          "role": { "enum": ["WEIGHTS", "CONFIG", "VOICE", "LICENSE", "MODEL_CARD"] },
+          "path": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*$" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "sizeBytes": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "license": {
+      "type": "object", "required": ["spdx", "licenseSourceUrl", "verifiedOn"],
+      "properties": {
+        "spdx": { "enum": ["MIT", "Apache-2.0"], "description": "Verifier accepts only the modality's owner-approved identifier" },
+        "licenseSourceUrl": { "type": "string" },
+        "verifiedOn": { "type": "string" }
+      }
+    },
+    "ownerDecision": {
+      "type": "object", "required": ["date", "quote", "licenseStatement"],
+      "properties": {
+        "date": { "const": "2026-11-14" },
+        "quote": { "type": "string", "description": "Verbatim owner decision text" },
+        "licenseStatement": { "const": "we will abide by all license requirements." }
+      }
+    },
+    "attribution": {
+      "type": "object", "required": ["noticeRequired", "notice"],
+      "properties": { "noticeRequired": { "type": "boolean" }, "notice": { "type": "string" } }
+    },
+    "admission": {
+      "type": "object", "required": ["scope", "productionEligible"],
+      "properties": {
+        "scope": { "const": "ARTIFACT_IDENTITY_AND_LICENSE_ONLY" },
+        "productionEligible": { "type": "boolean", "default": false, "description": "Stays false until real quality evidence exists and the owner flips it" }
+      }
+    },
+    "verifiedLanguages": { "type": "array", "items": { "type": "string", "pattern": "^[a-z]{2,3}$" } },
+    "voiceCloning": { "type": "string" },
+    "runtime": {
+      "type": "object", "required": ["name", "version"],
+      "properties": {
+        "name": { "enum": ["whisper.cpp", "kokoro"] },
+        "version": { "type": "string" },
+        "revision": { "type": "string" },
+        "executableSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "whisper-cli binary or kokoro_synth.py; enforced when present" }
+      }
+    }
+  }
+}
