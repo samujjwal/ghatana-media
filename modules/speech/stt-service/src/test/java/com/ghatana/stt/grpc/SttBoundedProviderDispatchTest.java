@@ -251,8 +251,13 @@ class SttBoundedProviderDispatchTest {
         AtomicReference<Throwable> failure = new AtomicReference<>();
         AtomicReference<TranscribeResponse> response = new AtomicReference<>();
         try {
-            STTServiceGrpc.newStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
-                    .transcribe(request(), new StreamObserver<>() {
+            // Materialise the request (first use loads protobuf classes) and the stub before the
+            // client deadline starts, so cold-start class loading cannot consume the deadline and
+            // fail the call before it is ever dispatched to the provider.
+            TranscribeRequest grpcRequest = request();
+            STTServiceGrpc.STTServiceStub stub = STTServiceGrpc.newStub(channel);
+            stub.withDeadlineAfter(500, TimeUnit.MILLISECONDS)
+                    .transcribe(grpcRequest, new StreamObserver<>() {
                         @Override public void onNext(TranscribeResponse value) { response.set(value); }
                         @Override public void onError(Throwable error) { failure.set(error); terminal.countDown(); }
                         @Override public void onCompleted() { terminal.countDown(); }
