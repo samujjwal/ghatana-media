@@ -1,9 +1,14 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.launcher.security.JwtAuthenticationVerifier;
+import com.ghatana.launcher.security.SecurityFilterSupport;
+import com.ghatana.media.launcher.oidc.OidcAccessTokenVerifier;
+import com.ghatana.media.launcher.oidc.OidcConfig;
 import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
-import com.ghatana.launcher.security.SecurityFilterSupport;
+import com.ghatana.media.runtime.MediaVerifiedIdentityContracts;
+import com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource;
+import com.ghatana.media.runtime.MediaVerifiedIdentityContracts.VerifiedIdentity;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -33,6 +38,8 @@ public final class MediaSecurityFilter implements HttpHandler {
             MediaSecurityFilter.class.getName() + ".devOnlyAuthenticated";
     private static final String DEV_ONLY_PERMISSIONS_ATTRIBUTE =
             MediaSecurityFilter.class.getName() + ".devOnlyPermissions";
+    static final String VERIFIED_IDENTITY_ATTRIBUTE =
+            MediaSecurityFilter.class.getName() + ".verifiedIdentity";
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/health", "/health/live", "/health/ready", "/health/startup",
             "/ready", "/metrics", "/info", "/api/v1/health");
@@ -41,6 +48,7 @@ public final class MediaSecurityFilter implements HttpHandler {
     private final HttpHandler delegate;
     private final JwtAuthenticationVerifier jwtVerifier;
     private final JwtAuthenticationVerifier devJwtVerifier;
+    private final OidcAccessTokenVerifier oidc;
     private final boolean devIdentityEnabled;
     private final boolean productionLike;
     private final boolean bootstrapApiKeyEnabled;
@@ -57,10 +65,26 @@ public final class MediaSecurityFilter implements HttpHandler {
             String deploymentProfile,
             Map<String, String> environment,
             Clock clock) {
+        this(delegate, deploymentProfile, environment, clock,
+                OidcAccessTokenVerifier.fromEnvironment(environment, clock).orElse(null));
+    }
+
+    /** Test seam: an explicit OIDC verifier (or null for none) instead of one built from the environment. */
+    MediaSecurityFilter(
+            HttpHandler delegate,
+            String deploymentProfile,
+            Map<String, String> environment,
+            Clock clock,
+            OidcAccessTokenVerifier oidcVerifier) {
+        this.oidc = oidcVerifier;
         this.delegate = java.util.Objects.requireNonNull(delegate, "delegate");
         Map<String, String> immutable = Map.copyOf(environment);
         this.clock = java.util.Objects.requireNonNull(clock, "clock");
         this.productionLike = MediaDeploymentProfiles.productionLike(deploymentProfile);
+        if (productionLike && oidc == null && OidcConfig.required(immutable)) {
+            throw new IllegalArgumentException(OidcConfig.REQUIRED + "=true requires " + OidcConfig.ISSUER
+                    + " and " + OidcConfig.AUDIENCE + " in a production-like profile");
+        }
         this.devIdentityEnabled = parseDevIdentityEnabled(immutable);
         if (devIdentityEnabled && !"dev".equals(MediaDeploymentProfiles.canonical(deploymentProfile))) {
             throw new IllegalArgumentException("MEDIA_DEV_IDENTITY_ENABLED is supported only for the dev profile");
@@ -102,6 +126,18 @@ public final class MediaSecurityFilter implements HttpHandler {
                 SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Unsupported authorization scheme");
                 return;
             }
+            if (!devIdentityEnabled && oidc != null) {
+                // With an identity provider configured, production-like profiles accept only its tokens: no
+                // shared-secret JWT and no API key. Non-production profiles use it whenever a bearer is sent.
+                if (productionLike && (hasApiKey || authorization == null)) {
+                    SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "An OIDC bearer token is required");
+                    return;
+                }
+                if (authorization != null) {
+                    admitOidc(exchange, authorization.substring(7).trim(), false);
+                    return;
+                }
+            }
             if (devIdentityEnabled) {
                 // This opt-in mode admits only an operator-signed, short-lived dev token. Caller
                 // identity headers and API keys do not provide an alternate path.
@@ -112,10 +148,21 @@ public final class MediaSecurityFilter implements HttpHandler {
                 Optional<JwtAuthenticationVerifier.VerifiedJwt> devVerified = devJwtVerifier.verify(
                         authorization.substring(7).trim(), null);
                 if (devVerified.isEmpty()) {
+                    if (oidc != null) {
+                        // DEV mode accepts both: a token that is not an operator-signed DEV token may be an
+                        // identity-provider token. The identity record carries which one it was.
+                        admitOidc(exchange, authorization.substring(7).trim(), true);
+                        return;
+                    }
                     SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Invalid DEV_ONLY bearer token");
                     return;
                 }
                 var identity = devVerified.orElseThrow();
+                if (identity.subject().startsWith(MediaVerifiedIdentityContracts.OIDC_PRINCIPAL_PREFIX)) {
+                    // The oidc: principal space is reserved for identity-provider identities.
+                    SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Invalid DEV_ONLY bearer token");
+                    return;
+                }
                 if (!Boolean.TRUE.equals(identity.claims().get("dev_only"))) {
                     SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Bearer token is not marked DEV_ONLY");
                     return;
@@ -135,7 +182,7 @@ public final class MediaSecurityFilter implements HttpHandler {
                 replaceHint(exchange, SecurityFilterSupport.HEADER_TENANT_ID, identity.tenantId());
                 replaceHint(exchange, "X-Principal-Id", identity.subject());
                 authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
-                        identity.tenantId(), identity.subject(), clock.instant());
+                        identity.tenantId(), identity.subject(), clock.instant(), AssuranceSource.DEV_ISSUED);
             } else if (productionLike && devJwtVerifier != null && authorization != null
                     && authorization.startsWith("Bearer ")
                     && devJwtVerifier.verify(authorization.substring(7).trim(), null).isPresent()) {
@@ -166,7 +213,7 @@ public final class MediaSecurityFilter implements HttpHandler {
                 replaceHint(exchange, SecurityFilterSupport.HEADER_TENANT_ID, identity.tenantId());
                 replaceHint(exchange, "X-Principal-Id", identity.subject());
                 authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
-                        identity.tenantId(), identity.subject(), clock.instant());
+                        identity.tenantId(), identity.subject(), clock.instant(), AssuranceSource.SHARED_SECRET_JWT);
             } else if (!devIdentityEnabled && !productionLike) {
                 // Local identities are intentionally synthetic and cannot be selected by clients.
                 // Tenant remains a fixture input in local profiles; production uses verified JWT
@@ -177,18 +224,21 @@ public final class MediaSecurityFilter implements HttpHandler {
                 String tenant = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_TENANT_ID);
                 if (tenant != null && !tenant.isBlank()) {
                     authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
-                            tenant, localPrincipal, clock.instant());
+                            tenant, localPrincipal, clock.instant(), AssuranceSource.LOCAL_UNVERIFIED);
                 }
             } else if (!devIdentityEnabled && hasApiKey) {
                 // authorizeBootstrapApiKey has already matched the configured service tenant and
                 // replaced the caller's principal hint with the configured service identity.
                 authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
-                        bootstrapApiKeyTenant, bootstrapServiceId, clock.instant());
+                        bootstrapApiKeyTenant, bootstrapServiceId, clock.instant(), AssuranceSource.BOOTSTRAP_SERVICE_KEY);
             }
             if (authenticated != null) {
                 // The controller consumes this server-side context. Request headers remain useful
                 // for compatibility, but are never the controller's source of identity.
                 exchange.setAttribute(AUTHENTICATED_PRINCIPAL_ATTRIBUTE, authenticated);
+                exchange.setAttribute(VERIFIED_IDENTITY_ATTRIBUTE, new VerifiedIdentity(
+                        nonIdpIssuer(authenticated.assurance()), authenticated.principalId(),
+                        authenticated.tenantId(), authenticated.authenticatedAt(), authenticated.assurance()));
             }
             support.handle(exchange);
         } catch (Exception e) {
@@ -206,6 +256,58 @@ public final class MediaSecurityFilter implements HttpHandler {
         Object value = exchange.getAttribute(AUTHENTICATED_PRINCIPAL_ATTRIBUTE);
         return value instanceof MediaSourceAuthorizationContracts.AuthenticatedPrincipal principal
                 ? principal : null;
+    }
+
+    /** The trusted-identity record for this request: who, for which tenant, and how that was established. */
+    static VerifiedIdentity verifiedIdentity(HttpExchange exchange) {
+        return exchange.getAttribute(VERIFIED_IDENTITY_ATTRIBUTE) instanceof VerifiedIdentity identity ? identity : null;
+    }
+
+    private static String nonIdpIssuer(AssuranceSource assurance) {
+        return switch (assurance) {
+            case DEV_ISSUED -> DEV_ONLY_ISSUER;
+            case SHARED_SECRET_JWT -> "urn:ghatana:media:shared-secret-jwt";
+            case BOOTSTRAP_SERVICE_KEY -> "urn:ghatana:media:bootstrap-service-key";
+            case LOCAL_UNVERIFIED, UNSPECIFIED, OIDC_VERIFIED -> "urn:ghatana:media:local-development";
+        };
+    }
+
+    /**
+     * Admits a request carrying an OIDC access token. The provider's signature, issuer, audience and lifetime
+     * checks, the tenant claim and the mapped permissions decide admission; nothing about the caller is taken from
+     * request headers. An unreachable identity provider yields 503, never acceptance.
+     */
+    private void admitOidc(HttpExchange exchange, String token, boolean devRoutes) throws IOException {
+        OidcAccessTokenVerifier.Result result = oidc.verifyToken(token);
+        if (result.status() == OidcAccessTokenVerifier.Status.UNAVAILABLE) {
+            SecurityFilterSupport.sendError(exchange, 503, "IDENTITY_PROVIDER_UNAVAILABLE",
+                    "The identity provider's signing keys are unavailable");
+            return;
+        }
+        if (!result.verified()) {
+            SecurityFilterSupport.sendError(exchange, 401, "UNAUTHENTICATED", "Invalid OIDC bearer token");
+            return;
+        }
+        VerifiedIdentity identity = result.identity();
+        String required = requiredPermission(exchange.getRequestMethod(), exchange.getRequestURI().getPath(), devRoutes);
+        if (required == null || !result.permissions().contains(required)) {
+            SecurityFilterSupport.sendError(exchange, 403, "FORBIDDEN", "Access denied");
+            return;
+        }
+        if (devRoutes) {
+            exchange.setAttribute(DEV_ONLY_AUTHENTICATED_ATTRIBUTE, Boolean.TRUE);
+            exchange.setAttribute(DEV_ONLY_PERMISSIONS_ATTRIBUTE, Set.of(
+                    "media:artifact:create", "media:artifact:write", "media:artifact:read",
+                    "media:job:read", "media:job:cancel").stream()
+                    .filter(result.permissions()::contains)
+                    .collect(java.util.stream.Collectors.toUnmodifiableSet()));
+        }
+        replaceHint(exchange, SecurityFilterSupport.HEADER_TENANT_ID, identity.tenantId());
+        replaceHint(exchange, "X-Principal-Id", identity.principalId());
+        exchange.setAttribute(AUTHENTICATED_PRINCIPAL_ATTRIBUTE, identity.toAuthenticatedPrincipal());
+        exchange.setAttribute(VERIFIED_IDENTITY_ATTRIBUTE, identity);
+        // Admission is complete; the shared-secret support filter must not re-verify an identity-provider token.
+        delegate.handle(exchange);
     }
 
     static boolean isDevOnlyIdentity(HttpExchange exchange) {

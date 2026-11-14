@@ -204,9 +204,12 @@ final class MediaDevReviewRoutes {
         }
         DecisionRecord decision = new DecisionRecord(Decision.valueOf(string(body.get("decision"), "decision")),
                 string(body.get("reason"), "reason"));
+        var verified = MediaSecurityFilter.verifiedIdentity(exchange);
         var outcome = reviews.decide(tenantId, principalId, reviewCase, revision(body.get("expectedCaseRevision")),
                 string(body.get("requestId"), "requestId"), decision,
-                ReviewScope.valueOf(string(body.get("scope"), "scope")), true);
+                ReviewScope.valueOf(string(body.get("scope"), "scope")), true,
+                verified == null ? com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource.UNSPECIFIED
+                        : verified.assurance());
         out.json(exchange, outcome.replayed() ? 200 : 201, appendView(outcome));
     }
 
@@ -249,8 +252,12 @@ final class MediaDevReviewRoutes {
                     "appendRecordId", latestDecision.record().appendRecordId(),
                     "caseRevision", latestDecision.record().caseRevision(),
                     "currentness", latestDecision.currentness().name()));
-            String family = MediaDevReviewRuntime.isAssignedAuthority(latestDecision.record().authorityVersion())
+            String family = MediaDevReviewRuntime.isIdpVerifiedAuthority(latestDecision.record().authorityVersion())
+                    ? "IDP_VERIFIED_REVIEWER_"
+                    : MediaDevReviewRuntime.isAssignedAuthority(latestDecision.record().authorityVersion())
                     ? "DEV_ASSIGNED_REVIEWER_" : "DEV_ONLY_";
+            state.put("identityAssurance", MediaDevReviewRuntime.isIdpVerifiedAuthority(
+                    latestDecision.record().authorityVersion()) ? "OIDC_VERIFIED" : "NOT_IDP_VERIFIED");
             state.put("status", family + decision.decision().name()
                     + (latestDecision.currentness() == Currentness.CURRENT ? "_CURRENT" : "_STALE"));
         }
@@ -286,8 +293,15 @@ final class MediaDevReviewRoutes {
             view.put("kind", "DECISION");
             view.put("authorityVersion", record.authorityVersion());
             boolean assignedReviewer = MediaDevReviewRuntime.isAssignedAuthority(record.authorityVersion());
-            view.put("recordedAs", (assignedReviewer ? "DEV_ASSIGNED_REVIEWER_" : "DEV_ONLY_")
-                    + decision.decision().name());
+            boolean idpVerified = MediaDevReviewRuntime.isIdpVerifiedAuthority(record.authorityVersion());
+            view.put("recordedAs", (idpVerified ? "IDP_VERIFIED_REVIEWER_"
+                    : assignedReviewer ? "DEV_ASSIGNED_REVIEWER_" : "DEV_ONLY_") + decision.decision().name());
+            view.put("identityAssurance", idpVerified ? "OIDC_VERIFIED" : "NOT_IDP_VERIFIED");
+            view.put("identityBackedHumanDecision", idpVerified);
+            if (idpVerified) {
+                view.put("identityNote", "The configured identity provider verified who this reviewer is; the "
+                        + "decision is still not an approval and authorizes no delivery or publication");
+            }
             if (assignedReviewer) {
                 String[] parts = record.authorityVersion().split(":");
                 view.put("scope", parts[parts.length - 1]);

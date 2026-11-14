@@ -353,6 +353,48 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
     }
 
     @Test
+    void productionLikeProfilesAdmitOnlyAnOidcVerifiedInvokingPrincipalAndCarryItUnchanged() {
+        var verified = new AuthenticatedPrincipal(TENANT, "oidc:0123456789abcdef01234567:subject-1", Instant.now(),
+                com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource.OIDC_VERIFIED);
+        for (String profile : List.of("prod", "production", "staging", "sovereign")) {
+            Case c = cases().get(0);
+            TestOnlyPort port = new TestOnlyPort();
+            port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
+            MediaToolJobBridge bridge = new MediaToolJobBridge(port, profile);
+            var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+
+            ToolExecutionResult result = run(factory, c, envelope(c, c.input()), verified);
+
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCEEDED);
+            assertThat(port.principals).containsExactly(verified);
+            assertThat(port.submitted).singleElement().satisfies(request -> {
+                assertThat(request.principalId()).isEqualTo(verified.principalId());
+                assertThat(request.tenantId()).isEqualTo(TENANT);
+            });
+        }
+        // Every non-IdP assurance, including an unstated one, stays unavailable in production-like profiles.
+        for (var assurance : com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource.values()) {
+            if (assurance.idpVerified()) continue;
+            Case c = cases().get(0);
+            TestOnlyPort port = new TestOnlyPort();
+            MediaToolJobBridge bridge = new MediaToolJobBridge(port, "production");
+            var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+            ToolExecutionResult result = run(factory, c, envelope(c, c.input()),
+                    new AuthenticatedPrincipal(TENANT, AGENT, Instant.now(), assurance));
+            assertThat(result.failure().code()).isEqualTo(MediaToolJobBridge.IDENTITY_CONTRACT_UNAVAILABLE);
+            assertThat(port.submitted).isEmpty();
+        }
+        // An unknown profile never admits, even with a verified identity.
+        TestOnlyPort port = new TestOnlyPort();
+        MediaToolJobBridge bridge = new MediaToolJobBridge(port, "bogus");
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+        Case c = cases().get(0);
+        assertThat(run(factory, c, envelope(c, c.input()), verified).failure().code())
+                .isEqualTo(MediaToolJobBridge.IDENTITY_CONTRACT_UNAVAILABLE);
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
     void handlersWithoutABridgeRemainTypedNotAdmitted() {
         Case c = cases().get(1);
         ToolExecutionEnvelope e = envelope(c, c.input());

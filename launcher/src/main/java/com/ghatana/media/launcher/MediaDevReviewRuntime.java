@@ -9,6 +9,7 @@ import com.ghatana.media.production.review.VersionedReviewEngine;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -46,6 +47,12 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     public static final String ENABLED = "MEDIA_DEV_REVIEW_ENABLED";
     public static final String AUTHORITY_VERSION = "dev-only.synthetic-owner.v1";
     public static final String ASSIGNED_AUTHORITY_PREFIX = "dev-only.assigned-reviewer.v1:";
+    /**
+     * Authority family for a decision whose assigned reviewer was verified by the configured OIDC identity provider.
+     * It records WHO decided (issuer and subject, in the principal id) and that the identity provider vouched for
+     * them. It does not make the decision an approval: {@code establishesApproval} stays false.
+     */
+    public static final String IDP_ASSIGNED_AUTHORITY_PREFIX = "idp-verified.assigned-reviewer.v1:";
     static final String SCOPE_PREFIX = "dev-only:owner:";
     static final java.time.Duration MAX_ASSIGNMENT = java.time.Duration.ofDays(30);
     private static final Duration AUTHORITY_VALIDITY = Duration.ofMinutes(5);
@@ -63,6 +70,7 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     private final VersionedReviewEngine engine;
     private final ThreadLocal<Boolean> storeReplay = new ThreadLocal<>();
     private final ThreadLocal<ReviewScope> decisionScope = new ThreadLocal<>();
+    private final ThreadLocal<AssuranceSource> decisionAssurance = new ThreadLocal<>();
     private final AtomicBoolean closed = new AtomicBoolean();
 
     MediaDevReviewRuntime(ManagedReviewStore store, MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
@@ -212,7 +220,9 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
                     new ReviewAuthorityException("REVIEW_SCOPE_NOT_ASSIGNED",
                             "The reviewer assignment does not include scope " + scope));
         }
-        String authority = ASSIGNED_AUTHORITY_PREFIX + chosen.assignmentId() + ":v" + chosen.assignmentVersion()
+        String prefix = decision && decisionAssurance.get() == AssuranceSource.OIDC_VERIFIED
+                ? IDP_ASSIGNED_AUTHORITY_PREFIX : ASSIGNED_AUTHORITY_PREFIX;
+        String authority = prefix + chosen.assignmentId() + ":v" + chosen.assignmentVersion()
                 + (decision ? ":" + scope.name() : "");
         return new Resolved(chosen.assignedByPrincipalId(), chosen, authority);
     }
@@ -221,7 +231,13 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
 
     /** Authority version string is "dev-only.assigned-reviewer.v1:{assignmentId}:v{n}[:SCOPE]" for assigned reviewers. */
     public static boolean isAssignedAuthority(String authorityVersion) {
-        return authorityVersion != null && authorityVersion.startsWith(ASSIGNED_AUTHORITY_PREFIX);
+        return authorityVersion != null && (authorityVersion.startsWith(ASSIGNED_AUTHORITY_PREFIX)
+                || authorityVersion.startsWith(IDP_ASSIGNED_AUTHORITY_PREFIX));
+    }
+
+    /** True when the decision was recorded for a reviewer verified by the OIDC identity provider. */
+    public static boolean isIdpVerifiedAuthority(String authorityVersion) {
+        return authorityVersion != null && authorityVersion.startsWith(IDP_ASSIGNED_AUTHORITY_PREFIX);
     }
 
     public ReviewSnapshot inspect(String tenantId, String principalId, ReviewCaseRef reviewCase) {
@@ -240,13 +256,27 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     public AppendOutcome decide(String tenantId, String principalId, ReviewCaseRef reviewCase,
                                 long expectedCaseRevision, String requestId, DecisionRecord decision,
                                 ReviewScope scope, boolean confirmed) {
+        return decide(tenantId, principalId, reviewCase, expectedCaseRevision, requestId, decision, scope, confirmed,
+                AssuranceSource.DEV_ISSUED);
+    }
+
+    /**
+     * Records a decision for an assigned reviewer. {@code assurance} states how the deciding identity was
+     * established at the request boundary: {@link AssuranceSource#OIDC_VERIFIED} records an identity-provider-backed
+     * human decision; every other value records the DEV_ONLY statement exactly as before.
+     */
+    public AppendOutcome decide(String tenantId, String principalId, ReviewCaseRef reviewCase,
+                                long expectedCaseRevision, String requestId, DecisionRecord decision,
+                                ReviewScope scope, boolean confirmed, AssuranceSource assurance) {
         requireSanitizable(decision.reason(), 4_000);
         if (scope == null) throw new IllegalArgumentException("scope is required for a review decision");
         decisionScope.set(scope);
+        decisionAssurance.set(Objects.requireNonNull(assurance, "assurance"));
         try {
             return append(tenantId, principalId, reviewCase, expectedCaseRevision, requestId, decision, confirmed);
         } finally {
             decisionScope.remove();
+            decisionAssurance.remove();
         }
     }
 

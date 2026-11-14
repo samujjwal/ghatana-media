@@ -33,8 +33,10 @@ import java.util.Optional;
  * stays the runtime's conservative default so provider admission is decided by the runtime.
  *
  * <p>Tool identity is bound to an authenticated Media principal. In development profiles the
- * host supplies the DEV_ONLY signed identity; production-like (or unknown) profiles fail
- * closed until a trusted Tools identity contract exists.
+ * host supplies the DEV_ONLY signed identity; production-like profiles admit only a principal
+ * verified by the configured OIDC identity provider ({@code AssuranceSource.OIDC_VERIFIED}), and
+ * unknown profiles fail closed. The verified invoking principal is carried unchanged into job
+ * submission; it is never replaced by a synthetic one.
  *
  * @doc.type class
  * @doc.purpose Tool-call to canonical Media job mapping
@@ -85,12 +87,16 @@ public final class MediaToolJobBridge {
     Promise<ToolExecutionResult> submit(ToolExecutionEnvelope envelope, AuthenticatedPrincipal authenticated,
             JobType jobType, String artifactId, String sourceVersion, Map<String, Object> parameters,
             Instant start) {
-        if (MediaDeploymentProfiles.productionLike(deploymentProfile)
-                || !MediaDeploymentProfiles.isSupported(deploymentProfile)) {
+        if (!MediaDeploymentProfiles.isSupported(deploymentProfile)) {
             return Promise.of(unavailable(envelope, IDENTITY_CONTRACT_UNAVAILABLE, start));
         }
         if (authenticated == null) {
             return Promise.of(unavailable(envelope, PRINCIPAL_REQUIRED, start));
+        }
+        // Production-like profiles admit only a principal that an OIDC identity provider verified at the host's
+        // ingress. A synthetic, DEV-issued, shared-secret, local or unstated principal remains unavailable.
+        if (MediaDeploymentProfiles.productionLike(deploymentProfile) && !authenticated.idpVerified()) {
+            return Promise.of(unavailable(envelope, IDENTITY_CONTRACT_UNAVAILABLE, start));
         }
         if (!authenticated.tenantId().equals(envelope.tenantId())) {
             return Promise.of(denied(envelope, PRINCIPAL_TENANT_MISMATCH));

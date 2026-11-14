@@ -40,12 +40,22 @@ public final class MediaSourceAuthorizationContracts {
     public record AuthenticatedPrincipal(
             String tenantId,
             String principalId,
-            Instant authenticatedAt) {
+            Instant authenticatedAt,
+            MediaVerifiedIdentityContracts.AssuranceSource assurance) {
         public AuthenticatedPrincipal {
             tenantId = required(tenantId, "tenantId");
             principalId = required(principalId, "principalId");
             authenticatedAt = Objects.requireNonNull(authenticatedAt, "authenticatedAt");
+            assurance = Objects.requireNonNull(assurance, "assurance");
         }
+
+        /** Boundary that does not state how the principal was established; never identity-provider backed. */
+        public AuthenticatedPrincipal(String tenantId, String principalId, Instant authenticatedAt) {
+            this(tenantId, principalId, authenticatedAt, MediaVerifiedIdentityContracts.AssuranceSource.UNSPECIFIED);
+        }
+
+        /** True only when an OIDC identity provider vouched for this principal. */
+        public boolean idpVerified() { return assurance.idpVerified(); }
     }
 
     /** Exact processing identity passed to a trusted source/policy authority. */
