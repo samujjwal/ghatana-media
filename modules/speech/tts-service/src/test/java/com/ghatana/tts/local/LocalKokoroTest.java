@@ -148,6 +148,41 @@ class LocalKokoroTest {
     }
 
     @Test
+    void supportedEncodingsReflectWhatTheHostCanReallyProduce() throws Exception {
+        Path sidecar = Files.writeString(dir.resolve("kokoro_synth.py"), "# sidecar fixture\n");
+        Path python = fakePython(Files.write(dir.resolve("clip.wav"), wav24k(240)), "");
+        Path lame = dir.resolve("fake-ffmpeg-lame");
+        Files.writeString(lame, "#!/bin/bash\necho ' A....D libmp3lame'\n");
+        Files.setPosixFilePermissions(lame, PosixFilePermissions.fromString("rwxr-xr-x"));
+        Path bare = dir.resolve("fake-ffmpeg-bare");
+        Files.writeString(bare, "#!/bin/bash\necho ' A....D aac'\n");
+        Files.setPosixFilePermissions(bare, PosixFilePermissions.fromString("rwxr-xr-x"));
+
+        var wavOnly = new LocalKokoroTtsProvider(install(sidecar, "Apache-2.0"), python, sidecar);
+        assertThat(wavOnly.supportedEncodings()).containsExactlyInAnyOrder("LINEAR16", "WAV");
+        var noCodec = new LocalKokoroTtsProvider(install(sidecar, "Apache-2.0"), python, sidecar, bare);
+        assertThat(noCodec.supportedEncodings()).containsExactlyInAnyOrder("LINEAR16", "WAV");
+        var withMp3 = new LocalKokoroTtsProvider(install(sidecar, "Apache-2.0"), python, sidecar, lame);
+        assertThat(withMp3.supportedEncodings()).containsExactlyInAnyOrder("LINEAR16", "WAV", "MP3");
+        assertThat(new LocalKokoroTtsProvider(LocalModelInstall.absent("none"), python, sidecar, lame)
+                .supportedEncodings()).isEmpty();
+    }
+
+    @Test
+    void warmUpRunsOneRealSynthesisOnlyWhenTheProfileIsReady() throws Exception {
+        Path sidecar = Files.writeString(dir.resolve("kokoro_synth.py"), "# sidecar fixture\n");
+        Path python = fakePython(Files.write(dir.resolve("clip.wav"), wav24k(240)),
+                "echo run >> " + dir.resolve("runs"));
+        var provider = new LocalKokoroTtsProvider(install(sidecar, "Apache-2.0"), python, sidecar);
+        assertThat(provider.warmUp().get(30, java.util.concurrent.TimeUnit.SECONDS)).isGreaterThanOrEqualTo(0L);
+        assertThat(Files.readAllLines(dir.resolve("runs"))).hasSize(1);
+        provider.close();
+        var notReady = new LocalKokoroTtsProvider(LocalModelInstall.absent("none"), python, sidecar);
+        assertThat(notReady.warmUp().get(5, java.util.concurrent.TimeUnit.SECONDS)).isEqualTo(-1L);
+        assertThat(Files.readAllLines(dir.resolve("runs"))).hasSize(1);
+    }
+
+    @Test
     void providerIsReadyOnlyForAVerifiedApacheManifestAndStaysNonProductionEligible() throws Exception {
         Path sidecar = Files.writeString(dir.resolve("kokoro_synth.py"), "# sidecar fixture\n");
         Path python = fakePython(Files.write(dir.resolve("clip.wav"), wav24k(240)), "");

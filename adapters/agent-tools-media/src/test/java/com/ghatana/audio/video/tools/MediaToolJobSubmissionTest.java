@@ -481,6 +481,95 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
     }
 
     @Test
+    void transcriptionMultimodalCallCarriesTheServerPinnedSttChildAndANeverAgentSuppliedProfile() {
+        Case mm = cases().get(3);
+        // Agent input that tries to smuggle its own profile is rejected before submission.
+        TestOnlyPort rejectedPort = new TestOnlyPort();
+        rejectedPort.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("observations", List.of()), "");
+        MediaToolJobBridge rejectedBridge = new MediaToolJobBridge(rejectedPort, "test", PIN, java.time.Duration.ZERO);
+        var rejectedFactory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), rejectedBridge), rejectedBridge);
+        Map<String, Object> smuggled = new HashMap<>(mm.input());
+        smuggled.put("profileId", "evil-profile");
+        ToolExecutionResult rejected = run(rejectedFactory, mm, envelope(mm, smuggled), principal());
+        assertThat(rejected.status()).isNotEqualTo(ToolExecutionStatus.SUCCESS);
+        assertThat(rejectedPort.submitted).isEmpty();
+
+        // Pinned bridge: transcription + vision -> two children, the STT child carries the pin and language intent.
+        TestOnlyPort port = new TestOnlyPort();
+        port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("observations", List.of()), "");
+        MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test", PIN, java.time.Duration.ZERO);
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+        run(factory, mm, envelope(mm, mm.input()), principal());
+        var spec = com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec.from(port.submitted.get(0));
+        assertThat(spec.children()).extracting(child -> child.jobType())
+                .containsExactly(JobType.SPEECH_TO_TEXT, JobType.VISION);
+        var stt = spec.child("stt");
+        assertThat(stt.artifactId()).isEqualTo("art-mm");
+        assertThat(stt.artifactVersion()).isEqualTo(VERSION);
+        assertThat(stt.parameters()).containsEntry("profileId", PIN.profileId())
+                .containsEntry("profileVersion", PIN.profileVersion())
+                .containsEntry("profileConfigurationDigest", PIN.configurationDigest())
+                .containsEntry("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", "en"));
+
+        // Transcription only: a single STT child.
+        TestOnlyPort sttOnlyPort = new TestOnlyPort();
+        sttOnlyPort.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("observations", List.of()), "");
+        MediaToolJobBridge sttOnlyBridge = new MediaToolJobBridge(sttOnlyPort, "test", PIN, java.time.Duration.ZERO);
+        var sttOnlyFactory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), sttOnlyBridge), sttOnlyBridge);
+        Map<String, Object> sttOnly = new HashMap<>(mm.input());
+        sttOnly.put("enableVisionAnalysis", false);
+        run(sttOnlyFactory, mm, envelope(mm, sttOnly), principal());
+        assertThat(com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
+                .from(sttOnlyPort.submitted.get(0)).children()).extracting(child -> child.jobType())
+                .containsExactly(JobType.SPEECH_TO_TEXT);
+    }
+
+    @Test
+    void ttsEncodingTheAdmittedProfileCannotProduceIsRefusedBeforeAnyJobExists() {
+        Case tts = cases().get(1);
+        TestOnlyPort port = new TestOnlyPort();
+        port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("audioArtifactRef", "urn:out"), "");
+        MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test")
+                .withSupportedTtsEncodings(Set.of("LINEAR16", "WAV"));
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+
+        ToolExecutionResult mp3 = run(factory, tts, envelope(tts, tts.input()), principal());
+        assertThat(mp3.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(mp3.failure().code()).isEqualTo("TTS_AUDIO_ENCODING_NOT_SUPPORTED");
+        assertThat(port.submitted).isEmpty();
+
+        Map<String, Object> wav = new HashMap<>(tts.input());
+        wav.put("audioEncoding", "LINEAR16");
+        assertThat(run(factory, tts, envelope(tts, wav), principal()).status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+        assertThat(port.submitted).hasSize(1);
+
+        // With MP3 in the host's supported set the same call is submitted.
+        TestOnlyPort mp3Port = new TestOnlyPort();
+        mp3Port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("audioArtifactRef", "urn:out"), "");
+        MediaToolJobBridge mp3Bridge = new MediaToolJobBridge(mp3Port, "test")
+                .withSupportedTtsEncodings(Set.of("LINEAR16", "WAV", "MP3"));
+        var mp3Factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), mp3Bridge), mp3Bridge);
+        assertThat(run(mp3Factory, tts, envelope(tts, tts.input()), principal()).status())
+                .isEqualTo(ToolExecutionStatus.SUCCESS);
+        assertThat(mp3Port.submitted).hasSize(1);
+    }
+
+    @Test
+    void completedTtsJobSurfacesTheRegisteredAudioArtifactIdentity() {
+        Case tts = cases().get(1);
+        TestOnlyPort port = new TestOnlyPort();
+        port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("audioArtifactRef", "urn:ghatana:media-artifact:art-audio",
+                "audioArtifactId", "art-audio", "audioArtifactVersion", "sha256:" + "d".repeat(64)), "");
+        MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test");
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+        ToolExecutionResult result = run(factory, tts, envelope(tts, tts.input()), principal());
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+        @SuppressWarnings("unchecked") Map<String, Object> out = (Map<String, Object>) result.output();
+        assertThat(out).containsEntry("audioArtifactId", "art-audio")
+                .containsEntry("audioArtifactVersion", "sha256:" + "d".repeat(64));
+    }
+
+    @Test
     void serverOwnedGovernanceContextIsAppliedPerJobTypeAndOthersKeepTheConservativeDefault() {
         var stt = new com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext("", "transcription",
                 com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification.CONFIDENTIAL, "local",

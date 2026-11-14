@@ -13,6 +13,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
 import com.ghatana.media.runtime.localmodel.LocalModelInstall;
 import com.ghatana.media.runtime.localmodel.LocalModelManifest;
+import com.ghatana.stt.local.LocalMediaAudioExtractor;
 import com.ghatana.stt.local.LocalSpeechException;
 import com.ghatana.stt.local.LocalWhisperCppRunner;
 import com.ghatana.stt.service.SttAudioInputDecoder;
@@ -53,12 +54,21 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
     public static final String ENV_MODEL_ROOT = "MEDIA_LOCAL_MODEL_ROOT";
     public static final String ENV_WHISPER_BIN = "MEDIA_WHISPER_CPP_BIN";
     public static final String ENV_THREADS = "MEDIA_WHISPER_CPP_THREADS";
+    /**
+     * Optional absolute FFmpeg path. When set, a source that is not a RIFF WAV (for example an MP4) has its first audio
+     * stream extracted as mono 16 kHz PCM16 WAV before inference, so a transcription child can run over the same
+     * source version as a visual child. Without it only WAV sources are accepted.
+     */
+    public static final String ENV_FFMPEG = "MEDIA_FFMPEG";
+    /** {@code true} starts a background warm-up transcription when the provider is constructed. */
+    public static final String ENV_PRELOAD = "MEDIA_LOCAL_MODEL_PRELOAD";
     private static final String DECODING = "beam=5,temperature=0+fallback,language=explicit,timestamps=segment";
     private static final Duration MAX_RUN = Duration.ofMinutes(5);
 
     private final LocalModelInstall install;
     private final Path executable;
     private final int threads;
+    private final LocalMediaAudioExtractor extractor;
     private volatile LocalWhisperCppRunner runner;
     private final ThreadPoolExecutor execution = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(4), task -> {
@@ -73,13 +83,46 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
     }
 
     LocalWhisperCppSttProvider(Map<String, String> environment) {
-        this(installFrom(environment), path(environment.get(ENV_WHISPER_BIN)), threads(environment));
+        this(installFrom(environment), path(environment.get(ENV_WHISPER_BIN)), threads(environment),
+                path(environment.get(ENV_FFMPEG)));
+        if ("true".equalsIgnoreCase(environment.get(ENV_PRELOAD))) warmUp();
+    }
+
+    /**
+     * Transcribes one second of silence on the provider's own worker so the 1.6 GB ggml weights are already in the
+     * operating-system page cache and the runtime has run once when the first real call arrives. The result is
+     * discarded; it is never a transcript, a quality statement or evidence. Never throws: the returned future completes
+     * with the elapsed milliseconds, or -1 when the profile is not ready or the warm-up could not run.
+     */
+    public CompletableFuture<Long> warmUp() {
+        LocalWhisperCppRunner active = runner;
+        if (active == null || !install.stillCurrent()) return CompletableFuture.completedFuture(-1L);
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                long started = System.nanoTime();
+                try {
+                    byte[] silence = com.ghatana.stt.local.PcmWav.encode(
+                            new com.ghatana.stt.local.PcmWav.Pcm(new short[16_000], 16_000));
+                    active.transcribe(silence, "en", MAX_RUN, () -> false);
+                    return Duration.ofNanos(System.nanoTime() - started).toMillis();
+                } catch (LocalSpeechException | RuntimeException failure) {
+                    return -1L;
+                }
+            }, execution);
+        } catch (RejectedExecutionException saturated) {
+            return CompletableFuture.completedFuture(-1L);
+        }
     }
 
     public LocalWhisperCppSttProvider(LocalModelInstall install, Path executable, int threads) {
+        this(install, executable, threads, null);
+    }
+
+    public LocalWhisperCppSttProvider(LocalModelInstall install, Path executable, int threads, Path ffmpeg) {
         this.install = java.util.Objects.requireNonNull(install, "install");
         this.executable = executable;
         this.threads = threads;
+        this.extractor = LocalMediaAudioExtractor.forExecutable(ffmpeg, MAX_RUN);
         this.runner = buildRunner();
     }
 
@@ -106,6 +149,11 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
     /** Server-owned composition from an explicit environment map (shares the verified install with ServiceLoader). */
     public static LocalWhisperCppSttProvider fromEnvironment(Map<String, String> environment) {
         return new LocalWhisperCppSttProvider(environment);
+    }
+
+    private static boolean isRiffWave(byte[] bytes) {
+        return bytes.length >= 12 && bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
+                && bytes[8] == 'W' && bytes[9] == 'A' && bytes[10] == 'V' && bytes[11] == 'E';
     }
 
     private static Path path(String value) { return value == null || value.isBlank() ? null : Path.of(value); }
@@ -186,9 +234,28 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
         if (context.request().parameters().get("customGlossaryRef") != null) {
             throw new IllegalArgumentException("custom glossary application is not supported by this provider profile");
         }
-        byte[] wav = WhisperOnnxSttProvider.readVerifiedSourceContent(context,
+        byte[] source = WhisperOnnxSttProvider.readVerifiedSourceContent(context,
                 Math.min(4L * 1024 * 1024, SttAudioInputDecoder.MAX_INPUT_BYTES),
                 context.cancellation()::throwIfCancelled).bytes();
+        byte[] wav = source;
+        if (!isRiffWave(source)) {
+            if (extractor == null) {
+                throw new IllegalArgumentException(
+                        "source is not a PCM WAV and no audio extractor (" + ENV_FFMPEG + ") is configured");
+            }
+            long extractBudget = context.deadlineBudget().remainingBudgetMillis();
+            if (extractBudget <= 0) throw new IllegalStateException("provider deadline elapsed before extraction");
+            try {
+                wav = extractor.extractWav16kMono(source, Duration.ofMillis(extractBudget),
+                        () -> context.cancellation().cancelled());
+            } catch (LocalSpeechException invalid) {
+                if (invalid.code() == LocalSpeechException.Code.INVALID_INPUT) {
+                    throw new IllegalArgumentException(invalid.getMessage());
+                }
+                throw invalid;
+            }
+            context.cancellation().throwIfCancelled();
+        }
         AudioData audio = WhisperOnnxSttProvider.wavPcm16Mono16k(wav);
         String language = language(context);
         if (!install.manifest().verifiedLanguages().contains(language)) {
@@ -208,7 +275,7 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
         String operationId = "whisper-cpp-local:" + attempt.jobId() + ":" + attempt.attemptNumber();
         String receiptId = "whisper-cpp-receipt:" + sha256(
                 (operationId + "|" + attempt.requestFingerprint()).getBytes(StandardCharsets.UTF_8));
-        String provenance = sha256((MODEL_KEY + "|" + result.modelSha256() + "|" + sha256(wav) + "|" + outputSha)
+        String provenance = sha256((MODEL_KEY + "|" + result.modelSha256() + "|" + sha256(source) + "|" + outputSha)
                 .getBytes(StandardCharsets.UTF_8));
 
         Map<String, Object> transcriptResponse = new LinkedHashMap<>();

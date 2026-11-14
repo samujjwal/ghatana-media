@@ -163,8 +163,16 @@ asynchronously; nothing is invented in the tool result. Without the provider the
 `av.multimodal-inference` with `enableTranscription:false, enableVisionAnalysis:true` now carries a durable
 `multimodalOperation` spec with exactly one canonical `VISION` child on the exact source version (scene classification,
 OCR and object detection), so with `DelegatingMultimodalProvider` and the local provider composed the parent job fuses the
-child's local result; any call that needs a transcription child still carries no spec and keeps the runtime refusal,
-because the tool contract has no STT profile input. The Qwen2.5-VL question input is not part of any tool schema
+child's local result. A call that needs a transcription child now carries a durable spec too when the host bridge has the
+server-owned `SpeechProfilePin` (the same pin `av.speech-to-text` uses; an agent can never supply or alter it): an `stt`
+child with the pinned profile and an explicit language intent, plus the `vision` child when vision is enabled, both over the
+exact source version. Without a pin it still carries no spec and keeps the runtime refusal. Source-rights `PROCESSING` is
+still required for the source (parent and each child are admitted independently); the STT child of an MP4 source needs
+`MEDIA_FFMPEG` on the speech provider (see the STT surface README).
+`av.text-to-speech` results now surface `audioArtifactId` / `audioArtifactVersion` (the synthesized audio is a canonical
+artifact version with lineage; see the TTS surface README), and a bridge configured with
+`withSupportedTtsEncodings(provider.supportedEncodings())` refuses an unsupported encoding as
+`TTS_AUDIO_ENCODING_NOT_SUPPORTED` before any job exists. The Qwen2.5-VL question input is not part of any tool schema
 (PDP-owned) and is not invented here: question answering is reachable through the `question` job parameter of the
 provider and the DEV_ONLY `/dev/v1/vision/questions` route (adding it to the tool schema needs a PDP contract change).
 Evidence: `MediaToolLocalVisionJourneyTest` in the launcher module (real model, FIXTURE_ONLY rights authority) and

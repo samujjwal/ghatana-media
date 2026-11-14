@@ -77,6 +77,7 @@ public final class MediaToolJobBridge {
     private final SpeechProfilePin speechProfilePin;
     private final Duration awaitTerminal;
     private final Map<JobType, MediaGovernanceContext> governance;
+    private final java.util.Set<String> supportedTtsEncodings;
 
     public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile) {
         this(port, deploymentProfile, null, Duration.ZERO);
@@ -103,12 +104,52 @@ public final class MediaToolJobBridge {
     public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile,
             SpeechProfilePin speechProfilePin, Duration awaitTerminal,
             Map<JobType, MediaGovernanceContext> governance) {
+        this(port, deploymentProfile, speechProfilePin, awaitTerminal, governance, null);
+    }
+
+    private MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile,
+            SpeechProfilePin speechProfilePin, Duration awaitTerminal,
+            Map<JobType, MediaGovernanceContext> governance, java.util.Set<String> supportedTtsEncodings) {
+        this.supportedTtsEncodings = supportedTtsEncodings == null ? null : java.util.Set.copyOf(supportedTtsEncodings);
         this.governance = Map.copyOf(Objects.requireNonNull(governance, "governance"));
         this.port = Objects.requireNonNull(port, "port");
         this.deploymentProfile = MediaDeploymentProfiles.canonical(deploymentProfile);
         this.speechProfilePin = speechProfilePin;
         this.awaitTerminal = Objects.requireNonNull(awaitTerminal, "awaitTerminal");
         if (awaitTerminal.isNegative()) throw new IllegalArgumentException("awaitTerminal must not be negative");
+    }
+
+    /**
+     * Returns a bridge that refuses, before any job is submitted, a text-to-speech call whose audio encoding the
+     * host's admitted TTS profile cannot produce. The set is server-owned composition (for example the provider's own
+     * {@code supportedEncodings()}); an agent can never extend it. A bridge without a set applies no up-front limit and
+     * leaves the decision to the provider, which refuses unsupported encodings with a typed no-effect failure.
+     */
+    public MediaToolJobBridge withSupportedTtsEncodings(java.util.Set<String> encodings) {
+        return new MediaToolJobBridge(port, deploymentProfile, speechProfilePin, awaitTerminal, governance,
+                Objects.requireNonNull(encodings, "encodings"));
+    }
+
+    /** True when no host limit is configured or the encoding is one the host's TTS profile can produce. */
+    boolean ttsEncodingSupported(String encoding) {
+        return supportedTtsEncodings == null || supportedTtsEncodings.contains(encoding);
+    }
+
+    /**
+     * Server-owned parameters of a speech-to-text child of a multimodal operation, or {@code null} when no speech
+     * profile is pinned (a transcription child then cannot be specified and the runtime keeps its typed refusal).
+     * The profile identity comes from host configuration exactly as for a direct speech-to-text call.
+     */
+    java.util.Map<String, Object> speechChildParameters(String language) {
+        if (speechProfilePin == null) return null;
+        String tag = language == null || language.isBlank() ? "en"
+                : java.util.Locale.forLanguageTag(language).getLanguage();
+        Map<String, Object> parameters = new java.util.LinkedHashMap<>();
+        parameters.put("profileId", speechProfilePin.profileId());
+        parameters.put("profileVersion", speechProfilePin.profileVersion());
+        parameters.put("profileConfigurationDigest", speechProfilePin.configurationDigest());
+        parameters.put("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", tag.isEmpty() ? "en" : tag));
+        return Map.copyOf(parameters);
     }
 
     /** Deterministic job request id derived from the durable invocation id. */
@@ -243,6 +284,13 @@ public final class MediaToolJobBridge {
                 output.put("sourceArtifactVersion", job.expectedArtifactVersion());
                 output.put("providerId", job.providerId());
                 output.put("result", job.result());
+                if (job.jobType() == JobType.TEXT_TO_SPEECH
+                        && job.result().get("audioArtifactId") instanceof String audioId
+                        && job.result().get("audioArtifactVersion") instanceof String audioVersion) {
+                    // The synthesized audio is a canonical artifact version; surface its exact identity.
+                    output.put("audioArtifactId", audioId);
+                    output.put("audioArtifactVersion", audioVersion);
+                }
                 yield ToolExecutionResult.succeeded(id, Map.copyOf(output),
                         Map.of("mediaJobId", job.jobId()), id, end, took);
             }

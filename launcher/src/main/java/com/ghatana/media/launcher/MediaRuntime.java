@@ -47,6 +47,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
@@ -3141,6 +3142,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 if (active != null) active.cancel(true);
             }
 
+            // Provider result with any inline synthesized audio replaced by its canonical artifact reference.
+            final java.util.concurrent.atomic.AtomicReference<Map<String, Object>> registeredResult =
+                    new java.util.concurrent.atomic.AtomicReference<>();
             Optional<ProcessingJob> current = jobStore.find(running.tenantId(), running.jobId());
             if (current.isEmpty() || terminal(current.get().status())) {
                 jobStore.release(lease);
@@ -3233,6 +3237,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                         ? "PROVIDER_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
                     } else {
                     Map<String, Object> providerResult = dispatchAttempt == null ? outcome.result() : outcome.submission().result();
+                    providerResult = registerSynthesizedAudio(request, dispatchArtifact, value, dispatchAttempt,
+                            outcome.provider(), providerResult);
+                    registeredResult.set(providerResult);
                     Map<String, Object> modalityResult = MediaModalityContracts.governedResult(
                             request, dispatchArtifact, outcome.provider().providerId(),
                             outcome.provider().providerVersion(),
@@ -3252,7 +3259,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     terminal = transition(value, JobStatus.FAILED,
                             Map.of("failureType", redactionFailure.getClass().getSimpleName(),
                                     "providerOutcome", providerSucceeded ? "SUCCEEDED" : dispatchAttempt == null ? "LOCAL" : "UNKNOWN"),
-                            providerSucceeded ? "RESULT_GOVERNANCE_FAILED"
+                            redactionFailure instanceof SynthesizedAudioRegistrationException ? TTS_OUTPUT_REGISTRATION_FAILED
+                                    : providerSucceeded ? "RESULT_GOVERNANCE_FAILED"
                                     : dispatchAttempt == null ? "SEMANTIC_REDACTION_FAILED" : "PROCESSING_OUTCOME_UNKNOWN");
                     audit.warn(
                             "MEDIA_SEMANTIC_REDACTION_FAILED tenantId={} requestId={} jobId={} provider={} redactionProvider={} failureType={}",
@@ -3276,7 +3284,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     ProviderAttemptObservation observation = new ProviderAttemptObservation(
                             recorded.query(), submission.finality(), receiptId,
                             "RESULT_GOVERNANCE_FAILED".equals(terminal.failureCode())
-                                    ? Map.of() : submission.result(),
+                                    || TTS_OUTPUT_REGISTRATION_FAILED.equals(terminal.failureCode())
+                                    ? Map.of()
+                                    : observationResult(submission.result(), registeredResult.get()),
                             submission.provenanceDigest(), submission.observedAt());
                     if (terminal.status() == JobStatus.COMPLETED
                             && successFinalizationFenceLost(cancellation, jobBudget, true)) {
@@ -3388,7 +3398,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                     "PROCESSING_OUTCOME_UNKNOWN");
                             ProviderAttemptObservation successfulObservation = new ProviderAttemptObservation(
                                     currentAttempt.query(), submission.finality(), submission.providerReceiptId(),
-                                    submission.result(), submission.provenanceDigest(), submission.observedAt());
+                                    withoutInlineAudio(submission.result()), submission.provenanceDigest(),
+                                    submission.observedAt());
                             terminal = unknown;
                             jobStore.recordProviderSuccessWithUnknownJob(latestJob, currentAttempt, unknown,
                                     successfulObservation,
@@ -3425,7 +3436,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                             : "PROCESSING_FINALIZATION_OUTCOME_UNKNOWN");
                             ProviderAttemptObservation successfulObservation = new ProviderAttemptObservation(
                                     currentAttempt.query(), submission.finality(), submission.providerReceiptId(),
-                                    submission.result(), submission.provenanceDigest(), submission.observedAt());
+                                    withoutInlineAudio(submission.result()), submission.provenanceDigest(),
+                                    submission.observedAt());
                             terminal = unknown;
                             jobStore.recordProviderSuccessWithUnknownJob(latestJob, currentAttempt, unknown,
                                     successfulObservation,
@@ -3458,6 +3470,126 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (active != null) active.cancel(true);
         });
         return terminalFuture;
+    }
+
+    static final String TTS_OUTPUT_REGISTRATION_FAILED = "TTS_OUTPUT_REGISTRATION_FAILED";
+    private static final java.util.Set<String> SYNTHESIZED_AUDIO_TYPES =
+            java.util.Set.of("audio/wav", "audio/mpeg", "audio/ogg");
+
+    /** The audio of a synthesis could not be registered as a canonical artifact version. */
+    static final class SynthesizedAudioRegistrationException extends RuntimeException {
+        SynthesizedAudioRegistrationException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    /** Result copy without raw inline audio, so synthesized bytes are never written into a job or attempt row. */
+    static Map<String, Object> withoutInlineAudio(Map<String, Object> result) {
+        if (result == null || !result.containsKey("audioBytes")) return result;
+        Map<String, Object> copy = new LinkedHashMap<>(result);
+        copy.remove("audioBytes");
+        return Map.copyOf(copy);
+    }
+
+    private static Map<String, Object> observationResult(
+            Map<String, Object> raw, Map<String, Object> registered) {
+        return registered != null ? withoutInlineAudio(registered) : withoutInlineAudio(raw);
+    }
+
+    /**
+     * Registers synthesized audio as an immutable artifact version through the canonical durable upload path
+     * (begin, chunked append, complete) bound to the job's tenant and principal, with lineage that names the text digest,
+     * voice and model identity and the exact source version the job ran against. The upload idempotency key is derived
+     * from tenant, principal and job id, so a retried finalization resumes the same registration instead of creating a
+     * second artifact. Returns the provider result with the inline bytes replaced by the artifact reference; results of
+     * other job types, or without inline audio, are returned unchanged.
+     */
+    private Map<String, Object> registerSynthesizedAudio(
+            ProcessingJobRequest request, MediaArtifact source, ProcessingJob job, ProcessingAttempt attempt,
+            MediaProcessingProvider provider, Map<String, Object> providerResult) {
+        if (request.jobType() != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.TEXT_TO_SPEECH
+                || providerResult == null || !(providerResult.get("audioBytes") instanceof byte[] audio)) {
+            return providerResult;
+        }
+        try {
+            if (audio.length < 1 || audio.length > config.maximumArtifactBytes()) {
+                throw new IllegalArgumentException("synthesized audio is empty or exceeds the artifact ceiling");
+            }
+            Object declaredType = providerResult.get("audioContentType");
+            if (!(declaredType instanceof String contentType) || !SYNTHESIZED_AUDIO_TYPES.contains(contentType)) {
+                throw new IllegalArgumentException("synthesized audio declares no supported content type");
+            }
+            String sha256 = sha256Hex(audio);
+            if (providerResult.get("audioSha256") instanceof String declared && !declared.equals(sha256)) {
+                throw new IllegalArgumentException("synthesized audio digest does not match the provider receipt");
+            }
+            Map<String, Object> lineage = new LinkedHashMap<>();
+            lineage.put("derivation", "TEXT_TO_SPEECH");
+            lineage.put("derivedFromArtifactId", source.artifactId());
+            lineage.put("derivedFromArtifactVersion", source.version().value());
+            lineage.put("jobId", job.jobId());
+            lineage.put("requestId", request.requestId());
+            lineage.put("providerId", provider.providerId());
+            lineage.put("providerVersion", provider.providerVersion());
+            lineage.put("modelVersion", provider.modelVersion(request.jobType()));
+            for (String key : List.of("modelId", "modelKey", "modelSha256", "voice", "textSha256", "audioEncoding",
+                    "voiceCloning")) {
+                if (providerResult.get(key) instanceof String text && !text.isBlank()) lineage.put(key, text);
+            }
+            if (providerResult.get("sampleRate") instanceof Number rate) lineage.put("sampleRate", rate.longValue());
+            if (providerResult.get("durationMillis") instanceof Number millis) {
+                lineage.put("durationMillis", millis.longValue());
+            }
+            // The derived audio never outlives its source and never carries a lower classification.
+            // The store stamps expiry at registration time, so a safety margin keeps it at or before the source's.
+            long untilSourceExpiry = Duration.between(Instant.now(), source.expiresAt()).toMillis() - 5_000;
+            if (untilSourceExpiry < 1_000) throw new IllegalArgumentException("source artifact is about to expire");
+            Duration retention = Duration.ofMillis(Math.min(untilSourceExpiry, Duration.ofDays(30).toMillis()));
+            String extension = switch (contentType) {
+                case "audio/mpeg" -> "mp3";
+                case "audio/ogg" -> "ogg";
+                default -> "wav";
+            };
+            UploadRequest upload = new UploadRequest(request.tenantId(), request.principalId(),
+                    "tts-" + job.jobId().replaceAll("[^A-Za-z0-9._-]", "_") + "." + extension, contentType,
+                    audio.length, sha256, source.classification(), retention, lineage);
+            String idempotencyKey = "tts-output:" + sha256Hex(
+                    request.tenantId() + "\u0000" + request.principalId() + "\u0000" + job.jobId());
+            UploadSession session = beginUploadInternal(upload, idempotencyKey);
+            if (session.status() == UploadStatus.OPEN) {
+                int chunk = Math.max(1, config.maximumChunkBytes());
+                int index = 0;
+                for (int offset = 0; offset < audio.length; offset += chunk, index++) {
+                    byte[] part = java.util.Arrays.copyOfRange(audio, offset, Math.min(audio.length, offset + chunk));
+                    appendChunkInternal(request.tenantId(), request.principalId(), session.uploadId(), index, part);
+                }
+            }
+            MediaArtifact registered = completeUploadInternal(request.tenantId(), request.principalId(),
+                    session.uploadId());
+            if (!registered.sha256().equals(sha256)) {
+                throw new IllegalStateException("registered artifact digest does not match the synthesized audio");
+            }
+            Map<String, Object> result = new LinkedHashMap<>(providerResult);
+            result.remove("audioBytes");
+            result.put("audioArtifactRef", "urn:ghatana:media-artifact:" + registered.artifactId());
+            result.put("audioArtifactId", registered.artifactId());
+            result.put("audioArtifactVersion", registered.version().value());
+            result.put("audioArtifactSha256", registered.sha256());
+            return Map.copyOf(result);
+        } catch (RuntimeException failure) {
+            throw new SynthesizedAudioRegistrationException(
+                    "synthesized audio could not be registered as an artifact", failure);
+        }
+    }
+
+    private static String sha256Hex(byte[] value) {
+        try {
+            return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(value));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 unavailable", impossible);
+        }
+    }
+
+    private static String sha256Hex(String value) {
+        return sha256Hex(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     /** Builds the exact STT transcript candidate after a fresh source authorization check. */

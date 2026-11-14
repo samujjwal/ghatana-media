@@ -45,12 +45,17 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
     public static final String ENV_MODEL_ROOT = "MEDIA_LOCAL_MODEL_ROOT";
     public static final String ENV_PYTHON = "MEDIA_KOKORO_PYTHON";
     public static final String ENV_SCRIPT = "MEDIA_KOKORO_SCRIPT";
+    /** Absolute path of an FFmpeg binary used to encode MP3 / OGG_OPUS output; absent means WAV/LINEAR16 only. */
+    public static final String ENV_FFMPEG = "MEDIA_FFMPEG";
+    /** {@code true} starts a background warm-up synthesis when the provider is constructed. */
+    public static final String ENV_PRELOAD = "MEDIA_LOCAL_MODEL_PRELOAD";
     public static final int MAX_JOB_TEXT_CHARS = 400;
     public static final int MAX_JOB_AUDIO_BYTES = 1_572_864;
     private static final Duration MAX_RUN = Duration.ofMinutes(3);
 
     private final LocalModelInstall install;
     private final LocalKokoroSynthesizer synthesizer;
+    private final LocalAudioEncoder encoder;
     private final ThreadPoolExecutor execution = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(4), task -> {
                 Thread thread = new Thread(task, "media-kokoro-local");
@@ -64,14 +69,57 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
     }
 
     LocalKokoroTtsProvider(Map<String, String> environment) {
-        this(installFrom(environment), path(environment.get(ENV_PYTHON)), path(environment.get(ENV_SCRIPT)));
+        this(installFrom(environment), path(environment.get(ENV_PYTHON)), path(environment.get(ENV_SCRIPT)),
+                path(environment.get(ENV_FFMPEG)));
+        if ("true".equalsIgnoreCase(environment.get(ENV_PRELOAD))) warmUp();
     }
 
     public LocalKokoroTtsProvider(LocalModelInstall install, Path python, Path script) {
+        this(install, python, script, null);
+    }
+
+    public LocalKokoroTtsProvider(LocalModelInstall install, Path python, Path script, Path ffmpeg) {
         this.install = java.util.Objects.requireNonNull(install, "install");
         this.synthesizer = install.usable()
                 ? LocalKokoroSynthesizer.forVerified(install.manifest(), install.modelDir(), python, script, MAX_RUN)
                 : null;
+        this.encoder = LocalAudioEncoder.forExecutable(ffmpeg, MAX_RUN);
+    }
+
+    /**
+     * Delivery encodings this profile can honour right now: PCM16 WAV always (while ready), plus MP3 / OGG_OPUS when a
+     * configured FFmpeg build has the codec. A host uses this to refuse an unsupported encoding before submitting a job.
+     */
+    public Set<String> supportedEncodings() {
+        if (!ready()) return Set.of();
+        Set<String> out = new java.util.TreeSet<>(Set.of("LINEAR16", "WAV"));
+        if (encoder != null) {
+            for (LocalAudioEncoder.Encoding encoding : encoder.verifyCodecs()) out.add(encoding.name());
+        }
+        return Set.copyOf(out);
+    }
+
+    /**
+     * Starts one short synthesis on the provider's own worker so the Kokoro model and its Python runtime are already
+     * loaded (and the weights are in the page cache) when the first real call arrives. Never throws; a failed warm-up
+     * leaves the provider exactly as ready as before. The returned future completes with the elapsed milliseconds,
+     * or -1 when the profile is not ready or the warm-up could not run.
+     */
+    public CompletableFuture<Long> warmUp() {
+        if (!ready()) return CompletableFuture.completedFuture(-1L);
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                long started = System.nanoTime();
+                try {
+                    synthesizer.synthesize("Warm up.", DEFAULT_VOICE, 1.0, MAX_RUN, () -> false);
+                    return Duration.ofNanos(System.nanoTime() - started).toMillis();
+                } catch (LocalTtsException | RuntimeException failure) {
+                    return -1L;
+                }
+            }, execution);
+        } catch (RejectedExecutionException saturated) {
+            return CompletableFuture.completedFuture(-1L);
+        }
     }
 
     private static LocalModelInstall installFrom(Map<String, String> environment) {
@@ -130,7 +178,16 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try { return run(context, attempt); }
-                catch (LocalTtsException failure) { throw new IllegalStateException(failure); }
+                catch (IllegalArgumentException refused) { return refusal(attempt, refused.getMessage()); }
+                catch (LocalTtsException failure) {
+                    // Input the profile can prove it never acted on is a definitive, typed no-effect refusal.
+                    if (failure.code() == LocalTtsException.Code.INVALID_INPUT
+                            || failure.code() == LocalTtsException.Code.VOICE_NOT_ADMITTED
+                            || failure.code() == LocalTtsException.Code.ENCODING_NOT_SUPPORTED) {
+                        return refusal(attempt, "TTS_" + failure.code().name() + ": " + failure.getMessage());
+                    }
+                    throw new IllegalStateException(failure);
+                }
             }, execution);
         } catch (RejectedExecutionException saturated) {
             return CompletableFuture.completedFuture(ProviderSubmission.unknown());
@@ -150,10 +207,13 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
         // The agent tool's literal default is not a voice pack; it means "the profile's default voice".
         String voice = voiceValue instanceof String v && !v.isBlank() && !"en-US-default".equals(v) ? v : DEFAULT_VOICE;
         double speed = context.request().parameters().get("speakingRate") instanceof Number n ? n.doubleValue() : 1.0;
-        Object encoding = context.request().parameters().get("audioEncoding");
-        if (encoding != null && !(encoding instanceof String e && ("LINEAR16".equals(e) || "WAV".equals(e)))) {
-            throw new IllegalArgumentException(
-                    "TTS_AUDIO_ENCODING_NOT_SUPPORTED: this local profile produces PCM16 WAV (LINEAR16/WAV) only");
+        Object encodingValue = context.request().parameters().get("audioEncoding");
+        LocalAudioEncoder.Encoding encoding = encodingValue == null ? LocalAudioEncoder.Encoding.LINEAR16
+                : encodingValue instanceof String e ? LocalAudioEncoder.Encoding.parse(e).orElse(null) : null;
+        if (encoding == null || (encoding.transcoded()
+                && (encoder == null || !encoder.verifyCodecs().contains(encoding)))) {
+            throw new IllegalArgumentException("TTS_AUDIO_ENCODING_NOT_SUPPORTED: this local profile produces "
+                    + supportedEncodings() + " only");
         }
         Object pitch = context.request().parameters().get("pitch");
         if (pitch != null && !(pitch instanceof Number n && n.doubleValue() == 0.0)) {
@@ -166,17 +226,22 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
                 synthesizer.synthesize(text, voice, speed, Duration.ofMillis(remaining), token);
         context.cancellation().throwIfCancelled();
         if (!install.stillCurrent()) throw new IllegalStateException("local Kokoro model changed during synthesis");
-        byte[] wav = result.wav();
+        long encodeBudget = context.deadlineBudget().remainingBudgetMillis();
+        if (encodeBudget <= 0) throw new IllegalStateException("provider deadline elapsed before encoding");
+        byte[] wav = encoding.transcoded()
+                ? encoder.encode(result.wav(), encoding, Duration.ofMillis(encodeBudget), token).bytes()
+                : result.wav();
+        context.cancellation().throwIfCancelled();
         if (wav.length > MAX_JOB_AUDIO_BYTES) {
-            throw new IllegalArgumentException("TTS_JOB_OUTPUT_TOO_LARGE: use an artifact-registering lane");
+            throw new IllegalArgumentException("TTS_JOB_OUTPUT_TOO_LARGE: text is too long for the job lane");
         }
         String audioSha = sha256(wav);
         String operationId = "kokoro-local:" + attempt.jobId() + ":" + attempt.attemptNumber();
         String receiptId = "kokoro-receipt:" + sha256(
                 (operationId + "|" + attempt.requestFingerprint()).getBytes(StandardCharsets.UTF_8));
         Map<String, Object> value = new LinkedHashMap<>();
-        value.put("audioContentType", "audio/wav");
-        value.put("audioEncoding", "LINEAR16");
+        value.put("audioContentType", encoding.contentType());
+        value.put("audioEncoding", encoding.name());
         value.put("sampleRate", result.sampleRate());
         value.put("durationMillis", result.durationMillis());
         value.put("sizeBytes", wav.length);
@@ -185,11 +250,24 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
         value.put("voice", result.voice());
         value.put("modelId", install.manifest().modelId());
         value.put("modelSha256", result.modelSha256());
+        value.put("modelKey", MODEL_KEY);
+        value.put("textSha256", sha256(text.getBytes(StandardCharsets.UTF_8)));
         value.put("voiceCloning", "NOT_SUPPORTED");
         String provenance = sha256((MODEL_KEY + "|" + result.modelSha256() + "|" + sha256(
                 text.getBytes(StandardCharsets.UTF_8)) + "|" + audioSha).getBytes(StandardCharsets.UTF_8));
         return new ProviderSubmission(AttemptFinality.SUCCEEDED, operationId, receiptId, value, provenance,
                 Instant.now());
+    }
+
+    /** Definitive no-effect refusal: nothing was synthesized, so the job fails typed instead of staying unknown. */
+    private static ProviderSubmission refusal(ProviderAttemptContext attempt, String reason) {
+        String code = reason == null ? "TTS_INPUT_INVALID" : reason.split(":", 2)[0].trim();
+        String operationId = "kokoro-local:" + attempt.jobId() + ":" + attempt.attemptNumber();
+        String receiptId = "kokoro-refusal:" + sha256(
+                (operationId + "|" + attempt.requestFingerprint() + "|" + code).getBytes(StandardCharsets.UTF_8));
+        return new ProviderSubmission(AttemptFinality.NO_EFFECT_PROVEN, operationId, receiptId, Map.of(),
+                sha256((MODEL_KEY + "|refused|" + code + "|" + attempt.requestFingerprint())
+                        .getBytes(StandardCharsets.UTF_8)), Instant.now());
     }
 
     private static String sha256(byte[] value) {

@@ -106,10 +106,20 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                 jobParameters.put("enableVisionAnalysis", enableVision);
                 if (!enableTranscription && enableVision) {
                     // A vision-only observation can be fully specified from the call itself: one canonical
-                    // VISION child on the exact source version. A transcription child needs an STT profile
-                    // the tool contract does not carry, so that combination keeps the runtime's refusal.
+                    // VISION child on the exact source version.
                     jobParameters.put(MultimodalOperationSpec.PARAMETERS_KEY,
                             visionOnlySpec(sourceId, sourceVersion).toParametersValue());
+                } else {
+                    // A transcription child needs a speech profile the tool contract does not carry. The profile is
+                    // the server-owned pin on the bridge (as for av.speech-to-text); an agent can never supply it.
+                    // Without a pin no spec is attached and the runtime keeps its typed refusal.
+                    Map<String, Object> sttParameters = bridge.speechChildParameters(
+                            AgentToolInput.languageTag(input.get("languageCode"), "en-US"));
+                    if (sttParameters != null) {
+                        jobParameters.put(MultimodalOperationSpec.PARAMETERS_KEY,
+                                transcriptionSpec(sourceId, sourceVersion, enableVision, sttParameters)
+                                        .toParametersValue());
+                    }
                 }
             }
         } catch (Exception e) {
@@ -157,6 +167,28 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                         sourceVersion, sha256, "",
                         Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION", "OCR", "OBJECT_DETECTION")))),
                 null, Map.of());
+    }
+
+    /**
+     * Durable, source-bound multimodal operation with a SPEECH_TO_TEXT child (server-pinned profile parameters) and,
+     * when requested, a VISION child, both over the exact source version.
+     */
+    static MultimodalOperationSpec transcriptionSpec(String sourceId, String sourceVersion, boolean withVision,
+                                                     Map<String, Object> sttParameters) {
+        String sha256 = sourceVersion.substring("sha256:".length());
+        List<MultimodalOperationSpec.ChildOperationSpec> children = new java.util.ArrayList<>();
+        children.add(new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT, sourceId,
+                sourceVersion, sha256, "", sttParameters));
+        if (withVision) {
+            children.add(new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION, sourceId,
+                    sourceVersion, sha256, "",
+                    Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION", "OCR", "OBJECT_DETECTION"))));
+        }
+        return new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                1, sourceId, sourceVersion, sha256, List.copyOf(children), null, Map.of());
     }
 
     private boolean optionalBoolean(Map<String, Object> input, String key, boolean fallback) {

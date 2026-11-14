@@ -6,7 +6,7 @@ public final class LocalTtsException extends Exception {
 
     public enum Code {
         INVALID_INPUT, VOICE_NOT_ADMITTED, RUNTIME_UNAVAILABLE, TIMEOUT, CANCELLED, PROCESS_FAILED,
-        OUTPUT_INVALID, OUTPUT_TOO_LARGE
+        OUTPUT_INVALID, OUTPUT_TOO_LARGE, ENCODING_NOT_SUPPORTED
     }
 
     private final Code code;

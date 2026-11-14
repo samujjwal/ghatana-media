@@ -131,10 +131,14 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
         Path root = configured != null && !configured.isBlank() ? Path.of(configured)
                 : Path.of(System.getProperty("user.home"), ".local", "share", "ghatana-media");
         Path script = Path.of("").toAbsolutePath().getParent().resolve("tools/model-runtimes/kokoro_synth.py");
-        return Map.of("MEDIA_LOCAL_MODEL_ROOT", root.toString(),
+        Map<String, String> environment = new HashMap<>(Map.of("MEDIA_LOCAL_MODEL_ROOT", root.toString(),
                 "MEDIA_WHISPER_CPP_BIN", root.resolve("runtimes/whisper.cpp-src/build/bin/whisper-cli").toString(),
                 "MEDIA_KOKORO_PYTHON", root.resolve("runtimes/kokoro-venv/bin/python").toString(),
-                "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_WHISPER_CPP_THREADS", "8");
+                "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_WHISPER_CPP_THREADS", "8"));
+        // MP3 / OGG_OPUS encoding needs an FFmpeg build with the codec; absent means WAV only.
+        String ffmpeg = System.getenv("MEDIA_FFMPEG");
+        if (ffmpeg != null && !ffmpeg.isBlank()) environment.put("MEDIA_FFMPEG", ffmpeg);
+        return environment;
     }
 
     @Test
@@ -144,9 +148,19 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
         assumeTrue(stt.ready() && tts.ready(), "local Whisper/Kokoro runtimes with verified manifests are not "
                 + "installed on this host (run tools/model-runtimes/install-local-manifests.sh)");
 
+        // Optional warm-up (MEDIA_LOCAL_MODEL_PRELOAD): loads Kokoro and pages in the Whisper weights ahead of use.
+        long sttWarm = stt.warmUp().get(10, java.util.concurrent.TimeUnit.MINUTES);
+        long ttsWarm = tts.warmUp().get(10, java.util.concurrent.TimeUnit.MINUTES);
+        System.out.println("LOCAL_SPEECH_WARMUP whisperMillis=" + sttWarm + " kokoroMillis=" + ttsWarm);
+        assertThat(sttWarm).isGreaterThanOrEqualTo(0);
+        assertThat(ttsWarm).isGreaterThanOrEqualTo(0);
+
         // A real 16 kHz mono clip, produced by the real Kokoro model.
+        long synthesisStarted = System.nanoTime();
         var synthesis = tts.synthesizer().synthesize(SENTENCE, "af_heart", 1.0, Duration.ofMinutes(3),
                 () -> false);
+        System.out.println("LOCAL_SPEECH_KOKORO_AFTER_WARMUP millis="
+                + Duration.ofNanos(System.nanoTime() - synthesisStarted).toMillis());
         PcmWav.Pcm pcm16k = PcmWav.resample(PcmWav.decode(synthesis.wav()), 16_000);
         byte[] wav = PcmWav.encode(pcm16k);
         String wavSha = sha(wav);
@@ -191,7 +205,8 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
             var bridge = new MediaToolJobBridge(new RuntimeMediaJobSubmissionPort(runtime), "test",
                     new MediaToolJobBridge.SpeechProfilePin(profile.profileId(), profile.profileVersion(),
                             profile.configurationDigest()), Duration.ofMinutes(5),
-                    Map.of(com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT, governance()));
+                    Map.of(com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT, governance()))
+                    .withSupportedTtsEncodings(tts.supportedEncodings());
             var factory = new AudioVideoToolHandlerFactory(new MediaToolExecutionBinder(new MemoryLedger(),
                     bridge.readback(), (p, id) -> p.tenantId().equals(id.tenantId())
                             && p.principalId().equals(id.callerAgentId())), bridge);
@@ -235,19 +250,259 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
                     .isEqualTo(ToolExecutionStatus.SUCCESS);
             @SuppressWarnings("unchecked") Map<String, Object> ttsOut = (Map<String, Object>) ttso.output();
             @SuppressWarnings("unchecked") Map<String, Object> ttsResult = (Map<String, Object>) ttsOut.get("result");
-            // The durable job result carries the synthesis receipt; inline audio bytes are not persisted in the job
-            // row, so the audio itself is delivered by the artifact-registering DEV lane.
             assertThat((String) ttsResult.get("audioSha256")).matches("[0-9a-f]{64}");
             assertThat(ttsResult).containsEntry("sampleRate", 24_000).containsEntry("audioContentType", "audio/wav");
             assertThat(((Number) ttsResult.get("sizeBytes")).intValue()).isGreaterThan(20_000);
             assertThat(ttsResult).containsEntry("voiceCloning", "NOT_SUPPORTED").containsEntry("voice", "af_heart");
+            assertThat(ttsResult).doesNotContainKey("audioBytes");
 
-            // ---- an encoding the local profile cannot honour fails the job instead of pretending ----
-            ToolExecutionResult mp3 = runTool(factory, caller, "av.text-to-speech", Map.of(
-                    "text", "Encoding check.", "voiceId", "af_heart", "audioEncoding", "MP3",
+            // ---- the audio itself is a canonical artifact version, with lineage, readable back byte-exact ----
+            String audioId = (String) ttsOut.get("audioArtifactId");
+            String audioVersion = (String) ttsOut.get("audioArtifactVersion");
+            assertThat(audioId).isNotBlank();
+            assertThat(audioVersion).isEqualTo("sha256:" + ttsResult.get("audioSha256"));
+            assertThat(ttsResult).containsEntry("audioArtifactRef", "urn:ghatana:media-artifact:" + audioId);
+            MediaArtifact audioArtifact = runtime.artifact(TENANT, PRINCIPAL, audioId).orElseThrow();
+            assertThat(audioArtifact.contentType()).isEqualTo("audio/wav");
+            assertThat(audioArtifact.sha256()).isEqualTo(ttsResult.get("audioSha256"));
+            assertThat(audioArtifact.metadata()).containsEntry("derivation", "TEXT_TO_SPEECH")
+                    .containsEntry("derivedFromArtifactId", source.artifactId())
+                    .containsEntry("derivedFromArtifactVersion", source.version().value())
+                    .containsEntry("voice", "af_heart")
+                    .containsEntry("modelKey", "kokoro-82m")
+                    .containsEntry("textSha256", sha("Local speech, on this machine.".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            assertThat((String) audioArtifact.metadata().get("modelSha256")).matches("[0-9a-f]{64}");
+            java.io.ByteArrayOutputStream readBack = new java.io.ByteArrayOutputStream();
+            runtime.copyArtifactContent(TENANT, PRINCIPAL, audioId, audioArtifact.version(), readBack, 8L * 1024 * 1024)
+                    .orElseThrow();
+            assertThat(sha(readBack.toByteArray())).isEqualTo(ttsResult.get("audioSha256"));
+            assertThat(PcmWav.decode(readBack.toByteArray()).sampleRate()).isEqualTo(24_000);
+            System.out.println("LOCAL_SPEECH_CANONICAL_TTS_WAV artifact=" + audioId + " version=" + audioVersion
+                    + " bytes=" + readBack.size());
+
+            // ---- MP3 (the tool's default encoding): real FFmpeg encoding, registered, decodable; else typed refusal ----
+            Map<String, Object> mp3Input = new HashMap<>(Map.of(
+                    "text", "Encoding check, as an MP3 file.", "voiceId", "af_heart",
                     "sourceArtifactId", source.artifactId(), "sourceArtifactVersion", source.version().value()));
-            assertThat(mp3.status()).as("an unsupported encoding must never report success").isNotEqualTo(ToolExecutionStatus.SUCCESS);
+            ToolExecutionResult mp3 = runTool(factory, caller, "av.text-to-speech", mp3Input); // default MP3
+            if (tts.supportedEncodings().contains("MP3")) {
+                assertThat(mp3.status()).as("MP3 tool result: %s / %s", mp3.status(), mp3.failure())
+                        .isEqualTo(ToolExecutionStatus.SUCCESS);
+                @SuppressWarnings("unchecked") Map<String, Object> mp3Out = (Map<String, Object>) mp3.output();
+                @SuppressWarnings("unchecked") Map<String, Object> mp3Result = (Map<String, Object>) mp3Out.get("result");
+                assertThat(mp3Result).containsEntry("audioContentType", "audio/mpeg").containsEntry("audioEncoding", "MP3");
+                MediaArtifact mp3Artifact = runtime.artifact(TENANT, PRINCIPAL, (String) mp3Out.get("audioArtifactId"))
+                        .orElseThrow();
+                assertThat(mp3Artifact.contentType()).isEqualTo("audio/mpeg");
+                assertThat(mp3Artifact.fileName()).endsWith(".mp3");
+                java.io.ByteArrayOutputStream mp3Bytes = new java.io.ByteArrayOutputStream();
+                runtime.copyArtifactContent(TENANT, PRINCIPAL, mp3Artifact.artifactId(), mp3Artifact.version(),
+                        mp3Bytes, 8L * 1024 * 1024).orElseThrow();
+                assertThat(sha(mp3Bytes.toByteArray())).isEqualTo(mp3Artifact.sha256());
+                assertThat(mp3Bytes.size()).isGreaterThan(5_000).isLessThan(((Number) ttsResult.get("sizeBytes")).intValue());
+                Path mp3File = Files.createTempFile("tts-out-", ".mp3");
+                Files.write(mp3File, mp3Bytes.toByteArray());
+                System.out.println("LOCAL_SPEECH_CANONICAL_TTS_MP3 artifact=" + mp3Artifact.artifactId()
+                        + " bytes=" + mp3Bytes.size() + " file=" + mp3File);
+            } else {
+                assertThat(mp3.status()).as("an encoding the profile cannot produce must never report success")
+                        .isNotEqualTo(ToolExecutionStatus.SUCCESS);
+                assertThat(mp3.failure().code()).isEqualTo("TTS_AUDIO_ENCODING_NOT_SUPPORTED");
+            }
+
+            // ---- input the provider can prove it never acted on (a pitch shift Kokoro cannot do) is a typed
+            //      no-effect failure of the job, never an endless OUTCOME_UNKNOWN ----
+            ToolExecutionResult pitch = runTool(factory, caller, "av.text-to-speech", Map.of(
+                    "text", "Pitch check.", "voiceId", "af_heart", "audioEncoding", "LINEAR16", "pitch", 5.0,
+                    "sourceArtifactId", source.artifactId(), "sourceArtifactVersion", source.version().value()));
+            assertThat(pitch.status()).as("pitch refusal: %s / %s", pitch.status(), pitch.failure())
+                    .isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(pitch.failure().code()).isEqualTo("PROVIDER_NO_EFFECT_PROVEN");
+
+            // ---- an encoding the host's profile cannot honour is refused before any job exists ----
+            if (!tts.supportedEncodings().contains("OGG_OPUS")) {
+                ToolExecutionResult ogg = runTool(factory, caller, "av.text-to-speech", Map.of(
+                        "text", "Encoding check.", "voiceId", "af_heart", "audioEncoding", "OGG_OPUS",
+                        "sourceArtifactId", source.artifactId(), "sourceArtifactVersion", source.version().value()));
+                assertThat(ogg.status()).isEqualTo(ToolExecutionStatus.FAILED);
+                assertThat(ogg.failure().code()).isEqualTo("TTS_AUDIO_ENCODING_NOT_SUPPORTED");
+            }
         }
+    }
+
+    /**
+     * The agent {@code av.multimodal-inference} tool with transcription AND vision enabled runs both canonical children
+     * over one source version: a real MP4 whose audio is a Kokoro-spoken sentence and whose frame is rendered text.
+     * Whisper (real) transcribes the extracted audio track, Florence-2 (real, through the loopback sidecar) reads the
+     * frame, and the parent completes with a fused result. Source rights remain required: the same call on a source
+     * with no registered rights is refused. Skipped with the reason when a runtime, FFmpeg (MEDIA_FFMPEG,
+     * MEDIA_FFPROBE) or the vision sidecar is absent.
+     */
+    @Test
+    void agentMultimodalToolRunsRealWhisperAndFlorenceChildrenAndFusesTheirResults() throws Exception {
+        Map<String, String> speechEnvironment = new HashMap<>(speechEnvironment());
+        String ffmpeg = System.getenv("MEDIA_FFMPEG");
+        String ffprobe = System.getenv("MEDIA_FFPROBE");
+        assumeTrue(ffmpeg != null && !ffmpeg.isBlank() && ffprobe != null && !ffprobe.isBlank(),
+                "SKIPPED: MEDIA_FFMPEG / MEDIA_FFPROBE (absolute paths of a working FFmpeg) are not set");
+        LocalWhisperCppSttProvider stt = LocalWhisperCppSttProvider.fromEnvironment(speechEnvironment);
+        LocalKokoroTtsProvider tts = LocalKokoroTtsProvider.fromEnvironment(speechEnvironment);
+        assumeTrue(stt.ready() && tts.ready(), "SKIPPED: local Whisper/Kokoro runtimes with verified manifests absent");
+        Path home = Path.of(System.getProperty("user.home"));
+        Path models = home.resolve(".local/share/ghatana-media/models");
+        Path python = home.resolve(".local/share/ghatana-media/runtimes/vision-venv/bin/python");
+        Path script = Path.of("").toAbsolutePath().getParent().resolve("tools/model-runtimes/vision/vision_sidecar.py");
+        assumeTrue(java.nio.file.Files.isExecutable(python) && Files.isRegularFile(script)
+                && Files.isRegularFile(models.resolve("florence-2-large/ghatana-model-manifest.json")),
+                "SKIPPED: the local vision runtime or Florence-2 manifest is absent");
+
+        // Source: MP4 = rendered text frame + spoken sentence (real Kokoro, resampled to 16 kHz mono).
+        var synthesis = tts.synthesizer().synthesize(SENTENCE, "af_heart", 1.0, Duration.ofMinutes(3), () -> false);
+        byte[] speech16k = PcmWav.encode(PcmWav.resample(PcmWav.decode(synthesis.wav()), 16_000));
+        byte[] mp4 = buildMp4(Path.of(ffmpeg), speech16k);
+        assertThat(mp4.length).as("the source must fit the 4 MiB STT staging ceiling").isLessThan(4 * 1024 * 1024);
+        String mp4Sha = sha(mp4);
+
+        try (var sidecar = com.ghatana.audio.video.vision.local.LocalVisionSidecarProcess.start(python, script, models,
+                Duration.ofSeconds(120));
+             AutoCloseable installed = TestAwsStateInstall.install(environment());
+             var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(
+                     Files.createTempDirectory("media-mm-artifacts"));
+             var jobStore = new PostgresqlMediaJobStore();
+             var streamStore = new PostgresqlMediaStreamSessionStore();
+             var consentAuthority = new PostgresqlMediaConsentAuthority();
+             var authority = new PostgresqlMediaSourceAuthorizationAuthority(new AllowPolicy());
+             var transcriptStore = new PostgresqlMediaTranscriptStore();
+             var administration = new PostgresqlMediaSourceRightsAdministration()) {
+            var engine = new com.ghatana.audio.video.vision.local.LocalVisionEngine(
+                    sidecar.client(Duration.ofMinutes(8)),
+                    new com.ghatana.audio.video.vision.local.LocalModelAdmission(models.resolve("florence-2-large"),
+                            com.ghatana.audio.video.vision.local.LocalVisionEngine.FLORENCE_MODEL_ID, "VISION", "MIT"),
+                    new com.ghatana.audio.video.vision.local.LocalModelAdmission(
+                            models.resolve("qwen2.5-vl-7b-instruct"),
+                            com.ghatana.audio.video.vision.local.LocalVisionEngine.QWEN_MODEL_ID, "MULTIMODAL_QA",
+                            "Apache-2.0"),
+                    com.ghatana.audio.video.vision.local.LocalVisionRightsAuthority.unavailable());
+            var vision = new com.ghatana.audio.video.vision.local.LocalOpenModelVisionProvider(engine,
+                    MediaDevFfmpegFrameExtractor.from(Map.of(MediaDevProjectRenderRuntime.FFMPEG_ENV, ffmpeg)));
+            var multimodal = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
+            try (var runtime = new MediaRuntime(
+                    new MediaRuntimeConfig(true, "test", 8094, 8 * 1024 * 1024, 4 * 1024 * 1024,
+                            64L * 1024 * 1024, Duration.ofMinutes(10), 4, "", "", false, false,
+                            Files.createTempDirectory("media-mm-root")),
+                    artifactStore, jobStore, streamStore, consentAuthority,
+                    MediaSemanticRedactionRuntime.disabled(Duration.ofSeconds(2)),
+                    MediaLifecyclePublisher.disabled(), List.of(stt, vision, multimodal),
+                    List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of(), authority,
+                    transcriptStore, Clock.systemUTC())) {
+                String metadata = "{\"sourceClockId\":\"fixture-clock\","
+                        + "\"sourceClockMappingEvidenceRef\":\"fixture-clock-evidence\","
+                        + "\"sourceClockTicksPerSecond\":1,\"sourceDurationTicks\":10}";
+                var upload = runtime.beginUpload(new UploadRequest(TENANT, PRINCIPAL, "talk.mp4", "video/mp4",
+                        mp4.length, mp4Sha, "CONFIDENTIAL", Duration.ofMinutes(30), Map.of(
+                        "sourceClockId", "fixture-clock", "sourceClockMappingEvidenceRef", "fixture-clock-evidence",
+                        "sourceClockTicksPerSecond", 1, "sourceDurationTicks", 10)), "mm-upload-1");
+                runtime.appendChunk(TENANT, PRINCIPAL, upload.uploadId(), 0, mp4);
+                MediaArtifact source = runtime.completeUpload(TENANT, PRINCIPAL, upload.uploadId());
+                seedArtifactRow(source, metadata);
+                var upload2 = runtime.beginUpload(new UploadRequest(TENANT, PRINCIPAL, "talk.mp4", "video/mp4",
+                        mp4.length, mp4Sha, "CONFIDENTIAL", Duration.ofMinutes(30), Map.of(
+                        "sourceClockId", "fixture-clock", "sourceClockMappingEvidenceRef", "fixture-clock-evidence",
+                        "sourceClockTicksPerSecond", 1, "sourceDurationTicks", 10)), "mm-upload-2");
+                runtime.appendChunk(TENANT, PRINCIPAL, upload2.uploadId(), 0, mp4);
+                MediaArtifact unregistered = runtime.completeUpload(TENANT, PRINCIPAL, upload2.uploadId());
+                assertThat(unregistered.artifactId()).isNotEqualTo(source.artifactId());
+                seedArtifactRow(unregistered, metadata);
+
+                // Rights fixture: only `source` has a current source-owner rights record, for exactly the operations
+                // the parent and its two children use. It is a TEST FIXTURE, not a real rights decision.
+                administration.register(new MediaSourceRightsAdministration.RegisterRequest(TENANT, PRINCIPAL,
+                        source.artifactId(), source.version().value(), mp4Sha, PRINCIPAL,
+                        MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                        MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT, "",
+                        Set.of("multimodal", "speech_to_text", "vision", "caption_version_write"),
+                        Set.of("transcription"), Set.of("local"), Set.of(ProviderDataRetention.NONE),
+                        "fixture-clock-evidence", "provenance://fixture/multimodal",
+                        Instant.now().plusSeconds(3600), "correlation-multimodal"),
+                        new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(TENANT, PRINCIPAL, Instant.now()));
+
+                var profile = stt.speechToTextProfile().orElseThrow();
+                var governance = governance();
+                var bridge = new MediaToolJobBridge(new RuntimeMediaJobSubmissionPort(runtime), "test",
+                        new MediaToolJobBridge.SpeechProfilePin(profile.profileId(), profile.profileVersion(),
+                                profile.configurationDigest()), Duration.ofMinutes(9),
+                        Map.of(com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT, governance,
+                                com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION, governance,
+                                com.ghatana.media.runtime.MediaRuntimeContracts.JobType.MULTIMODAL, governance));
+                var factory = new AudioVideoToolHandlerFactory(new MediaToolExecutionBinder(new MemoryLedger(),
+                        bridge.readback(), (p, id) -> p.tenantId().equals(id.tenantId())
+                                && p.principalId().equals(id.callerAgentId())), bridge);
+                var caller = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(TENANT, PRINCIPAL,
+                        Instant.now());
+
+                // ---- rights PROCESSING stays required: an unregistered source is refused, nothing runs ----
+                ToolExecutionResult denied = runTool(factory, caller, "av.multimodal-inference", Map.of(
+                        "mediaArtifactId", unregistered.artifactId(), "languageCode", "en-US",
+                        "sourceArtifactVersion", unregistered.version().value()));
+                System.out.println("LOCAL_MULTIMODAL_UNREGISTERED_SOURCE status=" + denied.status()
+                        + " failure=" + denied.failure());
+                assertThat(denied.status()).isIn(ToolExecutionStatus.FAILED, ToolExecutionStatus.DENIED);
+                assertThat(String.valueOf(denied.failure())).contains("MEDIA_");
+
+                // ---- the registered source: transcription + vision, both real, fused ----
+                ToolExecutionResult result = runTool(factory, caller, "av.multimodal-inference", Map.of(
+                        "mediaArtifactId", source.artifactId(), "languageCode", "en-US",
+                        "enableTranscription", true, "enableVisionAnalysis", true,
+                        "sourceArtifactVersion", source.version().value()));
+                assertThat(result.status()).as("multimodal tool result: %s / %s", result.status(), result.failure())
+                        .isEqualTo(ToolExecutionStatus.SUCCESS);
+                @SuppressWarnings("unchecked") Map<String, Object> out = (Map<String, Object>) result.output();
+                assertThat(out).containsEntry("status", "COMPLETED").containsEntry("jobType", "MULTIMODAL");
+                String fused = String.valueOf(out.get("result"));
+                System.out.println("LOCAL_MULTIMODAL_CANONICAL_FUSED result=" + fused);
+                String normalized = fused.toLowerCase(Locale.ROOT);
+                for (String word : List.of("quick", "brown", "fox", "lazy", "dog")) {
+                    assertThat(normalized).as("fused result must carry the Whisper transcript: %s", fused)
+                            .contains(word);
+                }
+                assertThat(normalized).as("fused result must carry the Florence reading of the frame: %s", fused)
+                        .contains("ghatana");
+                // Both canonical children exist, completed, and ran under their own admitted providers.
+                var sttChild = jobStore.findByRequest(TENANT, out.get("requestId") + ":stt").orElseThrow();
+                var visionChild = jobStore.findByRequest(TENANT, out.get("requestId") + ":vision").orElseThrow();
+                assertThat(sttChild.status().name()).isEqualTo("COMPLETED");
+                assertThat(sttChild.providerId()).isEqualTo(LocalWhisperCppSttProvider.PROVIDER_ID);
+                assertThat(visionChild.status().name()).isEqualTo("COMPLETED");
+                assertThat(visionChild.providerId())
+                        .isEqualTo(com.ghatana.audio.video.vision.local.LocalOpenModelVisionProvider.PROVIDER_ID);
+                assertThat(sttChild.expectedArtifactVersion()).isEqualTo(source.version().value());
+                assertThat(visionChild.expectedArtifactVersion()).isEqualTo(source.version().value());
+            }
+        }
+    }
+
+    /** One still frame of rendered text plus the spoken clip, muxed into a small H.264/AAC MP4 through FFmpeg. */
+    private static byte[] buildMp4(Path ffmpeg, byte[] speechWav) throws Exception {
+        Path work = Files.createTempDirectory("media-mm-source-");
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(640, 360,
+                java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D g = image.createGraphics();
+        g.setColor(java.awt.Color.WHITE);
+        g.fillRect(0, 0, 640, 360);
+        g.setColor(java.awt.Color.BLACK);
+        g.setFont(new java.awt.Font(java.awt.Font.SANS_SERIF, java.awt.Font.BOLD, 96));
+        g.drawString("GHATANA", 60, 210);
+        g.dispose();
+        javax.imageio.ImageIO.write(image, "png", work.resolve("frame.png").toFile());
+        Files.write(work.resolve("speech.wav"), speechWav);
+        Process process = new ProcessBuilder(ffmpeg.toString(), "-nostdin", "-v", "error", "-y", "-loop", "1",
+                "-framerate", "5", "-i", work.resolve("frame.png").toString(), "-i", work.resolve("speech.wav").toString(),
+                "-c:v", "libx264", "-tune", "stillimage", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "64k",
+                "-shortest", "-movflags", "+faststart", work.resolve("talk.mp4").toString())
+                .redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD).start();
+        assertThat(process.waitFor(2, java.util.concurrent.TimeUnit.MINUTES)).isTrue();
+        assertThat(process.exitValue()).as("ffmpeg must build the fixture mp4").isZero();
+        return Files.readAllBytes(work.resolve("talk.mp4"));
     }
 
     // ---- helpers ----
@@ -302,6 +557,12 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
 
     /** Mirrors the artifact store's durable admission record for the fixture upload (as the existing STT IT does). */
     private static void seedArtifactRow(MediaArtifact artifact, int samples) throws Exception {
+        seedArtifactRow(artifact, "{\"sourceClockId\":\"fixture-clock\","
+                + "\"sourceClockMappingEvidenceRef\":\"fixture-clock-evidence\","
+                + "\"sourceClockTicksPerSecond\":1,\"sourceDurationTicks\":" + samples + "}");
+    }
+
+    private static void seedArtifactRow(MediaArtifact artifact, String metadataJson) throws Exception {
         try (var connection = java.sql.DriverManager.getConnection(
                 POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
              var statement = connection.prepareStatement(
@@ -321,9 +582,7 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
             statement.setString(9, artifact.classification());
             statement.setLong(10, artifact.createdAt().toEpochMilli());
             statement.setLong(11, artifact.expiresAt().toEpochMilli());
-            statement.setString(12, "{\"sourceClockId\":\"fixture-clock\","
-                    + "\"sourceClockMappingEvidenceRef\":\"fixture-clock-evidence\","
-                    + "\"sourceClockTicksPerSecond\":1,\"sourceDurationTicks\":" + samples + "}");
+            statement.setString(12, metadataJson);
             statement.setString(13, "fixture-scan-policy/v1");
             statement.setString(14, "fixture-scanner/v1");
             statement.setLong(15, Instant.now().toEpochMilli());

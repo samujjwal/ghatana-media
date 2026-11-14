@@ -42,7 +42,7 @@ public final class TextToSpeechToolHandler implements ToolHandler {
             "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
             "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
             "SOURCE_ARTIFACT_REQUIRED", "SOURCE_VERSION_REQUIRED", "SOURCE_VERSION_INVALID", "INVALID_TEXT", "INVALID_VOICEID", "INVALID_SPEAKING_RATE", "INVALID_AUDIO_ENCODING",
-            "INVALID_PITCH", "INVALID_STORE_AS_ARTIFACT");
+            "TTS_AUDIO_ENCODING_NOT_SUPPORTED", "INVALID_PITCH", "INVALID_STORE_AS_ARTIFACT");
 
     public TextToSpeechToolHandler() {
         this(null);
@@ -88,6 +88,10 @@ public final class TextToSpeechToolHandler implements ToolHandler {
             AgentToolInput.boundedRate(input.getOrDefault("speakingRate", 1.0));
             String encoding = optionalString(input, "audioEncoding", "MP3", 16);
             if (!Set.of("MP3", "WAV", "OGG_OPUS", "LINEAR16").contains(encoding)) throw new IllegalArgumentException("INVALID_AUDIO_ENCODING");
+            if (bridge != null && !bridge.ttsEncodingSupported(encoding)) {
+                // Refused before any job exists: the admitted profile cannot honour this encoding.
+                throw new IllegalArgumentException("TTS_AUDIO_ENCODING_NOT_SUPPORTED");
+            }
             Object pitch = input.getOrDefault("pitch", 0.0);
             if (!(pitch instanceof Number pitchNumber) || !Double.isFinite(pitchNumber.doubleValue())
                     || pitchNumber.doubleValue() < -20.0 || pitchNumber.doubleValue() > 20.0)
@@ -108,7 +112,7 @@ public final class TextToSpeechToolHandler implements ToolHandler {
             }
         } catch (Exception e) {
             String errorCode = validationErrorCode(e);
-            if (errorCode.startsWith("SOURCE_")) {
+            if (errorCode.startsWith("SOURCE_") || "TTS_AUDIO_ENCODING_NOT_SUPPORTED".equals(errorCode)) {
                 return Promise.of(MediaToolJobBridge.validationFailure(envelope, errorCode, start));
             }
             log.warn("TTS input rejected: {}", errorCode);
