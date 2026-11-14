@@ -41,6 +41,15 @@ const receipt = (over: Record<string, unknown> = {}): unknown => ({
   schema: "x", requestId: "r", reviewCaseId: "devreview.1", appendRecordId: "rec-1", caseRevision: 1, currentness: "CURRENT",
   establishesApproval: false, replayed: false, scope: "DEV_ONLY", ...over,
 });
+function exportBody(over: Record<string, unknown> = {}): unknown {
+  return {
+    requestId: `req-${ids}`, artifactId: "art-render-1", artifactVersionId: `sha256:${SHA}`, artifactDigest: SHA, destinationId: "dev-local",
+    status: "DESTINATION_CONFIRMED", acknowledgedBytes: 1234, destinationConfirmed: true,
+    destinationReceiptRef: "dev-local-directory-receipt:abc", replayed: false, scope: "DEV_ONLY", ...over,
+  };
+}
+const unconfirmedBody = (over: Record<string, unknown> = {}): unknown =>
+  exportBody({ status: "OUTCOME_UNKNOWN", destinationConfirmed: false, destinationReceiptRef: null, acknowledgedBytes: 0, ...over });
 const ok = (status: number, body: unknown): Promise<DevHostResponse> => Promise.resolve({ status, body });
 const fail = (status: number, code: string): Promise<never> => Promise.reject(new DevOutputsHostError(code, status, code));
 
@@ -52,6 +61,8 @@ function fakePort(over: Partial<DevProjectOutputsPort> = {}): { [K in keyof DevP
     getReview: vi.fn(() => ok(200, reviewBody({ created: undefined }))),
     addReviewComment: vi.fn(() => ok(201, receipt())),
     recordReviewDecision: vi.fn(() => ok(201, receipt({ caseRevision: 1 }))),
+    requestExport: vi.fn(() => ok(201, exportBody())),
+    getExport: vi.fn(() => ok(200, exportBody({ replayed: true }))),
     ...over,
   } as never;
 }
@@ -297,6 +308,191 @@ describe("DevProjectOutputsPanel review", () => {
     click("Open review case");
     await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Unavailable"));
     expect(screen.queryByRole("article", { name: /Review case/u })).toBeNull();
+  });
+});
+
+async function renderThenExport(port: ReturnType<typeof fakePort>, destination = "dev-local"): Promise<void> {
+  mount(port);
+  click("Render exact revision");
+  await waitFor(() => expect(status("render-status")).toContain("Created (HTTP 201)"));
+  fireEvent.change(screen.getByLabelText("Destination ID"), { target: { value: destination } });
+  click("Export render artifact");
+}
+const exportResult = (): HTMLElement | null => screen.queryByRole("article", { name: "Export result" });
+
+describe("DevProjectOutputsPanel export", () => {
+  it("offers no export before a render exists", () => {
+    mount(fakePort());
+    expect(screen.queryByRole("button", { name: "Export render artifact" })).toBeNull();
+  });
+
+  it("exports the exact render artifact version and shows the receipt only when destination-confirmed", async () => {
+    const port = fakePort(); await renderThenExport(port);
+    await waitFor(() => expect(status("export-status")).toContain("Exported (HTTP 201)"));
+    expect(port.requestExport).toHaveBeenCalledWith({
+      requestId: `req-${ids}`, artifactId: "art-render-1", artifactVersionId: `sha256:${SHA}`, destinationId: "dev-local",
+    });
+    const result = exportResult()!;
+    expect(result.getAttribute("data-destination-confirmed")).toBe("true");
+    expect(result.textContent).toContain("dev-local-directory-receipt:abc");
+    expect(result.textContent).toContain(`${SHA} equals the artifact sha256`);
+    expect(result.textContent).toContain("Delivered with destination receipt");
+    expect(screen.queryByRole("button", { name: "Check again" })).toBeNull();
+  });
+
+  it("reuses one request identity for a duplicate export and shows the replay (HTTP 200) with the same receipt", async () => {
+    const port = fakePort(); await renderThenExport(port);
+    await waitFor(() => expect(status("export-status")).toContain("HTTP 201"));
+    const first = (port.requestExport.mock.calls[0]![0] as { requestId: string }).requestId;
+    port.requestExport.mockImplementation(() => ok(200, exportBody({ requestId: first, replayed: true })));
+    click("Export render artifact");
+    await waitFor(() => expect(status("export-status")).toContain("Replayed or read back (HTTP 200)"));
+    expect(port.requestExport).toHaveBeenCalledTimes(2);
+    expect((port.requestExport.mock.calls[1]![0] as { requestId: string }).requestId).toBe(first);
+  });
+
+  it("uses a new request identity for a different destination", async () => {
+    const port = fakePort(); await renderThenExport(port);
+    await waitFor(() => expect(status("export-status")).toContain("HTTP 201"));
+    const first = (port.requestExport.mock.calls[0]![0] as { requestId: string }).requestId;
+    fireEvent.change(screen.getByLabelText("Destination ID"), { target: { value: "other" } });
+    port.requestExport.mockImplementation((request: { requestId: string; destinationId: string }) => ok(201, exportBody({ requestId: request.requestId, destinationId: "other" })));
+    click("Export render artifact");
+    await waitFor(() => expect(port.requestExport).toHaveBeenCalledTimes(2));
+    expect((port.requestExport.mock.calls[1]![0] as { requestId: string }).requestId).not.toBe(first);
+  });
+
+  it("never shows 202 as delivered: no receipt, 'Check again' reads back and only then confirms", async () => {
+    const port = fakePort({ requestExport: vi.fn(() => ok(202, unconfirmedBody())) as never }); await renderThenExport(port);
+    await waitFor(() => expect(status("export-status")).toContain("NOT CONFIRMED"));
+    const result = exportResult()!;
+    expect(result.getAttribute("data-destination-confirmed")).toBe("false");
+    expect(result.textContent).not.toContain("receipt:");
+    expect(result.textContent).not.toMatch(/Delivered/u);
+    expect(screen.queryByText("Destination receipt")).toBeNull();
+    port.getExport.mockImplementationOnce(() => ok(200, unconfirmedBody({ replayed: true })));
+    click("Check again");
+    await waitFor(() => expect(port.getExport).toHaveBeenCalledWith(`req-${ids}`));
+    await waitFor(() => expect(status("export-status")).toContain("NOT CONFIRMED"));
+    expect(exportResult()!.getAttribute("data-destination-confirmed")).toBe("false");
+    port.getExport.mockImplementationOnce(() => ok(200, exportBody({ replayed: true })));
+    click("Check again");
+    await waitFor(() => expect(exportResult()!.getAttribute("data-destination-confirmed")).toBe("true"));
+    expect(exportResult()!.textContent).toContain("dev-local-directory-receipt:abc");
+    expect(port.requestExport).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects bodies that claim confirmation without a receipt, with a wrong digest, or on a 202", async () => {
+    for (const [status_, body] of [
+      [201, exportBody({ destinationReceiptRef: null })],
+      [201, exportBody({ artifactDigest: "c".repeat(64) })],
+      [201, exportBody({ acknowledgedBytes: 5 })],
+      [201, exportBody({ destinationId: "elsewhere" })],
+      [201, exportBody({ status: "OUTCOME_UNKNOWN" })],
+      [202, exportBody()],
+      [200, unconfirmedBody()],
+    ] as const) {
+      cleanup();
+      const port = fakePort({ requestExport: vi.fn(() => ok(status_, body)) as never }); await renderThenExport(port);
+      await waitFor(() => expect(status("export-status")).toContain("INVALID_RESPONSE"));
+      expect(exportResult()).toBeNull();
+      expect(document.body.textContent).not.toContain("Delivered with destination receipt");
+    }
+  });
+
+  it("maps typed failures truthfully and never claims delivery", async () => {
+    const cases: Array<[number, string, RegExp, string]> = [
+      [409, "EXPORT_REQUEST_CONFLICT", /already bound to a different artifact version or destination/u, "error"],
+      [404, "DESTINATION_NOT_FOUND", /not configured on this DEV_ONLY host/u, "error"],
+      [404, "ARTIFACT_VERSION_NOT_FOUND", /exact artifact version is not available/u, "error"],
+      [422, "EXPORT_LIMIT_EXCEEDED", /size limit/u, "error"],
+      [422, "EXPORT_INVALID", /refused this export/u, "error"],
+      [403, "EXPORT_AUTHORIZATION_DENIED", /Denied/u, "denied"],
+      [503, "DELIVERY_DESTINATION_UNAVAILABLE", /destination is unavailable/u, "unavailable"],
+      [404, "NOT_FOUND", /export lane is not available/u, "unavailable"],
+      [502, "DESTINATION_EVIDENCE_INVALID", /Retry with the same request identity/u, "unknown"],
+      [0, "OUTCOME_UNKNOWN", /Retry with the same request identity/u, "unknown"],
+    ];
+    for (const [httpStatus, code, text, tone] of cases) {
+      cleanup();
+      const port = fakePort({ requestExport: vi.fn(() => fail(httpStatus, code)) as never }); await renderThenExport(port);
+      await waitFor(() => expect(status("export-status")).toContain(code));
+      expect(status("export-status")).toMatch(text);
+      expect(document.querySelector("#dev-export [data-outcome]")?.getAttribute("data-outcome")).toBe(tone);
+      expect(exportResult()).toBeNull();
+      expect(document.body.textContent).not.toContain("Delivered with destination receipt");
+    }
+  });
+
+  it("retries an unknown outcome with the SAME request identity, and a 409 drops the identity", async () => {
+    const port = fakePort({ requestExport: vi.fn(() => fail(502, "DESTINATION_EVIDENCE_INVALID")) as never }); await renderThenExport(port);
+    await waitFor(() => expect(status("export-status")).toContain("DESTINATION_EVIDENCE_INVALID"));
+    const first = (port.requestExport.mock.calls[0]![0] as { requestId: string }).requestId;
+    port.requestExport.mockImplementation((request: { requestId: string }) => ok(200, exportBody({ requestId: request.requestId, replayed: true })));
+    click("Retry export with the same request identity");
+    await waitFor(() => expect(exportResult()?.getAttribute("data-destination-confirmed")).toBe("true"));
+    expect((port.requestExport.mock.calls[1]![0] as { requestId: string }).requestId).toBe(first);
+
+    cleanup();
+    const conflict = fakePort({ requestExport: vi.fn(() => fail(409, "EXPORT_REQUEST_CONFLICT")) as never }); await renderThenExport(conflict);
+    await waitFor(() => expect(status("export-status")).toContain("EXPORT_REQUEST_CONFLICT"));
+    const firstConflict = (conflict.requestExport.mock.calls[0]![0] as { requestId: string }).requestId;
+    click("Export render artifact");
+    await waitFor(() => expect(conflict.requestExport).toHaveBeenCalledTimes(2));
+    expect((conflict.requestExport.mock.calls[1]![0] as { requestId: string }).requestId).not.toBe(firstConflict);
+  });
+
+  it("requires a valid destination id before enabling export", async () => {
+    mount(fakePort());
+    click("Render exact revision");
+    await waitFor(() => expect(status("render-status")).toContain("Created (HTTP 201)"));
+    const button = screen.getByRole("button", { name: "Export render artifact" }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText("Destination ID"), { target: { value: "../../etc" } });
+    expect(button.disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText("Destination ID"), { target: { value: "dev-local" } });
+    expect(button.disabled).toBe(false);
+  });
+});
+
+describe("DevProjectOutputsPanel reopen known ids", () => {
+  it("reopens a known render id from the host and enables export of it", async () => {
+    const port = fakePort(); mount(port);
+    fireEvent.change(screen.getByLabelText("Known render ID"), { target: { value: "art-render-1" } });
+    click("Reopen known render");
+    await waitFor(() => expect(status("render-status")).toContain("Reopened render art-render-1"));
+    expect(port.getRender).toHaveBeenCalledWith("project-1", "art-render-1");
+    expect(port.requestRender).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Export render artifact" })).toBeTruthy();
+  });
+
+  it("refuses a render body for a different id and reports a typed 404", async () => {
+    const port = fakePort({ getRender: vi.fn(() => ok(200, renderBody())) as never }); mount(port);
+    fireEvent.change(screen.getByLabelText("Known render ID"), { target: { value: "other-render" } });
+    click("Reopen known render");
+    await waitFor(() => expect(status("render-status")).toContain("INVALID_RESPONSE"));
+    expect(document.querySelector("[data-render-id]")).toBeNull();
+    cleanup();
+    const missing = fakePort({ getRender: vi.fn(() => fail(404, "RENDER_NOT_FOUND")) as never }); mount(missing);
+    fireEvent.change(screen.getByLabelText("Known render ID"), { target: { value: "gone" } });
+    click("Reopen known render");
+    await waitFor(() => expect(status("render-status")).toContain("RENDER_NOT_FOUND"));
+  });
+
+  it("reopens a known review case, and refuses one from another project", async () => {
+    const port = fakePort(); mount(port);
+    fireEvent.change(screen.getByLabelText("Known review case ID"), { target: { value: "devreview.1" } });
+    click("Reopen known review case");
+    await waitFor(() => expect(status("review-status")).toContain("Reopened review case devreview.1"));
+    expect(document.querySelector("[data-review-case='devreview.1']")).not.toBeNull();
+    cleanup();
+    const foreign = fakePort({ getReview: vi.fn(() => ok(200, reviewBody({
+      subject: { kind: "PROJECT_REVISION", projectId: "project-9", revisionId: "rev-1", reference: "project_revision:project-9@rev-1" } }))) as never });
+    mount(foreign);
+    fireEvent.change(screen.getByLabelText("Known review case ID"), { target: { value: "devreview.1" } });
+    click("Reopen known review case");
+    await waitFor(() => expect(status("review-status")).toContain("INVALID_RESPONSE"));
+    expect(document.querySelector("[data-review-case]")).toBeNull();
   });
 });
 

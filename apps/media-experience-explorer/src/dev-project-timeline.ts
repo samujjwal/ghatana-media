@@ -1,4 +1,5 @@
 import "./dev-project-timeline-react";
+import { openExistingProject } from "./dev-open-project";
 import { createDevProjectOutputsClient } from "./dev-project-outputs-client";
 import type { DevProjectOutputsPort } from "@audio-video/ui/screens";
 import {
@@ -32,6 +33,9 @@ const createProjectButton = byId<HTMLButtonElement>("create-project");
 const replayProjectButton = byId<HTMLButtonElement>("replay-project");
 const projectResult = byId<HTMLDivElement>("project-result");
 const projectJson = byId<HTMLPreElement>("project-json");
+const openProjectForm = byId<HTMLFormElement>("open-project-form");
+const openProjectIdInput = byId<HTMLInputElement>("open-project-id");
+const openProjectButton = byId<HTMLButtonElement>("open-project");
 const workspacePanel = byId<HTMLElement>("timeline-workspace-panel");
 const workspaceRoot = byId<HTMLDivElement>("timeline-workspace-root");
 if (!connectButton) throw new Error("Missing connect button.");
@@ -71,6 +75,7 @@ forgetButton.addEventListener("click", () => {
   context = null;
   lastCreateRequest = null;
   unresolvedProjectCreate = false;
+  openProjectIdInput.value = "";
   workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail | null>("media-dev-project-timeline", { detail: null }));
   workspacePanel.hidden = true;
   tokenInput.value = "";
@@ -140,6 +145,24 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
   } finally { setBusy(false); }
 }
 
+openProjectForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!client || !context) return;
+  setBusy(true);
+  announce("Reading the existing project from the host…");
+  try {
+    const result = await openExistingProject(client, context, openProjectIdInput.value);
+    if (!result.ok) { announce(result.message, "error"); return; }
+    const { project, currentRevision } = result.read;
+    renderJson(projectResult, projectJson, result.read);
+    workspacePanel.hidden = false;
+    workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
+      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }) },
+    }));
+    announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} read from the host.`, "success");
+  } finally { setBusy(false); }
+});
+
 function renderContext(value: DevProjectContext): void {
   contextFields.replaceChildren();
   for (const [label, field] of [
@@ -161,12 +184,14 @@ function renderJson(container: HTMLElement, output: HTMLPreElement, value: unkno
 
 function setConnected(connected: boolean): void {
   createProjectButton.disabled = !connected;
+  openProjectButton.disabled = !connected;
   replayProjectButton.disabled = !connected || !lastCreateRequest;
 }
 
 function setBusy(busy: boolean): void {
   if (connectButton) connectButton.disabled = busy || Boolean(context);
   createProjectButton.disabled = busy || !context || unresolvedProjectCreate;
+  openProjectButton.disabled = busy || !context;
   replayProjectButton.disabled = busy || !context || !lastCreateRequest;
 }
 

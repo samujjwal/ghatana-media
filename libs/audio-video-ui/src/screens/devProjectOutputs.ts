@@ -53,6 +53,17 @@ export interface DevProjectOutputsPort {
   getReview(reviewCaseId: string): Promise<DevHostResponse>;
   addReviewComment(reviewCaseId: string, request: DevReviewCommentRequest): Promise<DevHostResponse>;
   recordReviewDecision(reviewCaseId: string, request: DevReviewDecisionRequest): Promise<DevHostResponse>;
+  /** POST /dev/v1/exports. Resolves 200/201/202 with the exact status; everything else rejects. */
+  requestExport(request: DevExportRequest): Promise<DevHostResponse>;
+  /** GET /dev/v1/exports/{requestId}. */
+  getExport(requestId: string): Promise<DevHostResponse>;
+}
+
+export interface DevExportRequest {
+  readonly requestId: string;
+  readonly artifactId: string;
+  readonly artifactVersionId: string;
+  readonly destinationId: string;
 }
 
 /** Typed host failure. `status` 0 means no response was observed (outcome unknown). */
@@ -327,4 +338,82 @@ export function describeReviewFailure(error: unknown): Outcome {
   if (status === 503 || code === "REVIEW_UNAVAILABLE") return make("unavailable", "The DEV_ONLY review host is unavailable or not enabled. Nothing was recorded.", { retrySameRequest: true });
   if (status >= 500) return make("unknown", `The host failed with ${code}; the outcome is unknown. Re-read the case before another action.`, { retrySameRequest: true });
   return make("error", `The host refused this request (${status} ${code}). Nothing was changed.`);
+}
+
+export interface ExportView {
+  readonly requestId: string;
+  readonly artifactId: string;
+  readonly artifactVersionId: string;
+  readonly artifactDigest: string;
+  readonly destinationId: string;
+  readonly status: string;
+  readonly acknowledgedBytes: number | null;
+  /** True only when the host reports a destination readback receipt that matches the artifact digest. */
+  readonly destinationConfirmed: boolean;
+  /** Present only when {@link destinationConfirmed}; an unconfirmed export never carries a receipt. */
+  readonly receiptRef: string | null;
+  readonly replayed: boolean;
+}
+
+const bareSha = (value: string): string => value.startsWith("sha256:") ? value.slice("sha256:".length) : value;
+
+/**
+ * Accept an export body only when it is bound to exactly the requested artifact version and destination.
+ * "Confirmed" requires status DESTINATION_CONFIRMED, a receipt reference, and a destination digest equal
+ * to the exact artifact sha256; anything inconsistent is rejected rather than shown as delivered.
+ */
+export function parseExportView(raw: unknown, expected: DevExportRequest & { readonly sha256: string; readonly sizeBytes: number | null }): ExportView {
+  if (!isRecord(raw) || raw.scope !== "DEV_ONLY") throw new Error("Export response is not a DEV_ONLY body.");
+  const requestId = str(raw.requestId); const artifactId = str(raw.artifactId);
+  const artifactVersionId = str(raw.artifactVersionId); const destinationId = str(raw.destinationId);
+  const digest = str(raw.artifactDigest); const status = str(raw.status);
+  if (!requestId || !artifactId || !artifactVersionId || !destinationId || !digest || !status
+    || typeof raw.destinationConfirmed !== "boolean" || typeof raw.replayed !== "boolean") {
+    throw new Error("Export response is incomplete.");
+  }
+  if (requestId !== expected.requestId || artifactId !== expected.artifactId
+    || artifactVersionId !== expected.artifactVersionId || destinationId !== expected.destinationId) {
+    throw new Error("Export response does not match the requested exact artifact version and destination.");
+  }
+  if (bareSha(digest) !== expected.sha256) throw new Error("Export artifact digest does not match the rendered artifact.");
+  const confirmedStatus = status === "DESTINATION_CONFIRMED";
+  if (confirmedStatus !== raw.destinationConfirmed) throw new Error("Export status and destinationConfirmed disagree.");
+  const acknowledgedBytes = nonNegInt(raw.acknowledgedBytes);
+  const receiptRef = str(raw.destinationReceiptRef);
+  if (confirmedStatus) {
+    if (!receiptRef) throw new Error("Export claims destination confirmation without a receipt.");
+    if (expected.sizeBytes !== null && acknowledgedBytes !== expected.sizeBytes) {
+      throw new Error("Destination receipt byte count does not match the artifact size.");
+    }
+  }
+  return { requestId, artifactId, artifactVersionId, artifactDigest: bareSha(digest), destinationId, status,
+    acknowledgedBytes, destinationConfirmed: confirmedStatus, receiptRef: confirmedStatus ? receiptRef : null,
+    replayed: raw.replayed };
+}
+
+export function describeExportFailure(error: unknown): Outcome {
+  const unknownText = "The export outcome is unknown and is not confirmed delivered. Retry with the same request identity; a duplicate never writes a second copy.";
+  if (!(error instanceof DevOutputsHostError)) {
+    return { tone: "unknown", code: "OUTCOME_UNKNOWN", retrySameRequest: true, discardRequest: false, text: unknownText };
+  }
+  const { status, code } = error;
+  const make = (tone: OutcomeTone, text: string, extra: Partial<Outcome> = {}): Outcome =>
+    ({ tone, code, text, retrySameRequest: false, discardRequest: false, ...extra });
+  if (status === 0 || code === "OUTCOME_UNKNOWN" || code === "INVALID_RESPONSE" || status === 502) return make("unknown", unknownText, { retrySameRequest: true });
+  if (status === 409) return make("error", "CONFLICT: this request identity is already bound to a different artifact version or destination. Nothing new was exported. The next export uses a new identity.", { discardRequest: true });
+  if (status === 404) {
+    if (code === "DESTINATION_NOT_FOUND") return make("error", "That destination is not configured on this DEV_ONLY host. Nothing was exported.");
+    if (code === "ARTIFACT_VERSION_NOT_FOUND") return make("error", "The exact artifact version is not available to this DEV_ONLY principal. Nothing was exported.");
+    if (code === "EXPORT_NOT_FOUND") return make("error", "No export with this request identity exists in this owner scope.");
+    return make("unavailable", "The export lane is not available on this host. Nothing was exported.");
+  }
+  if (status === 403) return make("denied", "Denied: this DEV_ONLY principal lacks permission to export this artifact (delivery export plus artifact read). Nothing was exported.");
+  if (status === 422) return make("error", code === "EXPORT_LIMIT_EXCEEDED"
+    ? "The artifact exceeds the DEV_ONLY export size limit. Nothing was exported."
+    : `The host refused this export (${code}). Nothing was exported.`);
+  if (status === 503) return make("unavailable", code === "DELIVERY_DESTINATION_UNAVAILABLE"
+    ? "The delivery destination is unavailable. No delivery is confirmed. Retry with the same request identity once it is available."
+    : `The export lane is unavailable (${code}). No delivery is confirmed. Retry with the same request identity.`, { retrySameRequest: true });
+  if (status >= 500) return make("unknown", unknownText, { retrySameRequest: true });
+  return make("error", `The host refused this export (${status} ${code}). Nothing was exported.`);
 }

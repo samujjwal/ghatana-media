@@ -31,6 +31,8 @@ const fixture = {
   projectReadHeads: [],
   artifactReadRequests: [],
   loseNextClipResponse: false,
+  exportRequests: [],
+  exportReads: 0,
   project: null,
   revision: null,
   revisions: new Map(),
@@ -234,11 +236,46 @@ const apiServer = createServer(async (request, response) => {
       }
       return respond(response, 200, { scope: "DEV_ONLY", revision });
     }
+    const renderMatch = path.match(/^\/dev\/v1\/projects\/([^/]+)\/renders\/([^/]+)$/u);
+    if (request.method === "GET" && renderMatch) {
+      if (renderMatch[1] !== fixture.project?.projectId || renderMatch[2] !== "render-1") {
+        return respond(response, 404, { error: { code: "RENDER_NOT_FOUND", message: "Fixture render not found." } });
+      }
+      return respond(response, 200, {
+        renderId: "render-1", replayed: true, scope: "DEV_ONLY",
+        artifact: { artifactId: "render-1", artifactVersionId: `sha256:${"b".repeat(64)}`, contentType: "image/gif", sizeBytes: 321, sha256: "b".repeat(64) },
+        lineage: { projectId: fixture.project.projectId, revisionId: "revision-1", timelineId: "main-cut", engine: "fixture-gif", format: "gif", frameCount: 3,
+          sources: [{ clipId: "clip-1", trackId: "track-1", artifactId: "src-1", artifactVersionId: `sha256:${"a".repeat(64)}` }] },
+      });
+    }
+    if (request.method === "POST" && path === "/dev/v1/exports") {
+      const payload = JSON.parse(body);
+      fixture.exportRequests.push(payload);
+      if (payload.destinationId === "missing-destination") {
+        return respond(response, 404, { error: { code: "DESTINATION_NOT_FOUND", message: "Fixture destination not configured." } });
+      }
+      return respond(response, 202, { ...exportView(payload), status: "OUTCOME_UNKNOWN", destinationConfirmed: false, destinationReceiptRef: null, acknowledgedBytes: 0, replayed: false });
+    }
+    const exportMatch = path.match(/^\/dev\/v1\/exports\/([^/]+)$/u);
+    if (request.method === "GET" && exportMatch) {
+      fixture.exportReads += 1;
+      const original = fixture.exportRequests.find((entry) => entry.requestId === decodeURIComponent(exportMatch[1]));
+      if (!original) return respond(response, 404, { error: { code: "EXPORT_NOT_FOUND", message: "Fixture export not found." } });
+      return respond(response, 200, { ...exportView(original), replayed: true });
+    }
     return respond(response, 404, { error: { code: "ROUTE_NOT_FOUND", message: "Unknown bounded fixture route." } });
   } catch (error) {
     if (!response.destroyed) respond(response, 500, { error: { code: "FIXTURE_ERROR", message: String(error) } });
   }
 });
+
+function exportView(payload) {
+  return {
+    requestId: payload.requestId, artifactId: payload.artifactId, artifactVersionId: payload.artifactVersionId, artifactDigest: "b".repeat(64),
+    destinationId: payload.destinationId, status: "DESTINATION_CONFIRMED", acknowledgedBytes: 321, destinationConfirmed: true,
+    destinationReceiptRef: "dev-local-directory-receipt:fixture", replayed: false, scope: "DEV_ONLY",
+  };
+}
 
 function readBody(request) {
   return new Promise((resolve, reject) => {
@@ -740,6 +777,35 @@ try {
   }, "reconciliation must read the exact current owner head and its matching immutable revision");
   assert.match(await page.locator("#readback-json").textContent(), new RegExp(`"revisionId": "${lostClipHeadRevisionId}"`, "u"),
     "the mounted editor must display exact successor-head readback after reconciliation");
+
+  // Resume: open the existing project by id (typed 404 first), then reopen a known render and export it.
+  const openProjectButton = page.getByRole("button", { name: "Open existing project", exact: true });
+  await keyboardFill(page, page.getByLabel("Project ID", { exact: true }), "missing-project");
+  await keyboardActivate(page, openProjectButton);
+  await page.getByText(/PROJECT_NOT_FOUND: no project with that id exists in this tenant and owner scope/u).waitFor();
+  await keyboardFill(page, page.getByLabel("Project ID", { exact: true }), fixture.project.projectId);
+  await keyboardActivate(page, openProjectButton);
+  await page.getByText(new RegExp(`Opened existing DEV_ONLY project ${fixture.project.projectId}; current head revision ${fixture.project.headRevisionId} read from the host\\.`, "u")).waitFor();
+  await keyboardFill(page, page.getByLabel("Known render ID"), "render-1");
+  await keyboardActivate(page, page.getByRole("button", { name: "Reopen known render" }));
+  await page.locator("#render-status").filter({ hasText: "Reopened render render-1" }).waitFor();
+  await keyboardFill(page, page.getByLabel("Destination ID"), "missing-destination");
+  await keyboardActivate(page, page.getByRole("button", { name: "Export render artifact" }));
+  await page.locator("#export-status").filter({ hasText: "DESTINATION_NOT_FOUND" }).waitFor();
+  assert.equal(await page.getByRole("article", { name: "Export result" }).count(), 0);
+  await keyboardFill(page, page.getByLabel("Destination ID"), "dev-local");
+  await keyboardActivate(page, page.getByRole("button", { name: "Export render artifact" }));
+  await page.locator("#export-status").filter({ hasText: "NOT CONFIRMED" }).waitFor();
+  const unconfirmed = page.getByRole("article", { name: "Export result" });
+  assert.equal(await unconfirmed.getAttribute("data-destination-confirmed"), "false");
+  assert.doesNotMatch(await unconfirmed.textContent(), /receipt:|Delivered/u, "an unconfirmed export must show no receipt and never say delivered");
+  assert.equal(fixture.exportRequests.length, 2);
+  assert.equal(fixture.exportRequests[1].artifactVersionId, `sha256:${"b".repeat(64)}`, "the export must name the exact render artifact version");
+  await keyboardActivate(page, page.getByRole("button", { name: "Check again" }));
+  await page.locator("#export-status").filter({ hasText: "destination confirmed with receipt dev-local-directory-receipt:fixture" }).waitFor();
+  assert.equal(await page.getByRole("article", { name: "Export result" }).getAttribute("data-destination-confirmed"), "true");
+  assert.equal(fixture.exportReads, 1);
+  assert.equal(fixture.exportRequests.length, 2, "Check again must read back, never re-export");
 
   await keyboardActivate(page, page.getByRole("button", { name: "Forget token and disconnect" }));
   assert.equal(await page.locator("#dev-token").inputValue(), "");

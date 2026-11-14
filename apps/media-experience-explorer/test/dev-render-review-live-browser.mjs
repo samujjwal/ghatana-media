@@ -14,6 +14,8 @@ const expectedTenant = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_TENANT");
 const expectedPrincipal = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_PRINCIPAL");
 const expectedArtifactId = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_ID");
 const expectedArtifactSha256 = requiredEnv("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_SHA256");
+// Optional: a destination configured on the live host. When set, the reloaded page also exports the render to it.
+const exportDestinationId = process.env.MEDIA_DEV_RENDER_REVIEW_BROWSER_DESTINATION_ID?.trim() || null;
 const proxyPort = positivePort(requiredEnv("MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT"));
 const viteBinary = requiredEnv("MEDIA_DEV_VITE_BINARY");
 const playwrightModule = requiredEnv("MEDIA_DEV_PLAYWRIGHT_MODULE");
@@ -291,9 +293,65 @@ try {
   assert.equal(await page.locator("[data-render-id]").count(), 0, "a reloaded page must not claim a render it never read");
   assert.equal(await page.locator("[data-review-case]").count(), 0);
 
+  // Resume after the reload: open the existing project by id, then reopen the render and review case by id.
+  const missing = `missing-${crypto.randomUUID()}`;
+  await page.getByLabel("Project ID", { exact: true }).fill(missing);
+  await page.getByRole("button", { name: "Open existing project", exact: true }).click();
+  await page.getByText(/PROJECT_NOT_FOUND: no project with that id exists in this tenant and owner scope/u).waitFor();
+  assert.equal(await page.locator("#dev-project-outputs").count(), 0, "a failed open must not mount any workspace");
+  await page.getByLabel("Project ID", { exact: true }).fill(projectId);
+  await page.getByRole("button", { name: "Open existing project", exact: true }).click();
+  await page.getByText(new RegExp(`Opened existing DEV_ONLY project ${projectId}; current head revision ${editedRevision.revisionId} read from the host\\.`, "u")).waitFor();
+  await page.locator("#dev-project-outputs").waitFor();
+  assert.equal(await page.locator("[data-render-id]").count(), 0, "opening a project must not claim a render it has not read");
+
+  await page.getByLabel("Known render ID").fill(renderId);
+  await page.getByRole("button", { name: "Reopen known render" }).click();
+  await page.locator("#render-status").filter({ hasText: `Reopened render ${renderId}` }).waitFor();
+  assert.ok((await renderArticle.textContent()).includes(renderSha), "the reopened render must show the same sha256");
+  assert.ok((await renderArticle.textContent()).includes(renderedRevisionId));
+  await page.getByText("Not the current head:").waitFor();
+
+  await page.getByLabel("Known review case ID").fill(reviewCaseId);
+  await page.getByRole("button", { name: "Reopen known review case" }).click();
+  await page.locator("#review-status").filter({ hasText: new RegExp(`Reopened review case ${reviewCaseId.replace(/\./gu, "\\.")}: STALE`, "u") }).waitFor();
+  assert.equal(await currentness.getAttribute("data-currentness"), "STALE");
+  const reopenedRecords = await page.getByLabel("Review records").textContent();
+  assert.match(reopenedRecords, /comment \(OPEN\)/u);
+  assert.match(reopenedRecords, /DEV_ONLY decision ACCEPT/u);
+
+  let exportReceipt = null;
+  if (exportDestinationId) {
+    await page.getByLabel("Destination ID").fill(exportDestinationId);
+    await page.getByRole("button", { name: "Export render artifact" }).click();
+    const exportResult = page.getByRole("article", { name: "Export result" });
+    await exportResult.waitFor({ timeout: 30_000 });
+    // 202 is never delivery: poll with Check again until a destination receipt exists.
+    for (let attempt = 0; attempt < 20 && (await exportResult.getAttribute("data-destination-confirmed")) !== "true"; attempt += 1) {
+      await page.getByRole("button", { name: "Check again" }).click();
+      await delay(500);
+    }
+    assert.equal(await exportResult.getAttribute("data-destination-confirmed"), "true", "the export must end destination-confirmed");
+    const exportText = await exportResult.textContent();
+    assert.ok(exportText.includes(renderSha), "the destination digest must equal the render artifact sha256");
+    exportReceipt = (await exportResult.locator("dt", { hasText: "Destination receipt" }).locator("xpath=following-sibling::dd").textContent()).trim();
+    assert.ok(exportReceipt.length > 0);
+    const exportPosts = apiRequests.filter(({ method, path }) => method === "POST" && path === "/dev/v1/exports");
+    assert.ok(exportPosts.length >= 1);
+    const exportBody = JSON.parse(exportPosts[0].body);
+    assert.equal(exportBody.artifactId, renderId);
+    assert.equal(exportBody.artifactVersionId, `sha256:${renderSha}`, "the export must name the exact render artifact version");
+    assert.equal(exportBody.destinationId, exportDestinationId);
+    assert.ok(exportPosts.every(({ body }) => JSON.parse(body).requestId === exportBody.requestId), "all export attempts must reuse one request identity");
+    // Exporting again replays the same operation: HTTP 200 with the same receipt, no second request identity.
+    await page.getByRole("button", { name: "Export render artifact" }).click();
+    await page.locator("#export-status").filter({ hasText: "Replayed or read back (HTTP 200)" }).waitFor();
+    assert.ok((await exportResult.textContent()).includes(exportReceipt));
+  }
+
   assert.deepEqual(pageErrors, [], `browser page errors: ${JSON.stringify(pageErrors)}`);
   assert.deepEqual(consoleErrors, [], `browser console errors: ${JSON.stringify(consoleErrors)}`);
-  process.stdout.write(`${JSON.stringify({ event: "readback", projectId, renderId, reviewCaseId, renderSha })}\n`);
+  process.stdout.write(`${JSON.stringify({ event: "readback", exportReceipt, exportDestinationId, projectId, renderId, reviewCaseId, renderSha })}\n`);
 } finally {
   if (browser) await browser.close();
   if (viteProcess.exitCode === null) {

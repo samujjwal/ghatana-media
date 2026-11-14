@@ -76,10 +76,25 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   ACCEPT is **not** human approval (`establishesApproval=false`,
   `humanReviewApproval=false`); a host body claiming approval is rejected.
   Status regions are `aria-live="polite"`; outcomes are conveyed in text.
-  Not covered: export/delivery, preview playback of the render, reviewer
+  Export (advances `media.dev.delivery-export-destination-ack` and
+  `media.dev.outcome-acknowledged-delivery` at the UI edge): once a render is registered (created or reopened by id), the panel
+  exports that exact artifact version to a destination id through
+  `POST /dev/v1/exports` with a requestId that stays stable per
+  artifact-version and destination, and reads it back with
+  `GET /dev/v1/exports/{requestId}` ("Check again"). "Delivered" is shown only
+  for a destination-confirmed body (HTTP 201/200) that carries a destination
+  receipt, whose digest equals the render sha256 and whose acknowledged bytes
+  equal the artifact size; a body that claims confirmation otherwise is
+  rejected. HTTP 202 is always "NOT CONFIRMED, no receipt". Typed `409
+  EXPORT_REQUEST_CONFLICT` (identity dropped), `404 DESTINATION_NOT_FOUND` /
+  `ARTIFACT_VERSION_NOT_FOUND`, `422`, `403`, `503
+  DELIVERY_DESTINATION_UNAVAILABLE` and 502/transport loss (outcome unknown,
+  retry with the same request identity) never show delivery. The panel can
+  also reopen a known render id or review case id (project-scoped) so a
+  reloaded page can resume prior work. Not covered: preview playback of the render, reviewer
   roles or multi-reviewer authority, time-range/ROI annotations in the UI,
   and any product-route admission. Evidence is jsdom unit tests with a fake
-  host port; no live-browser run against the launcher exists yet.
+  host port; the live-launcher browser journey is driven by the Explorer scripts.
 
 ## Public operations
 

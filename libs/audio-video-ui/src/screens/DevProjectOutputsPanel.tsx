@@ -1,8 +1,9 @@
 import React from "react";
 import type { DevProject, DevProjectRevision } from "@audio-video/client/dev-project-timeline";
 import {
-  DevOutputsHostError, describeRenderFailure, describeReviewFailure, parseRenderView, parseReviewReceipt, parseReviewView,
-  type DevCommentDisposition, type DevProjectOutputsPort, type DevRenderFormat, type DevReviewDecision,
+  DevOutputsHostError, describeExportFailure, describeRenderFailure, describeReviewFailure, parseExportView, parseRenderView,
+  parseReviewReceipt, parseReviewView,
+  type DevCommentDisposition, type ExportView, type DevProjectOutputsPort, type DevRenderFormat, type DevReviewDecision,
   type DevReviewSubject, type Outcome, type RenderView, type ReviewView,
 } from "./devProjectOutputs";
 
@@ -33,7 +34,107 @@ const POSITIVE = /^[1-9][0-9]{0,4}$/u;
 const DISPOSITIONS: readonly DevCommentDisposition[] = ["OPEN", "RESOLVED", "NEEDS_OWNER_RESPONSE"];
 const DECISIONS: readonly DevReviewDecision[] = ["ACCEPT", "REJECT", "REQUEST_CHANGES", "DEFER"];
 
-/** DEV_ONLY render and review controls. It never claims approval, export or delivery. */
+const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
+
+/**
+ * Exports exactly one registered render artifact version to a destination. "Delivered" is only ever shown
+ * with a destination readback receipt whose digest equals the artifact sha256; HTTP 202 is never delivery.
+ * Mounted keyed by artifact version so its state cannot leak to another render.
+ */
+function DevExportControls({ outputs, view, locked, newRequestId }: {
+  readonly outputs: DevProjectOutputsPort; readonly view: RenderView; readonly locked: boolean; readonly newRequestId: () => string;
+}): React.ReactElement {
+  const [destination, setDestination] = React.useState("");
+  const [pending, setPending] = React.useState<"export" | "check" | null>(null);
+  const [result, setResult] = React.useState<ExportView | null>(null);
+  const [outcome, setOutcome] = React.useState<Outcome | null>(null);
+  const [message, setMessage] = React.useState("No export requested.");
+  const attempt = React.useRef<Attempt | null>(null);
+  const [requested, setRequested] = React.useState(false);
+
+  const destinationOk = OPAQUE_ID.test(destination.trim());
+  const busy = pending !== null;
+  const expectedFor = (requestId: string, destinationId: string) => ({
+    requestId, artifactId: view.artifactId, artifactVersionId: view.artifactVersionId, destinationId,
+    sha256: view.sha256, sizeBytes: view.sizeBytes,
+  });
+  const fail = (error: unknown): void => {
+    const next = describeExportFailure(asHost(error));
+    if (next.discardRequest) { attempt.current = null; setRequested(false); }
+    setResult(null); setOutcome(next); setMessage(`${next.code}: ${next.text}`);
+  };
+  const accept = (status: number, body: unknown, destinationId: string, requestId: string, allowed: readonly number[]): ExportView => {
+    if (!allowed.includes(status)) throw new DevOutputsHostError("INVALID_RESPONSE", status, "Unexpected status.");
+    const exported = parseExportView(body, expectedFor(requestId, destinationId));
+    if (status === 202 && exported.destinationConfirmed) throw new DevOutputsHostError("INVALID_RESPONSE", status, "HTTP 202 cannot carry a destination confirmation.");
+    if ((status === 200 || status === 201) && !exported.destinationConfirmed && allowed.includes(201)) {
+      throw new DevOutputsHostError("INVALID_RESPONSE", status, "A 200/201 export response must be destination-confirmed.");
+    }
+    return exported;
+  };
+  const show = (exported: ExportView, status: number): void => {
+    setResult(exported); setOutcome(null);
+    setMessage(exported.destinationConfirmed
+      ? `${status === 201 ? "Exported (HTTP 201)" : status === 200 && exported.replayed ? "Replayed or read back (HTTP 200)" : `HTTP ${status}`}: destination confirmed with receipt ${exported.receiptRef}; destination digest matches artifact sha256 ${exported.artifactDigest}.`
+      : `NOT CONFIRMED (${exported.status}): no destination receipt exists yet, so this artifact is not delivered. Check again, or retry with the same request identity.`);
+  };
+
+  const exportNow = async (): Promise<void> => {
+    if (locked || busy || !destinationOk) return;
+    const destinationId = destination.trim();
+    const fp = `${view.artifactId}|${view.artifactVersionId}|${destinationId}`;
+    if (!attempt.current || attempt.current.fingerprint !== fp) attempt.current = { fingerprint: fp, requestId: newRequestId() };
+    const requestId = attempt.current.requestId;
+    setPending("export"); setOutcome(null); setRequested(true);
+    setMessage(`Exporting ${view.artifactVersionId} to destination ${destinationId}…`);
+    try {
+      const response = await outputs.requestExport({ requestId, artifactId: view.artifactId, artifactVersionId: view.artifactVersionId, destinationId });
+      show(accept(response.status, response.body, destinationId, requestId, [200, 201, 202]), response.status);
+    } catch (error) { fail(error); } finally { setPending(null); }
+  };
+
+  const checkAgain = async (): Promise<void> => {
+    if (busy || !attempt.current) return;
+    const requestId = attempt.current.requestId;
+    const destinationId = attempt.current.fingerprint.split("|")[2] ?? "";
+    setPending("check"); setOutcome(null);
+    setMessage(`Checking export ${requestId}…`);
+    try {
+      const response = await outputs.getExport(requestId);
+      show(accept(response.status, response.body, destinationId, requestId, [200]), response.status);
+    } catch (error) { fail(error); } finally { setPending(null); }
+  };
+
+  const confirmed = result?.destinationConfirmed === true;
+  return <section aria-labelledby="export-title" id="dev-export" data-export-state={confirmed ? "confirmed" : result ? "unconfirmed" : outcome ? outcome.tone : "idle"}>
+    <h6 id="export-title">Export this render artifact</h6>
+    <p>Exports exactly <code>{view.artifactVersionId}</code> to a configured DEV_ONLY destination. Delivery is claimed only after the destination returns a readback receipt.</p>
+    <form id="export-form" onSubmit={(event) => { event.preventDefault(); void exportNow(); }}>
+      <label htmlFor="export-destination">Destination ID</label>
+      <input id="export-destination" value={destination} onChange={(event) => setDestination(event.currentTarget.value)} disabled={locked || busy} autoComplete="off" spellCheck={false} />
+      {!destinationOk && destination !== "" && <p id="export-destination-help">A destination id is 1-128 letters, digits or . _ : -, starting with a letter or digit.</p>}
+      <button type="submit" disabled={locked || busy || !destinationOk}>Export render artifact</button>
+      {outcome?.retrySameRequest && requested && <button type="button" onClick={() => void exportNow()} disabled={locked || busy}>Retry export with the same request identity</button>}
+      {requested && !confirmed && <button type="button" onClick={() => void checkAgain()} disabled={busy}>Check again</button>}
+    </form>
+    <p id="export-status" role="status" aria-live="polite" aria-atomic="true" aria-busy={busy}
+      data-state={confirmed ? "confirmed" : result ? "unconfirmed" : outcome ? outcome.tone : "idle"}>{message}</p>
+    {outcome && <p role="alert" data-outcome={outcome.tone}><strong>{outcome.tone === "unknown" ? "Outcome unknown · not confirmed" : outcome.tone === "denied" ? "Denied" : outcome.tone === "unavailable" ? "Unavailable" : "Not exported"} · <code>{outcome.code}</code></strong></p>}
+    {result && <article aria-label="Export result" data-export-request={result.requestId} data-destination-confirmed={String(confirmed)}>
+      <h6>{confirmed ? "Delivered with destination receipt" : "Not confirmed · no receipt"}</h6>
+      <dl>
+        <div><dt>Request identity</dt><dd><code>{result.requestId}</code></dd></div>
+        <div><dt>Destination</dt><dd><code>{result.destinationId}</code></dd></div>
+        <div><dt>Status</dt><dd><code>{result.status}</code></dd></div>
+        {result.acknowledgedBytes !== null && <div><dt>Acknowledged bytes</dt><dd>{result.acknowledgedBytes}</dd></div>}
+        {confirmed && <div><dt>Destination receipt</dt><dd><code>{result.receiptRef}</code></dd></div>}
+        {confirmed && <div><dt>Destination digest</dt><dd><code>{result.artifactDigest}</code> equals the artifact sha256</dd></div>}
+      </dl>
+    </article>}
+  </section>;
+}
+
+/** DEV_ONLY render, review and export controls. A DEV_ONLY review never claims approval; export claims delivery only with a destination receipt. */
 export function DevProjectOutputsPanel({ outputs, project, revision, timelineId, clipCount, locked, newRequestId = defaultRequestId }: DevProjectOutputsPanelProps): React.ReactElement {
   const [format, setFormat] = React.useState<DevRenderFormat>("gif");
   const [width, setWidth] = React.useState("32");
@@ -44,6 +145,8 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
   const [renderMessage, setRenderMessage] = React.useState("No render requested.");
   const [pending, setPending] = React.useState<Pending>(null);
   const renderAttempt = React.useRef<Attempt | null>(null);
+  const [knownRenderId, setKnownRenderId] = React.useState("");
+  const [knownReviewId, setKnownReviewId] = React.useState("");
 
   const [subjectChoice, setSubjectChoice] = React.useState<"revision" | "render">("revision");
   const [review, setReview] = React.useState<ReviewView | null>(null);
@@ -121,6 +224,26 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
     } finally { setPending(null); }
   };
 
+  const reopenKnownRender = async (): Promise<void> => {
+    const renderId = knownRenderId.trim();
+    if (busy || !OPAQUE_ID.test(renderId)) return;
+    setPending("reopen"); setRenderOutcome(null);
+    setRenderMessage(`Reopening known render ${renderId}…`);
+    try {
+      const response = await outputs.getRender(project.projectId, renderId);
+      if (response.status !== 200) throw new DevOutputsHostError("INVALID_RESPONSE", response.status, "Unexpected status.");
+      const view = parseRenderView(response.body, { projectId: project.projectId });
+      if (view.renderId !== renderId) throw new DevOutputsHostError("INVALID_RESPONSE", 200, "Reopened render does not match the requested render id.");
+      setShown({ view, via: "reopened" });
+      setKnownRenderId("");
+      setRenderMessage(`Reopened render ${view.renderId}: artifact version ${view.artifactVersionId} for revision ${view.revisionId}.`);
+    } catch (error) {
+      const outcome = describeRenderFailure(asHost(error));
+      setRenderOutcome({ ...outcome, retrySameRequest: false });
+      setRenderMessage(`${outcome.code}: ${outcome.text}`);
+    } finally { setPending(null); }
+  };
+
   const subject = (): DevReviewSubject | null => subjectChoice === "render"
     ? shown ? { kind: "ARTIFACT_VERSION", artifactId: shown.view.artifactId, artifactVersionId: shown.view.artifactVersionId } : null
     : { kind: "PROJECT_REVISION", projectId: project.projectId, revisionId: revision.revisionId };
@@ -159,6 +282,22 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
     } catch (error) { failReview(asHost(error)); } finally { setPending(null); }
   };
 
+  const reopenKnownReview = async (): Promise<void> => {
+    const caseId = knownReviewId.trim();
+    if (busy || !OPAQUE_ID.test(caseId)) return;
+    setPending("refresh-review"); setReviewOutcome(null);
+    setReviewMessage(`Reopening known review case ${caseId}…`);
+    try {
+      const view = await readCase(caseId);
+      if (view.subjectKind === "PROJECT_REVISION" && !view.subjectReference.startsWith(`project_revision:${project.projectId}@`)) {
+        throw new DevOutputsHostError("INVALID_RESPONSE", 200, "Review case belongs to a different project.");
+      }
+      commentAttempt.current = null; decisionAttempt.current = null; setConfirmed(false);
+      setReview(view); setKnownReviewId("");
+      setReviewMessage(`Reopened review case ${view.reviewCaseId}: ${view.currentness}, case revision ${view.caseRevision}. No approval exists.`);
+    } catch (error) { failReview(asHost(error)); } finally { setPending(null); }
+  };
+
   const refreshReview = async (): Promise<void> => {
     if (!review || busy) return;
     setPending("refresh-review");
@@ -172,8 +311,11 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
 
   // Currentness is host-derived; re-read when the displayed project head moves so STALE is surfaced.
   const reviewCaseId = review?.reviewCaseId ?? null;
+  const watchedCase = React.useRef<string | null>(null);
   React.useEffect(() => {
-    if (!reviewCaseId) return;
+    if (!reviewCaseId) { watchedCase.current = null; return; }
+    // The open/reopen action just read this case; only a later head change needs a re-read.
+    if (watchedCase.current !== reviewCaseId) { watchedCase.current = reviewCaseId; return; }
     let cancelled = false;
     readCase(reviewCaseId).then((view) => {
       if (cancelled) return;
@@ -235,7 +377,7 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
 
   return <section id="dev-project-outputs" aria-labelledby="dev-outputs-title" data-outputs="DEV_ONLY">
     <h3 id="dev-outputs-title">Render and review · DEV_ONLY</h3>
-    <p>Local development rendering of the exact project revision and a DEV_ONLY review case. Neither establishes human approval, export or delivery.</p>
+    <p>Local development rendering of the exact project revision and a DEV_ONLY review case. Neither establishes human approval. A render is exported only by the explicit export control below it, and is delivered only with a destination receipt.</p>
 
     <section aria-labelledby="render-title">
       <h4 id="render-title">Render the current revision</h4>
@@ -290,7 +432,13 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
           </dl>
         </>}
         <button type="button" onClick={() => void reopenRender()} disabled={busy}>Reopen render from the host</button>
+        <DevExportControls key={shown.view.artifactVersionId} outputs={outputs} view={shown.view} locked={locked} newRequestId={newRequestId} />
       </article>}
+      <form id="render-known-form" onSubmit={(event) => { event.preventDefault(); void reopenKnownRender(); }}>
+        <label htmlFor="known-render-id">Known render ID</label>
+        <input id="known-render-id" value={knownRenderId} onChange={(event) => setKnownRenderId(event.currentTarget.value)} disabled={busy} autoComplete="off" spellCheck={false} />
+        <button type="submit" disabled={busy || !OPAQUE_ID.test(knownRenderId.trim())}>Reopen known render</button>
+      </form>
     </section>
 
     <section aria-labelledby="review-title">
@@ -311,6 +459,11 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
       <p id="review-status" role="status" aria-live="polite" aria-atomic="true" aria-busy={pending === "open-review" || pending === "refresh-review" || pending === "comment" || pending === "decision"}
         data-state={reviewOutcome ? reviewOutcome.tone : review ? review.currentness : "idle"}>{reviewMessage}</p>
       {reviewOutcome && <p role="alert" data-outcome={reviewOutcome.tone}><strong>{reviewOutcome.tone === "unknown" ? "Outcome unknown" : reviewOutcome.tone === "denied" ? "Denied" : reviewOutcome.tone === "unavailable" ? "Unavailable" : "Not recorded"} · <code>{reviewOutcome.code}</code></strong></p>}
+      <form id="review-known-form" onSubmit={(event) => { event.preventDefault(); void reopenKnownReview(); }}>
+        <label htmlFor="known-review-id">Known review case ID</label>
+        <input id="known-review-id" value={knownReviewId} onChange={(event) => setKnownReviewId(event.currentTarget.value)} disabled={busy} autoComplete="off" spellCheck={false} />
+        <button type="submit" disabled={busy || !OPAQUE_ID.test(knownReviewId.trim())}>Reopen known review case</button>
+      </form>
       {review && <article aria-labelledby="review-case-title" data-review-case={review.reviewCaseId}>
         <h5 id="review-case-title">Review case <code>{review.reviewCaseId}</code></h5>
         <dl>

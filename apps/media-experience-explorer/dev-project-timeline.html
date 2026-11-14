@@ -59,6 +59,16 @@
         </div>
       </section>
 
+      <section class="panel" aria-labelledby="open-project-heading">
+        <div class="section-heading"><div><p class="step">02b · Resume</p><h2 id="open-project-heading">Open existing project</h2></div></div>
+        <p class="help">Reload and reconnect, then open a project you created earlier by its id. The host reads it in your owner scope and shows its current head revision; renders and review cases can then be reopened by id.</p>
+        <form id="open-project-form" class="form-grid">
+          <label for="open-project-id">Project ID</label>
+          <input id="open-project-id" name="projectId" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+          <div class="button-row"><button id="open-project" class="button secondary" type="submit" disabled>Open existing project</button></div>
+        </form>
+      </section>
+
       <section id="timeline-workspace-panel" class="panel" aria-labelledby="timeline-heading" hidden>
         <div class="section-heading"><div><p class="step">03 · Edit and reconcile</p><h2 id="timeline-heading">Project timeline workspace</h2></div></div>
         <p class="help">The reusable Media UI screen operates through this loopback DEV_ONLY client. Project creation stays in the host flow above; timeline edits and restores commit as successor project revisions.</p>

@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test test/*.test.mjs && vitest run test/dev-artifact-hasher.test.ts",
+    "test": "node --test test/*.test.mjs && vitest run test/dev-artifact-hasher.test.ts test/dev-open-project.test.ts",
     "test:dev-project-timeline:browser": "node test/dev-project-timeline-browser.mjs",
     "test:visual-regression": "node test/run-visual-regression.mjs"
   },

@@ -2,8 +2,8 @@ import { DevOutputsHostError } from "@audio-video/ui/screens";
 import type { DevHostResponse, DevProjectOutputsPort } from "@audio-video/ui/screens";
 
 /**
- * Loopback fetch adapter for the DEV_ONLY render and review routes. The token is read from page
- * memory per call and never stored. Success responses (200/201) resolve with the exact status and
+ * Loopback fetch adapter for the DEV_ONLY render, review and export routes. The token is read from page
+ * memory per call and never stored. Success responses (2xx, including a not-yet-confirmed 202 export) resolve with the exact status and
  * body; every other outcome rejects with a typed {@link DevOutputsHostError}. A failed mutation
  * whose outcome cannot be observed is status 0 / OUTCOME_UNKNOWN so the UI retries the same requestId.
  */
@@ -45,5 +45,7 @@ export function createDevProjectOutputsClient(options: {
     getReview: (caseId) => call("GET", `/dev/v1/reviews/${seg(caseId)}`, undefined, false),
     addReviewComment: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/comments`, request, true),
     recordReviewDecision: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/decisions`, request, true),
+    requestExport: (request) => call("POST", "/dev/v1/exports", request, true),
+    getExport: (requestId) => call("GET", `/dev/v1/exports/${seg(requestId)}`, undefined, false),
   };
 }

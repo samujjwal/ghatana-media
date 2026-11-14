@@ -32,5 +32,5 @@ export { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 export type { MediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 export { DevProjectOutputsPanel } from "./DevProjectOutputsPanel";
 export type { DevProjectOutputsPanelProps } from "./DevProjectOutputsPanel";
-export { DevOutputsHostError, parseRenderView, parseReviewView } from "./devProjectOutputs";
-export type { DevProjectOutputsPort, DevHostResponse, DevRenderRequest, DevReviewSubject } from "./devProjectOutputs";
+export { DevOutputsHostError, parseExportView, parseRenderView, parseReviewView } from "./devProjectOutputs";
+export type { DevProjectOutputsPort, DevHostResponse, DevExportRequest, ExportView, DevRenderRequest, DevReviewSubject } from "./devProjectOutputs";

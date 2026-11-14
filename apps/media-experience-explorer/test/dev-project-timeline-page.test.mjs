@@ -102,5 +102,25 @@ test("DEV_ONLY page wires exact render and review routes through a loopback, mem
   assert.match(panel, /establishesApproval=false/u);
   assert.match(panel, /id="render-status" role="status" aria-live="polite"/u);
   assert.match(panel, /id="review-status" role="status" aria-live="polite"/u);
-  assert.doesNotMatch(panel, /export(ed)? to|deliver(ed|y) (complete|succeeded)/iu, "this panel must not claim export or delivery");
+  assert.doesNotMatch(panel, /deliver(ed|y) (complete|succeeded)/iu, "this panel must not claim an unreceipted delivery");
+});
+
+test("DEV_ONLY page exports a render only through the receipt-gated export lane and can resume a project by id", async () => {
+  const html = await read("dev-project-timeline.html");
+  const source = await read("src/dev-project-timeline.ts");
+  const opener = await read("src/dev-open-project.ts");
+  const adapter = await read("src/dev-project-outputs-client.ts");
+  const panel = await read("../../libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx");
+  assert.ok(adapter.includes('"/dev/v1/exports"') && adapter.includes("/dev/v1/exports/${seg(requestId)}"), "adapter must call both export routes");
+  for (const control of ["Export render artifact", "Check again", "Retry export with the same request identity", "Reopen known render", "Reopen known review case"]) {
+    assert.ok(panel.includes(control), `missing export or reopen control: ${control}`);
+  }
+  assert.match(panel, /Delivered with destination receipt/u);
+  assert.match(panel, /Not confirmed · no receipt/u);
+  assert.match(panel, /id="export-status" role="status" aria-live="polite"/u);
+  assert.match(html, /id="open-project-form"/u);
+  assert.ok(html.includes("Open existing project"));
+  assert.match(source, /openExistingProject\(client, context, openProjectIdInput\.value\)/u);
+  assert.match(opener, /\.getProject\(projectId\)/u);
+  assert.match(opener, /read\.project\.tenantId !== context\.tenantId/u);
 });

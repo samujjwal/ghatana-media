@@ -146,6 +146,8 @@ test("DEV_ONLY project proxy admits only exact context, policy, project, timelin
     ["GET", "/dev/v1/reviews/case-1"],
     ["POST", "/dev/v1/reviews/case-1/comments"],
     ["POST", "/dev/v1/reviews/case-1/decisions"],
+    ["POST", "/dev/v1/exports"],
+    ["GET", "/dev/v1/exports/export-1"],
   ];
   for (const [method, path] of allowed) assert.equal(isAllowedDevProjectProxyRequest(method, path), true, `${method} ${path}`);
 
@@ -172,6 +174,13 @@ test("DEV_ONLY project proxy admits only exact context, policy, project, timelin
     ["GET", `/dev/v1/projects/${project}/renders`],
     ["POST", `/dev/v1/projects/${project}/renders/render-1`],
     ["GET", "/dev/v1/reviews"],
+    ["GET", "/dev/v1/exports"],
+    ["PUT", "/dev/v1/exports"],
+    ["POST", "/dev/v1/exports/export-1"],
+    ["DELETE", "/dev/v1/exports/export-1"],
+    ["GET", "/dev/v1/exports/bad%2fexport"],
+    ["POST", "/dev/v1/exports?x=1"],
+    ["GET", "/dev/v1/exports/export-1/extra"],
     ["PATCH", "/dev/v1/reviews/case-1"],
     ["GET", "/dev/v1/reviews/case-1/decisions"],
     ["POST", "/dev/v1/reviews/case-1/decisions/extra"],

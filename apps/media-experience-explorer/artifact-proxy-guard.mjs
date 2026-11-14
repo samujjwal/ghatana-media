@@ -25,6 +25,9 @@ const devProjectRoutes = [
   { method: "GET", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/comments$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/decisions$`, "u") },
+  // DEV_ONLY hosted export lane used by the "Export this render artifact" control.
+  { method: "POST", path: /^\/dev\/v1\/exports$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}$`, "u") },
 ];
 
 function isCanonicalPath(requestUrl) {

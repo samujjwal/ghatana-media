@@ -88,6 +88,18 @@ owner-head reconciliation without duplicate mutation, track commit, exact
 revision readback, undo/redo, immutable history, and disconnect. It does not
 invoke a live Media backend.
 
+"Open existing project" (step 02b, `src/dev-open-project.ts`) reads
+`GET /dev/v1/projects/{id}` in the connected owner scope and loads the project
+and its current head into the workspace, so a reloaded page can resume a prior
+project; `PROJECT_NOT_FOUND`/`PROJECT_ACCESS_DENIED` surface as typed messages
+and a read for another tenant, project or non-head revision is refused. In the
+workspace, a render or review case can then be reopened by id, and a registered
+render can be exported to a destination id (`POST /dev/v1/exports`, read back
+with `GET /dev/v1/exports/{requestId}`; both are on the proxy allow-list). The
+page says delivered only with a destination receipt; HTTP 202 is NOT CONFIRMED.
+The live script also does this after a reload when
+`MEDIA_DEV_RENDER_REVIEW_BROWSER_DESTINATION_ID` names a host destination.
+
 Once a project has an exact head revision with clips, the workspace on this page
 also drives the DEV_ONLY render (`/dev/v1/projects/{id}/renders`) and review
 (`/dev/v1/reviews`) routes through `src/dev-project-outputs-client.ts`, a
