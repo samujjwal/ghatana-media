@@ -124,7 +124,7 @@ class MediaDevGroundedAnswerRestartIT {
         Process launcher = null;
         try {
             try (var s3 = s3(LOCALSTACK)) { s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build()); }
-            sidecar = startSidecar(python, sidecarScript, models, sidecarPort, sidecarToken, home);
+            sidecar = startSidecar(python, sidecarScript, models, sidecarPort, sidecarToken, home, work.resolve("sidecar.log"));
             awaitSidecar(sidecar, sidecarPort, sidecarToken);
 
             installDescriptors(services);
@@ -275,7 +275,7 @@ class MediaDevGroundedAnswerRestartIT {
             assertThat(groundedRows(tenant)).isEqualTo(3);
 
             // ---- restart: sidecar back on the same endpoint, launcher restarted; readback and resume ----
-            sidecar = startSidecar(python, sidecarScript, models, sidecarPort, sidecarToken, home);
+            sidecar = startSidecar(python, sidecarScript, models, sidecarPort, sidecarToken, home, work.resolve("sidecar.log"));
             awaitSidecar(sidecar, sidecarPort, sidecarToken);
             stopLauncher(launcher);
             launcher = startLauncher(classpath, environment, log);
@@ -292,7 +292,25 @@ class MediaDevGroundedAnswerRestartIT {
             assertThat(send(port, tenant, otherToken, "GET", ANSWERS + "/" + answerId, null).statusCode()).isEqualTo(404);
 
             // The unknown request resumes with the same requestId and registers exactly one answer.
-            JsonNode resumed = post(port, tenant, token, ANSWERS, unknownBody, 201);
+            // The GPU is shared with other processes, so the freshly restarted sidecar may briefly fail to load a model:
+            // the documented contract is to retry the same requestId, which must resume without a second registration.
+            HttpResponse<String> resumedResponse = null;
+            for (int attempt = 1; attempt <= 4; attempt++) {
+                token = issueDevToken(tenant, principal);
+                resumedResponse = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(unknownBody));
+                System.out.println("GROUNDED-IT resume attempt " + attempt + " -> " + resumedResponse.statusCode()
+                        + (resumedResponse.statusCode() == 201 ? "" : " " + resumedResponse.body()));
+                if (resumedResponse.statusCode() == 201) break;
+                List<String> sidecarLines = Files.readAllLines(work.resolve("sidecar.log"));
+                System.out.println("GROUNDED-IT sidecar log tail:\n" + String.join("\n",
+                        sidecarLines.subList(Math.max(0, sidecarLines.size() - 15), sidecarLines.size())));
+                assertThat(resumedResponse.statusCode()).as("only typed retryable failures may precede the resume: "
+                        + resumedResponse.body()).isIn(502, 503);
+                assertThat(groundedRows(tenant)).as("a failed attempt registers nothing").isEqualTo(3);
+                Thread.sleep(30_000);
+            }
+            assertThat(resumedResponse.statusCode()).as(resumedResponse.body()).isEqualTo(201);
+            JsonNode resumed = JSON.readTree(resumedResponse.body());
             assertGroundingInvariants(resumed.path("document"), a, version, sha256(mp4), sourceId);
             assertThat(groundedRows(tenant)).isEqualTo(4);
             // Re-sending the first request: a replay (same bytes) or a typed refusal if the models were not
@@ -458,11 +476,11 @@ class MediaDevGroundedAnswerRestartIT {
         javax.imageio.ImageIO.write(image, "png", out.toFile());
     }
 
-    private static Process startSidecar(Path python, Path script, Path models, int port, String token, Path home)
-            throws Exception {
+    private static Process startSidecar(Path python, Path script, Path models, int port, String token, Path home,
+                                        Path sidecarLog) throws Exception {
         ProcessBuilder builder = new ProcessBuilder(python.toString(), "-I", script.toString(), "--port",
                 Integer.toString(port), "--models-root", models.toString());
-        builder.redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD);
+        builder.redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.appendTo(sidecarLog.toFile()));
         builder.environment().clear();
         builder.environment().putAll(Map.of("GHATANA_VISION_SIDECAR_TOKEN", token, "HOME", home.toString(),
                 "PATH", "/usr/bin:/bin"));
