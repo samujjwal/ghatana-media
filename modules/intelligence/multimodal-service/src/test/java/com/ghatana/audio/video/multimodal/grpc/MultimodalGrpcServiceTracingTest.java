@@ -117,7 +117,7 @@ class MultimodalGrpcServiceTracingTest {
         assertThat(observer.error).isNotNull();
         assertThat(observer.completed).isFalse();
         verify(tracing.span).setStatus(StatusCode.ERROR, "Media operation failed");
-        verify(tracing.span).setAttribute("error.type", "StatusRuntimeException");
+        verify(tracing.span).setAttribute("error.type", "runtime");
         verify(tracing.span).end();
         verify(tracing.span, never()).setAttribute(eq("provider.error"), anyString());
     }
