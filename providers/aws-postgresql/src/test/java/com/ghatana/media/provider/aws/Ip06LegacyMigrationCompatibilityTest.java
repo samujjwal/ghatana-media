@@ -258,7 +258,7 @@ class Ip06LegacyMigrationCompatibilityTest {
         assertSnapshotBaselineRows(schema);
 
         // The snapshot carries a manifest-backed history projection, not Flyway's runtime
-        // history table. Baseline at V016, then exercise checked-in V017-V029 and additive V031-V033.
+        // history table. Baseline at V016, then exercise checked-in V017-V029 and additive V031-V033 and V035.
         var forward = Flyway.configure()
                 .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations(CURRENT_LOCATION)
@@ -268,7 +268,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 .baselineVersion("16")
                 .validateMigrationNaming(true)
                 .load();
-        assertThat(forward.migrate().migrationsExecuted).isEqualTo(16);
+        assertThat(forward.migrate().migrationsExecuted).isEqualTo(17);
         assertSnapshotBaselineRows(schema);
         assertForwardSnapshotSchema(schema);
         assertThat(forward.migrate().migrationsExecuted).isZero();
@@ -348,7 +348,7 @@ class Ip06LegacyMigrationCompatibilityTest {
              ResultSet rows = statement.executeQuery(
                      "SELECT version::integer, success FROM " + schema
                              + ".flyway_schema_history WHERE version IS NOT NULL ORDER BY version::integer")) {
-            int[] expectedVersions = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33};
+            int[] expectedVersions = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35};
             int count = 0;
             while (rows.next()) {
                 assertThat(count).isLessThan(expectedVersions.length);
@@ -356,7 +356,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 assertThat(rows.getBoolean("success")).isTrue();
                 count++;
             }
-            // Flyway records a baseline at V016, V017-V029, then additive V031-V033.
+            // Flyway records a baseline at V016, V017-V029, then additive V031-V033 and V035.
             assertThat(count).isEqualTo(expectedVersions.length);
         }
     }

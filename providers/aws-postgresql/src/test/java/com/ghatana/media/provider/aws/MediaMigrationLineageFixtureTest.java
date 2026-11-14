@@ -127,7 +127,7 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(32);
+                assertThat(history.getLong(1)).isEqualTo(33);
                 assertThat(history.getLong(2)).isZero();
             }
             assertThat(tableExists(connection, "media_delivery_operations")).isTrue();
