@@ -113,12 +113,26 @@ try {
   });
 
   // 1. Connect and read the admitted voices and locales FROM THE HOST (captured from the real response).
-  await page.goto(`${baseUrl}/dev-voice-synthesis.html`);
-  const capabilitiesResponse = page.waitForResponse((response) => new URL(response.url()).pathname === "/dev/v1/speech/capabilities");
-  await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
-  await page.getByRole("button", { name: "Connect", exact: true }).click();
+  // Vite may re-optimize dependencies on a cold cache and reload the page once; warm it first, then connect (retrying a
+  // connect that a late reload interrupted).
+  await page.goto(`${baseUrl}/dev-voice-synthesis.html`, { waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "networkidle" });
+  let capabilitiesResponse;
+  for (let attempt = 1; ; attempt += 1) {
+    if (attempt > 1) await page.goto(`${baseUrl}/dev-voice-synthesis.html`, { waitUntil: "networkidle" });
+    const pending = page.waitForResponse((response) => new URL(response.url()).pathname === "/dev/v1/speech/capabilities", { timeout: 45_000 });
+    pending.catch(() => {});
+    await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
+    await page.getByRole("button", { name: "Connect", exact: true }).click();
+    try {
+      capabilitiesResponse = await pending;
+      break;
+    } catch (error) {
+      if (attempt >= 3) throw error;
+    }
+  }
   await page.getByRole("heading", { name: "Voice synthesis", level: 2 }).waitFor({ timeout: 30_000 });
-  const capabilities = (await (await capabilitiesResponse).json()).textToSpeech;
+  const capabilities = (await capabilitiesResponse.json()).textToSpeech;
   assert.equal(capabilities.ready, true, "the real Kokoro model must be verified on this host");
   const optionValues = async (label) => page.getByLabel(label, { exact: true }).locator("option").evaluateAll((options) => options.map((option) => option.value));
   assert.deepEqual(await optionValues("Voice"), capabilities.voices, "voices come from the host");
