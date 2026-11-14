@@ -285,6 +285,21 @@
       "gaps": [
         "raster GIF only from still-image clips; no vector output or declared frame profile beyond fps/size"
       ]
+    },
+    {
+      "capabilityId": "media.artifact.download",
+      "status": "LOCAL_DEV_ONLY_PARTIAL",
+      "operations": [
+        "GET /dev/v1/artifacts/{artifactId}/content (version-pinned, Range)"
+      ],
+      "tests": [
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaDevArtifactContentHttpTest.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevArtifactContentRangeRestartIT.java"
+      ],
+      "gaps": [
+        "owner scope only; no rights-and-retention context evaluation at the disclosure boundary",
+        "DEV_ONLY route outside the canonical manifest/OpenAPI; no canonical public download operation"
+      ]
     }
   ]
 }

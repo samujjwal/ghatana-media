@@ -21,7 +21,7 @@
     },
     "localEvidence": {
       "LOCAL_DEV_ONLY_TESTED": 11,
-      "LOCAL_DEV_ONLY_PARTIAL": 8
+      "LOCAL_DEV_ONLY_PARTIAL": 9
     }
   },
   "externalOwnedDependencies": {
@@ -938,7 +938,21 @@
         "libs/audio-video-client",
         "modules/infrastructure/persistence"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "GET /dev/v1/artifacts/{artifactId}/content (version-pinned, Range)"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevArtifactContentHttpTest.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevArtifactContentRangeRestartIT.java"
+        ],
+        "gaps": [
+          "owner scope only; no rights-and-retention context evaluation at the disclosure boundary",
+          "DEV_ONLY route outside the canonical manifest/OpenAPI; no canonical public download operation"
+        ]
+      }
     },
     {
       "id": "media.artifact.derive",
