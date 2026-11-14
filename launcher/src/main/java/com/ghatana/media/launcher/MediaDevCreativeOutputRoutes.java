@@ -59,6 +59,10 @@ final class MediaDevCreativeOutputRoutes {
                 int maxBody, Responder out) throws IOException {
         try {
             dispatch(exchange, path, method, tenantId, principalId, maxBody, out);
+        } catch (MediaDevRenderAdmission.CapacityExhaustedException failure) {
+            out.error(exchange, 429, MediaDevRenderAdmission.CAPACITY_CODE,
+                    "DEV_ONLY render capacity is exhausted; retry the same requestId after the Retry-After delay",
+                    Map.of("scope", failure.scope()));
         } catch (MediaDevProjectRenderRuntime.SourceVersionUnavailableException failure) {
             runtime.recordDeniedRequest();
             out.error(exchange, 404, "SOURCE_VERSION_NOT_FOUND",

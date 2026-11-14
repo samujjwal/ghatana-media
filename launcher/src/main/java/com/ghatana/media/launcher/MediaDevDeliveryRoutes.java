@@ -48,6 +48,10 @@ final class MediaDevDeliveryRoutes {
         this.delivery = java.util.Objects.requireNonNull(delivery, "delivery");
     }
 
+    private void exportOutcome(String outcome) {
+        runtime.devAdmission().record(MediaDevRenderAdmission.LANE_EXPORT, "delivery", outcome);
+    }
+
     static boolean handles(String path) { return BASE.equals(path) || path.startsWith(BASE + "/"); }
 
     void handle(HttpExchange exchange, String path, String method, String tenantId, String principalId)
@@ -77,6 +81,7 @@ final class MediaDevDeliveryRoutes {
                 var outcome = delivery.export(tenantId, principalId, request);
                 boolean confirmed = outcome.result().status() == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED;
                 int status = !confirmed ? 202 : outcome.replayed() ? 200 : 201;
+                exportOutcome(!confirmed ? "unconfirmed" : outcome.replayed() ? "replayed" : "success");
                 json(exchange, status, view(outcome.result(), outcome.replayed()));
                 return;
             }
@@ -93,16 +98,21 @@ final class MediaDevDeliveryRoutes {
             }
             error(exchange, 404, "NOT_FOUND", "Local delivery route not found");
         } catch (MediaDevDeliveryRuntime.UnavailableException failure) {
+            exportOutcome("destination_unavailable");
             error(exchange, 503, "DELIVERY_DESTINATION_UNAVAILABLE", failure.getMessage());
         } catch (MediaDevDeliveryRuntime.UnknownDestinationException failure) {
+            exportOutcome("unknown_destination");
             error(exchange, 404, "DESTINATION_NOT_FOUND", "The destination is not configured on this DEV_ONLY host");
         } catch (MediaDevDeliveryRuntime.ArtifactVersionUnavailableException failure) {
+            exportOutcome("source_unavailable");
             runtime.recordDeniedRequest();
             error(exchange, 404, "ARTIFACT_VERSION_NOT_FOUND",
                     "The exact artifact version is not available to this DEV_ONLY principal");
         } catch (MediaDevDeliveryRuntime.ExportLimitException failure) {
+            exportOutcome("limit_exceeded");
             error(exchange, 422, "EXPORT_LIMIT_EXCEEDED", failure.getMessage());
         } catch (DeliveryException failure) {
+            exportOutcome("delivery_error");
             switch (failure.code()) {
                 case IDEMPOTENCY_CONFLICT -> error(exchange, 409, "EXPORT_REQUEST_CONFLICT",
                         "requestId is already bound to a different artifact version or destination");
@@ -115,8 +125,10 @@ final class MediaDevDeliveryRoutes {
                 default -> error(exchange, 422, "EXPORT_INVALID", "Export request is invalid");
             }
         } catch (IllegalArgumentException failure) {
+            exportOutcome("invalid_request");
             error(exchange, 400, "INVALID_REQUEST", "Local delivery request is invalid");
         } catch (IllegalStateException failure) {
+            exportOutcome("state_unavailable");
             LOG.warn("DEV_ONLY delivery state failure", failure);
             error(exchange, 503, "DELIVERY_STATE_UNAVAILABLE",
                     "Delivery state could not be read or updated; retry the same requestId");

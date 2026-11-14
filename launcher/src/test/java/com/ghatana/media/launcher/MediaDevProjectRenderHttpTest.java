@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * resume, and typed unsupported inputs. The GIF is decoded independently with ImageIO.
  */
 class MediaDevProjectRenderHttpTest {
-    private static final String TENANT = "tenant-local";
+    static final String TENANT = "tenant-local";
     private static final String PRINCIPAL = "principal-local";
     private static final String OTHER = "principal-other";
     private static final String SECRET = "test-only-dev-project-secret-at-least-32-bytes";
@@ -66,7 +66,7 @@ class MediaDevProjectRenderHttpTest {
     private static final String AUDIENCE = "ghatana-media-dev";
     private static final java.time.Clock CLOCK =
             java.time.Clock.fixed(Instant.parse("2026-11-13T20:00:00Z"), java.time.ZoneOffset.UTC);
-    private static final Set<String> RENDER_PERMISSIONS = Set.of(
+    static final Set<String> RENDER_PERMISSIONS = Set.of(
             "media:project:dev:create", "media:project:dev:read", "media:project:dev:write",
             "media:artifact:read", "media:artifact:create");
     private static final ObjectMapper JSON = JsonMapper.builder()
@@ -671,10 +671,10 @@ class MediaDevProjectRenderHttpTest {
                 .hasMessageContaining("decode ceiling");
     }
 
-    private record Fixture(String projectId, String initialRevisionId, String revisionId,
+    record Fixture(String projectId, String initialRevisionId, String revisionId,
                            MediaArtifact redArtifact, MediaArtifact blueArtifact) { }
 
-    private static Fixture twoClipProject(String base, MediaRuntime runtime, String key) throws Exception {
+    static Fixture twoClipProject(String base, MediaRuntime runtime, String key) throws Exception {
         MediaArtifact red = upload(runtime, "red.png", "image/png", png(RED), key + "-red");
         MediaArtifact blue = upload(runtime, "blue.png", "image/png", png(BLUE), key + "-blue");
         String projectId = createProject(base, key);
@@ -732,7 +732,7 @@ class MediaDevProjectRenderHttpTest {
         return (String) object(read(response.body()).get("revision")).get("revisionId");
     }
 
-    private static String renderRequest(String requestId, String revisionId) throws Exception {
+    static String renderRequest(String requestId, String revisionId) throws Exception {
         return JSON.writeValueAsString(Map.of("requestId", requestId, "revisionId", revisionId,
                 "timelineId", "timeline-main", "width", 32, "height", 24, "framesPerSecond", 10));
     }
@@ -779,9 +779,14 @@ class MediaDevProjectRenderHttpTest {
     }
 
     private static MediaRuntime runtime(Path root) {
+        return runtime(root, MediaRuntimeConfig.DEFAULT_DEV_RENDER_MAX_CONCURRENT,
+                MediaRuntimeConfig.DEFAULT_DEV_RENDER_MAX_CONCURRENT_PER_TENANT);
+    }
+
+    static MediaRuntime runtime(Path root, int renderGlobal, int renderPerTenant) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(true, "dev", 8093, 1_048_576, 131_072, 1_048_576,
-                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                        Duration.ofSeconds(2), 2, "", "", true, false, root, 0, renderGlobal, renderPerTenant),
                 new LocalMediaRuntimeSupport.FileArtifactStore(root),
                 new LocalMediaRuntimeSupport.JobStore(false),
                 new LocalMediaRuntimeSupport.StreamStore(), null,
@@ -789,20 +794,22 @@ class MediaDevProjectRenderHttpTest {
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
     }
 
-    private static HttpServer server(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
+    static HttpServer server(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
                                      MediaDevProjectRenderRuntime render) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         MediaHttpHandler handler = render == null
                 ? new MediaHttpHandler(runtime, null, null, projects)
                 : new MediaHttpHandler(runtime, null, null, projects, render);
         server.createContext("/", new MediaSecurityFilter(handler, "dev", devEnvironment(), CLOCK));
+        // Concurrent handling is required by the admission-control tests; other tests are unaffected.
+        server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         server.start();
         return server;
     }
 
-    private static String base(HttpServer server) { return "http://127.0.0.1:" + server.getAddress().getPort(); }
+    static String base(HttpServer server) { return "http://127.0.0.1:" + server.getAddress().getPort(); }
 
-    private static HttpResponse<String> send(String base, String method, String path, String body,
+    static HttpResponse<String> send(String base, String method, String path, String body,
                                              String principal, Set<String> permissions) throws Exception {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(base + path))
                 .header("Authorization", "Bearer " + token(principal, permissions))
@@ -836,14 +843,14 @@ class MediaDevProjectRenderHttpTest {
         return Map.of("MEDIA_DEV_IDENTITY_ENABLED", "true", "MEDIA_DEV_JWT_HMAC_SECRET", SECRET);
     }
 
-    private static Map<String, Object> read(String json) throws Exception {
+    static Map<String, Object> read(String json) throws Exception {
         return JSON.readValue(json, new TypeReference<Map<String, Object>>() { });
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<String, Object> object(Object value) { return (Map<String, Object>) value; }
+    static Map<String, Object> object(Object value) { return (Map<String, Object>) value; }
 
-    private static final class InMemoryManagedStore implements ManagedProjectTimelineStore {
+    static final class InMemoryManagedStore implements ManagedProjectTimelineStore {
         private final ProjectTimelineStore delegate = new InMemoryProjectTimelineStore();
         @Override public Created create(Actor actor, String workspaceId, String title, String requestId,
                                         String projectId, String initialRevisionId) {
@@ -860,7 +867,7 @@ class MediaDevProjectRenderHttpTest {
         @Override public void close() { }
     }
 
-    private static final class NoEffectProvider implements MediaProcessingProvider {
+    static final class NoEffectProvider implements MediaProcessingProvider {
         @Override public String providerId() { return "dev-render-http-no-effect"; }
         @Override public Set<JobType> capabilities() { return Set.of(JobType.TRANSCODE); }
         @Override public boolean ready() { return true; }

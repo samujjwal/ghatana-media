@@ -100,7 +100,10 @@ public final class MediaDevProjectRenderRuntime {
     }
 
     /** Durable view of a registered render output, reconstructible from the artifact alone after restart. */
-    public record RenderResult(MediaArtifact artifact, Map<String, Object> lineage, boolean replayed) { }
+    public record RenderResult(MediaArtifact artifact, Map<String, Object> lineage, boolean replayed)
+            implements MediaDevRenderAdmission.ReplayAware {
+        @Override public boolean replayedResult() { return replayed; }
+    }
 
     public static final class RenderNotSupportedException extends IllegalArgumentException {
         private final String code;
@@ -180,8 +183,20 @@ public final class MediaDevProjectRenderRuntime {
                 Map.of(), Duration.ofSeconds(10), Duration.ofMinutes(2), true));
     }
 
+    /**
+     * Renders under bounded, non-blocking admission. An exhausted pool throws
+     * {@link MediaDevRenderAdmission.CapacityExhaustedException} before any decode, render or upload. An idempotent
+     * replay still takes a permit: replay is only recognised by the registrar after the bytes are regenerated and
+     * compared, so skipping admission would weaken idempotency verification.
+     */
     public RenderResult render(String tenantId, String principalId, String projectId, RenderRequest request) {
         Objects.requireNonNull(request, "request");
+        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_RENDER,
+                request.format().name().toLowerCase(Locale.ROOT), tenantId,
+                () -> renderAdmitted(tenantId, principalId, projectId, request));
+    }
+
+    private RenderResult renderAdmitted(String tenantId, String principalId, String projectId, RenderRequest request) {
         // Owner-scoped exact revision read; ProjectNotFound/AccessDenied propagate unchanged.
         Revision revision = projects.revision(tenantId, principalId, projectId, request.revisionId());
         TimelineSnapshot timeline = revision.timelines().stream()

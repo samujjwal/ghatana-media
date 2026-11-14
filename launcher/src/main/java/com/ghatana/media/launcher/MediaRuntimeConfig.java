@@ -28,7 +28,14 @@ public record MediaRuntimeConfig(
         boolean localStoresEnabled,
         boolean localProviderEnabled,
         Path localStorageRoot,
-        int maximumConcurrentJobsPerTenant) {
+        int maximumConcurrentJobsPerTenant,
+        int devRenderMaxConcurrent,
+        int devRenderMaxConcurrentPerTenant) {
+
+    /** Default global bound on concurrently executing DEV_ONLY render and creative-output operations. */
+    public static final int DEFAULT_DEV_RENDER_MAX_CONCURRENT = 4;
+    /** Default per-tenant bound on the same lane. */
+    public static final int DEFAULT_DEV_RENDER_MAX_CONCURRENT_PER_TENANT = 2;
 
     public MediaRuntimeConfig {
         profile = required(profile, "profile").toLowerCase(java.util.Locale.ROOT);
@@ -63,6 +70,14 @@ public record MediaRuntimeConfig(
             throw new IllegalArgumentException(
                     "MEDIA_MAX_CONCURRENT_JOBS_PER_TENANT must be 0 (unbounded) or at most MEDIA_MAX_CONCURRENT_JOBS");
         }
+        if (devRenderMaxConcurrent < 1 || devRenderMaxConcurrent > 64) {
+            throw new IllegalArgumentException("MEDIA_DEV_RENDER_MAX_CONCURRENT must be between 1 and 64");
+        }
+        if (devRenderMaxConcurrentPerTenant < 0 || devRenderMaxConcurrentPerTenant > devRenderMaxConcurrent) {
+            throw new IllegalArgumentException(
+                    "MEDIA_DEV_RENDER_MAX_CONCURRENT_PER_TENANT must be 0 (unbounded) or at most "
+                            + "MEDIA_DEV_RENDER_MAX_CONCURRENT");
+        }
         boolean productionLike = productionLike(profile);
         if (productionLike && !runtimeEnabled) {
             throw new IllegalArgumentException("Production-like Media Runtime cannot be disabled");
@@ -76,6 +91,20 @@ public record MediaRuntimeConfig(
         }
     }
 
+    /** Compatibility constructor for callers that predate the DEV_ONLY render admission bounds. */
+    public MediaRuntimeConfig(
+            boolean runtimeEnabled, String profile, int httpPort, int maximumBodyBytes,
+            int maximumChunkBytes, long maximumArtifactBytes, Duration jobTimeout,
+            int maximumConcurrentJobs, String artifactStoreId, String jobStoreId,
+            boolean localStoresEnabled, boolean localProviderEnabled, Path localStorageRoot,
+            int maximumConcurrentJobsPerTenant) {
+        this(runtimeEnabled, profile, httpPort, maximumBodyBytes, maximumChunkBytes,
+                maximumArtifactBytes, jobTimeout, maximumConcurrentJobs, artifactStoreId,
+                jobStoreId, localStoresEnabled, localProviderEnabled, localStorageRoot,
+                maximumConcurrentJobsPerTenant, DEFAULT_DEV_RENDER_MAX_CONCURRENT,
+                DEFAULT_DEV_RENDER_MAX_CONCURRENT_PER_TENANT);
+    }
+
     /** Compatibility constructor for callers that predate the per-tenant fairness bound. */
     public MediaRuntimeConfig(
             boolean runtimeEnabled, String profile, int httpPort, int maximumBodyBytes,
@@ -84,7 +113,8 @@ public record MediaRuntimeConfig(
             boolean localStoresEnabled, boolean localProviderEnabled, Path localStorageRoot) {
         this(runtimeEnabled, profile, httpPort, maximumBodyBytes, maximumChunkBytes,
                 maximumArtifactBytes, jobTimeout, maximumConcurrentJobs, artifactStoreId,
-                jobStoreId, localStoresEnabled, localProviderEnabled, localStorageRoot, 0);
+                jobStoreId, localStoresEnabled, localProviderEnabled, localStorageRoot, 0,
+                DEFAULT_DEV_RENDER_MAX_CONCURRENT, DEFAULT_DEV_RENDER_MAX_CONCURRENT_PER_TENANT);
     }
 
     public static MediaRuntimeConfig fromEnvironment(Map<String, String> environment) {
@@ -103,7 +133,10 @@ public record MediaRuntimeConfig(
                 bool(environment, "MEDIA_LOCAL_STORES_ENABLED", false),
                 bool(environment, "MEDIA_LOCAL_PROVIDER_ENABLED", false),
                 Path.of(environment.getOrDefault("MEDIA_LOCAL_STORAGE_ROOT", "build/media-runtime-local")),
-                integer(environment, "MEDIA_MAX_CONCURRENT_JOBS_PER_TENANT", 0));
+                integer(environment, "MEDIA_MAX_CONCURRENT_JOBS_PER_TENANT", 0),
+                integer(environment, "MEDIA_DEV_RENDER_MAX_CONCURRENT", DEFAULT_DEV_RENDER_MAX_CONCURRENT),
+                integer(environment, "MEDIA_DEV_RENDER_MAX_CONCURRENT_PER_TENANT",
+                        DEFAULT_DEV_RENDER_MAX_CONCURRENT_PER_TENANT));
     }
 
     public boolean productionLike() {

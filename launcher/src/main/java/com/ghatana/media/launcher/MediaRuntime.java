@@ -165,6 +165,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private final MediaLifecycleEventPublisher lifecyclePublisher;
     private final List<MediaLifecycleOutboxSource> lifecycleOutboxSources;
     private final PrometheusMeterRegistry metricsRegistry;
+    private final MediaDevRenderAdmission devAdmission;
     private final MediaWorkflowMetrics workflowMetrics;
     private final List<MediaProcessingProvider> processingProviders;
     private final List<MediaStreamingProvider> streamingProviders;
@@ -261,6 +262,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         this.lifecycleOutboxSources = List.copyOf(lifecycleOutboxSources);
         this.metricsRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         this.workflowMetrics = new MediaWorkflowMetrics(metricsRegistry, "launcher");
+        this.devAdmission = new MediaDevRenderAdmission(metricsRegistry,
+                config.devRenderMaxConcurrent(), config.devRenderMaxConcurrentPerTenant());
         this.processingProviders = List.copyOf(processingProviders);
         this.streamingProviders = List.copyOf(streamingProviders);
         this.concurrency = new Semaphore(config.maximumConcurrentJobs(), true);
@@ -2347,6 +2350,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         ensureOpen();
         refreshWorkflowGauges();
         return metricsRegistry.scrape(contentType);
+    }
+
+    /** Bounded admission and outcome metrics for the DEV_ONLY render, creative-output and export lanes. */
+    MediaDevRenderAdmission devAdmission() {
+        return devAdmission;
     }
 
     void recordHttpRequest() {

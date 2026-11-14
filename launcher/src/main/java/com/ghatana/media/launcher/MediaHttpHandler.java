@@ -610,6 +610,10 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "NOT_FOUND", "Local project timeline route not found");
         } catch (ProjectNotFoundException failure) {
             error(exchange, 404, "PROJECT_NOT_FOUND", "Project is not available in this tenant and owner scope");
+        } catch (MediaDevRenderAdmission.CapacityExhaustedException failure) {
+            error(exchange, 429, MediaDevRenderAdmission.CAPACITY_CODE,
+                    "DEV_ONLY render capacity is exhausted; retry the same requestId after the Retry-After delay",
+                    true, Map.of("scope", failure.scope()));
         } catch (MediaDevProjectRenderRuntime.SourceVersionUnavailableException failure) {
             runtime.recordDeniedRequest();
             error(exchange, 404, "SOURCE_VERSION_NOT_FOUND",
@@ -1246,6 +1250,7 @@ public final class MediaHttpHandler implements HttpHandler {
         if (correlationId == null) correlationId = requestId;
         exchange.getResponseHeaders().set("X-Request-ID", requestId);
         exchange.getResponseHeaders().set("X-Correlation-ID", correlationId);
+        if (status == 429) exchange.getResponseHeaders().set("Retry-After", "1");
         Map<String, Object> error = new java.util.LinkedHashMap<>();
         error.put("code", code);
         error.put("message", message);

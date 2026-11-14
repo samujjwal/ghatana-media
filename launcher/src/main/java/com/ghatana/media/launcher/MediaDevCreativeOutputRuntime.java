@@ -83,7 +83,10 @@ public final class MediaDevCreativeOutputRuntime {
     }
 
     /** Durable view of a registered creative output, reconstructible from the artifact alone after restart. */
-    public record CreativeResult(MediaArtifact artifact, Map<String, Object> lineage, boolean replayed) { }
+    public record CreativeResult(MediaArtifact artifact, Map<String, Object> lineage, boolean replayed)
+            implements MediaDevRenderAdmission.ReplayAware {
+        @Override public boolean replayedResult() { return replayed; }
+    }
 
     public record AudioRepairRequest(String requestId, String artifactId, String artifactVersionId,
                                      double threshold, int maxRunFrames) {
@@ -142,6 +145,11 @@ public final class MediaDevCreativeOutputRuntime {
 
     public CreativeResult repairAudio(String tenantId, String principalId, AudioRepairRequest request) {
         Objects.requireNonNull(request, "request");
+        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_CREATIVE, "audio_repair", tenantId,
+                () -> repairAudioAdmitted(tenantId, principalId, request));
+    }
+
+    private CreativeResult repairAudioAdmitted(String tenantId, String principalId, AudioRepairRequest request) {
         MediaArtifact source = runtime.artifact(tenantId, principalId, request.artifactId())
                 .filter(found -> found.version().value().equals(request.artifactVersionId()))
                 .orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
@@ -285,6 +293,11 @@ public final class MediaDevCreativeOutputRuntime {
 
     public CreativeResult simulate(String tenantId, String principalId, SimulationRequest request) {
         Objects.requireNonNull(request, "request");
+        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_CREATIVE, "simulation", tenantId,
+                () -> simulateAdmitted(tenantId, principalId, request));
+    }
+
+    private CreativeResult simulateAdmitted(String tenantId, String principalId, SimulationRequest request) {
         PhysicalSimulation.Result result;
         try {
             result = PhysicalSimulation.simulate(request.model(), request.initial(), request.policy());
@@ -486,6 +499,11 @@ public final class MediaDevCreativeOutputRuntime {
 
     public CreativeResult exportSpatialGlb(String tenantId, String principalId, SpatialRigRequest request) {
         Objects.requireNonNull(request, "request");
+        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_CREATIVE, "spatial_glb", tenantId,
+                () -> exportSpatialGlbAdmitted(tenantId, principalId, request));
+    }
+
+    private CreativeResult exportSpatialGlbAdmitted(String tenantId, String principalId, SpatialRigRequest request) {
         // Every named source must be one of this principal's own artifact versions, exactly.
         List<Map<String, Object>> sourceViews = new ArrayList<>();
         List<SpatialRigEngine.SourceVersionRef> exact = new ArrayList<>();

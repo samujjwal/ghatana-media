@@ -331,6 +331,20 @@ DEV_ONLY creative outputs (in-process HTTP; outside the canonical manifest/OpenA
 - `GET /dev/v1/creative-outputs/{outputId}` reopens the output and its lineage from the artifact after restart.
 - Both engines are deterministic, so a duplicate `requestId` replays the same artifact (200, `replayed:true`), a
   divergent reuse is 409, and a failed registration is a typed 502 that resumes with the same `requestId`.
+- Admission control (DEV_ONLY render and creative-output lanes): a bounded global permit pool
+  (`MEDIA_DEV_RENDER_MAX_CONCURRENT`, default 4, 1..64) and a per-tenant bound
+  (`MEDIA_DEV_RENDER_MAX_CONCURRENT_PER_TENANT`, default 2, 0 = unbounded, at most the global bound) are acquired with
+  `tryAcquire` and never waited on. When either is exhausted the route returns a typed retryable `429`
+  `RENDER_CAPACITY_EXHAUSTED` with `Retry-After: 1` and `details.scope` of `global` or `tenant`, before any decode,
+  render, artifact or upload exists (no side effect). `429` matches the runtime's existing retryable-status set; it is
+  a transient per-caller back-pressure signal rather than a dependency outage (`503`). Permits are released in a
+  `finally` on success, typed failure and unexpected exceptions. An idempotent replay still takes a permit, because
+  replay is only recognised after the bytes are regenerated and compared; skipping admission would weaken idempotency.
+- Metrics on `/metrics`: `media_dev_output_requests_total{lane,format,outcome}` (lane `render|creative|export`; format
+  `gif|mp4|audio_repair|simulation|spatial_glb|delivery`; outcome from a fixed vocabulary such as `success`, `replayed`,
+  `capacity_exhausted`, `not_supported`, `registration_failed`), `media_dev_output_duration_seconds{lane,format,outcome}`
+  for permit-holding operations, and `media_dev_output_in_flight{lane}`. Tenant, principal, project, file and digest
+  values are never labels.
 - `POST /dev/v1/creative-outputs/spatial-glb` exports an explicit bounded rig (bones, exact-rational keyframes, the
   engine-supported coordinate frame: right-handed +X/+Y/+Z, metre, unit quaternion XYZW) with `SpatialRigEngine`'s
   existing GLB export and registers `model/gltf-binary`. Every `rig.sourceVersions` entry must be an exact artifact
