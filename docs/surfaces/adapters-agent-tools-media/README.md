@@ -150,3 +150,22 @@ four handlers, descriptor identity (AT-01/AT-05), capability inventory
 and speech/vision/multimodal admission boundaries. Tests assert zero
 provider dispatch while handlers remain unadmitted — they do not prove
 real delegated execution.
+
+## Local vision through the agent tool (2026-11-14)
+
+`av.vision-analysis` already maps each call to exactly one canonical `VISION` job through `MediaToolJobBridge`. When the
+runtime composes the local open-model provider (`local-open-vision`, Florence-2 MIT; see
+`docs/surfaces/modules-vision-vision-service/README.md`) and a source-authorization authority allows the exact source
+version, the job runs the model and completes with a result bound to that version: `OBJECT_DETECTION` maps to Florence-2
+detection, `OCR` to its scene-text task, `SCENE_CLASSIFICATION`/`LABEL_DETECTION` to its caption. `FACE_DETECTION` and
+`CUSTOM_MODEL` are proven no-effect (unsupported). The tool reports the accepted job and the job completes
+asynchronously; nothing is invented in the tool result. Without the provider the call stays `MEDIA_NOT_ADMITTED`.
+`av.multimodal-inference` with `enableTranscription:false, enableVisionAnalysis:true` now carries a durable
+`multimodalOperation` spec with exactly one canonical `VISION` child on the exact source version (scene classification,
+OCR and object detection), so with `DelegatingMultimodalProvider` and the local provider composed the parent job fuses the
+child's local result; any call that needs a transcription child still carries no spec and keeps the runtime refusal,
+because the tool contract has no STT profile input. The Qwen2.5-VL question input is not part of any tool schema
+(PDP-owned) and is not invented here: question answering is reachable through the `question` job parameter of the
+provider and the DEV_ONLY `/dev/v1/vision/questions` route (adding it to the tool schema needs a PDP contract change).
+Evidence: `MediaToolLocalVisionJourneyTest` in the launcher module (real model, FIXTURE_ONLY rights authority) and
+`MultimodalVisionOnlySpecTest`.

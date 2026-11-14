@@ -110,6 +110,13 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.jackson.dataformat.yaml)
     testImplementation(project(":services:media:providers:aws-postgresql"))
+    // Real agent-tool journey over the canonical runtime (local vision provider).
+    testImplementation(project(":services:media:adapters:agent-tools-media"))
+    testImplementation("com.ghatana.platform:tool-runtime:${providers.gradleProperty("ghatana.tools.version").get()}")
+    testImplementation("com.ghatana.platform:agent-core:${providers.gradleProperty("ghatana.shared.version").get()}")
+    testImplementation("com.ghatana.platform:agent-runtime:${providers.gradleProperty("ghatana.shared.version").get()}")
+    testImplementation("com.ghatana.platform:tool-test-support:${providers.gradleProperty("ghatana.tools.version").get()}")
+    testImplementation("com.ghatana.platform:testing-activej:${providers.gradleProperty("ghatana.shared.version").get()}")
     testImplementation(platform(libs.aws.sdk.bom))
     testImplementation(libs.aws.s3)
     testImplementation(libs.testcontainers.postgresql)

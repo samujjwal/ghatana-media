@@ -114,7 +114,11 @@ public final class MediaLauncher {
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
                                     .withDevSpeech(finalDevProjectTimeline == null ? null
                                             : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
-                                                    finalDevRights == null ? null : finalDevRights.resolver())),
+                                                    finalDevRights == null ? null : finalDevRights.resolver()))
+                                    .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
+                                            .map(engine -> new MediaDevVisionRuntime(runtime, engine,
+                                                    MediaDevFfmpegFrameExtractor.from(environment),
+                                                    finalDevRights == null ? null : finalDevRights.resolver())).orElse(null)),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devDelivery != null) {

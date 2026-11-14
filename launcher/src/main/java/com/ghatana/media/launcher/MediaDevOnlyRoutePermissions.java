@@ -40,6 +40,9 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/speech/capabilities".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/speech/(transcriptions|syntheses)$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/speech/outputs/[^/]+$")) return PROJECT_READ;
+        if ("GET".equals(method) && "/dev/v1/vision/status".equals(path)) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/vision/(analyses|questions)$")) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/vision/outputs/[^/]+$")) return PROJECT_READ;
         return null;
     }
 }

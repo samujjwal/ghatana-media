@@ -10,6 +10,7 @@ import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import io.activej.promise.Promise;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -102,6 +104,13 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                 jobParameters.put("language", AgentToolInput.languageTag(input.get("languageCode"), "en-US"));
                 jobParameters.put("enableTranscription", enableTranscription);
                 jobParameters.put("enableVisionAnalysis", enableVision);
+                if (!enableTranscription && enableVision) {
+                    // A vision-only observation can be fully specified from the call itself: one canonical
+                    // VISION child on the exact source version. A transcription child needs an STT profile
+                    // the tool contract does not carry, so that combination keeps the runtime's refusal.
+                    jobParameters.put(MultimodalOperationSpec.PARAMETERS_KEY,
+                            visionOnlySpec(sourceId, sourceVersion).toParametersValue());
+                }
             }
         } catch (Exception e) {
             String errorCode = validationErrorCode(e);
@@ -134,6 +143,20 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                 new ToolExecutionFailure(ToolExecutionFailure.Kind.UNAVAILABLE,
                         ToolExecutionFailure.Stage.ADMISSION, "MULTIMODAL_NOT_ADMITTED", false, end),
                 envelope.invocationId(), end, Duration.between(start, end)));
+    }
+
+    /** Durable, source-bound multimodal operation with a single VISION child over the exact source version. */
+    static MultimodalOperationSpec visionOnlySpec(String sourceId, String sourceVersion) {
+        String sha256 = sourceVersion.substring("sha256:".length());
+        return new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                1, sourceId, sourceVersion, sha256,
+                List.of(new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION, sourceId,
+                        sourceVersion, sha256, "",
+                        Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION", "OCR", "OBJECT_DETECTION")))),
+                null, Map.of());
     }
 
     private boolean optionalBoolean(Map<String, Object> input, String key, boolean fallback) {

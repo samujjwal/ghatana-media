@@ -127,3 +127,35 @@ resource measurements need exact qualified model/input/environment.
   external broker, detector license/quality, bbox/mAP, tracking, or trusted
   source-frame/version/PTS resolution. Vision remains `PROVIDER_NOT_ADMITTED`
   and the implementation task remains OPEN.
+
+## Local open-model vision and multimodal provider (2026-11-14)
+
+Owner decision, verbatim: "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for speech-to-text
+(MIT). Kokoro-82M for text-to-speech (Apache-2.0, no voice cloning). Florence-2 for vision (MIT). Qwen2.5-VL-7B for
+multimodal (Apache-2.0). Media stays on this machine, with no per-use cost." and "we will abide by all license
+requirements." Package `com.ghatana.audio.video.vision.local` implements the Florence-2 and Qwen2.5-VL part:
+
+- `LocalModelManifest` / `LocalModelAdmission`: server-owned, manifest-driven qualification. A model is `QUALIFIED` only
+  when `ghatana-model-manifest.json` is valid, names the expected model id, role and SPDX id (Florence-2 `MIT`,
+  Qwen2.5-VL-7B-Instruct `Apache-2.0`) and every inventoried file (weights, config, tokenizer, licence) is a regular
+  non-symlink file whose size and SHA-256 match. Missing or mismatched is `NOT_ADMITTED` with a stable reason code
+  (`MODEL_MANIFEST_MISSING_OR_INVALID`, `MODEL_IDENTITY_MISMATCH`, `MODEL_LICENSE_MISMATCH`, `MODEL_FILE_MISSING`,
+  `MODEL_DIGEST_MISMATCH`) and nothing is dispatched. Digests are recomputed whenever any file's size or mtime changes.
+- `LocalVisionSidecarClient` / `LocalVisionSidecarProcess`: loopback-only HTTP sidecar
+  (`tools/model-runtimes/vision/vision_sidecar.py`) with bearer token, timeouts and bounded bodies; the client refuses
+  non-loopback URLs. The sidecar itself re-verifies the manifest digests before loading a model, never uses remote code
+  or the network for models, and serializes GPU inference.
+- `LocalVisionEngine`: Florence-2 caption / object detection / scene text and Qwen2.5-VL question answering, shaped into
+  deterministic JSON (`media.vision.local-result.v1`) bound to the input SHA-256 and the model identity.
+- `LocalOpenModelVisionProvider` (`local-open-vision`): canonical `MediaProcessingProvider` for `VISION` jobs. Job
+  parameters: `analysisTypes` (`OBJECT_DETECTION`, `OCR`, `SCENE_CLASSIFICATION`, `LABEL_DETECTION`), optional `question`
+  (Qwen2.5-VL), optional `frameTimeMs` for video sources when a frame extractor is injected. Reads source bytes only
+  through the runtime's verified reader; definite refusals are `NO_EFFECT_PROVEN`, sidecar outage or unprovable reads are
+  `UNKNOWN`. `productionEligible` additionally requires a real `LocalVisionRightsAuthority`; the default reports
+  `RIGHTS_AUTHORITY_UNAVAILABLE`, so no production use is admitted and the canonical source-authorization authority is not
+  weakened.
+
+Tests: `LocalModelAdmissionTest`, `LocalVisionEngineTest`, `LocalOpenModelVisionProviderTest` (FIXTURE_ONLY models and a
+fake loopback sidecar) and `LocalVisionRealModelsIT`, which runs the real Florence-2 and Qwen2.5-VL on a generated image
+and skips with an explicit reason only when the runtime or models are absent. Install and licence details:
+`tools/model-runtimes/vision/README.md` and `THIRD_PARTY_NOTICES.md`.

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "ghatana.media.local-model-manifest.v1",
+  "modelId": "<org>/<model>",
+  "role": "VISION",
+  "sourceUrl": "https://huggingface.co/<org>/<model>",
+  "revision": "<40-hex upstream commit>",
+  "spdxLicense": "MIT",
+  "licenseFile": {"path": "LICENSE", "sha256": "<64-hex>", "source": "<where the licence text was read>"},
+  "files": [{"path": "model.safetensors", "sha256": "<64-hex>", "sizeBytes": 0, "upstreamSha256Verified": true}],
+  "fileSetSha256": "<sha256 over sorted 'path:sha256\\n' lines>",
+  "remoteCode": {"required": false, "pinnedRevision": null, "files": []},
+  "runtime": {"kind": "transformers", "quantization": "none"},
+  "ownerDecision": {"quote": "<verbatim owner quote>", "licenseNote": "<verbatim>", "decidedOn": "YYYY-MM-DD", "channel": "user chat"},
+  "attribution": "<copyright/attribution line>",
+  "obligations": ["<licence obligation>"]
+}

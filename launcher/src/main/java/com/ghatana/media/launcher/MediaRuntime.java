@@ -333,6 +333,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 jobStores = append(jobStores, new LocalMediaRuntimeSupport.JobStore());
                 streamStores = append(streamStores, new LocalMediaRuntimeSupport.StreamStore());
             }
+            MediaLocalVisionComposition.providerFrom(environment).ifPresent(provider ->
+                    register(processing, provider, MediaProcessingProvider::providerId));
             if (config.localProviderEnabled()) {
                 register(processing, new LocalMediaRuntimeSupport.DiagnosticProcessor(),
                         MediaProcessingProvider::providerId);

@@ -293,6 +293,39 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/rights/artifacts/{artifactId}/versions/{versionId}/attestations` | `media:project:dev:read` | caller owns the exact version | rights |
 | POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
 | GET | `/dev/v1/exports/{requestId}` | `media:delivery:dev:read` | — | delivery |
+| GET | `/dev/v1/vision/status` | `media:project:dev:read` | — | `MEDIA_LOCAL_VISION_*` configured |
+| POST | `/dev/v1/vision/analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
+| POST | `/dev/v1/vision/questions` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
+| GET | `/dev/v1/vision/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision |
+
+DEV_ONLY local vision and multimodal lane (owner-selected local open models; outside the canonical manifest/OpenAPI).
+Owner decision, 2026-11-14, verbatim: "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for
+speech-to-text (MIT). Kokoro-82M for text-to-speech (Apache-2.0, no voice cloning). Florence-2 for vision (MIT).
+Qwen2.5-VL-7B for multimodal (Apache-2.0). Media stays on this machine, with no per-use cost." and "we will abide by all
+license requirements." This lane covers Florence-2 and Qwen2.5-VL only. Enabled by `MEDIA_LOCAL_VISION_MODELS_ROOT`
+(absolute directory holding `florence-2-large/` and `qwen2.5-vl-7b-instruct/`, each with a digest manifest),
+`MEDIA_LOCAL_VISION_SIDECAR_URL` (http loopback only; anything else fails at construction),
+`MEDIA_LOCAL_VISION_SIDECAR_TOKEN` (>= 24 chars) and optional `MEDIA_LOCAL_VISION_TIMEOUT_SECONDS` (default 240);
+video frames additionally need the existing absolute `MEDIA_DEV_RENDER_FFMPEG`. Install and start the sidecar with
+`tools/model-runtimes/vision/README.md`. `POST /dev/v1/vision/analyses` takes
+`{requestId, artifactId, artifactVersionId, tasks:["caption","detect","ocr"], frameTimeMs?}` and
+`POST /dev/v1/vision/questions` takes `{requestId, artifactId, artifactVersionId, question, frameTimeMs?}`. The exact
+immutable owner-visible version (image/* or, with `frameTimeMs` as integer milliseconds, video/*) is read and verified,
+inferred by the digest-qualified model, and the structured result is registered as an immutable `application/json`
+artifact through the canonical idempotent upload path (`201`, replay `200`, requestId reuse with a different request
+`409 VISION_REQUEST_ID_REUSED`). Lineage metadata binds the source artifact id/version/SHA-256, the frame position and
+frame digest for video, and the model identity (id, upstream revision, SPDX licence, file-set digest). Inference is
+greedy and the registered JSON carries no timestamps, so a replay re-derives identical bytes. Typed refusals:
+`404 SOURCE_VERSION_NOT_FOUND` (stale/foreign/unknown version), `403 ARTIFACT_PERMISSION_REQUIRED`,
+`422 SOURCE_FORMAT_NOT_SUPPORTED | FRAME_EXTRACTION_UNAVAILABLE | FRAME_EXTRACTION_FAILED`,
+`503 LOCAL_MODEL_NOT_ADMITTED` (manifest missing or digest/licence/identity mismatch; nothing is dispatched) and
+`503 LOCAL_VISION_UNAVAILABLE` (sidecar unreachable or timed out). Honesty: the rights decision is the DEV_ONLY
+owner-scope one (`productionGrant:false`); it does not establish current rights or consent and the canonical VISION job
+admission is unchanged. The same provider is registered as `local-open-vision` (VISION job type, LOCAL boundary, no
+retention) when configured: it is `productionEligible` only when both models are digest-qualified and a real
+`LocalVisionRightsAuthority` is ready, and the default authority reports `RIGHTS_AUTHORITY_UNAVAILABLE`, so
+production-like profiles never use it. Florence-2 scene text is its own OCR task, not the Document Intelligence OCR
+gateway, and no quality or accuracy claim is made.
 
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
 PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable
