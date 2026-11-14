@@ -79,3 +79,28 @@ test("DEV_ONLY browser transport is fixed to loopback Vite proxy and never persi
   assert.doesNotMatch(source, /fetch\s*\(/u);
   assert.match(source, /baseUrl:\s*origin/u);
 });
+
+test("DEV_ONLY page wires exact render and review routes through a loopback, memory-only adapter", async () => {
+  const source = await read("src/dev-project-timeline.ts");
+  const reactMount = await read("src/dev-project-timeline-react.tsx");
+  const adapter = await read("src/dev-project-outputs-client.ts");
+  const panel = await read("../../libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx");
+  assert.match(source, /createDevProjectOutputsClient\(\{ origin, bearerToken: \(\) => bearerToken \?\? "" \}\)/u);
+  assert.match(reactMount, /outputs:\s*detail\.outputs/u);
+  for (const route of ["/renders`", "/renders/${seg(renderId)}`", "\"/dev/v1/reviews\"", "/comments`", "/decisions`"]) {
+    assert.ok(adapter.includes(route), `adapter must call ${route}`);
+  }
+  assert.match(adapter, /credentials:\s*"omit"/u);
+  assert.match(adapter, /redirect:\s*"error"/u);
+  assert.match(adapter, /OUTCOME_UNKNOWN/u);
+  assert.doesNotMatch(adapter, /localStorage|sessionStorage|indexedDB/u);
+  for (const control of ["Render exact revision", "Retry with the same request identity", "Reopen render from the host",
+    "Open review case", "Add comment", "Record DEV_ONLY decision", "Re-read review case"]) {
+    assert.ok(panel.includes(control), `missing outputs control: ${control}`);
+  }
+  assert.match(panel, /DEV_ONLY ACCEPT is not human approval/u);
+  assert.match(panel, /establishesApproval=false/u);
+  assert.match(panel, /id="render-status" role="status" aria-live="polite"/u);
+  assert.match(panel, /id="review-status" role="status" aria-live="polite"/u);
+  assert.doesNotMatch(panel, /export(ed)? to|deliver(ed|y) (complete|succeeded)/iu, "this panel must not claim export or delivery");
+});

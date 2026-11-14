@@ -8,6 +8,8 @@ import type {
   DevTimelineEdit,
   MediaDevProjectTimelineClient,
 } from "@audio-video/client/dev-project-timeline";
+import { DevProjectOutputsPanel } from "./DevProjectOutputsPanel";
+import type { DevProjectOutputsPort } from "./devProjectOutputs";
 import { compareProjectRevisions, type ProjectRevisionComparison } from "./projectTimelineRevisionComparison";
 
 /** Typed loopback development host boundary. */
@@ -18,6 +20,9 @@ export interface DevProjectTimelineWorkspaceScreenProps {
   readonly client: DevProjectTimelineWorkspacePort;
   readonly project: DevProject;
   readonly revision: DevProjectRevision;
+  /** Optional DEV_ONLY render/review host. Absent means render and review are shown as unavailable. */
+  readonly outputs?: DevProjectOutputsPort;
+  readonly newRequestId?: () => string;
 }
 
 type PendingMutation =
@@ -74,11 +79,11 @@ function clientKey(client: DevProjectTimelineWorkspacePort): number {
 }
 
 /** Reusable local workspace; its route and all host effects remain DEV_ONLY/NOT_ADMITTED. */
-export function DevProjectTimelineWorkspaceScreen({ client, project, revision }: DevProjectTimelineWorkspaceScreenProps): React.ReactElement {
-  return <DevProjectTimelineWorkspaceInstance key={`${clientKey(client)}:${project.tenantId}:${project.projectId}`} client={client} project={project} revision={revision} />;
+export function DevProjectTimelineWorkspaceScreen({ client, project, revision, outputs, newRequestId }: DevProjectTimelineWorkspaceScreenProps): React.ReactElement {
+  return <DevProjectTimelineWorkspaceInstance key={`${clientKey(client)}:${project.tenantId}:${project.projectId}`} client={client} project={project} revision={revision} outputs={outputs} newRequestId={newRequestId} />;
 }
 
-function DevProjectTimelineWorkspaceInstance({ client, project, revision }: DevProjectTimelineWorkspaceScreenProps): React.ReactElement {
+function DevProjectTimelineWorkspaceInstance({ client, project, revision, outputs, newRequestId }: DevProjectTimelineWorkspaceScreenProps): React.ReactElement {
   const scopeKey = `${project.tenantId}\u0000${project.projectId}`;
   const initial: ViewState = isCurrentHead(project, revision)
     ? { kind: "ready", project, revision, message: "Project head observed." }
@@ -447,10 +452,12 @@ function DevProjectTimelineWorkspaceInstance({ client, project, revision }: DevP
       <div><dt>Displayed revision</dt><dd aria-label="Displayed project revision"><code>{view.revision.revisionId}</code></dd></div>
       <div><dt>Timelines in this revision</dt><dd>{view.revision.timelines.length}</dd></div>
     </dl>
-    <section aria-labelledby="render-availability-title" data-engine-state="UNAVAILABLE">
-      <h3 id="render-availability-title">Render engine unavailable</h3>
-      <p>Rendering is not available in this DEV_ONLY workspace. No render request has been submitted and no output is implied.</p>
-    </section>
+    {outputs ? <DevProjectOutputsPanel outputs={outputs} project={view.project} revision={view.revision}
+      timelineId={selectedTimelineId} clipCount={graph?.clips.length ?? 0} locked={locked} newRequestId={newRequestId} />
+      : <section aria-labelledby="render-availability-title" data-engine-state="UNAVAILABLE">
+        <h3 id="render-availability-title">Render engine unavailable</h3>
+        <p>Rendering is not available in this DEV_ONLY workspace. No render request has been submitted and no output is implied.</p>
+      </section>}
     <p id="workspace-status" role="status" aria-live="polite" aria-atomic="true" aria-busy={busy} data-state={view.kind}>{busy ? view.message : view.message}</p>
     {view.kind === "unknown" && <div>
       <button type="button" onClick={() => void reconcile()} disabled={busy}>

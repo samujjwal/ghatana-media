@@ -1,4 +1,6 @@
 import "./dev-project-timeline-react";
+import { createDevProjectOutputsClient } from "./dev-project-outputs-client";
+import type { DevProjectOutputsPort } from "@audio-video/ui/screens";
 import {
   MediaDevProjectTimelineError,
   MediaDevProjectTimelineClient,
@@ -15,7 +17,7 @@ const byId = <T extends HTMLElement>(id: string): T => {
 };
 
 type ProjectRequest = { selectedAuthorizedWorkspaceId: string; title: string; requestId: string };
-type WorkspaceDetail = { readonly client: MediaDevProjectTimelineClient; readonly project: DevProjectRead["project"]; readonly revision: DevProjectRevision };
+type WorkspaceDetail = { readonly client: MediaDevProjectTimelineClient; readonly project: DevProjectRead["project"]; readonly revision: DevProjectRevision; readonly outputs: DevProjectOutputsPort };
 const origin = window.location.origin;
 const hostChip = byId<HTMLSpanElement>("host-origin");
 const tokenInput = byId<HTMLInputElement>("dev-token");
@@ -126,7 +128,7 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
     renderJson(projectResult, projectJson, result);
     workspacePanel.hidden = false;
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
-      detail: { client, project: result.project, revision: exactRevision.revision },
+      detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "" }) },
     }));
     announce(`${result.createdNow ? "Created" : "Replayed"} DEV_ONLY project ${result.project.projectId}; exact initial revision ${exactRevision.revision.revisionId} reopened.`, "success");
   } catch (error) {

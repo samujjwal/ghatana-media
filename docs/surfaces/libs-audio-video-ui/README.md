@@ -52,6 +52,34 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   reconciled as this request only when its effect is present in the exact
   direct successor of the recorded CAS base; a matching graph at another
   head remains unresolved and does not enable retry.
+- With an optional `outputs: DevProjectOutputsPort` the same workspace shows a
+  DEV_ONLY **Render and review** panel (`DevProjectOutputsPanel`; without a
+  port it keeps the truthful "Render engine unavailable" state). Render: the
+  exact displayed project head with at least one clip is submitted as GIF or
+  MP4 through `POST /dev/v1/projects/{id}/renders` with a requestId that stays
+  stable for an unchanged action (so a repeat is a `200` replay, and
+  "Retry with the same request identity" resumes after `502`/`503`/unknown).
+  It shows registered artifact id, version, sha256, size, exact source
+  versions/frame windows and (MP4) the verified encoding block, and reopens
+  the render via `GET .../renders/{renderId}`. Typed `409`, `422`
+  (`TRACK_KIND_NOT_SUPPORTED`, `RENDER_UNSUPPORTED_*`,
+  `SOURCE_FORMAT_NOT_SUPPORTED`, `RENDER_LIMIT_EXCEEDED`, ...), `503
+  RENDER_CODEC_UNAVAILABLE`, `502 RENDER_REGISTRATION_FAILED` /
+  `RENDER_EXECUTION_FAILED`, `403`/`404` and unknown outcomes are rendered as
+  text-labelled alerts with no registered output; a host body that is
+  inconsistent with the requested exact revision/format is refused.
+  Review: opens a DEV_ONLY case on the displayed revision or the render's
+  artifact version (`POST /dev/v1/reviews`), adds comments, and records a
+  decision only after an explicit confirmation checkbox. Currentness
+  (`CURRENT`/`STALE`/`UNKNOWN`) is re-read from the host when the project head
+  moves, STALE disables new decisions, and every view states that a DEV_ONLY
+  ACCEPT is **not** human approval (`establishesApproval=false`,
+  `humanReviewApproval=false`); a host body claiming approval is rejected.
+  Status regions are `aria-live="polite"`; outcomes are conveyed in text.
+  Not covered: export/delivery, preview playback of the render, reviewer
+  roles or multi-reviewer authority, time-range/ROI annotations in the UI,
+  and any product-route admission. Evidence is jsdom unit tests with a fake
+  host port; no live-browser run against the launcher exists yet.
 
 ## Public operations
 

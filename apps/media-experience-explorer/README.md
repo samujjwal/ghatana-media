@@ -88,6 +88,17 @@ owner-head reconciliation without duplicate mutation, track commit, exact
 revision readback, undo/redo, immutable history, and disconnect. It does not
 invoke a live Media backend.
 
+Once a project has an exact head revision with clips, the workspace on this page
+also drives the DEV_ONLY render (`/dev/v1/projects/{id}/renders`) and review
+(`/dev/v1/reviews`) routes through `src/dev-project-outputs-client.ts`, a
+loopback-origin, memory-token fetch adapter. The browser fixture currently
+asserts only the disclosure, disabled-until-clips state and live regions; the
+render/review flows are covered by `@audio-video/ui` unit tests with a fake
+port and are not yet driven in a browser against the real launcher (that needs
+a launcher with `MEDIA_DEV_REVIEW_ENABLED=true`, FFmpeg for MP4, and a token
+with `media:project:dev:write`, `media:artifact:read|create`). No export or
+delivery is offered.
+
 ### DEV_ONLY artifact upload recovery
 
 The separate [`/dev-artifact-intake.html`](http://127.0.0.1:4178/dev-artifact-intake.html)

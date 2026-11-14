@@ -436,9 +436,16 @@ try {
   assert.deepEqual(fixture.projectRequests[1], fixture.projectRequests[0]);
   await keyboardActivate(page, page.getByRole("button", { name: "Replay same create request" }));
   await page.getByText(/exact initial revision revision-1 reopened/u).waitFor();
-  await page.getByRole("heading", { name: "Render engine unavailable" }).waitFor();
-  assert.match(await page.getByText(/No render request has been submitted and no output is implied/u).textContent(), /No render request has been submitted/u,
-    "the DEV_ONLY workspace must disclose that no render engine or output is available");
+  await page.getByRole("heading", { name: "Render and review · DEV_ONLY" }).waitFor();
+  assert.match(await page.getByRole("note", { name: "Review approval disclaimer" }).textContent(), /DEV_ONLY ACCEPT is not human approval/u,
+    "the DEV_ONLY workspace must always disclose that a DEV_ONLY review is not human approval");
+  assert.equal(await page.getByRole("button", { name: "Render exact revision" }).isEnabled(), false,
+    "rendering must stay disabled until the exact revision has a timeline and clips");
+  assert.match(await page.locator("#render-blocked").textContent(), /Select a timeline to render/u);
+  assert.equal(await page.locator("#render-status").getAttribute("aria-live"), "polite", "render status must be a polite live region");
+  assert.equal(await page.locator("#review-status").getAttribute("aria-live"), "polite", "review status must be a polite live region");
+  assert.equal(fixture.requests.some((entry) => /\/renders|\/reviews/u.test(String(entry))), false,
+    "no render or review request may be sent without a user action on an exact revision with clips");
   assert.equal(fixture.projectRequests.length, 3);
   assert.deepEqual(fixture.projectRequests[1], fixture.projectRequests[0], "replay must reuse exactly the original request payload and requestId");
   assert.deepEqual(fixture.projectRequests[2], fixture.projectRequests[0], "readback reconciliation must preserve the original request payload and requestId");
