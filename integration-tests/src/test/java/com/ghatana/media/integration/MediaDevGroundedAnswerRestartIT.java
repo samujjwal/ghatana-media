@@ -95,6 +95,9 @@ class MediaDevGroundedAnswerRestartIT {
         writeSceneFrame(work.resolve("frame.png"));
         byte[] mp4 = mux(ffmpeg, work, "a.mp4", List.of());
         byte[] shifted = mux(ffmpeg, work, "b.mp4", List.of("-output_ts_offset", "5"));
+        byte[] whole = mux(ffmpeg, work, "c.mp4", List.of());
+        // A real MP4 cut in half: the container magic is intact but the moov atom (clock, timebases) is gone.
+        byte[] truncated = java.util.Arrays.copyOf(whole, whole.length / 2);
         assertThat(mp4.length).as("source must fit one upload chunk").isLessThan(1_000_000);
         Probe a = probe(ffprobe, work.resolve("a.mp4"));
         Probe b = probe(ffprobe, work.resolve("b.mp4"));
@@ -140,6 +143,7 @@ class MediaDevGroundedAnswerRestartIT {
             String token = issueDevToken(tenant, principal);
             launcher = startLauncher(classpath, environment, log);
             awaitLauncher(launcher, port, log);
+            token = issueDevToken(tenant, principal);
 
             JsonNode status = get(port, tenant, token, ANSWERS + "/status", 200);
             assertThat(status.path("florence").asString()).isEqualTo("QUALIFIED");
@@ -151,9 +155,8 @@ class MediaDevGroundedAnswerRestartIT {
             String version = "sha256:" + sha256(mp4);
             String shiftedId = upload(port, tenant, principal, token, run + "-b", "report-shifted.mp4", "video/mp4", shifted);
             String shiftedVersion = "sha256:" + sha256(shifted);
-            String garbageId = upload(port, tenant, principal, token, run + "-g", "broken.mp4", "video/mp4",
-                    "this is not a media container at all".getBytes(StandardCharsets.UTF_8));
-            String garbageVersion = "sha256:" + sha256("this is not a media container at all".getBytes(StandardCharsets.UTF_8));
+            String garbageId = upload(port, tenant, principal, token, run + "-g", "truncated.mp4", "video/mp4", truncated);
+            String garbageVersion = "sha256:" + sha256(truncated);
 
             // ---- rights missing: refused before any child runs; no answer artifact exists ----
             Map<String, Object> body = Map.of("requestId", "grounded-" + run, "artifactId", sourceId,
@@ -198,6 +201,8 @@ class MediaDevGroundedAnswerRestartIT {
                     .as("the source version is untouched").isEqualTo(mp4);
             assertThat(groundedRows(tenant)).isEqualTo(1);
 
+            // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
+            token = issueDevToken(tenant, principal);
             // ---- clock binding on a source whose container start_time is 5 s ----
             attest(port, tenant, token, shiftedId, shiftedVersion, "shifted");
             JsonNode shiftedAnswer = post(port, tenant, token, ANSWERS, Map.of("requestId", "grounded-shift-" + run,
@@ -221,6 +226,8 @@ class MediaDevGroundedAnswerRestartIT {
             System.out.println("GROUNDED-IT clock A start=" + a.containerStartMicros + " B start=" + b.containerStartMicros
                     + " firstSpeechB=" + firstSpeech);
 
+            // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
+            token = issueDevToken(tenant, principal);
             // ---- unreadable clock: refused; the answer count does not change ----
             attest(port, tenant, token, garbageId, garbageVersion, "garbage");
             HttpResponse<String> noClock = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(Map.of(
@@ -230,6 +237,8 @@ class MediaDevGroundedAnswerRestartIT {
             assertThat(noClock.body()).contains("SOURCE_CLOCK_UNDETERMINED");
             assertThat(groundedRows(tenant)).isEqualTo(2);
 
+            // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
+            token = issueDevToken(tenant, principal);
             // ---- a question the evidence cannot answer: whatever the model says, no claim is grounded falsely ----
             JsonNode unanswerable = post(port, tenant, token, ANSWERS, Map.of("requestId", "grounded-unanswerable-" + run,
                     "artifactId", sourceId, "artifactVersionId", version,
@@ -238,6 +247,8 @@ class MediaDevGroundedAnswerRestartIT {
             assertGroundingInvariants(unanswerable.path("document"), a, version, sha256(mp4), sourceId);
             assertThat(groundedRows(tenant)).isEqualTo(3);
 
+            // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
+            token = issueDevToken(tenant, principal);
             // ---- revocation: refused, no effect ----
             post(port, tenant, token, "/dev/v1/rights/attestations/" + attestationId + "/revoke",
                     Map.of("reason", "TEST: revoked to prove fail-closed"), 200);
@@ -249,6 +260,8 @@ class MediaDevGroundedAnswerRestartIT {
             assertThat(groundedRows(tenant)).isEqualTo(3);
             attest(port, tenant, token, sourceId, version, "report-second-statement");
 
+            // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
+            token = issueDevToken(tenant, principal);
             // ---- sidecar killed: OUTCOME_UNKNOWN, nothing registered ----
             sidecar.destroyForcibly();
             sidecar.waitFor(15, TimeUnit.SECONDS);
@@ -293,6 +306,13 @@ class MediaDevGroundedAnswerRestartIT {
                 assertThat(replay.body()).contains("GROUNDED_REQUEST_ID_REUSED");
             }
             assertThat(groundedRows(tenant)).isEqualTo(4);
+
+            // ---- the hosted UI: real Chromium, real launcher, the REAL registered answer ----
+            token = issueDevToken(tenant, principal);
+            Path viewFile = work.resolve("answer-view.json");
+            Files.writeString(viewFile, JSON.writeValueAsString(get(port, tenant, token, ANSWERS + "/" + answerId, 200)));
+            String unattestedId = upload(port, tenant, principal, token, run + "-c", "unattested.mp4", "video/mp4", whole);
+            runBrowser(port, token, answerId, viewFile, unattestedId, "sha256:" + sha256(whole), garbageId, garbageVersion, log);
         } finally {
             if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
             if (sidecar != null) {
@@ -406,7 +426,9 @@ class MediaDevGroundedAnswerRestartIT {
         List<String> command = new java.util.ArrayList<>(List.of(ffmpeg, "-nostdin", "-v", "error", "-y", "-loop", "1",
                 "-framerate", "5", "-i", work.resolve("frame.png").toString(), "-i", work.resolve("speech.wav").toString(),
                 "-c:v", "libx264", "-tune", "stillimage", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "64k",
-                "-shortest", "-movflags", "+faststart"));
+                "-shortest"));
+        // The truncated-source fixture keeps its moov atom at the end (no faststart) so cutting the file loses it.
+        if (!name.startsWith("c")) command.addAll(List.of("-movflags", "+faststart"));
         command.addAll(extra);
         command.add(work.resolve(name).toString());
         Process process = new ProcessBuilder(command).redirectErrorStream(true)
@@ -480,6 +502,48 @@ class MediaDevGroundedAnswerRestartIT {
         System.out.println("GROUNDED-IT launcher not ready (alive=" + process.isAlive() + "); log tail:\n"
                 + String.join("\n", lines.subList(Math.max(0, lines.size() - 60), lines.size())));
         throw new AssertionError("MediaLauncher did not become ready");
+    }
+
+    /** Runs the live Chromium page test (Vite page + Playwright) against this launcher; the page test asserts everything itself. */
+    private static void runBrowser(int port, String token, String answerId, Path viewFile, String unattestedId,
+                                   String unattestedVersion, String garbageId, String garbageVersion, Path log)
+            throws Exception {
+        Path repoRoot = Path.of(System.getProperty("user.dir")).toAbsolutePath();
+        while (!Files.isRegularFile(repoRoot.resolve("scripts/media-dev-identity-token.mjs"))) {
+            repoRoot = repoRoot.getParent();
+            if (repoRoot == null) throw new AssertionError("Could not locate the Media repository root");
+        }
+        Path script = repoRoot.resolve("apps/media-experience-explorer/test/dev-grounded-answer-live-browser.mjs");
+        Path vite = repoRoot.resolve("apps/media-experience-explorer/node_modules/vite/bin/vite.js");
+        Path playwright = repoRoot.resolve("apps/media-experience-explorer/node_modules/playwright/index.mjs");
+        assertThat(script).isRegularFile();
+        assertThat(vite).as("pnpm install --frozen-lockfile --offline must have linked Vite").isRegularFile();
+        assertThat(playwright).as("pnpm install must have linked Playwright").isRegularFile();
+        String viteVersion = JSON.readTree(Files.readString(
+                vite.toRealPath().getParent().getParent().resolve("package.json"))).path("version").asString();
+        ProcessBuilder builder = new ProcessBuilder("node", script.toString());
+        builder.directory(repoRoot.toFile());
+        builder.redirectErrorStream(true);
+        Map<String, String> env = builder.environment();
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_TOKEN", token);
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_ANSWER_ID", answerId);
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_DOCUMENT_PATH", viewFile.toString());
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_UNATTESTED_ID", unattestedId);
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_UNATTESTED_VERSION", unattestedVersion);
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_GARBAGE_ID", garbageId);
+        env.put("MEDIA_DEV_GROUNDED_BROWSER_GARBAGE_VERSION", garbageVersion);
+        env.put("MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT", Integer.toString(port));
+        env.put("MEDIA_DEV_VITE_BINARY", vite.toString());
+        env.put("MEDIA_DEV_VITE_VERSION", viteVersion);
+        env.put("MEDIA_DEV_PLAYWRIGHT_MODULE", playwright.toString());
+        Process browser = builder.start();
+        String output = new String(browser.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        boolean finished = browser.waitFor(5, TimeUnit.MINUTES);
+        if (!finished) browser.destroyForcibly();
+        System.out.println("GROUNDED-IT browser output:\n" + output);
+        assertThat(finished).as("browser test finished").isTrue();
+        assertThat(browser.exitValue()).as("live Chromium grounded-answer test:\n" + output).isZero();
+        assertThat(output).contains("\"event\":\"grounded-answer-browser\"");
     }
 
     private static Path locate(String relative) {

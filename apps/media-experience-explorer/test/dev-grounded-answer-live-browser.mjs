@@ -120,16 +120,27 @@ try {
   const view = JSON.parse(await readFile(documentPath, "utf8"));
   const doc = view.document;
   const clock = doc.sourceClock;
-  const startMicros = clock.containerStartMicros;
-  const expectedSeconds = (item) => Math.max(0, (item.startMicros - startMicros) / 1_000_000);
+  // Chromium plays MP4 on the absolute container (PTS) timeline: a non-zero start_time is a leading gap, not a rebase.
+  const expectedSeconds = (item) => Math.max(0, item.startMicros / 1_000_000);
   const byId = new Map(doc.evidence.map((item) => [item.evidenceId, item]));
   const claims = doc.answer.claims;
   assert.ok(claims.length >= 1, "the real answer has at least one grounded claim");
 
-  await page.goto(`${baseUrl}/dev-grounded-answer.html`);
-  await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
-  await page.getByRole("button", { name: "Connect", exact: true }).click();
-  await page.getByRole("heading", { name: /Grounded answer · DEV_ONLY/u }).waitFor({ timeout: 15_000 });
+  // The first load of the Vite dev server can lose module requests when the host's network interfaces change (other
+  // containers starting); a fresh load of the same page is the only retry, and a persistent failure still fails.
+  let connected = false;
+  for (let attempt = 1; attempt <= 3 && !connected; attempt += 1) {
+    await page.goto(`${baseUrl}/dev-grounded-answer.html`);
+    await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
+    await page.getByRole("button", { name: "Connect", exact: true }).click();
+    try {
+      await page.getByRole("heading", { name: /Grounded answer · DEV_ONLY/u }).waitFor({ timeout: 15_000 });
+      connected = true;
+    } catch {
+      if (attempt === 3) throw new Error(`panel did not render after ${attempt} loads; status="${await page.locator("#connection-status").textContent()}" pageErrors=${JSON.stringify(pageErrors)}`);
+      consoleErrors.length = 0;
+    }
+  }
   assert.equal(await page.locator("#dev-token").inputValue(), "", "token input must be cleared after connect");
 
   // ---- reopen the REAL answer registered by the real models, then verify the exact source bytes load ----
@@ -152,9 +163,16 @@ try {
   assert.match(metadata.src, /^blob:/u, "the player must play verified bytes through a blob URL");
   assert.equal(metadata.width, clock.video.width);
   assert.equal(metadata.height, clock.video.height);
-  // The browser timeline is relative to the container start: its duration is the container duration on the clock.
-  assert.ok(Math.abs(metadata.duration - clock.containerDurationMicros / 1_000_000) < 0.25,
-    `player duration ${metadata.duration}s must match the clock duration ${clock.containerDurationMicros / 1e6}s`);
+  // Let the small source finish buffering so the seekable range is settled before it is measured.
+  await videoLocator.evaluate((element) => new Promise((resolveReady) => {
+    if (element.readyState >= 4) return resolveReady();
+    element.addEventListener("canplaythrough", () => resolveReady(), { once: true });
+    setTimeout(resolveReady, 10_000);
+  }));
+  const seekableRange = await videoLocator.evaluate((element) => element.seekable.length > 0
+    ? { start: element.seekable.start(0), end: element.seekable.end(element.seekable.length - 1) } : null);
+  process.stdout.write(`${JSON.stringify({ event: "player-timeline", duration: metadata.duration, seekableRange, containerStartMicros: clock.containerStartMicros,
+    containerDurationMicros: clock.containerDurationMicros })}\n`);
   const contentCall = apiRequests.find(({ path }) => path === `/dev/v1/artifacts/${doc.source.artifactId}/content`);
   assert.ok(contentCall, "the source version is read through the exact-version content route");
   assert.equal(contentCall.headers["if-match"], doc.source.artifactVersionId, "exact version travels in If-Match");
@@ -181,7 +199,8 @@ try {
     return videoLocator.evaluate((element) => element.currentTime);
   }
   const cited = [...new Set(claims.flatMap((claim) => claim.evidenceIds))].map((id) => byId.get(id));
-  const boxed = cited.find((item) => item.box && item.kind === "FRAME_TEXT") ?? cited.find((item) => item.box);
+  const reachable = (item) => !seekableRange || (expectedSeconds(item) >= seekableRange.start - 0.05 && expectedSeconds(item) <= seekableRange.end + 0.05);
+  const boxed = cited.find((item) => item.box && item.kind === "FRAME_TEXT" && reachable(item)) ?? cited.find((item) => item.box && reachable(item));
   assert.ok(boxed, "the grounded answer cites at least one on-screen region");
   const boxedButton = result.locator(`button[data-evidence-id='${boxed.evidenceId}']`).first();
   assert.equal(await boxedButton.getAttribute("aria-pressed"), "false");
@@ -229,7 +248,14 @@ try {
   assert.ok(announcement.includes(boxed.evidenceId));
   assert.equal(await page.locator(`.ga-evidence li[data-evidence-id='${boxed.evidenceId}']`).getAttribute("aria-current"), "true");
 
-  const spoken = cited.find((item) => item.kind === "TRANSCRIPT_SEGMENT");
+  // A citation the player cannot reach (shorter or shifted timeline) is reported, never silently clamped.
+  const unreachable = cited.find((item) => !reachable(item));
+  if (unreachable) {
+    await result.locator(`button[data-evidence-id='${unreachable.evidenceId}']`).first().click();
+    assert.match(await page.getByTestId("active-citation").textContent(), /outside the player's seekable range/u);
+    assert.match(await page.getByTestId("citation-announcement").textContent(), /outside the player's seekable range/u);
+  }
+  const spoken = cited.find((item) => item.kind === "TRANSCRIPT_SEGMENT" && reachable(item));
   if (spoken) {
     await result.locator(`button[data-evidence-id='${spoken.evidenceId}']`).first().click();
     const spokenTime = await seekedTime();

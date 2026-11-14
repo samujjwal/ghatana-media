@@ -13,7 +13,7 @@ export interface DevGroundedAnswerPanelProps {
 }
 
 type Source = { readonly state: "none" | "loading" | "ready" | "failed"; readonly url?: string; readonly message?: string };
-type Active = { readonly evidenceId: string; readonly seconds: number; readonly sought: boolean } | null;
+type Active = { readonly evidenceId: string; readonly seconds: number; readonly sought: boolean; readonly note: string } | null;
 
 let counter = 0;
 const defaultRequestId = (): string => {
@@ -87,7 +87,8 @@ export function DevGroundedAnswerPanel({ answers, locked = false, newRequestId =
       return;
     }
     if (!attempt.current || attempt.current.fingerprint !== fingerprint) attempt.current = { fingerprint, requestId: newRequestId() };
-    setPending(true); setFailure(null); setMessage("Asking the local models. This can take a minute…");
+    setPending(true); setFailure(null); setView(null); setActive(null); setAnnounce(""); setSource({ state: "none" });
+    setMessage("Asking the local models. This can take a minute…");
     try {
       const response = await answers.ask({ requestId: attempt.current.requestId, artifactId: form.artifactId.trim(),
         artifactVersionId: form.artifactVersionId.trim(), question: form.question.trim() });
@@ -104,7 +105,8 @@ export function DevGroundedAnswerPanel({ answers, locked = false, newRequestId =
   async function reopen(event: React.FormEvent): Promise<void> {
     event.preventDefault();
     if (disabled || !form.reopenId.trim()) return;
-    setPending(true); setFailure(null); setMessage("Reopening…");
+    setPending(true); setFailure(null); setView(null); setActive(null); setAnnounce(""); setSource({ state: "none" });
+    setMessage("Reopening…");
     try {
       const response = await answers.get(form.reopenId.trim());
       if (response.status !== 200) throw new DevGroundedHostError("INVALID_RESPONSE", response.status, "Unexpected success status.");
@@ -120,13 +122,22 @@ export function DevGroundedAnswerPanel({ answers, locked = false, newRequestId =
     const seconds = playerSeconds(item, view.clock);
     const element = video.current;
     let sought = false;
+    let note = element && source.state === "ready" ? "" : "source video not available to seek";
     if (element && source.state === "ready") {
-      if (element.readyState >= 1) { element.currentTime = seconds; sought = true; } else { pendingSeek.current = seconds; sought = true; }
+      const ranges = element.readyState >= 1 ? element.seekable : null;
+      const start = ranges && ranges.length > 0 ? ranges.start(0) : null;
+      const end = ranges && ranges.length > 0 ? ranges.end(ranges.length - 1) : null;
+      // A player may expose a shorter or shifted timeline than the container clock (for example a non-zero start_time):
+      // never clamp silently; say that this evidence is outside what the player can reach.
+      if (start !== null && end !== null && (seconds < start - 0.05 || seconds > end + 0.05)) {
+        note = `outside the player's seekable range ${formatSeconds(start)}–${formatSeconds(end)}`;
+      } else if (element.readyState >= 1) { element.currentTime = seconds; sought = true; }
+      else { pendingSeek.current = seconds; sought = true; }
       element.pause();
     }
-    setActive({ evidenceId: item.evidenceId, seconds, sought });
+    setActive({ evidenceId: item.evidenceId, seconds, sought, note });
     const box = boxPercent(item);
-    setAnnounce(`${sought ? "Player moved to" : "Citation at"} ${formatSeconds(seconds)}. ${KIND_LABEL[item.kind]} ${item.evidenceId}: ${item.text}.${box ? " The cited region is highlighted on the video." : ""}`);
+    setAnnounce(`${sought ? "Player moved to" : "Citation at"} ${formatSeconds(seconds)}${note ? ` (${note})` : ""}. ${KIND_LABEL[item.kind]} ${item.evidenceId}: ${item.text}.${box ? " The cited region is highlighted on the video." : ""}`);
   }
 
   const evidenceById = React.useMemo(() => new Map((view?.evidence ?? []).map((item) => [item.evidenceId, item])), [view]);
@@ -169,7 +180,7 @@ export function DevGroundedAnswerPanel({ answers, locked = false, newRequestId =
               aria-label={`Highlighted region for ${activeItem.evidenceId}: ${activeItem.text}`}
               ref={(node) => { if (node) { node.style.left = `${overlay.left}%`; node.style.top = `${overlay.top}%`; node.style.width = `${overlay.width}%`; node.style.height = `${overlay.height}%`; } }} />}
           </div>}
-          <p>Player positions are the cited time minus the container start_time ({formatSeconds(view.clock.containerStartMicros / 1_000_000)}). Clock <code>{view.clock.clockId}</code>.</p>
+          <p>Citation times are container-clock (PTS) times; this source starts at {formatSeconds(view.clock.containerStartMicros / 1_000_000)}. Clock <code>{view.clock.clockId}</code>.</p>
         </div>
 
         <div className="ga-claims">
@@ -203,7 +214,7 @@ export function DevGroundedAnswerPanel({ answers, locked = false, newRequestId =
         <code>{item.evidenceId}</code> · {KIND_LABEL[item.kind]} · {formatSeconds(playerSeconds(item, view.clock))}{item.kind === "TRANSCRIPT_SEGMENT" ? `–${formatSeconds(playerSeconds({ startMicros: item.endMicros }, view.clock))}` : ""}
         {item.box ? ` · box ${Math.round(item.box.x)},${Math.round(item.box.y)} ${Math.round(item.box.width)}×${Math.round(item.box.height)}` : ""} · {item.text}</li>)}</ul>
       <p className="ga-sr-only" role="status" aria-live="polite" data-testid="citation-announcement">{announce}</p>
-      {active && <p data-testid="active-citation" data-evidence-id={active.evidenceId} data-seconds={active.seconds.toFixed(3)}>Active citation <code>{active.evidenceId}</code> at {formatSeconds(active.seconds)}{active.sought ? "" : " (source video not available to seek)"}.</p>}
+      {active && <p data-testid="active-citation" data-evidence-id={active.evidenceId} data-seconds={active.seconds.toFixed(3)}>Active citation <code>{active.evidenceId}</code> at {formatSeconds(active.seconds)}{active.sought ? "" : ` (${active.note})`}.</p>}
     </article>}
   </section>;
 }

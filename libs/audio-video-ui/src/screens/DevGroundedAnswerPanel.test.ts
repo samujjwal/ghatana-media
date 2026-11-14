@@ -84,10 +84,10 @@ describe("grounded answer parsing", () => {
     expect(() => parseGroundedAnswerView(null)).toThrow(DevGroundedHostError);
   });
 
-  it("computes player time from the container start_time and box percentages from the frame", () => {
+  it("computes player time on the container clock and box percentages from the frame", () => {
     const clock = { containerStartMicros: CONTAINER_START };
-    expect(playerSeconds({ startMicros: 5_300_000 }, clock)).toBeCloseTo(0.343, 3);
-    expect(playerSeconds({ startMicros: 1_000_000 }, clock)).toBe(0);
+    expect(playerSeconds({ startMicros: 5_300_000 }, clock)).toBeCloseTo(5.3, 3);
+    expect(playerSeconds({ startMicros: -5 }, clock)).toBe(0);
     expect(formatSeconds(65.04)).toBe("1:05.0");
     expect(boxPercent({ frame, box: { x: 64, y: 36, width: 320, height: 72 } })).toEqual({ left: 10, top: 10, width: 50, height: 20 });
     expect(boxPercent({ frame, box: null })).toBeNull();
@@ -127,18 +127,18 @@ describe("grounded answer panel", () => {
   it("a frame-text citation seeks the player to its time and highlights the cited box", async () => {
     await ask();
     await waitFor(() => expect(document.querySelector("video")).not.toBeNull());
-    const button = screen.getByRole("button", { name: /On-screen text citation F0\.S0 at 0:00\.0/u });
+    const button = screen.getByRole("button", { name: /On-screen text citation F0\.S0 at 0:05\.0/u });
     expect(button.getAttribute("aria-pressed")).toBe("false");
     fireEvent.click(button);
     const video = document.querySelector("video") as HTMLVideoElement;
-    expect(video.currentTime).toBeCloseTo(0.043, 3);
+    expect(video.currentTime).toBeCloseTo(5.0, 3);
     const box = await screen.findByTestId("citation-box");
     expect(box.getAttribute("role")).toBe("img");
     expect(box.getAttribute("aria-label")).toContain("QUARTERLY REPORT");
     expect((box as HTMLElement).style.left).toBe("10%");
     expect((box as HTMLElement).style.width).toBe("50%");
     expect(button.getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByTestId("citation-announcement").textContent).toContain("Player moved to 0:00.0");
+    expect(screen.getByTestId("citation-announcement").textContent).toContain("Player moved to 0:05.0");
     expect(screen.getByTestId("active-citation").getAttribute("data-evidence-id")).toBe("F0.S0");
     expect(document.querySelector("li[data-evidence-id='F0.S0']")?.getAttribute("aria-current")).toBe("true");
   });
@@ -146,14 +146,34 @@ describe("grounded answer panel", () => {
   it("a transcript citation seeks to its span without a box and marks the spoken line", async () => {
     await ask();
     await waitFor(() => expect(document.querySelector("video")).not.toBeNull());
-    fireEvent.click(screen.getByRole("button", { name: /Spoken citation T0 at 0:00\.3/u }));
+    fireEvent.click(screen.getByRole("button", { name: /Spoken citation T0 at 0:05\.3/u }));
     const video = document.querySelector("video") as HTMLVideoElement;
-    expect(video.currentTime).toBeCloseTo(0.343, 3);
+    expect(video.currentTime).toBeCloseTo(5.3, 3);
     expect(screen.queryByTestId("citation-box")).toBeNull();
     expect(document.querySelector("li[data-evidence-id='T0'][aria-current='true']")).not.toBeNull();
     // Moving to another citation moves the highlight and clears the previous current marker.
     fireEvent.click(screen.getByRole("button", { name: /On-screen text citation F0\.S0/u }));
     expect(document.querySelector("li[data-evidence-id='T0'][aria-current='true']")).toBeNull();
+  });
+
+  it("never clamps silently: a citation outside the player's seekable range is reported and does not seek", async () => {
+    Object.defineProperty(HTMLMediaElement.prototype, "seekable", { configurable: true,
+      get: () => ({ length: 1, start: () => 5.0, end: () => 5.2 }) });
+    try {
+      await ask();
+      await waitFor(() => expect(document.querySelector("video")).not.toBeNull());
+      const video = document.querySelector("video") as HTMLVideoElement;
+      video.currentTime = 5.0;
+      fireEvent.click(screen.getByRole("button", { name: /Spoken citation T0 at 0:05\.3/u }));
+      expect(video.currentTime).toBe(5.0);
+      expect(screen.getByTestId("active-citation").textContent).toContain("outside the player's seekable range 0:05.0–0:05.2");
+      expect(screen.getByTestId("citation-announcement").textContent).toContain("outside the player's seekable range");
+      fireEvent.click(screen.getByRole("button", { name: /On-screen text citation F0\.S0 at 0:05\.0/u }));
+      expect(video.currentTime).toBeCloseTo(5.0, 3);
+      expect(screen.getByTestId("active-citation").textContent).not.toContain("outside");
+    } finally {
+      delete (HTMLMediaElement.prototype as unknown as { seekable?: unknown }).seekable;
+    }
   });
 
   it("is keyboard operable: citations are native buttons reachable in order", async () => {

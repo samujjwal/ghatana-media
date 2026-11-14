@@ -3,8 +3,8 @@
  *
  * The host validates every citation server-side. This module validates again on the client and never presents a claim
  * as grounded when one of its cited ids is not in the evidence set the same response carries ("defence in depth"):
- * such a claim is demoted to the not-grounded list. Times are container microseconds on the source clock; the player
- * position of an item is its time minus the container start_time.
+ * such a claim is demoted to the not-grounded list. Times are container microseconds on the source clock (container
+ * PTS, start_time included), which is also the position on the player's timeline for MP4.
  */
 
 import type { DevArtifactContentRequest, DevArtifactContentResponse } from "./devArtifactContent";
@@ -170,9 +170,13 @@ export function parseGroundedAnswerView(body: unknown, expected: { readonly outp
   };
 }
 
-/** Player position in seconds for an evidence item: its container-clock time minus the container start_time. */
-export function playerSeconds(item: Pick<GroundedEvidence, "startMicros">, clock: { readonly containerStartMicros: number }): number {
-  return Math.max(0, (item.startMicros - clock.containerStartMicros) / 1_000_000);
+/**
+ * Player position in seconds for an evidence item: its container-clock (PTS) time. Browsers play an MP4 on that same
+ * absolute timeline (a non-zero start_time is a leading gap). The clock argument is kept so a per-player origin can be
+ * applied in one place; the panel checks the result against the player's seekable range and never clamps silently.
+ */
+export function playerSeconds(item: Pick<GroundedEvidence, "startMicros">, _clock?: { readonly containerStartMicros: number }): number {
+  return Math.max(0, item.startMicros / 1_000_000);
 }
 
 /** Compact m:ss.t label of a player position in seconds. */
