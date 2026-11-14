@@ -50,8 +50,13 @@ class TranscriptionServiceLifecycleTest extends EventloopTestBase {
             assertThat(firstFailure.get()).isInstanceOf(RejectedExecutionException.class);
             assertThat(runPromise(() -> service.countByTenantId("tenant"))).isEqualTo(9L);
             service.close();
-            assertThat(executor.isShutdown()).isTrue();
+            // close() is non-blocking: the owned executor is shut down by whichever thread
+            // finishes the last accepted operation. The caller's promise completes before the
+            // worker releases its dispatch slot, so shutdown may land just after close() returns.
+            // Wait (bounded) for termination, which can only follow a shutdown request, rather
+            // than sampling isShutdown() instantaneously.
             assertThat(executor.awaitTermination(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(executor.isShutdown()).isTrue();
         }
     }
 
