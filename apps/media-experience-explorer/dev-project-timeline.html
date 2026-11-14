@@ -37,7 +37,11 @@
           </div>
           <p id="token-help" class="help">Paste a raw token. It is held in this page's memory only, never saved in browser storage, and cleared from the field after connecting.</p>
         </form>
-        <div class="connection-actions"><button id="forget-token" class="button quiet" type="button" disabled>Forget token and disconnect</button></div>
+        <div class="connection-actions">
+          <button id="oidc-login" class="button" type="button" hidden>Sign in with identity provider (OIDC)</button>
+          <button id="forget-token" class="button quiet" type="button" disabled>Forget token and disconnect</button>
+        </div>
+        <p id="oidc-help" class="help" hidden>Authorization code with PKCE. The identity provider verifies who you are; the host verifies the access token on every request. The token stays in this page's memory only. The DEV_ONLY token path above keeps working.</p>
         <p id="status" class="status" role="status" aria-live="polite">Not connected.</p>
         <dl id="context-fields" class="context-grid" hidden></dl>
       </section>

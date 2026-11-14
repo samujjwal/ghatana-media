@@ -139,7 +139,7 @@ and stable terminal reads — **no second writer**.
   authorizes no delivery or publication. Not covered: retention expiry, atomic
   project/review CAS and hosted review UI. Routes stay outside the canonical
   manifest/OpenAPI.
-  **Reviewer assignment (owner-delegated design decision).** DEV_ONLY review authority is an explicit assignment: the project owner assigns a reviewer principal (different from the owner) to a review case with an explicit scope set (QUALITY, RIGHTS, PROVENANCE, APPROVAL) and an expiry. Only an assigned, unexpired reviewer may record decisions within its scopes; the owner may comment but not decide. Assignments and revocations are versioned, durable and part of the case's CAS. An ACCEPT by an assigned reviewer on a CURRENT subject is recorded as DEV_ASSIGNED_REVIEWER_ACCEPT and still reports establishesApproval=false / humanReviewApproval=false, because the DEV_ONLY signed identity is not a trusted human identity; production-like profiles remain fail-closed until a trusted Shared identity/membership contract exists.
+  **Reviewer assignment (owner-delegated design decision).** DEV_ONLY review authority is an explicit assignment: the project owner assigns a reviewer principal (different from the owner) to a review case with an explicit scope set (QUALITY, RIGHTS, PROVENANCE, APPROVAL) and an expiry. Only an assigned, unexpired reviewer may record decisions within its scopes; the owner may comment but not decide. Assignments and revocations are versioned, durable and part of the case's CAS. An ACCEPT by an assigned reviewer on a CURRENT subject is recorded as DEV_ASSIGNED_REVIEWER_ACCEPT and still reports establishesApproval=false / humanReviewApproval=false, because the DEV_ONLY signed identity is not a trusted human identity; production-like profiles remain fail-closed until a trusted Shared identity/membership contract exists. When the reviewer was verified by the configured OIDC identity provider the decision is instead recorded as an identity-backed `IDP_VERIFIED_REVIEWER_*` statement (see "Trusted identity via OIDC"); it still never establishes approval.
   `POST /dev/v1/reviews/{caseId}/assignments` (owner only; `requestId`,
   `expectedCaseRevision`, `reviewerPrincipalId`, `scopes[]`, `expiresAt` within
   30 days) creates assignment version 1 (`201`; replay `200`; divergent
@@ -314,6 +314,85 @@ PDF, JSON and GLB are never rendered inline). Only GET is supported (no HEAD).
   H-07 step coordinator does not yet enforce DAG dependencies — callers
   must not dispatch children of skipped/unresolved gates. A durable
   dependency-aware production executor is still required.
+
+## Trusted identity via OIDC (self-hosted Keycloak, any standard provider)
+
+Owner decision, recorded verbatim (user, 2026-11-14): "Self-hosted Keycloak (Recommended): An open-source
+(Apache-2.0) login server running in Docker. I wire Media to verify its tokens over the standard OIDC protocol and
+test the whole flow locally. Swapping in another OIDC provider later only changes configuration."
+
+The launcher verifies OIDC **access tokens** (JWT, `Authorization: Bearer`). It does not run a login UI and has no
+Keycloak-specific code; Keycloak is the provider used for local development and tests (`deploy/keycloak/README.md`).
+
+**Configuration (environment).** The verifier is enabled by `MEDIA_OIDC_ISSUER`; a half-configured issuer is a
+startup failure, never silently disabled verification.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `MEDIA_OIDC_ISSUER` | unset (OIDC off) | Exact `iss` value. https required (http only for loopback hosts). |
+| `MEDIA_OIDC_AUDIENCE` | required with issuer | Value that must appear in `aud`. |
+| `MEDIA_OIDC_JWKS_URI` | discovery | Optional override; otherwise `<issuer>/.well-known/openid-configuration` supplies `jwks_uri` (its `issuer` must equal the configured one). |
+| `MEDIA_OIDC_TENANT_CLAIM` | `tenant_id` | Claim (dotted path) carrying the Media tenant. Missing tenant = refused. |
+| `MEDIA_OIDC_PERMISSION_CLAIMS` | `realm_access.roles,resource_access.<audience>.roles` | Comma-separated claim paths whose values (string arrays or space/comma-separated strings) are the granted Media permissions, e.g. `media:job:read`. |
+| `MEDIA_OIDC_CLOCK_SKEW_SECONDS` | `30` (max 120) | Skew for `exp`/`nbf`/`iat`. |
+| `MEDIA_OIDC_JWKS_TTL_SECONDS` | `300` | JWKS cache lifetime. |
+| `MEDIA_OIDC_JWKS_MIN_REFRESH_SECONDS` | `30` | Minimum gap between JWKS fetch attempts, including the one refetch an unknown `kid` may trigger. |
+| `MEDIA_OIDC_REQUIRED` | `false` | When `true`, a production-like profile refuses to start without OIDC configured. |
+
+**Verification.** Algorithm allow-list RS256 and ES256 only (`none` and all HMAC algorithms are refused; header
+`jku`/`jwk`/`x5u` are never used); a `kid` is required and the key must be published by the issuer's JWKS with a matching
+key type; then signature, `iss`, `aud`, `exp` (required), `nbf`, `iat`, ID/refresh tokens refused, `sub` and tenant
+required. JWKS: bounded body (1 MiB), at most 64 keys, RSA 2048+ and EC P-256 signature keys only, no redirects, 5 second
+timeouts, cached for the TTL, a stale-if-error grace of two minutes, then fail closed. An unreachable or unusable IdP
+yields `503 IDENTITY_PROVIDER_UNAVAILABLE`; any invalid token yields `401 UNAUTHENTICATED` with no reason disclosed.
+
+**Identity mapping.** The principal is `oidc:<first 12 bytes of SHA-256(issuer), hex>:<sub>`
+(`MediaVerifiedIdentityContracts.oidcPrincipalId`); email and display names are never identity. Tenant and
+permissions come only from verified claims; the request's `X-Tenant-Id`/`X-Principal-Id` headers are overwritten. The
+`oidc:` principal space is reserved: a DEV token whose subject starts with `oidc:` is refused.
+
+**Where it applies.**
+
+- Production-like profiles with OIDC configured accept **only** OIDC tokens: shared-secret JWTs, DEV tokens and API keys
+  (including the bootstrap key) are refused. Without `MEDIA_OIDC_ISSUER` the previous mechanisms are unchanged (set
+  `MEDIA_OIDC_REQUIRED=true` to forbid that).
+- Profile `dev` with `MEDIA_DEV_IDENTITY_ENABLED=true` accepts **both** a DEV token and an OIDC token. An OIDC token
+  there may use the `/dev/v1` routes only if it carries the `media:project:dev:*` / `media:delivery:dev:*` roles.
+- Other non-production profiles use OIDC for any bearer token when it is configured.
+
+**Trusted identity contract** (`runtime-contracts`, package `com.ghatana.media.runtime`,
+`MediaVerifiedIdentityContracts`): `VerifiedIdentity(issuer, subject, tenantId, authenticatedAt, AssuranceSource)`,
+`AssuranceSource {OIDC_VERIFIED, DEV_ISSUED, SHARED_SECRET_JWT, BOOTSTRAP_SERVICE_KEY, LOCAL_UNVERIFIED, UNSPECIFIED}`
+and `VerifiedIdentityPort.verify(String bearerToken): Optional<VerifiedIdentity>` (implemented by
+`com.ghatana.media.launcher.oidc.OidcAccessTokenVerifier`). `AuthenticatedPrincipal` now carries `assurance()`; the
+three-argument constructor stays and means `UNSPECIFIED`, which is never identity-provider backed. The filter exposes
+the request's identity to features via `MediaSecurityFilter.verifiedIdentity(exchange)`.
+
+**What it changes downstream.**
+
+- *Reviewer decisions.* A decision by an assigned reviewer whose request identity was `OIDC_VERIFIED` is recorded under
+  authority `idp-verified.assigned-reviewer.v1:<assignmentId>:v<n>:<SCOPE>` and reported as
+  `IDP_VERIFIED_REVIEWER_<DECISION>` with `identityAssurance:"OIDC_VERIFIED"` and `identityBackedHumanDecision:true`.
+  This records **who** decided (principal = issuer + subject) and that the identity provider vouched for them. It does
+  not invent an approval: `establishesApproval` and `humanReviewApproval` stay `false`, nothing authorizes delivery or
+  publication, and the assignment, scope, expiry and currentness rules are unchanged. A DEV-issued reviewer remains
+  `DEV_ASSIGNED_REVIEWER_*` with `identityAssurance:"NOT_IDP_VERIFIED"`. No schema migration was needed.
+- *Agent tools.* Production-like profiles now admit a tool invocation only for an `OIDC_VERIFIED` invoking principal and
+  carry it, unchanged, into job submission (see `docs/surfaces/adapters-agent-tools-media/README.md`).
+
+**Still fail-closed.** Production approval of any kind, Shared membership/tenant-admin contracts, provider activation
+and release are not changed by this identity: the verified identity is authentication evidence only. Authorization is
+the mapped permissions plus the existing per-feature rules.
+
+**Swapping providers.** Point `MEDIA_OIDC_ISSUER`/`MEDIA_OIDC_AUDIENCE` at the new provider, and if its claim layout
+differs set `MEDIA_OIDC_TENANT_CLAIM` and `MEDIA_OIDC_PERMISSION_CLAIMS` (for example `permissions` or `scope`). The
+provider must issue RS256/ES256 JWT access tokens, publish a JWKS, put the audience in `aud` and carry a tenant claim.
+Existing principals change when the issuer changes (the principal embeds an issuer hash), by design.
+
+Tests: `OidcAccessTokenVerifierTest` (bad signature, wrong iss/aud, expired/skew, alg none/HS256, unknown kid refetched
+once and rate-limited, JWKS unreachable fail-closed and stale grace), `MediaSecurityFilterOidcTest`,
+`MediaDevReviewHttpTest` (OIDC reviewer), and `MediaOidcKeycloakIT` (Testcontainers Keycloak `26.8.2`: real token
+accepted and persisted under the verified principal; forged, foreign-realm, tampered and `alg=none` tokens refused).
 
 ## Dependencies and configuration
 

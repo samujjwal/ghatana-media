@@ -51,9 +51,14 @@ Conservative assumption (owner-delegated design decision): "Each Media agent too
   fenced by the ledger and never resubmit.
 - Principal: the authenticated tenant must equal the envelope tenant; mismatch or absent
   principal is refused before submission. Only dev-class profiles (`local/dev/development/
-  test/ci`) accept an identity; production-like or unknown profiles return
-  `TOOLS_IDENTITY_CONTRACT_UNAVAILABLE`. The adapter does not verify the DEV_ONLY signature;
-  the host that authenticates the principal owns that.
+  test/ci`) accept an identity. Production-like profiles accept only a principal whose
+  `AuthenticatedPrincipal.assurance()` is `OIDC_VERIFIED` (verified by the launcher's OIDC
+  access-token verifier; see `docs/surfaces/launcher/README.md`) and carry that verified
+  invoking principal unchanged into job submission; a DEV-issued, shared-secret, local or
+  unstated-assurance principal, and every principal under an unknown profile, still return
+  `TOOLS_IDENTITY_CONTRACT_UNAVAILABLE`. The adapter does not verify tokens itself; the host
+  that authenticates the principal owns that and must also map it to the envelope actor in its
+  `InvocationReplayAuthorizer`.
 - Host must supply: the authenticated principal per call, a durable request-id lookup for
   reconciliation (the runtime port has none, so `RuntimeMediaJobSubmissionPort` only
   resolves submissions whose acknowledgment it saw), and an admitted provider. Positive tests

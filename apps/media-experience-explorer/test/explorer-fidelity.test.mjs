@@ -35,8 +35,10 @@ test("dev and preview CSP stay strict with no wildcard, inline, or eval escape",
     assert.ok(!directive.includes("*"), directive);
   }
   // Dev allows the HMR websocket; preview removes it — never broadens.
-  assert.ok(viteConfigSource.includes(`"connect-src 'self' ws://127.0.0.1:4178"`));
-  assert.ok(viteConfigSource.includes(`"connect-src 'self'"`));
+  // The only widening is the exact configured OIDC issuer origin, and only when both OIDC settings are present.
+  assert.ok(viteConfigSource.includes("`connect-src 'self'${oidcConnectSource} ws://127.0.0.1:4178`"));
+  assert.ok(viteConfigSource.includes("`connect-src 'self'${oidcConnectSource}`"));
+  assert.ok(viteConfigSource.includes("new URL(oidcIssuer).origin"));
 });
 
 test("simulated state is always labeled and never implies backend admission", () => {

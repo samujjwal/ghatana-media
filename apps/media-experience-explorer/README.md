@@ -387,3 +387,14 @@ Open `/dev-job-recovery.html` while the local Explorer is running to connect a s
 The recovery page is served only by the local Vite development host and is excluded from production build inputs. Its proxy accepts one safe job ID with an exact `GET` and no query string; collection reads, writes, cancel paths, encoded separators, and query variants are rejected locally.
 
 The real-host browser assertion is part of `MediaDevIssuerHeadlessRestartIT`. It issues a short-lived test owner identity and diagnostic job, then opens this Vite page against the restarted Media process. The test verifies that the canonical SDK returns the job's tenant, owner, terminal status and version; no job request occurs on screen mount; a token without `media:job:read` renders DENIED; another owner receives UNKNOWN without job status/version disclosure; and all credentialed calls stay same-origin GETs. It also checks keyboard submission, a 375px viewport, browser storage, and absence of cancel/retry requests. This remains local DEV_ONLY engineering evidence; it does not alter production admission or imply provider finality.
+
+### Optional OIDC sign-in (authorization code + PKCE)
+
+When `VITE_MEDIA_OIDC_ISSUER` and `VITE_MEDIA_OIDC_CLIENT_ID` are set for the dev server (see
+`deploy/keycloak/README.md`), the DEV_ONLY project page shows "Sign in with identity provider (OIDC)". The flow is
+authorization code with PKCE (`S256`, no client secret): discovery and the token exchange go directly to the issuer, whose
+exact origin is then added to `connect-src` (nothing else is widened); only the PKCE verifier, state and redirect URI
+survive the redirect, in `sessionStorage`, and are removed when the callback is handled. The access token is held in page
+memory only and is passed to the same connect path as a pasted DEV_ONLY token; the host verifies it on every request and
+decides what it is worth. No new Media routes are used, so `artifact-proxy-guard.mjs` is unchanged. Without those
+variables the option is hidden and the DEV_ONLY path is unchanged.

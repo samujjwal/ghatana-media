@@ -92,6 +92,12 @@ function isSafeCanonicalJobReadPath(url) {
   }
 }
 
+// Optional OIDC sign-in talks to the configured provider from the browser (discovery and token endpoint).
+// Only that exact origin is added to connect-src, and only when both settings are present.
+const oidcIssuer = process.env.VITE_MEDIA_OIDC_ISSUER?.trim();
+const oidcConnectOrigin = oidcIssuer && process.env.VITE_MEDIA_OIDC_CLIENT_ID?.trim() ? new URL(oidcIssuer).origin : "";
+const oidcConnectSource = oidcConnectOrigin ? ` ${oidcConnectOrigin}` : "";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self'",
@@ -100,7 +106,7 @@ const contentSecurityPolicy = [
   "img-src 'self' data: blob:",
   "media-src 'self' blob:",
   "font-src 'self' data:",
-  "connect-src 'self' ws://127.0.0.1:4178",
+  `connect-src 'self'${oidcConnectSource} ws://127.0.0.1:4178`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -108,8 +114,8 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const previewContentSecurityPolicy = contentSecurityPolicy.replace(
-  "connect-src 'self' ws://127.0.0.1:4178",
-  "connect-src 'self'",
+  `connect-src 'self'${oidcConnectSource} ws://127.0.0.1:4178`,
+  `connect-src 'self'${oidcConnectSource}`,
 );
 
 export default {

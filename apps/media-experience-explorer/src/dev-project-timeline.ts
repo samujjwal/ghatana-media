@@ -1,4 +1,5 @@
 import "./dev-project-timeline-react";
+import { OidcLoginError, beginLogin, browserDeps, completeLogin, isCallback, readOidcConfig } from "./oidc-login";
 import { openExistingProject } from "./dev-open-project";
 import { createDevProjectOutputsClient } from "./dev-project-outputs-client";
 import type { DevProjectOutputsPort } from "@audio-video/ui/screens";
@@ -27,6 +28,7 @@ const contextFields = byId<HTMLDListElement>("context-fields");
 const connectForm = byId<HTMLFormElement>("connect-form");
 const connectButton = connectForm.querySelector<HTMLButtonElement>("button[type=submit]");
 const forgetButton = byId<HTMLButtonElement>("forget-token");
+const oidcButton = byId<HTMLButtonElement>("oidc-login");
 const projectForm = byId<HTMLFormElement>("project-form");
 const projectTitleInput = byId<HTMLInputElement>("project-title");
 const createProjectButton = byId<HTMLButtonElement>("create-project");
@@ -54,12 +56,18 @@ connectForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const token = tokenInput.value.trim();
   if (!token) { announce("Paste a raw DEV_ONLY token to connect.", "error"); tokenInput.focus(); return; }
+  await connectWithToken(token);
+});
+
+/** Shared by the pasted DEV_ONLY token and the OIDC sign-in: the host decides what the token is worth. */
+async function connectWithToken(token: string): Promise<void> {
   try { client = new MediaDevProjectTimelineClient({ baseUrl: origin, bearerToken: () => bearerToken ?? "" }); }
   catch (error) { announce(errorMessage(error), "error"); return; }
   bearerToken = token;
   tokenInput.value = "";
   tokenInput.disabled = true;
-  connectButton.disabled = true;
+  connectButton!.disabled = true;
+  oidcButton.disabled = true;
   forgetButton.disabled = false;
   announce("Reading DEV_ONLY host context…");
   try {
@@ -73,7 +81,31 @@ connectForm.addEventListener("submit", async (event) => {
     announce(`Connected to the local host. Scope: ${context.scope}.`, "success");
     projectTitleInput.focus();
   } catch (error) { announce(errorMessage(error), "error"); }
-});
+}
+
+// Optional OIDC sign-in, shown only when an issuer and client id are configured at build/dev-server start.
+const oidcConfig = (() => {
+  try { return readOidcConfig(import.meta.env, window.location); }
+  catch (error) { announce(errorMessage(error), "error"); return null; }
+})();
+if (oidcConfig) {
+  oidcButton.hidden = false;
+  byId<HTMLParagraphElement>("oidc-help").hidden = false;
+  oidcButton.addEventListener("click", async () => {
+    oidcButton.disabled = true;
+    announce("Redirecting to the identity provider…");
+    try { window.location.assign(await beginLogin(oidcConfig, browserDeps())); }
+    catch (error) { oidcButton.disabled = false; announce(errorMessage(error), "error"); }
+  });
+  if (isCallback(window.location.search)) {
+    const search = window.location.search;
+    // The authorization response is single-use: remove it from the address bar and history immediately.
+    window.history.replaceState(null, "", window.location.pathname);
+    completeLogin(oidcConfig, search, browserDeps())
+      .then((session) => connectWithToken(session.accessToken))
+      .catch((error) => announce(error instanceof OidcLoginError ? error.message : errorMessage(error), "error"));
+  }
+}
 
 forgetButton.addEventListener("click", () => {
   bearerToken = null;
@@ -89,6 +121,7 @@ forgetButton.addEventListener("click", () => {
   tokenInput.value = "";
   tokenInput.disabled = false;
   connectButton.disabled = false;
+  oidcButton.disabled = false;
   forgetButton.disabled = true;
   contextFields.replaceChildren();
   contextFields.hidden = true;
