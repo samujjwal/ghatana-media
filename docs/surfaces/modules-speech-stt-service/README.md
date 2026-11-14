@@ -80,7 +80,14 @@ not quality evidence, so `productionEligible()` stays false until the owner flip
 Licence notices: `THIRD_PARTY_NOTICES.md` (note the GPL espeak-ng/phonemizer runtime dependency of Kokoro's G2P
 fallback: do not redistribute the venv).
 
-Install (host-local): build `ggml-org/whisper.cpp` (`cmake -B build && cmake --build build --target whisper-cli`),
+Install (host-local): build `ggml-org/whisper.cpp` with the GPU (Vulkan) backend as one static binary by running
+`tools/model-runtimes/build-whisper-vulkan.sh` (owner decision 2026-11-14: "Yes, download them", approving the
+Khronos Vulkan-Headers v1.4.341 and SPIRV-Headers vulkan-sdk-1.4.341.0 build inputs; needs the NVIDIA Vulkan driver
+and a `glslc`). The binary is `runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli`; the script refuses a build
+that loads libwhisper/libggml shared objects, because only the executable's SHA-256 is pinned in the manifest. On
+this host (Quadro RTX 5000) an 11-second clip transcribes in about 1.8 s warm versus 29.5 s on the earlier CPU
+build; the first run after a driver update also compiles and caches GPU shaders. A CPU-only host can still use a
+static CPU build by setting `WHISPER_CPP_EXE` when running `install-local-manifests.sh`. Then
 download `ggml-large-v3-turbo.bin` from `ggerganov/whisper.cpp`, create a venv with `kokoro`, `misaki`, `soundfile`,
 `torch` and the `en_core_web_sm` model, download `hexgrad/Kokoro-82M`, then run
 `tools/model-runtimes/install-local-manifests.sh`. Configure the server with `MEDIA_LOCAL_MODEL_ROOT`,

@@ -19,9 +19,9 @@ python3 -I "$MAKE" --model-root "$ROOT/models/whisper-large-v3-turbo" --key whis
   --spdx MIT --license-source-url https://raw.githubusercontent.com/openai/whisper/main/LICENSE \
   --file WEIGHTS:ggml-large-v3-turbo.bin --file LICENSE:LICENSE-openai-whisper.txt \
   --file LICENSE:LICENSE-whisper.cpp.txt --file MODEL_CARD:MODEL_CARD_README.md --language en \
-  --notice "Whisper model weights (c) 2022 OpenAI, MIT License; whisper.cpp / ggml (c) 2023-2026 The ggml authors, MIT License. The MIT copyright and permission notice must be preserved in copies or substantial portions." \
+  --notice "Whisper model weights (c) 2022 OpenAI, MIT License; whisper.cpp / ggml (c) 2023-2026 The ggml authors, MIT License. The MIT copyright and permission notice must be preserved in copies or substantial portions. The runtime binary is a static ggml Vulkan (GPU) build of whisper-cli and statically includes code generated from KhronosGroup Vulkan-Headers v1.4.341 (Apache-2.0 OR MIT) and SPIRV-Headers vulkan-sdk-1.4.341.0 (MIT-style Khronos licence)." \
   --notice-required --runtime-name whisper.cpp --runtime-version v1.9.5 --runtime-revision "$WHISPER_CPP_REV" \
-  --runtime-exe "$ROOT/runtimes/whisper.cpp-src/build/bin/whisper-cli" \
+  --runtime-exe "${WHISPER_CPP_EXE:-$ROOT/runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli}" \
   --out "$ROOT/models/whisper-large-v3-turbo/manifest.json"
 
 KOKORO_REV="${KOKORO_MODEL_REVISION:-f3ff3571791e39611d31c381e3a41a3af07b4987}"

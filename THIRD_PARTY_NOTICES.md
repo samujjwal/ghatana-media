@@ -121,3 +121,16 @@ PyTorch 2.15.0 (package metadata: Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause A
 among others), Hugging Face Transformers 5.23.0 (Apache-2.0), bitsandbytes 0.50.2 (MIT), Pillow 13.0.0 (MIT-CMU),
 safetensors 0.8.0 (Apache Software License). Licences are as read from each installed package's metadata. They are installed from PyPI by the operator and are not vendored here.
 <!-- SECTION: local-vision-and-multimodal (end) -->
+
+## whisper.cpp GPU build inputs (local speech-to-text, Vulkan backend)
+
+The locally built `whisper-cli` (`tools/model-runtimes/build-whisper-vulkan.sh`) statically includes code generated
+from these build-time inputs. They are downloaded to the host, not committed or redistributed by this repository.
+
+- KhronosGroup/Vulkan-Headers, tag `v1.4.341`, commit `b5c8f996196ba4aa6d8f97e52b5d3b6e70f7e4e2`.
+  Licence: `Apache-2.0 OR MIT`. Copyright 2015-2023 The Khronos Group Inc.
+- KhronosGroup/SPIRV-Headers, tag `vulkan-sdk-1.4.341.0`, commit `04f10f650d514df88b76d25e83db360142c7b174`.
+  Licence: MIT-style Khronos licence (copyright notice and permission notice must be included in copies or
+  substantial portions); some files CC-BY-4.0. Copyright (c) 2015-2024 The Khronos Group Inc.
+
+Redistributing the built binary requires carrying these notices alongside the whisper.cpp/ggml MIT notice.

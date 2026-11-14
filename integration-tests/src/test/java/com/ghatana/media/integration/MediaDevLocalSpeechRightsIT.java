@@ -53,7 +53,7 @@ class MediaDevLocalSpeechRightsIT {
             script = searchRoot.resolve("tools/model-runtimes/kokoro_synth.py");
         }
         Map<String, String> speech = Map.of("MEDIA_LOCAL_MODEL_ROOT", root.toString(),
-                "MEDIA_WHISPER_CPP_BIN", root.resolve("runtimes/whisper.cpp-src/build/bin/whisper-cli").toString(),
+                "MEDIA_WHISPER_CPP_BIN", root.resolve("runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli").toString(),
                 "MEDIA_KOKORO_PYTHON", root.resolve("runtimes/kokoro-venv/bin/python").toString(),
                 "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_WHISPER_CPP_THREADS", "8");
         var tts = LocalKokoroTtsProvider.fromEnvironment(speech);
