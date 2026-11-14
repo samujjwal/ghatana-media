@@ -17,6 +17,8 @@ import { MediaDevProjectTimelineClient } from './dev-project-timeline.js';
 import { MediaDevOnlyJobCancellationClient } from './dev-job-cancellation.js';
 import { MediaDevOnlyRenderExportClient } from './dev-render-export.js';
 import type { DevExportResult, DevRenderFormat } from './dev-render-export.js';
+import { BatchValidationError, parseBatch, readBatchFile, runBatch } from './dev-batch.js';
+import type { BatchItem, BatchItemOutcome } from './dev-batch.js';
 import { sameMediaRetention } from './retention-duration.js';
 import { isCanonicalMediaContentType } from './upload-validation.js';
 
@@ -33,6 +35,7 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'export create': 'media.cli.local-development.export.create',
   'export get': 'media.cli.local-development.export.get',
 };
+const BATCH_COMMAND_ID = 'media.cli.local-development.batch.run';
 const DEV_RENDER_EXPORT_COMMANDS: ReadonlySet<string> = new Set(['project render', 'project render-get', 'export create', 'export get']);
 const DEV_MUTATING_COMMANDS: ReadonlySet<string> = new Set(['project render', 'export create']);
 const EXPORT_NOT_CONFIRMED_EXIT_CODE = 4;
@@ -43,7 +46,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
 const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
-const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID';
+const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -588,7 +591,83 @@ async function uploadArtifact(
   }
 }
 
+/** Runs one existing single-command implementation in-process, capturing its structured output. */
+async function dispatchBatchItem(item: BatchItem, common: readonly string[], token: string): Promise<BatchItemOutcome> {
+  const realOut = process.stdout.write;
+  const realErr = process.stderr.write;
+  const priorExit = process.exitCode;
+  let stdout = '';
+  let stderr = '';
+  process.exitCode = undefined;
+  process.stdout.write = ((chunk: unknown) => { stdout += String(chunk); return true; }) as typeof process.stdout.write;
+  process.stderr.write = ((chunk: unknown) => { stderr += String(chunk); return true; }) as typeof process.stderr.write;
+  try {
+    await run([...item.command.split(' '), ...common, ...item.flags], token, 'local-development');
+    return { exitCode: Number(process.exitCode ?? 0), stdout, stderr };
+  } finally {
+    process.stdout.write = realOut;
+    process.stderr.write = realErr;
+    process.exitCode = priorExit;
+  }
+}
+
+/** DEV_ONLY `batch run --file PATH [--continue-on-error]`; see dev-batch.ts for the recorded design decision. */
+async function runBatchCommand(argv: readonly string[], token: string | undefined): Promise<void> {
+  const command = 'batch run';
+  const fail = (code: string, message: string, exitCode: number) =>
+    writeError(code, message, {}, exitCode, command, { 'batch run': BATCH_COMMAND_ID });
+  const values = new Map<string, string>();
+  let continueOnError = false;
+  try {
+    for (let index = 2; index < argv.length;) {
+      const option = argv[index]!;
+      if (option === '--continue-on-error' && !continueOnError) { continueOnError = true; index += 1; continue; }
+      const value = argv[index + 1];
+      if (!['--endpoint', '--tenant', '--principal', '--file'].includes(option) || value === undefined
+        || value.startsWith('--') || values.has(option)) throw new Error('Invalid or unknown command option.');
+      values.set(option, value);
+      index += 2;
+    }
+    for (const required of ['--endpoint', '--tenant', '--principal', '--file']) {
+      if (!values.has(required)) throw new Error(`Missing required option ${required}.`);
+    }
+    for (const name of ['--tenant', '--principal']) {
+      if (!OPAQUE_ID_PATTERN.test(values.get(name)!)) throw new Error(`${name.slice(2)} must be a PDP-1 opaque ID of 1 to 128 characters.`);
+    }
+  } catch (error) {
+    fail('INVALID_INVOCATION', `${error instanceof Error ? error.message : 'Invalid invocation'} ${LOCAL_DEVELOPMENT_USAGE}`, 2);
+    return;
+  }
+  const bearerToken = token?.trim();
+  if (!bearerToken) { fail('MISSING_AUTH_TOKEN', 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.', 2); return; }
+  let endpoint: string;
+  try { endpoint = validateLocalDevelopmentEndpoint(values.get('--endpoint')!); }
+  catch { fail('LOCAL_DEV_ENDPOINT_REQUIRED', 'The local-development CLI only accepts a valid loopback Media endpoint.', 3); return; }
+  const common = ['--endpoint', endpoint, '--tenant', values.get('--tenant')!, '--principal', values.get('--principal')!];
+  let items: readonly BatchItem[];
+  try {
+    items = parseBatch(await readBatchFile(values.get('--file')!));
+    // Every item is fully validated by the single-command parser before any item is dispatched.
+    for (const item of items) parseArguments([...item.command.split(' '), ...common, ...item.flags], 'local-development');
+  } catch (error) {
+    if (error instanceof BatchValidationError) fail(error.code, error.message, 2);
+    else fail('BATCH_SCHEMA_INVALID', `A batch item failed single-command validation: ${error instanceof Error ? error.message : 'invalid item'}`, 2);
+    return;
+  }
+  const report = await runBatch(items, { continueOnError, dispatch: (item) => dispatchBatchItem(item, common, bearerToken) });
+  if (containsCredential(report.document, bearerToken)) {
+    fail('INVALID_MEDIA_RESPONSE', 'Batch output contained credential material and was withheld.', 1);
+    return;
+  }
+  process.stdout.write(`${JSON.stringify(report.document)}\n`);
+  process.exitCode = report.exitCode;
+}
+
 async function run(argv: readonly string[], token: string | undefined, channel: CliChannel): Promise<void> {
+  if (channel === 'local-development' && argv[0] === 'batch' && argv[1] === 'run') {
+    await runBatchCommand(argv, token);
+    return;
+  }
   const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
   const usage = channel === 'production' ? PRODUCTION_USAGE : LOCAL_DEVELOPMENT_USAGE;
   // Parse and reject unsupported command identities before reading credentials
