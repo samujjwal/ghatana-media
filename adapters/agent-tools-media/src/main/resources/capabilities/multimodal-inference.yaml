@@ -18,6 +18,10 @@ inputSchema:
   type: object
   required: [mediaArtifactId]
   properties:
+    sourceArtifactVersion:
+      type: string
+      pattern: "^sha256:[0-9a-f]{64}$"
+      description: "Exact immutable source artifact version the call is bound to (required for canonical Media job submission)"
     mediaArtifactId:
       type: string
       description: "Platform media artifact ID for the source video in Data Cloud"

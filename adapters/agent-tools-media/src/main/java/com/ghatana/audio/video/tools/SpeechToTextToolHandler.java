@@ -9,12 +9,15 @@ import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import io.activej.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -39,7 +42,7 @@ public final class SpeechToTextToolHandler implements ToolHandler {
     private static final Set<String> VALIDATION_CODES = Set.of(
             "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
             "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
-            "INVALID_AUDIOSOURCE", "INVALID_MEDIAARTIFACTID", "INVALID_AUDIOBYTES",
+            "SOURCE_ARTIFACT_REQUIRED", "SOURCE_VERSION_REQUIRED", "SOURCE_VERSION_INVALID", "INVALID_AUDIOSOURCE", "INVALID_MEDIAARTIFACTID", "INVALID_AUDIOBYTES",
             "INVALID_MIME_TYPE", "INVALID_LANGUAGE_CODE", "INVALID_ENABLE_DIARIZATION", "INVALID_MODEL");
 
     public SpeechToTextToolHandler() {
@@ -51,6 +54,21 @@ public final class SpeechToTextToolHandler implements ToolHandler {
      * until Media supplies an admitted operation, source, and consent binding.
      */
     public SpeechToTextToolHandler(ToolHandler ignoredDelegate) {
+        this.bridge = null;
+        this.principal = null;
+    }
+
+    private final MediaToolJobBridge bridge;
+    private final AuthenticatedPrincipal principal;
+
+    /**
+     * Canonical-job constructor: after validation the call is submitted as exactly one Media
+     * {@link JobType#SPEECH_TO_TEXT} job through the bridge. Without a bridge the handler stays
+     * typed NOT_ADMITTED. The principal is the host-authenticated Media identity.
+     */
+    public SpeechToTextToolHandler(MediaToolJobBridge bridge, AuthenticatedPrincipal principal) {
+        this.bridge = java.util.Objects.requireNonNull(bridge, "bridge");
+        this.principal = principal;
     }
 
     @Override
@@ -60,9 +78,12 @@ public final class SpeechToTextToolHandler implements ToolHandler {
 
         Instant start = Instant.now();
         Map<String, Object> input;
+        String sourceId = null;
+        String sourceVersion = null;
+        Map<String, Object> jobParameters = null;
 
         try {
-            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("audioSource", "languageCode", "enableDiarization", "model"));
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("audioSource", "languageCode", "enableDiarization", "model", "sourceArtifactVersion"));
             resolveAudioSource(input);
             AgentToolInput.languageTag(input.get("languageCode"), "en-US");
             if (!(input.getOrDefault("enableDiarization", Boolean.FALSE) instanceof Boolean))
@@ -70,8 +91,19 @@ public final class SpeechToTextToolHandler implements ToolHandler {
             if (!Set.of("default", "enhanced", "telephony").contains(input.getOrDefault("model", "default")))
                 throw new IllegalArgumentException("INVALID_MODEL");
 
+            if (bridge != null) {
+                sourceId = AgentToolInput.sourceArtifactId(resolveAudioSource(input));
+                sourceVersion = AgentToolInput.sourceVersion(input);
+                jobParameters = new LinkedHashMap<>();
+                jobParameters.put("language", AgentToolInput.languageTag(input.get("languageCode"), "en-US"));
+                jobParameters.put("diarization", input.getOrDefault("enableDiarization", Boolean.FALSE));
+                jobParameters.put("model", input.getOrDefault("model", "default"));
+            }
         } catch (Exception e) {
             String errorCode = validationErrorCode(e);
+            if (errorCode.startsWith("SOURCE_")) {
+                return Promise.of(MediaToolJobBridge.validationFailure(envelope, errorCode, start));
+            }
             log.warn("STT input rejected: {}", errorCode);
             Instant end = Instant.now();
             if ("TOOL_INPUT_SCHEMA_VIOLATION".equals(errorCode)) {
@@ -87,6 +119,10 @@ public final class SpeechToTextToolHandler implements ToolHandler {
                     envelope.invocationId(),
                     end,
                     Duration.between(start, end)));
+        }
+        if (bridge != null) {
+            return bridge.submit(envelope, principal, JobType.SPEECH_TO_TEXT, sourceId, sourceVersion,
+                    jobParameters, start);
         }
         // The current Media source disposition has no accepted STT operation
         // mapping, qualified model binding, source-version receipt, or trusted

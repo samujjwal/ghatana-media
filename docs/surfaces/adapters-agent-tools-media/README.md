@@ -3,8 +3,8 @@
 Media Agent Tools adapter (`adapters/agent-tools-media`, Java/Gradle,
 ActiveJ promises). It binds delegated tool calls to the four Media tool
 handlers behind an atomic durable-invocation seam. It is **not** a
-provider bypass: handlers validate input and return typed `NOT_ADMITTED`
-before any provider dispatch today.
+provider bypass: handlers validate input and, without a configured job bridge,
+return typed `NOT_ADMITTED`; with one they only submit canonical Media jobs.
 
 ## Responsibility
 
@@ -16,6 +16,49 @@ before any provider dispatch today.
   dispatch so duplicate/replayed calls cannot double-execute.
 - Preserve typed failure taxonomy (`ToolExecutionFailure.Stage.ADMISSION`
   etc.) and `OUTCOME_UNKNOWN` semantics for post-dispatch ambiguity.
+
+## Canonical Media job mapping (conservative assumption)
+
+Conservative assumption (owner-delegated design decision): "Each Media agent tool maps to exactly one canonical Media job: av.speech-to-text → JobType.SPEECH_TO_TEXT, av.text-to-speech → TEXT_TO_SPEECH, av.vision-analysis → VISION, av.multimodal-inference → MULTIMODAL, submitted through the canonical Media job submission path with the caller's exact source artifact version, a request id derived from the durable invocation id, and the tool's validated parameters. The tool result is the canonical job's observed outcome (terminal result, or ACCEPTED/RUNNING with a job reference, or the job pipeline's own typed NOT_ADMITTED/UNAVAILABLE/OUTCOME_UNKNOWN). No model, voice, licence, consent or quality is self-admitted: provider admission stays exactly as the Media runtime decides it, so without an admitted provider every tool returns the runtime's typed refusal. Tool identity is bound to an authenticated Media principal; in development this is the DEV_ONLY signed identity, and production-like profiles stay fail-closed until a trusted Tools identity contract exists."
+
+| Tool | Job type | Source binding | Job parameters |
+| --- | --- | --- | --- |
+| `av.speech-to-text` | `SPEECH_TO_TEXT` | `audioSource.mediaArtifactId` + `sourceArtifactVersion` | language, diarization, model |
+| `av.text-to-speech` | `TEXT_TO_SPEECH` | `sourceArtifactId` + `sourceArtifactVersion` | text, voice, speakingRate, pitch, audioEncoding, storeAsArtifact |
+| `av.vision-analysis` | `VISION` | `mediaSource.mediaArtifactId` + `sourceArtifactVersion` | analysisTypes, maxResults, confidenceThreshold, customModelId |
+| `av.multimodal-inference` | `MULTIMODAL` | `mediaArtifactId` + `sourceArtifactVersion` | inferenceMode, samplingRateMs, language, enableTranscription, enableVisionAnalysis |
+
+- Seam: `MediaJobSubmissionPort` (adapter interface). `RuntimeMediaJobSubmissionPort`
+  implements it over the published `MediaProcessingRuntimePort`
+  (`submit(request, AuthenticatedPrincipal)`); launcher internals are not imported.
+- Wiring: `new AudioVideoToolHandlerFactory(binder, new MediaToolJobBridge(port, profile))`;
+  `bridge.readback()` is the binder's `MediaJobReadback`. Without a bridge every
+  handler stays typed `*_NOT_ADMITTED` exactly as before.
+- Request: id `agtool-<sha256(invocationId)>`, correlation id = invocation id, tenant from the
+  envelope, principal from the authenticated identity, empty provider hint, default (non-
+  consenting, non-external) governance context. Inline bytes and a missing/malformed
+  `sourceArtifactVersion` are rejected (`SOURCE_ARTIFACT_REQUIRED`, `SOURCE_VERSION_REQUIRED`,
+  `SOURCE_VERSION_INVALID`) before any submission; a stale/mismatched version is the runtime's
+  `MEDIA_SOURCE_VERSION_STALE` refusal.
+- Outcome mapping: `COMPLETED` → SUCCESS with job reference + the job's stored result;
+  `ACCEPTED`/`RUNNING`/`OUTCOME_UNKNOWN` → non-final `OUTCOME_UNKNOWN` carrying the job id
+  (fence stays UNKNOWN); `FAILED` → FAILED with the job failure code; `CANCELLED` → CANCELLED;
+  `MediaCapabilityNotAdmittedException` → `MEDIA_NOT_ADMITTED` / `MEDIA_PROVIDER_UNAVAILABLE` /
+  `MEDIA_SOURCE_VERSION_STALE` (UNAVAILABLE at ADMISSION) or `MEDIA_POLICY_DENIED` (DENIED).
+  Any other submit exception, or a returned job whose identity does not match the request,
+  is ambiguous: it stays on the error channel (binder `OutcomeUnknownException`) and is
+  reconciled via `MediaJobReadback` by the derived request id. Duplicate invocations are
+  fenced by the ledger and never resubmit.
+- Principal: the authenticated tenant must equal the envelope tenant; mismatch or absent
+  principal is refused before submission. Only dev-class profiles (`local/dev/development/
+  test/ci`) accept an identity; production-like or unknown profiles return
+  `TOOLS_IDENTITY_CONTRACT_UNAVAILABLE`. The adapter does not verify the DEV_ONLY signature;
+  the host that authenticates the principal owns that.
+- Host must supply: the authenticated principal per call, a durable request-id lookup for
+  reconciliation (the runtime port has none, so `RuntimeMediaJobSubmissionPort` only
+  resolves submissions whose acknowledgment it saw), and an admitted provider. Positive tests
+  use a TEST-ONLY fixture port and do not prove any real provider, model, voice, licence or
+  consent is admitted.
 
 ## Public operations
 

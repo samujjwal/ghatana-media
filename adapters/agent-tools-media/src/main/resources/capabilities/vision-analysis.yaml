@@ -18,6 +18,10 @@ inputSchema:
   type: object
   required: [mediaSource, analysisTypes]
   properties:
+    sourceArtifactVersion:
+      type: string
+      pattern: "^sha256:[0-9a-f]{64}$"
+      description: "Exact immutable source artifact version the call is bound to (required for canonical Media job submission)"
     mediaSource:
       type: object
       description: "Image or video frame source"

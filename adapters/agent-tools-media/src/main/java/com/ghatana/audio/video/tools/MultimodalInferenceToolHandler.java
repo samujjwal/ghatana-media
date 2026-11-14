@@ -9,12 +9,15 @@ import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import io.activej.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -39,7 +42,7 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
     private static final Set<String> VALIDATION_CODES = Set.of(
             "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
             "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
-            "INVALID_MEDIAARTIFACTID", "INVALID_INFERENCE_MODE", "INVALID_SAMPLING_RATE",
+            "SOURCE_ARTIFACT_REQUIRED", "SOURCE_VERSION_REQUIRED", "SOURCE_VERSION_INVALID", "INVALID_MEDIAARTIFACTID", "INVALID_INFERENCE_MODE", "INVALID_SAMPLING_RATE",
             "INVALID_LANGUAGE_CODE", "INVALID_ENABLETRANSCRIPTION", "INVALID_ENABLEVISIONANALYSIS",
             "NO_MODALITY_SELECTED");
 
@@ -49,6 +52,21 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
 
     /** Compatibility constructor; a delegate cannot provide admission authority. */
     public MultimodalInferenceToolHandler(ToolHandler ignoredDelegate) {
+        this.bridge = null;
+        this.principal = null;
+    }
+
+    private final MediaToolJobBridge bridge;
+    private final AuthenticatedPrincipal principal;
+
+    /**
+     * Canonical-job constructor: after validation the call is submitted as exactly one Media
+     * {@link JobType#MULTIMODAL} job through the bridge. Without a bridge the handler stays
+     * typed NOT_ADMITTED. The principal is the host-authenticated Media identity.
+     */
+    public MultimodalInferenceToolHandler(MediaToolJobBridge bridge, AuthenticatedPrincipal principal) {
+        this.bridge = java.util.Objects.requireNonNull(bridge, "bridge");
+        this.principal = principal;
     }
 
     @Override
@@ -58,9 +76,12 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
 
         Instant start = Instant.now();
         Map<String, Object> input;
+        String sourceId = null;
+        String sourceVersion = null;
+        Map<String, Object> jobParameters = null;
 
         try {
-            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode"));
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode", "sourceArtifactVersion"));
             AgentToolInput.requiredString(input, "mediaArtifactId", 512);
             Object mode = input.getOrDefault("inferenceMode", "SUMMARY");
             if (!(mode instanceof String inferenceMode) || !Set.of("SUMMARY", "SEGMENT", "FRAME_BY_FRAME", "FULL").contains(inferenceMode)) throw new IllegalArgumentException("INVALID_INFERENCE_MODE");
@@ -72,8 +93,21 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
             boolean enableVision = optionalBoolean(input, "enableVisionAnalysis", true);
             if (!enableTranscription && !enableVision) throw new IllegalArgumentException("NO_MODALITY_SELECTED");
 
+            if (bridge != null) {
+                sourceId = AgentToolInput.requiredString(input, "mediaArtifactId", 512);
+                sourceVersion = AgentToolInput.sourceVersion(input);
+                jobParameters = new LinkedHashMap<>();
+                jobParameters.put("inferenceMode", (String) mode);
+                jobParameters.put("samplingRateMs", ((Number) sampling).intValue());
+                jobParameters.put("language", AgentToolInput.languageTag(input.get("languageCode"), "en-US"));
+                jobParameters.put("enableTranscription", enableTranscription);
+                jobParameters.put("enableVisionAnalysis", enableVision);
+            }
         } catch (Exception e) {
             String errorCode = validationErrorCode(e);
+            if (errorCode.startsWith("SOURCE_")) {
+                return Promise.of(MediaToolJobBridge.validationFailure(envelope, errorCode, start));
+            }
             log.warn("Multimodal input rejected: {}", errorCode);
             Instant end = Instant.now();
             return Promise.of(ToolExecutionResult.failed(
@@ -82,6 +116,10 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                     envelope.invocationId(),
                     end,
                     Duration.between(start, end)));
+        }
+        if (bridge != null) {
+            return bridge.submit(envelope, principal, JobType.MULTIMODAL, sourceId, sourceVersion,
+                    jobParameters, start);
         }
         // A generic ToolHandler is not an admission or provenance authority.
         // The current public operation contract does not bind source version,

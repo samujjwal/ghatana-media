@@ -416,6 +416,21 @@ final class AgentToolInput {
         return "bytes:inline";
     }
 
+    /** Exact source artifact id from a {@link #source} result; inline bytes are never a canonical source. */
+    static String sourceArtifactId(String source) {
+        if (source == null || !source.startsWith("artifact:")) throw new IllegalArgumentException("SOURCE_ARTIFACT_REQUIRED");
+        return source.substring("artifact:".length());
+    }
+
+    /** Exact immutable source version the caller is invoking against (sha256:&lt;hex&gt;). */
+    static String sourceVersion(Map<String, Object> input) {
+        Object version = input.get(MediaToolJobBridge.SOURCE_VERSION_FIELD);
+        if (version == null) throw new IllegalArgumentException("SOURCE_VERSION_REQUIRED");
+        if (!(version instanceof String text) || !text.matches("sha256:[0-9a-f]{64}"))
+            throw new IllegalArgumentException("SOURCE_VERSION_INVALID");
+        return text;
+    }
+
     @SuppressWarnings("unchecked")
     private static Map<String, Object> cast(Map<?, ?> map) { return (Map<String, Object>) map; }
 

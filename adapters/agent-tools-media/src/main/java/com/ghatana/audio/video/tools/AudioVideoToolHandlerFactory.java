@@ -57,6 +57,8 @@ public final class AudioVideoToolHandlerFactory {
 
     /** Optional execution fence supplied by the owning Tools/Action Plane integration. */
     private final MediaToolExecutionBinder executionBinder;
+    /** Optional canonical Media job bridge; absent means every tool stays typed NOT_ADMITTED. */
+    private final MediaToolJobBridge jobBridge;
 
     /**
      * Creates local fail-closed handlers without an Action Plane ledger. This
@@ -65,6 +67,7 @@ public final class AudioVideoToolHandlerFactory {
      */
     public AudioVideoToolHandlerFactory() {
         this.executionBinder = null;
+        this.jobBridge = null;
     }
 
     /**
@@ -75,6 +78,16 @@ public final class AudioVideoToolHandlerFactory {
      */
     public AudioVideoToolHandlerFactory(MediaToolExecutionBinder executionBinder) {
         this.executionBinder = Objects.requireNonNull(executionBinder, "executionBinder");
+        this.jobBridge = null;
+    }
+
+    /**
+     * Creates handlers that, after the binder's durable claim, submit each tool call as exactly
+     * one canonical Media job through the bridge. Provider admission stays the runtime's decision.
+     */
+    public AudioVideoToolHandlerFactory(MediaToolExecutionBinder executionBinder, MediaToolJobBridge jobBridge) {
+        this.executionBinder = Objects.requireNonNull(executionBinder, "executionBinder");
+        this.jobBridge = Objects.requireNonNull(jobBridge, "jobBridge");
     }
 
     /**
@@ -85,7 +98,7 @@ public final class AudioVideoToolHandlerFactory {
      * @throws IllegalArgumentException if the toolId is not recognized
      */
     public ToolHandler create(String toolId) {
-        ToolHandler handler = createDelegate(toolId);
+        ToolHandler handler = createDelegate(toolId, null);
         if (executionBinder == null) return handler;
         return (envelope, contract) -> executionBinder.execute(handler, envelope, contract);
     }
@@ -100,12 +113,20 @@ public final class AudioVideoToolHandlerFactory {
         if (executionBinder == null) {
             throw new IllegalStateException("authenticated Media tool execution requires an invocation binder");
         }
-        ToolHandler handler = createDelegate(toolId);
-        return (envelope, contract, authenticated) ->
-                executionBinder.execute(handler, envelope, contract, authenticated);
+        createDelegate(toolId, null); // reject unknown tool ids eagerly
+        return (envelope, contract, authenticated) -> executionBinder.execute(
+                createDelegate(toolId, authenticated), envelope, contract, authenticated);
     }
 
-    private static ToolHandler createDelegate(String toolId) {
+    private ToolHandler createDelegate(String toolId, AuthenticatedPrincipal principal) {
+        if (jobBridge != null && HANDLER_REGISTRY.containsKey(toolId)) {
+            return switch (toolId) {
+                case TOOL_ID_STT       -> new SpeechToTextToolHandler(jobBridge, principal);
+                case TOOL_ID_TTS       -> new TextToSpeechToolHandler(jobBridge, principal);
+                case TOOL_ID_VISION    -> new VisionAnalysisToolHandler(jobBridge, principal);
+                default                -> new MultimodalInferenceToolHandler(jobBridge, principal);
+            };
+        }
         return switch (toolId) {
             case TOOL_ID_STT       -> new SpeechToTextToolHandler();
             case TOOL_ID_TTS       -> new TextToSpeechToolHandler();

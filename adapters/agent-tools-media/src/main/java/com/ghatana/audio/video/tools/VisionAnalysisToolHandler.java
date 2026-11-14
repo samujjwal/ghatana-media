@@ -9,6 +9,8 @@ import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import io.activej.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -40,7 +43,7 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
     private static final Set<String> VALIDATION_CODES = Set.of(
             "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
             "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
-            "INVALID_MEDIASOURCE", "INVALID_IMAGEBYTES", "INVALID_MEDIAARTIFACTID", "INVALID_MIME_TYPE",
+            "SOURCE_ARTIFACT_REQUIRED", "SOURCE_VERSION_REQUIRED", "SOURCE_VERSION_INVALID", "INVALID_MEDIASOURCE", "INVALID_IMAGEBYTES", "INVALID_MEDIAARTIFACTID", "INVALID_MIME_TYPE",
             "INLINE_IMAGE_NOT_ADMITTED", "INVALID_ANALYSIS_TYPES", "INVALID_MAX_RESULTS",
             "INVALID_CONFIDENCE_THRESHOLD", "INVALID_CUSTOMMODELID");
 
@@ -50,6 +53,21 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
 
     /** Compatibility constructor; a delegate cannot provide admission authority. */
     public VisionAnalysisToolHandler(ToolHandler ignoredDelegate) {
+        this.bridge = null;
+        this.principal = null;
+    }
+
+    private final MediaToolJobBridge bridge;
+    private final AuthenticatedPrincipal principal;
+
+    /**
+     * Canonical-job constructor: after validation the call is submitted as exactly one Media
+     * {@link JobType#VISION} job through the bridge. Without a bridge the handler stays
+     * typed NOT_ADMITTED. The principal is the host-authenticated Media identity.
+     */
+    public VisionAnalysisToolHandler(MediaToolJobBridge bridge, AuthenticatedPrincipal principal) {
+        this.bridge = java.util.Objects.requireNonNull(bridge, "bridge");
+        this.principal = principal;
     }
 
     @Override
@@ -59,9 +77,12 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
 
         Instant start = Instant.now();
         Map<String, Object> input;
+        String sourceId = null;
+        String sourceVersion = null;
+        Map<String, Object> jobParameters = null;
 
         try {
-            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaSource", "analysisTypes", "maxResults", "confidenceThreshold", "customModelId"));
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaSource", "analysisTypes", "maxResults", "confidenceThreshold", "customModelId", "sourceArtifactVersion"));
             resolveMediaSource(input);
             Object rawTypes = input.getOrDefault("analysisTypes", List.of("OBJECT_DETECTION"));
             if (!(rawTypes instanceof List<?> types) || types.isEmpty() || types.size() > 8
@@ -75,8 +96,20 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
             if (analysisTypes.contains("CUSTOM_MODEL")) AgentToolInput.requiredString(input, "customModelId", 512);
             else if (input.containsKey("customModelId")) AgentToolInput.requiredString(input, "customModelId", 512);
 
+            if (bridge != null) {
+                sourceId = AgentToolInput.sourceArtifactId(resolveMediaSource(input));
+                sourceVersion = AgentToolInput.sourceVersion(input);
+                jobParameters = new LinkedHashMap<>();
+                jobParameters.put("analysisTypes", analysisTypes);
+                jobParameters.put("maxResults", maxResults);
+                jobParameters.put("confidenceThreshold", confidence);
+                if (input.containsKey("customModelId")) jobParameters.put("customModelId", input.get("customModelId"));
+            }
         } catch (Exception e) {
             String errorCode = validationErrorCode(e);
+            if (errorCode.startsWith("SOURCE_")) {
+                return Promise.of(MediaToolJobBridge.validationFailure(envelope, errorCode, start));
+            }
             log.warn("Vision input rejected: {}", errorCode);
             Instant end = Instant.now();
             return Promise.of(ToolExecutionResult.failed(
@@ -85,6 +118,10 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
                     envelope.invocationId(),
                     end,
                     Duration.between(start, end)));
+        }
+        if (bridge != null) {
+            return bridge.submit(envelope, principal, JobType.VISION, sourceId, sourceVersion,
+                    jobParameters, start);
         }
         // A generic ToolHandler is not an admission or provenance authority.
         // The current public operation contract does not bind source version,
