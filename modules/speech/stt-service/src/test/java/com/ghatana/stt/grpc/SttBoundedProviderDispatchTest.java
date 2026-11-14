@@ -318,6 +318,12 @@ class SttBoundedProviderDispatchTest {
             assertThat(queued.terminal.await(3, TimeUnit.SECONDS)).isTrue();
             assertThat(Status.fromThrowable(queued.failure).getCode())
                     .isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            // The terminal status is delivered before the cancelled queue entry is purged from the
+            // worker queue, so wait (bounded) for the purge instead of sampling it instantly.
+            long purgeDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+            while (!workers.getQueue().isEmpty() && System.nanoTime() < purgeDeadline) {
+                Thread.sleep(5);
+            }
             assertThat(workers.getQueue()).isEmpty();
 
             releaseProvider.countDown();
