@@ -180,6 +180,36 @@ and stable terminal reads — **no second writer**.
   shared with the standalone `vision-service` entrypoint;
   `MediaSubmissionDigest` supplies submission identity.
 
+### DEV_ONLY route inventory
+
+All `/dev/v1` routes require exact profile `dev`, `MEDIA_DEV_IDENTITY_ENABLED=true` and a signed DEV_ONLY
+token; none appear in the canonical route manifest or OpenAPI. The filter enforces the listed permission;
+handlers additionally require the artifact permissions noted, so access is never looser than the table.
+
+| Method | Path | Filter permission | Extra handler permission | Lane flag |
+| --- | --- | --- | --- | --- |
+| GET | `/dev/v1/artifact-upload-policy` | `media:artifact:create` | — | always (dev) |
+| POST | `/dev/v1/jobs/{jobId}/cancel` | `media:job:cancel` | — | always (dev) |
+| GET | `/dev/v1/context` | `media:project:dev:read` | — | `MEDIA_PROJECT_TIMELINE_DEV_ENABLED` |
+| POST | `/dev/v1/projects` | `media:project:dev:create` | — | timeline |
+| GET | `/dev/v1/projects/{projectId}` | `media:project:dev:read` | — | timeline |
+| POST | `/dev/v1/projects/{projectId}/timelines` | `media:project:dev:write` | — | timeline |
+| POST | `/dev/v1/projects/{projectId}/timelines/{timelineId}/edits` | `media:project:dev:write` | `media:artifact:read` for `putClip` | timeline |
+| POST | `/dev/v1/projects/{projectId}/restore` | `media:project:dev:write` | — | timeline |
+| GET | `/dev/v1/projects/{projectId}/revisions/{revisionId}` | `media:project:dev:read` | — | timeline |
+| POST | `/dev/v1/projects/{projectId}/renders` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline (+ `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` for mp4) |
+| GET | `/dev/v1/projects/{projectId}/renders/{renderId}` | `media:project:dev:read` | — | timeline |
+| POST | `/dev/v1/reviews` | `media:project:dev:write` | `media:artifact:read` for `ARTIFACT_VERSION` | `MEDIA_DEV_REVIEW_ENABLED` |
+| GET | `/dev/v1/reviews/{caseId}` | `media:project:dev:read` | — | review |
+| POST | `/dev/v1/reviews/{caseId}/comments` | `media:project:dev:write` | — | review |
+| POST | `/dev/v1/reviews/{caseId}/decisions` | `media:project:dev:write` | — | review |
+| POST | `/dev/v1/creative-outputs/audio-repairs` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline |
+| POST | `/dev/v1/creative-outputs/simulations` | `media:project:dev:write` | `media:artifact:create` | timeline |
+| POST | `/dev/v1/creative-outputs/spatial-glb` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline |
+| GET | `/dev/v1/creative-outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | timeline |
+| POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
+| GET | `/dev/v1/exports/{requestId}` | `media:delivery:dev:read` | — | delivery |
+
 ## Public operations
 
 | Entry point | Contents |

@@ -21,7 +21,7 @@
     },
     "localEvidence": {
       "LOCAL_DEV_ONLY_TESTED": 11,
-      "LOCAL_DEV_ONLY_PARTIAL": 6
+      "LOCAL_DEV_ONLY_PARTIAL": 8
     }
   },
   "externalOwnedDependencies": {
@@ -5978,7 +5978,19 @@
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/projects/{projectId}/renders (GIF storyboard)"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java"
+        ],
+        "gaps": [
+          "raster GIF only from still-image clips; no vector output or declared frame profile beyond fps/size"
+        ]
+      }
     },
     {
       "id": "media.animation.output.output.composited-video",
@@ -6053,7 +6065,21 @@
         "libs/media-experience-simulation",
         "apps/media-experience-explorer"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/creative-outputs/spatial-glb",
+          "GET /dev/v1/creative-outputs/{outputId}"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java"
+        ],
+        "gaps": [
+          "only the engine's own GLB profile (right-handed +X/+Y/+Z, metre, unit quaternion); no versioned interchange profile or registry",
+          "field-loss is the engine's float32 approximation list only; no owner loss bindings, viewer parity or 360 fidelity"
+        ]
+      }
     },
     {
       "id": "media.animation.output.accessibility.semantic-timeline",
