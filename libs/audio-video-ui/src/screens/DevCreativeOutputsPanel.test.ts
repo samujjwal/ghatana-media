@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DevContentError, sha256Hex } from "./devArtifactContent";
 import { DevCreativeOutputsPanel } from "./DevCreativeOutputsPanel";
 import {
   DevCreativeHostError, buildAudioRepairRequest, buildSimulationRequest, buildSpatialGlbRequest, emptySimulationForm,
@@ -303,5 +304,72 @@ describe("reopen and shared outcomes", () => {
       expect(document.getElementById(id)!.getAttribute("aria-live")).toBe("polite");
     }
     expect(document.querySelectorAll("div[onclick], span[onclick]")).toHaveLength(0);
+  });
+});
+
+describe("verified content (readArtifactContent)", () => {
+  const enc = new TextEncoder();
+  const WAV = new Uint8Array([82, 73, 70, 70, 4, 0, 0, 0, 87, 65, 86, 69]);
+  const GLB = new Uint8Array([103, 108, 84, 70, 2, 0, 0, 0]);
+  const withArtifact = async (body: unknown, data: Uint8Array, over: { sha?: string } = {}): Promise<unknown> => {
+    const sha = over.sha ?? await sha256Hex(data);
+    const b = body as { artifact: Record<string, unknown> };
+    b.artifact = { ...b.artifact, sha256: sha, artifactVersionId: `sha256:${sha}`, sizeBytes: data.byteLength };
+    return b;
+  };
+  beforeEach(() => {
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, writable: true, value: vi.fn(() => "blob:fixture/creative") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: vi.fn() });
+  });
+
+  it("builds the unit-labelled observation table from verified bytes and keeps the not-a-measurement label", async () => {
+    const data = enc.encode(JSON.stringify(simDocument()));
+    const body = await withArtifact(simBody(), data);
+    const readArtifactContent = vi.fn(async () => ({ status: 200, contentType: "application/json", bytes: data }));
+    const port = fakePort({ simulate: vi.fn(() => ok(201, body)), readArtifactContent } as never); mount(port);
+    click(/Load worked example/u); click("Run simulation");
+    await waitFor(() => screen.getByLabelText("Simulated observation series"));
+    expect(screen.getByLabelText("Simulated observation series").textContent).toContain("totalEnergy (JOULE)");
+    expect(document.getElementById("creative-result")!.textContent).toContain("SIMULATED_OUTPUT_NOT_MEASUREMENT");
+    expect(document.getElementById("creative-result")!.textContent).toContain("Bytes verified against the registered version");
+    expect(readArtifactContent).toHaveBeenCalledWith({ artifactId: "out-sim-1", artifactVersionId: expect.stringMatching(/^sha256:[0-9a-f]{64}$/u), maxBytes: expect.any(Number) });
+  });
+
+  it("shows no table when the document bytes do not match the registered digest or the host refuses", async () => {
+    const data = enc.encode(JSON.stringify(simDocument()));
+    for (const reader of [
+      vi.fn(async () => ({ status: 200, contentType: "application/json", bytes: data })),
+      vi.fn(() => Promise.reject(new DevContentError("ARTIFACT_NOT_FOUND", 404, "x"))),
+      vi.fn(() => Promise.reject(new DevContentError("ARTIFACT_VERSION_MISMATCH", 412, "x"))),
+    ]) {
+      cleanup();
+      const body = await withArtifact(simBody(), data, { sha: "1".repeat(64) });
+      mount(fakePort({ simulate: vi.fn(() => ok(201, body)), readArtifactContent: reader } as never));
+      click(/Load worked example/u); click("Run simulation");
+      await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("could not be read"));
+      expect(screen.queryByLabelText("Simulated observation series")).toBeNull();
+    }
+  });
+
+  it("previews and downloads the repaired WAV, and offers GLB as download only", async () => {
+    const wavBody = await withArtifact(audioBody(), WAV);
+    const port = fakePort({ repairAudio: vi.fn(() => ok(201, wavBody)), exportSpatialGlb: vi.fn(async () => ok(201, await withArtifact(spatialBody(), GLB))),
+      readArtifactContent: vi.fn(async (request: { artifactId: string }) => request.artifactId === "out-glb-1"
+        ? { status: 200, contentType: "model/gltf-binary", bytes: GLB } : { status: 200, contentType: "audio/wav", bytes: WAV }) } as never);
+    mount(port); fillAudio(); click("Repair exact source version");
+    await waitFor(() => screen.getByRole("button", { name: /Preview WAV/u }));
+    expect(screen.getByRole("button", { name: /Download WAV/u })).toBeTruthy();
+    click(/Preview WAV/u);
+    await waitFor(() => expect(document.querySelector("audio[controls]")).not.toBeNull());
+    expect(document.getElementById("creative-result")!.textContent).toContain("Bytes verified against the registered version");
+
+    fireEvent.change(screen.getByLabelText("Rig JSON"), { target: { value: SPATIAL_RIG_TEMPLATE } });
+    const rig = JSON.parse(SPATIAL_RIG_TEMPLATE) as { sourceVersions: unknown };
+    rig.sourceVersions = [{ artifactId: "src-1", artifactVersionId: SRC_VERSION }];
+    fireEvent.change(screen.getByLabelText("Rig JSON"), { target: { value: JSON.stringify(rig) } });
+    click("Export GLB");
+    await waitFor(() => screen.getByRole("button", { name: /Download GLB/u }));
+    expect(screen.queryByRole("button", { name: /Preview GLB/u })).toBeNull();
+    expect(document.querySelector("model-viewer, canvas")).toBeNull();
   });
 });

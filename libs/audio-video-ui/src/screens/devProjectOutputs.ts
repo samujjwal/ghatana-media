@@ -7,6 +7,8 @@
  * outcome is unknown). Nothing here claims approval, export or delivery.
  */
 
+import type { DevArtifactContentReader } from "./devArtifactContent";
+
 export type DevRenderFormat = "gif" | "mp4";
 
 export interface DevRenderRequest {
@@ -57,6 +59,11 @@ export interface DevProjectOutputsPort {
   requestExport(request: DevExportRequest): Promise<DevHostResponse>;
   /** GET /dev/v1/exports/{requestId}. */
   getExport(requestId: string): Promise<DevHostResponse>;
+  /**
+   * Optional exact-version content read (GET /dev/v1/artifacts/{id}/content) used for the verified preview and
+   * download. A host without that route omits it and the panel says so.
+   */
+  readArtifactContent?: DevArtifactContentReader["readArtifactContent"];
 }
 
 export interface DevExportRequest {

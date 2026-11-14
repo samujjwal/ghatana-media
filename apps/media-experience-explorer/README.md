@@ -117,8 +117,14 @@ PostgreSQL/S3. The PNG source is uploaded over HTTP (this page only inspects
 artifacts; it has no upload path). The page cannot open an existing project by
 id, so after a full reload the render/review panel is verified to start clean
 and the durable readback is asserted over HTTP. The Vite DEV_ONLY allow-list
-(`artifact-proxy-guard.mjs`) admits the render and review routes. No export or
-delivery is offered.
+(`artifact-proxy-guard.mjs`) admits the render, review, export and
+`GET /dev/v1/artifacts/{id}/content` routes. After a render is registered or
+reopened the panel offers a verified preview (`<img>` for GIF, `<video controls>`
+for MP4) and Download: the bytes are fetched as a blob through the
+`readArtifactContent` adapter (`src/dev-artifact-content-client.ts`; exact version
+in `If-Match`, bearer token in a header, never in a URL; 8 MiB cap, no Range
+requests) and shown only after their SHA-256 equals the registered one. The dev
+server CSP therefore allows `blob:` for `img-src` and `media-src`.
 
 ### DEV_ONLY artifact upload recovery
 
@@ -355,7 +361,7 @@ Legacy Product renderer helpers in the Explorer are not the source for these can
 
 ### Local DEV_ONLY creative outputs
 
-Open `/dev-creative-outputs.html` while the local Explorer is running, connect a short-lived DEV_ONLY token (memory only), and use the `DevCreativeOutputsPanel` for audio repair, bounded simulation, spatial GLB export and reopen-by-id against `/dev/v1/creative-outputs/*`. The page is served only by the Vite development host, is not a production build input, and has no Explorer navigation link. The proxy guard admits only `POST .../audio-repairs`, `.../simulations`, `.../spatial-glb` and `GET .../{outputId}`. Results are engine outputs under explicit inputs: audio metrics are engine sample statistics, simulation output is `SIMULATED_OUTPUT_NOT_MEASUREMENT`, and the spatial rights decision is a DEV_ONLY owner-scope check with `productionGrant=false`. The host has no content route, so the simulation observation series is not displayed here. Checks: `node --test test/dev-creative-outputs-page.test.mjs` and `pnpm test:dev-creative-outputs:browser` (fixture host, Chromium via Playwright; proves UI wiring and request identity, not engine behaviour).
+Open `/dev-creative-outputs.html` while the local Explorer is running, connect a short-lived DEV_ONLY token (memory only), and use the `DevCreativeOutputsPanel` for audio repair, bounded simulation, spatial GLB export and reopen-by-id against `/dev/v1/creative-outputs/*`. The page is served only by the Vite development host, is not a production build input, and has no Explorer navigation link. The proxy guard admits only `POST .../audio-repairs`, `.../simulations`, `.../spatial-glb` and `GET .../{outputId}`. Results are engine outputs under explicit inputs: audio metrics are engine sample statistics, simulation output is `SIMULATED_OUTPUT_NOT_MEASUREMENT`, and the spatial rights decision is a DEV_ONLY owner-scope check with `productionGrant=false`. The simulation observation series table is built from the registered document bytes read through `GET /dev/v1/artifacts/{id}/content` after SHA-256 verification (a mismatch shows no table); the repaired WAV has an audio preview and verified Download, and the GLB has a verified Download only. The guard also admits exactly `GET /dev/v1/artifacts/{id}/content` (no query string; the version travels in `If-Match`). Checks: `node --test test/dev-creative-outputs-page.test.mjs` and `pnpm test:dev-creative-outputs:browser` (fixture host, Chromium via Playwright; proves UI wiring and request identity, not engine behaviour).
 
 ### Local owner-scoped job read
 

@@ -8,6 +8,8 @@
  * DEV_ONLY owner-scope visibility check with productionGrant=false.
  */
 
+import type { DevArtifactContentReader } from "./devArtifactContent";
+
 export interface DevCreativeHostResponse {
   readonly status: number;
   readonly body: unknown;
@@ -37,6 +39,12 @@ export interface DevCreativeOutputsPort {
    * not in the creative-output view). A host without a DEV_ONLY content route omits this and the panel says so.
    */
   readSimulationDocument?(outputId: string): Promise<DevCreativeHostResponse>;
+  /**
+   * Optional exact-version content read (GET /dev/v1/artifacts/{id}/content). When present the panel reads the
+   * simulation document through it with SHA-256 verification (preferred over readSimulationDocument) and offers
+   * verified previews and downloads. A host without that route omits it.
+   */
+  readArtifactContent?: DevArtifactContentReader["readArtifactContent"];
 }
 
 /** Typed host failure. `status` 0 means no response was observed (outcome unknown). */

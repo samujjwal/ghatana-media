@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DevProject, DevProjectRevision } from "@audio-video/client/dev-project-timeline";
 import { DevProjectOutputsPanel } from "./DevProjectOutputsPanel";
 import { DevOutputsHostError, type DevHostResponse, type DevProjectOutputsPort } from "./devProjectOutputs";
+import { DevContentError, sha256Hex } from "./devArtifactContent";
 import { DevProjectTimelineWorkspaceScreen, type DevProjectTimelineWorkspacePort } from "./DevProjectTimelineWorkspaceScreen";
 
 afterEach(cleanup);
@@ -518,5 +519,85 @@ describe("workspace integration", () => {
     render(React.createElement(DevProjectTimelineWorkspaceScreen, { client, project, revision: graphRevision }));
     expect(screen.getByRole("heading", { name: "Render engine unavailable" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Render exact revision" })).toBeNull();
+  });
+});
+
+describe("DevProjectOutputsPanel verified preview and download", () => {
+  const GIF = new Uint8Array([71, 73, 70, 56, 57, 97, 1, 0, 1, 0]);
+  const MP4 = new Uint8Array([0, 0, 0, 24, 102, 116, 121, 112, 109, 112, 52, 50]);
+  const withBytes = async (format: "gif" | "mp4", data: Uint8Array, over: { sha?: string; sizeBytes?: number } = {}): Promise<unknown> => {
+    const sha = await sha256Hex(data);
+    const body = renderBody({ format, sha }) as { artifact: Record<string, unknown> };
+    body.artifact.sizeBytes = over.sizeBytes ?? data.byteLength;
+    if (over.sha) { body.artifact.sha256 = over.sha; body.artifact.artifactVersionId = `sha256:${over.sha}`; }
+    return body;
+  };
+  beforeEach(() => {
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, writable: true, value: vi.fn(() => "blob:fixture/render") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, writable: true, value: vi.fn() });
+  });
+
+  it("previews a GIF through the content route with the exact version, verified before display, and the token never in a URL", async () => {
+    const readArtifactContent = vi.fn(async () => ({ status: 200, contentType: "image/gif", bytes: GIF }));
+    const body = await withBytes("gif", GIF);
+    const port = fakePort({ requestRender: vi.fn(() => ok(201, body)), readArtifactContent } as never); mount(port);
+    click("Render exact revision");
+    await waitFor(() => screen.getByRole("button", { name: /Preview GIF/u }));
+    expect(document.querySelector("img")).toBeNull();
+    expect(readArtifactContent).not.toHaveBeenCalled();
+    click(/Preview GIF/u);
+    await waitFor(() => expect(document.querySelector('img[data-verified-preview="gif"]')).not.toBeNull());
+    const sha = await sha256Hex(GIF);
+    expect(readArtifactContent).toHaveBeenCalledWith({ artifactId: "art-render-1", artifactVersionId: `sha256:${sha}`, maxBytes: expect.any(Number) });
+    expect(document.body.textContent).toContain("Bytes verified against the registered version");
+    expect(document.querySelector("img")!.getAttribute("src")).toBe("blob:fixture/render");
+    expect(JSON.stringify(readArtifactContent.mock.calls)).not.toMatch(/token|Bearer/iu);
+    expect(screen.getByRole("button", { name: /Download GIF/u })).toBeTruthy();
+  });
+
+  it("previews an MP4 with native controls after reopening a render", async () => {
+    const body = await withBytes("mp4", MP4);
+    const port = fakePort({ getRender: vi.fn(() => ok(200, body)), readArtifactContent: vi.fn(async () => ({ status: 200, contentType: "video/mp4", bytes: MP4 })) } as never); mount(port);
+    fireEvent.change(screen.getByLabelText("Known render ID"), { target: { value: "art-render-1" } });
+    click("Reopen known render");
+    await waitFor(() => screen.getByRole("button", { name: /Preview MP4/u }));
+    click(/Preview MP4/u);
+    await waitFor(() => expect(document.querySelector("video[controls]")).not.toBeNull());
+  });
+
+  it("shows no preview on a digest mismatch, and types 404, 412, 403 and 416 refusals", async () => {
+    for (const [status, code] of [[404, "ARTIFACT_NOT_FOUND"], [412, "ARTIFACT_VERSION_MISMATCH"], [403, "ARTIFACT_PERMISSION_REQUIRED"], [416, "RANGE_NOT_SATISFIABLE"]] as const) {
+      cleanup();
+      const body = await withBytes("gif", GIF);
+      const port = fakePort({ requestRender: vi.fn(() => ok(201, body)), readArtifactContent: vi.fn(() => Promise.reject(new DevContentError(code, status, code))) } as never); mount(port);
+      click("Render exact revision");
+      await waitFor(() => screen.getByRole("button", { name: /Preview GIF/u }));
+      click(/Preview GIF/u);
+      await waitFor(() => expect(document.querySelector("[data-failure]")?.getAttribute("data-failure")).toBe(code));
+      expect(document.querySelector("img")).toBeNull();
+    }
+    cleanup();
+    const body = await withBytes("gif", GIF, { sha: "9".repeat(64) });
+    const port = fakePort({ requestRender: vi.fn(() => ok(201, body)), readArtifactContent: vi.fn(async () => ({ status: 200, contentType: "image/gif", bytes: GIF })) } as never); mount(port);
+    click("Render exact revision");
+    await waitFor(() => screen.getByRole("button", { name: /Preview GIF/u }));
+    click(/Preview GIF/u);
+    await waitFor(() => expect(document.querySelector("[data-failure]")?.getAttribute("data-failure")).toBe("CONTENT_DIGEST_MISMATCH"));
+    expect(document.querySelector("img")).toBeNull();
+    expect(document.body.textContent).not.toContain("Bytes verified");
+  });
+
+  it("refuses an oversize registered render without requesting its bytes, and says so when no content route exists", async () => {
+    const body = await withBytes("gif", GIF, { sizeBytes: 64 * 1024 * 1024 });
+    const readArtifactContent = vi.fn();
+    mount(fakePort({ requestRender: vi.fn(() => ok(201, body)), readArtifactContent } as never));
+    click("Render exact revision");
+    await waitFor(() => screen.getByRole("button", { name: /Download GIF/u }));
+    click(/Download GIF/u);
+    await waitFor(() => expect(document.querySelector("[data-failure]")?.getAttribute("data-failure")).toBe("CONTENT_TOO_LARGE"));
+    expect(readArtifactContent).not.toHaveBeenCalled();
+    cleanup();
+    mount(fakePort()); click("Render exact revision");
+    await waitFor(() => expect(document.body.textContent).toContain("no DEV_ONLY content route"));
   });
 });

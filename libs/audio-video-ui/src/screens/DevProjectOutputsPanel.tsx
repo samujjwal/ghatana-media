@@ -6,6 +6,8 @@ import {
   type DevCommentDisposition, type ExportView, type DevProjectOutputsPort, type DevRenderFormat, type DevReviewDecision,
   type DevReviewSubject, type Outcome, type RenderView, type ReviewView,
 } from "./devProjectOutputs";
+import { DevVerifiedContent } from "./DevVerifiedContent";
+import type { DevArtifactContentReader } from "./devArtifactContent";
 
 export interface DevProjectOutputsPanelProps {
   readonly outputs: DevProjectOutputsPort;
@@ -371,6 +373,8 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
     } finally { setPending(null); }
   };
 
+  const contentReader: DevArtifactContentReader | undefined = outputs.readArtifactContent
+    ? { readArtifactContent: (request) => outputs.readArtifactContent!(request) } : undefined;
   const retryRender = renderOutcome?.retrySameRequest && renderAttempt.current !== null;
   const stale = review?.currentness === "STALE";
   const renderIsOldHead = shown !== null && shown.view.revisionId !== project.headRevisionId;
@@ -432,6 +436,7 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
           </dl>
         </>}
         <button type="button" onClick={() => void reopenRender()} disabled={busy}>Reopen render from the host</button>
+        <DevVerifiedContent key={`content:${shown.view.artifactVersionId}`} reader={contentReader} artifact={shown.view} kind={shown.view.format} locked={locked} />
         <DevExportControls key={shown.view.artifactVersionId} outputs={outputs} view={shown.view} locked={locked} newRequestId={newRequestId} />
       </article>}
       <form id="render-known-form" onSubmit={(event) => { event.preventDefault(); void reopenKnownRender(); }}>

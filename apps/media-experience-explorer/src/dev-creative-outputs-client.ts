@@ -1,12 +1,14 @@
 import { DevCreativeHostError } from "@audio-video/ui/screens";
+import { createDevArtifactContentClient } from "./dev-artifact-content-client";
 import type { DevCreativeHostResponse, DevCreativeOutputsPort } from "@audio-video/ui/screens";
 
 /**
  * Loopback fetch adapter for the DEV_ONLY creative-output routes. The token is read from page memory per call
  * and never stored. Success responses (200/201) resolve with the exact status and body; every other outcome
  * rejects with a typed {@link DevCreativeHostError}. A mutation whose outcome cannot be observed is status 0 /
- * OUTCOME_UNKNOWN so the UI retries the same requestId. There is no content route, so the port deliberately
- * omits readSimulationDocument and the panel says the observation series is not displayed.
+ * OUTCOME_UNKNOWN so the UI retries the same requestId. The exact-version content route is exposed as
+ * readArtifactContent; the panel reads the simulation document through it with SHA-256 verification, so the
+ * adapter does not implement the unverified readSimulationDocument port.
  */
 export function createDevCreativeOutputsClient(options: {
   readonly origin: string;
@@ -43,5 +45,6 @@ export function createDevCreativeOutputsClient(options: {
     simulate: (request) => call("POST", "/dev/v1/creative-outputs/simulations", request, true),
     exportSpatialGlb: (request) => call("POST", "/dev/v1/creative-outputs/spatial-glb", request, true),
     getOutput: (outputId) => call("GET", `/dev/v1/creative-outputs/${encodeURIComponent(outputId)}`, undefined, false),
+    readArtifactContent: createDevArtifactContentClient(options),
   };
 }

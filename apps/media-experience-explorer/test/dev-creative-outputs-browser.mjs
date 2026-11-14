@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
@@ -10,10 +11,22 @@ import { chromium } from "playwright";
 // proves UI wiring and request identity only, not engine behaviour.
 const appRoot = fileURLToPath(new URL("../", import.meta.url));
 const token = "bounded-dev-only-browser-fixture-token";
-const SHA = "c".repeat(64);
 const SRC = `sha256:${"a".repeat(64)}`;
-const fixture = { requests: [], audioBodies: [], audioPosts: 0, simBodies: [], spatialBodies: [] };
-const artifact = (id, contentType) => ({ artifactId: id, artifactVersionId: `sha256:${SHA}`, contentType, sizeBytes: 512, sha256: SHA });
+// Registered bytes: each artifact's sha256/size is computed from the bytes the fixture content route serves.
+const wavBytes = Buffer.concat([Buffer.from("RIFF"), Buffer.from([40, 0, 0, 0]), Buffer.from("WAVEfmt "), Buffer.from([16, 0, 0, 0, 1, 0, 1, 0, 64, 31, 0, 0, 128, 62, 0, 0, 2, 0, 16, 0]), Buffer.from("data"), Buffer.from([4, 0, 0, 0, 0, 0, 255, 127])]);
+const simDocumentBytes = Buffer.from(JSON.stringify({
+  scope: "DEV_ONLY", outputKind: "SIMULATED_OUTPUT_NOT_MEASUREMENT", disclaimer: "Deterministic model output from a declared scenario. It is not a measurement.",
+  units: { time: "SECOND", position: "METER", velocity: "METER_PER_SECOND", acceleration: "METER_PER_SECOND_SQUARED", totalEnergy: "JOULE" },
+  observations: [{ time: 0, position: 0, velocity: 0, acceleration: 3, totalEnergy: 0 }, { time: 2, position: 6, velocity: 6, acceleration: 3, totalEnergy: 36 }],
+}));
+const glbBytes = Buffer.concat([Buffer.from("glTF"), Buffer.from([2, 0, 0, 0, 12, 0, 0, 0])]);
+const contentByArtifact = { "out-audio-1": [wavBytes, "audio/wav"], "out-sim-1": [simDocumentBytes, "application/json"], "out-glb-1": [glbBytes, "model/gltf-binary"] };
+const shaOf = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const fixture = { contentRequests: [], requests: [], audioBodies: [], audioPosts: 0, simBodies: [], spatialBodies: [] };
+const artifact = (id, contentType) => {
+  const [bytes] = contentByArtifact[id];
+  return { artifactId: id, artifactVersionId: `sha256:${shaOf(bytes)}`, contentType, sizeBytes: bytes.length, sha256: shaOf(bytes) };
+};
 const audioView = (replayed) => ({
   schema: "x", outputId: "out-audio-1", replayed, scope: "DEV_ONLY", artifact: artifact("out-audio-1", "audio/wav"),
   lineage: { kind: "AUDIO_REPAIR_CANDIDATE", engine: "declipper-1", comparisonEngine: "compare-1", requestId: "fixture",
@@ -62,6 +75,16 @@ const apiServer = createServer(async (request, response) => {
   if (request.method === "POST" && path === "/dev/v1/creative-outputs/spatial-glb") {
     fixture.spatialBodies.push(JSON.parse(body));
     return respond(response, 201, spatialView());
+  }
+  const contentMatch = path.match(/^\/dev\/v1\/artifacts\/([^/]+)\/content$/u);
+  if (request.method === "GET" && contentMatch) {
+    fixture.contentRequests.push({ url: request.url, ifMatch: request.headers["if-match"], range: request.headers.range });
+    const entry = contentByArtifact[contentMatch[1]];
+    if (!entry) return respond(response, 404, { error: { code: "ARTIFACT_NOT_FOUND", message: "none" } });
+    const [bytes, type] = entry;
+    if (request.headers["if-match"] !== `sha256:${shaOf(bytes)}`) return respond(response, 412, { error: { code: "ARTIFACT_VERSION_MISMATCH", message: "mismatch" } });
+    response.writeHead(200, { "Content-Type": type, "Content-Length": bytes.length, ETag: `sha256:${shaOf(bytes)}`, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", ...(type === "model/gltf-binary" ? { "Content-Disposition": "attachment" } : {}) });
+    return response.end(bytes);
   }
   if (request.method === "GET" && path === "/dev/v1/creative-outputs/out-audio-1") return respond(response, 200, audioView(true));
   if (request.method === "GET" && path.startsWith("/dev/v1/creative-outputs/")) return respond(response, 404, { error: { code: "CREATIVE_OUTPUT_NOT_FOUND", message: "none" } });
@@ -129,6 +152,13 @@ try {
   await result.getByText("out-audio-1").first().waitFor();
   assert.match(await result.textContent(), /changedSampleCount/u);
   assert.match(await result.textContent(), /not a quality assessment/u);
+  // Verified WAV preview and download.
+  await page.getByRole("button", { name: /Preview WAV/u }).click();
+  await page.locator("audio[data-verified-preview='wav'][controls]").waitFor();
+  assert.match(await result.textContent(), /Bytes verified against the registered version/u);
+  const wavDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: /Download WAV/u }).click();
+  assert.equal((await wavDownload).suggestedFilename(), "out-audio-1.wav");
   await page.getByRole("button", { name: "Repair exact source version" }).click();
   await page.locator("#audio-status", { hasText: "Replayed (HTTP 200)" }).waitFor();
   assert.equal(fixture.audioBodies[2].requestId, fixture.audioBodies[0].requestId);
@@ -142,7 +172,10 @@ try {
   await page.getByRole("button", { name: "Run simulation" }).click();
   await page.locator("#simulation-status", { hasText: "Created (HTTP 201)" }).waitFor();
   assert.match(await page.locator("#creative-result").textContent(), /SIMULATED_OUTPUT_NOT_MEASUREMENT/u);
-  assert.match(await page.locator("#creative-result").textContent(), /no DEV_ONLY content route/u);
+  await page.getByLabel("Simulated observation series").waitFor();
+  assert.match(await page.getByLabel("Simulated observation series").textContent(), /totalEnergy \(JOULE\)/u);
+  assert.match(await page.getByLabel("Simulated observation series").textContent(), /36/u);
+  assert.doesNotMatch(await page.locator("#creative-result").textContent(), /no DEV_ONLY content route/u);
   assert.equal(fixture.simBodies[0].scenario.model.force.value.unit, "NEWTON");
 
   // Spatial: shape validation is local; a valid rig is exported and shows the DEV_ONLY rights decision.
@@ -158,6 +191,16 @@ try {
   await page.locator("#spatial-status", { hasText: "Created (HTTP 201)" }).waitFor();
   assert.match(await page.locator("#creative-result").textContent(), /productionGrant=false/u);
   assert.match(await page.locator("#creative-result").textContent(), /float32LossFields/u);
+  assert.equal(await page.getByRole("button", { name: /Preview GLB/u }).count(), 0, "GLB is download only");
+  const glbDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: /Download GLB/u }).click();
+  assert.equal((await glbDownload).suggestedFilename(), "out-glb-1.glb");
+  for (const entry of fixture.contentRequests) {
+    assert.ok(/^\/dev\/v1\/artifacts\/out-(audio|sim|glb)-1\/content$/u.test(entry.url), `no query string on content reads: ${entry.url}`);
+    assert.match(entry.ifMatch, /^sha256:[0-9a-f]{64}$/u);
+    assert.equal(entry.range, undefined);
+  }
+  assert.ok(fixture.contentRequests.length >= 3);
 
   // Reopen: success and a typed 404.
   await page.getByLabel("Output ID").fill("out-audio-1");

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
@@ -16,7 +17,12 @@ const context = {
   capabilities: { artifactUpload: false, artifactRead: true },
   scope: "DEV_ONLY",
 };
+// A real 1x1 GIF so Chromium decodes the verified preview; its SHA-256 is what the fixture registers.
+const RENDER_BYTES = Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64");
+const RENDER_SHA = createHash("sha256").update(RENDER_BYTES).digest("hex");
 const fixture = {
+  contentRequests: [],
+  corruptContent: false,
   requests: [],
   projectRequests: [],
   timelineRequests: [],
@@ -243,10 +249,19 @@ const apiServer = createServer(async (request, response) => {
       }
       return respond(response, 200, {
         renderId: "render-1", replayed: true, scope: "DEV_ONLY",
-        artifact: { artifactId: "render-1", artifactVersionId: `sha256:${"b".repeat(64)}`, contentType: "image/gif", sizeBytes: 321, sha256: "b".repeat(64) },
+        artifact: { artifactId: "render-1", artifactVersionId: `sha256:${RENDER_SHA}`, contentType: "image/gif", sizeBytes: RENDER_BYTES.length, sha256: RENDER_SHA },
         lineage: { projectId: fixture.project.projectId, revisionId: "revision-1", timelineId: "main-cut", engine: "fixture-gif", format: "gif", frameCount: 3,
           sources: [{ clipId: "clip-1", trackId: "track-1", artifactId: "src-1", artifactVersionId: `sha256:${"a".repeat(64)}` }] },
       });
+    }
+    const contentMatch = path.match(/^\/dev\/v1\/artifacts\/([^/]+)\/content$/u);
+    if (request.method === "GET" && contentMatch) {
+      fixture.contentRequests.push({ url: request.url, ifMatch: request.headers["if-match"], range: request.headers.range, authorization: request.headers.authorization });
+      if (contentMatch[1] !== "render-1") return respond(response, 404, { error: { code: "ARTIFACT_NOT_FOUND", message: "Fixture artifact not found." } });
+      if (request.headers["if-match"] !== `sha256:${RENDER_SHA}`) return respond(response, 412, { error: { code: "ARTIFACT_VERSION_MISMATCH", message: "Fixture version mismatch." } });
+      const payload = fixture.corruptContent ? Buffer.from(RENDER_BYTES).fill(0, 20) : RENDER_BYTES;
+      response.writeHead(200, { "Content-Type": "image/gif", "Content-Length": payload.length, ETag: `sha256:${RENDER_SHA}`, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" });
+      return response.end(payload);
     }
     if (request.method === "POST" && path === "/dev/v1/exports") {
       const payload = JSON.parse(body);
@@ -271,8 +286,8 @@ const apiServer = createServer(async (request, response) => {
 
 function exportView(payload) {
   return {
-    requestId: payload.requestId, artifactId: payload.artifactId, artifactVersionId: payload.artifactVersionId, artifactDigest: "b".repeat(64),
-    destinationId: payload.destinationId, status: "DESTINATION_CONFIRMED", acknowledgedBytes: 321, destinationConfirmed: true,
+    requestId: payload.requestId, artifactId: payload.artifactId, artifactVersionId: payload.artifactVersionId, artifactDigest: RENDER_SHA,
+    destinationId: payload.destinationId, status: "DESTINATION_CONFIRMED", acknowledgedBytes: RENDER_BYTES.length, destinationConfirmed: true,
     destinationReceiptRef: "dev-local-directory-receipt:fixture", replayed: false, scope: "DEV_ONLY",
   };
 }
@@ -789,6 +804,27 @@ try {
   await keyboardFill(page, page.getByLabel("Known render ID"), "render-1");
   await keyboardActivate(page, page.getByRole("button", { name: "Reopen known render" }));
   await page.locator("#render-status").filter({ hasText: "Reopened render render-1" }).waitFor();
+  // Verified preview: tampered bytes show a typed digest error and no image; the exact bytes preview and download.
+  fixture.corruptContent = true;
+  await keyboardActivate(page, page.getByRole("button", { name: /Preview GIF/u }));
+  await page.locator(".dev-content-status[data-failure='CONTENT_DIGEST_MISMATCH']").waitFor();
+  assert.equal(await page.locator("img[data-verified-preview]").count(), 0, "tampered bytes must never be previewed");
+  fixture.corruptContent = false;
+  await keyboardActivate(page, page.getByRole("button", { name: /Preview GIF/u }));
+  await page.locator("img[data-verified-preview='gif']").waitFor();
+  assert.match(await page.locator(".dev-content-status").textContent(), /Bytes verified against the registered version/u);
+  assert.ok(await page.locator("img[data-verified-preview='gif']").evaluate((img) => img.complete && img.naturalWidth === 1), "the verified GIF must decode");
+  assert.match(await page.locator("img[data-verified-preview='gif']").getAttribute("src"), /^blob:/u);
+  const download = page.waitForEvent("download");
+  await keyboardActivate(page, page.getByRole("button", { name: /Download GIF/u }));
+  assert.equal((await download).suggestedFilename(), "render-1.gif");
+  const lastContent = fixture.contentRequests.at(-1);
+  assert.equal(lastContent.ifMatch, `sha256:${RENDER_SHA}`, "the content read must name the exact version");
+  assert.equal(lastContent.range, undefined);
+  for (const entry of fixture.contentRequests) {
+    assert.equal(entry.url, "/dev/v1/artifacts/render-1/content", "no query string: the token and version never travel in the URL");
+    assert.equal(entry.authorization, `Bearer ${token}`);
+  }
   await keyboardFill(page, page.getByLabel("Destination ID"), "missing-destination");
   await keyboardActivate(page, page.getByRole("button", { name: "Export render artifact" }));
   await page.locator("#export-status").filter({ hasText: "DESTINATION_NOT_FOUND" }).waitFor();
@@ -800,7 +836,7 @@ try {
   assert.equal(await unconfirmed.getAttribute("data-destination-confirmed"), "false");
   assert.doesNotMatch(await unconfirmed.textContent(), /receipt:|Delivered/u, "an unconfirmed export must show no receipt and never say delivered");
   assert.equal(fixture.exportRequests.length, 2);
-  assert.equal(fixture.exportRequests[1].artifactVersionId, `sha256:${"b".repeat(64)}`, "the export must name the exact render artifact version");
+  assert.equal(fixture.exportRequests[1].artifactVersionId, `sha256:${RENDER_SHA}`, "the export must name the exact render artifact version");
   await keyboardActivate(page, page.getByRole("button", { name: "Check again" }));
   await page.locator("#export-status").filter({ hasText: "destination confirmed with receipt dev-local-directory-receipt:fixture" }).waitFor();
   assert.equal(await page.getByRole("article", { name: "Export result" }).getAttribute("data-destination-confirmed"), "true");

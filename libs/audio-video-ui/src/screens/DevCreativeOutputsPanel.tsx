@@ -6,6 +6,8 @@ import {
   type Built, type CreativeKind, type CreativeOutcome, type CreativeView, type DevCreativeHostResponse, type DevCreativeOutputsPort,
   type SimFieldSpec, type SimFieldState, type SimModelType, type SimObservable, type SimulationDocument, type SimulationForm,
 } from "./devCreativeOutputs";
+import { DevVerifiedContent, type DevContentKind } from "./DevVerifiedContent";
+import { DevContentError, describeContentFailure, readVerifiedContent, type DevArtifactContentReader } from "./devArtifactContent";
 
 export interface DevCreativeOutputsPanelProps {
   readonly outputs: DevCreativeOutputsPort;
@@ -18,7 +20,7 @@ type Lane = "audio" | "simulation" | "spatial" | "reopen";
 type Attempt = { readonly fingerprint: string; readonly requestId: string };
 type Shown = { readonly view: CreativeView; readonly via: "created" | "replayed" | "reopened" };
 type LaneState = { readonly message: string; readonly outcome: CreativeOutcome | null };
-type SimDoc = { readonly state: "none" | "unavailable" | "loaded" | "failed"; readonly doc?: SimulationDocument; readonly text?: string };
+type SimDoc = { readonly state: "none" | "unavailable" | "loaded" | "failed"; readonly doc?: SimulationDocument; readonly text?: string; readonly verified?: boolean };
 
 let counter = 0;
 const defaultRequestId = (): string => {
@@ -78,8 +80,20 @@ export function DevCreativeOutputsPanel({ outputs, locked = false, newRequestId 
     return created;
   };
 
+  const contentReader: DevArtifactContentReader | undefined = outputs.readArtifactContent
+    ? { readArtifactContent: (request) => outputs.readArtifactContent!(request) } : undefined;
   const loadSimulationDocument = async (view: CreativeView): Promise<void> => {
     if (view.kind !== "SIMULATED_OUTPUT_NOT_MEASUREMENT") { setSimDoc({ state: "none" }); return; }
+    if (outputs.readArtifactContent) {
+      try {
+        const content = await readVerifiedContent(contentReader!, view.artifact);
+        setSimDoc({ state: "loaded", verified: true, doc: parseSimulationDocument(JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(content.bytes))) });
+      } catch (error) {
+        setSimDoc({ state: "failed", text: error instanceof DevContentError ? describeContentFailure(error).text
+          : error instanceof Error ? error.message : "The simulation document could not be read." });
+      }
+      return;
+    }
     if (!outputs.readSimulationDocument) { setSimDoc({ state: "unavailable" }); return; }
     try {
       const response = await outputs.readSimulationDocument(view.outputId);
@@ -268,6 +282,11 @@ export function DevCreativeOutputsPanel({ outputs, locked = false, newRequestId 
         <div><dt>Request identity</dt><dd><code>{view.requestId ?? "not reported"}</code></dd></div>
         <div><dt>Scope</dt><dd>DEV_ONLY</dd></div>
       </dl>
+      {(view.kind === "AUDIO_REPAIR_CANDIDATE" || view.kind === "SPATIAL_GLB_EXPORT") && <>
+        <h4>{view.kind === "AUDIO_REPAIR_CANDIDATE" ? "Repaired audio" : "GLB file"}</h4>
+        <DevVerifiedContent key={`content:${view.artifact.artifactVersionId}`} reader={contentReader} artifact={view.artifact}
+          kind={(view.kind === "AUDIO_REPAIR_CANDIDATE" ? "wav" : "glb") as DevContentKind} previewable={view.kind === "AUDIO_REPAIR_CANDIDATE"} locked={locked} />
+      </>}
       {view.audio && <>
         <h4>Lineage · exact source version</h4>
         <dl aria-label="Audio repair lineage">
@@ -295,6 +314,7 @@ export function DevCreativeOutputsPanel({ outputs, locked = false, newRequestId 
         {simDoc.state === "loaded" && simDoc.doc && <>
           <h4>Observation series · {SIMULATED_LABEL}</h4>
           <p>{simDoc.doc.disclaimer}</p>
+          {simDoc.verified && <p role="status">Bytes verified against the registered version before this table was built.</p>}
           <table aria-label="Simulated observation series">
             <thead><tr>{(["time", "position", "velocity", "acceleration", "totalEnergy"] as const).map((column) =>
               <th key={column} scope="col">{column} ({simDoc.doc!.units[column]})</th>)}</tr></thead>

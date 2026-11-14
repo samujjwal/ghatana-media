@@ -62,7 +62,10 @@ test("creative outputs page is DEV_ONLY, memory-token only, same-origin, and not
   assert.match(adapter, /credentials:\s*"omit"/u);
   assert.match(adapter, /redirect:\s*"error"/u);
   assert.match(adapter, /OUTCOME_UNKNOWN/u);
-  assert.doesNotMatch(adapter, /readSimulationDocument\s*[:=(]\s*[^/\n]*=>/u, "no host content route exists, so the adapter must not fabricate a document reader");
+  assert.match(adapter, /readArtifactContent: createDevArtifactContentClient\(options\)/u, "the exact-version content route backs verified previews and the observation table");
+  assert.doesNotMatch(adapter, /readSimulationDocument\s*[:=(]\s*[^/\n]*=>/u, "the unverified document reader is not implemented; the panel verifies bytes through readArtifactContent");
+  assert.match(vite, /img-src 'self' data: blob:/u, "verified previews are blob URLs");
+  assert.match(vite, /media-src 'self' blob:/u);
   assert.doesNotMatch(vite, /dev-creative-outputs\.html/u, "the DEV_ONLY page must not be a production build input");
   assert.doesNotMatch(main, /dev-creative-outputs/u);
 });

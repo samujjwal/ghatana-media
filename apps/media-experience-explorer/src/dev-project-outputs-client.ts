@@ -1,4 +1,5 @@
 import { DevOutputsHostError } from "@audio-video/ui/screens";
+import { createDevArtifactContentClient } from "./dev-artifact-content-client";
 import type { DevHostResponse, DevProjectOutputsPort } from "@audio-video/ui/screens";
 
 /**
@@ -47,5 +48,6 @@ export function createDevProjectOutputsClient(options: {
     recordReviewDecision: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/decisions`, request, true),
     requestExport: (request) => call("POST", "/dev/v1/exports", request, true),
     getExport: (requestId) => call("GET", `/dev/v1/exports/${seg(requestId)}`, undefined, false),
+    readArtifactContent: createDevArtifactContentClient(options),
   };
 }

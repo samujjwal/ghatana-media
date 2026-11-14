@@ -11,7 +11,7 @@
     "pretypecheck": "pnpm --filter @audio-video/client build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "pretest": "pnpm --filter @ghatana/media-experience-simulation build",
-    "test": "node --test test/*.test.mjs && vitest run test/dev-artifact-hasher.test.ts test/dev-open-project.test.ts",
+    "test": "node --test test/*.test.mjs && vitest run test/dev-artifact-hasher.test.ts test/dev-open-project.test.ts test/dev-artifact-content-client.test.ts",
     "test:dev-project-timeline:browser": "node test/dev-project-timeline-browser.mjs",
     "test:dev-creative-outputs:browser": "node test/dev-creative-outputs-browser.mjs",
     "test:visual-regression": "node test/run-visual-regression.mjs"

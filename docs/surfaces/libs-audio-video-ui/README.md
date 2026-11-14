@@ -65,14 +65,29 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   simulation or a different source version is refused). Audio metrics are shown
   only as "engine sample statistics", never as quality. Simulation always shows
   `SIMULATED_OUTPUT_NOT_MEASUREMENT`; the unit-labelled observation series is
-  rendered only when the port supplies the optional `readSimulationDocument`
-  (the artifact bytes hold it; the host has no DEV_ONLY content route yet, so
-  the panel says it is not displayed). requestId is stable per unchanged
+  rendered from the registered artifact bytes read through the optional port
+  `readArtifactContent` (`GET /dev/v1/artifacts/{id}/content`, exact version in
+  `If-Match`, token in the Authorization header only) after their SHA-256, size
+  and content type are verified; the older unverified `readSimulationDocument`
+  is only a fallback, and a port with neither says the series is not displayed.
+  Repaired WAV gets an `<audio controls>` preview and a verified Download; GLB
+  gets a verified Download only (attachment, no preview). requestId is stable per unchanged
   payload, `200` is shown as replayed vs `201` created, `409` discards the
   identity, `502`/`503`/unknown offer "Retry with the same request identity",
   and typed `422` (nothing-to-repair, unrepairable run, validator
   REJECTED/ABSTAIN findings, spatial refusals), `403` and `404` are text
   alerts with no output. Not covered: playback, GLB viewing, download, approval.
+- `DevVerifiedContent` (with `devArtifactContent.ts`: `readVerifiedContent`,
+  `DevContentError`, `describeContentFailure`) is the shared preview/download
+  control. A registered GIF is shown as `<img>`, an MP4 as `<video controls>`
+  and a WAV as `<audio controls>` through blob URLs only after the fetched
+  bytes' SHA-256, byte count and content type equal the registered version
+  ("Bytes verified against the registered version"); a mismatch is the typed
+  `CONTENT_DIGEST_MISMATCH` (also `CONTENT_SIZE_MISMATCH`,
+  `CONTENT_TYPE_MISMATCH`) with no preview. Reads are capped at 8 MiB
+  (`CONTENT_TOO_LARGE`, refused before fetching when the registered size is
+  over; no Range requests); host `404`, `412`, `403`, `416`, `400` and ceiling
+  refusals are typed, and Download never saves unverified bytes.
 - With an optional `outputs: DevProjectOutputsPort` the same workspace shows a
   DEV_ONLY **Render and review** panel (`DevProjectOutputsPanel`; without a
   port it keeps the truthful "Render engine unavailable" state). Render: the
