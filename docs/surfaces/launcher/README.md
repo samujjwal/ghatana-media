@@ -316,6 +316,9 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/vision/analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
 | POST | `/dev/v1/vision/questions` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
 | GET | `/dev/v1/vision/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision |
+| GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
+| POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
+| GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |
 
 DEV_ONLY local vision and multimodal lane (owner-selected local open models; outside the canonical manifest/OpenAPI).
 Owner decision, 2026-11-14, verbatim: "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for
@@ -349,6 +352,35 @@ retention) when configured: it is `productionEligible` only when both models are
 `LocalVisionRightsAuthority` is ready; the default reports `RIGHTS_AUTHORITY_UNAVAILABLE` (the DEV attestation store is
 not production eligible), so production-like profiles never use it. Florence-2 scene text is its own OCR task, not the Document Intelligence OCR
 gateway, and no quality or accuracy claim is made.
+
+DEV_ONLY grounded cross-modal answer lane (J-06; `MediaDevGroundedAnswerRuntime`, outside the canonical
+manifest/OpenAPI; the `av.multimodal-inference` tool schema is PDP-owned and gains no `question` field, so the question
+flow lives only on these DEV routes). `POST /dev/v1/grounded-answers` takes
+`{requestId, artifactId, artifactVersionId, question (<=200 chars), language?, allowPartial?}` for one exact `video/*`
+version. Order: exact owner-visible version, `Scope.PROCESSING` rights (anything not ADMITTED is refused before any byte is
+read: `503 RIGHTS_AUTHORITY_UNAVAILABLE` or `403 RIGHTS_DENIED|REVOKED|STALE|MISMATCH`), then ffprobe derives the source
+clock (container `start_time`, per-stream `time_base`/`start_pts`; a missing value is `422 SOURCE_CLOCK_UNDETERMINED`,
+never defaulted). Two independent evidence children run: STT (whisper.cpp over the extracted audio track; segment times
+are `audio.start_time + segment offset`, expressed in container microseconds) and vision (Florence-2 caption, objects and
+scene-text regions on up to three decoded frames, each with the decoded frame's own PTS in the video stream timebase and
+the frame size). Every child repeats the parent's pin (source version and SHA-256, clock id, container start, timebase)
+and is refused otherwise: `409 SOURCE_CLOCK_MISMATCH` (different clock, timebase or container start, or evidence time
+outside the clock) or `409 STALE_CHILD_SOURCE_VERSION`; nothing is registered. Qwen2.5-VL then answers over the first
+sampled frame with a bounded (1000-char) prompt that lists evidence ids and requires JSON claims citing only those ids.
+The server validates every citation: cited ids must exist, have been offered in the prompt, and lie inside the clock and
+(for boxes) the frame; uncited, unknown, un-offered or out-of-range claims are listed under `flaggedClaims` with flags
+(`UNCITED`, `UNKNOWN_EVIDENCE_ID:..`, `EVIDENCE_NOT_OFFERED:..`, `EVIDENCE_OUT_OF_RANGE:..`, `MALFORMED_CITATION`) and are
+never in `claims`; status is `GROUNDED | PARTIALLY_GROUNDED | UNGROUNDED | ANSWER_UNPARSEABLE`. This proves citation
+integrity only, not that a claim is entailed by its evidence. A failed child is `502 GROUNDED_CHILD_FAILED` with per-child
+statuses by default, or a `PARTIAL` evidence answer only with `allowPartial:true` (and `422 GROUNDED_NO_EVIDENCE` when no
+vision evidence remains); a child or answerer whose outcome is unknown (sidecar lost) is `503 GROUNDED_OUTCOME_UNKNOWN`
+with nothing registered, and retrying the same `requestId` resumes. Rights are re-resolved after inference and before
+registration, so a revocation during the run leaves no artifact. The typed document is registered as an immutable
+`application/json` artifact (`201`; replay `200`; a different request under the same `requestId`
+`409 GROUNDED_REQUEST_ID_REUSED`); `GET /dev/v1/grounded-answers/{outputId}` reads the registered document back after a
+restart. The Document Intelligence child is always reported `UNAVAILABLE` (no DI v1 gateway client is wired here;
+on-screen text is the local Florence-2 reader, not DI). Evidence beyond the prompt budget is not citable
+(`evidenceOmittedForPromptBudget`). Local open-model output: no quality, entailment, rights or production claim.
 
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
 PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable

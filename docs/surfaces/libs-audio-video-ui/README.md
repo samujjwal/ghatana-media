@@ -71,6 +71,14 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   reconciled as this request only when its effect is present in the exact
   direct successor of the recorded CAS base; a matching graph at another
   head remains unresolved and does not enable retry.
+- `DevGroundedAnswerPanel` (`answers: DevGroundedAnswerPort`, DEV_ONLY) asks a question about one exact video version
+  through `POST /dev/v1/grounded-answers`, reopens a registered answer, verifies the exact source bytes (SHA-256) and plays
+  them. Each grounded claim lists citation buttons: activating one seeks the player to the evidence time minus the
+  container start_time and highlights the cited box (frame evidence) or marks the spoken line (transcript evidence), with
+  a polite live announcement. Claims that are uncited, cite unknown ids or fail range checks are shown as NOT GROUNDED
+  with no seek control; the page re-checks every citation against the response's own evidence. Page:
+  `apps/media-experience-explorer/dev-grounded-answer.html`; live Chromium test
+  `test/dev-grounded-answer-live-browser.mjs` (driven by `MediaDevGroundedAnswerRestartIT`).
 - `DevCreativeOutputsPanel` (`outputs: DevCreativeOutputsPort`, DEV_ONLY) drives
   the host creative lanes: audio repair (`POST /dev/v1/creative-outputs/audio-repairs`,
   one exact owner artifact version plus an explicit threshold/maxRunFrames

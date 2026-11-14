@@ -44,6 +44,10 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/simulations$/u },
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/spatial-glb$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/creative-outputs/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY grounded cross-modal answers used by the "Grounded answers" page (ask, status, reopen; no DELETE).
+  { method: "POST", path: /^\/dev\/v1\/grounded-answers$/u },
+  { method: "GET", path: /^\/dev\/v1\/grounded-answers\/status$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/grounded-answers/${OPAQUE_ID}$`, "u") },
 ];
 
 function isCanonicalPath(requestUrl) {

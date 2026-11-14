@@ -1,0 +1,27 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(1040px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice, .dev-grounded-answer, #grounded-result { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form { display: grid; gap: .6rem; max-width: 40rem; }
+input, select, textarea, button { font: inherit; padding: .65rem .8rem; max-width: 100%; }
+button { width: fit-content; cursor: pointer; min-height: 2.75rem; }
+button:focus-visible, input:focus-visible, a:focus-visible, video:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+aside[role="note"] { border: 2px solid CanvasText; border-radius: 8px; padding: .75rem 1rem; margin: .75rem 0; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid GrayText; padding: .3rem .5rem; text-align: left; }
+[role="alert"] { border-left: 5px solid CanvasText; padding-left: .75rem; }
+.ga-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+@media (max-width: 52rem) { .ga-layout { grid-template-columns: 1fr; } }
+.ga-frame { position: relative; display: block; width: 100%; background: Canvas; border: 1px solid GrayText; }
+.ga-frame video { display: block; width: 100%; height: auto; }
+.ga-box { position: absolute; box-sizing: border-box; border: 3px solid Highlight; outline: 2px dashed CanvasText; background: color-mix(in srgb, Highlight 18%, transparent); pointer-events: none; }
+.ga-citations { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; padding: 0; margin: .25rem 0 .75rem; }
+.ga-citations button[aria-pressed="true"] { border: 3px solid Highlight; font-weight: 700; text-decoration: underline; }
+.ga-flagged li { border: 2px dashed CanvasText; border-radius: 8px; padding: .5rem .75rem; margin: .4rem 0; list-style: none; }
+.ga-evidence li[data-active="true"] { outline: 3px solid Highlight; background: color-mix(in srgb, Highlight 12%, transparent); }
+.ga-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+@media (forced-colors: active) { .ga-box { border-color: Highlight; background: transparent; } }
