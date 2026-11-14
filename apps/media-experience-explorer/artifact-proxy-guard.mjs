@@ -43,6 +43,9 @@ const devProjectRoutes = [
   { method: "GET", path: /^\/dev\/v1\/speech\/capabilities$/u },
   { method: "POST", path: /^\/dev\/v1\/speech\/syntheses$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/speech/outputs/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY human caption correction used by the "Caption correction" page (exact-version read and correct).
+  { method: "POST", path: /^\/dev\/v1\/captions\/corrections$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/captions/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY creative-output lanes used by the "Creative outputs" page.
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/audio-repairs$/u },
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/simulations$/u },

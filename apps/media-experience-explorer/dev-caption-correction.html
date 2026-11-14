@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY human caption correction and review in the local Explorer." />
+    <title>Correct Captions · Media</title>
+    <link rel="stylesheet" href="/src/dev-caption-correction.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Caption correction</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>Open one exact caption version produced by the local speech lane, correct its text and timing, and save a NEW version with lineage to the machine caption and to you. A correction is a statement by a DEV_ONLY principal: it is not reviewed, not a quality claim and not an approval. To be used in a render the exact version needs an accept decision from an assigned reviewer.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <div id="caption-root"></div>
+    </main>
+    <script type="module" src="/src/dev-caption-correction.tsx"></script>
+  </body>
+</html>
