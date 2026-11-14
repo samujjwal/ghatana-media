@@ -92,6 +92,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaDevProjectRenderRuntime devProjectRender;
     private final MediaDevReviewRoutes devReview;
     private MediaDevDeliveryRoutes devDelivery;
+    private MediaDevRightsRoutes devRights;
     private final MediaDevCreativeOutputRoutes devCreative;
     private MediaDevArtifactContentRoutes devArtifactContent;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
@@ -172,6 +173,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Overrides the DEV_ONLY artifact content read ceiling (default from MEDIA_DEV_ARTIFACT_CONTENT_MAX_BYTES). */
     MediaHttpHandler withDevArtifactContentCeiling(long maxBytes) {
         this.devArtifactContent = new MediaDevArtifactContentRoutes(runtime, maxBytes);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY rights and consent routes. */
+    MediaHttpHandler withDevRights(MediaDevRightsRuntime rights) {
+        this.devRights = rights == null ? null : new MediaDevRightsRoutes(runtime, rights);
         return this;
     }
 
@@ -386,6 +393,10 @@ public final class MediaHttpHandler implements HttpHandler {
                                String tenantId, String principalId) throws IOException {
         if (!MediaSecurityFilter.isDevOnlyIdentity(exchange)) {
             error(exchange, 403, "DEV_ONLY_IDENTITY_REQUIRED", "A signed DEV_ONLY identity is required");
+            return;
+        }
+        if (devRights != null && MediaDevRightsRoutes.handles(path)) {
+            devRights.handle(exchange, path, method, tenantId, principalId);
             return;
         }
         if (devDelivery != null && MediaDevDeliveryRoutes.handles(path)) {

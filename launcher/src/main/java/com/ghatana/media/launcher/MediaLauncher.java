@@ -34,23 +34,31 @@ public final class MediaLauncher {
         MediaDevProjectTimelineRuntime devProjectTimeline = null;
         MediaDevReviewRuntime devReview = null;
         MediaDevDeliveryRuntime devDelivery = null;
+        MediaDevRightsRuntime devRights = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
             captions = MediaCaptionRuntime.compose(environment);
             devProjectTimeline = MediaDevProjectTimelineRuntime.compose(environment);
             devReview = MediaDevReviewRuntime.compose(environment, runtime, devProjectTimeline);
-            devDelivery = MediaDevDeliveryRuntime.compose(environment, runtime);
+            devRights = MediaDevRightsRuntime.compose(environment, runtime);
+            devDelivery = MediaDevDeliveryRuntime.compose(environment, runtime,
+                    devRights == null ? null : devRights.resolver());
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
             MediaCaptionRuntime finalCaptions = captions;
             MediaDevProjectTimelineRuntime finalDevProjectTimeline = devProjectTimeline;
             MediaDevReviewRuntime finalDevReview = devReview;
             MediaDevDeliveryRuntime finalDevDelivery = devDelivery;
+            MediaDevRightsRuntime finalDevRights = devRights;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
                 if (finalDevDelivery != null) {
                     try { finalDevDelivery.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
+                if (finalDevRights != null) {
+                    try { finalDevRights.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
                 }
                 if (finalDevReview != null) {
@@ -103,11 +111,15 @@ public final class MediaLauncher {
                             new MediaHttpHandler(runtime,
                                     consentAdministration == null ? null : consentAdministration.administration(),
                                     captions, finalDevProjectTimeline, finalDevReview,
-                                    finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery),
+                                    finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devDelivery != null) {
                 try { devDelivery.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
+            if (devRights != null) {
+                try { devRights.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
             }
             if (devReview != null) {

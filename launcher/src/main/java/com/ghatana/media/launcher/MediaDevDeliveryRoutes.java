@@ -108,6 +108,22 @@ final class MediaDevDeliveryRoutes {
             runtime.recordDeniedRequest();
             error(exchange, 404, "ARTIFACT_VERSION_NOT_FOUND",
                     "The exact artifact version is not available to this DEV_ONLY principal");
+        } catch (MediaDevDeliveryRuntime.RightsNotAdmittedException failure) {
+            exportOutcome("rights_not_admitted");
+            runtime.recordDeniedRequest();
+            var resolution = failure.resolution();
+            Map<String, Object> rights = new LinkedHashMap<>();
+            rights.put("scope", "EXTERNAL_DELIVERY");
+            rights.put("verdict", resolution.verdict().name());
+            rights.put("reasons", resolution.reasons().stream().map(Enum::name).sorted().toList());
+            boolean unavailable = resolution.verdict()
+                    == com.ghatana.media.runtime.MediaRightsConsentContracts.Verdict.UNAVAILABLE;
+            error(exchange, unavailable ? 503 : 403,
+                    unavailable ? "EXPORT_RIGHTS_AUTHORITY_UNAVAILABLE" : "EXPORT_RIGHTS_NOT_ADMITTED",
+                    unavailable ? "The rights and consent authority is unavailable; nothing was exported"
+                            : "External delivery needs a current EXTERNAL_DELIVERY attestation for this exact source "
+                                    + "version, confirmed by a different principal; nothing was exported",
+                    Map.of("rights", rights));
         } catch (MediaDevDeliveryRuntime.ExportLimitException failure) {
             exportOutcome("limit_exceeded");
             error(exchange, 422, "EXPORT_LIMIT_EXCEEDED", failure.getMessage());
@@ -179,15 +195,30 @@ final class MediaDevDeliveryRoutes {
     }
 
     private void error(HttpExchange exchange, int status, String code, String message) throws IOException {
+        error(exchange, status, code, message, Map.of());
+    }
+
+    private void error(HttpExchange exchange, int status, String code, String message, Map<String, Object> details)
+            throws IOException {
         String requestId = exchange.getRequestHeaders().getFirst("X-Request-ID");
         if (requestId == null || !ID.matcher(requestId).matches()) requestId = UUID.randomUUID().toString();
         exchange.getResponseHeaders().set("X-Request-ID", requestId);
         boolean retryable = status == 502 || status == 503;
         json(exchange, status, Map.of(
-                "error", Map.of("code", code, "message", message, "retryable", retryable,
-                        "evidenceRefs", List.of(), "actionRefs", List.of()),
+                "error", errorBody(code, message, retryable, details),
                 "meta", Map.of("requestId", requestId, "correlationId", requestId,
                         "timestamp", Instant.now().toString(), "apiVersion", "1.0.0")));
+    }
+
+    private static Map<String, Object> errorBody(String code, String message, boolean retryable, Map<String, Object> details) {
+        Map<String, Object> error = new LinkedHashMap<>();
+        error.put("code", code);
+        error.put("message", message);
+        error.put("retryable", retryable);
+        error.put("evidenceRefs", List.of());
+        error.put("actionRefs", List.of());
+        if (!details.isEmpty()) error.put("details", details);
+        return error;
     }
 
     private void json(HttpExchange exchange, int status, Object body) throws IOException {

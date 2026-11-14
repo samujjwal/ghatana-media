@@ -227,6 +227,27 @@ and stable terminal reads — **no second writer**.
   shared with the standalone `vision-service` entrypoint;
   `MediaSubmissionDigest` supplies submission identity.
 
+- **Rights and consent authority (DEV_ONLY).** Owner decision (2026-11-14, quoted verbatim): "Uploader + reviewer
+  (Recommended): The uploader states rights and consent for each source version. A second person must confirm
+  before any voice or likeness use, or before any external delivery. Every statement records who gave it, when and
+  for which exact file, and can be revoked." Opt in with `MEDIA_RIGHTS_DEV_ENABLED=true` (profile `dev`,
+  `MEDIA_DEV_IDENTITY_ENABLED=true`, canonical PostgreSQL configured; migration `db/media-runtime/V036`).
+  `POST /dev/v1/rights/attestations` records an attestation bound to tenant, artifact id, exact artifact version
+  and the content digest read from the artifact record (the caller must own that version): `statementKind`
+  (`MEDIA_RIGHTS` or `IDENTIFIABLE_PERSON_CONSENT`), `scopes` (`PROCESSING`, `VOICE_OR_LIKENESS_USE`,
+  `EXTERNAL_DELIVERY`), free-text `basis`, optional `supportingDocumentArtifactRef` (`<artifactId>@<versionId>`,
+  must be readable by the caller), optional `requestedConfirmerPrincipalId`, optional `expiresAt`. The attesting
+  principal is always the authenticated caller; a body field naming a principal is rejected. A different principal
+  confirms (`POST .../{attestationId}/confirm`); self-confirmation is `403 SELF_CONFIRMATION_REFUSED` and is also
+  rejected by a database check constraint. `VOICE_OR_LIKENESS_USE` and `EXTERNAL_DELIVERY` are admitted only after
+  confirmation; `VOICE_OR_LIKENESS_USE` needs an `IDENTIFIABLE_PERSON_CONSENT` statement and `EXTERNAL_DELIVERY` a
+  `MEDIA_RIGHTS` one. The attester or the confirmer may revoke with a reason (`POST .../{attestationId}/revoke`).
+  Records are append-only; a new artifact version never inherits earlier statements (`STALE`). Hosted export now
+  requires a current confirmed `EXTERNAL_DELIVERY` attestation for the exact source version and re-resolves it for
+  every operation: `403 EXPORT_RIGHTS_NOT_ADMITTED` (with `details.rights.verdict` and reasons) or, when no rights
+  authority is configured, `503 EXPORT_RIGHTS_AUTHORITY_UNAVAILABLE`. These DEV_ONLY records are statements by
+  authenticated DEV_ONLY principals, not a legal determination: `establishesApproval` is always `false`.
+
 ### DEV_ONLY route inventory
 
 All `/dev/v1` routes require exact profile `dev`, `MEDIA_DEV_IDENTITY_ENABLED=true` and a signed DEV_ONLY
@@ -257,6 +278,11 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/creative-outputs/simulations` | `media:project:dev:write` | `media:artifact:create` | timeline |
 | POST | `/dev/v1/creative-outputs/spatial-glb` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline |
 | GET | `/dev/v1/creative-outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | timeline |
+| POST | `/dev/v1/rights/attestations` | `media:project:dev:write` | `media:artifact:read` (caller owns the exact version) | `MEDIA_RIGHTS_DEV_ENABLED` |
+| GET | `/dev/v1/rights/attestations/{attestationId}` | `media:project:dev:read` | attester, confirmer or requested confirmer (any tenant principal when none requested) | rights |
+| POST | `/dev/v1/rights/attestations/{attestationId}/confirm` | `media:project:dev:write` | a principal other than the attester | rights |
+| POST | `/dev/v1/rights/attestations/{attestationId}/revoke` | `media:project:dev:write` | attester or confirmer | rights |
+| GET | `/dev/v1/rights/artifacts/{artifactId}/versions/{versionId}/attestations` | `media:project:dev:read` | caller owns the exact version | rights |
 | POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
 | GET | `/dev/v1/exports/{requestId}` | `media:delivery:dev:read` | — | delivery |
 

@@ -50,6 +50,8 @@ class MediaDevDeliveryHttpTest {
     private static final String TENANT = "tenant-local";
     private static final String PRINCIPAL = "principal-local";
     private static final String OTHER = "principal-other";
+    /** A clearly synthetic second principal used to confirm TEST attestations. */
+    private static final String CONFIRMER = "test-principal-confirmer";
     private static final String SECRET = "test-only-dev-project-secret-at-least-32-bytes";
     private static final String ISSUER = "urn:ghatana:media:dev-only";
     private static final String AUDIENCE = "ghatana-media-dev";
@@ -317,11 +319,11 @@ class MediaDevDeliveryHttpTest {
         try {
             Map<String, String> base = Map.of("MEDIA_DELIVERY_DEV_ENABLED", "true",
                     "MEDIA_RUNTIME_ENVIRONMENT", "dev", "MEDIA_DEV_IDENTITY_ENABLED", "true");
-            assertThat(MediaDevDeliveryRuntime.compose(Map.of(), runtime)).isNull();
-            MediaDevDeliveryRuntime unconfigured = MediaDevDeliveryRuntime.compose(base, runtime);
+            assertThat(MediaDevDeliveryRuntime.compose(Map.of(), runtime, null)).isNull();
+            MediaDevDeliveryRuntime unconfigured = MediaDevDeliveryRuntime.compose(base, runtime, null);
             assertThat(unconfigured.available()).isFalse();
             assertThatThrownBy(() -> MediaDevDeliveryRuntime.compose(Map.of("MEDIA_DELIVERY_DEV_ENABLED", "true",
-                    "MEDIA_RUNTIME_ENVIRONMENT", "prod", "MEDIA_DEV_IDENTITY_ENABLED", "true"), runtime))
+                    "MEDIA_RUNTIME_ENVIRONMENT", "prod", "MEDIA_DEV_IDENTITY_ENABLED", "true"), runtime, null))
                     .isInstanceOf(IllegalArgumentException.class);
             for (String bad : List.of("relative/dir", root + "/../escape", root + "/missing", " " + root)) {
                 assertThatThrownBy(() -> MediaDevLocalDirectoryDestination.confineRoot(bad))
@@ -344,6 +346,146 @@ class MediaDevDeliveryHttpTest {
             }
         } finally {
             runtime.close();
+        }
+    }
+
+    private static final Set<String> RIGHTS_PERMISSIONS = Set.of(
+            "media:project:dev:read", "media:project:dev:write", "media:artifact:read", "media:artifact:create",
+            "media:delivery:dev:export", "media:delivery:dev:read");
+
+    private static String attestBody(MediaArtifact artifact, String scopes) {
+        return "{\"artifactId\":\"" + artifact.artifactId() + "\",\"artifactVersionId\":\"" + artifact.version().value()
+                + "\",\"statementKind\":\"MEDIA_RIGHTS\",\"scopes\":" + scopes
+                + ",\"basis\":\"TEST statement for a synthetic fixture\"}";
+    }
+
+    @Test
+    void deliveryNeedsAConfirmedAttestationFromADifferentPrincipalAndStopsAfterRevocation() throws Exception {
+        Fixture fixture = new Fixture(null);
+        fixture.autoGrantDelivery = false;
+        try {
+            MediaArtifact artifact = fixture.upload("rights.bin", bytes(2_000, 21), "rights");
+            // No statement at all: refused, nothing written.
+            HttpResponse<String> none = fixture.export("rights-none", artifact, DESTINATION, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(none.statusCode()).as(none.body()).isEqualTo(403);
+            assertThat(none.body()).contains("EXPORT_RIGHTS_NOT_ADMITTED").contains("NO_ATTESTATION");
+            assertThat(fixture.destinationCalls.get()).isZero();
+
+            // The principal comes from the token, never the body.
+            HttpResponse<String> spoofed = fixture.send("POST", "/dev/v1/rights/attestations",
+                    attestBody(artifact, "[\"EXTERNAL_DELIVERY\"]").replace("{", "{\"attestingPrincipalId\":\"someone-else\","),
+                    PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(spoofed.statusCode()).as(spoofed.body()).isEqualTo(400);
+            HttpResponse<String> created = fixture.send("POST", "/dev/v1/rights/attestations",
+                    attestBody(artifact, "[\"PROCESSING\",\"EXTERNAL_DELIVERY\"]"), PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            Map<String, Object> attestation = read(created.body());
+            String id = (String) attestation.get("attestationId");
+            assertThat(attestation).containsEntry("attestingPrincipalId", PRINCIPAL)
+                    .containsEntry("status", "PENDING_CONFIRMATION").containsEntry("establishesApproval", false)
+                    .containsEntry("artifactVersionId", artifact.version().value())
+                    .containsEntry("contentSha256", artifact.sha256());
+
+            // Unconfirmed: still refused. Self-confirmation: refused.
+            HttpResponse<String> pending = fixture.export("rights-pending", artifact, DESTINATION, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(pending.statusCode()).isEqualTo(403);
+            assertThat(pending.body()).contains("NOT_CONFIRMED");
+            HttpResponse<String> self = fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/confirm", "{}",
+                    PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(self.statusCode()).as(self.body()).isEqualTo(403);
+            assertThat(self.body()).contains("SELF_CONFIRMATION_REFUSED");
+            assertThat(fixture.export("rights-self", artifact, DESTINATION, PRINCIPAL, RIGHTS_PERMISSIONS).statusCode())
+                    .isEqualTo(403);
+
+            // A different principal cannot list the owner's artifact, but can read and confirm the statement by id.
+            assertThat(fixture.send("GET", "/dev/v1/rights/artifacts/" + artifact.artifactId() + "/versions/"
+                    + artifact.version().value() + "/attestations", null, CONFIRMER, RIGHTS_PERMISSIONS).statusCode())
+                    .isEqualTo(404);
+            assertThat(read(fixture.send("GET", "/dev/v1/rights/attestations/" + id, null, CONFIRMER,
+                    RIGHTS_PERMISSIONS).body())).containsEntry("status", "PENDING_CONFIRMATION");
+            HttpResponse<String> confirmed = fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/confirm",
+                    "{\"note\":\"TEST reviewer checked the statement\"}", CONFIRMER, RIGHTS_PERMISSIONS);
+            assertThat(confirmed.statusCode()).as(confirmed.body()).isEqualTo(200);
+            Map<String, Object> confirmedView = read(confirmed.body());
+            assertThat(confirmedView).containsEntry("status", "CONFIRMED");
+            assertThat(map(confirmedView.get("confirmation"))).containsEntry("confirmingPrincipalId", CONFIRMER);
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/confirm", "{}", "test-principal-third",
+                    RIGHTS_PERMISSIONS).statusCode()).isEqualTo(409);
+
+            HttpResponse<String> listed = fixture.send("GET", "/dev/v1/rights/artifacts/" + artifact.artifactId()
+                    + "/versions/" + artifact.version().value() + "/attestations", null, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(listed.statusCode()).as(listed.body()).isEqualTo(200);
+            Map<String, Object> listing = read(listed.body());
+            assertThat(map(map(listing.get("admission")).get("EXTERNAL_DELIVERY")))
+                    .containsEntry("verdict", "ADMITTED");
+            assertThat(map(map(listing.get("admission")).get("VOICE_OR_LIKENESS_USE")))
+                    .containsEntry("verdict", "DENIED");
+
+            HttpResponse<String> exported = fixture.export("rights-ok", artifact, DESTINATION, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(exported.statusCode()).as(exported.body()).isEqualTo(201);
+
+            // Revocation (by the confirmer here) ends admission for new exports.
+            HttpResponse<String> revoked = fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/revoke",
+                    "{\"reason\":\"TEST: confirmer withdrew the confirmation\"}", CONFIRMER, RIGHTS_PERMISSIONS);
+            assertThat(revoked.statusCode()).as(revoked.body()).isEqualTo(200);
+            assertThat(map(read(revoked.body()).get("revocation")))
+                    .containsEntry("revokedByPrincipalId", CONFIRMER);
+            HttpResponse<String> after = fixture.export("rights-after", artifact, DESTINATION, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(after.statusCode()).as(after.body()).isEqualTo(403);
+            assertThat(after.body()).contains("EXPORT_RIGHTS_NOT_ADMITTED").contains("\"REVOKED\"");
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/revoke", "{\"reason\":\"again\"}",
+                    PRINCIPAL, RIGHTS_PERMISSIONS).statusCode()).isEqualTo(409);
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/revoke", "{\"reason\":\"x\"}",
+                    "test-principal-stranger", RIGHTS_PERMISSIONS).statusCode()).isEqualTo(403);
+            assertThat(fixture.destinationCalls.get()).isEqualTo(1);
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
+    void deliveryFailsClosedWhenNoRightsAuthorityIsConfigured() throws Exception {
+        Fixture fixture = new Fixture(null, null, false);
+        try {
+            MediaArtifact artifact = fixture.upload("closed.bin", bytes(1_000, 22), "closed");
+            HttpResponse<String> response = fixture.export("closed-1", artifact, DESTINATION, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(response.statusCode()).as(response.body()).isEqualTo(503);
+            assertThat(response.body()).contains("EXPORT_RIGHTS_AUTHORITY_UNAVAILABLE");
+            assertThat(fixture.destinationCalls.get()).isZero();
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
+    void attestationRequiresTheExactVersionTheCallerOwnsAndAValidShape() throws Exception {
+        Fixture fixture = new Fixture(null);
+        fixture.autoGrantDelivery = false;
+        try {
+            MediaArtifact artifact = fixture.upload("shape.bin", bytes(1_000, 23), "shape");
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations", attestBody(artifact, "[\"EXTERNAL_DELIVERY\"]"),
+                    OTHER, RIGHTS_PERMISSIONS).statusCode()).isEqualTo(404);
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations", attestBody(artifact, "[]"), PRINCIPAL,
+                    RIGHTS_PERMISSIONS).statusCode()).isEqualTo(400);
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations", attestBody(artifact, "[\"NOPE\"]"), PRINCIPAL,
+                    RIGHTS_PERMISSIONS).statusCode()).isEqualTo(400);
+            // Without artifact read the uploader cannot attest.
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations", attestBody(artifact, "[\"PROCESSING\"]"), PRINCIPAL,
+                    Set.of("media:project:dev:write")).statusCode()).isEqualTo(403);
+            // The requested confirmer restricts who may read and confirm.
+            String body = attestBody(artifact, "[\"EXTERNAL_DELIVERY\"]").replace("\"basis\"",
+                    "\"requestedConfirmerPrincipalId\":\"" + CONFIRMER + "\",\"basis\"");
+            HttpResponse<String> created = fixture.send("POST", "/dev/v1/rights/attestations", body, PRINCIPAL, RIGHTS_PERMISSIONS);
+            assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            String id = (String) read(created.body()).get("attestationId");
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/confirm", "{}", "test-principal-third",
+                    RIGHTS_PERMISSIONS).statusCode()).isEqualTo(403);
+            assertThat(fixture.send("GET", "/dev/v1/rights/attestations/" + id, null, "test-principal-third",
+                    RIGHTS_PERMISSIONS).statusCode()).isEqualTo(404);
+            assertThat(fixture.send("POST", "/dev/v1/rights/attestations/" + id + "/confirm", "{}", CONFIRMER,
+                    RIGHTS_PERMISSIONS).statusCode()).isEqualTo(200);
+        } finally {
+            fixture.close();
         }
     }
 
@@ -410,6 +552,12 @@ class MediaDevDeliveryHttpTest {
         final Path destinationRoot;
         final MediaRuntime runtime;
         final ClaimingStore store = new ClaimingStore();
+        /** Real rights authority logic over the in-memory TEST store; fixtures state rights through it, never bypass it. */
+        final com.ghatana.media.runtime.InMemoryMediaRightsAttestationStore rightsStore =
+                new com.ghatana.media.runtime.InMemoryMediaRightsAttestationStore();
+        MediaDevRightsRuntime rights;
+        boolean rightsConfigured = true;
+        boolean autoGrantDelivery = true;
         final java.util.concurrent.atomic.AtomicInteger destinationCalls = new java.util.concurrent.atomic.AtomicInteger();
         MediaDevDeliveryRuntime delivery;
         HttpServer server;
@@ -420,9 +568,16 @@ class MediaDevDeliveryHttpTest {
 
         Fixture(UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> wrapper,
                 MediaDevDeliveryRuntime preset) throws Exception {
+            this(wrapper, preset, true);
+        }
+
+        Fixture(UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> wrapper,
+                MediaDevDeliveryRuntime preset, boolean rightsConfigured) throws Exception {
+            this.rightsConfigured = rightsConfigured;
             Path root = Files.createTempDirectory("media-dev-delivery-http-");
             this.destinationRoot = Files.createDirectory(root.resolve("destination")).toRealPath();
             this.runtime = runtime(Files.createDirectory(root.resolve("artifacts")));
+            this.rights = new MediaDevRightsRuntime(runtime, rightsStore, CLOCK);
             if (preset != null) {
                 this.delivery = preset;
                 start();
@@ -449,13 +604,14 @@ class MediaDevDeliveryHttpTest {
                     }
                 };
             };
-            delivery = new MediaDevDeliveryRuntime(runtime, store, destinationRoot, Instant::now, counting);
+            delivery = new MediaDevDeliveryRuntime(runtime, store, destinationRoot, Instant::now,
+                    rightsConfigured ? rights.resolver() : null, counting);
             start();
         }
 
         private void start() throws Exception {
             server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-            MediaHttpHandler handler = new MediaHttpHandler(runtime, null, null, null).withDevDelivery(delivery);
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, null, null, null).withDevDelivery(delivery).withDevRights(rights);
             server.createContext("/", new MediaSecurityFilter(handler, "dev",
                     Map.of("MEDIA_DEV_IDENTITY_ENABLED", "true", "MEDIA_DEV_JWT_HMAC_SECRET", SECRET), CLOCK));
             server.start();
@@ -476,7 +632,19 @@ class MediaDevDeliveryHttpTest {
                 runtime.appendChunk(TENANT, PRINCIPAL, session.uploadId(), index,
                         Arrays.copyOfRange(content, offset, Math.min(content.length, offset + chunk)));
             }
-            return runtime.completeUpload(TENANT, PRINCIPAL, session.uploadId());
+            MediaArtifact artifact = runtime.completeUpload(TENANT, PRINCIPAL, session.uploadId());
+            if (autoGrantDelivery) grantDelivery(artifact);
+            return artifact;
+        }
+
+        /** TEST principals: the uploader states EXTERNAL_DELIVERY rights and a different TEST principal confirms. */
+        void grantDelivery(MediaArtifact artifact) {
+            var attested = rights.attest(TENANT, PRINCIPAL, new MediaDevRightsRuntime.Statement(
+                    artifact.artifactId(), artifact.version().value(),
+                    com.ghatana.media.runtime.MediaRightsConsentContracts.StatementKind.MEDIA_RIGHTS,
+                    Set.of(com.ghatana.media.runtime.MediaRightsConsentContracts.Scope.EXTERNAL_DELIVERY),
+                    "TEST fixture statement of rights for a synthetic file", null, null, null));
+            rights.confirm(TENANT, CONFIRMER, attested.attestation().attestationId(), "TEST fixture confirmation");
         }
 
         byte[] artifactBytes(MediaArtifact artifact) throws Exception {
@@ -539,6 +707,9 @@ class MediaDevDeliveryHttpTest {
     private static String encode(String value) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> map(Object value) { return (Map<String, Object>) value; }
 
     private static Map<String, Object> read(String json) throws Exception {
         return JSON.readValue(json, new TypeReference<Map<String, Object>>() { });

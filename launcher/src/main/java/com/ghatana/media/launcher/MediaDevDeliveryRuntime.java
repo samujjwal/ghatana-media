@@ -7,6 +7,10 @@ import com.ghatana.media.production.delivery.MediaDeliveryEngine.DeliveryResult;
 import com.ghatana.media.production.delivery.MediaDeliveryEngine.ExportRequest;
 import com.ghatana.media.production.delivery.MediaDeliveryEngine.TransferAuthorization;
 import com.ghatana.media.production.delivery.MediaDevDeliveryStoreFactory;
+import com.ghatana.media.runtime.MediaRightsConsentContracts.Resolution;
+import com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest;
+import com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver;
+import com.ghatana.media.runtime.MediaRightsConsentContracts.Scope;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 
 import java.io.ByteArrayOutputStream;
@@ -50,6 +54,21 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         ExportLimitException(String message) { super(message); }
     }
 
+    /**
+     * The exact source version has no current, second-person-confirmed EXTERNAL_DELIVERY attestation (or the rights
+     * authority is unavailable). Nothing was exported. Never carries statement content.
+     */
+    static final class RightsNotAdmittedException extends RuntimeException {
+        private final Resolution resolution;
+
+        RightsNotAdmittedException(Resolution resolution) {
+            super("external delivery is not admitted for the exact source version: " + resolution.verdict());
+            this.resolution = resolution;
+        }
+
+        Resolution resolution() { return resolution; }
+    }
+
     /** Request to export one exact artifact version. */
     record Export(String requestId, String artifactId, String artifactVersionId, String destinationId) { }
 
@@ -60,32 +79,37 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
     private final DeliveryOperationStore store;
     private final MediaDeliveryEngine engine;
     private final MediaDevLocalDirectoryDestination destination;
+    private final RightsConsentResolver rights;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     /** Unavailable runtime: enabled but the destination directory is not configured. */
     private MediaDevDeliveryRuntime() {
         this.runtime = null; this.store = null; this.engine = null; this.destination = null;
+        this.rights = RightsConsentResolver.unavailable();
     }
 
     MediaDevDeliveryRuntime(MediaRuntime runtime, DeliveryOperationStore store, Path destinationRoot,
-                            Supplier<Instant> clock) {
-        this(runtime, store, destinationRoot, clock, null);
+                            Supplier<Instant> clock, RightsConsentResolver rights) {
+        this(runtime, store, destinationRoot, clock, rights, null);
     }
 
     /** {@code destinationWrapper} exists for failure injection (lost ACK); null means the real adapter. */
     MediaDevDeliveryRuntime(MediaRuntime runtime, DeliveryOperationStore store, Path destinationRoot,
-                            Supplier<Instant> clock,
+                            Supplier<Instant> clock, RightsConsentResolver rights,
                             java.util.function.UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> destinationWrapper) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
+        // Fail closed: without a configured rights authority no external delivery is ever admitted.
+        this.rights = rights == null ? RightsConsentResolver.unavailable() : rights;
         this.store = Objects.requireNonNull(store, "store");
         this.destination = new MediaDevLocalDirectoryDestination(destinationRoot, store);
         MediaDeliveryEngine.FencedDestinationPort port = destinationWrapper == null ? destination
                 : destinationWrapper.apply(destination);
-        this.engine = new MediaDeliveryEngine(new OwnerReadAuthorization(runtime, clock), port, clock, store);
+        this.engine = new MediaDeliveryEngine(new OwnerReadAuthorization(runtime, clock, this.rights), port, clock, store);
     }
 
     /** Null when the explicit DEV_ONLY flag is absent; an unavailable runtime when the directory is absent. */
-    static MediaDevDeliveryRuntime compose(Map<String, String> environment, MediaRuntime runtime) {
+    static MediaDevDeliveryRuntime compose(Map<String, String> environment, MediaRuntime runtime,
+                                           RightsConsentResolver rights) {
         if (!parseBoolean(environment.getOrDefault(ENABLED, "false"), ENABLED)) return null;
         String profile = environment.getOrDefault("MEDIA_RUNTIME_ENVIRONMENT",
                 environment.getOrDefault("MEDIA_PROFILE", "")).trim().toLowerCase(Locale.ROOT);
@@ -106,7 +130,7 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
             throw new IllegalStateException("exactly one PostgreSQL DEV_ONLY delivery store factory is required");
         }
         DeliveryOperationStore store = factories.get(0).createDevOnly(Map.copyOf(environment));
-        return new MediaDevDeliveryRuntime(runtime, store, root, Instant::now);
+        return new MediaDevDeliveryRuntime(runtime, store, root, Instant::now, rights);
     }
 
     boolean available() { return engine != null; }
@@ -121,8 +145,18 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         if (!DESTINATION_ID.equals(request.destinationId())) {
             throw new UnknownDestinationException();
         }
+        Optional<DeliveryResult> existing = engine.find(tenantId, request.requestId());
         ExportRequest exportRequest = exportRequest(tenantId, principalId, request);
-        boolean replayed = engine.find(tenantId, request.requestId()).isPresent();
+        // A new effect, or an unconfirmed operation about to be resumed, needs a current confirmed EXTERNAL_DELIVERY
+        // attestation for these exact source bytes. Replaying an already destination-confirmed operation is a read.
+        boolean alreadyConfirmed = existing.map(found -> found.status() == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED)
+                .orElse(false);
+        if (!alreadyConfirmed) {
+            Resolution resolution = externalDelivery(rights, tenantId, exportRequest.artifact().artifactId(),
+                    exportRequest.artifact().versionRef(), exportRequest.artifact().digest());
+            if (!resolution.admitted()) throw new RightsNotAdmittedException(resolution);
+        }
+        boolean replayed = existing.isPresent();
         DeliveryResult result = engine.export(exportRequest);
         // Only a retry reconciles: a first call that ended unconfirmed reports that honestly (202).
         if (replayed && (result.status() == MediaDeliveryEngine.Status.OUTCOME_UNKNOWN
@@ -174,10 +208,15 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
      * DEV_ONLY host grant: the principal passed the permission check and can read exactly this artifact
      * version. It is short-lived and re-validated per chunk; it is not a production transfer authority.
      */
-    private record OwnerReadAuthorization(MediaRuntime runtime, Supplier<Instant> clock)
+    private record OwnerReadAuthorization(MediaRuntime runtime, Supplier<Instant> clock, RightsConsentResolver rights)
             implements MediaDeliveryEngine.AuthorizationPort {
         @Override public TransferAuthorization authorize(ExportRequest request) {
             if (!readable(request)) return null;
+            // Re-resolved for every operation (including retries and reconciliation): a revocation stops the transfer.
+            if (!externalDelivery(rights, request.tenantId(), request.artifact().artifactId(),
+                    request.artifact().versionRef(), request.artifact().digest()).admitted()) {
+                return null;
+            }
             return new TransferAuthorization("dev-owner-read:" + request.requestId(), request.tenantId(),
                     request.principalId(), request.requestId(), request.artifact().artifactId(),
                     request.artifact().versionRef(), request.artifact().digest(), request.destinationRef(),
@@ -186,12 +225,25 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
 
         @Override public Boolean isCurrent(TransferAuthorization grant, Instant now) {
             return runtime.artifact(grant.tenantId(), grant.principalId(), grant.artifactId())
-                    .map(found -> found.version().value().equals(grant.versionRef())).orElse(false);
+                    .map(found -> found.version().value().equals(grant.versionRef())).orElse(false)
+                    && externalDelivery(rights, grant.tenantId(), grant.artifactId(), grant.versionRef(),
+                            grant.artifactDigest()).admitted();
         }
 
         private boolean readable(ExportRequest request) {
             return runtime.artifact(request.tenantId(), request.principalId(), request.artifact().artifactId())
                     .map(found -> found.version().value().equals(request.artifact().versionRef())).orElse(false);
+        }
+    }
+
+    /** Resolves EXTERNAL_DELIVERY for the exact bytes; the digest is the engine's prefixed {@code sha256:} form. */
+    private static Resolution externalDelivery(RightsConsentResolver rights, String tenantId, String artifactId,
+                                               String versionRef, String prefixedDigest) {
+        try {
+            String digest = prefixedDigest.startsWith("sha256:") ? prefixedDigest.substring("sha256:".length()) : prefixedDigest;
+            return rights.resolve(new ResolutionRequest(tenantId, artifactId, versionRef, digest, Scope.EXTERNAL_DELIVERY));
+        } catch (RuntimeException failure) {
+            return Resolution.unavailable(rights.resolverId());
         }
     }
 
