@@ -136,7 +136,9 @@ class MediaOptionalPlatformBoundaryIT extends EventloopTestBase {
                 throw new AssertionError("no local ledger may fabricate an Action Plane completion");
             }
         };
-        var binder = new MediaToolExecutionBinder(absentOwnerLedger, (tenant, invocation) -> Optional.empty());
+        var binder = new MediaToolExecutionBinder(absentOwnerLedger, (tenant, invocation) -> Optional.empty(),
+                (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
+                        && authenticated.principalId().equals(identity.callerAgentId()));
         var envelope = ToolExecutionEnvelope.of("av.speech-to-text", "1.0.0", "caller-agent", null,
                 "tenant-it04", ToolActionClass.CALL_EXTERNAL, "1.0", Map.of(
                         "audioSource", Map.of("mediaArtifactId", "synthetic-artifact"),
@@ -145,10 +147,18 @@ class MediaOptionalPlatformBoundaryIT extends EventloopTestBase {
                 envelope.actionClass(), false, true, Map.of("type", "object"), Map.of("type", "object"),
                 Set.of(), ToolTransport.IN_PROCESS, null, Map.of());
 
-        assertThatThrownBy(() -> runPromise(() -> binder.execute((request, toolContract) -> {
+        var delegate = (com.ghatana.toolruntime.ToolHandler) (request, toolContract) -> {
             handlerCalls.incrementAndGet();
             return Promise.ofException(new IllegalStateException("tool must not run without the owner ledger"));
-        }, envelope, contract)))
+        };
+        // Without a host-authenticated principal the binder fails closed before any claim or dispatch.
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contract)))
+                .isInstanceOf(MediaToolExecutionBinder.InvocationReplayDeniedException.class);
+        assertThat(handlerCalls).hasValue(0);
+
+        var principal = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                envelope.tenantId(), envelope.callerAgentId(), Instant.now());
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contract, principal)))
                 .isInstanceOf(MediaToolExecutionBinder.InvocationClaimUnavailableException.class)
                 .hasMessage("durable invocation claim is unavailable");
         assertThat(handlerCalls).hasValue(0);

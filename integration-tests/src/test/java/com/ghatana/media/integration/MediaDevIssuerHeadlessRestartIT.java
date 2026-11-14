@@ -496,7 +496,10 @@ class MediaDevIssuerHeadlessRestartIT {
                     "POST /api/v1/artifacts/uploads",
                     "PUT /api/v1/artifacts/uploads/" + uploadId + "/chunks/2",
                     "GET /api/v1/artifacts/uploads/" + uploadId,
-                    "POST /api/v1/artifacts/uploads/" + uploadId + "/complete");
+                    "POST /api/v1/artifacts/uploads/" + uploadId + "/complete",
+                    // The CLI reads the completed artifact back and compares it with the completion
+                    // result before reporting success (cli.ts durable readback).
+                    "GET /api/v1/artifacts/" + artifactId);
             assertThat(traceEntries.get(1).path("idempotencyKey").asString()).isEqualTo(uploadKey);
             assertThat(traceEntries.stream().filter(entry -> entry.path("path").asString().endsWith("/complete")))
                     .hasSize(1);

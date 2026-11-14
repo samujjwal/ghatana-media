@@ -10,6 +10,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
+import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -65,8 +66,8 @@ class MediaRuntimeUnknownStreamPrefixScenarioIT {
             assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
                     "tenant-j29", connected.sessionId(), registration.connectionToken(), 1,
                     "frame-one-ambiguous".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("Media stream frame processing timed out")
+                    .isInstanceOf(MediaStreamOutcomeUnknownException.class)
+                    .hasMessage("Media stream frame processing outcome is unknown")
                     .hasRootCauseInstanceOf(TimeoutException.class);
 
             var afterUnknown = runtime.stream("tenant-j29", connected.sessionId()).orElseThrow();
