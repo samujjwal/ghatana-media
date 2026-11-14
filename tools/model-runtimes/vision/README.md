@@ -46,7 +46,9 @@ GHATANA_VISION_SIDECAR_TOKEN=<random >= 24 chars> \
 It binds 127.0.0.1 only and requires `Authorization: Bearer <token>`. Then start the Media launcher with
 `MEDIA_LOCAL_VISION_MODELS_ROOT`, `MEDIA_LOCAL_VISION_SIDECAR_URL=http://127.0.0.1:18765` and
 `MEDIA_LOCAL_VISION_SIDECAR_TOKEN` (see `docs/surfaces/launcher/README.md`). The first Qwen request also loads the model
-(about 90 s including digest verification); later requests take a few seconds. Keep VRAM modest on shared GPUs: Florence-2
+(about 90 s including digest verification; set `MEDIA_LOCAL_MODEL_DIGEST_CACHE` to a file path to reuse digests of
+unchanged files, keyed by size, mtime and inode, across restarts, or start with `--preload` / warm up from the host);
+later requests take a few seconds. Keep VRAM modest on shared GPUs: Florence-2
 about 1.5 GB, Qwen2.5-VL 4-bit about 6 GB.
 
 ## Licence obligations

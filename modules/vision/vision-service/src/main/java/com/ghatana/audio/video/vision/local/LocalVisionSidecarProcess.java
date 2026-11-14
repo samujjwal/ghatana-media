@@ -55,6 +55,17 @@ public final class LocalVisionSidecarProcess implements AutoCloseable {
      */
     public static LocalVisionSidecarProcess start(Path python, Path script, Path modelsRoot, Duration startupTimeout)
             throws IOException {
+        return start(python, script, modelsRoot, startupTimeout, false);
+    }
+
+    /**
+     * Same as {@link #start(Path, Path, Path, Duration)}; with {@code preload} the sidecar loads (and digest-verifies)
+     * both models before it listens, so {@code startupTimeout} must then cover the model load (minutes on first run)
+     * and the first request is served warm. When {@code MEDIA_LOCAL_MODEL_DIGEST_CACHE} is set in this process it is
+     * passed through, so the sidecar reuses digests of unchanged files (size, mtime, inode) instead of re-hashing.
+     */
+    public static LocalVisionSidecarProcess start(Path python, Path script, Path modelsRoot, Duration startupTimeout,
+                                                  boolean preload) throws IOException {
         Objects.requireNonNull(python, "python");
         if (!python.isAbsolute() || !script.isAbsolute() || !modelsRoot.isAbsolute()) {
             throw new IllegalArgumentException("sidecar paths must be absolute");
@@ -71,11 +82,16 @@ public final class LocalVisionSidecarProcess implements AutoCloseable {
         }
         List<String> command = new ArrayList<>(List.of(python.toString(), "-I", script.toString(),
                 "--host", "127.0.0.1", "--port", Integer.toString(port), "--models-root", modelsRoot.toString()));
+        if (preload) command.add("--preload");
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.environment().clear();
         builder.environment().putAll(Map.of("GHATANA_VISION_SIDECAR_TOKEN", token,
                 "HOME", System.getProperty("user.home"), "PATH", "/usr/bin:/bin",
                 "HF_HUB_OFFLINE", "1", "TRANSFORMERS_OFFLINE", "1"));
+        String digestCache = System.getenv("MEDIA_LOCAL_MODEL_DIGEST_CACHE");
+        if (digestCache != null && !digestCache.isBlank()) {
+            builder.environment().put("MEDIA_LOCAL_MODEL_DIGEST_CACHE", digestCache);
+        }
         builder.redirectInput(ProcessBuilder.Redirect.from(new java.io.File("/dev/null")));
         builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
         builder.redirectError(ProcessBuilder.Redirect.DISCARD);

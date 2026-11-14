@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.vision.local;
 
+import com.ghatana.media.runtime.localmodel.LocalModelManifest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -20,7 +21,7 @@ class LocalModelAdmissionTest {
         var admission = LocalVisionTestFixtures.florence(dir).evaluate();
         assertThat(admission.state()).isEqualTo(LocalModelAdmission.State.QUALIFIED);
         assertThat(admission.manifest().modelId()).isEqualTo(LocalVisionEngine.FLORENCE_MODEL_ID);
-        assertThat(admission.manifest().spdxLicense()).isEqualTo("MIT");
+        assertThat(admission.manifest().license().spdx()).isEqualTo("MIT");
     }
 
     @Test
@@ -76,21 +77,21 @@ class LocalModelAdmissionTest {
 
     @Test
     void malformedManifestsAreRejected() {
-        assertThatThrownBy(() -> LocalModelManifest.parse("{"))
-                .isInstanceOf(LocalModelManifest.InvalidManifestException.class);
-        assertThatThrownBy(() -> LocalModelManifest.parse("{\"schemaVersion\":\"other\"}"))
-                .isInstanceOf(LocalModelManifest.InvalidManifestException.class);
-        assertThatThrownBy(() -> LocalModelManifest.parse(
-                "{\"schemaVersion\":\"ghatana.media.local-model-manifest.v1\",\"revision\":\"short\"}"))
-                .isInstanceOf(LocalModelManifest.InvalidManifestException.class);
+        assertThatThrownBy(() -> LocalModelManifest.parseDirectoryManifest("{".getBytes()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> LocalModelManifest.parseDirectoryManifest("{\"schemaVersion\":\"other\"}".getBytes()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> LocalModelManifest.parseDirectoryManifest(
+                "{\"schemaVersion\":\"ghatana.media.local-model-manifest.v1\",\"revision\":\"short\"}".getBytes()))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void pathTraversalInManifestIsRejected() throws Exception {
         Path dir = LocalVisionTestFixtures.modelDir(temp, "traversal", LocalVisionEngine.FLORENCE_MODEL_ID, "VISION", "MIT");
-        String manifest = Files.readString(dir.resolve(LocalModelManifest.MANIFEST_FILE))
+        String manifest = Files.readString(dir.resolve(LocalModelManifest.DIRECTORY_MANIFEST_FILE))
                 .replace("\"path\":\"model.safetensors\"", "\"path\":\"../model.safetensors\"");
-        assertThatThrownBy(() -> LocalModelManifest.parse(manifest))
-                .isInstanceOf(LocalModelManifest.InvalidManifestException.class);
+        assertThatThrownBy(() -> LocalModelManifest.parseDirectoryManifest(manifest.getBytes()))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

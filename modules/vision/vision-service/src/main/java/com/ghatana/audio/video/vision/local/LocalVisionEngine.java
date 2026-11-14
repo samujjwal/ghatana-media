@@ -65,6 +65,49 @@ public final class LocalVisionEngine {
 
     public LocalVisionRightsAuthority rights() { return rights; }
 
+    /**
+     * Loads the models in the sidecar ahead of the first real request: verifies each model's digest manifest (filling the
+     * shared digest cache), then runs one tiny generated image through Florence-2 and, when {@code includeQwen}, one
+     * question through Qwen2.5-VL. The outputs are discarded and are never evidence. A model that is not admitted is
+     * skipped, never dispatched. The future completes with the elapsed milliseconds, or -1 when nothing could be
+     * warmed (no admitted model or the sidecar failed); it never completes exceptionally.
+     */
+    public java.util.concurrent.CompletableFuture<Long> warmUp(boolean includeQwen) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            long started = System.nanoTime();
+            boolean warmed = false;
+            try {
+                byte[] png = warmUpImage();
+                String sha = java.util.HexFormat.of().formatHex(
+                        java.security.MessageDigest.getInstance("SHA-256").digest(png));
+                if (florence.evaluate().qualified()) {
+                    analyze(png, sha, Set.of("caption"));
+                    warmed = true;
+                }
+                if (includeQwen && qwen.evaluate().qualified()) {
+                    ask(png, sha, "What is in this image?");
+                    warmed = true;
+                }
+            } catch (Exception | LinkageError failure) {
+                return -1L;
+            }
+            return warmed ? java.time.Duration.ofNanos(System.nanoTime() - started).toMillis() : -1L;
+        }, task -> {
+            Thread thread = new Thread(task, "media-vision-warmup");
+            thread.setDaemon(true);
+            thread.start();
+        });
+    }
+
+    private static byte[] warmUpImage() throws java.io.IOException {
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(96, 96,
+                java.awt.image.BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < 96; y++) for (int x = 0; x < 96; x++) image.setRGB(x, y, (x / 12 + y / 12) % 2 == 0 ? 0xDDDDDD : 0x335577);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(image, "png", out);
+        return out.toByteArray();
+    }
+
     public boolean sidecarHealthy() { return client.healthy(); }
 
     /** Florence-2 caption, detection and scene-text in one bound result. */
@@ -111,16 +154,16 @@ public final class LocalVisionEngine {
 
     private static Map<String, Object> base(String kind, LocalModelAdmission.Admission admission, String sha,
                                             int width, int height) {
-        LocalModelManifest m = admission.manifest();
+        com.ghatana.media.runtime.localmodel.LocalModelManifest m = admission.manifest();
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("schema", RESULT_SCHEMA);
         out.put("kind", kind);
         Map<String, Object> model = new LinkedHashMap<>();
         model.put("id", m.modelId());
-        model.put("revision", m.revision());
-        model.put("spdxLicense", m.spdxLicense());
+        model.put("revision", m.source().revision());
+        model.put("spdxLicense", m.license().spdx());
         model.put("fileSetSha256", m.fileSetSha256());
-        model.put("runtime", m.runtimeKind() + "/" + m.quantization());
+        model.put("runtime", m.runtime().name() + "/" + m.runtime().version());
         out.put("model", model);
         Map<String, Object> input = new LinkedHashMap<>();
         input.put("sha256", sha);

@@ -48,12 +48,75 @@ FLORENCE_TASKS = {
 MANIFEST_NAME = "ghatana-model-manifest.json"
 
 
+# Optional digest cache (opt-in): the file named by MEDIA_LOCAL_MODEL_DIGEST_CACHE gets a sibling "<name>.sidecar.json".
+# A cached digest is reused only while the file's size, mtime (ns), inode and device are all unchanged, and a file
+# modified within the last 2 seconds is never cached; any other case re-hashes. Verification semantics are unchanged.
+RACY_WINDOW_NS = 2_000_000_000
+_digest_cache = None
+
+
+def _cache_path():
+    configured = os.environ.get("MEDIA_LOCAL_MODEL_DIGEST_CACHE", "")
+    return configured + ".sidecar.json" if configured else ""
+
+
+def _load_cache():
+    global _digest_cache
+    if _digest_cache is None:
+        _digest_cache = {}
+        path = _cache_path()
+        if path:
+            try:
+                with open(path, "r", encoding="utf-8") as handle:
+                    loaded = json.load(handle)
+                if isinstance(loaded, dict):
+                    _digest_cache = loaded
+            except (OSError, ValueError):
+                _digest_cache = {}
+    return _digest_cache
+
+
+def _save_cache():
+    path = _cache_path()
+    if not path or _digest_cache is None:
+        return
+    try:
+        tmp = path + ".tmp"
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(_digest_cache, handle)
+        os.replace(tmp, path)
+    except OSError:
+        pass
+
+
+def _stat_key(path):
+    info = os.lstat(path)
+    return [info.st_size, info.st_mtime_ns, info.st_ino, info.st_dev]
+
+
 def sha256_file(path):
+    path = os.path.abspath(path)
+    cache = _load_cache() if _cache_path() else None
+    before = None
+    if cache is not None:
+        before = _stat_key(path)
+        known = cache.get(path)
+        if known and known.get("stat") == before:
+            return known["sha256"]
     digest = hashlib.sha256()
     with open(path, "rb") as handle:
         for block in iter(lambda: handle.read(1 << 20), b""):
             digest.update(block)
-    return digest.hexdigest()
+    result = digest.hexdigest()
+    if cache is not None:
+        after = _stat_key(path)
+        if before == after and after[1] < time.time_ns() - RACY_WINDOW_NS:
+            cache[path] = {"stat": after, "sha256": result}
+            _save_cache()
+        else:
+            cache.pop(path, None)
+    return result
 
 
 def verify_manifest(model_dir, expected_model_id, expected_spdx):

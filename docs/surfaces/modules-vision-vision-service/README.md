@@ -135,7 +135,13 @@ Owner decision, verbatim: "Local open models (Recommended): Whisper large-v3-tur
 multimodal (Apache-2.0). Media stays on this machine, with no per-use cost." and "we will abide by all license
 requirements." Package `com.ghatana.audio.video.vision.local` implements the Florence-2 and Qwen2.5-VL part:
 
-- `LocalModelManifest` / `LocalModelAdmission`: server-owned, manifest-driven qualification. A model is `QUALIFIED` only
+- `LocalModelAdmission` over the shared `com.ghatana.media.runtime.localmodel.LocalModelManifest` (the vision-local
+  duplicate was removed; `LocalModelManifest.readDirectory` parses `ghatana-model-manifest.json`, and the verbatim owner
+  decision is now enforced for vision exactly as for speech; extra reason `MODEL_OWNER_DECISION_MISMATCH`). Digests are served
+  by the shared `FileDigestCache` (size, nanosecond mtime and inode keyed; opt-in persistence through
+  `MEDIA_LOCAL_MODEL_DIGEST_CACHE`, also honoured by the sidecar), `LocalVisionEngine.warmUp(includeQwen)` /
+  `LocalOpenModelVisionProvider.warmUp` load the models ahead of the first call (`MEDIA_LOCAL_MODEL_PRELOAD`,
+  `MEDIA_LOCAL_MODEL_PRELOAD_QWEN`). Server-owned, manifest-driven qualification. A model is `QUALIFIED` only
   when `ghatana-model-manifest.json` is valid, names the expected model id, role and SPDX id (Florence-2 `MIT`,
   Qwen2.5-VL-7B-Instruct `Apache-2.0`) and every inventoried file (weights, config, tokenizer, licence) is a regular
   non-symlink file whose size and SHA-256 match. Missing or mismatched is `NOT_ADMITTED` with a stable reason code

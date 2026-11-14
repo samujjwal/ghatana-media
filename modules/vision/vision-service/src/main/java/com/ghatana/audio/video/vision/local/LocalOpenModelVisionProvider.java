@@ -67,8 +67,8 @@ public final class LocalOpenModelVisionProvider implements MediaProcessingProvid
     @Override public String providerVersion() {
         LocalModelAdmission.Admission florence = engine.florenceAdmission();
         LocalModelAdmission.Admission qwen = engine.qwenAdmission();
-        String f = florence.manifest() == null ? "unverified" : florence.manifest().revision().substring(0, 12);
-        String q = qwen.manifest() == null ? "unverified" : qwen.manifest().revision().substring(0, 12);
+        String f = florence.manifest() == null ? "unverified" : florence.manifest().source().revision().substring(0, 12);
+        String q = qwen.manifest() == null ? "unverified" : qwen.manifest().source().revision().substring(0, 12);
         return "florence2-large@" + f + "+qwen2.5-vl-7b@" + q;
     }
 
@@ -88,6 +88,11 @@ public final class LocalOpenModelVisionProvider implements MediaProcessingProvid
     }
 
     @Override public int priority() { return 10; }
+
+    /** Warm-up of the admitted models in the sidecar; see {@link LocalVisionEngine#warmUp(boolean)}. */
+    public java.util.concurrent.CompletableFuture<Long> warmUp(boolean includeQwen) {
+        return engine.warmUp(includeQwen);
+    }
 
     @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
 

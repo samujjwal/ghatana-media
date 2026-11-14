@@ -1,5 +1,7 @@
 package com.ghatana.media.runtime.localmodel;
 
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -44,7 +46,8 @@ public record LocalModelManifest(
         Admission admission,
         Set<String> verifiedLanguages,
         RuntimeBinding runtime,
-        String voiceCloning) {
+        String voiceCloning,
+        String fileSetSha256) {
 
     public static final String SCHEMA = "ghatana.media.local-model-manifest.v1";
     /** Verbatim owner decision given in chat on 2026-11-14; manifests must carry exactly this text. */
@@ -54,11 +57,19 @@ public record LocalModelManifest(
                     + "Kokoro-82M for text-to-speech (Apache-2.0, no voice cloning). Florence-2 for vision (MIT). "
                     + "Qwen2.5-VL-7B for multimodal (Apache-2.0). Media stays on this machine, with no per-use cost.";
     public static final String OWNER_LICENSE_STATEMENT = "we will abide by all license requirements.";
-    private static final ObjectMapper JSON = JsonMapper.builder().build();
+    /** Manifest file name used by the {@link #parseDirectoryManifest directory layout} (vision / multimodal). */
+    public static final String DIRECTORY_MANIFEST_FILE = "ghatana-model-manifest.json";
+    private static final java.util.regex.Pattern REVISION_40_HEX = java.util.regex.Pattern.compile("^[0-9a-f]{40}$");
+    private static final java.util.regex.Pattern DIRECTORY_REL_PATH =
+            java.util.regex.Pattern.compile("^[A-Za-z0-9._-][A-Za-z0-9._/-]*$");
+    private static final java.util.regex.Pattern WEIGHT_FILE =
+            java.util.regex.Pattern.compile(".*\\.(safetensors|bin|pth|pt|gguf|onnx)$");
+    private static final ObjectMapper JSON = JsonMapper.builder(JsonFactory.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
     private static final long MAX_MANIFEST_BYTES = 256 * 1024;
 
     public enum Modality {
-        SPEECH_TO_TEXT("MIT"), TEXT_TO_SPEECH("Apache-2.0");
+        SPEECH_TO_TEXT("MIT"), TEXT_TO_SPEECH("Apache-2.0"), VISION("MIT"), MULTIMODAL_QA("Apache-2.0");
         private final String allowedSpdx;
         Modality(String allowedSpdx) { this.allowedSpdx = allowedSpdx; }
         public String allowedSpdx() { return allowedSpdx; }
@@ -129,7 +140,7 @@ public record LocalModelManifest(
         try {
             modality = Modality.valueOf(text(root, "modality"));
         } catch (IllegalArgumentException unknown) {
-            throw new IllegalArgumentException("modality must be SPEECH_TO_TEXT or TEXT_TO_SPEECH");
+            throw new IllegalArgumentException("modality must be one of " + java.util.Arrays.toString(Modality.values()));
         }
         JsonNode source = object(root, "source");
         JsonNode license = object(root, "license");
@@ -183,7 +194,97 @@ public record LocalModelManifest(
                 new Attribution(attribution.path("noticeRequired").asBoolean(false),
                         attribution.path("notice").asString("")),
                 new Admission(text(admission, "scope"), admission.path("productionEligible").asBoolean(false)),
-                languages, runtime, root.path("voiceCloning").asString(""));
+                languages, runtime, root.path("voiceCloning").asString(""), "");
+    }
+
+    /** Reads {@code <modelDir>/ghatana-model-manifest.json} (the vision / multimodal directory layout). */
+    public static LocalModelManifest readDirectory(Path modelDir) {
+        Path file = modelDir.resolve(DIRECTORY_MANIFEST_FILE);
+        try {
+            return parseDirectoryManifest(readBounded(file));
+        } catch (IOException unreadable) {
+            throw new IllegalArgumentException("manifest is missing, not a regular file or too large");
+        }
+    }
+
+    /**
+     * Strict parse of the directory layout written by {@code tools/model-runtimes/vision/make_manifest.py}
+     * ({@code schemaVersion}, {@code role}, {@code spdxLicense}, {@code licenseFile}, {@code fileSetSha256}). The result
+     * is the same record as the speech layout, so every consumer applies the identical digest, SPDX and owner-decision
+     * checks in {@link #verify}. The weights role is derived from the file extension; the licence file must be an
+     * inventoried file with a matching digest.
+     */
+    public static LocalModelManifest parseDirectoryManifest(byte[] json) {
+        final JsonNode root;
+        try {
+            root = JSON.readTree(json);
+        } catch (RuntimeException malformed) {
+            throw new IllegalArgumentException("manifest is not valid JSON");
+        }
+        if (root == null || !root.isObject()) throw new IllegalArgumentException("manifest must be an object");
+        if (!SCHEMA.equals(text(root, "schemaVersion"))) {
+            throw new IllegalArgumentException("unsupported manifest schema version");
+        }
+        Modality modality;
+        switch (text(root, "role")) {
+            case "VISION" -> modality = Modality.VISION;
+            case "MULTIMODAL_QA" -> modality = Modality.MULTIMODAL_QA;
+            default -> throw new IllegalArgumentException("role must be VISION or MULTIMODAL_QA");
+        }
+        String revision = text(root, "revision");
+        if (!REVISION_40_HEX.matcher(revision).matches()) {
+            throw new IllegalArgumentException("revision must be a 40-hex commit");
+        }
+        String spdx = text(root, "spdxLicense");
+        if (!java.util.Set.of("MIT", "Apache-2.0").contains(spdx)) {
+            throw new IllegalArgumentException("licence is not an admitted SPDX id");
+        }
+        String fileSet = text(root, "fileSetSha256");
+        if (!fileSet.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("fileSetSha256 is malformed");
+        JsonNode filesNode = root.get("files");
+        if (filesNode == null || !filesNode.isArray() || filesNode.isEmpty() || filesNode.size() > 256) {
+            throw new IllegalArgumentException("files must be a non-empty bounded array");
+        }
+        JsonNode licenseNode = root.get("licenseFile");
+        String licensePath = licenseNode == null ? "" : text(licenseNode, "path");
+        String licenseSha = licenseNode == null ? "" : text(licenseNode, "sha256");
+        List<FileEntry> entries = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        boolean licenseInventoried = false;
+        for (JsonNode node : filesNode) {
+            String path = text(node, "path");
+            String sha = text(node, "sha256");
+            if (!DIRECTORY_REL_PATH.matcher(path).matches() || path.contains("..") || path.contains("//")
+                    || !sha.matches("[0-9a-f]{64}") || !node.has("sizeBytes") || node.get("sizeBytes").asLong(-1) < 0
+                    || !seen.add(path)) {
+                throw new IllegalArgumentException("file entry is malformed");
+            }
+            FileRole role;
+            if (path.equals(licensePath)) {
+                if (!sha.equals(licenseSha)) {
+                    throw new IllegalArgumentException(
+                            "licence file is not an inventoried file with a matching digest");
+                }
+                role = FileRole.LICENSE;
+                licenseInventoried = true;
+            } else {
+                role = WEIGHT_FILE.matcher(path).matches() ? FileRole.WEIGHTS : FileRole.CONFIG;
+            }
+            entries.add(new FileEntry(role, path, sha, node.get("sizeBytes").asLong()));
+        }
+        if (!licenseInventoried) {
+            throw new IllegalArgumentException("licence file is not an inventoried file with a matching digest");
+        }
+        JsonNode owner = object(root, "ownerDecision");
+        JsonNode runtime = object(root, "runtime");
+        String sourceUrl = text(root, "sourceUrl");
+        return new LocalModelManifest(SCHEMA, text(root, "modelId"), modality, text(root, "modelId"),
+                new Source(sourceUrl, revision), entries,
+                new License(spdx, licenseNode.path("source").asString(sourceUrl), ""),
+                new OwnerDecision(text(owner, "decidedOn"), text(owner, "quote"), text(owner, "licenseNote")),
+                new Attribution(true, text(root, "attribution")),
+                new Admission("LOCAL_ARTIFACT_IDENTITY_AND_LICENSE_ONLY", false), Set.of(),
+                new RuntimeBinding(text(runtime, "kind"), text(runtime, "quantization"), "", ""), "", fileSet);
     }
 
     /**
@@ -216,7 +317,7 @@ public record LocalModelManifest(
                 if (Files.size(file) != entry.sizeBytes()) {
                     return fail(Status.SIZE_MISMATCH, "size mismatch for " + entry.path(), manifestSha256);
                 }
-                if (!entry.sha256().equals(sha256(file))) {
+                if (!entry.sha256().equals(FileDigestCache.shared().sha256(file))) {
                     return fail(Status.DIGEST_MISMATCH, "digest mismatch for " + entry.path(), manifestSha256);
                 }
             } catch (IOException unreadable) {

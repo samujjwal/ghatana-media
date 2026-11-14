@@ -188,8 +188,8 @@ public final class MediaDevVisionRuntime {
         view.put("reason", admission.reasonCode());
         if (admission.manifest() != null) {
             view.put("modelId", admission.manifest().modelId());
-            view.put("revision", admission.manifest().revision());
-            view.put("spdxLicense", admission.manifest().spdxLicense());
+            view.put("revision", admission.manifest().source().revision());
+            view.put("spdxLicense", admission.manifest().license().spdx());
         }
         return view;
     }

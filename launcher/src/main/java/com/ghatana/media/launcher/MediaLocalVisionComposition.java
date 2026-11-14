@@ -51,8 +51,19 @@ final class MediaLocalVisionComposition {
                 rights));
     }
 
+    /** {@code true} warms the admitted vision models in the sidecar in the background at composition time. */
+    static final String PRELOAD_ENV = "MEDIA_LOCAL_MODEL_PRELOAD";
+    /** {@code true} additionally warms the (much larger) Qwen2.5-VL model when preloading. */
+    static final String PRELOAD_QWEN_ENV = "MEDIA_LOCAL_MODEL_PRELOAD_QWEN";
+
     static Optional<LocalOpenModelVisionProvider> providerFrom(Map<String, String> environment) {
-        return engineFrom(environment).map(engine ->
-                new LocalOpenModelVisionProvider(engine, MediaDevFfmpegFrameExtractor.from(environment)));
+        return engineFrom(environment).map(engine -> {
+            LocalOpenModelVisionProvider provider =
+                    new LocalOpenModelVisionProvider(engine, MediaDevFfmpegFrameExtractor.from(environment));
+            if ("true".equalsIgnoreCase(environment.get(PRELOAD_ENV))) {
+                provider.warmUp("true".equalsIgnoreCase(environment.get(PRELOAD_QWEN_ENV)));
+            }
+            return provider;
+        });
     }
 }

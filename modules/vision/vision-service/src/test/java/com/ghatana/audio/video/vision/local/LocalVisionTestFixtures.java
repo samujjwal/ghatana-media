@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.vision.local;
 
+import com.ghatana.media.runtime.localmodel.LocalModelManifest;
 import com.sun.net.httpserver.HttpServer;
 
 import javax.imageio.ImageIO;
@@ -54,9 +55,9 @@ final class LocalVisionTestFixtures {
                 + "a".repeat(40) + "\",\"spdxLicense\":\"" + spdx + "\",\"licenseFile\":{\"path\":\"LICENSE\","
                 + "\"sha256\":\"" + sha256(license) + "\",\"source\":\"fixture\"},\"files\":[" + String.join(",", entries)
                 + "],\"fileSetSha256\":\"" + fileSet + "\",\"remoteCode\":{\"required\":false,\"files\":[]},"
-                + "\"runtime\":{\"kind\":\"fixture\",\"quantization\":\"none\"},\"ownerDecision\":{\"quote\":\"fixture\","
-                + "\"decidedOn\":\"2026-11-14\",\"channel\":\"user chat\"},\"attribution\":\"fixture\",\"obligations\":[]}";
-        Files.writeString(dir.resolve(LocalModelManifest.MANIFEST_FILE), manifest);
+                + "\"runtime\":{\"kind\":\"fixture\",\"quantization\":\"none\"},\"ownerDecision\":{\"quote\":\"" + LocalModelManifest.OWNER_DECISION_QUOTE + "\","
+                + "\"decidedOn\":\"2026-11-14\",\"channel\":\"user chat\",\"licenseNote\":\"" + LocalModelManifest.OWNER_LICENSE_STATEMENT + "\"},\"attribution\":\"fixture\",\"obligations\":[]}";
+        Files.writeString(dir.resolve(LocalModelManifest.DIRECTORY_MANIFEST_FILE), manifest);
         return dir;
     }
 

@@ -70,8 +70,8 @@ class LocalVisionRealModelsIT {
         var qwen = engine.qwenAdmission();
         assertThat(florence.qualified()).as(florence.reasonCode()).isTrue();
         assertThat(qwen.qualified()).as(qwen.reasonCode()).isTrue();
-        assertThat(florence.manifest().spdxLicense()).isEqualTo("MIT");
-        assertThat(qwen.manifest().spdxLicense()).isEqualTo("Apache-2.0");
+        assertThat(florence.manifest().license().spdx()).isEqualTo("MIT");
+        assertThat(qwen.manifest().license().spdx()).isEqualTo("Apache-2.0");
     }
 
     @Test

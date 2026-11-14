@@ -17,7 +17,7 @@ import java.util.Map;
  * <p>An installation is {@link #usable()} only when the manifest parsed, belongs to the expected modality and
  * model key, and every listed file's SHA-256 matched on disk. Anything else (absent manifest, malformed JSON,
  * wrong modality, missing or altered weights, disallowed licence) is not usable and stays fail-closed. The
- * object remembers each verified file's size and modification time so {@link #stillCurrent()} can detect a
+ * object remembers each verified file's size, modification time and inode so {@link #stillCurrent()} can detect a
  * swap after verification without re-hashing gigabytes on every readiness probe.</p>
  */
 public final class LocalModelInstall {
@@ -126,7 +126,8 @@ public final class LocalModelInstall {
     private static String stamp(Path file) {
         try {
             if (!Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) return "missing";
-            return Files.size(file) + ":" + Files.getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis();
+            FileDigestCache.Stamp stamp = FileDigestCache.stamp(file);
+            return stamp.size() + ":" + stamp.mtimeNanos() + ":" + stamp.fileKey();
         } catch (IOException unreadable) {
             return "unreadable";
         }
