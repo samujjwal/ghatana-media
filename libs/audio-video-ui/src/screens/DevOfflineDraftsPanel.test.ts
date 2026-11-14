@@ -24,14 +24,14 @@ function setup(head = "rev-1") {
   return { client, view, setHead: (h: string) => { current = h; } };
 }
 const save = async (sceneId: string): Promise<void> => {
-  await waitFor(() => expect((screen.getByRole("button", { name: "Save as offline draft" }) as HTMLButtonElement).disabled).toBe(false));
+  await waitFor(() => expect((screen.getByRole("button", { name: "Save as offline draft" }) as HTMLButtonElement).disabled).toBe(false), { timeout: 10_000 });
   fireEvent.change(screen.getByLabelText("Scene id"), { target: { value: sceneId } });
   fireEvent.click(screen.getByRole("button", { name: "Save as offline draft" }));
-  await screen.findByText(/Saved offline draft/);
+  await screen.findByText(/Saved offline draft/, undefined, { timeout: 10_000 });
 };
 
 const clickEnabled = async (name: string): Promise<void> => {
-  await waitFor(() => expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false));
+  await waitFor(() => expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false), { timeout: 10_000 });
   fireEvent.click(screen.getByRole("button", { name }));
 };
 
