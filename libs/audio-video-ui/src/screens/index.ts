@@ -72,7 +72,7 @@ export { VisionTrackOverlay } from "./VisionTrackOverlay";
 export type { VisionTrackOverlayProps } from "./VisionTrackOverlay";
 export {
   DEFAULT_EXACT_TOLERANCE_US, DevVisionHostError, VISION_TRACKS_SCHEMA, VisionTracksParseError, boxesAt, describeVisionFailure,
-  formatSeconds, parseVisionTracksDocument,
+  formatSeconds as formatTrackSeconds, parseVisionTracksDocument,
 } from "./devVisionTracks";
 export type {
   BoxesAtResult, DevVisionHostResponse, DevVisionPort, DevVisionTrackRequest, VisionBox, VisionFrame, VisionObservation,
