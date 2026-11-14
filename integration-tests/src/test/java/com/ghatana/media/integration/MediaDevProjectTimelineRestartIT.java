@@ -190,7 +190,14 @@ class MediaDevProjectTimelineRestartIT {
             String childClasspath = System.getProperty("media.child.classpath", "");
             assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
             String classpath = services + java.io.File.pathSeparator + childClasspath;
-            Map<String, String> environment = environment(bucket, port, schema);
+            Map<String, String> environment = new HashMap<>(environment(bucket, port, schema));
+            String ffmpeg = System.getenv("GHATANA_MEDIA_FFMPEG");
+            String ffprobe = System.getenv("GHATANA_MEDIA_FFPROBE");
+            boolean mp4 = ffmpeg != null && !ffmpeg.isBlank() && ffprobe != null && !ffprobe.isBlank();
+            if (mp4) {
+                environment.put("MEDIA_DEV_RENDER_FFMPEG", ffmpeg);
+                environment.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe);
+            }
             String token = issueDevToken(tenant, principal, true);
             launcher = startLauncher(classpath, environment, log);
             awaitReady(launcher, port);
@@ -237,6 +244,23 @@ class MediaDevProjectTimelineRestartIT {
             assertThat(render.path("lineage").path("revisionId").asString()).isEqualTo(revisionId);
             assertThat(render.path("lineage").path("sources").get(0).path("artifactVersionId").asString())
                     .isEqualTo("sha256:" + sha256(red));
+
+            String mp4Id = null;
+            String mp4Sha = null;
+            if (mp4) {
+                HttpResponse<String> mp4Rendered = send(port, tenant, token, "POST",
+                        "/dev/v1/projects/" + projectId + "/renders", JSON.writeValueAsString(Map.of(
+                                "requestId", "render-mp4-" + run, "revisionId", revisionId,
+                                "timelineId", "timeline-main", "width", 32, "height", 24,
+                                "framesPerSecond", 10, "format", "mp4")));
+                assertThat(mp4Rendered.statusCode()).as(mp4Rendered.body()).isEqualTo(201);
+                JsonNode mp4Body = JSON.readTree(mp4Rendered.body());
+                mp4Id = mp4Body.path("renderId").asString();
+                mp4Sha = mp4Body.path("artifact").path("sha256").asString();
+                assertThat(mp4Body.path("artifact").path("contentType").asString()).isEqualTo("video/mp4");
+                assertThat(mp4Body.path("lineage").path("encoding").path("videoCodec").asString()).isEqualTo("h264");
+                assertThat(mp4Body.path("lineage").path("encoding").path("videoPtsExact").asBoolean()).isTrue();
+            }
 
             // Kill and restart the real launcher process; the same media reopens from PostgreSQL + S3.
             stopLauncher(launcher);
@@ -296,6 +320,13 @@ class MediaDevProjectTimelineRestartIT {
                     "/dev/v1/projects/" + projectId + "/renders/" + renderId, null);
             assertThat(foreign.statusCode()).as(foreign.body()).isIn(403, 404);
             assertThat(foreign.body()).doesNotContain(renderSha);
+            if (mp4) {
+                HttpResponse<String> mp4Reopened = send(port, tenant, token, "GET",
+                        "/dev/v1/projects/" + projectId + "/renders/" + mp4Id, null);
+                assertThat(mp4Reopened.statusCode()).as(mp4Reopened.body()).isEqualTo(200);
+                assertThat(JSON.readTree(mp4Reopened.body()).path("artifact").path("sha256").asString())
+                        .isEqualTo(mp4Sha);
+            }
         } finally {
             if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
             dropSchema(schema);
