@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { createFixtureState, mediaExperienceScenarioIds, projectExperience } from "../dist/index.js";
 import { evaluateRetryEligibilityDefinition } from "../dist/retry-eligibility-definition.js";
 
-const require = createRequire(resolve(process.cwd(), "../../../ghatana-tools/package.json"));
+const require = createRequire(import.meta.url);
 const { parse } = require("yaml");
 const source = parse(await readFile(new URL("../../../.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", import.meta.url), "utf8"));
 const sourceById = new Map(source.fixtures.map((fixture) => [fixture.id, fixture]));

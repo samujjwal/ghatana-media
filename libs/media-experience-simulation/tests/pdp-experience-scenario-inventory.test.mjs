@@ -7,7 +7,7 @@ import { resolve } from "node:path";
 import { createFixtureState, mediaExperienceScenarioIds, projectExperience } from "../dist/index.js";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
-const toolsRequire = createRequire(new URL("../../../../ghatana-tools/package.json", import.meta.url));
+const toolsRequire = createRequire(import.meta.url);
 const { parse } = toolsRequire("yaml");
 const scenarioRegistry = parse(await readFile(
   resolve(repoRoot, ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml"),

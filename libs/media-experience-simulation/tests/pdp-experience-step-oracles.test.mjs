@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { evaluateDefinitionActionChoiceSet, evaluateDefinitionOracle } from "../dist/index.js";
 
 const repoRoot = resolve(new URL("../../../", import.meta.url).pathname);
-const toolsRequire = createRequire(new URL("../../../../ghatana-tools/package.json", import.meta.url));
+const toolsRequire = createRequire(import.meta.url);
 const { parse } = toolsRequire("yaml");
 const oracles = parse(await readFile(resolve(repoRoot, ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml"), "utf8"));
 const registry = parse(await readFile(resolve(repoRoot, ".product-experience/pdp-3-product-experience/action-registry.yaml"), "utf8"));

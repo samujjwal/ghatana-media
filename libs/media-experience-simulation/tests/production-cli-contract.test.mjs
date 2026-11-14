@@ -57,6 +57,10 @@ async function requests(log) {
   catch (error) { if (error.code === "ENOENT") return []; throw error; }
 }
 
+function artifactInspectArgs(endpoint = "https://media.example.test") {
+  return ["artifact", "inspect", "--endpoint", endpoint, "--tenant", "tenant-a", "--principal", "principal-a", "--artifact", "artifact-a"];
+}
+
 function jobStatusArgs(endpoint = "https://media.example.test") {
   return ["job", "status", "--endpoint", endpoint, "--tenant", "tenant-a", "--principal", "principal-a", "--job", "job-1"];
 }
@@ -67,102 +71,79 @@ function jobSubmitArgs(endpoint = "https://media.example.test") {
     "--job-type", "SPEECH_TO_TEXT", "--idempotency-key", "stable-key-1", "--parameters", "{}"];
 }
 
-test("canonical CLI reports an unknown job state as an observation, never guessed success", async () => {
-  await withFixture("unknown", async (fixture) => {
-    const result = await invoke(jobStatusArgs(), fixture);
-    assert.equal(result.status, 3);
+// The production `ghatanamedia-api` channel is intentionally limited to `artifact inspect`
+// (the authenticated job status/submit CLI was reverted). Job, capture and recorder
+// commands exist only in the loopback DEV_ONLY channel, so the production channel must
+// fail closed locally and never dispatch a request or imply success.
+test("production CLI exposes no job, capture or recorder commands and never dispatches them", async () => {
+  await withFixture("success", async (fixture) => {
+    const commands = [
+      jobStatusArgs(),
+      jobSubmitArgs(),
+      ["capture", "start", "--endpoint", "https://media.example.test", "--tenant", "tenant-a", "--principal", "principal-a"],
+      ["recorder", "start", "--endpoint", "https://media.example.test", "--tenant", "tenant-a", "--principal", "principal-a"],
+    ];
+    for (const args of commands) {
+      const result = await invoke(args, fixture);
+      assert.equal(result.status, 2, args.slice(0, 2).join(" "));
+      assert.equal(result.stdout, "");
+      const report = JSON.parse(result.stderr);
+      assert.equal(report.code, "INVALID_INVOCATION");
+      assert.equal(report.commandId, "media.cli.invocation");
+      assert.ok(!result.stderr.includes(token));
+    }
+    assert.equal((await requests(fixture.log)).length, 0);
+  });
+});
+
+test("a forbidden artifact observation is a non-success with no token echo", async () => {
+  await withFixture("artifact-forbidden", async (fixture) => {
+    const result = await invoke(artifactInspectArgs(), fixture);
+    assert.equal(result.status, 1);
     assert.equal(result.stdout, "");
     const report = JSON.parse(result.stderr);
-    assert.equal(report.schemaVersion, "media.cli-error.v1");
-    assert.equal(report.commandId, "media.cli.job.status");
-    assert.equal(report.code, "OUTCOME_UNKNOWN");
-    assert.equal(report.jobId, "job-1");
-    assert.equal(report.requestId, "request-1");
+    assert.equal(report.commandId, "media.cli.artifact.inspect");
+    assert.equal(report.code, "MEDIA_REQUEST_FAILED");
+    assert.equal(report.statusCode, 403);
     assert.ok(!result.stderr.includes(token));
     const [request] = await requests(fixture.log);
-    assert.equal(request.path, "/api/v1/jobs/job-1");
+    assert.equal(request.path, "/api/v1/artifacts/artifact-a");
     assert.equal(request.method, "GET");
     assert.equal(request.tenant, "tenant-a");
     assert.equal(request.principal, "principal-a");
     assert.equal(request.authenticated, true);
-    assert.ok(!result.stdout.includes(token));
   });
 });
 
-test("forbidden and unsupported capture/recorder commands fail with exact non-success semantics", async () => {
-  await withFixture("forbidden", async (fixture) => {
-    const forbidden = await invoke(jobStatusArgs(), fixture);
-    assert.equal(forbidden.status, 1);
-    assert.equal(forbidden.stdout, "");
-    assert.equal(JSON.parse(forbidden.stderr).code, "MEDIA_REQUEST_FAILED");
-    assert.ok(!forbidden.stderr.includes(token));
-
-    const capture = await invoke(["capture", "start", "--endpoint", "https://media.example.test", "--tenant", "tenant-a", "--principal", "principal-a"], fixture);
-    const recorder = await invoke(["recorder", "start", "--endpoint", "https://media.example.test", "--tenant", "tenant-a", "--principal", "principal-a"], fixture);
-    for (const result of [capture, recorder]) {
-      assert.equal(result.status, 3);
-      assert.equal(result.stdout, "");
-      assert.equal(JSON.parse(result.stderr).code, "NOT_ADMITTED");
-    }
-    assert.equal((await requests(fixture.log)).length, 1); // unsupported commands never dispatch
-  });
-});
-
-test("a lost submit acknowledgment after dispatch is OUTCOME_UNKNOWN with stable request identity", async () => {
-  await withFixture("timeout", async (fixture) => {
-    const result = await invoke(jobSubmitArgs(), fixture, 10_000);
-    assert.equal(result.status, 3);
+test("an unreachable endpoint reports no observation instead of guessing success", async () => {
+  await withFixture("artifact-timeout", async (fixture) => {
+    const result = await invoke(artifactInspectArgs(), fixture);
+    assert.equal(result.status, 1);
     assert.equal(result.stdout, "");
-    const report = JSON.parse(result.stderr);
-    assert.equal(report.code, "OUTCOME_UNKNOWN");
-    const [request] = await requests(fixture.log);
-    assert.equal(report.requestId, request.requestId);
-    assert.equal(report.requestKey, "stable-key-1");
-    assert.match(report.message, /reconcile before retrying/u);
-    assert.equal(request.path, "/api/v1/jobs");
-    assert.equal(request.method, "POST");
-    assert.equal(request.authenticated, true);
-    assert.equal(request.idempotencyKey, "stable-key-1");
+    assert.equal(JSON.parse(result.stderr).code, "OBSERVATION_UNAVAILABLE");
     assert.ok(!result.stderr.includes(token));
   });
 });
 
-test("schema-invalid canonical response exits nonzero without printing response content", async () => {
-  await withFixture("malformed", async (fixture) => {
-    const result = await invoke(jobStatusArgs(), fixture);
+test("a schema-invalid artifact response exits nonzero without printing response content", async () => {
+  await withFixture("artifact-malformed-json", async (fixture) => {
+    const result = await invoke(artifactInspectArgs(), fixture);
     assert.equal(result.status, 1);
     assert.equal(result.stdout, "");
     assert.equal(JSON.parse(result.stderr).code, "INVALID_MEDIA_RESPONSE");
-    assert.ok(!result.stderr.includes("privateField"));
-    assert.ok(!result.stderr.includes("do-not-print"));
+    assert.ok(!result.stderr.includes('"artifactId"'));
     assert.ok(!result.stderr.includes(token));
   });
 });
 
-test("a restarted process reuses the caller's idempotency key and gets the same job", async () => {
-  await withFixture("restart", async (fixture) => {
-    const first = await invoke(jobSubmitArgs(), fixture);
-    const restarted = await invoke(jobSubmitArgs(), fixture);
-    assert.equal(first.status, 0);
-    assert.equal(restarted.status, 0);
-    assert.equal(JSON.parse(first.stdout).job.jobId, JSON.parse(restarted.stdout).job.jobId);
-    assert.equal(JSON.parse(first.stdout).job.status, "ACCEPTED");
-    const loggedRequests = await requests(fixture.log);
-    assert.equal(loggedRequests.length, 2);
-    assert.deepEqual(loggedRequests.map((request) => request.idempotencyKey), ["stable-key-1", "stable-key-1"]);
-    const state = JSON.parse(await readFile(fixture.state, "utf8"));
-    assert.equal(state.effectCount, 1);
-  });
-});
-
-test("strict argument and request JSON errors are local and do not call the server", async () => {
+test("strict argument errors are local and do not call the server", async () => {
   await withFixture("success", async (fixture) => {
-    const unknown = await invoke([...jobStatusArgs(), "--force"], fixture);
+    const unknown = await invoke([...artifactInspectArgs(), "--force", "yes"], fixture);
     assert.equal(unknown.status, 2);
     assert.equal(JSON.parse(unknown.stderr).code, "INVALID_INVOCATION");
-    const malformedJson = await invoke([...jobSubmitArgs().slice(0, -1), "{"], fixture);
-    assert.equal(malformedJson.status, 2);
-    assert.equal(JSON.parse(malformedJson.stderr).code, "INVALID_INVOCATION");
+    const missing = await invoke(artifactInspectArgs().slice(0, -2), fixture);
+    assert.equal(missing.status, 2);
+    assert.equal(JSON.parse(missing.stderr).code, "INVALID_INVOCATION");
     assert.equal((await requests(fixture.log)).length, 0);
   });
 });

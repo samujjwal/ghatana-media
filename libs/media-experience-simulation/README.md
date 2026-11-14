@@ -34,9 +34,10 @@ authenticated production CLI. `media-experience-command-simulator` only runs
 deterministic fixture transitions; it never calls the Media runtime and does
 not claim that any simulated capability is implemented or available at runtime.
 The canonical production CLI is `ghatanamedia-api` from
-`@audio-video/client`; it uses authenticated canonical SDK operations. Its
-capture and recorder command identities return typed `NOT_ADMITTED` until
-those execution contracts exist.
+`@audio-video/client`; it currently exposes only authenticated
+`artifact inspect`. Job, capture and recorder commands are not part of the
+production channel and fail closed locally (`INVALID_INVOCATION`, exit 2, no
+request dispatched).
 
 ## Shared Recorder and Explorer scenario contract
 

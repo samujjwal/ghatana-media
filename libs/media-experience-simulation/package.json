@@ -25,6 +25,7 @@
     "@ghatana/experience-package": "0.1.0-SNAPSHOT"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "yaml": "2.9.1"
   }
 }

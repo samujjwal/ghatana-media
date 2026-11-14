@@ -1461,6 +1461,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      yaml:
+        specifier: 2.9.1
+        version: 2.9.1
 
   modules/intelligence/ai-voice/libs/ai-voice-ui-react:
     dependencies:
