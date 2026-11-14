@@ -39,12 +39,13 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["sceneId", "adapterKind", "outcome", "sourceDigest"],
+              "required": ["sceneId", "adapterKind", "outcome", "sourceDigest", "redacted"],
               "properties": {
                 "sceneId": { "type": "string", "minLength": 1 },
                 "adapterKind": { "enum": ["HTTP_API", "BROWSER", "FILE", "DESKTOP", "TERMINAL", "MOBILE", "CAMERA"] },
                 "outcome": { "enum": ["CAPTURED", "UNAVAILABLE", "OUTCOME_UNKNOWN", "DENIED"] },
-                "sourceDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+                "sourceDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+                "redacted": { "const": true }
               }
             }
           }
