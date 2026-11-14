@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.production.review.ReviewAssignmentStore.*;
 import com.ghatana.media.production.review.ReviewContracts.*;
 import com.sun.net.httpserver.HttpExchange;
 import tools.jackson.core.StreamReadFeature;
@@ -17,22 +18,27 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * DEV_ONLY hosted review routes (outside the canonical manifest/OpenAPI):
- * POST /dev/v1/reviews, GET /dev/v1/reviews/{id}, POST .../comments, POST .../decisions.
+ * POST /dev/v1/reviews, GET /dev/v1/reviews/{id}, POST .../comments, POST .../decisions,
+ * POST .../assignments, POST .../assignments/{assignmentId}/revoke.
  * Every response is labelled DEV_ONLY and states that a recorded decision is not a human or production approval.
  */
 final class MediaDevReviewRoutes {
     static final String SCHEMA = "media.dev.versioned-review.v1";
-    static final String APPROVAL_NOTE = "DEV_ONLY synthetic-owner statement; not an issued human reviewer authority, "
-            + "not owner/production approval, and does not authorize delivery or publication";
+    static final String APPROVAL_NOTE = "DEV_ONLY statement (synthetic owner or explicitly assigned DEV_ONLY reviewer); "
+            + "not an issued human reviewer authority, not owner/production approval, and does not authorize "
+            + "delivery or publication";
     private static final Pattern OPEN = Pattern.compile("^/dev/v1/reviews$");
     private static final Pattern CASE = Pattern.compile("^/dev/v1/reviews/([^/]+)$");
     private static final Pattern COMMENTS = Pattern.compile("^/dev/v1/reviews/([^/]+)/comments$");
     private static final Pattern DECISIONS = Pattern.compile("^/dev/v1/reviews/([^/]+)/decisions$");
+    private static final Pattern ASSIGNMENTS = Pattern.compile("^/dev/v1/reviews/([^/]+)/assignments$");
+    private static final Pattern REVOKE = Pattern.compile("^/dev/v1/reviews/([^/]+)/assignments/([^/]+)/revoke$");
     private static final ObjectMapper JSON = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
 
@@ -55,6 +61,17 @@ final class MediaDevReviewRoutes {
                 int maxBody, Responder out) throws IOException {
         try {
             dispatch(exchange, path, method, tenantId, principalId, maxBody, out);
+        } catch (MediaDevReviewRuntime.ReviewAuthorityException failure) {
+            out.error(exchange, 403, failure.code(), failure.getMessage(), Map.of("establishesApproval", false));
+        } catch (MediaDevReviewRuntime.SelfAssignmentException failure) {
+            out.error(exchange, 422, "REVIEW_SELF_ASSIGNMENT_REFUSED", failure.getMessage(), Map.of());
+        } catch (ReviewAssignmentActiveException failure) {
+            out.error(exchange, 409, "REVIEW_ASSIGNMENT_ALREADY_ACTIVE",
+                    "The reviewer already holds an active assignment; revoke it first", Map.of());
+        } catch (ReviewAssignmentRevokedException failure) {
+            out.error(exchange, 409, "REVIEW_ASSIGNMENT_ALREADY_REVOKED", "The assignment is already revoked", Map.of());
+        } catch (ReviewAssignmentNotFoundException failure) {
+            out.error(exchange, 404, "REVIEW_ASSIGNMENT_NOT_FOUND", "Review assignment not found on this case", Map.of());
         } catch (ReviewDeniedException failure) {
             out.error(exchange, 403, "REVIEW_ACCESS_DENIED",
                     "Principal is not authorized for this review case or its exact subject", Map.of());
@@ -111,16 +128,20 @@ final class MediaDevReviewRoutes {
             }
             var opened = reviews.open(tenantId, principalId, kind, objectId, versionId);
             ReviewSnapshot snapshot = reviews.inspect(tenantId, principalId, opened.reviewCase());
-            Map<String, Object> view = caseView(snapshot);
+            Map<String, Object> view = caseView(snapshot, reviews.assignments(opened.reviewCase()));
             view.put("created", opened.created());
             out.json(exchange, opened.created() ? 201 : 200, view);
             return;
         }
+        Matcher assignments = ASSIGNMENTS.matcher(path);
+        Matcher revoke = REVOKE.matcher(path);
         Matcher comments = COMMENTS.matcher(path);
         Matcher decisions = DECISIONS.matcher(path);
         Matcher single = CASE.matcher(path);
         String caseId;
-        if (comments.matches()) caseId = pathSegment(comments.group(1));
+        if (assignments.matches()) caseId = pathSegment(assignments.group(1));
+        else if (revoke.matches()) caseId = pathSegment(revoke.group(1));
+        else if (comments.matches()) caseId = pathSegment(comments.group(1));
         else if (decisions.matches()) caseId = pathSegment(decisions.group(1));
         else if (single.matches()) caseId = pathSegment(single.group(1));
         else { out.error(exchange, 404, "NOT_FOUND", "Review route not found", Map.of()); return; }
@@ -136,10 +157,33 @@ final class MediaDevReviewRoutes {
         if (reviewCase.reviewSubjectRef().kind() == SubjectKind.ARTIFACT_VERSION && !artifactRead(exchange, out)) return;
 
         if (single.matches()) {
-            out.json(exchange, 200, caseView(reviews.inspect(tenantId, principalId, reviewCase)));
+            out.json(exchange, 200, caseView(reviews.inspect(tenantId, principalId, reviewCase),
+                    reviews.assignments(reviewCase)));
             return;
         }
         Map<String, Object> body = body(exchange, maxBody);
+        if (assignments.matches()) {
+            requireKeys(body, Set.of("requestId", "expectedCaseRevision", "reviewerPrincipalId", "scopes", "expiresAt"),
+                    Set.of(), "review assignment request");
+            if (!(body.get("scopes") instanceof List<?> rawScopes)) {
+                throw new IllegalArgumentException("scopes must be an array");
+            }
+            java.util.EnumSet<ReviewScope> scopes = java.util.EnumSet.noneOf(ReviewScope.class);
+            for (Object raw : rawScopes) scopes.add(ReviewScope.valueOf(string(raw, "scopes[]")));
+            Instant expires = parseInstant(string(body.get("expiresAt"), "expiresAt"));
+            AssignmentChange change = reviews.assign(tenantId, principalId, reviewCase,
+                    revision(body.get("expectedCaseRevision")), string(body.get("requestId"), "requestId"),
+                    string(body.get("reviewerPrincipalId"), "reviewerPrincipalId"), scopes, expires);
+            out.json(exchange, change.replayed() ? 200 : 201, assignmentChangeView(reviewCase, change));
+            return;
+        }
+        if (revoke.matches()) {
+            requireKeys(body, Set.of("requestId", "expectedCaseRevision"), Set.of(), "review assignment revoke request");
+            AssignmentChange change = reviews.revoke(tenantId, principalId, reviewCase, pathSegment(revoke.group(2)),
+                    revision(body.get("expectedCaseRevision")), string(body.get("requestId"), "requestId"));
+            out.json(exchange, 200, assignmentChangeView(reviewCase, change));
+            return;
+        }
         if (comments.matches()) {
             requireKeys(body, Set.of("requestId", "expectedCaseRevision", "text", "disposition"),
                     Set.of("annotation"), "review comment request");
@@ -151,7 +195,7 @@ final class MediaDevReviewRoutes {
             out.json(exchange, outcome.replayed() ? 200 : 201, appendView(outcome));
             return;
         }
-        requireKeys(body, Set.of("requestId", "expectedCaseRevision", "decision", "reason", "confirmed"),
+        requireKeys(body, Set.of("requestId", "expectedCaseRevision", "decision", "reason", "confirmed", "scope"),
                 Set.of(), "review decision request");
         if (!(body.get("confirmed") instanceof Boolean confirmed) || !confirmed) {
             out.error(exchange, 422, "REVIEW_CONFIRMATION_REQUIRED",
@@ -161,7 +205,8 @@ final class MediaDevReviewRoutes {
         DecisionRecord decision = new DecisionRecord(Decision.valueOf(string(body.get("decision"), "decision")),
                 string(body.get("reason"), "reason"));
         var outcome = reviews.decide(tenantId, principalId, reviewCase, revision(body.get("expectedCaseRevision")),
-                string(body.get("requestId"), "requestId"), decision, true);
+                string(body.get("requestId"), "requestId"), decision,
+                ReviewScope.valueOf(string(body.get("scope"), "scope")), true);
         out.json(exchange, outcome.replayed() ? 200 : 201, appendView(outcome));
     }
 
@@ -179,7 +224,7 @@ final class MediaDevReviewRoutes {
 
     // ---- views ----
 
-    private static Map<String, Object> caseView(ReviewSnapshot snapshot) {
+    private static Map<String, Object> caseView(ReviewSnapshot snapshot, List<ReviewAssignment> assignments) {
         ReviewCaseRef reviewCase = snapshot.reviewCase();
         Map<String, Object> view = new LinkedHashMap<>();
         view.put("schema", SCHEMA);
@@ -204,14 +249,19 @@ final class MediaDevReviewRoutes {
                     "appendRecordId", latestDecision.record().appendRecordId(),
                     "caseRevision", latestDecision.record().caseRevision(),
                     "currentness", latestDecision.currentness().name()));
-            state.put("status", latestDecision.currentness() == Currentness.CURRENT
-                    ? "DEV_ONLY_" + decision.decision().name() + "_CURRENT"
-                    : "DEV_ONLY_" + decision.decision().name() + "_STALE");
+            String family = MediaDevReviewRuntime.isAssignedAuthority(latestDecision.record().authorityVersion())
+                    ? "DEV_ASSIGNED_REVIEWER_" : "DEV_ONLY_";
+            state.put("status", family + decision.decision().name()
+                    + (latestDecision.currentness() == Currentness.CURRENT ? "_CURRENT" : "_STALE"));
         }
         state.put("establishesApproval", false);
         state.put("humanReviewApproval", false);
         view.put("reviewState", state);
-        view.put("authority", "DEV_ONLY synthetic owner of the exact subject; not an issued human reviewer authority");
+        view.put("authority", "DEV_ONLY owner-assigned reviewer; the DEV_ONLY signed identity is not a trusted human "
+                + "identity, so no decision is an issued human reviewer authority or approval");
+        List<Map<String, Object>> assigned = new ArrayList<>();
+        for (ReviewAssignment assignment : assignments) assigned.add(assignmentView(assignment, snapshot.observedAt()));
+        view.put("assignments", assigned);
         view.put("note", APPROVAL_NOTE);
         view.put("observedAt", snapshot.observedAt().toString());
         view.put("scope", "DEV_ONLY");
@@ -234,6 +284,14 @@ final class MediaDevReviewRoutes {
             view.put("annotation", comment.annotation() == null ? null : annotationView(comment.annotation()));
         } else if (record.payload() instanceof DecisionRecord decision) {
             view.put("kind", "DECISION");
+            view.put("authorityVersion", record.authorityVersion());
+            boolean assignedReviewer = MediaDevReviewRuntime.isAssignedAuthority(record.authorityVersion());
+            view.put("recordedAs", (assignedReviewer ? "DEV_ASSIGNED_REVIEWER_" : "DEV_ONLY_")
+                    + decision.decision().name());
+            if (assignedReviewer) {
+                String[] parts = record.authorityVersion().split(":");
+                view.put("scope", parts[parts.length - 1]);
+            }
             view.put("decision", decision.decision().name());
             view.put("reason", decision.reason());
         }
@@ -256,6 +314,41 @@ final class MediaDevReviewRoutes {
         view.put("note", APPROVAL_NOTE);
         view.put("scope", "DEV_ONLY");
         return view;
+    }
+
+    private static Map<String, Object> assignmentView(ReviewAssignment assignment, Instant now) {
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("assignmentId", assignment.assignmentId());
+        view.put("reviewerPrincipalId", assignment.reviewerPrincipalId());
+        view.put("assignedByPrincipalId", assignment.assignedByPrincipalId());
+        view.put("scopes", assignment.scopes().stream().map(Enum::name).sorted().toList());
+        view.put("expiresAt", assignment.expiresAt().toString());
+        view.put("status", assignment.status() == AssignmentStatus.REVOKED ? "REVOKED"
+                : assignment.expiresAt().isAfter(now) ? "ACTIVE" : "EXPIRED");
+        view.put("assignmentVersion", assignment.assignmentVersion());
+        view.put("createdAt", assignment.createdAt().toString());
+        view.put("changedAt", assignment.changedAt().toString());
+        return view;
+    }
+
+    private static Map<String, Object> assignmentChangeView(ReviewCaseRef reviewCase, AssignmentChange change) {
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("schema", SCHEMA);
+        view.put("reviewCaseId", reviewCase.reviewCaseId());
+        view.put("assignment", assignmentView(change.assignment(), change.assignment().changedAt()));
+        view.put("replayed", change.replayed());
+        view.put("establishesApproval", false);
+        view.put("humanReviewApproval", false);
+        view.put("note", APPROVAL_NOTE);
+        view.put("scope", "DEV_ONLY");
+        return view;
+    }
+
+    private static Instant parseInstant(String text) {
+        try { return Instant.parse(text); }
+        catch (java.time.format.DateTimeParseException invalid) {
+            throw new IllegalArgumentException("expiresAt must be an ISO-8601 UTC instant");
+        }
     }
 
     private static Map<String, Object> subject(ExactVersionRef ref) {

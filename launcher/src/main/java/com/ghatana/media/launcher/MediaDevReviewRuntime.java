@@ -2,6 +2,8 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.production.review.DevReviewStoreFactory;
 import com.ghatana.media.production.review.ManagedReviewStore;
+import com.ghatana.media.production.review.ReviewAssignmentStore;
+import com.ghatana.media.production.review.ReviewAssignmentStore.*;
 import com.ghatana.media.production.review.ReviewContracts.*;
 import com.ghatana.media.production.review.VersionedReviewEngine;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
@@ -18,6 +20,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,11 +35,19 @@ import java.util.function.Supplier;
  * A case binds one exact immutable subject (a project revision or an artifact version). Currentness is
  * re-derived from the live project head / artifact version on every operation, so any later change of the
  * reviewed subject makes an earlier decision STALE.
+ *
+ * <p>Review authority is an explicit DEV_ONLY assignment: the owner assigns a different reviewer principal to a case
+ * with a scope set (QUALITY, RIGHTS, PROVENANCE, APPROVAL) and an expiry. Only an assigned, unexpired reviewer may
+ * record a decision within its scopes; the owner may comment but not decide. The assignment id and version are part of
+ * the authority version, so an assignment change between request and write is AUTHORITY_CHANGED. Even then the DEV_ONLY
+ * signed identity is not a trusted human identity, so no decision establishes approval.
  */
 public final class MediaDevReviewRuntime implements AutoCloseable {
     public static final String ENABLED = "MEDIA_DEV_REVIEW_ENABLED";
     public static final String AUTHORITY_VERSION = "dev-only.synthetic-owner.v1";
+    public static final String ASSIGNED_AUTHORITY_PREFIX = "dev-only.assigned-reviewer.v1:";
     static final String SCOPE_PREFIX = "dev-only:owner:";
+    static final java.time.Duration MAX_ASSIGNMENT = java.time.Duration.ofDays(30);
     private static final Duration AUTHORITY_VALIDITY = Duration.ofMinutes(5);
 
     /** Result of opening a case: the exact reference and whether this call created it. */
@@ -51,11 +62,15 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     private final Clock clock;
     private final VersionedReviewEngine engine;
     private final ThreadLocal<Boolean> storeReplay = new ThreadLocal<>();
+    private final ThreadLocal<ReviewScope> decisionScope = new ThreadLocal<>();
     private final AtomicBoolean closed = new AtomicBoolean();
 
     MediaDevReviewRuntime(ManagedReviewStore store, MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
                           Clock clock) {
         this.store = Objects.requireNonNull(store, "store");
+        if (!(store instanceof ReviewAssignmentStore)) {
+            throw new IllegalArgumentException("DEV_ONLY review store must support reviewer assignments");
+        }
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.projects = Objects.requireNonNull(projects, "projects");
         this.clock = Objects.requireNonNull(clock, "clock");
@@ -108,12 +123,112 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     public Optional<ReviewCaseRef> find(String tenantId, String principalId, String reviewCaseId) {
         ensureOpen();
         return store.findCase(tenantId, reviewCaseId)
-                .filter(found -> found.scopeRef().equals(scopeRef(tenantId, principalId)));
+                .filter(found -> found.scopeRef().equals(scopeRef(tenantId, principalId))
+                        || assignments(found).stream().anyMatch(a -> a.reviewerPrincipalId().equals(principalId)));
+    }
+
+    /** True when this principal is the case owner (the only principal that can assign, revoke or comment as owner). */
+    public boolean isOwner(String tenantId, String principalId, ReviewCaseRef reviewCase) {
+        return reviewCase.scopeRef().equals(scopeRef(tenantId, principalId));
+    }
+
+    public List<ReviewAssignment> assignments(ReviewCaseRef reviewCase) {
+        ensureOpen();
+        return ((ReviewAssignmentStore) store).assignments(reviewCase);
+    }
+
+    /** Owner assigns a different reviewer principal with an explicit scope set and expiry. */
+    public AssignmentChange assign(String tenantId, String principalId, ReviewCaseRef reviewCase,
+                                   long expectedCaseRevision, String requestId, String reviewerPrincipalId,
+                                   Set<ReviewScope> scopes, Instant expiresAt) {
+        ensureOpen();
+        requireOwner(tenantId, principalId, reviewCase);
+        if (reviewerPrincipalId.equals(principalId)) throw new SelfAssignmentException();
+        if (scopes.isEmpty()) throw new IllegalArgumentException("scopes must name at least one review scope");
+        Instant now = clock.instant();
+        if (!expiresAt.isAfter(now) || expiresAt.isAfter(now.plus(MAX_ASSIGNMENT))) {
+            throw new IllegalArgumentException("expiresAt must be in the future and within " + MAX_ASSIGNMENT.toDays() + " days");
+        }
+        new Actor(tenantId, reviewerPrincipalId);
+        String fingerprint = sha(String.join("\u0000", "assign", tenantId, principalId, reviewCase.reviewCaseId(),
+                reviewerPrincipalId, scopes.stream().map(Enum::name).sorted().toList().toString(),
+                expiresAt.toString(), Long.toString(expectedCaseRevision)), 32);
+        return ((ReviewAssignmentStore) store).assign(reviewCase, principalId, reviewerPrincipalId, scopes, expiresAt,
+                expectedCaseRevision, requestId, fingerprint, () -> java.util.UUID.randomUUID().toString(), now);
+    }
+
+    public AssignmentChange revoke(String tenantId, String principalId, ReviewCaseRef reviewCase, String assignmentId,
+                                   long expectedCaseRevision, String requestId) {
+        ensureOpen();
+        requireOwner(tenantId, principalId, reviewCase);
+        String fingerprint = sha(String.join("\u0000", "revoke", tenantId, principalId, reviewCase.reviewCaseId(),
+                assignmentId, Long.toString(expectedCaseRevision)), 32);
+        return ((ReviewAssignmentStore) store).revoke(reviewCase, principalId, assignmentId, expectedCaseRevision,
+                requestId, fingerprint, clock.instant());
+    }
+
+    private void requireOwner(String tenantId, String principalId, ReviewCaseRef reviewCase) {
+        if (!isOwner(tenantId, principalId, reviewCase)) throw new ReviewDeniedException();
+    }
+
+    /** The principal is not the owner and holds no active assignment for the attempted action. */
+    public static class ReviewAuthorityException extends RuntimeException {
+        private final String code;
+        ReviewAuthorityException(String code, String message) { super(message); this.code = code; }
+        public String code() { return code; }
+    }
+    public static final class SelfAssignmentException extends RuntimeException {
+        SelfAssignmentException() { super("the owner cannot assign themselves as reviewer"); }
+    }
+
+    /**
+     * Who the actor is for this case and operation. Typed refusal for the review-decision path only: owner or
+     * unassigned (REVIEWER_NOT_ASSIGNED), revoked (REVIEWER_NOT_ASSIGNED), expired (REVIEW_ASSIGNMENT_EXPIRED) and
+     * wrong scope (REVIEW_SCOPE_NOT_ASSIGNED). Reads and comments need the owner or any active assignment.
+     */
+    private Resolved resolve(Actor actor, ReviewCaseRef reviewCase, boolean decision, ReviewScope scope) {
+        Instant now = clock.instant();
+        if (isOwner(actor.tenantId(), actor.principalId(), reviewCase)) {
+            if (decision) {
+                throw new ReviewAuthorityException("REVIEWER_NOT_ASSIGNED",
+                        "The case owner may comment but cannot decide; an assigned reviewer must decide");
+            }
+            return new Resolved(actor.principalId(), null, AUTHORITY_VERSION);
+        }
+        List<ReviewAssignment> mine = assignments(reviewCase).stream()
+                .filter(a -> a.reviewerPrincipalId().equals(actor.principalId())
+                        && a.status() == AssignmentStatus.ACTIVE).toList();
+        if (mine.isEmpty()) {
+            throw new ReviewAuthorityException("REVIEWER_NOT_ASSIGNED", "Principal holds no active reviewer assignment");
+        }
+        List<ReviewAssignment> live = mine.stream().filter(a -> a.activeAt(now)).toList();
+        if (live.isEmpty()) {
+            throw new ReviewAuthorityException("REVIEW_ASSIGNMENT_EXPIRED", "The reviewer assignment has expired");
+        }
+        ReviewAssignment chosen = live.get(live.size() - 1);
+        if (decision) {
+            if (scope == null) throw new IllegalArgumentException("scope is required for a review decision");
+            chosen = live.stream().filter(a -> a.scopes().contains(scope)).reduce((a, b) -> b).orElseThrow(() ->
+                    new ReviewAuthorityException("REVIEW_SCOPE_NOT_ASSIGNED",
+                            "The reviewer assignment does not include scope " + scope));
+        }
+        String authority = ASSIGNED_AUTHORITY_PREFIX + chosen.assignmentId() + ":v" + chosen.assignmentVersion()
+                + (decision ? ":" + scope.name() : "");
+        return new Resolved(chosen.assignedByPrincipalId(), chosen, authority);
+    }
+
+    private record Resolved(String ownerPrincipalId, ReviewAssignment assignment, String authorityVersion) { }
+
+    /** Authority version string is "dev-only.assigned-reviewer.v1:{assignmentId}:v{n}[:SCOPE]" for assigned reviewers. */
+    public static boolean isAssignedAuthority(String authorityVersion) {
+        return authorityVersion != null && authorityVersion.startsWith(ASSIGNED_AUTHORITY_PREFIX);
     }
 
     public ReviewSnapshot inspect(String tenantId, String principalId, ReviewCaseRef reviewCase) {
         ensureOpen();
-        return engine.inspect(new Actor(tenantId, principalId), reviewCase);
+        Actor actor = new Actor(tenantId, principalId);
+        resolve(actor, reviewCase, false, null);
+        return engine.inspect(actor, reviewCase);
     }
 
     public AppendOutcome comment(String tenantId, String principalId, ReviewCaseRef reviewCase,
@@ -124,19 +239,27 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
 
     public AppendOutcome decide(String tenantId, String principalId, ReviewCaseRef reviewCase,
                                 long expectedCaseRevision, String requestId, DecisionRecord decision,
-                                boolean confirmed) {
+                                ReviewScope scope, boolean confirmed) {
         requireSanitizable(decision.reason(), 4_000);
-        return append(tenantId, principalId, reviewCase, expectedCaseRevision, requestId, decision, confirmed);
+        if (scope == null) throw new IllegalArgumentException("scope is required for a review decision");
+        decisionScope.set(scope);
+        try {
+            return append(tenantId, principalId, reviewCase, expectedCaseRevision, requestId, decision, confirmed);
+        } finally {
+            decisionScope.remove();
+        }
     }
 
     private AppendOutcome append(String tenantId, String principalId, ReviewCaseRef reviewCase, long expectedRevision,
                                  String requestId, Payload payload, boolean confirmed) {
         ensureOpen();
-        AppendRequest request = new AppendRequest(reviewCase, expectedRevision, AUTHORITY_VERSION, requestId,
+        Actor actor = new Actor(tenantId, principalId);
+        Resolved resolved = resolve(actor, reviewCase, payload instanceof DecisionRecord, decisionScope.get());
+        AppendRequest request = new AppendRequest(reviewCase, expectedRevision, resolved.authorityVersion(), requestId,
                 new Confirmation(payload.operationId(), reviewCase.exactTargetRef(), confirmed), payload);
         storeReplay.remove();
         try {
-            AppendReceipt receipt = engine.append(new Actor(tenantId, principalId), request);
+            AppendReceipt receipt = engine.append(actor, request);
             // No store append means the engine reconciled a committed stale decision receipt: a replay.
             Boolean fromStore = storeReplay.get();
             return new AppendOutcome(receipt, fromStore == null || fromStore);
@@ -146,13 +269,25 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     }
 
     private AuthorizationDecision authorize(Actor actor, ReviewCaseRef reviewCase, String operationId, Instant now) {
-        if (!reviewCase.scopeRef().equals(scopeRef(actor.tenantId(), actor.principalId()))) {
+        boolean decision = "media.operation.action.record-version-review-decision".equals(operationId);
+        Resolved resolved;
+        try {
+            resolved = resolve(actor, reviewCase, decision, decisionScope.get());
+        } catch (ReviewAuthorityException refused) {
+            // Re-checked at the write boundary: a revocation, expiry or scope loss after the request was prepared.
             throw new ReviewDeniedException();
         }
-        String current = currentMaterial(actor.tenantId(), actor.principalId(), reviewCase.reviewSubjectRef());
+        if (!reviewCase.scopeRef().equals(scopeRef(actor.tenantId(), resolved.ownerPrincipalId()))) {
+            throw new ReviewDeniedException();
+        }
+        String current = currentMaterial(actor.tenantId(), resolved.ownerPrincipalId(), reviewCase.reviewSubjectRef());
+        Instant validUntil = now.plus(AUTHORITY_VALIDITY);
+        if (resolved.assignment() != null && resolved.assignment().expiresAt().isBefore(validUntil)) {
+            validUntil = resolved.assignment().expiresAt();
+        }
         return new AuthorizationDecision(AuthorizationStatus.ALLOW, actor.tenantId(), actor.principalId(),
-                reviewCase.reviewCaseId(), reviewCase.exactTargetRef(), reviewCase.scopeRef(), AUTHORITY_VERSION,
-                now.plus(AUTHORITY_VALIDITY), current, RetentionStatus.ACTIVE);
+                reviewCase.reviewCaseId(), reviewCase.exactTargetRef(), reviewCase.scopeRef(),
+                resolved.authorityVersion(), validUntil, current, RetentionStatus.ACTIVE);
     }
 
     /** Verifies owner scope and existence of the exact subject; returns the live current-version reference. */
