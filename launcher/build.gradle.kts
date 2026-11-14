@@ -74,6 +74,7 @@ dependencies {
     implementation(project(":services:media:modules:audio-streaming"))
     implementation(project(":services:media:modules:video-streaming"))
     implementation(project(":services:media:modules:speech:stt-service"))
+    implementation(project(":services:media:libs:java:common"))
     implementation(project(":services:media:modules:speech:tts-service"))
     implementation(project(":services:media:modules:vision:vision-service"))
     implementation(project(":services:media:modules:intelligence:multimodal-service"))

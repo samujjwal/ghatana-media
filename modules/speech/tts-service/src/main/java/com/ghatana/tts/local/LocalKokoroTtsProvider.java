@@ -78,7 +78,7 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
     private static LocalModelInstall installFrom(Map<String, String> environment) {
         String root = environment.get(ENV_MODEL_ROOT);
         if (root == null || root.isBlank()) return LocalModelInstall.absent(ENV_MODEL_ROOT + " is not set");
-        return LocalModelInstall.inspect(Path.of(root).resolve("models").resolve(MODEL_KEY), MODEL_KEY,
+        return LocalModelInstall.inspectShared(Path.of(root).resolve("models").resolve(MODEL_KEY), MODEL_KEY,
                 LocalModelManifest.Modality.TEXT_TO_SPEECH);
     }
 
@@ -113,6 +113,14 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
 
     public LocalModelInstall install() { return install; }
 
+    /** The verified synthesizer, or null while the provider is not ready. */
+    public LocalKokoroSynthesizer synthesizer() { return ready() ? synthesizer : null; }
+
+    /** Server-owned composition from an explicit environment map (shares the verified install with ServiceLoader). */
+    public static LocalKokoroTtsProvider fromEnvironment(Map<String, String> environment) {
+        return new LocalKokoroTtsProvider(environment);
+    }
+
     @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
         return CompletableFuture.failedFuture(new UnsupportedOperationException(
                 "local Kokoro TTS requires a durable Media provider attempt"));
@@ -143,6 +151,15 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
         // The agent tool's literal default is not a voice pack; it means "the profile's default voice".
         String voice = voiceValue instanceof String v && !v.isBlank() && !"en-US-default".equals(v) ? v : DEFAULT_VOICE;
         double speed = context.request().parameters().get("speakingRate") instanceof Number n ? n.doubleValue() : 1.0;
+        Object encoding = context.request().parameters().get("audioEncoding");
+        if (encoding != null && !(encoding instanceof String e && ("LINEAR16".equals(e) || "WAV".equals(e)))) {
+            throw new IllegalArgumentException(
+                    "TTS_AUDIO_ENCODING_NOT_SUPPORTED: this local profile produces PCM16 WAV (LINEAR16/WAV) only");
+        }
+        Object pitch = context.request().parameters().get("pitch");
+        if (pitch != null && !(pitch instanceof Number n && n.doubleValue() == 0.0)) {
+            throw new IllegalArgumentException("TTS_PITCH_NOT_SUPPORTED: this local profile has no pitch control");
+        }
         long remaining = context.deadlineBudget().remainingBudgetMillis();
         if (remaining <= 0) throw new IllegalStateException("provider deadline elapsed before dispatch");
         BoundedProcessRunner.CancellationToken token = () -> context.cancellation().cancelled();

@@ -95,6 +95,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevRightsRoutes devRights;
     private final MediaDevCreativeOutputRoutes devCreative;
     private MediaDevArtifactContentRoutes devArtifactContent;
+    private MediaDevSpeechRoutes devSpeech;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -179,6 +180,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY rights and consent routes. */
     MediaHttpHandler withDevRights(MediaDevRightsRuntime rights) {
         this.devRights = rights == null ? null : new MediaDevRightsRoutes(runtime, rights);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY local speech routes (real whisper.cpp STT and Kokoro TTS). */
+    MediaHttpHandler withDevSpeech(MediaDevSpeechRuntime speechRuntime) {
+        this.devSpeech = speechRuntime == null ? null : new MediaDevSpeechRoutes(speechRuntime, runtime);
         return this;
     }
 
@@ -401,6 +408,19 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         if (devDelivery != null && MediaDevDeliveryRoutes.handles(path)) {
             devDelivery.handle(exchange, path, method, tenantId, principalId);
+            return;
+        }
+        if (devSpeech != null && MediaDevSpeechRoutes.handles(path)) {
+            devSpeech.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                    new MediaDevCreativeOutputRoutes.Responder() {
+                        @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                            MediaHttpHandler.this.json(e, status, body);
+                        }
+                        @Override public void error(HttpExchange e, int status, String code, String message,
+                                                    Map<String, ?> details) throws IOException {
+                            MediaHttpHandler.this.error(e, status, code, message, details);
+                        }
+                    });
             return;
         }
         try {

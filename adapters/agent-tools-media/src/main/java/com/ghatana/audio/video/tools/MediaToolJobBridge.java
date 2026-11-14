@@ -50,12 +50,50 @@ public final class MediaToolJobBridge {
     public static final String PRINCIPAL_REQUIRED = "AUTHENTICATED_PRINCIPAL_REQUIRED";
     public static final String PRINCIPAL_TENANT_MISMATCH = "PRINCIPAL_TENANT_MISMATCH";
 
+    private static final java.util.concurrent.Executor AWAIT_EXECUTOR = java.util.concurrent.Executors
+            .newCachedThreadPool(task -> {
+                Thread thread = new Thread(task, "media-tool-job-await");
+                thread.setDaemon(true);
+                return thread;
+            });
+    private static final long POLL_MILLIS = 200;
+
+    /**
+     * Server-owned speech-to-text profile identity. The host copies it from the admitted provider's own profile
+     * at composition time; an agent can never supply or alter it, so a tool call cannot select a profile.
+     */
+    public record SpeechProfilePin(String profileId, String profileVersion, String configurationDigest) {
+        public SpeechProfilePin {
+            if (profileId == null || profileId.isBlank() || profileVersion == null || profileVersion.isBlank()
+                    || configurationDigest == null || !configurationDigest.matches("sha256:[a-f0-9]{64}")) {
+                throw new IllegalArgumentException("speech profile pin requires id, version and sha256 digest");
+            }
+        }
+    }
+
     private final MediaJobSubmissionPort port;
     private final String deploymentProfile;
+    private final SpeechProfilePin speechProfilePin;
+    private final Duration awaitTerminal;
 
     public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile) {
+        this(port, deploymentProfile, null, Duration.ZERO);
+    }
+
+    /**
+     * @param speechProfilePin server-owned STT profile identity added to every speech-to-text job (null = none, so the
+     *                         runtime's admission refuses with its typed profile reasons)
+     * @param awaitTerminal    bounded wait for a terminal job state through the port's request-id lookup; zero keeps
+     *                         the immediate ACCEPTED/RUNNING observation. A job still running at the deadline is
+     *                         reported as OUTCOME_UNKNOWN, never as success.
+     */
+    public MediaToolJobBridge(MediaJobSubmissionPort port, String deploymentProfile,
+            SpeechProfilePin speechProfilePin, Duration awaitTerminal) {
         this.port = Objects.requireNonNull(port, "port");
         this.deploymentProfile = MediaDeploymentProfiles.canonical(deploymentProfile);
+        this.speechProfilePin = speechProfilePin;
+        this.awaitTerminal = Objects.requireNonNull(awaitTerminal, "awaitTerminal");
+        if (awaitTerminal.isNegative()) throw new IllegalArgumentException("awaitTerminal must not be negative");
     }
 
     /** Deterministic job request id derived from the durable invocation id. */
@@ -103,9 +141,19 @@ public final class MediaToolJobBridge {
         }
         final ProcessingJobRequest request;
         try {
+            Map<String, Object> jobParameters = new HashMap<>(parameters);
+            if (jobType == JobType.SPEECH_TO_TEXT && speechProfilePin != null) {
+                jobParameters.put("profileId", speechProfilePin.profileId());
+                jobParameters.put("profileVersion", speechProfilePin.profileVersion());
+                jobParameters.put("profileConfigurationDigest", speechProfilePin.configurationDigest());
+                Object language = parameters.get("language");
+                String tag = language instanceof String text && !text.isBlank()
+                        ? java.util.Locale.forLanguageTag(text).getLanguage() : "en";
+                jobParameters.put("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", tag));
+            }
             request = new ProcessingJobRequest(requestIdFor(envelope.invocationId()), envelope.tenantId(),
                     authenticated.principalId(), envelope.invocationId(), artifactId, sourceVersion,
-                    jobType, "", new HashMap<>(parameters));
+                    jobType, "", jobParameters);
         } catch (IllegalArgumentException invalid) {
             return Promise.of(validationFailure(envelope, "SOURCE_VERSION_INVALID", start));
         }
@@ -122,7 +170,33 @@ public final class MediaToolJobBridge {
         if (job == null || !matches(request, job)) {
             return Promise.ofException(new IllegalStateException("MEDIA_JOB_IDENTITY_MISMATCH"));
         }
+        if (!awaitTerminal.isZero() && !terminal(job)) {
+            return Promise.ofBlocking(AWAIT_EXECUTOR, () -> {
+                ProcessingJob latest = awaitTerminalState(request, job);
+                return observed(envelope, latest, start);
+            });
+        }
         return Promise.of(observed(envelope, job, start));
+    }
+
+    private static boolean terminal(ProcessingJob job) {
+        return switch (job.status()) {
+            case COMPLETED, FAILED, CANCELLED, OUTCOME_UNKNOWN -> true;
+            case ACCEPTED, RUNNING -> false;
+        };
+    }
+
+    /** Polls the exact request-id lookup until a terminal state or the bounded deadline; never invents a result. */
+    private ProcessingJob awaitTerminalState(ProcessingJobRequest request, ProcessingJob accepted)
+            throws InterruptedException {
+        long deadline = System.nanoTime() + awaitTerminal.toNanos();
+        ProcessingJob latest = accepted;
+        while (!terminal(latest) && System.nanoTime() < deadline) {
+            Thread.sleep(POLL_MILLIS);
+            Optional<ProcessingJob> found = port.findByRequestId(request.tenantId(), request.requestId());
+            if (found.isPresent() && matches(request, found.get())) latest = found.get();
+        }
+        return latest;
     }
 
     private static boolean matches(ProcessingJobRequest request, ProcessingJob job) {

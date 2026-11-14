@@ -40,6 +40,26 @@ public final class LocalModelInstall {
         this.fileStamps = fileStamps;
     }
 
+    private static final java.util.concurrent.ConcurrentHashMap<Path, LocalModelInstall> SHARED =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Like {@link #inspect} but reuses a previous VERIFIED result while its files still carry the size and
+     * modification time seen at verification, so several consumers in one JVM hash a multi-gigabyte weight file once.
+     */
+    public static LocalModelInstall inspectShared(Path modelDir, String expectedModelKey, Modality expectedModality) {
+        if (modelDir == null) return absent("no model directory configured");
+        Path key = modelDir.toAbsolutePath().normalize();
+        LocalModelInstall cached = SHARED.get(key);
+        if (cached != null && cached.usable() && cached.manifest().modelKey().equals(expectedModelKey)
+                && cached.manifest().modality() == expectedModality && cached.stillCurrent()) {
+            return cached;
+        }
+        LocalModelInstall fresh = inspect(modelDir, expectedModelKey, expectedModality);
+        if (fresh.usable()) SHARED.put(key, fresh); else SHARED.remove(key);
+        return fresh;
+    }
+
     public static LocalModelInstall absent(String detail) {
         return new LocalModelInstall(State.NOT_INSTALLED, detail, null, null, null, Map.of());
     }

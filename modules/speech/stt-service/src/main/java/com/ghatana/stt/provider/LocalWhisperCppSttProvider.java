@@ -94,8 +94,18 @@ public final class LocalWhisperCppSttProvider implements MediaProcessingProvider
     private static LocalModelInstall installFrom(Map<String, String> environment) {
         String root = environment.get(ENV_MODEL_ROOT);
         if (root == null || root.isBlank()) return LocalModelInstall.absent(ENV_MODEL_ROOT + " is not set");
-        return LocalModelInstall.inspect(Path.of(root).resolve("models").resolve(MODEL_KEY), MODEL_KEY,
+        return LocalModelInstall.inspectShared(Path.of(root).resolve("models").resolve(MODEL_KEY), MODEL_KEY,
                 LocalModelManifest.Modality.SPEECH_TO_TEXT);
+    }
+
+    /** The verified runner, or null while the provider is not ready. Used by DEV_ONLY lanes that register artifacts. */
+    public LocalWhisperCppRunner runner() { return ready() ? runner : null; }
+
+    public LocalModelInstall install() { return install; }
+
+    /** Server-owned composition from an explicit environment map (shares the verified install with ServiceLoader). */
+    public static LocalWhisperCppSttProvider fromEnvironment(Map<String, String> environment) {
+        return new LocalWhisperCppSttProvider(environment);
     }
 
     private static Path path(String value) { return value == null || value.isBlank() ? null : Path.of(value); }

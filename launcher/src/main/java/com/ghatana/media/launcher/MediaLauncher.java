@@ -111,7 +111,9 @@ public final class MediaLauncher {
                             new MediaHttpHandler(runtime,
                                     consentAdministration == null ? null : consentAdministration.administration(),
                                     captions, finalDevProjectTimeline, finalDevReview,
-                                    finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights),
+                                    finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
+                                    .withDevSpeech(finalDevProjectTimeline == null ? null
+                                            : MediaDevSpeechRuntime.compose(runtime, System.getenv())),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devDelivery != null) {

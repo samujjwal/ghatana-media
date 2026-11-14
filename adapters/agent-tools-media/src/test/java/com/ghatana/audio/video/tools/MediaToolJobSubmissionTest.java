@@ -404,4 +404,79 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
         ToolExecutionResult result = runPromise(() -> new TextToSpeechToolHandler().handle(e, contract(e)));
         assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
     }
+
+    private static final MediaToolJobBridge.SpeechProfilePin PIN = new MediaToolJobBridge.SpeechProfilePin(
+            "whisper-large-v3-turbo-cpp-local", "rev-1", "sha256:" + "b".repeat(64));
+
+    @Test
+    void serverOwnedSpeechProfilePinAndLanguageIntentAreAddedOnlyToSpeechToTextJobs() {
+        for (Case c : cases()) {
+            TestOnlyPort port = new TestOnlyPort();
+            port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
+            MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test", PIN, java.time.Duration.ZERO);
+            var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+            run(factory, c, envelope(c, c.input()), principal());
+            Map<String, Object> params = port.submitted.get(0).parameters();
+            if (c.jobType() == JobType.SPEECH_TO_TEXT) {
+                assertThat(params).containsEntry("profileId", PIN.profileId())
+                        .containsEntry("profileVersion", PIN.profileVersion())
+                        .containsEntry("profileConfigurationDigest", PIN.configurationDigest())
+                        .containsEntry("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", "en"));
+            } else {
+                assertThat(params).doesNotContainKeys("profileId", "profileVersion", "languageIntent");
+            }
+        }
+        assertThatThrownBy(() -> new MediaToolJobBridge.SpeechProfilePin("p", "v", "not-a-digest"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void boundedAwaitReturnsTheObservedTerminalJobNotTheAcceptedSnapshot() {
+        Case c = cases().get(0);
+        TestOnlyPort port = new TestOnlyPort();
+        port.behavior = r -> job(r, JobStatus.ACCEPTED, Map.of(), "");
+        java.util.concurrent.atomic.AtomicInteger polls = new java.util.concurrent.atomic.AtomicInteger();
+        MediaJobSubmissionPort waiting = new MediaJobSubmissionPort() {
+            @Override public ProcessingJob submit(ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
+                return port.submit(request, authenticated);
+            }
+            @Override public Optional<ProcessingJob> findByRequestId(String tenantId, String requestId) {
+                ProcessingJobRequest r = port.submitted.get(0);
+                return Optional.of(job(r, polls.incrementAndGet() < 3 ? JobStatus.RUNNING : JobStatus.COMPLETED,
+                        Map.of("text", "observed transcript"), ""));
+            }
+        };
+        MediaToolJobBridge bridge = new MediaToolJobBridge(waiting, "test", null, java.time.Duration.ofSeconds(10));
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+
+        ToolExecutionResult result = run(factory, c, envelope(c, c.input()), principal());
+
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+        @SuppressWarnings("unchecked") Map<String, Object> out = (Map<String, Object>) result.output();
+        assertThat(out).containsEntry("status", "COMPLETED");
+        assertThat(out.get("result")).isEqualTo(Map.of("text", "observed transcript"));
+        assertThat(polls.get()).isGreaterThanOrEqualTo(3);
+    }
+
+    @Test
+    void awaitDeadlineLeavesARunningJobOutcomeUnknownNeverSuccess() {
+        Case c = cases().get(0);
+        TestOnlyPort port = new TestOnlyPort();
+        port.behavior = r -> job(r, JobStatus.ACCEPTED, Map.of(), "");
+        MediaJobSubmissionPort waiting = new MediaJobSubmissionPort() {
+            @Override public ProcessingJob submit(ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
+                return port.submit(request, authenticated);
+            }
+            @Override public Optional<ProcessingJob> findByRequestId(String tenantId, String requestId) {
+                return Optional.of(job(port.submitted.get(0), JobStatus.RUNNING, Map.of(), ""));
+            }
+        };
+        MediaToolJobBridge bridge = new MediaToolJobBridge(waiting, "test", null, java.time.Duration.ofMillis(500));
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+
+        ToolExecutionResult result = run(factory, c, envelope(c, c.input()), principal());
+
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.OUTCOME_UNKNOWN);
+        assertThat(result.sideEffectSummary()).containsEntry("reasonCode", "MEDIA_JOB_RUNNING");
+    }
 }
