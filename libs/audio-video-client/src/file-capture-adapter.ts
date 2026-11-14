@@ -14,6 +14,7 @@
  */
 
 import { open, realpath } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 
 import {
@@ -26,6 +27,8 @@ import {
 export interface MediaFileCaptureAdapterOptions {
   /** Host-trusted mapping from the admitted capture request to a local path. */
   resolveSource: (request: CaptureRequest) => string | Promise<string>;
+  /** Optional digest from the trusted source receipt, checked against bytes read. */
+  readonly resolveExpectedSha256?: (request: CaptureRequest) => string | Promise<string>;
   /** Optional directory that resolved sources must remain inside (realpath). */
   readonly allowedRoot?: string;
   /** Maximum captured bytes; defaults to MAX_CAPTURED_FRAME_BYTES. */
@@ -52,6 +55,7 @@ export class MediaFileCaptureAdapter {
   public readonly kind: CaptureSourceKind = "MEDIA_FILE";
 
   private readonly resolveSource: MediaFileCaptureAdapterOptions["resolveSource"];
+  private readonly resolveExpectedSha256: MediaFileCaptureAdapterOptions["resolveExpectedSha256"];
   private readonly allowedRoot: string | undefined;
   private readonly maxBytes: number;
 
@@ -60,6 +64,11 @@ export class MediaFileCaptureAdapter {
       throw new TypeError("resolveSource is required");
     }
     this.resolveSource = options.resolveSource;
+    if (options.resolveExpectedSha256 !== undefined
+      && typeof options.resolveExpectedSha256 !== "function") {
+      throw new TypeError("resolveExpectedSha256 must be a function");
+    }
+    this.resolveExpectedSha256 = options.resolveExpectedSha256;
     if (options.allowedRoot !== undefined) {
       if (typeof options.allowedRoot !== "string" || options.allowedRoot.length === 0
         || options.allowedRoot.length > MAX_SOURCE_PATH_CHARS || options.allowedRoot.includes("\0")) {
@@ -146,6 +155,16 @@ export class MediaFileCaptureAdapter {
     const resolved = await this.resolveSource(request);
     const filePath = await this.resolveContainedPath(resolved);
     const bytes = await this.readBounded(filePath);
+    if (this.resolveExpectedSha256 !== undefined) {
+      const expectedSha256 = await this.resolveExpectedSha256(request);
+      if (typeof expectedSha256 !== "string" || !/^[0-9a-f]{64}$/u.test(expectedSha256)) {
+        throw new FileCaptureError("trusted source digest is invalid");
+      }
+      const actualSha256 = createHash("sha256").update(bytes).digest("hex");
+      if (actualSha256 !== expectedSha256) {
+        throw new FileCaptureError("source bytes do not match the trusted digest");
+      }
+    }
     return {
       sourceIdentity: request.sourceIdentity,
       purposeRef: request.purposeRef,

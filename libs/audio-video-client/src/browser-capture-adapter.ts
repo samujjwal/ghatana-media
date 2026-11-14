@@ -19,6 +19,14 @@ import {
 
 export type BrowserOriginPermission = "GRANTED" | "DENIED" | "REVOKED";
 export type BrowserVisibility = "VISIBLE" | "HIDDEN" | "OCCLUDED";
+export type BrowserFrameClockUnit = "NANOSECONDS" | "MILLISECONDS";
+
+/** A frame-clock sample with an explicit unit; one clock ID is required per capture. */
+export interface BrowserFrameClockSample {
+  readonly clockId: string;
+  readonly unit: BrowserFrameClockUnit;
+  readonly tick: bigint | number;
+}
 
 /** Explicit browser capture source resolved by the host for one request. */
 export interface BrowserCaptureSource {
@@ -30,8 +38,8 @@ export interface BrowserCaptureSource {
   originPermission(): BrowserOriginPermission;
   /** Live visibility — hidden/occluded sources emit nothing. */
   visibility(): BrowserVisibility;
-  /** Frame clock tick (nanos or millis by source epoch) for drift checks. */
-  frameClockTick(): { clockId: string; tick: bigint | number };
+  /** Monotonic frame clock sample. `unit` must remain stable within a capture. */
+  frameClockTick(): BrowserFrameClockSample;
   /** The exact source version of emitted frames. */
   sourceVersion(): string;
   /** Release the source; must be idempotent. */
@@ -85,6 +93,7 @@ export class BrowserCaptureAdapter implements CaptureSourceAdapter {
   private readonly maxClockDriftMillis: number;
   private activeSource: BrowserCaptureSource | null = null;
   private detachState: { done: boolean } | null = null;
+  private captureInProgress = false;
 
   public constructor(options: BrowserCaptureAdapterOptions) {
     if (!options || typeof options.resolveSource !== "function") {
@@ -125,6 +134,18 @@ export class BrowserCaptureAdapter implements CaptureSourceAdapter {
     if (request === null || typeof request !== "object" || request.kind !== this.kind) {
       throw new TypeError("capture request does not match this adapter");
     }
+    if (this.captureInProgress) {
+      throw failure("another browser capture is already active on this adapter");
+    }
+    this.captureInProgress = true;
+    try {
+      return await this.captureExclusive(request);
+    } finally {
+      this.captureInProgress = false;
+    }
+  }
+
+  private async captureExclusive(request: CaptureRequest): Promise<CapturedFrame> {
     const source = await this.resolveSource(request);
     if (!isBrowserSource(source)) {
       throw failure("resolved source is not an explicit browser capture source");
@@ -140,6 +161,8 @@ export class BrowserCaptureAdapter implements CaptureSourceAdapter {
     let total = 0;
     let frames = 0;
     let lastTick: bigint | null = null;
+    let clockId: string | null = null;
+    let clockUnit: BrowserFrameClockUnit | null = null;
     const detachOnce = async () => {
       if (this.detachState !== null && !this.detachState.done) {
         this.detachState.done = true;
@@ -160,8 +183,34 @@ export class BrowserCaptureAdapter implements CaptureSourceAdapter {
         if (source.visibility() !== "VISIBLE") {
           throw failure("browser source is hidden or occluded — no frames may be emitted");
         }
-        const frame = await source.nextFrame();
+        let frameTimer: ReturnType<typeof setTimeout> | undefined;
+        let frame: Uint8Array | null;
+        try {
+          frame = await Promise.race([
+            source.nextFrame(),
+            new Promise<never>((_, reject) => {
+              frameTimer = setTimeout(
+                () => reject(failure("browser capture exceeded its bounded duration")),
+                Math.max(1, deadline - Date.now()),
+              );
+            }),
+          ]);
+        } finally {
+          if (frameTimer !== undefined) clearTimeout(frameTimer);
+        }
+        if (Date.now() >= deadline) {
+          throw failure("browser capture exceeded its bounded duration");
+        }
+        if (source.originPermission() !== "GRANTED") {
+          throw failure("browser origin permission was revoked or denied during frame read");
+        }
+        if (source.visibility() !== "VISIBLE") {
+          throw failure("browser source became hidden or occluded during frame read");
+        }
         if (frame === null) break;
+        if (!(frame instanceof Uint8Array) || frame.byteLength < 1) {
+          throw failure("browser source returned an empty or malformed frame");
+        }
         // Source-version binding: emitted frames must carry the admitted version.
         if (source.sourceVersion() !== request.sourceVersionRef) {
           throw failure("browser source version does not match the admitted sourceVersionRef");
@@ -173,17 +222,32 @@ export class BrowserCaptureAdapter implements CaptureSourceAdapter {
           throw failure("browser source reported invalid viewport geometry");
         }
         const tick = source.frameClockTick();
-        if (typeof tick.clockId !== "string" || tick.clockId.length === 0) {
+        if (typeof tick.clockId !== "string" || tick.clockId.length === 0
+          || (tick.unit !== "NANOSECONDS" && tick.unit !== "MILLISECONDS")) {
           throw failure("browser source reported no frame clock");
         }
-        const tickNanos = BigInt(tick.tick);
+        if (clockId !== null && (tick.clockId !== clockId || tick.unit !== clockUnit)) {
+          throw failure("browser frame clock identity or unit changed during capture");
+        }
+        clockId = tick.clockId;
+        clockUnit = tick.unit;
+        let clockTick: bigint;
+        try {
+          if (typeof tick.tick === "number" && !Number.isSafeInteger(tick.tick)) {
+            throw new TypeError("unsafe numeric clock tick");
+          }
+          clockTick = BigInt(tick.tick);
+        } catch {
+          throw failure("browser source reported an invalid frame clock tick");
+        }
         if (lastTick !== null) {
-          const driftMillis = Number(tickNanos > lastTick ? tickNanos - lastTick : lastTick - tickNanos) / 1e6;
+          const delta = clockTick > lastTick ? clockTick - lastTick : lastTick - clockTick;
+          const driftMillis = clockUnit === "NANOSECONDS" ? Number(delta) / 1e6 : Number(delta);
           if (driftMillis > this.maxClockDriftMillis) {
             throw failure("browser frame clock drift exceeded the bounded tolerance");
           }
         }
-        lastTick = tickNanos;
+        lastTick = clockTick;
         frames += 1;
         total += frame.byteLength;
         if (total > this.maxBytes) {
@@ -195,6 +259,9 @@ export class BrowserCaptureAdapter implements CaptureSourceAdapter {
       this.activeSource = null;
       await detachOnce();
       this.detachState = null;
+    }
+    if (frames === 0 || total === 0) {
+      throw failure("browser source ended without emitting a frame");
     }
     const bytes = new Uint8Array(total);
     let offset = 0;

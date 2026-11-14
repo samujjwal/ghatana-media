@@ -9,7 +9,7 @@ import {
   BrowserCaptureAdapter,
   BrowserCaptureError,
   type BrowserCaptureSource,
-} from "./browser-capture-adapter.js";
+} from "./index.js";
 
 const request: CaptureRequest = {
   kind: "BROWSER",
@@ -44,7 +44,7 @@ function fakeSource(frames: ReadonlyArray<Uint8Array>, ticks: bigint[] = [0n, 16
     viewport: () => ({ width: 1280, height: 720, scrollX: 0, scrollY: 0 }),
     originPermission() { return this.permission; },
     visibility() { return this.vis; },
-    frameClockTick: () => ({ clockId: source.clockId, tick: source.ticks[Math.min(Math.max(lastRead, 0), source.ticks.length - 1)] ?? 0n }),
+    frameClockTick: () => ({ clockId: source.clockId, unit: "NANOSECONDS", tick: source.ticks[Math.min(Math.max(lastRead, 0), source.ticks.length - 1)] ?? 0n }),
     sourceVersion() { return this.version; },
     detach() { this.detachCalls += 1; return Promise.resolve(); },
   };
@@ -62,6 +62,37 @@ describe("BrowserCaptureAdapter", () => {
     expect(source.detachCalls).toBe(1);
   });
 
+  it("rejects an empty stream and empty or malformed frame values", async () => {
+    const empty = fakeSource([]);
+    await expect(new BrowserCaptureAdapter({ resolveSource: () => empty }).capture(request))
+      .rejects.toBeInstanceOf(BrowserCaptureError);
+    expect(empty.detachCalls).toBe(1);
+
+    for (const frame of [new Uint8Array(), { byteLength: 3 } as unknown as Uint8Array]) {
+      const source = fakeSource([frame]);
+      await expect(new BrowserCaptureAdapter({ resolveSource: () => source }).capture(request))
+        .rejects.toBeInstanceOf(BrowserCaptureError);
+      expect(source.detachCalls).toBe(1);
+    }
+  });
+
+  it("rejects overlapping captures on one adapter without resolving a second source", async () => {
+    let releaseFrame!: (frame: Uint8Array | null) => void;
+    const source = fakeSource([]);
+    source.nextFrame = () => new Promise((resolve) => { releaseFrame = resolve; });
+    let resolutions = 0;
+    const adapter = new BrowserCaptureAdapter({ resolveSource: () => { resolutions += 1; return source; } });
+    const firstCapture = adapter.capture(request);
+    await Promise.resolve();
+    await expect(adapter.capture(request)).rejects.toBeInstanceOf(BrowserCaptureError);
+    expect(resolutions).toBe(1);
+    releaseFrame(new Uint8Array([1]));
+    // The next read terminates the first capture cleanly.
+    source.nextFrame = () => Promise.resolve(null);
+    await expect(firstCapture).resolves.toMatchObject({ bytes: new Uint8Array([1]) });
+    expect(source.detachCalls).toBe(1);
+  });
+
   it("denied origin permission emits nothing and never reads", async () => {
     const source = fakeSource([new Uint8Array([9])]);
     source.permission = "DENIED";
@@ -71,6 +102,30 @@ describe("BrowserCaptureAdapter", () => {
     const adapter = new BrowserCaptureAdapter({ resolveSource: () => source });
     await expect(adapter.capture(request)).rejects.toBeInstanceOf(BrowserCaptureError);
     expect(reads).toBe(0);
+  });
+
+  it("bounds a pending frame read and detaches the host source", async () => {
+    const source = fakeSource([]);
+    source.nextFrame = () => new Promise<null>(() => {});
+    const adapter = new BrowserCaptureAdapter({ resolveSource: () => source, maxSessionMillis: 25 });
+    await expect(adapter.capture(request)).rejects.toBeInstanceOf(BrowserCaptureError);
+    expect(source.detachCalls).toBe(1);
+  });
+
+  it("rechecks permission and visibility before accepting a frame or clean EOF", async () => {
+    for (const result of [new Uint8Array([1]), null]) {
+      for (const changedState of ["DENIED", "HIDDEN"] as const) {
+        const source = fakeSource([]);
+        source.nextFrame = () => {
+          if (changedState === "DENIED") source.permission = "DENIED";
+          else source.vis = "HIDDEN";
+          return Promise.resolve(result);
+        };
+        const adapter = new BrowserCaptureAdapter({ resolveSource: () => source });
+        await expect(adapter.capture(request)).rejects.toBeInstanceOf(BrowserCaptureError);
+        expect(source.detachCalls).toBe(1);
+      }
+    }
   });
 
   it("mid-capture permission revoke fails closed", async () => {
@@ -108,6 +163,25 @@ describe("BrowserCaptureAdapter", () => {
     expect(source.detachCalls).toBe(1);
   });
 
+  it("uses the declared millisecond unit and rejects a changing clock identity or unit", async () => {
+    const millis = fakeSource([new Uint8Array([1]), new Uint8Array([2])], [0n, 60n]);
+    // Keep the source behavior simple while making the second sample exceed a 5 ms allowance.
+    let count = 0;
+    millis.frameClockTick = () => ({ clockId: millis.clockId, unit: "MILLISECONDS", tick: count++ === 0 ? 0n : 60n });
+    await expect(new BrowserCaptureAdapter({ resolveSource: () => millis, maxClockDriftMillis: 5 }).capture(request))
+      .rejects.toBeInstanceOf(BrowserCaptureError);
+
+    for (const changed of ["id", "unit"] as const) {
+      const source = fakeSource([new Uint8Array([1]), new Uint8Array([2])]);
+      let sample = 0;
+      source.frameClockTick = () => ({ clockId: changed === "id" && sample > 0 ? "other" : source.clockId,
+        unit: changed === "unit" && sample > 0 ? "MILLISECONDS" : "NANOSECONDS", tick: BigInt(sample++ * 16_000_000) });
+      await expect(new BrowserCaptureAdapter({ resolveSource: () => source }).capture(request))
+        .rejects.toBeInstanceOf(BrowserCaptureError);
+      expect(source.detachCalls).toBe(1);
+    }
+  });
+
   it("rejects non-source resolutions and mismatched kinds before resolving", async () => {
     const adapter = new BrowserCaptureAdapter({ resolveSource: () => null as unknown as BrowserCaptureSource });
     await expect(adapter.capture(request)).rejects.toBeInstanceOf(BrowserCaptureError);
@@ -124,9 +198,13 @@ describe("BrowserCaptureAdapter", () => {
     expect(source.detachCalls).toBe(1);
   });
 
-  it("passes through the admission seam", async () => {
-    const adapter = new BrowserCaptureAdapter({ resolveSource: () => fakeSource([new Uint8Array([1])]) });
+  it("passes through the admission seam without resolving a source when capture is not admitted", async () => {
+    let resolved = 0;
+    const adapter = new BrowserCaptureAdapter({
+      resolveSource: () => { resolved += 1; return fakeSource([new Uint8Array([1])]); },
+    });
     await expect(captureWithAdmission(noAdmittedCaptureAdapter, adapter, request))
       .rejects.toBeInstanceOf(CaptureNotAdmittedError);
+    expect(resolved).toBe(0);
   });
 });

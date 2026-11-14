@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -61,6 +62,36 @@ describe("MediaFileCaptureAdapter", () => {
     await writeFile(file, "direct-file-bytes");
     const frame = await new MediaFileCaptureAdapter({ resolveSource: () => file }).capture(request);
     expect(new TextDecoder().decode(frame.bytes)).toBe("direct-file-bytes");
+  });
+
+  it("binds captured file bytes to a trusted sealed source digest", async () => {
+    const dir = await tempDir();
+    const bytes = new TextEncoder().encode("sealed-webm-source-bytes");
+    const digest = createHash("sha256").update(bytes).digest("hex");
+    const file = join(dir, "source.webm");
+    await writeFile(file, bytes);
+    const adapter = new MediaFileCaptureAdapter({
+      resolveSource: () => file,
+      resolveExpectedSha256: () => digest,
+    });
+    const frame = await captureWithAdmission(admitted, adapter, request);
+    expect(frame.bytes).toEqual(bytes);
+
+    await writeFile(file, "changed-webm-source-bytes");
+    await expect(captureWithAdmission(admitted, adapter, request))
+      .rejects.toMatchObject({ reason: "ADAPTER_REJECTED" });
+  });
+
+  it("fails closed for malformed trusted source digests", async () => {
+    const dir = await tempDir();
+    const file = join(dir, "source.webm");
+    await writeFile(file, "source-bytes");
+    const adapter = new MediaFileCaptureAdapter({
+      resolveSource: () => file,
+      resolveExpectedSha256: () => "not-a-digest",
+    });
+    await expect(captureWithAdmission(admitted, adapter, request))
+      .rejects.toMatchObject({ reason: "ADAPTER_REJECTED" });
   });
 
   it("passes the admitted request to the host resolver", async () => {

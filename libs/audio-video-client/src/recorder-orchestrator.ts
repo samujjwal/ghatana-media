@@ -317,8 +317,8 @@ function assertBoundedSceneRuns(
   }
 }
 
-/** Compare explicit material fields; lineageId is a stable declared ID, not a content digest. */
-function sameSceneMaterialization(left: SceneRun, right: SceneRun): boolean {
+/** Compare acquisition inputs; lineageId is a stable declared ID, not a content digest. */
+function sameCaptureMaterialization(left: SceneRun, right: SceneRun): boolean {
   return left.lineageId === right.lineageId
     && left.sourceRevision === right.sourceRevision
     && left.durationMillis === right.durationMillis
@@ -329,7 +329,11 @@ function sameSceneMaterialization(left: SceneRun, right: SceneRun): boolean {
     && left.capturePlan.sourceVersionRef === right.capturePlan.sourceVersionRef
     && left.capturePlan.secretsRef === right.capturePlan.secretsRef
     && left.capturePlan.frameClockRef === right.capturePlan.frameClockRef
-    && JSON.stringify(left.actorBindings) === JSON.stringify(right.actorBindings)
+    && JSON.stringify(left.actorBindings) === JSON.stringify(right.actorBindings);
+}
+
+function sameSceneMaterialization(left: SceneRun, right: SceneRun): boolean {
+  return sameCaptureMaterialization(left, right)
     && JSON.stringify(left.narration) === JSON.stringify(right.narration)
     && JSON.stringify(left.captionRefs) === JSON.stringify(right.captionRefs);
 }
@@ -343,10 +347,14 @@ export async function recaptureScenario(
   plan: OrchestrationResult,
   eligibility: CaptureAdapterEligibility,
   adapter: { capture(request: CaptureRequest): Promise<CapturedFrame> },
-  options: { readonly maxScenes?: number; readonly sceneIds?: readonly string[] } = {},
+  options: { readonly maxScenes?: number; readonly sceneIds?: readonly string[];
+    readonly onCaptured?: (run: SceneRun, frame: CapturedFrame) => void | Promise<void> } = {},
 ): Promise<readonly CapturedFrame[]> {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
     throw new ScenarioError("INVALID_SCENARIO", "recapture options must be an object");
+  }
+  if (options.onCaptured !== undefined && typeof options.onCaptured !== "function") {
+    throw new ScenarioError("INVALID_SCENARIO", "onCaptured must be a function");
   }
   const maxScenes = options.maxScenes === undefined ? MAX_SCENES : options.maxScenes;
   if (!Number.isSafeInteger(maxScenes) || maxScenes < 1 || maxScenes > MAX_SCENES) {
@@ -445,10 +453,14 @@ export async function executeScenario(
   plan: OrchestrationResult,
   eligibility: CaptureAdapterEligibility,
   adapter: { capture(request: CaptureRequest): Promise<CapturedFrame> },
-  options: { readonly maxScenes?: number; readonly sceneIds?: readonly string[] } = {},
+  options: { readonly maxScenes?: number; readonly sceneIds?: readonly string[];
+    readonly onCaptured?: (run: SceneRun, frame: CapturedFrame) => void | Promise<void> } = {},
 ): Promise<ScenarioExecutionRecord> {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
     throw new ScenarioError("INVALID_SCENARIO", "execute options must be an object");
+  }
+  if (options.onCaptured !== undefined && typeof options.onCaptured !== "function") {
+    throw new ScenarioError("INVALID_SCENARIO", "onCaptured must be a function");
   }
   const maxScenes = options.maxScenes === undefined ? MAX_SCENES : options.maxScenes;
   if (!Number.isSafeInteger(maxScenes) || maxScenes < 1 || maxScenes > MAX_SCENES) {
@@ -483,6 +495,7 @@ export async function executeScenario(
     const attemptedAt = Date.now();
     try {
       const frame = await captureWithAdmission(eligibility, adapter, run.capturePlan);
+      await options.onCaptured?.(run, frame);
       attempts.push({
         sceneId: run.sceneId,
         lineageId: run.lineageId,
@@ -514,23 +527,55 @@ export async function executeScenario(
   };
 }
 
-/**
- * Selects sceneIds whose materialized fields changed relative to a prior
- * execution — the deterministic "changed scene alone recaptures" selector.
- * Scenes absent from prior, or whose prior attempt was not CAPTURED, run
- * again; identical carried scenes are skipped.
- */
+export interface SceneCaptureSelection {
+  readonly recapture: readonly string[];
+  readonly reuse: readonly string[];
+  readonly reconcile: readonly string[];
+}
+
+/** Select acquisition work separately from narration and caption revisions. */
+export function selectSceneCaptureWork(
+  prior: OrchestrationResult,
+  next: OrchestrationResult,
+  priorAttempts: readonly SceneAttemptRecord[] = [],
+): SceneCaptureSelection {
+  assertBoundedSceneRuns(prior, "prior");
+  assertBoundedSceneRuns(next, "next");
+  const priorRuns = new Map(prior.sceneRuns.map((run) => [run.sceneId, run]));
+  const attempts = new Map<string, SceneAttemptRecord>();
+  for (const attempt of priorAttempts) {
+    const run = priorRuns.get(attempt.sceneId);
+    if (attempt.outcome === "OUTCOME_UNKNOWN") {
+      attempts.set(attempt.sceneId, attempt);
+    } else if (run?.lineageId === attempt.lineageId && run.sourceRevision === attempt.sourceRevision) {
+      attempts.set(attempt.sceneId, attempt);
+    }
+  }
+  const recapture: string[] = [];
+  const reuse: string[] = [];
+  const reconcile: string[] = [];
+  for (const run of next.sceneRuns) {
+    const previous = priorRuns.get(run.sceneId);
+    const attempt = attempts.get(run.sceneId);
+    if (attempt?.outcome === "OUTCOME_UNKNOWN") {
+      reconcile.push(run.sceneId);
+    } else if (attempt?.outcome === "CAPTURED" && attempt.capturedBytes > 0
+      && attempt.sourceDigest && /^[0-9a-f]{64}$/u.test(attempt.sourceDigest)
+      && previous && sameCaptureMaterialization(previous, run)) {
+      reuse.push(run.sceneId);
+    } else {
+      recapture.push(run.sceneId);
+    }
+  }
+  return { recapture, reuse, reconcile };
+}
+
 export function scenesRequiringRecapture(
   prior: OrchestrationResult,
   next: OrchestrationResult,
   priorAttempts: readonly SceneAttemptRecord[] = [],
 ): readonly string[] {
-  const delta = changedSceneLineages(prior, next);
-  const capturedLineages = new Set(
-    priorAttempts.filter((a) => a.outcome === "CAPTURED").map((a) => a.lineageId));
-  return next.sceneRuns
-    .filter((run) => delta.replanned.includes(run.sceneId) || !capturedLineages.has(run.lineageId))
-    .map((run) => run.sceneId);
+  return selectSceneCaptureWork(prior, next, priorAttempts).recapture;
 }
 
 export { noAdmittedCaptureAdapter };

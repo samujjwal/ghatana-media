@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { access, cp, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -43,14 +43,24 @@ const npmOptions = (cwd) => ({
 async function pack(root, manifest, destination) {
   await mkdir(root, { recursive: true });
   await writeFile(path.join(root, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-  const output = run('npm', ['pack', '--json', '--pack-destination', destination], npmOptions(root));
-  const result = JSON.parse(output);
-  assert.equal(result.length, 1, 'expected one package tarball');
-  return path.join(destination, result[0].filename);
+  return packExisting(root, destination);
 }
 
-function assertSourceFreePackage(packResult, packageName) {
-  const files = packResult.files.map(({ path: filePath }) => filePath);
+async function packExisting(root, destination) {
+  await mkdir(destination, { recursive: true });
+  const before = new Set(await readdir(destination));
+  // npm 11 may successfully write the tarball while returning no stdout even
+  // with --json, so identify the newly created archive on disk.
+  run('npm', ['pack', '--pack-destination', destination], npmOptions(root));
+  const created = (await readdir(destination)).filter((name) => name.endsWith('.tgz') && !before.has(name));
+  assert.equal(created.length, 1, 'expected one newly created package tarball');
+  return path.join(destination, created[0]);
+}
+
+async function assertSourceFreePackage(tarball, packageName) {
+  const files = run('tar', ['-tzf', tarball]).split('\n').filter(Boolean)
+    .map((filePath) => filePath.startsWith('package/') ? filePath.slice('package/'.length) : filePath)
+    .filter(Boolean);
   assert.ok(files.length > 0, `${packageName} tarball must contain files`);
   for (const filePath of files) {
     assert.match(filePath, /^(package\.json|dist\/|dist-cjs\/)/u,
@@ -96,12 +106,12 @@ try {
   }, 'the published production and local-development executables must remain distinct');
   const sourceTypes = JSON.parse(await readFile(path.join(typesRoot, 'package.json'), 'utf8'));
   const zodRoot = path.join(typeNodeModules, 'zod');
-  const zodManifest = JSON.parse(await readFile(path.join(zodRoot, 'package.json'), 'utf8'));
+  const zodSourceRoot = path.join(tempRoot, 'zod-source');
+  await copyTree(await realpath(zodRoot), zodSourceRoot);
+  const zodManifest = JSON.parse(await readFile(path.join(zodSourceRoot, 'package.json'), 'utf8'));
   const zodTarball = path.join(tempRoot, 'zod-pack');
   await mkdir(zodTarball, { recursive: true });
-  const zodPacked = JSON.parse(run('npm', ['pack', '--json', '--pack-destination', zodTarball], npmOptions(zodRoot)));
-  assert.equal(zodPacked.length, 1, 'expected one local zod dependency tarball');
-  const zodPackage = path.join(zodTarball, zodPacked[0].filename);
+  const zodPackage = await packExisting(zodSourceRoot, zodTarball);
 
   await copyTree(path.join(typesRoot, 'dist'), path.join(typePackRoot, 'dist'));
   await copyTree(path.join(typesRoot, 'dist-cjs'), path.join(typePackRoot, 'dist-cjs'));
@@ -111,7 +121,7 @@ try {
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
-  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], npmOptions(typePackRoot)))[0], sourceTypes.name);
+  await assertSourceFreePackage(typesTarball, sourceTypes.name);
   await assertNoSensitiveLiterals(typePackRoot, sourceTypes.name);
 
   await copyTree(path.join(packageRoot, 'dist'), path.join(clientPackRoot, 'dist'));
@@ -123,11 +133,11 @@ try {
   }
   const clientTarball = await pack(clientPackRoot, {
     ...sourceClient,
-    dependencies: { '@audio-video/types': sourceTypes.version },
+    dependencies: { '@audio-video/types': `file:${typesTarball}` },
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
-  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], npmOptions(clientPackRoot)))[0], sourceClient.name);
+  await assertSourceFreePackage(clientTarball, sourceClient.name);
   await assertNoSensitiveLiterals(clientPackRoot, sourceClient.name);
 
   const consumerManifest = {
@@ -138,13 +148,14 @@ try {
       '@audio-video/client': `file:${clientTarball}`,
       '@audio-video/types': `file:${typesTarball}`,
     },
-    pnpm: {
-      overrides: { '@audio-video/types': `file:${typesTarball}` },
-    },
   };
   await mkdir(consumerRoot, { recursive: true });
   await writeFile(path.join(consumerRoot, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);
-  run('pnpm', ['install', '--offline', '--ignore-scripts', '--no-frozen-lockfile'], { cwd: consumerRoot });
+  // This isolated fixture contains only local tarball dependencies. Use npm's
+  // offline installer so the consumer proof does not depend on pnpm's shared
+  // store lock, which is unavailable in read-only sandbox mounts.
+  run('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund'],
+    { cwd: consumerRoot, env: { ...process.env, npm_config_cache: npmCache } });
 
   await writeFile(path.join(consumerRoot, 'consumer.mjs'), `
     import assert from 'node:assert/strict';
@@ -154,7 +165,10 @@ try {
     import * as canonical from '@audio-video/client/canonical-operations';
     import * as http from '@audio-video/client/http-core';
     import * as capture from '@audio-video/client/capture-adapters';
+    import { BrowserCaptureAdapter } from '@audio-video/client/browser-capture-adapter';
     import * as recorder from '@audio-video/client/recorder-orchestrator';
+    import { FileRecorderCheckpointStore, resumeScenarioFromCheckpoint } from '@audio-video/client/recorder-checkpoint-store';
+    import { PinnedFfmpegFinalRenderMuxer } from '@audio-video/client/ffmpeg-final-render';
     import * as production from '@audio-video/client/production-plan';
     import * as offlineStore from '@audio-video/client/offline-edit-store';
     import * as devProjects from '@audio-video/client/dev-project-timeline';
@@ -167,7 +181,14 @@ try {
     assert.equal(typeof canonical.createMediaCanonicalClient, 'function');
     assert.equal(typeof http.MediaHttpTransport, 'function');
     assert.equal(typeof capture.captureWithAdmission, 'function');
+    const browserCapture = new BrowserCaptureAdapter({
+      resolveSource: () => { throw new Error('source must not be resolved during construction'); },
+    });
+    assert.equal(browserCapture.kind, 'BROWSER');
     assert.equal(typeof recorder.orchestrateScenario, 'function');
+    assert.equal(typeof FileRecorderCheckpointStore, 'function');
+    assert.equal(typeof resumeScenarioFromCheckpoint, 'function');
+    assert.equal(typeof PinnedFfmpegFinalRenderMuxer, 'function');
     assert.equal(typeof production.compileProductionPlan, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
@@ -383,7 +404,10 @@ try {
     const canonical = require('@audio-video/client/canonical-operations');
     const http = require('@audio-video/client/http-core');
     const capture = require('@audio-video/client/capture-adapters');
+    const browserCapture = require('@audio-video/client/browser-capture-adapter');
     const recorder = require('@audio-video/client/recorder-orchestrator');
+    const recorderCheckpoint = require('@audio-video/client/recorder-checkpoint-store');
+    const ffmpegRender = require('@audio-video/client/ffmpeg-final-render');
     const production = require('@audio-video/client/production-plan');
     const offlineStore = require('@audio-video/client/offline-edit-store');
     const devProjects = require('@audio-video/client/dev-project-timeline');
@@ -395,7 +419,14 @@ try {
     assert.equal(typeof canonical.createMediaCanonicalClient, 'function');
     assert.equal(typeof http.MediaHttpTransport, 'function');
     assert.equal(typeof capture.captureWithAdmission, 'function');
+    const browserAdapter = new browserCapture.BrowserCaptureAdapter({
+      resolveSource: () => { throw new Error('source must not be resolved during construction'); },
+    });
+    assert.equal(browserAdapter.kind, 'BROWSER');
     assert.equal(typeof recorder.orchestrateScenario, 'function');
+    assert.equal(typeof recorderCheckpoint.FileRecorderCheckpointStore, 'function');
+    assert.equal(typeof recorderCheckpoint.resumeScenarioFromCheckpoint, 'function');
+    assert.equal(typeof ffmpegRender.PinnedFfmpegFinalRenderMuxer, 'function');
     assert.equal(typeof production.compileProductionPlan, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStore, 'function');
     assert.equal(typeof offlineStore.IndexedDbOfflineEditStoreError, 'function');
@@ -413,7 +444,22 @@ try {
     import type * as canonical from '@audio-video/client/canonical-operations';
     import type * as http from '@audio-video/client/http-core';
     import type * as capture from '@audio-video/client/capture-adapters';
+    import {
+      BrowserCaptureAdapter,
+      type BrowserCaptureAdapterOptions,
+    } from '@audio-video/client/browser-capture-adapter';
     import type * as recorder from '@audio-video/client/recorder-orchestrator';
+    import {
+      FileRecorderCheckpointStore,
+      resumeScenarioFromCheckpoint,
+      type RecorderCheckpoint,
+      type ScenarioResumeResult,
+    } from '@audio-video/client/recorder-checkpoint-store';
+    import {
+      PinnedFfmpegFinalRenderMuxer,
+      type PinnedFfmpegRenderOptions,
+      type FinalRenderSourceResolver,
+    } from '@audio-video/client/ffmpeg-final-render';
     import type * as productionExports from '@audio-video/client/production-plan';
     import { MediaDevProjectTimelineClient } from '@audio-video/client/dev-project-timeline';
     import type { DevProjectContext, DevProjectTimelineClientOptions, CreateDevProjectRequest } from '@audio-video/client/dev-project-timeline';
@@ -424,6 +470,17 @@ try {
     import type { SceneTextAdapterErrorCode } from '@audio-video/client';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
     const create: typeof createMediaOperationClient = createMediaOperationClient;
+    const browserOptions: BrowserCaptureAdapterOptions = {
+      resolveSource: async () => { throw new Error('source must not be resolved during construction'); },
+    };
+    const browserAdapter = new BrowserCaptureAdapter(browserOptions);
+    const checkpointStore: typeof FileRecorderCheckpointStore = FileRecorderCheckpointStore;
+    const resumeCheckpoint: typeof resumeScenarioFromCheckpoint = resumeScenarioFromCheckpoint;
+    const checkpoint: RecorderCheckpoint | undefined = undefined;
+    const resumeResult: ScenarioResumeResult | undefined = undefined;
+    const ffmpegMuxer: typeof PinnedFfmpegFinalRenderMuxer = PinnedFfmpegFinalRenderMuxer;
+    const ffmpegOptions: PinnedFfmpegRenderOptions | undefined = undefined;
+    const renderResolver: FinalRenderSourceResolver | undefined = undefined;
     const compile: typeof compileProductionPlan = compileProductionPlan;
     const offlineStoreConstructor: typeof IndexedDbOfflineEditStore = IndexedDbOfflineEditStore;
     const offlineStoreOptions: IndexedDbOfflineEditStoreOptions | undefined = undefined;
@@ -450,7 +507,8 @@ try {
     const diVocabularyIsExhaustive: MissingDiErrorCode extends never ? true : never = true;
     void [create, compile, kind, resolver, publicExportTypes, offlineStoreConstructor,
       offlineStoreOptions, devProjectClient, devProjectOptions, devProjectRequest, devProjectContext,
-      diVocabularyIsExhaustive, fingerprint, captionVersionExports];
+      diVocabularyIsExhaustive, fingerprint, captionVersionExports, browserAdapter, checkpointStore,
+      resumeCheckpoint, checkpoint, resumeResult, ffmpegMuxer, ffmpegOptions, renderResolver];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
@@ -507,6 +565,7 @@ try {
     env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: '' },
   });
   assert.equal(cliResult.status, 2, 'CLI without an environment token should fail closed');
+  assert.ok(cliResult.stderr.trim(), `CLI must emit its typed error on stderr; stdout=${JSON.stringify(cliResult.stdout)}; error=${cliResult.error?.message ?? 'none'}`);
   const cliError = JSON.parse(cliResult.stderr.trim());
   assert.equal(cliError.code, 'MISSING_AUTH_TOKEN');
   assert.match(cliError.message, /environment/u);

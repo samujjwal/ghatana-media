@@ -11,6 +11,7 @@ import {
   orchestrateScenario,
   recaptureScenario,
   scenesRequiringRecapture,
+  selectSceneCaptureWork,
   publishFinalRender,
   type Scenario,
 } from "./recorder-orchestrator";
@@ -698,7 +699,43 @@ describe("executeScenario", () => {
     expect(scenesRequiringRecapture(prior, next, first.attempts)).toEqual(["intro"]);
   });
 
-  it("reruns scenes whose prior attempt was not CAPTURED", async () => {
+  it("retains exact source after narration or caption edits", async () => {
+    const input = scenario();
+    const prior = orchestrateScenario(input);
+    const record = await executeScenario(prior, { check: () => "ADMITTED" }, {
+      capture: async (request) => ({ ...frame, ...request }),
+    });
+    const revised = orchestrateScenario(scenario({
+      scenes: [
+        { ...input.scenes[0]!, narration: [], captionRefs: ["captions/intro@v2"] },
+        input.scenes[1]!,
+      ],
+    }));
+    expect(changedSceneLineages(prior, revised).replanned).toEqual(["intro"]);
+    expect(selectSceneCaptureWork(prior, revised, record.attempts)).toEqual({
+      reuse: ["intro", "main"], recapture: [], reconcile: [],
+    });
+  });
+
+  it("requires reconciliation of an unknown outcome even when that scene's source changes", async () => {
+    const input = scenario();
+    const prior = orchestrateScenario(input);
+    const record = await executeScenario(prior,
+      { check: (request) => request.sourceVersionRef === "intro@v2" ? "ADMITTED" : "NOT_ADMITTED" },
+      { capture: async () => { throw new Error("lost acknowledgment"); } });
+    const revised = orchestrateScenario(scenario({
+      scenes: [
+        { ...input.scenes[0]!, sourceRef: { ...input.scenes[0]!.sourceRef, sourceVersionRef: "intro@v3" } },
+        input.scenes[1]!,
+      ],
+    }));
+    expect(selectSceneCaptureWork(prior, revised, record.attempts)).toEqual({
+      reuse: [], recapture: ["main"], reconcile: ["intro"],
+    });
+    expect(scenesRequiringRecapture(prior, revised, record.attempts)).toEqual(["main"]);
+  });
+
+  it("reruns scenes that were not admitted before dispatch", async () => {
     const prior = orchestrateScenario(scenario());
     const denied = await executeScenario(prior, { check: () => "NOT_ADMITTED" }, {
       capture: async () => frame,
