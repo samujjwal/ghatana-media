@@ -82,7 +82,7 @@ class SttGrpcTracingInProcessTest {
         verify(trace.builder).setAttribute("stt.language", "other");
         verify(trace.builder, never()).setAttribute(anyString(), eq("sensitive-marker"));
         verify(trace.span).setStatus(StatusCode.ERROR, "Media operation failed");
-        verify(trace.span).setAttribute("error.type", "StatusRuntimeException");
+        verify(trace.span).setAttribute("error.type", "runtime");
         verify(trace.span, never()).setAttribute(anyString(), eq("private"));
         verify(trace.span).end();
     }

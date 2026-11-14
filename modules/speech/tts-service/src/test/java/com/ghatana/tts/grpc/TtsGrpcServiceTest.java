@@ -265,7 +265,7 @@ class TtsGrpcServiceTest {
         assertThat(span.getStatus().getStatusCode().name()).isEqualTo("ERROR");
         assertThat(span.getStatus().getDescription()).isEqualTo("Media operation failed");
         assertThat(span.getAttributes().get(io.opentelemetry.api.common.AttributeKey.stringKey("error.type")))
-                .isEqualTo("StatusRuntimeException");
+                .isEqualTo("runtime");
         assertNoProtectedMarker(span, "sensitive text 205941", "protected-voice-8062");
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
@@ -474,7 +474,7 @@ class TtsGrpcServiceTest {
         assertThat(span.getStatus().getStatusCode().name()).isEqualTo("ERROR");
         assertThat(span.getAttributes().get(
                 io.opentelemetry.api.common.AttributeKey.stringKey("error.type")))
-                .isEqualTo("StatusRuntimeException");
+                .isEqualTo("runtime");
         assertNoProtectedMarker(span, "timeout-race-private-55021");
     }
 
@@ -614,7 +614,7 @@ class TtsGrpcServiceTest {
         assertThat(span.getStatus().getStatusCode().name()).isEqualTo("ERROR");
         assertThat(span.getStatus().getDescription()).isEqualTo("Media operation failed");
         assertThat(span.getAttributes().get(io.opentelemetry.api.common.AttributeKey.stringKey("error.type")))
-                .isEqualTo("StatusRuntimeException");
+                .isEqualTo("runtime");
         assertNoProtectedMarker(span, "error-callback-private-input-77192", "downstream-private-error-callback-77192");
     }
 

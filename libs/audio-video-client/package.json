@@ -110,6 +110,16 @@
       "types": "./dist/dev-job-cancellation.d.ts",
       "import": "./dist/dev-job-cancellation.js",
       "require": "./dist-cjs/dev-job-cancellation.js"
+    },
+    "./recorder-checkpoint-store": {
+      "types": "./dist/recorder-checkpoint-store.d.ts",
+      "import": "./dist/recorder-checkpoint-store.js",
+      "require": "./dist-cjs/recorder-checkpoint-store.js"
+    },
+    "./ffmpeg-final-render": {
+      "types": "./dist/ffmpeg-final-render.d.ts",
+      "import": "./dist/ffmpeg-final-render.js",
+      "require": "./dist-cjs/ffmpeg-final-render.js"
     }
   },
   "dependencies": {

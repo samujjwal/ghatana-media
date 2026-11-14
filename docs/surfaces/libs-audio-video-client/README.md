@@ -78,6 +78,8 @@ the capture adapter SPI. Package: `@audio-video/client`
 | `@audio-video/client/file-capture-adapter` | `MediaFileCaptureAdapter` (MEDIA_FILE, Node.js) |
 | `@audio-video/client/camera-capture-adapter` | `CameraCaptureAdapter`, `CameraCaptureSession`, typed consent/device/clock ports and errors |
 | `@audio-video/client/recorder-orchestrator` | Scenario planning, lineage, bounded recapture |
+| `@audio-video/client/recorder-checkpoint-store` | Node.js local checkpoint store with content-addressed captured bytes and restart-safe UNKNOWN fences |
+| `@audio-video/client/ffmpeg-final-render` | Node.js host muxer using pinned FFmpeg/FFprobe executables and explicit source resolver |
 | `@audio-video/client/production-plan` | Effect-free production plan compiler |
 | `@audio-video/client/offline-edit-queue` | Encrypted local edit queue with explicit rights/version/idempotency ports |
 | `@audio-video/client/offline-reconnect` | Typed reconnect coordinator and host-supplied project-operation ports |
@@ -145,6 +147,42 @@ instead of returning an already stopped device.
 This is browser-host resource handling only: it does not establish physical
 device qualification or integration with canonical stream sessions or writers.
 
+
+## Local pinned FFmpeg render adapter
+
+`PinnedFfmpegFinalRenderMuxer` implements the existing `FinalRenderMuxAndProbePort`
+for a bounded local MP4 development profile. Its host configuration requires
+absolute FFmpeg/FFprobe paths, exact executable SHA-256 pins, an expected version,
+a source root, explicit scene/audio/caption resolvers, and a local development
+license profile reference. Source paths are resolved through the injected host
+resolver and must resolve to regular files inside that root. Video inputs are limited to
+MP4/MOV/M4V/Matroska and audio to WAV/MP3/M4A/AAC; nested protocols are
+restricted to local file/pipe and their demuxers are allowlisted. Each input is
+bounded to 64 MiB, combined inputs to 256 MiB; the profile accepts at most 64
+inputs, 1,920×1,080 output, 30-second default tool timeout and 64 MiB output. It currently accepts MP4,
+constant frame rate, a `1/N` timebase, captions encoded as `mov_text`, and no
+credit references; unsupported shapes fail before upload.
+
+The adapter encodes H.264/AAC, stores narration track identities in observed
+MP4 audio handler names, writes SRT from resolved caption text and exact request
+ticks, decodes the complete video/audio output, and uses FFprobe stream/frame/
+subtitle packet observations to construct the returned `RenderedContainer`.
+`publishFinalRender` remains responsible for checking trusted rights admission
+before codec work and canonical upload finality after it. The adapter alone does
+not prove source rights, authorization, durable artifact registration or release
+qualification.
+
+The focused local positive generates three one-second color clips plus synthetic
+440 Hz audio, muxes them with one timed caption, fully decodes the MP4, and checks
+90 frames, 30 fps, 90,000 Hz timebase, 3-second duration and observed audio and
+caption inventories. It uses the host's FFmpeg/FFprobe 6.1.1 wrappers with local
+SHA-256 pins (`ebf248ee…c90ec04` and `871e88ff…f0c853d`) and the explicit
+`local-development-fixture/gpl-ffmpeg-6.1.1` profile. This is isolated synthetic
+fixture evidence only; it does not replace the repository's pinned production
+codec profiles or establish that GPL codec binaries may be shipped. Real source
+capture, licensed narration, credits, WebM, production hosts, and durable
+artifact/job readback remain separate work.
+
 ## States and invariants
 
 - SDK upload/job mutations carry stable request identity where the route
@@ -163,6 +201,16 @@ device qualification or integration with canonical stream sessions or writers.
 - Scenario plans are deterministic: identical scenarios produce identical
   `planIdentity`/lineage; `changedSceneLineages` reports carried/replanned/
   removed scenes.
+- `selectSceneCaptureWork` separates source acquisition from caption/narration edits;
+  unchanged captured sources can be reused while downstream tracks are recomposed.
+- `FileRecorderCheckpointStore` stores one scene attempt at a time and captured
+  source bytes under their observed SHA-256 (16 MiB maximum per stored capture). It writes an `OUTCOME_UNKNOWN`
+  intent before eligibility or capture dispatch; a process interruption therefore
+  fences that scene for reconciliation instead of silently replaying it. The
+  fence follows the scene ID across source revisions. An exclusive lock rejects
+  concurrent writers. A process crash can leave a stale lock; reconcile owner
+  state before removing it. This is a local development store, not a production
+  database.
 - `dryRunOnly: true` on `OrchestrationResult` — planning performs no effects.
 - `publishFinalRender` detaches and deep-freezes canonical upload-session
   observations before later awaited admission checks, so adapter-retained
