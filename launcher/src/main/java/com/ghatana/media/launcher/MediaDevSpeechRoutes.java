@@ -104,11 +104,16 @@ final class MediaDevSpeechRoutes {
                 view.put("note", "DEV_ONLY local recognizer output; not a production, quality, measurement or approval claim");
                 out.json(exchange, result.transcript().replayed() ? 200 : 201, view);
             } else {
-                requireKeys(body, Set.of("requestId", "text"), Set.of("voice", "speakingRate"), "synthesis request");
+                requireKeys(body, Set.of("requestId", "text"),
+                        Set.of("voice", "speakingRate", "locale", "voiceReference", "likenessReference"),
+                        "synthesis request");
                 var result = speech.synthesize(tenantId, principalId, new MediaDevSpeechRuntime.SynthesizeRequest(
                         string(body.get("requestId"), "requestId"), string(body.get("text"), "text"),
                         body.get("voice") == null ? null : string(body.get("voice"), "voice"),
-                        body.get("speakingRate") == null ? 1.0 : decimal(body.get("speakingRate"), "speakingRate")));
+                        body.get("speakingRate") == null ? 1.0 : decimal(body.get("speakingRate"), "speakingRate"),
+                        body.get("locale") == null ? null : string(body.get("locale"), "locale"),
+                        reference(body.get("voiceReference"), "voiceReference"),
+                        reference(body.get("likenessReference"), "likenessReference")));
                 Map<String, Object> view = outputView(result);
                 view.put("schema", MediaDevSpeechRuntime.SCHEMA);
                 view.put("scope", "DEV_ONLY");
@@ -171,6 +176,16 @@ final class MediaDevSpeechRoutes {
                         .collect(java.util.stream.Collectors.toSet()).containsAll(value.keySet())) {
             throw new IllegalArgumentException(field + " fields do not match its declared shape");
         }
+    }
+
+    private static MediaDevSpeechRuntime.ArtifactVersionRef reference(Object value, String field) {
+        if (value == null) return null;
+        if (!(value instanceof Map<?, ?> map) || map.size() != 2 || !map.containsKey("artifactId")
+                || !map.containsKey("artifactVersionId")) {
+            throw new IllegalArgumentException(field + " must be {artifactId, artifactVersionId}");
+        }
+        return new MediaDevSpeechRuntime.ArtifactVersionRef(string(map.get("artifactId"), field + ".artifactId"),
+                string(map.get("artifactVersionId"), field + ".artifactVersionId"));
     }
 
     private static String string(Object value, String field) {

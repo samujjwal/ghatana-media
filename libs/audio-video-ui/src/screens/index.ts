@@ -58,3 +58,7 @@ export { DevGroundedAnswerPanel } from "./DevGroundedAnswerPanel";
 export type { DevGroundedAnswerPanelProps } from "./DevGroundedAnswerPanel";
 export { DevGroundedHostError, parseGroundedAnswerView, playerSeconds, boxPercent, formatSeconds, describeGroundedFailure } from "./devGroundedAnswer";
 export type { DevGroundedAnswerPort, DevGroundedAskRequest, DevGroundedHostResponse, GroundedAnswerView, GroundedEvidence, GroundedClaim } from "./devGroundedAnswer";
+export { VoiceSynthesisPanel } from "./VoiceSynthesisPanel";
+export type { VoiceSynthesisPanelProps } from "./VoiceSynthesisPanel";
+export { DevVoiceHostError, describeVoiceFailure, parseVoiceCapabilities, parseVoiceSynthesisView } from "./devVoiceSynthesis";
+export type { DevVoiceSynthesisPort, DevVoiceHostResponse, DevVoiceSynthesisRequest, DevVoiceTimelineRequest, DevVoiceTimelinePlacement, VoiceCapabilities, VoiceSynthesisView } from "./devVoiceSynthesis";

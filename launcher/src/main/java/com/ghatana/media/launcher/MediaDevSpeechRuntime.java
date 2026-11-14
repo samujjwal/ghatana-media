@@ -59,7 +59,7 @@ public final class MediaDevSpeechRuntime {
     static final int MAX_SOURCE_BYTES = 4 * 1024 * 1024;
     private static final Set<String> WAV_TYPES = Set.of("audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave");
     private static final List<String> LINEAGE_KEYS = List.of("speechSchema", "scope", "kind", "requestId", "engine",
-            "source", "language", "model", "runtime", "rightsDecision", "voice", "speakingRate", "inputTextSha256",
+            "source", "language", "locale", "model", "runtime", "rightsDecision", "voice", "speakingRate", "inputTextSha256",
             "inputTextChars", "audio", "cueCount", "transcriptArtifactId", "note");
 
     /** Which speech operation a rights decision is requested for. */
@@ -96,7 +96,21 @@ public final class MediaDevSpeechRuntime {
         }
     }
 
-    public record SynthesizeRequest(String requestId, String text, String voice, double speakingRate) {
+    /** One exact artifact version named as a voice or likeness reference (never an unqualified artifact id). */
+    public record ArtifactVersionRef(String artifactId, String artifactVersionId) {
+        public ArtifactVersionRef {
+            artifactId = Objects.requireNonNull(artifactId, "artifactId");
+            artifactVersionId = Objects.requireNonNull(artifactVersionId, "artifactVersionId");
+        }
+    }
+
+    /**
+     * Synthesis input: text, one manifest-listed stock voice, a BCP-47 locale and optional reference inputs. The
+     * reference inputs exist only so a clone attempt is refused truthfully: they are gated by the confirmed
+     * {@code VOICE_OR_LIKENESS_USE} statement and, even when that is admitted, refused as unsupported.
+     */
+    public record SynthesizeRequest(String requestId, String text, String voice, double speakingRate, String locale,
+                                    ArtifactVersionRef voiceReference, ArtifactVersionRef likenessReference) {
         public SynthesizeRequest {
             requestId = boundedId(requestId, "requestId");
             if (text == null || text.isBlank() || text.length() > LocalKokoroSynthesizer.MAX_TEXT_CHARS) {
@@ -107,7 +121,18 @@ public final class MediaDevSpeechRuntime {
             if (!Double.isFinite(speakingRate) || speakingRate < 0.5 || speakingRate > 2.0) {
                 throw new IllegalArgumentException("speakingRate must be within [0.5, 2.0]");
             }
+            locale = locale == null || locale.isBlank() ? "en" : locale;
+            if (!locale.matches("[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8}){0,3}")) {
+                throw new IllegalArgumentException("locale must be a BCP-47 language tag");
+            }
         }
+
+        public SynthesizeRequest(String requestId, String text, String voice, double speakingRate) {
+            this(requestId, text, voice, speakingRate, null, null, null);
+        }
+
+        /** Primary language subtag, lower case ("en-US" becomes "en"). */
+        String language() { return locale.split("[-_]", 2)[0].toLowerCase(Locale.ROOT); }
     }
 
     /** Durable view of a registered speech output, reconstructible from the artifact alone after restart. */
@@ -152,10 +177,29 @@ public final class MediaDevSpeechRuntime {
     private final LocalKokoroTtsProvider tts;
     private final SpeechRightsGate sttGate;
     private final SpeechRightsGate ttsGate;
+    private final RightsConsentResolver referenceResolver;
+    private final MediaDevSpeechSpool spool;
 
     MediaDevSpeechRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
                           LocalWhisperCppSttProvider stt, LocalKokoroTtsProvider tts,
                           SpeechRightsGate sttGate, SpeechRightsGate ttsGate) {
+        this(runtime, registrar, stt, tts, sttGate, ttsGate, RightsConsentResolver.unavailable(), privateSpool());
+    }
+
+    private static MediaDevSpeechSpool privateSpool() {
+        try {
+            return new MediaDevSpeechSpool(java.nio.file.Files.createTempDirectory("media-dev-speech-spool-"));
+        } catch (IOException failure) {
+            throw new IllegalStateException("speech spool directory could not be created", failure);
+        }
+    }
+
+    MediaDevSpeechRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
+                          LocalWhisperCppSttProvider stt, LocalKokoroTtsProvider tts,
+                          SpeechRightsGate sttGate, SpeechRightsGate ttsGate, RightsConsentResolver referenceResolver,
+                          MediaDevSpeechSpool spool) {
+        this.referenceResolver = Objects.requireNonNull(referenceResolver, "referenceResolver");
+        this.spool = Objects.requireNonNull(spool, "spool");
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.registrar = Objects.requireNonNull(registrar, "registrar");
         this.stt = stt;
@@ -169,18 +213,19 @@ public final class MediaDevSpeechRuntime {
      * attestation authority when enabled with MEDIA_RIGHTS_DEV_ENABLED, otherwise the fail-closed
      * {@code RightsConsentResolver.unavailable()}) for STT, and the canonical-job-lane rule for TTS.
      *
-     * <p>Rights decision for synthesis: this lane accepts only request text and a stock Kokoro voice pack. It has no
-     * reference-audio, voice-sample or embedding input (such fields are rejected as unknown), so no media-rights
-     * statement exists to require. Any future reference or voice-sample input must be gated by
-     * {@code Scope.VOICE_OR_LIKENESS_USE}.</p>
+     * <p>Rights decision for synthesis: plain synthesis accepts request text, a locale and a stock Kokoro voice pack
+     * and needs no media-rights statement. A {@code voiceReference} or {@code likenessReference} names an exact
+     * artifact version: it must first be admitted for {@code Scope.VOICE_OR_LIKENESS_USE} (a second-person-confirmed
+     * identifiable-person consent) and is then still refused, because the pinned model does not support cloning.</p>
      */
     static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment,
                                          RightsConsentResolver resolver) {
+        RightsConsentResolver effective = resolver == null ? RightsConsentResolver.unavailable() : resolver;
         return new MediaDevSpeechRuntime(runtime, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
                 LocalWhisperCppSttProvider.fromEnvironment(environment),
                 LocalKokoroTtsProvider.fromEnvironment(environment),
-                resolverGate(resolver == null ? RightsConsentResolver.unavailable() : resolver),
-                canonicalJobLaneTtsGate(runtime));
+                resolverGate(effective), canonicalJobLaneTtsGate(runtime), effective,
+                MediaDevSpeechSpool.fromEnvironment(environment));
     }
 
     static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment) {
@@ -281,8 +326,14 @@ public final class MediaDevSpeechRuntime {
             view.put("licenseSpdx", install.manifest().license().spdx());
             view.put("manifestSha256", install.manifestSha256());
             view.put("productionEligible", install.manifest().admission().productionEligible());
+            view.put("verifiedLanguages", new java.util.TreeSet<>(install.manifest().verifiedLanguages()));
+            view.put("attribution", Map.of("noticeRequired", install.manifest().attribution().noticeRequired(),
+                    "notice", install.manifest().attribution().notice()));
+            if (voices != null) view.put("voiceCloning", install.manifest().voiceCloning());
         }
         if (voices != null) view.put("voices", new java.util.TreeSet<>(voices));
+        if (voices != null) view.put("defaultVoice", LocalKokoroTtsProvider.DEFAULT_VOICE);
+        if (voices != null) view.put("maxTextChars", LocalKokoroSynthesizer.MAX_TEXT_CHARS);
         return view;
     }
 
@@ -413,44 +464,109 @@ public final class MediaDevSpeechRuntime {
             throw new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE",
                     "no verified local text-to-speech model is installed for this server");
         }
+        refuseReferenceInputs(tenantId, principalId, request);
+        Set<String> verified = tts.install().manifest().verifiedLanguages();
+        if (!verified.contains(request.language())) {
+            throw new SpeechRefusedException(422, "LOCALE_NOT_ADMITTED",
+                    "the locale is not among the verified languages of the model installation",
+                    Map.of("locale", request.locale(), "verifiedLanguages", new java.util.TreeSet<>(verified)));
+        }
         if (!synthesizer.voices().contains(request.voice())) {
             throw new SpeechRefusedException(422, "VOICE_NOT_ADMITTED",
                     "the voice is not part of the verified model installation; voice cloning is not supported");
         }
         SpeechRightsGate.Decision rights = ttsGate.authorize(tenantId, principalId, Operation.TEXT_TO_SPEECH, null);
         requireAllowed(rights, Operation.TEXT_TO_SPEECH);
-        final LocalKokoroSynthesizer.Synthesis result;
-        try {
-            result = synthesizer.synthesize(request.text(), request.voice(), request.speakingRate(),
-                    Duration.ofMinutes(3), BoundedProcessRunner.CancellationToken.NEVER);
-        } catch (LocalTtsException failure) {
-            throw speechFailure(failure);
+        String key = MediaDevProjectRenderRuntime.sha256Hex(
+                (tenantId + "\u0000" + principalId + "\u0000" + request.requestId()).getBytes(StandardCharsets.UTF_8));
+        String fingerprint = MediaDevProjectRenderRuntime.sha256Hex((request.voice() + "\u0000" + request.locale() + "\u0000"
+                + request.speakingRate() + "\u0000" + request.text()).getBytes(StandardCharsets.UTF_8));
+        // One requestId runs the model at most once: a retry (also after a restart or a crash between synthesis and
+        // registration) registers the SAME bytes, so the idempotent registration replays or resumes.
+        synchronized (spool.lockFor(key)) {
+            MediaDevSpeechSpool.Entry entry = spool.find(key).orElse(null);
+            if (entry != null && !entry.fingerprint().equals(fingerprint)) {
+                throw new SpeechRequestReusedException(new IllegalArgumentException("requestId used with a different request"));
+            }
+            if (entry == null) {
+                final LocalKokoroSynthesizer.Synthesis result;
+                try {
+                    result = synthesizer.synthesize(request.text(), request.voice(), request.speakingRate(),
+                            Duration.ofMinutes(3), BoundedProcessRunner.CancellationToken.NEVER);
+                } catch (LocalTtsException failure) {
+                    throw speechFailure(failure);
+                }
+                if (!tts.install().stillCurrent()) {
+                    throw new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE",
+                            "the local model changed during synthesis; the output was discarded");
+                }
+                Map<String, Object> lineage = new LinkedHashMap<>();
+                lineage.put("speechSchema", SCHEMA);
+                lineage.put("scope", "DEV_ONLY");
+                lineage.put("kind", KIND_SYNTHESIS);
+                lineage.put("requestId", request.requestId());
+                lineage.put("engine", "kokoro/" + tts.providerVersion());
+                lineage.put("model", modelRef(tts.install(), result.modelSha256()));
+                lineage.put("runtime", runtimeRef(tts.install()));
+                lineage.put("rightsDecision", rights.evidenceRef());
+                lineage.put("voice", result.voice());
+                lineage.put("locale", request.locale());
+                lineage.put("speakingRate", request.speakingRate());
+                // The input text is user content: only its digest and length are recorded, never the text itself.
+                lineage.put("inputTextSha256", MediaDevProjectRenderRuntime.sha256Hex(
+                        request.text().getBytes(StandardCharsets.UTF_8)));
+                lineage.put("inputTextChars", request.text().length());
+                lineage.put("audio", Map.of("sampleRate", result.sampleRate(), "channels", 1, "bitsPerSample", 16,
+                        "durationMillis", result.durationMillis(), "voiceCloning", "NOT_SUPPORTED"));
+                lineage.put("note", "Synthesized with a stock Kokoro voice pack; no voice cloning. Synthesized-speech "
+                        + "disclosure applies to downstream use; not a quality or approval claim.");
+                entry = spool.put(key, fingerprint, result.wav(), lineage);
+            }
+            return register(tenantId, principalId, "INTERNAL", "tts-audio", request.requestId(), entry.wav(),
+                    "audio/wav", "wav", "speech-" + request.voice(), entry.lineage());
         }
-        if (!tts.install().stillCurrent()) {
-            throw new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE",
-                    "the local model changed during synthesis; the output was discarded");
+    }
+
+    /**
+     * A voice or likeness reference is never acted on. Each named exact version must first carry a confirmed
+     * {@code VOICE_OR_LIKENESS_USE} statement (absent, unconfirmed, revoked, expired, stale or mismatching
+     * statements and an unavailable authority are refused with the matching reason, and are re-evaluated on every
+     * call so a revocation between a first attempt and a retry takes effect); when all are admitted the request is
+     * still refused as {@code VOICE_CLONING_NOT_SUPPORTED}. Nothing is synthesized and nothing is registered.
+     */
+    private void refuseReferenceInputs(String tenantId, String principalId, SynthesizeRequest request) {
+        Map<String, ArtifactVersionRef> references = new LinkedHashMap<>();
+        if (request.voiceReference() != null) references.put("voiceReference", request.voiceReference());
+        if (request.likenessReference() != null) references.put("likenessReference", request.likenessReference());
+        if (references.isEmpty()) return;
+        for (Map.Entry<String, ArtifactVersionRef> entry : references.entrySet()) {
+            ArtifactVersionRef ref = entry.getValue();
+            MediaArtifact artifact = runtime.artifact(tenantId, principalId, ref.artifactId())
+                    .filter(found -> found.version().value().equals(ref.artifactVersionId()))
+                    .orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
+            MediaRightsConsentContracts.Resolution resolution;
+            try {
+                resolution = referenceResolver.resolve(new MediaRightsConsentContracts.ResolutionRequest(tenantId,
+                        artifact.artifactId(), artifact.version().value(), artifact.sha256(),
+                        MediaRightsConsentContracts.Scope.VOICE_OR_LIKENESS_USE));
+            } catch (RuntimeException unavailable) {
+                resolution = null;
+            }
+            if (resolution == null || resolution.verdict() == MediaRightsConsentContracts.Verdict.UNAVAILABLE) {
+                throw new SpeechRefusedException(422, "RIGHTS_AUTHORITY_UNAVAILABLE",
+                        "voice or likeness use cannot be admitted without a rights and consent authority",
+                        Map.of("reference", entry.getKey(), "scope", "VOICE_OR_LIKENESS_USE"));
+            }
+            if (resolution.verdict() != MediaRightsConsentContracts.Verdict.ADMITTED) {
+                throw new SpeechRefusedException(403, "RIGHTS_DECISION_" + resolution.verdict().name(),
+                        "a confirmed VOICE_OR_LIKENESS_USE statement for the exact version is required",
+                        Map.of("reference", entry.getKey(), "scope", "VOICE_OR_LIKENESS_USE"));
+            }
         }
-        Map<String, Object> lineage = new LinkedHashMap<>();
-        lineage.put("speechSchema", SCHEMA);
-        lineage.put("scope", "DEV_ONLY");
-        lineage.put("kind", KIND_SYNTHESIS);
-        lineage.put("requestId", request.requestId());
-        lineage.put("engine", "kokoro/" + tts.providerVersion());
-        lineage.put("model", modelRef(tts.install(), result.modelSha256()));
-        lineage.put("runtime", runtimeRef(tts.install()));
-        lineage.put("rightsDecision", rights.evidenceRef());
-        lineage.put("voice", result.voice());
-        lineage.put("speakingRate", request.speakingRate());
-        // The input text is user content: only its digest and length are recorded, never the text itself.
-        lineage.put("inputTextSha256", MediaDevProjectRenderRuntime.sha256Hex(
-                request.text().getBytes(StandardCharsets.UTF_8)));
-        lineage.put("inputTextChars", request.text().length());
-        lineage.put("audio", Map.of("sampleRate", result.sampleRate(), "channels", 1, "bitsPerSample", 16,
-                "durationMillis", result.durationMillis(), "voiceCloning", "NOT_SUPPORTED"));
-        lineage.put("note", "Synthesized with a stock Kokoro voice pack; no voice cloning. Synthesized-speech "
-                + "disclosure applies to downstream use; not a quality or approval claim.");
-        return register(tenantId, principalId, "INTERNAL", "tts-audio", request.requestId(), result.wav(),
-                "audio/wav", "wav", "speech-" + request.voice(), lineage);
+        throw new SpeechRefusedException(422, "VOICE_CLONING_NOT_SUPPORTED",
+                "the pinned text-to-speech model has no voice cloning or likeness synthesis; the confirmed statement "
+                        + "does not change that",
+                Map.of("references", List.copyOf(references.keySet()), "voiceCloning", "NOT_SUPPORTED"));
     }
 
     // ---- shared ----
@@ -502,6 +618,11 @@ public final class MediaDevSpeechRuntime {
             case TIMEOUT -> new SpeechRefusedException(504, "SPEECH_TIMEOUT", "local synthesis exceeded its time budget");
             case CANCELLED -> new SpeechRefusedException(503, "SPEECH_CANCELLED", "local synthesis was cancelled");
             case OUTPUT_TOO_LARGE -> new SpeechRefusedException(422, "SPEECH_LIMIT_EXCEEDED", "output exceeded its ceiling");
+            // The synthesis process ended without a verified result (killed, crashed or unreadable output): the
+            // outcome is UNKNOWN, never success. Nothing was registered; retrying the same requestId is idempotent.
+            case PROCESS_FAILED, OUTPUT_INVALID -> new SpeechRefusedException(503, "SPEECH_OUTCOME_UNKNOWN",
+                    "the synthesis process ended without a verified result; nothing was registered, retry the same "
+                            + "requestId");
             default -> new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE", "local synthesis failed");
         };
     }

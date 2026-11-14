@@ -312,6 +312,10 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/rights/artifacts/{artifactId}/versions/{versionId}/attestations` | `media:project:dev:read` | caller owns the exact version | rights |
 | POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
 | GET | `/dev/v1/exports/{requestId}` | `media:delivery:dev:read` | — | delivery |
+| GET | `/dev/v1/speech/capabilities` | `media:project:dev:read` | — | local speech (`MEDIA_LOCAL_MODEL_ROOT`); lists only manifest-verified voices, `verifiedLanguages`, `voiceCloning` and the licence attribution notice |
+| POST | `/dev/v1/speech/syntheses` | `media:project:dev:write` | `media:artifact:{read,create}`; a `voiceReference`/`likenessReference` additionally needs a confirmed `VOICE_OR_LIKENESS_USE` statement and is then refused `VOICE_CLONING_NOT_SUPPORTED` | local Kokoro TTS |
+| POST | `/dev/v1/speech/transcriptions` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of the exact version | local Whisper STT |
+| GET | `/dev/v1/speech/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local speech |
 | GET | `/dev/v1/vision/status` | `media:project:dev:read` | — | `MEDIA_LOCAL_VISION_*` configured |
 | POST | `/dev/v1/vision/analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
 | POST | `/dev/v1/vision/questions` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
@@ -319,6 +323,25 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |
+
+DEV_ONLY voice synthesis (J-04; real Kokoro-82M, Apache-2.0, stock voices, no voice cloning).
+`POST /dev/v1/speech/syntheses` takes `{requestId, text, voice?, speakingRate?, locale?, voiceReference?, likenessReference?}`
+where a reference is `{artifactId, artifactVersionId}` and `locale` defaults to `en`. The verified voices, verified
+languages, voice-cloning status and attribution notice come from `GET /dev/v1/speech/capabilities` (the pinned manifest),
+never from a client list. Typed refusals, all with no model run and no artifact: `422 LOCALE_NOT_ADMITTED` (primary
+language outside `verifiedLanguages`), `422 VOICE_NOT_ADMITTED`, `400` for any other field (a voice sample or embedding
+cannot be passed), and for a reference `404 SOURCE_VERSION_NOT_FOUND` (not owner-visible), `403 RIGHTS_DECISION_DENIED |
+REVOKED | STALE | MISMATCH` unless the exact version carries a second-person-confirmed `VOICE_OR_LIKENESS_USE`
+(`IDENTIFIABLE_PERSON_CONSENT`) statement, `422 RIGHTS_AUTHORITY_UNAVAILABLE`, and then, even when admitted,
+`422 VOICE_CLONING_NOT_SUPPORTED`. Rights are re-evaluated on every call, so a retry after a revocation is refused. If the
+synthesis process ends without a verified result (killed or crashed) the response is `503 SPEECH_OUTCOME_UNKNOWN`
+and nothing is registered; retrying the same `requestId` creates exactly one artifact and later retries replay it
+(`200`, `replayed=true`; local synthesis is not byte-stable, so the first synthesis for a `requestId` is kept in a bounded,
+owner-only spool (`MEDIA_DEV_SPEECH_SPOOL_DIR`, default under the temp directory, 256 entries) and a retry registers those same
+bytes instead of running the model again; a different request under the same `requestId` is `409 SPEECH_REQUEST_ID_REUSED`). Altering any pinned weight file withdraws the profile at once (`ready=false`, no voices,
+`503 SPEECH_RUNTIME_UNAVAILABLE`). The output is a mono 24 kHz PCM16 WAV artifact whose lineage records voice, locale,
+model/runtime digests and the input text digest only. The Explorer page `dev-voice-synthesis.html` (panel
+`VoiceSynthesisPanel` in `@audio-video/ui`) proxies only the synthesis routes of this lane; transcription is not proxied.
 
 DEV_ONLY local vision and multimodal lane (owner-selected local open models; outside the canonical manifest/OpenAPI).
 Owner decision, 2026-11-14, verbatim: "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for

@@ -157,10 +157,11 @@ handling are not bounded by us; its optional `--convert` path shells out to `ffm
 bounded or verified from outside the pinned binary.
 
 Rights and consent: STT on a source version needs a `PROCESSING` admission from `RightsConsentResolver`
-(`MEDIA_RIGHTS_DEV_ENABLED` in the DEV lane; otherwise `RIGHTS_AUTHORITY_UNAVAILABLE`). Synthesis accepts only request
-text and a manifest-listed stock voice; it has no reference-audio or voice-sample input (unknown fields are rejected),
-so no media-rights statement is required. Any future reference/voice-sample input must require
-`VOICE_OR_LIKENESS_USE`. DEV routes: `GET /dev/v1/speech/capabilities`, `POST /dev/v1/speech/transcriptions`
+(`MEDIA_RIGHTS_DEV_ENABLED` in the DEV lane; otherwise `RIGHTS_AUTHORITY_UNAVAILABLE`). Plain synthesis accepts request
+text, a locale (only manifest `verifiedLanguages`) and a manifest-listed stock voice and needs no media-rights statement.
+A `voiceReference`/`likenessReference` (exact artifact version) must first carry a confirmed `VOICE_OR_LIKENESS_USE`
+statement and is then still refused `VOICE_CLONING_NOT_SUPPORTED`; other sample/embedding fields are rejected as unknown.
+A killed synthesis worker is `SPEECH_OUTCOME_UNKNOWN` (retry by `requestId` is idempotent). See the launcher README. DEV routes: `GET /dev/v1/speech/capabilities`, `POST /dev/v1/speech/transcriptions`
 (transcript JSON plus unreviewed derived WebVTT artifacts), `POST /dev/v1/speech/syntheses` (WAV artifact),
 `GET /dev/v1/speech/outputs/{id}`. Agent tools use `MediaToolJobBridge` with a server-owned `SpeechProfilePin`, a
 host-owned governance context and a bounded await for the terminal job state.

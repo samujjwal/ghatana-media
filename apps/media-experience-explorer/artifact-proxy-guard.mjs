@@ -39,6 +39,10 @@ const devProjectRoutes = [
   { method: "GET", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY exact-version content read for verified previews/downloads. The version travels in If-Match (no query).
   { method: "GET", path: new RegExp(`^/dev/v1/artifacts/${OPAQUE_ID}/content$`, "u") },
+  // DEV_ONLY local speech lane used by the "Voice synthesis" page (synthesis only; transcription is not proxied).
+  { method: "GET", path: /^\/dev\/v1\/speech\/capabilities$/u },
+  { method: "POST", path: /^\/dev\/v1\/speech\/syntheses$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/speech/outputs/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY creative-output lanes used by the "Creative outputs" page.
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/audio-repairs$/u },
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/simulations$/u },
