@@ -3,6 +3,7 @@ import { execFile as execFileCallback, spawn } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
 import { createInterface } from "node:readline";
+import { createHash } from "node:crypto";
 import { readFile, realpath } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
@@ -121,11 +122,48 @@ try {
     if (request.url().includes("/dev/v1/")) apiRequests.push({ method: request.method(), path: new URL(request.url()).pathname, body: request.postData() });
   });
 
+  let renderId = null;
   async function connect() {
     await page.goto(`${baseUrl}/dev-project-timeline.html`);
     await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
     await page.getByRole("button", { name: "Read host context" }).click();
     await page.getByText(expectedTenant, { exact: true }).waitFor({ timeout: 10_000 });
+  }
+
+  // Verified preview + Download of the registered render through the DEV_ONLY content route. The page verifies the
+  // bytes' SHA-256 before it shows anything; here the preview element must actually load and the saved file must hash
+  // to the registered render sha (independent of the page's own check).
+  async function assertVerifiedPreviewAndDownload(renderScope, expectedSha, label) {
+    const noun = renderFormat === "mp4" ? "MP4" : "GIF";
+    const section = renderScope.getByRole("region", { name: `${noun} content` });
+    await section.getByRole("button", { name: new RegExp(`^Preview ${noun}`, "u") }).click();
+    await section.getByText(/Bytes verified against the registered version/u).waitFor({ timeout: 30_000 });
+    const media = section.locator(renderFormat === "mp4" ? "video[data-verified-preview='mp4']" : "img[data-verified-preview='gif']");
+    await media.waitFor({ timeout: 10_000 });
+    assert.match(await media.getAttribute("src"), /^blob:/u, `${label}: the preview must be a blob URL, never a token-bearing host URL`);
+    const verifiedText = await section.getByText(/Bytes verified against the registered version/u).first().textContent();
+    assert.ok(verifiedText.includes(expectedSha), `${label}: the verified message must carry the registered sha256`);
+    if (renderFormat === "mp4") {
+      await media.evaluate((video) => new Promise((resolveLoad, rejectLoad) => {
+        if (video.readyState >= 1) return resolveLoad();
+        video.addEventListener("loadedmetadata", () => resolveLoad(), { once: true });
+        video.addEventListener("error", () => rejectLoad(new Error(`video error code ${video.error?.code}: ${video.error?.message}`)), { once: true });
+        setTimeout(() => rejectLoad(new Error("video metadata did not load")), 15_000);
+      }));
+      const video = await media.evaluate((element) => ({ readyState: element.readyState, duration: element.duration, width: element.videoWidth }));
+      assert.ok(video.readyState >= 1, `${label}: video readyState ${video.readyState}`);
+      assert.ok(Number.isFinite(video.duration) && video.duration > 0, `${label}: video duration ${video.duration}`);
+    } else {
+      await page.waitForFunction((element) => element.complete && element.naturalWidth > 0, await media.elementHandle(), { timeout: 10_000 });
+      assert.ok((await media.evaluate((element) => element.naturalWidth)) > 0, `${label}: GIF naturalWidth`);
+    }
+    const downloading = page.waitForEvent("download");
+    await section.getByRole("button", { name: new RegExp(`^Download ${noun}`, "u") }).click();
+    const download = await downloading;
+    assert.equal(download.suggestedFilename(), `${renderId}.${renderFormat}`);
+    const savedPath = await download.path();
+    const savedSha = createHash("sha256").update(await readFile(savedPath)).digest("hex");
+    assert.equal(savedSha, expectedSha, `${label}: the downloaded file must hash to the registered render sha256`);
   }
   const renderStatus = page.locator("#render-status");
   const reviewStatus = page.locator("#review-status");
@@ -193,13 +231,14 @@ try {
       + `diagnostics=${JSON.stringify(diagnostics.slice(-6))}; console=${JSON.stringify(consoleErrors)}; viteOutput=${viteOutput.slice(-1500)}; cause=${error.message}`);
   }
   const renderArticle = page.locator("[data-render-id]");
-  const renderId = await renderArticle.getAttribute("data-render-id");
+  renderId = await renderArticle.getAttribute("data-render-id");
   assert.ok(renderId, "the render result must carry its registered render id");
   const renderText = await renderArticle.textContent();
   assert.ok(renderText.includes(renderedRevisionId), "the render must show the exact rendered revision");
   assert.ok(renderText.includes(`${expectedArtifactId}@sha256:${expectedArtifactSha256}`), "the render must show exact source lineage");
   const renderSha = (await renderArticle.locator("dt", { hasText: "SHA-256" }).locator("xpath=following-sibling::dd").textContent()).trim();
   assert.match(renderSha, /^[0-9a-f]{64}$/u);
+  await assertVerifiedPreviewAndDownload(renderArticle, renderSha, "after render");
 
   await renderButton.click();
   await page.locator("#render-status").filter({ hasText: "Replayed (HTTP 200)" }).waitFor({ timeout: 90_000 });
@@ -320,6 +359,8 @@ try {
   assert.ok((await renderArticle.textContent()).includes(renderSha), "the reopened render must show the same sha256");
   assert.ok((await renderArticle.textContent()).includes(renderedRevisionId));
   await page.getByText("Not the current head:").waitFor();
+  // The durable bytes are still served, verified, by the restarted host for the reopened render.
+  await assertVerifiedPreviewAndDownload(renderArticle, renderSha, "after restart and reopen");
 
   await page.getByLabel("Known review case ID").fill(reviewCaseId);
   await page.getByRole("button", { name: "Reopen known review case" }).click();

@@ -40,7 +40,20 @@ Test classes under `com.ghatana.media.integration`,
   with no destination rewrite, a stale revision review after an edit and
   foreign-principal denial; the creative IT registers audio repair, simulation
   and spatial GLB outputs through the durable store and reopens them after a
-  restart. DEV_ONLY synthetic owner only: not approval, release, rights or
+  restart.
+- Live-browser DEV_ONLY journeys (`MediaDevExplorerRenderReviewLiveIT`,
+  `MediaDevExplorerCreativeOutputsLiveIT`): real Chromium (Playwright 1.63.0)
+  against a real launcher over PostgreSQL + S3. The render/review journey also
+  previews the registered render (blob `<img>`/`<video>` that loads) and
+  downloads it with the Playwright download API, asserting the saved file's
+  SHA-256 equals the render sha, again after a launcher restart + reopen. The
+  creative-outputs journey seeds a clipped WAV and PNG sources over HTTP, then
+  through the page runs audio repair (verified `<audio>` preview + download
+  sha), a valid simulation (observation table built from verified bytes), a
+  REJECTED simulation (findings, nothing registered) and a spatial GLB
+  (download sha equals the S3 object), restarts the launcher and reopens each
+  output by id; JDBC/S3 checks assert each output is registered exactly once.
+  Deliberate 4xx responses are tolerated only by their exact path. DEV_ONLY synthetic owner only: not approval, release, rights or
   production admission evidence.
 
 - `:services:media:integration-tests:test` includes **only** JUnit tests
