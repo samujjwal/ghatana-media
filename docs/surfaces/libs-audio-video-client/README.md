@@ -26,6 +26,19 @@ the capture adapter SPI. Package: `@audio-video/client`
   finality. This local-development binding does not admit the production
   operation or host. The production CLI remains artifact-inspect-only and
   production admission remains OPEN.
+- The same local-development registry (`media.dev.structured-cli`) adds
+  `project render`, `project render-get`, `export create`, and `export get`,
+  bound to the DEV_ONLY launcher routes `POST /dev/v1/projects/{id}/renders`,
+  `GET .../renders/{renderId}`, `POST /dev/v1/exports`, and
+  `GET /dev/v1/exports/{requestId}`. Responses are validated strictly (exact
+  fields, scope, and echo of the requested identity). Typed host failures
+  (404/409/422/503) surface their host code with the request ID; `502` or
+  transport loss after dispatch is `OUTCOME_UNKNOWN` carrying the request ID so
+  the caller retries with the same ID. An export is reported on stdout and exit
+  `0` only when the host confirms the destination with a receipt; a `202` or
+  unconfirmed readback exits `4` as `EXPORT_NOT_CONFIRMED` on stderr with no
+  success output. No batch command exists and `job batch` stays rejected; the
+  production CLI rejects all four commands as `INVALID_INVOCATION`.
 - Validate local-development upload `contentType` with the same PDP-1 media-type
   predicate as the SDK during argument parsing, before credentials, source-file
   access, or host requests. Invalid invocation must return `INVALID_INVOCATION`

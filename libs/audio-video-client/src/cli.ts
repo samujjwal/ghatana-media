@@ -15,6 +15,8 @@ import type { CanonicalMediaArtifactObservation, CanonicalMediaUploadSessionObse
 import { createMediaCanonicalClient } from './canonical-operations.js';
 import { MediaDevProjectTimelineClient } from './dev-project-timeline.js';
 import { MediaDevOnlyJobCancellationClient } from './dev-job-cancellation.js';
+import { MediaDevOnlyRenderExportClient } from './dev-render-export.js';
+import type { DevExportResult, DevRenderFormat } from './dev-render-export.js';
 import { sameMediaRetention } from './retention-duration.js';
 import { isCanonicalMediaContentType } from './upload-validation.js';
 
@@ -26,9 +28,22 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact inspect': 'media.cli.local-development.artifact.inspect',
   'job get': 'media.cli.local-development.job.get',
   'job cancel': 'media.cli.local-development.job.cancel',
+  'project render': 'media.cli.local-development.project.render',
+  'project render-get': 'media.cli.local-development.project.render-get',
+  'export create': 'media.cli.local-development.export.create',
+  'export get': 'media.cli.local-development.export.get',
 };
+const DEV_RENDER_EXPORT_COMMANDS: ReadonlySet<string> = new Set(['project render', 'project render-get', 'export create', 'export get']);
+const DEV_MUTATING_COMMANDS: ReadonlySet<string> = new Set(['project render', 'export create']);
+const EXPORT_NOT_CONFIRMED_EXIT_CODE = 4;
+const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
+  404: new Set(['PROJECT_NOT_FOUND', 'SOURCE_VERSION_NOT_FOUND', 'RENDER_NOT_FOUND', 'EXPORT_NOT_FOUND', 'DESTINATION_NOT_FOUND', 'ARTIFACT_VERSION_NOT_FOUND']),
+  409: new Set(['IDEMPOTENCY_CONFLICT', 'REVISION_CONFLICT', 'MEDIA_STATE_CONFLICT', 'EXPORT_REQUEST_CONFLICT']),
+  503: new Set(['RENDER_CODEC_UNAVAILABLE', 'DELIVERY_DESTINATION_UNAVAILABLE', 'EXPORT_AUTHORIZATION_UNAVAILABLE', 'DELIVERY_STATE_UNAVAILABLE']),
+};
+const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
 const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
-const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N]';
+const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -59,11 +74,16 @@ const COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
 const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   ...COMMAND_OPTIONS,
   'job cancel': ['--endpoint', '--tenant', '--principal', '--job', '--request-id', '--expected-version'],
+  'project render': ['--endpoint', '--tenant', '--principal', '--project-id', '--revision-id', '--timeline-id', '--request-id', '--width', '--height', '--fps', '--format'],
+  'project render-get': ['--endpoint', '--tenant', '--principal', '--project-id', '--render-id'],
+  'export create': ['--endpoint', '--tenant', '--principal', '--request-id', '--artifact-id', '--artifact-version-id', '--destination-id'],
+  'export get': ['--endpoint', '--tenant', '--principal', '--request-id'],
 };
 
 const OPTIONAL_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'job get': ['--request-id'],
   'job cancel': ['--expected-version'],
+  'project render': ['--format'],
 };
 
 function parseArguments(argv: readonly string[], channel: CliChannel): Arguments {
@@ -123,6 +143,24 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
     if (!/^[1-9]\d*$/u.test(rawVersion) || !Number.isSafeInteger(expectedVersion)) {
       throw new Error('Expected job version must be a positive safe integer.');
     }
+  }
+  if (DEV_RENDER_EXPORT_COMMANDS.has(command)) {
+    for (const [option, label] of [['--project-id', 'project ID'], ['--revision-id', 'revision ID'], ['--timeline-id', 'timeline ID'],
+      ['--render-id', 'render ID'], ['--artifact-id', 'artifact ID'], ['--artifact-version-id', 'artifact version ID'],
+      ['--destination-id', 'destination ID'], ['--request-id', 'request ID']] as const) {
+      const value = values.get(option);
+      if (value !== undefined && !OPAQUE_ID_PATTERN.test(value)) {
+        throw new Error(`${label} must be a PDP-1 opaque ID of 1 to 128 characters.`);
+      }
+    }
+    for (const [option, label] of [['--width', 'width'], ['--height', 'height'], ['--fps', 'fps']] as const) {
+      const value = values.get(option);
+      if (value !== undefined && (!/^[1-9]\d{0,6}$/u.test(value) || Number(value) > 1_000_000)) {
+        throw new Error(`${label} must be an integer in 1..1000000.`);
+      }
+    }
+    const format = values.get('--format');
+    if (format !== undefined && format !== 'gif' && format !== 'mp4') throw new Error('format must be gif or mp4.');
   }
   if (command === 'artifact upload') {
     const contentType = values.get('--content-type')!;
@@ -202,6 +240,10 @@ function hasLocalDevelopmentIdentityClaims(
       'artifact inspect': ['media:artifact:read'],
       'job get': ['media:job:read'],
       'job cancel': ['media:job:cancel'],
+      'project render': ['media:project:dev:write', 'media:artifact:read', 'media:artifact:create'],
+      'project render-get': ['media:project:dev:read'],
+      'export create': ['media:delivery:dev:export', 'media:artifact:read'],
+      'export get': ['media:delivery:dev:read'],
     };
     const lifetime = typeof claims.exp === 'number' && typeof claims.iat === 'number'
       ? claims.exp - claims.iat
@@ -379,6 +421,10 @@ function writeArtifact(
   const canonicalArtifact = { ...artifact, metadata: canonicalizeJsonValue(artifact.metadata) };
   process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[command], artifact: canonicalArtifact })}\n`);
   return true;
+}
+
+function mutationExtra(args: Arguments): Record<string, unknown> {
+  return DEV_MUTATING_COMMANDS.has(args.command) ? { requestId: args.values['--request-id'] } : {};
 }
 
 function writeJob(
@@ -649,6 +695,47 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[args.command], cancellation: canonicalizeJsonValue(cancellation) })}\n`);
       return;
     }
+    if (channel === 'local-development' && DEV_RENDER_EXPORT_COMMANDS.has(args.command)) {
+      const devClient = new MediaDevOnlyRenderExportClient(config);
+      if (args.command === 'project render' || args.command === 'project render-get') {
+        const render = args.command === 'project render'
+          ? await devClient.renderProject(args.values['--project-id']!, {
+            requestId: args.values['--request-id']!, revisionId: args.values['--revision-id']!,
+            timelineId: args.values['--timeline-id']!, width: Number(args.values['--width']),
+            height: Number(args.values['--height']), framesPerSecond: Number(args.values['--fps']),
+            ...(args.values['--format'] === undefined ? {} : { format: args.values['--format'] as DevRenderFormat }),
+          })
+          : await devClient.getRender(args.values['--project-id']!, args.values['--render-id']!);
+        if (containsCredential(render, bearerToken)) {
+          writeError('INVALID_MEDIA_RESPONSE', 'Media returned a render response containing credential material.',
+            mutationExtra(args), 1, args.command, commandIds);
+          return;
+        }
+        process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[args.command], render: canonicalizeJsonValue(render) })}\n`);
+        return;
+      }
+      const exported = args.command === 'export create'
+        ? await devClient.createExport({
+          requestId: args.values['--request-id']!, artifactId: args.values['--artifact-id']!,
+          artifactVersionId: args.values['--artifact-version-id']!, destinationId: args.values['--destination-id']!,
+        })
+        : await devClient.getExport(args.values['--request-id']!);
+      if (containsCredential(exported, bearerToken)) {
+        writeError('INVALID_MEDIA_RESPONSE', 'Media returned an export response containing credential material.',
+          mutationExtra(args), 1, args.command, commandIds);
+        return;
+      }
+      const view = canonicalizeJsonValue(exported satisfies DevExportResult);
+      if (!exported.destinationConfirmed) {
+        // Never report confirmation without the destination receipt: surface this on stderr with a distinct exit code.
+        writeError('EXPORT_NOT_CONFIRMED',
+          'The destination has not confirmed this export. Retry export create with the same request ID to reconcile; no receipt exists.',
+          { requestId: exported.requestId, export: view }, EXPORT_NOT_CONFIRMED_EXIT_CODE, args.command, commandIds);
+        return;
+      }
+      process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[args.command], export: view })}\n`);
+      return;
+    }
     const canonical = createMediaCanonicalClient(config);
     const job = args.values['--request-id'] === undefined
       ? await canonical.getJob(args.values['--job']!)
@@ -656,7 +743,10 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
     writeJob(job, bearerToken, args.command, commandIds);
   } catch (error) {
     if (error instanceof MediaOperationAmbiguousError) {
-      if (args.command === 'artifact upload') {
+      if (DEV_MUTATING_COMMANDS.has(args.command)) {
+        writeError('OUTCOME_UNKNOWN', 'The operation may have taken effect. Retry with the same request ID to reconcile; do not use a new request ID.',
+          { requestId: args.values['--request-id'] }, 1, args.command, commandIds);
+      } else if (args.command === 'artifact upload') {
         writeError('OUTCOME_UNKNOWN', knownUploadId === undefined
           ? 'Upload begin may have taken effect, but no upload ID was returned. Do not retry until the outcome can be reconciled.'
           : 'Upload may have taken effect. Do not retry; reconcile the known upload session before continuing.',
@@ -703,7 +793,14 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       return;
     }
     if (error instanceof MediaClientError) {
-      if (args.command === 'artifact upload' && knownArtifactId !== undefined) {
+      const typed = error.statusCode === undefined ? undefined : error.statusCode === 422
+        ? DEV_TYPED_422_PATTERN.test(error.detail.code) : DEV_TYPED_ERROR_CODES[error.statusCode]?.has(error.detail.code);
+      if (DEV_RENDER_EXPORT_COMMANDS.has(args.command) && typed) {
+        writeError(error.detail.code, 'Media rejected the request with a typed DEV_ONLY error; no success is inferred.', {
+          statusCode: error.statusCode, ...mutationExtra(args),
+          ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
+        }, 1, args.command, commandIds);
+      } else if (args.command === 'artifact upload' && knownArtifactId !== undefined) {
         writeError('OUTCOME_UNKNOWN', 'Upload completed, but durable artifact readback was unavailable. Inspect the known artifact ID before retrying.', {
           uploadId: knownUploadId,
           artifactId: knownArtifactId,
@@ -735,21 +832,23 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       } else {
         writeError('MEDIA_REQUEST_FAILED', 'Media did not return the requested observation; success is not inferred.', {
           statusCode: error.statusCode,
+          ...mutationExtra(args),
           ...(knownUploadId === undefined ? {} : { uploadId: knownUploadId }),
           ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command, commandIds);
       }
       return;
     }
-    if (error instanceof TypeError && /^Canonical Media (?:artifact|job|upload)/u.test(error.message)) {
+    if (error instanceof TypeError && /^Canonical Media (?:artifact|job|upload|DEV_ONLY)/u.test(error.message)) {
       writeError('INVALID_MEDIA_RESPONSE', 'Media returned a response that did not match the canonical runtime DTO.', {
+        ...mutationExtra(args),
         ...(args.command === 'artifact upload' && knownUploadId !== undefined ? { uploadId: knownUploadId } : {}),
         ...(args.command === 'artifact upload' && knownArtifactId !== undefined ? { artifactId: knownArtifactId } : {}),
       }, 1, args.command, commandIds);
       return;
     }
     if (error instanceof SyntaxError) {
-      writeError('INVALID_MEDIA_RESPONSE', 'Media returned a response that was not valid JSON.', {}, 1, args.command, commandIds);
+      writeError('INVALID_MEDIA_RESPONSE', 'Media returned a response that was not valid JSON.', mutationExtra(args), 1, args.command, commandIds);
       return;
     }
     writeError('OBSERVATION_UNAVAILABLE', 'No observation was received. Check endpoint availability before requesting another read.', {}, 1, args.command, commandIds);
