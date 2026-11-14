@@ -55,6 +55,10 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/grounded-answers$/u },
   { method: "GET", path: /^\/dev\/v1\/grounded-answers\/status$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/grounded-answers/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY local vision lanes used by the "Video tracking" page (tracks, ROI analysis, reopen by output id).
+  { method: "POST", path: /^\/dev\/v1\/vision\/tracks$/u },
+  { method: "POST", path: /^\/dev\/v1\/vision\/roi-analyses$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/vision/outputs/${OPAQUE_ID}$`, "u") },
 ];
 
 function isCanonicalPath(requestUrl) {

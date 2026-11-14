@@ -51,7 +51,7 @@ public final class MediaDevVisionRuntime {
     public static final String KIND_QUESTION = "LOCAL_VISION_QUESTION";
     static final int MAX_SOURCE_BYTES = 128 * 1024 * 1024;
     private static final List<String> LINEAGE_KEYS = List.of("visionSchema", "scope", "kind", "requestId", "source",
-            "frame", "models", "tasks", "question", "rightsDecision", "resultSha256");
+            "frame", "models", "tasks", "question", "rightsDecision", "resultSha256", "video", "tracking", "roi");
     private static final ObjectMapper JSON = JsonMapper.builder().build();
 
     public record AnalyzeRequest(String requestId, String artifactId, String artifactVersionId, Set<String> tasks,
@@ -168,6 +168,22 @@ public final class MediaDevVisionRuntime {
         this.registrar = Objects.requireNonNull(registrar, "registrar");
     }
 
+    private volatile MediaDevVisionTrackingRuntime tracking;
+
+    /** Attaches the DEV_ONLY video tracking and ROI lane that shares this runtime's engine, rights and registrar. */
+    public MediaDevVisionRuntime withTracking(MediaDevVisionTrackingRuntime tracking) {
+        this.tracking = tracking;
+        return this;
+    }
+
+    MediaDevVisionTrackingRuntime tracking() { return tracking; }
+
+    LocalVisionEngine engine() { return engine; }
+
+    RightsConsentResolver rights() { return rights; }
+
+    MediaDevProjectRenderRuntime.OutputRegistrar registrar() { return registrar; }
+
     /** Admission summary for the DEV status route; never discloses paths or content. */
     public Map<String, Object> status() {
         Map<String, Object> out = new LinkedHashMap<>();
@@ -178,6 +194,7 @@ public final class MediaDevVisionRuntime {
                 "scope", Scope.PROCESSING.name(), "productionReady", engine.rights().productionReady(),
                 "reason", rights.ready() ? "ATTESTATION_REQUIRED_PER_SOURCE_VERSION" : "RIGHTS_AUTHORITY_UNAVAILABLE"));
         out.put("frameExtractionAvailable", frames != null);
+        out.put("videoTrackingAvailable", tracking != null && tracking.videoAvailable());
         out.put("scope", "DEV_ONLY");
         return out;
     }

@@ -321,6 +321,8 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/vision/status` | `media:project:dev:read` | — | `MEDIA_LOCAL_VISION_*` configured |
 | POST | `/dev/v1/vision/analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
 | POST | `/dev/v1/vision/questions` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
+| POST | `/dev/v1/vision/tracks` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
+| POST | `/dev/v1/vision/roi-analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision (video also needs FFmpeg/FFprobe) |
 | GET | `/dev/v1/vision/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision |
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
@@ -344,6 +346,42 @@ bytes instead of running the model again; a different request under the same `re
 `503 SPEECH_RUNTIME_UNAVAILABLE`). The output is a mono 24 kHz PCM16 WAV artifact whose lineage records voice, locale,
 model/runtime digests and the input text digest only. The Explorer page `dev-voice-synthesis.html` (panel
 `VoiceSynthesisPanel` in `@audio-video/ui`) proxies only the synthesis routes of this lane; transcription is not proxied.
+DEV_ONLY video tracking and ROI analysis (J-05, `media.dev.outcome-vision-detection-and-tracking`; same models, rights,
+registration and `/dev/v1/vision/outputs/{outputId}` readback as in the lane described below; `MediaDevVisionTrackingRuntime`).
+`POST /dev/v1/vision/tracks` takes `{requestId, artifactId, artifactVersionId, maxFrames?(1-64, default 16),
+strideFrames?(0 = automatic), minIou?(0.05-0.9, default 0.3), maxMissedFrames?(0-4, default 1)}` for a `video/*`
+version. The real frame timeline comes from `ffprobe -show_frames` (integer PTS in the stream's rational time base,
+sorted into PTS order, so variable frame rate works; duplicate PTS or a missing time base is `422
+VIDEO_TIMELINE_UNTRUSTED`). A deterministic uniform PTS-order sample is decoded in one FFmpeg pass
+(`select=eq(n,..)`, `-fps_mode passthrough`), each frame's raster must equal the probed geometry, and Florence-2
+object detection runs per frame (bounded batches of 4; one sidecar call per frame, nothing is registered until every
+sampled frame completed). Detections are linked by `GREEDY_IOU_LABEL_V1`: for each frame, live tracks (seen within
+`maxMissedFrames + 1` sampled frames) are paired with same-label detections by score = max(IoU(last box), IoU(constant
+velocity prediction in PTS time)); pairs at or above `minIou` are assigned greedily by score, then lower track number,
+then detection index; unmatched detections start `T0001, T0002, ...`. It is plain greedy association (no Hungarian
+step, no appearance model): same-label objects that overlap heavily can swap identity, and a detector label that
+flips between frames (for example car and truck) splits a track; both are documented limits, not hidden. The registered
+`media.dev.vision-tracks.v1` document holds `video{width,height,timeBase{num,den},frameCount,variableFrameRate}`,
+`frames[{frameIndex,pts,ptsMicros,frameSha256,detections,rejectedDetections}]`, `tracks[{trackId,label,
+observations[{frameIndex,pts,ptsMicros,box{x,y,width,height}}]}]` in source-frame pixels (top-left origin; EXIF
+orientation is not applied to stills), and the model identity. Boxes up to one pixel outside the raster are clamped;
+anything further out is dropped and counted in `rejectedDetections`. Lineage (`source`, `models`, `video`, `tracking`,
+`rightsDecision`, `resultSha256`) binds the exact source version digest and the digest-qualified model. A retry with the
+same requestId re-derives identical bytes and replays (`200`); it is never a second registration.
+A sidecar that fails or is killed mid-run is `503 VISION_OUTCOME_UNKNOWN` (`outcome:"UNKNOWN"`, `framesCompleted`,
+`framesPlanned`): never success, nothing registered, retry the same requestId. A withdrawn model (digest changed) is
+`503 LOCAL_MODEL_NOT_ADMITTED` before any byte is read.
+`POST /dev/v1/vision/roi-analyses` takes `{requestId, artifactId, artifactVersionId, tasks:["detect"|"ocr"], roi:{x,y,
+width,height}, frameIndex?}` (`frameIndex` is the PTS-order ordinal for video; stills ignore it). The ROI is validated
+in stages: structurally when the request is parsed, before any source lookup, rights call or byte read (`422
+ROI_MALFORMED` for non-integer, missing, extra or overflowing fields, `ROI_NEGATIVE`, `ROI_ZERO_SIZE`), and against the
+decoded frame before any model call (`422 ROI_OUT_OF_FRAME`; for video the probed geometry is used so no frame is even
+decoded; `422 FRAME_INDEX_OUT_OF_RANGE`). The model sees only the crop; detection boxes and scene-text quads are
+translated back into source-frame pixels (`media.dev.vision-roi.v1`). Scene text remains Florence-2's own OCR task, not
+the Document Intelligence gateway. The Explorer's `dev-vision-tracks.html` page (`DevVisionTracksPanel`,
+`VisionTrackOverlay` in `libs/audio-video-ui`) tracks or reopens a result, verifies both the tracks bytes and the
+source video bytes against their registered SHA-256, then draws the boxes of the sampled frame that governs the
+playhead over the player (marking `exact` or `held`) with an accessible list of tracks.
 
 DEV_ONLY local vision and multimodal lane (owner-selected local open models; outside the canonical manifest/OpenAPI).
 Owner decision, 2026-11-14, verbatim: "Local open models (Recommended): Whisper large-v3-turbo via whisper.cpp for

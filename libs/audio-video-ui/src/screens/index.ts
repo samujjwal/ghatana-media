@@ -66,3 +66,15 @@ export { VoiceSynthesisPanel } from "./VoiceSynthesisPanel";
 export type { VoiceSynthesisPanelProps } from "./VoiceSynthesisPanel";
 export { DevVoiceHostError, describeVoiceFailure, parseVoiceCapabilities, parseVoiceSynthesisView } from "./devVoiceSynthesis";
 export type { DevVoiceSynthesisPort, DevVoiceHostResponse, DevVoiceSynthesisRequest, DevVoiceTimelineRequest, DevVoiceTimelinePlacement, VoiceCapabilities, VoiceSynthesisView } from "./devVoiceSynthesis";
+export { DevVisionTracksPanel } from "./DevVisionTracksPanel";
+export type { DevVisionTracksPanelProps } from "./DevVisionTracksPanel";
+export { VisionTrackOverlay } from "./VisionTrackOverlay";
+export type { VisionTrackOverlayProps } from "./VisionTrackOverlay";
+export {
+  DEFAULT_EXACT_TOLERANCE_US, DevVisionHostError, VISION_TRACKS_SCHEMA, VisionTracksParseError, boxesAt, describeVisionFailure,
+  formatSeconds, parseVisionTracksDocument,
+} from "./devVisionTracks";
+export type {
+  BoxesAtResult, DevVisionHostResponse, DevVisionPort, DevVisionTrackRequest, VisionBox, VisionFrame, VisionObservation,
+  VisionTrack, VisionTracksDocument,
+} from "./devVisionTracks";

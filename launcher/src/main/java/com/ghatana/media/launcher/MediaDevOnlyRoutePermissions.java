@@ -44,7 +44,7 @@ final class MediaDevOnlyRoutePermissions {
         if ("POST".equals(method) && "/dev/v1/captions/corrections".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/captions/[^/]+$")) return PROJECT_READ;
         if ("GET".equals(method) && "/dev/v1/vision/status".equals(path)) return PROJECT_READ;
-        if ("POST".equals(method) && path.matches("^/dev/v1/vision/(analyses|questions)$")) return PROJECT_WRITE;
+        if ("POST".equals(method) && path.matches("^/dev/v1/vision/(analyses|questions|tracks|roi-analyses)$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/vision/outputs/[^/]+$")) return PROJECT_READ;
         if ("GET".equals(method) && "/dev/v1/grounded-answers/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/grounded-answers".equals(path)) return PROJECT_WRITE;

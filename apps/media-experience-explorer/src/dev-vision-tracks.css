@@ -1,0 +1,32 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(960px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice, .dev-vision-tracks > section { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form { display: grid; gap: .6rem; max-width: 40rem; }
+input, select, textarea, button { font: inherit; padding: .65rem .8rem; max-width: 100%; }
+button { width: fit-content; cursor: pointer; min-height: 2.75rem; }
+button:focus-visible, input:focus-visible, a:focus-visible, video:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+dl { display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr; gap: .25rem .75rem; }
+dt { font-weight: 700; }
+dd { margin: 0; overflow-wrap: anywhere; }
+[role="alert"] { border-left: 5px solid CanvasText; padding-left: .75rem; }
+
+/* Video with track overlay: the SVG viewBox is the source raster, so boxes scale with the video. */
+.vto-stage { position: relative; width: 100%; max-width: 720px; background: Canvas; }
+.vto-video { display: block; width: 100%; height: auto; background: CanvasText; }
+.vto-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.vto-box rect { fill: none; stroke-width: 3; vector-effect: non-scaling-stroke; stroke: currentColor; }
+.vto-box text { font: 600 13px system-ui, sans-serif; fill: currentColor; paint-order: stroke; stroke: Canvas; stroke-width: 3px; }
+.vto-box.is-selected rect { stroke-width: 5; }
+.vto-box.is-dimmed { opacity: .3; }
+.vto-c0 { color: #d62728; } .vto-c1 { color: #1f77b4; } .vto-c2 { color: #2ca02c; }
+.vto-c3 { color: #9467bd; } .vto-c4 { color: #ff7f0e; } .vto-c5 { color: #17becf; }
+.vto-tracks { list-style: none; padding: 0; display: grid; gap: .5rem; }
+.vto-tracks li { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.vto-tracks button[aria-pressed="true"] { outline: 3px solid Highlight; }
+.vto-note, .vto-visible { color: GrayText; }
+@media (forced-colors: active) { .vto-box rect { stroke: Highlight; } .vto-box text { fill: CanvasText; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

@@ -124,9 +124,13 @@ public final class MediaLauncher {
                                             "true".equalsIgnoreCase(environment.getOrDefault(
                                                     MediaDevCaptionRuntime.REVIEW_REQUIRED_ENV, "false")))
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
-                                            .map(engine -> new MediaDevVisionRuntime(runtime, engine,
-                                                    MediaDevFfmpegFrameExtractor.from(environment),
-                                                    finalDevRights == null ? null : finalDevRights.resolver())).orElse(null)),
+                                            .map(engine -> {
+                                                MediaDevVisionRuntime devVision = new MediaDevVisionRuntime(runtime, engine,
+                                                        MediaDevFfmpegFrameExtractor.from(environment),
+                                                        finalDevRights == null ? null : finalDevRights.resolver());
+                                                return devVision.withTracking(
+                                                        MediaDevVisionTrackingRuntime.compose(runtime, devVision, environment));
+                                            }).orElse(null)),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devDelivery != null) {

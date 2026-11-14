@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.audio.video.vision.tracking.RegionOfInterest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.sun.net.httpserver.HttpExchange;
 import tools.jackson.core.StreamReadFeature;
@@ -29,6 +30,8 @@ final class MediaDevVisionRoutes {
     static final String STATUS = "/dev/v1/vision/status";
     static final String ANALYSES = "/dev/v1/vision/analyses";
     static final String QUESTIONS = "/dev/v1/vision/questions";
+    static final String TRACKS = "/dev/v1/vision/tracks";
+    static final String ROI_ANALYSES = "/dev/v1/vision/roi-analyses";
     private static final Pattern OUTPUT = Pattern.compile("^/dev/v1/vision/outputs/([^/]+)$");
     private static final ObjectMapper JSON = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
@@ -55,6 +58,14 @@ final class MediaDevVisionRoutes {
             runtime.recordDeniedRequest();
             out.error(exchange, 404, "SOURCE_VERSION_NOT_FOUND",
                     "The exact source artifact version is not available to this DEV_ONLY principal", Map.of());
+        } catch (RegionOfInterest.RoiRefusedException failure) {
+            out.error(exchange, 422, failure.code(), failure.getMessage(), Map.of("scope", "ROI"));
+        } catch (MediaDevVisionTrackingRuntime.VisionOutcomeUnknownException failure) {
+            out.error(exchange, 503, "VISION_OUTCOME_UNKNOWN",
+                    "The local vision run did not complete; its outcome is UNKNOWN and nothing was registered. "
+                            + "Retry the same requestId",
+                    Map.of("outcome", "UNKNOWN", "framesCompleted", failure.framesCompleted(),
+                            "framesPlanned", failure.framesPlanned()));
         } catch (MediaDevVisionRuntime.VisionRightsNotAdmittedException failure) {
             runtime.recordDeniedRequest();
             out.error(exchange, "RIGHTS_AUTHORITY_UNAVAILABLE".equals(failure.code()) ? 503 : 403, failure.code(),
@@ -84,6 +95,63 @@ final class MediaDevVisionRoutes {
         if (STATUS.equals(path)) {
             if (!"GET".equals(method)) { notAllowed(exchange, "GET", out); return; }
             out.json(exchange, 200, vision.status());
+            return;
+        }
+        if (TRACKS.equals(path) || ROI_ANALYSES.equals(path)) {
+            if (!"POST".equals(method)) { notAllowed(exchange, "POST", out); return; }
+            if (!MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read")
+                    || !MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:create")) {
+                runtime.recordDeniedRequest();
+                out.error(exchange, 403, "ARTIFACT_PERMISSION_REQUIRED",
+                        "DEV_ONLY artifact read and create permissions are required for vision outputs", Map.of());
+                return;
+            }
+            MediaDevVisionTrackingRuntime tracking = vision.tracking();
+            if (tracking == null) {
+                out.error(exchange, 503, "LOCAL_VISION_UNAVAILABLE",
+                        "Video tracking and ROI analysis are not composed on this host", Map.of());
+                return;
+            }
+            Map<String, Object> body = JSON.readValue(MediaHttpHandler.boundedBody(exchange, maxBody, false),
+                    new TypeReference<Map<String, Object>>() { });
+            if (body == null) throw new IllegalArgumentException("request body is required");
+            boolean isTrack = TRACKS.equals(path);
+            Set<String> allowed = isTrack
+                    ? Set.of("requestId", "artifactId", "artifactVersionId", "maxFrames", "strideFrames", "minIou",
+                            "maxMissedFrames")
+                    : Set.of("requestId", "artifactId", "artifactVersionId", "tasks", "roi", "frameIndex");
+            Set<String> required = isTrack ? Set.of("requestId", "artifactId", "artifactVersionId")
+                    : Set.of("requestId", "artifactId", "artifactVersionId", "tasks", "roi");
+            if (!body.keySet().containsAll(required) || !allowed.containsAll(body.keySet())) {
+                throw new IllegalArgumentException("vision request fields do not match its declared shape");
+            }
+            MediaDevVisionRuntime.VisionResult result;
+            if (isTrack) {
+                result = tracking.track(tenantId, principalId, new MediaDevVisionTrackingRuntime.TrackRequest(
+                        string(body.get("requestId"), "requestId"), string(body.get("artifactId"), "artifactId"),
+                        string(body.get("artifactVersionId"), "artifactVersionId"),
+                        body.containsKey("maxFrames") ? (int) boundedInteger(body.get("maxFrames"), "maxFrames")
+                                : MediaDevVisionTrackingRuntime.DEFAULT_MAX_FRAMES,
+                        body.containsKey("strideFrames") ? (int) boundedInteger(body.get("strideFrames"), "strideFrames") : 0,
+                        body.containsKey("minIou") ? decimal(body.get("minIou"), "minIou") : 0.3,
+                        body.containsKey("maxMissedFrames")
+                                ? (int) boundedInteger(body.get("maxMissedFrames"), "maxMissedFrames") : 1));
+            } else {
+                // The ROI is structurally validated here, before any source lookup, rights call or byte read.
+                if (!(body.get("roi") instanceof Map<?, ?> roiMap)
+                        || !Set.of("x", "y", "width", "height").equals(roiMap.keySet())) {
+                    throw new RegionOfInterest.RoiRefusedException("ROI_MALFORMED",
+                            "roi must be an object with exactly x, y, width and height");
+                }
+                RegionOfInterest roi = RegionOfInterest.of(roiMap.get("x"), roiMap.get("y"), roiMap.get("width"),
+                        roiMap.get("height"));
+                Set<String> taskSet = tasks(body.get("tasks"));
+                result = tracking.analyzeRoi(tenantId, principalId, new MediaDevVisionTrackingRuntime.RoiRequest(
+                        string(body.get("requestId"), "requestId"), string(body.get("artifactId"), "artifactId"),
+                        string(body.get("artifactVersionId"), "artifactVersionId"), taskSet, roi,
+                        body.containsKey("frameIndex") ? (int) boundedInteger(body.get("frameIndex"), "frameIndex") : 0));
+            }
+            out.json(exchange, result.replayed() ? 200 : 201, view(result));
             return;
         }
         if (ANALYSES.equals(path) || QUESTIONS.equals(path)) {
@@ -185,6 +253,20 @@ final class MediaDevVisionRoutes {
             throw new IllegalArgumentException("frameTimeMs must be an integer");
         }
         return ((Number) value).longValue();
+    }
+
+    private static long boundedInteger(Object value, String field) {
+        if (!(value instanceof Integer || value instanceof Long || value instanceof Short)) {
+            throw new IllegalArgumentException(field + " must be an integer");
+        }
+        long v = ((Number) value).longValue();
+        if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) throw new IllegalArgumentException(field + " is out of range");
+        return v;
+    }
+
+    private static double decimal(Object value, String field) {
+        if (!(value instanceof Number number)) throw new IllegalArgumentException(field + " must be a number");
+        return number.doubleValue();
     }
 
     private static void notAllowed(HttpExchange exchange, String allow, MediaDevCreativeOutputRoutes.Responder out)
