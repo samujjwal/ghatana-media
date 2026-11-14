@@ -77,8 +77,20 @@ and stable terminal reads — **no second writer**.
   `"format":"mp4"` routes the same exact revision through the rendering
   module's `FfmpegMultitrackRenderer`: each VIDEO still clip becomes one frame
   held for its exact story duration (normalized to the requested even size),
-  one optional 16-bit PCM WAV clip on an AUDIO track starting at story time 0
-  becomes AAC, and ffprobe verification (codecs, frame count, exact PTS,
+  one 16-bit PCM WAV clip on an AUDIO track starting at story time 0 becomes
+  AAC directly; any other audio layout (several clips on any AUDIO tracks,
+  overlapping or not, or a single clip not at time 0) is placed sample-exactly
+  and mixed by `PcmStemMixer` (unity gain, centre pan, its peak-ceiling guard)
+  into one timeline-length 16-bit stereo WAV with silence where no clip plays,
+  and that WAV becomes AAC. Mixed clips must be 16-bit stereo WAVs sharing one
+  sample rate with whole-sample offsets (no resampling, channel conversion or
+  rounding): otherwise typed `422 RENDER_UNSUPPORTED_AUDIO_LAYOUT` (not stereo,
+  source too short, clip past the timeline) or `RENDER_UNSUPPORTED_AUDIO_FORMAT`
+  (rate mismatch, fractional sample, not PCM16 WAV); lineage `audioMix` records
+  each clip's exact artifact version, source digest, story offset, gain/pan,
+  the mixed WAV digest and the mixer's applied master gain (rights decision is
+  the DEV_ONLY owner-scope visibility one, `productionGrant:false`). The
+  project timeline has no transition model, so none are applied. ffprobe verification (codecs, frame count, exact PTS,
   duration) must pass before the `video/mp4` artifact is registered with
   encoding lineage and tool versions. Tools come only from absolute
   `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE`; absent or unrunnable
@@ -86,7 +98,7 @@ and stable terminal reads — **no second writer**.
   `422 RENDER_UNSUPPORTED_*`, and a failed codec run is
   `502 RENDER_EXECUTION_FAILED`. Artifacts
   that are not this project's render are `404`. Not covered: time-based video
-  sources, multi-clip audio mixing, timeline captions (the renderer supports
+  sources, per-clip gain/pan or transitions, timeline captions (the renderer supports
   them but the project timeline has no caption-text source yet),
   current-rights revocation, scanner release,
   or any production admission — these routes stay outside the canonical

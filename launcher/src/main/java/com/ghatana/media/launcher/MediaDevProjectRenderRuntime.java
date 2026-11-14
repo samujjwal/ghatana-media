@@ -60,7 +60,7 @@ public final class MediaDevProjectRenderRuntime {
     /** Lineage fields; store-added artifact metadata (classification, retention, ...) is not lineage. */
     private static final List<String> LINEAGE_KEYS = List.of("renderSchema", "scope", "engine", "projectId",
             "revisionId", "timelineId", "timelineSemanticVersionId", "requestId", "width", "height",
-            "framesPerSecond", "frameCount", "sources", "format", "encoding");
+            "framesPerSecond", "frameCount", "sources", "format", "encoding", "audioMix");
     private static final Set<TrackKind> VISUAL_TRACKS = Set.of(TrackKind.VIDEO, TrackKind.OVERLAY);
 
     /** Port onto the canonical artifact registration path; replaceable only for failure-injection tests. */
@@ -332,8 +332,10 @@ public final class MediaDevProjectRenderRuntime {
 
     /**
      * MP4 path: each VIDEO still clip becomes exactly one frame held for its story duration (normalized to the
-     * requested even geometry), an optional single WAV clip on an AUDIO track starting at story time 0 becomes the
-     * AAC track. The bounded FFmpeg renderer verifies the result with ffprobe before any registration.
+     * requested even geometry). A single WAV clip on an AUDIO track starting at story time 0 becomes the AAC track
+     * directly; any other AUDIO layout (several clips on any AUDIO tracks, overlapping or not, or a single clip not
+     * starting at 0) is placed exactly and mixed by {@link MediaDevProjectAudioMix} into one timeline-length 16-bit
+     * stereo WAV that becomes the AAC track, with each clip's exact version, offset and gain in lineage. The bounded FFmpeg renderer verifies the result with ffprobe before any registration.
      */
     private RenderResult renderMp4(String tenantId, String principalId, String projectId, Revision revision,
                                    TimelineSnapshot timeline, Map<String, Track> tracks, List<Clip> clips,
@@ -348,6 +350,8 @@ public final class MediaDevProjectRenderRuntime {
         List<MultitrackRenderPlanner.Clip> planClips = new ArrayList<>();
         Map<String, byte[]> videoFrames = new LinkedHashMap<>();
         Map<String, byte[]> audio = new LinkedHashMap<>();
+        List<MediaDevProjectAudioMix.Input> audioInputs = new ArrayList<>();
+        List<MultitrackRenderPlanner.Clip> audioPlanClips = new ArrayList<>();
         List<Map<String, Object>> sources = new ArrayList<>();
         for (Clip clip : clips) {
             TrackKind kind = tracks.get(clip.trackId()).kind();
@@ -381,8 +385,12 @@ public final class MediaDevProjectRenderRuntime {
                     throw new RenderNotSupportedException("RENDER_UNSUPPORTED_AUDIO_LAYOUT",
                             "audio clips must not be retimed: source interval must equal story duration");
                 }
-                audio.put(clip.clipId(), readExact(tenantId, principalId, artifact, MAX_AUDIO_SOURCE_BYTES));
-                planClips.add(new MultitrackRenderPlanner.Clip(clip.clipId(), MultitrackRenderPlanner.Modality.AUDIO,
+                byte[] wavBytes = readExact(tenantId, principalId, artifact, MAX_AUDIO_SOURCE_BYTES);
+                audio.put(clip.clipId(), wavBytes);
+                audioInputs.add(new MediaDevProjectAudioMix.Input(clip.clipId(), clip.source().artifactId(),
+                        clip.source().artifactVersionId(), artifact.sha256(), wavBytes, sourceStart, timelineStart,
+                        duration));
+                audioPlanClips.add(new MultitrackRenderPlanner.Clip(clip.clipId(), MultitrackRenderPlanner.Modality.AUDIO,
                         clip.source().artifactId(), clip.source().artifactVersionId(), artifact.sha256(),
                         timelineStart, sourceStart, sourceEnd, List.of(sourceStart)));
             } else {
@@ -390,6 +398,26 @@ public final class MediaDevProjectRenderRuntime {
                         "MP4 rendering supports VIDEO still-image and AUDIO WAV clips only");
             }
             sources.add(source);
+        }
+        Map<String, Object> audioMixLineage = null;
+        if (audioInputs.size() == 1 && audioInputs.get(0).storyStart().numerator() == 0) {
+            planClips.addAll(audioPlanClips);
+        } else if (!audioInputs.isEmpty()) {
+            MultitrackRenderPlanner.Time end = new MultitrackRenderPlanner.Time(0, 1);
+            for (MultitrackRenderPlanner.Clip planClip : planClips) {
+                if (planClip.timelineEnd().compareTo(end) > 0) end = planClip.timelineEnd();
+            }
+            for (MediaDevProjectAudioMix.Input in : audioInputs) {
+                MultitrackRenderPlanner.Time clipEnd = in.storyStart().plus(in.duration());
+                if (clipEnd.compareTo(end) > 0) end = clipEnd;
+            }
+            MediaDevProjectAudioMix.Result mixed = MediaDevProjectAudioMix.mix(audioInputs, end);
+            audio.clear();
+            audio.put("audio-mix", mixed.wav());
+            MultitrackRenderPlanner.Time zero = new MultitrackRenderPlanner.Time(0, 1);
+            planClips.add(new MultitrackRenderPlanner.Clip("audio-mix", MultitrackRenderPlanner.Modality.AUDIO,
+                    "dev-audio-mix", "sha256-" + mixed.wavSha256(), mixed.wavSha256(), zero, zero, end, List.of(zero)));
+            audioMixLineage = mixed.lineage();
         }
         MultitrackRenderPlanner.PlanResult planned;
         try {
@@ -444,6 +472,7 @@ public final class MediaDevProjectRenderRuntime {
             lineage.put("sources", sources);
             lineage.put("format", "mp4");
             lineage.put("encoding", encoding);
+            if (audioMixLineage != null) lineage.put("audioMix", audioMixLineage);
             return registerOutput(tenantId, principalId, projectId, revision, request, bytes, result.outputSha256(),
                     "video/mp4", "mp4", lineage);
         } catch (IOException failure) {

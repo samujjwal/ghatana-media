@@ -44,9 +44,24 @@ import java.util.regex.Pattern;
  *   <li>At most one AUDIO clip: 16-bit PCM mono/stereo WAV starting at timeline 0, any source start.</li>
  *   <li>Non-overlapping captions with millisecond-exact times, emitted as embedded mov_text and a
  *       sidecar WebVTT file.</li>
+ *   <li>CROSSFADE transitions between two adjacent VIDEO clips, with these exact semantics. The planner's
+ *       Transition record only requires the interval to lie inside both clips; this renderer additionally
+ *       requires the interval to equal the clips' overlap exactly: {@code start == right.timelineStart} and
+ *       {@code end == left.timelineEnd}. The output is then {@code left} alone before {@code start}, a
+ *       blend over {@code [start, end)}, and {@code right} alone from {@code end} (output length is the
+ *       planner's duration, i.e. the left and right clips share the transition interval). Inside the
+ *       interval, output frames are emitted at {@code start + n * 40 ms} (n = 0, 1, ...) and additionally
+ *       at every source frame PTS of either clip inside the interval; each shows the picture on screen
+ *       from both clips at that instant with {@code alpha = (t - start) / duration} (alpha 0 at the first
+ *       frame, which is therefore the pure left picture; the pure right picture starts at {@code end}).
+ *       Each 8-bit sRGB channel is {@code floor(((D - a) * L + a * R + D / 2) / D)} with integer micro-second
+ *       {@code a} and {@code D}, computed in Java before encoding; the later H.264/yuv420p conversion is
+ *       lossy and is not claimed to be bit-exact. Source frames used in a blend must be 8-bit RGB or RGBA
+ *       PNGs with every alpha 255. Transitions must not overlap, each must join consecutive clips, and all
+ *       times must be whole microseconds; the blended frame count is bounded.</li>
  * </ul>
- * Transitions, GRAPHIC clips, overlapping/gapped video, multiple audio clips, and sub-resolution times
- * return a typed {@link Outcome#UNSUPPORTED} result; nothing is approximated.
+ * WIPE transitions, GRAPHIC clips, any other overlapping/gapped video, multiple audio clips, and
+ * sub-resolution times return a typed {@link Outcome#UNSUPPORTED} result; nothing is approximated.
  *
  * <p>Source binding: for a VIDEO clip {@code sourceSha256} is the SHA-256 of the concatenated PNG bytes
  * in frame order; for an AUDIO clip it is the SHA-256 of the WAV file. The host {@link SourceProvider}
@@ -188,6 +203,8 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         int frameNo = 0;
         int width = -1, height = -1;
         List<VideoClip> videoClips = a.videoClips;
+        List<List<byte[]>> clipPngs = new ArrayList<>();
+        List<int[]> frameBase = new ArrayList<>();
         for (int c = 0; c < videoClips.size(); c++) {
             VideoClip clip = videoClips.get(c);
             ClipSource ref = new ClipSource(clip.line.id, clip.line.artifact, clip.line.version, clip.line.sha,
@@ -211,6 +228,7 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
             if (!HexFormat.of().formatHex(digest.digest()).equals(clip.line.sha)) {
                 return fail(Reason.SOURCE_DIGEST_MISMATCH, "video source digest differs from plan");
             }
+            frameBase.add(new int[] {frameNo});
             for (int i = 0; i < pngs.size(); i++) {
                 int[] dims;
                 try {
@@ -225,17 +243,39 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
                 else if (width != dims[0] || height != dims[1]) {
                     return refuse(Outcome.UNSUPPORTED, Reason.UNSUPPORTED_FRAME_GEOMETRY, "frame dimensions differ");
                 }
-                String name = "f" + frameNo + ".png";
-                Files.write(temp.resolve(name), pngs.get(i));
-                concat.add("file '" + name + "'");
-                concat.add("option framerate " + MICROS_PER_SECOND);
-                concat.add("duration " + micros(clip.durations.get(i)));
+                Files.write(temp.resolve("f" + frameNo + ".png"), pngs.get(i));
                 frameNo++;
             }
+            clipPngs.add(pngs);
+        }
+        // Output schedule: pure frames reference the written source files; blends are synthesised exactly.
+        Map<Long, int[]> decoded = new java.util.HashMap<>();
+        String lastName = null;
+        int blendNo = 0;
+        for (OutFrame of : a.out) {
+            String name;
+            if (of.alphaDen() == 0 || of.alphaNum() == 0) {
+                name = "f" + (frameBase.get(of.clip())[0] + of.frame()) + ".png";
+            } else {
+                int[] left = decodeRgb(clipPngs.get(of.clip()).get(of.frame()), of.clip(), of.frame(), decoded);
+                int[] right = decodeRgb(clipPngs.get(of.otherClip()).get(of.otherFrame()), of.otherClip(),
+                        of.otherFrame(), decoded);
+                if (left == null || right == null) {
+                    return refuse(Outcome.UNSUPPORTED, Reason.UNSUPPORTED_TRANSITION,
+                            "blended frames must be 8-bit opaque RGB PNGs");
+                }
+                byte[] blended = encodeBlend(left, right, of.alphaNum(), of.alphaDen(), width, height);
+                name = "x" + (blendNo++) + ".png";
+                Files.write(temp.resolve(name), blended);
+            }
+            concat.add("file '" + name + "'");
+            concat.add("option framerate " + MICROS_PER_SECOND);
+            concat.add("duration " + micros(of.duration()));
+            lastName = name;
         }
         // Repeat the last file so its duration is honoured; -t trims the repeated frame.
-        concat.add(concat.get(concat.size() - 3));
-        concat.add(concat.get(concat.size() - 3));
+        concat.add("file '" + lastName + "'");
+        concat.add("option framerate " + MICROS_PER_SECOND);
         Files.write(temp.resolve("video.ffconcat"), concat, StandardCharsets.UTF_8);
 
         WavInfo wav = null;
@@ -425,10 +465,10 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
             }
         }
         videoPts.sort(Comparator.comparingLong(x -> x[0]));
-        if (videoPts.size() != a.frames.size()) throw new VerificationFailure("video frame count differs from the plan");
+        if (videoPts.size() != a.out.size()) throw new VerificationFailure("video frame count differs from the plan");
         boolean exact = true;
         for (int i = 0; i < videoPts.size(); i++) {
-            Time expected = a.frames.get(i).timelinePts();
+            Time expected = a.out.get(i).pts();
             // pts * tbN / tbD == expected.n / expected.d
             BigInteger lhs = BigInteger.valueOf(videoPts.get(i)[0]).multiply(tbN)
                     .multiply(BigInteger.valueOf(expected.denominator()));
@@ -439,7 +479,7 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         if (subtitleCues != a.captions.size()) throw new VerificationFailure("caption cue count differs from the plan");
 
         double expectedDuration = toDouble(a.duration);
-        double longestFrame = a.durations.stream().mapToDouble(FfmpegMultitrackRenderer::toDouble).max().orElse(0);
+        double longestFrame = a.out.stream().map(OutFrame::duration).mapToDouble(FfmpegMultitrackRenderer::toDouble).max().orElse(0);
         double aacFrame = wav == null ? 0 : 1024.0 / wav.rate;
         double tolerance = Math.max(longestFrame, aacFrame);
         double containerDuration;
@@ -523,14 +563,24 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         Time timelineEnd() { return timelineStart.plus(sourceEnd.minus(sourceStart)); }
     }
 
+    private record TransitionLine(String left, String right, Time start, Time duration) {
+        Time end() { return start.plus(duration); }
+    }
+
     private record VideoClip(ClipLine line, List<MappedFrame> frames, List<Time> durations) { }
 
     private record CaptionCue(Time start, Time end, String text) { }
 
+    /** One output picture. alphaDen == 0 means the pure frame (clip, frame); otherwise a blend. */
+    private record OutFrame(Time pts, Time duration, int clip, int frame, int otherClip, int otherFrame,
+            long alphaNum, long alphaDen) { }
+
+    private static final long TRANSITION_CADENCE_MICROS = 40_000L;
+    private static final int MAX_BLENDED_FRAMES = 2_500;
+
     private static final class Analysis {
         List<VideoClip> videoClips = new ArrayList<>();
-        List<MappedFrame> frames = new ArrayList<>();   // timeline order
-        List<Time> durations = new ArrayList<>();       // parallel to frames
+        List<OutFrame> out = new ArrayList<>();         // timeline order
         ClipLine audio;
         List<CaptionCue> captions = new ArrayList<>();
         Time duration;
@@ -540,9 +590,14 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         Analysis a = new Analysis();
         a.duration = plan.duration();
         List<ClipLine> clips = new ArrayList<>();
+        List<TransitionLine> transitions = new ArrayList<>();
         for (String line : plan.canonicalManifest().split("\n")) {
             if (line.startsWith("transition=")) {
-                throw new Unsupported(Reason.UNSUPPORTED_TRANSITION, "transitions cannot be rendered exactly");
+                String[] f = line.substring(11).split("\\|", -1);
+                if (!"CROSSFADE".equals(f[3])) {
+                    throw new Unsupported(Reason.UNSUPPORTED_TRANSITION, f[3] + " transitions cannot be rendered exactly");
+                }
+                transitions.add(new TransitionLine(f[1], f[2], time(f[4]), time(f[5])));
             }
             if (line.startsWith("clip=")) {
                 String[] f = line.substring(5).split("\\|", -1);
@@ -574,8 +629,29 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         if (videos.isEmpty()) throw new Unsupported(Reason.NO_VIDEO, "plan has no video clip");
         Map<String, List<MappedFrame>> byClip = new TreeMap<>();
         for (MappedFrame f : plan.frameMap()) byClip.computeIfAbsent(f.clipId(), k -> new ArrayList<>()).add(f);
+        // Transition i joins videos[i] and videos[i+1]; null when the pair is simply contiguous.
+        TransitionLine[] joins = new TransitionLine[videos.size()];
+        for (TransitionLine t : transitions) {
+            int li = -1;
+            for (int i = 0; i + 1 < videos.size(); i++) {
+                if (videos.get(i).id.equals(t.left) && videos.get(i + 1).id.equals(t.right)) li = i;
+            }
+            if (li < 0 || joins[li] != null) {
+                throw new Unsupported(Reason.UNSUPPORTED_TRANSITION,
+                        "a transition must join two consecutive video clips, once");
+            }
+            ClipLine l = videos.get(li), r = videos.get(li + 1);
+            if (t.start.compareTo(r.timelineStart) != 0 || t.end().compareTo(l.timelineEnd()) != 0) {
+                throw new Unsupported(Reason.UNSUPPORTED_TRANSITION,
+                        "transition interval must equal the overlap of its two clips");
+            }
+            micros(t.start);
+            micros(t.end());
+            joins[li] = t;
+        }
         Time cursor = new Time(0, 1);
-        for (ClipLine v : videos) {
+        for (int vi = 0; vi < videos.size(); vi++) {
+            ClipLine v = videos.get(vi);
             if (v.timelineStart.compareTo(cursor) != 0) {
                 throw new Unsupported(Reason.UNSUPPORTED_VIDEO_TIMELINE, "video clips must be contiguous from zero");
             }
@@ -592,13 +668,16 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
                 durations.add(d);
             }
             a.videoClips.add(new VideoClip(v, frames, durations));
-            a.frames.addAll(frames);
-            a.durations.addAll(durations);
-            cursor = v.timelineEnd();
+            cursor = joins[vi] != null ? joins[vi].start : v.timelineEnd();
+            if (vi > 0 && joins[vi - 1] != null && joins[vi - 1].end().compareTo(
+                    joins[vi] != null ? joins[vi].start : v.timelineEnd()) > 0) {
+                throw new Unsupported(Reason.UNSUPPORTED_TRANSITION, "transitions must not overlap");
+            }
         }
-        if (cursor.compareTo(plan.duration()) != 0) {
+        if (videos.get(videos.size() - 1).timelineEnd().compareTo(plan.duration()) != 0) {
             throw new Unsupported(Reason.UNSUPPORTED_VIDEO_TIMELINE, "video must cover the full plan duration");
         }
+        buildSchedule(a, joins);
         nanos(plan.duration());
         // Captions.
         a.captions.sort(Comparator.comparing(CaptionCue::start));
@@ -617,6 +696,63 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
             prevEnd = c.end;
         }
         return a;
+    }
+
+
+    /** Builds the output picture list: pure clip pieces plus sampled crossfade windows. */
+    private static void buildSchedule(Analysis a, TransitionLine[] joins) {
+        int n = a.videoClips.size();
+        int blended = 0;
+        for (int ci = 0; ci < n; ci++) {
+            VideoClip vc = a.videoClips.get(ci);
+            Time from = ci > 0 && joins[ci - 1] != null ? joins[ci - 1].end() : vc.line.timelineStart;
+            Time to = joins[ci] != null ? joins[ci].start : vc.line.timelineEnd();
+            for (int j = 0; j < vc.frames.size() && from.compareTo(to) < 0; j++) {
+                Time fs = vc.frames.get(j).timelinePts();
+                Time fe = j + 1 < vc.frames.size() ? vc.frames.get(j + 1).timelinePts() : vc.line.timelineEnd();
+                Time s2 = fs.compareTo(from) > 0 ? fs : from;
+                Time e2 = fe.compareTo(to) < 0 ? fe : to;
+                if (s2.compareTo(e2) < 0) {
+                    a.out.add(new OutFrame(s2, e2.minus(s2), ci, j, -1, -1, 0, 0));
+                }
+            }
+            if (joins[ci] == null) continue;
+            VideoClip rc = a.videoClips.get(ci + 1);
+            long sU = scaled(joins[ci].start, MICROS_PER_SECOND).longValueExact();
+            long eU = scaled(joins[ci].end(), MICROS_PER_SECOND).longValueExact();
+            long d = eU - sU;
+            if (d / TRANSITION_CADENCE_MICROS + vc.frames.size() + rc.frames.size() + 1 > MAX_BLENDED_FRAMES) {
+                throw new Unsupported(Reason.UNSUPPORTED_TRANSITION, "transition blended frame count exceeds bound");
+            }
+            java.util.TreeSet<Long> samples = new java.util.TreeSet<>();
+            for (long t = sU; t < eU; t += TRANSITION_CADENCE_MICROS) samples.add(t);
+            for (MappedFrame f : vc.frames) addInside(samples, f.timelinePts(), sU, eU);
+            for (MappedFrame f : rc.frames) addInside(samples, f.timelinePts(), sU, eU);
+            blended += samples.size();
+            if (blended > MAX_BLENDED_FRAMES) {
+                throw new Unsupported(Reason.UNSUPPORTED_TRANSITION, "transition blended frame count exceeds bound");
+            }
+            Long[] ts = samples.toArray(new Long[0]);
+            for (int k = 0; k < ts.length; k++) {
+                long t = ts[k];
+                long next = k + 1 < ts.length ? ts[k + 1] : eU;
+                a.out.add(new OutFrame(new Time(t, MICROS_PER_SECOND), new Time(next - t, MICROS_PER_SECOND), ci,
+                        currentFrame(vc, t), ci + 1, currentFrame(rc, t), t - sU, d));
+            }
+        }
+    }
+
+    private static void addInside(java.util.TreeSet<Long> samples, Time pts, long sU, long eU) {
+        long u = scaled(pts, MICROS_PER_SECOND).longValueExact();
+        if (u > sU && u < eU) samples.add(u);
+    }
+
+    private static int currentFrame(VideoClip c, long micros) {
+        int idx = 0;
+        for (int i = 0; i < c.frames.size(); i++) {
+            if (scaled(c.frames.get(i).timelinePts(), MICROS_PER_SECOND).longValueExact() <= micros) idx = i;
+        }
+        return idx;
     }
 
     // ------------------------------------------------------------------------------------- helpers
@@ -673,6 +809,54 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
     private static String stamp(Time t) {
         long ms = millis(t).longValueExact();
         return String.format("%02d:%02d:%02d.%03d", ms / 3_600_000, ms / 60_000 % 60, ms / 1000 % 60, ms % 1000);
+    }
+
+
+    /** Decodes an 8-bit RGB/RGBA PNG to packed 0xRRGGBB, or returns null when it is not exactly representable. */
+    private static int[] decodeRgb(byte[] png, int clip, int frame, Map<Long, int[]> cache) {
+        long key = ((long) clip << 32) | frame;
+        if (cache.containsKey(key)) return cache.get(key);
+        int[] result = null;
+        if (png.length > 26 && png[24] == 8 && (png[25] == 2 || png[25] == 6)) {
+            try {
+                java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(png));
+                if (img != null) {
+                    int w = img.getWidth(), h = img.getHeight();
+                    int[] px = new int[w * h];
+                    boolean opaque = true;
+                    for (int y = 0; y < h && opaque; y++) {
+                        for (int x = 0; x < w; x++) {
+                            int argb = img.getRGB(x, y);
+                            if ((argb >>> 24) != 255) { opaque = false; break; }
+                            px[y * w + x] = argb & 0xFFFFFF;
+                        }
+                    }
+                    if (opaque) result = px;
+                }
+            } catch (IOException | RuntimeException e) {
+                result = null;
+            }
+        }
+        cache.put(key, result);
+        return result;
+    }
+
+    private static byte[] encodeBlend(int[] left, int[] right, long num, long den, int width, int height)
+            throws IOException {
+        java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(width, height,
+                java.awt.image.BufferedImage.TYPE_INT_RGB);
+        long half = den / 2;
+        for (int i = 0; i < left.length; i++) {
+            int l = left[i], r = right[i], out = 0;
+            for (int shift = 16; shift >= 0; shift -= 8) {
+                long lc = (l >> shift) & 255, rc = (r >> shift) & 255;
+                out |= (int) (((den - num) * lc + num * rc + half) / den) << shift;
+            }
+            img.setRGB(i % width, i / width, out);
+        }
+        java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+        if (!javax.imageio.ImageIO.write(img, "png", bytes)) throw new IOException("png writer unavailable");
+        return bytes.toByteArray();
     }
 
     private static final byte[] PNG_SIG = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};

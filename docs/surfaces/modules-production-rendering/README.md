@@ -37,10 +37,24 @@ contiguous from timeline 0, frame boundaries exact to one microsecond, variable
 frame durations preserved), at most one 16-bit PCM WAV audio clip starting at
 timeline 0 (AAC), and non-overlapping millisecond-exact captions (embedded
 `mov_text` plus a sidecar WebVTT). Video codec is H.264/yuv420p. The output byte
-budget is `plan.declaredOutputBudgetBytes` (MP4 plus sidecar). Transitions,
-GRAPHIC clips, overlapping or gapped video, multiple audio clips, and times not
-representable at the stated precision return `UNSUPPORTED`; nothing is
-approximated. The source digest for a VIDEO clip is the SHA-256 of its PNG bytes
+budget is `plan.declaredOutputBudgetBytes` (MP4 plus sidecar). CROSSFADE
+transitions between two consecutive VIDEO clips are rendered exactly under these
+semantics: the planner only requires the transition interval to lie inside both
+clips, and the renderer additionally requires it to equal the clips' overlap
+(`start == right.timelineStart`, `end == left.timelineEnd`), so the output is
+the left clip before `start`, a blend over `[start, end)` and the right clip
+from `end` (output length is the planner duration). Inside the interval frames
+are emitted at `start + n*40 ms` plus every source frame PTS of either clip in
+the interval, each with `alpha = (t - start)/duration` (alpha 0 at the first
+frame, so the pure right picture starts at `end`). The blend is an integer
+8-bit sRGB per-channel linear interpolation computed in Java before encoding
+(`floor(((D-a)*L + a*R + D/2)/D)` in whole microseconds); the H.264/yuv420p
+encode afterwards is lossy and is not claimed to be bit-exact. Blended sources
+must be 8-bit opaque RGB/RGBA PNGs, transitions must not overlap, and the
+blended frame count is bounded (2500); otherwise `UNSUPPORTED_TRANSITION`.
+WIPE transitions, GRAPHIC clips, any other overlapping or gapped video,
+multiple audio clips, and times not representable at the stated precision
+return `UNSUPPORTED`; nothing is approximated. The source digest for a VIDEO clip is the SHA-256 of its PNG bytes
 concatenated in frame order; for AUDIO it is the WAV file digest. The host
 `SourceProvider` owns authorization and exact-version reads. The planner's own
 `execute(plan, pipeline)` is unchanged and still does not render; callers use

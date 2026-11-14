@@ -404,18 +404,111 @@ class FfmpegMultitrackRendererTest {
         assertThat(r.toString()).doesNotContain("SECRET-STDERR-MARKER").doesNotContain("/home/someone");
     }
 
-    @Test
-    void transitionsAreTypedUnsupported() throws Exception {
+    private static final int[] GREEN_BLUE_MID = {0, 128, 128};
+
+    private static Fixture crossfadeFixture(TransitionKind kind, Time start, Time duration) throws IOException {
         Fixture f = new Fixture();
         f.video("a", t(0, 1), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, RED)));
         f.video("b", t(1, 5), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, BLUE)));
-        f.transitions.add(new Transition("x", "a", "b", TransitionKind.CROSSFADE, t(1, 5), t(1, 10)));
-        var r = new FfmpegMultitrackRenderer(new Config(Path.of("/nonexistent/ffmpeg"), Path.of("/nonexistent/ffprobe"),
+        f.transitions.add(new Transition("x", "a", "b", kind, start, duration));
+        return f;
+    }
+
+    private FfmpegMultitrackRenderer.Result renderNoTools(Fixture f) throws Exception {
+        return new FfmpegMultitrackRenderer(new Config(Path.of("/nonexistent/ffmpeg"), Path.of("/nonexistent/ffprobe"),
                 root(), ENV, Duration.ofSeconds(5), Duration.ofSeconds(5), true)).render(f.plan(), f, out(), null);
+    }
+
+    @Test
+    void crossfadeNotEqualToTheClipOverlapIsTypedUnsupported() throws Exception {
+        // overlap is [0.2, 0.4); a transition over only [0.2, 0.3) would need an unrepresented tail
+        var r = renderNoTools(crossfadeFixture(TransitionKind.CROSSFADE, t(1, 5), t(1, 10)));
         assertThat(r.outcome()).isEqualTo(Outcome.UNSUPPORTED);
         assertThat(r.reason()).isEqualTo(Reason.UNSUPPORTED_TRANSITION);
     }
 
+    @Test
+    void wipeIsTypedUnsupported() throws Exception {
+        var r = renderNoTools(crossfadeFixture(TransitionKind.WIPE, t(1, 5), t(1, 5)));
+        assertThat(r.outcome()).isEqualTo(Outcome.UNSUPPORTED);
+        assertThat(r.reason()).isEqualTo(Reason.UNSUPPORTED_TRANSITION);
+    }
+
+    @Test
+    void crossfadeBetweenNonConsecutiveOrSubMicrosecondClipsIsTypedUnsupported() throws Exception {
+        Fixture f = new Fixture();
+        f.video("a", t(0, 1), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, RED)));
+        f.video("b", t(1, 5), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, BLUE)));
+        // right/left reversed: not a join of consecutive clips in timeline order
+        f.transitions.add(new Transition("x", "b", "a", TransitionKind.CROSSFADE, t(1, 5), t(1, 5)));
+        assertThat(renderNoTools(f).reason()).isEqualTo(Reason.UNSUPPORTED_TRANSITION);
+        Fixture g = new Fixture();
+        g.video("a", t(0, 1), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, RED)));
+        g.video("b", t(1, 5), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, BLUE)));
+        g.transitions.add(new Transition("x", "a", "b", TransitionKind.CROSSFADE, t(1, 5), t(1, 5)));
+        // sanity: same shape is accepted by analysis (fails later only because the tools are absent)
+        assertThat(renderNoTools(g).reason()).isEqualTo(Reason.TOOL_UNAVAILABLE);
+    }
+
+    @Test
+    void crossfadeRendersExactBlendFramesAndPurePicturesOutsideTheInterval() throws Exception {
+        requireTools();
+        Fixture f = crossfadeFixture(TransitionKind.CROSSFADE, t(1, 5), t(1, 5));
+        Plan plan = f.plan();
+        var r = renderer().render(plan, f, out(), null);
+        assertThat(r.outcome()).as(r.toString()).isEqualTo(Outcome.COMPLETED);
+        var v = r.verification();
+        // pure A [0,0.2), blends at 0.20 0.24 0.28 0.32 0.36 (alpha 0..0.8), pure B [0.4,0.6)
+        assertThat(v.videoFrameCount()).isEqualTo(7);
+        assertThat(v.videoPtsExact()).isTrue();
+        assertThat(v.expectedDurationSeconds()).isEqualTo(0.6);
+        assertThat(v.containerDurationSeconds()).isBetween(0.6 - v.toleranceSeconds(), 0.6 + v.toleranceSeconds());
+        assertTempEmpty();
+
+        assertColour(colourAt(r.outputPath(), 0.1, tmp), RED);
+        assertColour(colourAt(r.outputPath(), 0.19, tmp), RED);
+        assertColour(colourAt(r.outputPath(), 0.21, tmp), RED);                 // alpha 0: the pure left picture
+        assertColour(colourAt(r.outputPath(), 0.25, tmp), new int[] {204, 0, 51});   // alpha 0.2
+        assertColour(colourAt(r.outputPath(), 0.29, tmp), new int[] {153, 0, 102});  // alpha 0.4
+        assertColour(colourAt(r.outputPath(), 0.33, tmp), new int[] {102, 0, 153});  // alpha 0.6
+        assertColour(colourAt(r.outputPath(), 0.37, tmp), new int[] {51, 0, 204});   // alpha 0.8
+        assertColour(colourAt(r.outputPath(), 0.41, tmp), BLUE);
+        assertColour(colourAt(r.outputPath(), 0.55, tmp), BLUE);
+        // mid-transition pixel lies strictly between the two source colours
+        int[] mid = colourAt(r.outputPath(), 0.295, tmp);
+        assertThat(mid[0]).isBetween(30, 225);
+        assertThat(mid[2]).isBetween(30, 225);
+
+        // independent PTS check with ffprobe: exact multiples of 40 ms inside the transition
+        String pts = ffprobeText(r.outputPath(), "packet=stream_index,pts_time");
+        assertThat(pts).contains("pts_time=0.000000", "pts_time=0.200000", "pts_time=0.240000", "pts_time=0.360000",
+                "pts_time=0.400000");
+    }
+
+    @Test
+    void crossfadeHonoursSourceFramesInsideTheIntervalAndChainsTwoTransitions() throws Exception {
+        requireTools();
+        Fixture f = new Fixture();
+        // a: red 0-0.3 then green 0.3-0.4; b: blue 0.2-0.6 (single frame); c: white 0.4 .. 0.7
+        f.video("a", t(0, 1), t(0, 1), t(2, 5), List.of(t(0, 1), t(3, 10)),
+                List.of(png(64, 48, RED), png(64, 48, GREEN)));
+        f.video("b", t(1, 5), t(0, 1), t(2, 5), List.of(t(0, 1)), List.of(png(64, 48, BLUE)));
+        f.video("c", t(1, 2), t(0, 1), t(1, 5), List.of(t(0, 1)), List.of(png(64, 48, WHITE)));
+        f.transitions.add(new Transition("x", "a", "b", TransitionKind.CROSSFADE, t(1, 5), t(1, 5)));
+        f.transitions.add(new Transition("y", "b", "c", TransitionKind.CROSSFADE, t(1, 2), t(1, 10)));
+        // b spans 0.2-0.6 but c starts at 0.5 and must end b: fixture invariant check below
+        Plan plan = f.plan();
+        var r = renderer().render(plan, f, out(), null);
+        assertThat(r.outcome()).as(r.toString()).isEqualTo(Outcome.COMPLETED);
+        assertThat(r.verification().videoPtsExact()).isTrue();
+        // at 0.30 the left picture has switched to green: blend(green, blue, 0.5)
+        assertColour(colourAt(r.outputPath(), 0.31, tmp), GREEN_BLUE_MID);
+        assertColour(colourAt(r.outputPath(), 0.45, tmp), BLUE);
+        assertColour(colourAt(r.outputPath(), 0.65, tmp), WHITE);
+        int[] second = colourAt(r.outputPath(), 0.55, tmp);
+        assertThat(second[0]).isBetween(30, 225);
+        assertThat(second[1]).isBetween(30, 225);
+    }
 
     @Test
     void unsupportedGraphShapesAreRefusedWithTypedReasons() throws Exception {

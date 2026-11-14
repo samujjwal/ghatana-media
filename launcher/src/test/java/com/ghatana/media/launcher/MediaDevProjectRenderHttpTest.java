@@ -390,6 +390,205 @@ class MediaDevProjectRenderHttpTest {
         }
     }
 
+    private static Map<String, Object> audioClip(String clipId, String trackId, MediaArtifact artifact,
+                                                 long sourceTicks, long startTicks, long durationTicks) {
+        return Map.of("type", "putClip", "clip", Map.of(
+                "clipId", clipId, "sceneId", "scene-main", "trackId", trackId,
+                "source", Map.of("artifactId", artifact.artifactId(), "artifactVersionId", artifact.version().value()),
+                "sourceIn", time(0, "SOURCE_PRESENTATION"), "sourceOut", time(sourceTicks, "SOURCE_PRESENTATION"),
+                "storyStart", time(startTicks, "STORY"), "storyDuration", time(durationTicks, "STORY")));
+    }
+
+    private static byte[] pcmWav(int sampleRate, int channels, double seconds, double hz) {
+        int frames = (int) Math.round(sampleRate * seconds);
+        java.nio.ByteBuffer wav = java.nio.ByteBuffer.allocate(44 + frames * channels * 2)
+                .order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        wav.put("RIFF".getBytes(StandardCharsets.US_ASCII)).putInt(36 + frames * channels * 2)
+                .put("WAVEfmt ".getBytes(StandardCharsets.US_ASCII)).putInt(16).putShort((short) 1)
+                .putShort((short) channels).putInt(sampleRate).putInt(sampleRate * channels * 2)
+                .putShort((short) (channels * 2)).putShort((short) 16)
+                .put("data".getBytes(StandardCharsets.US_ASCII)).putInt(frames * channels * 2);
+        for (int i = 0; i < frames; i++) {
+            short v = (short) Math.round(8_000 * Math.sin(2 * Math.PI * hz * i / sampleRate));
+            for (int c = 0; c < channels; c++) wav.putShort(v);
+        }
+        return wav.array();
+    }
+
+    /** Decodes the MP4 audio with FFmpeg to mono 48 kHz s16le and returns the samples. */
+    private static short[] decodedAudio(String ffmpeg, Path mp4) throws Exception {
+        Process p = new ProcessBuilder(ffmpeg, "-v", "error", "-i", mp4.toString(), "-map", "0:a:0", "-f", "s16le",
+                "-ac", "1", "-ar", "48000", "-").start();
+        byte[] pcm = p.getInputStream().readAllBytes();
+        assertThat(p.waitFor()).isZero();
+        short[] out = new short[pcm.length / 2];
+        java.nio.ByteBuffer.wrap(pcm).order(java.nio.ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(out);
+        return out;
+    }
+
+    private static double rms(short[] pcm, double from, double to) {
+        int a = (int) (from * 48_000), z = Math.min((int) (to * 48_000), pcm.length);
+        double sum = 0;
+        for (int i = a; i < z; i++) sum += (double) pcm[i] * pcm[i];
+        return Math.sqrt(sum / Math.max(1, z - a));
+    }
+
+    /** Goertzel amplitude of one frequency in [from, to) seconds (peak-equivalent sample units). */
+    private static double toneAmplitude(short[] pcm, double from, double to, double hz) {
+        int a = (int) (from * 48_000), z = Math.min((int) (to * 48_000), pcm.length);
+        double re = 0, im = 0;
+        for (int i = a; i < z; i++) {
+            double ph = 2 * Math.PI * hz * (i - a) / 48_000.0;
+            re += pcm[i] * Math.cos(ph);
+            im -= pcm[i] * Math.sin(ph);
+        }
+        return 2 * Math.sqrt(re * re + im * im) / Math.max(1, z - a);
+    }
+
+    private String mp4Head(String base, Fixture fixture, List<Map<String, Object>> clipEdits, int audioTracks)
+            throws Exception {
+        List<Map<String, Object>> edits = new java.util.ArrayList<>();
+        for (int i = 0; i < audioTracks; i++) {
+            edits.add(Map.of("type", "addTrack", "trackId", "audio-" + i, "sceneId", "scene-main",
+                    "trackKind", "AUDIO", "order", i + 1));
+        }
+        String head = edit(base, fixture.projectId(), "timeline-main", fixture.revisionId(), edits, false);
+        return edit(base, fixture.projectId(), "timeline-main", head, clipEdits, false);
+    }
+
+    private static String mp4Body(String requestId, String head) throws Exception {
+        return JSON.writeValueAsString(Map.of("requestId", requestId, "revisionId", head,
+                "timelineId", "timeline-main", "width", 32, "height", 24, "framesPerSecond", 10, "format", "mp4"));
+    }
+
+    @Test
+    void mp4MixesSeveralAudioClipsWithExactPlacementAndRecordsLineage() throws Exception {
+        String ffmpeg = tool("GHATANA_MEDIA_FFMPEG");
+        String ffprobe = tool("GHATANA_MEDIA_FFPROBE");
+        org.junit.jupiter.api.Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
+                "set GHATANA_MEDIA_FFMPEG and GHATANA_MEDIA_FFPROBE to runnable absolute tool paths");
+        Path root = Files.createTempDirectory("media-dev-render-mix-");
+        MediaRuntime runtime = runtime(root);
+        MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        var renderer = MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of(
+                MediaDevProjectRenderRuntime.FFMPEG_ENV, ffmpeg, MediaDevProjectRenderRuntime.FFPROBE_ENV, ffprobe));
+        HttpServer server = server(runtime, projects, new MediaDevProjectRenderRuntime(runtime, projects,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), renderer));
+        try {
+            String base = base(server);
+            Fixture fixture = twoClipProject(base, runtime, "mix-project");
+            MediaArtifact a = upload(runtime, "a.wav", "audio/wav", pcmWav(48_000, 2, 1.0, 440), "mix-a");
+            MediaArtifact b = upload(runtime, "b.wav", "audio/wav", pcmWav(48_000, 2, 0.5, 1_000), "mix-b");
+            MediaArtifact c = upload(runtime, "c.wav", "audio/wav", pcmWav(48_000, 2, 0.5, 2_000), "mix-c");
+            // timeline 2 s: A 440 Hz [0,1.0); B 1 kHz [0.5,1.0) overlapping A on another track; C 2 kHz [1.5,2.0)
+            String head = mp4Head(base, fixture, List.of(
+                    audioClip("clip-a", "audio-0", a, 24, 0, 24),
+                    audioClip("clip-b", "audio-1", b, 12, 12, 12),
+                    audioClip("clip-c", "audio-1", c, 12, 36, 12)), 2);
+            // clip-b starts at story tick 12 = 0.5 s; adjust expectation accordingly below
+            String body = mp4Body("mix-1", head);
+            HttpResponse<String> rendered = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    body, PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(rendered.statusCode()).as(rendered.body()).isEqualTo(201);
+            Map<String, Object> view = read(rendered.body());
+            Map<String, Object> lineage = object(view.get("lineage"));
+            assertThat((List<?>) lineage.get("sources")).hasSize(5);
+            assertThat(object(lineage.get("encoding"))).containsEntry("audioCodec", "aac")
+                    .containsEntry("videoPtsExact", true);
+            Map<String, Object> mix = object(lineage.get("audioMix"));
+            assertThat(mix).containsEntry("engine", "production.audio.PcmStemMixer")
+                    .containsEntry("sampleRate", 48_000).containsEntry("channels", 2)
+                    .containsEntry("frameCount", 96_000).containsEntry("timelineDurationSeconds", "2/1");
+            assertThat((String) mix.get("mixedWavSha256")).matches("[0-9a-f]{64}");
+            assertThat(object(mix.get("rightsDecision"))).containsEntry("productionGrant", false);
+            List<Map<String, Object>> mixClips = new java.util.ArrayList<>();
+            for (Object entry : (List<?>) mix.get("clips")) mixClips.add(object(entry));
+            assertThat(mixClips).hasSize(3);
+            assertThat(mixClips.get(0)).containsEntry("clipId", "clip-a").containsEntry("artifactId", a.artifactId())
+                    .containsEntry("artifactVersionId", a.version().value()).containsEntry("storyOffsetSeconds", "0/1")
+                    .containsEntry("storyOffsetFrames", 0).containsEntry("gain", 1.0);
+            assertThat(mixClips.get(1)).containsEntry("artifactVersionId", b.version().value())
+                    .containsEntry("storyOffsetSeconds", "1/2").containsEntry("storyOffsetFrames", 24_000);
+            assertThat(mixClips.get(2)).containsEntry("artifactVersionId", c.version().value())
+                    .containsEntry("storyOffsetSeconds", "3/2").containsEntry("storyOffsetFrames", 72_000);
+
+            Path mp4 = Files.createTempFile(root, "mix-", ".mp4");
+            Files.write(mp4, artifactBytes(runtime, (String) view.get("renderId")));
+            short[] pcm = decodedAudio(ffmpeg, mp4);
+            assertThat(pcm.length / 48_000.0).isBetween(1.9, 2.1);
+            // window 0.1-0.4: only A; 0.6-0.9: A and B; 1.1-1.4: silence; 1.6-1.9: only C
+            assertThat(toneAmplitude(pcm, 0.1, 0.4, 440)).isBetween(6_000.0, 10_000.0);
+            assertThat(toneAmplitude(pcm, 0.1, 0.4, 1_000)).isLessThan(500.0);
+            assertThat(toneAmplitude(pcm, 0.6, 0.9, 440)).isBetween(5_500.0, 10_500.0);
+            assertThat(toneAmplitude(pcm, 0.6, 0.9, 1_000)).isBetween(5_500.0, 10_500.0);
+            assertThat(toneAmplitude(pcm, 0.6, 0.9, 2_000)).isLessThan(500.0);
+            assertThat(rms(pcm, 1.1, 1.4)).isLessThan(150.0);
+            assertThat(toneAmplitude(pcm, 1.6, 1.9, 2_000)).isBetween(6_000.0, 10_000.0);
+            assertThat(toneAmplitude(pcm, 1.6, 1.9, 440)).isLessThan(500.0);
+
+            HttpResponse<String> replay = send(base, "POST", "/dev/v1/projects/" + fixture.projectId() + "/renders",
+                    body, PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(read(replay.body())).containsEntry("renderId", view.get("renderId"));
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
+    void mp4AudioMixInputsThatDoNotFitAreTyped422WithoutResampling() throws Exception {
+        String ffmpeg = tool("GHATANA_MEDIA_FFMPEG");
+        String ffprobe = tool("GHATANA_MEDIA_FFPROBE");
+        org.junit.jupiter.api.Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
+                "set GHATANA_MEDIA_FFMPEG and GHATANA_MEDIA_FFPROBE to runnable absolute tool paths");
+        Path root = Files.createTempDirectory("media-dev-render-mix-422-");
+        MediaRuntime runtime = runtime(root);
+        MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        var renderer = MediaDevProjectRenderRuntime.mp4RendererFrom(Map.of(
+                MediaDevProjectRenderRuntime.FFMPEG_ENV, ffmpeg, MediaDevProjectRenderRuntime.FFPROBE_ENV, ffprobe));
+        HttpServer server = server(runtime, projects, new MediaDevProjectRenderRuntime(runtime, projects,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), renderer));
+        try {
+            String base = base(server);
+            Fixture mono = twoClipProject(base, runtime, "mix-mono");
+            MediaArtifact m1 = upload(runtime, "m1.wav", "audio/wav", pcmWav(48_000, 1, 0.5, 440), "mix-m1");
+            MediaArtifact m2 = upload(runtime, "m2.wav", "audio/wav", pcmWav(48_000, 1, 0.5, 880), "mix-m2");
+            String monoHead = mp4Head(base, mono, List.of(
+                    audioClip("m-1", "audio-0", m1, 12, 0, 12), audioClip("m-2", "audio-1", m2, 12, 24, 12)), 2);
+            HttpResponse<String> monoResponse = send(base, "POST", "/dev/v1/projects/" + mono.projectId() + "/renders",
+                    mp4Body("mono", monoHead), PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(monoResponse.statusCode()).as(monoResponse.body()).isEqualTo(422);
+            assertThat(monoResponse.body()).contains("RENDER_UNSUPPORTED_AUDIO_LAYOUT");
+
+            Fixture mixedRates = twoClipProject(base, runtime, "mix-rates");
+            MediaArtifact r48 = upload(runtime, "r48.wav", "audio/wav", pcmWav(48_000, 2, 0.5, 440), "mix-r48");
+            MediaArtifact r44 = upload(runtime, "r44.wav", "audio/wav", pcmWav(44_100, 2, 0.5, 440), "mix-r44");
+            String ratesHead = mp4Head(base, mixedRates, List.of(
+                    audioClip("r-1", "audio-0", r48, 12, 0, 12), audioClip("r-2", "audio-1", r44, 12, 24, 12)), 2);
+            HttpResponse<String> ratesResponse = send(base, "POST",
+                    "/dev/v1/projects/" + mixedRates.projectId() + "/renders", mp4Body("rates", ratesHead),
+                    PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(ratesResponse.statusCode()).as(ratesResponse.body()).isEqualTo(422);
+            assertThat(ratesResponse.body()).contains("RENDER_UNSUPPORTED_AUDIO_FORMAT");
+
+            Fixture fractional = twoClipProject(base, runtime, "mix-frac");
+            MediaArtifact f1 = upload(runtime, "f1.wav", "audio/wav", pcmWav(44_100, 2, 0.5, 440), "mix-f1");
+            MediaArtifact f2 = upload(runtime, "f2.wav", "audio/wav", pcmWav(44_100, 2, 0.5, 880), "mix-f2");
+            // 44.1 kHz at 24 ticks/s: story tick 1 is 1837.5 samples, not a whole sample
+            String fracHead = mp4Head(base, fractional, List.of(
+                    audioClip("f-1", "audio-0", f1, 12, 0, 12), audioClip("f-2", "audio-1", f2, 12, 25, 12)), 2);
+            HttpResponse<String> fracResponse = send(base, "POST",
+                    "/dev/v1/projects/" + fractional.projectId() + "/renders", mp4Body("frac", fracHead),
+                    PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(fracResponse.statusCode()).as(fracResponse.body()).isEqualTo(422);
+            assertThat(fracResponse.body()).contains("RENDER_UNSUPPORTED_AUDIO_FORMAT");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
     private static String tool(String name) {
         String value = System.getenv(name);
         if (value == null || value.isBlank()) value = System.getProperty(name.toLowerCase(java.util.Locale.ROOT)
