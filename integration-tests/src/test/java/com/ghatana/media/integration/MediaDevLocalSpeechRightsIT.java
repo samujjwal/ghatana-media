@@ -55,7 +55,8 @@ class MediaDevLocalSpeechRightsIT {
         Map<String, String> speech = Map.of("MEDIA_LOCAL_MODEL_ROOT", root.toString(),
                 "MEDIA_WHISPER_CPP_BIN", root.resolve("runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli").toString(),
                 "MEDIA_KOKORO_PYTHON", root.resolve("runtimes/kokoro-venv/bin/python").toString(),
-                "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_WHISPER_CPP_THREADS", "8");
+                "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_KOKORO_WORKER", "true",
+                "MEDIA_WHISPER_CPP_THREADS", "8");
         var tts = LocalKokoroTtsProvider.fromEnvironment(speech);
         assumeTrue(tts.ready() && com.ghatana.stt.provider.LocalWhisperCppSttProvider
                         .fromEnvironment(speech).ready(),

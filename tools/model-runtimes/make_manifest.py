@@ -10,7 +10,7 @@ Usage:
   make_manifest.py --model-root DIR --key KEY --modality SPEECH_TO_TEXT|TEXT_TO_SPEECH --model-id ID \
      --source-url URL --revision REV --spdx ID --license-source-url URL \
      --file ROLE:relative/path [--file ...] [--runtime-name N --runtime-version V --runtime-revision R \
-     --runtime-exe PATH] [--language en ...] --notice TEXT [--notice-required] --out manifest.json
+     --runtime-exe PATH [--runtime-worker PATH]] [--language en ...] --notice TEXT [--notice-required] --out manifest.json
 """
 import argparse
 import datetime
@@ -56,6 +56,7 @@ def main():
     parser.add_argument("--runtime-version")
     parser.add_argument("--runtime-revision", default="")
     parser.add_argument("--runtime-exe")
+    parser.add_argument("--runtime-worker", help="optional persistent-worker script whose digest is pinned too")
     parser.add_argument("--voice-cloning", default="")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
@@ -97,6 +98,8 @@ def main():
         runtime = {"name": args.runtime_name, "version": args.runtime_version, "revision": args.runtime_revision}
         if args.runtime_exe:
             runtime["executableSha256"] = sha256(args.runtime_exe)
+        if args.runtime_worker:
+            runtime["workerSha256"] = sha256(args.runtime_worker)
         manifest["runtime"] = runtime
     with open(args.out, "w", encoding="utf-8") as handle:
         json.dump(manifest, handle, indent=2)

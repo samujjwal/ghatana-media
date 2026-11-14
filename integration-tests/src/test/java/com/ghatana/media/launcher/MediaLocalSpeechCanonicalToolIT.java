@@ -134,7 +134,8 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
         Map<String, String> environment = new HashMap<>(Map.of("MEDIA_LOCAL_MODEL_ROOT", root.toString(),
                 "MEDIA_WHISPER_CPP_BIN", root.resolve("runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli").toString(),
                 "MEDIA_KOKORO_PYTHON", root.resolve("runtimes/kokoro-venv/bin/python").toString(),
-                "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_WHISPER_CPP_THREADS", "8"));
+                "MEDIA_KOKORO_SCRIPT", script.toString(), "MEDIA_KOKORO_WORKER", "true",
+                "MEDIA_WHISPER_CPP_THREADS", "8"));
         // MP3 / OGG_OPUS encoding needs an FFmpeg build with the codec; absent means WAV only.
         String ffmpeg = System.getenv("MEDIA_FFMPEG");
         if (ffmpeg != null && !ffmpeg.isBlank()) environment.put("MEDIA_FFMPEG", ffmpeg);

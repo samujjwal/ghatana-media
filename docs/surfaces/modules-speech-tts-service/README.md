@@ -121,6 +121,41 @@ unchanged multi-gigabyte weights; it is off by default and the vision sidecar ho
 and local vision providers; vision additionally warms Qwen only with `MEDIA_LOCAL_MODEL_PRELOAD_QWEN=true`). Warm-up output is
 discarded and is never evidence.
 
+### Persistent Kokoro worker (opt-in, `MEDIA_KOKORO_WORKER=true`)
+
+`tools/model-runtimes/kokoro_worker.py` is a loopback-only, bearer-token-authenticated Kokoro-82M worker that loads the
+model once (CUDA when `torch.cuda.is_available()`, else CPU; `MEDIA_KOKORO_DEVICE=auto|cpu|cuda`; the device actually used
+is reported by `GET /v1/health` and the `X-Kokoro-Device` header). `LocalKokoroWorker` starts it lazily as a child process
+(`python -I`, argument array, cleared environment, random per-process token, free loopback port, stdout/stderr discarded),
+restarts it after a crash (at most `maxConsecutiveFailures`=3 in a row, then a 30 s cool-down), retries a call once after a
+crash (synthesis has no external effect), stops it on JVM exit and gives the worker a `--parent-pid` watchdog. One worker is
+shared per JVM for the same interpreter/script/model. Without the variable the per-call `kokoro_synth.py` path is unchanged;
+with it there is deliberately no silent fallback: a dead, unreachable, unverified, cooling-down or credential-refusing worker
+is a typed `LocalTtsException` (`WORKER_UNAVAILABLE`, `WORKER_BUSY`, `FILES_CHANGED`, `TIMEOUT`), never a success.
+
+Integrity: the manifest pins the worker script (`runtime.workerSha256`, written by `make_manifest.py --runtime-worker`; an
+older manifest without it simply offers no worker and the provider is not ready in worker mode). The worker refuses to serve
+unless the weights, config, voice packs, licence/card files and its own script match the manifest; it re-checks (stat, then
+re-hash on change) before each request and after synthesis and turns permanently `REFUSED` (503 `FILES_CHANGED`, audio
+discarded) on a mismatch. The Java side additionally withdraws readiness and stops the worker when `LocalModelInstall` or
+the worker script change. Bounds: 64 KiB body, 2000 characters of text, speed 0.5-2.0, deadline 1 ms-180 s (checked while
+queued and between synthesis chunks), one synthesis at a time plus two waiting, anything beyond that is 429 `BUSY`, output at
+most 8 MiB. Only manifest-listed voice packs work; there is no embedding or cloning input. After changing either script,
+re-run `tools/model-runtimes/install-local-manifests.sh`. Python unit tests (stub engine, no model):
+`kokoro-venv/bin/python tools/model-runtimes/test_kokoro_worker.py`.
+
+Measured on the development host (Quadro RTX 5000 shared with other agents, load average about 26-30, so absolute numbers
+are noisy): per-call CPU sidecar 35-48 s per call; worker cold start (interpreter, torch import, CUDA init, digest check of
+327 MB, load, warm-up) about 18.5 s in a quiet moment and 34.8 s under load; warm call 0.15 s quiet (0.2-1.4 s under load);
+the worker is about 0.7-0.8 GB of VRAM. `MediaDevSpeechTimingTest` (launcher) re-measures this on real models and prints
+`TIMING ...` lines; `MEDIA_SPEECH_BENCH_BASELINE=true` adds the per-call baseline.
+
+Whisper stays one bounded `whisper-cli` process per call. A persistent `whisper-server` (examples/server) was evaluated and
+not adopted: it has no authentication, `POST /load` lets any local process swap the model file after the digest was verified,
+it has no per-request deadline or cancellation (inference holds one mutex until finished), and its request size and upload
+handling are not bounded by us; its optional `--convert` path shells out to `ffmpeg` through `system()`. Those cannot be
+bounded or verified from outside the pinned binary.
+
 Rights and consent: STT on a source version needs a `PROCESSING` admission from `RightsConsentResolver`
 (`MEDIA_RIGHTS_DEV_ENABLED` in the DEV lane; otherwise `RIGHTS_AUTHORITY_UNAVAILABLE`). Synthesis accepts only request
 text and a manifest-listed stock voice; it has no reference-audio or voice-sample input (unknown fields are rejected),

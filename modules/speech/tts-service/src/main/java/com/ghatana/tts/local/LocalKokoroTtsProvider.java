@@ -49,6 +49,12 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
     public static final String ENV_FFMPEG = "MEDIA_FFMPEG";
     /** {@code true} starts a background warm-up synthesis when the provider is constructed. */
     public static final String ENV_PRELOAD = "MEDIA_LOCAL_MODEL_PRELOAD";
+    /** {@code true} serves synthesis through a persistent supervised loopback worker instead of one process per call. */
+    public static final String ENV_WORKER = "MEDIA_KOKORO_WORKER";
+    /** Worker script; defaults to {@code kokoro_worker.py} beside {@link #ENV_SCRIPT}. */
+    public static final String ENV_WORKER_SCRIPT = "MEDIA_KOKORO_WORKER_SCRIPT";
+    /** {@code auto} (default, CUDA when torch reports it), {@code cpu} or {@code cuda}. */
+    public static final String ENV_DEVICE = "MEDIA_KOKORO_DEVICE";
     public static final int MAX_JOB_TEXT_CHARS = 400;
     public static final int MAX_JOB_AUDIO_BYTES = 1_572_864;
     private static final Duration MAX_RUN = Duration.ofMinutes(3);
@@ -70,7 +76,7 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
 
     LocalKokoroTtsProvider(Map<String, String> environment) {
         this(installFrom(environment), path(environment.get(ENV_PYTHON)), path(environment.get(ENV_SCRIPT)),
-                path(environment.get(ENV_FFMPEG)));
+                path(environment.get(ENV_FFMPEG)), workerSettings(environment));
         if ("true".equalsIgnoreCase(environment.get(ENV_PRELOAD))) warmUp();
     }
 
@@ -79,10 +85,53 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
     }
 
     public LocalKokoroTtsProvider(LocalModelInstall install, Path python, Path script, Path ffmpeg) {
+        this(install, python, script, ffmpeg, null);
+    }
+
+    /** Worker request: a worker script, device and whether the worker is wanted at all (null means per-call mode). */
+    public record WorkerSettings(Path workerScript, String device) { }
+
+    private static WorkerSettings workerSettings(Map<String, String> environment) {
+        if (!"true".equalsIgnoreCase(environment.get(ENV_WORKER))) return null;
+        Path explicit = path(environment.get(ENV_WORKER_SCRIPT));
+        Path script = path(environment.get(ENV_SCRIPT));
+        Path worker = explicit != null ? explicit
+                : script == null || script.getParent() == null ? null : script.resolveSibling("kokoro_worker.py");
+        String device = environment.getOrDefault(ENV_DEVICE, "auto");
+        return new WorkerSettings(worker, device == null || device.isBlank() ? "auto" : device);
+    }
+
+    /**
+     * With {@code worker} non-null the provider serves through the persistent worker and is ready only while that
+     * worker is verifiable (manifest pins the worker script digest, script matches, interpreter present); it never
+     * silently falls back to the per-call process, so a missing or withdrawn worker is a refusal, not a slow success.
+     */
+    public LocalKokoroTtsProvider(LocalModelInstall install, Path python, Path script, Path ffmpeg,
+                                  WorkerSettings worker) {
         this.install = java.util.Objects.requireNonNull(install, "install");
-        this.synthesizer = install.usable()
-                ? LocalKokoroSynthesizer.forVerified(install.manifest(), install.modelDir(), python, script, MAX_RUN)
-                : null;
+        LocalKokoroSynthesizer built = null;
+        if (install.usable()) {
+            if (worker == null) {
+                built = LocalKokoroSynthesizer.forVerified(install.manifest(), install.modelDir(), python, script,
+                        MAX_RUN);
+            } else if (python != null && worker.workerScript() != null && python.isAbsolute()
+                    && worker.workerScript().isAbsolute()) {
+                try {
+                    LocalKokoroWorker.Config config = LocalKokoroWorker.Config.of(python, worker.workerScript(),
+                            install.modelDir(), install.modelDir().resolve("manifest.json"))
+                            .withDevice(worker.device());
+                    LocalKokoroWorker shared = LocalKokoroWorker.shared(install.manifest(),
+                            install.modelDir().resolve("manifest.json"), config, install::stillCurrent);
+                    if (shared != null) {
+                        built = LocalKokoroSynthesizer.forVerified(install.manifest(), install.modelDir(), python,
+                                script, MAX_RUN, shared);
+                    }
+                } catch (IllegalArgumentException invalid) {
+                    built = null;
+                }
+            }
+        }
+        this.synthesizer = built;
         this.encoder = LocalAudioEncoder.forExecutable(ffmpeg, MAX_RUN);
     }
 
@@ -149,7 +198,9 @@ public final class LocalKokoroTtsProvider implements MediaProcessingProvider {
     @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
     @Override public int priority() { return 7; }
 
-    @Override public boolean ready() { return synthesizer != null && install.stillCurrent(); }
+    @Override public boolean ready() {
+        return synthesizer != null && install.stillCurrent() && synthesizer.workerCurrent();
+    }
 
     @Override public boolean productionEligible() {
         return ready() && install.manifest().admission().productionEligible();

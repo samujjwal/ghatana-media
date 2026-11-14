@@ -90,8 +90,16 @@ public record LocalModelManifest(
     /** Admission switches. {@code productionEligible} stays false until real quality evidence exists. */
     public record Admission(String scope, boolean productionEligible) { }
 
-    /** Optional runtime pin; an executable digest, when present, is enforced. */
-    public record RuntimeBinding(String name, String version, String revision, String executableSha256) { }
+    /**
+     * Optional runtime pin; an executable digest, when present, is enforced. {@code workerSha256} optionally pins the persistent worker script (empty when the runtime has none); an older
+     * manifest without it stays valid and simply offers no worker.
+     */
+    public record RuntimeBinding(String name, String version, String revision, String executableSha256,
+                                 String workerSha256) {
+        public RuntimeBinding(String name, String version, String revision, String executableSha256) {
+            this(name, version, revision, executableSha256, "");
+        }
+    }
 
     public enum Status { VERIFIED, MANIFEST_INVALID, FILE_MISSING, DIGEST_MISMATCH, SIZE_MISMATCH,
         LICENSE_NOT_ALLOWED, OWNER_DECISION_MISMATCH }
@@ -182,10 +190,14 @@ public record LocalModelManifest(
         JsonNode runtimeNode = root.get("runtime");
         RuntimeBinding runtime = runtimeNode == null || !runtimeNode.isObject() ? null
                 : new RuntimeBinding(text(runtimeNode, "name"), text(runtimeNode, "version"),
-                        runtimeNode.path("revision").asString(""), runtimeNode.path("executableSha256").asString(""));
+                        runtimeNode.path("revision").asString(""), runtimeNode.path("executableSha256").asString(""),
+                        runtimeNode.path("workerSha256").asString(""));
         if (runtime != null && !runtime.executableSha256().isEmpty()
                 && !runtime.executableSha256().matches("[0-9a-f]{64}")) {
             throw new IllegalArgumentException("runtime.executableSha256 must be lowercase hex");
+        }
+        if (runtime != null && !runtime.workerSha256().isEmpty() && !runtime.workerSha256().matches("[0-9a-f]{64}")) {
+            throw new IllegalArgumentException("runtime.workerSha256 must be lowercase hex");
         }
         return new LocalModelManifest(SCHEMA, text(root, "modelKey"), modality, text(root, "modelId"),
                 new Source(text(source, "url"), text(source, "revision")), files,

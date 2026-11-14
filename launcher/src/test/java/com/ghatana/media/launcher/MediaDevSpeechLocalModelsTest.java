@@ -88,6 +88,8 @@ class MediaDevSpeechLocalModelsTest {
                 "MEDIA_WHISPER_CPP_BIN", root.resolve("runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli").toString(),
                 "MEDIA_KOKORO_PYTHON", root.resolve("runtimes/kokoro-venv/bin/python").toString(),
                 "MEDIA_KOKORO_SCRIPT", script.toString(),
+                // The real-model run uses the persistent Kokoro worker (GPU when torch reports CUDA).
+                "MEDIA_KOKORO_WORKER", "true",
                 "MEDIA_WHISPER_CPP_THREADS", "8");
     }
 

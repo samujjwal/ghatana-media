@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regenerates the server-owned local-model manifests (outside the repository) from the files actually installed
 # under ${MEDIA_LOCAL_MODEL_ROOT:-$HOME/.local/share/ghatana-media}. Re-run after any change to the pinned
-# kokoro_synth.py sidecar or to the whisper.cpp binary, because their digests are enforced by the verifier.
+# kokoro_synth.py / kokoro_worker.py sidecars or to the whisper.cpp binary, because their digests are enforced by the verifier.
 #
 # This script records what is on disk; it neither downloads weights nor decides licence acceptability. The Java
 # verifier (LocalModelManifest.verify) enforces MIT for speech-to-text and Apache-2.0 for text-to-speech.
@@ -35,6 +35,6 @@ python3 -I "$MAKE" --model-root "$ROOT/models/kokoro-82m" --key kokoro-82m --mod
   --notice "Kokoro-82M (c) hexgrad, licensed under the Apache License 2.0; the model repository ships no LICENSE file, the licence is declared in the model-card metadata at the pinned revision and LICENSE-Apache-2.0.txt is the canonical text from apache.org. Apache-2.0 attribution and licence copy must accompany redistribution. The kokoro/misaki Python packages are Apache-2.0; their English phonemizer fallback pulls GPL-3.0+ components (phonemizer-fork, espeak-ng) which are installed locally and must not be redistributed with this product without GPL compliance." \
   --notice-required --voice-cloning NOT_SUPPORTED \
   --runtime-name kokoro --runtime-version "kokoro 0.9.4 / misaki 0.9.4 / torch 2.15.0" \
-  --runtime-exe "$HERE/kokoro_synth.py" \
+  --runtime-exe "$HERE/kokoro_synth.py" --runtime-worker "$HERE/kokoro_worker.py" \
   --out "$ROOT/models/kokoro-82m/manifest.json"
 echo "manifests written under $ROOT/models/*/manifest.json"

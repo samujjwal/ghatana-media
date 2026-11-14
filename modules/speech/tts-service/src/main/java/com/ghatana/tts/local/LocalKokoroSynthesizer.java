@@ -51,10 +51,26 @@ public final class LocalKokoroSynthesizer {
     }
 
     private final Config config;
+    private final LocalKokoroWorker worker;
 
     public LocalKokoroSynthesizer(Config config) {
-        this.config = Objects.requireNonNull(config, "config");
+        this(config, null);
     }
+
+    /** With a worker every synthesis goes through the persistent worker; there is no silent per-call fallback. */
+    public LocalKokoroSynthesizer(Config config, LocalKokoroWorker worker) {
+        this.config = Objects.requireNonNull(config, "config");
+        this.worker = worker;
+    }
+
+    /** True when synthesis is served by the persistent worker rather than one process per call. */
+    public boolean usesWorker() { return worker != null; }
+
+    /** The persistent worker, or null in per-call mode. */
+    public LocalKokoroWorker worker() { return worker; }
+
+    /** In worker mode: the worker and its pinned script are still unchanged. Always true in per-call mode. */
+    public boolean workerCurrent() { return worker == null || worker.ready(); }
 
     /**
      * Builds a synthesizer only when the interpreter and sidecar exist and, if the manifest pins a sidecar digest,
@@ -62,6 +78,12 @@ public final class LocalKokoroSynthesizer {
      */
     public static LocalKokoroSynthesizer forVerified(LocalModelManifest manifest, Path modelDir, Path python,
                                                      Path script, Duration maxTimeout) {
+        return forVerified(manifest, modelDir, python, script, maxTimeout, null);
+    }
+
+    /** As above, optionally serving through {@code worker} (built by {@link LocalKokoroWorker#forVerified}). */
+    public static LocalKokoroSynthesizer forVerified(LocalModelManifest manifest, Path modelDir, Path python,
+                                                     Path script, Duration maxTimeout, LocalKokoroWorker worker) {
         if (python == null || script == null || !python.isAbsolute() || !script.isAbsolute()
                 || !Files.isExecutable(python) || !Files.isRegularFile(script, LinkOption.NOFOLLOW_LINKS)) return null;
         LocalModelManifest.RuntimeBinding binding = manifest.runtime();
@@ -82,7 +104,7 @@ public final class LocalKokoroSynthesizer {
         if (voices.isEmpty()) return null;
         return new LocalKokoroSynthesizer(new Config(python.toAbsolutePath().normalize(),
                 script.toAbsolutePath().normalize(), modelDir.toAbsolutePath().normalize(), voices,
-                manifest.first(LocalModelManifest.FileRole.WEIGHTS).sha256(), maxTimeout));
+                manifest.first(LocalModelManifest.FileRole.WEIGHTS).sha256(), maxTimeout), worker);
     }
 
     public Set<String> voices() { return config.voices(); }
@@ -110,6 +132,12 @@ public final class LocalKokoroSynthesizer {
             throw new LocalTtsException(LocalTtsException.Code.TIMEOUT, "no time budget remains");
         }
         Duration timeout = budget.compareTo(config.maxTimeout()) < 0 ? budget : config.maxTimeout();
+        if (worker != null) {
+            long workerStarted = System.nanoTime();
+            LocalKokoroWorker.Result served = worker.synthesize(text, voice, speed, timeout, cancellation);
+            return new Synthesis(served.wav(), 24_000, served.samples(), voice, config.modelSha256(),
+                    Duration.ofNanos(System.nanoTime() - workerStarted).toMillis());
+        }
         Path work = null;
         long started = System.nanoTime();
         try {
