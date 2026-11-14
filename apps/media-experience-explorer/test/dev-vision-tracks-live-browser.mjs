@@ -131,10 +131,15 @@ try {
     await page.goto(`${baseUrl}/dev-vision-tracks.html`);
     await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(bearer);
     await page.getByRole("button", { name: "Connect", exact: true }).click();
-    await page.getByRole("heading", { name: /Video tracking · DEV_ONLY/u }).waitFor({ timeout: 15_000 });
+    try {
+      await page.getByRole("heading", { name: /Video tracking · DEV_ONLY/u }).waitFor({ timeout: 120_000 });
+    } catch (error) {
+      const connection = await page.locator("#connection-status").textContent().catch(() => "<unreadable>");
+      throw new Error(`The tracking panel did not render. status=${JSON.stringify(connection)} pageErrors=${JSON.stringify(pageErrors)} consoleErrors=${JSON.stringify(consoleErrors)} api=${JSON.stringify(apiRequests.map(({ method, path }) => `${method} ${path}`))}`, { cause: error });
+    }
   }
   const result = page.locator("#vision-result");
-  const ddOf = async (term) => (await result.locator("dt", { hasText: term }).first().locator("xpath=following-sibling::dd").textContent()).trim();
+  const ddOf = async (term) => (await result.locator("dt", { hasText: term }).first().locator("xpath=following-sibling::dd[1]").textContent()).trim();
 
   // Load the video, seek to just past an exact sampled-frame PTS and wait until that frame is presented.
   async function seekPresented(seconds) {
@@ -267,7 +272,9 @@ try {
   assert.equal(await personButton.getAttribute("aria-pressed"), "false");
   const seekButton = list.getByRole("button", { name: /^Seek to the first observation of person/u }).first();
   await seekButton.click();
-  await page.waitForFunction(() => document.querySelector("video.vto-video").currentTime > 0.2);
+  // The person is already present in the first sampled frame, so "seek to start" rewinds from 2.4 s to 0.001 s.
+  await page.waitForFunction(() => document.querySelector("video.vto-video").currentTime < 0.05);
+  await page.waitForFunction(() => document.querySelector("svg.vto-overlay")?.getAttribute("data-frame-index") === "0");
   await page.getByRole("checkbox", { name: "Show boxes on the video" }).uncheck();
   assert.equal(await page.locator("svg.vto-overlay").count(), 0);
   await page.getByRole("checkbox", { name: "Show boxes on the video" }).check();
@@ -320,10 +327,17 @@ try {
 
   // ---- Rights revoked by the host: a new tracking request is denied and nothing new appears ----
   await nextCommand("rights-revoked");
+  // The reloaded page has a blank form: enter the same exact source version with a different frame count.
+  await page.getByLabel("Source artifact ID").fill(videoId);
+  await page.getByLabel("Exact source artifact version").fill(`sha256:${videoSha256}`);
   await page.getByLabel("Frames to sample (1 to 64)").fill("8");
   expectedErrors.push({ pathname: "/dev/v1/vision/tracks", status: 403 });
   await page.getByRole("button", { name: "Track exact source version" }).click();
-  await page.locator("#vision-track-status[data-failure='RIGHTS_REVOKED']").waitFor({ timeout: 60_000 });
+  try {
+    await page.locator("#vision-track-status[data-failure='RIGHTS_REVOKED']").waitFor({ timeout: 60_000 });
+  } catch (error) {
+    throw new Error(`revoked request was not shown as denied: ${await page.locator("#vision-track-status").evaluate((node) => node.outerHTML)} api=${JSON.stringify(apiRequests.slice(-3).map(({ method, path, body }) => `${method} ${path} ${body ?? ""}`))}`, { cause: error });
+  }
   assert.equal(await page.locator("#vision-track-status").getAttribute("data-tone"), "denied");
   assert.equal(await page.locator("#vision-track-status").getAttribute("role"), "alert");
   process.stdout.write(`${JSON.stringify({ event: "denied" })}\n`);

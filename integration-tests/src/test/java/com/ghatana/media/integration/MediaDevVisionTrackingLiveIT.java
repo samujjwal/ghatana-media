@@ -77,6 +77,8 @@ class MediaDevVisionTrackingLiveIT {
         Path ffmpeg = Path.of(ffmpegEnv);
         Path ffprobe = Path.of(ffprobeEnv);
 
+        Path digestCache = Path.of(System.getenv().getOrDefault("MEDIA_LOCAL_MODEL_DIGEST_CACHE",
+                Path.of(System.getProperty("java.io.tmpdir"), "ghatana-media-vision-model-digests.json").toString()));
         String run = UUID.randomUUID().toString().replace("-", "");
         String tenant = "tenant-dev-vision-track-" + run;
         String principal = "media-dev-vision-track-" + run;
@@ -100,7 +102,7 @@ class MediaDevVisionTrackingLiveIT {
             try (var s3 = s3(LOCALSTACK)) {
                 s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
             }
-            sidecar = startSidecar(python, script, models, home, sidecarPort, sidecarToken);
+            sidecar = startSidecar(python, script, models, home, sidecarPort, sidecarToken, digestCache);
             awaitSidecar(sidecar, sidecarPort, sidecarToken);
 
             installDescriptors(services);
@@ -113,11 +115,13 @@ class MediaDevVisionTrackingLiveIT {
             environment.put("MEDIA_LOCAL_VISION_SIDECAR_TOKEN", sidecarToken);
             environment.put("MEDIA_LOCAL_VISION_TIMEOUT_SECONDS", "480");
             environment.put("MEDIA_RIGHTS_DEV_ENABLED", "true");
+            // Composition verifies the multi-GB model digests; the opt-in stat-keyed digest cache makes restarts fast.
+            environment.put("MEDIA_LOCAL_MODEL_DIGEST_CACHE", digestCache.toString());
             environment.put("MEDIA_DEV_RENDER_FFMPEG", ffmpeg.toString());
             environment.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe.toString());
             String token = issueDevToken(tenant, principal);
             launcher = startLauncher(classpath, environment, log);
-            awaitReady(launcher, port);
+            awaitReadyPatiently(launcher, port);
 
             // ---- real input: FFmpeg-generated video with known motion, uploaded over HTTP ----
             byte[] video = TrackingVideoFixture.generate(ffmpeg, work, false);
@@ -249,7 +253,7 @@ class MediaDevVisionTrackingLiveIT {
 
                 stopLauncher(launcher);
                 launcher = startLauncher(classpath, environment, log);
-                awaitReady(launcher, port);
+                awaitReadyPatiently(launcher, port);
                 input.write("host-restarted " + issueDevToken(tenant, principal) + "\n");
                 input.flush();
                 JsonNode readback = readBrowserEvent(browser, output, "readback", log, 120);
@@ -312,7 +316,7 @@ class MediaDevVisionTrackingLiveIT {
             assertThat(stillDown.statusCode()).isEqualTo(503);
             assertThat(stillDown.body()).contains("VISION_OUTCOME_UNKNOWN");
 
-            sidecar = startSidecar(python, script, models, home, sidecarPort, sidecarToken);
+            sidecar = startSidecar(python, script, models, home, sidecarPort, sidecarToken, digestCache);
             awaitSidecar(sidecar, sidecarPort, sidecarToken);
             JsonNode retried = post(port, tenant, token, TRACKS, killBody, 201);
             assertThat(retried.path("replayed").asBoolean()).isFalse();
@@ -373,15 +377,32 @@ class MediaDevVisionTrackingLiveIT {
         }
     }
 
-    private static Process startSidecar(Path python, Path script, Path models, Path home, int port, String token)
-            throws Exception {
+    private static Process startSidecar(Path python, Path script, Path models, Path home, int port, String token,
+                                        Path digestCache) throws Exception {
         ProcessBuilder sidecarBuilder = new ProcessBuilder(python.toString(), "-I", script.toString(), "--port",
                 Integer.toString(port), "--models-root", models.toString());
         sidecarBuilder.redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD);
         sidecarBuilder.environment().clear();
         sidecarBuilder.environment().putAll(Map.of("GHATANA_VISION_SIDECAR_TOKEN", token,
-                "HOME", home.toString(), "PATH", "/usr/bin:/bin", "HF_HUB_OFFLINE", "1", "TRANSFORMERS_OFFLINE", "1"));
+                "HOME", home.toString(), "PATH", "/usr/bin:/bin", "HF_HUB_OFFLINE", "1", "TRANSFORMERS_OFFLINE", "1",
+                "MEDIA_LOCAL_MODEL_DIGEST_CACHE", digestCache.toString()));
         return sidecarBuilder.start();
+    }
+
+    /** Launcher composition digest-verifies the model files (first run on a loaded host can take minutes). */
+    private static void awaitReadyPatiently(Process process, int port) throws Exception {
+        long deadline = System.nanoTime() + java.time.Duration.ofMinutes(20).toNanos();
+        while (System.nanoTime() < deadline) {
+            if (!process.isAlive()) throw new AssertionError("MediaLauncher exited: " + process.exitValue());
+            try {
+                HttpResponse<String> response = HttpClient.newHttpClient().send(
+                        HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/health/ready")).GET().build(),
+                        HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) return;
+            } catch (java.io.IOException ignored) { }
+            Thread.sleep(500);
+        }
+        throw new AssertionError("MediaLauncher did not become ready within 20 minutes");
     }
 
     private static Path locate(String relative) {
