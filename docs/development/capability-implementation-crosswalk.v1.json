@@ -20,8 +20,8 @@
       "OPTIONAL_DEFERRED": 6
     },
     "localEvidence": {
-      "LOCAL_DEV_ONLY_TESTED": 10,
-      "LOCAL_DEV_ONLY_PARTIAL": 4
+      "LOCAL_DEV_ONLY_TESTED": 11,
+      "LOCAL_DEV_ONLY_PARTIAL": 6
     }
   },
   "externalOwnedDependencies": {
@@ -6881,7 +6881,21 @@
       "evidenceRefs": [
         "libs/media-experience-simulation"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/creative-outputs/simulations",
+          "GET /dev/v1/creative-outputs/{outputId}"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java"
+        ],
+        "gaps": [
+          "no simulation-pass contract or typed simulation-pass-result; output is a unit-labelled JSON observation series",
+          "scenario references are content-addressed to the request payload only (no owner currentness authority)"
+        ]
+      }
     },
     {
       "id": "media.recipe.template.physics-math-explainer",
@@ -8174,7 +8188,20 @@
       "evidenceRefs": [
         "src"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_TESTED",
+        "operations": [
+          "POST /dev/v1/creative-outputs/audio-repairs",
+          "GET /dev/v1/creative-outputs/{outputId}"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java"
+        ],
+        "gaps": [
+          "no rights decision is bound to the derived candidate; 16-bit PCM WAV only"
+        ]
+      }
     },
     {
       "id": "media.enhance.audio.wind-reduction",
@@ -10852,7 +10879,23 @@
         "launcher",
         "apps/media-experience-explorer"
       ],
-      "delegatedDependencies": []
+      "delegatedDependencies": [],
+      "localEvidence": {
+        "status": "LOCAL_DEV_ONLY_PARTIAL",
+        "operations": [
+          "POST /dev/v1/exports",
+          "GET /dev/v1/exports/{requestId}"
+        ],
+        "tests": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevDeliveryHttpTest.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevDeliveryRestartIT.java"
+        ],
+        "gaps": [
+          "only the DEV_ONLY local-directory destination; no network destination or external acknowledgment",
+          "no declared versioned delivery profile and no 'accepted' source requirement (any exact owner artifact version)",
+          "transfer authorization is a DEV_ONLY owner-read grant, not signed authority"
+        ]
+      }
     },
     {
       "id": "media.deliver.publish-governed",
