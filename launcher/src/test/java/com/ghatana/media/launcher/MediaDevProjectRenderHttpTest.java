@@ -711,7 +711,7 @@ class MediaDevProjectRenderHttpTest {
     }
 
     @Test
-    void mp4AudioMixInputsThatDoNotFitAreTyped422WithoutResampling() throws Exception {
+    void mp4AudioMixUpmixesMonoExactlyAndTypes422ForInputsThatDoNotFit() throws Exception {
         String ffmpeg = tool("GHATANA_MEDIA_FFMPEG");
         String ffprobe = tool("GHATANA_MEDIA_FFPROBE");
         org.junit.jupiter.api.Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
@@ -732,8 +732,32 @@ class MediaDevProjectRenderHttpTest {
                     audioClip("m-1", "audio-0", m1, 12, 0, 12), audioClip("m-2", "audio-1", m2, 12, 24, 12)), 2);
             HttpResponse<String> monoResponse = send(base, "POST", "/dev/v1/projects/" + mono.projectId() + "/renders",
                     mp4Body("mono", monoHead), PRINCIPAL, RENDER_PERMISSIONS);
-            assertThat(monoResponse.statusCode()).as(monoResponse.body()).isEqualTo(422);
-            assertThat(monoResponse.body()).contains("RENDER_UNSUPPORTED_AUDIO_LAYOUT");
+            // mono clips are mixed by exact sample duplication into stereo, recorded per clip in lineage
+            assertThat(monoResponse.statusCode()).as(monoResponse.body()).isEqualTo(201);
+            Map<String, Object> monoView = read(monoResponse.body());
+            Map<String, Object> monoMix = object(object(monoView.get("lineage")).get("audioMix"));
+            assertThat(monoMix).containsEntry("channels", 2);
+            for (Object entry : (List<?>) monoMix.get("clips")) {
+                assertThat(object(entry)).containsEntry("channelConversion", "MONO_DUPLICATED_TO_STEREO");
+            }
+            Path monoMp4 = Files.createTempFile(root, "mix-mono-", ".mp4");
+            Files.write(monoMp4, artifactBytes(runtime, (String) monoView.get("renderId")));
+            short[] monoPcm = decodedAudio(ffmpeg, monoMp4);
+            assertThat(toneAmplitude(monoPcm, 0.1, 0.4, 440)).isBetween(6_000.0, 10_000.0);
+            assertThat(toneAmplitude(monoPcm, 0.1, 0.4, 880)).isLessThan(500.0);
+            assertThat(toneAmplitude(monoPcm, 1.1, 1.4, 880)).isBetween(6_000.0, 10_000.0);
+            assertThat(toneAmplitude(monoPcm, 1.1, 1.4, 440)).isLessThan(500.0);
+
+            Fixture surround = twoClipProject(base, runtime, "mix-3ch");
+            MediaArtifact s1 = upload(runtime, "s1.wav", "audio/wav", pcmWav(48_000, 3, 0.5, 440), "mix-s1");
+            MediaArtifact s2 = upload(runtime, "s2.wav", "audio/wav", pcmWav(48_000, 2, 0.5, 880), "mix-s2");
+            String surroundHead = mp4Head(base, surround, List.of(
+                    audioClip("s-1", "audio-0", s1, 12, 0, 12), audioClip("s-2", "audio-1", s2, 12, 24, 12)), 2);
+            HttpResponse<String> surroundResponse = send(base, "POST",
+                    "/dev/v1/projects/" + surround.projectId() + "/renders", mp4Body("surround", surroundHead),
+                    PRINCIPAL, RENDER_PERMISSIONS);
+            assertThat(surroundResponse.statusCode()).as(surroundResponse.body()).isEqualTo(422);
+            assertThat(surroundResponse.body()).contains("RENDER_UNSUPPORTED_AUDIO_LAYOUT");
 
             Fixture mixedRates = twoClipProject(base, runtime, "mix-rates");
             MediaArtifact r48 = upload(runtime, "r48.wav", "audio/wav", pcmWav(48_000, 2, 0.5, 440), "mix-r48");

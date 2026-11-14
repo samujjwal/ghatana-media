@@ -19,8 +19,10 @@ import java.util.Map;
 /**
  * DEV_ONLY exact placement and mix of several AUDIO WAV clips into one timeline-length 16-bit stereo WAV using
  * {@link PcmStemMixer}. Every clip becomes one stem of exactly the timeline frame count (silence outside the
- * clip). Nothing is resampled, up/down-mixed, retimed, trimmed or padded implicitly: inputs that do not fit the
- * mixer's contract are typed {@link RenderNotSupportedException}s.
+ * clip). Nothing is resampled, down-mixed, retimed, trimmed or padded implicitly: inputs that do not fit the
+ * mixer's contract are typed {@link RenderNotSupportedException}s. The one channel conversion applied is the exact,
+ * lossless duplication of a mono clip's samples into both stereo channels (centre image, no gain change), which is
+ * recorded per clip in lineage as {@code channelConversion}; sources with more than two channels are refused.
  *
  * <p>Gains are unity and pan is centre because the project timeline has no per-clip gain or pan. Overlapping
  * clips are summed by the mixer, which then applies its own bounded peak-ceiling guard; the applied master gain
@@ -37,7 +39,22 @@ final class MediaDevProjectAudioMix {
     record Result(byte[] wav, String wavSha256, String pcmSha256, int sampleRate, int frameCount,
                   float appliedMasterGain, Map<String, Object> lineage) { }
 
-    private record Wav(int rate, int channels, byte[] pcm) { }
+    private record Wav(int rate, int channels, byte[] pcm, boolean convertedFromMono) {
+        Wav(int rate, int channels, byte[] pcm) { this(rate, channels, pcm, false); }
+    }
+
+    /** Exact mono to stereo: every 16-bit sample is written unchanged to the left and the right channel. */
+    private static Wav monoToStereo(Wav mono) {
+        byte[] in = mono.pcm();
+        byte[] out = new byte[in.length * 2];
+        for (int i = 0, o = 0; i + 1 < in.length; i += 2, o += 4) {
+            out[o] = in[i];
+            out[o + 1] = in[i + 1];
+            out[o + 2] = in[i];
+            out[o + 3] = in[i + 1];
+        }
+        return new Wav(mono.rate(), PcmStemMixer.CHANNELS, out, true);
+    }
 
     private MediaDevProjectAudioMix() { }
 
@@ -50,10 +67,12 @@ final class MediaDevProjectAudioMix {
         int rate = -1;
         for (Input in : inputs) {
             Wav wav = parse(in.wav());
-            if (wav.channels() != PcmStemMixer.CHANNELS) {
+            if (wav.channels() == 1) {
+                wav = monoToStereo(wav);
+            } else if (wav.channels() != PcmStemMixer.CHANNELS) {
                 throw new RenderNotSupportedException("RENDER_UNSUPPORTED_AUDIO_LAYOUT",
-                        "mixing several audio clips requires 16-bit stereo WAV sources (clip " + in.clipId()
-                                + " has " + wav.channels() + " channel(s)); no channel conversion is applied");
+                        "mixing several audio clips requires 16-bit mono or stereo WAV sources (clip " + in.clipId()
+                                + " has " + wav.channels() + " channel(s)); no down-mix is applied");
             }
             if (rate < 0) rate = wav.rate();
             else if (rate != wav.rate()) {
@@ -108,6 +127,7 @@ final class MediaDevProjectAudioMix {
             entry.put("durationFrames", length);
             entry.put("gain", 1.0);
             entry.put("pan", 0.0);
+            entry.put("channelConversion", wav.convertedFromMono() ? "MONO_DUPLICATED_TO_STEREO" : "NONE");
             clipLineage.add(entry);
         }
         PcmStemMixer.MixResult mixed;
