@@ -39,6 +39,7 @@ class DocumentIntelligenceClientTest {
     private AtomicInteger deleteCalls;
     private AtomicReference<byte[]> requestBody;
     private AtomicReference<String> operationGeneration;
+    private AtomicReference<String> upgradeHeader;
     private volatile String parseResponse;
     private volatile boolean blockParse;
     private volatile boolean loseCancelAck;
@@ -52,6 +53,7 @@ class DocumentIntelligenceClientTest {
         deleteCalls = new AtomicInteger();
         requestBody = new AtomicReference<>();
         operationGeneration = new AtomicReference<>();
+        upgradeHeader = new AtomicReference<>();
         parseResponse = SUCCESS;
         parseEntered = new CountDownLatch(1);
         releaseParse = new CountDownLatch(1);
@@ -91,6 +93,7 @@ class DocumentIntelligenceClientTest {
         assertEquals(State.SUCCEEDED, result.state());
         assertEquals("document-intelligence.v1", result.parsedDocument().get("protocolVersion"));
         assertEquals("op-1", result.parsedDocument().get("operationId"));
+        assertNull(upgradeHeader.get(), "The worker's HTTP/1.1 listener does not support h2c upgrades");
         String multipart = new String(requestBody.get(), StandardCharsets.ISO_8859_1);
         assertEquals(operationGeneration.get(), extractMetadataString(multipart, "operationGeneration"));
         assertTrue(operationGeneration.get().matches("[0-9a-f]{32}"));
@@ -207,6 +210,7 @@ class DocumentIntelligenceClientTest {
         byte[] body = exchange.getRequestBody().readAllBytes();
         requestBody.set(body);
         operationGeneration.set(exchange.getRequestHeaders().getFirst("X-Operation-Generation"));
+        upgradeHeader.set(exchange.getRequestHeaders().getFirst("Upgrade"));
         if (blockParse) {
             parseEntered.countDown();
             try { releaseParse.await(3, TimeUnit.SECONDS); }

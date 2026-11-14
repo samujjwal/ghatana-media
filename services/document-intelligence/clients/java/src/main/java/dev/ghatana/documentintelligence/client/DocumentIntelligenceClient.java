@@ -149,6 +149,7 @@ public final class DocumentIntelligenceClient {
 
     public DocumentIntelligenceClient(Config config, CredentialProvider credentials) {
         this(config, credentials, HttpClient.newBuilder().connectTimeout(config.connectTimeout())
+                .version(HttpClient.Version.HTTP_1_1)
                 .followRedirects(HttpClient.Redirect.NEVER).build());
     }
 
