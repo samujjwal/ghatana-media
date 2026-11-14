@@ -1,0 +1,20 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(880px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice, #dev-creative-outputs > section, #creative-result { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form { display: grid; gap: .6rem; max-width: 40rem; }
+input, select, textarea, button { font: inherit; padding: .65rem .8rem; max-width: 100%; }
+textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; }
+button { width: fit-content; cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+fieldset { display: grid; gap: .4rem; border: 1px solid GrayText; border-radius: 8px; }
+dl > div { display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr; gap: .5rem; }
+dt { font-weight: 700; }
+dd { margin: 0; overflow-wrap: anywhere; }
+aside[role="note"] { border: 2px solid CanvasText; border-radius: 8px; padding: .75rem 1rem; margin: .75rem 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { border: 1px solid GrayText; padding: .3rem .5rem; text-align: right; }
+[role="alert"] { border-left: 5px solid CanvasText; padding-left: .75rem; }

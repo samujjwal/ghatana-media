@@ -52,6 +52,27 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   reconciled as this request only when its effect is present in the exact
   direct successor of the recorded CAS base; a matching graph at another
   head remains unresolved and does not enable retry.
+- `DevCreativeOutputsPanel` (`outputs: DevCreativeOutputsPort`, DEV_ONLY) drives
+  the host creative lanes: audio repair (`POST /dev/v1/creative-outputs/audio-repairs`,
+  one exact owner artifact version plus an explicit threshold/maxRunFrames
+  profile, nothing defaulted), simulation (`.../simulations`, bounded
+  CONSTANT_FORCE/HARMONIC_SPRING scenario with a unit on every quantity and an
+  optional declared invariant), spatial GLB (`.../spatial-glb`, rig JSON with
+  client-side shape validation) and reopen by id (`GET .../{outputId}`). It
+  shows registered output id/version/sha256/size and lineage (exact source
+  version; spatial `float32LossFields` and the DEV_ONLY rights decision with
+  `productionGrant=false`; a body claiming a production grant, a non-VALID
+  simulation or a different source version is refused). Audio metrics are shown
+  only as "engine sample statistics", never as quality. Simulation always shows
+  `SIMULATED_OUTPUT_NOT_MEASUREMENT`; the unit-labelled observation series is
+  rendered only when the port supplies the optional `readSimulationDocument`
+  (the artifact bytes hold it; the host has no DEV_ONLY content route yet, so
+  the panel says it is not displayed). requestId is stable per unchanged
+  payload, `200` is shown as replayed vs `201` created, `409` discards the
+  identity, `502`/`503`/unknown offer "Retry with the same request identity",
+  and typed `422` (nothing-to-repair, unrepairable run, validator
+  REJECTED/ABSTAIN findings, spatial refusals), `403` and `404` are text
+  alerts with no output. Not covered: playback, GLB viewing, download, approval.
 - With an optional `outputs: DevProjectOutputsPort` the same workspace shows a
   DEV_ONLY **Render and review** panel (`DevProjectOutputsPanel`; without a
   port it keeps the truthful "Render engine unavailable" state). Render: the

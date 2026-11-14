@@ -28,6 +28,11 @@ const devProjectRoutes = [
   // DEV_ONLY hosted export lane used by the "Export this render artifact" control.
   { method: "POST", path: /^\/dev\/v1\/exports$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY creative-output lanes used by the "Creative outputs" page.
+  { method: "POST", path: /^\/dev\/v1\/creative-outputs\/audio-repairs$/u },
+  { method: "POST", path: /^\/dev\/v1\/creative-outputs\/simulations$/u },
+  { method: "POST", path: /^\/dev\/v1\/creative-outputs\/spatial-glb$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/creative-outputs/${OPAQUE_ID}$`, "u") },
 ];
 
 function isCanonicalPath(requestUrl) {

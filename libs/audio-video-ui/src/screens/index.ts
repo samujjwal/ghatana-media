@@ -34,3 +34,7 @@ export { DevProjectOutputsPanel } from "./DevProjectOutputsPanel";
 export type { DevProjectOutputsPanelProps } from "./DevProjectOutputsPanel";
 export { DevOutputsHostError, parseExportView, parseRenderView, parseReviewView } from "./devProjectOutputs";
 export type { DevProjectOutputsPort, DevHostResponse, DevExportRequest, ExportView, DevRenderRequest, DevReviewSubject } from "./devProjectOutputs";
+export { DevCreativeOutputsPanel } from "./DevCreativeOutputsPanel";
+export type { DevCreativeOutputsPanelProps } from "./DevCreativeOutputsPanel";
+export { DevCreativeHostError, parseCreativeView } from "./devCreativeOutputs";
+export type { DevCreativeOutputsPort, DevCreativeHostResponse, DevAudioRepairRequest, DevSimulationRequest, DevSpatialGlbRequest } from "./devCreativeOutputs";
