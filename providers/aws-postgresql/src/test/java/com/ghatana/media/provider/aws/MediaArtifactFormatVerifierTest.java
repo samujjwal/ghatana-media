@@ -50,6 +50,21 @@ class MediaArtifactFormatVerifierTest {
             assertThat(match.state()).isEqualTo("SIGNATURE_MATCH");
             assertThat(match.detectedFormat()).isEqualTo("png");
         }
+    @Test
+        void acceptsGlbOnlyWithGltfMagicAndVersionTwo() {
+            byte[] glb = {'g', 'l', 'T', 'F', 2, 0, 0, 0, 12, 0, 0, 0};
+            assertThat(MediaArtifactFormatVerifier.matches("model/gltf-binary", glb)).isTrue();
+            assertThat(MediaArtifactFormatVerifier.verify("rig.glb", "model/gltf-binary", glb).state())
+                    .isEqualTo("SIGNATURE_MATCH");
+            byte[] versionOne = {'g', 'l', 'T', 'F', 1, 0, 0, 0, 12, 0, 0, 0};
+            assertThat(MediaArtifactFormatVerifier.matches("model/gltf-binary", versionOne)).isFalse();
+            assertThat(MediaArtifactFormatVerifier.matches("model/gltf-binary", bytes("RIFFxxxxWAVE"))).isFalse();
+            assertThat(MediaArtifactFormatVerifier.verify("rig.glb", "model/gltf-binary", bytes("RIFFxxxxWAVE")).state())
+                    .isEqualTo("SIGNATURE_MISMATCH");
+            assertThat(MediaArtifactFormatVerifier.verify("rig.glb", "audio/wav", glb).state())
+                    .isEqualTo("SIGNATURE_MISMATCH");
+        }
+
     private static byte[] bytes(String value) {
         return value.getBytes(StandardCharsets.ISO_8859_1);
     }

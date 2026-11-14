@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.production.simulation.PhysicalSimulation;
 import com.ghatana.media.production.simulation.SimulationSemanticValidator;
+import com.ghatana.media.production.spatial.SpatialRigEngine;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.sun.net.httpserver.HttpExchange;
 import tools.jackson.core.StreamReadFeature;
@@ -23,12 +24,14 @@ import java.util.regex.Pattern;
 
 /**
  * DEV_ONLY creative-output routes (outside the canonical manifest/OpenAPI):
- * POST /dev/v1/creative-outputs/audio-repairs, POST /dev/v1/creative-outputs/simulations and
+ * POST /dev/v1/creative-outputs/audio-repairs, POST /dev/v1/creative-outputs/simulations,
+ * POST /dev/v1/creative-outputs/spatial-glb and
  * GET /dev/v1/creative-outputs/{outputId}. Every response is labelled DEV_ONLY.
  */
 final class MediaDevCreativeOutputRoutes {
     static final String AUDIO_REPAIRS = "/dev/v1/creative-outputs/audio-repairs";
     static final String SIMULATIONS = "/dev/v1/creative-outputs/simulations";
+    static final String SPATIAL_GLB = "/dev/v1/creative-outputs/spatial-glb";
     private static final Pattern OUTPUT = Pattern.compile("^/dev/v1/creative-outputs/([^/]+)$");
     private static final ObjectMapper JSON = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
@@ -73,19 +76,21 @@ final class MediaDevCreativeOutputRoutes {
 
     private void dispatch(HttpExchange exchange, String path, String method, String tenantId, String principalId,
                           int maxBody, Responder out) throws IOException {
-        if (AUDIO_REPAIRS.equals(path) || SIMULATIONS.equals(path)) {
+        if (AUDIO_REPAIRS.equals(path) || SIMULATIONS.equals(path) || SPATIAL_GLB.equals(path)) {
             if (!"POST".equals(method)) { notAllowed(exchange, "POST", out); return; }
             boolean audio = AUDIO_REPAIRS.equals(path);
-            if ((audio && !MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read"))
+            boolean spatial = SPATIAL_GLB.equals(path);
+            if (((audio || spatial) && !MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read"))
                     || !MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:create")) {
                 runtime.recordDeniedRequest();
                 out.error(exchange, 403, "ARTIFACT_PERMISSION_REQUIRED",
-                        "DEV_ONLY artifact create" + (audio ? " and read" : "")
+                        "DEV_ONLY artifact create" + (audio || spatial ? " and read" : "")
                                 + " permissions are required for this creative output", Map.of());
                 return;
             }
             Map<String, Object> body = body(exchange, maxBody);
             var result = audio ? outputs.repairAudio(tenantId, principalId, audioRequest(body))
+                    : spatial ? outputs.exportSpatialGlb(tenantId, principalId, spatialRequest(body))
                     : outputs.simulate(tenantId, principalId, parseSimulation(body));
             out.json(exchange, result.replayed() ? 200 : 201, view(result));
             return;
@@ -130,6 +135,91 @@ final class MediaDevCreativeOutputRoutes {
         view.put("scope", "DEV_ONLY");
         view.put("note", "DEV_ONLY engine output; not a production, quality, measurement or approval claim");
         return view;
+    }
+
+    // ---- spatial GLB ----
+
+    private static final int MAX_BODY_ITEMS = 4096;
+
+    private static MediaDevCreativeOutputRuntime.SpatialRigRequest spatialRequest(Map<String, Object> body) {
+        requireKeys(body, Set.of("requestId", "rig"), Set.of(), "spatial GLB request");
+        Map<String, Object> rig = object(body.get("rig"), "rig");
+        requireKeys(rig, Set.of("id", "coordinateFrame", "sourceVersions", "bones", "tracks"),
+                Set.of("sourceProjectRevisionRef"), "rig");
+        Map<String, Object> frame = object(rig.get("coordinateFrame"), "rig.coordinateFrame");
+        requireKeys(frame, Set.of("frameRef", "frameVersionRef", "handedness", "axisDirections", "positionUnitRef",
+                "orientationUnitRef"), Set.of(), "rig.coordinateFrame");
+        List<?> axes = list(frame.get("axisDirections"), "rig.coordinateFrame.axisDirections");
+        if (axes.size() != 3) throw new IllegalArgumentException("axisDirections must list x, y and z");
+        var parsedFrame = new MediaDevCreativeOutputRuntime.SpatialFrame(
+                string(frame.get("frameRef"), "frameRef"), string(frame.get("frameVersionRef"), "frameVersionRef"),
+                enumValue(SpatialRigEngine.Handedness.class, frame.get("handedness"), "handedness"),
+                enumValue(SpatialRigEngine.AxisDirection.class, axes.get(0), "axisDirections[0]"),
+                enumValue(SpatialRigEngine.AxisDirection.class, axes.get(1), "axisDirections[1]"),
+                enumValue(SpatialRigEngine.AxisDirection.class, axes.get(2), "axisDirections[2]"),
+                string(frame.get("positionUnitRef"), "positionUnitRef"),
+                string(frame.get("orientationUnitRef"), "orientationUnitRef"));
+
+        List<?> rawSources = list(rig.get("sourceVersions"), "rig.sourceVersions");
+        List<?> rawBones = list(rig.get("bones"), "rig.bones");
+        Map<String, Object> rawTracks = object(rig.get("tracks"), "rig.tracks");
+        if (rawSources.size() > MAX_BODY_ITEMS || rawBones.size() > MAX_BODY_ITEMS || rawTracks.size() > MAX_BODY_ITEMS) {
+            throw new IllegalArgumentException("rig collections exceed the request ceiling");
+        }
+        List<MediaDevCreativeOutputRuntime.SpatialSource> sources = new ArrayList<>();
+        for (Object raw : rawSources) {
+            Map<String, Object> source = object(raw, "sourceVersions[]");
+            requireKeys(source, Set.of("artifactId", "artifactVersionId"), Set.of(), "sourceVersions[]");
+            sources.add(new MediaDevCreativeOutputRuntime.SpatialSource(string(source.get("artifactId"), "artifactId"),
+                    string(source.get("artifactVersionId"), "artifactVersionId")));
+        }
+        List<MediaDevCreativeOutputRuntime.SpatialBone> bones = new ArrayList<>();
+        for (Object raw : rawBones) {
+            Map<String, Object> bone = object(raw, "bones[]");
+            requireKeys(bone, Set.of("id", "restPose", "constraint"), Set.of("parentId"), "bones[]");
+            Map<String, Object> constraint = object(bone.get("constraint"), "bone.constraint");
+            requireKeys(constraint, Set.of("kind", "maxAngularDeviationRadians"), Set.of(), "bone.constraint");
+            bones.add(new MediaDevCreativeOutputRuntime.SpatialBone(string(bone.get("id"), "bone.id"),
+                    bone.get("parentId") == null ? null : string(bone.get("parentId"), "bone.parentId"),
+                    pose(bone.get("restPose"), "bone.restPose"),
+                    enumValue(SpatialRigEngine.JointKind.class, constraint.get("kind"), "constraint.kind"),
+                    decimal(constraint.get("maxAngularDeviationRadians"), "constraint.maxAngularDeviationRadians")));
+        }
+        Map<String, List<MediaDevCreativeOutputRuntime.SpatialKey>> tracks = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : rawTracks.entrySet()) {
+            List<?> rawKeys = list(entry.getValue(), "rig.tracks." + entry.getKey());
+            if (rawKeys.size() > MAX_BODY_ITEMS) throw new IllegalArgumentException("track exceeds the request ceiling");
+            List<MediaDevCreativeOutputRuntime.SpatialKey> keys = new ArrayList<>();
+            for (Object rawKey : rawKeys) {
+                Map<String, Object> key = object(rawKey, "keyframe");
+                requireKeys(key, Set.of("time", "pose"), Set.of(), "keyframe");
+                Map<String, Object> time = object(key.get("time"), "keyframe.time");
+                requireKeys(time, Set.of("numerator", "denominator"), Set.of(), "keyframe.time");
+                keys.add(new MediaDevCreativeOutputRuntime.SpatialKey(integer(time.get("numerator"), "time.numerator"),
+                        integer(time.get("denominator"), "time.denominator"), pose(key.get("pose"), "keyframe.pose")));
+            }
+            tracks.put(entry.getKey(), keys);
+        }
+        return new MediaDevCreativeOutputRuntime.SpatialRigRequest(string(body.get("requestId"), "requestId"),
+                string(rig.get("id"), "rig.id"),
+                rig.get("sourceProjectRevisionRef") == null ? null
+                        : string(rig.get("sourceProjectRevisionRef"), "rig.sourceProjectRevisionRef"),
+                parsedFrame, sources, bones, tracks);
+    }
+
+    private static MediaDevCreativeOutputRuntime.SpatialPose pose(Object raw, String field) {
+        Map<String, Object> pose = object(raw, field);
+        requireKeys(pose, Set.of("position", "orientation"), Set.of(), field);
+        return new MediaDevCreativeOutputRuntime.SpatialPose(numbers(pose.get("position"), 3, field + ".position"),
+                numbers(pose.get("orientation"), 4, field + ".orientation"));
+    }
+
+    private static double[] numbers(Object raw, int size, String field) {
+        List<?> values = list(raw, field);
+        if (values.size() != size) throw new IllegalArgumentException(field + " must have " + size + " numbers");
+        double[] out = new double[size];
+        for (int i = 0; i < size; i++) out[i] = decimal(values.get(i), field + "[" + i + "]");
+        return out;
     }
 
     // ---- request parsing ----

@@ -67,6 +67,7 @@ dependencies {
     implementation(project(":services:media:modules:production:review"))
     implementation(project(":services:media:modules:production:audio-mixing"))
     implementation(project(":services:media:modules:production:simulation"))
+    implementation(project(":services:media:modules:production:spatial"))
     implementation(project(":services:media:audio-video-observability"))
     runtimeOnly(project(":services:media:providers:aws-postgresql"))
 

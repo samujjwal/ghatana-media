@@ -6,6 +6,7 @@ import com.ghatana.media.production.audio.AudioRepairComparison;
 import com.ghatana.media.production.audio.BoundedPcmDeclipper;
 import com.ghatana.media.production.simulation.PhysicalSimulation;
 import com.ghatana.media.production.simulation.SimulationSemanticValidator;
+import com.ghatana.media.production.spatial.SpatialRigEngine;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaSimulationContracts;
@@ -54,6 +55,8 @@ public final class MediaDevCreativeOutputRuntime {
     public static final String AUDIO_REPAIR_ENGINE = "production.audio.BoundedPcmDeclipper/linear-interpolation";
     public static final String AUDIO_COMPARISON_ENGINE = "production.audio.AudioRepairComparison";
     public static final String SIMULATION_ENGINE = "production.simulation.PhysicalSimulation/velocity-verlet";
+    public static final String SPATIAL_ENGINE = "production.spatial.SpatialRigEngine/glb-export";
+    public static final String KIND_SPATIAL_GLB = "SPATIAL_GLB_EXPORT";
     public static final String KIND_AUDIO_REPAIR = "AUDIO_REPAIR_CANDIDATE";
     public static final String KIND_SIMULATION = "SIMULATED_OUTPUT_NOT_MEASUREMENT";
     static final int MAX_SOURCE_WAV_BYTES = BoundedPcmDeclipper.MAX_PCM_BYTES + 64 * 1024;
@@ -62,7 +65,9 @@ public final class MediaDevCreativeOutputRuntime {
     /** Lineage fields; store-added artifact metadata (classification, retention, ...) is not lineage. */
     private static final List<String> LINEAGE_KEYS = List.of("creativeSchema", "scope", "kind", "engine", "requestId",
             "comparisonEngine", "source", "profile", "sourcePcmSha256", "repairedPcmSha256", "metrics",
-            "scenarioSha256", "evidenceClass", "solver", "inputReferences", "validation", "solverStats", "note");
+            "scenarioSha256", "evidenceClass", "solver", "inputReferences", "validation", "solverStats", "note",
+            "rigId", "sourceProjectRevisionRef", "sources", "coordinateFrame", "timeEncoding", "lossDisposition",
+            "float32LossFields", "rightsDecision", "glbSha256");
     private static final ObjectMapper JSON = JsonMapper.builder().build();
 
     private final MediaRuntime runtime;
@@ -446,6 +451,165 @@ public final class MediaDevCreativeOutputRuntime {
         } else {
             out.append(JSON.writeValueAsString(value));
         }
+    }
+
+    // ---- spatial GLB ----
+
+    /** Plain-data rig request; engine types are built (and engine refusals typed) inside {@link #exportSpatialGlb}. */
+    public record SpatialRigRequest(String requestId, String rigId, String sourceProjectRevisionRef,
+                                    SpatialFrame frame, List<SpatialSource> sources, List<SpatialBone> bones,
+                                    Map<String, List<SpatialKey>> tracks) {
+        public SpatialRigRequest {
+            requestId = boundedId(requestId, "requestId");
+            sources = List.copyOf(sources);
+            bones = List.copyOf(bones);
+            Map<String, List<SpatialKey>> copy = new LinkedHashMap<>();
+            tracks.forEach((bone, keys) -> copy.put(bone, List.copyOf(keys)));
+            tracks = java.util.Collections.unmodifiableMap(copy);
+        }
+    }
+
+    public record SpatialFrame(String frameRef, String frameVersionRef, SpatialRigEngine.Handedness handedness,
+                               SpatialRigEngine.AxisDirection xAxis, SpatialRigEngine.AxisDirection yAxis,
+                               SpatialRigEngine.AxisDirection zAxis, String positionUnitRef,
+                               String orientationUnitRef) { }
+
+    public record SpatialSource(String artifactId, String artifactVersionId) { }
+
+    /** Position is x,y,z; orientation is the engine's explicit UNIT_QUATERNION_XYZW (x,y,z,w). */
+    public record SpatialPose(double[] position, double[] orientation) { }
+
+    public record SpatialBone(String id, String parentId, SpatialPose restPose, SpatialRigEngine.JointKind jointKind,
+                              double maxAngularDeviationRadians) { }
+
+    public record SpatialKey(long numerator, long denominator, SpatialPose pose) { }
+
+    public CreativeResult exportSpatialGlb(String tenantId, String principalId, SpatialRigRequest request) {
+        Objects.requireNonNull(request, "request");
+        // Every named source must be one of this principal's own artifact versions, exactly.
+        List<Map<String, Object>> sourceViews = new ArrayList<>();
+        List<SpatialRigEngine.SourceVersionRef> exact = new ArrayList<>();
+        for (SpatialSource ref : request.sources()) {
+            MediaArtifact source = runtime.artifact(tenantId, principalId, ref.artifactId())
+                    .filter(found -> found.version().value().equals(ref.artifactVersionId()))
+                    .orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
+            Map<String, Object> view = new LinkedHashMap<>();
+            view.put("tenantId", tenantId);
+            view.put("artifactId", source.artifactId());
+            view.put("artifactVersionId", source.version().value());
+            view.put("sha256", source.sha256());
+            view.put("contentType", source.contentType());
+            sourceViews.add(view);
+            try {
+                exact.add(new SpatialRigEngine.SourceVersionRef(tenantId, source.artifactId(), source.version().value()));
+            } catch (IllegalArgumentException invalid) {
+                throw new CreativeUnsupportedException("SPATIAL_RIG_INVALID", invalid.getMessage());
+            }
+        }
+        SpatialRigEngine.GlbArtifact glb;
+        try {
+            SpatialFrame f = request.frame();
+            var frame = new SpatialRigEngine.CoordinateFrame(f.frameRef(), f.frameVersionRef(), f.handedness(),
+                    f.xAxis(), f.yAxis(), f.zAxis(), f.positionUnitRef(), f.orientationUnitRef());
+            List<SpatialRigEngine.Bone> bones = new ArrayList<>();
+            for (SpatialBone bone : request.bones()) {
+                bones.add(new SpatialRigEngine.Bone(bone.id(), bone.parentId(), transform(bone.restPose()),
+                        new SpatialRigEngine.JointConstraint(bone.jointKind(), bone.maxAngularDeviationRadians())));
+            }
+            Map<String, List<SpatialRigEngine.PoseKeyframe>> tracks = new LinkedHashMap<>();
+            request.tracks().forEach((boneId, keys) -> {
+                List<SpatialRigEngine.PoseKeyframe> converted = new ArrayList<>();
+                for (SpatialKey key : keys) {
+                    converted.add(new SpatialRigEngine.PoseKeyframe(
+                            SpatialRigEngine.RationalTime.of(key.numerator(), key.denominator()),
+                            transform(key.pose())));
+                }
+                tracks.put(boneId, converted);
+            });
+            var rig = new SpatialRigEngine.Rig(request.rigId(), frame, "UNIT_QUATERNION_XYZW", exact, bones, tracks,
+                    request.sourceProjectRevisionRef());
+            if (exact.isEmpty()) {
+                throw new SpatialRigEngine.SpatialExportBlockedException(
+                        SpatialRigEngine.ExportBlocker.SOURCE_VERSION_MISSING);
+            }
+            // DEV_ONLY owner-scope decision: the engine's rights port is answered ELIGIBLE only for a source version
+            // this principal was just shown to own. It is not a production rights grant or licence determination.
+            java.util.Set<SpatialRigEngine.SourceVersionRef> ownerVisible = new java.util.HashSet<>(exact);
+            glb = new SpatialRigEngine().exportGlb(rig, ref -> ownerVisible.contains(ref)
+                    ? SpatialRigEngine.RightsOutcome.ELIGIBLE : SpatialRigEngine.RightsOutcome.UNKNOWN);
+        } catch (SpatialRigEngine.SpatialExportBlockedException blocked) {
+            throw new CreativeUnsupportedException("SPATIAL_EXPORT_" + blocked.blocker().name(), blocked.getMessage());
+        } catch (SpatialRigEngine.SourceRightsDeniedException denied) {
+            throw new CreativeUnsupportedException("SPATIAL_SOURCE_RIGHTS_" + denied.outcome().name(),
+                    denied.getMessage());
+        } catch (IllegalArgumentException | ArithmeticException invalid) {
+            throw new CreativeUnsupportedException("SPATIAL_RIG_INVALID", String.valueOf(invalid.getMessage()));
+        }
+        byte[] bytes = glb.bytes();
+        Map<String, Object> embedded = glbSpatialMetadata(bytes);
+
+        Map<String, Object> lineage = baseLineage(KIND_SPATIAL_GLB, SPATIAL_ENGINE, request.requestId());
+        lineage.put("rigId", glb.rigId());
+        lineage.put("sourceProjectRevisionRef", glb.sourceProjectRevisionRef());
+        lineage.put("sources", sourceViews);
+        Map<String, Object> frameView = new LinkedHashMap<>();
+        frameView.put("frameRef", glb.frameRef());
+        frameView.put("frameVersionRef", glb.frameVersionRef());
+        frameView.put("handedness", embedded.get("handedness"));
+        frameView.put("axisDirections", embedded.get("axisDirections"));
+        frameView.put("positionUnitRef", embedded.get("positionUnitRef"));
+        frameView.put("orientationUnitRef", embedded.get("orientationUnitRef"));
+        lineage.put("coordinateFrame", frameView);
+        lineage.put("timeEncoding", glb.timeEncoding());
+        lineage.put("lossDisposition", glb.lossDisposition());
+        lineage.put("float32LossFields", embedded.get("float32LossFields"));
+        lineage.put("glbSha256", glb.sha256());
+        Map<String, Object> rights = new LinkedHashMap<>();
+        rights.put("authority", "DEV_ONLY_OWNER_SCOPE_VISIBILITY");
+        rights.put("outcome", "ELIGIBLE");
+        rights.put("basis", "each source version was read as an existing artifact of the requesting principal");
+        rights.put("productionGrant", false);
+        lineage.put("rightsDecision", rights);
+        lineage.put("note", "Engine GLB export under its bounded local profile (right-handed +X/+Y/+Z, metre, unit "
+                + "quaternion XYZW) with FLOAT32 time/translation/rotation approximation. The rights decision is a "
+                + "DEV_ONLY owner-scope check, not a licence or production grant; no target profile registry, "
+                + "transform, 360 or viewer fidelity claim is made.");
+        return register(tenantId, principalId, "spatial-glb", request.requestId(), bytes, glb.mimeType(), "glb",
+                "spatial-rig-" + safeName(glb.rigId()), lineage);
+    }
+
+    private static SpatialRigEngine.LocalTransform transform(SpatialPose pose) {
+        return new SpatialRigEngine.LocalTransform(
+                new SpatialRigEngine.Vec3(pose.position()[0], pose.position()[1], pose.position()[2]),
+                new SpatialRigEngine.Quaternion(pose.orientation()[0], pose.orientation()[1],
+                        pose.orientation()[2], pose.orientation()[3]));
+    }
+
+    /**
+     * Independent GLB readback: validates the container header/length and returns the {@code extras.mediaSpatial}
+     * block the engine embedded, so the registered lineage repeats what the engine reports rather than a copy.
+     */
+    static Map<String, Object> glbSpatialMetadata(byte[] glb) {
+        java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(glb).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        if (glb.length < 20 || buffer.getInt(0) != 0x46546c67 || buffer.getInt(4) != 2
+                || buffer.getInt(8) != glb.length || buffer.getInt(16) != 0x4e4f534a) {
+            throw new IllegalStateException("engine GLB does not have a valid glTF 2.0 container header");
+        }
+        int jsonLength = buffer.getInt(12);
+        if (jsonLength < 0 || 20L + jsonLength > glb.length) {
+            throw new IllegalStateException("engine GLB JSON chunk exceeds the container");
+        }
+        Map<String, Object> document = JSON.readValue(
+                new String(glb, 20, jsonLength, StandardCharsets.UTF_8).trim(),
+                new tools.jackson.core.type.TypeReference<Map<String, Object>>() { });
+        Object extras = document.get("extras");
+        Object spatial = extras instanceof Map<?, ?> map ? map.get("mediaSpatial") : null;
+        if (!(spatial instanceof Map<?, ?> metadata)) {
+            throw new IllegalStateException("engine GLB carries no mediaSpatial metadata");
+        }
+        Map<String, Object> copy = new LinkedHashMap<>();
+        metadata.forEach((key, value) -> copy.put(String.valueOf(key), value));
+        return copy;
     }
 
     // ---- shared registration and reopen ----

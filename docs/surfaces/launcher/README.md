@@ -289,7 +289,16 @@ DEV_ONLY creative outputs (in-process HTTP; outside the canonical manifest/OpenA
 - `GET /dev/v1/creative-outputs/{outputId}` reopens the output and its lineage from the artifact after restart.
 - Both engines are deterministic, so a duplicate `requestId` replays the same artifact (200, `replayed:true`), a
   divergent reuse is 409, and a failed registration is a typed 502 that resumes with the same `requestId`.
-- Spatial (GLB) export is not hosted yet.
+- `POST /dev/v1/creative-outputs/spatial-glb` exports an explicit bounded rig (bones, exact-rational keyframes, the
+  engine-supported coordinate frame: right-handed +X/+Y/+Z, metre, unit quaternion XYZW) with `SpatialRigEngine`'s
+  existing GLB export and registers `model/gltf-binary`. Every `rig.sourceVersions` entry must be an exact artifact
+  version of the requesting principal (else 404 `SOURCE_VERSION_NOT_FOUND`). Lineage carries the exact source
+  versions, revision/rig refs as given, coordinate frame, `float32LossFields` as embedded by the engine, and engine
+  identity. The engine's rights port is answered by a DEV_ONLY owner-scope visibility check (labelled
+  `DEV_ONLY_OWNER_SCOPE_VISIBILITY`, `productionGrant:false`), never a production grant. Engine refusals (missing
+  revision/source, unsupported frame, joint bound, float32 time collapse, invalid rig) are typed 422. No target
+  profile registry, transform, field-loss binding, 360 or viewer fidelity claim is made. The durable store's format
+  verifier now admits `model/gltf-binary`/`.glb` by `glTF` magic + version 2 only.
 
 ```bash
 ./gradlew :services:media:launcher:test \

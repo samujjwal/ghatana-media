@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.production.spatial.SpatialRigEngine;
 import com.ghatana.media.production.timeline.InMemoryProjectTimelineStore;
 import com.ghatana.media.runtime.ManagedProjectTimelineStore;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
@@ -71,6 +72,7 @@ class MediaDevCreativeOutputHttpTest {
     private static final ObjectMapper JSON = JsonMapper.builder().build();
     private static final String AUDIO = "/dev/v1/creative-outputs/audio-repairs";
     private static final String SIM = "/dev/v1/creative-outputs/simulations";
+    private static final String SPATIAL = "/dev/v1/creative-outputs/spatial-glb";
     private static final int RATE = 8_000;
 
     // ---------- audio repair ----------
@@ -404,6 +406,320 @@ class MediaDevCreativeOutputHttpTest {
             runtime.close();
         }
     }
+
+    // ---------- spatial GLB ----------
+
+    @Test
+    void exportsSpatialGlbBoundToExactSourcesReplaysConflictsAndReopensAfterRestart() throws Exception {
+        Path root = Files.createTempDirectory("media-dev-creative-spatial-");
+        MediaRuntime runtime = runtime(root);
+        HttpServer server = server(runtime, null);
+        String outputId;
+        String sha;
+        Map<String, Object> first;
+        MediaArtifact sourceA;
+        MediaArtifact sourceB;
+        try {
+            String base = base(server);
+            sourceA = upload(runtime, "rig-a.bin", "application/octet-stream", "rig source a".getBytes(StandardCharsets.UTF_8), "sp-a");
+            sourceB = upload(runtime, "rig-b.bin", "application/octet-stream", "rig source b".getBytes(StandardCharsets.UTF_8), "sp-b");
+            HttpResponse<String> response = send(base, "POST", SPATIAL, spatialRequest("spatial-1", "rig-1",
+                    List.of(sourceB, sourceA), 0.5), PRINCIPAL, PERMISSIONS);
+            assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
+            first = read(response.body());
+            assertThat(first).containsEntry("replayed", false).containsEntry("scope", "DEV_ONLY");
+            Map<String, Object> artifact = object(first.get("artifact"));
+            outputId = (String) first.get("outputId");
+            sha = (String) artifact.get("sha256");
+            assertThat(artifact).containsEntry("contentType", "model/gltf-binary");
+            assertThat(outputId).isNotIn(sourceA.artifactId(), sourceB.artifactId());
+
+            Map<String, Object> lineage = object(first.get("lineage"));
+            assertThat(lineage).containsEntry("kind", "SPATIAL_GLB_EXPORT")
+                    .containsEntry("engine", MediaDevCreativeOutputRuntime.SPATIAL_ENGINE)
+                    .containsEntry("requestId", "spatial-1").containsEntry("rigId", "rig-1")
+                    .containsEntry("sourceProjectRevisionRef", "project:edit:revision-8")
+                    .containsEntry("timeEncoding", "FLOAT32_SECONDS")
+                    .containsEntry("lossDisposition", "FLOAT32_APPROXIMATION");
+            assertThat(lineage.get("float32LossFields")).isEqualTo(List.of(
+                    "animation.inputTimeSeconds", "animation.outputTranslation", "animation.outputRotation"));
+            assertThat(object(lineage.get("coordinateFrame")))
+                    .containsEntry("frameRef", "urn:media:frame:glb").containsEntry("frameVersionRef", "v1")
+                    .containsEntry("handedness", "RIGHT_HANDED")
+                    .containsEntry("positionUnitRef", SpatialRigEngine.GLB_METRE_UNIT_REF)
+                    .containsEntry("orientationUnitRef", SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
+            assertThat(object(lineage.get("rightsDecision")))
+                    .containsEntry("authority", "DEV_ONLY_OWNER_SCOPE_VISIBILITY").containsEntry("productionGrant", false);
+            List<Map<String, Object>> sources = objects(lineage.get("sources"));
+            assertThat(sources).extracting(m -> m.get("artifactId"))
+                    .containsExactlyInAnyOrder(sourceA.artifactId(), sourceB.artifactId());
+            for (Map<String, Object> source : sources) {
+                MediaArtifact expected = source.get("artifactId").equals(sourceA.artifactId()) ? sourceA : sourceB;
+                assertThat(source).containsEntry("artifactVersionId", expected.version().value())
+                        .containsEntry("sha256", expected.sha256()).containsEntry("tenantId", TENANT);
+            }
+
+            // Independent readback of the registered bytes (not the engine's own report).
+            byte[] glb = artifactBytes(runtime, outputId);
+            assertThat(HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(glb)))
+                    .isEqualTo(sha);
+            assertGlb(glb, sourceA, sourceB);
+            // The engine's own container + lineage validator accepts exactly these bytes and metadata.
+            var exact = List.of(sourceA, sourceB).stream().map(a -> new SpatialRigEngine.SourceVersionRef(
+                    TENANT, a.artifactId(), a.version().value())).toList();
+            new SpatialRigEngine.GlbArtifact("rig-1", "project:edit:revision-8", "urn:media:frame:glb", "v1", exact,
+                    "model/gltf-binary", "FLOAT32_SECONDS", "FLOAT32_APPROXIMATION", sha, glb);
+            assertThat(artifactBytes(runtime, sourceA.artifactId())).isEqualTo("rig source a".getBytes(StandardCharsets.UTF_8));
+
+            HttpResponse<String> duplicate = send(base, "POST", SPATIAL, spatialRequest("spatial-1", "rig-1",
+                    List.of(sourceB, sourceA), 0.5), PRINCIPAL, PERMISSIONS);
+            assertThat(duplicate.statusCode()).as(duplicate.body()).isEqualTo(200);
+            assertThat(read(duplicate.body())).containsEntry("outputId", outputId).containsEntry("replayed", true);
+
+            HttpResponse<String> divergent = send(base, "POST", SPATIAL, spatialRequest("spatial-1", "rig-1",
+                    List.of(sourceB, sourceA), 0.6), PRINCIPAL, PERMISSIONS);
+            assertThat(divergent.statusCode()).as(divergent.body()).isEqualTo(409);
+            assertThat(divergent.body()).contains("CREATIVE_REQUEST_ID_REUSED");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+
+        MediaRuntime restarted = runtime(root);
+        HttpServer again = server(restarted, null);
+        try {
+            String base = base(again);
+            HttpResponse<String> reopened = send(base, "GET", "/dev/v1/creative-outputs/" + outputId, null,
+                    PRINCIPAL, PERMISSIONS);
+            assertThat(reopened.statusCode()).as(reopened.body()).isEqualTo(200);
+            Map<String, Object> view = read(reopened.body());
+            assertThat(object(view.get("artifact"))).containsEntry("sha256", sha);
+            assertThat(view.get("lineage")).isEqualTo(first.get("lineage"));
+            assertThat(send(base, "POST", SPATIAL, spatialRequest("spatial-1", "rig-1", List.of(sourceB, sourceA), 0.5),
+                    PRINCIPAL, PERMISSIONS).statusCode()).isEqualTo(200);
+
+            // Another principal can neither see the output nor reference this principal's sources.
+            assertThat(send(base, "GET", "/dev/v1/creative-outputs/" + outputId, null, OTHER, PERMISSIONS)
+                    .statusCode()).isIn(403, 404);
+            HttpResponse<String> foreign = send(base, "POST", SPATIAL, spatialRequest("spatial-other", "rig-1",
+                    List.of(sourceA), 0.5), OTHER, PERMISSIONS);
+            assertThat(foreign.statusCode()).isIn(403, 404);
+            Set<String> noCreate = Set.of("media:project:dev:read", "media:project:dev:write", "media:artifact:read");
+            assertThat(send(base, "POST", SPATIAL, spatialRequest("spatial-2", "rig-1", List.of(sourceA), 0.5),
+                    PRINCIPAL, noCreate).statusCode()).isEqualTo(403);
+            Set<String> noRead = Set.of("media:project:dev:read", "media:project:dev:write", "media:artifact:create");
+            assertThat(send(base, "POST", SPATIAL, spatialRequest("spatial-2", "rig-1", List.of(sourceA), 0.5),
+                    PRINCIPAL, noRead).statusCode()).isEqualTo(403);
+            Set<String> noProject = Set.of("media:artifact:read", "media:artifact:create");
+            assertThat(send(base, "POST", SPATIAL, spatialRequest("spatial-3", "rig-1", List.of(sourceA), 0.5),
+                    PRINCIPAL, noProject).statusCode()).isEqualTo(403);
+            assertThat(send(base, "GET", SPATIAL, null, PRINCIPAL, PERMISSIONS).statusCode()).isEqualTo(405);
+        } finally {
+            again.stop(0);
+            restarted.close();
+        }
+    }
+
+    @Test
+    void spatialSourcesMustBeTheCallersExactArtifactVersionsAndEngineRefusalsAreTyped422() throws Exception {
+        Path root = Files.createTempDirectory("media-dev-creative-spatial-refuse-");
+        MediaRuntime runtime = runtime(root);
+        HttpServer server = server(runtime, null);
+        try {
+            String base = base(server);
+            MediaArtifact source = upload(runtime, "rig.bin", "application/octet-stream", "src".getBytes(StandardCharsets.UTF_8), "k1");
+
+            // Missing artifact, wrong version, and any one bad reference among good ones: 404, nothing registered.
+            Map<String, Object> missing = spatialBody("sp-missing", "rig", List.of(Map.of("artifactId", "no-such-artifact",
+                    "artifactVersionId", "v1")), 0.5);
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(missing), PRINCIPAL, PERMISSIONS), 404,
+                    "SOURCE_VERSION_NOT_FOUND");
+            Map<String, Object> wrongVersion = spatialBody("sp-wrongver", "rig", List.of(Map.of(
+                    "artifactId", source.artifactId(), "artifactVersionId", source.version().value() + "-nope")), 0.5);
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(wrongVersion), PRINCIPAL, PERMISSIONS), 404,
+                    "SOURCE_VERSION_NOT_FOUND");
+            Map<String, Object> mixed = spatialBody("sp-mixed", "rig", List.of(sourceRef(source),
+                    Map.of("artifactId", "ghost", "artifactVersionId", "v1")), 0.5);
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(mixed), PRINCIPAL, PERMISSIONS), 404,
+                    "SOURCE_VERSION_NOT_FOUND");
+            assertError(send(base, "POST", SPATIAL, spatialRequest("sp-foreign", "rig", List.of(source), 0.5), OTHER,
+                    PERMISSIONS), 404, "SOURCE_VERSION_NOT_FOUND");
+
+            // Engine refusals.
+            Map<String, Object> noRevision = spatialBody("sp-norev", "rig", List.of(sourceRef(source)), 0.5);
+            object(noRevision.get("rig")).remove("sourceProjectRevisionRef");
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(noRevision), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_EXPORT_PROJECT_REVISION_MISSING");
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(spatialBody("sp-nosrc", "rig", List.of(), 0.5)),
+                    PRINCIPAL, PERMISSIONS), 422, "SPATIAL_EXPORT_SOURCE_VERSION_MISSING");
+
+            Map<String, Object> leftHanded = spatialBody("sp-left", "rig", List.of(sourceRef(source)), 0.5);
+            object(object(leftHanded.get("rig")).get("coordinateFrame")).put("handedness", "LEFT_HANDED");
+            object(object(leftHanded.get("rig")).get("coordinateFrame")).put("axisDirections",
+                    List.of("POS_X", "POS_Y", "NEG_Z"));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(leftHanded), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_EXPORT_COORDINATE_PROFILE_UNSUPPORTED");
+            Map<String, Object> otherUnit = spatialBody("sp-unit", "rig", List.of(sourceRef(source)), 0.5);
+            object(object(otherUnit.get("rig")).get("coordinateFrame")).put("positionUnitRef", "urn:example:unit:foot");
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(otherUnit), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_EXPORT_COORDINATE_PROFILE_UNSUPPORTED");
+
+            // Joint bound: a 90 degree key against a 0.1 rad constraint.
+            Map<String, Object> constrained = spatialBody("sp-joint", "rig", List.of(sourceRef(source)), 0.5);
+            objects(object(constrained.get("rig")).get("bones")).get(0).put("constraint",
+                    Map.of("kind", "BALL", "maxAngularDeviationRadians", 0.1));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(constrained), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_EXPORT_MOTION_CONSTRAINT_INVALID");
+
+            // Float32 collapse of two distinct exact times is refused, not silently exported.
+            Map<String, Object> collapsed = spatialBody("sp-float", "rig", List.of(sourceRef(source)), 0.5);
+            Map<String, Object> pose = Map.of("position", List.of(0, 0, 0), "orientation", List.of(0, 0, 0, 1));
+            object(object(collapsed.get("rig")).get("tracks")).put("root", List.of(
+                    Map.of("time", Map.of("numerator", 100_000_000, "denominator", 1), "pose", pose),
+                    Map.of("time", Map.of("numerator", 100_000_001, "denominator", 1), "pose", pose)));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(collapsed), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_EXPORT_NON_MONOTONIC_FLOAT_TIME");
+
+            // Engine input bounds / structure.
+            Map<String, Object> huge = spatialBody("sp-bounds", "rig", List.of(sourceRef(source)), 0.5);
+            objects(object(huge.get("rig")).get("bones")).get(0).put("restPose",
+                    Map.of("position", List.of(2_000_000, 0, 0), "orientation", List.of(0, 0, 0, 1)));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(huge), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_RIG_INVALID");
+            Map<String, Object> zeroQuaternion = spatialBody("sp-quat", "rig", List.of(sourceRef(source)), 0.5);
+            objects(object(zeroQuaternion.get("rig")).get("bones")).get(0).put("restPose",
+                    Map.of("position", List.of(0, 0, 0), "orientation", List.of(0, 0, 0, 0)));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(zeroQuaternion), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_RIG_INVALID");
+            Map<String, Object> duplicateBones = spatialBody("sp-dupbone", "rig", List.of(sourceRef(source)), 0.5);
+            List<Map<String, Object>> bones = objects(object(duplicateBones.get("rig")).get("bones"));
+            bones.add(new LinkedHashMap<>(bones.get(0)));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(duplicateBones), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_RIG_INVALID");
+            Map<String, Object> badTime = spatialBody("sp-badtime", "rig", List.of(sourceRef(source)), 0.5);
+            object(object(badTime.get("rig")).get("tracks")).put("root", List.of(Map.of(
+                    "time", Map.of("numerator", 1, "denominator", 0),
+                    "pose", Map.of("position", List.of(0, 0, 0), "orientation", List.of(0, 0, 0, 1)))));
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(badTime), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_RIG_INVALID");
+            Map<String, Object> dupSources = spatialBody("sp-dupsrc", "rig", List.of(sourceRef(source), sourceRef(source)), 0.5);
+            assertError(send(base, "POST", SPATIAL, JSON.writeValueAsString(dupSources), PRINCIPAL, PERMISSIONS), 422,
+                    "SPATIAL_RIG_INVALID");
+
+            // Shape errors are request errors, not engine refusals.
+            Map<String, Object> shape = spatialBody("sp-shape", "rig", List.of(sourceRef(source)), 0.5);
+            object(shape.get("rig")).put("unexpected", true);
+            assertThat(send(base, "POST", SPATIAL, JSON.writeValueAsString(shape), PRINCIPAL, PERMISSIONS).statusCode())
+                    .isEqualTo(400);
+
+            // A refused request never registered anything: a good retry with a refused requestId still creates.
+            HttpResponse<String> ok = send(base, "POST", SPATIAL, spatialRequest("sp-joint", "rig", List.of(source), 0.5),
+                    PRINCIPAL, PERMISSIONS);
+            assertThat(ok.statusCode()).as(ok.body()).isEqualTo(201);
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    private static Map<String, Object> sourceRef(MediaArtifact source) {
+        return Map.of("artifactId", source.artifactId(), "artifactVersionId", source.version().value());
+    }
+
+    private static String spatialRequest(String requestId, String rigId, List<MediaArtifact> sources, double alpha)
+            throws Exception {
+        List<Map<String, Object>> refs = new ArrayList<>();
+        for (MediaArtifact source : sources) refs.add(sourceRef(source));
+        return JSON.writeValueAsString(spatialBody(requestId, rigId, refs, alpha));
+    }
+
+    /** Two-bone rig with exact rational keyframes (0, 1/3, 1); {@code midX} perturbs the middle key. */
+    private static Map<String, Object> spatialBody(String requestId, String rigId, List<Map<String, Object>> sources,
+                                                   double midX) {
+        double half = Math.sin(Math.PI / 12);
+        double halfW = Math.cos(Math.PI / 12);
+        Map<String, Object> frame = new LinkedHashMap<>();
+        frame.put("frameRef", "urn:media:frame:glb");
+        frame.put("frameVersionRef", "v1");
+        frame.put("handedness", "RIGHT_HANDED");
+        frame.put("axisDirections", new ArrayList<>(List.of("POS_X", "POS_Y", "POS_Z")));
+        frame.put("positionUnitRef", SpatialRigEngine.GLB_METRE_UNIT_REF);
+        frame.put("orientationUnitRef", SpatialRigEngine.GLB_QUATERNION_UNIT_REF);
+        Map<String, Object> root = new LinkedHashMap<>();
+        root.put("id", "root");
+        root.put("restPose", Map.of("position", List.of(0, 0, 0), "orientation", List.of(0, 0, 0, 1)));
+        root.put("constraint", new LinkedHashMap<>(Map.of("kind", "BALL", "maxAngularDeviationRadians", Math.PI)));
+        Map<String, Object> child = new LinkedHashMap<>();
+        child.put("id", "child");
+        child.put("parentId", "root");
+        child.put("restPose", Map.of("position", List.of(0, 1, 0), "orientation", List.of(0, 0, 0, 1)));
+        child.put("constraint", new LinkedHashMap<>(Map.of("kind", "BALL", "maxAngularDeviationRadians", Math.PI)));
+        Map<String, Object> track = new LinkedHashMap<>();
+        track.put("root", new ArrayList<>(List.of(
+                key(0, 1, 0, 0, 0, 0, 1),
+                key(1, 3, midX, 0, 0, 0, 0, half, halfW),
+                key(1, 1, 1, 0, 0, 0, 0, 0.7071067811865476, 0.7071067811865476))));
+        Map<String, Object> rig = new LinkedHashMap<>();
+        rig.put("id", rigId);
+        rig.put("sourceProjectRevisionRef", "project:edit:revision-8");
+        rig.put("coordinateFrame", frame);
+        rig.put("sourceVersions", new ArrayList<>(sources));
+        rig.put("bones", new ArrayList<>(List.of(root, child)));
+        rig.put("tracks", track);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("requestId", requestId);
+        body.put("rig", rig);
+        return body;
+    }
+
+    private static Map<String, Object> key(long num, long den, double x, double y, double z, double qx, double qy,
+                                           double qz, double qw) {
+        return Map.of("time", Map.of("numerator", num, "denominator", den),
+                "pose", Map.of("position", List.of(x, y, z), "orientation", List.of(qx, qy, qz, qw)));
+    }
+
+    private static Map<String, Object> key(long num, long den, double x, double y, double z, double qx, double qw) {
+        return key(num, den, x, y, z, qx, 0, 0, qw);
+    }
+
+    /** Parses the GLB container by hand and checks the lineage the engine embedded against this test's inputs. */
+    private static void assertGlb(byte[] glb, MediaArtifact sourceA, MediaArtifact sourceB) throws Exception {
+        ByteBuffer buffer = ByteBuffer.wrap(glb).order(ByteOrder.LITTLE_ENDIAN);
+        assertThat(buffer.getInt(0)).isEqualTo(0x46546c67);
+        assertThat(buffer.getInt(4)).isEqualTo(2);
+        assertThat(buffer.getInt(8)).isEqualTo(glb.length);
+        int jsonLength = buffer.getInt(12);
+        assertThat(buffer.getInt(16)).isEqualTo(0x4e4f534a);
+        Map<String, Object> document = read(new String(glb, 20, jsonLength, StandardCharsets.UTF_8).trim());
+        assertThat(object(document.get("asset"))).containsEntry("version", "2.0");
+        assertThat(objects(document.get("nodes"))).hasSize(2);
+        assertThat(objects(document.get("animations"))).hasSize(1);
+        Map<String, Object> meta = object(object(document.get("extras")).get("mediaSpatial"));
+        assertThat(meta).containsEntry("rigId", "rig-1")
+                .containsEntry("sourceProjectRevisionRef", "project:edit:revision-8")
+                .containsEntry("frameRef", "urn:media:frame:glb").containsEntry("frameVersionRef", "v1")
+                .containsEntry("timeEncoding", "FLOAT32_SECONDS").containsEntry("lossDisposition", "FLOAT32_APPROXIMATION");
+        assertThat(meta.get("float32LossFields")).isEqualTo(List.of(
+                "animation.inputTimeSeconds", "animation.outputTranslation", "animation.outputRotation"));
+        assertThat(objects(meta.get("sourceVersions"))).extracting(m -> m.get("artifactId"))
+                .containsExactlyInAnyOrder(sourceA.artifactId(), sourceB.artifactId());
+        assertThat(JSON.writeValueAsString(meta.get("exactKeyframeTimes"))).contains("\"1\"").contains("3");
+        // BIN chunk follows the JSON chunk and keyframe input times decode as float32 0, 1/3, 1.
+        int binOffset = 20 + jsonLength;
+        assertThat(buffer.getInt(binOffset + 4)).isEqualTo(0x004e4942);
+        Map<String, Object> sampler = objects(object(objects(document.get("animations")).get(0)).get("samplers")).stream()
+                .findFirst().orElseThrow();
+        Map<String, Object> accessor = objects(document.get("accessors")).get(((Number) sampler.get("input")).intValue());
+        Map<String, Object> view = objects(document.get("bufferViews")).get(((Number) accessor.get("bufferView")).intValue());
+        int at = binOffset + 8 + ((Number) view.get("byteOffset")).intValue();
+        assertThat(((Number) accessor.get("count")).intValue()).isEqualTo(3);
+        assertThat(buffer.getFloat(at)).isEqualTo(0f);
+        assertThat(buffer.getFloat(at + 4)).isEqualTo((float) (1.0 / 3.0));
+        assertThat(buffer.getFloat(at + 8)).isEqualTo(1f);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Map<String, Object>> objects(Object value) { return (List<Map<String, Object>>) value; }
 
     // ---------- helpers ----------
 
