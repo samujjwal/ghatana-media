@@ -173,14 +173,24 @@ class MediaDevProductionJourneyIT {
             post(port, tenant, token, "/dev/v1/reviews/" + renderCase + "/comments", Map.of(
                     "requestId", "journey-comment-" + run, "expectedCaseRevision", 0,
                     "text", "Journey render looks right", "disposition", "OPEN"), 201);
-            JsonNode decision = post(port, tenant, token, "/dev/v1/reviews/" + renderCase + "/decisions", Map.of(
+            // The owner may comment but not decide: an explicitly assigned DEV_ONLY reviewer decides.
+            String reviewerToken = issueDevToken(tenant, principal + "-reviewer");
+            String expires = java.time.Instant.now().plus(java.time.Duration.ofMinutes(20)).toString();
+            for (String assignedCase : List.of(renderCase, revisionCase)) {
+                post(port, tenant, token, "/dev/v1/reviews/" + assignedCase + "/assignments", Map.of(
+                        "requestId", "journey-assign-" + assignedCase + "-" + run,
+                        "expectedCaseRevision", assignedCase.equals(renderCase) ? 1 : 0,
+                        "reviewerPrincipalId", principal + "-reviewer", "scopes", List.of("QUALITY"),
+                        "expiresAt", expires), 201);
+            }
+            JsonNode decision = post(port, tenant, reviewerToken, "/dev/v1/reviews/" + renderCase + "/decisions", Map.of(
                     "requestId", "journey-decision-" + run, "expectedCaseRevision", 1, "decision", "ACCEPT",
-                    "reason", "DEV_ONLY journey", "confirmed", true), 201);
+                    "reason", "DEV_ONLY journey", "scope", "QUALITY", "confirmed", true), 201);
             assertThat(decision.path("establishesApproval").asBoolean()).isFalse();
-            JsonNode revisionDecision = post(port, tenant, token,
+            JsonNode revisionDecision = post(port, tenant, reviewerToken,
                     "/dev/v1/reviews/" + revisionCase + "/decisions", Map.of(
                     "requestId", "journey-rev-decision-" + run, "expectedCaseRevision", 0, "decision", "ACCEPT",
-                    "reason", "DEV_ONLY revision accept", "confirmed", true), 201);
+                    "reason", "DEV_ONLY revision accept", "scope", "QUALITY", "confirmed", true), 201);
             assertThat(revisionDecision.path("establishesApproval").asBoolean()).isFalse();
 
             // 5. Export the render artifact version to the read-back local destination.
@@ -264,7 +274,7 @@ class MediaDevProductionJourneyIT {
             assertThat(newHead).isNotEqualTo(revisionId);
             JsonNode staleCase = get(port, tenant, token, "/dev/v1/reviews/" + revisionCase, 200);
             assertThat(staleCase.path("currentness").asString()).isEqualTo("STALE");
-            assertThat(staleCase.path("reviewState").path("status").asString()).isEqualTo("DEV_ONLY_ACCEPT_STALE");
+            assertThat(staleCase.path("reviewState").path("status").asString()).isEqualTo("DEV_ASSIGNED_REVIEWER_ACCEPT_STALE");
             assertThat(get(port, tenant, token, "/dev/v1/reviews/" + renderCase, 200)
                     .path("currentness").asString()).isEqualTo("CURRENT");
 

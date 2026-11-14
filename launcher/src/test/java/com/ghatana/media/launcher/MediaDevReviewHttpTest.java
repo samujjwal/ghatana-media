@@ -62,11 +62,21 @@ class MediaDevReviewHttpTest {
     private static final String TENANT = "tenant-local";
     private static final String PRINCIPAL = "principal-local";
     private static final String OTHER = "principal-other";
+    private static final String REVIEWER = "principal-reviewer";
+    private static final String EXPIRES = "2026-11-13T21:00:00Z";
     private static final String SECRET = "test-only-dev-project-secret-at-least-32-bytes";
     private static final String ISSUER = "urn:ghatana:media:dev-only";
     private static final String AUDIENCE = "ghatana-media-dev";
     private static final java.time.Clock CLOCK =
             java.time.Clock.fixed(Instant.parse("2026-11-13T20:00:00Z"), java.time.ZoneOffset.UTC);
+    /** Advances only the review runtime clock (not token validation) to model assignment expiry. */
+    private static final java.util.concurrent.atomic.AtomicReference<Duration> CLOCK_OFFSET =
+            new java.util.concurrent.atomic.AtomicReference<>(Duration.ZERO);
+    private static final java.time.Clock REVIEW_CLOCK = new java.time.Clock() {
+        @Override public java.time.ZoneId getZone() { return CLOCK.getZone(); }
+        @Override public java.time.Clock withZone(java.time.ZoneId zone) { return this; }
+        @Override public Instant instant() { return CLOCK.instant().plus(CLOCK_OFFSET.get()); }
+    };
     private static final Set<String> PERMISSIONS = Set.of(
             "media:project:dev:create", "media:project:dev:read", "media:project:dev:write",
             "media:artifact:read", "media:artifact:create");
@@ -97,7 +107,7 @@ class MediaDevReviewHttpTest {
     private void boot() throws Exception {
         runtime = runtime(root);
         MediaDevProjectTimelineRuntime projects = new MediaDevProjectTimelineRuntime(projectStore);
-        MediaDevReviewRuntime reviews = new MediaDevReviewRuntime(reviewStore, runtime, projects, CLOCK);
+        MediaDevReviewRuntime reviews = new MediaDevReviewRuntime(reviewStore, runtime, projects, REVIEW_CLOCK);
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", new MediaSecurityFilter(
                 new MediaHttpHandler(runtime, null, null, projects, reviews), "dev", devEnvironment(), CLOCK));
@@ -139,14 +149,15 @@ class MediaDevReviewHttpTest {
         assertThat(receipt).containsEntry("caseRevision", 1).containsEntry("establishesApproval", false)
                 .containsEntry("replayed", false).containsEntry("currentness", "CURRENT");
 
+        assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 1, "a-1", 201);
         HttpResponse<String> decision = post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
                 "requestId", "d-1", "expectedCaseRevision", 1, "decision", "ACCEPT", "reason", "Looks right",
-                "confirmed", true)), PRINCIPAL);
+                "scope", "QUALITY", "confirmed", true)), REVIEWER);
         assertThat(decision.statusCode()).as(decision.body()).isEqualTo(201);
         assertThat(read(decision.body())).containsEntry("establishesApproval", false).containsEntry("caseRevision", 2);
 
         restart();
-        HttpResponse<String> reread = get("/dev/v1/reviews/" + caseId, PRINCIPAL);
+        HttpResponse<String> reread = get("/dev/v1/reviews/" + caseId, REVIEWER);
         assertThat(reread.statusCode()).as(reread.body()).isEqualTo(200);
         Map<String, Object> view = read(reread.body());
         assertThat(view).containsEntry("caseRevision", 2).containsEntry("currentness", "CURRENT");
@@ -156,8 +167,11 @@ class MediaDevReviewHttpTest {
         assertThat(first).containsEntry("kind", "COMMENT").containsEntry("disposition", "OPEN");
         assertThat((String) first.get("text")).contains("[redacted-email]").doesNotContain("example.com");
         assertThat(object(first.get("annotation"))).containsKeys("timeRange", "roi");
-        assertThat(object(view.get("reviewState"))).containsEntry("status", "DEV_ONLY_ACCEPT_CURRENT")
+        assertThat(object(view.get("reviewState"))).containsEntry("status", "DEV_ASSIGNED_REVIEWER_ACCEPT_CURRENT")
                 .containsEntry("establishesApproval", false).containsEntry("humanReviewApproval", false);
+        assertThat(object(records.get(1))).containsEntry("recordedAs", "DEV_ASSIGNED_REVIEWER_ACCEPT")
+                .containsEntry("scope", "QUALITY").containsEntry("principalId", REVIEWER);
+        assertThat(((List<?>) view.get("assignments"))).hasSize(1);
         assertThat((String) view.get("note")).contains("not an issued human reviewer authority");
     }
 
@@ -165,9 +179,10 @@ class MediaDevReviewHttpTest {
     void anyChangeOfTheReviewedProjectMakesEarlierAcceptanceStale() throws Exception {
         Proj project = projectWithClip("review-stale");
         String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+        assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 0, "a-stale", 201);
         HttpResponse<String> accept = post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
                 "requestId", "d-accept", "expectedCaseRevision", 0, "decision", "ACCEPT", "reason", "ok",
-                "confirmed", true)), PRINCIPAL);
+                "scope", "QUALITY", "confirmed", true)), REVIEWER);
         assertThat(accept.statusCode()).as(accept.body()).isEqualTo(201);
 
         // Material edit creates a new head revision.
@@ -177,14 +192,14 @@ class MediaDevReviewHttpTest {
 
         Map<String, Object> view = read(get("/dev/v1/reviews/" + caseId, PRINCIPAL).body());
         assertThat(view).containsEntry("currentness", "STALE");
-        assertThat(object(view.get("reviewState"))).containsEntry("status", "DEV_ONLY_ACCEPT_STALE")
+        assertThat(object(view.get("reviewState"))).containsEntry("status", "DEV_ASSIGNED_REVIEWER_ACCEPT_STALE")
                 .containsEntry("establishesApproval", false);
         assertThat(object(((List<?>) view.get("records")).get(0))).containsEntry("currentness", "STALE");
 
         // A new decision on the stale exact version is refused; comments are still recorded as STALE.
         HttpResponse<String> late = post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
                 "requestId", "d-late", "expectedCaseRevision", 1, "decision", "ACCEPT", "reason", "again",
-                "confirmed", true)), PRINCIPAL);
+                "scope", "QUALITY", "confirmed", true)), REVIEWER);
         assertThat(late.statusCode()).isEqualTo(409);
         assertThat(late.body()).contains("REVIEW_SUBJECT_STALE");
         HttpResponse<String> comment = post("/dev/v1/reviews/" + caseId + "/comments", JSON.writeValueAsString(Map.of(
@@ -199,7 +214,7 @@ class MediaDevReviewHttpTest {
         // Exact-retry of the pre-change decision still reconciles to its original receipt (not a new decision).
         HttpResponse<String> retry = post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
                 "requestId", "d-accept", "expectedCaseRevision", 0, "decision", "ACCEPT", "reason", "ok",
-                "confirmed", true)), PRINCIPAL);
+                "scope", "QUALITY", "confirmed", true)), REVIEWER);
         assertThat(retry.statusCode()).as(retry.body()).isEqualTo(200);
         assertThat(read(retry.body())).containsEntry("replayed", true).containsEntry("currentness", "STALE")
                 .containsEntry("establishesApproval", false).containsEntry("caseRevision", 1);
@@ -289,11 +304,11 @@ class MediaDevReviewHttpTest {
 
         HttpResponse<String> unconfirmed = post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
                 "requestId", "u", "expectedCaseRevision", 0, "decision", "ACCEPT", "reason", "r",
-                "confirmed", false)), PRINCIPAL);
+                "scope", "QUALITY", "confirmed", false)), PRINCIPAL);
         assertThat(unconfirmed.statusCode()).isEqualTo(422);
         assertThat(unconfirmed.body()).contains("REVIEW_CONFIRMATION_REQUIRED");
         assertThat(post("/dev/v1/reviews/" + caseId + "/decisions", JSON.writeValueAsString(Map.of(
-                "requestId", "u2", "expectedCaseRevision", 0, "decision", "MAYBE", "reason", "r", "confirmed", true)),
+                "requestId", "u2", "expectedCaseRevision", 0, "decision", "MAYBE", "reason", "r", "scope", "QUALITY", "confirmed", true)),
                 PRINCIPAL).statusCode()).isEqualTo(400);
         assertThat(post("/dev/v1/reviews/" + caseId + "/comments", JSON.writeValueAsString(Map.of(
                 "requestId", "u3", "expectedCaseRevision", 0, "text", "x", "disposition", "OPEN", "extra", 1)),
@@ -306,6 +321,191 @@ class MediaDevReviewHttpTest {
         assertThat(send("DELETE", "/dev/v1/reviews/" + caseId, null, PRINCIPAL, PERMISSIONS).statusCode())
                 .isIn(403, 405);
         assertThat(read(get("/dev/v1/reviews/" + caseId, PRINCIPAL).body())).containsEntry("caseRevision", 0);
+    }
+
+    // ---- reviewer assignment ----
+
+    @Test
+    void assignedReviewerDecidesWithinScopeAndOwnerCannotDecide() throws Exception {
+        Proj project = projectWithClip("review-assign");
+        String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+        String path = "/dev/v1/reviews/" + caseId;
+
+        // Nobody is assigned: neither the owner nor a stranger can decide; a stranger cannot even see the case.
+        assertThat(decide(caseId, PRINCIPAL, "d-owner0", 0, "QUALITY").statusCode()).isEqualTo(403);
+        assertThat(get(path, REVIEWER).statusCode()).isEqualTo(404);
+
+        Map<String, Object> assigned = read(assign(caseId, REVIEWER, List.of("QUALITY", "RIGHTS"), EXPIRES, 0,
+                "a-1", 201).body());
+        Map<String, Object> assignment = object(assigned.get("assignment"));
+        assertThat(assignment).containsEntry("reviewerPrincipalId", REVIEWER).containsEntry("assignedByPrincipalId", PRINCIPAL)
+                .containsEntry("status", "ACTIVE").containsEntry("assignmentVersion", 1)
+                .containsEntry("scopes", List.of("QUALITY", "RIGHTS"));
+        assertThat(assigned).containsEntry("establishesApproval", false).containsEntry("humanReviewApproval", false);
+
+        // Owner may comment but not decide, even though the case now has an assigned reviewer.
+        assertThat(post(path + "/comments", JSON.writeValueAsString(Map.of("requestId", "c-owner", "expectedCaseRevision", 0,
+                "text", "owner note", "disposition", "OPEN")), PRINCIPAL).statusCode()).isEqualTo(201);
+        HttpResponse<String> ownerDecision = decide(caseId, PRINCIPAL, "d-owner", 1, "QUALITY");
+        assertThat(ownerDecision.statusCode()).isEqualTo(403);
+        assertThat(ownerDecision.body()).contains("REVIEWER_NOT_ASSIGNED");
+
+        // Out-of-scope decision is refused with a typed error; in-scope decision is recorded.
+        HttpResponse<String> outOfScope = decide(caseId, REVIEWER, "d-scope", 1, "APPROVAL");
+        assertThat(outOfScope.statusCode()).isEqualTo(403);
+        assertThat(outOfScope.body()).contains("REVIEW_SCOPE_NOT_ASSIGNED");
+        HttpResponse<String> inScope = decide(caseId, REVIEWER, "d-ok", 1, "RIGHTS");
+        assertThat(inScope.statusCode()).as(inScope.body()).isEqualTo(201);
+        assertThat(read(inScope.body())).containsEntry("establishesApproval", false).containsEntry("caseRevision", 2);
+
+        Map<String, Object> view = read(get(path, REVIEWER).body());
+        Map<String, Object> state = object(view.get("reviewState"));
+        assertThat(state).containsEntry("status", "DEV_ASSIGNED_REVIEWER_ACCEPT_CURRENT")
+                .containsEntry("establishesApproval", false).containsEntry("humanReviewApproval", false);
+        assertThat(object(((List<?>) view.get("records")).get(1))).containsEntry("scope", "RIGHTS")
+                .containsEntry("recordedAs", "DEV_ASSIGNED_REVIEWER_ACCEPT");
+
+        // The reviewer cannot assign, revoke or mint further reviewers.
+        assertThat(assign(caseId, "principal-third", List.of("QUALITY"), EXPIRES, 2, "a-by-reviewer", REVIEWER, 403)
+                .body()).contains("REVIEW_ACCESS_DENIED");
+    }
+
+    @Test
+    void assignmentIdempotencyCasSelfAssignmentAndExpiryAreTyped() throws Exception {
+        Proj project = projectWithClip("review-assign-edge");
+        String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+
+        assertThat(assign(caseId, PRINCIPAL, List.of("QUALITY"), EXPIRES, 0, "a-self", 422).body())
+                .contains("REVIEW_SELF_ASSIGNMENT_REFUSED");
+        assertThat(assign(caseId, REVIEWER, List.of(), EXPIRES, 0, "a-empty", 400).statusCode()).isEqualTo(400);
+        assertThat(assign(caseId, REVIEWER, List.of("QUALITY"), "2026-11-13T19:00:00Z", 0, "a-past", 400).statusCode())
+                .isEqualTo(400);
+        assertThat(assign(caseId, REVIEWER, List.of("QUALITY"), "2027-01-01T00:00:00Z", 0, "a-far", 400).statusCode())
+                .isEqualTo(400);
+        assertThat(assign(caseId, REVIEWER, List.of("NOPE"), EXPIRES, 0, "a-bad-scope", 400).statusCode()).isEqualTo(400);
+        assertThat(assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 5, "a-cas", 409).body())
+                .contains("REVIEW_CASE_REVISION_CONFLICT");
+
+        HttpResponse<String> first = assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 0, "a-same", 201);
+        String assignmentId = (String) object(read(first.body()).get("assignment")).get("assignmentId");
+        HttpResponse<String> replay = assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 0, "a-same", 200);
+        assertThat(read(replay.body())).containsEntry("replayed", true);
+        assertThat(object(read(replay.body()).get("assignment"))).containsEntry("assignmentId", assignmentId);
+        assertThat(assign(caseId, REVIEWER, List.of("QUALITY", "RIGHTS"), EXPIRES, 0, "a-same", 409).body())
+                .contains("REVIEW_REQUEST_ID_REUSED");
+        assertThat(assign(caseId, REVIEWER, List.of("RIGHTS"), EXPIRES, 0, "a-dup", 409).body())
+                .contains("REVIEW_ASSIGNMENT_ALREADY_ACTIVE");
+
+        // Revoke: CAS, idempotent replay, not-found, already-revoked.
+        String revokePath = "/dev/v1/reviews/" + caseId + "/assignments/" + assignmentId + "/revoke";
+        assertThat(post(revokePath, JSON.writeValueAsString(Map.of("requestId", "r-cas", "expectedCaseRevision", 3)),
+                PRINCIPAL).statusCode()).isEqualTo(409);
+        HttpResponse<String> revoked = post(revokePath, JSON.writeValueAsString(Map.of("requestId", "r-1",
+                "expectedCaseRevision", 0)), PRINCIPAL);
+        assertThat(revoked.statusCode()).as(revoked.body()).isEqualTo(200);
+        assertThat(object(read(revoked.body()).get("assignment"))).containsEntry("status", "REVOKED")
+                .containsEntry("assignmentVersion", 2);
+        HttpResponse<String> revokedAgain = post(revokePath, JSON.writeValueAsString(Map.of("requestId", "r-1",
+                "expectedCaseRevision", 0)), PRINCIPAL);
+        assertThat(read(revokedAgain.body())).containsEntry("replayed", true);
+        assertThat(post(revokePath, JSON.writeValueAsString(Map.of("requestId", "r-2", "expectedCaseRevision", 0)),
+                PRINCIPAL).body()).contains("REVIEW_ASSIGNMENT_ALREADY_REVOKED");
+        assertThat(post("/dev/v1/reviews/" + caseId + "/assignments/nope/revoke", JSON.writeValueAsString(Map.of(
+                "requestId", "r-3", "expectedCaseRevision", 0)), PRINCIPAL).body())
+                .contains("REVIEW_ASSIGNMENT_NOT_FOUND");
+        // Reviewer cannot revoke their own assignment; DELETE is not a route.
+        assertThat(post(revokePath, JSON.writeValueAsString(Map.of("requestId", "r-by-rev", "expectedCaseRevision", 0)),
+                REVIEWER).statusCode()).isEqualTo(403);
+        assertThat(send("DELETE", "/dev/v1/reviews/" + caseId + "/assignments/" + assignmentId, null, PRINCIPAL,
+                PERMISSIONS).statusCode()).isIn(403, 405);
+        // A revoked assignment can be replaced by a fresh one (new assignmentId, version 1).
+        HttpResponse<String> again = assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 0, "a-new", 201);
+        assertThat(object(read(again.body()).get("assignment")).get("assignmentId")).isNotEqualTo(assignmentId);
+    }
+
+    @Test
+    void revokedAndExpiredReviewersAreRefusedAndWrongTenantSeesNothing() throws Exception {
+        Proj project = projectWithClip("review-revoke");
+        String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+        String assignmentId = (String) object(read(assign(caseId, REVIEWER, List.of("QUALITY"), EXPIRES, 0,
+                "a-rv", 201).body()).get("assignment")).get("assignmentId");
+        assertThat(decide(caseId, REVIEWER, "d-rv1", 0, "QUALITY").statusCode()).isEqualTo(201);
+
+        HttpResponse<String> revoked = post("/dev/v1/reviews/" + caseId + "/assignments/" + assignmentId + "/revoke",
+                JSON.writeValueAsString(Map.of("requestId", "r-rv", "expectedCaseRevision", 1)), PRINCIPAL);
+        assertThat(revoked.statusCode()).as(revoked.body()).isEqualTo(200);
+        HttpResponse<String> afterRevoke = decide(caseId, REVIEWER, "d-rv2", 1, "QUALITY");
+        assertThat(afterRevoke.statusCode()).isEqualTo(403);
+        assertThat(afterRevoke.body()).contains("REVIEWER_NOT_ASSIGNED");
+        assertThat(get("/dev/v1/reviews/" + caseId, REVIEWER).statusCode()).isEqualTo(403);
+        // The earlier decision remains durable evidence, visible to the owner.
+        assertThat(read(get("/dev/v1/reviews/" + caseId, PRINCIPAL).body())).containsEntry("caseRevision", 1);
+
+        // A different tenant cannot see or decide the case (same principal ids, other tenant header).
+        HttpResponse<String> wrongTenant = send("GET", "/dev/v1/reviews/" + caseId, null, REVIEWER, PERMISSIONS,
+                "tenant-other");
+        assertThat(wrongTenant.statusCode()).isEqualTo(404);
+        assertThat(send("POST", "/dev/v1/reviews/" + caseId + "/decisions", decisionBody("d-wt", 1, "QUALITY"),
+                REVIEWER, PERMISSIONS, "tenant-other").statusCode()).isEqualTo(404);
+
+        // Expiry: the fixed clock is 20:00Z, so a one-hour assignment cannot be moved past; use the store directly
+        // to model a clock that has advanced beyond the expiry.
+        Proj second = projectWithClip("review-expiry");
+        String caseTwo = (String) open(second.projectId(), second.revisionId()).get("reviewCaseId");
+        assign(caseTwo, REVIEWER, List.of("QUALITY"), "2026-11-13T20:30:00Z", 0, "a-exp", 201);
+        assertThat(decide(caseTwo, REVIEWER, "d-before", 0, "QUALITY").statusCode()).isEqualTo(201);
+        CLOCK_OFFSET.set(Duration.ofHours(1));
+        try {
+            HttpResponse<String> expired = decide(caseTwo, REVIEWER, "d-after", 1, "QUALITY");
+            assertThat(expired.statusCode()).isEqualTo(403);
+            assertThat(expired.body()).contains("REVIEW_ASSIGNMENT_EXPIRED");
+            assertThat(get("/dev/v1/reviews/" + caseTwo, REVIEWER).body()).contains("REVIEW_ASSIGNMENT_EXPIRED");
+        } finally {
+            CLOCK_OFFSET.set(Duration.ZERO);
+        }
+    }
+
+    @Test
+    void staleSubjectStillRefusesAssignedReviewerAndApprovalStaysFalse() throws Exception {
+        Proj project = projectWithClip("review-assign-stale");
+        String caseId = (String) open(project.projectId(), project.revisionId()).get("reviewCaseId");
+        assign(caseId, REVIEWER, List.of("QUALITY", "APPROVAL"), EXPIRES, 0, "a-st", 201);
+        HttpResponse<String> accept = decide(caseId, REVIEWER, "d-st", 0, "APPROVAL");
+        assertThat(accept.statusCode()).isEqualTo(201);
+        assertThat(read(accept.body())).containsEntry("establishesApproval", false);
+        edit(project.projectId(), "timeline-main", project.revisionId(), List.of(
+                Map.of("type", "addScene", "sceneId", "scene-two", "order", 1)));
+        HttpResponse<String> late = decide(caseId, REVIEWER, "d-st2", 1, "APPROVAL");
+        assertThat(late.statusCode()).isEqualTo(409);
+        assertThat(late.body()).contains("REVIEW_SUBJECT_STALE");
+        Map<String, Object> state = object(read(get("/dev/v1/reviews/" + caseId, REVIEWER).body()).get("reviewState"));
+        assertThat(state).containsEntry("status", "DEV_ASSIGNED_REVIEWER_ACCEPT_STALE")
+                .containsEntry("establishesApproval", false).containsEntry("humanReviewApproval", false);
+    }
+
+    private static String decisionBody(String requestId, long revision, String scope) throws Exception {
+        return JSON.writeValueAsString(Map.of("requestId", requestId, "expectedCaseRevision", revision,
+                "decision", "ACCEPT", "reason", "assigned review", "scope", scope, "confirmed", true));
+    }
+
+    private HttpResponse<String> decide(String caseId, String principal, String requestId, long revision, String scope)
+            throws Exception {
+        return post("/dev/v1/reviews/" + caseId + "/decisions", decisionBody(requestId, revision, scope), principal);
+    }
+
+    private HttpResponse<String> assign(String caseId, String reviewer, List<String> scopes, String expiresAt,
+                                        long revision, String requestId, int expectedStatus) throws Exception {
+        return assign(caseId, reviewer, scopes, expiresAt, revision, requestId, PRINCIPAL, expectedStatus);
+    }
+
+    private HttpResponse<String> assign(String caseId, String reviewer, List<String> scopes, String expiresAt,
+                                        long revision, String requestId, String as, int expectedStatus)
+            throws Exception {
+        HttpResponse<String> response = post("/dev/v1/reviews/" + caseId + "/assignments", JSON.writeValueAsString(
+                Map.of("requestId", requestId, "expectedCaseRevision", revision, "reviewerPrincipalId", reviewer,
+                        "scopes", scopes, "expiresAt", expiresAt)), as);
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(expectedStatus);
+        return response;
     }
 
     // ---- fixtures ----
@@ -365,9 +565,14 @@ class MediaDevReviewHttpTest {
 
     private HttpResponse<String> send(String method, String path, String body, String principal,
                                       Set<String> permissions) throws Exception {
+        return send(method, path, body, principal, permissions, TENANT);
+    }
+
+    private HttpResponse<String> send(String method, String path, String body, String principal,
+                                      Set<String> permissions, String tenant) throws Exception {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(base + path))
-                .header("Authorization", "Bearer " + token(principal, permissions))
-                .header("X-Tenant-Id", TENANT);
+                .header("Authorization", "Bearer " + token(principal, permissions, tenant))
+                .header("X-Tenant-Id", tenant);
         if (body != null) request.header("Content-Type", "application/json");
         request.method(method, body == null ? HttpRequest.BodyPublishers.noBody()
                 : HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8));
@@ -416,10 +621,14 @@ class MediaDevReviewHttpTest {
     }
 
     private static String token(String principal, Set<String> permissions) throws Exception {
+        return token(principal, permissions, TENANT);
+    }
+
+    private static String token(String principal, Set<String> permissions, String tenant) throws Exception {
         String header = encode("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
         String permissionJson = permissions.stream().sorted().map(permission -> "\"" + permission + "\"")
                 .collect(java.util.stream.Collectors.joining(","));
-        String payload = "{\"sub\":\"" + principal + "\",\"tenant_id\":\"" + TENANT
+        String payload = "{\"sub\":\"" + principal + "\",\"tenant_id\":\"" + tenant
                 + "\",\"iss\":\"" + ISSUER + "\",\"aud\":\"" + AUDIENCE + "\",\"dev_only\":true,"
                 + "\"iat\":" + CLOCK.instant().getEpochSecond() + ",\"exp\":"
                 + CLOCK.instant().plusSeconds(120).getEpochSecond() + ",\"permissions\":[" + permissionJson + "]}";

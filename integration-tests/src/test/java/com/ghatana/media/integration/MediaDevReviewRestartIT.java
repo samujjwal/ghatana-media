@@ -137,16 +137,33 @@ class MediaDevReviewRestartIT {
             HttpResponse<String> comment = send(port, tenant, token, "POST",
                     "/dev/v1/reviews/" + projectCaseId + "/comments", commentBody);
             assertThat(comment.statusCode()).as(comment.body()).isEqualTo(201);
-            HttpResponse<String> decision = send(port, tenant, token, "POST",
+            // Owner may comment but not decide: assign a different reviewer principal (explicit scope + expiry).
+            String reviewerToken = issueDevToken(tenant, principal + "-reviewer", true);
+            String expires = java.time.Instant.now().plus(Duration.ofMinutes(20)).toString();
+            for (var assigned : List.of(Map.entry(projectCaseId, 1), Map.entry(artifactCaseId, 0))) {
+                HttpResponse<String> assignment = send(port, tenant, token, "POST",
+                        "/dev/v1/reviews/" + assigned.getKey() + "/assignments", JSON.writeValueAsString(Map.of(
+                                "requestId", "assign-" + assigned.getKey() + run,
+                                "expectedCaseRevision", assigned.getValue(),
+                                "reviewerPrincipalId", principal + "-reviewer", "scopes", List.of("QUALITY"),
+                                "expiresAt", expires)));
+                assertThat(assignment.statusCode()).as(assignment.body()).isEqualTo(201);
+            }
+            HttpResponse<String> ownerDecision = send(port, tenant, token, "POST",
+                    "/dev/v1/reviews/" + projectCaseId + "/decisions", JSON.writeValueAsString(Map.of(
+                            "requestId", "d-owner-" + run, "expectedCaseRevision", 1, "decision", "ACCEPT",
+                            "reason", "owner may not decide", "scope", "QUALITY", "confirmed", true)));
+            assertThat(ownerDecision.statusCode()).isEqualTo(403);
+            HttpResponse<String> decision = send(port, tenant, reviewerToken, "POST",
                     "/dev/v1/reviews/" + projectCaseId + "/decisions", JSON.writeValueAsString(Map.of(
                             "requestId", "d-" + run, "expectedCaseRevision", 1, "decision", "ACCEPT",
-                            "reason", "DEV_ONLY check", "confirmed", true)));
+                            "reason", "DEV_ONLY check", "scope", "QUALITY", "confirmed", true)));
             assertThat(decision.statusCode()).as(decision.body()).isEqualTo(201);
             assertThat(JSON.readTree(decision.body()).path("establishesApproval").asBoolean()).isFalse();
-            HttpResponse<String> artifactDecision = send(port, tenant, token, "POST",
+            HttpResponse<String> artifactDecision = send(port, tenant, reviewerToken, "POST",
                     "/dev/v1/reviews/" + artifactCaseId + "/decisions", JSON.writeValueAsString(Map.of(
                             "requestId", "ad-" + run, "expectedCaseRevision", 0, "decision", "REQUEST_CHANGES",
-                            "reason", "Colour is off", "confirmed", true)));
+                            "reason", "Colour is off", "scope", "QUALITY", "confirmed", true)));
             assertThat(artifactDecision.statusCode()).as(artifactDecision.body()).isEqualTo(201);
 
             // A material project edit: the head moves, so the ACCEPT on the earlier revision must go stale.
@@ -159,11 +176,13 @@ class MediaDevReviewRestartIT {
             launcher = null;
             launcher = startLauncher(classpath, environment, log);
             awaitReady(launcher, port);
+            token = issueDevToken(tenant, principal, true);
+            reviewerToken = issueDevToken(tenant, principal + "-reviewer", true);
 
             JsonNode project = JSON.readTree(send(port, tenant, token, "GET", "/dev/v1/reviews/" + projectCaseId, null).body());
             assertThat(project.path("caseRevision").asLong()).isEqualTo(2);
             assertThat(project.path("currentness").asString()).isEqualTo("STALE");
-            assertThat(project.path("reviewState").path("status").asString()).isEqualTo("DEV_ONLY_ACCEPT_STALE");
+            assertThat(project.path("reviewState").path("status").asString()).isEqualTo("DEV_ASSIGNED_REVIEWER_ACCEPT_STALE");
             assertThat(project.path("reviewState").path("establishesApproval").asBoolean()).isFalse();
             assertThat(project.path("records").get(0).path("text").asString()).isEqualTo("Trim the first frame");
             assertThat(project.path("records").get(0).path("annotation").path("roi").path("width").asDouble())
@@ -172,7 +191,7 @@ class MediaDevReviewRestartIT {
 
             JsonNode art = JSON.readTree(send(port, tenant, token, "GET", "/dev/v1/reviews/" + artifactCaseId, null).body());
             assertThat(art.path("currentness").asString()).isEqualTo("CURRENT");
-            assertThat(art.path("reviewState").path("status").asString()).isEqualTo("DEV_ONLY_REQUEST_CHANGES_CURRENT");
+            assertThat(art.path("reviewState").path("status").asString()).isEqualTo("DEV_ASSIGNED_REVIEWER_REQUEST_CHANGES_CURRENT");
             assertThat(art.path("subject").path("artifactVersionId").asString()).isEqualTo(renderVersion);
 
             // Idempotent replay after restart returns the original record; a new decision on the stale revision is refused.
@@ -180,10 +199,10 @@ class MediaDevReviewRestartIT {
                     "/dev/v1/reviews/" + projectCaseId + "/comments", commentBody);
             assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
             assertThat(JSON.readTree(replay.body()).path("replayed").asBoolean()).isTrue();
-            HttpResponse<String> late = send(port, tenant, token, "POST",
+            HttpResponse<String> late = send(port, tenant, reviewerToken, "POST",
                     "/dev/v1/reviews/" + projectCaseId + "/decisions", JSON.writeValueAsString(Map.of(
                             "requestId", "late-" + run, "expectedCaseRevision", 2, "decision", "ACCEPT",
-                            "reason", "again", "confirmed", true)));
+                            "reason", "again", "scope", "QUALITY", "confirmed", true)));
             assertThat(late.statusCode()).as(late.body()).isEqualTo(409);
             assertThat(late.body()).contains("REVIEW_SUBJECT_STALE");
 

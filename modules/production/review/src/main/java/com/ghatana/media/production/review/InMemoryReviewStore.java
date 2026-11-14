@@ -10,9 +10,10 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /** Single-process development/test store. It is not a canonical or multi-host review writer. */
-public final class InMemoryReviewStore implements ManagedReviewStore {
+public final class InMemoryReviewStore implements ManagedReviewStore, ReviewAssignmentStore {
     private final Map<CaseKey, CaseState> cases = new HashMap<>();
     private final Map<IdempotencyKey, IdempotencyEntry> idempotency = new HashMap<>();
+    private final Map<IdempotencyKey, AssignmentRequest> assignmentRequests = new HashMap<>();
 
     /** Seeds only externally issued case references; this adapter never mints owner case identity. */
     public InMemoryReviewStore(List<ReviewCaseRef> issuedCases) {
@@ -100,6 +101,80 @@ public final class InMemoryReviewStore implements ManagedReviewStore {
         return state == null ? java.util.Optional.empty() : java.util.Optional.of(state.ref);
     }
 
+    @Override
+    public synchronized AssignmentChange assign(ReviewCaseRef reviewCase, String ownerPrincipalId,
+                                                String reviewerPrincipalId, java.util.Set<ReviewScope> scopes,
+                                                java.time.Instant expiresAt, long expectedCaseRevision,
+                                                String requestId, String fingerprint, Supplier<String> assignmentId,
+                                                java.time.Instant now) {
+        CaseState state = exactCase(reviewCase);
+        IdempotencyKey key = new IdempotencyKey(reviewCase.tenantId(), ownerPrincipalId, requestId);
+        AssignmentRequest previous = assignmentRequests.get(key);
+        if (previous != null) {
+            if (!previous.fingerprint.equals(fingerprint) || !previous.operation.equals("ASSIGN")
+                    || !previous.caseId.equals(reviewCase.reviewCaseId())) throw new ReviewIdempotencyConflictException();
+            return new AssignmentChange(current(state, previous.assignmentId), true);
+        }
+        if (state.records.size() != expectedCaseRevision) {
+            throw new ReviewConflictException(expectedCaseRevision, state.records.size());
+        }
+        if (state.assignments.stream().anyMatch(a -> a.reviewerPrincipalId().equals(reviewerPrincipalId)
+                && a.activeAt(now))) throw new ReviewAssignmentActiveException();
+        ReviewAssignment created = new ReviewAssignment(Objects.requireNonNull(assignmentId.get()),
+                reviewCase.tenantId(), reviewCase.reviewCaseId(), reviewerPrincipalId, ownerPrincipalId, scopes,
+                expiresAt, AssignmentStatus.ACTIVE, 1, now, now, requestId);
+        state.assignments.add(created);
+        assignmentRequests.put(key, new AssignmentRequest("ASSIGN", fingerprint, reviewCase.reviewCaseId(),
+                created.assignmentId()));
+        return new AssignmentChange(created, false);
+    }
+
+    @Override
+    public synchronized AssignmentChange revoke(ReviewCaseRef reviewCase, String ownerPrincipalId,
+                                                String assignmentId, long expectedCaseRevision, String requestId,
+                                                String fingerprint, java.time.Instant now) {
+        CaseState state = exactCase(reviewCase);
+        IdempotencyKey key = new IdempotencyKey(reviewCase.tenantId(), ownerPrincipalId, requestId);
+        AssignmentRequest previous = assignmentRequests.get(key);
+        if (previous != null) {
+            if (!previous.fingerprint.equals(fingerprint) || !previous.operation.equals("REVOKE")
+                    || !previous.caseId.equals(reviewCase.reviewCaseId())) throw new ReviewIdempotencyConflictException();
+            return new AssignmentChange(current(state, previous.assignmentId), true);
+        }
+        if (state.records.size() != expectedCaseRevision) {
+            throw new ReviewConflictException(expectedCaseRevision, state.records.size());
+        }
+        ReviewAssignment existing = current(state, assignmentId);
+        if (existing.status() == AssignmentStatus.REVOKED) throw new ReviewAssignmentRevokedException();
+        ReviewAssignment revoked = new ReviewAssignment(existing.assignmentId(), existing.tenantId(),
+                existing.reviewCaseId(), existing.reviewerPrincipalId(), existing.assignedByPrincipalId(),
+                existing.scopes(), existing.expiresAt(), AssignmentStatus.REVOKED,
+                existing.assignmentVersion() + 1, existing.createdAt(), now, requestId);
+        state.assignments.set(state.assignments.indexOf(existing), revoked);
+        assignmentRequests.put(key, new AssignmentRequest("REVOKE", fingerprint, reviewCase.reviewCaseId(),
+                assignmentId));
+        return new AssignmentChange(revoked, false);
+    }
+
+    @Override
+    public synchronized List<ReviewAssignment> assignments(ReviewCaseRef reviewCase) {
+        return List.copyOf(exactCase(reviewCase).assignments);
+    }
+
+    private CaseState exactCase(ReviewCaseRef reviewCase) {
+        Objects.requireNonNull(reviewCase, "reviewCase");
+        CaseState state = cases.get(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));
+        if (state == null || !state.ref.equals(reviewCase)) throw new ReviewCaseMismatchException();
+        return state;
+    }
+
+    private static ReviewAssignment current(CaseState state, String assignmentId) {
+        return state.assignments.stream().filter(a -> a.assignmentId().equals(assignmentId)).findFirst()
+                .orElseThrow(ReviewAssignmentNotFoundException::new);
+    }
+
+    private record AssignmentRequest(String operation, String fingerprint, String caseId, String assignmentId) { }
+
     @Override public void close() { }
 
     private record CaseKey(String tenantId, String caseId) { }
@@ -108,6 +183,7 @@ public final class InMemoryReviewStore implements ManagedReviewStore {
     private static final class CaseState {
         private final ReviewCaseRef ref;
         private final List<ReviewRecord> records = new ArrayList<>();
+        private final List<ReviewAssignment> assignments = new ArrayList<>();
         private CaseState(ReviewCaseRef ref) { this.ref = ref; }
     }
 

@@ -3,6 +3,7 @@ package com.ghatana.media.provider.aws;
 import static com.ghatana.media.production.review.ReviewContracts.*;
 
 import com.ghatana.media.production.review.ManagedReviewStore;
+import com.ghatana.media.production.review.ReviewAssignmentStore;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,8 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /** Durable append-only review records for exact externally issued case references. */
-public final class PostgresqlReviewStore implements ManagedReviewStore {
+public final class PostgresqlReviewStore implements ManagedReviewStore, ReviewAssignmentStore {
     private final ProjectTimelinePersistenceState state;
+    private final boolean assignmentsSupported;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     /** Registers only externally supplied case references; conflicting references fail closed. */
@@ -34,6 +36,7 @@ public final class PostgresqlReviewStore implements ManagedReviewStore {
         }
         MediaAwsPostgresqlRuntimeState acquired = MediaAwsPostgresqlRuntimeState.acquire();
         this.state = acquired;
+        this.assignmentsSupported = false;
         try { for (ReviewCaseRef reviewCase : snapshot) registerExactCase(reviewCase); }
         catch (RuntimeException | Error failure) {
             closed.set(true);
@@ -45,6 +48,7 @@ public final class PostgresqlReviewStore implements ManagedReviewStore {
     /** Dev-lane composition over an isolated persistence state that already owns the review tables. */
     PostgresqlReviewStore(ProjectTimelinePersistenceState state) {
         this.state = Objects.requireNonNull(state, "state");
+        this.assignmentsSupported = true;
     }
 
     @Override public void registerCase(ReviewCaseRef reviewCase) {
@@ -293,6 +297,163 @@ public final class PostgresqlReviewStore implements ManagedReviewStore {
         p.setString(1, ref.tenantId()); p.setString(2, ref.reviewCaseId()); p.setString(3, ref.exactTargetRef());
         p.setString(4, ref.reviewSubjectRef().kind().name()); p.setString(5, ref.reviewSubjectRef().objectId());
         p.setString(6, ref.reviewSubjectRef().versionId()); p.setString(7, ref.scopeRef());
+    }
+
+    // ---- DEV_ONLY reviewer assignments (isolated dev schema only; V003) ----
+
+    @Override public AssignmentChange assign(ReviewCaseRef ref, String ownerPrincipalId, String reviewerPrincipalId,
+                                             Set<ReviewScope> scopes, Instant expiresAt, long expectedRevision,
+                                             String requestId, String fingerprint, Supplier<String> assignmentId,
+                                             Instant now) {
+        ensureAssignments();
+        return assignmentTx(ref, c -> {
+            AssignmentChange replay = assignmentReplay(c, ref, ownerPrincipalId, requestId, fingerprint, "ASSIGN");
+            if (replay != null) return replay;
+            casRevision(c, ref, expectedRevision);
+            for (ReviewAssignment a : currentAssignments(c, ref)) {
+                if (a.reviewerPrincipalId().equals(reviewerPrincipalId) && a.activeAt(now))
+                    throw new ReviewAssignmentActiveException();
+            }
+            ReviewAssignment created = new ReviewAssignment(Objects.requireNonNull(assignmentId.get()),
+                    ref.tenantId(), ref.reviewCaseId(), reviewerPrincipalId, ownerPrincipalId, scopes, expiresAt,
+                    AssignmentStatus.ACTIVE, 1, now, now, requestId);
+            insertAssignmentVersion(c, created);
+            insertAssignmentRequest(c, ref, ownerPrincipalId, requestId, "ASSIGN", fingerprint, created.assignmentId());
+            return new AssignmentChange(created, false);
+        });
+    }
+
+    @Override public AssignmentChange revoke(ReviewCaseRef ref, String ownerPrincipalId, String assignmentId,
+                                             long expectedRevision, String requestId, String fingerprint,
+                                             Instant now) {
+        ensureAssignments();
+        return assignmentTx(ref, c -> {
+            AssignmentChange replay = assignmentReplay(c, ref, ownerPrincipalId, requestId, fingerprint, "REVOKE");
+            if (replay != null) return replay;
+            casRevision(c, ref, expectedRevision);
+            ReviewAssignment existing = currentAssignments(c, ref).stream()
+                    .filter(a -> a.assignmentId().equals(assignmentId)).findFirst()
+                    .orElseThrow(ReviewAssignmentNotFoundException::new);
+            if (existing.status() == AssignmentStatus.REVOKED) throw new ReviewAssignmentRevokedException();
+            ReviewAssignment revoked = new ReviewAssignment(existing.assignmentId(), existing.tenantId(),
+                    existing.reviewCaseId(), existing.reviewerPrincipalId(), existing.assignedByPrincipalId(),
+                    existing.scopes(), existing.expiresAt(), AssignmentStatus.REVOKED,
+                    existing.assignmentVersion() + 1, existing.createdAt(), now, requestId);
+            insertAssignmentVersion(c, revoked);
+            insertAssignmentRequest(c, ref, ownerPrincipalId, requestId, "REVOKE", fingerprint, assignmentId);
+            return new AssignmentChange(revoked, false);
+        });
+    }
+
+    @Override public List<ReviewAssignment> assignments(ReviewCaseRef ref) {
+        ensureAssignments();
+        try (Connection c = state.connection()) {
+            verifyCase(c, ref, false);
+            return currentAssignments(c, ref);
+        } catch (SQLException failure) { throw persistence("review assignment read", failure); }
+    }
+
+    private interface AssignmentWork { AssignmentChange run(Connection c) throws SQLException; }
+
+    private AssignmentChange assignmentTx(ReviewCaseRef ref, AssignmentWork work) {
+        try (Connection c = state.connection()) {
+            c.setAutoCommit(false);
+            try {
+                verifyCase(c, ref, true);
+                AssignmentChange result = work.run(c);
+                c.commit();
+                return result;
+            } catch (SQLException | RuntimeException failure) {
+                c.rollback();
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw failure;
+            }
+        } catch (SQLException failure) { throw persistence("review assignment write", failure); }
+    }
+
+    private void casRevision(Connection c, ReviewCaseRef ref, long expected) throws SQLException {
+        long actual = revision(c, ref);
+        if (actual != expected) throw new ReviewConflictException(expected, actual);
+    }
+
+    private AssignmentChange assignmentReplay(Connection c, ReviewCaseRef ref, String owner, String requestId,
+                                              String fingerprint, String operation) throws SQLException {
+        try (PreparedStatement q = c.prepareStatement("""
+                SELECT operation,request_fingerprint,review_case_id,assignment_id FROM media_review_assignment_requests
+                WHERE tenant_id=? AND principal_id=? AND request_id=?
+                """)) {
+            q.setString(1, ref.tenantId()); q.setString(2, owner); q.setString(3, requestId);
+            try (ResultSet r = q.executeQuery()) {
+                if (!r.next()) return null;
+                if (!operation.equals(r.getString(1)) || !fingerprint.equals(r.getString(2))
+                        || !ref.reviewCaseId().equals(r.getString(3))) throw new ReviewIdempotencyConflictException();
+                String id = r.getString(4);
+                return new AssignmentChange(currentAssignments(c, ref).stream()
+                        .filter(a -> a.assignmentId().equals(id)).findFirst()
+                        .orElseThrow(ReviewAssignmentNotFoundException::new), true);
+            }
+        }
+    }
+
+    private List<ReviewAssignment> currentAssignments(Connection c, ReviewCaseRef ref) throws SQLException {
+        try (PreparedStatement q = c.prepareStatement("""
+                SELECT DISTINCT ON (assignment_id) assignment_id,assignment_version,reviewer_principal_id,
+                       assigned_by_principal_id,scopes,expires_at,status,created_at,changed_at,request_id
+                FROM media_review_assignment_versions WHERE tenant_id=? AND review_case_id=?
+                ORDER BY assignment_id, assignment_version DESC
+                """)) {
+            q.setString(1, ref.tenantId()); q.setString(2, ref.reviewCaseId());
+            List<ReviewAssignment> out = new ArrayList<>();
+            try (ResultSet r = q.executeQuery()) {
+                while (r.next()) {
+                    java.util.EnumSet<ReviewScope> scopes = java.util.EnumSet.noneOf(ReviewScope.class);
+                    for (String name : r.getString(5).split(",")) scopes.add(ReviewScope.valueOf(name));
+                    out.add(new ReviewAssignment(r.getString(1), ref.tenantId(), ref.reviewCaseId(), r.getString(3),
+                            r.getString(4), scopes, r.getTimestamp(6).toInstant(),
+                            AssignmentStatus.valueOf(r.getString(7)), r.getLong(2),
+                            r.getTimestamp(8).toInstant(), r.getTimestamp(9).toInstant(), r.getString(10)));
+                }
+            }
+            out.sort(java.util.Comparator.comparing(ReviewAssignment::createdAt)
+                    .thenComparing(ReviewAssignment::assignmentId));
+            return List.copyOf(out);
+        }
+    }
+
+    private void insertAssignmentVersion(Connection c, ReviewAssignment a) throws SQLException {
+        try (PreparedStatement p = c.prepareStatement("""
+                INSERT INTO media_review_assignment_versions
+                  (tenant_id,review_case_id,assignment_id,assignment_version,reviewer_principal_id,
+                   assigned_by_principal_id,scopes,expires_at,status,created_at,changed_at,request_id)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                """)) {
+            p.setString(1, a.tenantId()); p.setString(2, a.reviewCaseId()); p.setString(3, a.assignmentId());
+            p.setLong(4, a.assignmentVersion()); p.setString(5, a.reviewerPrincipalId());
+            p.setString(6, a.assignedByPrincipalId());
+            p.setString(7, a.scopes().stream().map(Enum::name).sorted().collect(java.util.stream.Collectors.joining(",")));
+            p.setTimestamp(8, java.sql.Timestamp.from(a.expiresAt())); p.setString(9, a.status().name());
+            p.setTimestamp(10, java.sql.Timestamp.from(a.createdAt()));
+            p.setTimestamp(11, java.sql.Timestamp.from(a.changedAt())); p.setString(12, a.requestId());
+            p.executeUpdate();
+        }
+    }
+
+    private void insertAssignmentRequest(Connection c, ReviewCaseRef ref, String owner, String requestId,
+                                         String operation, String fingerprint, String assignmentId) throws SQLException {
+        try (PreparedStatement p = c.prepareStatement("""
+                INSERT INTO media_review_assignment_requests
+                  (tenant_id,principal_id,request_id,operation,request_fingerprint,review_case_id,assignment_id)
+                VALUES (?,?,?,?,?,?,?)
+                """)) {
+            p.setString(1, ref.tenantId()); p.setString(2, owner); p.setString(3, requestId);
+            p.setString(4, operation); p.setString(5, fingerprint); p.setString(6, ref.reviewCaseId());
+            p.setString(7, assignmentId); p.executeUpdate();
+        }
+    }
+
+    private void ensureAssignments() {
+        ensureOpen();
+        if (!assignmentsSupported) throw new UnsupportedOperationException("reviewer assignments are DEV_ONLY lane only");
     }
     private void ensureOpen() { if (closed.get()) throw new IllegalStateException("review store is closed"); }
     private static IllegalStateException persistence(String operation, SQLException e) { return new IllegalStateException(operation + " persistence failed", e); }

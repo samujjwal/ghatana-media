@@ -134,12 +134,32 @@ and stable terminal reads — **no second writer**.
   the live project head / artifact version on every call, so any later change
   makes earlier decisions `STALE` and new decisions `409 REVIEW_SUBJECT_STALE`.
   Text is redacted (control characters, e-mail addresses) before storage and
-  disclosure. Honesty: the authority is the DEV_ONLY synthetic owner, not an
-  issued human reviewer; every response carries `establishesApproval:false`,
+  disclosure. Honesty: every response carries `establishesApproval:false`,
   `humanReviewApproval:false` and scope `DEV_ONLY`, and a recorded ACCEPT
-  authorizes no delivery or publication. Not covered: reviewer roles,
-  multi-reviewer authority, retention expiry, atomic project/review CAS and
-  hosted review UI. Routes stay outside the canonical manifest/OpenAPI.
+  authorizes no delivery or publication. Not covered: retention expiry, atomic
+  project/review CAS and hosted review UI. Routes stay outside the canonical
+  manifest/OpenAPI.
+  **Reviewer assignment (owner-delegated design decision).** DEV_ONLY review authority is an explicit assignment: the project owner assigns a reviewer principal (different from the owner) to a review case with an explicit scope set (QUALITY, RIGHTS, PROVENANCE, APPROVAL) and an expiry. Only an assigned, unexpired reviewer may record decisions within its scopes; the owner may comment but not decide. Assignments and revocations are versioned, durable and part of the case's CAS. An ACCEPT by an assigned reviewer on a CURRENT subject is recorded as DEV_ASSIGNED_REVIEWER_ACCEPT and still reports establishesApproval=false / humanReviewApproval=false, because the DEV_ONLY signed identity is not a trusted human identity; production-like profiles remain fail-closed until a trusted Shared identity/membership contract exists.
+  `POST /dev/v1/reviews/{caseId}/assignments` (owner only; `requestId`,
+  `expectedCaseRevision`, `reviewerPrincipalId`, `scopes[]`, `expiresAt` within
+  30 days) creates assignment version 1 (`201`; replay `200`; divergent
+  `requestId` reuse `409 REVIEW_REQUEST_ID_REUSED`; CAS miss `409
+  REVIEW_CASE_REVISION_CONFLICT`; self-assignment `422
+  REVIEW_SELF_ASSIGNMENT_REFUSED`; reviewer already active `409
+  REVIEW_ASSIGNMENT_ALREADY_ACTIVE`). `POST .../assignments/{assignmentId}/revoke`
+  (owner only, same CAS/idempotency) appends version 2 (`REVOKED`); there is no
+  `DELETE`. Decisions now require a `scope` and are checked against the
+  assignment: owner or unassigned/revoked reviewer `403 REVIEWER_NOT_ASSIGNED`,
+  scope not in the assignment `403 REVIEW_SCOPE_NOT_ASSIGNED`, expired `403
+  REVIEW_ASSIGNMENT_EXPIRED`, stale subject still `409 REVIEW_SUBJECT_STALE`. An
+  assigned unexpired reviewer may also read and comment; a principal that was
+  never assigned (or another tenant) gets `404`. The authority version of a
+  reviewer record is `dev-only.assigned-reviewer.v1:{assignmentId}:v{n}[:SCOPE]`
+  (an assignment change between request and write is `REVIEW_AUTHORITY_CHANGED`),
+  and the case view reports `status` `DEV_ASSIGNED_REVIEWER_{DECISION}_{CURRENT|STALE}`,
+  per-record `recordedAs`/`scope` and the `assignments` list. Assignment rows are
+  immutable versions in `media_review_assignment_versions` (migration
+  `media-project-timeline-dev/V003`, isolated dev location only).
 - **Hosted export with destination acknowledgment (DEV_ONLY).**
   `POST /dev/v1/exports` takes `{requestId, artifactId, artifactVersionId, destinationId}` and
   requires `media:delivery:dev:export` plus `media:artifact:read`;
@@ -230,7 +250,9 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/reviews` | `media:project:dev:write` | `media:artifact:read` for `ARTIFACT_VERSION` | `MEDIA_DEV_REVIEW_ENABLED` |
 | GET | `/dev/v1/reviews/{caseId}` | `media:project:dev:read` | — | review |
 | POST | `/dev/v1/reviews/{caseId}/comments` | `media:project:dev:write` | — | review |
-| POST | `/dev/v1/reviews/{caseId}/decisions` | `media:project:dev:write` | — | review |
+| POST | `/dev/v1/reviews/{caseId}/decisions` | `media:project:dev:write` | — | review (assigned reviewer, `scope` required) |
+| POST | `/dev/v1/reviews/{caseId}/assignments` | `media:project:dev:write` | — | review (owner only) |
+| POST | `/dev/v1/reviews/{caseId}/assignments/{assignmentId}/revoke` | `media:project:dev:write` | — | review (owner only) |
 | POST | `/dev/v1/creative-outputs/audio-repairs` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline |
 | POST | `/dev/v1/creative-outputs/simulations` | `media:project:dev:write` | `media:artifact:create` | timeline |
 | POST | `/dev/v1/creative-outputs/spatial-glb` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline |
