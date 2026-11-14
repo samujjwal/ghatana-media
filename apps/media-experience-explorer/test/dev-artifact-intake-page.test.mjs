@@ -140,6 +140,12 @@ test("DEV_ONLY project proxy admits only exact context, policy, project, timelin
     ["POST", "/dev/v1/projects/project:local/timelines/timeline:main/edits"],
     ["POST", `/dev/v1/projects/${project}/restore`],
     ["GET", `/dev/v1/projects/${project}/revisions/${revision}`],
+    ["POST", `/dev/v1/projects/${project}/renders`],
+    ["GET", `/dev/v1/projects/${project}/renders/render-1`],
+    ["POST", "/dev/v1/reviews"],
+    ["GET", "/dev/v1/reviews/case-1"],
+    ["POST", "/dev/v1/reviews/case-1/comments"],
+    ["POST", "/dev/v1/reviews/case-1/decisions"],
   ];
   for (const [method, path] of allowed) assert.equal(isAllowedDevProjectProxyRequest(method, path), true, `${method} ${path}`);
 
@@ -161,6 +167,16 @@ test("DEV_ONLY project proxy admits only exact context, policy, project, timelin
     ["GET", "/dev/v1/projects/project-1?include=private"],
     ["GET", "/dev/v1/projects/project-1/revisions/revision-2/extra"],
     ["GET", "/dev/v1/projects/project-1//revisions/revision-2"],
+    ["PUT", `/dev/v1/projects/${project}/renders`],
+    ["DELETE", `/dev/v1/projects/${project}/renders/render-1`],
+    ["GET", `/dev/v1/projects/${project}/renders`],
+    ["POST", `/dev/v1/projects/${project}/renders/render-1`],
+    ["GET", "/dev/v1/reviews"],
+    ["PATCH", "/dev/v1/reviews/case-1"],
+    ["GET", "/dev/v1/reviews/case-1/decisions"],
+    ["POST", "/dev/v1/reviews/case-1/decisions/extra"],
+    ["GET", "/dev/v1/reviews/bad%2fcase"],
+    ["POST", "/dev/v1/reviews/case-1/comments?x=1"],
   ];
   for (const [method, path] of rejected) assert.equal(isAllowedDevProjectProxyRequest(method, path), false, `${method} ${path}`);
 

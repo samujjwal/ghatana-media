@@ -18,6 +18,13 @@ const devProjectRoutes = [
   { method: "POST", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/timelines/${OPAQUE_ID}/edits$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/restore$`, "u") },
   { method: "GET", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/revisions/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY render and review lanes used by the "Render and review" panel.
+  { method: "POST", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/renders$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/renders/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: /^\/dev\/v1\/reviews$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/comments$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/decisions$`, "u") },
 ];
 
 function isCanonicalPath(requestUrl) {

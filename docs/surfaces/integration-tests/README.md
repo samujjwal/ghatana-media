@@ -95,6 +95,9 @@ immutable digests are absent rather than fabricating a pass.
 # DEV_ONLY real-process journeys (Docker; set the FFMPEG/FFPROBE env vars to include MP4)
 ./gradlew :services:media:integration-tests:test \
   --tests '*MediaDevProductionJourneyIT' --tests '*MediaDevCreativeOutputRestartIT'
+
+# DEV_ONLY Explorer render/review in real Chromium (Docker, Playwright 1.63.0, Vite; GIF or MP4)
+./gradlew :services:media:integration-tests:test --tests '*MediaDevExplorerRenderReviewLiveIT'
 ```
 
 See the module README for the full census-driven selector list and

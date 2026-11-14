@@ -91,12 +91,21 @@ invoke a live Media backend.
 Once a project has an exact head revision with clips, the workspace on this page
 also drives the DEV_ONLY render (`/dev/v1/projects/{id}/renders`) and review
 (`/dev/v1/reviews`) routes through `src/dev-project-outputs-client.ts`, a
-loopback-origin, memory-token fetch adapter. The browser fixture currently
-asserts only the disclosure, disabled-until-clips state and live regions; the
-render/review flows are covered by `@audio-video/ui` unit tests with a fake
-port and are not yet driven in a browser against the real launcher (that needs
-a launcher with `MEDIA_DEV_REVIEW_ENABLED=true`, FFmpeg for MP4, and a token
-with `media:project:dev:write`, `media:artifact:read|create`). No export or
+loopback-origin, memory-token fetch adapter. The offline browser fixture asserts
+the disclosure, disabled-until-clips state and live regions. A real-launcher
+Chromium scenario (`test/dev-render-review-live-browser.mjs`, driven by
+`MediaDevExplorerRenderReviewLiveIT`; Docker, `MEDIA_DEV_REVIEW_ENABLED=true`,
+GIF or MP4 when `GHATANA_MEDIA_FFMPEG`/`FFPROBE` are set) renders the exact
+revision through the page (Created HTTP 201, then Replayed HTTP 200, then
+reopen), opens a review case, comments, confirms and records a DEV_ONLY
+decision with the approval disclaimer visible, edits the timeline to show the
+case STALE with decisions disabled, then re-reads render and case after a
+launcher restart and checks the single durable render artifact in
+PostgreSQL/S3. The PNG source is uploaded over HTTP (this page only inspects
+artifacts; it has no upload path). The page cannot open an existing project by
+id, so after a full reload the render/review panel is verified to start clean
+and the durable readback is asserted over HTTP. The Vite DEV_ONLY allow-list
+(`artifact-proxy-guard.mjs`) admits the render and review routes. No export or
 delivery is offered.
 
 ### DEV_ONLY artifact upload recovery
