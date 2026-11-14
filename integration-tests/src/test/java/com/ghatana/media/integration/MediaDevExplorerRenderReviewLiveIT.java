@@ -69,6 +69,9 @@ class MediaDevExplorerRenderReviewLiveIT {
             String classpath = services + java.io.File.pathSeparator + childClasspath;
             Map<String, String> environment = new HashMap<>(environment(POSTGRES, LOCALSTACK, bucket, port, schema));
             environment.put("MEDIA_DEV_REVIEW_ENABLED", "true");
+            Path destinationDir = Files.createTempDirectory("media-dev-live-export-");
+            environment.put("MEDIA_DELIVERY_DEV_ENABLED", "true");
+            environment.put("MEDIA_DELIVERY_DEV_DESTINATION_DIR", destinationDir.toString());
             String ffmpeg = System.getenv("GHATANA_MEDIA_FFMPEG");
             String ffprobe = System.getenv("GHATANA_MEDIA_FFPROBE");
             boolean mp4 = ffmpeg != null && !ffmpeg.isBlank() && ffprobe != null && !ffprobe.isBlank();
@@ -76,7 +79,7 @@ class MediaDevExplorerRenderReviewLiveIT {
                 environment.put("MEDIA_DEV_RENDER_FFMPEG", ffmpeg);
                 environment.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe);
             }
-            String token = issueDevToken(tenant, principal);
+            String token = issueDevToken(tenant, principal, "media:delivery:dev:export", "media:delivery:dev:read");
             launcher = startLauncher(classpath, environment, log);
             awaitReady(launcher, port);
 
@@ -101,6 +104,7 @@ class MediaDevExplorerRenderReviewLiveIT {
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_ID", sourceId);
             env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_ARTIFACT_SHA256", pngSha);
             env.put("MEDIA_DEV_RENDER_REVIEW_FORMAT", mp4 ? "mp4" : "gif");
+            env.put("MEDIA_DEV_RENDER_REVIEW_BROWSER_DESTINATION_ID", "dev-local-directory");
             env.put("MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT", Integer.toString(port));
             env.put("MEDIA_DEV_VITE_BINARY", viteBinary.toString());
             env.put("MEDIA_DEV_VITE_VERSION", viteVersion);
@@ -138,8 +142,19 @@ class MediaDevExplorerRenderReviewLiveIT {
                 JsonNode readback = readBrowserEvent(browser, output, "readback", log);
                 assertThat(readback.path("renderId").asString()).isEqualTo(renderId);
                 assertThat(readback.path("reviewCaseId").asString()).isEqualTo(caseId);
+                assertThat(readback.path("exportDestinationId").asString()).isEqualTo("dev-local-directory");
+                assertThat(readback.path("exportReceipt").isMissingNode() || readback.path("exportReceipt").isNull())
+                        .as("browser export must be destination-confirmed with a receipt").isFalse();
                 assertThat(browser.waitFor(90, TimeUnit.SECONDS)).isTrue();
                 assertThat(browser.exitValue()).as("live browser script must pass; see " + log).isZero();
+
+                // The destination holds exactly one exported object whose bytes are the render artifact.
+                try (var exported = Files.list(destinationDir)) {
+                    var files = exported.filter(Files::isRegularFile).toList();
+                    assertThat(files).as("exactly one exported object").hasSize(1);
+                    assertThat(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                            .digest(Files.readAllBytes(files.get(0))))).isEqualTo(renderSha);
+                }
 
                 // Independent host readback after the restart.
                 JsonNode render = get(port, tenant, token, "/dev/v1/projects/" + projectId + "/renders/" + renderId, 200);
