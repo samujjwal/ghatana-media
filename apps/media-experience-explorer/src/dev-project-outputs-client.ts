@@ -3,7 +3,7 @@ import { createDevArtifactContentClient } from "./dev-artifact-content-client";
 import type { DevHostResponse, DevProjectOutputsPort } from "@audio-video/ui/screens";
 
 /**
- * Loopback fetch adapter for the DEV_ONLY render, review and export routes. The token is read from page
+ * Loopback fetch adapter for the DEV_ONLY render, review, rights and export routes. The token is read from page
  * memory per call and never stored. Success responses (2xx, including a not-yet-confirmed 202 export) resolve with the exact status and
  * body; every other outcome rejects with a typed {@link DevOutputsHostError}. A failed mutation
  * whose outcome cannot be observed is status 0 / OUTCOME_UNKNOWN so the UI retries the same requestId.
@@ -17,6 +17,9 @@ export function createDevProjectOutputsClient(options: {
 }): DevProjectOutputsPort {
   const fetcher = options.fetch ?? fetch;
   const seg = (value: string): string => encodeURIComponent(value);
+  // Exact artifact versions are "sha256:<hex>"; a colon is a legal, unambiguous path character and the proxy
+  // allow-list rejects percent-escapes, so it is kept literal for the rights routes.
+  const idSeg = (value: string): string => encodeURIComponent(value).replace(/%3A/gu, ":");
   async function call(method: "GET" | "POST", path: string, body: unknown, mutating: boolean): Promise<DevHostResponse> {
     const token = options.bearerToken();
     if (!token || token.startsWith("Bearer ")) throw new DevOutputsHostError("INVALID_CONFIGURATION", 0, "A raw DEV_ONLY bearer token is required.");
@@ -51,6 +54,12 @@ export function createDevProjectOutputsClient(options: {
     recordReviewDecision: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/decisions`, request, true),
     assignReviewer: (caseId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/assignments`, request, true),
     revokeReviewAssignment: (caseId, assignmentId, request) => call("POST", `/dev/v1/reviews/${seg(caseId)}/assignments/${seg(assignmentId)}/revoke`, request, true),
+    createRightsAttestation: (request) => call("POST", "/dev/v1/rights/attestations", request, true),
+    getRightsAttestation: (attestationId) => call("GET", `/dev/v1/rights/attestations/${idSeg(attestationId)}`, undefined, false),
+    confirmRightsAttestation: (attestationId, request) => call("POST", `/dev/v1/rights/attestations/${idSeg(attestationId)}/confirm`, request, true),
+    revokeRightsAttestation: (attestationId, request) => call("POST", `/dev/v1/rights/attestations/${idSeg(attestationId)}/revoke`, request, true),
+    listRightsAttestations: (artifactId, artifactVersionId) =>
+      call("GET", `/dev/v1/rights/artifacts/${idSeg(artifactId)}/versions/${idSeg(artifactVersionId)}/attestations`, undefined, false),
     requestExport: (request) => call("POST", "/dev/v1/exports", request, true),
     getExport: (requestId) => call("GET", `/dev/v1/exports/${seg(requestId)}`, undefined, false),
     readArtifactContent: createDevArtifactContentClient(options),

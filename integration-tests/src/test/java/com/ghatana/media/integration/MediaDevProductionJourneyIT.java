@@ -70,6 +70,7 @@ class MediaDevProductionJourneyIT {
             String classpath = services + java.io.File.pathSeparator + childClasspath;
             Map<String, String> environment = new HashMap<>(environment(POSTGRES, LOCALSTACK, bucket, port, schema));
             environment.put("MEDIA_DEV_REVIEW_ENABLED", "true");
+            environment.put("MEDIA_RIGHTS_DEV_ENABLED", "true");
             environment.put("MEDIA_DELIVERY_DEV_ENABLED", "true");
             environment.put("MEDIA_DELIVERY_DEV_DESTINATION_DIR", destination.toString());
             String ffmpeg = System.getenv("GHATANA_MEDIA_FFMPEG");
@@ -197,6 +198,19 @@ class MediaDevProductionJourneyIT {
             String exportRequestId = "journey-export-" + run;
             Map<String, Object> exportBody = Map.of("requestId", exportRequestId, "artifactId", renderId,
                     "artifactVersionId", renderVersion, "destinationId", DESTINATION);
+            // Rights and consent gate: refused until the uploader's EXTERNAL_DELIVERY statement for the exact render
+            // version is confirmed by a DIFFERENT principal (the reviewer here; clearly a DEV_ONLY test identity).
+            HttpResponse<String> unconfirmedExport = send(port, tenant, token, "POST", "/dev/v1/exports",
+                    JSON.writeValueAsString(exportBody));
+            assertThat(unconfirmedExport.statusCode()).as(unconfirmedExport.body()).isEqualTo(403);
+            assertThat(unconfirmedExport.body()).contains("EXPORT_RIGHTS_NOT_ADMITTED");
+            String attestationId = post(port, tenant, token, "/dev/v1/rights/attestations", Map.of(
+                    "artifactId", renderId, "artifactVersionId", renderVersion, "statementKind", "MEDIA_RIGHTS",
+                    "scopes", List.of("EXTERNAL_DELIVERY"),
+                    "basis", "TEST: synthetic render produced from generated fixtures in this journey"), 201)
+                    .path("attestationId").asString();
+            post(port, tenant, reviewerToken, "/dev/v1/rights/attestations/" + attestationId + "/confirm",
+                    Map.of("note", "TEST journey confirmation"), 200);
             JsonNode exported = post(port, tenant, token, "/dev/v1/exports", exportBody, 201);
             assertThat(exported.path("status").asString()).isEqualTo("DESTINATION_CONFIRMED");
             assertThat(exported.path("destinationConfirmed").asBoolean()).isTrue();

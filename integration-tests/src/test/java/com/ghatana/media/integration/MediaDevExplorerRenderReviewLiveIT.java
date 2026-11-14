@@ -71,6 +71,7 @@ class MediaDevExplorerRenderReviewLiveIT {
             Map<String, String> environment = new HashMap<>(environment(POSTGRES, LOCALSTACK, bucket, port, schema));
             environment.put("MEDIA_DEV_REVIEW_ENABLED", "true");
             Path destinationDir = Files.createTempDirectory("media-dev-live-export-");
+            environment.put("MEDIA_RIGHTS_DEV_ENABLED", "true");
             environment.put("MEDIA_DELIVERY_DEV_ENABLED", "true");
             environment.put("MEDIA_DELIVERY_DEV_DESTINATION_DIR", destinationDir.toString());
             String ffmpeg = System.getenv("GHATANA_MEDIA_FFMPEG");

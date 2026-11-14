@@ -8,6 +8,7 @@
  */
 
 import type { DevArtifactContentReader } from "./devArtifactContent";
+import type { DevRightsPort } from "./devRights";
 
 export type DevRenderFormat = "gif" | "mp4";
 
@@ -66,7 +67,7 @@ export interface DevHostResponse {
   readonly body: unknown;
 }
 
-export interface DevProjectOutputsPort {
+export interface DevProjectOutputsPort extends Partial<DevRightsPort> {
   /**
    * The verified principal id of the page's DEV_ONLY identity (from /dev/v1/context), when known. Review
    * decision eligibility is derived from it plus the case's assignments; unknown means decisions stay disabled.
@@ -529,10 +530,19 @@ export function describeExportFailure(error: unknown): Outcome {
     if (code === "EXPORT_NOT_FOUND") return make("error", "No export with this request identity exists in this owner scope.");
     return make("unavailable", "The export lane is not available on this host. Nothing was exported.");
   }
+  if (status === 403 && code === "EXPORT_RIGHTS_NOT_ADMITTED") {
+    const rights = error.details && typeof error.details.rights === "object" && error.details.rights !== null ? error.details.rights as Record<string, unknown> : {};
+    const verdict = typeof rights.verdict === "string" ? rights.verdict : "DENIED";
+    const reasons = Array.isArray(rights.reasons) ? rights.reasons.filter((reason): reason is string => typeof reason === "string").join(", ") : "";
+    return make("denied", `Not exported: external delivery needs a current rights statement for this exact version, confirmed by a second person (rights verdict ${verdict}${reasons ? `: ${reasons}` : ""}). Use the Rights and consent section to state and confirm EXTERNAL_DELIVERY rights.`);
+  }
   if (status === 403) return make("denied", "Denied: this DEV_ONLY principal lacks permission to export this artifact (delivery export plus artifact read). Nothing was exported.");
   if (status === 422) return make("error", code === "EXPORT_LIMIT_EXCEEDED"
     ? "The artifact exceeds the DEV_ONLY export size limit. Nothing was exported."
     : `The host refused this export (${code}). Nothing was exported.`);
+  if (status === 503 && code === "EXPORT_RIGHTS_AUTHORITY_UNAVAILABLE") {
+    return make("unavailable", "The rights and consent authority is unavailable on this host, so external delivery is refused. Nothing was exported.");
+  }
   if (status === 503) return make("unavailable", code === "DELIVERY_DESTINATION_UNAVAILABLE"
     ? "The delivery destination is unavailable. No delivery is confirmed. Retry with the same request identity once it is available."
     : `The export lane is unavailable (${code}). No delivery is confirmed. Retry with the same request identity.`, { retrySameRequest: true });

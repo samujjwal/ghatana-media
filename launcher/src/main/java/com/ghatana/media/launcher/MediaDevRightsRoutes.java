@@ -151,7 +151,7 @@ final class MediaDevRightsRoutes {
                     "The exact artifact version is not available to this DEV_ONLY principal");
         } catch (RightsConsentException failure) {
             consentFailure(exchange, failure);
-        } catch (IllegalArgumentException failure) {
+        } catch (IllegalArgumentException | tools.jackson.core.JacksonException failure) {
             error(exchange, 400, "INVALID_REQUEST", "Rights request is invalid");
         } catch (IllegalStateException failure) {
             LOG.warn("DEV_ONLY rights state failure", failure);

@@ -7,6 +7,7 @@ import {
   type DevReviewSubject, type Outcome, type RenderView, type ReviewView,
 } from "./devProjectOutputs";
 import { DevReviewSection } from "./DevReviewSection";
+import { DevRightsSection } from "./DevRightsSection";
 import { DevVerifiedContent } from "./DevVerifiedContent";
 import type { DevArtifactContentReader } from "./devArtifactContent";
 
@@ -306,6 +307,9 @@ export function DevProjectOutputsPanel({ outputs, project, revision, timelineId,
         <button type="submit" disabled={busy || !OPAQUE_ID.test(knownRenderId.trim())}>Reopen known render</button>
       </form>
     </section>
+
+    <DevRightsSection key={shown ? `rights:${shown.view.artifactId}@${shown.view.artifactVersionId}` : "rights:none"} outputs={outputs} locked={locked}
+      artifact={shown ? { artifactId: shown.view.artifactId, artifactVersionId: shown.view.artifactVersionId } : null} />
 
     <DevReviewSection outputs={outputs} locked={locked} newRequestId={newRequestId} projectId={project.projectId} headKey={project.headRevisionId}
       onBusyChange={setReviewBusy} subjectChoices={[

@@ -247,6 +247,14 @@ and stable terminal reads — **no second writer**.
   every operation: `403 EXPORT_RIGHTS_NOT_ADMITTED` (with `details.rights.verdict` and reasons) or, when no rights
   authority is configured, `503 EXPORT_RIGHTS_AUTHORITY_UNAVAILABLE`. These DEV_ONLY records are statements by
   authenticated DEV_ONLY principals, not a legal determination: `establishesApproval` is always `false`.
+  **Injectable resolver port** (`com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver`):
+  `Resolution resolve(ResolutionRequest)` with `ResolutionRequest(tenantId, artifactId, artifactVersion, contentSha256,
+  Scope)` returning `Verdict` `ADMITTED | DENIED | REVOKED | STALE | MISMATCH | UNAVAILABLE`; anything but `ADMITTED`
+  must be treated as not admitted, and `RightsConsentResolver.unavailable()` is the fail-closed default.
+  `MediaRightsConsentAuthority` implements it over an `AttestationStore` (PostgreSQL V036 in the DEV_ONLY composition)
+  and `MediaRightsConsentAuthority.gate(Authority, RightsConsentResolver)` wraps an existing
+  `MediaSourceAuthorizationContracts.Authority` so ALLOWED requires both the policy authority and an admitted
+  attestation (policy evidence is never synthesised).
 
 ### DEV_ONLY route inventory
 

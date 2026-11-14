@@ -28,6 +28,12 @@ const devProjectRoutes = [
   // DEV_ONLY owner-assigned reviewer lane (assign and revoke; there is no DELETE).
   { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/assignments$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/assignments/${OPAQUE_ID}/revoke$`, "u") },
+  // DEV_ONLY rights and consent lane (uploader statement, second-person confirmation, revocation, per-version list).
+  { method: "POST", path: /^\/dev\/v1\/rights\/attestations$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/rights/attestations/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/rights/attestations/${OPAQUE_ID}/confirm$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/rights/attestations/${OPAQUE_ID}/revoke$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/rights/artifacts/${OPAQUE_ID}/versions/${OPAQUE_ID}/attestations$`, "u") },
   // DEV_ONLY hosted export lane used by the "Export this render artifact" control.
   { method: "POST", path: /^\/dev\/v1\/exports$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}$`, "u") },

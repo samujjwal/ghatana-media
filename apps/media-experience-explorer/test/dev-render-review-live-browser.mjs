@@ -111,6 +111,8 @@ try {
   page.on("pageerror", (error) => pageErrors.push(error.message));
   // Console errors carry the resource URL so the one deliberate PROJECT_NOT_FOUND probe can be told apart.
   const expectedNotFoundPaths = new Set();
+  // The deliberate refused export (no confirmed EXTERNAL_DELIVERY statement yet) logs one 403.
+  const expectedForbiddenPaths = new Set();
   page.on("console", (message) => {
     if (message.type() !== "error") return;
     const url = message.location()?.url ?? "";
@@ -130,7 +132,12 @@ try {
     await page.goto(`${baseUrl}/dev-project-timeline.html`);
     await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
     await page.getByRole("button", { name: "Read host context" }).click();
-    await page.getByText(expectedTenant, { exact: true }).waitFor({ timeout: 10_000 });
+    try {
+      await page.getByText(expectedTenant, { exact: true }).waitFor({ timeout: 10_000 });
+    } catch (error) {
+      process.stderr.write(`connect diagnostics: ${JSON.stringify(diagnostics)} body=${(await page.locator("body").innerText()).slice(0, 1500)}\n`);
+      throw error;
+    }
   }
 
   // Verified preview + Download of the registered render through the DEV_ONLY content route. The page verifies the
@@ -462,6 +469,37 @@ try {
 
   let exportReceipt = null;
   if (exportDestinationId) {
+    // Rights and consent (owner decision 2026-11-14, uploader plus reviewer): the uploader states EXTERNAL_DELIVERY
+    // rights for the exact render version in the UI; external delivery stays refused until a DIFFERENT person confirms.
+    const rights = page.locator("#dev-rights");
+    await rights.waitFor();
+    await rights.getByLabel(/EXTERNAL_DELIVERY \(needs a second person\)/u).check();
+    await rights.getByLabel(/Basis/u).fill("TEST: synthetic render produced from a generated frame in this browser run");
+    await rights.getByLabel(/I am stating this as myself/u).check();
+    await rights.getByRole("button", { name: "Record my statement" }).click();
+    await page.locator("#rights-status").filter({ hasText: /Recorded statement att-/u }).waitFor();
+    const attestationId = (await page.locator("#rights-status").textContent()).match(/Recorded statement (att-[0-9a-f-]+)/u)[1];
+    assert.ok((await rights.textContent()).includes(`sha256:${renderSha}`), "the statement shows the exact render version");
+    await page.getByLabel("Destination ID").fill(exportDestinationId);
+    await page.getByRole("button", { name: "Export render artifact" }).click();
+    expectedForbiddenPaths.add("/dev/v1/exports");
+    await page.locator("#export-status").filter({ hasText: /EXPORT_RIGHTS_NOT_ADMITTED/u }).waitFor();
+    assert.equal(await page.getByRole("article", { name: "Export result" }).count(), 0, "a refused export shows no delivery");
+    // The author cannot confirm their own statement.
+    await rights.getByLabel(/I have read the statement/u).check();
+    assert.equal(await rights.getByRole("button", { name: `Confirm statement ${attestationId}` }).isDisabled(), true);
+    // The second person confirms under their own DEV_ONLY identity in their own browser context.
+    await reviewerPage.locator("#confirmer-known-rights-id").fill(attestationId);
+    await reviewerPage.locator("#confirmer-rights-known-form").getByRole("button", { name: "Open statement" }).click();
+    const confirmButton = reviewerPage.getByRole("button", { name: `Confirm statement ${attestationId}` });
+    await confirmButton.waitFor();
+    assert.equal(await confirmButton.isDisabled(), true, "confirmation needs the explicit acknowledgement");
+    await reviewerPage.locator("#confirmer-rights-act-sure").check();
+    await confirmButton.click();
+    await reviewerPage.locator("#confirmer-rights-status").filter({ hasText: new RegExp(`Confirmed statement ${attestationId} as ${reviewerPrincipal}`, "u") }).waitFor();
+    await page.getByRole("button", { name: "Re-read statements" }).click();
+    await rights.locator(`[data-attestation='${attestationId}'][data-status='CONFIRMED']`).waitFor();
+    await rights.locator("[data-verdict='ADMITTED'][data-scope='EXTERNAL_DELIVERY']").waitFor();
     await page.getByLabel("Destination ID").fill(exportDestinationId);
     await page.getByRole("button", { name: "Export render artifact" }).click();
     const exportResult = page.getByRole("article", { name: "Export result" });
@@ -490,9 +528,10 @@ try {
   }
 
   assert.deepEqual(pageErrors, [], `browser page errors: ${JSON.stringify(pageErrors)}`);
-  // Only the deliberate missing-project probe may log a 404; any other console error fails the journey.
+  // Only the deliberate missing-project probe (404) and the deliberate rights-refused export (403) may log; any other console error fails the journey.
   const unexpectedConsoleErrors = consoleErrors.filter(({ text, pathname }) =>
-    !(expectedNotFoundPaths.has(pathname) && /status of 404/u.test(text)));
+    !(expectedNotFoundPaths.has(pathname) && /status of 404/u.test(text))
+    && !(expectedForbiddenPaths.has(pathname) && /status of 403/u.test(text)));
   assert.deepEqual(unexpectedConsoleErrors, [], `browser console errors: ${JSON.stringify(consoleErrors)}`);
   process.stdout.write(`${JSON.stringify({ event: "readback", exportReceipt, exportDestinationId, projectId, renderId, reviewCaseId, renderSha })}\n`);
 } finally {

@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import type { DevProject, DevProjectRevision, MediaDevProjectTimelineClient } from "@audio-video/client/dev-project-timeline";
-import { DevOfflineDraftsPanel, DevReviewSection, MediaProductRenderer } from "@audio-video/ui/screens";
+import { DevOfflineDraftsPanel, DevReviewSection, DevRightsSection, MediaProductRenderer } from "@audio-video/ui/screens";
 import type { DevProjectOutputsPort } from "@audio-video/ui/screens";
 
 type WorkspaceDetail = {
@@ -42,9 +42,12 @@ if (reviewRootElement) {
   reviewRootElement.addEventListener("media-dev-reviewer", ((event: CustomEvent<DevProjectOutputsPort | null>) => {
     const outputs = event.detail;
     if (!outputs) { reviewRoot.render(null); return; }
-    reviewRoot.render(React.createElement(DevReviewSection, {
-      key: outputs.principalId ?? "unknown", outputs, locked: false, newRequestId: () => `ui-${crypto.randomUUID()}`,
-      projectId: null, headKey: null, subjectChoices: [],
-    }));
+    reviewRoot.render(React.createElement(React.Fragment, null,
+      React.createElement(DevReviewSection, {
+        key: outputs.principalId ?? "unknown", outputs, locked: false, newRequestId: () => `ui-${crypto.randomUUID()}`,
+        projectId: null, headKey: null, subjectChoices: [],
+      }),
+      // Second-person lane: open an uploader's rights statement by id and confirm or revoke it as yourself.
+      React.createElement(DevRightsSection, { key: `rights:${outputs.principalId ?? "unknown"}`, outputs, locked: false, artifact: null, idPrefix: "confirmer" })));
   }) as EventListener);
 }
