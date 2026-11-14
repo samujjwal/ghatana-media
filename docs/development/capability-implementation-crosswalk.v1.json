@@ -417,7 +417,9 @@
         ],
         "tests": [
           "launcher/src/test/java/com/ghatana/media/launcher/MediaDevReviewHttpTest.java",
-          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevReviewRestartIT.java"
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevReviewRestartIT.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerRenderReviewLiveIT.java"
         ],
         "gaps": [
           "reviewer is the DEV_ONLY synthetic owner, not current assigned reviewer authority; establishesApproval stays false",
@@ -1033,7 +1035,9 @@
         ],
         "tests": [
           "launcher/src/test/java/com/ghatana/media/launcher/MediaDevProjectRenderHttpTest.java",
-          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java"
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerRenderReviewLiveIT.java"
         ],
         "gaps": [
           "policy decision is DEV_ONLY owner scope; registration does not attach the output to the project or deliver it"
@@ -6073,7 +6077,8 @@
           "GET /dev/v1/creative-outputs/{outputId}"
         ],
         "tests": [
-          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java"
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevCreativeOutputRestartIT.java"
         ],
         "gaps": [
           "only the engine's own GLB profile (right-handed +X/+Y/+Z, metre, unit quaternion); no versioned interchange profile or registry",
@@ -6915,7 +6920,8 @@
           "GET /dev/v1/creative-outputs/{outputId}"
         ],
         "tests": [
-          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java"
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevCreativeOutputRestartIT.java"
         ],
         "gaps": [
           "no simulation-pass contract or typed simulation-pass-result; output is a unit-labelled JSON observation series",
@@ -8222,7 +8228,8 @@
           "GET /dev/v1/creative-outputs/{outputId}"
         ],
         "tests": [
-          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java"
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaDevCreativeOutputHttpTest.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevCreativeOutputRestartIT.java"
         ],
         "gaps": [
           "no rights decision is bound to the derived candidate; 16-bit PCM WAV only"
@@ -10914,7 +10921,8 @@
         ],
         "tests": [
           "launcher/src/test/java/com/ghatana/media/launcher/MediaDevDeliveryHttpTest.java",
-          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevDeliveryRestartIT.java"
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevDeliveryRestartIT.java",
+          "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java"
         ],
         "gaps": [
           "only the DEV_ONLY local-directory destination; no network destination or external acknowledgment",
