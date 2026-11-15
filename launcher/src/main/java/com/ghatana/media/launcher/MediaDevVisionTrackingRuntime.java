@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.audio.video.vision.image.BoundedImageDecoder;
 import com.ghatana.audio.video.vision.local.LocalModelAdmission;
 import com.ghatana.audio.video.vision.local.LocalVisionEngine;
 import com.ghatana.audio.video.vision.local.LocalVisionSidecarClient;
@@ -423,6 +424,7 @@ public final class MediaDevVisionTrackingRuntime {
             Path file = dir.resolve("in.bin");
             stage(tenantId, principalId, source, file);
             byte[] frameImage;
+            BufferedImage decodedStill = null;
             Map<String, Object> frame = new LinkedHashMap<>();
             int width;
             int height;
@@ -448,9 +450,9 @@ public final class MediaDevVisionTrackingRuntime {
                 frame.put("timeBase", timeBase(timeline));
             } else {
                 frameImage = Files.readAllBytes(file);
-                int[] size = imageSize(frameImage);
-                width = size[0];
-                height = size[1];
+                decodedStill = decodeStillImage(frameImage);
+                width = decodedStill.getWidth();
+                height = decodedStill.getHeight();
                 request.roi().requireWithin(width, height);
             }
             frame.put("frameSha256", MediaDevProjectRenderRuntime.sha256Hex(frameImage));
@@ -458,7 +460,7 @@ public final class MediaDevVisionTrackingRuntime {
             frame.put("height", height);
             frame.put("coordinateSpace", "SOURCE_FRAME_PIXELS_TOP_LEFT_ORIGIN");
 
-            byte[] crop = crop(frameImage, request.roi());
+            byte[] crop = decodedStill == null ? crop(frameImage, request.roi()) : crop(decodedStill, request.roi());
             String cropSha = MediaDevProjectRenderRuntime.sha256Hex(crop);
             Map<String, Object> inference;
             try {
@@ -678,6 +680,10 @@ public final class MediaDevVisionTrackingRuntime {
     private static byte[] crop(byte[] image, RegionOfInterest roi) throws IOException {
         BufferedImage decoded = ImageIO.read(new ByteArrayInputStream(image));
         if (decoded == null) throw new IOException("image could not be decoded");
+        return crop(decoded, roi);
+    }
+
+    private static byte[] crop(BufferedImage decoded, RegionOfInterest roi) throws IOException {
         BufferedImage rgb = new BufferedImage(roi.width(), roi.height(), BufferedImage.TYPE_INT_RGB);
         var graphics = rgb.createGraphics();
         try {
@@ -688,6 +694,37 @@ public final class MediaDevVisionTrackingRuntime {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(rgb, "png", out);
         return out.toByteArray();
+    }
+
+    /** Decodes stills into the same EXIF-oriented pixel space used by the canonical vision service. */
+    static BufferedImage decodeStillImage(byte[] bytes) throws IOException {
+        // Preserve the launcher's lower pixel ceiling before any decoder allocates the raster.
+        imageSize(bytes);
+        if (isGif(bytes)) {
+            BufferedImage decoded = ImageIO.read(new ByteArrayInputStream(bytes));
+            if (decoded == null) throw new MediaDevVisionRuntime.VisionUnsupportedException(
+                    "SOURCE_FORMAT_NOT_SUPPORTED", "still image is not decodable");
+            return decoded;
+        }
+        try {
+            return BoundedImageDecoder.decode(bytes);
+        } catch (BoundedImageDecoder.ImageInputException failure) {
+            String code = switch (failure.reason()) {
+                case ENCODED_SIZE_LIMIT, DECODED_SIZE_LIMIT -> "VISION_LIMIT_EXCEEDED";
+                case UNSUPPORTED_METADATA -> "SOURCE_METADATA_NOT_SUPPORTED";
+                default -> "SOURCE_FORMAT_NOT_SUPPORTED";
+            };
+            throw new MediaDevVisionRuntime.VisionUnsupportedException(code,
+                    "still image could not be decoded within the supported format and resource bounds");
+        } catch (BoundedImageDecoder.UnsupportedImageMetadataException failure) {
+            throw new MediaDevVisionRuntime.VisionUnsupportedException("SOURCE_METADATA_NOT_SUPPORTED",
+                    "still image orientation metadata is malformed or unsupported");
+        }
+    }
+
+    private static boolean isGif(byte[] bytes) {
+        return bytes.length >= 6 && bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F'
+                && bytes[3] == '8' && (bytes[4] == '7' || bytes[4] == '9') && bytes[5] == 'a';
     }
 
     private static void requireInputSize(Map<String, Object> inference, int width, int height) {
