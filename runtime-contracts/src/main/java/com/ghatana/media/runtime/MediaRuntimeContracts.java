@@ -2308,6 +2308,16 @@ public final class MediaRuntimeContracts {
                 ProcessingJob expected, ProcessingJob terminal, MediaLifecycleEvent lifecycleEvent) {
             return update(expected, terminal);
         }
+        /**
+         * Finalizes a RUNNING job whose owner lease has expired from an exact, provider-authored final observation
+         * (SUCCEEDED to COMPLETED; FAILED or NO_EFFECT_PROVEN to FAILED) in one transaction with the attempt
+         * finality and the lifecycle outbox event. It never relabels an unproven outcome and never dispatches.
+         */
+        default ProcessingJob resolveExpiredAttempt(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
+            throw new UnsupportedOperationException("expired-attempt resolution is not supported");
+        }
         /** Aggregate status count used for tenant-safe operational gauges. */
         default long countByStatus(JobStatus status) {
             throw new UnsupportedOperationException("Aggregate status counts are not supported");
@@ -2517,6 +2527,13 @@ public final class MediaRuntimeContracts {
             java.util.Objects.requireNonNull(attempt, "attempt");
             return process(context).thenApply(ignored -> ProviderSubmission.unknown());
         }
+        /**
+         * Whether this provider's {@link #reconcileAttempt(ProviderAttemptQuery)} is an authoritative, read-only
+         * statement about its effect that the runtime may use to finalize a dispatched job whose owner lease
+         * expired (SUCCEEDED, FAILED or NO_EFFECT_PROVEN) instead of leaving it OUTCOME_UNKNOWN. Providers that
+         * cannot prove an effect from durable local evidence must keep the default.
+         */
+        default boolean reconcilesExpiredAttempts() { return false; }
         /** Read-only exact lookup; default implementation never infers a result from a missing receipt. */
         default CompletableFuture<ProviderAttemptObservation> reconcileAttempt(ProviderAttemptQuery query) {
             java.util.Objects.requireNonNull(query, "query");

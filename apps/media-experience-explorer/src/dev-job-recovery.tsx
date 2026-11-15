@@ -61,7 +61,86 @@ byId<HTMLFormElement>("connect-form").addEventListener("submit", async (event) =
     render();
   }
 });
+const watchToggle = byId<HTMLButtonElement>("watch-toggle");
+const watchStatus = byId<HTMLParagraphElement>("watch-status");
+const watchDetail = byId<HTMLElement>("watch-detail");
+const observations = byId<HTMLOListElement>("observations");
+const WATCH_INTERVAL_MS = 1000;
+let watchTimer: number | null = null;
+let watchAbort: AbortController | null = null;
+let lastObserved: string | null = null;
+let lastStatus: { status: string; version: number } | null = null;
+let hostDown = false;
+const setWatchStatus = (state: string, text: string): void => { watchStatus.dataset.state = state; watchStatus.textContent = text; };
+const addObservation = (text: string): void => {
+  const item = document.createElement("li");
+  item.textContent = text;
+  observations.append(item);
+};
+const showDetail = (job: { status: string; version: number; failureCode: string | null; providerId: string | null; result: Readonly<Record<string, unknown>> }): void => {
+  const rows: [string, string][] = [["Status", `${job.status} (version ${job.version})`]];
+  if (job.providerId) rows.push(["Provider", job.providerId]);
+  if (job.failureCode) rows.push(["Failure code", job.failureCode]);
+  for (const key of ["providerOutcome", "reconciliation", "outputSha256", "outputContentType"]) {
+    const value = job.result[key];
+    if (typeof value === "string" && value.length <= 200) rows.push([key, value]);
+  }
+  watchDetail.replaceChildren(...rows.flatMap(([term, value]) => {
+    const dt = document.createElement("dt"); dt.textContent = term;
+    const dd = document.createElement("dd"); dd.textContent = value;
+    return [dt, dd];
+  }));
+  watchDetail.hidden = false;
+};
+const stopWatching = (): void => {
+  if (watchTimer !== null) window.clearTimeout(watchTimer);
+  watchTimer = null;
+  watchAbort?.abort();
+  watchAbort = null;
+  watchToggle.textContent = "Start watching";
+  setWatchStatus("idle", "Not watching.");
+};
+const pollOnce = async (): Promise<void> => {
+  const current = client;
+  const jobId = renderedJobId;
+  if (!current || !jobId) { stopWatching(); return; }
+  const controller = new AbortController();
+  watchAbort = controller;
+  try {
+    const job = await current.getJob(jobId, controller.signal);
+    if (controller.signal.aborted) return;
+    const key = `${job.status}@${job.version}`;
+    if (hostDown) { addObservation("Local host reachable again."); hostDown = false; }
+    if (key !== lastObserved) {
+      lastObserved = key;
+      lastStatus = { status: job.status, version: job.version };
+      addObservation(`${job.status} (version ${job.version})${job.failureCode ? ` ${job.failureCode}` : ""}`);
+    }
+    showDetail(job);
+    const terminal = job.status === "COMPLETED" || job.status === "FAILED" || job.status === "CANCELLED" || job.status === "OUTCOME_UNKNOWN";
+    setWatchStatus(terminal ? "final" : "live", terminal
+      ? `Final state observed: ${job.status} (version ${job.version}).`
+      : `Job is ${job.status} (version ${job.version}).`);
+    if (terminal) { watchTimer = null; watchToggle.textContent = "Start watching"; return; }
+  } catch (error) {
+    if (controller.signal.aborted) return;
+    const statusCode = error && typeof error === "object" && "statusCode" in error ? (error as { statusCode?: unknown }).statusCode : undefined;
+    if (statusCode === 401 || statusCode === 403) { setWatchStatus("denied", "Job read was denied. Watching stopped."); stopWatching(); setWatchStatus("denied", "Job read was denied. Watching stopped."); return; }
+    if (statusCode === 404) { setWatchStatus("unknown", "Canonical job status is unknown. Watching stopped."); stopWatching(); setWatchStatus("unknown", "Canonical job status is unknown. Watching stopped."); return; }
+    if (!hostDown) { hostDown = true; addObservation("Local host unreachable or restarting."); }
+    setWatchStatus("host-unavailable", `Local host is unavailable. Last observed state: ${lastStatus ? `${lastStatus.status} (version ${lastStatus.version})` : "none"}. Still watching.`);
+  }
+  if (watchAbort === controller) watchTimer = window.setTimeout(() => { void pollOnce(); }, WATCH_INTERVAL_MS);
+};
+watchToggle.addEventListener("click", () => {
+  if (watchTimer !== null || watchAbort) { stopWatching(); return; }
+  if (!client || !renderedJobId) return;
+  watchToggle.textContent = "Stop watching";
+  setWatchStatus("live", "Reading job state…");
+  void pollOnce();
+});
 disconnectButton.addEventListener("click", () => {
+  stopWatching(); watchToggle.disabled = true; watchDetail.replaceChildren(); watchDetail.hidden = true; observations.replaceChildren(); lastObserved = null; lastStatus = null; hostDown = false;
   token = null; client = null; connectedTenant = null; renderedJobId = null;
   jobInput.value = ""; tokenInput.disabled = false; connectButton.disabled = false;
   disconnectButton.disabled = true; showButton.disabled = true;
@@ -74,6 +153,8 @@ byId<HTMLFormElement>("job-form").addEventListener("submit", (event) => {
   const jobId = jobInput.value.trim();
   if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u.test(jobId)) { status.textContent = "Enter a valid job ID."; return; }
   renderedJobId = jobId;
+  stopWatching(); observations.replaceChildren(); watchDetail.replaceChildren(); watchDetail.hidden = true; lastObserved = null; lastStatus = null; hostDown = false;
+  watchToggle.disabled = false;
   render();
 });
 window.addEventListener("beforeunload", () => { token = null; client = null; connectedTenant = null; });

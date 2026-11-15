@@ -23,6 +23,15 @@
         <form id="job-form"><label for="job-id">Job ID</label><input id="job-id" autocomplete="off" pattern="[A-Za-z0-9][A-Za-z0-9._:\-]{0,127}" required /><button id="show-job" type="submit" disabled>Show job recovery screen</button></form>
         <div id="screen"></div>
       </section>
+      <section class="panel" aria-labelledby="watch-title">
+        <h2 id="watch-title">Watch job across a host restart</h2>
+        <p>Polls the same owner-scoped job read once a second. If the local host is stopped or restarting, the page says so and keeps the last state it observed; it never reports a state it did not read, and it never retries or cancels the job.</p>
+        <button id="watch-toggle" type="button" disabled>Start watching</button>
+        <p id="watch-status" role="status" aria-live="polite" data-state="idle">Not watching.</p>
+        <dl id="watch-detail" hidden></dl>
+        <h3>Observed states</h3>
+        <ol id="observations" aria-label="Observed job states, oldest first"></ol>
+      </section>
     </main>
     <script type="module" src="/src/dev-job-recovery.tsx"></script>
   </body>

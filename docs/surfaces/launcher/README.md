@@ -730,6 +730,23 @@ takeover re-runs the model, which can be refused as `409 *_REQUEST_ID_REUSED` wh
 different bytes than the already registered artifact (never a second artifact; speech synthesis is covered by its byte
 cache); ledger rows are not pruned.
 
+**DEV_ONLY real TRANSCODE provider and restart reconciliation (J-20).** When profile `dev` has `MEDIA_DEV_FFMPEG_JOB_SPOOL`
+(absolute directory) plus absolute `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE`, the launcher also registers the LOCAL,
+non-production provider `local-ffmpeg-transcode` for canonical `TRANSCODE` jobs (select it with `providerHint`; it never
+wins a hint-less job). It decodes the exact source bytes with FFmpeg and writes a FLAC or WAV file
+(`parameters`: `container` flac|wav, `sampleRateHz` 8000-48000, `channels` 1-2; anything else is refused before an attempt
+is dispatched). The effect is committed atomically in the spool (`begin.json`, then `out.bin`, then `receipt.json`); the
+output digest is in the job result. A job is cancellable until the commit (`CONFIRMED` once FFmpeg is stopped and the
+partial discarded); after the commit a cancel is `REQUESTED_UNCONFIRMED` and the definitive success finalizes the job.
+After a launcher crash the job stays `RUNNING` (its owner lease is `MEDIA_JOB_TIMEOUT_MS` + 30 s) until the recovery pass
+(every 30 s) finds the expired lease; a provider that declares `reconcilesExpiredAttempts()` is then asked read-only about
+its exact attempt: a receipt whose output digest re-verifies completes the job (`providerOutcome SUCCEEDED`, never re-run);
+a dead owner with no receipt proves `NO_EFFECT_PROVEN` and fails the job `RESTART_NO_EFFECT_PROVEN`; a live or unprovable
+owner, a missing provider, or any doubt records `OUTCOME_UNKNOWN`, which is terminal and never rewritten. The finalization
+is one PostgreSQL transaction (`resolveExpiredAttempt`: attempt finality, job state, lifecycle outbox). Spool files are not
+pruned and nothing is served from the spool (no download route); `MEDIA_DEV_FFMPEG_JOB_FAULT_GATE_DIR` is a test-only
+fault-injection hook that pauses a run at `before-effect`, `after-ffmpeg` or `after-commit`.
+
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
 PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable
 version with `?version=sha256:<hex>` and/or `If-Match` (quoted or bare strong ETag; if both are present they must

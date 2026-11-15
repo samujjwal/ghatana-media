@@ -361,6 +361,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
             MediaLocalVisionComposition.providerFrom(environment).ifPresent(provider ->
                     register(processing, provider, MediaProcessingProvider::providerId));
+            if ("dev".equals(config.profile()) && !config.productionLike()) {
+                MediaDevFfmpegTranscodeProvider.from(environment).ifPresent(provider ->
+                        register(processing, provider, MediaProcessingProvider::providerId));
+            }
             if (config.localProviderEnabled()) {
                 register(processing, new LocalMediaRuntimeSupport.DiagnosticProcessor(),
                         MediaProcessingProvider::providerId);
@@ -4007,6 +4011,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             && reconcileMultimodalParent(job)) {
                         continue;
                     }
+                    if (job.status() == JobStatus.RUNNING && resolveExpiredAttemptFromProvider(job)) {
+                        continue;
+                    }
                     if (job.status() == JobStatus.RUNNING && job.jobType()
                             == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
                         reconcileSpeechAttemptReadOnly(job);
@@ -4039,6 +4046,70 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
         }
         audit.warn("MEDIA_JOB_RECONCILIATION_PASS_LIMIT reached={}", maximumJobsPerPass);
+    }
+
+    /**
+     * Finalizes one RUNNING job whose owner lease expired from the provider's own read-only, exact statement about
+     * its effect, only for a provider that declares {@code reconcilesExpiredAttempts()}. A verified SUCCEEDED
+     * receipt completes the job without re-running anything; a provider-proven NO_EFFECT_PROVEN or FAILED attempt
+     * fails it; anything else (no durable attempt, unmatched receipt, UNKNOWN, a read that errors or is slow)
+     * returns false so the caller records the honest OUTCOME_UNKNOWN. The result carries only the provider's
+     * own receipt fields: no source content and no authority is reconstructed at startup.
+     */
+    private boolean resolveExpiredAttemptFromProvider(ProcessingJob job) {
+        try {
+            ProcessingAttempt attempt = jobStore.findProcessingAttempt(job.tenantId(), job.jobId(), 1).orElse(null);
+            if (attempt == null || !attempt.tenantId().equals(job.tenantId())
+                    || !attempt.jobId().equals(job.jobId()) || !attempt.requestId().equals(job.requestId())
+                    || attempt.providerOperationId().isBlank() || attempt.providerReceiptId().isBlank()) return false;
+            MediaProcessingProvider provider = processingProviders.stream()
+                    .filter(candidate -> candidate.providerId().equals(attempt.providerId()))
+                    .filter(candidate -> candidate.capabilities().contains(job.jobType()))
+                    .filter(MediaProcessingProvider::reconcilesExpiredAttempts)
+                    .findFirst().orElse(null);
+            if (provider == null) return false;
+            CompletableFuture<ProviderAttemptObservation> read = provider.reconcileAttempt(attempt.query());
+            ProviderAttemptObservation observation;
+            try {
+                observation = read.get(10, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException timeout) {
+                read.cancel(true);
+                return false;
+            }
+            if (observation == null || !observation.query().equals(attempt.query())
+                    || !observation.providerReceiptId().equals(attempt.providerReceiptId())) return false;
+            Map<String, Object> result = new LinkedHashMap<>();
+            ProcessingJob terminal;
+            switch (observation.finality()) {
+                case SUCCEEDED -> {
+                    result.putAll(observation.result());
+                    result.put("modality", job.jobType().name());
+                    result.put("providerId", provider.providerId());
+                    result.put("providerVersion", provider.providerVersion());
+                    result.put("modelVersion", provider.modelVersion(job.jobType()));
+                    result.put("sourceArtifactRef", "urn:ghatana:media-artifact:" + job.artifactId());
+                    result.put("providerOutcome", "SUCCEEDED");
+                    result.put("reconciliation", "provider receipt verified after restart; the work was not re-run");
+                    result.put("providerReceiptDigest", sha256Hex(attempt.providerReceiptId()));
+                    terminal = transition(job, provider.providerId(), JobStatus.COMPLETED, Map.copyOf(result), "");
+                }
+                case NO_EFFECT_PROVEN, FAILED -> {
+                    result.put("providerOutcome", observation.finality().name());
+                    result.put("reconciliation", "provider proved no committed effect after restart");
+                    terminal = transition(job, JobStatus.FAILED, Map.copyOf(result),
+                            observation.finality() == AttemptFinality.NO_EFFECT_PROVEN
+                                    ? "RESTART_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
+                }
+                default -> { return false; }
+            }
+            jobStore.resolveExpiredAttempt(job, attempt, terminal, observation, lifecycleEvent(job, terminal, "INTERNAL"));
+            audit.warn("MEDIA_JOB_RESOLVED_AFTER_RESTART tenantId={} jobId={} finality={} status={}",
+                    job.tenantId(), job.jobId(), observation.finality(), terminal.status());
+            return true;
+        } catch (Exception unresolved) {
+            // Keep the row eligible for the normal path, which records OUTCOME_UNKNOWN.
+            return false;
+        }
     }
 
     /** Performs a bounded exact provider status read for STT without replaying work. */

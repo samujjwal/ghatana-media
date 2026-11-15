@@ -9,3 +9,8 @@ form { display: grid; gap: .6rem; max-width: 34rem; }
 input, button { font: inherit; padding: .65rem .8rem; }
 button { width: fit-content; cursor: pointer; }
 #screen { margin-top: 1.5rem; }
+#observations { padding-left: 1.4rem; }
+#watch-status[data-state="host-unavailable"] { border-left: 4px solid GrayText; padding-left: .6rem; }
+#watch-detail { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
+#watch-detail dd { margin: 0; overflow-wrap: anywhere; }
+#watch-detail[hidden] { display: none; }

@@ -1321,6 +1321,93 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         }
     }
 
+    @Override
+    public ProcessingJob resolveExpiredAttempt(
+            ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+            ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
+        ensureOpen();
+        validateUpdate(expected, terminal);
+        if (expected.status() != JobStatus.RUNNING || !terminal(terminal.status())
+                || terminal.status() == JobStatus.OUTCOME_UNKNOWN || terminal.status() == JobStatus.CANCELLED
+                || observation == null || attempt == null || lifecycleEvent == null
+                || !observation.query().equals(attempt.query())
+                || !lifecycleEvent.tenantId().equals(expected.tenantId())
+                || !lifecycleEvent.aggregateId().equals(expected.jobId())
+                || lifecycleEvent.aggregateVersion() != terminal.version()) {
+            throw new IllegalArgumentException("expired-attempt resolution identity does not match the running job");
+        }
+        boolean compatible = switch (observation.finality()) {
+            case SUCCEEDED -> terminal.status() == JobStatus.COMPLETED;
+            case FAILED, NO_EFFECT_PROVEN -> terminal.status() == JobStatus.FAILED;
+            case UNKNOWN -> false;
+        };
+        if (!compatible) throw new IllegalArgumentException("provider finality is incompatible with terminal job status");
+        ProcessingJob persistable = sanitizeForPersistence(terminal);
+        String resultJsonFromObservation = json(observation.result());
+        String resultDigest = sha256(resultJsonFromObservation);
+        String stateName = switch (observation.finality()) {
+            case SUCCEEDED -> "SUCCEEDED";
+            case FAILED -> "FAILED";
+            default -> "NO_EFFECT_PROVEN";
+        };
+        long now = System.currentTimeMillis();
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement updateAttempt = connection.prepareStatement(
+                        "UPDATE media_processing_attempts SET state=?,result_json=?,result_digest=?,provenance_json=?,"
+                                + "observation_json=?,observed_at=?,updated_at=? WHERE tenant_id=? AND job_id=? "
+                                + "AND attempt_number=? AND fencing_token=? AND provider_operation_id=? AND provider_receipt_id=? "
+                                + "AND state IN ('DISPATCH_INTENDED','OUTCOME_UNKNOWN')")) {
+                    updateAttempt.setString(1, stateName);
+                    updateAttempt.setString(2, resultJsonFromObservation);
+                    updateAttempt.setString(3, observation.result().isEmpty() ? null : resultDigest);
+                    updateAttempt.setString(4, json(Map.of("providerId", attempt.providerId(),
+                            "requestFingerprint", attempt.requestFingerprint(), "resultDigest", resultDigest,
+                            "provenanceDigest", observation.provenanceDigest(), "source", "restart-reconciliation")));
+                    updateAttempt.setString(5, json(observation));
+                    updateAttempt.setLong(6, observation.observedAt().toEpochMilli());
+                    updateAttempt.setLong(7, now);
+                    updateAttempt.setString(8, attempt.tenantId());
+                    updateAttempt.setString(9, attempt.jobId());
+                    updateAttempt.setInt(10, attempt.attemptNumber());
+                    updateAttempt.setLong(11, attempt.fencingToken());
+                    updateAttempt.setString(12, observation.query().providerOperationId());
+                    updateAttempt.setString(13, observation.query().providerReceiptId());
+                    if (updateAttempt.executeUpdate() != 1) throw new IllegalStateException("Media attempt finality fence changed");
+                }
+                try (PreparedStatement updateJob = connection.prepareStatement(
+                        "UPDATE media_processing_jobs SET provider_id=?,status=?,started_at=?,completed_at=?,result_json=?,"
+                                + "failure_code=?,version=? WHERE tenant_id=? AND job_id=? AND version=? AND status='RUNNING' "
+                                + "AND COALESCE(expected_artifact_version,'')=? "
+                                + "AND (lease_expires_at IS NULL OR lease_expires_at<=?)")) {
+                    updateJob.setString(1, persistable.providerId());
+                    updateJob.setString(2, persistable.status().name());
+                    nullableLong(updateJob, 3, persistable.startedAt());
+                    nullableLong(updateJob, 4, persistable.completedAt());
+                    updateJob.setString(5, json(persistable.result()));
+                    updateJob.setString(6, persistable.failureCode());
+                    updateJob.setLong(7, persistable.version());
+                    updateJob.setString(8, expected.tenantId());
+                    updateJob.setString(9, expected.jobId());
+                    updateJob.setLong(10, expected.version());
+                    updateJob.setString(11, expected.expectedArtifactVersion());
+                    updateJob.setLong(12, now);
+                    if (updateJob.executeUpdate() != 1) throw new IllegalStateException("Media recovery job fence changed");
+                }
+                insertOutbox(connection, lifecycleEvent);
+                connection.commit();
+                return persistable;
+            } catch (RuntimeException | SQLException failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw databaseFailure("resolve expired Media attempt", (SQLException) failure);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("open expired Media attempt resolution transaction", failure);
+        }
+    }
+
     private String attemptLeaseOwner(Connection connection, ProcessingAttempt attempt) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT lease_owner FROM media_processing_attempts WHERE tenant_id=? AND job_id=? "
