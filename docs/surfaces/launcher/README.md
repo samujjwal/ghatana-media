@@ -332,6 +332,12 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/audio/restorations` | `media:project:dev:write` | `media:artifact:{read,create}` | `MEDIA_DEV_RENDER_FFMPEG`; PROCESSING rights on the exact source; J-07 (`MediaDevAudioRestorationRuntime`) |
 | POST | `/dev/v1/audio/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}` | measured source/restored(/reference) report; optional Whisper transcript diff |
 | GET | `/dev/v1/audio/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | reopen a restoration or comparison |
+| GET | `/dev/v1/translations/capabilities` | `media:project:dev:read` | `media:artifact:read` | local translation (`MEDIA_LOCAL_VISION_*`) and/or local speech; lists the admitted language pairs, voices, tempo bounds and overflow policies |
+| POST | `/dev/v1/translations` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of the transcript's original source | local Qwen2.5-VL (text-only) via the vision sidecar |
+| POST | `/dev/v1/translations/revisions` | `media:project:dev:write` | `media:artifact:{read,create}`, same rights chain | translation (no model run) |
+| GET | `/dev/v1/translations/{artifactId}` | `media:project:dev:read` | `media:artifact:read` | translation |
+| POST | `/dev/v1/dubs` | `media:project:dev:write` | `media:artifact:{read,create}`, same rights chain; a `voiceReference`/`likenessReference` is refused as in plain synthesis | local Kokoro TTS (+ `MEDIA_DEV_RENDER_FFMPEG` for tempo) |
+| GET | `/dev/v1/dubs/{dubId}` | `media:project:dev:read` | `media:artifact:read` | dubbing |
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |

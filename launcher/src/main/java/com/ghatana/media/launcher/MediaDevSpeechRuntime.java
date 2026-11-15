@@ -679,6 +679,13 @@ public final class MediaDevSpeechRuntime {
      * call so a revocation between a first attempt and a retry takes effect); when all are admitted the request is
      * still refused as {@code VOICE_CLONING_NOT_SUPPORTED}. Nothing is synthesized and nothing is registered.
      */
+    /** Package-private entry for the dubbing lane: the same voice/likeness reference refusal as plain synthesis. */
+    void refuseReferences(String tenantId, String principalId, ArtifactVersionRef voiceReference,
+                          ArtifactVersionRef likenessReference) {
+        refuseReferenceInputs(tenantId, principalId, new SynthesizeRequest("dub-reference-check", "x", null, 1.0, "en",
+                voiceReference, likenessReference));
+    }
+
     private void refuseReferenceInputs(String tenantId, String principalId, SynthesizeRequest request) {
         Map<String, ArtifactVersionRef> references = new LinkedHashMap<>();
         if (request.voiceReference() != null) references.put("voiceReference", request.voiceReference());
@@ -724,7 +731,7 @@ public final class MediaDevSpeechRuntime {
                 Map.of("operation", operation.name()));
     }
 
-    private static Map<String, Object> modelRef(LocalModelInstall install, String weightsSha256) {
+    static Map<String, Object> modelRef(LocalModelInstall install, String weightsSha256) {
         Map<String, Object> model = new LinkedHashMap<>();
         model.put("modelId", install.manifest().modelId());
         model.put("revision", install.manifest().source().revision());
@@ -735,7 +742,7 @@ public final class MediaDevSpeechRuntime {
         return model;
     }
 
-    private static Map<String, Object> runtimeRef(LocalModelInstall install) {
+    static Map<String, Object> runtimeRef(LocalModelInstall install) {
         var binding = install.manifest().runtime();
         Map<String, Object> ref = new LinkedHashMap<>();
         if (binding != null) {

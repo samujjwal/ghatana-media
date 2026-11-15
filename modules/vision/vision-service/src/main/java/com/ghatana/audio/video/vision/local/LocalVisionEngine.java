@@ -31,6 +31,9 @@ public final class LocalVisionEngine {
     public static final String RESULT_SCHEMA = "media.vision.local-result.v1";
     public static final Set<String> FLORENCE_TASKS = Set.of("caption", "detect", "ocr");
     public static final int MAX_QUESTION_CHARS = 1000;
+    /** Language pairs the text-only translation lane admits (owner decision 2026-11-15: English to Spanish). */
+    public static final Set<String> TRANSLATION_PAIRS = Set.of("en>es");
+    public static final int MAX_TRANSLATION_CHARS = 1000;
     private static final int MAX_IMAGE_BYTES = 32 * 1024 * 1024;
 
     /** The required model is not digest-qualified; nothing was dispatched. */
@@ -152,6 +155,38 @@ public final class LocalVisionEngine {
         Map<String, Object> out = base("IMAGE_QUESTION", admission, imageSha256, response.width(), response.height());
         out.put("question", question);
         out.put("answer", clean(response.answer()));
+        return out;
+    }
+
+    /**
+     * Qwen2.5-VL-7B-Instruct text-only machine translation of one text. No image is involved. The result carries the
+     * exact digest-qualified model identity; it makes no quality claim.
+     */
+    public Map<String, Object> translate(String text, String sourceLanguage, String targetLanguage) {
+        if (text == null || text.isBlank() || text.length() > MAX_TRANSLATION_CHARS
+                || text.chars().anyMatch(c -> c < 0x20 && c != '\n' && c != '\t')) {
+            throw new IllegalArgumentException("text must be 1-" + MAX_TRANSLATION_CHARS + " printable characters");
+        }
+        if (!TRANSLATION_PAIRS.contains(sourceLanguage + ">" + targetLanguage)) {
+            throw new IllegalArgumentException("language pair is not admitted");
+        }
+        LocalModelAdmission.Admission admission = qwen.evaluate();
+        if (!admission.qualified()) throw new NotAdmittedException(QWEN_MODEL_ID, admission.reasonCode());
+        String translation = clean(client.translate(text, sourceLanguage, targetLanguage, 256).translation());
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("schema", RESULT_SCHEMA);
+        out.put("kind", "TEXT_TRANSLATION");
+        com.ghatana.media.runtime.localmodel.LocalModelManifest m = admission.manifest();
+        Map<String, Object> model = new LinkedHashMap<>();
+        model.put("id", m.modelId());
+        model.put("revision", m.source().revision());
+        model.put("spdxLicense", m.license().spdx());
+        model.put("fileSetSha256", m.fileSetSha256());
+        model.put("runtime", m.runtime().name() + "/" + m.runtime().version());
+        out.put("model", model);
+        out.put("sourceLanguage", sourceLanguage);
+        out.put("targetLanguage", targetLanguage);
+        out.put("translation", translation);
         return out;
     }
 

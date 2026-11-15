@@ -120,7 +120,7 @@ class MediaDevVoiceSynthesisJourneyIT {
             JsonNode tts = get(port, tenant, token, "/dev/v1/speech/capabilities", 200).path("textToSpeech");
             assertThat(tts.path("ready").asBoolean()).isTrue();
             assertThat(tts.path("voices")).extracting(JsonNode::asString).containsExactly("af_heart", "am_michael");
-            assertThat(tts.path("verifiedLanguages")).extracting(JsonNode::asString).containsExactly("en");
+            assertThat(tts.path("verifiedLanguages")).extracting(JsonNode::asString).containsExactly("en", "es");
             assertThat(tts.path("voiceCloning").asString()).isEqualTo("NOT_SUPPORTED");
             assertThat(tts.path("licenseSpdx").asString()).isEqualTo("Apache-2.0");
             assertThat(tts.path("attribution").path("noticeRequired").asBoolean()).isTrue();

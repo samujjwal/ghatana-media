@@ -61,6 +61,9 @@ public final class MediaLauncher {
             MediaDevReviewRuntime finalDevReview = devReview;
             MediaDevDeliveryRuntime finalDevDelivery = devDelivery;
             MediaDevRightsRuntime finalDevRights = devRights;
+            MediaDevSpeechRuntime finalDevSpeech = finalDevProjectTimeline == null ? null
+                    : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
+                            finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
                 if (finalDevErasure != null) {
@@ -132,10 +135,11 @@ public final class MediaLauncher {
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
                                     .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
                                             environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
-                                    .withDevSpeech(finalDevProjectTimeline == null ? null
-                                            : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
+                                                                        .withDevSpeech(finalDevSpeech)
+                                    .withDevDub(finalDevSpeech == null ? null
+                                            : MediaDevDubbingComposition.compose(runtime, environment, System.getenv(),
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
-                                                    finalDevLedger))
+                                                    finalDevLedger, finalDevSpeech))
                                     .withDevGrounded(MediaDevGroundedComposition.compose(runtime, environment,
                                             System.getenv(), finalDevRights == null ? null : finalDevRights.resolver(),
                                             finalDevLedger))

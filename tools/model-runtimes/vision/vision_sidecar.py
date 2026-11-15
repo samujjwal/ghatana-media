@@ -46,6 +46,9 @@ FLORENCE_TASKS = {
     "ocr": "<OCR_WITH_REGION>",
 }
 MANIFEST_NAME = "ghatana-model-manifest.json"
+MAX_TRANSLATE_CHARS = 1500
+# Text-only machine translation by the already-admitted Qwen2.5-VL-7B-Instruct (owner decision 2026-11-15): en <-> es.
+TRANSLATION_LANGUAGES = {"en": "English", "es": "Spanish"}
 
 
 # Optional digest cache (opt-in): the file named by MEDIA_LOCAL_MODEL_DIGEST_CACHE gets a sibling "<name>.sidecar.json".
@@ -230,6 +233,29 @@ class Engines:
         trimmed = ids[:, inputs["input_ids"].shape[1]:]
         return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
+    def translate(self, text, source, target, max_new_tokens):
+        """Greedy text-only translation (deterministic); the vision tower is not used."""
+        import torch
+        model, processor = self.load_qwen()
+        prompt = processor.apply_chat_template(translation_messages(text, source, target), tokenize=False,
+                                               add_generation_prompt=True)
+        inputs = processor(text=[prompt], padding=True, return_tensors="pt").to(self.device)
+        with torch.inference_mode():
+            ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+        trimmed = ids[:, inputs["input_ids"].shape[1]:]
+        return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
+
+
+def translation_messages(text, source, target):
+    """Chat messages for a text-only translation; no image is attached."""
+    system = ("You are a precise machine translation engine. Translate the user's text from %s into %s. "
+              "Output only the %s translation as one plain paragraph, with no explanation, note, label or quotation "
+              "marks. Keep every number, name and fact. Do not add or omit information. Keep the wording concise and "
+              "natural for spoken dubbing." % (TRANSLATION_LANGUAGES[source], TRANSLATION_LANGUAGES[target],
+                                               TRANSLATION_LANGUAGES[target]))
+    return [{"role": "system", "content": [{"type": "text", "text": system}]},
+            {"role": "user", "content": [{"type": "text", "text": text}]}]
+
 
 def decode_image(b64):
     from PIL import Image
@@ -275,6 +301,20 @@ def make_handler(engines, token):
             supplied = self.headers.get("Authorization", "")
             return hmac.compare_digest(supplied, "Bearer " + token)
 
+        def _translate(self, request, max_new):
+            text = request.get("text", "")
+            source, target = request.get("sourceLanguage", ""), request.get("targetLanguage", "")
+            if not isinstance(text, str) or not text.strip() or len(text) > MAX_TRANSLATE_CHARS \
+                    or any(ord(c) < 0x20 and c not in "\n\t" for c in text):
+                raise ValueError("text is outside the allowed range")
+            if source not in TRANSLATION_LANGUAGES or target not in TRANSLATION_LANGUAGES or source == target:
+                raise ValueError("language pair is not admitted")
+            started = time.monotonic()
+            with engines.lock:
+                translation = engines.translate(text.strip(), source, target, max_new)
+            self._send(200, {"translation": translation, "sourceLanguage": source, "targetLanguage": target,
+                             "elapsedMillis": int((time.monotonic() - started) * 1000)})
+
         def do_GET(self):
             if not self._authorized():
                 return self._send(401, {"error": "UNAUTHORIZED"})
@@ -290,7 +330,7 @@ def make_handler(engines, token):
         def do_POST(self):
             if not self._authorized():
                 return self._send(401, {"error": "UNAUTHORIZED"})
-            if self.path not in ("/v1/analyze", "/v1/ask"):
+            if self.path not in ("/v1/analyze", "/v1/ask", "/v1/translate"):
                 return self._send(404, {"error": "NOT_FOUND"})
             try:
                 length = int(self.headers.get("Content-Length", "-1"))
@@ -300,10 +340,12 @@ def make_handler(engines, token):
                 return self._send(413, {"error": "BODY_SIZE_INVALID"})
             try:
                 request = json.loads(self.rfile.read(length))
-                image = decode_image(request.get("imageBase64", ""))
                 max_new = int(request.get("maxNewTokens", 256))
                 if not 1 <= max_new <= MAX_NEW_TOKENS:
                     raise ValueError("maxNewTokens is outside the allowed range")
+                if self.path == "/v1/translate":
+                    return self._translate(request, max_new)
+                image = decode_image(request.get("imageBase64", ""))
                 started = time.monotonic()
                 with engines.lock:
                     if self.path == "/v1/analyze":

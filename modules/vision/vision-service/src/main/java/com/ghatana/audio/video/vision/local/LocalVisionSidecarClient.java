@@ -74,6 +74,8 @@ public final class LocalVisionSidecarClient {
 
     public record AskResponse(String answer, int width, int height) { }
 
+    public record TranslateResponse(String translation) { }
+
     private final URI base;
     private final String token;
     private final Duration timeout;
@@ -183,6 +185,21 @@ public final class LocalVisionSidecarClient {
         }
         return new AskResponse(answer.asString(), response.path("imageSize").path("width").asInt(),
                 response.path("imageSize").path("height").asInt());
+    }
+
+    /** Text-only machine translation (no image); the sidecar admits only the pairs it names (en/es). */
+    public TranslateResponse translate(String text, String sourceLanguage, String targetLanguage, int maxNewTokens) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("text", text);
+        body.put("sourceLanguage", sourceLanguage);
+        body.put("targetLanguage", targetLanguage);
+        body.put("maxNewTokens", maxNewTokens);
+        JsonNode response = post("/v1/translate", body);
+        JsonNode translation = response.get("translation");
+        if (translation == null || !translation.isString()) {
+            throw new SidecarRejectedException(502, "MALFORMED_RESPONSE");
+        }
+        return new TranslateResponse(translation.asString());
     }
 
     private JsonNode post(String path, Map<String, Object> body) {

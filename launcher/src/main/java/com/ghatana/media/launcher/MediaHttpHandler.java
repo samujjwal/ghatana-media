@@ -100,6 +100,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevGroundedRoutes devGrounded;
     private MediaDevVideoRoutes devVideo;
     private MediaDevErasureRoutes devErasure;
+    private MediaDevDubRoutes devDub;
     private MediaDevCaptionRoutes devCaptions;
     private MediaDevAudioRoutes devAudio;
     private MediaDevProviderCatalogRoutes devProviderCatalog;
@@ -208,6 +209,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY erasure and legal-hold routes (J-26). */
     MediaHttpHandler withDevErasure(MediaDevErasureRuntime erasure, boolean requireOidc) {
         this.devErasure = erasure == null ? null : new MediaDevErasureRoutes(erasure, runtime, requireOidc);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY translation and dubbing routes. */
+    MediaHttpHandler withDevDub(MediaDevDubRoutes routes) {
+        this.devDub = routes;
         return this;
     }
 
@@ -595,6 +602,19 @@ public final class MediaHttpHandler implements HttpHandler {
                 }
                 json(exchange, 200, runtime.cancelLocalDevelopmentJob(
                         tenantId, principalId, jobId, requestId, expectedVersion));
+                return;
+            }
+            if (devDub != null && MediaDevDubRoutes.handles(path)) {
+                devDub.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
                 return;
             }
             if (devGrounded != null && MediaDevGroundedRoutes.handles(path)) {
