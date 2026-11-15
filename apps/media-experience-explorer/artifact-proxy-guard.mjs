@@ -117,6 +117,11 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/legal-holds$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/legal-holds/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/legal-holds/${OPAQUE_ID}/release$`, "u") },
+  // DEV_ONLY multitrack composite render (J-18) used by the "Multitrack finished master" page (status, render, cancel, reopen; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/composite-renders\/capabilities$/u },
+  { method: "POST", path: /^\/dev\/v1\/composite-renders$/u },
+  { method: "POST", path: new RegExp(`^/dev/v1/composite-renders/${OPAQUE_ID}/cancel$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/composite-renders/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY observed local provider readiness used by the "Local providers" page (read-only; no DELETE).
   { method: "GET", path: /^\/dev\/v1\/providers\/catalog$/u },
 ];

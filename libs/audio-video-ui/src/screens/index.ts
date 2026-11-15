@@ -131,6 +131,13 @@ export type {
   AnimationFailure, AnimationRenderView, AnimationStatus, AuthoredSpec as AuthoredAnimationSpec, DevAnimationHostResponse, DevAnimationPort,
   DevAnimationRenderRequest,
 } from "./devAnimation";
+export { DevCompositeRenderPanel } from "./DevCompositeRenderPanel";
+export type { DevCompositeRenderPanelProps } from "./DevCompositeRenderPanel";
+export { DevCompositeHostError, buildPlacementEdits, describeCompositeFailure, parseCompositeCapabilities, parseCompositeRender } from "./devCompositeRender";
+export type {
+  CompositeCapabilities, CompositeClipRow, CompositeFailure, CompositeRenderRequest, CompositeRenderView, CompositeSource, CompositeTrackKind,
+  DevCompositeHostResponse, DevCompositePort,
+} from "./devCompositeRender";
 export { DevDubbingPanel } from "./DevDubbingPanel";
 export type { DevDubbingPanelProps } from "./DevDubbingPanel";
 export { DevDubbingHostError, describeDubbingFailure, parseDubbingCapabilities, parseDubbingTimingSegments, parseDubView, parseTranslationView } from "./devDubbing";
