@@ -101,6 +101,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevVisionRoutes devVision;
     private MediaDevGroundedRoutes devGrounded;
     private MediaDevVideoRoutes devVideo;
+    private MediaDevSpatialRoutes devSpatial;
     private MediaDevAnimationRoutes devAnimation;
     private MediaDevReferenceSceneRoutes devReferenceScenes;
     private MediaDevSimulationRoutes devSimulation;
@@ -294,6 +295,9 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY video enhancement and measured comparison routes (J-08). */
     MediaHttpHandler withDevVideo(MediaDevVideoRuntime videoRuntime) {
         this.devVideo = videoRuntime == null ? null : new MediaDevVideoRoutes(videoRuntime, runtime);
+        this.devSpatial = videoRuntime == null ? null : new MediaDevSpatialRoutes(
+                new MediaDevSpatialRuntime(runtime, videoRuntime),
+                new MediaDevInteractiveDemoRuntime(runtime, videoRuntime), runtime);
         return this;
     }
 
@@ -825,6 +829,19 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             if (devVideo != null && MediaDevVideoRoutes.handles(path)) {
                 devVideo.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
+                return;
+            }
+            if (devSpatial != null && MediaDevSpatialRoutes.handles(path)) {
+                devSpatial.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
                         new MediaDevCreativeOutputRoutes.Responder() {
                             @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                                 MediaHttpHandler.this.json(e, status, body);

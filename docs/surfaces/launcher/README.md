@@ -398,6 +398,14 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/video/enhancements/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
 | POST | `/dev/v1/video/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of every subject and the reference | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/video/comparisons/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/spatial/status` | `media:project:dev:read` | - | FFmpeg/FFprobe composed |
+| POST | `/dev/v1/spatial/exports` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of the exact version; the body must DECLARE `declaration.projection=EQUIRECTANGULAR` and `stereoMode=MONO` | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/spatial/exports/{exportId}` | `media:project:dev:read` | `media:artifact:read`, source rights re-admitted | FFmpeg/FFprobe composed |
+| POST | `/dev/v1/spatial/viewports` | `media:project:dev:write` | `media:artifact:read`, source rights re-admitted | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/interactive-demos/status` | `media:project:dev:read` | - | FFmpeg/FFprobe composed |
+| POST | `/dev/v1/interactive-demos` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of every scene video and caption | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/interactive-demos/{demoId}` | `media:project:dev:read` | `media:artifact:read`, every source re-admitted | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/interactive-demos/{demoId}/package.zip` | `media:project:dev:read` | `media:artifact:read`, every source re-admitted | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/quality/status` | `media:project:dev:read` | — | FFmpeg/FFprobe composed + the shared request ledger (J-19) |
 | POST | `/dev/v1/quality/optimizations` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of the source, replays included | bounded real-encode search (J-19, `MediaDevQualityOptimizationRuntime`) |
 | GET | `/dev/v1/quality/optimizations/{reportArtifactId}` | `media:project:dev:read` | `media:artifact:read` | recorded report and chosen version |
@@ -1389,3 +1397,35 @@ Focused identity and rights coverage:
   --tests 'com.ghatana.media.launcher.MediaRuntimeJobGovernanceTest' \
   -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=launcher
 ```
+
+### 360 export, viewer and sandboxed interactive demonstrations (J-28, DEV_ONLY)
+
+`POST /dev/v1/spatial/exports` `{requestId, artifactId, artifactVersionId, declaration{projection:"EQUIRECTANGULAR",
+stereoMode:"MONO", initialView?{yawDegrees,pitchDegrees,rollDegrees}}}` stream-copies a stored video into an MP4 and
+writes Spherical Video V2 `st3d` + `sv3d` (FFmpeg cannot set this side data, so the boxes are inserted into the container
+FFmpeg wrote) ONLY when the user declared the source and its geometry agrees: exactly 2:1, no display rotation, no spherical
+or stereo metadata already present. No declaration is `422 SPHERICAL_DECLARATION_REQUIRED` (path `declaration`); another
+projection or stereo mode `422 PROJECTION_NOT_SUPPORTED|STEREO_MODE_NOT_SUPPORTED`; a source that cannot be
+equirectangular `422 SOURCE_NOT_EQUIRECTANGULAR`; an existing spatial box `422 SOURCE_ALREADY_HAS_SPATIAL_METADATA`; a codec
+MP4 cannot copy `422 SOURCE_CODEC_NOT_MP4_COPYABLE`. Before registration the output is re-probed: every frame PTS equals the
+source's, the video packets hash identically, it decodes, and ffprobe plus an independent box read return exactly the
+declared side data. The projection bounds are the full sphere; the only declared pose is `initialView` (default 0/0/0).
+`POST /dev/v1/spatial/viewports` `{artifactId, artifactVersionId, frameIndex, yawDegrees, pitchDegrees, fovDegrees?,
+width?, height?}` behaves as a viewer of an EXPORTED file: it reads the projection from the file (a file without it is
+`422 NO_SPHERICAL_METADATA`, a non-export `422 NOT_A_SPATIAL_EXPORT`), renders one decoded frame through `v360` and returns the
+PNG (base64), the source pixel the direction maps to (yaw 0 = frame centre, + right; pitch 0 = frame centre, + up) and the
+frame's PTS. Rights, tenancy and the ledger behave as in the other DEV lanes (`403`, `404`, replay `200`, id reuse `409`).
+
+`POST /dev/v1/interactive-demos` `{requestId, title, startNodeId, sourceTruth{kind:"CURATED"|"LIVE", curationNote?},
+nodes[{id,label,video{artifactId,artifactVersionId},captions?{artifactId,artifactVersionId,language},choices[{id,label,to}]}]}`
+registers one package artifact (a JSON bundle; `GET .../package.zip` serves the deterministic ZIP). The graph is checked
+first (`422` with the JSON path: `EDGE_DANGLING`, `NODE_UNREACHABLE`, `GRAPH_CYCLE_WITHOUT_EXIT`, `LABEL_BLANK`,
+`NODE_ID_DUPLICATE`, `START_NODE_UNKNOWN`, ...); then each source version (`404` with the path) and its `PROCESSING`
+admission (`403` with the path); a caption whose lineage names another video version is `422 CAPTION_VERSION_MISMATCH`.
+`LIVE` is accepted only when every scene video is an output registered by this runtime (else `422 SOURCE_TRUTH_NOT_LIVE`);
+`CURATED` needs a curation note. The ZIP holds `index.html` (meta Content-Security-Policy `default-src 'none'; script-src
+'self'; media-src blob:; connect-src 'self'`, no inline script), a vanilla `player.js`, `player.css`, `manifest.json`
+and content-addressed `assets/<sha256>.<ext>` / `captions/<sha256>.vtt`. The player verifies each digest before a scene can
+play and refuses a changed asset (`ASSET_DIGEST_MISMATCH`), changed captions (`CAPTION_DIGEST_MISMATCH`), captions bound to
+another video (`CAPTION_VERSION_MISMATCH`) and an off-package path (`ASSET_PATH_INVALID`) with a visible `role=alert`.
+Serve it from its own origin; send the same policy as a header where the host can.

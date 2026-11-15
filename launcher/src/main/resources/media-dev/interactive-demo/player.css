@@ -1,0 +1,21 @@
+:root { color-scheme: light dark; --fg: #111827; --bg: #ffffff; --muted: #4b5563; --accent: #1d4ed8; --warn: #92400e; --warn-bg: #fef3c7; --bad: #991b1b; --bad-bg: #fee2e2; --ok-bg: #dcfce7; }
+@media (prefers-color-scheme: dark) { :root { --fg: #f3f4f6; --bg: #111827; --muted: #d1d5db; --accent: #93c5fd; --warn: #fde68a; --warn-bg: #451a03; --bad: #fecaca; --bad-bg: #450a0a; --ok-bg: #052e16; } }
+body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: var(--fg); background: var(--bg); }
+main { max-width: 52rem; margin: 0 auto; padding: 1rem; }
+h1 { font-size: 1.5rem; margin: 0 0 .5rem; }
+h2 { font-size: 1.1rem; margin: 1rem 0 .25rem; }
+video { width: 100%; max-height: 24rem; background: #000; }
+.truth, .origin { margin: .25rem 0; padding: .25rem .5rem; border-radius: .25rem; font-weight: 600; }
+.truth[data-truth="curated"] { background: var(--warn-bg); color: var(--warn); }
+.truth[data-truth="live"] { background: var(--ok-bg); }
+.help { color: var(--muted); font-size: .9rem; }
+.caption { min-height: 1.5rem; font-size: 1.1rem; }
+.fault { padding: .5rem; border: 2px solid var(--bad); background: var(--bad-bg); color: var(--bad); border-radius: .25rem; }
+.controls, .choices { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0; list-style: none; }
+button { font: inherit; padding: .4rem .8rem; border: 2px solid var(--accent); border-radius: .25rem; background: transparent; color: var(--fg); cursor: pointer; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, h2:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.seek { display: block; margin: .5rem 0; }
+.seek input { width: 100%; }
+#path li[aria-current="step"] { font-weight: 700; }
+#policy .none { color: var(--muted); }

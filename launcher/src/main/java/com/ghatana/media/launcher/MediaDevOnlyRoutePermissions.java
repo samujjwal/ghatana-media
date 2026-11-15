@@ -79,6 +79,12 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/grounded-answers/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/grounded-answers".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/grounded-answers/[^/]+$")) return PROJECT_READ;
+        // 360/spatial export, viewer readback and sandboxed interactive demonstration packages (J-28); the routes
+        // additionally require media:artifact:read (and create for the creating POSTs).
+        if ("GET".equals(method) && path.matches("^/dev/v1/(spatial|interactive-demos)/status$")) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/(spatial/(exports|viewports)|interactive-demos)$")) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/(spatial/exports|interactive-demos)/[^/]+$")) return PROJECT_READ;
+        if ("GET".equals(method) && path.matches("^/dev/v1/interactive-demos/[^/]+/package\\.zip$")) return PROJECT_READ;
         // Video enhancement and measured comparison (J-08); the routes additionally require media:artifact:read/create.
         if ("POST".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)/[^/]+$")) return PROJECT_READ;

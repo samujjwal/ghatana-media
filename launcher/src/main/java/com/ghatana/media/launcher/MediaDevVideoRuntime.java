@@ -386,6 +386,10 @@ public final class MediaDevVideoRuntime {
 
     Path ffmpegPath() { return ffmpeg; }
 
+    Path ffprobePath() { return ffprobe; }
+
+    MediaDevRequestLedger requestLedger() { return ledger; }
+
     Duration encodeTimeout() { return encodeTimeout; }
 
     MediaRuntime mediaRuntime() { return runtime; }
@@ -490,7 +494,7 @@ public final class MediaDevVideoRuntime {
         }
     }
 
-    private Map<String, Object> verifyTimeline(Probe before, Probe after) {
+    Map<String, Object> verifyTimeline(Probe before, Probe after) {
         if (before.width != after.width || before.height != after.height) {
             throw new VideoRefusedException(422, "ENHANCEMENT_TIMELINE_MISMATCH",
                     "the enhanced video geometry differs from the source; nothing was registered");

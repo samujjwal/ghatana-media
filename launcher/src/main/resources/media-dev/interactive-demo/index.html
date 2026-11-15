@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; media-src blob:; connect-src 'self'; img-src 'none'; font-src 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link rel="stylesheet" href="player.css">
+</head>
+<body>
+<main id="demo" aria-labelledby="demo-title">
+  <h1 id="demo-title">__TITLE__</h1>
+  <p id="truth" class="truth" data-truth="unverified">Verifying the demonstration source.</p>
+  <p id="help" class="help">Keyboard: Tab moves between controls, Space or Enter activates a button, the arrow keys move the seek bar, and the keys 1 to 8 pick the matching choice once a scene has finished.</p>
+  <section aria-labelledby="scene-heading" class="scene">
+    <h2 id="scene-heading" tabindex="-1">Scene</h2>
+    <p id="origin" class="origin"></p>
+    <video id="video" preload="auto" playsinline aria-label="Scene video"></video>
+    <p id="caption" class="caption" aria-label="Caption" aria-live="polite" aria-atomic="true"></p>
+  </section>
+  <div id="fault" role="alert" class="fault" hidden></div>
+  <p id="status" role="status" aria-live="polite" aria-atomic="true">Loading.</p>
+  <div role="group" aria-label="Playback controls" class="controls">
+    <button type="button" id="play">Play</button>
+    <button type="button" id="pause">Pause</button>
+    <button type="button" id="replay-scene">Replay this scene</button>
+    <button type="button" id="replay-path">Replay my path</button>
+    <button type="button" id="restart">Restart demonstration</button>
+  </div>
+  <label class="seek">Seek within this scene
+    <input id="seek" type="range" min="0" max="1" step="1" value="0" aria-valuetext="0 milliseconds">
+  </label>
+  <section aria-labelledby="choices-heading">
+    <h2 id="choices-heading">Choices</h2>
+    <p id="choices-note" class="help"></p>
+    <ul id="choices" class="choices" aria-label="Choices for this scene"></ul>
+  </section>
+  <section aria-labelledby="path-heading">
+    <h2 id="path-heading">Your path</h2>
+    <ol id="path" aria-label="Scenes visited"></ol>
+  </section>
+  <section aria-labelledby="policy-heading">
+    <h2 id="policy-heading">Blocked requests</h2>
+    <ul id="policy" role="log" aria-label="Requests blocked by the page policy"><li class="none">None.</li></ul>
+  </section>
+</main>
+<script type="application/json" id="demo-manifest">__MANIFEST__</script>
+<script src="player.js"></script>
+</body>
+</html>
