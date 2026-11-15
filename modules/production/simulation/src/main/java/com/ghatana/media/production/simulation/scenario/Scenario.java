@@ -283,7 +283,11 @@ public record Scenario(Model model, Initial initial, Policy policy, List<Constra
             if (render.containsKey("video")) video = bool(render.get("video"), "$.render.video");
             if (video && !plot) throw invalid("$.render.video", "a video needs the plot (it animates it)");
         }
-        canonical.put("render", Map.of("plot", plot, "video", video));
+        // Not Map.of: its iteration order is randomized per JVM, which would change the canonical form across launcher restarts.
+        Map<String, Object> canonicalRender = new LinkedHashMap<>();
+        canonicalRender.put("plot", plot);
+        canonicalRender.put("video", video);
+        canonical.put("render", canonicalRender);
         return new Scenario(model, initial, policy, List.copyOf(constraints), energyTolerance, plot, video,
                 java.util.Collections.unmodifiableMap(canonical));
     }

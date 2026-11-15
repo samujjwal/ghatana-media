@@ -277,7 +277,7 @@ final class MediaDevSimulationRuntime {
 
     private Run produce(String tenantId, String principalId, RunRequest request, Scenario scenario, String scenarioSha) {
         ScenarioSolver.Outcome outcome = ScenarioSolver.solve(scenario);
-        Map<String, Object> inputs = Map.of("role", "SCENARIO", "sha256", scenarioSha, "schema", Scenario.SCHEMA);
+        Map<String, Object> inputs = ordered("role", "SCENARIO", "sha256", scenarioSha, "schema", Scenario.SCHEMA);
         Map<String, Object> solverInfo = new LinkedHashMap<>();
         solverInfo.put("id", ScenarioSolver.SOLVER_ID);
         solverInfo.put("version", ScenarioSolver.SOLVER_VERSION);
@@ -292,7 +292,7 @@ final class MediaDevSimulationRuntime {
                 view.put("code", reason.code());
                 view.put("path", reason.path());
                 view.put("message", reason.message());
-                view.put("details", reason.details());
+                view.put("details", new java.util.TreeMap<>(reason.details()));
                 reasons.add(view);
             }
             document.put("reasons", reasons);
@@ -326,7 +326,7 @@ final class MediaDevSimulationRuntime {
             plotView.put("width", MediaDevSimulationPlot.WIDTH);
             plotView.put("height", MediaDevSimulationPlot.HEIGHT);
             plotView.put("panels", plot.panels());
-            plotView.put("colors", Map.of("trajectory", String.format(Locale.ROOT, "#%06X", MediaDevSimulationPlot.TRAJECTORY_RGB),
+            plotView.put("colors", ordered("trajectory", String.format(Locale.ROOT, "#%06X", MediaDevSimulationPlot.TRAJECTORY_RGB),
                     "energy", String.format(Locale.ROOT, "#%06X", MediaDevSimulationPlot.ENERGY_RGB),
                     "background", "#FFFFFF"));
             plotView.put("mapping", "px = x0 + (v - xMin)/(xMax - xMin)*(x1 - x0); py = y1 - (v - yMin)/(yMax - yMin)*(y1 - y0)");
@@ -341,10 +341,10 @@ final class MediaDevSimulationRuntime {
         document.put("trace", trace(samples));
         document.put("observables", observables(samples.get(samples.size() - 1)));
         document.put("verification", verificationView(verification));
-        document.put("uncertainty", Map.of("status", "NOT_ASSESSED",
+        document.put("uncertainty", ordered("status", "NOT_ASSESSED",
                 "note", "measurement uncertainty is not propagated by this lane; no uncertainty value is stated"));
         if (verification.impact() != null) {
-            document.put("impact", Map.of("timeSeconds", verification.impact().timeSeconds(),
+            document.put("impact", ordered("timeSeconds", verification.impact().timeSeconds(),
                     "rangeMeters", verification.impact().rangeMeters(),
                     "speedMetersPerSecond", verification.impact().speedMetersPerSecond()));
         }
@@ -422,7 +422,7 @@ final class MediaDevSimulationRuntime {
         energy.put("tolerance", v.energy().tolerance());
         energy.put("ok", v.energy().ok());
         out.put("energy", energy);
-        out.put("domain", Map.of("ok", true, "nonRelativisticLimitMetersPerSecond", ScenarioSolver.NON_RELATIVISTIC_LIMIT));
+        out.put("domain", ordered("ok", true, "nonRelativisticLimitMetersPerSecond", ScenarioSolver.NON_RELATIVISTIC_LIMIT));
         List<Map<String, Object>> constraints = new ArrayList<>();
         for (ScenarioSolver.ConstraintResult c : v.constraints()) {
             Map<String, Object> view = new LinkedHashMap<>();
@@ -560,6 +560,13 @@ final class MediaDevSimulationRuntime {
     }
 
     // ------------------------------------------------------------------ helpers
+
+    /** Insertion-ordered map: stored documents and lineage must serialize identically in every JVM ({@code Map.of} does not). */
+    private static Map<String, Object> ordered(Object... keyValues) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (int i = 0; i < keyValues.length; i += 2) map.put((String) keyValues[i], keyValues[i + 1]);
+        return map;
+    }
 
     private static String canonicalJson(Object value) {
         try {

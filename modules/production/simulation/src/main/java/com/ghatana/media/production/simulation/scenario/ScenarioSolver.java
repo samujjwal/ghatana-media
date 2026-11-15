@@ -44,7 +44,7 @@ public final class ScenarioSolver {
 
     public record Reason(String code, String path, String message, Map<String, Object> details) {
         public Reason {
-            details = details == null ? Map.of() : Map.copyOf(details);
+            details = details == null ? Map.of() : java.util.Collections.unmodifiableMap(new LinkedHashMap<>(details));
         }
     }
 

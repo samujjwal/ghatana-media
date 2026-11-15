@@ -338,6 +338,9 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/animations/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger |
 | POST | `/dev/v1/animations/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every image asset | FFmpeg/FFprobe composed (J-12) |
 | GET | `/dev/v1/animations/renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` (the render id is the manifest artifact id) | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/simulations/status` | `media:project:dev:read` | — | the shared request ledger; MP4 animation needs `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
+| POST | `/dev/v1/simulations` | `media:project:dev:write` | `media:artifact:{read,create}` | J-14/J-15 (`MediaDevSimulationRuntime`); a `render.video` request also needs FFmpeg/FFprobe |
+| GET | `/dev/v1/simulations/{simulationId}` | `media:project:dev:read` | `media:artifact:read` (the simulation id is the result artifact id) | — |
 | GET | `/dev/v1/audio/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG` (absolute path); Whisper optional |
 | POST | `/dev/v1/audio/restorations` | `media:project:dev:write` | `media:artifact:{read,create}` | `MEDIA_DEV_RENDER_FFMPEG`; PROCESSING rights on the exact source; J-07 (`MediaDevAudioRestorationRuntime`) |
 | POST | `/dev/v1/audio/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}` | measured source/restored(/reference) report; optional Whisper transcript diff |
@@ -512,6 +515,51 @@ requests never share bytes. The same requestId and body replays the stored outpu
 with nothing registered, and a retry (or a retry after a launcher restart, taken over from the dead owner) registers exactly
 once. The MP4 is read back through `GET /dev/v1/artifacts/{id}/content` (Range supported). The output is a lossy YUV420
 encode of the frames; no quality, rights, approval or production claim.
+
+DEV_ONLY scientific simulation (J-14 `media.dev.outcome-scientific-simulation` and J-15
+`media.dev.outcome-validated-simulation-pass`; `MediaDevSimulationRuntime`, `MediaDevSimulationRoutes`,
+`MediaDevSimulationPlot` over the `production/simulation` `scenario` package: `Scenario`, `ScenarioUnits`,
+`ScenarioSolver`; always composed with the shared durable request ledger, the MP4 animation only when both absolute
+`MEDIA_DEV_RENDER_FFMPEG` and `MEDIA_DEV_RENDER_FFPROBE` are set). `POST /dev/v1/simulations` takes `{requestId, scenario}`
+where `scenario` is `media.dev.simulation-scenario.v1`: `model` (`NEWTON_CONSTANT_FORCE{mass,force}`,
+`DAMPED_SPRING{mass,springConstant,damping,equilibrium?}`, `PROJECTILE{mass,gravity?,drag{law NONE|LINEAR|QUADRATIC,
+coefficient}}`), `initial` (`{position,velocity}` or, for the projectile, `{x,y,speed,angle}`), `solver` (`duration`,
+`maxStep`, `minStep`, `positionTolerance`, `velocityTolerance`, `maxAcceptedSteps` at most 10,000, `maxIterations` at most
+100,000, `mode` `ADAPTIVE`|`FIXED_STEP`, `terminateOnGroundImpact`), optional `constraints[]` (`{id, observable
+POSITION_X|POSITION_Y|VELOCITY_X|VELOCITY_Y|SPEED|TOTAL_ENERGY|TIME, aggregate FINAL|MAX|MIN, op LE|GE, limit}` at most 16),
+`validation.energyRelativeTolerance` (default 1e-6) and `render{plot (default true), video (default false)}`. Every quantity is
+`{value, unit}`; the unit is checked against the dimension its field requires (mass, length, time, velocity, acceleration,
+force, spring constant, linear damping `kg/s`, quadratic drag `kg/m`, energy, angle; `GET .../status` lists every symbol with
+its dimension) and converted to SI at the boundary, so `2000 g`, `6000 mN`, `2000 ms` is the same scenario as `2 kg`, `6 N`,
+`2 s` and the same requestId replays it. A scenario that cannot be run is `422` with `details.path` before any solver step,
+permit, ledger row or artifact: `SIMULATION_UNIT_MISMATCH` (`details{path,expected,received,unit}`),
+`SIMULATION_NON_FINITE_INPUT` (a literal such as `1e999`, or a value that overflows or underflows the SI conversion),
+`SIMULATION_BUDGET_EXCEEDED` (`details{path,limit,ceiling,requested}`) and `SIMULATION_SCENARIO_INVALID` (unknown field, wrong
+type, non-positive mass or spring constant, negative damping or drag coefficient, magnitude over 1e12 SI units). The solver is
+classical fourth-order Runge-Kutta with Richardson step doubling as the local error estimate (adaptive step to the declared
+tolerances, or a fixed step that still measures and enforces the estimate), plus ground-impact refinement (bisection inside
+the step) for the projectile. A solved scenario is `201` (`200 replayed:true`) with `outcome` `COMPLETED` or `ABSTAINED`.
+`COMPLETED` carries the unit-labelled SI trace, the final observables, the verification (accepted steps, iterations, largest
+error ratio, step range, termination, the energy law and its measured drift against the tolerance, the model domain, each
+declared constraint with its observed value) and the pixel transform of the plot; energy must be conserved for a
+conservative model and non-increasing for a dissipative one. `ABSTAINED` is the J-15 outcome for a pass that cannot be
+trusted and carries typed `reasons[{code,path,message,details}]` and honest solver counters but NO trace, observable or plot,
+also in the stored bytes: `STEP_BUDGET_EXHAUSTED`, `NON_CONVERGENCE` (the tolerances need a step below `minStep`),
+`DIVERGED` (non-finite, or any state beyond 1e12 SI units), `OUT_OF_MODEL_DOMAIN` (speed over 10 % of c, or over the speed of
+sound with a drag law), `ERROR_ESTIMATE_EXCEEDS_TOLERANCE` (fixed step), `ENERGY_NOT_CONSERVED`, `ENERGY_INCREASED` and
+`CONSTRAINT_VIOLATED` (whose `details` carry the declared limit and the observed value; constraints are evaluated at the
+accepted solver samples). The result is registered as an `application/json` artifact (`media.dev.simulation-result.v1`) with
+lineage (`scenarioSha256`, solver id/version/mode, `evidenceClass` `SIMULATED_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE`,
+`productionEligible:false`, siblings); a `COMPLETED` pass also registers a 800x400 `image/png` plot (two panels, no text;
+the plot description gives each panel's pixel rectangle and data range) and, with `render.video`, a verified 48-frame 24 fps
+H.264 `video/mp4` animation (ffprobe checks codec, pixel format, geometry, frame count and rate before registration). The
+request id is embedded in the PNG and MP4 metadata so two requests never share bytes. The same requestId and scenario
+(in any equivalent units) replays the stored output from the ledger without running the solver; a different scenario is
+`409 SIMULATION_REQUEST_ID_REUSED`; a process killed mid-encode is `503 SIMULATION_OUTCOME_UNKNOWN` with no result
+registered (the plot of that run may already exist and is reused by the retry, which registers each artifact exactly once,
+also after a launcher restart). `GET /dev/v1/simulations/{id}` reopens a result in the caller's tenant and owner scope only
+(`404 SIMULATION_NOT_FOUND` otherwise). Uncertainty is NOT propagated by this lane (stated, never zero-filled). Everything is
+simulated model output; nothing is a measurement and nothing claims rights, approval, quality or production eligibility.
 
 DEV_ONLY video enhancement and independent measured comparison (J-08, `media.dev.outcome-video-enhancement`;
 `MediaDevVideoRuntime`, `MediaDevVideoRoutes`, `MediaDevVideoQualityMetrics`; composed only when both absolute

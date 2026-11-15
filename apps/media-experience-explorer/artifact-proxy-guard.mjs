@@ -84,6 +84,10 @@ const devProjectRoutes = [
   { method: "GET", path: /^\/dev\/v1\/animations\/status$/u },
   { method: "POST", path: /^\/dev\/v1\/animations\/renders$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/animations/renders/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY scientific simulation (J-14/J-15) used by the "Scientific simulation" page (status, run, reopen; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/simulations\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/simulations$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/simulations/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },

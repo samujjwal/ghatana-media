@@ -195,4 +195,15 @@ class ScenarioFaultTest {
                 m("position", q(100, "cm"), "velocity", q(0, "m/s")), goodSolver());
         assertThat(Scenario.parse(a).canonical()).isEqualTo(Scenario.parse(b).canonical());
     }
+
+    @Test
+    void theCanonicalFormHasAFixedKeyOrderSoItIsIdenticalInEveryJvm() {
+        // Map.of iterates in a per-JVM randomized order; a fingerprint over it would differ across launcher restarts.
+        Map<String, Object> canonical = Scenario.parse(spring(2, 3, 0, goodSolver())).canonical();
+        assertThat(canonical).isInstanceOf(java.util.Map.class);
+        assertThat(new java.util.ArrayList<Object>(((Map<?, ?>) canonical.get("render")).keySet())).containsExactly("plot", "video");
+        for (Object value : canonical.values()) {
+            if (value instanceof Map<?, ?> nested) assertThat(nested.getClass().getName()).doesNotContain("ImmutableCollections");
+        }
+    }
 }
