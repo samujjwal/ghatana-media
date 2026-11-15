@@ -331,6 +331,12 @@ class ProjectTimelineEngineTest {
         assertThatThrownBy(() -> engine.diff(OWNER, "project-valid", "revision-valid", "revision/invalid"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("toRevisionId must be a 1-128 character opaque id");
+        assertThatThrownBy(() -> engine.diff(OWNER, "project/invalid", "revision-valid", "revision-valid"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("projectId must be a 1-128 character opaque id");
+        assertThatThrownBy(() -> engine.diff(null, "project-valid", "revision-valid", "revision-valid"))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("actor");
         assertThat(revisionReads).hasValue(0);
     }
 

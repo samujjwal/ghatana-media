@@ -129,10 +129,8 @@ public final class ProjectTimelineEngine {
     public RevisionDiff diff(Actor actor, String projectId, String fromRevisionId, String toRevisionId) {
         requiredOpaqueId(fromRevisionId, "fromRevisionId");
         requiredOpaqueId(toRevisionId, "toRevisionId");
-        Revision from = requireRevisionIdentity(actor, projectId, fromRevisionId,
-                store.revision(actor, projectId, fromRevisionId));
-        Revision to = requireRevisionIdentity(actor, projectId, toRevisionId,
-                store.revision(actor, projectId, toRevisionId));
+        Revision from = revision(actor, projectId, fromRevisionId);
+        Revision to = revision(actor, projectId, toRevisionId);
         Map<String, TimelineSnapshot> before = byTimeline(from.timelines());
         Map<String, TimelineSnapshot> after = byTimeline(to.timelines());
         List<String> added = after.keySet().stream().filter(id -> !before.containsKey(id)).sorted().toList();
