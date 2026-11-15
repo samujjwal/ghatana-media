@@ -59,13 +59,11 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/vision\/tracks$/u },
   { method: "POST", path: /^\/dev\/v1\/vision\/roi-analyses$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/vision/outputs/${OPAQUE_ID}$`, "u") },
-<<<<<<< HEAD
   // DEV_ONLY video enhancement and measured comparison (J-08) used by the "Video comparison" page.
   { method: "POST", path: /^\/dev\/v1\/video\/enhancements$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/video/enhancements/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: /^\/dev\/v1\/video\/comparisons$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/video/comparisons/${OPAQUE_ID}$`, "u") },
-=======
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },
@@ -74,7 +72,6 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/legal-holds$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/legal-holds/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/legal-holds/${OPAQUE_ID}/release$`, "u") },
->>>>>>> 2040dd40e (feat(media-ui): accessible erasure and legal-hold panel, explorer page and delivery cache eviction)
 ];
 
 function isCanonicalPath(requestUrl) {
