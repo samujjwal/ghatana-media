@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY live capture session: stream a synthetic audio source to local Media with ordered frames, resume after a network drop, consent that can be revoked while live, and a stored artifact with exact PTS." />
+    <title>Live capture · Media</title>
+    <link rel="stylesheet" href="/src/dev-live-session.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Live capture session</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped · consent gated</h2><p>A synthetic WebAudio tone (no microphone is opened) is cut into 20 ms frames, each with a sequence number, an exact presentation time in samples and a CRC-32, and streamed to the local host. The host orders and de-duplicates frames, tells this page exactly how much it holds, and stores the stream as a WAV plus a per-frame time index only when you end the stream and consent is still admitted. If consent is revoked, the lease expires or you abort, the received audio is destroyed and nothing is stored. No rights clearance, quality, approval or production claim.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <section class="panel" id="live-panel" hidden>
+        <h2>Capture and stream</h2>
+        <form id="live-form" novalidate>
+          <div class="field"><label for="live-consent-id">Consent subject artifact id</label><input id="live-consent-id" autocomplete="off" required aria-describedby="live-consent-help" /><span class="help" id="live-consent-help">An exact artifact version that carries a current rights and consent statement for the chosen scope.</span></div>
+          <div class="field"><label for="live-consent-version">Consent subject version</label><input id="live-consent-version" autocomplete="off" required placeholder="sha256:…" /></div>
+          <div class="field"><label for="live-scope">Consent scope</label><select id="live-scope"><option value="PROCESSING">PROCESSING</option><option value="VOICE_OR_LIKENESS_USE">VOICE_OR_LIKENESS_USE (second person confirms)</option></select></div>
+          <div class="field"><label for="live-frequency">Tone frequency (Hz)</label><input id="live-frequency" type="number" min="50" max="4000" value="440" /></div>
+          <div class="field"><label for="live-lease">Lease (seconds without a frame before the session ends)</label><input id="live-lease" type="number" min="1" max="300" value="30" /></div>
+          <div class="actions">
+            <button id="live-start" type="submit">Start live capture</button>
+            <button id="live-stop" type="button" disabled>Stop and store</button>
+            <button id="live-abort" type="button" disabled>Abort and discard</button>
+          </div>
+        </form>
+        <p id="live-status" role="status" aria-live="polite" data-live-status>Idle.</p>
+        <div id="live-failure" role="alert" hidden></div>
+        <h3>Session</h3>
+        <dl data-live-facts>
+          <dt>Session</dt><dd data-session-id>none</dd>
+          <dt>State</dt><dd data-state>none</dd>
+          <dt>Frames captured</dt><dd data-captured>0</dd>
+          <dt>Acknowledged through</dt><dd data-acked>-1</dd>
+          <dt>Held out of order</dt><dd data-buffered>0</dd>
+          <dt>Duplicates absorbed</dt><dd data-duplicates>0</dd>
+          <dt>Network errors survived</dt><dd data-network-errors>0</dd>
+          <dt>Lease remaining (ms)</dt><dd data-lease>none</dd>
+        </dl>
+        <section id="live-result" hidden aria-labelledby="live-result-heading">
+          <h3 id="live-result-heading" tabindex="-1">Stored</h3>
+          <dl data-live-result>
+            <dt>WAV artifact</dt><dd data-wav-id></dd>
+            <dt>PTS index artifact</dt><dd data-index-id></dd>
+            <dt>Frames stored</dt><dd data-stored-frames></dd>
+            <dt>PCM SHA-256 (host)</dt><dd data-host-sha></dd>
+            <dt>PCM SHA-256 (sent by this page)</dt><dd data-sent-sha256></dd>
+            <dt>Stored audio equals what was sent</dt><dd data-verified></dd>
+          </dl>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/src/dev-live-session.ts"></script>
+  </body>
+</html>

@@ -116,6 +116,12 @@ const devProjectRoutes = [
   { method: "GET", path: new RegExp(`^/dev/v1/masters/stems/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: /^\/dev\/v1\/masters$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/masters/(?!(?:stems|status)$)${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY live capture sessions (J-29) used by the "Live capture" page (status, open, read, frames, end of stream, abort;
+  // no DELETE). Frames are a binary POST; no query string is ever forwarded.
+  { method: "GET", path: /^\/dev\/v1\/live-sessions\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/live-sessions$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/live-sessions/(?!status$)${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/live-sessions/${OPAQUE_ID}/(?:frames|eos|abort)$`, "u") },
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },
